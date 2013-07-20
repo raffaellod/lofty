@@ -17,14 +17,19 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 ----------------------------------------------------------------------------------------------------
 
+
+
+
+Style checks ---------------------------------------------------------------------------------------
+
 Check quotes style:
-	grep -Rn "[A-Za-z]'[A-Za-z]" src include
-	grep -Rn ' "[A-Za-z]' src include
-	grep -Rn '[A-Za-z]" ' src include
+	grep -Rn "[A-Za-z]'[A-Za-z]" src include tools
+	grep -Rn ' "[A-Za-z]' src include tools
+	grep -Rn '[A-Za-z]" ' src include tools
 
 Check that initializations are done using constructor syntax instead of assignment:
-	grep -Rn ' [_A-Za-z0-9]\+ = ' src include
+	grep -Rn ' [_A-Za-z0-9]\+ = ' src include tools
 
 Check that integer conversions don’t use static_cast:
-	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include
+	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include tools
 
