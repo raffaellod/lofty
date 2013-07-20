@@ -1,0 +1,30 @@
+-*- coding: utf-8 tab-width: 8 -*-
+----------------------------------------------------------------------------------------------------
+Application-Building Components
+Copyright 2010-2013 Raffaello D. Di Napoli
+----------------------------------------------------------------------------------------------------
+This file is part of Application-Building Components (henceforth referred to as ABC).
+
+ABC is free software: you can redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+ABC is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+License for more details.
+
+You should have received a copy of the GNU General Public License along with ABC. If not, see
+<http://www.gnu.org/licenses/>.
+----------------------------------------------------------------------------------------------------
+
+Check quotes style:
+	grep -Rn "[A-Za-z]'[A-Za-z]" src include
+	grep -Rn ' "[A-Za-z]' src include
+	grep -Rn '[A-Za-z]" ' src include
+
+Check that initializations are done using constructor syntax instead of assignment:
+	grep -Rn ' [_A-Za-z0-9]\+ = ' src include
+
+Check that integer conversions don’t use static_cast:
+	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include
+
