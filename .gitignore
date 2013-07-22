@@ -1,1 +1,7 @@
+bin
+dep
+lib
+obj
 __pycache__
+temp
+test.tmp
