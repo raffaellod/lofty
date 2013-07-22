@@ -39,7 +39,7 @@ struct void_cda;
 
 /// Defines a generic data type.
 template <typename T>
-class typed_raw_cda;
+struct typed_raw_cda;
 
 /// Returns a void_cda populated with the static methods from a typed_raw_cda.
 template <class T>
@@ -90,6 +90,18 @@ struct void_cda {
 
 
 namespace abc {
+
+/// DESIGN_3395 Move constructors and exceptions
+//
+// In this section, “move constructor” will strictly refer to class::class(class &&).
+//
+// All classes must provide move constructors and assignment operators if the copy constructor would
+// result in execution of exception-prone code (e.g. resource allocation).
+//
+// Because move constructors are employed widely in container classes that need to provide strong
+// exception guarantee (fully transacted operation) even in case of moves, move constructors must
+// not throw exceptions. This requirement is relaxed for moves that involve two different classes,
+// since these will not be used by container classes.
 
 template <typename T>
 struct typed_raw_cda {

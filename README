@@ -16,11 +16,29 @@ License for more details.
 You should have received a copy of the GNU General Public License along with ABC. If not, see
 <http://www.gnu.org/licenses/>.
 ----------------------------------------------------------------------------------------------------
+       
+Introduction ╷
+╶────────────╯
+
+Application-Building Components (ABC) is a class library for C++11 designed and written with these
+principles in mind:
+
+•  Compatibility with C++11 STL;
+•  Extended run-time debugging support, with aims to reach or exceed that of languages such as Java
+   or Python, featuring full stack traces (including arguments and variables values) and diversified
+   and rich exception classes;
+•  Modern I/O and IPC classes, inspired by Python’s library;
+•  Portability to some of the most common operating systems;
+•  Full support for text-based or GUI applications;
+•  Transactional operation wherever/whenever possible;
+•  Compiler-enforced type safety (no void pointers, no pre-C++11-style variadic functions).
 
 
 
 
-Style checks ---------------------------------------------------------------------------------------
+
+Coding and formatting style ╷
+╶───────────────────────────╯
 
 Check quotes style:
 	grep -Rn "[A-Za-z]'[A-Za-z]" src include tools
@@ -32,4 +50,16 @@ Check that initializations are done using constructor syntax instead of assignme
 
 Check that integer conversions don’t use static_cast:
 	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include tools
+
+
+
+─ ━ │ ┃ ┄ ┅ ┆ ┇ ┈ ┉ ┊ ┋ ┌ ┍ ┎ ┏ ┐ ┑ ┒ ┓ └ ┕ ┖ ┗ ┘ ┙ ┚ ┛ ├ ┝ ┞ ┟
+
+┠ ┡ ┢ ┣ ┤ ┥ ┦ ┧ ┨ ┩ ┪ ┫ ┬ ┭ ┮ ┯ ┰ ┱ ┲ ┳ ┴ ┵ ┶ ┷ ┸ ┹ ┺ ┻ ┼ ┽ ┾ ┿
+
+╀ ╁ ╂ ╃ ╄ ╅ ╆ ╇ ╈ ╉ ╊ ╋ ╌ ╍ ╎ ╏ ═ ║ ╒ ╓ ╔ ╕ ╖ ╗ ╘ ╙ ╚ ╛ ╜ ╝ ╞ ╟
+
+╠ ╡ ╢ ╣ ╤ ╥ ╦ ╧ ╨ ╩ ╪ ╫ ╬ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╴ ╵ ╶ ╷ ╸ ╹ ╺ ╻ ╼ ╽ ╾ ╿
+
+▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐ ░ ▒ ▓ ▔ ▕ ▖ ▖ ▗ ▘ ▙ ▚ ▛ ▜ ▝ ▞ ▟
 
