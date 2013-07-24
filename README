@@ -1,51 +1,55 @@
--*- coding: utf-8 tab-width: 8 -*-
-----------------------------------------------------------------------------------------------------
+-*- coding: utf-8; tab-width: 8 -*-
+--------------------------------------------------------------------------------
 Application-Building Components
 Copyright 2010-2013 Raffaello D. Di Napoli
-----------------------------------------------------------------------------------------------------
-This file is part of Application-Building Components (henceforth referred to as ABC).
+--------------------------------------------------------------------------------
+This file is part of Application-Building Components (henceforth referred to as
+ABC).
 
-ABC is free software: you can redistribute it and/or modify it under the terms of the GNU General
-Public License as published by the Free Software Foundation, either version 3 of the License, or (at
-your option) any later version.
+ABC is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
 
-ABC is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-License for more details.
+ABC is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with ABC. If not, see
-<http://www.gnu.org/licenses/>.
-----------------------------------------------------------------------------------------------------
-       
-Introduction ╷
-╶────────────╯
+You should have received a copy of the GNU General Public License along with
+ABC. If not, see <http://www.gnu.org/licenses/>.
+--------------------------------------------------------------------------------
 
-Application-Building Components (ABC) is a class library for C++11 designed and written with these
-principles in mind:
+Introduction
+------------
+
+Application-Building Components (ABC) is a class library for C++11 designed and
+written with these principles in mind:
 
 •  Compatibility with C++11 STL;
-•  Extended run-time debugging support, with aims to reach or exceed that of languages such as Java
-   or Python, featuring full stack traces (including arguments and variables values) and diversified
-   and rich exception classes;
+•  Extended run-time debugging support, with aims to reach or exceed that of
+   languages such as Java or Python, featuring full stack traces (including
+   arguments and locals) and a diversified and semantically rich exception class
+   hierarchy;
 •  Modern I/O and IPC classes, inspired by Python’s library;
 •  Portability to some of the most common operating systems;
 •  Full support for text-based or GUI applications;
 •  Transactional operation wherever/whenever possible;
-•  Compiler-enforced type safety (no void pointers, no pre-C++11-style variadic functions).
+•  Compiler-enforced type safety (no void pointers, no pre-C++11-style variadic
+   functions).
 
 
 
 
 
-Coding and formatting style ╷
-╶───────────────────────────╯
+Coding and formatting style
+---------------------------
 
 Check quotes style:
 	grep -Rn "[A-Za-z]'[A-Za-z]" src include tools
 	grep -Rn ' "[A-Za-z]' src include tools
 	grep -Rn '[A-Za-z]" ' src include tools
 
-Check that initializations are done using constructor syntax instead of assignment:
+Check that initializations are done using constructor syntax instead of
+assignment:
 	grep -Rn ' [_A-Za-z0-9]\+ = ' src include tools
 
 Check that integer conversions don’t use static_cast:
