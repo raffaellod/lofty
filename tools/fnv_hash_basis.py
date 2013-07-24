@@ -18,14 +18,14 @@
 # <http://www.gnu.org/licenses/>.
 #---------------------------------------------------------------------------------------------------
 
+"""Python adaption of the FNV-1a hash algorithm by Fowler/Noll/Vo, based on the de facto standard
+alhorithm in calc script."""
+
 import sys
 
 
 def fnv_hash_basis(cBits, iFNVPrime):
-	"""Calculates the basis number for the FNV-1a hash algorithm by Fowler/Noll/Vo.
-
-	This is a Python adaption of the de facto standard alhorithm in calc script.
-	"""
+	"""Calculates the basis number for the FNV-1a hash algorithm."""
 
 	# Constants.
 	sFNVBasis = 'chongo <Landon Curt Noll> /\\../\\'
