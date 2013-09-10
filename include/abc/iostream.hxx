@@ -345,9 +345,10 @@ public:
 	/// See _ostream_print_helper<>::run().
 	//
 	void run() {
-		while (osph_base::write_format_up_to_next_repl())
+		while (osph_base::write_format_up_to_next_repl()) {
 			// Perform and write the replacement.
 			write_repl(osph_base::m_iSubstArg);
+		}
 	}
 
 
@@ -361,9 +362,10 @@ protected:
 				osph_base::m_pchReplFormatSpecBegin, osph_base::m_pchReplFormatSpecEnd
 			));
 			tsb.write(m_t0, osph_base::m_pos);
-		} else
+		} else {
 			// Recurse to the previous level.
 			osph_base::write_repl(iArg - 1);
+		}
 	}
 
 

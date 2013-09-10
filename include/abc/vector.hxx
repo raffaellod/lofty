@@ -295,13 +295,15 @@ public:
 	/// Element access operator.
 	//
 	T & operator[](size_t i) {
-		if (i >= get_size())
+		if (i >= get_size()) {
 			abc_throw(index_error(intptr_t(i)));
+		}
 		return get_data()[i];
 	}
 	T const & operator[](size_t i) const {
-		if (i >= get_size())
+		if (i >= get_size()) {
 			abc_throw(index_error(intptr_t(i)));
+		}
 		return get_data()[i];
 	}
 
@@ -371,9 +373,11 @@ public:
 	//
 	ptrdiff_t index_of(T const & t, ptrdiff_t iFirst = 0) const {
 		T const * pt0(get_data()), * ptEnd(pt0 + get_size());
-		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt < ptEnd; ++pt)
-			if (*pt == t)
+		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt < ptEnd; ++pt) {
+			if (*pt == t) {
 				return pt - pt0;
+			}
+		}
 		return -1;
 	}
 
@@ -417,9 +421,11 @@ public:
 	}
 	ptrdiff_t last_index_of(T const & t, ptrdiff_t iFirst) const {
 		T const * pt0(get_data());
-		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt >= pt0; --pt)
-			if (*pt == t)
+		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt >= pt0; --pt) {
+			if (*pt == t) {
 				return pt - pt0;
+			}
+		}
 		return -1;
 	}
 

@@ -538,8 +538,9 @@ protected:
 		/// Destructor.
 		//
 		~transaction() {
-			if (m_bFree)
+			if (m_bFree) {
 				memory::free(m_p);
+			}
 		}
 
 
@@ -743,8 +744,9 @@ public:
 
 template <typename T /*= void*/>
 inline T * _raw_vextr_impl_base::get_static_array_ptr() {
-	if (!m_rvpd.get_bHasStatic())
+	if (!m_rvpd.get_bHasStatic()) {
 		return NULL;
+	}
 	_raw_vextr_impl_base_with_static_item_array * prvibwsia(
 		static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
 	);
@@ -753,8 +755,9 @@ inline T * _raw_vextr_impl_base::get_static_array_ptr() {
 
 
 inline size_t _raw_vextr_impl_base::get_static_capacity() const {
-	if (!m_rvpd.get_bHasStatic())
+	if (!m_rvpd.get_bHasStatic()) {
 		return 0;
+	}
 	_raw_vextr_impl_base_with_static_item_array const * prvibwsia(
 		static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
 	);
@@ -780,8 +783,9 @@ public:
 	/// See _raw_vector::append().
 	//
 	void append(void_cda const & type, void const * pAdd, size_t ciAdd, bool bMove) {
-		if (ciAdd)
+		if (ciAdd) {
 			_insert(type, get_size(), pAdd, ciAdd, bMove);
+		}
 	}
 
 
@@ -814,8 +818,9 @@ public:
 	void insert(
 		void_cda const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
 	) {
-		if (ciAdd)
+		if (ciAdd) {
 			_insert(type, adjust_index(iOffset), pAdd, ciAdd, bMove);
+		}
 	}
 
 
@@ -863,16 +868,18 @@ public:
 	/// See _raw_vector::append() and _raw_string::append().
 	//
 	void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
-		if (ciAdd)
+		if (ciAdd) {
 			_insert_or_remove(cbItem, get_size(bNulT), pAdd, ciAdd, 0, bNulT);
+		}
 	}
 
 
 	/// Copies the contents of the source array to *this.
 	//
 	void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
-		if (p == m_p)
+		if (p == m_p) {
 			return;
+		}
 		// The two-source overload is fast enough. Pass it as the second source, because its code path
 		// is faster.
 		assign_copy(cbItem, NULL, 0, p, ci, bNulT);
@@ -888,8 +895,9 @@ public:
 	// see how string and vector ensure this.
 	//
 	void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
-		if (rtvi.m_p == m_p)
+		if (rtvi.m_p == m_p) {
 			return;
+		}
 		// Share the item array.
 		_assign_share(rtvi);
 		// And now empty the source.
@@ -902,11 +910,12 @@ public:
 	void assign_move_dynamic_or_copy(
 		size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
 	) {
-		if (rtvi.m_p == m_p)
+		if (rtvi.m_p == m_p) {
 			return;
-		if (rtvi.m_rvpd.get_bDynamic())
+		}
+		if (rtvi.m_rvpd.get_bDynamic()) {
 			assign_move(std::move(rtvi), bNulT);
-		else {
+		} else {
 			// Can’t move, so copy instead.
 			assign_copy(cbItem, rtvi.m_p, rtvi.get_size(bNulT), bNulT);
 			// And now empty the source.
@@ -920,13 +929,15 @@ public:
 	void assign_share_ro_or_copy(
 		size_t cbItem, _raw_trivial_vextr_impl const & rtvi, bool bNulT = false
 	) {
-		if (rtvi.m_p == m_p)
+		if (rtvi.m_p == m_p) {
 			return;
-		if (rtvi.is_item_array_readonly())
+		}
+		if (rtvi.is_item_array_readonly()) {
 			_assign_share(rtvi);
-		else
+		} else {
 			// Non-read-only, cannot share.
 			assign_copy(cbItem, rtvi.m_p, rtvi.get_size(bNulT), bNulT);
+		}
 	}
 
 
@@ -946,8 +957,9 @@ public:
 	//
 	void remove(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
 		adjust_range(&iOffset, &ciRemove, bNulT);
-		if (ciRemove)
+		if (ciRemove) {
 			_insert_or_remove(cbItem, size_t(iOffset), NULL, 0, size_t(ciRemove), bNulT);
+		}
 	}
 
 

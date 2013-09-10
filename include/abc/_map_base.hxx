@@ -199,8 +199,9 @@ public:
 	) {
 		// Avoid allocating too few entries, because that might cause a descriptor switch sooner than
 		// later.
-		if (ce < smc_ceMin)
+		if (ce < smc_ceMin) {
 			ce = smc_ceMin;
+		}
 		// Calculate the offsets of the embedded arrays for which we need to allocate extra memory.
 		get_offsets(cbKey, ce, pibKeysOffset, pibValsOffset);
 		// At this point, ibValsOffset + cbVal * ce is the size of the whole object, including the 3
@@ -326,12 +327,13 @@ public:
 	/// Adjusts a hash code to avoid reserved values.
 	//
 	static size_t adjust_hash(size_t hash) {
-		if (hash == smc_hashUnused)
+		if (hash == smc_hashUnused) {
 			return 36471;
-		else if (hash == smc_hashReserved)
+		} else if (hash == smc_hashReserved) {
 			return 19047;
-		else
+		} else {
 			return hash;
+		}
 	}
 
 
@@ -351,8 +353,9 @@ public:
 	) {
 		size_t ie(lookup(cbKey, pfnKeyEqual, pKey, hash));
 		size_t hashEntry(m_prmd->get_phashes()[ie]);
-		if (!is_entry_active(hashEntry))
+		if (!is_entry_active(hashEntry)) {
 			abc_throw(key_error());
+		}
 		return m_prmd->get_value_at(cbVal, ie);
 	}
 	void const * get_value(
@@ -382,8 +385,9 @@ public:
 		// If the entry is unused or it’s active and the key matches, use it.
 		if (hashEntry == smc_hashUnused || (
 			hashEntry == hashFull && pfnKeyEqual(m_prmd->get_key_at(cbKey, ieRet), pKey)
-		))
+		)) {
 			return ieRet;
+		}
 
 		// If the entry is only reserved, keep track of it as it will be used if there are no other
 		// active entries with this same colliding hash. Otherwise it’s a collision, and this slot
@@ -396,17 +400,20 @@ public:
 			i = i * 5 + hash + 1;
 			size_t ie(i & m_prmd->m.t.iMask);
 			hashEntry = phashes[ie];
-			if (hashEntry == smc_hashUnused)
+			if (hashEntry == smc_hashUnused) {
 				// Unused entry: return it, unless we previously found a reserved entry, in which case
 				// we’ll return that.
 				return ieFirstRes != ieNone ? ieFirstRes : ie;
-			else if (hashEntry == hashFull && pfnKeyEqual(m_prmd->get_key_at(cbKey, ie), pKey))
+			}
+			if (hashEntry == hashFull && pfnKeyEqual(m_prmd->get_key_at(cbKey, ie), pKey)) {
 				// Active entry: return it.
 				return ie;
-			else if (hashEntry == smc_hashReserved && ieFirstRes == ieNone)
+			}
+			if (hashEntry == smc_hashReserved && ieFirstRes == ieNone) {
 				// Another reserved: we’ll use this only if we didn’t already have a reserved entry
 				// (i.e. they were all active, so far). This is also the least likely situation.
 				ieFirstRes = ie;
+			}
 		}
 	}
 
@@ -460,7 +467,7 @@ struct _raw_complex_map_impl :
 		// entries; if that goes up, we might need to resize the map.
 		size_t ceUsedBefore(m_prmd->m.t.ceUsed);
 		set_item(typeKey, typeVal, pKey, hash, pVal, bMoveKey, bMoveVal);
-		if (m_prmd->m.t.ceUsed > ceUsedBefore && !m_prmd->can_fit(m_prmd->m.t.ceActive))
+		if (m_prmd->m.t.ceUsed > ceUsedBefore && !m_prmd->can_fit(m_prmd->m.t.ceActive)) {
 			try {
 				// Resizes are very expensive, so enlarge the descriptor by a lot.
 				resize(typeKey, typeVal, m_prmd->m.t.ceActive * 3);
@@ -468,6 +475,7 @@ struct _raw_complex_map_impl :
 				// TODO: un-move the value, and remove().
 				throw;
 			}
+		}
 	}
 
 
@@ -477,19 +485,22 @@ struct _raw_complex_map_impl :
 	void assign(
 		void_cda const & typeKey, void_cda const & typeVal, _raw_map_root const & rmrSrc, bool bMove
 	) {
-		if (&rmrSrc == this)
+		if (&rmrSrc == this) {
 			return;
+		}
 		_raw_map_desc const * pemdSrc(
 			static_cast<_raw_complex_map_impl const *>(&rmrSrc)->get_embedded_desc()
 		);
 		if (bMove && rmrSrc.m_prmd != pemdSrc) {
 			// The source is using a dynamic descriptor, and we are performing a move: just take
 			// ownership of the source descriptor.
-			if (m_prmd)
+			if (m_prmd) {
 				release_desc(typeKey, typeVal);
+			}
 			m_prmd = rmrSrc.m_prmd;
-		} else
+		} else {
 			new_desc_from(typeKey, typeVal, rmrSrc.m_prmd, rmrSrc.m_prmd->m.t.ceActive, bMove);
+		}
 		if (bMove) {
 			// If moving, clear the source by assigning it its emptied embedded descriptor.
 			_raw_map_desc * pemdSrcW(const_cast<_raw_map_desc *>(pemdSrc));
@@ -507,15 +518,17 @@ struct _raw_complex_map_impl :
 				 * pbVal(static_cast<int8_t *>(m_prmd->get_pVals()));
 		// This loop will stop as soon as all the active entries have been destructed, potentially
 		// saving quite a few comparisons.
-		for (size_t ce(m_prmd->m.t.ceActive); ce; ++phash, pbKey += typeKey.cb, pbVal += typeVal.cb)
+		for (size_t ce(m_prmd->m.t.ceActive); ce; ++phash, pbKey += typeKey.cb, pbVal += typeVal.cb) {
 			if (is_entry_active(*phash)) {
 				typeKey.destruct(pbKey, 1);
 				typeVal.destruct(pbVal, 1);
 				--ce;
 			}
+		}
 		// If the descriptor in use is not the embedded one, release it.
-		if (m_prmd != get_embedded_desc())
+		if (m_prmd != get_embedded_desc()) {
 			delete m_prmd;
+		}
 	}
 
 
@@ -524,8 +537,9 @@ struct _raw_complex_map_impl :
 	void remove(void_cda const & typeKey, void_cda const & typeVal, void const * pKey, size_t hash) {
 		size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
 		size_t * phashEntry(&m_prmd->get_phashes()[ie]);
-		if (!is_entry_active(*phashEntry))
+		if (!is_entry_active(*phashEntry)) {
 			abc_throw(key_error());
+		}
 
 		void * pEntryKey(m_prmd->get_key_at(typeKey.cb, ie));
 		void * pEntryVal(m_prmd->get_value_at(typeVal.cb, ie));
@@ -567,15 +581,16 @@ struct _raw_complex_map_impl :
 			typeVal.destruct(pEntryVal, 1);
 		} else {
 			pEntryKey = m_prmd->get_key_at(typeKey.cb, ie);
-			if (bMoveKey)
+			if (bMoveKey) {
 				typeKey.move_constr(pEntryKey, const_cast<void *>(pKey), 1);
-			else
+			} else {
 				typeKey.copy_constr(pEntryKey, pKey, 1);
+			}
 		}
 		// Copy or move the new value to the entry.
-		if (bMoveVal)
+		if (bMoveVal) {
 			typeVal.move_constr(pEntryVal, const_cast<void *>(pVal), 1);
-		else
+		} else {
 			try {
 				typeVal.copy_constr(pEntryVal, pVal, 1);
 			} catch (...) {
@@ -595,14 +610,16 @@ struct _raw_complex_map_impl :
 				}
 				throw;
 			}
+		}
 		// If we’re still here, key and value have been inserted.
-		if (bActive)
+		if (bActive) {
 			// Destruct the old value.
 			typeVal.destruct(pbValBackup.get(), 1);
-		else {
-			if (*phashEntry == smc_hashUnused)
+		} else {
+			if (*phashEntry == smc_hashUnused) {
 				// This entry has never been active, so now count it as used.
 				++m_prmd->m.t.ceUsed;
+			}
 			*phashEntry = hash;
 			++m_prmd->m.t.ceActive;
 		}
@@ -649,7 +666,7 @@ protected:
 			size_t ceSrc(prmdSrc->m.t.ceActive);
 			ceSrc;
 			++phashSrc, pbKeySrc += typeKey.cb, pbValSrc += typeVal.cb
-		)
+		) {
 			if (is_entry_active(*phashSrc)) {
 				// This entry is active: find its insertion point in *this.
 				size_t hash(*phashSrc), i(hash);
@@ -674,30 +691,35 @@ protected:
 						typeVal.copy_constr(pbValDst, pbValSrc, 1);
 					} catch (...) {
 						// If the exception was thrown while constructing the value, destruct the key.
-						if (bKeyConstructed)
+						if (bKeyConstructed) {
 							typeKey.destruct(pbKeyDst, 1);
+						}
 						// Iterate backwards, destructing every active entry.
-						for (; --phashDst >= phashesDst; pbKeyDst -= typeKey.cb, pbValDst -= typeVal.cb)
+						for (; --phashDst >= phashesDst; pbKeyDst -= typeKey.cb, pbValDst -= typeVal.cb) {
 							if (is_entry_active(*phashDst)) {
 								typeKey.destruct(pbKeyDst, 1);
 								typeVal.destruct(pbValDst, 1);
 							}
+						}
 						throw;
 					}
 				}
 				*phashDst = hash;
 				--ceSrc;
 			}
+		}
 		prmdDst->m.t.ceUsed = prmdDst->m.t.ceActive = prmdSrc->m.t.ceActive;
 
 		// Now that all items have been moved, we can discard the current descriptor and switch to the
 		// new one.
-		if (m_prmd)
+		if (m_prmd) {
 			release_desc(typeKey, typeVal);
+		}
 		m_prmd = prmdDst;
-		if (!bUseEmbedded)
+		if (!bUseEmbedded) {
 			// Don’t deallocate the temporary descriptor, we’re using it.
 			pdmdDstNew.release();
+		}
 	}
 
 
@@ -707,9 +729,10 @@ protected:
 	//
 	void resize(void_cda const & typeKey, void_cda const & typeVal, size_t ceNew) {
 		_raw_map_desc * prmd(get_embedded_desc());
-		if (m_prmd == prmd && prmd->can_fit(ceNew))
+		if (m_prmd == prmd && prmd->can_fit(ceNew)) {
 			// If the embedded descriptor can still fit the items, don’t do anything at all.
 			return;
+		}
 		new_desc_from(typeKey, typeVal, m_prmd, ceNew, true);
 	}
 };

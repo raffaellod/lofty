@@ -110,23 +110,26 @@ struct typed_raw_cda {
 	// destination.
 	//
 	static void copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
-		if (std::has_trivial_copy_constructor<T>::value)
+		if (std::has_trivial_copy_constructor<T>::value) {
 			// No constructor, fastest copy possible.
 			memory::copy(ptDst, ptSrc, ci);
-		else if (std::has_nothrow_copy_constructor<T>::value)
+		} else if (std::has_nothrow_copy_constructor<T>::value) {
 			// Not trivial, but it won’t throw either.
-			for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst)
+			for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 				::new(ptDst) T(*ptSrc);
-		else {
+			}
+		} else {
 			// Exceptions can occur, so implement an all-or-nothing copy.
 			T const * ptDstBegin(ptDst);
 			try {
-				for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst)
+				for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 					::new(ptDst) T(*ptSrc);
+				}
 			} catch (...) {
 				// Undo (destruct) all the copies instantiated.
-				while (--ptSrc >= ptDstBegin)
+				while (--ptSrc >= ptDstBegin) {
 					ptDst->~T();
+				}
 				throw;
 			}
 		}
@@ -136,10 +139,12 @@ struct typed_raw_cda {
 	/// Destroys a range of items in an array.
 	//
 	static void destruct(T * pt, size_t ci) {
-		if (!std::has_trivial_destructor<T>::value)
+		if (!std::has_trivial_destructor<T>::value) {
 			// The destructor is not a no-op.
-			for (T * ptEnd(pt + ci); pt < ptEnd; ++pt)
+			for (T * ptEnd(pt + ci); pt < ptEnd; ++pt) {
 				pt->~T();
+			}
+		}
 	}
 
 
@@ -154,8 +159,9 @@ struct typed_raw_cda {
 	// destination.
 	//
 	static void move_constr(T * ptDst, T * ptSrc, size_t ci) {
-		for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst)
+		for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 			::new(ptDst) T(std::move(*ptSrc));
+		}
 	}
 
 
@@ -164,8 +170,9 @@ struct typed_raw_cda {
 	// source items.
 	//
 	static void overlapping_move_constr(T * ptDst, T * ptSrc, size_t ci) {
-		if (ptDst == ptSrc)
+		if (ptDst == ptSrc) {
 			return;
+		}
 		T const * ptSrcEnd(ptSrc + ci);
 		if (ptDst < ptSrc && ptSrc < ptDst + ci) {
 			// ┌─────────────────┐ 
@@ -178,20 +185,23 @@ struct typed_raw_cda {
 
 			T const * ptSrcBegin(ptSrc), * ptDstEnd(ptDst + ci);
 			// First, move-construct the items that don’t overlap.
-			for (; ptDst < ptSrcBegin; ++ptSrc, ++ptDst)
+			for (; ptDst < ptSrcBegin; ++ptSrc, ++ptDst) {
 				::new(ptDst) T(std::move(*ptSrc));
+			}
 			// ┌─────────────────┐ 
 			// │ a B C b c D e f │ (lowercase b and c indicate the moved-out items)
 			// └─────────────────┘
 			// Second, move-assign all the items in the overlapping area to shift them.
-			for (; ptDst < ptDstEnd; ++ptSrc, ++ptDst)
+			for (; ptDst < ptDstEnd; ++ptSrc, ++ptDst) {
 				*ptDst = std::move(*ptSrc);
+			}
 			// ┌─────────────────┐ 
 			// │ a B C D c d e f │
 			// └─────────────────┘
 			// Third, destruct the items that have no replacement and have just been moved out.
-			for (ptSrc = ptDst; ptSrc < ptSrcEnd; ++ptSrc)
+			for (ptSrc = ptDst; ptSrc < ptSrcEnd; ++ptSrc) {
 				ptSrc->~T();
+			}
 		} else if (ptSrc < ptDst && ptDst < ptSrc + ci) {
 			// ┌─────────────────┐
 			// │ a B C D - - e f │
@@ -208,23 +218,28 @@ struct typed_raw_cda {
 				ptSrc = const_cast<T *>(ptSrcEnd),
 				ptDst = const_cast<T *>(ptDstEnd);
 				--ptDst >= --ptSrcEnd;
-			)
+			) {
 				::new(ptDst) T(std::move(*ptSrc));
+			}
 			// ┌─────────────────┐
 			// │ a B c d C D e f │ (lowercase c and d indicate the moved-out items)
 			// └─────────────────┘
 			// Second, move-assign all the items in the overlapping area to shift them.
-			for (; ptSrc >= ptSrcBegin; --ptSrc, --ptDst)
+			for (; ptSrc >= ptSrcBegin; --ptSrc, --ptDst) {
 				*ptDst = std::move(*ptSrc);
+			}
 			// ┌─────────────────┐
 			// │ a b c B C D e f │
 			// └─────────────────┘
 			// Third, destruct the items that have no replacement and have just been moved out.
-			for (ptSrc = const_cast<T *>(ptDstBegin); ptSrc >= ptSrcBegin; --ptSrc)
+			for (ptSrc = const_cast<T *>(ptDstBegin); ptSrc >= ptSrcBegin; --ptSrc) {
 				ptSrc->~T();
-		} else
-			for (; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst)
+			}
+		} else {
+			for (; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 				::new(ptDst) T(std::move(*ptSrc));
+			}
+		}
 	}
 };
 

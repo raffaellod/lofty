@@ -121,12 +121,13 @@ protected:
 	/// Converts an 8-bit signed integer to its string representation.
 	//
 	void write_s8(int8_t i, ostream * posOut) const {
-		if (m_iBaseOrShift == 10)
+		if (m_iBaseOrShift == 10) {
 			write_s16(i, posOut);
-		else
+		} else {
 			// Avoid extending the sign, as it would generate too many digits in any notation except
 			// decimal.
 			write_s16(uint8_t(i), posOut);
+		}
 	}
 
 
@@ -171,12 +172,13 @@ protected:
 // On a machine with 64-bit word size, write_64*() will be faster.
 
 inline void _int_to_string_backend_base::write_s32(int32_t i, ostream * posOut) const {
-	if (m_iBaseOrShift == 10)
+	if (m_iBaseOrShift == 10) {
 		write_s64(i, posOut);
-	else
+	} else {
 		// Avoid extending the sign in any notation except decimal, as it would generate too many
 		// digits.
 		write_s64(uint32_t(i), posOut);
+	}
 }
 
 
@@ -191,12 +193,13 @@ inline void _int_to_string_backend_base::write_u32(uint32_t i, ostream * posOut)
 // turn defer to write_64*() (see above).
 
 inline void _int_to_string_backend_base::write_s16(int16_t i, ostream * posOut) const {
-	if (m_iBaseOrShift == 10)
+	if (m_iBaseOrShift == 10) {
 		write_s32(i, posOut);
-	else
+	} else {
 		// Avoid extending the sign in any notation except decimal, as it would generate too many
 		// digits.
 		write_s32(uint16_t(i), posOut);
+	}
 }
 
 
@@ -245,27 +248,31 @@ public:
 	// fastest implementation for I of any given size.
 	//
 	void write(I i, ostream * posOut) {
-		if (sizeof(i) <= sizeof(int8_t))
-			if (std::is_signed<I>::value)
+		if (sizeof(i) <= sizeof(int8_t)) {
+			if (std::is_signed<I>::value) {
 				write_s8(int8_t(i), posOut);
-			else
+			} else {
 				write_u8(uint8_t(i), posOut);
-		else if (sizeof(i) <= sizeof(int16_t))
-			if (std::is_signed<I>::value)
+			}
+		} else if (sizeof(i) <= sizeof(int16_t)) {
+			if (std::is_signed<I>::value) {
 				write_s16(int16_t(i), posOut);
-			else
+			} else {
 				write_u16(uint16_t(i), posOut);
-		else if (sizeof(i) <= sizeof(int32_t))
-			if (std::is_signed<I>::value)
+			}
+		} else if (sizeof(i) <= sizeof(int32_t)) {
+			if (std::is_signed<I>::value) {
 				write_s32(int32_t(i), posOut);
-			else
+			} else {
 				write_u32(uint32_t(i), posOut);
-		else {
+			}
+		} else {
 			static_assert(sizeof(i) <= sizeof(int64_t), "unsupported integer size");
-			if (std::is_signed<I>::value)
+			if (std::is_signed<I>::value) {
 				write_s64(int64_t(i), posOut);
-			else
+			} else {
 				write_u64(uint64_t(i), posOut);
+			}
 		}
 	}
 

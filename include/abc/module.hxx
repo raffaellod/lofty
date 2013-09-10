@@ -185,8 +185,9 @@ public:
 	/// Destructor.
 	//
 	~dynamic_module() {
-		if (m_bOwn)
+		if (m_bOwn) {
 			::FreeLibrary(m_hdynmod);
+		}
 	}
 
 
@@ -319,8 +320,9 @@ public:
 	template <typename F>
 	F get_symbol(cstring const & sSymbol, F * ppfn = NULL) {
 		F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
-		if (ppfn)
+		if (ppfn) {
 			*ppfn = pfn;
+		}
 		return pfn;
 	}
 
@@ -537,8 +539,9 @@ public:
 				// Allocate a new module on the heap, since this function will return immediately.
 				_preconstruct(hinst);
 				std::unique_ptr<T> pt(new T());
-				if (!pt->dll_main(iReason))
+				if (!pt->dll_main(iReason)) {
 					return false;
+				}
 				// If we got to this point, dll_main() succeeded, so we want to avoid deleting pt.
 				pt.release();
 				return true;

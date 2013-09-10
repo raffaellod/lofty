@@ -144,8 +144,9 @@ public:
 	// why this can’t be just a static member variable.
 	//
 	static string_ostream * get_trace_stream() {
-		if (!sm_psosScopeTrace)
+		if (!sm_psosScopeTrace) {
 			sm_psosScopeTrace.reset(new string_ostream());
+		}
 		return sm_psosScopeTrace.get();
 	}
 
@@ -170,10 +171,11 @@ public:
 	/// Erases any collected stack frames.
 	//
 	static void trace_stream_release() {
-		if (sm_cScopeTraceRefs == 1)
+		if (sm_cScopeTraceRefs == 1) {
 			trace_stream_reset();
-		else if (sm_cScopeTraceRefs > 1)
+		} else if (sm_cScopeTraceRefs > 1) {
 			--sm_cScopeTraceRefs;
+		}
 	}
 
 
@@ -252,8 +254,9 @@ public:
 	~_scope_trace() {
 		try {
 			ostream * pos(base_scope_trace::scope_render_start_or_continue());
-			if (pos)
+			if (pos) {
 				*pos << m_t0;
+			}
 		} catch (...) {
 			// Don’t allow a trace to interfere with the program flow.
 			// FIXME: EXC-SWALLOW

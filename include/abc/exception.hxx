@@ -72,10 +72,11 @@ class ostream;
 #undef assert
 #ifdef DEBUG
 	#define assert(expr) \
-		do \
-			if (!(expr)) \
+		do { \
+			if (!(expr)) { \
 				abc::assertion_error::_assertion_failed(__FILE__, __LINE__, _ABC_ASSERT_FN, #expr); \
-		while (0)
+			} \
+		} while (0)
 #else
 	#define assert(expr) \
 		static_cast<void>(0)

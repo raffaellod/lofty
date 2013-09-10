@@ -55,6 +55,8 @@ class enum_impl;
 
 /// TODO: comment + document design.
 //
+// Loosely based on <http://www.python.org/dev/peps/pep-0435/>
+//
 // TODO: allow specifying a default value (instead of having __default = max + 1).
 // TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from
 // string, etc.

@@ -312,8 +312,9 @@ public:
 	/// Character access operator.
 	//
 	C operator[](size_t i) const {
-		if (i > get_size())
+		if (i > get_size()) {
 			abc_throw(index_error(intptr_t(i)));
+		}
 		return get_data()[i];
 	}
 
@@ -760,8 +761,9 @@ public:
 	/// Item access operator.
 	//
 	C & operator[](size_t i) {
-		if (i > string_base::get_size())
+		if (i > string_base::get_size()) {
 			abc_throw(index_error(intptr_t(i)));
+		}
 		return get_data()[i];
 	}
 	C operator[](size_t i) const {

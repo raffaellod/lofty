@@ -242,10 +242,11 @@ namespace abc {
 		// explicit operator bool().
 		//
 		operator _explob_helper::bool_type() const {
-			if (static_cast<T const *>(this)->_explicit_operator_bool())
+			if (static_cast<T const *>(this)->_explicit_operator_bool()) {
 				return &_explob_helper::bool_true;
-			else
+			} else {
 				return 0;
+			}
 		}
 	};
 

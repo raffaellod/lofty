@@ -277,8 +277,9 @@ public:
 	pointer allocate(size_type c, void const * pHint = 0) {
 		UNUSED_ARG(pHint);
 		// c must fit in our static buffer, and we must still have a buffer.
-		if (c > max_size() || !m_p)
+		if (c > max_size() || !m_p) {
 			abc_throw(memory_allocation_error());
+		}
 
 		pointer pt(static_cast<pointer>(m_p));
 		m_p = NULL;
@@ -369,16 +370,18 @@ inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt /*= NULL*/) {
 
 inline void * _raw_alloc(size_t cb) {
 	void * p(::malloc(cb));
-	if (!p)
+	if (!p) {
 		abc_throw(memory_allocation_error());
+	}
 	return p;
 }
 
 
 inline void * _raw_realloc(void * p, size_t cb) {
 	p = ::realloc(p, cb);
-	if (!p)
+	if (!p) {
 		abc_throw(memory_allocation_error());
+	}
 	return p;
 }
 
@@ -528,8 +531,9 @@ inline T * set(T * ptDst, T const & tValue, size_t c) {
 			break;
 #endif
 		default:
-			for (T const * ptDstMax(ptDst + c); ptDst < ptDstMax; ++ptDst)
+			for (T const * ptDstMax(ptDst + c); ptDst < ptDstMax; ++ptDst) {
 				copy(ptDst, &tValue);
+			}
 			break;
 	}
 	return ptDst;

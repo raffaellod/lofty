@@ -120,8 +120,9 @@ I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #if ABC_HOST_API_POSIX
 	I iOldValue;
 	pthread_mutex_lock(&g_mtx);
-	if ((iOldValue = *piDst) == iComparand)
+	if ((iOldValue = *piDst) == iComparand) {
 		*piDst = iNewValue;
+	}
 	pthread_mutex_unlock(&g_mtx);
 	return iOldValue;
 #elif ABC_HOST_API_WIN32
