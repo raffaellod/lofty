@@ -35,10 +35,11 @@ extern "C" void * malloc(size_t cb) {
 
 extern "C" void * realloc(void * p, size_t cb) {
 	HANDLE hHeap(::GetProcessHeap());
-	if (p)
+	if (p) {
 		return ::HeapReAlloc(hHeap, 0, p, cb);
-	else
+	} else {
 		return ::HeapAlloc(hHeap, 0, cb);
+	}
 }
 
 

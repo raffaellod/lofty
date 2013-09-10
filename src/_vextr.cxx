@@ -43,19 +43,19 @@ _raw_vextr_impl_base::transaction::transaction(
 	abc_trace_fn((this, cbItem, prvib, ciNew, ciDelta, bNulT));
 
 	size_t ciStaticMax;
-	if (m_ci == (bNulT ? 1 /*NUL*/ : 0))
+	if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
 		// Empty string/array: just use the static NUL character or no item array at all.
 		m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : NULL;
 		// A read-only item array has no capacity. This was already set above.
 		// m_rvpd.set_ciMax(0);
-	else if (
+	} else if (
 		// This will return NULL if there’s no static item array.
 		(m_p = m_prvib->get_static_array_ptr()) &&
 		m_ci <= (ciStaticMax = m_prvib->get_static_capacity())
-	)
+	) {
 		// The static item array is large enough.
 		m_rvpd.set_ciMax(ciStaticMax);
-	else if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
+	} else if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
 		// The current item array is large enough, no need to change anything.
 		m_p = m_prvib->m_p;
 		m_rvpd = m_prvib->m_rvpd;
@@ -66,17 +66,19 @@ _raw_vextr_impl_base::transaction::transaction(
 		// TODO: better algorithm.
 		size_t ciMax(m_ci * _raw_vextr_impl_base::smc_iGrowthRate);
 		// Apply some constraints.
-		if (ciMax < _raw_vextr_impl_base::smc_cMinSlots)
+		if (ciMax < _raw_vextr_impl_base::smc_cMinSlots) {
 			ciMax = _raw_vextr_impl_base::smc_cMinSlots;
-		else
+		} else {
 			// Ensure that the lower bits are clear by rounding up.
 			ciMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ciMax);
+		}
 		// Check for overflow.
 		// TODO: verify that the compiler doesn’t optimize this if away.
-		if (ciMax <= m_ci)
+		if (ciMax <= m_ci) {
 			// Theoretically, this could result in ciMax < m_ci; in practice it doesn’t matter because
 			// the following memory allocation will fail for such sizes.
 			ciMax = _raw_vextr_packed_data::smc_ciMaxMask;
+		}
 
 		size_t cb(cbItem * ciMax);
 		if (m_prvib->m_rvpd.get_bDynamic()) {
@@ -101,10 +103,11 @@ void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT
 	abc_trace_fn((this, cbItem, bNulT));
 
 	// Add a NUL terminator to the item array, if not read-only (== if capacity > 0).
-	if (bNulT && m_rvpd.get_ciMax() > 0)
+	if (bNulT && m_rvpd.get_ciMax() > 0) {
 		_raw_vextr_impl_base::terminate(
 			cbItem, static_cast<int8_t *>(m_p) + cbItem * (m_ci - 1 /*NUL*/)
 		);
+	}
 	// If we are abandoning the old item array, proceed to destruct it if necessary.
 	if (m_p != m_prvib->m_p) {
 		m_prvib->~_raw_vextr_impl_base();
@@ -139,10 +142,12 @@ size_t _raw_vextr_impl_base::adjust_index(ptrdiff_t i, bool bNulT /*= false*/) c
 	ptrdiff_t cMaxItems(get_size(bNulT));
 	if (i < 0) {
 		i += cMaxItems;
-		if (i < 0)
+		if (i < 0) {
 			i = 0;
-	} else if (i > cMaxItems)
+		}
+	} else if (i > cMaxItems) {
 		i = cMaxItems;
+	}
 	return size_t(i);
 }
 
@@ -153,18 +158,21 @@ void _raw_vextr_impl_base::adjust_range(
 	ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems(get_size(bNulT));
 	if (iFirst < 0) {
 		iFirst += cMaxItems;
-		if (iFirst < 0)
+		if (iFirst < 0) {
 			iFirst = 0;
+		}
 	} else if (iFirst > cMaxItems) {
 		iFirst = cMaxItems;
 		ci = 0;
 	}
 	if (ci < 0) {
 		ci += cMaxItems - iFirst;
-		if (ci < 0)
+		if (ci < 0) {
 			ci = 0;
-	} else if (iFirst + ci > cMaxItems)
+		}
+	} else if (iFirst + ci > cMaxItems) {
 		ci = cMaxItems - iFirst;
+	}
 	*piFirst = iFirst;
 	*pci = ci;
 }
@@ -207,13 +215,15 @@ void _raw_complex_vextr_impl::assign_copy(
 			throw;
 		}
 	}
-	if (ciOrig)
+	if (ciOrig) {
 		// If we made a backup, it also means that now this is the only copy of the original items,
 		// so we must use it to destruct them, instead of m_p.
 		type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
+	}
 	// Now that the current items have been destructed, move-construct the new items.
-	if (bMove && ci)
+	if (bMove && ci) {
 		type.move_constr(trn.get_work_array(), const_cast<void *>(p), ci);
+	}
 	trn.commit();
 }
 void _raw_complex_vextr_impl::assign_copy(
@@ -236,17 +246,19 @@ void _raw_complex_vextr_impl::assign_copy(
 		}
 		try {
 			if (ci1) {
-				if (bMove1)
+				if (bMove1) {
 					type.move_constr(pbWorkCopy, const_cast<void *>(p1), ci1);
-				else
+				} else {
 					type.copy_constr(pbWorkCopy, p1, ci1);
+				}
 				pbWorkCopy += type.cb * ci1;
 			}
 			if (ci2) {
-				if (bMove2)
+				if (bMove2) {
 					type.move_constr(pbWorkCopy, const_cast<void *>(p2), ci2);
-				else
+				} else {
 					type.copy_constr(pbWorkCopy, p2, ci2);
+				}
 			}
 		} catch (...) {
 			// If we already constructed the copies of p1, destruct them.
@@ -268,10 +280,11 @@ void _raw_complex_vextr_impl::assign_copy(
 			throw;
 		}
 	}
-	if (ciOrig)
+	if (ciOrig) {
 		// If we made a backup, it also means that now this is the only copy of the original items, so
 		// we must use it to destruct them, instead of m_p.
 		type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
+	}
 	trn.commit();
 }
 
@@ -279,8 +292,9 @@ void _raw_complex_vextr_impl::assign_copy(
 void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi) {
 	abc_trace_fn((this/*, type, rcvi*/));
 
-	if (rcvi.m_p == m_p)
+	if (rcvi.m_p == m_p) {
 		return;
+	}
 	assert(rcvi.m_rvpd.get_bDynamic());
 	// Discard the current contents.
 	destruct_items(type);
@@ -298,8 +312,9 @@ void _raw_complex_vextr_impl::remove(void_cda const & type, ptrdiff_t iOffset, p
 	abc_trace_fn((this, /*type, */iOffset, ciRemove));
 
 	adjust_range(&iOffset, &ciRemove);
-	if (!ciRemove)
+	if (!ciRemove) {
 		return;
+	}
 	transaction trn(type.cb, this, -1, -ciRemove);
 	size_t cbOffset(type.cb * size_t(iOffset));
 	// Destruct the items to be removed.
@@ -312,8 +327,9 @@ void _raw_complex_vextr_impl::remove(void_cda const & type, ptrdiff_t iOffset, p
 		if (trn.will_replace_item_array()) {
 			type.move_constr(pbWorkTail, pbOrigTail, ciTail);
 			type.destruct(pbOrigTail, ciTail);
-		} else
+		} else {
 			type.overlapping_move_constr(pbWorkTail, pbOrigTail, ciTail);
+		}
 	}
 	// Also move to the new array the items before the first deleted one, otherwise we’ll lose them
 	// in the switch.
@@ -336,25 +352,28 @@ void _raw_complex_vextr_impl::_insert(
 	// Regardless of whether we’re switching item arrays, the items beyond the insertion point must
 	// always be moved.
 	size_t ciTail(get_size() - iOffset);
-	if (ciTail)
+	if (ciTail) {
 		type.overlapping_move_constr(
 			pbOffset + type.cb * ciAdd, get_data<int8_t>() + ibOffset, ciTail
 		);
+	}
 	// Copy/move the new items over.
-	if (bMove)
+	if (bMove) {
 		// No point in using try/catch here; we just assume that a move constructor won’t throw.
 		type.move_constr(pbOffset, const_cast<void *>(pAdd), ciAdd);
-	else
+	} else {
 		try {
 			type.copy_constr(pbOffset, pAdd, ciAdd);
 		} catch (...) {
 			// Undo the overlapping_move_constr() above.
-			if (ciTail)
+			if (ciTail) {
 				type.overlapping_move_constr(
 					get_data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
 				);
+			}
 			throw;
 		}
+	}
 	// Also move to the new array the items before the insertion point, otherwise we’ll lose them in
 	// the switch.
 	if (iOffset && trn.will_replace_item_array()) {
@@ -373,12 +392,14 @@ void _raw_complex_vextr_impl::set_capacity(void_cda const & type, size_t ciMin, 
 	if (trn.will_replace_item_array()) {
 		// Destruct every item from the array we’re abandoning, but first move-construct them if
 		// told to do so.
-		if (bPreserve)
+		if (bPreserve) {
 			type.move_constr(trn.get_work_array(), m_p, ciOrig);
+		}
 		type.destruct(m_p, ciOrig);
-		if (!bPreserve)
+		if (!bPreserve) {
 			// We just destructed the items.
 			ciOrig = 0;
+		}
 	}
 	trn.commit();
 	// The transaction changed the size to ciMin, which is incorrect.
@@ -442,18 +463,21 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 	size_t cbOffset(cbItem * iOffset);
 	// Regardless of an item array switch, the items beyond the insertion point (when adding) or the
 	// last removed (when removing) must always be moved/copied.
-	if (size_t ciTail = get_size(bNulT) - (iOffset + ciRemove))
+	if (size_t ciTail = get_size(bNulT) - (iOffset + ciRemove)) {
 		memory::move(
 			trn.get_work_array<int8_t>() + cbOffset + cbItem * ciAdd,
 			get_data<int8_t>() + cbOffset + cbItem * ciRemove,
 			cbItem * ciTail
 		);
-	if (ciAdd)
+	}
+	if (ciAdd) {
 		// Copy the new items over.
 		memory::copy<void>(trn.get_work_array<int8_t>() + cbOffset, pAdd, cbItem * ciAdd);
+	}
 	// Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
-	if (cbOffset && trn.will_replace_item_array())
+	if (cbOffset && trn.will_replace_item_array()) {
 		memory::copy(trn.get_work_array(), m_p, cbOffset);
+	}
 
 	trn.commit(cbItem, bNulT);
 }
@@ -467,11 +491,12 @@ void _raw_trivial_vextr_impl::set_capacity(
 	size_t ciOrig(get_size());
 	transaction trn(cbItem, this, ptrdiff_t(ciMin), 0, bNulT);
 	if (trn.will_replace_item_array()) {
-		if (bPreserve)
+		if (bPreserve) {
 			memory::copy(trn.get_work_array(), m_p, cbItem * ciOrig);
-		else
+		} else {
 			// We’ll lose the item array when the transaction is commited.
 			ciOrig = 0;
+		}
 	}
 	trn.commit(cbItem, bNulT);
 	// The transaction changed the size to ciMin, which is incorrect.

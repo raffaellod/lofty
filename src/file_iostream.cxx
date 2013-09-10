@@ -120,8 +120,9 @@ file_istream::file_istream(file_path const & fp) :
 		m_cbReadBufUsed = m_pfile->read(
 			pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
 		);
-		if (!m_cbReadBufUsed)
+		if (!m_cbReadBufUsed) {
 			m_bAtEof = true;
+		}
 		size_t cbBom;
 		m_enc = text::guess_encoding(
 			pRawReadBuf,
@@ -133,9 +134,10 @@ file_istream::file_istream(file_path const & fp) :
 			// A BOM was read: discard it.
 			m_ibReadBufUsed += cbBom;
 			m_cbReadBufUsed -= cbBom;
-		} else if (m_enc == text::encoding::unknown)
+		} else if (m_enc == text::encoding::unknown) {
 			// Since no encoding was detected, we’ll just do nothing to transcode the input.
 			m_enc = text::encoding::identity;
+		}
 	}
 	size_t cbTotalRead;
 	if (enc == m_enc || enc == text::encoding::identity) {
@@ -153,8 +155,9 @@ file_istream::file_istream(file_path const & fp) :
 		// Check if we need more bytes than that.
 		if (cbMax) {
 			size_t cbRead(m_pfile->read(pb, cbMax));
-			if (!cbRead)
+			if (!cbRead) {
 				m_bAtEof = true;
+			}
 			cbTotalRead += cbRead;
 		}
 	} else {
@@ -167,17 +170,19 @@ file_istream::file_istream(file_path const & fp) :
 			void const * pBufUsed(pbReadBuf + m_ibReadBufUsed);
 			text::transcode(std::nothrow, m_enc, &pBufUsed, &m_cbReadBufUsed, enc, &p, &cbAvail);
 			m_ibReadBufUsed = size_t(static_cast<int8_t const *>(pBufUsed) - pbReadBuf);
-			if (!cbAvail || m_bAtEof)
+			if (!cbAvail || m_bAtEof) {
 				break;
+			}
 			// Make sure that the beginning of the free portion of the read buffer is exactly in its
 			// middle, so that we can provide m_pfile->read() an aligned buffer.
 			if (m_ibReadBufUsed + m_cbReadBufUsed != m_cbReadBufLead) {
-				if (m_cbReadBufUsed /*&& m_cbReadBufLead >= m_cbReadBufUsed*/)
+				if (m_cbReadBufUsed /*&& m_cbReadBufLead >= m_cbReadBufUsed*/) {
 					memory::move(
 						pbReadBuf + m_cbReadBufLead - m_cbReadBufUsed,
 						pbReadBuf + m_ibReadBufUsed,
 						m_cbReadBufUsed
 					);
+				}
 				m_ibReadBufUsed = m_cbReadBufLead - m_cbReadBufUsed;
 				pbRawReadBuf = pbReadBuf + m_ibReadBufUsed;
 			}
@@ -185,8 +190,9 @@ file_istream::file_istream(file_path const & fp) :
 			size_t cbRead(m_pfile->read(
 				pbRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
 			));
-			if (!cbRead)
+			if (!cbRead) {
 				m_bAtEof = true;
+			}
 			m_cbReadBufUsed += cbRead;
 		}
 		cbTotalRead = cbMax - cbAvail;
@@ -195,8 +201,9 @@ file_istream::file_istream(file_path const & fp) :
 	// m_pfile->read() once more than we should have. For now, just put it off; the next 0-length
 	// read by m_pfile->read() will re-set it, and since that time we’ll actually have read 0 bytes,
 	// it will stay.
-	if (cbTotalRead && m_bAtEof)
+	if (cbTotalRead && m_bAtEof) {
 		m_bAtEof = false;
+	}
 	return cbTotalRead;
 }
 
@@ -204,30 +211,32 @@ file_istream::file_istream(file_path const & fp) :
 /*virtual*/ void file_istream::unread(void const * p, size_t cb, text::encoding enc) {
 	abc_trace_fn((this, p, cb, enc));
 
-	if (enc == text::encoding::unknown)
+	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
 		enc = text::encoding::identity;
+	}
 	// This must have been set by a preceding call to read().
 	assert(m_enc != text::encoding::unknown);
 	int8_t * pbReadBuf(_get_read_buffer());
 	if (enc == m_enc || enc == text::encoding::identity) {
 		// Optimal case: no transcoding necessary.
-		if (!m_cbReadBufUsed)
+		if (!m_cbReadBufUsed) {
 			// No buffer space in use, so align this write to the middle of the buffer, or as close to
 			// it as possible.
 			m_ibReadBufUsed = size_t(std::max<ptrdiff_t>(
 				ptrdiff_t(m_cbReadBufLead) - ptrdiff_t(cb), 0
 			));
-		else if (cb > m_ibReadBufUsed) {
+		} else if (cb > m_ibReadBufUsed) {
 			// Trying to unread more bytes than can fit in the gap before the currently used portion of
 			// the read buffer: move the used portion first.
 			size_t ibNew(m_cbReadBufLead + m_cbReadBufBulk - m_cbReadBufUsed);
 			memory::move(pbReadBuf + ibNew, pbReadBuf + m_ibReadBufUsed, m_cbReadBufUsed);
 			m_ibReadBufUsed = ibNew;
 		}
-		if (cb > m_ibReadBufUsed)
+		if (cb > m_ibReadBufUsed) {
 			// Can’t unread more bytes than the read buffer can take.
 			abc_throw(buffer_error());
+		}
 		// Copy to the read buffer, before the current start.
 		memory::copy<void>(pbReadBuf + m_ibReadBufUsed - cb, p, cb);
 		m_ibReadBufUsed -= cb;
@@ -243,10 +252,11 @@ file_istream::file_istream(file_path const & fp) :
 		// and join the used part of the buffer.
 		void * pBufOffset(pbReadBuf);
 		size_t cbXcodeMax;
-		if (m_cbReadBufUsed)
+		if (m_cbReadBufUsed) {
 			cbXcodeMax = m_ibReadBufUsed;
-		else
+		} else {
 			cbXcodeMax = m_cbReadBufLead + m_cbReadBufBulk;
+		}
 		size_t cbXcodeAvail(cbXcodeMax);
 		text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBufOffset, &cbXcodeAvail);
 		if (cb) {
@@ -262,9 +272,10 @@ file_istream::file_istream(file_path const & fp) :
 				// Try again.
 				text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBufOffset, &cbXcodeAvail);
 			}
-			if (cb)
+			if (cb) {
 				// The read buffer has no more room available.
 				abc_throw(buffer_error());
+			}
 		}
 		// All bytes in the source buffer were transcoded; now make sure that they immediately precede
 		// the used part of the read buffer, and update the read buffer usage data.
@@ -272,8 +283,9 @@ file_istream::file_istream(file_path const & fp) :
 		if (m_cbReadBufUsed && cbXcoded != m_ibReadBufUsed) {
 			memory::move(pbReadBuf + m_ibReadBufUsed - cbXcoded, pbReadBuf, cbXcoded);
 			m_ibReadBufUsed -= cbXcoded;
-		} else
+		} else {
 			m_ibReadBufUsed = 0;
+		}
 		m_cbReadBufUsed += cbXcoded;
 	}
 }
@@ -282,8 +294,9 @@ file_istream::file_istream(file_path const & fp) :
 /*static*/ std::shared_ptr<file_istream> const & file_istream::get_stdin() {
 	abc_trace_fn(());
 
-	if (!g_ppfisStdIn)
+	if (!g_ppfisStdIn) {
 		_construct_std_file_istream(file::get_stdin(), &g_ppfisStdIn);
+	}
 	return *g_ppfisStdIn;
 }
 
@@ -328,8 +341,9 @@ int8_t * file_istream::_get_read_buffer() {
 		// Read as many characters as possible, appending to the current end of the string.
 		int8_t * pbLastEnd(rs.get_data<int8_t>() + (cchFilled << cbCharLog2));
 		size_t cbRead(read(pbLastEnd, cchAvail << cbCharLog2, enc));
-		if (!cbRead)
+		if (!cbRead) {
 			break;
+		}
 
 		// Now we need to search for the line terminator. Since line terminators can be more than one
 		// character long, back up one character first (if we have at least one), to avoid missing the
@@ -337,8 +351,9 @@ int8_t * file_istream::_get_read_buffer() {
 		int8_t const * pbBeforeLastEnd(pbLastEnd - (cchFilled ? cbChar : 0));
 		size_t cchBeforeLastEnd((cchFilled ? 1 : 0) + (cbRead >> cbCharLog2));
 		// If the line terminator isn’t known yet, try to detect it now.
-		if (m_lterm == text::line_terminator::unknown)
+		if (m_lterm == text::line_terminator::unknown) {
 			m_lterm = text::guess_line_terminator(pbBeforeLastEnd, cchBeforeLastEnd, enc);
+		}
 		// If no line terminator was detected, it must be because no known one was there, so avoid
 		// scanning for it, and just keep on reading more bytes.
 		if (m_lterm != text::line_terminator::unknown) {
@@ -405,8 +420,9 @@ void file_istream::_post_construct() {
 	// If we’re still here, everything succeeded.
 
 	// If this is the first standard stream being constructed, register the releaser.
-	if (!g_ppfosStdErr && !g_ppfisStdIn && !g_ppfosStdOut)
+	if (!g_ppfosStdErr && !g_ppfisStdIn && !g_ppfosStdOut) {
 		::atexit(_release_std_file_streams);
+	}
 	// Return the allocated shared pointer.
 	*pppfis = ppfis.release();
 }
@@ -447,19 +463,22 @@ file_ostream::file_ostream(file_path const & fp) :
 ) {
 	abc_trace_fn((this, p, cb, enc));
 
-	if (enc == text::encoding::unknown)
+	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
 		enc = text::encoding::identity;
-	if (m_enc == text::encoding::unknown)
+	}
+	if (m_enc == text::encoding::unknown) {
 		// This is the first output, so it decides for the whole file.
 		m_enc = enc;
-	if (enc == m_enc || enc == text::encoding::identity)
+	}
+	if (enc == m_enc || enc == text::encoding::identity) {
 		// Optimal case: no transcoding necessary.
 		m_pfile->write(p, cb);
-	else {
+	} else {
 		// Make sure we have a trancoding buffer.
-		if (!m_pbWriteBuf)
+		if (!m_pbWriteBuf) {
 			m_pbWriteBuf.reset(new int8_t[smc_cbWriteBufMax]);
+		}
 		while (cb) {
 			void * pBuf(m_pbWriteBuf.get());
 			size_t cbBuf(smc_cbWriteBufMax);
@@ -474,8 +493,9 @@ file_ostream::file_ostream(file_path const & fp) :
 /*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::get_stderr() {
 	abc_trace_fn(());
 
-	if (!g_ppfosStdErr)
+	if (!g_ppfosStdErr) {
 		_construct_std_file_ostream(file::get_stderr(), &g_ppfosStdErr);
+	}
 	return *g_ppfosStdErr;
 }
 
@@ -483,8 +503,9 @@ file_ostream::file_ostream(file_path const & fp) :
 /*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::get_stdout() {
 	abc_trace_fn(());
 
-	if (!g_ppfosStdOut)
+	if (!g_ppfosStdOut) {
 		_construct_std_file_ostream(file::get_stdout(), &g_ppfosStdOut);
+	}
 	return *g_ppfosStdOut;
 }
 
@@ -503,8 +524,9 @@ file_ostream::file_ostream(file_path const & fp) :
 	// If we’re still here, everything succeeded.
 
 	// If this is the first standard stream being constructed, register the releaser.
-	if (!g_ppfosStdErr && !g_ppfisStdIn && !g_ppfosStdOut)
+	if (!g_ppfosStdErr && !g_ppfisStdIn && !g_ppfosStdOut) {
 		::atexit(_release_std_file_streams);
+	}
 	// Return the allocated shared pointer.
 	*pppfos = ppfos.release();
 }

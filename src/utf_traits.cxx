@@ -144,8 +144,9 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
 	size_t ccp(0);
 	// Count a single code point for each leading byte, skipping over trailing bytes.
-	for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch))
+	for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
 		++ccp;
+	}
 	return ccp;
 }
 
@@ -154,19 +155,21 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	char8_t const * pchDst0(pchDst);
 	// Compute the length of this sequence.
 	unsigned cbCont;
-	if (ch32 <= 0x00007f)
+	if (ch32 <= 0x00007f) {
 		cbCont = 0;
-	else if (ch32 <= 0x0007ff)
+	} else if (ch32 <= 0x0007ff) {
 		cbCont = 1;
-	else if (ch32 <= 0x00ffff)
+	} else if (ch32 <= 0x00ffff) {
 		cbCont = 2;
-	else
+	} else {
 		cbCont = 3;
+	}
 	// Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont) make up
 	// what goes in the leading byte.
 	*pchDst++ = cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont);
-	while (cbCont--)
+	while (cbCont--) {
 		*pchDst++ = char8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
+	}
 	return unsigned(pchDst - pchDst0);
 }
 
@@ -174,17 +177,21 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ bool utf8_traits::is_valid(char8_t const * psz) {
 	while (char8_t ch = *psz++) {
 		// This should be a leading byte, and not the invalid 1111111x.
-		if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe)
+		if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
 			return false;
+		}
 		unsigned cbCont(leading_to_cont_length(ch));
 		// Detect an overlong due to unused bits in the leading byte.
-		if (!get_leading_cp_bits(ch, cbCont))
+		if (!get_leading_cp_bits(ch, cbCont)) {
 			return false;
+		}
 		// Ensure that the leading byte is really followed by cbCont trailing bytes.
-		while (cbCont--)
+		while (cbCont--) {
 			// This condition includes == NUL: the unexpcted end of the string is a failure.
-			if ((*psz++ & 0xc0) != 0x80)
+			if ((*psz++ & 0xc0) != 0x80) {
 				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -192,19 +199,24 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	while (cch--) {
 		char8_t ch(*pch++);
 		// This should be a leading byte, and not the invalid 1111111x.
-		if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe)
+		if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
 			return false;
+		}
 		unsigned cbCont(leading_to_cont_length(ch));
 		// Ensure that the string has at least cbCont more bytes.
-		if (cch < cbCont)
+		if (cch < cbCont) {
 			return false;
+		}
 		// Detect an overlong due to unused bits in the leading byte.
-		if (!get_leading_cp_bits(ch, cbCont))
+		if (!get_leading_cp_bits(ch, cbCont)) {
 			return false;
+		}
 		// Ensure that the leading byte is really followed by cbCont trailing bytes.
-		while (cbCont--)
-			if ((*pch++ & 0xc0) != 0x80)
+		while (cbCont--) {
+			if ((*pch++ & 0xc0) != 0x80) {
 				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -216,9 +228,11 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	if (chNeedle <= 0x00007f) {
 		// The needle can be encoded as a single UTF-8 character, so this faster search can be used.
 		char8_t ch8Needle(static_cast<char8_t>(chNeedle));
-		for (char8_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch)
-			if (*pch == ch8Needle)
+		for (char8_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+			if (*pch == ch8Needle) {
 				return pch;
+			}
+		}
 		return pchHaystackEnd;
 	} else {
 		// The needle is two or more UTF-8 characters, so take the slower approach.
@@ -240,10 +254,12 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 			if (cbCont) {
 				// The leading bytes match; check if the trailing ones do as well.
 				char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
-				while (++pchCont < pchNext && *pchCont == *++pchNeedleCont)
+				while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
 					;
-				if (pchCont < pchNext)
+				}
+				if (pchCont < pchNext) {
 					continue;
+				}
 				// The leading and trailing bytes of pch and pchNeedle match: we found the needle.
 			}
 			return pch;
@@ -259,9 +275,11 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	if (chNeedle <= 0x00007f) {
 		// The needle can be encoded as a single UTF-8 character, so this faster search can be used.
 		char8_t ch8Needle(static_cast<char8_t>(chNeedle));
-		for (char8_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; )
-			if (*--pch == ch8Needle)
+		for (char8_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+			if (*--pch == ch8Needle) {
 				return pch;
+			}
+		}
 		return pchHaystackBegin;
 	} else {
 		// The needle is two or more UTF-8 characters; this means that we can’t do the fast backwards
@@ -284,10 +302,11 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	do {
 		ch1 = *psz1++;
 		char8_t ch2(*psz2++);
-		if (ch1 > ch2)
+		if (ch1 > ch2) {
 			return +1;
-		else if (ch1 < ch2)
+		} else if (ch1 < ch2) {
 			return -1;
+		}
 	} while (ch1);
 	return 0;
 }
@@ -297,25 +316,28 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	char8_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
 	while (pch1 < pch1End && pch2 < pch2End) {
 		char8_t ch1(*pch1++), ch2(*pch2++);
-		if (ch1 > ch2)
+		if (ch1 > ch2) {
 			return +1;
-		else if (ch1 < ch2)
+		} else if (ch1 < ch2) {
 			return -1;
+		}
 	}
 	// If we’re still here, the longest string wins.
-	if (cch1 > cch2)
+	if (cch1 > cch2) {
 		return +1;
-	else if (cch1 < cch2)
+	} else if (cch1 < cch2) {
 		return -1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 
 /*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
 	char8_t const * pch(psz);
-	while (*pch)
+	while (*pch) {
 		++pch;
+	}
 	return size_t(pch - psz);
 }
 
@@ -324,9 +346,10 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
 	char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
 ) {
-	if (!(pchNeedleEnd - pchNeedleBegin))
+	if (!(pchNeedleEnd - pchNeedleBegin)) {
 		// No needle, so just return the beginning of the haystack.
 		return pchHaystackBegin;
+	}
 	char8_t const * pchHaystack(pchHaystackBegin),
 					  * pchNeedle(pchNeedleBegin);
 	try {
@@ -348,13 +371,14 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 		size_t const * pcchFailNext(vcchFailNext.get_data());
 
 		size_t iFailNext(0);
-		while (pchHaystack < pchHaystackEnd)
+		while (pchHaystack < pchHaystackEnd) {
 			if (*pchHaystack == *pchNeedle) {
 				++pchNeedle;
-				if (pchNeedle == pchNeedleEnd)
+				if (pchNeedle == pchNeedleEnd) {
 					// The needle was exhausted, which means that all its characters were matched in the
 					// haystack: we found the needle.
 					return pchHaystack - iFailNext;
+				}
 				// Move to the next character and advance the index in pcchFailNext.
 				++pchHaystack;
 				++iFailNext;
@@ -363,25 +387,30 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 				// much into the needle we can retry matching characters.
 				iFailNext = pcchFailNext[iFailNext];
 				pchNeedle = pchNeedleBegin + iFailNext;
-			} else
+			} else {
 				// Not a match, and no restart point: we’re out of options to match this character, so
 				// consider it not-a-match and move past it.
 				++pchHaystack;
+			}
+		}
 	} catch (std::bad_alloc const &) {
 		// Could not allocate enough memory for the failure restart table: fall back to a trivial (and
 		// potentially slower) substring search.
 		char8_t chFirst(*pchNeedleBegin);
-		for (; pchHaystack < pchHaystackEnd; ++pchHaystack)
+		for (; pchHaystack < pchHaystackEnd; ++pchHaystack) {
 			if (*pchHaystack == chFirst) {
 				char8_t const * pchHaystackMatch(pchHaystack);
 				pchNeedle = pchNeedleBegin;
-				while (++pchNeedle < pchNeedleEnd && *++pchHaystackMatch == *pchNeedle)
+				while (++pchNeedle < pchNeedleEnd && *++pchHaystackMatch == *pchNeedle) {
 					;
-				if (pchNeedle >= pchNeedleEnd)
+				}
+				if (pchNeedle >= pchNeedleEnd) {
 					// The needle was exhausted, which means that all its characters were matched in the
 					// haystack: we found the needle.
 					return pchHaystack;
+				}
 			}
+		}
 	}
 	return pchHaystackEnd;
 }
@@ -418,8 +447,9 @@ char16_t const utf16_traits::bom[] = {
 	size_t ccp(0);
 	// The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
 	// they cannot occur before the 0xd800 that will cause them to be skipped.
-	for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800))
+	for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
 		++ccp;
+	}
 	return ccp;
 }
 
@@ -445,15 +475,18 @@ char16_t const utf16_traits::bom[] = {
 			case 0xd800: {
 				char32_t ch32(char32_t(ch & 0x03ff) << 10);
 				// Surrogate first half; expect at least one more characer.
-				if (!(ch = *psz++))
+				if (!(ch = *psz++)) {
 					return false;
+				}
 				// The next character must be a surrogate second half.
-				if ((ch & 0xfc00) != 0xdc00)
+				if ((ch & 0xfc00) != 0xdc00) {
 					return false;
+				}
 				// The resulting character must be valid UTF-32.
 				ch32 = (ch32 | (ch & 0x03ff)) + 0x10000;
-				if (utf32_traits::is_valid(ch32))
+				if (utf32_traits::is_valid(ch32)) {
 					break;
+				}
 				// Fall through.
 			}
 			case 0xdc00:
@@ -469,17 +502,20 @@ char16_t const utf16_traits::bom[] = {
 		switch (ch & 0xfc00) {
 			case 0xd800: {
 				// Surrogate first half; expect at least one more characer.
-				if (!cch--)
+				if (!cch--) {
 					return false;
+				}
 				char32_t ch32(char32_t(ch & 0x03ff) << 10);
 				ch = *pch++;
 				// The next character must be a surrogate second half.
-				if ((ch & 0xfc00) != 0xdc00)
+				if ((ch & 0xfc00) != 0xdc00) {
 					return false;
+				}
 				// The resulting character must be valid UTF-32.
 				ch32 = (ch32 | (ch & 0x03ff)) + 0x10000;
-				if (utf32_traits::is_valid(ch32))
+				if (utf32_traits::is_valid(ch32)) {
 					break;
+				}
 				// Fall through.
 			}
 			case 0xdc00:
@@ -497,9 +533,11 @@ char16_t const utf16_traits::bom[] = {
 	if (chNeedle <= 0x00ffff) {
 		// The needle can be encoded as a single UTF-16 character, so this faster search can be used.
 		char16_t ch16Needle(static_cast<char16_t>(chNeedle));
-		for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch)
-			if (*pch == ch16Needle)
+		for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+			if (*pch == ch16Needle) {
 				return pch;
+			}
+		}
 		return pchHaystackEnd;
 	} else {
 		// The needle is two UTF-16 characters, so take the slower approach.
@@ -517,9 +555,11 @@ char16_t const utf16_traits::bom[] = {
 	char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : char16_t('\0'));
 	// The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
 	// pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
-	for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch)
-		if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1))
+	for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+		if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
 			return pch;
+		}
+	}
 	return pchHaystackEnd;
 }
 
@@ -530,9 +570,11 @@ char16_t const utf16_traits::bom[] = {
 	if (chNeedle <= 0x00ffff) {
 		// The needle can be encoded as a single UTF-16 character, so this faster search can be used.
 		char16_t ch16Needle(static_cast<char16_t>(chNeedle));
-		for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; )
-			if (*--pch == ch16Needle)
+		for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+			if (*--pch == ch16Needle) {
 				return pch;
+			}
+		}
 		return pchHaystackBegin;
 	} else {
 		// The needle is two UTF-16 characters, so take the slower approach.
@@ -552,9 +594,11 @@ char16_t const utf16_traits::bom[] = {
 	char16_t chNeedle1(pchNeedle[chNeedle0 ? 1 : 0]);
 	// The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
 	// pch[0] == chNeedle1 and chNeedle0 != NUL then pch[-1] must be accessible.
-	for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; )
-		if (*--pch == chNeedle1 && (!chNeedle0 || *(pch - 1) == chNeedle0))
+	for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+		if (*--pch == chNeedle1 && (!chNeedle0 || *(pch - 1) == chNeedle0)) {
 			return pch;
+		}
+	}
 	return pchHaystackBegin;
 }
 
@@ -569,16 +613,18 @@ char16_t const utf16_traits::bom[] = {
 		if (bSurr1 == bSurr2) {
 			// The characters are both regular or surrogates. Since a difference in surrogate firsts
 			// generates bias, we only get to compare seconds if the firsts were equal.
-			if (ch1 > ch2)
+			if (ch1 > ch2) {
 				return +1;
-			else if (ch1 < ch2)
+			} else if (ch1 < ch2) {
 				return -1;
-		} else if (bSurr1)
+			}
+		} else if (bSurr1) {
 			// If ch1 is a surrogate and ch2 is not, ch1 > ch2.
 			return +1;
-		else //if (bSurr2)
+		} else /*if (bSurr2)*/ {
 			// If ch2 is a surrogate and ch1 is not, ch1 < ch2.
 			return -1;
+		}
 	} while (ch1);
 	return 0;
 }
@@ -593,31 +639,35 @@ char16_t const utf16_traits::bom[] = {
 		if (bSurr1 == bSurr2) {
 			// The characters are both regular or surrogates. Since a difference in surrogate firsts
 			// generates bias, we only get to compare seconds if the firsts were equal.
-			if (ch1 > ch2)
+			if (ch1 > ch2) {
 				return +1;
-			else if (ch1 < ch2)
+			} else if (ch1 < ch2) {
 				return -1;
-		} else if (bSurr1)
+			}
+		} else if (bSurr1) {
 			// If ch1 is a surrogate and ch2 is not, ch1 > ch2.
 			return +1;
-		else //if (bSurr2)
+		} else /*if (bSurr2)*/ {
 			// If ch2 is a surrogate and ch1 is not, ch1 < ch2.
 			return -1;
+		}
 	}
 	// If we’re still here, the longest string wins.
-	if (cch1 > cch2)
+	if (cch1 > cch2) {
 		return +1;
-	else if (cch1 < cch2)
+	} else if (cch1 < cch2) {
 		return -1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 
 /*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
 	char16_t const * pch(psz);
-	while (*pch)
+	while (*pch) {
 		++pch;
+	}
 	return size_t(pch - psz);
 }
 
@@ -628,25 +678,29 @@ char16_t const utf16_traits::bom[] = {
 ) {
 	// TODO: redo using lookup table.
 	size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
-	if (!cchNeedle)
+	if (!cchNeedle) {
 		// No needle, so just return the whole haystack.
 		return pchHaystackBegin;
+	}
 	// Back pchHaystackEnd up by cchNeedle - 1 characters, because when we have fewer than that many
 	// characters we already know that the needle cannot be in the haystack.
 	char16_t const * pchHaystackEndN(pchHaystackEnd - (cchNeedle - 1));
 	char16_t chFirst(*pchNeedleBegin);
 	for (
 		char16_t const * pchHaystack(pchHaystackBegin); pchHaystack < pchHaystackEndN; ++pchHaystack
-	)
+	) {
 		if (*pchHaystack == chFirst) {
 			char16_t const * pchHaystack2(pchHaystack), * pchNeedle(pchNeedleBegin);
-			while (++pchNeedle < pchNeedleEnd && *++pchHaystack2 == *pchNeedle)
+			while (++pchNeedle < pchNeedleEnd && *++pchHaystack2 == *pchNeedle) {
 				;
-			if (pchNeedle >= pchNeedleEnd)
+			}
+			if (pchNeedle >= pchNeedleEnd) {
 				// The needle was exhausted, which means that all its characters, were matched in the
 				// haystack: we found the needle.
 				return pchHaystack;
+			}
 		}
+	}
 	return pchHaystackEnd;
 }
 
@@ -679,15 +733,19 @@ char32_t const utf32_traits::bom[] = {
 
 
 /*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
-	while (char32_t ch = *psz++)
-		if (!is_valid(ch))
+	while (char32_t ch = *psz++) {
+		if (!is_valid(ch)) {
 			return false;
+		}
+	}
 	return true;
 }
 /*static*/ bool utf32_traits::is_valid(char32_t const * pch, size_t cch) {
-	while (cch--)
-		if (!is_valid(*pch++))
+	while (cch--) {
+		if (!is_valid(*pch++)) {
 			return false;
+		}
+	}
 	return true;
 }
 
@@ -695,9 +753,11 @@ char32_t const utf32_traits::bom[] = {
 /*static*/ char32_t const * utf32_traits::str_chr(
 	char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-	for (char32_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch)
-		if (*pch == chNeedle)
+	for (char32_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+		if (*pch == chNeedle) {
 			return pch;
+		}
+	}
 	return pchHaystackEnd;
 }
 
@@ -705,9 +765,11 @@ char32_t const utf32_traits::bom[] = {
 /*static*/ char32_t const * utf32_traits::str_chr_r(
 	char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-	for (char32_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; )
-		if (*--pch == chNeedle)
+	for (char32_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+		if (*--pch == chNeedle) {
 			return pch;
+		}
+	}
 	return pchHaystackBegin;
 }
 
@@ -719,10 +781,11 @@ char32_t const utf32_traits::bom[] = {
 	do {
 		ch1 = *psz1++;
 		char32_t ch2(*psz2++);
-		if (ch1 > ch2)
+		if (ch1 > ch2) {
 			return +1;
-		else if (ch1 < ch2)
+		} else if (ch1 < ch2) {
 			return -1;
+		}
    } while (ch1);
 	return 0;
 }
@@ -732,25 +795,28 @@ char32_t const utf32_traits::bom[] = {
 	char32_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
 	while (pch1 < pch1End && pch2 < pch2End) {
 		char32_t ch1(*pch1++), ch2(*pch2++);
-		if (ch1 > ch2)
+		if (ch1 > ch2) {
 			return +1;
-		else if (ch1 < ch2)
+		} else if (ch1 < ch2) {
 			return -1;
+		}
 	}
 	// If we’re still here, the longest string wins.
-	if (cch1 > cch2)
+	if (cch1 > cch2) {
 		return +1;
-	else if (cch1 < cch2)
+	} else if (cch1 < cch2) {
 		return -1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 
 /*static*/ size_t utf32_traits::str_len(char32_t const * psz) {
 	char32_t const * pch(psz);
-	while (*pch)
+	while (*pch) {
 		++pch;
+	}
 	return size_t(pch - psz);
 }
 
@@ -761,25 +827,29 @@ char32_t const utf32_traits::bom[] = {
 ) {
 	// TODO: redo using lookup table.
 	size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
-	if (!cchNeedle)
+	if (!cchNeedle) {
 		// No needle, so just return the whole haystack.
 		return pchHaystackBegin;
+	}
 	// Back pchHaystackEnd up by cchNeedle - 1 characters, because when we have fewer than that many
 	// characters we already know that the needle cannot be in the haystack.
 	char32_t const * pchHaystackEndN(pchHaystackEnd - (cchNeedle - 1));
 	char32_t chFirst(*pchNeedleBegin);
 	for (
 		char32_t const * pchHaystack(pchHaystackBegin); pchHaystack < pchHaystackEndN; ++pchHaystack
-	)
+	) {
 		if (*pchHaystack == chFirst) {
 			char32_t const * pchHaystack2(pchHaystack), * pchNeedle(pchNeedleBegin);
-			while (++pchNeedle < pchNeedleEnd && *++pchHaystack2 == *pchNeedle)
+			while (++pchNeedle < pchNeedleEnd && *++pchHaystack2 == *pchNeedle) {
 				;
-			if (pchNeedle >= pchNeedleEnd)
+			}
+			if (pchNeedle >= pchNeedleEnd) {
 				// The needle was exhausted, which means that all its characters were matched in the
 				// haystack: we found the needle.
 				return pchHaystack;
+			}
 		}
+	}
 	return pchHaystackEnd;
 }
 

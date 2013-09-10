@@ -33,18 +33,22 @@ namespace abc {
 enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
 	abc_trace_fn((pem, i));
 
-	for (; pem->pszName; ++pem)
-		if (i == pem->iValue)
+	for (; pem->pszName; ++pem) {
+		if (i == pem->iValue) {
 			return pem;
+		}
+	}
 	// TODO: provide more information in the exception.
 	abc_throw(domain_error());
 }
 enum_member const * enum_member::find_in_map(enum_member const * pem, char_t const * psz) {
 	abc_trace_fn((pem, psz));
 
-	for (; pem->pszName; ++pem)
-		if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0)
+	for (; pem->pszName; ++pem) {
+		if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0) {
 			return pem;
+		}
+	}
 	// TODO: provide more information in the exception.
 	abc_throw(domain_error());
 }
@@ -66,10 +70,11 @@ _enum_to_string_backend_impl::_enum_to_string_backend_impl(char_range const & cr
 	// TODO: parse the format string.
 
 	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend())
+	if (it != crFormat.cend()) {
 		abc_throw(syntax_error(
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
+	}
 }
 
 

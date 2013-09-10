@@ -53,29 +53,33 @@ _int_to_string_backend_base::_int_to_string_backend_base(
 	bool bPrefix(false), bDefaultNotation(true);
 	auto it(crFormat.cbegin());
 	char_t ch;
-	if (it == crFormat.cend())
+	if (it == crFormat.cend()) {
 		goto default_notation;
+	}
 	ch = *it++;
 	// Display a plus or a space in front of non-negative numbers.
 	if (ch == '+' || ch == ' ') {
 		// Force this character to be displayed for non-negative numbers.
 		m_chSign = ch;
-		if (it == crFormat.cend())
+		if (it == crFormat.cend()) {
 			goto default_notation;
+		}
 		ch = *it++;
 	}
 	// Prefix with 0b, 0B, 0, 0x or 0X.
 	if (ch == '#') {
 		bPrefix = true;
-		if (it == crFormat.cend())
+		if (it == crFormat.cend()) {
 			goto default_notation;
+		}
 		ch = *it++;
 	}
 	// Pad with zeroes instead of spaces.
 	if (ch == '0') {
 		m_chPad = '0';
-		if (it == crFormat.cend())
+		if (it == crFormat.cend()) {
 			goto default_notation;
+		}
 		ch = *it++;
 	}
 	// “Width” - minimum number of digits.
@@ -85,8 +89,9 @@ _int_to_string_backend_base::_int_to_string_backend_base(
 		m_cchWidth = 0;
 		do {
 			m_cchWidth = m_cchWidth * 10 + unsigned(ch) - '0';
-			if (it == crFormat.cend())
+			if (it == crFormat.cend()) {
 				goto default_notation;
+			}
 			ch = *it++;
 		} while (ch >= '0' && ch <= '9');
 	}
@@ -94,8 +99,9 @@ _int_to_string_backend_base::_int_to_string_backend_base(
 	bDefaultNotation = false;
 default_notation:
 	// If we skipped the assignment to false, we run out of characters, so default the notation.
-	if (bDefaultNotation)
+	if (bDefaultNotation) {
 		ch = 'd';
+	}
 
 	// Determine which notation to use, which will also yield the approximate number of characters
 	// per byte.
@@ -106,8 +112,9 @@ default_notation:
 		case 'o':
 		case 'x':
 		case 'X':
-			if (bPrefix)
+			if (bPrefix) {
 				m_chPrefix0 = '0';
+			}
 			// Fall through.
 		case 'd':
 			switch (ch) {
@@ -134,8 +141,9 @@ default_notation:
 					cchByte = 3;
 					break;
 			}
-			if (it == crFormat.cend())
+			if (it == crFormat.cend()) {
 				break;
+			}
 			// If we still have any characters, they are garbage (fall through).
 		default:
 			abc_throw(syntax_error(
@@ -156,28 +164,33 @@ void _int_to_string_backend_base::add_prefixes_and_write(
 	char_t const * pchBufEnd(psBuf->cend().base());
 	char_t * pch(pchBufFirstUsed);
 	// Ensure that at least one digit is generated.
-	if (pch == pchBufEnd)
+	if (pch == pchBufEnd) {
 		*--pch = '0';
+	}
 	// Determine the sign character: only if in decimal notation, and make it a minus sign if the
 	// number is negative.
 	char_t chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
 	// Decide whether we’ll put a sign last, after the padding.
 	bool bSignLast(chSign && m_chPad == '0');
 	// Add the sign character if there’s no prefix and the padding is not zeroes.
-	if (chSign && m_chPad != '0')
+	if (chSign && m_chPad != '0') {
 		*--pch = chSign;
+	}
 	// Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
 	char_t const * pchFirst(pchBufEnd - (m_cchWidth - (bSignLast ? 1 : 0)));
-	while (pch > pchFirst)
+	while (pch > pchFirst) {
 		*--pch = m_chPad;
+	}
 	// Add prefix or sign (if padding with zeroes), if any.
 	if (m_chPrefix0) {
-		if (m_chPrefix1)
+		if (m_chPrefix1) {
 			*--pch = m_chPrefix1;
+		}
 		*--pch = m_chPrefix0;
-	} else if (bSignLast)
+	} else if (bSignLast) {
 		// Add the sign character.
 		*--pch = chSign;
+	}
 	// Write the constructed string.
 	posOut->write(pch, size_t(pchBufEnd - pch), text::encoding::host);
 }
@@ -270,10 +283,11 @@ to_string_backend<bool>::to_string_backend(char_range const & crFormat /*= char_
 	// TODO: parse the format string.
 
 	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend())
+	if (it != crFormat.cend()) {
 		abc_throw(syntax_error(
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
+	}
 }
 
 
@@ -281,10 +295,11 @@ void to_string_backend<bool>::write(bool b, ostream * posOut) {
 	abc_trace_fn((this, b, posOut));
 
 	// TODO: apply format options.
-	if (b)
+	if (b) {
 		*posOut << SL("true");
-	else
+	} else {
 		*posOut << SL("false");
+	}
 }
 
 } //namespace abc
@@ -310,10 +325,11 @@ to_string_backend<void const volatile *>::to_string_backend(
 	// TODO: parse the format string.
 
 	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend())
+	if (it != crFormat.cend()) {
 		abc_throw(syntax_error(
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
+	}
 }
 
 } //namespace abc

@@ -1088,15 +1088,17 @@ exception::exception(exception const & x) :
 	m_iSourceLine(x.m_iSourceLine),
 	m_bInFlight(x.m_bInFlight) {
 	// See [DESIGN_8503 Stack tracing].
-	if (m_bInFlight)
+	if (m_bInFlight) {
 		_scope_trace<>::trace_stream_addref();
+	}
 }
 
 
 /*virtual*/ exception::~exception() decl_throw(()) {
 	// See [DESIGN_8503 Stack tracing].
-	if (m_bInFlight)
+	if (m_bInFlight) {
 		_scope_trace<>::trace_stream_release();
+	}
 }
 
 
@@ -1113,11 +1115,13 @@ exception & exception::operator=(exception const & x) {
 	// sequence - it could delete the trace stream if *this was the last reference to it)
 	// release()/addref().
 	if (m_bInFlight != x.m_bInFlight) {
-		if (m_bInFlight)
+		if (m_bInFlight) {
 			_scope_trace<>::trace_stream_release();
+		}
 		m_bInFlight = x.m_bInFlight;
-		if (m_bInFlight)
+		if (m_bInFlight) {
 			_scope_trace<>::trace_stream_addref();
+		}
 	}
 	return *this;
 }
@@ -1150,7 +1154,7 @@ void exception::_print_extended_info(ostream * pos) const {
 		pabcx = dynamic_cast<exception const *>(pstdx);
 		// If the virtual method _print_extended_info() is not the default one provided by
 		// abc::exception, the class has a custom implementation, probably to print something useful.
-		if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/)
+		if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
 			try {
 				*pfosStdErr << SL("Extended information:\n");
 				pabcx->_print_extended_info(pfosStdErr.get());
@@ -1159,6 +1163,7 @@ void exception::_print_extended_info(ostream * pos) const {
 				// with the display of the (more important) exception information.
 				// FIXME: EXC-SWALLOW
 			}
+		}
 	} else {
 		// Some other type of exception; not much to say.
 		pabcx = NULL;
@@ -1166,12 +1171,13 @@ void exception::_print_extended_info(ostream * pos) const {
 	}
 
 	*pfosStdErr << SL("Stack trace:\n");
-	if (pabcx)
+	if (pabcx) {
 		// Frame 0 is the location of the abc_throw() statement.
 		pfosStdErr->print(
 			SL("#0 {} at {}:{}\n"),
 			pabcx->m_pszSourceFileName, pabcx->m_pszSourceFunction, pabcx->m_iSourceLine
 		);
+	}
 	// Print the stack trace collected via abc_trace_fn().
 	*pfosStdErr << _scope_trace<>::get_trace_contents();
 }
@@ -1231,8 +1237,9 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 	//    less than or equal to zero.”
 	// So we do exactly that - except we skip checking for SI_USER and SI_QUEUE at this point because
 	// they don’t apply to many signals this handler takes care of.
-	if (psi->si_code <= 0)
+	if (psi->si_code <= 0) {
 		return;
+	}
 
 	switch (iSignal) {
 		case SIGBUS:
@@ -1287,10 +1294,11 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 			abc_throw(abc::arithmetic_error());
 
 		case SIGSEGV:
-			if (psi->si_addr == NULL)
+			if (psi->si_addr == NULL) {
 				abc_throw(abc::null_pointer_error());
-			else
+			} else {
 				abc_throw(abc::memory_address_error(psi->si_addr));
+			}
 	}
 	// Handle all unrecognized cases here. Since here we only handle signals for which the default
 	// actions is a core dump, calling abort (which sends SIGABRT, also causing a core dump) is the
@@ -1312,15 +1320,17 @@ exception::async_handler_manager::async_handler_manager() {
 	saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
 
 	// Setup handlers for the signals in g_aiHandledSignals.
-	for (int i(countof(g_aiHandledSignals)); --i >= 0; )
+	for (int i(countof(g_aiHandledSignals)); --i >= 0; ) {
 		::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
+	}
 }
 
 
 exception::async_handler_manager::~async_handler_manager() {
 	// Restore the saved signal handlers.
-	for (int i(countof(g_aiHandledSignals)); --i >= 0; )
+	for (int i(countof(g_aiHandledSignals)); --i >= 0; ) {
 		::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], NULL);
+	}
 }
 
 #endif //if ABC_HOST_API_LINUX
@@ -1557,10 +1567,11 @@ memory_address_error & memory_address_error::operator=(memory_address_error cons
 
 
 void memory_address_error::_print_extended_info(ostream * pos) const {
-	if (m_pInvalid != smc_achUnknownAddress)
+	if (m_pInvalid != smc_achUnknownAddress) {
 		pos->print(SL("invalid address: {}\n"), m_pInvalid);
-	else
+	} else {
 		*pos << smc_achUnknownAddress;
+	}
 	generic_error::_print_extended_info(pos);
 }
 
@@ -1653,28 +1664,33 @@ void syntax_error::_print_extended_info(ostream * pos) const {
 	cstring sFormat;
 	if (m_crSource) {
 		if (m_iChar) {
-			if (m_iLine)
+			if (m_iLine) {
 				sFormat = SL("{0} in {1}:{2}:{3}\n");
-			else
+			} else {
 				sFormat = SL("{0} in expression \"{1}\", character {3}\n");
+			}
 		} else {
-			if (m_iLine)
+			if (m_iLine) {
 				sFormat = SL("{0} in {1}:{2}\n");
-			else
+			} else {
 				sFormat = SL("{0} in expression \"{1}\"\n");
+			}
 		}
-	} else
+	} else {
 		if (m_iChar) {
-			if (m_iLine)
+			if (m_iLine) {
 				sFormat = SL("{0} in <input>:{2}:{3}\n");
-			else
+			} else {
 				sFormat = SL("{0} in <expression>, character {3}\n");
+			}
 		} else {
-			if (m_iLine)
+			if (m_iLine) {
 				sFormat = SL("{0} in <input>:{2}\n");
-			else
+			} else {
 				sFormat = SL("{0}\n");
+			}
 		}
+	}
 
 	pos->print(sFormat, m_crDescription, m_crSource, m_iLine, m_iChar);
 	generic_error::_print_extended_info(pos);

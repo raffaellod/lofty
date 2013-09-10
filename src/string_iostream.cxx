@@ -109,15 +109,18 @@ string_ostream::string_type string_ostream::get_contents() {
 ) {
 	abc_trace_fn((this, p, cb, enc));
 
-	if (enc == text::encoding::unknown)
+	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
 		enc = text::encoding::identity;
-	if (m_enc == text::encoding::unknown)
+	}
+	if (m_enc == text::encoding::unknown) {
 		// This is the first output, so it decides for the whole file.
 		m_enc = enc;
-	if (!cb)
+	}
+	if (!cb) {
 		// Nothing to do.
 		return;
+	}
 	size_t cbChar(sizeof(string_type::value_type));
 	if (enc == m_enc || enc == text::encoding::identity) {
 		// Optimal case: no transcoding necessary.
@@ -125,7 +128,7 @@ string_ostream::string_type string_ostream::get_contents() {
 		m_sBuf.set_capacity((m_ibWrite + cb) / cbChar, true);
 		memory::copy<void>(reinterpret_cast<int8_t *>(m_sBuf.get_data()) + m_ibWrite, p, cb);
 		m_ibWrite += cb;
-	} else
+	} else {
 		do {
 			// Calculate the additional size required, and enlarge the string.
 			size_t cbDstEst(text::estimate_transcoded_size(enc, p, cb, m_enc));
@@ -136,6 +139,7 @@ string_ostream::string_type string_ostream::get_contents() {
 			// Fill as much of the buffer as possible, and advance m_ibWrite accordingly.
 			m_ibWrite += text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBuf, &cbBuf);
 		} while (cb);
+	}
 	// Ensure the string knows its own length and is NUL-terminated.
 	m_sBuf.set_size(m_ibWrite / cbChar);
 }

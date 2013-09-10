@@ -42,8 +42,9 @@ dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
 	m_bOwn(true) {
 	abc_trace_fn((this, /*fp, */bInit));
 
-	if (!m_hdynmod)
+	if (!m_hdynmod) {
 		throw_os_error();
+	}
 }
 
 
@@ -68,8 +69,9 @@ file_path dynamic_module::get_file_name() const {
 		// not large enough.
 
 		size_t cchRet(::GetModuleFileName(m_hdynmod, pch, cchMax));
-		if (!cchRet)
+		if (!cchRet) {
 			throw_os_error();
+		}
 		return cchRet;
 	});
 	return std::move(s);
@@ -121,9 +123,7 @@ size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const
 	UNUSED_ARG(cchMax);
 	return 0;
 #elif ABC_HOST_API_WIN32
-	return ::LoadString(
-		m_hdynmod, WORD(id), psz, int(cchMax)
-	);
+	return ::LoadString(m_hdynmod, WORD(id), psz, int(cchMax));
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -143,8 +143,9 @@ code_module::code_module(file_path const & fp) :
 	m_hdynmod(::dlopen(fp.get_data(), RTLD_LAZY)) {
 	abc_trace_fn((this/*, fp*/));
 
-	if (!m_hdynmod)
+	if (!m_hdynmod) {
 		throw_os_error();
+	}
 #elif ABC_HOST_API_WIN32
 	dynamic_module(fp, true) {
 #else
@@ -165,8 +166,9 @@ code_module::code_module(code_module && cm) :
 
 code_module::~code_module() {
 #if ABC_HOST_API_POSIX
-	if (m_hdynmod)
+	if (m_hdynmod) {
 		::dlclose(m_hdynmod);
+	}
 #endif
 }
 
@@ -186,8 +188,9 @@ void * code_module::_get_symbol(cstring const & sSymbol) {
 	}
 #elif ABC_HOST_API_WIN32
 	pfn = ::GetProcAddress(m_hdynmod, sSymbol.get_data());
-	if (!pfn)
+	if (!pfn) {
 		throw_os_error();
+	}
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -239,8 +242,9 @@ module_impl_base::module_impl_base() :
 
 	pvsRet->set_capacity(size_t(cArgs), false);
 	// Make each string not allocate a new character array.
-	for (int i(0); i < cArgs; ++i)
+	for (int i(0); i < cArgs; ++i) {
 		pvsRet->append(cstring(unsafe, ppszArgs[i]));
+	}
 #elif ABC_HOST_API_WIN32
 	abc_trace_fn(());
 

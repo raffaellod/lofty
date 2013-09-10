@@ -59,8 +59,9 @@ filedesc::~filedesc() {
 
 
 filedesc & filedesc::operator=(filedesc_t fd) {
-	if (fd != m_fd)
+	if (fd != m_fd) {
 		this->~filedesc();
+	}
 	m_fd = fd;
 	m_bOwn = true;
 	return *this;
@@ -107,11 +108,13 @@ void file::flush() {
 
 #if ABC_HOST_API_POSIX
 	// TODO: investigate fdatasync().
-	if (::fsync(m_fd.get()))
+	if (::fsync(m_fd.get())) {
 		throw_os_error();
+	}
 #elif ABC_HOST_API_WIN32
-	if (!::FlushFileBuffers(m_fd.get()))
+	if (!::FlushFileBuffers(m_fd.get())) {
 		throw_os_error();
+	}
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -132,11 +135,13 @@ size_t file::read(void * p, size_t cbMax) {
 		ssize_t cbLastRead(::read(
 			m_fd.get(), pb, std::min<size_t>(cbMax, numeric::max<ssize_t>::value)
 		));
-		if (cbLastRead == 0)
+		if (cbLastRead == 0) {
 			// EOF.
 			break;
-		if (cbLastRead < 0)
+		}
+		if (cbLastRead < 0) {
 			throw_os_error();
+		}
 #elif ABC_HOST_API_WIN32
 		// This will be repeated at least once, and as long as we still have some bytes to read, and
 		// reading them does not fail.
@@ -145,8 +150,9 @@ size_t file::read(void * p, size_t cbMax) {
 			m_fd.get(), pb, std::min<size_t>(cbMax, numeric::max<DWORD>::value), &cbLastRead, NULL
 		)) {
 			DWORD iErr(::GetLastError());
-			if (iErr == ERROR_HANDLE_EOF)
+			if (iErr == ERROR_HANDLE_EOF) {
 				break;
+			}
 			throw_os_error(iErr);
 		}
 #else
@@ -185,8 +191,9 @@ size_t file::write(void const * p, size_t cb) {
 		/// Destructor.
 		//
 		~file_lock() {
-			if (m_fd != INVALID_FILE_HANDLE)
+			if (m_fd != INVALID_FILE_HANDLE) {
 				unlock();
+			}
 		}
 
 
@@ -198,14 +205,16 @@ size_t file::write(void const * p, size_t cb) {
 			assert(m_fd == INVALID_FILE_HANDLE);
 			m_ibOffset.QuadPart = ibOffset;
 			m_cb.QuadPart = cb;
-			if (::LockFile(m_fd, m_ibOffset.LowPart, m_ibOffset.HighPart, m_cb.LowPart, m_cb.HighPart))
-				return true;
-			else {
+			if (!::LockFile(
+				m_fd, m_ibOffset.LowPart, m_ibOffset.HighPart, m_cb.LowPart, m_cb.HighPart
+			)) {
 				DWORD iErr(::GetLastError());
-				if (iErr == ERROR_LOCK_VIOLATION)
+				if (iErr == ERROR_LOCK_VIOLATION) {
 					return false;
+				}
 				throw_os_error(iErr);
 			}
+			return true;
 		}
 
 
@@ -213,8 +222,9 @@ size_t file::write(void const * p, size_t cb) {
 			assert(m_fd != INVALID_FILE_HANDLE);
 			if (!::UnlockFile(
 				m_fd, m_ibOffset.LowPart, m_ibOffset.HighPart, m_cb.LowPart, m_cb.HighPart
-			))
+			)) {
 				throw_os_error();
+			}
 		}
 
 
@@ -240,14 +250,16 @@ size_t file::write(void const * p, size_t cb) {
 		do {
 			// TODO: this should really be moved to a file::seek() method.
 #if _WIN32_WINNT >= 0x0500
-			if (!::SetFilePointerEx(m_fd.get(), 0, &ibEOF, FILE_END))
+			if (!::SetFilePointerEx(m_fd.get(), 0, &ibEOF, FILE_END)) {
 				throw_os_error();
+			}
 #else //if _WIN32_WINNT >= 0x0500
 			ibEOF.LowPart = ::SetFilePointer(m_fd.get(), 0, &ibEOF.HighPart, FILE_END);
 			if (ibEOF.LowPart == INVALID_SET_FILE_POINTER) {
 				DWORD iErr(::GetLastError());
-				if (iErr != ERROR_SUCCESS)
+				if (iErr != ERROR_SUCCESS) {
 					throw_os_error(iErr);
+				}
 			}
 #endif //if _WIN32_WINNT >= 0x0500 … else
 		} while (!flAppend.lock(m_fd.get(), ibEOF.QuadPart, cb));
@@ -265,16 +277,18 @@ size_t file::write(void const * p, size_t cb) {
 		ssize_t cbLastWritten(::write(
 			m_fd.get(), pb, std::min<size_t>(cb, numeric::max<ssize_t>::value)
 		));
-		if (cbLastWritten < 0)
+		if (cbLastWritten < 0) {
 			throw_os_error();
+		}
 #elif ABC_HOST_API_WIN32
 		// This will be repeated at least once, and as long as we still have some bytes to write, and
 		// writing them does not fail.
 		DWORD cbLastWritten;
 		if (!::WriteFile(
 			m_fd.get(), pb, std::min<size_t>(cb, numeric::max<DWORD>::value), &cbLastWritten, NULL
-		))
+		)) {
 			throw_os_error();
+		}
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -290,7 +304,7 @@ size_t file::write(void const * p, size_t cb) {
 /*static*/ std::shared_ptr<file> const & file::get_stderr() {
 	abc_trace_fn(());
 
-	if (!g_ppfileStdErr)
+	if (!g_ppfileStdErr) {
 		_construct_std_file(
 #if ABC_HOST_API_POSIX
 			STDERR_FILENO,
@@ -301,6 +315,7 @@ size_t file::write(void const * p, size_t cb) {
 #endif
 			&g_ppfileStdErr
 		);
+	}
 	return *g_ppfileStdErr;
 }
 
@@ -308,7 +323,7 @@ size_t file::write(void const * p, size_t cb) {
 /*static*/ std::shared_ptr<file> const & file::get_stdin() {
 	abc_trace_fn(());
 
-	if (!g_ppfileStdIn)
+	if (!g_ppfileStdIn) {
 		_construct_std_file(
 #if ABC_HOST_API_POSIX
 			STDIN_FILENO,
@@ -319,6 +334,7 @@ size_t file::write(void const * p, size_t cb) {
 #endif
 			&g_ppfileStdIn
 		);
+	}
 	return *g_ppfileStdIn;
 }
 
@@ -326,7 +342,7 @@ size_t file::write(void const * p, size_t cb) {
 /*static*/ std::shared_ptr<file> const & file::get_stdout() {
 	abc_trace_fn(());
 
-	if (!g_ppfileStdOut)
+	if (!g_ppfileStdOut) {
 		_construct_std_file(
 #if ABC_HOST_API_POSIX
 			STDOUT_FILENO,
@@ -337,6 +353,7 @@ size_t file::write(void const * p, size_t cb) {
 #endif
 			&g_ppfileStdOut
 		);
+	}
 	return *g_ppfileStdOut;
 }
 
@@ -353,8 +370,9 @@ size_t file::write(void const * p, size_t cb) {
 	// If we’re still here, everything succeeded.
 
 	// If this is the first standard file being constructed, register the releaser.
-	if (!g_ppfileStdErr && !g_ppfileStdIn && !g_ppfileStdOut)
+	if (!g_ppfileStdErr && !g_ppfileStdIn && !g_ppfileStdOut) {
 		::atexit(_release_std_files);
+	}
 	// Return the allocated shared pointer.
 	*pppf = ppf.release();
 }
@@ -381,8 +399,9 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 			fi = O_APPEND;
 			break;
 	}
-	if (!m_bBuffered)
+	if (!m_bBuffered) {
 		fi |= O_DIRECT;
+	}
 	fd = ::open(fp.get_data(), fi, 0666);
 #elif ABC_HOST_API_WIN32
 	DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
@@ -413,16 +432,18 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 			m_bAppend = true;
 			break;
 	}
-	if (!m_bBuffered)
+	if (!m_bBuffered) {
 		fi |= FILE_FLAG_NO_BUFFERING;
-	else if (bRead)
+	} else if (bRead) {
 		fi |= FILE_FLAG_SEQUENTIAL_SCAN;
+	}
 	fd = ::CreateFile(fp.get_data(), fiAccess, fiShareMode, NULL, iAction, fi, NULL);
 #else
 	#error TODO-PORT: HOST_API
 #endif
-	if (!fd)
+	if (!fd) {
 		throw_os_error();
+	}
 	return std::move(fd);
 }
 
@@ -433,14 +454,17 @@ filedesc file::_post_open(filedesc && fd) {
 #if ABC_HOST_API_POSIX
 
 	struct ::stat statFile;
-	if (::fstat(fd.get(), &statFile))
+	if (::fstat(fd.get(), &statFile)) {
 		throw_os_error();
+	}
 	m_bHasSize = S_ISREG(statFile.st_mode);
-	if (m_bHasSize)
+	if (m_bHasSize) {
 		m_cb = size_t(statFile.st_size);
-	if (!m_bBuffered)
+	}
+	if (!m_bBuffered) {
 		// For unbuffered access, use the filesystem-suggested I/O size increment.
 		m_cbPhysAlign = unsigned(statFile.st_blksize);
+	}
 
 #elif ABC_HOST_API_WIN32
 
@@ -448,23 +472,26 @@ filedesc file::_post_open(filedesc && fd) {
 	if (m_bHasSize) {
 #if _WIN32_WINNT >= 0x0500
 		static_assert(sizeof(m_cb) == sizeof(LARGE_INTEGER));
-		if (!::GetFileSizeEx(fd, reinterpret_cast<LARGE_INTEGER *>(&m_cb)))
+		if (!::GetFileSizeEx(fd, reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
 			throw_os_error();
+		}
 #else //if _WIN32_WINNT >= 0x0500
 		DWORD cbHigh, cbLow(::GetFileSize(fd, &cbHigh));
 		if (cbLow == INVALID_FILE_SIZE) {
 			DWORD iErr(::GetLastError());
-			if (iErr != ERROR_SUCCESS)
+			if (iErr != ERROR_SUCCESS) {
 				throw_os_error(iErr);
+			}
 		}
 		m_cb = (fileint_t(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
 #endif //if _WIN32_WINNT >= 0x0500 … else
 	}
-	if (!m_bBuffered)
+	if (!m_bBuffered) {
 		// Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
 		// file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical
 		// sector size.
 		m_cbPhysAlign = 4096;
+	}
 
 #else //elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API

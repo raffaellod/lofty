@@ -43,8 +43,9 @@ public:
 	/// Constructor.
 	//
 	file_stat(file_path const & fp) {
-		if (::stat(fp.get_data(), this))
+		if (::stat(fp.get_data(), this)) {
 			throw_os_error();
+		}
 	}
 };
 
@@ -54,8 +55,9 @@ public:
 //
 static bool file_attrs(DWORD fi) const {
 	DWORD fiAttrs(::GetFileAttributes(get_data()));
-	if (fiAttrs == INVALID_FILE_ATTRIBUTES)
+	if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
 		throw_os_error();
+	}
 	return (fiAttrs & fi) == fi;
 }
 
@@ -95,14 +97,13 @@ wdstring file_path::get_base_name() const {
 	abc_trace_fn((this));
 
 	// An empty path has no base name.
-	if (!m_s || is_root())
+	if (!m_s || is_root()) {
 		return m_s;
-	else {
-		wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-		// it != NULL always, because this is not the root.
-		assert(it);
-		return m_s.substr(it + 1 /*smc_aszSeparator*/);
 	}
+	wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
+	// it != NULL always, because this is not the root.
+	assert(it);
+	return m_s.substr(it + 1 /*smc_aszSeparator*/);
 }
 
 
@@ -112,19 +113,22 @@ wdstring file_path::get_base_name() const {
 	wdstring s;
 #if ABC_HOST_API_POSIX
 	s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
-		if (::getcwd(pch, cchMax))
+		if (::getcwd(pch, cchMax)) {
 			// The length will be necessarily less than cchMax, so grow_for() will stop.
 			return text::utf_traits<>::str_len(pch);
-		if (errno != ERANGE)
+		}
+		if (errno != ERANGE) {
 			throw_os_error(errno);
+		}
 		// Report that the provided buffer was too small.
 		return cchMax;
 	});
 #elif ABC_HOST_API_WIN32
 	s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
 		DWORD cch(::GetCurrentDirectory(cchMax, pch));
-		if (!cch)
+		if (!cch) {
 			throw_os_error();
+		}
 		return cch;
 	});
 #else
@@ -138,24 +142,25 @@ file_path file_path::get_parent_dir() const {
 	abc_trace_fn((this));
 
 	// An empty path has no parent directory.
-	if (!m_s || is_root())
+	if (!m_s || is_root()) {
 		// The root is its own parent.
 		return file_path(m_s);
-	else {
-		wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
+	}
+	wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
 #if ABC_HOST_API_POSIX
-		if (it == m_s.cbegin() + 0 /*"/"*/)
-			// The parent is the root, so keep the slash or we’ll end up with an empty string.
-			++it;
+	if (it == m_s.cbegin() + 0 /*"/"*/) {
+		// The parent is the root, so keep the slash or we’ll end up with an empty string.
+		++it;
+	}
 #elif ABC_HOST_API_WIN32
-		if (it == m_s.cbegin() + 6 /*"\\?\C:\"*/)
-			// The parent is a volume root, so keep the slash or we’ll end up with a volume designator.
-			++it;
+	if (it == m_s.cbegin() + 6 /*"\\?\C:\"*/) {
+		// The parent is a volume root, so keep the slash or we’ll end up with a volume designator.
+		++it;
+	}
 #else
 	#error TODO-PORT: HOST_API
 #endif
-		return m_s.substr(0, it - m_s.cbegin());
-	}
+	return m_s.substr(0, it - m_s.cbegin());
 }
 
 
@@ -176,11 +181,13 @@ file_path file_path::get_parent_dir() const {
 	size_t cch(s.get_size());
 	char_t const * pch(s.get_data());
 	// Win32 namespace root: best case.
-	if (cch >= 4 /*"\\?\"*/ && pch[0] == '\\' && pch[1] == '\\' && pch[2] == '?' && pch[3] == '\\')
+	if (cch >= 4 /*"\\?\"*/ && pch[0] == '\\' && pch[1] == '\\' && pch[2] == '?' && pch[3] == '\\') {
 		return true;
+	}
 	// DOS-style root, starting with a volume designator.
-	if (cch >= 2 /*"X:"*/ && pch[1] == ':')
+	if (cch >= 2 /*"X:"*/ && pch[1] == ':') {
 		return true;
+	}
 	return false;
 #else
 	#error TODO-PORT: HOST_API
@@ -219,8 +226,9 @@ bool file_path::is_root() const {
 
 	size_t cch(s.get_size());
 	// An empty string is okay.
-	if (!cch)
+	if (!cch) {
 		return std::move(s);
+	}
 	// If it’s a relative path, make it absolute.
 	if (!is_absolute(s)) {
 		wdstring sAbs(std::move(get_current_dir().m_s));
@@ -245,16 +253,18 @@ bool file_path::is_root() const {
 		cch < 7 /*"\\?\X:\"*/ ||
 		pch0[0] != '\\' || pch0[1] != '\\' || pch0[2] != '?' ||
 		pch0[3] != '\\' || pch0[5] != ':'  || pch0[6] != '\\'
-	)
+	) {
 		throw_os_error(ERROR_BAD_PATHNAME);
+	}
 	{
 		// Check and normalize the volume designator.
 		char_t ch(pch0[4]);
 		if (ch >= 'a' && ch <= 'z') {
 			ch -= 'a' - 'A';
 			s[4] = ch;
-		} else if (ch < 'A' || ch > 'Z')
+		} else if (ch < 'A' || ch > 'Z') {
 			throw_os_error(ERROR_INVALID_DRIVE);
+		}
 	}
 	// Point to the last of the separators checked for above.
 	pchRootSep += 6;
@@ -270,17 +280,17 @@ bool file_path::is_root() const {
 	size_t cDots(0);
 	for (char_t const * pchSrc(pchRootSep), * pchMax(pch0 + cch); pchSrc < pchMax; ++pchSrc) {
 		char_t ch(*pchSrc);
-		if (ch == '.' && cDots < 2)
+		if (ch == '.' && cDots < 2) {
 			// Count for “.” and “..”.
 			++cDots;
-		else if (ch == '\\' || ch == '/') {
-			if (!bFoundSep)
+		} else if (ch == '\\' || ch == '/') {
+			if (!bFoundSep) {
 				// No preceding separators: track this as the first one.
 				bFoundSep = true;
-			else if (!cDots)
+			} else if (!cDots) {
 				// No dots between this separator and the previous one: skip this repetition.
 				continue;
-			else {
+			} else {
 				// We found “/./” or “/../”: discard the first separator and the dots.
 				pchDst -= cDots /*"." or ".."*/ + 1 /*'/'*/;
 				// If we found “/../”, go back two separators, and discard anything in between if the
@@ -318,8 +328,9 @@ bool file_path::is_root() const {
 	}
 	// Also undo writing a trailing non-root separator.
 	char_t * pchLast(pchDst - 1);
-	if (pchLast > pchRootSep && *pchLast == smc_aszSeparator[0])
+	if (pchLast > pchRootSep && *pchLast == smc_aszSeparator[0]) {
 		pchDst = pchLast;
+	}
 
 	// Adjust the length based on the position of the last character written.
 	s.set_size(size_t(pchDst - s.get_data()));
@@ -333,10 +344,11 @@ to_string_backend<file_path>::to_string_backend(char_range const & crFormat /*= 
 	// TODO: parse the format string.
 
 	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend())
+	if (it != crFormat.cend()) {
 		abc_throw(syntax_error(
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
+	}
 }
 
 

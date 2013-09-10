@@ -61,10 +61,12 @@ size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc
 		10, // encoding::ebcdic: constant.
 	};
 
-	if (encSrc < encoding::_charsets_offset)
+	if (encSrc < encoding::_charsets_offset) {
 		abc_throw(argument_error());
-	if (encDst < encoding::_charsets_offset)
+	}
+	if (encDst < encoding::_charsets_offset) {
 		abc_throw(argument_error());
+	}
 	// TODO: use this to give a more accurate estimate for UTF-8, by evaluating which language block
 	// seems to be dominant in the source.
 	UNUSED_ARG(pSrc);
@@ -79,12 +81,13 @@ size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc
 	// Also, we have to multiply first, to avoid underflow, but this would expose to overflow, in
 	// which case we’ll divide first, as in the original expression.
 	size_t ccp(cbSrc * cbDstAvg);
-	if (ccp >= cbSrc)
+	if (ccp >= cbSrc) {
 		// No integer overflow.
 		return (ccp + cbSrcAvg - 1) / cbSrcAvg;
-	else
+	} else {
 		// Integer overflow occurred: evaluate the expression in the origianal order.
 		return ((cbSrc + cbSrcAvg - 1) / cbSrcAvg) * cbDstAvg;
+	}
 }
 
 
@@ -159,15 +162,18 @@ void const * get_line_terminator_bytes(encoding enc, line_terminator lterm, size
 	// Finally, the actual code: just a simple lookup.
 
 	// Reject non-charset encodings, because we can’t determine what value CR or LF should have.
-	if (!get_encoding_size(enc))
+	if (!get_encoding_size(enc)) {
 		abc_throw(argument_error());
+	}
 	// Reject line_terminator::nel for every encoding except encoding::ebcdic, for which it’s the
 	// only allowed line_terminator.
-	if ((enc == encoding::ebcdic) != (lterm == line_terminator::nel))
+	if ((enc == encoding::ebcdic) != (lterm == line_terminator::nel)) {
 		abc_throw(argument_error());
+	}
 	// Do the NEL > CRLF remapping mentioned above.
-	if (enc == encoding::ebcdic)
+	if (enc == encoding::ebcdic) {
 		lterm = line_terminator::cr_lf;
+	}
 	lts_t const * plts(
 		sc_lts[enc.base() - encoding::_charsets_offset][lterm.base() - line_terminator::_known_offset]
 	);
@@ -254,16 +260,18 @@ encoding guess_encoding(
 	unsigned fess(ESS_MASK_START);
 
 	// Initially, assume no BOM will be found.
-	if (pcbBom)
+	if (pcbBom) {
 		*pcbBom = 0;
+	}
 
 	// Easy checks.
 	if (cbSrcTotal & (sizeof(char32_t) - 1)) {
 		// UTF-32 requires a number of bytes multiple of sizeof(char32_t).
 		fess &= ~unsigned(ESS_MASK_UTF32);
-		if (cbSrcTotal & (sizeof(char16_t) - 1))
+		if (cbSrcTotal & (sizeof(char16_t) - 1)) {
 			// UTF-16 requires an even number of bytes.
 			fess &= ~unsigned(ESS_MASK_UTF16);
+		}
 	}
 
 	// Parse every byte, gradually excluding more and more possibilities, hopefully ending with
@@ -275,32 +283,35 @@ encoding guess_encoding(
 		if (fess & ESS_UTF8) {
 			// Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
 			// here.
-			if (cbUtf8Cont)
-				if ((b & 0xc0) != 0x80)
+			if (cbUtf8Cont) {
+				if ((b & 0xc0) != 0x80) {
 					// This byte should be part of a sequence, but it’s not.
 					fess &= ~unsigned(ESS_UTF8);
-				else
+				} else {
 					--cbUtf8Cont;
-			else
-				if ((b & 0xc0) == 0x80)
+				}
+			} else {
+				if ((b & 0xc0) == 0x80) {
 					// This byte should be a leading byte, but it’s not.
 					fess &= ~unsigned(ESS_UTF8);
-				else {
+				} else {
 					cbUtf8Cont = utf8_traits::leading_to_cont_length(char8_t(b));
-					if ((b & 0x80) && !cbUtf8Cont)
+					if ((b & 0x80) && !cbUtf8Cont) {
 						// By utf8_traits::leading_to_cont_length(), a non-ASCII byte that doesn’t have a
 						// continuation is an invalid one.
 						fess &= ~unsigned(ESS_UTF8);
+					}
 				}
+			}
 		}
 
-		if (fess & (ESS_UTF16LE | ESS_UTF16BE))
+		if (fess & (ESS_UTF16LE | ESS_UTF16BE)) {
 			// Check for UTF-16 validity. The only check possible is proper ordering of surrogate
 			// pairs; everything else is allowed.
-			for (unsigned ess(ESS_UTF16LE); ess <= ESS_UTF16BE; ess <<= 2)
+			for (unsigned ess(ESS_UTF16LE); ess <= ESS_UTF16BE; ess <<= 2) {
 				// This will go ahead with the check if ib is indexing the most significant byte, i.e.
 				// odd for LE and even for BE.
-				if ((fess & ess) && (ib & sizeof(char16_t)) == (ess != ESS_UTF16LE))
+				if ((fess & ess) && (ib & sizeof(char16_t)) == (ess != ESS_UTF16LE)) {
 					switch (b & 0xfc) {
 						case 0xd8: {
 							// There must be a surrogate second after 1 byte, and there have to be enough
@@ -309,54 +320,65 @@ encoding guess_encoding(
 							if (
 								(cbSrcTotal && ibNext >= cbSrcTotal) ||
 								(ibNext < cbBuf && (pbBuf[ibNext] & 0xfc) != 0xdc)
-							)
+							) {
 								fess &= ~ess;
+							}
 							break;
 						}
 						case 0xdc: {
 							// Assume there was a surrogate first 2 bytes before.
 							size_t ibPrev(ib - sizeof(char16_t));
 							// ibPrev < ib checks for underflow of ibPrev.
-							if (ibPrev < ib && (pbBuf[ibPrev] & 0xfc) != 0xd8)
+							if (ibPrev < ib && (pbBuf[ibPrev] & 0xfc) != 0xd8) {
 								fess &= ~ess;
+							}
 							break;
 						}
 					}
+				}
+			}
+		}
 
 		if ((fess & (ESS_UTF32LE | ESS_UTF32BE)) && (ib & sizeof(char32_t)) == sizeof(char32_t) - 1) {
 			// Check for UTF-32 validity. Just ensure that each quadruplet of bytes defines a valid
 			// UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
 			// well as other restrictions.
 			uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf + ib - (sizeof(char32_t) - 1)));
-			if ((fess & ESS_UTF32LE) && !utf32_traits::is_valid(byteorder::le_to_host(ch)))
+			if ((fess & ESS_UTF32LE) && !utf32_traits::is_valid(byteorder::le_to_host(ch))) {
 				fess &= ~unsigned(ESS_UTF32LE);
-			if ((fess & ESS_UTF32BE) && !utf32_traits::is_valid(byteorder::be_to_host(ch)))
+			}
+			if ((fess & ESS_UTF32BE) && !utf32_traits::is_valid(byteorder::be_to_host(ch))) {
 				fess &= ~unsigned(ESS_UTF32BE);
+			}
 		}
 
-		if (fess & ESS_ISO_8859_1)
+		if (fess & ESS_ISO_8859_1) {
 			// Check for ISO-8859-1 validity. This is more of a guess, since there’s a big many other
 			// encodings which could pass this check.
-			if ((sc_abValidISO88591[b >> 3] & (1 << (b & 7))) == 0)
+			if ((sc_abValidISO88591[b >> 3] & (1 << (b & 7))) == 0) {
 				fess &= ~unsigned(ESS_ISO_8859_1);
+			}
+		}
 
-		if (fess & ESS_WINDOWS_1252)
+		if (fess & ESS_WINDOWS_1252) {
 			// Check for Windows-1252 validity. Even more of a guess, since this considers valid more
 			// characters still.
-			if ((sc_abValidWindows1252[b >> 3] & (1 << (b & 7))) == 0)
+			if ((sc_abValidWindows1252[b >> 3] & (1 << (b & 7))) == 0) {
 				fess &= ~unsigned(ESS_WINDOWS_1252);
+			}
+		}
 
-		if (fess & ESS_MASK_BOMS)
+		if (fess & ESS_MASK_BOMS) {
 			// Lastly, check for one or more BOMs. This needs to be last, so if it enables other
 			// checks, they don’t get performed on the last BOM byte it just analyzed, which would most
 			// likely cause them to fail.
 			for (size_t iBsd(0); iBsd < countof(sc_absd); ++iBsd) {
 				unsigned essBom(sc_absd[iBsd].ess);
 				if (fess & essBom) {
-					if (b != sc_absd[iBsd].pabBom[ib])
+					if (b != sc_absd[iBsd].pabBom[ib]) {
 						// This byte doesn’t match: stop checking for this BOM.
 						fess &= ~essBom;
-					else if (ib == sc_absd[iBsd].cbBom - 1) {
+					} else if (ib == sc_absd[iBsd].cbBom - 1) {
 						// This was the last BOM byte, which means that the whole BOM was matched: stop
 						// checking for the BOM, and enable checking for the encoding itself.
 						fess &= ~essBom;
@@ -364,30 +386,33 @@ encoding guess_encoding(
 						// Return the BOM length to the caller, if requested. This will be overwritten in
 						// case another, longer BOM is found (e.g. the BOM in UTF-16LE is the start of the
 						// BOM in UTF-32LE).
-						if (pcbBom)
+						if (pcbBom) {
 							*pcbBom = sc_absd[iBsd].cbBom;
+						}
 					}
 				}
 			}
+		}
 	}
 
 	// Now, of all possibilities, pick the most likely.
-	if (fess & ESS_UTF8)
+	if (fess & ESS_UTF8) {
 		return encoding::utf8;
-	else if (fess & ESS_UTF32LE)
+	} else if (fess & ESS_UTF32LE) {
 		return encoding::utf32le;
-	else if (fess & ESS_UTF32BE)
+	} else if (fess & ESS_UTF32BE) {
 		return encoding::utf32be;
-	else if (fess & ESS_UTF16LE)
+	} else if (fess & ESS_UTF16LE) {
 		return encoding::utf16le;
-	else if (fess & ESS_UTF16BE)
+	} else if (fess & ESS_UTF16BE) {
 		return encoding::utf16be;
-	else if (fess & ESS_ISO_8859_1)
+	} else if (fess & ESS_ISO_8859_1) {
 		return encoding::iso_8859_1;
-	else if (fess & ESS_WINDOWS_1252)
+	} else if (fess & ESS_WINDOWS_1252) {
 		return encoding::windows_1252;
-	else
+	} else {
 		return encoding::unknown;
+	}
 }
 
 
@@ -396,8 +421,9 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 
 	size_t cbChar(get_encoding_size(enc));
 	// Reject non-charset encodings, because we can’t determine what value CR or LF should have.
-	if (!cbChar)
+	if (!cbChar) {
 		abc_throw(argument_error());
+	}
 
 	line_terminator lterm(line_terminator::unknown);
 	void const * pBufMax(static_cast<int8_t const *>(pBuf) + cbChar * cchBuf);
@@ -407,39 +433,43 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 			if (enc == encoding::ebcdic) {
 				// Special case for EBCDIC.
 				uint8_t chNel(0x15);
-				for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf)
+				for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf) {
 					if (*pchBuf == chNel) {
 						lterm = line_terminator::nel;
 						break;
 					}
+				}
 			} else {
 				// It’s one of the supported byte-oriented character sets.
 				// A note on scanning an UTF-8 buffer: we want this to be tolerant to encoding errors,
 				// so exploit the fact that no UTF-8 character can contain another, and just scan byte
 				// by byte, without performing any check on lead bytes.
 				uint8_t chCr(0x0d), chLf(0x0a);
-				for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf)
+				for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf) {
 					if (*pchBuf == chCr) {
 						// CR can be followed by a LF to form the sequence CRLF, so check the following
 						// character (if we have one). If we found a CR as the very last character in the
 						// buffer, we can’t check the following one; at this point, we have to guess, so
 						// we’ll consider CRLF more likely than CR.
-						if (++pchBuf < pBufMax && *pchBuf != chLf)
+						if (++pchBuf < pBufMax && *pchBuf != chLf) {
 							lterm = line_terminator::cr;
-						else
+						} else {
 							lterm = line_terminator::cr_lf;
+						}
 						break;
 					} else if (*pchBuf == chLf) {
 						lterm = line_terminator::lf;
 						break;
 					}
+				}
 			}
 			break;
 		}
 
 		case sizeof(char16_t): {
-			if (enc != encoding::utf16le && enc != encoding::utf16be)
+			if (enc != encoding::utf16le && enc != encoding::utf16be) {
 				abc_throw(argument_error());
+			}
 			uint16_t chCr(enc == encoding::utf16le
 				? STATIC_BYTEORDER_HOSTTOLE16(0x000d) : STATIC_BYTEORDER_HOSTTOBE16(0x000d)
 			);
@@ -450,24 +480,27 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 				uint16_t const * pchBuf(static_cast<uint16_t const *>(pBuf));
 				pchBuf < static_cast<uint16_t const *>(pBufMax);
 				++pchBuf
-			)
+			) {
 				if (*pchBuf == chCr) {
 					// See comments in the sizeof(char8_t) case.
-					if (pchBuf < pBufMax && *(pchBuf + 1) != chLf)
+					if (pchBuf < pBufMax && *(pchBuf + 1) != chLf) {
 						lterm = line_terminator::cr;
-					else
+					} else {
 						lterm = line_terminator::cr_lf;
+					}
 					break;
 				} else if (*pchBuf == chLf) {
 					lterm = line_terminator::lf;
 					break;
 				}
+			}
 			break;
 		}
 
 		case sizeof(char32_t): {
-			if (enc != encoding::utf32le && enc != encoding::utf32be)
+			if (enc != encoding::utf32le && enc != encoding::utf32be) {
 				abc_throw(argument_error());
+			}
 			uint32_t chCr(enc == encoding::utf32le
 				? STATIC_BYTEORDER_HOSTTOLE32(0x00000d) : STATIC_BYTEORDER_HOSTTOBE32(0x00000d)
 			);
@@ -478,18 +511,20 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 				uint32_t const * pchBuf(static_cast<uint32_t const *>(pBuf));
 				pchBuf < static_cast<uint32_t const *>(pBufMax);
 				++pchBuf
-			)
+			) {
 				if (*pchBuf == chCr) {
 					// See comments in the sizeof(char8_t) case.
-					if (++pchBuf < pBufMax && *pchBuf != chLf)
+					if (++pchBuf < pBufMax && *pchBuf != chLf) {
 						lterm = line_terminator::cr;
-					else
+					} else {
 						lterm = line_terminator::cr_lf;
+					}
 					break;
 				} else if (*pchBuf == chLf) {
 					lterm = line_terminator::lf;
 					break;
 				}
+			}
 			break;
 		}
 	}
@@ -518,15 +553,17 @@ size_t transcode(
 		// Decode a source code point into ch32.
 		switch (encSrc.base()) {
 			case encoding::utf8: {
-				if (pbSrc + sizeof(char8_t) > pbSrcEnd)
+				if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
 					goto break_for;
+				}
 				char8_t ch8Src(char8_t(*pbSrc++));
 				switch (ch8Src & 0xc0) {
 					default: {
 						unsigned cbCont(utf8_traits::leading_to_cont_length(ch8Src));
 						// Ensure that we still have enough characters.
-						if (pbSrc + cbCont > pbSrcEnd)
+						if (pbSrc + cbCont > pbSrcEnd) {
 							goto break_for;
+						}
 						// Convert the first byte to an UTF-32 character.
 						ch32 = utf8_traits::get_leading_cp_bits(ch8Src, cbCont);
 						// Shift in any continuation bytes.
@@ -539,9 +576,10 @@ size_t transcode(
 							}
 							ch32 = (ch32 << 6) | (ch8Src & 0x3f);
 						}
-						if (!cbCont && utf32_traits::is_valid(ch32))
+						if (!cbCont && utf32_traits::is_valid(ch32)) {
 							// The whole sequence was read, and the result is valid UTF-32.
 							break;
+						}
 						// Replace this invalid code point (fall through).
 					}
 					case 0x80:
@@ -554,27 +592,32 @@ size_t transcode(
 
 			case encoding::utf16le:
 			case encoding::utf16be: {
-				if (pbSrc + sizeof(char16_t) > pbSrcEnd)
+				if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
 					goto break_for;
+				}
 				char16_t ch16Src(*reinterpret_cast<char16_t const *>(pbSrc));
 				pbSrc += sizeof(char16_t);
-				if (encSrc != encoding::utf16_host)
+				if (encSrc != encoding::utf16_host) {
 					ch16Src = byteorder::swap(ch16Src);
+				}
 				switch (ch16Src & 0xfc00) {
 					case 0xd800:
 						// Surrogate first half.
 						ch32 = char32_t(ch16Src & 0x03ff) << 10;
-						if (pbSrc + sizeof(char16_t) > pbSrcEnd)
+						if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
 							goto break_for;
+						}
 						ch16Src = *reinterpret_cast<char16_t const *>(pbSrc);
 						pbSrc += sizeof(char16_t);
-						if (encSrc != encoding::utf16_host)
+						if (encSrc != encoding::utf16_host) {
 							ch16Src = byteorder::swap(ch16Src);
+						}
 						// This character must be a surrogate second half.
 						if ((ch16Src & 0xfc00) == 0xdc00) {
 							ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
-							if (utf32_traits::is_valid(ch32))
+							if (utf32_traits::is_valid(ch32)) {
 								break;
+							}
 							// Replace this invalid code point (fall through).
 						}
 						// Replace this invalid single surrogate (fall through).
@@ -591,12 +634,14 @@ size_t transcode(
 
 			case encoding::utf32be:
 			case encoding::utf32le:
-				if (pbSrc + sizeof(char32_t) > pbSrcEnd)
+				if (pbSrc + sizeof(char32_t) > pbSrcEnd) {
 					goto break_for;
+				}
 				ch32 = *reinterpret_cast<char32_t const *>(pbSrc);
 				pbSrc += sizeof(char32_t);
-				if (encSrc != encoding::utf32_host)
+				if (encSrc != encoding::utf32_host) {
 					ch32 = byteorder::swap(ch32);
+				}
 				break;
 
 			case encoding::iso_8859_1:
@@ -617,16 +662,18 @@ size_t transcode(
 			case encoding::utf8: {
 				// Compute the length of this sequence.
 				unsigned cbSeq;
-				if (ch32 <= 0x00007f)
+				if (ch32 <= 0x00007f) {
 					cbSeq = 1;
-				else if (ch32 <= 0x0007ff)
+				} else if (ch32 <= 0x0007ff) {
 					cbSeq = 2;
-				else if (ch32 <= 0x00ffff)
+				} else if (ch32 <= 0x00ffff) {
 					cbSeq = 3;
-				else
+				} else {
 					cbSeq = 4;
-				if (pbDst + cbSeq > pbDstEnd)
+				}
+				if (pbDst + cbSeq > pbDstEnd) {
 					goto break_for;
+				}
 				unsigned cbCont(cbSeq - 1);
 				// Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont)
 				// make up what goes in the leading byte, which is combined with the proper sequence
@@ -634,23 +681,26 @@ size_t transcode(
 				*pbDst++ = uint8_t(
 					utf8_traits::cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont)
 				);
-				while (cbCont--)
+				while (cbCont--) {
 					*pbDst++ = uint8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
+				}
 				break;
 			}
 
 			case encoding::utf16le:
 			case encoding::utf16be: {
 				unsigned cbCont((ch32 > 0x00ffff) << 1);
-				if (pbDst + sizeof(char16_t) + cbCont > pbDstEnd)
+				if (pbDst + sizeof(char16_t) + cbCont > pbDstEnd) {
 					goto break_for;
+				}
 				char16_t ch16Dst0, ch16Dst1;
 				if (cbCont) {
 					ch32 -= 0x10000;
 					ch16Dst0 = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
 					ch16Dst1 = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
-				} else
+				} else {
 					ch16Dst0 = char16_t(ch32);
+				}
 				if (encSrc != encoding::utf16_host) {
 					ch16Dst0 = byteorder::swap(ch16Dst0);
 					ch16Dst1 = byteorder::swap(ch16Dst1);
@@ -673,8 +723,9 @@ size_t transcode(
 				ch32 = byteorder::swap(ch32);
 				// Fall through.
 			case encoding::utf32_host:
-				if (pbDst + sizeof(char32_t) > pbDstEnd)
+				if (pbDst + sizeof(char32_t) > pbDstEnd) {
 					goto break_for;
+				}
 				*reinterpret_cast<char32_t *>(pbDst) = ch32;
 				pbDst += sizeof(char32_t);
 				break;

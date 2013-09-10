@@ -88,8 +88,9 @@ _ostream_print_helper<>::_ostream_print_helper(ostream * pos, cstring const & sF
 void _ostream_print_helper<>::run() {
 	// Since this specialization has no replacements, verify that the format string doesn’t specify
 	// any either.
-	if (write_format_up_to_next_repl())
+	if (write_format_up_to_next_repl()) {
 		abc_throw(index_error(m_iSubstArg));
+	}
 }
 
 
@@ -133,15 +134,18 @@ bool _ostream_print_helper<>::write_format_up_to_next_repl() {
 			if (ch == '{') {
 				// Mark the beginning of the replacement field.
 				itReplFieldBegin = it - 1;
-				if (it >= itEnd)
+				if (it >= itEnd) {
 					throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+				}
 				ch = *it;
-				if (ch != '{')
+				if (ch != '{') {
 					// We found the beginning of a replacement field.
 					break;
+				}
 			} else if (ch == '}') {
-				if (it >= itEnd || *it != '}')
+				if (it >= itEnd || *it != '}') {
 					throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
+				}
 			}
 			// Convert “{{” into “{” or “}}” into “}”.
 			// Write up to and including the first brace.
@@ -159,19 +163,22 @@ bool _ostream_print_helper<>::write_format_up_to_next_repl() {
 			iArg *= 10;
 			iArg += unsigned(ch - '0');
 		} while (++it < itEnd && (ch = *it, ch >= '0' && ch <= '9'));
-		if (it >= itEnd)
+		if (it >= itEnd) {
 			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+		}
 		// Save this index as the last used one.
 		m_iSubstArg = iArg;
-	} else
+	} else {
 		// The argument index is missing, so just use the next one.
 		++m_iSubstArg;
+	}
 
 	// Check for a conversion specifier; defaults to string.
 	char_t chConversion('s');
 	if (ch == '!') {
-		if (++it >= itEnd)
+		if (++it >= itEnd) {
 			throw_syntax_error(SL("expected conversion specifier"), it);
+		}
 		ch = *it;
 		switch (ch) {
 			case 's':
@@ -183,25 +190,29 @@ bool _ostream_print_helper<>::write_format_up_to_next_repl() {
 			default:
 				throw_syntax_error(SL("unknown conversion specifier"), it);
 		}
-		if (++it >= itEnd)
+		if (++it >= itEnd) {
 			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+		}
 		ch = *it;
 	}
 
 	// Check for a format specification.
 	if (ch == ':') {
-		if (++it >= itEnd)
+		if (++it >= itEnd) {
 			throw_syntax_error(SL("expected format specification"), it);
+		}
 		m_pchReplFormatSpecBegin = it.base();
 		// Find the end of the replacement field.
 		it = m_sFormat.find('}', it);
-		if (it == m_sFormat.cend())
+		if (it == m_sFormat.cend()) {
 			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+		}
 		m_pchReplFormatSpecEnd = it.base();
 	} else {
 		// If there’s no format specification, it must be the end of the replacement field.
-		if (ch != '}')
+		if (ch != '}') {
 			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+		}
 		// Set the format specification to nothing.
 		m_pchReplFormatSpecBegin = NULL;
 		m_pchReplFormatSpecEnd = NULL;

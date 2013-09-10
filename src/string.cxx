@@ -36,10 +36,11 @@ _string_to_string_backend_base::_string_to_string_backend_base(char_range const 
 	// TODO: parse the format string.
 
 	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend())
+	if (it != crFormat.cend()) {
 		abc_throw(syntax_error(
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cend())
 		));
+	}
 }
 
 
@@ -91,12 +92,13 @@ size_t _raw_string::hash(size_t cbItem) const {
 void _raw_string::set_size(size_t cbItem, size_t cch) {
 	abc_trace_fn((this, cbItem, cch));
 
-	if (cch > get_capacity())
+	if (cch > get_capacity()) {
 		// Enlarge and NUL-terminate the item array.
 		set_capacity(cbItem, cch, true);
-	else
+	} else {
 		// NUL-terminate the item array.
 		terminate(cbItem, static_cast<int8_t *>(m_p) + cbItem * cch);
+	}
 	m_ci = cch + 1 /*NUL*/;
 }
 
