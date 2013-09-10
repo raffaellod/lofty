@@ -36,60 +36,84 @@ public:
 			file_path fp(file_path::get_current_dir());
 
 			// These should be normalized out.
-			if (fp != fp / SL(""))
+			if (fp != fp / SL("")) {
 				return 10;
-			if (fp != fp / SL("/"))
+			}
+			if (fp != fp / SL("/")) {
 				return 11;
-			if (fp != fp / SL("//"))
+			}
+			if (fp != fp / SL("//")) {
 				return 12;
-			if (fp != fp / SL("."))
+			}
+			if (fp != fp / SL(".")) {
 				return 13;
-			if (fp != fp / SL("/."))
+			}
+			if (fp != fp / SL("/.")) {
 				return 14;
-			if (fp != fp / SL("./"))
+			}
+			if (fp != fp / SL("./")) {
 				return 15;
-			if (fp != fp / SL("/./"))
+			}
+			if (fp != fp / SL("/./")) {
 				return 16;
-			if (fp != fp / SL("./."))
+			}
+			if (fp != fp / SL("./.")) {
 				return 17;
+			}
 
 			// These should NOT be normalized: three dots are just another regular path component.
-			if (fp == fp / SL("..."))
+			if (fp == fp / SL("...")) {
 				return 20;
-			if (fp == fp / SL("/..."))
+			}
+			if (fp == fp / SL("/...")) {
 				return 21;
-			if (fp == fp / SL(".../"))
+			}
+			if (fp == fp / SL(".../")) {
 				return 22;
-			if (fp == fp / SL("/.../"))
+			}
+			if (fp == fp / SL("/.../")) {
 				return 23;
+			}
 
 			// Now with one additional trailing component.
-			if (fp / SL("test") != fp / SL("/test"))
+			if (fp / SL("test") != fp / SL("/test")) {
 				return 30;
-			if (fp / SL("test") != fp / SL("//test"))
+			}
+			if (fp / SL("test") != fp / SL("//test")) {
 				return 31;
-			if (fp / SL("test") != fp / SL("./test"))
+			}
+			if (fp / SL("test") != fp / SL("./test")) {
 				return 32;
-			if (fp / SL("test") != fp / SL("/./test"))
+			}
+			if (fp / SL("test") != fp / SL("/./test")) {
 				return 33;
-			if (fp / SL("test") != fp / SL("././test"))
+			}
+			if (fp / SL("test") != fp / SL("././test")) {
 				return 34;
+			}
 
 			// Verify that ".." works.
-			if (fp / SL("a/..") != fp)
+			if (fp / SL("a/..") != fp) {
 				return 40;
-			if (fp / SL("a/../b") != fp / SL("b"))
+			}
+			if (fp / SL("a/../b") != fp / SL("b")) {
 				return 41;
-			if (fp / SL("a/../b/..") != fp)
+			}
+			if (fp / SL("a/../b/..") != fp) {
 				return 42;
-			if (fp / SL("a/b/../..") != fp)
+			}
+			if (fp / SL("a/b/../..") != fp) {
 				return 43;
-			if (fp / SL("a/b/../c") != fp / SL("a/c"))
+			}
+			if (fp / SL("a/b/../c") != fp / SL("a/c")) {
 				return 44;
-			if (fp / SL("a/../b/../c") != fp / SL("c"))
+			}
+			if (fp / SL("a/../b/../c") != fp / SL("c")) {
 				return 45;
-			if (fp / SL("a/b/../../c") != fp / SL("c"))
+			}
+			if (fp / SL("a/b/../../c") != fp / SL("c")) {
 				return 46;
+			}
 		}
 
 		return EXIT_SUCCESS;

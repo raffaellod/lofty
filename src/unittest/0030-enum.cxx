@@ -40,10 +40,12 @@ public:
 
 		test_enum e(test_enum::value2);
 
-		if (e != test_enum::value2)
+		if (e != test_enum::value2) {
 			return 1;
-		if (to_string(e) != SL("value2"))
+		}
+		if (to_string(e) != SL("value2")) {
 			return 2;
+		}
 
 		return EXIT_SUCCESS;
 	}

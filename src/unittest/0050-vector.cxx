@@ -97,36 +97,44 @@ public:
 			vector<int> v;
 
 			v.append(1);
-			if (v.get_size() != 1 || v[0] != 1)
+			if (v.get_size() != 1 || v[0] != 1) {
 				return 1;
+			}
 
 			v = v + (vector<int>() += 2) + v;
-			if (v.get_size() != 3 || v[0] != 1 || v[1] != 2 || v[2] != 1)
+			if (v.get_size() != 3 || v[0] != 1 || v[1] != 2 || v[2] != 1) {
 				return 2;
+			}
 
 			v = v.slice(1, 3);
-			if (v.get_size() != 2 || v[0] != 2 || v[1] != 1)
+			if (v.get_size() != 2 || v[0] != 2 || v[1] != 1) {
 				return 3;
+			}
 
 			v.append(3);
-			if (v.get_size() != 3 || v[0] != 2 || v[1] != 1 || v[2] != 3)
+			if (v.get_size() != 3 || v[0] != 2 || v[1] != 1 || v[2] != 3) {
 				return 4;
+			}
 
 			auto i1(v.index_of(1));
-			if (i1 != 1)
+			if (i1 != 1) {
 				return 5;
+			}
 
 			auto i2(v.last_index_of(1));
-			if (i2 != 1)
+			if (i2 != 1) {
 				return 6;
+			}
 
 			auto it1(std::find(v.cbegin(), v.cend(), 1));
-			if (it1 - v.cbegin() != 1)
+			if (it1 - v.cbegin() != 1) {
 				return 7;
+			}
 
 			v.remove(it1);
-			if (v.get_size() != 2 || v[0] != 2 || v[1] != 3)
+			if (v.get_size() != 2 || v[0] != 2 || v[1] != 3) {
 				return 8;
+			}
 		}
 
 		// Try mix’n’matching vectors of different sizes, and check that vectors using static
@@ -135,39 +143,45 @@ public:
 			vector<int> v0;
 			pi = v0.get_data();
 			v0.append(0);
-			if (v0.get_data() == pi)
+			if (v0.get_data() == pi) {
 				return 50;
+			}
 
 			vector<int, 3> v1;
 			pi = v1.get_data();
 			v1.append(1);
-			if (v1.get_data() == pi)
+			if (v1.get_data() == pi) {
 				return 51;
+			}
 			pi = v1.get_data();
 			v1.append(2);
-			if (v1.get_data() != pi)
+			if (v1.get_data() != pi) {
 				return 52;
+			}
 
 			vector<int, 1> v2;
 			pi = v2.get_data();
 			v2.append(3);
-			if (v2.get_data() == pi)
+			if (v2.get_data() == pi) {
 				return 53;
+			}
 
 			pi = v0.get_data();
 			v0 = v1 + v2;
 			if (
 				v0.get_data() == pi || v0.get_size() != 3 || v0[0] != 1 || v0[1] != 2 || v0[2] != 3
-			)
+			) {
 				return 54;
+			}
 
 			pi = v1.get_data();
 			v1 = v2 + v0;
 			if (
 				v1.get_data() == pi || v1.get_size() != 4 ||
 				v1[0] != 3 || v1[1] != 1 || v1[2] != 2 || v1[3] != 3
-			)
+			) {
 				return 55;
+			}
 
 			pi = v2.get_data();
 			v2 = v0 + v1;
@@ -175,32 +189,38 @@ public:
 				v2.get_data() == pi || v2.get_size() != 7 ||
 				v2[0] != 1 || v2[1] != 2 || v2[2] != 3 ||
 				v2[3] != 3 || v2[4] != 1 || v2[5] != 2 || v2[6] != 3
-			)
+			) {
 				return 56;
+			}
 		}
 
 		// Check that returning a vector with a dynamically allocated descriptor does not cause a new
 		// descriptor to be allocated, nor copies the items.
 		{
 			vector<test_with_ptr> v(move_constr_test(&pi));
-			if (v[0].get_ptr() != pi)
+			if (v[0].get_ptr() != pi) {
 				return 100;
-			if (test_with_ptr::get_count() != 1)
+			}
+			if (test_with_ptr::get_count() != 1) {
 				return 110 + test_with_ptr::get_count();
+			}
 			// Also check that add(T &&) doesn’t make extra copies.
 			v.append(test_with_ptr());
-			if (test_with_ptr::get_count() != 2)
+			if (test_with_ptr::get_count() != 2) {
 				return 120 + test_with_ptr::get_count();
+			}
 		}
 
 		// Check that returning a vector with a dynamically allocated descriptor into a vector with a
 		// statically allocated descriptor causes the items to be moved to the static descriptor.
 		{
 			vector<test_with_ptr, 2> v(move_constr_test(&pi));
-			if (v[0].get_ptr() != pi)
+			if (v[0].get_ptr() != pi) {
 				return 130;
-			if (test_with_ptr::get_count() != 3)
+			}
+			if (test_with_ptr::get_count() != 3) {
 				return 140 + test_with_ptr::get_count();
+			}
 		}
 
 		return EXIT_SUCCESS;

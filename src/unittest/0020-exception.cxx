@@ -65,8 +65,9 @@ public:
 			} catch (derived1_error const & e) {
 				return 23;
 			} catch (generic_error const & e) {
-				if (e != os_error_mapping<generic_error>::mapped_error)
+				if (e != os_error_mapping<generic_error>::mapped_error) {
 					return 24;
+				}
 				// Success.
 			} catch (exception const & e) {
 				return 25;
@@ -82,8 +83,9 @@ public:
 			} catch (derived2_error const & e) {
 				return 32;
 			} catch (derived1_error const & e) {
-				if (e != os_error_mapping<derived1_error>::mapped_error)
+				if (e != os_error_mapping<derived1_error>::mapped_error) {
 					return 33;
+				}
 				// Success.
 			} catch (generic_error const & e) {
 				return 34;
@@ -99,8 +101,9 @@ public:
 			} catch (derived3_error const & e) {
 				return 41;
 			} catch (derived2_error const & e) {
-				if (e != os_error_mapping<derived2_error>::mapped_error)
+				if (e != os_error_mapping<derived2_error>::mapped_error) {
 					return 42;
+				}
 				// Success.
 			} catch (derived1_error const & e) {
 				return 43;
@@ -116,8 +119,9 @@ public:
 				throw_derived3_error(2351);
 				return 50;
 			} catch (derived3_error const & e) {
-				if (e != os_error_mapping<derived3_error>::mapped_error)
+				if (e != os_error_mapping<derived3_error>::mapped_error) {
 					return 51;
+				}
 				// Success.
 			} catch (derived2_error const & e) {
 				return 52;
@@ -217,10 +221,11 @@ public:
 		try {
 			// Non-obvious division by zero: this program takes no arguments, so vsArgs.size() is
 			// always 1. The conditional code makes use of the quotient, so it can’t be optimized away.
-			if (1 / (vsArgs.get_size() - 1))
+			if (1 / (vsArgs.get_size() - 1)) {
 				return 110;
-			else
+			} else {
 				return 111;
+			}
 		} catch (division_by_zero_error const &) {
 			// Success.
 		} catch (arithmetic_error const &) {

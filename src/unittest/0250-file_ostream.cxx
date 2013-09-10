@@ -54,8 +54,9 @@ public:
 			sName = SL("file");
 		}
 
-		if (!pfos)
+		if (!pfos) {
 			return EXIT_FAILURE;
+		}
 		pfos->set_encoding(enc);
 		*pfos << SL("Testing ")
 				<< sName

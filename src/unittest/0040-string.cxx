@@ -40,54 +40,68 @@ public:
 
 			s += SL("a");
 			// true: operator+= must have created an item array (there was none).
-			if (!check_string(true, 1, 7) || s[0] != 'a')
+			if (!check_string(true, 1, 7) || s[0] != 'a') {
 				return 10;
+			}
 
 			s = s + 'b' + s;
 			// true: a new string is created by operator+, which replaces s by operator=.
-			if (!check_string(true, 3, 7) || s != SL("aba"))
+			if (!check_string(true, 3, 7) || s != SL("aba")) {
 				return 11;
+			}
 
 			s = s.substr(1, 3);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 2, 7) || s != SL("ba"))
+			if (!check_string(true, 2, 7) || s != SL("ba")) {
 				return 12;
+			}
 
 			s += 'c';
 			// false: there should’ve been enough space for 'c'.
-			if (!check_string(false, 3, 7) || s != SL("bac"))
+			if (!check_string(false, 3, 7) || s != SL("bac")) {
 				return 13;
+			}
 
 			s = s.substr(0, -1);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 2, 7) || s[0] != 'b' || s[1] != 'a')
+			if (!check_string(true, 2, 7) || s[0] != 'b' || s[1] != 'a') {
 				return 14;
+			}
 
 			s += s;
 			// false: there should’ve been enough space for “baba”.
-			if (!check_string(false, 4, 7) || s[0] != 'b' || s[1] != 'a' || s[2] != 'b' || s[3] != 'a')
+			if (
+				!check_string(false, 4, 7) || s[0] != 'b' || s[1] != 'a' || s[2] != 'b' || s[3] != 'a'
+			) {
 				return 15;
+			}
 
 			s = s.substr(-3, -2);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 1, 7) || s[0] != 'a')
+			if (!check_string(true, 1, 7) || s[0] != 'a') {
 				return 16;
+			}
 
 			s = wdstring(SL("ab")) + 'c';
 			// true: s got replaced by operator=.
-			if (!check_string(true, 3, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c')
+			if (!check_string(true, 3, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c') {
 				return 17;
+			}
 
 			s += 'd';
 			// false: there should’ve been enough space for “abcd”.
-			if (!check_string(false, 4, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c' || s[3] != 'd')
+			if (
+				!check_string(false, 4, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c' || s[3] != 'd'
+			) {
 				return 18;
+			}
 
 			s += SL("efghijklmnopqrstuvwxyz");
 			// false: while this will need to reallocate, the heap should be able to just resize the
 			// allocated block, so the pointer won’t change.
-			if (!check_string(false, 26, 55) || s != SL("abcdefghijklmnopqrstuvwxyz"))
+			if (!check_string(false, 26, 55) || s != SL("abcdefghijklmnopqrstuvwxyz")) {
 				return 19;
+			}
 		}
 
 		// ASCII character and substring search.
@@ -103,45 +117,55 @@ public:
 			cstring8::const_iterator
 
 			it = s8.find('b');
-			if (it != s8.cbegin() + 3)
+			if (it != s8.cbegin() + 3) {
 				return 50;
+			}
 
 			it = s8.find(U8L("ab"));
-			if (it != s8.cbegin() + 2)
+			if (it != s8.cbegin() + 2) {
 				return 51;
+			}
 
 			it = s8.find(U8L("abca"));
-			if (it != s8.cbegin() + 5)
+			if (it != s8.cbegin() + 5) {
 				return 52;
+			}
 
 			it = s8.find(U8L("abcd"));
-			if (it != s8.cend())
+			if (it != s8.cend()) {
 				return 53;
+			}
 
 			it = s8.find(U8L("abaabc"));
-			if (it != s8.cbegin() + 2)
+			if (it != s8.cbegin() + 2) {
 				return 54;
+			}
 
 			it = s8.find(U8L("abaabcd"));
-			if (it != s8.cend())
+			if (it != s8.cend()) {
 				return 55;
+			}
 
 			it = s8.find_last('b');
-			if (it != s8.cend() - 3)
+			if (it != s8.cend() - 3) {
 				return 56;
+			}
 
 #if 0
 			it = s8.find_last(U8L("ab"));
-			if (it != s8.cend() - 4)
+			if (it != s8.cend() - 4) {
 				return 57;
+			}
 
 			it = s8.find_last(U8L("ac"));
-			if (it != s8.cend() - 9)
+			if (it != s8.cend() - 9) {
 				return 58;
+			}
 
 			it = s8.find_last(U8L("ca"));
-			if (it != s8.cend() - 2)
+			if (it != s8.cend() - 2) {
 				return 59;
+			}
 #endif
 		}
 #endif
@@ -151,45 +175,55 @@ public:
 			cstring16::const_iterator it;
 
 			it = s16.find('b');
-			if (it != s16.cbegin() + 3)
+			if (it != s16.cbegin() + 3) {
 				return 60;
+			}
 
 			it = s16.find(U16L("ab"));
-			if (it != s16.cbegin() + 2)
+			if (it != s16.cbegin() + 2) {
 				return 61;
+			}
 
 			it = s16.find(U16L("abca"));
-			if (it != s16.cbegin() + 5)
+			if (it != s16.cbegin() + 5) {
 				return 62;
+			}
 
 			it = s16.find(U16L("abcd"));
-			if (it != s16.cend())
+			if (it != s16.cend()) {
 				return 63;
+			}
 
 			it = s16.find(U16L("abaabc"));
-			if (it != s16.cbegin() + 2)
+			if (it != s16.cbegin() + 2) {
 				return 64;
+			}
 
 			it = s16.find(U16L("abaabcd"));
-			if (it != s16.cend())
+			if (it != s16.cend()) {
 				return 65;
+			}
 
 			it = s16.find_last('b');
-			if (it != s16.cend() - 3)
+			if (it != s16.cend() - 3) {
 				return 66;
+			}
 
 #if 0
 			it = s16.find_last(U16L("ab"));
-			if (it != s16.cend() - 4)
+			if (it != s16.cend() - 4) {
 				return 67;
+			}
 
 			it = s16.find_last(U16L("ac"));
-			if (it != s16.cend() - 9)
+			if (it != s16.cend() - 9) {
 				return 68;
+			}
 
 			it = s16.find_last(U16L("ca"));
-			if (it != s16.cend() - 2)
+			if (it != s16.cend() - 2) {
 				return 69;
+			}
 #endif
 		}
 #endif
@@ -199,45 +233,55 @@ public:
 			cstring32::const_iterator it;
 
 			it = s32.find('b');
-			if (it != s32.cbegin() + 3)
+			if (it != s32.cbegin() + 3) {
 				return 70;
+			}
 
 			it = s32.find(U32L("ab"));
-			if (it != s32.cbegin() + 2)
+			if (it != s32.cbegin() + 2) {
 				return 71;
+			}
 
 			it = s32.find(U32L("abca"));
-			if (it != s32.cbegin() + 5)
+			if (it != s32.cbegin() + 5) {
 				return 72;
+			}
 
 			it = s32.find(U32L("abcd"));
-			if (it != s32.cend())
+			if (it != s32.cend()) {
 				return 73;
+			}
 
 			it = s32.find(U32L("abaabc"));
-			if (it != s32.cbegin() + 2)
+			if (it != s32.cbegin() + 2) {
 				return 74;
+			}
 
 			it = s32.find(U32L("abaabcd"));
-			if (it != s32.cend())
+			if (it != s32.cend()) {
 				return 75;
+			}
 
 			it = s32.find_last('b');
-			if (it != s32.cend() - 3)
+			if (it != s32.cend() - 3) {
 				return 76;
+			}
 
 #if 0
 			it = s32.find_last(U32L("ab"));
-			if (it != s32.cend() - 4)
+			if (it != s32.cend() - 4) {
 				return 77;
+			}
 
 			it = s32.find_last(U32L("ac"));
-			if (it != s32.cend() - 9)
+			if (it != s32.cend() - 9) {
 				return 78;
+			}
 
 			it = s32.find_last(U32L("ca"));
-			if (it != s32.cend() - 2)
+			if (it != s32.cend() - 2) {
 				return 79;
+			}
 #endif
 		}
 #endif
@@ -249,20 +293,24 @@ public:
 			cstring8::const_iterator it;
 
 			it = s8.find(U32L('ß'));
-			if (it != s8.cbegin() + 2)
+			if (it != s8.cbegin() + 2) {
 				return 80;
+			}
 
 			it = s8.find(U8L("àß"));
-			if (it != s8.cbegin() + 0)
+			if (it != s8.cbegin() + 0) {
 				return 81;
+			}
 
 			it = s8.find(U8L("àŒ"));
-			if (it != s8.cbegin() + 6)
+			if (it != s8.cbegin() + 6) {
 				return 82;
+			}
 
 			it = s8.find(U8L("àü"));
-			if (it != s8.cend())
+			if (it != s8.cend()) {
 				return 83;
+			}
 		}
 #endif
 #ifdef U16L
@@ -271,20 +319,24 @@ public:
 			cstring16::const_iterator it;
 
 			it = s16.find(U32L('ß'));
-			if (it != s16.cbegin() + 1)
+			if (it != s16.cbegin() + 1) {
 				return 90;
+			}
 
 			it = s16.find(U16L("àß"));
-			if (it != s16.cbegin() + 0)
+			if (it != s16.cbegin() + 0) {
 				return 91;
+			}
 
 			it = s16.find(U16L("àŒ"));
-			if (it != s16.cbegin() + 3)
+			if (it != s16.cbegin() + 3) {
 				return 92;
+			}
 
 			it = s16.find(U16L("àü"));
-			if (it != s16.cend())
+			if (it != s16.cend()) {
 				return 93;
+			}
 		}
 #endif
 #ifdef U32L
@@ -293,20 +345,24 @@ public:
 			cstring32::const_iterator it;
 
 			it = s32.find(U32L('ß'));
-			if (it != s32.cbegin() + 1)
+			if (it != s32.cbegin() + 1) {
 				return 100;
+			}
 
 			it = s32.find(U32L("àß"));
-			if (it != s32.cbegin() + 0)
+			if (it != s32.cbegin() + 0) {
 				return 101;
+			}
 
 			it = s32.find(U32L("àŒ"));
-			if (it != s32.cbegin() + 3)
+			if (it != s32.cbegin() + 3) {
 				return 102;
+			}
 
 			it = s32.find(U32L("àü"));
-			if (it != s32.cend())
+			if (it != s32.cend()) {
 				return 103;
+			}
 		}
 #endif
 
@@ -322,14 +378,17 @@ private:
 		abc_trace_fn((bPtrChanged, cch, cchCapacity));
 
 		// Check if the item array has changed in accordance to the expectation.
-		if ((m_pchCheck != m_psCheck->get_data()) != bPtrChanged)
+		if ((m_pchCheck != m_psCheck->get_data()) != bPtrChanged) {
 			return false;
+		}
 		// Check if the character count matches the expectation.
-		if (m_psCheck->get_size() != cch)
+		if (m_psCheck->get_size() != cch) {
 			return false;
+		}
 		// Check if the capacity matches the expectation.
-		if (m_psCheck->get_capacity() != cchCapacity)
+		if (m_psCheck->get_capacity() != cchCapacity) {
 			return false;
+		}
 		// Update the item array pointer for the next call.
 		m_pchCheck = m_psCheck->get_data();
 		return true;

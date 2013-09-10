@@ -36,8 +36,9 @@ public:
 			// Simple manipulation tests.
 			map<cstring const, int> m;
 			m.add(SL("1"), 1);
-			if (m.get_size() != 1 || m[SL("1")] != 1)
+			if (m.get_size() != 1 || m[SL("1")] != 1) {
 				return 1;
+			}
 
 			m.add(SL("2"), 2);
 			m.add(SL("3"), 3);

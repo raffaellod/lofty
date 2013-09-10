@@ -34,16 +34,19 @@ public:
 		std::shared_ptr<file_istream> pfis;
 
 		size_t cArgs(vsArgs.get_size());
-		if (cArgs >= 2 && vsArgs[1] == SL("-i"))
+		if (cArgs >= 2 && vsArgs[1] == SL("-i")) {
 			pfis = file_istream::get_stdin();
-		else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2])
+		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
 			pfis = std::make_shared<file_istream>(vsArgs[2]);
+		}
 
-		if (!pfis)
+		if (!pfis) {
 			return EXIT_FAILURE;
+		}
 		auto pstdout(file_ostream::get_stdout());
-		for (wdstring s; *pfis >> s; )
+		for (wdstring s; *pfis >> s; ) {
 			*pstdout << s << SL("\n");
+		}
 
 		// Test results determined by external program.
 		return EXIT_SUCCESS;
