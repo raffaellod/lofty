@@ -1,4 +1,3 @@
--*- coding: utf-8; tab-width: 8 -*-
 --------------------------------------------------------------------------------
 Application-Building Components
 Copyright 2010-2013 Raffaello D. Di Napoli
@@ -21,22 +20,22 @@ ABC. If not, see <http://www.gnu.org/licenses/>.
 Introduction
 ------------
 
-Application-Building Components (ABC) is a class library for C++11 designed and
+Application-Building Components (ABC) is a framework for C++11 designed and
 written with these principles in mind:
 
-•  Compatibility with C++11 STL;
+•  Full support for text-based and GUI applications, as well as service-oriented
+   architectures;
+•  Intelligent usage of C++11 features;
+•  Compatibility and integration with C++11 STL;
 •  Extended run-time debugging support, with aims to reach or exceed that of
    languages such as Java or Python, featuring full stack traces (including
-   arguments and locals) and a diversified and semantically rich exception class
-   hierarchy;
+   arguments and locals) and a diversified and semantically-correct exception
+   class hierarchy;
 •  Modern I/O and IPC classes, inspired by Python’s library;
-•  Portability to some of the most common operating systems;
-•  Full support for text-based or GUI applications;
+•  Portability to some of the most common modern operating systems;
 •  Transactional operation wherever/whenever possible;
-•  Compiler-enforced type safety (no void pointers, no pre-C++11-style variadic
+•  Compiler-enforced type safety (no void pointers, no C-style variadic
    functions).
-
-
 
 
 
@@ -54,16 +53,4 @@ assignment:
 
 Check that integer conversions don’t use static_cast:
 	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include tools
-
-
-
-─ ━ │ ┃ ┄ ┅ ┆ ┇ ┈ ┉ ┊ ┋ ┌ ┍ ┎ ┏ ┐ ┑ ┒ ┓ └ ┕ ┖ ┗ ┘ ┙ ┚ ┛ ├ ┝ ┞ ┟
-
-┠ ┡ ┢ ┣ ┤ ┥ ┦ ┧ ┨ ┩ ┪ ┫ ┬ ┭ ┮ ┯ ┰ ┱ ┲ ┳ ┴ ┵ ┶ ┷ ┸ ┹ ┺ ┻ ┼ ┽ ┾ ┿
-
-╀ ╁ ╂ ╃ ╄ ╅ ╆ ╇ ╈ ╉ ╊ ╋ ╌ ╍ ╎ ╏ ═ ║ ╒ ╓ ╔ ╕ ╖ ╗ ╘ ╙ ╚ ╛ ╜ ╝ ╞ ╟
-
-╠ ╡ ╢ ╣ ╤ ╥ ╦ ╧ ╨ ╩ ╪ ╫ ╬ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╴ ╵ ╶ ╷ ╸ ╹ ╺ ╻ ╼ ╽ ╾ ╿
-
-▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐ ░ ▒ ▓ ▔ ▕ ▖ ▖ ▗ ▘ ▙ ▚ ▛ ▜ ▝ ▞ ▟
 
