@@ -42,11 +42,12 @@ class unittest(object):
 		'''
 
 		runner = self.m_runner
+		sTestBinFilename = os.environ['TEST_BIN']
 
 		runner.subtest_begin('file_istream from stdin (host encoding)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = open(os.environ['SUBTEST_OUTPUT_EXPECTED'], 'rb'),
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -55,7 +56,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from file (host encoding)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_OUTPUT_EXPECTED']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_OUTPUT_EXPECTED']],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -68,7 +69,7 @@ class unittest(object):
 			'\x61\x73\x74\x20\x6c\x69\x6e\x65\x0a'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_INPUT']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_INPUT']],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -81,7 +82,7 @@ class unittest(object):
 			'\x65\x0a\x4c\x61\x73\x74\x20\x6c\x69\x6e\x65\x0a'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_INPUT']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_INPUT']],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -96,7 +97,7 @@ class unittest(object):
 			'\x00\x0a'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_INPUT']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_INPUT']],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -114,7 +115,7 @@ class unittest(object):
 			'\x0a\x00\x00\x00'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_INPUT']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_INPUT']],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -123,7 +124,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from piped stdin (host encoding)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		with subprocess.Popen(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = subprocess.PIPE,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		) as utb:
@@ -135,7 +136,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from piped stdin (UTF-8)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		with subprocess.Popen(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = subprocess.PIPE,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		) as utb:
@@ -151,7 +152,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from piped stdin (UTF-8+BOM)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		with subprocess.Popen(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = subprocess.PIPE,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		) as utb:
@@ -165,7 +166,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from piped stdin (UTF-16BE+BOM)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		with subprocess.Popen(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = subprocess.PIPE,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		) as utb:
@@ -181,7 +182,7 @@ class unittest(object):
 		runner.subtest_begin('file_istream from piped stdin (UTF-32LE+BOM)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', self.THREE_LINES)
 		with subprocess.Popen(
-			[os.environ['TEST_BIN'], '-i'],
+			[sTestBinFilename, '-i'],
 			stdin = subprocess.PIPE,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		) as utb:

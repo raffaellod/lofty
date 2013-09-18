@@ -40,11 +40,12 @@ class unittest(object):
 		'''
 
 		runner = self.m_runner
+		sTestBinFilename = os.environ['TEST_BIN']
 
 		runner.subtest_begin('file_ostream to stdout (host encoding, file-backed)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', 'Testing stdout (host encoding)\n')
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-o'],
+			[sTestBinFilename, '-o'],
 			stdin = None,
 			stdout = open(os.environ['SUBTEST_OUTPUT'], 'wb')
 		)
@@ -53,7 +54,7 @@ class unittest(object):
 		runner.subtest_begin('file_ostream to file (host encoding)')
 		runner.subtest_createfile('OUTPUT_EXPECTED', 'Testing file (host encoding)\n')
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_OUTPUT']],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_OUTPUT']],
 			stdin = None,
 			stdout = None
 		)
@@ -65,7 +66,7 @@ class unittest(object):
 			'\x6e\x63\x6f\x64\x69\x6e\x67\x29\x0a'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_OUTPUT'], '-utf8'],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_OUTPUT'], '-utf8'],
 			stdin = None,
 			stdout = None
 		)
@@ -79,7 +80,7 @@ class unittest(object):
 			'\x00\x67\x00\x29\x00\x0a'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_OUTPUT'], '-utf16be'],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_OUTPUT'], '-utf16be'],
 			stdin = None,
 			stdout = None
 		)
@@ -96,7 +97,7 @@ class unittest(object):
 			'\x67\x00\x00\x00\x29\x00\x00\x00\x0a\x00\x00\x00'
 		)
 		iRet = subprocess.call(
-			[os.environ['TEST_BIN'], '-f', os.environ['SUBTEST_OUTPUT'], '-utf32le'],
+			[sTestBinFilename, '-f', os.environ['SUBTEST_OUTPUT'], '-utf32le'],
 			stdin = None,
 			stdout = None
 		)
