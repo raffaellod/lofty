@@ -27,9 +27,7 @@ class unittest(object):
 	THREE_LINES = 'Line 1st\nOther line\nLast line\n'
 
 	def __init__(self, runner, sUnitName, sTestBinFilename):
-		'''
-		Constructor.
-		'''
+		"""Constructor."""
 
 		self.m_runner = runner
 		self.m_sUnitName = sUnitName
@@ -37,9 +35,7 @@ class unittest(object):
 
 
 	def run(self):
-		'''
-		Executes the unit test.
-		'''
+		"""Executes the unit test."""
 
 		runner = self.m_runner
 		sTestBinFilename = os.environ['TEST_BIN']
