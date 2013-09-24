@@ -45,19 +45,19 @@ class ostream;
 /// Read/write abstract stream.
 class iostream;
 
-/// DESIGN_7103 abc::ostream::print()
+/// DOC:7103 abc::ostream::print()
 //
 // Designed after Python’s str.format(), abc::ostream::print() allows to combine objects together as
 // strings using a format string.
 //
 // The implementation of print() is entirely contained in abc::_ostream_print_helper, which accesses
 // the individual arguments in a recursive way, from the most-derived class down to the base class,
-// which also contains most of the implementation. Combined with the usage of [DESIGN_3984
+// which also contains most of the implementation. Combined with the usage of [DOC:3984
 // abc::to_string()], this enables a type-safe variadic alternative to C’s printf, and voids the
 // requirement for explicit specification of the argumment types (such as %d, %s), much like
 // Python’s str.format().
 //
-// Because of its type-safety, print() is also the core of [DESIGN_8503 Stack tracing], because it
+// Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it
 // allows to print a variable by automatically deducing its type.
 //
 // The format string passed as first argument to abc::ostream::print() can contain “replacement

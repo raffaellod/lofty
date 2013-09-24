@@ -31,7 +31,7 @@ namespace abc {
 namespace text {
 
 /// Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
-// [DESIGN_1502 KMP substring search] for how this is built and used.
+// [DOC:1502 KMP substring search] for how this is built and used.
 template <typename C>
 void _build_failure_restart_table(
 	C const * pchNeedleBegin, C const * pchNeedleEnd, buffered_vector<size_t> * pvcchFailNext
@@ -353,7 +353,7 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	char8_t const * pchHaystack(pchHaystackBegin),
 					  * pchNeedle(pchNeedleBegin);
 	try {
-		/// DESIGN_1502 KMP substring search
+		/// DOC:1502 KMP substring search
 		//
 		// This is an implementation of the Knuth-Morris-Pratt algorithm.
 		//

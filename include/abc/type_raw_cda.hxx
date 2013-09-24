@@ -91,7 +91,7 @@ struct void_cda {
 
 namespace abc {
 
-/// DESIGN_3395 Move constructors and exceptions
+/// DOC:3395 Move constructors and exceptions
 //
 // In this section, “move constructor” will strictly refer to class::class(class &&).
 //

@@ -1087,7 +1087,7 @@ exception::exception(exception const & x) :
 	m_pszSourceFileName(x.m_pszSourceFileName),
 	m_iSourceLine(x.m_iSourceLine),
 	m_bInFlight(x.m_bInFlight) {
-	// See [DESIGN_8503 Stack tracing].
+	// See [DOC:8503 Stack tracing].
 	if (m_bInFlight) {
 		_scope_trace<>::trace_stream_addref();
 	}
@@ -1095,7 +1095,7 @@ exception::exception(exception const & x) :
 
 
 /*virtual*/ exception::~exception() decl_throw(()) {
-	// See [DESIGN_8503 Stack tracing].
+	// See [DOC:8503 Stack tracing].
 	if (m_bInFlight) {
 		_scope_trace<>::trace_stream_release();
 	}
@@ -1110,7 +1110,7 @@ exception & exception::operator=(exception const & x) {
 	m_pszSourceFunction = x.m_pszSourceFunction;
 	m_pszSourceFileName = x.m_pszSourceFileName;
 	m_iSourceLine = x.m_iSourceLine;
-	// Adopt the source’s in-flight status. See [DESIGN_8503 Stack tracing].
+	// Adopt the source’s in-flight status. See [DOC:8503 Stack tracing].
 	// If the in-flight status is not changing, avoid the pointless (and dangerous, if done in this
 	// sequence - it could delete the trace stream if *this was the last reference to it)
 	// release()/addref().
@@ -1132,7 +1132,7 @@ void exception::_before_throw(char const * pszFileName, uint16_t iLine, char con
 	m_pszSourceFileName = pszFileName;
 	m_iSourceLine = iLine;
 	// Clear any old trace stream buffer and create a new one with *this as its only reference. See
-	// [DESIGN_8503 Stack tracing].
+	// [DOC:8503 Stack tracing].
 	_scope_trace<>::trace_stream_reset();
 	_scope_trace<>::trace_stream_addref();
 	m_bInFlight = true;

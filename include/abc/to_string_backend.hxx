@@ -39,7 +39,7 @@ class ostream;
 // been forward-declared above, but not defined yet (a pointer to a forward-declared type is legal,
 // but a reference to it is not).
 
-/// DESIGN_3984 abc::to_string()
+/// DOC:3984 abc::to_string()
 //
 // abc::to_string() is a thin wrapper around abc::to_string_backend, so that any class can provide
 // even a partial specialization for it (partial specializations of function are stil not allowed in

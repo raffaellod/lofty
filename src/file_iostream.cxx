@@ -305,7 +305,7 @@ int8_t * file_istream::_get_read_buffer() {
 	abc_trace_fn((this));
 
 	if (!m_pbReadBuf) {
-		// Create the multipurpose read buffer. See [DESIGN_0674 abc::file_istream buffering].
+		// Create the multipurpose read buffer. See [DOC:0674 abc::file_istream buffering].
 		m_pbReadBuf.reset(new int8_t[m_cbReadBufLead + m_cbReadBufBulk]);
 		m_ibReadBufUsed = m_cbReadBufLead;
 	}

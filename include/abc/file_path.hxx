@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/// DESIGN_7101 abc::file_path
+/// DOC:7101 abc::file_path
 //
 // File paths are always stored in absolute notation, prepending the current directory on assignment
 // if necessary.

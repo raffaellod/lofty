@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/// DESIGN_4019 abc::*string_ and abc::*vector design
+/// DOC:4019 abc::*string_ and abc::*vector design
 //
 // *string_ and *vector are implemented using the same base set of classes:
 //
@@ -891,8 +891,8 @@ public:
 
 
 	/// Moves the source’s item array to *this. This must be called with rtvi being in control of a
-	// read-only or dynamic item array; see [DESIGN_4019 abc::*string_ and abc::*vector design] to
-	// see how string and vector ensure this.
+	// read-only or dynamic item array; see [DOC:4019 abc::*string_ and abc::*vector design] to see
+	// how string and vector ensure this.
 	//
 	void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
 		if (rtvi.m_p == m_p) {

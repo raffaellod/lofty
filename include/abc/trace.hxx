@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/// DESIGN_8503 Stack tracing
+/// DOC:8503 Stack tracing
 //
 // Any function that is not of negligible size and is not an hotspot should invoke, as its first
 // line, abc_trace_fn((arg1, arg2, …)) in order to have its name show up in a post-exception stack
@@ -77,8 +77,8 @@ namespace abc {
 //    original exception was thrown. This is acceptable, since it cannot be determined whether the
 //    two exceptions were related.
 //
-// See related diagram [DESIGN_8503 Stack tracing] for all code flows covered by this design.
-// See also [DESIGN_8191 Exceptions] and abc::exception for the remainder of the implementation.
+// See related diagram [DOC:8503 Stack tracing] for all code flows covered by this design.
+// See also [DOC:8191 Exceptions] and abc::exception for the remainder of the implementation.
 //
 // Currently unsupported:
 // •  TODO: storing a thrown exception, handling a different exception, and throwing back the first

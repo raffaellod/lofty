@@ -42,10 +42,10 @@ class ostream;
 // but a reference to it is not).
 
 
-/// DESIGN_8191 Exceptions
+/// DOC:8191 Exceptions
 //
-// Combined with [DESIGN_8503 Stack tracing], the use of abc_throw() augments the stack trace with
-// the exact line where the throw statement occurred.
+// Combined with [DOC:8503 Stack tracing], the use of abc_throw() augments the stack trace with the
+// exact line where the throw statement occurred.
 // Only instances of abc::exception (or a derived class) can be thrown using abc_throw(), because of
 // the additional members that the latter expects to be able to set in the former.
 //

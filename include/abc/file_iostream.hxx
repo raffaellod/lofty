@@ -91,7 +91,7 @@ protected:
 
 namespace abc {
 
-/// DESIGN_0674 abc::file_istream buffering
+/// DOC:0674 abc::file_istream buffering
 //
 // There are a few conditions in which file_istream will be forced to use a read buffer
 // (m_pbReadBuf), instead of a memory map, for its read methods:
@@ -251,7 +251,7 @@ private:
 
 private:
 
-	/// Read buffer. Allocated only if necessary; see [DESIGN_0674 abc::file_istream buffering].
+	/// Read buffer. Allocated only if necessary; see [DOC:0674 abc::file_istream buffering].
 	std::unique_ptr<int8_t[]> m_pbReadBuf;
 	/// Offset of the first used byte in m_pbReadBuf.
 	size_t m_ibReadBufUsed;
