@@ -30,15 +30,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations and implementations
+// abc::numeric globals
 
 namespace abc {
 
 namespace numeric {
 
-/// Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
-// will never be negative (i.e. T is unsigned).
-//
+/** Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
+will never be negative (i.e. T is unsigned).
+
+TODO: comment signature.
+*/
 template <typename T>
 static /*constexpr*/ bool is_negative(
 	typename std::enable_if<std::is_signed<T>::value, T>::type t
@@ -54,14 +56,6 @@ static /*constexpr*/ bool is_negative(
 }
 
 
-/// Defines the minimum value for a numeric type.
-template <typename T>
-struct min;
-
-/// Defines the maximum value for a numeric type.
-template <typename T>
-struct max;
-
 } //namespace numeric
 
 } //namespace abc
@@ -75,6 +69,14 @@ struct max;
 namespace abc {
 
 namespace numeric {
+
+/** Defines the minimum value for a numeric type. */
+template <typename T>
+struct min;
+
+/** Defines the maximum value for a numeric type. */
+template <typename T>
+struct max;
 
 // Specialization of min and max for UTF character types (note: wchar_t is not among these).
 template <>

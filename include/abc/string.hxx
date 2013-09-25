@@ -31,84 +31,30 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Base class for the specializations of to_string_backend for string types. Not using templates,
-// so the implementation can be in a cxx file.
-class _string_to_string_backend_base;
-
-/// Mid-class for the specializations of to_string_backend for string types. This is used by string
-// literal types as well (see to_string_backend.hxx).
-template <typename T, typename C>
-class _string_to_string_backend;
-
-/// Template-independent methods of string_.
-class _raw_string;
-
-// Base class for strings. It behaves like a vector with a last NUL element hidden from clients; an
-// empty string always has an accessible trailing NUL character. Methods that take an array of
-// characters whose length is obtained by its size instead of e.g. strlen(), will discard the last
-// element, asserting that it’s the NUL terminator. See [HACK#0010 abc::string_ and abc::vector
-// design] for implementation details for this and all the *string classes.
-template <typename C, class TTraits>
-class string_base_;
-
-/// string_base_-derived class, to be used as “the” string class in most cases. It cannot be
-// modified in-place, which means that it shouldn’t be used in code performing intensive string
-// manipulations.
-template <typename C, class TTraits = text::utf_traits<C>>
-class cstring_;
-typedef cstring_<char_t> cstring;
-typedef cstring_<char8_t> cstring8;
-typedef cstring_<char16_t> cstring16;
-typedef cstring_<char32_t> cstring32;
-
-/// string_base_-derived class, to be used as argument type for functions that want to modify a
-// string argument, since unlike cstring_, it allows in-place alterations to the string. Both
-// wsstring and wdstring_ are automatically converted to this.
-template <typename C, class TTraits = text::utf_traits<C>>
-class wstring_;
-typedef wstring_<char_t> wstring;
-typedef wstring_<char8_t> wstring8;
-typedef wstring_<char16_t> wstring16;
-typedef wstring_<char32_t> wstring32;
-
-// wstring_-derived class, good for clients that need in-place manipulation of strings that are most
-// likely to be shorter than a known small size.
-template <size_t t_cchStatic, typename C = char_t, class TTraits = text::utf_traits<C>>
-class wsstring;
-
-// wstring_-derived class, good for clients that need in-place manipulation of strings whose length
-// is unknown at design time.
-template <typename C, class TTraits = text::utf_traits<C>>
-class wdstring_;
-typedef wdstring_<char_t> wdstring;
-typedef wdstring_<char8_t> wdstring8;
-typedef wdstring_<char16_t> wdstring16;
-typedef wdstring_<char32_t> wdstring32;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_string_to_string_backend_base
 
 
 namespace abc {
 
+/** Base class for the specializations of to_string_backend for string types. Not using templates,
+so the implementation can be in a cxx file.
+*/
 class _string_to_string_backend_base {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_string_to_string_backend_base(char_range const & crFormat);
 
 
 protected:
 
-	/// Writes the contents of the string, applying the specified format.
+	/** Writes the contents of the string, applying the specified format.
+
+	TODO: comment signature.
+	*/
 	void write(void const * p, size_t cb, text::encoding enc, ostream * posOut);
 };
 
@@ -121,13 +67,18 @@ protected:
 
 namespace abc {
 
+/** Mid-class for the specializations of to_string_backend for string types. This is used by string
+literal types as well (see to_string_backend.hxx).
+*/
 template <typename T, typename C>
 class _string_to_string_backend :
 	public _string_to_string_backend_base {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_string_to_string_backend(char_range const & crFormat) :
 		_string_to_string_backend_base(crFormat) {
 	}
@@ -151,15 +102,17 @@ class to_string_backend<char_range_<C>> :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		string_to_string_backend(crFormat) {
 	}
 
 
-	/// See to_string_backend::write().
-	//
+	/** See to_string_backend::write().
+	*/
 	void write(char_range_<C> const & cr, ostream * posOut) {
 		string_to_string_backend::write(
 			cr.cbegin().base(), sizeof(C) * cr.get_size(), text::utf_traits<C>::host_encoding, posOut
@@ -176,6 +129,8 @@ public:
 
 namespace abc {
 
+/** Template-independent methods of string_.
+*/
 class _raw_string :
 	public _raw_trivial_vextr_impl {
 
@@ -183,41 +138,55 @@ class _raw_string :
 
 public:
 
-	/// Returns the current size of the string buffer, in characters, minus room for the trailing NUL
-	// terminator.
-	//
+	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
+	terminator.
+
+	TODO: comment signature.
+	*/
 	size_t get_capacity() const {
 		return _raw_trivial_vextr_impl::get_capacity(true);
 	}
 
 
-	/// Returns the current length of the string, in characters, excluding the trailing NUL
-	// terminator.
-	//
+	/** Returns the current length of the string, in characters, excluding the trailing NUL
+	terminator.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return _raw_trivial_vextr_impl::get_size(true);
 	}
 
 
-	/// Computes the hash value of the string.
+	/** Computes the hash value of the string.
+
+	TODO: comment signature.
+	*/
 	size_t hash(size_t cbItem) const;
 
 
-	/// See _raw_trivial_vextr_impl::set_capacity().
-	//
+	/** See _raw_trivial_vextr_impl::set_capacity().
+
+	TODO: comment signature.
+	*/
 	void set_capacity(size_t cbItem, size_t cchMin, bool bPreserve) {
 		_raw_trivial_vextr_impl::set_capacity(cbItem, cchMin, bPreserve, true);
 	}
 
 
-	/// Changes the length of the string, without changing its capacity.
+	/** Changes the length of the string, without changing its capacity.
+
+	TODO: comment signature.
+	*/
 	void set_size(size_t cbItem, size_t cch);
 
 
 protected:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_raw_string(size_t cchStaticMax) :
 		_raw_trivial_vextr_impl(cchStaticMax, true) {
 	}
@@ -226,22 +195,28 @@ protected:
 	}
 
 
-	/// See _raw_trivial_vextr_impl::adjust_index().
-	//
+	/** See _raw_trivial_vextr_impl::adjust_index().
+
+	TODO: comment signature.
+	*/
 	size_t adjust_index(ptrdiff_t i) const {
 		return _raw_trivial_vextr_impl::adjust_index(i, true);
 	}
 
 
-	/// See _raw_trivial_vextr_impl::adjust_range().
-	//
+	/** See _raw_trivial_vextr_impl::adjust_range().
+
+	TODO: comment signature.
+	*/
 	void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const {
 		_raw_trivial_vextr_impl::adjust_range(piFirst, pci, true);
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_copy().
-	//
+	/** See _raw_trivial_vextr_impl::assign_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_copy(size_t cbItem, void const * p, size_t ci) {
 		_raw_trivial_vextr_impl::assign_copy(cbItem, p, ci, true);
 	}
@@ -250,15 +225,19 @@ protected:
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_move().
-	//
+	/** See _raw_trivial_vextr_impl::assign_move().
+
+	TODO: comment signature.
+	*/
 	void assign_move(_raw_string && rs) {
 		_raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(rs), true);
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_move_dynamic_or_copy().
-	//
+	/** See _raw_trivial_vextr_impl::assign_move_dynamic_or_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_move_dynamic_or_copy(size_t cbItem, _raw_string && rs) {
 		_raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
 			cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs), true
@@ -266,8 +245,10 @@ protected:
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_share_ro_or_copy().
-	//
+	/** See _raw_trivial_vextr_impl::assign_share_ro_or_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_share_ro_or_copy(size_t cbItem, _raw_string const & rs) {
 		_raw_trivial_vextr_impl::assign_share_ro_or_copy(cbItem, rs, true);
 	}
@@ -282,6 +263,20 @@ protected:
 
 namespace abc {
 
+// Forward declarations.
+template <typename C, class TTraits = text::utf_traits<C>>
+class cstring_;
+template <typename C, class TTraits = text::utf_traits<C>>
+class wdstring_;
+
+/** Base class for strings. It behaves like a vector with a last NUL element hidden from clients; an
+empty string always has an accessible trailing NUL character.
+
+Methods that take an array of characters whose length is obtained by its size instead of e.g.
+strlen(), will discard the last element, asserting that it’s the NUL terminator. See [HACK#0010
+abc::string_ and abc::vector design] for implementation details for this and all the *string
+classes.
+*/
 template <typename C, class TTraits>
 class string_base_ :
 	protected _raw_string,
@@ -295,22 +290,24 @@ class string_base_ :
 
 protected:
 
-	/// Shortcut for the base class providing iterator-based types and methods.
+	/** Shortcut for the base class providing iterator-based types and methods. */
 	typedef _iterable_vector<string_base_<C, TTraits>, C> itvec;
 
 
 public:
 
-	/// Character type.
+	/** Character type. */
 	typedef C char_t;
-	/// See _iterable_vector::const_iterator.
+	/** See _iterable_vector::const_iterator. */
 	typedef typename itvec::const_iterator const_iterator;
 
 
 public:
 
-	/// Character access operator.
-	//
+	/** Character access operator.
+
+	TODO: comment signature.
+	*/
 	C operator[](size_t i) const {
 		if (i > get_size()) {
 			abc_throw(index_error(intptr_t(i)));
@@ -319,15 +316,19 @@ public:
 	}
 
 
-	/// Returns true if the length is greater than 0.
-	//
+	/** Returns true if the length is greater than 0.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return get_size() > 0;
 	}
 
 
-	/// Support for relational operators.
-	//
+	/** Support for relational operators.
+
+	TODO: comment signature.
+	*/
 	int compare_to(cstring const & s) const {
 		return TTraits::str_cmp(get_data(), get_size(), s.get_data(), s.get_size());
 	}
@@ -343,9 +344,11 @@ public:
 	}
 
 
-	/// Searches for the specified value; returns an iterator to the first matching item, or
-	// const_iterator() (evaluates to false) for no matches.
-	//
+	/** Searches for the specified value; returns an iterator to the first matching item, or
+	const_iterator() (evaluates to false) for no matches.
+
+	TODO: comment signature.
+	*/
 	const_iterator find(char32_t chNeedle, const_iterator itFirst = const_iterator()) const {
 		return const_iterator(TTraits::str_chr(
 			(itFirst ? itFirst : itvec::cbegin()).base(), itvec::cend().base(),
@@ -360,9 +363,11 @@ public:
 	}
 
 
-	/// Searches for the specified value, starting from the end or the provided iterator; returns an
-	// iterator to the first matching item, or const_iterator() (evaluates to false) for no matches.
-	//
+	/** Searches for the specified value, starting from the end or the provided iterator; returns an
+	iterator to the first matching item, or const_iterator() (evaluates to false) for no matches.
+
+	TODO: comment signature.
+	*/
 	const_iterator find_last(char32_t chNeedle, const_iterator itEnd = const_iterator()) const {
 		return const_iterator(TTraits::str_chr_r(
 			itvec::cbegin().base(), (itEnd ? itEnd : itvec::cend()).base(),
@@ -379,28 +384,37 @@ public:
 	}
 
 
-	/// Uses the current contents of this string to generate a new one using string_ostream::print().
+	/** Uses the current contents of this string to generate a new one using string_ostream::print().
+
+	TODO: comment signature.
+	*/
 	template <typename ... Ts>
 	wdstring format(Ts const & ... ts) const;
 
 
-	/// Returns the current size of the string buffer, in characters, minus room for the trailing NUL
-	// terminator.
-	//
+	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
+	terminator.
+
+	TODO: comment signature.
+	*/
 	size_t get_capacity() const {
 		return _raw_string::get_capacity();
 	}
 
 
-	/// Returns a read-only pointer to the character array.
-	//
+	/** Returns a read-only pointer to the character array.
+
+	TODO: comment signature.
+	*/
 	C const * get_data() const {
 		return _raw_string::get_data<C>();
 	}
 
 
-	/// Work around the protected inheritance, forcing the raw access to be explicit.
-	//
+	/** Work around the protected inheritance, forcing the raw access to be explicit.
+
+	TODO: comment signature.
+	*/
 	_raw_string & get_raw() {
 		return *this;
 	}
@@ -409,30 +423,34 @@ public:
 	}
 
 
-	/// Returns the count of characters in the string.
-	//
+	/** Returns the count of characters in the string.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return _raw_string::get_size();
 	}
 
 
-	/// Returns the count of code points in the string.
-	//
+	/** Returns the count of code points in the string.
+
+	TODO: comment signature.
+	*/
 	size_t get_size_cp() const {
 		C const * pchBegin(get_data());
 		return TTraits::str_cp_len(pchBegin, pchBegin + get_size());
 	}
 
 
-	/// Returns a portion of the string.
-	//
-	// ichFirst
-	//    0-based index of the first character. If negative, it’s 1-based index from the end of the
-	//    string.
-	// [cch]
-	//    Count of characters to return. If negative, it’s the count of characters to skip, from the
-	//    end of the string.
-	//
+	/** Returns a portion of the string.
+
+	ichFirst
+		0-based index of the first character. If negative, it’s 1-based index from the end of the
+		string.
+	[cch]
+		Count of characters to return. If negative, it’s the count of characters to skip, from the end
+		of the string.
+	*/
 	wdstring substr(ptrdiff_t ichFirst) const {
 		return substr(ichFirst, get_size());
 	}
@@ -450,8 +468,10 @@ public:
 
 protected:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	string_base_(size_t cchStatic) :
 		_raw_string(cchStatic) {
 	}
@@ -460,8 +480,10 @@ protected:
 	}
 
 
-	/// See _raw_string::assign_copy().
-	//
+	/** See _raw_string::assign_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_copy(C const * pch, size_t cch) {
 		_raw_string::assign_copy(sizeof(C), pch, cch);
 	}
@@ -470,22 +492,28 @@ protected:
 	}
 
 
-	/// See _raw_string::assign_move().
-	//
+	/** See _raw_string::assign_move().
+
+	TODO: comment signature.
+	*/
 	void assign_move(string_base_ && sb) {
 		_raw_string::assign_move(static_cast<_raw_string &&>(sb));
 	}
 
 
-	/// See _raw_string::assign_move_dynamic_or_copy().
-	//
+	/** See _raw_string::assign_move_dynamic_or_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_move_dynamic_or_copy(string_base_ && sb) {
 		_raw_string::assign_move_dynamic_or_copy(sizeof(C), static_cast<_raw_string &&>(sb));
 	}
 
 
-	/// See _raw_string::assign_share_ro_or_copy().
-	//
+	/** See _raw_string::assign_share_ro_or_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_share_ro_or_copy(string_base_ const & sb) {
 		_raw_string::assign_share_ro_or_copy(sizeof(C), sb);
 	}
@@ -538,15 +566,17 @@ class to_string_backend<string_base_<C, TTraits>> :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		string_to_string_backend(crFormat) {
 	}
 
 
-	/// See to_string_backend::write().
-	//
+	/** See to_string_backend::write().
+	*/
 	void write(string_base_<C, TTraits> const & s, ostream * posOut) {
 		string_to_string_backend::write(
 			s.get_data(), sizeof(C) * s.get_size(), TTraits::host_encoding, posOut
@@ -577,6 +607,14 @@ struct hash<abc::string_base_<C, TTraits>> {
 
 namespace abc {
 
+// Forward declaration.
+template <typename C, class TTraits = text::utf_traits<C>>
+class wstring_;
+
+/** string_base_-derived class, to be used as “the” string class in most cases. It cannot be
+modified in-place, which means that it shouldn’t be used in code performing intensive string
+manipulations.
+*/
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
 class cstring_ :
 	public string_base_<C, TTraits> {
@@ -587,8 +625,10 @@ class cstring_ :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	cstring_() :
 		string_base(0) {
 	}
@@ -625,8 +665,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	cstring_ & operator=(cstring_ const & cs) {
 		assign_share_ro_or_copy(cs);
 		return *this;
@@ -653,12 +695,19 @@ public:
 	}
 
 
-	/// Automatic conversion to char_range.
-	//
+	/** Automatic conversion to char_range.
+
+	TODO: comment signature.
+	*/
 	operator char_range_<C>() const {
 		return char_range_<C>(string_base::cbegin().base(), string_base::cend().base());
 	}
 };
+
+typedef cstring_<char_t> cstring;
+typedef cstring_<char8_t> cstring8;
+typedef cstring_<char16_t> cstring16;
+typedef cstring_<char32_t> cstring32;
 
 
 // Specialization of to_string_backend.
@@ -667,8 +716,10 @@ class to_string_backend<cstring_<C, TTraits>> :
 	public to_string_backend<string_base_<C, TTraits>> {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		to_string_backend<string_base_<C, TTraits>>(crFormat) {
 	}
@@ -694,6 +745,10 @@ struct hash<abc::cstring_<C, TTraits>> :
 
 namespace abc {
 
+/** string_base_-derived class, to be used as argument type for functions that want to modify a
+string argument, since unlike cstring_, it allows in-place alterations to the string. Both wsstring
+and wdstring_ are automatically converted to this.
+*/
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
 class wstring_ :
 	public string_base_<C, TTraits> {
@@ -704,8 +759,10 @@ class wstring_ :
 
 public:
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	wstring_ & operator=(wstring_ const & ws) {
 		return operator=(static_cast<string_base const &>(ws));
 	}
@@ -733,8 +790,10 @@ public:
 	}
 
 
-	/// Concatenation-assignment operator.
-	//
+	/** Concatenation-assignment operator.
+
+	TODO: comment signature.
+	*/
 	wstring_ & operator+=(C ch) {
 		append(&ch, 1);
 		return *this;
@@ -751,15 +810,19 @@ public:
 	}
 
 
-	/// Allows automatic cross-class-hierarchy casts.
-	//
+	/** Allows automatic cross-class-hierarchy casts.
+
+	TODO: comment signature.
+	*/
 	operator cstring const &() const {
 		return *static_cast<cstring const *>(static_cast<string_base const *>(this));
 	}
 
 
-	/// Item access operator.
-	//
+	/** Item access operator.
+
+	TODO: comment signature.
+	*/
 	C & operator[](size_t i) {
 		if (i > string_base::get_size()) {
 			abc_throw(index_error(intptr_t(i)));
@@ -771,15 +834,19 @@ public:
 	}
 
 
-	/// Same as operator+=(), but for multi-argument overloads.
-	//
+	/** Same as operator+=(), but for multi-argument overloads.
+
+	TODO: comment signature.
+	*/
 	void append(C const * pchAdd, size_t cchAdd) {
 		_raw_string::append(sizeof(C), pchAdd, cchAdd, true);
 	}
 
 
-	/// Returns a pointer to the character array.
-	//
+	/** Returns a pointer to the character array.
+
+	TODO: comment signature.
+	*/
 	C * get_data() {
 		return _raw_string::get_data<C>();
 	}
@@ -788,18 +855,22 @@ public:
 	}
 
 
-	/// Grows the item array until the specified callback succeeds in filling it and returns a number
-	// of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
-	// (NUL terminator included), it must return <= 2 (NUL excluded).
-	// This method is not transaction-safe; if an exception is thrown in the callback or elsewhere,
-	// *this will not be restored to its previous state.
-	// TODO: maybe improve exception resilience? Check typical usage to see if it’s an issue.
-	//
-	// Note: this method probably benefits from being inlined in spite of its size, because in most
-	// cases the callback will be just a lambda wrapper around some API/OS function, so when the
-	// compiler inlines this method, it will most likely blend its code with the (also inlined)
-	// lambda, probably resulting in some optimizations that would be otherwise missed.
-	//
+	/** Grows the item array until the specified callback succeeds in filling it and returns a number
+	of needed characters that’s less than the size of the buffer. For example, for cchMax == 3 (NUL
+	terminator included), it must return <= 2 (NUL excluded).
+
+	This method is not transaction-safe; if an exception is thrown in the callback or elsewhere,
+	*this will not be restored to its previous state.
+
+	TODO: maybe improve exception resilience? Check typical usage to see if it’s an issue.
+
+	Note: this method probably benefits from being inlined in spite of its size, because in most
+	cases the callback will be just a lambda wrapper around some API/OS function, so when the
+	compiler inlines this method, it will most likely blend its code with the (also inlined) lambda,
+	probably resulting in some optimizations that would be otherwise missed.
+
+	TODO: comment signature.
+	*/
 	void grow_for(std::function<size_t (C * pch, size_t cchMax)> fnRead) {
 		typedef _raw_vextr_impl_base rvib;
 		// The initial size avoids a couple of reallocations.
@@ -815,15 +886,19 @@ public:
 	}
 
 
-	/// See _raw_string::set_capacity().
-	//
+	/** See _raw_string::set_capacity().
+
+	TODO: comment signature.
+	*/
 	void set_capacity(size_t cchMin, bool bPreserve) {
 		_raw_string::set_capacity(sizeof(C), cchMin, bPreserve);
 	}
 
 
-	/// See _raw_string::set_size().
-	//
+	/** See _raw_string::set_size().
+
+	TODO: comment signature.
+	*/
 	void set_size(size_t cch) {
 		_raw_string::set_size(sizeof(C), cch);
 	}
@@ -831,8 +906,10 @@ public:
 
 protected:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	wstring_(size_t cchStatic) :
 		string_base(cchStatic) {
 	}
@@ -841,6 +918,11 @@ protected:
 	}
 };
 
+typedef wstring_<char_t> wstring;
+typedef wstring_<char8_t> wstring8;
+typedef wstring_<char16_t> wstring16;
+typedef wstring_<char32_t> wstring32;
+
 
 // Specialization of to_string_backend.
 template <typename C, class TTraits>
@@ -848,8 +930,10 @@ class to_string_backend<wstring_<C, TTraits>> :
 	public to_string_backend<string_base_<C, TTraits>> {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		to_string_backend<string_base_<C, TTraits>>(crFormat) {
 	}
@@ -875,6 +959,9 @@ struct hash<abc::wstring_<C, TTraits>> :
 
 namespace abc {
 
+/** wstring_-derived class, good for clients that need in-place manipulation of strings whose length
+is unknown at design time.
+*/
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
 class wdstring_ :
 	public wstring_<C, TTraits> {
@@ -885,8 +972,10 @@ class wdstring_ :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	wdstring_() :
 		wstring(0) {
 	}
@@ -921,8 +1010,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	wdstring_ & operator=(wdstring_ const & wds) {
 		wstring::operator=(wds);
 		return *this;
@@ -949,8 +1040,10 @@ public:
 } //namespace abc
 
 
-/// Concatenation operator.
-//
+/** Concatenation operator.
+
+TODO: comment signature.
+*/
 template <typename C, class TTraits>
 inline abc::wdstring_<C, TTraits> operator+(
 	abc::string_base_<C, TTraits> const & sb1, abc::string_base_<C, TTraits> const & sb2
@@ -1007,8 +1100,10 @@ class to_string_backend<wdstring_<C, TTraits>> :
 	public to_string_backend<string_base_<C, TTraits>> {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		to_string_backend<string_base_<C, TTraits>>(crFormat) {
 	}
@@ -1034,7 +1129,10 @@ struct hash<abc::wdstring_<C, TTraits>> :
 
 namespace abc {
 
-template <size_t t_cchStatic, typename C, class TTraits /*= text::utf_traits<C>*/>
+/** wstring_-derived class, good for clients that need in-place manipulation of strings that are
+most likely to be shorter than a known small size.
+*/
+template <size_t t_cchStatic, typename C = char_t, class TTraits = text::utf_traits<C>>
 class wsstring :
 	public wstring_<C, TTraits> {
 
@@ -1045,7 +1143,7 @@ class wsstring :
 
 private:
 
-	/// Actual static item array size.
+	/** Actual static item array size. */
 	static size_t const smc_cchFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(
 		t_cchStatic + 1 /*NUL*/
 	);
@@ -1053,8 +1151,10 @@ private:
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	wsstring() :
 		wstring(smc_cchFixed) {
 	}
@@ -1086,8 +1186,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	wsstring & operator=(wsstring const & ws) {
 		wstring::operator=(ws);
 		return *this;
@@ -1123,11 +1225,16 @@ private:
 
 	// This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-	/// See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax.
+	/** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
 	size_t m_ciStaticMax;
-	/// See _raw_vextr_impl_base_with_static_item_array::m_at.
+	/** See _raw_vextr_impl_base_with_static_item_array::m_at. */
 	std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(C) * smc_cchFixed)];
 };
+
+typedef wdstring_<char_t> wdstring;
+typedef wdstring_<char8_t> wdstring8;
+typedef wdstring_<char16_t> wdstring16;
+typedef wdstring_<char32_t> wdstring32;
 
 
 // Specialization of to_string_backend.
@@ -1136,8 +1243,10 @@ class to_string_backend<wsstring<t_cchStatic, C, TTraits>> :
 	public to_string_backend<string_base_<C, TTraits>> {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		to_string_backend<string_base_<C, TTraits>>(crFormat) {
 	}
