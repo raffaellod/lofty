@@ -32,13 +32,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc::atomic globals
+
 
 namespace abc {
 
 namespace atomic {
 
-/// Integer type of optimal size for atomic operations (usually the machine’s word size).
+/** Integer type of optimal size for atomic operations (usually the machine’s word size). */
 #if ABC_HOST_API_POSIX
 	// No preference really, since we use don’t use atomic intrinsics.
 	typedef int int_t;
@@ -53,45 +54,12 @@ namespace atomic {
 extern pthread_mutex_t g_mtx;
 #endif
 
-/// Atomically add the second argument to the number pointed to by the first argument, storing the
-// result in *pi and returning it.
-template <typename I>
-I add(I volatile * piDst, I iAddend);
 
-/// Atomically add the second argument to the number pointed to by the first argument, storing the
-// result in *pi and returning it.
-template <typename I>
-I compare_exchange(I volatile * piDst, I iNewValue, I iComparand);
+/** Atomically add the second argument to the number pointed to by the first argument, storing the
+result in *pi and returning it.
 
-/// Atomically decrements the number pointed to by the argument, storing the result in *pi and
-// returning it.
-template <typename I>
-I decrement(I volatile * pi);
-
-/// Atomically increments the number pointed to by the argument, storing the result in *pi and
-// returning it.
-template <typename I>
-I increment(I volatile * pi);
-
-/// Atomically subtracts the second argument from the number pointed to by the first argument,
-// storing the result in *pi and returning it.
-template <typename I>
-I subtract(I volatile * piDst, I iSubtrahend);
-
-} //namespace atomic
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::atomic globals
-
-
-namespace abc {
-
-namespace atomic {
-
+TODO: comment signature.
+*/
 template <typename I>
 I add(I volatile * piDst, I iAddend) {
 #if ABC_HOST_API_POSIX
@@ -115,6 +83,11 @@ I add(I volatile * piDst, I iAddend) {
 }
 
 
+/** Atomically add the second argument to the number pointed to by the first argument, storing the
+result in *pi and returning it.
+
+TODO: comment signature.
+*/
 template <typename I>
 I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #if ABC_HOST_API_POSIX
@@ -144,6 +117,11 @@ I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 }
 
 
+/** Atomically decrements the number pointed to by the argument, storing the result in *pi and
+returning it.
+
+TODO: comment signature.
+*/
 template <typename I>
 inline I decrement(I volatile * pi) {
 #if ABC_HOST_API_POSIX
@@ -167,6 +145,11 @@ inline I decrement(I volatile * pi) {
 }
 
 
+/** Atomically increments the number pointed to by the argument, storing the result in *pi and
+returning it.
+
+TODO: comment signature.
+*/
 template <typename I>
 inline I increment(I volatile * pi) {
 #if ABC_HOST_API_POSIX
@@ -190,6 +173,11 @@ inline I increment(I volatile * pi) {
 }
 
 
+/** Atomically subtracts the second argument from the number pointed to by the first argument,
+storing the result in *pi and returning it.
+
+TODO: comment signature.
+*/
 template <typename I>
 I subtract(I volatile * piDst, I iSubtrahend) {
 #if ABC_HOST_API_POSIX
@@ -221,7 +209,7 @@ I subtract(I volatile * piDst, I iSubtrahend) {
 } //namespace abc
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifndef ABC_ATOMIC_HXX

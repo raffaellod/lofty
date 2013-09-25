@@ -29,52 +29,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-
-namespace abc {
-
-namespace bitmanip {
-
-/// Helper for ceiling_to_pow2, to unify specializations based on sizeof(I).
-template <typename I>
-I _raw_ceiling_to_pow2(I i);
-
-/// Returns the argument rounded up to the closest power of 2.
-template <typename I>
-I ceiling_to_pow2(I i);
-
-/// Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
-template <typename I>
-/*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep);
-
-/// Rotates bits to the left (most significant bits shifted out, and back in to become least
-// significant).
-template <typename I>
-/*constexpr*/ I rotate_l(I i, unsigned c);
-
-/// Rotates bits to the right (least significant bits shifted out, and back in to become most
-// significant).
-template <typename I>
-/*constexpr*/ I rotate_r(I i, unsigned c);
-
-// Intrinsics in VS2010:
-//    _BitScanForward
-//    _BitScanReverse
-//    _bittest
-//    _bittestandcomplement
-//    _bittestandreset
-//    _bittestandset
-//    _InterlockedCompareExchange
-//    _InterlockedCompareExchange64
-
-} //namespace bitmanip
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::bitmanip globals
 
 
@@ -82,6 +36,30 @@ namespace abc {
 
 namespace bitmanip {
 
+/* Intrinsics in VS2010:
+•	_BitScanForward
+•	_BitScanReverse
+•	_bittest
+•	_bittestandcomplement
+•	_bittestandreset
+•	_bittestandset
+•	_InterlockedCompareExchange
+•	_InterlockedCompareExchange64
+*/
+
+
+/** Helper for ceiling_to_pow2, to unify specializations based on sizeof(I).
+
+TODO: comment signature.
+*/
+template <typename I>
+I _raw_ceiling_to_pow2(I i);
+
+
+/** Returns the argument rounded up to the closest power of 2.
+
+TODO: comment signature.
+*/
 template <typename I>
 inline I ceiling_to_pow2(I i) {
 	switch (sizeof(I)) {
@@ -97,6 +75,10 @@ inline I ceiling_to_pow2(I i) {
 }
 
 
+/** Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
+
+TODO: comment signature.
+*/
 template <typename I>
 inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
 	--iStep;
@@ -104,12 +86,22 @@ inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
 }
 
 
+/** Rotates bits to the left (most significant bits shifted out, and back in to become least
+significant).
+
+TODO: comment signature.
+*/
 template <typename I>
 inline /*constexpr*/ I rotate_l(I i, unsigned c) {
 	return (i << c) | (i >> (sizeof(I) * CHAR_BIT - c));
 }
 
 
+/** Rotates bits to the right (least significant bits shifted out, and back in to become most
+significant).
+
+TODO: comment signature.
+*/
 template <typename I>
 inline /*constexpr*/ I rotate_r(I i, unsigned c) {
 	return (i >> c) | (i << (sizeof(I) * CHAR_BIT - c));

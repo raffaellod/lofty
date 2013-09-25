@@ -29,32 +29,15 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Thin templated wrapper for _raw_*_vextr_impl, so make the interface of those two classes
-// consistent, so vector doesn’t need specializations.
-template <typename T, bool t_bTrivial = std::is_trivial<T>::value>
-class _raw_vector;
-
-/// TODO: description.
-template <typename T>
-class buffered_vector;
-
-/// TODO: description.
-template <typename T, size_t t_ciStatic = 0>
-class vector;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_vector
 
-
 namespace abc {
+
+/** Thin templated wrapper for _raw_*_vextr_impl, so make the interface of those two classes
+consistent, so vector doesn’t need specializations.
+*/
+template <typename T, bool t_bTrivial = std::is_trivial<T>::value>
+class _raw_vector;
 
 // Partial specialization for non-trivial types.
 template <typename T>
@@ -62,8 +45,10 @@ class _raw_vector<T, false> :
 	public _raw_complex_vextr_impl {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_raw_vector(size_t ciStaticMax) :
 		_raw_complex_vextr_impl(ciStaticMax) {
 	}
@@ -72,22 +57,26 @@ public:
 	}
 
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~_raw_vector() {
 		_raw_complex_vextr_impl::destruct_items(type_raw_cda<T>());
 	}
 
 
-	/// See vector::append().
-	//
+	/** See vector::append().
+
+	TODO: comment signature.
+	*/
 	void append(T const * pAdd, size_t ciAdd, bool bMove) {
 		_raw_complex_vextr_impl::append(type_raw_cda<T>(), pAdd, ciAdd, bMove);
 	}
 
 
-	/// See vector::assign_copy().
-	//
+	/** See vector::assign_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_copy(T const * p, size_t ci, bool bMove) {
 		_raw_complex_vextr_impl::assign_copy(type_raw_cda<T>(), p, ci, bMove);
 	}
@@ -96,30 +85,38 @@ public:
 	}
 
 
-	/// See vector::assign_move().
-	//
+	/** See vector::assign_move().
+
+	TODO: comment signature.
+	*/
 	void assign_move(_raw_complex_vextr_impl && rcvi) {
 		_raw_complex_vextr_impl::assign_move(type_raw_cda<T>(), std::move(rcvi));
 	}
 
 
-	/// See vector::insert().
-	//
+	/** See vector::insert().
+
+	TODO: comment signature.
+	*/
 	void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
 		_raw_complex_vextr_impl::insert(type_raw_cda<T>(), iOffset, pAdd, ciAdd, bMove);
 	}
 
 
-	/// See vector::remove().
-	//
+	/** See vector::remove().
+
+	TODO: comment signature.
+	*/
 	void remove(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
 		_raw_complex_vextr_impl::remove(type_raw_cda<T>(), iOffset, ciRemove);
 	}
 
 
 #if 0
-	/// See vector::remove_all().
-	//
+	/** See vector::remove_all().
+
+	TODO: comment signature.
+	*/
 	void remove_all() {
 		this->~_raw_vector();
 		construct_empty();
@@ -127,8 +124,10 @@ public:
 #endif
 
 
-	/// See vector::set_capacity().
-	//
+	/** See vector::set_capacity().
+
+	TODO: comment signature.
+	*/
 	void set_capacity(size_t ciMin, bool bPreserve) {
 		_raw_complex_vextr_impl::set_capacity(type_raw_cda<T>(), ciMin, bPreserve);
 	}
@@ -141,8 +140,10 @@ class _raw_vector<T, true> :
 	public _raw_trivial_vextr_impl {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_raw_vector(size_t ciStaticMax) :
 		_raw_trivial_vextr_impl(ciStaticMax) {
 	}
@@ -151,17 +152,21 @@ public:
 	}
 
 
-	/// See vector::append(). This specialization ignores completely the bMove argument, since
-	// trivial types can only be copied.
-	//
+	/** See vector::append(). This specialization ignores completely the bMove argument, since
+	trivial types can only be copied.
+
+	TODO: comment signature.
+	*/
 	void append(void const * pAdd, size_t ciAdd, bool bMove) {
 		UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::append(sizeof(T), pAdd, ciAdd);
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_copy().
-	//
+	/** See _raw_trivial_vextr_impl::assign_copy().
+
+	TODO: comment signature.
+	*/
 	void assign_copy(void const * p, size_t ci, bool bMove) {
 		UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
@@ -175,32 +180,40 @@ public:
 	}
 
 
-	/// See _raw_trivial_vextr_impl::assign_move().
-	//
+	/** See _raw_trivial_vextr_impl::assign_move().
+
+	TODO: comment signature.
+	*/
 	void assign_move(_raw_trivial_vextr_impl && rtvi) {
 		_raw_trivial_vextr_impl::assign_move(std::move(rtvi));
 	}
 
 
-	/// See vector::insert(). This specialization ignores completely the bMove argument, since
-	// trivial types can only be copied.
-	//
+	/** See vector::insert(). This specialization ignores completely the bMove argument, since
+	trivial types can only be copied.
+
+	TODO: comment signature.
+	*/
 	void insert(ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove) {
 		UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::insert(sizeof(T), iOffset, pAdd, ciAdd);
 	}
 
 
-	/// See vector::remove().
-	//
+	/** See vector::remove().
+
+	TODO: comment signature.
+	*/
 	void remove(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
 		_raw_trivial_vextr_impl::remove(sizeof(T), iOffset, ciRemove);
 	}
 
 
 #if 0
-	/// See vector::remove_all().
-	//
+	/** See vector::remove_all().
+
+	TODO: comment signature.
+	*/
 	void remove_all() {
 		this->~_raw_vector();
 		construct_empty();
@@ -208,8 +221,10 @@ public:
 #endif
 
 
-	/// See vector::set_capacity().
-	//
+	/** See vector::set_capacity().
+
+	TODO: comment signature.
+	*/
 	void set_capacity(size_t ciMin, bool bPreserve) {
 		_raw_trivial_vextr_impl::set_capacity(sizeof(T), ciMin, bPreserve);
 	}
@@ -224,6 +239,14 @@ public:
 
 namespace abc {
 
+
+/** TODO: description.
+*/
+template <typename T, size_t t_ciStatic = 0>
+class vector;
+
+/** TODO: description.
+*/
 template <typename T>
 class buffered_vector :
 	protected _raw_vector<T>,
@@ -240,8 +263,10 @@ protected:
 
 public:
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	buffered_vector & operator=(buffered_vector const & bv) {
 		raw_vector::assign_copy(bv.get_data(), bv.get_size(), false);
 		return *this;
@@ -257,8 +282,10 @@ public:
 	}
 
 
-	/// Concatenation-assignment operator.
-	//
+	/** Concatenation-assignment operator.
+
+	TODO: comment signature.
+	*/
 	buffered_vector & operator+=(T const & t) {
 		append(&t, 1, false);
 		return *this;
@@ -278,8 +305,10 @@ public:
 	}
 
 
-	/// Concatenation operator.
-	//
+	/** Concatenation operator.
+
+	TODO: comment signature.
+	*/
 	vector0 operator+(T const & t) const {
 		return vector0(get_data(), get_size(), &t, 1);
 	}
@@ -292,8 +321,10 @@ public:
 	}
 
 
-	/// Element access operator.
-	//
+	/** Element access operator.
+
+	TODO: comment signature.
+	*/
 	T & operator[](size_t i) {
 		if (i >= get_size()) {
 			abc_throw(index_error(intptr_t(i)));
@@ -308,24 +339,30 @@ public:
 	}
 
 
-	/// Returns true if the length is greater than 0.
-	//
+	/** Returns true if the length is greater than 0.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return get_size() > 0;
 	}
 
 
-	/// Allows automatic cross-class-hierarchy casts. Notice the lack of a non-const overload: this
-	// prevents ending in a situation where client code tries to std::move() a vector that’s really a
-	// buffered_vector, to a vector that is not, which could result in exceptions being thrown.
-	//
+	/** Allows automatic cross-class-hierarchy casts. Notice the lack of a non-const overload: this
+	prevents ending in a situation where client code tries to std::move() a vector that’s really a
+	buffered_vector, to a vector that is not, which could result in exceptions being thrown.
+
+	TODO: comment signature.
+	*/
 	operator vector0 const &() const {
 		return *static_cast<vector0 const *>(this);
 	}
 
 
-	/// Adds elements at the end of the vector.
-	//
+	/** Adds elements at the end of the vector.
+
+	TODO: comment signature.
+	*/
 	void append(T const & t) {
 		append(const_cast<Tnc *>(&t), 1, false);
 	}
@@ -340,15 +377,19 @@ public:
 	}
 
 
-	/// Returns the maximum number of elements the array can currently hold.
-	//
+	/** Returns the maximum number of elements the array can currently hold.
+
+	TODO: comment signature.
+	*/
 	size_t get_capacity() const {
 		return raw_vector::get_capacity();
 	}
 
 
-	/// Returns a pointer to the item array.
-	//
+	/** Returns a pointer to the item array.
+
+	TODO: comment signature.
+	*/
 	T * get_data() {
 		// For some reason, gcc doesn’t like this:
 		//    return raw_vector::get_data<T>();
@@ -361,16 +402,20 @@ public:
 	}
 
 
-	/// Returns the count of elements in the array.
-	//
+	/** Returns the count of elements in the array.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return raw_vector::get_size();
 	}
 
 
-	/// Looks for the specified value; returns the index of the first matching item, or -1 for no
-	// matches.
-	//
+	/** Looks for the specified value; returns the index of the first matching item, or -1 for no
+	matches.
+
+	TODO: comment signature.
+	*/
 	ptrdiff_t index_of(T const & t, ptrdiff_t iFirst = 0) const {
 		T const * pt0(get_data()), * ptEnd(pt0 + get_size());
 		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt < ptEnd; ++pt) {
@@ -382,11 +427,11 @@ public:
 	}
 
 
-	/// Inserts elements at a specific position in the vector.
-	//
-	// iFirst
-	//    0-based index of the element. If negative, it’s 1-based index from the end of the vector.
-	//
+	/** Inserts elements at a specific position in the vector.
+
+	iFirst
+		0-based index of the element. If negative, it’s 1-based index from the end of the vector.
+	*/
 	void insert(ptrdiff_t i, T const & t) {
 		insert(i, &t, 1);
 	}
@@ -413,9 +458,11 @@ public:
 	}
 
 
-	/// Looks for the specified value; returns the index of the first matching item, or -1 for no
-	// matches.
-	//
+	/** Looks for the specified value; returns the index of the first matching item, or -1 for no
+	matches.
+
+	TODO: comment signature.
+	*/
 	ptrdiff_t last_index_of(T const & t) const {
 		return last_index_of(t, get_size());
 	}
@@ -430,12 +477,12 @@ public:
 	}
 
 
-	/// Removes elements from the vector.
-	//
-	// i
-	//    0-based index of the element to be removed. If negative, it’s 1-based index from the end of
-	//    the vector.
-	//
+	/** Removes elements from the vector.
+
+	i
+		0-based index of the element to be removed. If negative, it’s 1-based index from the end of
+		the vector.
+	*/
 	void remove(ptrdiff_t i, ptrdiff_t ciRemove = 1) {
 		raw_vector::remove(i, ciRemove);
 	}
@@ -444,38 +491,44 @@ public:
 	}
 
 
-	/// Removes all the elements in the vector.
-	//
+	/** Removes all the elements in the vector.
+
+	TODO: comment signature.
+	*/
 	void remove_all() {
 		raw_vector::remove_all();
 	}
 
 
-	/// Ensures that the item array has at least cchMin of actual item space, excluding the trailing
-	// NUL character. If this causes *this to switch to using a different item array, any data in the
-	// current one will be lost unless bPreserve == true.
-	//
+	/** Ensures that the item array has at least cchMin of actual item space, excluding the trailing
+	NUL character. If this causes *this to switch to using a different item array, any data in the
+	current one will be lost unless bPreserve == true.
+
+	TODO: comment signature.
+	*/
 	void set_capacity(size_t ciMin, bool bPreserve) {
 		raw_vector::set_capacity(ciMin, bPreserve);
 	}
 
 
-	/// Resizes the vector so that it only takes up as much memory as strictly necessary.
-	//
+	/** Resizes the vector so that it only takes up as much memory as strictly necessary.
+
+	TODO: comment signature.
+	*/
 	void shrink_to_fit() {
 		// TODO: implement this.
 	}
 
 
-	/// Returns a segment of the vector.
-	//
-	// iFirst
-	//    0-based index of the first element. If negative, it’s 1-based index from the end of the
-	//    vector.
-	// [ci]
-	//    Count of elements to return. If negative, it’s the count of elements to skip, from the end
-	//    of the vector.
-	//
+	/** Returns a segment of the vector.
+
+	iFirst
+		0-based index of the first element. If negative, it’s 1-based index from the end of the
+		vector.
+	[ci]
+		Count of elements to return. If negative, it’s the count of elements to skip, from the end of
+		the vector.
+	*/
 	vector0 slice(ptrdiff_t iFirst) const {
 		return slice(iFirst, get_size());
 	}
@@ -487,8 +540,10 @@ public:
 
 protected:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	buffered_vector(size_t cchStaticMax) :
 		raw_vector(cchStaticMax) {
 	}
@@ -536,8 +591,10 @@ class vector<T, 0> :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	vector() :
 		buffered_vector<T>(0) {
 	}
@@ -559,8 +616,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	vector & operator=(vector const & v) {
 		buffered_vector<T>::operator=(v);
 		return *this;
@@ -576,8 +635,10 @@ public:
 	}
 
 
-	/// Concatenation-assignment operator.
-	//
+	/** Concatenation-assignment operator.
+
+	TODO: comment signature.
+	*/
 	vector & operator+=(T const & t) {
 		buffered_vector<T>::operator+=(t);
 		return *this;
@@ -607,14 +668,16 @@ class vector :
 
 protected:
 
-	/// Actual static item array size.
+	/** Actual static item array size. */
 	static size_t const smc_ciFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_ciStatic);
 
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	vector() :
 		buffered_vector<T>(smc_ciFixed) {
 	}
@@ -639,8 +702,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	vector & operator=(vector const & v) {
 		buffered_vector<T>::operator=(v);
 		return *this;
@@ -664,8 +729,10 @@ public:
 	}
 
 
-	/// Concatenation-assignment operator.
-	//
+	/** Concatenation-assignment operator.
+
+	TODO: comment signature.
+	*/
 	vector & operator+=(T const & t) {
 		buffered_vector<T>::operator+=(t);
 		return *this;
@@ -685,10 +752,12 @@ public:
 	}
 
 
-	/// Allows automatic cross-class-hierarchy casts. Notice the lack of a non-const overload: this
-	// prevents ending in a situation where client code tries to std::move() a string that’s really a
-	// string_buffer, to a string that is not, which could result in exceptions being thrown.
-	//
+	/** Allows automatic cross-class-hierarchy casts. Notice the lack of a non-const overload: this
+	prevents ending in a situation where client code tries to std::move() a string that’s really a
+	string_buffer, to a string that is not, which could result in exceptions being thrown.
+
+	TODO: comment signature.
+	*/
 	operator vector0 const &() const {
 		return *static_cast<vector0 const *>(static_cast<buffered_vector<T> const *>(this));
 	}
@@ -698,9 +767,9 @@ private:
 
 	// This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-	/// See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax.
+	/** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
 	size_t m_ciStaticMax;
-	/// See _raw_vextr_impl_base_with_static_item_array::m_at.
+	/** See _raw_vextr_impl_base_with_static_item_array::m_at. */
 	std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(T) * smc_ciFixed)];
 };
 

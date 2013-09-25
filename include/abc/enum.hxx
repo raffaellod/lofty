@@ -30,36 +30,21 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc golbals
 
 
 namespace abc {
 
-// Forward declaration from abc/iostream.hxx.
-class ostream;
 
-// Forward declaration from abc/to_string_backend.hxx.
-template <typename T>
-class to_string_backend;
+/** TODO: comment + document design.
 
-/// Enumeration member (name/value pair).
-struct enum_member;
+Loosely based on <http://www.python.org/dev/peps/pep-0435/>
 
-/// Implementation of the specializations of to_string_backend for enum_impl specializations.
-class _enum_to_string_backend_impl;
+TODO: allow specifying a default value (instead of having __default = max + 1).
 
-/// Implementation of enumeration classes.
-template <class T>
-class enum_impl;
-
-
-/// TODO: comment + document design.
-//
-// Loosely based on <http://www.python.org/dev/peps/pep-0435/>
-//
-// TODO: allow specifying a default value (instead of having __default = max + 1).
-// TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from
-// string, etc.
+TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
+etc.
+*/
 #define ABC_ENUM(name, ...) \
 	struct ABC_CPP_CAT(_, name, _e) { \
 	\
@@ -81,11 +66,19 @@ class enum_impl;
 	}; \
 	typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
 
-/// Expands into an enum name/value assignment.
+
+/** Expands into an enum name/value assignment.
+
+TODO: comment signature.
+*/
 #define _ABC_ENUM_MEMBER(name, value) \
 			name = value,
 
-/// Expands into an abc::enum_member initializer.
+
+/** Expands into an abc::enum_member initializer.
+
+TODO: comment signature.
+*/
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
 				{ ABC_CPP_TOSTRING(name), value },
 
@@ -99,15 +92,20 @@ class enum_impl;
 
 namespace abc {
 
+/** Enumeration member (name/value pair).
+*/
 struct enum_member {
 
-	/// Name.
+	/** Name. */
 	char_t const * pszName;
-	/// Value.
+	/** Value. */
 	int iValue;
 
 
-	/// Finds and returns the member associated to the specified enumerated value or name.
+	/** Finds and returns the member associated to the specified enumerated value or name.
+
+	TODO: comment signature.
+	*/
 	static enum_member const * find_in_map(enum_member const * pem, int i);
 	static enum_member const * find_in_map(enum_member const * pem, char_t const * psz);
 };
@@ -121,16 +119,27 @@ struct enum_member {
 
 namespace abc {
 
+// Forward declaration from abc/iostream.hxx.
+class ostream;
+
+/** Implementation of the specializations of to_string_backend for enum_impl specializations.
+*/
 class _enum_to_string_backend_impl {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_enum_to_string_backend_impl(char_range const & crFormat);
 
 
 protected:
 
-	/// See to_string_backend::write().
+	/** See to_string_backend::write().
+
+	TODO: comment signature.
+	*/
 	void write_impl(int i, enum_member const * pem, ostream * posOut);
 };
 
@@ -143,6 +152,8 @@ protected:
 
 namespace abc {
 
+/** Implementation of enumeration classes.
+*/
 template <class T>
 class enum_impl :
 	public T {
@@ -150,8 +161,11 @@ public:
 
 	typedef typename T::enum_type enum_type;
 
-	/// Constructor.
-	//
+
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	enum_impl() :
 		m_e(enum_type::__default) {
 	}
@@ -171,8 +185,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	enum_impl & operator=(enum_impl const & e) {
 		m_e = e.m_e;
 		return *this;
@@ -183,15 +199,19 @@ public:
 	}
 
 
-	/// Returns the current base enumerated value.
-	//
+	/** Returns the current base enumerated value.
+
+	TODO: comment signature.
+	*/
 	enum_type base() const {
 		return m_e;
 	}
 
 
-	/// Returns the name of the current enumerated value.
-	//
+	/** Returns the name of the current enumerated value.
+
+	TODO: comment signature.
+	*/
 	char_t const * name() const {
 		return _member()->pszName;
 	}
@@ -199,8 +219,10 @@ public:
 
 protected:
 
-	/// Returns a pointer to the name/value pair for the current value.
-	//
+	/** Returns a pointer to the name/value pair for the current value.
+
+	TODO: comment signature.
+	*/
 	enum_member const * _member() const {
 		return enum_member::find_in_map(T::_get_map(), m_e);
 	}
@@ -208,7 +230,7 @@ protected:
 
 private:
 
-	/// Enumerated value.
+	/** Enumerated value. */
 	enum_type m_e;
 };
 
@@ -240,21 +262,30 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
+// Forward declaration from abc/to_string_backend.hxx.
+template <typename T>
+class to_string_backend;
+
+
 // Specialization of to_string_backend.
 template <class T>
 class to_string_backend<enum_impl<T>> :
 	public _enum_to_string_backend_impl {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range()) :
 		_enum_to_string_backend_impl(crFormat) {
 	}
 
 
-	/// See to_string_backend::write().
-	//
+	/** See to_string_backend::write().
+
+	TODO: comment signature.
+	*/
 	void write(enum_impl<T> e, ostream * posOut) {
 		_enum_to_string_backend_impl::write_impl(e.base(), e._get_map(), posOut);
 	}

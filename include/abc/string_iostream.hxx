@@ -28,49 +28,52 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Implementation of an read-only stream based on a string.
-class string_istream;
-
-/// Implementation of an write-only stream based on a string.
-class string_ostream;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::string_istream
 
 
 namespace abc {
 
+/** Implementation of an read-only stream based on a string.
+*/
 class string_istream :
 	public virtual istream {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	explicit string_istream(cstring const & s);
 	explicit string_istream(cstring && s);
 	explicit string_istream(wstring && s);
 	explicit string_istream(wdstring && s);
 
-	/// Destructor.
+
+	/** Destructor.
+	*/
 	virtual ~string_istream();
 
-	/// See istream::read().
+
+	/** See istream::read().
+
+	TODO: comment signature.
+	*/
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
 
-	/// See istream::unread().
+
+	/** See istream::unread().
+
+	TODO: comment signature.
+	*/
 	virtual void unread(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 protected:
 
-	/// See istream::_read_line().
+	/** See istream::_read_line().
+
+	TODO: comment signature.
+	*/
 	virtual void _read_line(
 		_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
@@ -78,10 +81,10 @@ protected:
 
 protected:
 
-	/// Source string.
+	/** Source string. */
 	cstring m_sBuf;
-	/// Current read offset into the string, in bytes. Seeks can only change this in increments of a
-	// character, but internal code doesn’t have to.
+	/** Current read offset into the string, in bytes. Seeks can only change this in increments of a
+	character, but internal code doesn’t have to. */
 	size_t m_ibRead;
 };
 
@@ -94,6 +97,8 @@ protected:
 
 namespace abc {
 
+/** Implementation of an write-only stream based on a string.
+*/
 class string_ostream :
 	public virtual ostream {
 
@@ -101,25 +106,38 @@ class string_ostream :
 
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	string_ostream();
 
-	/// Destructor.
+
+	/** Destructor.
+	*/
 	virtual ~string_ostream();
 
-	/// Returns and empties the contents of the stream.
+
+	/** Returns and empties the contents of the stream.
+
+	TODO: comment signature.
+	*/
 	string_type get_contents();
 
-	/// See ostream::write().
+
+	/** See ostream::write().
+
+	TODO: comment signature.
+	*/
 	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 protected:
 
-	/// Target string.
+	/** Target string. */
 	string_type m_sBuf;
-	/// Current write offset into the string, in bytes. Seeks can only change this in increments of a
-	// character, but internal code doesn’t have to.
+	/** Current write offset into the string, in bytes. Seeks can only change this in increments of a
+	character, but internal code doesn’t have to. */
 	size_t m_ibWrite;
 };
 

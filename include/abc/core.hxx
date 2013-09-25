@@ -40,7 +40,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - HOST_* and OUTPUT_*
+// abc globals - HOST_* and OUTPUT_*
 
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
@@ -51,11 +51,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_OUTPUT_POSIX_EXE 0
 
 #if defined(_WIN32)
-	/// Compiling for Win32.
+	// Compiling for Win32.
 	#undef ABC_HOST_API_WIN32
 	#define ABC_HOST_API_WIN32 1
 	#ifdef _WIN64
-		/// Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
+		// Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
 		#undef ABC_HOST_API_WIN64
 		#define ABC_HOST_API_WIN64 1
 	#endif
@@ -67,7 +67,7 @@ You should have received a copy of the GNU General Public License along with ABC
 		#define ABC_OUTPUT_WIN32_EXE 1
 	#endif
 #elif defined(__linux__)
-	/// Compiling for Linux.
+	// Compiling for Linux.
 	#undef ABC_HOST_API_LINUX
 	#define ABC_HOST_API_LINUX 1
 	#undef ABC_HOST_API_POSIX
@@ -75,7 +75,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	#undef ABC_OUTPUT_POSIX_EXE
 	#define ABC_OUTPUT_POSIX_EXE 1
 #elif defined(__posix__)
-	/// Compiling for POSIX.
+	// Compiling for POSIX.
 	#undef ABC_HOST_API_POSIX
 	#define ABC_HOST_API_POSIX 1
 	#undef ABC_OUTPUT_POSIX_EXE
@@ -83,7 +83,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 
-/// Machine word size for this microarchitecture.
+/** Machine word size for this microarchitecture. */
 #if ABC_HOST_API_WIN32
 	#ifdef _WIN64
 		#define ABC_HOST_WORD_SIZE 64
@@ -98,7 +98,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - platform-dependent fixes
+// abc globals - platform-dependent fixes
 
 #if ABC_HOST_API_POSIX
 
@@ -118,36 +118,36 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - C++11 compiler support
+// abc globals - C++11 compiler support
 
-/// If defined, the compiler supports defining conversion operators as explicit, to avoid executing
-// them implicitly (N2437).
+/** If defined, the compiler supports defining conversion operators as explicit, to avoid executing
+them implicitly (N2437). */
 #if defined(_GCC_VER) && _GCC_VER >= 40500
 	#define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
-/// If defined, the compiler allows to delete a specific (overload of a) function, method or
-// constructor (N2346).
+/** If defined, the compiler allows to delete a specific (overload of a) function, method or
+constructor (N2346). */
 #if defined(_GCC_VER) && _GCC_VER >= 40400
 	#define ABC_CXX_FUNCTION_DELETE
 #endif
 
-/// If defined, the compiler supports template friend declarations (N1791).
+/** If defined, the compiler supports template friend declarations (N1791). */
 #if (defined(_GCC_VER) && _GCC_VER >= 40500) || defined(_MSC_VER)
 	#define ABC_CXX_TEMPLATE_FRIENDS
 #endif
 
-/// If defined, the compiler supports variadic templates (N2242).
+/** If defined, the compiler supports variadic templates (N2242). */
 #if defined(_GCC_VER)
 	#define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - non-standard, but commonly available, extensions
+// abc globals - non-standard, but commonly available, extensions
 
-/// If defined, the compiler supports #pragma once, which tells the preprocessor not to parsing a
-// (header) file more than once, speeding up compilation.
+/** If defined, the compiler supports #pragma once, which tells the preprocessor not to parsing a
+(header) file more than once, speeding up compilation. */
 #if defined(_MSC_VER)
 	#define ABC_CXX_PRAGMA_ONCE
 
@@ -155,9 +155,9 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 
-/// Defines a function as never returning (e.g. by causing the process to terminate, or by throwing
-// an exception). This allows optimizations based on the fact that code following its call cannot be
-// reached.
+/** Defines a function as never returning (e.g. by causing the process to terminate, or by throwing
+an exception). This allows optimizations based on the fact that code following its call cannot be
+reached. */
 #if defined(_GCC_VER)
 	#define ABC_FUNC_NORETURN \
 		__attribute__((noreturn))
@@ -170,12 +170,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - extended features that can take advantage of C++11 or fallback to more risky, but
+// abc globals - extended features that can take advantage of C++11 or fallback to more risky, but
 // still functional alternatives
 
-/// Makes the class un-copiable. Move constructors and/or assignment operators may be still
-// available, though.
-//
+/** Makes the class un-copiable. Move constructors and/or assignment operators may be still
+available, though.
+
+TODO: comment signature.
+*/
 #ifdef ABC_CXX_FUNCTION_DELETE
 	#define ABC_CLASS_PREVENT_COPYING(cls) \
 		public: \
@@ -199,17 +201,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/// Declares an explicit conversion operator to bool.
-//
+/** Declares an explicit conversion operator to bool.
+*/
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 	#define explicit_operator_bool \
 		explicit operator bool
 
 
-	/// A class derived from this one receives support for C++11 explicit operator bool even on
-	// non-compliant compilers.
-	//
+	/** A class derived from this one receives support for C++11 explicit operator bool even on
+	non-compliant compilers.
+	*/
 	template <typename T>
 	struct support_explicit_operator_bool {};
 
@@ -219,28 +221,32 @@ namespace abc {
 		bool _explicit_operator_bool
 
 
-	/// Non-template helper for support_explicit_operator_bool.
-	//
+	/** Non-template helper for support_explicit_operator_bool.
+	*/
 	struct _explob_helper {
 
-		/// Non-bool boolean type.
+		/** Non-bool boolean type. */
 		typedef void (_explob_helper::* bool_type)() const;
 
-		/// A pointer to this method is used as a boolean true by support_explicit_operator_bool.
+
+		/** A pointer to this method is used as a boolean true by support_explicit_operator_bool.
+		*/
 		void bool_true() const;
 	};
 
 
 
-	/// A class derived from this one receives support for C++11 explicit operator bool even on
-	// non-compliant compilers.
-	//
+	/** A class derived from this one receives support for C++11 explicit operator bool even on
+	non-compliant compilers.
+	*/
 	template <typename T>
 	struct support_explicit_operator_bool {
 
-		/// Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
-		// explicit operator bool().
-		//
+		/** Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
+		explicit operator bool().
+
+		TODO: comment signature.
+		*/
 		operator _explob_helper::bool_type() const {
 			if (static_cast<T const *>(this)->_explicit_operator_bool()) {
 				return &_explob_helper::bool_true;
@@ -285,13 +291,13 @@ namespace abc {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations - other
+// abc globals - other
 
 namespace std {
 
-/// Type whose alignment requirement is at least as large as that of every scalar type (C++11 18.2,
-// <cstddef>).
-//
+/** Type whose alignment requirement is at least as large as that of every scalar type (see C++11 §
+18.2 “<cstddef>”).
+*/
 union max_align_t {
 	double d;
 	long double ld;
@@ -321,19 +327,23 @@ union max_align_t {
 	throw list
 
 
-/// Avoid compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
-// this purpose, but this is noticeably shorter :)
-//
+/** Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
+this purpose, but this is noticeably shorter :)
+
+TODO: comment signature.
+*/
 #define UNUSED_ARG(x) \
 	static_cast<void>(x)
 
 
-/// This should be used to tell the compiler that a switch statement that apparently doesn’t test
-// for all possible cases for its argument (e.g. skips some values of an enum), does cover 100% of
-// the actually possible cases. It can avoid warnings about not testing for all possible values for
-// an enum, or cases where a variable would seem to be left uninitialized if the switch argument has
-// a value that’s not one of those expected by the case labels.
-//
+/** Tells the compiler that a switch statement that apparently doesn’t test for all possible cases
+for its argument (e.g. skips some values of an enum), does cover 100% of the actually possible
+cases.
+
+It can avoid warnings about not testing for all possible values for an enum, or cases where a
+variable would seem to be left uninitialized if the switch argument has a value that’s not one of
+those expected by the case labels.
+*/
 #if defined(_MSC_VER)
 	#define no_default \
 		default: \
@@ -345,24 +355,30 @@ union max_align_t {
 #endif
 
 
-/// Returns the number of items in a (static) array.
-//
+/** Returns the number of items in a (static) array.
+
+TODO: comment signature.
+*/
 #undef countof
 #define countof(array) \
 	(sizeof(array) / sizeof((array)[0]))
 
 
-/// Returns the offset, in bytes, of a struct/class member. It doesn’t trigger warnings, since it
-// doesn’t use NULL as the fake address.
-//
+/** Returns the offset, in bytes, of a struct/class member. It doesn’t trigger warnings, since it
+doesn’t use NULL as the fake address.
+
+TODO: comment signature.
+*/
 #undef offsetof
 #define offsetof(type, member) \
 	(reinterpret_cast<size_t>(&reinterpret_cast<type *>(1024)->member) - 1024)
 
 
-/// Returns the compiler-computed alignment for the specified data type. When compiler support is
-// lacking, this can be inaccurate for long double.
-//
+/** Returns the compiler-computed alignment for the specified data type. When compiler support is
+lacking, this can be inaccurate for long double.
+
+TODO: comment signature.
+*/
 #undef alignof
 #if defined(_GCC_VER)
 	#define alignof(type) \
@@ -386,39 +402,44 @@ union max_align_t {
 #endif
 
 
-/// Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
-// storage with alignment suitable for any type, just like ::malloc() does. Identical to
-// bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
-//
+/** Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
+storage with alignment suitable for any type, just like ::malloc() does. Identical to
+bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
+
+TODO: comment signature.
+*/
 #define ABC_ALIGNED_SIZE(cb) \
 	((size_t(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
 
 namespace abc {
 
-/// TODO maybe move to other header file?
+/** TODO: comment.
+
+TODO maybe move to other header file?
+*/
 template <typename T>
 union force_max_align {
 public:
 
-	/// Actual storage.
+	/** Actual storage. */
 	T t;
 
 
 private:
 
-	/// Forces the whole union to have the most generic alignment; on many architectures this will be
-	// 2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
-	// pointers it returns.
+	/** Forces the whole union to have the most generic alignment; on many architectures this will be
+	2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
+	pointers it returns. */
 	std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
 };
 
 
-/// See unsafe.
+/** See unsafe. */
 struct unsafe_t {};
 
-/// Constant used as extra argument for functions to force clients to acknowledge they are
-// performing unsafe operations.
+/** Constant used as extra argument for functions to force clients to acknowledge they are
+performing unsafe operations. */
 extern unsafe_t const unsafe;
 
 } //namespace abc

@@ -27,11 +27,13 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations and implementations
+// abc globals
 
 
-/// Expands into the count of its arguments.
-//
+/** Expands into the count of its arguments.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_LIST_COUNT(...) \
 	_ABC_CPP_LIST_COUNT_IMPL(__VA_ARGS__, \
 		99, 98, 97, 96, 95, 94, 93, 92, 91, 90, \
@@ -63,9 +65,11 @@ You should have received a copy of the GNU General Public License along with ABC
 	count
 
 
-/// Expands into a joined version of the two provided tokens. Necessary to implement the more
-// generic ABC_CPP_CAT().
-//
+/** Expands into a joined version of the two provided tokens. Necessary to implement the more
+generic ABC_CPP_CAT().
+
+TODO: comment signature.
+*/
 #define ABC_CPP_CAT2(token1, token2) \
 	_ABC_CPP_CAT2_IMPL(token1, token2)
 
@@ -73,8 +77,10 @@ You should have received a copy of the GNU General Public License along with ABC
 	token1 ## token2
 
 
-/// Expands into a joined version of the provided tokens.
-//
+/** Expands into a joined version of the provided tokens.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_CAT(...) \
 	ABC_CPP_CAT2(_ABC_CPP_CAT_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
@@ -140,8 +146,10 @@ You should have received a copy of the GNU General Public License along with ABC
 	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
 
 
-/// Expands into a string version of the specified token.
-//
+/** Expands into a string version of the specified token.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_TOSTRING(x) \
 	_ABC_CPP_TOSTRING_IMPL(x)
 
@@ -149,9 +157,11 @@ You should have received a copy of the GNU General Public License along with ABC
 	#x
 
 
-/// Expands into a mostly unique number prefixes by the specified token. Uniqueness is not
-// guaranteed on all platforms.
-//
+/** Expands into a mostly unique number prefixes by the specified token. Uniqueness is not
+guaranteed on all platforms.
+
+TODO: comment signature.
+*/
 #if defined(_GCC_VER) || defined(_MSC_VER)
 	#define ABC_CPP_APPEND_UID(s) \
 		ABC_CPP_CAT2(s, __COUNTER__)
@@ -161,9 +171,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 
-/// Expands into a macro that will evaluate its first argument or the remaining ones, depending on
-// whether bit evaluates to 1 or 0, respectively.
-//
+/** Expands into a macro that will evaluate its first argument or the remaining ones, depending on
+whether bit evaluates to 1 or 0, respectively.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_IIF(bit) \
 	ABC_CPP_CAT2(_ABC_CPP_IIF_, bit)
 
@@ -173,8 +185,10 @@ You should have received a copy of the GNU General Public License along with ABC
 	true_part
 
 
-/// Expands into the complement of the specified bit.
-//
+/** Expands into the complement of the specified bit.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_COMPL(bit) \
 	ABC_CPP_CAT2(_ABC_CPP_COMPL_, bit)
 
@@ -182,8 +196,10 @@ You should have received a copy of the GNU General Public License along with ABC
 #define _ABC_CPP_COMPL_1 0
 
 
-/// Expands into the argument + 1.
-//
+/** Expands into the argument + 1.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_INC(int) \
 	ABC_CPP_CAT2(_ABC_CPP_INC_, int)
 
@@ -289,8 +305,10 @@ You should have received a copy of the GNU General Public License along with ABC
 #define _ABC_CPP_INC_99 100
 
 
-/// Expands into the argument - 1.
-//
+/** Expands into the argument - 1.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_DEC(int) \
 	ABC_CPP_CAT2(_ABC_CPP_DEC_, int)
 
@@ -396,9 +414,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #define _ABC_CPP_DEC_99 98
 
 
-/// Used with _ABC_CPP_MAKE_CHECK_RET_ONE() it expands into emit 1 or 0 depending on whether the
-// latter is expanded or not.
-//
+/** Used with _ABC_CPP_MAKE_CHECK_RET_ONE() it expands into emit 1 or 0 depending on whether the
+latter is expanded or not.
+
+TODO: comment signature.
+*/
 // Comma after 0 necessary just to provide something for ABC_CPP_CHECK_EXPAND’s “...”.
 #define ABC_CPP_CHECK(...) \
 	ABC_CPP_CHECK_EXPAND(__VA_ARGS__, 0, )
@@ -407,22 +427,29 @@ You should have received a copy of the GNU General Public License along with ABC
 	ret
 
 
-// Expands into a placeholder and 1, which will replace the 0 if passed as argument to
-// ABC_CPP_CHECK.
+/** Expands into a placeholder and 1, which will replace the 0 if passed as argument to
+ABC_CPP_CHECK.
+
+TODO: comment signature.
+*/
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
 	dummy, 1
 
 
-/// Expands into either 1 or 0 depending on whether the argument is a tuple or not.
-//
+/** Expands into either 1 or 0 depending on whether the argument is a tuple or not.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_IS_TUPLE(x) \
 	ABC_CPP_CHECK(_ABC_CPP_MAKE_CHECK_RET_ONE x)
 
 
-/// Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
-// respectively.
-//
+/** Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
+respectively.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_NOT(x) \
 	ABC_CPP_CHECK(ABC_CPP_CAT2(_ABC_CPP_NOT_, x))
 
@@ -430,23 +457,29 @@ You should have received a copy of the GNU General Public License along with ABC
 	_ABC_CPP_MAKE_CHECK_RET_ONE()
 
 
-/// Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
-// respectively.
-//
+/** Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
+respectively.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_BOOL(x) \
 	ABC_CPP_COMPL(ABC_CPP_NOT(x))
 
 
-/// Expands into a macro that will evaluate its first argument or the remaining ones, depending on
-// whether x evaluates to non-0 or 0, respectively.
-//
+/** Expands into a macro that will evaluate its first argument or the remaining ones, depending on
+whether x evaluates to non-0 or 0, respectively.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_IF(x) \
 	ABC_CPP_IIF(ABC_CPP_BOOL(x))
 
 
-/// Expands into the invocation of the specified macro once for each of the remaining scalar
-// arguments.
-//
+/** Expands into the invocation of the specified macro once for each of the remaining scalar
+arguments.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_LIST_WALK(macro, ...) \
 	ABC_CPP_CAT2(_ABC_CPP_LIST_WALK_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__)
 
@@ -552,9 +585,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #define _ABC_CPP_LIST_WALK_99(m, h, ...) m(h) _ABC_CPP_LIST_WALK_98(m, __VA_ARGS__)
 
 
-/// Expands into the invocation of the specified macro once for each of the remaining tuples passed
-// as arguments.
-//
+/** Expands into the invocation of the specified macro once for each of the remaining tuples passed
+as arguments.
+
+TODO: comment signature.
+*/
 #define ABC_CPP_TUPLELIST_WALK(macro, ...) \
 	ABC_CPP_CAT2(_ABC_CPP_TUPLELIST_WALK_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__)
 

@@ -30,26 +30,26 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc globals
 
 namespace abc {
 
-/// UTF-8 character type.
+/** UTF-8 character type. */
 typedef char char8_t;
 #if _GCC_VER >= 40400
-	/// char16_t is a native type, different than uint16_t.
+	// char16_t is a native type, different than uint16_t.
 	#define ABC_CXX_CHAR16
-	/// char32_t is a native type, different than uint32_t.
+	// char32_t is a native type, different than uint32_t.
 	#define ABC_CXX_CHAR32
-	/// UTF-16 string literal.
+	/** UTF-16 string literal. */
 	#define U16L(s) u ## s
-	/// UTF-32 string literal.
+	/** UTF-32 string literal. */
 	#define U32L(s) U ## s
 	#if _GCC_VER >= 40500
-		/// UTF-8 string literal.
+		/** UTF-8 string literal. */
 		#define U8L(s) u8 ## s
 	#else
-		/// UTF-8 string literal.
+		/** UTF-8 string literal. */
 		#define U8L(s) s
 	#endif
 #else
@@ -57,39 +57,39 @@ typedef char char8_t;
 		#error Please compile with /Zc:wchar_t
 	#endif
 	#if ABC_HOST_API_WIN32
-		/// char16_t is a native type, different than uint16_t.
+		// char16_t is a native type, different than uint16_t.
 		#define ABC_CXX_CHAR16
-		/// UTF-16 character type.
+		/** UTF-16 character type. */
 		typedef wchar_t char16_t;
-		/// UTF-32 character type.
+		/** UTF-32 character type. */
 		typedef uint32_t char32_t;
 	#else
-		/// char32_t is a native type, different than uint32_t.
+		// char32_t is a native type, different than uint32_t.
 		#define ABC_CXX_CHAR32
-		/// UTF-16 character type.
+		/** UTF-16 character type. */
 		typedef uint16_t char16_t;
-		/// UTF-32 character type.
+		/** UTF-32 character type. */
 		typedef wchar_t char32_t;
 	#endif
-	/// UTF-8 string literal.
+	/** UTF-8 string literal. */
 	#define U8L(s) s
 	#if ABC_HOST_API_WIN32
-		/// UTF-16 string literal.
+		/** UTF-16 string literal. */
 		#define U16L(s) L ## s
 	#else
-		/// UTF-32 string literal.
+		/** UTF-32 string literal. */
 		#define U32L(s) L ## s
 	#endif		
 #endif
 
-/// UTF-* encoding supported by the host.
+/** UTF-* encoding supported by the host. */
 #if ABC_HOST_API_WIN32 && defined(UNICODE)
 	#define ABC_HOST_UTF 16
 #else
 	#define ABC_HOST_UTF 8
 #endif
 
-/// Default UTF character type for the host.
+/** Default UTF character type for the host. */
 #if ABC_HOST_UTF == 8
 	typedef char8_t char_t;
 #elif ABC_HOST_UTF == 16
@@ -98,7 +98,7 @@ typedef char char8_t;
 	typedef char32_t char_t;
 #endif
 
-/// Default string literal type for the host.
+/** Default string literal type for the host. */
 #if ABC_HOST_UTF == 8
 	#define SL(s) U8L(s)
 #elif ABC_HOST_UTF == 16
@@ -106,21 +106,6 @@ typedef char char8_t;
 #elif ABC_HOST_UTF == 32
 	#define SL(s) U32L(s)
 #endif
-
-
-/// Iterator based on a plain pointer.
-template <class TCont, typename TVal>
-class pointer_iterator;
-
-/// Read-only character range. Automatically converted to/from abc::cstring, and used when the
-// latter is not yet defined (nor can it be, such as very early header files).
-// Part of the implementation is in string.hxx/cxx.
-template <typename C>
-class char_range_;
-typedef char_range_<char_t> char_range;
-typedef char_range_<char8_t> char8_range;
-typedef char_range_<char16_t> char16_range;
-typedef char_range_<char32_t> char32_range;
 
 } //namespace abc
 
@@ -132,6 +117,8 @@ typedef char_range_<char32_t> char32_range;
 
 namespace abc {
 
+/** Iterator based on a plain pointer.
+*/
 template <typename TCont, typename TVal>
 class pointer_iterator :
 	public support_explicit_operator_bool<pointer_iterator<TCont, TVal>> {
@@ -149,8 +136,10 @@ public:
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	/*constexpr*/ pointer_iterator() :
 		m_ptval(NULL) {
 	}
@@ -164,52 +153,66 @@ public:
 	}
 
 
-	/// Dereferencing operator.
-	//
+	/** Dereferencing operator.
+
+	TODO: comment signature.
+	*/
 	TVal & operator*() const {
 		return *m_ptval;
 	}
 
 
-	/// Dereferencing member access operator.
-	//
+	/** Dereferencing member access operator.
+
+	TODO: comment signature.
+	*/
 	TVal * operator->() const {
 		return m_ptval;
 	}
 
 
-	/// Element access operator.
-	//
+	/** Element access operator.
+
+	TODO: comment signature.
+	*/
 	TVal & operator[](ptrdiff_t i) const {
 		return m_ptval[i];
 	}
 
 
-	/// Returns true if the internal pointer is not NULL.
-	//
+	/** Returns true if the internal pointer is not NULL.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return m_ptval != NULL;
 	}
 
 
-	/// Addition-assignment operator.
-	//
+	/** Addition-assignment operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator & operator+=(ptrdiff_t i) {
 		m_ptval += i;
 		return *this;
 	}
 
 
-	/// Subtraction-assignment operator.
-	//
+	/** Subtraction-assignment operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator & operator-=(ptrdiff_t i) {
 		m_ptval -= i;
 		return *this;
 	}
 
 
-	/// Addition operator.
-	//
+	/** Addition operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator operator+(ptrdiff_t i) const {
 		return pointer_iterator(m_ptval + i);
 	}
@@ -218,8 +221,10 @@ public:
 	}
 
 
-	/// Subtraction operator.
-	//
+	/** Subtraction operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator operator-(ptrdiff_t i) const {
 		return pointer_iterator(m_ptval - i);
 	}
@@ -228,38 +233,48 @@ public:
 	}
 
 
-	/// Preincrement operator.
-	//
+	/** Preincrement operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator & operator++() {
 		++m_ptval;
 		return *this;
 	}
 
 
-	/// Postincrement operator.
-	//
+	/** Postincrement operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator operator++(int) {
 		return pointer_iterator(m_ptval++);
 	}
 
 
-	/// Predecrement operator.
-	//
+	/** Predecrement operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator & operator--() {
 		--m_ptval;
 		return *this;
 	}
 
 
-	/// Postdecrement operator.
-	//
+	/** Postdecrement operator.
+
+	TODO: comment signature.
+	*/
 	pointer_iterator operator--(int) {
 		return pointer_iterator(m_ptval--);
 	}
 
 
-	/// Returns the underlying iterator type.
-	//
+	/** Returns the underlying iterator type.
+
+	TODO: comment signature.
+	*/
 	TVal * base() const {
 		return m_ptval;
 	}
@@ -304,12 +319,18 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
+/** Read-only character range. Automatically converted to/from abc::cstring, and used when the
+latter is not yet defined (nor can it be, such as very early header files). Part of the
+implementation is in string.hxx/cxx.
+*/
 template <typename C>
 class char_range_ {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	char_range_() :
 		m_pchBegin(NULL),
 		m_pchEnd(NULL) {
@@ -331,15 +352,19 @@ public:
 	}
 
 
-	/// Returns true if the range comprises at least one character.
-	//
+	/** Returns true if the range comprises at least one character.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return m_pchEnd > m_pchBegin;
 	}
 
 
-	/// Returns the count of characters in the range.
-	//
+	/** Returns the count of characters in the range.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return size_t(m_pchEnd - m_pchBegin);
 	}
@@ -358,29 +383,37 @@ public:
 
 public:
 
-	/// Returns a const forward iterator set to the first element.
-	//
+	/** Returns a const forward iterator set to the first element.
+
+	TODO: comment signature.
+	*/
 	const_iterator cbegin() const {
 		return const_iterator(m_pchBegin);
 	}
 
 
-	/// Returns a const reverse iterator set to the first element.
-	//
+	/** Returns a const reverse iterator set to the first element.
+
+	TODO: comment signature.
+	*/
 	const_reverse_iterator crbegin() const {
 		return const_reverse_iterator(m_pchBegin);
 	}
 
 
-	/// Returns a const forward iterator set beyond the last element.
-	//
+	/** Returns a const forward iterator set beyond the last element.
+
+	TODO: comment signature.
+	*/
 	const_iterator cend() const {
 		return const_iterator(m_pchEnd);
 	}
 
 
-	/// Returns a const reverse iterator set beyond the last element.
-	//
+	/** Returns a const reverse iterator set beyond the last element.
+
+	TODO: comment signature.
+	*/
 	const_reverse_iterator crend() const {
 		return const_reverse_iterator(m_pchEnd);
 	}
@@ -388,11 +421,16 @@ public:
 
 private:
 
-	/// Pointer to the first character.
+	/** Pointer to the first character. */
 	C const * m_pchBegin;
-	/// Pointer after the last character.
+	/** Pointer after the last character. */
 	C const * m_pchEnd;
 };
+
+typedef char_range_<char_t> char_range;
+typedef char_range_<char8_t> char8_range;
+typedef char_range_<char16_t> char16_range;
+typedef char_range_<char32_t> char32_range;
 
 } //namespace abc
 

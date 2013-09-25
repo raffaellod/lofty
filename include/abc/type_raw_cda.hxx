@@ -29,56 +29,57 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Encapsulates raw constructors, destructors and assignment operators for a type. To be
-// instanciated via type_raw_cda.
-struct void_cda;
-
-/// Defines a generic data type.
-template <typename T>
-struct typed_raw_cda;
-
-/// Returns a void_cda populated with the static methods from a typed_raw_cda.
-template <class T>
-/*constexpr*/ void_cda const & type_raw_cda();
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::type_raw_cda_base
 
 
 namespace abc {
 
+/** Encapsulates raw constructors, destructors and assignment operators for a type. To be
+instantiated via type_raw_cda.
+*/
 struct void_cda {
 
-	/// Prototype of a function that copies items from one array to another.
+	/** Prototype of a function that copies items from one array to another.
+
+	TODO: comment signature.
+	*/
 	typedef void (* copy_fn)(void * pDst, void const * pSrc, size_t ci);
-	/// Prototype of a function that compares two values for equality.
+
+
+	/** Prototype of a function that compares two values for equality.
+
+	TODO: comment signature.
+	*/
 	typedef bool (* equal_fn)(void const * p1, void const * p2);
-	/// Prototype of a function that moves items from one array to another.
+
+
+	/** Prototype of a function that moves items from one array to another.
+
+	TODO: comment signature.
+	*/
 	typedef void (* move_fn)(void * pDst, void * pSrc, size_t ci);
-	/// Prototype of a function that destructs items in an array.
+
+
+	/** Prototype of a function that destructs items in an array.
+
+	TODO: comment signature.
+	*/
 	typedef void (* destr_fn)(void * p, size_t ci);
 
-	/// Size of a variable of this type, in bytes.
+
+	/** Size of a variable of this type, in bytes. */
 	size_t cb;
-	/// Alignment of a variable of this type, in bytes.
+	/** Alignment of a variable of this type, in bytes. */
 	size_t cbAlign;
-	/// Function to copy items from one array to another.
+	/** Function to copy items from one array to another. */
 	copy_fn copy_constr;
-	/// Function to move items from one array to another.
+	/** Function to move items from one array to another. */
 	move_fn move_constr;
-	/// Function to move items within an array.
+	/** Function to move items within an array. */
 	move_fn overlapping_move_constr;
-	/// Function to destruct items in an array.
+	/** Function to destruct items in an array. */
 	destr_fn destruct;
-	/// Function to compare two items for equality.
+	/** Function to compare two items for equality. */
 	equal_fn equal;
 };
 
@@ -91,24 +92,29 @@ struct void_cda {
 
 namespace abc {
 
-/// DOC:3395 Move constructors and exceptions
-//
-// In this section, “move constructor” will strictly refer to class::class(class &&).
-//
-// All classes must provide move constructors and assignment operators if the copy constructor would
-// result in execution of exception-prone code (e.g. resource allocation).
-//
-// Because move constructors are employed widely in container classes that need to provide strong
-// exception guarantee (fully transacted operation) even in case of moves, move constructors must
-// not throw exceptions. This requirement is relaxed for moves that involve two different classes,
-// since these will not be used by container classes.
+/** DOC:3395 Move constructors and exceptions
 
+In this section, “move constructor” will strictly refer to class::class(class &&).
+
+All classes must provide move constructors and assignment operators if the copy constructor would
+result in execution of exception-prone code (e.g. resource allocation).
+
+Because move constructors are employed widely in container classes that need to provide strong
+exception guarantee (fully transacted operation) even in case of moves, move constructors must not
+throw exceptions. This requirement is relaxed for moves that involve two different classes, since
+these will not be used by container classes.
+*/
+
+/** Defines a generic data type.
+*/
 template <typename T>
 struct typed_raw_cda {
 
-	/// Copies a range of items from one array to another, overwriting any existing contents in the
-	// destination.
-	//
+	/** Copies a range of items from one array to another, overwriting any existing contents in the
+	destination.
+
+	TODO: comment signature.
+	*/
 	static void copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
 		if (std::has_trivial_copy_constructor<T>::value) {
 			// No constructor, fastest copy possible.
@@ -136,8 +142,10 @@ struct typed_raw_cda {
 	}
 
 
-	/// Destroys a range of items in an array.
-	//
+	/** Destroys a range of items in an array.
+
+	TODO: comment signature.
+	*/
 	static void destruct(T * pt, size_t ci) {
 		if (!std::has_trivial_destructor<T>::value) {
 			// The destructor is not a no-op.
@@ -148,16 +156,20 @@ struct typed_raw_cda {
 	}
 
 
-	/// Compares two values for equality.
-	//
+	/** Compares two values for equality.
+
+	TODO: comment signature.
+	*/
 	static bool equal(void const * pt1, void const * pt2) {
 		return *static_cast<T const *>(pt1) == *static_cast<T const *>(pt2);
 	}
 
 
-	/// Moves a range of items from one array to another, overwriting any existing contents in the
-	// destination.
-	//
+	/** Moves a range of items from one array to another, overwriting any existing contents in the
+	destination.
+
+	TODO: comment signature.
+	*/
 	static void move_constr(T * ptDst, T * ptSrc, size_t ci) {
 		for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 			::new(ptDst) T(std::move(*ptSrc));
@@ -165,10 +177,12 @@ struct typed_raw_cda {
 	}
 
 
-	/// Safely moves a range of items to another position in the same array, carefully moving items
-	// in case the source and the destination ranges overlap. Note that this will also destruct the
-	// source items.
-	//
+	/** Safely moves a range of items to another position in the same array, carefully moving items
+	in case the source and the destination ranges overlap. Note that this will also destruct the
+	source items.
+
+	TODO: comment signature.
+	*/
 	static void overlapping_move_constr(T * ptDst, T * ptSrc, size_t ci) {
 		if (ptDst == ptSrc) {
 			return;
@@ -262,6 +276,10 @@ struct typed_raw_cda<T const volatile> :
 
 namespace abc {
 
+/** Returns a void_cda populated with the static methods from a typed_raw_cda.
+
+TODO: comment signature.
+*/
 template <class T>
 /*constexpr*/ void_cda const & type_raw_cda() {
 	static void_cda const sc_vrcda = {
