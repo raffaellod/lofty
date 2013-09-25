@@ -31,14 +31,15 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc::text globals
 
 namespace abc {
 
 namespace text {
 
-/// Recognized text encodings. Little endians should be listed before big endians; some code relies
-// on this.
+/** Recognized text encodings. Little endians should be listed before big endians; some code relies
+on this.
+*/
 ABC_ENUM(encoding, \
 	/** Unknown/undetermined encoding. */ \
 	(unknown,          0), \
@@ -74,7 +75,9 @@ ABC_ENUM(encoding, \
 	(host,             (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
 );
 
-/// Recognized line terminators.
+
+/** Recognized line terminators.
+*/
 ABC_ENUM(line_terminator, \
 	/** Unknown/undetermined line terminator. */ \
 	(unknown,       0), \
@@ -92,81 +95,95 @@ ABC_ENUM(line_terminator, \
 	(host,          (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
 );
 
-/// Character size, in bytes, for each recognized encoding.
+
+/** Character size, in bytes, for each recognized encoding. */
 extern uint8_t const gc_cbEncChar[];
 
-/// This can be used by any char32_t-returning function that needs to return a value that’s
-// obviously not a char32_t value.
+/** This can be used by any char32_t-returning function that needs to return a value that’s
+obviously not a char32_t value. */
 char32_t const invalid_char(~char32_t(0));
 
-/// This must be used to replace any invalid char32_t value.
+/** This must be used to replace any invalid char32_t value. */
 char32_t const replacement_char(0x00fffd);
 
-/// Maximum run length for the encoding of a code point, in any encoding.
-// Technically, 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so
-// it’s here.
+/** Maximum run length for the encoding of a code point, in any encoding.
+
+Technically, 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
+here. */
 size_t const max_codepoint_length(6);
 
 
-/// Prototype of a void version of str_str().
+/** Prototype of a void version of str_str().
+
+TODO: comment signature.
+*/
 typedef void const * (* str_str_fn)(
 	void const * pchHaystackBegin, void const * pchHaystackEnd,
 	void const * pchNeedleBegin, void const * pchNeedleEnd
 );
 
 
-/// Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
-// different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source
-// size, although special cases such as surrogates might make the estimate too low.
+/** Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
+different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source size,
+although special cases such as surrogates might make the estimate too low.
+
+TODO: comment signature.
+*/
 size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst);
 
-/// Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
-// encodings (e.g. identity_encoding).
-/*constexpr*/ size_t get_encoding_size(encoding enc);
 
-/// Returns a byte sequence representing a line terminator in the requested encoding.
+/** Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
+encodings (e.g. identity_encoding).
+
+TODO: comment signature.
+*/
+inline /*constexpr*/ size_t get_encoding_size(encoding enc) {
+	return gc_cbEncChar[enc.base()];
+}
+
+
+/** Returns a byte sequence representing a line terminator in the requested encoding.
+
+TODO: comment signature.
+*/
 void const * get_line_terminator_bytes(encoding enc, line_terminator lterm, size_t * pcb);
 
-/// Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
-// total number of bytes in the source of which the buffer is the beginning.
-//
-// While this function can check for validity of some encodings, it does not guarantee that, for
-// example, for a return value of utf8_encoding utf8_traits::is_valid() will return true for the
-// same buffer.
+
+/** Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
+total number of bytes in the source of which the buffer is the beginning.
+
+While this function can check for validity of some encodings, it does not guarantee that, for
+example, for a return value of utf8_encoding utf8_traits::is_valid() will return true for the same
+buffer.
+
+TODO: comment signature.
+*/
 encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
 );
 
-/// Tries to guess the line terminators employed by a sequence of bytes, interpreted according to a
-// specified encoding. The second argument is really character count, it’s not a typo; the size of
-// each character is inferred via enc.
+
+/** Tries to guess the line terminators employed by a sequence of bytes, interpreted according to a
+specified encoding. The second argument is really character count, it’s not a typo; the size of each
+character is inferred via enc.
+
+TODO: comment signature.
+*/
 line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
 
-/// Converts from one character encoding to another. All pointed-by variables are updated to discard
-// the bytes used in the conversion; the number of bytes written is returned.
-// UTF validity: not necessary; invalid sequences are replaced with text::replacement_char.
+
+/** Converts from one character encoding to another. All pointed-by variables are updated to discard
+the bytes used in the conversion; the number of bytes written is returned.
+
+UTF validity: not necessary; invalid sequences are replaced with text::replacement_char.
+
+TODO: comment signature.
+*/
 size_t transcode(
 	std::nothrow_t const &,
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax
 );
-
-} //namespace text
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text globals
-
-namespace abc {
-
-namespace text {
-
-inline /*constexpr*/ size_t get_encoding_size(encoding enc) {
-	return gc_cbEncChar[enc.base()];
-}
 
 } //namespace text
 

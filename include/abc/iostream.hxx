@@ -29,116 +29,68 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Base for abstract data streams.
-class stream_base;
-
-/// Read-only abstract stream.
-class istream;
-
-/// Write-only abstract stream.
-class ostream;
-
-/// Read/write abstract stream.
-class iostream;
-
-/// DOC:7103 abc::ostream::print()
-//
-// Designed after Python’s str.format(), abc::ostream::print() allows to combine objects together as
-// strings using a format string.
-//
-// The implementation of print() is entirely contained in abc::_ostream_print_helper, which accesses
-// the individual arguments in a recursive way, from the most-derived class down to the base class,
-// which also contains most of the implementation. Combined with the usage of [DOC:3984
-// abc::to_string()], this enables a type-safe variadic alternative to C’s printf, and voids the
-// requirement for explicit specification of the argumment types (such as %d, %s), much like
-// Python’s str.format().
-//
-// Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it
-// allows to print a variable by automatically deducing its type.
-//
-// The format string passed as first argument to abc::ostream::print() can contain “replacement
-// fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces is
-// considered literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”,
-// which allow to print “{” and “}” respectively.
-//
-// A replacement field can specify an argument index; if omitted, the argument used will be the one
-// following the last used one, or the first if no arguments have been used up to that point.
-// After the optional argument index, a conversion might be requested (TODO), and an optional type-
-// dependent format specification can be indicated; this will be passed as-is to the specialization
-// of abc::to_string_backend for the selected argument.
-//
-// Grammar for a replacement field:
-//
-//    replacement_field : “{” index? ( “!” conversion )? ( “:” format_spec )? “}”
-//    index             : [0-9]+
-//    conversion        : [ars]
-//    format_spec       : <type-specific format specification>
-//
-// Basic usage examples for index:
-//
-//    "Welcome to {0}"						Use argument 0
-//    "Please see items {}, {3}, {}"	Use argument 0, skip 1 and 2, use 3 and 4
-//
-// Reference for Python’s str.format():
-//    <http://docs.python.org/3/library/string.html#format-string-syntax>
-
-/// Helper for ostream::print().
-template <typename ... Ts>
-class _ostream_print_helper;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::stream_base
 
 
 namespace abc {
 
+/** Base for abstract data streams.
+*/
 class stream_base {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	stream_base();
 
-	/// Destructor.
+
+	/** Destructor.
+	*/
 	virtual ~stream_base();
 
 
-	/// Returns the encoding of the data read from or written to this stream.
-	//
+	/** Returns the encoding of the data read from or written to this stream.
+
+	TODO: comment signature.
+	*/
 	text::encoding get_encoding() const {
 		return m_enc;
 	}
 
 
-	/// Returns the line terminator of the text read from or written to this stream.
-	//
+	/** Returns the line terminator of the text read from or written to this stream.
+
+	TODO: comment signature.
+	*/
 	text::line_terminator get_line_terminator() const {
 		return m_lterm;
 	}
 
 
-	/// Sets the encoding of the data read from or written to this stream.
+	/** Sets the encoding of the data read from or written to this stream.
+
+	TODO: comment signature.
+	*/
 	virtual void set_encoding(text::encoding enc);
 
-	/// Sets the line terminator to be assumed for the text read from this stream, that to be used
-	// when writing to it.
+
+	/** Sets the line terminator to be assumed for the text read from this stream, that to be used
+	when writing to it.
+
+	TODO: comment signature.
+	*/
 	virtual void set_line_terminator(text::line_terminator lterm);
 
 
 protected:
 
-	/// Encoding of the data read from or written to this stream. If not explicitly set, it will be
-	// automatically determined as soon as enough bytes are read or written.
+	/** Encoding of the data read from or written to this stream. If not explicitly set, it will be
+	automatically determined as soon as enough bytes are read or written. */
 	text::encoding m_enc;
-	/// Line terminator used for line-oriented reads from or writes to this stream. If not explicitly
-	// set, it will be automatically determined as soon as enough bytes are read or written.
+	/** Line terminator used for line-oriented reads from or writes to this stream. If not explicitly
+	set, it will be automatically determined as soon as enough bytes are read or written. */
 	text::line_terminator m_lterm;
 };
 
@@ -151,38 +103,56 @@ protected:
 
 namespace abc {
 
+/** Read-only abstract stream.
+*/
 class istream :
 	public virtual stream_base,
 	public support_explicit_operator_bool<istream> {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	istream() :
 		stream_base() {
 	}
 
 
-	/// Destructor.
+	/** Destructor.
+
+	TODO: comment signature.
+	*/
 	virtual ~istream();
 
 
-	/// An istream at EOF evaulates to false; true otherwise.
-	//
+	/** An istream at EOF evaulates to false; true otherwise.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return !is_at_end();
 	}
 
 
-	/// Returns true if the istream has reached the end of the data, or false otherwise.
+	/** Returns true if the istream has reached the end of the data, or false otherwise.
+
+	TODO: comment signature.
+	*/
 	virtual bool is_at_end() const = 0;
 
-	/// Reads at most cbMax bytes from the stream into the specified buffer.
+
+	/** Reads at most cbMax bytes from the stream into the specified buffer.
+
+	TODO: comment signature.
+	*/
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity) = 0;
 
 
-	/// Reads a whole line in the provided wstring_, discarding any line termination characters read.
-	//
+	/** Reads a whole line in the provided wstring_, discarding any line termination characters read.
+
+	TODO: comment signature.
+	*/
 	template <typename C, class TTraits>
 	istream & read_line(wstring_<C, TTraits> * ps, text::encoding enc = TTraits::host_encoding) {
 		_read_line(
@@ -193,7 +163,10 @@ public:
 	}
 
 
-	/// Pretends to undo the reads of cbMax bytes, which must be provided in the specified buffer.
+	/** Pretends to undo the reads of cbMax bytes, which must be provided in the specified buffer.
+
+	TODO: comment signature.
+	*/
 	virtual void unread(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	) = 0;
@@ -201,8 +174,11 @@ public:
 
 private:
 
-	/// Implementation of read_line(): reads a whole line in the provided string, discarding the line
-	// terminator read (if any) and appending a NUL character.
+	/** Implementation of read_line(): reads a whole line in the provided string, discarding the line
+	terminator read (if any) and appending a NUL character.
+
+	TODO: comment signature.
+	*/
 	virtual void _read_line(
 		_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	) = 0;
@@ -211,8 +187,10 @@ private:
 } //namespace abc
 
 
-/// Extraction operator for abc::istream.
-//
+/** Extraction operator for abc::istream.
+
+TODO: comment signature.
+*/
 template <typename C, class TTraits>
 inline abc::istream & operator>>(abc::istream & is, abc::wstring_<C, TTraits> & s) {
 	return is.read_line(&s);
@@ -225,38 +203,99 @@ inline abc::istream & operator>>(abc::istream & is, abc::wstring_<C, TTraits> & 
 
 namespace abc {
 
+/** DOC:7103 abc::ostream::print()
+
+Designed after Python’s str.format(), abc::ostream::print() allows to combine objects together as
+strings using a format string.
+
+The implementation of print() is entirely contained in abc::_ostream_print_helper, which accesses
+the individual arguments in a recursive way, from the most-derived class down to the base class,
+which also contains most of the implementation. Combined with the usage of [DOC:3984
+abc::to_string()], this enables a type-safe variadic alternative to C’s printf, and voids the
+requirement for explicit specification of the argumment types (such as %d, %s), much like Python’s
+str.format().
+
+Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it allows
+to print a variable by automatically deducing its type.
+
+The format string passed as first argument to abc::ostream::print() can contain “replacement fields”
+delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces is considered
+literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”, which allow to
+print “{” and “}” respectively.
+
+A replacement field can specify an argument index; if omitted, the argument used will be the one
+following the last used one, or the first if no arguments have been used up to that point. After the
+optional argument index, a conversion might be requested (TODO), and an optional type-dependent
+format specification can be indicated; this will be passed as-is to the specialization of
+abc::to_string_backend for the selected argument.
+
+Grammar for a replacement field:
+
+	replacement_field	: “{” index? ( “!” conversion )? ( “:” format_spec )? “}”
+	index					: [0-9]+
+	conversion			: [ars]
+	format_spec			: <type-specific format specification>
+
+Basic usage examples for index:
+
+	"Welcome to {0}"						Use argument 0
+	"Please see items {}, {3}, {}"	Use argument 0, skip 1 and 2, use 3 and 4
+
+Reference for Python’s str.format(): <http://docs.python.org/3/library/string.html#format-string-
+syntax>
+*/
+
+/** Write-only abstract stream.
+*/
 class ostream :
 	public virtual stream_base {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	ostream() :
 		stream_base() {
 	}
 
 
-	/// Destructor.
+	/** Destructor.
+	*/
 	virtual ~ostream();
 
-	/// Ensures that any write buffers are written to the stream. The default implementation is a
-	// no-op.
+
+	/** Ensures that any write buffers are written to the stream. The default implementation is a
+	no-op.
+
+	TODO: comment signature.
+	*/
 	virtual void flush();
 
-	/// Writes multiple values combined together in the specified format.
+
+	/** Writes multiple values combined together in the specified format.
+
+	TODO: comment signature.
+	*/
 	template <typename ... Ts>
 	void print(cstring const & sFormat, Ts const & ... ts);
 
-	/// Writes an array of bytes to the stream, translating them to the file’s character encoding
-	// first, if necessary.
+
+	/** Writes an array of bytes to the stream, translating them to the file’s character encoding
+	first, if necessary.
+
+	TODO: comment signature.
+	*/
 	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity) = 0;
 };
 
 } //namespace abc
 
 
-/// Insertion operator for abc::ostream.
-//
+/** Insertion operator for abc::ostream.
+
+TODO: comment signature.
+*/
 template <typename T>
 inline abc::ostream & operator<<(abc::ostream & os, T const & t) {
 	abc::to_string_backend<T> tsb;
@@ -271,60 +310,88 @@ inline abc::ostream & operator<<(abc::ostream & os, T const & t) {
 
 namespace abc {
 
+/** Helper for ostream::print().
+*/
+template <typename ... Ts>
+class _ostream_print_helper;
+
 // Base recursion step: no arguments to replace.
 template <>
 class _ostream_print_helper<> {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_ostream_print_helper(ostream * pos, cstring const & sFormat);
 
-	/// Writes the provided arguments to the target ostream, performing replacements as necessary.
+
+	/** Writes the provided arguments to the target ostream, performing replacements as necessary.
+
+	TODO: comment signature.
+	*/
 	void run();
 
 
 protected:
 
-	/// Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
-	// and returns true, or writes the remaining characters of the format string and returns false if
-	// no more replacement are found.
+	/** Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
+	and returns true, or writes the remaining characters of the format string and returns false if no
+	more replacement are found.
+
+	TODO: comment signature.
+	*/
 	bool write_format_up_to_next_repl();
 
-	/// Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	TODO: comment signature.
+	*/
 	ABC_FUNC_NORETURN void write_repl(unsigned iArg);
 
 
 private:
 
-	/// Throws an instance of abc::syntax_error(), providing accurate context information.
+	/** Throws an instance of abc::syntax_error(), providing accurate context information.
+
+	TODO: comment signature.
+	*/
 	ABC_FUNC_NORETURN void throw_syntax_error(
 		cstring const & sDescription, cstring::const_iterator it
 	) const;
 
-	/// Writes the portion of format string between the first character to be written
-	// (m_itFormatToWriteBegin) and the specified one, and updates m_itFormatToWriteBegin.
+
+	/** Writes the portion of format string between the first character to be written
+	(m_itFormatToWriteBegin) and the specified one, and updates m_itFormatToWriteBegin.
+
+	TODO: comment signature.
+	*/
 	void write_format_up_to(cstring::const_iterator itUpTo);
 
 
 protected:
 
-	/// Target ostream. Needs to be a pointer because to_string_backend::write() requires a pointer.
+	/** Target ostream. Needs to be a pointer because to_string_backend::write() requires a pointer.
+	*/
 	ostream * m_pos;
-	/// Start of the format specification of the current replacement.
+	/** Start of the format specification of the current replacement. */
 	char_t const * m_pchReplFormatSpecBegin;
-	/// End of the format specification of the current replacement.
+	/** End of the format specification of the current replacement. */
 	char_t const * m_pchReplFormatSpecEnd;
-	/// 0-based index of the argument to replace the next replacement.
+	/** 0-based index of the argument to replace the next replacement. */
 	unsigned m_iSubstArg;
 
 
 private:
 
-	/// Format string.
+	/** Format string. */
 	cstring const & m_sFormat;
-	/// First format string character to be written yet.
+	/** First format string character to be written yet. */
 	cstring::const_iterator m_itFormatToWriteBegin;
 };
+
 // Recursion step: extract one argument, recurse with the rest.
 template <typename T0, typename ... Ts>
 class _ostream_print_helper<T0, Ts ...> :
@@ -334,16 +401,20 @@ class _ostream_print_helper<T0, Ts ...> :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_ostream_print_helper(ostream * pos, cstring const & sFormat, T0 const & t0, Ts const & ... ts) :
 		osph_base(pos, sFormat, ts ...),
 		m_t0(t0) {
 	}
 
 
-	/// See _ostream_print_helper<>::run().
-	//
+	/** See _ostream_print_helper<>::run().
+
+	TODO: comment signature.
+	*/
 	void run() {
 		while (osph_base::write_format_up_to_next_repl()) {
 			// Perform and write the replacement.
@@ -354,8 +425,10 @@ public:
 
 protected:
 
-	/// Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
-	//
+	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	TODO: comment signature.
+	*/
 	void write_repl(unsigned iArg) {
 		if (iArg == 0) {
 			to_string_backend<T0> tsb(char_range(
@@ -371,7 +444,7 @@ protected:
 
 private:
 
-	/// Nth replacement.
+	/** Nth replacement. */
 	T0 const & m_t0;
 };
 
@@ -392,15 +465,22 @@ inline void ostream::print(cstring const & sFormat, Ts const & ... ts) {
 
 namespace abc {
 
+/** Read/write abstract stream.
+*/
 class iostream :
 	public virtual istream,
 	public virtual ostream {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	iostream();
 
-	/// Destructor.
+
+	/** Destructor.
+	*/
 	virtual ~iostream();
 };
 

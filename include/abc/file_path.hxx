@@ -29,42 +29,32 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc::file_path
+
 
 namespace abc {
 
-/// DOC:7101 abc::file_path
-//
-// File paths are always stored in absolute notation, prepending the current directory on assignment
-// if necessary.
-//
-// Under Win32, all DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 namespace, which
-// means they all start with “\\?\” (automatically prepended, forming e.g. “\\?\C:\My\File”). This
-// prefix is also considered the root, although trying to do anything with it other than
-// concatenating more path components will most likely result in exceptions being thrown.
-// Nonetheless, this convention allows to have a single root in Win32 just like under POSIX.
-//
-// Reference for Python’s implementation: <http://docs.python.org/3/library/os.path.html>
-// Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247.aspx>
+/** DOC:7101 abc::file_path
 
-/// Filesystem path.
-class file_path;
+File paths are always stored in absolute notation, prepending the current directory on assignment if
+necessary.
+
+Under Win32, all DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 namespace, which
+means they all start with “\\?\” (automatically prepended, forming e.g. “\\?\C:\My\File”). This
+prefix is also considered the root, although trying to do anything with it other than concatenating
+more path components will most likely result in exceptions being thrown. Nonetheless, this
+convention allows to have a single root in Win32 just like under POSIX.
+
+Reference for Python’s implementation: <http://docs.python.org/3/library/os.path.html>
+Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247.aspx>
+*/
 
 // Enumerates directory entries.
 #if 0
 class _file_path_iterator;
 #endif
 
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_path
-
-
-namespace abc {
-
+/** Filesystem path. */
 class file_path :
 	public support_explicit_operator_bool<file_path> {
 
@@ -74,8 +64,10 @@ class file_path :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	file_path() {
 	}
 	file_path(file_path const & fp) :
@@ -95,8 +87,10 @@ public:
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	file_path & operator=(file_path const & fp) {
 		m_s = fp.m_s;
 		return *this;
@@ -115,120 +109,173 @@ public:
 	}
 
 
-	/// Returns true if the length is greater than 0.
-	//
+	/** Returns true if the length is greater than 0.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return m_s.get_size() > 0;
 	}
 
 
-	/// Automatic cast to string.
-	//
+	/** Automatic cast to string.
+
+	TODO: comment signature.
+	*/
 	operator cstring const &() const {
 		return m_s;
 	}
 
 
-	/// Concatenation-assignment operator.
-	//
+	/** Concatenation-assignment operator.
+
+	TODO: comment signature.
+	*/
 	file_path & operator+=(cstring const & s) {
 		m_s = normalize(m_s + s);
 		return *this;
 	}
 
 
-	/// Concatenation operator.
-	//
+	/** Concatenation operator.
+
+	TODO: comment signature.
+	*/
 	file_path operator+(cstring const & s) const {
 		return file_path(*this) += s;
 	}
 
 
-	/// Path-correct concatenation-assignment operator. Joins the current path with the provided
-	// string, inserting a separator if necessary.
+	/** Path-correct concatenation-assignment operator. Joins the current path with the provided
+	string, inserting a separator if necessary.
+
+	TODO: comment signature.
+	*/
 	file_path & operator/=(cstring const & s);
 
 
-	/// Path-correct concatenation operator. See operator/=() for details.
-	//
+	/** Path-correct concatenation operator. See operator/=() for details.
+
+	TODO: comment signature.
+	*/
 	file_path operator/(cstring const & s) const {
 		return file_path(*this) /= s;
 	}
 
 
-	/// Support for relational operators.
-	//
+	/** Support for relational operators.
+
+	TODO: comment signature.
+	*/
 	int compare_to(cstring const & s) const {
 		return m_s.compare_to(s);
 	}
 
 
-	/// Returns a read-only pointer to the path string. See wdstring::get_data().
-	//
+	/** Returns a read-only pointer to the path string. See wdstring::get_data().
+
+	TODO: comment signature.
+	*/
 	char_t const * get_data() const {
 		return m_s.get_data();
 	}
 
 
-	/// Returns the count of characters in the path.
-	//
+	/** Returns the count of characters in the path.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return m_s.get_size();
 	}
 
 
-	/// Returns the last component in this path.
+	/** Returns the last component in this path.
+
+	TODO: comment signature.
+	*/
 	wdstring get_base_name() const;
 
-	/// Returns the current directory.
+
+	/** Returns the current directory.
+
+	TODO: comment signature.
+	*/
 	static file_path get_current_dir();
 
-	/// Returns the directory containing this file.
+
+	/** Returns the directory containing this file.
+
+	TODO: comment signature.
+	*/
 	file_path get_parent_dir() const;
 
-	/// Returns the root (POSIX) or the namespace root (Windows).
+
+	/** Returns the root (POSIX) or the namespace root (Windows).
+
+	TODO: comment signature.
+	*/
 	static file_path get_root();
 
 
-	/// Returns the platform-dependent path component separator.
-	//
+	/** Returns the platform-dependent path component separator.
+
+	TODO: comment signature.
+	*/
 	static cstring get_separator() {
 		return cstring(smc_aszSeparator);
 	}
 
 
 #if 0
-	// Returns an iterator over entries in the path matching the specified
-	// pattern.
+	/** Returns an iterator over entries in the path matching the specified pattern.
+
+	TODO: comment signature.
+	*/
 	_file_path_iterator find(string const & sPattern) const;
 #endif
 
-	/// Returns true if the specified string represents an absolute path.
+
+	/** Returns true if the specified string represents an absolute path.
+
+	TODO: comment signature.
+	*/
 	static bool is_absolute(cstring const & s);
 
-	/// Returns true if this path represents a directory.
+
+	/** Returns true if this path represents a directory.
+
+	TODO: comment signature.
+	*/
 	bool is_dir() const;
 
-	/// Returns true if this->get_parent_dir() == *this.
+
+	/** Returns true if this->get_parent_dir() == *this.
+
+	TODO: comment signature.
+	*/
 	bool is_root() const;
 
 
 private:
 
-	/// Normalizes (and validates) a path:
-	// - converts every mixed slash sequence to a single separator;
-	// - interprets . and .. special components;
-	// - removes any trailing separators.
+	/** Normalizes (and validates) a path:
+	•	Converts every mixed slash sequence to a single separator;
+	•	Interprets . and .. special components;
+	•	Removes any trailing separators.
+
+	TODO: comment signature.
+	*/
 	static wdstring normalize(wdstring s);
 
 
 private:
 
-	/// Full file path, always in normalized form.
+	/** Full file path, always in normalized form. */
 	wdstring m_s;
-	/// Platform-specific path component separator.
+	/** Platform-specific path component separator. */
 	static char_t const smc_aszSeparator[1 + 1 /*NUL*/];
-	/// Platform-specific root path.
+	/** Platform-specific root path. */
 	static char_t const smc_aszRoot[];
 };
 
@@ -257,10 +304,17 @@ class to_string_backend<file_path> :
 	public to_string_backend<cstring> {
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	to_string_backend(char_range const & crFormat = char_range());
 
-	/// Writes the path, applying the specified format.
+
+	/** Writes the path, applying the specified format.
+
+	TODO: comment signature.
+	*/
 	void write(file_path const & fp, ostream * posOut);
 };
 
