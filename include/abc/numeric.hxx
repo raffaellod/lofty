@@ -42,13 +42,13 @@ will never be negative (i.e. T is unsigned).
 TODO: comment signature.
 */
 template <typename T>
-static /*constexpr*/ bool is_negative(
+inline /*constexpr*/ bool is_negative(
 	typename std::enable_if<std::is_signed<T>::value, T>::type t
 ) {
 	return t < T(0);
 }
 template <typename T>
-static /*constexpr*/ bool is_negative(
+inline /*constexpr*/ bool is_negative(
 	typename std::enable_if<!std::is_signed<T>::value, T>::type t
 ) {
 	UNUSED_ARG(t);
