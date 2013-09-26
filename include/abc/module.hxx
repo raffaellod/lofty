@@ -32,10 +32,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// abc globals
 
 namespace abc {
 
+/** TODO: comment.
+*/
 #if ABC_OUTPUT_POSIX_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
 		extern "C" int main(int cArgs, char_t ** ppszArgs) { \
@@ -60,7 +62,7 @@ namespace abc {
 #endif
 
 
-/// Thread ID type.
+/** Thread ID type. */
 #if ABC_HOST_API_POSIX
 	typedef pthread_t tid_t;
 #elif ABC_HOST_API_WIN32
@@ -69,7 +71,7 @@ namespace abc {
 	#error TODO-PORT: HOST_API
 #endif
 
-/// Process ID type.
+/** Process ID type. */
 #if ABC_HOST_API_POSIX
 	// pid_t is already defined.
 #elif ABC_HOST_API_WIN32
@@ -78,7 +80,7 @@ namespace abc {
 	#error TODO-PORT: HOST_API
 #endif
 
-/// Native OS dynamic library/module handle.
+/** Native OS dynamic library/module handle. */
 #if ABC_HOST_API_POSIX
 	typedef void * hdynmod_t;
 #elif ABC_HOST_API_WIN32
@@ -88,35 +90,8 @@ namespace abc {
 #endif
 
 
-/// Base class for threads.
-template <typename T>
-class thread;
-
-/// Base class for processes.
-template <typename T>
-class process;
-
-
-#if ABC_HOST_API_WIN32
-/// Dynamically loadable module.
-class dynamic_module;
-#endif
-
-/// Resource dynamically loadable module.
-class resource_module;
-
-/// Code dynamically loadable module.
-class code_module;
-
-/// Base class for implementing a dynamically loadable module.
-class module_impl_base;
-
-/// Pointer to the module_impl_base interface of the application-defined module object.
-extern module_impl_base * g_pmib;
-
-/// Partial implementation of an executable module.
-template <class T>
-class module_impl;
+/** Pointer to the module_impl_base interface of the application-defined module object. */
+extern class module_impl_base * g_pmib;
 
 } //namespace abc
 
@@ -128,12 +103,14 @@ class module_impl;
 
 namespace abc {
 
+/** Base class for threads.
+*/
 template <typename T>
 class thread :
 	public T {
 private:
 
-	/// Thread ID (TID).
+	/** Thread ID (TID). */
 	tid_t m_tid;
 };
 
@@ -146,12 +123,14 @@ private:
 
 namespace abc {
 
+/** Base class for processes.
+*/
 template <typename T>
 class process :
 	public T {
 private:
 
-	/// Process ID (PID).
+	/** Process ID (PID). */
 	pid_t m_pid;
 };
 
@@ -166,14 +145,18 @@ private:
 
 namespace abc {
 
+/** Dynamically loadable module.
+*/
 class dynamic_module {
 
 	ABC_CLASS_PREVENT_COPYING(dynamic_module)
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	dynamic_module(dynamic_module && dm);
 	dynamic_module(file_path const & fp, bool bInit);
 	dynamic_module(hdynmod_t hdynmod) :
@@ -182,8 +165,8 @@ public:
 	}
 
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~dynamic_module() {
 		if (m_bOwn) {
 			::FreeLibrary(m_hdynmod);
@@ -191,19 +174,26 @@ public:
 	}
 
 
-	/// Assignment operator.
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	dynamic_module & operator=(dynamic_module && dm);
 
-	/// Returns the file name of the module.
+
+	/** Returns the file name of the module.
+
+	TODO: comment signature.
+	*/
 	file_path get_file_name() const;
 
 
 private:
 
-	/// Handle to the module.
+	/** Handle to the module. */
 	hdynmod_t m_hdynmod;
-	/// If false, the handle was provided by the caller of the constructor, and it will not be
-	// released.
+	/** If false, the handle was provided by the caller of the constructor, and it will not be
+	released. */
 	bool m_bOwn;
 };
 
@@ -218,6 +208,8 @@ private:
 
 namespace abc {
 
+/** Resource dynamically loadable module.
+*/
 class resource_module
 #if ABC_HOST_API_WIN32
 	: public dynamic_module
@@ -228,18 +220,23 @@ class resource_module
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	resource_module(file_path const & fp);
 	resource_module(resource_module && rm);
 
 
-	/// Destructor.
+	/** Destructor.
+	*/
 	~resource_module();
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	resource_module & operator=(resource_module && rm) {
 #if ABC_HOST_API_POSIX
 		UNUSED_ARG(rm);
@@ -252,15 +249,18 @@ public:
 	}
 
 
-	/// Loads a string from the module’s resources.
+	/** Loads a string from the module’s resources.
+
+	TODO: comment signature.
+	*/
 	size_t load_string(short id, char_t * psz, size_t cchMax) const;
 
 
 protected:
 
-	/// Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-	// own HINSTANCE (Win), which must not be released upon destruction of this object.
-	//
+	/** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
+	own HINSTANCE (Win), which must not be released upon destruction of this object.
+	*/
 #if ABC_HOST_API_POSIX
 	resource_module() {
 	}
@@ -282,6 +282,8 @@ protected:
 
 namespace abc {
 
+/** Code dynamically loadable module.
+*/
 class code_module
 #if ABC_HOST_API_WIN32
 	: public dynamic_module
@@ -292,16 +294,23 @@ class code_module
 
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	code_module(file_path const & fp);
 	code_module(code_module && cm);
 
-	/// Destructor.
+
+	/** Destructor.
+	*/
 	~code_module();
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	code_module & operator=(code_module && cm) {
 #if ABC_HOST_API_POSIX
 		m_hdynmod = cm.m_hdynmod;
@@ -315,8 +324,10 @@ public:
 	}
 
 
-	/// Returns a pointer to the specified symbol in the module.
-	//
+	/** Returns a pointer to the specified symbol in the module.
+
+	TODO: comment signature.
+	*/
 	template <typename F>
 	F get_symbol(cstring const & sSymbol, F * ppfn = NULL) {
 		F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
@@ -329,10 +340,12 @@ public:
 
 protected:
 
-	/// Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-	// own HINSTANCE (Win) or nothing (POSIX.1-2001), which must not be released upon destruction of
-	// this object.
-	//
+	/** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
+	own HINSTANCE (Win) or nothing (POSIX.1-2001), which must not be released upon destruction of
+	this object.
+
+	TODO: comment signature.
+	*/
 #if ABC_HOST_API_POSIX
 	code_module() :
 		m_hdynmod(NULL) {
@@ -348,14 +361,17 @@ protected:
 
 private:
 
-	/// Returns a void pointer to the specified symbol in the module.
+	/** Returns a void pointer to the specified symbol in the module.
+
+	TODO: comment signature.
+	*/
 	void * _get_symbol(cstring const & sSymbol);
 
 
 #if ABC_HOST_API_POSIX
 private:
 
-	/// Handle to the module.
+	/** Handle to the module. */
 	hdynmod_t m_hdynmod;
 #endif
 };
@@ -369,6 +385,8 @@ private:
 
 namespace abc {
 
+/** Base class for implementing a dynamically loadable module.
+*/
 class module_impl_base :
 	public code_module,
 	public resource_module {
@@ -377,12 +395,15 @@ class module_impl_base :
 
 public:
 
-	/// Constructor.
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	module_impl_base();
 
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~module_impl_base() {
 #if ABC_HOST_API_WIN32
 		assert(m_cRefs == 0);
@@ -393,22 +414,28 @@ public:
 
 #if ABC_HOST_API_WIN32
 
-	/// Increases the number of references to this module.
-	//
+	/** Increases the number of references to this module.
+
+	TODO: comment signature.
+	*/
 	void add_ref() {
 		atomic::increment(&m_cRefs);
 	}
 
 
-	/// Decreases the number of references to this module.
-	//
+	/** Decreases the number of references to this module.
+
+	TODO: comment signature.
+	*/
 	void release() {
 		atomic::decrement(&m_cRefs);
 	}
 
 
-	/// Returns the number of references to this module.
-	//
+	/** Returns the number of references to this module.
+
+	TODO: comment signature.
+	*/
 	bool use_count() {
 		return m_cRefs;
 	}
@@ -418,7 +445,10 @@ public:
 
 protected:
 
-	/// Fills up a string vector from the command line arguments.
+	/** Fills up a string vector from the command line arguments.
+
+	TODO: comment signature.
+	*/
 	static void _build_args(
 #if ABC_HOST_API_POSIX
 		int cArgs, char_t ** ppszArgs,
@@ -433,10 +463,12 @@ protected:
 
 #if ABC_HOST_API_WIN32
 
-	/// Enables clients of a module_impl_base-derived class to pass the module HINSTANCE to the
-	// underlying module_impl_base, allowing derived class to use a default constructor instead of
-	// requiring them to conditionally enable a Win32-specific one just to forward the HINSTANCE.
-	//
+	/** Enables clients of a module_impl_base-derived class to pass the module HINSTANCE to the
+	underlying module_impl_base, allowing derived class to use a default constructor instead of
+	requiring them to conditionally enable a Win32-specific one just to forward the HINSTANCE.
+
+	TODO: comment signature.
+	*/
 	void _preconstruct(HINSTANCE hinst) {
 		sm_hinst = hinst;
 	}
@@ -447,16 +479,16 @@ protected:
 private:
 
 #if ABC_HOST_API_WIN32
-	/// Reference count. Used by module types that decide for themselves when they can be discarded
-	// (DLLs, services).
+	/** Reference count. Used by module types that decide for themselves when they can be discarded
+	(DLLs, services). */
 	atomic::int_t mutable volatile m_cRefs;
 #endif
 
 private:
 
 #if ABC_HOST_API_WIN32
-	/// Stores the Windows-provided module HINSTANCE, so it can be provided to the constructors of
-	// code_module and resource_module.
+	/** Stores the Windows-provided module HINSTANCE, so it can be provided to the constructors of
+	code_module and resource_module. */
 	static HINSTANCE sm_hinst;
 #endif
 };
@@ -470,6 +502,8 @@ private:
 
 namespace abc {
 
+/** Partial implementation of an executable module.
+*/
 template <class T>
 class module_impl :
 	public module_impl_base {
@@ -477,8 +511,10 @@ public:
 
 #if ABC_OUTPUT_POSIX_EXE
 
-	/// Entry point for POSIX executables.
-	//
+	/** Entry point for POSIX executables.
+
+	TODO: comment signature.
+	*/
 	static int entry_point_main(int cArgs, char_t ** ppszArgs) {
 		// Establish this as early as possible.
 		exception::async_handler_manager eahm;
@@ -504,8 +540,10 @@ public:
 
 #elif ABC_OUTPUT_WIN32_EXE
 
-	/// Entry point for Windows executables.
-	//
+	/** Entry point for Windows executables.
+
+	TODO: comment signature.
+	*/
 	static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
 		UNUSED_ARG(iShowCmd);
 
@@ -531,8 +569,10 @@ public:
 
 #elif ABC_OUTPUT_WIN32_DLL
 
-	/// Entry point for Windows DLLs.
-	//
+	/** Entry point for Windows DLLs.
+
+	TODO: comment signature.
+	*/
 	static BOOL entry_point_win_dll(HINSTANCE hinst, DWORD iReason) try {
 		switch (iReason) {
 			case DLL_PROCESS_ATTACH: {
@@ -580,6 +620,8 @@ public:
 
 #if ABC_OUTPUT_POSIX_EXE || ABC_OUTPUT_WIN32_EXE
 
+	/** TODO: comment.
+	*/
 	int main(vector<cstring const> const & vsArgs) {
 		UNUSED_ARG(vsArgs);
 		return EXIT_SUCCESS;
@@ -587,12 +629,16 @@ public:
 
 #elif ABC_OUTPUT_WIN32_DLL
 
+	/** TODO: comment signature.
+	*/
 	bool dll_main(int iReason) {
 		UNUSED_ARG(iReason);
 		return true;
 	}
 
 
+	/** TODO: comment signature.
+	*/
 	HRESULT DllCanUnloadNow() {
 		return use_count() > 0 ? S_FALSE : S_OK;
 	}

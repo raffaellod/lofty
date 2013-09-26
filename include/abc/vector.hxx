@@ -239,11 +239,11 @@ public:
 
 namespace abc {
 
-
 /** TODO: description.
 */
 template <typename T, size_t t_ciStatic = 0>
 class vector;
+
 
 /** TODO: description.
 */

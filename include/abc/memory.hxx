@@ -89,7 +89,8 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #endif
 
-// _abc_alloca()
+/** TODO: comment or remove.
+*/
 #if defined(_GCC_VER)
 	#define _abc_alloca(cb) \
 		__builtin_alloca((cb))
@@ -102,81 +103,22 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
+// :: globals - standard new/delete operators
 
+
+// Forward declarations.
 namespace abc {
 
 namespace memory {
 
-/// Allocator that uses a static memory block.
-template <typename T>
-class static_allocator;
-
-/// Deleter that deallocates memory using memory::free().
-template <typename T>
-struct deleter;
-
-/// No-op deleter. It assumes the memory doesn’t need to be released.
-template <typename T>
-struct noop_deleter;
-
-/// Allows to use the keyword auto to declare std::unique_ptr objects that use memory::deleter.
-template <typename T>
-std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = NULL);
-
-/// Requests the dynamic allocation of a memory block of the specified number of bytes.
 void * _raw_alloc(size_t cb);
 
-/// Resizes a dynamically allocated memory block.
-void * _raw_realloc(void * p, size_t cb);
-
-
-/// Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
-// plus an additional cbExtra bytes. With specialization that ignores types (void) and allocates the
-// specified number of bytes.
 template <typename T = void>
-std::unique_ptr<T, deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0);
-
-/// Releases a block of dynamically allocated memory.
-template <typename T = void>
-void free(T * p);
-
-/// Changes the size of a block of dynamically allocated memory. Both overloads have a
-// specialization that ignores pointer types (void), and allocates the specified number of bytes.
-template <typename T = void>
-T * realloc(T * pt, size_t c, size_t cbExtra = 0);
-template <typename T = void>
-void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra = 0);
-
-
-/// Sets to the value 0 every item in an array.
-template <typename T = void>
-T * clear(T * ptDst, size_t c = 1);
-
-/// Copies memory, by number of items. With specialization that ignores pointer types (void), and
-// copies the specified number of bytes.
-template <typename T = void>
-T * copy(T * ptDst, T const * ptSrc);
-template <typename T = void>
-T * copy(T * ptDst, T const * ptSrc, size_t c);
-
-/// Copies possibly overlapping memory, by number of items. With specialization that ignores pointer
-// types (void), and copies the specified number of bytes.
-template <typename T = void>
-T * move(T * ptDst, T const * ptSrc, size_t c);
-
-/// Copies a value over each item of a static array.
-template <typename T>
-T * set(T * ptDst, T const & tValue, size_t c);
+void free(T * pt);
 
 } //namespace memory
 
 } //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - standard new/delete operators
 
 
 // This will cause code for the following functions to be generated for the compiled unit. Other
@@ -226,7 +168,10 @@ namespace abc {
 
 namespace memory {
 
-// TODO: complete this! Some methods are missing.
+/** Allocator that uses a static memory block.
+
+TODO: complete this! Some methods are missing.
+*/
 template <typename T>
 class static_allocator {
 
@@ -249,8 +194,10 @@ public:
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	static_allocator() :
 		m_p(NULL),
 		m_cb(0) {
@@ -272,8 +219,10 @@ public:
 	}
 
 
-	/// Allocates enough storage for the specified number of T objects.
-	//
+	/** Allocates enough storage for the specified number of T objects.
+
+	TODO: comment signature.
+	*/
 	pointer allocate(size_type c, void const * pHint = 0) {
 		UNUSED_ARG(pHint);
 		// c must fit in our static buffer, and we must still have a buffer.
@@ -287,16 +236,20 @@ public:
 	}
 
 
-	/// Deallocates the storage associated to the specified T instance.
-	//
+	/** Deallocates the storage associated to the specified T instance.
+
+	TODO: comment signature.
+	*/
 	void deallocate(pointer p, size_type c) {
 		UNUSED_ARG(p);
 		UNUSED_ARG(c);
 	}
 
 
-	/// Returns the maximum number of items that allocate() can create storage for.
-	//
+	/** Returns the maximum number of items that allocate() can create storage for.
+
+	TODO: comment signature.
+	*/
 	size_type max_size() const {
 		return m_cb / sizeof(T);
 	}
@@ -308,9 +261,9 @@ private:
 public:
 #endif
 
-	/// Pointer to the static storage.
+	/** Pointer to the static storage. */
 	void * m_p;
-	/// Maximum size available in the static storage.
+	/** Maximum size available in the static storage. */
 	size_t m_cb;
 };
 
@@ -321,6 +274,32 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory::deleter
+
+
+namespace abc {
+
+namespace memory {
+
+/** Deleter that deallocates memory using memory::free().
+*/
+template <typename T>
+struct deleter {
+
+	/** Deallocates the specified memory block.
+
+	TODO: comment signature.
+	*/
+	void operator()(T * pt) const {
+		free(pt);
+	}
+};
+
+} //namespace memory
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory::noop_deleter
 
 
@@ -328,22 +307,15 @@ namespace abc {
 
 namespace memory {
 
-template <typename T>
-struct deleter {
-
-	/// Deallocates the specified memory block.
-	//
-	void operator()(T * pt) const {
-		free(pt);
-	}
-};
-
-
+/** No-op deleter. It assumes the memory doesn’t need to be released.
+*/
 template <typename T>
 struct noop_deleter {
 
-	/// Deallocates the specified memory block.
-	//
+	/** Deallocates the specified memory block.
+
+	TODO: comment signature.
+	*/
 	void operator()(T * pt) const {
 		UNUSED_ARG(pt);
 	}
@@ -362,12 +334,20 @@ namespace abc {
 
 namespace memory {
 
+/** Allows to use the keyword auto to declare std::unique_ptr objects that use memory::deleter.
+
+TODO: comment signature.
+*/
 template <typename T>
-inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt /*= NULL*/) {
+inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = NULL) {
 	return std::unique_ptr<T, deleter<T>>(pt);
 }
 
 
+/** Requests the dynamic allocation of a memory block of the specified number of bytes.
+
+TODO: comment signature.
+*/
 inline void * _raw_alloc(size_t cb) {
 	void * p(::malloc(cb));
 	if (!p) {
@@ -377,6 +357,10 @@ inline void * _raw_alloc(size_t cb) {
 }
 
 
+/** Resizes a dynamically allocated memory block.
+
+TODO: comment signature.
+*/
 inline void * _raw_realloc(void * p, size_t cb) {
 	p = ::realloc(p, cb);
 	if (!p) {
@@ -386,8 +370,14 @@ inline void * _raw_realloc(void * p, size_t cb) {
 }
 
 
-template <typename T /*= void*/>
-inline std::unique_ptr<T, deleter<T>> alloc(size_t c /*= 1*/, size_t cbExtra /*= 0*/) {
+/** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
+plus an additional cbExtra bytes. With specialization that ignores types (void) and allocates the
+specified number of bytes.
+
+TODO: comment signature.
+*/
+template <typename T = void>
+inline std::unique_ptr<T, deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
 	return make_unique_ptr<T>(static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra)));
 }
 template <>
@@ -396,24 +386,31 @@ inline std::unique_ptr<void, deleter<void>> alloc(size_t cb /*= 1*/, size_t cbEx
 }
 
 
+/** Releases a block of dynamically allocated memory.
+
+TODO: comment signature.
+*/
 template <typename T /*= void*/>
 inline void free(T * pt) {
 	::free(pt);
 }
 
 
-template <typename T /*= void*/>
-inline T * realloc(T * pt, size_t c, size_t cbExtra /*= 0*/) {
+/** Changes the size of a block of dynamically allocated memory. Both overloads have a
+specialization that ignores pointer types (void), and allocates the specified number of bytes.
+
+TODO: comment signature.
+*/
+template <typename T = void>
+inline T * realloc(T * pt, size_t c, size_t cbExtra = 0) {
 	return static_cast<T *>(_raw_realloc(pt, sizeof(T) * c + cbExtra));
 }
 template <>
 inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
 	return _raw_realloc(p, cb + cbExtra);
 }
-
-
-template <typename T /*= void*/>
-inline void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra /*= 0*/) {
+template <typename T = void>
+inline void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
 	T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
 	ppt->release();
 	ppt->reset(pt);
@@ -438,8 +435,12 @@ namespace abc {
 
 namespace memory {
 
-template <typename T /*= void*/>
-inline T * clear(T * ptDst, size_t c /*= 1*/) {
+/** Sets to the value 0 every item in an array.
+
+TODO: comment signature.
+*/
+template <typename T = void>
+inline T * clear(T * ptDst, size_t c = 1) {
 	return static_cast<T *>(clear<void>(ptDst, sizeof(T) * c));
 }
 template <>
@@ -455,7 +456,12 @@ inline void * clear(void * pDst, size_t cb /*= 1*/) {
 }
 
 
-template <typename T /*= void*/>
+/** Copies memory, by number of items. With specialization that ignores pointer types (void), and
+copies the specified number of bytes.
+
+TODO: comment signature.
+*/
+template <typename T = void>
 inline T * copy(T * ptDst, T const * ptSrc) {
 	// Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
 	// that the compiler can inline the copy.
@@ -484,7 +490,7 @@ inline void * copy(void * pDst, void const * pSrc) {
 	*reinterpret_cast<int8_t *>(pDst) = *reinterpret_cast<int8_t const *>(pSrc);
 	return pDst;
 }
-template <typename T /*= void*/>
+template <typename T = void>
 inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
 	return static_cast<T *>(copy<void>(ptDst, ptSrc, sizeof(T) * c));
 }
@@ -501,7 +507,12 @@ inline void * copy(void * pDst, void const * pSrc, size_t cb) {
 }
 
 
-template <typename T /*= void*/>
+/** Copies possibly overlapping memory, by number of items. With specialization that ignores pointer
+types (void), and copies the specified number of bytes.
+
+TODO: comment signature.
+*/
+template <typename T = void>
 inline T * move(T * ptDst, T const * ptSrc, size_t c) {
 	return static_cast<T *>(move<void>(ptDst, ptSrc, sizeof(T) * c));
 }
@@ -518,6 +529,10 @@ inline void * move(void * pDst, void const * pSrc, size_t cb) {
 }
 
 
+/** Copies a value over each item of a static array.
+
+TODO: comment signature.
+*/
 template <typename T>
 inline T * set(T * ptDst, T const & tValue, size_t c) {
 	switch (sizeof(T)) {

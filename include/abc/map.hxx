@@ -29,34 +29,18 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-/// Thin templated wrapper for _raw_*_map_impl, so make the interface of those two classes
-// consistent, so _map_impl doesn’t need specializations.
-template <
-	typename TKey, typename TVal, bool t_bTrivial = false /*std::is_trivial<T>::value*/
->
-struct _raw_map_impl;
-
-/// Implementation of map.
-template <typename TKey, typename TVal, size_t t_ceStatic>
-class _map_impl;
-
-/// Map with fast lookup. Implements commit-or-rollback semantics.
-template <typename TKey, typename TVal, size_t t_ceStatic = 0>
-class map;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_impl
 
 
 namespace abc {
+
+/** Thin templated wrapper for _raw_*_map_impl, so make the interface of those two classes
+consistent, so _map_impl doesn’t need specializations.
+*/
+template <
+	typename TKey, typename TVal, bool t_bTrivial = false /*std::is_trivial<T>::value*/
+>
+struct _raw_map_impl;
 
 // Partial specialization for non-trivial types.
 template <typename TKey, typename TVal>
@@ -64,9 +48,11 @@ struct _raw_map_impl<TKey, TVal, false> :
 	public _raw_complex_map_impl {
 
 
-	/// Adds a key/value pair to the map. Adding an item with a key that already exists in the map
-	// (thus just replacing the value) is guaranteed not to invalidate any iterator.
-	//
+	/** Adds a key/value pair to the map. Adding an item with a key that already exists in the map
+	(thus just replacing the value) is guaranteed not to invalidate any iterator.
+
+	TODO: comment signature.
+	*/
 	void add(TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal) {
 		_raw_complex_map_impl::add(
 			type_raw_cda<TKey>(), type_raw_cda<TVal>(), pkey, hash, pval, bMoveKey, bMoveVal
@@ -74,18 +60,22 @@ struct _raw_map_impl<TKey, TVal, false> :
 	}
 
 
-	/// Copies or moves the contents of the source to *this according to the source type:
-	// - _raw_map_root const &: copy descriptor
-	// - _raw_map_root &&: move descriptor or (move items + empty source map)
-	//
+	/** Copies or moves the contents of the source to *this according to the source type:
+	•	_raw_map_root const &: copy descriptor
+	•	_raw_map_root &&: move descriptor or (move items + empty source map)
+
+	TODO: comment signature.
+	*/
 	void assign(_raw_map_root const & rmrSrc, bool bMove) {
 		_raw_complex_map_impl::assign(type_raw_cda<TKey>(), type_raw_cda<TVal>(), rmrSrc, bMove);
 	}
 
 
-	/// Returns a pointer to the value associated to the specified key. If the key could not be
-	// found, an exception is thrown.
-	//
+	/** Returns a pointer to the value associated to the specified key. If the key could not be
+	found, an exception is thrown.
+
+	TODO: comment signature.
+	*/
 	TVal * get_value(TKey const * pkey, size_t hash) {
 		void_cda const & typeKey(type_raw_cda<TKey>());
 		return static_cast<TVal *>(_raw_complex_map_impl::get_value(
@@ -97,30 +87,38 @@ struct _raw_map_impl<TKey, TVal, false> :
 	}
 
 
-	/// Destructs every key and value in the descriptor, then releases it.
-	//
+	/** Destructs every key and value in the descriptor, then releases it.
+
+	TODO: comment signature.
+	*/
 	void release_desc() {
 		_raw_complex_map_impl::release_desc(type_raw_cda<TKey>(), type_raw_cda<TVal>());
 	}
 
 
-	/// Deletes a key/value pair.
-	//
+	/** Deletes a key/value pair.
+
+	TODO: comment signature.
+	*/
 	void remove(TKey const * pkey, size_t hash) {
 		_raw_complex_map_impl::remove(type_raw_cda<TKey>(), type_raw_cda<TVal>(), pkey, hash);
 	}
 
 
-	/// Removes all items from the map.
-	//
+	/** Removes all items from the map.
+
+	TODO: comment signature.
+	*/
 	void remove_all() {
 		_raw_complex_map_impl::remove_all(type_raw_cda<TKey>(), type_raw_cda<TVal>());
 	}
 
 
-	/// Inserts a new key/value pair into the map. If the key already exist, the corresponding value
-	// is replaced.
-	//
+	/** Inserts a new key/value pair into the map. If the key already exist, the corresponding value
+	is replaced.
+
+	TODO: comment signature.
+	*/
 	size_t set_item(
 		TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal
 	) {
@@ -139,6 +137,14 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 namespace abc {
 
+/** Map with fast lookup. Implements commit-or-rollback semantics.
+*/
+template <typename TKey, typename TVal, size_t t_ceStatic = 0>
+class map;
+
+
+/** Implementation of map.
+*/
 template <typename TKey, typename TVal, size_t t_ceStatic>
 class _map_impl :
 	public _raw_map_data,
@@ -154,15 +160,17 @@ protected:
 
 public:
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~_map_impl() {
 		_raw_map_cast()->release_desc();
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	TMap & operator=(map0 const & m) {
 		assign(m);
 		return *static_cast<TMap *>(this);
@@ -178,8 +186,10 @@ public:
 	}
 
 
-	/// Provides access to the individual items making up the array.
-	//
+	/** Provides access to the individual items making up the array.
+
+	TODO: comment signature.
+	*/
 	TVnc & operator[](TKey const & key) {
 		TVal * pval(_raw_map_cast()->get_value(&key, key_hash(key)));
 		return *pval;
@@ -189,16 +199,20 @@ public:
 	}
 
 
-	/// Returns true if the map contains at least one item.
-	//
+	/** Returns true if the map contains at least one item.
+
+	TODO: comment signature.
+	*/
 	explicit_operator_bool() const {
 		return get_size() > 0;
 	}
 
 
-	/// Adds a key/value pair to the map. Adding an item with a key that already exists in the map
-	// (thus just replacing the value) is guaranteed not to invalidate any iterator.
-	//
+	/** Adds a key/value pair to the map. Adding an item with a key that already exists in the map
+	(thus just replacing the value) is guaranteed not to invalidate any iterator.
+
+	TODO: comment signature.
+	*/
 	TMap & add(TKey const & key, TVal const & val) {
 		_raw_map_cast()->add(&key, key_hash(key), &val, false, false);
 		return *static_cast<TMap *>(this);
@@ -217,15 +231,19 @@ public:
 	}
 
 
-	/// Returns the number of items in the map.
-	//
+	/** Returns the number of items in the map.
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return _raw_map_cast()->get_size();
 	}
 
 
-	/// Returns a _raw_map wrapper for the _raw_map_data wrapped by this map.
-	//
+	/** Returns a _raw_map wrapper for the _raw_map_data wrapped by this map.
+
+	TODO: comment signature.
+	*/
 	_raw_map_impl<TKey, TVal> * _raw_map_cast() {
 		return static_cast<_raw_map_impl<TKey, TVal> *>(static_cast<_raw_map_data *>(this));
 	}
@@ -236,16 +254,20 @@ public:
 	}
 
 
-	/// Removes an item from the map.
-	//
+	/** Removes an item from the map.
+
+	TODO: comment signature.
+	*/
 	TMap & remove(TKey const & key) {
 		_raw_map_cast()->remove(key, key_hash(key));
 		return *static_cast<TMap *>(this);
 	}
 
 
-	/// Removes all the items in the map.
-	//
+	/** Removes all the items in the map.
+
+	TODO: comment signature.
+	*/
 	TMap & remove_all() {
 		_raw_map_cast()->remove_all();
 		return *static_cast<TMap *>(this);
@@ -255,8 +277,10 @@ public:
 protected:
 
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_map_impl(_raw_map_desc * prmd) {
 		m_prmd = prmd;
 		m_prmd->reset();
@@ -279,10 +303,12 @@ protected:
 	}
 
 
-	/// Copies or moves the contents of the source to *this according to the source type:
-	// - _raw_map_root const &: copy descriptor
-	// - _raw_map_root &&: move descriptor or (move items + empty source map)
-	//
+	/** Copies or moves the contents of the source to *this according to the source type:
+	•	_raw_map_root const &: copy descriptor
+	•	_raw_map_root &&: move descriptor or (move items + empty source map)
+
+	TODO: comment signature.
+	*/
 	void assign(_raw_map_root const & rmrSrc) {
 		_raw_map_cast()->assign(rmrSrc, false);
 	}
@@ -291,17 +317,21 @@ protected:
 	}
 
 
-	/// Computes the hash value of a key.
-	//
+	/** Computes the hash value of a key.
+
+	TODO: comment signature.
+	*/
 	size_t key_hash(TKey const & key) {
 		size_t hash(std::hash<typename std::remove_cv<TKey>::type>()(key));
 		return _raw_map_root::adjust_hash(hash);
 	}
 
 
-	/// Inserts a new key/value pair into the map. If the key already exist, the corresponding value
-	// is replaced.
-	//
+	/** Inserts a new key/value pair into the map. If the key already exist, the corresponding value
+	is replaced.
+
+	TODO: comment signature.
+	*/
 	void set_item(TKey const & key, TVal const & val) {
 		_raw_map_cast()->set_item(&key, key_hash(key), &val, false, false);
 	}
@@ -335,8 +365,10 @@ class map<TKey, TVal, 0> :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	map() :
 		// This might break in the future, because we’re passing a pointer to the _raw_map_desc base,
 		// which at this point (before _map_impl::_map_impl()) has not been constructed yet.
@@ -354,14 +386,16 @@ public:
 	}
 
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~map() {
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	map & operator=(map const & m) {
 		return map_impl::operator=(m);
 	}
@@ -376,8 +410,10 @@ public:
 
 protected:
 
-	/// Initializes the embedded descriptor, and returns a pointer to it.
-	//
+	/** Initializes the embedded descriptor, and returns a pointer to it.
+
+	TODO: comment signature.
+	*/
 	_raw_map_desc * get_embedded_desc() {
 		return embedded_map_desc::init_and_get_desc();
 	}
@@ -402,8 +438,10 @@ class map :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	map() :
 		map_impl(get_embedded_desc()) {
 	}
@@ -425,14 +463,16 @@ public:
 	}
 
 
-	/// Destructor.
-	//
+	/** Destructor.
+	*/
 	~map() {
 	}
 
 
-	/// Assignment operator.
-	//
+	/** Assignment operator.
+
+	TODO: comment signature.
+	*/
 	map & operator=(map const & m) {
 		return map_impl::operator=(m);
 	}
@@ -451,10 +491,12 @@ public:
 	}
 
 
-	/// Implicit cast as map<TKey, TVal, 0> reference. It only allows read-only access; any attempt
-	// to cast a non-const reference will either result in a move to be implicitly performed
-	// (r-value) or a compiler error (l-value).
-	//
+	/** Implicit cast as map<TKey, TVal, 0> reference. It only allows read-only access; any attempt
+	to cast a non-const reference will either result in a move to be implicitly performed (r-value)
+	or a compiler error (l-value).
+
+	TODO: comment signature.
+	*/
 	operator map0 const &() const {
 		return *static_cast<map0 const *>(static_cast<_raw_map_data const *>(this));
 	}
@@ -462,8 +504,10 @@ public:
 
 protected:
 
-	/// Initializes the embedded descriptor, and returns a pointer to it.
-	//
+	/** Initializes the embedded descriptor, and returns a pointer to it.
+
+	TODO: comment signature.
+	*/
 	_raw_map_desc * get_embedded_desc() {
 		return embedded_map_desc::init_and_get_desc();
 	}
@@ -479,8 +523,8 @@ protected:
 
 #if 0
 
-/// Dumps the hash table using an external function.
-//
+/** Dumps the hash table using an external function.
+*/
 void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
 	fwriter_printf(pfw,
 		T("Hash table: seed %#08x, %d max, %d used, %d entries, load factor %d%%\n"),

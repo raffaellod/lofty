@@ -31,74 +31,48 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-// See See [HACK#0012 abc::map] to understand why we have so many classes just to implement a map.
-
-/// Template-independent map descriptor.
-struct _raw_map_desc;
-
-/// Template-independent dynamically-allocated descriptor.
-class _dynamic_map_desc;
-
-/// Embeddable static descriptor.
-template <typename TKey, typename TVal, size_t t_ceFixed>
-class _embedded_map_desc;
-
-/// Template-independent data members of _raw_*_map_impl.
-struct _raw_map_data;
-
-/// Template-independent methods of _raw_*_map_impl that are identical for trivial and non-trivial
-// types.
-struct _raw_map_root;
-
-/// Template-independent implementation of a map for non-trivial contained types.
-struct _raw_complex_map_impl;
-
-/// Template-independent implementation of a map for trivial contained types.
-struct _raw_trivial_map_impl;
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_desc
 
 
 namespace abc {
 
-// Just like _raw_vector_desc, the hashes array immediately follows the last declared member of this
-// struct, while the other two arrays (keys and values) might need to have padding added before
-// them, so we’ll store their offset relative to the beginning of the struct, to avoid having to
-// recalculate it on every access.
+
+/** Template-independent map descriptor.
+
+Just like _raw_vector_desc, the hashes array immediately follows the last declared member of this
+struct, while the other two arrays (keys and values) might need to have padding added before them,
+so we’ll store their offset relative to the beginning of the struct, to avoid having to recalculate
+it on every access.
+
+See [HACK#0012 abc::map] to understand why we have so many classes just to implement a map.
+*/
 struct _raw_map_desc {
 
 	struct _s {
-		/// Numer of entries in the table - 1. We store this instead of the actual number of entries,
-		// because this is used much more frequently.
+		/** Numer of entries in the table - 1. We store this instead of the actual number of entries,
+		because this is used much more frequently. */
 		size_t iMask;
-		/// Number of active entries in the table.
+		/** Number of active entries in the table. */
 		size_t ceActive;
-		/// Number of active and reserved entries in the table.
+		/** Number of active and reserved entries in the table. */
 		size_t ceUsed;
-		/// Offset of the keys array from this, in bytes.
+		/** Offset of the keys array from this, in bytes. */
 		size_t ibKeysOffset;
-		/// Offset of the values array from this, in bytes.
+		/** Offset of the values array from this, in bytes. */
 		size_t ibValsOffset;
 	};
 	force_max_align<_s> m;
 
 	enum {
-		/// No less than this many map entries. Must be a power of 2, and at least 4.
+		/** No less than this many map entries. Must be a power of 2, and at least 4. */
 		smc_ceMin = 8
 	};
 
 
-	/// Returns a pointer to this object’s (undeclared) hashes array.
-	//
+	/** Returns a pointer to this object’s (undeclared) hashes array.
+
+	TODO: comment signature.
+	*/
 	size_t * get_phashes() {
 		return reinterpret_cast<size_t *>(this + 1);
 	}
@@ -107,8 +81,10 @@ struct _raw_map_desc {
 	}
 
 
-	/// Returns a pointer to this object’s (undeclared) key array.
-	//
+	/** Returns a pointer to this object’s (undeclared) key array.
+
+	TODO: comment signature.
+	*/
 	void * get_pKeys() {
 		return reinterpret_cast<int8_t *>(this) + m.t.ibKeysOffset;
 	}
@@ -117,8 +93,10 @@ struct _raw_map_desc {
 	}
 
 
-	/// Returns a oointer to this object’s (undeclared) value array.
-	//
+	/** Returns a oointer to this object’s (undeclared) value array.
+
+	TODO: comment signature.
+	*/
 	void * get_pVals() {
 		return reinterpret_cast<int8_t *>(this) + m.t.ibValsOffset;
 	}
@@ -127,24 +105,30 @@ struct _raw_map_desc {
 	}
 
 
-	/// Returns true if the descriptor has enough entries to accomodate the specified number of
-	// items.
-	//
+	/** Returns true if the descriptor has enough entries to accomodate the specified number of
+	items.
+
+	TODO: comment signature.
+	*/
 	bool can_fit(size_t ce) {
 		return ce * 3 < (m.t.iMask + 1) * 2;
 	}
 
 
-	/// Returns true if the descriptor has enough entries to accomodate the specified number of
-	// items.
-	//
+	/** Returns true if the descriptor has enough entries to accomodate the specified number of
+	items.
+
+	TODO: comment signature.
+	*/
 	size_t get_byte_size(size_t cbVal) {
 		return m.t.ibValsOffset + cbVal * (m.t.iMask + 1);
 	}
 
 
-	/// Returns a pointer to the key at the specified index.
-	//
+	/** Returns a pointer to the key at the specified index.
+
+	TODO: comment signature.
+	*/
 	void * get_key_at(size_t cbKey, size_t ie) {
 		int8_t * pKeys(reinterpret_cast<int8_t *>(get_pKeys()));
 		return pKeys + cbKey * ie;
@@ -154,8 +138,10 @@ struct _raw_map_desc {
 	}
 
 
-	/// Returns a pointer to the value at the specified index.
-	//
+	/** Returns a pointer to the value at the specified index.
+
+	TODO: comment signature.
+	*/
 	void * get_value_at(size_t cbVal, size_t ie) {
 		int8_t * pVals(reinterpret_cast<int8_t *>(get_pVals()));
 		return pVals + cbVal * ie;
@@ -165,8 +151,10 @@ struct _raw_map_desc {
 	}
 
 
-	/// Clears the descriptor. It assumes that *this has no contents that need to be destructed.
-	//
+	/** Clears the descriptor. It assumes that *this has no contents that need to be destructed.
+
+	TODO: comment signature.
+	*/
 	void reset() {
 		memory::clear(get_phashes(), m.t.iMask + 1);
 		m.t.ceActive = 0;
@@ -183,6 +171,8 @@ struct _raw_map_desc {
 
 namespace abc {
 
+/** Template-independent dynamically-allocated descriptor.
+*/
 class _dynamic_map_desc :
 	public _raw_map_desc {
 
@@ -190,9 +180,11 @@ class _dynamic_map_desc :
 
 public:
 
-	/// Allocates enough memory to contain the descriptor and a specified number of hashes, keys and
-	// values. The values pointed to by the last arguments are to be passed back to the constructor.
-	//
+	/** Allocates enough memory to contain the descriptor and a specified number of hashes, keys and
+	values. The values pointed to by the last arguments are to be passed back to the constructor.
+
+	TODO: comment signature.
+	*/
 	static void * operator new(
 		size_t cbDesc, size_t cbKey, size_t cbVal,
 		size_t ce, size_t * pibKeysOffset, size_t * pibValsOffset
@@ -211,8 +203,10 @@ public:
 	}
 
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_dynamic_map_desc(size_t ce, size_t const & ibKeysOffset, size_t const & ibValsOffset) {
 		_raw_map_desc::m.t.iMask = ce - 1;
 		_raw_map_desc::m.t.ibKeysOffset = ibKeysOffset;
@@ -224,9 +218,11 @@ public:
 protected:
 
 
-	/// Computes the padding to be added before the keys and values arrays, and calculates and
-	// returns the resulting offsets.
-	//
+	/** Computes the padding to be added before the keys and values arrays, and calculates and
+	returns the resulting offsets.
+
+	TODO: comment signature.
+	*/
 	static void get_offsets(
 		size_t cbKey, size_t ce, size_t * pibKeysOffset, size_t * pibValsOffset
 	) {
@@ -253,9 +249,12 @@ protected:
 
 namespace abc {
 
-// Note that, since instances of this class will follow the object that uses them (e.g. map contains
-// _raw_map_data first, then _embedded_map_desc), the _raw_map_desc members of this class cannot be
-// initialized in a constructor, because that would be called too late.
+/** Embeddable static descriptor.
+
+Note that, since instances of this class will follow the object that uses them (e.g. map contains
+_raw_map_data first, then _embedded_map_desc), the _raw_map_desc members of this class cannot be
+initialized in a constructor, because that would be called too late.
+*/
 template <typename TKey, typename TVal, size_t t_ceFixed>
 class _embedded_map_desc :
 	public _raw_map_desc {
@@ -264,14 +263,18 @@ class _embedded_map_desc :
 
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	_embedded_map_desc() {
 	}
 
 
-	/// Returns a pointer to the embedded static descriptor, after initializing it to zero length.
-	//
+	/** Returns a pointer to the embedded static descriptor, after initializing it to zero length.
+
+	TODO: comment signature.
+	*/
 	_raw_map_desc * init_and_get_desc() {
 		_raw_map_desc::m.t.iMask = t_ceFixed - 1;
 		_raw_map_desc::m.t.ibKeysOffset = reinterpret_cast<intptr_t>(&atkeys) -
@@ -286,13 +289,13 @@ public:
 
 private:
 
-	/// Static hashes array.
+	/** Static hashes array. */
 	size_t ahashes[t_ceFixed];
-	/// Static keys array. This can’t be a TKey[], because we don’t want the keys to be
-	// constructed/destructed automatically.
+	/** Static keys array. This can’t be a TKey[], because we don’t want the keys to be constructed/
+	destructed automatically. */
 	std::max_align_t atkeys[ABC_ALIGNED_SIZE(sizeof(TKey) * t_ceFixed)];
-	/// Static values array. This can’t be a TVal[], because we don’t want the values to be
-	// constructed/destructed automatically.
+	/** Static values array. This can’t be a TVal[], because we don’t want the values to be
+	constructed/destructed automatically. */
 	std::max_align_t atvals[ABC_ALIGNED_SIZE(sizeof(TVal) * t_ceFixed)];
 };
 
@@ -305,9 +308,11 @@ private:
 
 namespace abc {
 
+/** Template-independent data members of _raw_*_map_impl.
+*/
 struct _raw_map_data {
 
-	/// Pointer to the map descriptor.
+	/** Pointer to the map descriptor. */
 	_raw_map_desc * m_prmd;
 };
 
@@ -320,12 +325,16 @@ struct _raw_map_data {
 
 namespace abc {
 
+/** Template-independent methods of _raw_*_map_impl that are identical for trivial and non-trivial
+types. */
 struct _raw_map_root :
 	public _raw_map_data {
 public:
 
-	/// Adjusts a hash code to avoid reserved values.
-	//
+	/** Adjusts a hash code to avoid reserved values.
+
+	TODO: comment signature.
+	*/
 	static size_t adjust_hash(size_t hash) {
 		if (hash == smc_hashUnused) {
 			return 36471;
@@ -337,17 +346,21 @@ public:
 	}
 
 
-	/// See the template version _map_impl::get_size().
-	//
+	/** See the template version _map_impl::get_size().
+
+	TODO: comment signature.
+	*/
 	size_t get_size() const {
 		return m_prmd->m.t.ceActive;
 	}
 
 
-	/// Returns a pointer to the value associated to the specified key. If the key could not be
-	// found, an exception is thrown. See also the template version (returning & instead of *)
-	// _map_impl::operator[]().
-	//
+	/** Returns a pointer to the value associated to the specified key. If the key could not be
+	found, an exception is thrown. See also the template version (returning & instead of *)
+	_map_impl::operator[]().
+
+	TODO: comment signature.
+	*/
 	void * get_value(
 		size_t cbKey, size_t cbVal, void_cda::equal_fn pfnKeyEqual, void const * pKey, size_t hash
 	) {
@@ -365,16 +378,20 @@ public:
 	}
 
 
-	/// Returns true if the provided hash value identifies an active entry.
-	//
+	/** Returns true if the provided hash value identifies an active entry.
+
+	TODO: comment signature.
+	*/
 	static bool is_entry_active(size_t hash) {
 		return hash != smc_hashUnused && hash != smc_hashReserved;
 	}
 
 
-	/// Returns an the index of the entry associated to the specified key (and its hash). Based on
-	// Algorithm D from Knuth Vol. 3, Sec. 6.4.
-	//
+	/** Returns an the index of the entry associated to the specified key (and its hash). Based on
+	Algorithm D from Knuth Vol. 3, Sec. 6.4.
+
+	TODO: comment signature.
+	*/
 	size_t lookup(
 		size_t cbKey, void_cda::equal_fn pfnKeyEqual, void const * pKey, size_t hash
 	) const {
@@ -420,8 +437,10 @@ public:
 
 protected:
 
-	/// Returns a pointer to the _embedded_map_desc that’s assumed to follow *this.
-	//
+	/** Returns a pointer to the _embedded_map_desc that’s assumed to follow *this.
+
+	TODO: comment signature.
+	*/
 	_raw_map_desc * get_embedded_desc() {
 		// This works under the assumption that the alignment of the _raw_map_desc-derived object
 		// forces the containing _raw_map_data-derived object to have the same alignment.
@@ -436,12 +455,12 @@ protected:
 
 protected:
 
-	/// See large comment block below. This must be >= 1.
+	/** See large comment block below. This must be >= 1. */
 	static int const smc_cbitPerturb = 5;
-	/// Hash value used to mark unused entries. This is zero, so that we can quickly wipe the hashes
-	// array of a descriptor.
+	/** Hash value used to mark unused entries. This is zero, so that we can quickly wipe the hashes
+	array of a descriptor. */
 	static size_t const smc_hashUnused = 0;
-	/// Hash value used to mark reserved entries (i.e. formerly used).
+	/** Hash value used to mark reserved entries (i.e. formerly used). */
 	static size_t const smc_hashReserved = smc_hashUnused - 1;
 };
 
@@ -454,11 +473,15 @@ protected:
 
 namespace abc {
 
+/** Template-independent implementation of a map for non-trivial contained types.
+*/
 struct _raw_complex_map_impl :
 	public _raw_map_root {
 
-	/// See the template version _map_impl::add().
-	//
+	/** See the template version _map_impl::add().
+
+	TODO: comment signature.
+	*/
 	void add(
 		void_cda const & typeKey, void_cda const & typeVal,
 		void const * pKey, size_t hash, void const * pVal, bool bMoveKey, bool bMoveVal
@@ -479,9 +502,11 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/// See the template version _map_impl::assign(). If bMove == true, the source will be modified
-	// by having its const-ness cast away - be careful.
-	//
+	/** See the template version _map_impl::assign(). If bMove == true, the source will be modified
+	by having its const-ness cast away - be careful.
+
+	TODO: comment signature.
+	*/
 	void assign(
 		void_cda const & typeKey, void_cda const & typeVal, _raw_map_root const & rmrSrc, bool bMove
 	) {
@@ -510,8 +535,10 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/// Destructs every key and value in the descriptor, then releases it.
-	//
+	/** Destructs every key and value in the descriptor, then releases it.
+
+	TODO: comment signature.
+	*/
 	void release_desc(void_cda const & typeKey, void_cda const & typeVal) {
 		size_t * phash(m_prmd->get_phashes());
 		int8_t * pbKey(static_cast<int8_t *>(m_prmd->get_pKeys())),
@@ -532,8 +559,10 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/// See the template version _map_impl::remove().
-	//
+	/** See the template version _map_impl::remove().
+
+	TODO: comment signature.
+	*/
 	void remove(void_cda const & typeKey, void_cda const & typeVal, void const * pKey, size_t hash) {
 		size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
 		size_t * phashEntry(&m_prmd->get_phashes()[ie]);
@@ -552,8 +581,10 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/// See the template version _map_impl::remove_all().
-	//
+	/** See the template version _map_impl::remove_all().
+
+	TODO: comment signature.
+	*/
 	void remove_all(void_cda const & typeKey, void_cda const & typeVal) {
 		release_desc(typeKey, typeVal);
 		// Switch to the embedded descriptor and empty it.
@@ -562,8 +593,10 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/// See the template version _map_impl::set_item().
-	//
+	/** See the template version _map_impl::set_item().
+
+	TODO: comment signature.
+	*/
 	size_t set_item(
 		void_cda const & typeKey, void_cda const & typeVal,
 		void const * pKey, size_t hash, void const * pVal, bool bMoveKey, bool bMoveVal
@@ -629,9 +662,11 @@ struct _raw_complex_map_impl :
 
 protected:
 
-	/// Copies or moves the contents of the source descriptor to a newly allocated descriptor or to
-	// the embedded one if not in use, based on the requested size.
-	//
+	/** Copies or moves the contents of the source descriptor to a newly allocated descriptor or to
+	the embedded one if not in use, based on the requested size.
+
+	TODO: comment signature.
+	*/
 	void new_desc_from(
 		void_cda const & typeKey, void_cda const & typeVal,
 		_raw_map_desc const * prmdSrc, size_t ceNew, bool bMove
@@ -723,10 +758,12 @@ protected:
 	}
 
 
-	/// Resizes the map by allocating a larger descriptor and moving all the entries to it. The
-	// number of used entries might decrease, because copying to a new descriptor will discard any
-	// reserved entries.
-	//
+	/** Resizes the map by allocating a larger descriptor and moving all the entries to it. The
+	number of used entries might decrease, because copying to a new descriptor will discard any
+	reserved entries.
+
+	TODO: comment signature.
+	*/
 	void resize(void_cda const & typeKey, void_cda const & typeVal, size_t ceNew) {
 		_raw_map_desc * prmd(get_embedded_desc());
 		if (m_prmd == prmd && prmd->can_fit(ceNew)) {
@@ -746,6 +783,8 @@ protected:
 
 namespace abc {
 
+/** Template-independent implementation of a map for trivial contained types.
+*/
 struct _raw_trivial_map_impl :
 	public _raw_map_root {
 };
