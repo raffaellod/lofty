@@ -24,11 +24,12 @@ using namespace abc;
 
 
 
-/// Class with a pointer.
-// The purpose is to have some dynamically-allocated memory that’s unique to any instance, to detect
-// whether a copy (possible in all forms) has been made; for the same purpose, it also counts the
-// number of copy-constructions or -assignments.
-//
+/** Class with a pointer.
+
+The purpose is to have some dynamically-allocated memory that’s unique to any instance, to detect
+whether a copy (possible in all forms) has been made; for the same purpose, it also counts the
+number of copy-constructions or -assignments.
+*/
 class test_with_ptr {
 public:
 
@@ -227,10 +228,12 @@ public:
 	}
 
 
-	/// Creates a local vector<test_with_ptr> that’s modified in place, and adds to it a temporary
-	// item (which should cause no item copies to be made) whose internal pointer is stored in *ppi;
-	// the vector is then returned (which, again, should cause no item copies to be made).
-	//
+	/** Creates a local vector<test_with_ptr> that’s modified in place, and adds to it a temporary
+	item (which should cause no item copies to be made) whose internal pointer is stored in *ppi; the
+	vector is then returned (which, again, should cause no item copies to be made).
+
+	TODO: comment signature.
+	*/
 	vector<test_with_ptr> move_constr_test(int const ** ppi) {
 		// vector::vector();
 		vector<test_with_ptr> v;

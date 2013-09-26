@@ -151,9 +151,11 @@ public:
 	}
 
 
-	/// Writes the first argument using the second as format specification, and compares the result
-	// with the provided expectation, returning true if they match.
-	//
+	/** Writes the first argument using the second as format specification, and compares the result
+	with the provided expectation, returning true if they match.
+
+	TODO: comment signature.
+	*/
 	template <typename T, size_t t_cchFormatSpec, size_t t_cchExpected>
 	static bool test_to_string_backend_output(
 		T const & t,

@@ -372,8 +372,10 @@ public:
 
 private:
 
-	/// Checks if a string’s item array has been reallocated, and verifies its character count.
-	//
+	/** Checks if a string’s item array has been reallocated, and verifies its character count.
+
+	TODO: comment signature.
+	*/
 	bool check_string(bool bPtrChanged, size_t cch, size_t cchCapacity = 0) {
 		abc_trace_fn((bPtrChanged, cch, cchCapacity));
 
@@ -397,9 +399,9 @@ private:
 
 private:
 
-	/// Pointer to the local string variable to be checked.
+	/** Pointer to the local string variable to be checked. */
 	cstring const * m_psCheck;
-	/// Pointer to m_psCheck’s item array.
+	/** Pointer to m_psCheck’s item array. */
 	char_t const * m_pchCheck;
 };
 

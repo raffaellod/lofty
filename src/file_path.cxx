@@ -34,14 +34,16 @@ namespace abc {
 
 #if ABC_HOST_API_POSIX
 
-/// Wrapper for a stat structure that self-loads with information on the file.
-//
+/** Wrapper for a stat structure that self-loads with information on the file.
+*/
 class file_stat :
 	public ::stat {
 public:
 
-	/// Constructor.
-	//
+	/** Constructor.
+
+	TODO: comment signature.
+	*/
 	file_stat(file_path const & fp) {
 		if (::stat(fp.get_data(), this)) {
 			throw_os_error();
@@ -51,8 +53,10 @@ public:
 
 #elif ABC_HOST_API_WIN32
 
-/// Checks whether the file has the specified attribute(s) set.
-//
+/** Checks whether the file has the specified attribute(s) set.
+
+TODO: comment signature.
+*/
 static bool file_attrs(DWORD fi) const {
 	DWORD fiAttrs(::GetFileAttributes(get_data()));
 	if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
