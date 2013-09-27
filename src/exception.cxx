@@ -1289,8 +1289,8 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 				case FPE_FLTSUB: // Subscript out of range.
 					abc_throw(abc::floating_point_error());
 			}
-			// At the time of writing, the above case labels don’t leave out any values, but
-			// that’s not necessarily going to be true in 5 years, so…
+			// At the time of writing, the above case labels don’t leave out any values, but that’s not
+			// necessarily going to be true in 5 years, so…
 			abc_throw(abc::arithmetic_error());
 
 		case SIGSEGV:

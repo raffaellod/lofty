@@ -24,32 +24,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations
-
-namespace abc {
-
-namespace text {
-
-/// Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
-// [DOC:1502 KMP substring search] for how this is built and used.
-template <typename C>
-void _build_failure_restart_table(
-	C const * pchNeedleBegin, C const * pchNeedleEnd, buffered_vector<size_t> * pvcchFailNext
-);
-
-} //namespace text
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text globals
 
 namespace abc {
 
 namespace text {
 
+/** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
+[DOC:1502 KMP substring search] for how this is built and used.
+
+TODO: comment signature.
+*/
 template <typename C>
 static void _build_failure_restart_table(
 	C const * pchNeedleBegin, C const * pchNeedleEnd, buffered_vector<size_t> * pvcchFailNext
@@ -353,17 +338,19 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 	char8_t const * pchHaystack(pchHaystackBegin),
 					  * pchNeedle(pchNeedleBegin);
 	try {
-		/// DOC:1502 KMP substring search
-		//
-		// This is an implementation of the Knuth-Morris-Pratt algorithm.
-		//
-		// Examples of the contents of pcchFailNext after the block below for different needles:
-		//
-		// Needle index │ 0 │ 0 1 │ 0 1 │ 0 1 2 │ 0 1 2 │ 0 1 2 3 4 5 6 │ 0 1 2 3 4 5 │
-		// ─────────────┼───┼─────┼─────┼───────┼───────┼───────────────┼─────────────┤
-		// pchNeedle    │ A │ A A │ A B │ A A A │ A A B │ A B A A B A C │ A B A B C D │
-		// pcchFailNext │ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
-		// ─────────────┴───┴─────┴─────┴───────┴───────┴───────────────┴─────────────┘
+		/** DOC:1502 KMP substring search
+
+		This is an implementation of the Knuth-Morris-Pratt algorithm.
+
+		Examples of the contents of pcchFailNext after the block below for different needles:
+
+		┌──────────────┬───┬─────┬─────┬───────┬───────┬───────────────┬─────────────┐
+		│ Needle index	│ 0 │ 0 1 │ 0 1 │ 0 1 2 │ 0 1 2 │ 0 1 2 3 4 5 6 │ 0 1 2 3 4 5 │
+		├──────────────┼───┼─────┼─────┼───────┼───────┼───────────────┼─────────────┤
+		│ pchNeedle		│ A │ A A │ A B │ A A A │ A A B │ A B A A B A C │ A B A B C D │
+		│ pcchFailNext	│ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
+		└──────────────┴───┴─────┴─────┴───────┴───────┴───────────────┴─────────────┘
+		*/
 
 		// Build the failure restart table.
 		vector<size_t, 64> vcchFailNext;
