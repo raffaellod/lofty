@@ -28,14 +28,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::string_istream
+// abc::str_istream
 
 
 namespace abc {
 
 /** Implementation of an read-only stream based on a string.
 */
-class string_istream :
+class str_istream :
 	public virtual istream {
 public:
 
@@ -43,15 +43,15 @@ public:
 
 	TODO: comment signature.
 	*/
-	explicit string_istream(cstring const & s);
-	explicit string_istream(cstring && s);
-	explicit string_istream(wstring && s);
-	explicit string_istream(wdstring && s);
+	explicit str_istream(istr const & s);
+	explicit str_istream(istr && s);
+	explicit str_istream(mstr && s);
+	explicit str_istream(dmstr && s);
 
 
 	/** Destructor.
 	*/
-	virtual ~string_istream();
+	virtual ~str_istream();
 
 
 	/** See istream::read().
@@ -75,14 +75,14 @@ protected:
 	TODO: comment signature.
 	*/
 	virtual void _read_line(
-		_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
 
 protected:
 
 	/** Source string. */
-	cstring m_sBuf;
+	istr m_sBuf;
 	/** Current read offset into the string, in bytes. Seeks can only change this in increments of a
 	character, but internal code doesn’t have to. */
 	size_t m_ibRead;
@@ -92,17 +92,17 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::string_ostream
+// abc::str_ostream
 
 
 namespace abc {
 
 /** Implementation of an write-only stream based on a string.
 */
-class string_ostream :
+class str_ostream :
 	public virtual ostream {
 
-	typedef wdstring string_type;
+	typedef dmstr string_type;
 
 public:
 
@@ -110,12 +110,12 @@ public:
 
 	TODO: comment signature.
 	*/
-	string_ostream();
+	str_ostream();
 
 
 	/** Destructor.
 	*/
-	virtual ~string_ostream();
+	virtual ~str_ostream();
 
 
 	/** Returns and empties the contents of the stream.
@@ -146,17 +146,17 @@ protected:
 
 template <typename C, class TTraits>
 template <typename ... Ts>
-inline wdstring_<C, TTraits> string_base_<C, TTraits>::format(Ts const & ... ts) const {
-	string_ostream os;
-	os.print(*static_cast<cstring_<C, TTraits> const *>(this), ts ...);
+inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(Ts const & ... ts) const {
+	str_ostream os;
+	os.print(*static_cast<istr_<C, TTraits> const *>(this), ts ...);
 	return os.get_contents();
 }
 
 
 template <typename T>
-inline wdstring to_string(T const & t, cstring const & sFormat = cstring()) {
-	string_ostream os;
-	to_string_backend<T> tsb(sFormat);
+inline dmstr to_str(T const & t, istr const & sFormat = istr()) {
+	str_ostream os;
+	to_str_backend<T> tsb(sFormat);
 	tsb.write(t, &os);
 	return os.get_contents();
 }

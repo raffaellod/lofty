@@ -319,9 +319,9 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
-/** Read-only character range. Automatically converted to/from abc::cstring, and used when the
-latter is not yet defined (nor can it be, such as very early header files). Part of the
-implementation is in string.hxx/cxx.
+/** Read-only character range. Automatically converted to/from abc::istr, and used when the latter
+is not yet defined (nor can it be, such as very early header files). Part of the implementation is
+in string.hxx/cxx.
 */
 template <typename C>
 class char_range_ {

@@ -329,7 +329,7 @@ public:
 	TODO: comment signature.
 	*/
 	template <typename F>
-	F get_symbol(cstring const & sSymbol, F * ppfn = NULL) {
+	F get_symbol(istr const & sSymbol, F * ppfn = NULL) {
 		F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
 		if (ppfn) {
 			*ppfn = pfn;
@@ -365,7 +365,7 @@ private:
 
 	TODO: comment signature.
 	*/
-	void * _get_symbol(cstring const & sSymbol);
+	void * _get_symbol(istr const & sSymbol);
 
 
 #if ABC_HOST_API_POSIX
@@ -457,7 +457,7 @@ protected:
 #else
 	#error TODO-PORT: HOST_API
 #endif
-		buffered_vector<cstring const> * pvsRet
+		buffered_vector<istr const> * pvsRet
 	);
 
 
@@ -522,9 +522,9 @@ public:
 			// Create and initialize the module.
 			T t;
 
-			// Use a vector<cstring const> to avoid dynamic allocation of the vector’s array for just a
+			// Use a vector<istr const> to avoid dynamic allocation of the vector’s array for just a
 			// few arguments.
-			vector<cstring const, 8> vsArgs;
+			vector<istr const, 8> vsArgs;
 			_build_args(cArgs, ppszArgs, &vsArgs);
 
 			// Invoke the program-defined main().
@@ -554,7 +554,7 @@ public:
 			_preconstruct(hinst);
 			T t;
 
-			vector<cstring const, 8> vsArgs;
+			vector<istr const, 8> vsArgs;
 
 			// Invoke the program-defined main().
 			return t.main(vsArgs);
@@ -622,7 +622,7 @@ public:
 
 	/** TODO: comment.
 	*/
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		UNUSED_ARG(vsArgs);
 		return EXIT_SUCCESS;
 	}

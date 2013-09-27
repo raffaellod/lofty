@@ -69,7 +69,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	bool contents_equal(cstring const & sExpected);
+	bool contents_equal(istr const & sExpected);
 
 
 	/** Empties the contents of the stream.

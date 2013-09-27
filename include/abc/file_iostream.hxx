@@ -278,7 +278,7 @@ private:
 	TODO: comment signature.
 	*/
 	virtual void _read_line(
-		_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
 

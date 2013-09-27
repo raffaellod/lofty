@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<string_ostream> _scope_trace<>::sm_psosScopeTrace;
+/*tls*/ std::unique_ptr<str_ostream> _scope_trace<>::sm_psosScopeTrace;
 /*tls*/ unsigned _scope_trace<>::sm_cScopeTraceRefs(0);
 /*tls*/ unsigned _scope_trace<>::sm_iStackDepth(0);
 /*tls*/ bool _scope_trace<>::sm_bReentering(false);

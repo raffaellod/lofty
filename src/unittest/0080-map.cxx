@@ -28,13 +28,13 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
 		{
 			// Simple manipulation tests.
-			map<cstring const, int> m;
+			map<istr const, int> m;
 			m.add(SL("1"), 1);
 			if (m.get_size() != 1 || m[SL("1")] != 1) {
 				return 1;

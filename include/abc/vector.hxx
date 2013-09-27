@@ -555,7 +555,7 @@ protected:
 		raw_vector(cchStaticMax) {
 		operator=(std::move(v));
 	}
-	// TODO: enable_if<is_trivial> to just adopt the array like base_string_ does, instead of copying
+	// TODO: enable_if<is_trivial> to just adopt the array like base_str_ does, instead of copying
 	// it?
 	template <size_t t_ci>
 	buffered_vector(size_t cchStaticMax, T const (& at)[t_ci]) :
@@ -754,7 +754,7 @@ public:
 
 	/** Allows automatic cross-class-hierarchy casts. Notice the lack of a non-const overload: this
 	prevents ending in a situation where client code tries to std::move() a string that’s really a
-	string_buffer, to a string that is not, which could result in exceptions being thrown.
+	smstr, to a string that is not, which could result in exceptions being thrown.
 
 	TODO: comment signature.
 	*/

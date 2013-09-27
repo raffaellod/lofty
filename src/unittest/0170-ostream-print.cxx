@@ -28,7 +28,7 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);

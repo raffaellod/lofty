@@ -23,38 +23,38 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::string_istream
+// abc::str_istream
 
 
 namespace abc {
 
-string_istream::string_istream(cstring const & s) :
+str_istream::str_istream(istr const & s) :
 	istream(),
 	m_sBuf(s),
 	m_ibRead(0) {
 }
-string_istream::string_istream(cstring && s) :
+str_istream::str_istream(istr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-string_istream::string_istream(wstring && s) :
+str_istream::str_istream(mstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-string_istream::string_istream(wdstring && s) :
+str_istream::str_istream(dmstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
 
 
-/*virtual*/ string_istream::~string_istream() {
+/*virtual*/ str_istream::~str_istream() {
 }
 
 
-size_t string_istream::read(
+size_t str_istream::read(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
 	UNUSED_ARG(p);
@@ -64,15 +64,15 @@ size_t string_istream::read(
 }
 
 
-/*virtual*/ void string_istream::unread(void const * p, size_t cb, text::encoding enc) {
+/*virtual*/ void str_istream::unread(void const * p, size_t cb, text::encoding enc) {
 	UNUSED_ARG(p);
 	UNUSED_ARG(cb);
 	UNUSED_ARG(enc);
 }
 
 
-/*virtual*/ void string_istream::_read_line(
-	_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+/*virtual*/ void str_istream::_read_line(
+	_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
 	UNUSED_ARG(rs);
 	UNUSED_ARG(enc);
@@ -84,27 +84,27 @@ size_t string_istream::read(
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::string_ostream
+// abc::str_ostream
 
 
 namespace abc {
 
-string_ostream::string_ostream() :
+str_ostream::str_ostream() :
 	ostream(),
 	m_ibWrite(0) {
 }
 
 
-/*virtual*/ string_ostream::~string_ostream() {
+/*virtual*/ str_ostream::~str_ostream() {
 }
 
 
-string_ostream::string_type string_ostream::get_contents() {
+str_ostream::string_type str_ostream::get_contents() {
 	return std::move(m_sBuf);
 }
 
 
-/*virtual*/ void string_ostream::write(
+/*virtual*/ void str_ostream::write(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

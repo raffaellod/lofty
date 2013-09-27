@@ -26,80 +26,76 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
 
 		// Basic operations.
 		{
-			wdstring s;
-			// Initialize member variables for check_string().
-			m_psCheck = &static_cast<cstring const &>(s);
+			dmstr s;
+			// Initialize member variables for check_str().
+			m_psCheck = &static_cast<istr const &>(s);
 			m_pchCheck = s.get_data();
 
 			s += SL("a");
 			// true: operator+= must have created an item array (there was none).
-			if (!check_string(true, 1, 7) || s[0] != 'a') {
+			if (!check_str(true, 1, 7) || s[0] != 'a') {
 				return 10;
 			}
 
 			s = s + 'b' + s;
 			// true: a new string is created by operator+, which replaces s by operator=.
-			if (!check_string(true, 3, 7) || s != SL("aba")) {
+			if (!check_str(true, 3, 7) || s != SL("aba")) {
 				return 11;
 			}
 
 			s = s.substr(1, 3);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 2, 7) || s != SL("ba")) {
+			if (!check_str(true, 2, 7) || s != SL("ba")) {
 				return 12;
 			}
 
 			s += 'c';
 			// false: there should’ve been enough space for 'c'.
-			if (!check_string(false, 3, 7) || s != SL("bac")) {
+			if (!check_str(false, 3, 7) || s != SL("bac")) {
 				return 13;
 			}
 
 			s = s.substr(0, -1);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 2, 7) || s[0] != 'b' || s[1] != 'a') {
+			if (!check_str(true, 2, 7) || s[0] != 'b' || s[1] != 'a') {
 				return 14;
 			}
 
 			s += s;
 			// false: there should’ve been enough space for “baba”.
-			if (
-				!check_string(false, 4, 7) || s[0] != 'b' || s[1] != 'a' || s[2] != 'b' || s[3] != 'a'
-			) {
+			if (!check_str(false, 4, 7) || s[0] != 'b' || s[1] != 'a' || s[2] != 'b' || s[3] != 'a') {
 				return 15;
 			}
 
 			s = s.substr(-3, -2);
 			// true: s got replaced by operator=.
-			if (!check_string(true, 1, 7) || s[0] != 'a') {
+			if (!check_str(true, 1, 7) || s[0] != 'a') {
 				return 16;
 			}
 
-			s = wdstring(SL("ab")) + 'c';
+			s = dmstr(SL("ab")) + 'c';
 			// true: s got replaced by operator=.
-			if (!check_string(true, 3, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c') {
+			if (!check_str(true, 3, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c') {
 				return 17;
 			}
 
 			s += 'd';
 			// false: there should’ve been enough space for “abcd”.
-			if (
-				!check_string(false, 4, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c' || s[3] != 'd'
-			) {
+			if (!check_str(false, 4, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c' || s[3] != 'd') {
 				return 18;
 			}
 
 			s += SL("efghijklmnopqrstuvwxyz");
 			// false: while this will need to reallocate, the heap should be able to just resize the
 			// allocated block, so the pointer won’t change.
-			if (!check_string(false, 26, 55) || s != SL("abcdefghijklmnopqrstuvwxyz")) {
+			if (!check_str(false, 26, 55) || s != SL("abcdefghijklmnopqrstuvwxyz")) {
 				return 19;
 			}
 		}
@@ -113,8 +109,8 @@ public:
 		// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
 #ifdef U8L
 		{
-			cstring8 const s8(U8L("acabaabca"));
-			cstring8::const_iterator
+			istr8 const s8(U8L("acabaabca"));
+			istr8::const_iterator
 
 			it = s8.find('b');
 			if (it != s8.cbegin() + 3) {
@@ -171,8 +167,8 @@ public:
 #endif
 #ifdef U16L
 		{
-			cstring16 const s16(U16L("acabaabca"));
-			cstring16::const_iterator it;
+			istr16 const s16(U16L("acabaabca"));
+			istr16::const_iterator it;
 
 			it = s16.find('b');
 			if (it != s16.cbegin() + 3) {
@@ -229,8 +225,8 @@ public:
 #endif
 #ifdef U32L
 		{
-			cstring32 const s32(U32L("acabaabca"));
-			cstring32::const_iterator it;
+			istr32 const s32(U32L("acabaabca"));
+			istr32::const_iterator it;
 
 			it = s32.find('b');
 			if (it != s32.cbegin() + 3) {
@@ -289,8 +285,8 @@ public:
 		// Non-ASCII character and substring search.
 #ifdef U8L
 		{
-			cstring8 const s8(U8L("àßçàŒ"));
-			cstring8::const_iterator it;
+			istr8 const s8(U8L("àßçàŒ"));
+			istr8::const_iterator it;
 
 			it = s8.find(U32L('ß'));
 			if (it != s8.cbegin() + 2) {
@@ -315,8 +311,8 @@ public:
 #endif
 #ifdef U16L
 		{
-			cstring16 const s16(U16L("àßçàŒ"));
-			cstring16::const_iterator it;
+			istr16 const s16(U16L("àßçàŒ"));
+			istr16::const_iterator it;
 
 			it = s16.find(U32L('ß'));
 			if (it != s16.cbegin() + 1) {
@@ -341,8 +337,8 @@ public:
 #endif
 #ifdef U32L
 		{
-			cstring32 const s32(U32L("àßçàŒ"));
-			cstring32::const_iterator it;
+			istr32 const s32(U32L("àßçàŒ"));
+			istr32::const_iterator it;
 
 			it = s32.find(U32L('ß'));
 			if (it != s32.cbegin() + 1) {
@@ -376,7 +372,7 @@ private:
 
 	TODO: comment signature.
 	*/
-	bool check_string(bool bPtrChanged, size_t cch, size_t cchCapacity = 0) {
+	bool check_str(bool bPtrChanged, size_t cch, size_t cchCapacity = 0) {
 		abc_trace_fn((bPtrChanged, cch, cchCapacity));
 
 		// Check if the item array has changed in accordance to the expectation.
@@ -400,7 +396,7 @@ private:
 private:
 
 	/** Pointer to the local string variable to be checked. */
-	cstring const * m_psCheck;
+	istr const * m_psCheck;
 	/** Pointer to m_psCheck’s item array. */
 	char_t const * m_pchCheck;
 };

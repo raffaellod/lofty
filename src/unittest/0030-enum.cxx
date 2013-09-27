@@ -33,7 +33,7 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
@@ -43,7 +43,7 @@ public:
 		if (e != test_enum::value2) {
 			return 1;
 		}
-		if (to_string(e) != SL("value2")) {
+		if (to_str(e) != SL("value2")) {
 			return 2;
 		}
 

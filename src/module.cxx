@@ -62,7 +62,7 @@ dynamic_module & dynamic_module::operator=(dynamic_module && dm) {
 file_path dynamic_module::get_file_name() const {
 	abc_trace_fn((this));
 
-	wdstring s;
+	dmstr s;
 	s.grow_for([m_hdynmod] (char_t * pch, size_t cchMax) -> size_t {
 		// Since ::GetModuleFileName() does not include the terminating NUL in the returned character
 		// count, it has to return at most cchMax - 1 characters; if it returns cchMax, the buffer was
@@ -173,7 +173,7 @@ code_module::~code_module() {
 }
 
 
-void * code_module::_get_symbol(cstring const & sSymbol) {
+void * code_module::_get_symbol(istr const & sSymbol) {
 	abc_trace_fn((this, sSymbol));
 
 	void * pfn;
@@ -235,7 +235,7 @@ module_impl_base::module_impl_base() :
 #else
 	#error TODO-PORT: HOST_API
 #endif
-	buffered_vector<cstring const> * pvsRet
+	buffered_vector<istr const> * pvsRet
 ) {
 #if ABC_HOST_API_POSIX
 	abc_trace_fn((cArgs, ppszArgs, pvsRet));
@@ -243,7 +243,7 @@ module_impl_base::module_impl_base() :
 	pvsRet->set_capacity(size_t(cArgs), false);
 	// Make each string not allocate a new character array.
 	for (int i(0); i < cArgs; ++i) {
-		pvsRet->append(cstring(unsafe, ppszArgs[i]));
+		pvsRet->append(istr(unsafe, ppszArgs[i]));
 	}
 #elif ABC_HOST_API_WIN32
 	abc_trace_fn(());

@@ -33,32 +33,31 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/** DOC:3984 abc::to_string()
+/** DOC:3984 abc::to_str()
 
-abc::to_string() is a thin wrapper around abc::to_string_backend, so that any class can provide even
-a partial specialization for it (partial specializations of function are stil not allowed in C++11).
+abc::to_str() is a thin wrapper around abc::to_str_backend, so that any class can provide even a
+partial specialization for it (partial specializations of function are stil not allowed in C++11).
 
 The format specification is provided by beginning and end pointer, so that a caller can specifiy a
 non-NUL-terminated substring of a larger string.
 
-The interpretation of the format specification is up to the specialization of
-abc::to_string_backend.
+The interpretation of the format specification is up to the specialization of abc::to_str_backend.
 */
 
 /** Returns the string representation of the specified value, optionally with a custom format.
 
 Cannot be implemented here because iostream.hxx (required for the core of the implementation,
-abc::string_ostream) depends on this file - circular dependency.
+abc::str_ostream) depends on this file - circular dependency.
 */
 template <typename T>
-wdstring to_string(T const & t, cstring const & sFormat = cstring());
+dmstr to_str(T const & t, istr const & sFormat = istr());
 
 } //namespace abc
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_string_backend_base
+// abc::_int_to_str_backend_base
 
 
 namespace abc {
@@ -69,16 +68,16 @@ class ostream;
 // been forward-declared above, but not defined yet (a pointer to a forward-declared type is legal,
 // but a reference to it is not).
 
-/** Base class for the specializations of to_string_backend for integer types.
+/** Base class for the specializations of to_str_backend for integer types.
 */
-class _int_to_string_backend_base {
+class _int_to_str_backend_base {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	_int_to_string_backend_base(unsigned cbInt, char_range const & crFormat);
+	_int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
 
 
 protected:
@@ -88,7 +87,7 @@ protected:
 	TODO: comment signature.
 	*/
 	void add_prefixes_and_write(
-		bool bNegative, ostream * posOut, wstring * psBuf, char_t * pchBufFirstUsed
+		bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 	) const;
 
 
@@ -199,7 +198,7 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void _int_to_string_backend_base::write_s32(int32_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
 	if (m_iBaseOrShift == 10) {
 		write_s64(i, posOut);
 	} else {
@@ -210,7 +209,7 @@ inline void _int_to_string_backend_base::write_s32(int32_t i, ostream * posOut) 
 }
 
 
-inline void _int_to_string_backend_base::write_u32(uint32_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
 	write_u64(i, posOut);
 }
 
@@ -220,7 +219,7 @@ inline void _int_to_string_backend_base::write_u32(uint32_t i, ostream * posOut)
 // On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 // turn defer to write_64*() (see above).
 
-inline void _int_to_string_backend_base::write_s16(int16_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
 	if (m_iBaseOrShift == 10) {
 		write_s32(i, posOut);
 	} else {
@@ -231,7 +230,7 @@ inline void _int_to_string_backend_base::write_s16(int16_t i, ostream * posOut) 
 }
 
 
-inline void _int_to_string_backend_base::write_u16(uint16_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
 	write_u32(i, posOut);
 }
 
@@ -241,40 +240,39 @@ inline void _int_to_string_backend_base::write_u16(uint16_t i, ostream * posOut)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_string_backend
+// abc::_int_to_str_backend
 
 
 namespace abc {
 
-/** Implementation of the specializations of to_string_backend for integer types.
+/** Implementation of the specializations of to_str_backend for integer types.
 */
 template <typename I>
-class _int_to_string_backend :
-	public _int_to_string_backend_base {
+class _int_to_str_backend :
+	public _int_to_str_backend_base {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	_int_to_string_backend(char_range const & crFormat) :
-		_int_to_string_backend_base(sizeof(I), crFormat) {
+	_int_to_str_backend(char_range const & crFormat) :
+		_int_to_str_backend_base(sizeof(I), crFormat) {
 	}
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 
 	This design is rather tricky in the way one implementation calls another:
 
-	1.	_int_to_string_backend<I>::write()
+	1.	_int_to_str_backend<I>::write()
 		Always inlined, dispatches to step 2. based on number of bits;
-	2.	_int_to_string_backend_base::write_{s,u}{8,16,32,64}()
-		Inlined to a bit-bigger variant or implemented in to_string_backend.cxx, depending on the host
+	2.	_int_to_str_backend_base::write_{s,u}{8,16,32,64}()
+		Inlined to a bit-bigger variant or implemented in to_str_backend.cxx, depending on the host
 		architecture’s word size;
-	3.	_int_to_string_backend_base::write_impl()
-		Always inlined, but only used in functions defined in to_string_backend.cxx, so it only
-		generates as many copies as strictly necessary to have fastest performanced for any integer
-		size.
+	3.	_int_to_str_backend_base::write_impl()
+		Always inlined, but only used in functions defined in to_str_backend.cxx, so it only generates
+		as many copies as strictly necessary to have fastest performanced for any integer size.
 
 	The net result is that after all the inlining occurs, this will become a direct call to the
 	fastest implementation for I of any given size.
@@ -321,7 +319,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_string_backend
+// abc::to_str_backend
 
 
 namespace abc {
@@ -329,21 +327,21 @@ namespace abc {
 /** Generates a string suitable for display from an object. Once constructed with the desired format
 specification, an instance can convert to a string any number of T instances. */
 template <typename T>
-class to_string_backend;
+class to_str_backend;
 
 // Specialization for bool.
 template <>
-class to_string_backend<bool> {
+class to_str_backend<bool> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range());
+	to_str_backend(char_range const & crFormat = char_range());
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
@@ -352,49 +350,49 @@ public:
 
 
 // Specialization for integer types.
-#define ABC_SPECIALIZE_to_string_backend_FOR_TYPE(I) \
+#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(I) \
 	template <> \
-	class to_string_backend<I> : \
-		public _int_to_string_backend<I> { \
+	class to_str_backend<I> : \
+		public _int_to_str_backend<I> { \
 	public: \
 	\
 		/** Constructor. */ \
-		to_string_backend(char_range const & crFormat = char_range()) : \
-			_int_to_string_backend<I>(crFormat) { \
+		to_str_backend(char_range const & crFormat = char_range()) : \
+			_int_to_str_backend<I>(crFormat) { \
 		} \
 	};
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(  signed char)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(unsigned char)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(         short)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(unsigned short)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(     int)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(unsigned)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(         long)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(unsigned long)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(         long long)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(unsigned long long)
-#undef ABC_SPECIALIZE_to_string_backend_FOR_TYPE
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(  signed char)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned char)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         short)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned short)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(     int)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long long)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
+#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 
 // Specialization for void const volatile *.
 template <>
-class to_string_backend<void const volatile *> :
-	protected to_string_backend<uintptr_t> {
+class to_str_backend<void const volatile *> :
+	protected to_str_backend<uintptr_t> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range());
+	to_str_backend(char_range const & crFormat = char_range());
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
 	void write(void const volatile * p, ostream * posOut) {
-		to_string_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), posOut);
+		to_str_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), posOut);
 	}
 
 
@@ -407,29 +405,29 @@ protected:
 
 // Specialization for any pointer-to-type.
 template <typename T>
-class to_string_backend<T *> :
-	public to_string_backend<void const volatile *> {
+class to_str_backend<T *> :
+	public to_str_backend<void const volatile *> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		to_string_backend<void const volatile *>(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		to_str_backend<void const volatile *>(crFormat) {
 	}
 };
 
 
 // Specialization for string literal types.
-#define ABC_SPECIALIZE_to_string_backend_FOR_TYPE(C) \
+#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
 	/** String literal. \
 	*/ \
 	template <size_t t_cch> \
-	class to_string_backend<C[t_cch]> : \
-		public _string_to_string_backend<C[t_cch], C> { \
+	class to_str_backend<C[t_cch]> : \
+		public _str_to_str_backend<C[t_cch], C> { \
 	\
-		typedef _string_to_string_backend<C[t_cch], C> string_to_string_backend; \
+		typedef _str_to_str_backend<C[t_cch], C> str_to_str_backend; \
 	\
 	public: \
 	\
@@ -437,18 +435,18 @@ public:
 	\
 		TODO: comment signature. \
 		*/ \
-		to_string_backend(char_range const & crFormat = char_range()) : \
-			string_to_string_backend(crFormat) { \
+		to_str_backend(char_range const & crFormat = char_range()) : \
+			str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
-		/** See to_string_backend::write(). \
+		/** See to_str_backend::write(). \
 	\
 		TODO: comment signature. \
 		*/ \
 		void write(C const (& ach)[t_cch], ostream * posOut) { \
 			assert(ach[t_cch - 1 /*NUL*/] == '\0'); \
-			string_to_string_backend::write( \
+			str_to_str_backend::write( \
 				ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
 			); \
 		} \
@@ -457,10 +455,10 @@ public:
 	/** Pointer to NUL-terminated string. \
 	*/ \
 	template <> \
-	class to_string_backend<C const *> : \
-		public _string_to_string_backend<C const *, C> { \
+	class to_str_backend<C const *> : \
+		public _str_to_str_backend<C const *, C> { \
 	\
-		typedef _string_to_string_backend<C const *, C> string_to_string_backend; \
+		typedef _str_to_str_backend<C const *, C> str_to_str_backend; \
 	\
 	public: \
 	\
@@ -468,26 +466,26 @@ public:
 	\
 		TODO: comment signature. \
 		*/ \
-		to_string_backend(char_range const & crFormat = char_range()) : \
-			string_to_string_backend(crFormat) { \
+		to_str_backend(char_range const & crFormat = char_range()) : \
+			str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
-		/** See to_string_backend::write(). \
+		/** See to_str_backend::write(). \
 	\
 		TODO: comment signature. \
 		*/ \
 		void write(C const * psz, ostream * posOut) { \
-			string_to_string_backend::write( \
+			str_to_str_backend::write( \
 				psz, sizeof(C) * text::utf_traits<C>::str_len(psz), \
 				text::utf_traits<C>::host_encoding, posOut \
 			); \
 		} \
 	};
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(char8_t)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(char16_t)
-ABC_SPECIALIZE_to_string_backend_FOR_TYPE(char32_t)
-#undef ABC_SPECIALIZE_to_string_backend_FOR_TYPE
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char8_t)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
+#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 } //namespace abc
 

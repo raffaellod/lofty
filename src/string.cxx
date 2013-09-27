@@ -23,12 +23,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_string_to_string_backend_base
+// abc::_str_to_str_backend_base
 
 
 namespace abc {
 
-_string_to_string_backend_base::_string_to_string_backend_base(char_range const & crFormat) {
+_str_to_str_backend_base::_str_to_str_backend_base(char_range const & crFormat) {
 	abc_trace_fn((this, crFormat));
 
 	auto it(crFormat.cbegin());
@@ -44,7 +44,7 @@ _string_to_string_backend_base::_string_to_string_backend_base(char_range const 
 }
 
 
-void _string_to_string_backend_base::write(
+void _str_to_str_backend_base::write(
 	void const * p, size_t cb, text::encoding enc, ostream * posOut
 ) {
 	abc_trace_fn((this, p, cb, enc, posOut));
@@ -57,14 +57,14 @@ void _string_to_string_backend_base::write(
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_string
+// abc::_raw_str
 
 
 namespace abc {
 
 // Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
 // <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
-size_t _raw_string::hash(size_t cbItem) const {
+size_t _raw_str::hash(size_t cbItem) const {
 	abc_trace_fn((this, cbItem));
 
 	// The checks below are based on the assumption that sizeof(size_t) == ABC_HOST_WORD_SIZE.
@@ -89,7 +89,7 @@ size_t _raw_string::hash(size_t cbItem) const {
 }
 
 
-void _raw_string::set_size(size_t cbItem, size_t cch) {
+void _raw_str::set_size(size_t cbItem, size_t cch) {
 	abc_trace_fn((this, cbItem, cch));
 
 	if (cch > get_capacity()) {

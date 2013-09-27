@@ -57,12 +57,12 @@ enum_member const * enum_member::find_in_map(enum_member const * pem, char_t con
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_enum_to_string_backend_impl
+// abc::_enum_to_str_backend_impl
 
 
 namespace abc {
 
-_enum_to_string_backend_impl::_enum_to_string_backend_impl(char_range const & crFormat) {
+_enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat) {
 	abc_trace_fn((crFormat));
 
 	auto it(crFormat.cbegin());
@@ -78,7 +78,7 @@ _enum_to_string_backend_impl::_enum_to_string_backend_impl(char_range const & cr
 }
 
 
-void _enum_to_string_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
+void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
 	abc_trace_fn((i, pem, posOut));
 
 	enum_member const * petvp(enum_member::find_in_map(pem, i));

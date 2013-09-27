@@ -28,20 +28,20 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
 
-		string_ostream sos;
-		cstring sEnc(SL("host"));
+		str_ostream sos;
+		istr sEnc(SL("host"));
 
-		sos << cstring8(U8L("Testing string (UTF-8 encoding)"));
+		sos << istr8(U8L("Testing string (UTF-8 encoding)"));
 #ifdef U16L
-		sos << cstring16(U16L("Testing string (UTF-16 encoding)"));
+		sos << istr16(U16L("Testing string (UTF-16 encoding)"));
 #endif
 #ifdef U32L
-		sos << cstring32(U32L("Testing string (UTF-32 encoding)"));
+		sos << istr32(U32L("Testing string (UTF-32 encoding)"));
 #endif		
 
 		return EXIT_SUCCESS;

@@ -114,7 +114,7 @@ struct enum_member {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_enum_to_string_backend_impl
+// abc::_enum_to_str_backend_impl
 
 
 namespace abc {
@@ -122,21 +122,21 @@ namespace abc {
 // Forward declaration from abc/iostream.hxx.
 class ostream;
 
-/** Implementation of the specializations of to_string_backend for enum_impl specializations.
+/** Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
-class _enum_to_string_backend_impl {
+class _enum_to_str_backend_impl {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	_enum_to_string_backend_impl(char_range const & crFormat);
+	_enum_to_str_backend_impl(char_range const & crFormat);
 
 
 protected:
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
@@ -264,30 +264,30 @@ namespace abc {
 
 // Forward declaration from abc/to_string_backend.hxx.
 template <typename T>
-class to_string_backend;
+class to_str_backend;
 
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <class T>
-class to_string_backend<enum_impl<T>> :
-	public _enum_to_string_backend_impl {
+class to_str_backend<enum_impl<T>> :
+	public _enum_to_str_backend_impl {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		_enum_to_string_backend_impl(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		_enum_to_str_backend_impl(crFormat) {
 	}
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
 	void write(enum_impl<T> e, ostream * posOut) {
-		_enum_to_string_backend_impl::write_impl(e.base(), e._get_map(), posOut);
+		_enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), posOut);
 	}
 };
 

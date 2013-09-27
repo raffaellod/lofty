@@ -30,9 +30,9 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 
-/** DOC:4019 abc::*string_ and abc::*vector design
+/** DOC:4019 abc::*str_ and abc::*vector design
 
-*string_ and *vector are implemented using the same base set of classes:
+*str_ and *vector are implemented using the same base set of classes:
 
 •	_raw_vextr_impl_base, core functionality for a vector of items: a little code and all member
 	variables; this is then extended by three implementation classes:
@@ -47,8 +47,8 @@ You should have received a copy of the GNU General Public License along with ABC
 		supports the presence of a last element of value 0, opening up for the implementation of a
 		string-like vector:
 
-		•	_raw_string, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
-			provides means for clients of string_ to avoid having to be templates themselves, by giving
+		•	_raw_str, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
+			provides means for clients of str_ to avoid having to be templates themselves, by giving
 			access to type-deleted (void *) methods.
 
 A vector/string using a static item array is nearly as fast as the C-style direct manipulation of an
@@ -62,7 +62,7 @@ used by both.
 
 Underlying data storage:
 
-1.	cstring() or wdstring()
+1.	istr() or dmstr()
 	┌───┬───┬───────┐
 	│ p │ 1 │ 0|f|f │
 	└───┴───┴───────┘
@@ -70,7 +70,7 @@ Underlying data storage:
 	  ╰────────────────▶│ \0 │						Read-only memory (NUL)
 		                 └────┘
 
-2.	wsstring<5>()
+2.	smstr<5>()
 	┌───┬───┬───────╥───┬─────────┐
 	│ p │ 1 │ 0|f|t ║ 4 │ - - - - │				Static (can be stack-allocated) fixed-size buffer
 	└───┴───┴───────╨───┴─────────┘
@@ -78,7 +78,7 @@ Underlying data storage:
 	  └────────────────▶│ \0 │						Read-only memory (NUL)
 		                 └────┘
 
-3.	cstring("abc"):
+3.	istr("abc"):
 	┌───┬───┬───────┐
 	│ p │ 4 │ 0|f|f │
 	└───┴───┴───────┘
@@ -86,7 +86,7 @@ Underlying data storage:
 	  └────────────────▶│ a b c \0 │				Read-only memory
 		                 └──────────┘
 
-4.	wdstring("abc")
+4.	dmstr("abc")
 	┌───┬───┬───────┐
 	│ p │ 4 │ 8|t|f │
 	└───┴───┴───────┘
@@ -94,14 +94,14 @@ Underlying data storage:
 	  └────────────────▶│ a b c \0 - - - - │	Dynamically-allocated variable-size buffer
 		                 └──────────────────┘
 
-5.	wsstring<3>("abc")
+5.	smstr<3>("abc")
 	┌───┬───┬───────╥───┬──────────┐
 	│ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │				Static (can be stack-allocated) fixed-size buffer
 	└───┴───┴───────╨───┴──────────┘
 	  │                 ▲
 	  └─────────────────┘
 
-6.	wsstring<2>("abc"):
+6.	smstr<2>("abc"):
 	┌───┬───┬───────╥───┬───────┐
 	│ p │ 4 │ 8|t|t ║ 3 │ - - - │					Static (can be stack-allocated) fixed-size buffer
 	└───┴───┴───────╨───┴───────┘
@@ -112,275 +112,272 @@ Underlying data storage:
 
 String types:
 
-	cstring (constant string)
+	istr (immutable string)
 		Item array can be read-only (and shared) or dynamic.
-	wsstring (writable static string)
+	smstr (statically- or dynamically-allocated mutable string)
 		Item array cannot be read-only nor shared, but it can be static or dynamic.
-	wdstring (writable dynamic string)
+	dmstr (dynamically-allocated mutable string)
 		Item array cannot be read-only, nor shared, nor static - always dynamic and writable.
 
 
 Argument usage scenarios:
 
-	cstring           g_cs;
-	cstring const     gc_cs;
-	wdstring          g_wds;
-	wdstring const    gc_wds;
-	wsstring<n>       g_wss;
-	wsstring<n> const gc_wss;
-	wstring           g_ws;
-	wstring const     gc_ws;
+	istr           g_is;
+	istr const     gc_is;
+	dmstr          g_dms;
+	dmstr const    gc_dms;
+	smstr<n>       g_sms;
+	smstr<n> const gc_sms;
+	mstr           g_ms;
+	mstr const     gc_ms;
 
 
 •	No need to modify:
 
-	void f1(cstring const & csArg) {
+	void f1(istr const & isArg) {
 		// N/A - const.
-		csArg += "abc";
+		isArg += "abc";
 
-		// Share a read-only item array, or copy it: cstring::operator=(cstring const &)
+		// Share a read-only item array, or copy it: istr::operator=(istr const &)
 		// Use assign_share_ro_or_copy().
-		g_cs = csArg;
+		g_is = isArg;
 
 		// TODO: validate these!
-		// 1. Copy-construct: cstring::cstring(cstring const &)
+		// 1. Copy-construct: istr::istr(istr const &)
 		//    Use assign_share_ro_or_copy(): will share a read-only item array, but will copy anything
 		//    else. It's a copy - it's expected to have a separate life.
-		// 2. Move-assign from the copy: cstring::operator=(cstring &&) (“nothrow”)
+		// 2. Move-assign from the copy: istr::operator=(istr &&) (“nothrow”)
 		//    Use assign_move().
-		g_cs = std::move(csArg);
-		// 3. Destruct the now-empty copy: cstring::~cstring()
+		g_is = std::move(isArg);
+		// 3. Destruct the now-empty copy: istr::~istr()
 
-		// Copy the item array: wstring::operator=(cstring const &)
+		// Copy the item array: mstr::operator=(istr const &)
 		// Use assign_copy().
-		g_ws = csArg;
+		g_ms = isArg;
 
 		// TODO: validate these!
 		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: wdstring::operator=(cstring &&) (can throw)
+		// 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
 		//    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
 		//    else (like assign_copy()).
-		g_ws = std::move(csArg);
+		g_ms = std::move(isArg);
 		// 3. Same as 3. above.
 
-		// Copy the item array: wdstring::operator=(cstring const &)
+		// Copy the item array: dmstr::operator=(istr const &)
 		// Use assign_copy().
-		g_wds = csArg;
+		g_dms = isArg;
 
 		// TODO: validate these!
 		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: wdstring::operator=(cstring &&) (can throw)
+		// 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
 		//    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
 		//    else (like assign_copy()).
-		g_wds = std::move(csArg);
+		g_dms = std::move(isArg);
 		// 3. Same as 3. above.
 
-		// Copy the item array: wsstring<n>::operator=(cstring const &)
+		// Copy the item array: smstr<n>::operator=(istr const &)
 		// Use assign_copy().
-		g_wss = csArg;
+		g_sms = isArg;
 
 		// TODO: validate these!
 		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: wsstring<n>::operator=(cstring &&) (can throw)
+		// 2. Move-assign from the copy: smstr<n>::operator=(istr &&) (can throw)
 		//    See considerations for 2. above.
-		g_wss = std::move(csArg);
+		g_sms = std::move(isArg);
 		// 3. Same as 3. above.
 	}
 
-	// 1. Construct a temporary object: cstring::cstring(char (& ach)[t_cch])
+	// 1. Construct a temporary object: istr::istr(char (& ach)[t_cch])
 	f1("abc");
-	// 2. Destruct the temporary object: cstring::~cstring()
+	// 2. Destruct the temporary object: istr::~istr()
 
 	// Pass by const &.
-	f1(g_cs);
-	f1(gc_cs);
+	f1(g_is);
+	f1(gc_is);
 
-	// Invoke wstring::operator cstring const &() const. Given that it's a REFERENCE, it's fine if
-	// the source goes away and you get a crash: it's like freeing a pointer after passing it around.
-	f1(g_ws);
-	f1(gc_ws);
+	// Invoke mstr::operator istr const &() const. Given that it's a REFERENCE, it's fine if the
+	// source goes away and you get a crash: it's like freeing a pointer after passing it around.
+	f1(g_ms);
+	f1(gc_ms);
 
-	// Invoke wdstring::operator cstring const &() const. See considerations above.
-	f1(g_wds);
-	f1(gc_wds);
+	// Invoke dmstr::operator istr const &() const. See considerations above.
+	f1(g_dms);
+	f1(gc_dms);
 
-	// Invoke wsstring<n>::operator cstring const &() const. See considerations above.
-	f1(g_wss);
-	f1(gc_wss);
+	// Invoke smstr<n>::operator istr const &() const. See considerations above.
+	f1(g_sms);
+	f1(gc_sms);
 
 
 •	Writable dynamic string:
 
-	void f2(wdstring * pwdsArg) {
+	void f2(dmstr * pdmsArg) {
 		// Modify the buffer, maybe changing it for size reasons.
-		*pwdsArg += "abc";
+		*pdmsArg += "abc";
 
-		// Copy the item array: cstring::operator=(wdstring const &)
-		// Use assign_copy(). Can never share, because wdstring never uses a read-only buffer.
-		g_cs = *pwdsArg;
+		// Copy the item array: istr::operator=(dmstr const &)
+		// Use assign_copy(). Can never share, because dmstr never uses a read-only buffer.
+		g_is = *pdmsArg;
 
-		// Move the item array: cstring::operator=(wdstring &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because wdstring cannot be a wsstring<n> under covers.
-		g_cs = std::move(*pwdsArg);
+		// Move the item array: istr::operator=(dmstr &&) (“nothrow”)
+		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+		g_is = std::move(*pdmsArg);
 
-		// Copy the item array: wstring::operator=(wdstring const &)
+		// Copy the item array: mstr::operator=(dmstr const &)
 		// Use assign_copy().
-		g_ws = *pwdsArg;
+		g_ms = *pdmsArg;
 
-		// Move the item array: wstring::operator=(wdstring &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because wdstring cannot be a wsstring<n> under covers.
-		g_ws = std::move(*pwdsArg);
+		// Move the item array: mstr::operator=(dmstr &&) (“nothrow”)
+		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+		g_ms = std::move(*pdmsArg);
 
-		// Copy the item array: wdstring::operator=(wdstring const &)
+		// Copy the item array: dmstr::operator=(dmstr const &)
 		// Use assign_copy().
-		g_wds = *pwdsArg;
+		g_dms = *pdmsArg;
 
-		// Move the item array: wdstring::operator=(wdstring &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because wdstring cannot be a wsstring<n> under covers.
-		g_wds = std::move(*pwdsArg);
+		// Move the item array: dmstr::operator=(dmstr &&) (“nothrow”)
+		// Use assign_move(). “nothrow” because mdstr cannot be a smstr<n> under covers.
+		g_dms = std::move(*pdmsArg);
 
-		// Copy the item array: wsstring<n>::operator=(wdstring const &)
+		// Copy the item array: smstr<n>::operator=(dmstr const &)
 		// Use assign_copy().
-		g_wss = *pwdsArg;
+		g_sms = *pdmsArg;
 
-		// Move the item array: wsstring<n>::operator=(wdstring &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because wdstring cannot be a wsstring<n> under covers.
-		g_wss = std::move(*pwdsArg);
+		// Move the item array: smstr<n>::operator=(dmstr &&) (“nothrow”)
+		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+		g_sms = std::move(*pdmsArg);
 	}
 
 	// N/A - no such conversion.
 	f2("abc");
-	f2(&g_cs);
-	f2(&gc_cs);
+	f2(&g_is);
+	f2(&gc_is);
 
 	// N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
 	// above cannot be guaranteed.
-	f2(&g_ws);
-	f2(&gc_ws);
+	f2(&g_ms);
+	f2(&gc_ms);
 
 	// Pass by &.
-	f2(&g_wds);
+	f2(&g_dms);
 
 	// N/A - const.
-	f2(&gc_wds);
+	f2(&gc_dms);
 
 	// N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
 	// above cannot be guaranteed.
-	f2(&g_wss);
-	f2(&gc_wss);
+	f2(&g_sms);
+	f2(&gc_sms);
 
 
 •	Writable (static or dynamic) string:
 
-   void f3(wstring * pwsArg) {
+   void f3(mstr * pmsArg) {
       // Modify the buffer, maybe changing it for size reasons.
-      *pwsArg += "abc";
+      *pmsArg += "abc";
 
-      // Copy the item array: cstring::operator=(wstring const &)
-      // Use assign_copy(): can never share, because wstring never uses a read-only buffer.
-      g_cs = *pwsArg;
+      // Copy the item array: istr::operator=(mstr const &)
+      // Use assign_copy(): can never share, because mstr never uses a read-only buffer.
+      g_is = *pmsArg;
 
-      // Move the item array: cstring::operator=(wstring &&) (can throw)
-      // Use assign_move_dynamic_or_copy(). can throw because wstring can be a wsstring<n> under
-      // covers!
-      g_cs = std::move(*pwsArg);
+      // Move the item array: istr::operator=(mstr &&) (can throw)
+      // Use assign_move_dynamic_or_copy(). can throw because mstr can be a smstr<n> under covers!
+      g_is = std::move(*pmsArg);
 
-      // Copy the item array: wstring::operator=(wstring const &)
+      // Copy the item array: mstr::operator=(mstr const &)
       // Use assign_copy().
-      g_ws = *pwsArg;
+      g_ms = *pmsArg;
 
-      // Move the item array: wstring::operator=(wstring &&) (can throw)
+      // Move the item array: mstr::operator=(mstr &&) (can throw)
       // Use assign_move_dynamic_or_copy(). See considerations above.
       // WARNING - this class has a throwing move constructor/assignment operator!
-      g_ws = std::move(*pwsArg);
+      g_ms = std::move(*pmsArg);
 
-      // Copy the item array: wdstring::operator=(wstring const &)
+      // Copy the item array: dmstr::operator=(mstr const &)
       // Use assign_copy().
-      g_wds = *pwsArg;
+      g_dms = *pmsArg;
 
-      // Move the item array: wdstring::operator=(wstring &&) (“nothrow”)
-      // Use assign_move(). Can throw because wstring can be a wsstring<n> under covers!
-      g_wds = std::move(*pwsArg);
+      // Move the item array: dmstr::operator=(mstr &&) (“nothrow”)
+      // Use assign_move(). Can throw because mstr can be a smstr<n> under covers!
+      g_dms = std::move(*pmsArg);
 
-      // Copy the item array: wsstring<n>::operator=(wstring const &)
+      // Copy the item array: smstr<n>::operator=(mstr const &)
       // Use assign_copy().
-      g_wss = *pwsArg;
+      g_sms = *pmsArg;
 
-      // Move the item array: wsstring<n>::operator=(wstring &&) (can throw)
+      // Move the item array: smstr<n>::operator=(mstr &&) (can throw)
       // Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
       // else (like assign_copy()).
-      g_wss = std::move(*pwsArg);
+      g_sms = std::move(*pmsArg);
    }
 
    // N/A - no such conversion.
    f3("abc");
-   f3(&g_cs);
-   f3(&gc_cs);
+   f3(&g_is);
+   f3(&gc_is);
 
    // Pass by &.
-   f3(&g_ws);
+   f3(&g_ms);
 
    // N/A - const.
-   f3(&gc_ws);
+   f3(&gc_ms);
 
-   // Down-cast to wstring &.
-   f3(&g_wds);
-
-   // N/A - const.
-   f3(&gc_wds);
-
-   // Down-cast to wstring &.
-   f3(&g_wss);
+   // Down-cast to mstr &.
+   f3(&g_dms);
 
    // N/A - const.
-   f3(&gc_wss);
+   f3(&gc_dms);
+
+   // Down-cast to mstr &.
+   f3(&g_sms);
+
+   // N/A - const.
+   f3(&gc_sms);
 
 
 From the above, it emerges that:
 
-•	wstring and wsstring<n> cannot publicly derive from cstring or wdstring, because that would
-	enable automatic down-cast to c/wdstring &, which would then expose to the c/wdstring move
-	constructor/assignment operator being invoked to move a static item array, which is wrong, or (if
-	attempting to work around the move) would result in the static item array being copied, which
-	would violate the “nothrow” requirement for the move constructor/assignment operator.
+•	mstr and smstr<n> cannot publicly derive from istr or dmstr, because that would enable automatic
+	down-cast to i/dmstr &, which would then expose to the i/dmstr move constructor/assignment
+	operator being invoked to move a static item array, which is wrong, or (if attempting to work
+	around the move) would result in the static item array being copied, which would violate the
+	“nothrow” requirement for the move constructor/assignment operator.
 
-•	wdstring can publicly derive from wstring, with wstring being a base class for both wdstring and
-	wsstring<n>.
+•	dmstr can publicly derive from mstr, with mstr being a base class for both dmstr and smstr<n>.
 
-•	The only differences between cstring and cstring const & are:
-	1.	cstring const & can be using a static item array (because it can be a wsstring<n>), while any
-		other cstring will always use a const/read-only item array or a dynamic one;
-	2.	other string types can only be automatically converted to cstring const &.
+•	The only differences between istr and istr const & are:
+	1.	istr const & can be using a static item array (because it can be a smstr<n>), while any other
+		istr will always use a const/read-only item array or a dynamic one;
+	2.	other string types can only be automatically converted to istr const &.
 
-•	The difference between cstring and wstring (and therefore wdstring/wsstring<n>) is that the
-	former can be constructed from a static string without copying it, but only offers read-only
-	methods and operators; the latter offers the whole range of features one would expect, but will
-	create a new item array upon construction or assignment (or use the embedded static one, in case
-	of wsstring<n>).
+•	The difference between istr and mstr (and therefore dmstr/smstr<n>) is that the former can be
+	constructed from a static string without copying it, but only offers read-only methods and
+	operators; the latter offers the whole range of features one would expect, but will create a new
+	item array upon construction or assignment (or use the embedded static one, in case of smstr<n>).
 
-•	wstring cannot have a “nothrow” move constructor or assignment operator from itself, because the
+•	mstr cannot have a “nothrow” move constructor or assignment operator from itself, because the
 	underlying objects might have static item arrays of different sizes. This isn't a huge deal-
-	breaker because of the intended limited usage for wstring and wsstring<n>.
+	breaker because of the intended limited usage for mstr and smstr<n>.
 
 The resulting class hierarchy is therefore:
 
-	string_base (pretty much the whole cstring)
-		cstring
-		wstring (pretty much the whole wdstring/wsstring<n>)
-			wdstring
-			wsstring<n>
+	str_base (near-complete implementation of istr)
+		istr
+		mstr (near-complete implementation of dmstr/smstr<n>)
+			dmstr
+			smstr<n>
 
-					 ┌─────────────────────────────────────────────────────────┐
-					 │							  Functional need							  │
-┌───────────────┼──────────────┬─────────────────┬──────────┬─────────────┤
-│					 │ Local/member │ Method/function │ Writable	│  Constant	  │
-│ Class			 │ variable		 │ argument			 │				│ (read-only) │
-├───────────────┼──────────────┼─────────────────┼──────────┼─────────────┤
-│ cstring const │			x		 │		x (const &)	 │				│		 x		  │
-│ wstring       │					 │		  x (*)		 │		 x		│				  │
-│ wdstring      │			x		 │						 │		 x		│				  │
-│ wsstring      │			x		 │						 │		 x		│				  │
-└───────────────┴──────────────┴─────────────────┴──────────┴─────────────┘
+             ┌─────────────────────────────────────────────────────────┐
+             │                     Functional need                     │
+┌────────────┼──────────────┬─────────────────┬──────────┬─────────────┤
+│            │ Local/member │ Method/function │ Writable │  Constant   │
+│ Class      │ variable     │ argument        │          │ (read-only) │
+├────────────┼──────────────┼─────────────────┼──────────┼─────────────┤
+│ istr const │       x      │    x (const &)  │          │      x      │
+│ mstr       │              │      x (*)      │     x    │             │
+│ dmstr      │       x      │                 │     x    │             │
+│ smstr      │       x      │                 │     x    │             │
+└────────────┴──────────────┴─────────────────┴──────────┴─────────────┘
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -616,7 +613,7 @@ public:
 	}
 
 
-	/** See buffered_vector::get_capacity() and _raw_string::get_capacity().
+	/** See buffered_vector::get_capacity() and _raw_str::get_capacity().
 
 	TODO: comment signature.
 	*/
@@ -626,7 +623,7 @@ public:
 	}
 
 
-	/** See buffered_vector::get_size() and _raw_string::get_size().
+	/** See buffered_vector::get_size() and _raw_str::get_size().
 
 	TODO: comment signature.
 	*/
@@ -916,7 +913,7 @@ private:
 namespace abc {
 
 /** Template-independent implementation of a vector for trivial contained types. The entire class is
-NUL-termination-aware; this is the most derived common base class of both vector and string_.
+NUL-termination-aware; this is the most derived common base class of both vector and str_.
 */
 class _raw_trivial_vextr_impl :
 	public _raw_vextr_impl_base {
@@ -925,7 +922,7 @@ class _raw_trivial_vextr_impl :
 
 public:
 
-	/** See _raw_vector::append() and _raw_string::append().
+	/** See _raw_vector::append() and _raw_str::append().
 
 	TODO: comment signature.
 	*/
@@ -955,8 +952,8 @@ public:
 
 
 	/** Moves the source’s item array to *this. This must be called with rtvi being in control of a
-	read-only or dynamic item array; see [DOC:4019 abc::*string_ and abc::*vector design] to see how
-	string and vector ensure this.
+	read-only or dynamic item array; see [DOC:4019 abc::*str_ and abc::*vector design] to see how
+	str_ and vector ensure this.
 
 	TODO: comment signature.
 	*/
@@ -1114,7 +1111,7 @@ public:
 	TODO: comment signature.
 	*/
 	iterator begin() {
-		// const_cast is required because base_string_::get_data() returns const only.
+		// const_cast is required because base_str_::get_data() returns const only.
 		return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->get_data()));
 	}
 	const_iterator begin() const {

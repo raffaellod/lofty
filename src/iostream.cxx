@@ -76,7 +76,7 @@ namespace abc {
 }
 
 
-_ostream_print_helper<>::_ostream_print_helper(ostream * pos, cstring const & sFormat) :
+_ostream_print_helper<>::_ostream_print_helper(ostream * pos, istr const & sFormat) :
 	m_pos(pos),
 	// write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
 	m_iSubstArg(unsigned(-1)),
@@ -95,14 +95,14 @@ void _ostream_print_helper<>::run() {
 
 
 void _ostream_print_helper<>::throw_syntax_error(
-	cstring const & sDescription, cstring::const_iterator it
+	istr const & sDescription, istr::const_iterator it
 ) const {
 	// +1 because the first character is 1, to human beings.
 	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
 }
 
 
-void _ostream_print_helper<>::write_format_up_to(cstring::const_iterator itUpTo) {
+void _ostream_print_helper<>::write_format_up_to(istr::const_iterator itUpTo) {
 	abc_trace_fn((this/*, itUpTo*/));
 
 	if (itUpTo > m_itFormatToWriteBegin) {
@@ -120,7 +120,7 @@ bool _ostream_print_helper<>::write_format_up_to_next_repl() {
 	abc_trace_fn((this));
 
 	// Search for the next replacement, if any.
-	cstring::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
+	istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
 	char_t ch;
 	for (;;) {
 		if (it >= itEnd) {

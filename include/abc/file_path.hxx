@@ -76,13 +76,13 @@ public:
 	file_path(file_path && fp) :
 		m_s(std::move(fp.m_s)) {
 	}
-	file_path(cstring const & s) :
+	file_path(istr const & s) :
 		m_s(normalize(s)) {
 	}
-	file_path(wstring && s) :
+	file_path(mstr && s) :
 		m_s(normalize(std::move(s))) {
 	}
-	file_path(wdstring && s) :
+	file_path(dmstr && s) :
 		m_s(normalize(std::move(s))) {
 	}
 
@@ -99,11 +99,11 @@ public:
 		m_s = std::move(fp.m_s);
 		return *this;
 	}
-	file_path & operator=(cstring const & s) {
+	file_path & operator=(istr const & s) {
 		m_s = normalize(s);
 		return *this;
 	}
-	file_path & operator=(wstring && s) {
+	file_path & operator=(mstr && s) {
 		m_s = normalize(std::move(s));
 		return *this;
 	}
@@ -122,7 +122,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	operator cstring const &() const {
+	operator istr const &() const {
 		return m_s;
 	}
 
@@ -131,7 +131,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	file_path & operator+=(cstring const & s) {
+	file_path & operator+=(istr const & s) {
 		m_s = normalize(m_s + s);
 		return *this;
 	}
@@ -141,7 +141,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	file_path operator+(cstring const & s) const {
+	file_path operator+(istr const & s) const {
 		return file_path(*this) += s;
 	}
 
@@ -151,14 +151,14 @@ public:
 
 	TODO: comment signature.
 	*/
-	file_path & operator/=(cstring const & s);
+	file_path & operator/=(istr const & s);
 
 
 	/** Path-correct concatenation operator. See operator/=() for details.
 
 	TODO: comment signature.
 	*/
-	file_path operator/(cstring const & s) const {
+	file_path operator/(istr const & s) const {
 		return file_path(*this) /= s;
 	}
 
@@ -167,12 +167,12 @@ public:
 
 	TODO: comment signature.
 	*/
-	int compare_to(cstring const & s) const {
+	int compare_to(istr const & s) const {
 		return m_s.compare_to(s);
 	}
 
 
-	/** Returns a read-only pointer to the path string. See wdstring::get_data().
+	/** Returns a read-only pointer to the path string. See dmstr::get_data().
 
 	TODO: comment signature.
 	*/
@@ -194,7 +194,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	wdstring get_base_name() const;
+	dmstr get_base_name() const;
 
 
 	/** Returns the current directory.
@@ -222,8 +222,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	static cstring get_separator() {
-		return cstring(smc_aszSeparator);
+	static istr get_separator() {
+		return istr(smc_aszSeparator);
 	}
 
 
@@ -232,7 +232,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	_file_path_iterator find(string const & sPattern) const;
+	_file_path_iterator find(istr const & sPattern) const;
 #endif
 
 
@@ -240,7 +240,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	static bool is_absolute(cstring const & s);
+	static bool is_absolute(istr const & s);
 
 
 	/** Returns true if this path represents a directory.
@@ -266,13 +266,13 @@ private:
 
 	TODO: comment signature.
 	*/
-	static wdstring normalize(wdstring s);
+	static dmstr normalize(dmstr s);
 
 
 private:
 
 	/** Full file path, always in normalized form. */
-	wdstring m_s;
+	dmstr m_s;
 	/** Platform-specific path component separator. */
 	static char_t const smc_aszSeparator[1 + 1 /*NUL*/];
 	/** Platform-specific root path. */
@@ -298,17 +298,17 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <>
-class to_string_backend<file_path> :
-	public to_string_backend<cstring> {
+class to_str_backend<file_path> :
+	public to_str_backend<istr> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range());
+	to_str_backend(char_range const & crFormat = char_range());
 
 
 	/** Writes the path, applying the specified format.
@@ -328,7 +328,7 @@ template <>
 struct hash<abc::file_path>  {
 
 	size_t operator()(abc::file_path const & fp) const {
-		return std::hash<abc::cstring>()(static_cast<abc::cstring const &>(fp));
+		return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
 	}
 };
 
@@ -347,7 +347,7 @@ public:
 
 	// Constructor.
 	//
-	_file_path_iterator(file_path const & pathDir, string const & sPattern) :
+	_file_path_iterator(file_path const & pathDir, istr const & sPattern) :
 		m_pathBaseDir(pathDir),
 		m_hSearch(find_first_file((m_pathBaseDir / sPattern).get_data(), &m_wfd)),
 		m_bEOF(m_hSearch == INVALID_HANDLE_VALUE) {
@@ -443,9 +443,7 @@ private:
 	//
 	file_path next_file_path() const {
 		return file_path(
-			m_pathBaseDir / string(
-				m_wfd.cFileName, ::wcslen(m_wfd.cFileName)
-			),
+			m_pathBaseDir / istr(m_wfd.cFileName, ::wcslen(m_wfd.cFileName)),
 			m_wfd.dwFileAttributes
 		);
 	}
@@ -467,7 +465,7 @@ private:
 
 
 // Now this can be implemented.
-inline _file_path_iterator file_path::find(string const & sPattern) const {
+inline _file_path_iterator file_path::find(istr const & sPattern) const {
 	return _file_path_iterator(*this, sPattern);
 }
 #endif

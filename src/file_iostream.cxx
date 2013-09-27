@@ -314,7 +314,7 @@ int8_t * file_istream::_get_read_buffer() {
 
 
 /*virtual*/ void file_istream::_read_line(
-	_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+	_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
 	abc_trace_fn((this, /*rs, */enc, cchCodePointMax/*, pfnStrStr*/));
 

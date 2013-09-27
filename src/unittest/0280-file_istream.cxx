@@ -28,7 +28,7 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		std::shared_ptr<file_istream> pfis;
@@ -44,7 +44,7 @@ public:
 			return EXIT_FAILURE;
 		}
 		auto pstdout(file_ostream::get_stdout());
-		for (wdstring s; *pfis >> s; ) {
+		for (dmstr s; *pfis >> s; ) {
 			*pstdout << s << SL("\n");
 		}
 

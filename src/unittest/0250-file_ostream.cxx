@@ -28,12 +28,12 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<cstring const> const & vsArgs) {
+	int main(vector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		std::shared_ptr<file_ostream> pfos;
 		text::encoding enc(text::encoding::host);
-		cstring sName, sEnc(SL("host"));
+		istr sName, sEnc(SL("host"));
 
 		size_t cArgs(vsArgs.get_size());
 		if (cArgs >= 2 && vsArgs[1] == SL("-o")) {

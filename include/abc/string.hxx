@@ -31,27 +31,27 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_string_to_string_backend_base
+// abc::_str_to_str_backend_base
 
 
 namespace abc {
 
-/** Base class for the specializations of to_string_backend for string types. Not using templates,
-so the implementation can be in a cxx file.
+/** Base class for the specializations of to_str_backend for string types. Not using templates, so
+the implementation can be in a cxx file.
 */
-class _string_to_string_backend_base {
+class _str_to_str_backend_base {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	_string_to_string_backend_base(char_range const & crFormat);
+	_str_to_str_backend_base(char_range const & crFormat);
 
 
 protected:
 
-	/** Writes the contents of the string, applying the specified format.
+	/** Writes the contents of the str, applying the specified format.
 
 	TODO: comment signature.
 	*/
@@ -62,25 +62,25 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_string_to_string_backend
+// abc::_str_to_str_backend
 
 
 namespace abc {
 
-/** Mid-class for the specializations of to_string_backend for string types. This is used by string
+/** Mid-class for the specializations of to_str_backend for string types. This is used by string
 literal types as well (see to_string_backend.hxx).
 */
 template <typename T, typename C>
-class _string_to_string_backend :
-	public _string_to_string_backend_base {
+class _str_to_str_backend :
+	public _str_to_str_backend_base {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	_string_to_string_backend(char_range const & crFormat) :
-		_string_to_string_backend_base(crFormat) {
+	_str_to_str_backend(char_range const & crFormat) :
+		_str_to_str_backend_base(crFormat) {
 	}
 };
 
@@ -93,12 +93,12 @@ public:
 
 namespace abc {
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <typename C>
-class to_string_backend<char_range_<C>> :
-	public _string_to_string_backend<char_range_<C>, C> {
+class to_str_backend<char_range_<C>> :
+	public _str_to_str_backend<char_range_<C>, C> {
 
-	typedef _string_to_string_backend<char_range_<C>, C> string_to_string_backend;
+	typedef _str_to_str_backend<char_range_<C>, C> str_to_str_backend;
 
 public:
 
@@ -106,15 +106,15 @@ public:
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		string_to_string_backend(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		str_to_str_backend(crFormat) {
 	}
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 	*/
 	void write(char_range_<C> const & cr, ostream * posOut) {
-		string_to_string_backend::write(
+		str_to_str_backend::write(
 			cr.cbegin().base(), sizeof(C) * cr.get_size(), text::utf_traits<C>::host_encoding, posOut
 		);
 	}
@@ -124,21 +124,21 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_string
+// abc::_raw_str
 
 
 namespace abc {
 
-/** Template-independent methods of string_.
+/** Template-independent methods of str_.
 */
-class _raw_string :
+class _raw_str :
 	public _raw_trivial_vextr_impl {
 
-	ABC_CLASS_PREVENT_COPYING(_raw_string)
+	ABC_CLASS_PREVENT_COPYING(_raw_str)
 
 public:
 
-	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
+	/** Returns the current size of the str buffer, in characters, minus room for the trailing NUL
 	terminator.
 
 	TODO: comment signature.
@@ -187,10 +187,10 @@ protected:
 
 	TODO: comment signature.
 	*/
-	_raw_string(size_t cchStaticMax) :
+	_raw_str(size_t cchStaticMax) :
 		_raw_trivial_vextr_impl(cchStaticMax, true) {
 	}
-	_raw_string(void const * pConstSrc, size_t cchSrc) :
+	_raw_str(void const * pConstSrc, size_t cchSrc) :
 		_raw_trivial_vextr_impl(pConstSrc, cchSrc + 1 /*NUL*/) {
 	}
 
@@ -229,7 +229,7 @@ protected:
 
 	TODO: comment signature.
 	*/
-	void assign_move(_raw_string && rs) {
+	void assign_move(_raw_str && rs) {
 		_raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(rs), true);
 	}
 
@@ -238,7 +238,7 @@ protected:
 
 	TODO: comment signature.
 	*/
-	void assign_move_dynamic_or_copy(size_t cbItem, _raw_string && rs) {
+	void assign_move_dynamic_or_copy(size_t cbItem, _raw_str && rs) {
 		_raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
 			cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs), true
 		);
@@ -249,7 +249,7 @@ protected:
 
 	TODO: comment signature.
 	*/
-	void assign_share_ro_or_copy(size_t cbItem, _raw_string const & rs) {
+	void assign_share_ro_or_copy(size_t cbItem, _raw_str const & rs) {
 		_raw_trivial_vextr_impl::assign_share_ro_or_copy(cbItem, rs, true);
 	}
 };
@@ -258,40 +258,39 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::string_base_
+// abc::str_base_
 
 
 namespace abc {
 
 // Forward declarations.
 template <typename C, class TTraits = text::utf_traits<C>>
-class cstring_;
+class istr_;
 template <typename C, class TTraits = text::utf_traits<C>>
-class wdstring_;
+class dmstr_;
 
 /** Base class for strings. It behaves like a vector with a last NUL element hidden from clients; an
 empty string always has an accessible trailing NUL character.
 
 Methods that take an array of characters whose length is obtained by its size instead of e.g.
-strlen(), will discard the last element, asserting that it’s the NUL terminator. See [HACK#0010
-abc::string_ and abc::vector design] for implementation details for this and all the *string
-classes.
+strlen(), will discard the last element, asserting that it’s the NUL terminator. See [DOC:4019
+abc::*str_ and abc::*vector design] for implementation details for this and all the *str_ classes.
 */
 template <typename C, class TTraits>
-class string_base_ :
-	protected _raw_string,
-	public _iterable_vector<string_base_<C, TTraits>, C>,
-	public support_explicit_operator_bool<string_base_<C, TTraits>> {
+class str_base_ :
+	protected _raw_str,
+	public _iterable_vector<str_base_<C, TTraits>, C>,
+	public support_explicit_operator_bool<str_base_<C, TTraits>> {
 
-	ABC_CLASS_PREVENT_COPYING(string_base_)
+	ABC_CLASS_PREVENT_COPYING(str_base_)
 
-	typedef cstring_<C, TTraits> cstring;
-	typedef wdstring_<C, TTraits> wdstring;
+	typedef istr_<C, TTraits> istr;
+	typedef dmstr_<C, TTraits> dmstr;
 
 protected:
 
 	/** Shortcut for the base class providing iterator-based types and methods. */
-	typedef _iterable_vector<string_base_<C, TTraits>, C> itvec;
+	typedef _iterable_vector<str_base_<C, TTraits>, C> itvec;
 
 
 public:
@@ -329,7 +328,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	int compare_to(cstring const & s) const {
+	int compare_to(istr const & s) const {
 		return TTraits::str_cmp(get_data(), get_size(), s.get_data(), s.get_size());
 	}
 	template <size_t t_cch>
@@ -355,7 +354,7 @@ public:
 			chNeedle
 		));
 	}
-	const_iterator find(cstring const & sNeedle, const_iterator itFirst = const_iterator()) const {
+	const_iterator find(istr const & sNeedle, const_iterator itFirst = const_iterator()) const {
 		return const_iterator(TTraits::str_str(
 			(itFirst ? itFirst : itvec::cbegin()).base(), itvec::cend().base(),
 			sNeedle.cbegin().base(), sNeedle.cend().base()
@@ -374,9 +373,7 @@ public:
 			chNeedle
 		));
 	}
-	const_iterator find_last(
-		cstring const & sNeedle, const_iterator itEnd = const_iterator()
-	) const {
+	const_iterator find_last(istr const & sNeedle, const_iterator itEnd = const_iterator()) const {
 		return const_iterator(TTraits::str_str_r(
 			itvec::cbegin().base(), (itEnd ? itEnd : itvec::cend()).base(),
 			sNeedle.cbegin().base(), sNeedle.cend().base()
@@ -384,12 +381,12 @@ public:
 	}
 
 
-	/** Uses the current contents of this string to generate a new one using string_ostream::print().
+	/** Uses the current contents of this string to generate a new one using str_ostream::print().
 
 	TODO: comment signature.
 	*/
 	template <typename ... Ts>
-	wdstring format(Ts const & ... ts) const;
+	dmstr format(Ts const & ... ts) const;
 
 
 	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
@@ -398,7 +395,7 @@ public:
 	TODO: comment signature.
 	*/
 	size_t get_capacity() const {
-		return _raw_string::get_capacity();
+		return _raw_str::get_capacity();
 	}
 
 
@@ -407,7 +404,7 @@ public:
 	TODO: comment signature.
 	*/
 	C const * get_data() const {
-		return _raw_string::get_data<C>();
+		return _raw_str::get_data<C>();
 	}
 
 
@@ -415,10 +412,10 @@ public:
 
 	TODO: comment signature.
 	*/
-	_raw_string & get_raw() {
+	_raw_str & get_raw() {
 		return *this;
 	}
-	_raw_string const & get_raw() const {
+	_raw_str const & get_raw() const {
 		return *this;
 	}
 
@@ -428,7 +425,7 @@ public:
 	TODO: comment signature.
 	*/
 	size_t get_size() const {
-		return _raw_string::get_size();
+		return _raw_str::get_size();
 	}
 
 
@@ -451,18 +448,18 @@ public:
 		Count of characters to return. If negative, it’s the count of characters to skip, from the end
 		of the string.
 	*/
-	wdstring substr(ptrdiff_t ichFirst) const {
+	dmstr substr(ptrdiff_t ichFirst) const {
 		return substr(ichFirst, get_size());
 	}
-	wdstring substr(ptrdiff_t ichFirst, ptrdiff_t cch) const {
+	dmstr substr(ptrdiff_t ichFirst, ptrdiff_t cch) const {
 		adjust_range(&ichFirst, &cch);
-		return wdstring(get_data() + ichFirst, size_t(cch));
+		return dmstr(get_data() + ichFirst, size_t(cch));
 	}
-	wdstring substr(const_iterator itFirst) const {
+	dmstr substr(const_iterator itFirst) const {
 		return substr(itFirst, itvec::cend());
 	}
-	wdstring substr(const_iterator itBegin, const_iterator itEnd) const {
-		return wdstring(itBegin.base(), size_t(itEnd - itBegin));
+	dmstr substr(const_iterator itBegin, const_iterator itEnd) const {
+		return dmstr(itBegin.base(), size_t(itEnd - itBegin));
 	}
 
 
@@ -472,50 +469,50 @@ protected:
 
 	TODO: comment signature.
 	*/
-	string_base_(size_t cchStatic) :
-		_raw_string(cchStatic) {
+	str_base_(size_t cchStatic) :
+		_raw_str(cchStatic) {
 	}
-	string_base_(C const * pch, size_t cch) :
-		_raw_string(pch, cch) {
+	str_base_(C const * pch, size_t cch) :
+		_raw_str(pch, cch) {
 	}
 
 
-	/** See _raw_string::assign_copy().
+	/** See _raw_str::assign_copy().
 
 	TODO: comment signature.
 	*/
 	void assign_copy(C const * pch, size_t cch) {
-		_raw_string::assign_copy(sizeof(C), pch, cch);
+		_raw_str::assign_copy(sizeof(C), pch, cch);
 	}
 	void assign_copy(C const * pch1, size_t cch1, C const * pch2, size_t cch2) {
-		_raw_string::assign_copy(sizeof(C), pch1, cch1, pch2, cch2);
+		_raw_str::assign_copy(sizeof(C), pch1, cch1, pch2, cch2);
 	}
 
 
-	/** See _raw_string::assign_move().
+	/** See _raw_str::assign_move().
 
 	TODO: comment signature.
 	*/
-	void assign_move(string_base_ && sb) {
-		_raw_string::assign_move(static_cast<_raw_string &&>(sb));
+	void assign_move(str_base_ && s) {
+		_raw_str::assign_move(static_cast<_raw_str &&>(s));
 	}
 
 
-	/** See _raw_string::assign_move_dynamic_or_copy().
+	/** See _raw_str::assign_move_dynamic_or_copy().
 
 	TODO: comment signature.
 	*/
-	void assign_move_dynamic_or_copy(string_base_ && sb) {
-		_raw_string::assign_move_dynamic_or_copy(sizeof(C), static_cast<_raw_string &&>(sb));
+	void assign_move_dynamic_or_copy(str_base_ && s) {
+		_raw_str::assign_move_dynamic_or_copy(sizeof(C), static_cast<_raw_str &&>(s));
 	}
 
 
-	/** See _raw_string::assign_share_ro_or_copy().
+	/** See _raw_str::assign_share_ro_or_copy().
 
 	TODO: comment signature.
 	*/
-	void assign_share_ro_or_copy(string_base_ const & sb) {
-		_raw_string::assign_share_ro_or_copy(sizeof(C), sb);
+	void assign_share_ro_or_copy(str_base_ const & s) {
+		_raw_str::assign_share_ro_or_copy(sizeof(C), s);
 	}
 };
 
@@ -526,24 +523,24 @@ protected:
 #define ABC_RELOP_IMPL(op) \
 	template <typename C, class TTraits> \
 	inline bool operator op( \
-		abc::string_base_<C, TTraits> const & s1, abc::string_base_<C, TTraits> const & s2 \
+		abc::str_base_<C, TTraits> const & s1, abc::str_base_<C, TTraits> const & s2 \
 	) { \
-		return s1.compare_to(static_cast<abc::cstring_<C, TTraits>>(s2)) op 0; \
+		return s1.compare_to(static_cast<abc::istr_<C, TTraits>>(s2)) op 0; \
 	} \
 	template <typename C, class TTraits, size_t t_cch> \
-	inline bool operator op(abc::string_base_<C, TTraits> const & s, C const (& ach)[t_cch]) { \
+	inline bool operator op(abc::str_base_<C, TTraits> const & s, C const (& ach)[t_cch]) { \
 		return s.compare_to(ach) op 0; \
 	} \
 	template <typename C, class TTraits, size_t t_cch> \
-	inline bool operator op(C const (& ach)[t_cch], abc::string_base_<C, TTraits> const & s) { \
+	inline bool operator op(C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s) { \
 		return -s.compare_to(ach) op 0; \
 	} \
 	template <typename C, class TTraits> \
-	inline bool operator op(abc::string_base_<C, TTraits> const & s, C const * psz) { \
+	inline bool operator op(abc::str_base_<C, TTraits> const & s, C const * psz) { \
 		return s.compare_to(psz) op 0; \
 	} \
 	template <typename C, class TTraits, size_t t_cch> \
-	inline bool operator op(C const * psz, abc::string_base_<C, TTraits> const & s) { \
+	inline bool operator op(C const * psz, abc::str_base_<C, TTraits> const & s) { \
 		return -s.compare_to(psz) op 0; \
 	}
 ABC_RELOP_IMPL(==)
@@ -557,12 +554,12 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <typename C, class TTraits>
-class to_string_backend<string_base_<C, TTraits>> :
-	public _string_to_string_backend<string_base_<C, TTraits>, C> {
+class to_str_backend<str_base_<C, TTraits>> :
+	public _str_to_str_backend<str_base_<C, TTraits>, C> {
 
-	typedef _string_to_string_backend<string_base_<C, TTraits>, C> string_to_string_backend;
+	typedef _str_to_str_backend<str_base_<C, TTraits>, C> str_to_str_backend;
 
 public:
 
@@ -570,15 +567,15 @@ public:
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		string_to_string_backend(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		str_to_str_backend(crFormat) {
 	}
 
 
-	/** See to_string_backend::write().
+	/** See to_str_backend::write().
 	*/
-	void write(string_base_<C, TTraits> const & s, ostream * posOut) {
-		string_to_string_backend::write(
+	void write(str_base_<C, TTraits> const & s, ostream * posOut) {
+		str_to_str_backend::write(
 			s.get_data(), sizeof(C) * s.get_size(), TTraits::host_encoding, posOut
 		);
 	}
@@ -591,10 +588,10 @@ namespace std {
 
 // Specialization of std::hash.
 template <typename C, class TTraits>
-struct hash<abc::string_base_<C, TTraits>> {
+struct hash<abc::str_base_<C, TTraits>> {
 
-	size_t operator()(abc::string_base_<C, TTraits> const & sb) const {
-		return sb.get_raw().hash(sizeof(C));
+	size_t operator()(abc::str_base_<C, TTraits> const & s) const {
+		return s.get_raw().hash(sizeof(C));
 	}
 };
 
@@ -602,26 +599,25 @@ struct hash<abc::string_base_<C, TTraits>> {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::cstring_
+// abc::istr_
 
 
 namespace abc {
 
 // Forward declaration.
 template <typename C, class TTraits = text::utf_traits<C>>
-class wstring_;
+class mstr_;
 
-/** string_base_-derived class, to be used as “the” string class in most cases. It cannot be
-modified in-place, which means that it shouldn’t be used in code performing intensive string
-manipulations.
+/** str_base_-derived class, to be used as “the” string class in most cases. It cannot be modified
+in-place, which means that it shouldn’t be used in code performing intensive string manipulations.
 */
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
-class cstring_ :
-	public string_base_<C, TTraits> {
+class istr_ :
+	public str_base_<C, TTraits> {
 
-	typedef string_base_<C, TTraits> string_base;
-	typedef wstring_<C, TTraits> wstring;
-	typedef wdstring_<C, TTraits> wdstring;
+	typedef str_base_<C, TTraits> str_base;
+	typedef mstr_<C, TTraits> mstr;
+	typedef dmstr_<C, TTraits> dmstr;
 
 public:
 
@@ -629,39 +625,39 @@ public:
 
 	TODO: comment signature.
 	*/
-	cstring_() :
-		string_base(0) {
+	istr_() :
+		str_base(0) {
 	}
-	cstring_(cstring_ const & cs) :
-		string_base(0) {
-		operator=(cs);
+	istr_(istr_ const & s) :
+		str_base(0) {
+		operator=(s);
 	}
-	cstring_(cstring_ && cs) :
-		string_base(0) {
-		operator=(std::move(cs));
+	istr_(istr_ && s) :
+		str_base(0) {
+		operator=(std::move(s));
 	}
-	cstring_(string_base && sb) :
-		string_base(0) {
-		operator=(std::move(sb));
+	istr_(str_base && s) :
+		str_base(0) {
+		operator=(std::move(s));
 	}
-	cstring_(wdstring && wds) :
-		string_base(0) {
-		operator=(std::move(wds));
+	istr_(dmstr && s) :
+		str_base(0) {
+		operator=(std::move(s));
 	}
 	template <size_t t_cch>
-	cstring_(C const (& ach)[t_cch]) :
-		string_base(ach, t_cch - 1 /*NUL*/) {
+	istr_(C const (& ach)[t_cch]) :
+		str_base(ach, t_cch - 1 /*NUL*/) {
 		assert(ach[t_cch - 1 /*NUL*/] == '\0');
 	}
-	cstring_(C const * psz, size_t cch) :
-		string_base(0) {
+	istr_(C const * psz, size_t cch) :
+		str_base(0) {
 		assign_copy(psz, cch);
 	}
-	cstring_(unsafe_t, C const * psz) :
-		string_base(psz, TTraits::str_len(psz)) {
+	istr_(unsafe_t, C const * psz) :
+		str_base(psz, TTraits::str_len(psz)) {
 	}
-	cstring_(unsafe_t, C const * psz, size_t cch) :
-		string_base(psz, cch) {
+	istr_(unsafe_t, C const * psz, size_t cch) :
+		str_base(psz, cch) {
 	}
 
 
@@ -669,28 +665,28 @@ public:
 
 	TODO: comment signature.
 	*/
-	cstring_ & operator=(cstring_ const & cs) {
-		assign_share_ro_or_copy(cs);
+	istr_ & operator=(istr_ const & s) {
+		assign_share_ro_or_copy(s);
 		return *this;
 	}
-	cstring_ & operator=(cstring_ && cs) {
-		// Non-const, so it can’t be anything but a real cstring_, so it owns its item array.
-		assign_move(std::move(cs));
+	istr_ & operator=(istr_ && s) {
+		// Non-const, so it can’t be anything but a real istr_, so it owns its item array.
+		assign_move(std::move(s));
 		return *this;
 	}
-	cstring_ & operator=(string_base && sb) {
-		assign_move_dynamic_or_copy(std::move(sb));
+	istr_ & operator=(str_base && s) {
+		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
-	cstring_ & operator=(wdstring && wds) {
-		assign_move(std::move(wds));
+	istr_ & operator=(dmstr && s) {
+		assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
-	cstring_ & operator=(C const (& ach)[t_cch]) {
+	istr_ & operator=(C const (& ach)[t_cch]) {
 		// This order is safe, because the constructor invoked on the next line won’t throw.
-		this->~cstring_();
-		::new(this) cstring_(ach);
+		this->~istr_();
+		::new(this) istr_(ach);
 		return *this;
 	}
 
@@ -700,28 +696,28 @@ public:
 	TODO: comment signature.
 	*/
 	operator char_range_<C>() const {
-		return char_range_<C>(string_base::cbegin().base(), string_base::cend().base());
+		return char_range_<C>(str_base::cbegin().base(), str_base::cend().base());
 	}
 };
 
-typedef cstring_<char_t> cstring;
-typedef cstring_<char8_t> cstring8;
-typedef cstring_<char16_t> cstring16;
-typedef cstring_<char32_t> cstring32;
+typedef istr_<char_t> istr;
+typedef istr_<char8_t> istr8;
+typedef istr_<char16_t> istr16;
+typedef istr_<char32_t> istr32;
 
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <typename C, class TTraits>
-class to_string_backend<cstring_<C, TTraits>> :
-	public to_string_backend<string_base_<C, TTraits>> {
+class to_str_backend<istr_<C, TTraits>> :
+	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		to_string_backend<string_base_<C, TTraits>>(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		to_str_backend<str_base_<C, TTraits>>(crFormat) {
 	}
 };
 
@@ -732,30 +728,30 @@ namespace std {
 
 // Specialization of std::hash.
 template <typename C, class TTraits>
-struct hash<abc::cstring_<C, TTraits>> :
-	public hash<abc::string_base_<C, TTraits>> {
+struct hash<abc::istr_<C, TTraits>> :
+	public hash<abc::str_base_<C, TTraits>> {
 };
 
 } //namespace std
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::wstring_
+// abc::mstr_
 
 
 namespace abc {
 
-/** string_base_-derived class, to be used as argument type for functions that want to modify a
-string argument, since unlike cstring_, it allows in-place alterations to the string. Both wsstring
-and wdstring_ are automatically converted to this.
+/** str_base_-derived class, to be used as argument type for functions that want to modify a string
+argument, since unlike istr_, it allows in-place alterations to the string. Both smstr and dmstr_
+are automatically converted to this.
 */
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
-class wstring_ :
-	public string_base_<C, TTraits> {
+class mstr_ :
+	public str_base_<C, TTraits> {
 
-	typedef string_base_<C, TTraits> string_base;
-	typedef cstring_<C, TTraits> cstring;
-	typedef wdstring_<C, TTraits> wdstring;
+	typedef str_base_<C, TTraits> str_base;
+	typedef istr_<C, TTraits> istr;
+	typedef dmstr_<C, TTraits> dmstr;
 
 public:
 
@@ -763,27 +759,27 @@ public:
 
 	TODO: comment signature.
 	*/
-	wstring_ & operator=(wstring_ const & ws) {
-		return operator=(static_cast<string_base const &>(ws));
+	mstr_ & operator=(mstr_ const & s) {
+		return operator=(static_cast<str_base const &>(s));
 	}
 	// WARNING - this move-assignment operator CAN throw!
-	wstring_ & operator=(wstring_ && ws) {
-		return operator=(static_cast<string_base &&>(ws));
+	mstr_ & operator=(mstr_ && s) {
+		return operator=(static_cast<str_base &&>(s));
 	}
-	wstring_ & operator=(string_base const & sb) {
-		assign_copy(sb.get_data(), sb.get_size());
+	mstr_ & operator=(str_base const & s) {
+		assign_copy(s.get_data(), s.get_size());
 		return *this;
 	}
-	wstring_ & operator=(string_base && sb) {
-		assign_move_dynamic_or_copy(std::move(sb));
+	mstr_ & operator=(str_base && s) {
+		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
-	wstring_ & operator=(wdstring && wds) {
-		assign_move(std::move(wds));
+	mstr_ & operator=(dmstr && s) {
+		assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
-	wstring_ & operator=(C const (& ach)[t_cch]) {
+	mstr_ & operator=(C const (& ach)[t_cch]) {
 		assert(ach[t_cch - 1 /*NUL*/] == '\0');
 		assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
@@ -794,18 +790,18 @@ public:
 
 	TODO: comment signature.
 	*/
-	wstring_ & operator+=(C ch) {
+	mstr_ & operator+=(C ch) {
 		append(&ch, 1);
 		return *this;
 	}
 	template <size_t t_cch>
-	wstring_ & operator+=(C const (& ach)[t_cch]) {
+	mstr_ & operator+=(C const (& ach)[t_cch]) {
 		assert(ach[t_cch - 1 /*NUL*/] == '\0');
 		append(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
-	wstring_ & operator+=(cstring const & cs) {
-		append(cs.get_data(), cs.get_size());
+	mstr_ & operator+=(istr const & s) {
+		append(s.get_data(), s.get_size());
 		return *this;
 	}
 
@@ -814,8 +810,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	operator cstring const &() const {
-		return *static_cast<cstring const *>(static_cast<string_base const *>(this));
+	operator istr const &() const {
+		return *static_cast<istr const *>(static_cast<str_base const *>(this));
 	}
 
 
@@ -824,13 +820,13 @@ public:
 	TODO: comment signature.
 	*/
 	C & operator[](size_t i) {
-		if (i > string_base::get_size()) {
+		if (i > str_base::get_size()) {
 			abc_throw(index_error(intptr_t(i)));
 		}
 		return get_data()[i];
 	}
 	C operator[](size_t i) const {
-		return string_base::operator[](intptr_t(i));
+		return str_base::operator[](intptr_t(i));
 	}
 
 
@@ -839,7 +835,7 @@ public:
 	TODO: comment signature.
 	*/
 	void append(C const * pchAdd, size_t cchAdd) {
-		_raw_string::append(sizeof(C), pchAdd, cchAdd, true);
+		_raw_str::append(sizeof(C), pchAdd, cchAdd, true);
 	}
 
 
@@ -848,10 +844,10 @@ public:
 	TODO: comment signature.
 	*/
 	C * get_data() {
-		return _raw_string::get_data<C>();
+		return _raw_str::get_data<C>();
 	}
 	C const * get_data() const {
-		return _raw_string::get_data<C>();
+		return _raw_str::get_data<C>();
 	}
 
 
@@ -886,21 +882,21 @@ public:
 	}
 
 
-	/** See _raw_string::set_capacity().
+	/** See _raw_str::set_capacity().
 
 	TODO: comment signature.
 	*/
 	void set_capacity(size_t cchMin, bool bPreserve) {
-		_raw_string::set_capacity(sizeof(C), cchMin, bPreserve);
+		_raw_str::set_capacity(sizeof(C), cchMin, bPreserve);
 	}
 
 
-	/** See _raw_string::set_size().
+	/** See _raw_str::set_size().
 
 	TODO: comment signature.
 	*/
 	void set_size(size_t cch) {
-		_raw_string::set_size(sizeof(C), cch);
+		_raw_str::set_size(sizeof(C), cch);
 	}
 
 
@@ -910,32 +906,32 @@ protected:
 
 	TODO: comment signature.
 	*/
-	wstring_(size_t cchStatic) :
-		string_base(cchStatic) {
+	mstr_(size_t cchStatic) :
+		str_base(cchStatic) {
 	}
-	wstring_(C const * pch, size_t cch) :
-		string_base(pch, cch) {
+	mstr_(C const * pch, size_t cch) :
+		str_base(pch, cch) {
 	}
 };
 
-typedef wstring_<char_t> wstring;
-typedef wstring_<char8_t> wstring8;
-typedef wstring_<char16_t> wstring16;
-typedef wstring_<char32_t> wstring32;
+typedef mstr_<char_t> mstr;
+typedef mstr_<char8_t> mstr8;
+typedef mstr_<char16_t> mstr16;
+typedef mstr_<char32_t> mstr32;
 
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <typename C, class TTraits>
-class to_string_backend<wstring_<C, TTraits>> :
-	public to_string_backend<string_base_<C, TTraits>> {
+class to_str_backend<mstr_<C, TTraits>> :
+	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		to_string_backend<string_base_<C, TTraits>>(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		to_str_backend<str_base_<C, TTraits>>(crFormat) {
 	}
 };
 
@@ -946,29 +942,29 @@ namespace std {
 
 // Specialization of std::hash.
 template <typename C, class TTraits>
-struct hash<abc::wstring_<C, TTraits>> :
-	public hash<abc::string_base_<C, TTraits>> {
+struct hash<abc::mstr_<C, TTraits>> :
+	public hash<abc::str_base_<C, TTraits>> {
 };
 
 } //namespace std
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::wdstring_
+// abc::dmstr_
 
 
 namespace abc {
 
-/** wstring_-derived class, good for clients that need in-place manipulation of strings whose length
+/** mstr_-derived class, good for clients that need in-place manipulation of strings whose length
 is unknown at design time.
 */
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
-class wdstring_ :
-	public wstring_<C, TTraits> {
+class dmstr_ :
+	public mstr_<C, TTraits> {
 
-	typedef string_base_<C, TTraits> string_base;
-	typedef wstring_<C, TTraits> wstring;
-	typedef cstring_<C, TTraits> cstring;
+	typedef str_base_<C, TTraits> str_base;
+	typedef mstr_<C, TTraits> mstr;
+	typedef istr_<C, TTraits> istr;
 
 public:
 
@@ -976,36 +972,36 @@ public:
 
 	TODO: comment signature.
 	*/
-	wdstring_() :
-		wstring(0) {
+	dmstr_() :
+		mstr(0) {
 	}
-	wdstring_(wdstring_ const & wds) :
-		wstring(0) {
-		operator=(wds);
+	dmstr_(dmstr_ const & s) :
+		mstr(0) {
+		operator=(s);
 	}
-	wdstring_(wdstring_ && wds) :
-		wstring(0) {
-		operator=(std::move(wds));
+	dmstr_(dmstr_ && s) :
+		mstr(0) {
+		operator=(std::move(s));
 	}
-	wdstring_(string_base const & sb) :
-		wstring(0) {
-		operator=(sb);
+	dmstr_(str_base const & s) :
+		mstr(0) {
+		operator=(s);
 	}
-	wdstring_(string_base && sb) :
-		wstring(0) {
-		operator=(std::move(sb));
+	dmstr_(str_base && s) :
+		mstr(0) {
+		operator=(std::move(s));
 	}
 	template <size_t t_cch>
-	wdstring_(C const (& ach)[t_cch]) :
-		wstring(0) {
+	dmstr_(C const (& ach)[t_cch]) :
+		mstr(0) {
 		operator=(ach);
 	}
-	wdstring_(C const * pch, size_t cch) :
-		wstring(0) {
+	dmstr_(C const * pch, size_t cch) :
+		mstr(0) {
 		assign_copy(pch, cch);
 	}
-	wdstring_(C const * pch1, size_t cch1, C const * pch2, size_t cch2) :
-		wstring(0) {
+	dmstr_(C const * pch1, size_t cch1, C const * pch2, size_t cch2) :
+		mstr(0) {
 		assign_copy(pch1, cch1, pch2, cch2);
 	}
 
@@ -1014,25 +1010,25 @@ public:
 
 	TODO: comment signature.
 	*/
-	wdstring_ & operator=(wdstring_ const & wds) {
-		wstring::operator=(wds);
+	dmstr_ & operator=(dmstr_ const & s) {
+		mstr::operator=(s);
 		return *this;
 	}
-	wdstring_ & operator=(wdstring_ && wds) {
-		wstring::operator=(std::move(wds));
+	dmstr_ & operator=(dmstr_ && s) {
+		mstr::operator=(std::move(s));
 		return *this;
 	}
-	wdstring_ & operator=(string_base const & sb) {
-		wstring::operator=(sb);
+	dmstr_ & operator=(str_base const & s) {
+		mstr::operator=(s);
 		return *this;
 	}
-	wdstring_ & operator=(string_base && sb) {
-		wstring::operator=(std::move(sb));
+	dmstr_ & operator=(str_base && s) {
+		mstr::operator=(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
-	wdstring_ & operator=(C const (& ach)[t_cch]) {
-		wstring::operator=(ach);
+	dmstr_ & operator=(C const (& ach)[t_cch]) {
+		mstr::operator=(ach);
 		return *this;
 	}
 };
@@ -1045,67 +1041,65 @@ public:
 TODO: comment signature.
 */
 template <typename C, class TTraits>
-inline abc::wdstring_<C, TTraits> operator+(
-	abc::string_base_<C, TTraits> const & sb1, abc::string_base_<C, TTraits> const & sb2
+inline abc::dmstr_<C, TTraits> operator+(
+	abc::str_base_<C, TTraits> const & s1, abc::str_base_<C, TTraits> const & s2
 ) {
-	return abc::wdstring_<C, TTraits>(
-		sb1.get_data(), sb1.get_size(), sb2.get_data(), sb2.get_size()
+	return abc::dmstr_<C, TTraits>(
+		s1.get_data(), s1.get_size(), s2.get_data(), s2.get_size()
 	);
 }
 // Overloads taking a character literal.
 template <typename C, class TTraits>
-inline abc::wdstring_<C, TTraits> operator+(abc::string_base_<C, TTraits> const & sb, C ch) {
-	return abc::wdstring_<C, TTraits>(sb.get_data(), sb.get_size(), &ch, 1);
+inline abc::dmstr_<C, TTraits> operator+(abc::str_base_<C, TTraits> const & s, C ch) {
+	return abc::dmstr_<C, TTraits>(s.get_data(), s.get_size(), &ch, 1);
 }
 template <typename C, class TTraits>
-inline abc::wdstring_<C, TTraits> operator+(C ch, abc::string_base_<C, TTraits> const & sb) {
-	return abc::wdstring_<C, TTraits>(&ch, 1, sb.get_data(), sb.get_size());
+inline abc::dmstr_<C, TTraits> operator+(C ch, abc::str_base_<C, TTraits> const & s) {
+	return abc::dmstr_<C, TTraits>(&ch, 1, s.get_data(), s.get_size());
 }
 // Overloads taking a string literal.
 template <typename C, class TTraits, size_t t_cch>
-inline abc::wdstring_<C, TTraits> operator+(
-	abc::string_base_<C, TTraits> const & sb, C const (& ach)[t_cch]
+inline abc::dmstr_<C, TTraits> operator+(
+	abc::str_base_<C, TTraits> const & s, C const (& ach)[t_cch]
 ) {
 	assert(ach[t_cch - 1 /*NUL*/] == '\0');
-	return abc::wdstring_<C, TTraits>(sb.get_data(), sb.get_size(), ach, t_cch - 1 /*NUL*/);
+	return abc::dmstr_<C, TTraits>(s.get_data(), s.get_size(), ach, t_cch - 1 /*NUL*/);
 }
 template <typename C, class TTraits, size_t t_cch>
-inline abc::wdstring_<C, TTraits> operator+(
-	C const (& ach)[t_cch], abc::string_base_<C, TTraits> const & sb
+inline abc::dmstr_<C, TTraits> operator+(
+	C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s
 ) {
 	assert(ach[t_cch - 1 /*NUL*/] == '\0');
-	return abc::wdstring_<C, TTraits>(ach, t_cch - 1 /*NUL*/, sb.get_data(), sb.get_size());
+	return abc::dmstr_<C, TTraits>(ach, t_cch - 1 /*NUL*/, s.get_data(), s.get_size());
 }
-// Overloads taking a temporary wdstring as left operand; they can avoid creating an intermediate
+// Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
 template <typename C, class TTraits>
-inline abc::wdstring_<C, TTraits> operator+(abc::wdstring_<C, TTraits> && wds, C ch) {
-	wds += ch;
-	return std::move(wds);
+inline abc::dmstr_<C, TTraits> operator+(abc::dmstr_<C, TTraits> && s, C ch) {
+	s += ch;
+	return std::move(s);
 }
 template <typename C, class TTraits, size_t t_cch>
-inline abc::wdstring_<C, TTraits> operator+(
-	abc::wdstring_<C, TTraits> && wds, C const (& ach)[t_cch]
-) {
-	wds += ach;
-	return std::move(wds);
+inline abc::dmstr_<C, TTraits> operator+(abc::dmstr_<C, TTraits> && s, C const (& ach)[t_cch]) {
+	s += ach;
+	return std::move(s);
 }
 
 
 namespace abc {
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <typename C, class TTraits>
-class to_string_backend<wdstring_<C, TTraits>> :
-	public to_string_backend<string_base_<C, TTraits>> {
+class to_str_backend<dmstr_<C, TTraits>> :
+	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		to_string_backend<string_base_<C, TTraits>>(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		to_str_backend<str_base_<C, TTraits>>(crFormat) {
 	}
 };
 
@@ -1116,30 +1110,30 @@ namespace std {
 
 // Specialization of std::hash.
 template <typename C, class TTraits>
-struct hash<abc::wdstring_<C, TTraits>> :
-	public hash<abc::string_base_<C, TTraits>> {
+struct hash<abc::dmstr_<C, TTraits>> :
+	public hash<abc::str_base_<C, TTraits>> {
 };
 
 } //namespace std
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::wsstring
+// abc::smstr
 
 
 namespace abc {
 
-/** wstring_-derived class, good for clients that need in-place manipulation of strings that are
-most likely to be shorter than a known small size.
+/** mstr_-derived class, good for clients that need in-place manipulation of strings that are most
+likely to be shorter than a known small size.
 */
 template <size_t t_cchStatic, typename C = char_t, class TTraits = text::utf_traits<C>>
-class wsstring :
-	public wstring_<C, TTraits> {
+class smstr :
+	public mstr_<C, TTraits> {
 
-	typedef string_base_<C, TTraits> string_base;
-	typedef wstring_<C, TTraits> wstring;
-	typedef cstring_<C, TTraits> cstring;
-	typedef wdstring_<C, TTraits> wdstring;
+	typedef str_base_<C, TTraits> str_base;
+	typedef mstr_<C, TTraits> mstr;
+	typedef istr_<C, TTraits> istr;
+	typedef dmstr_<C, TTraits> dmstr;
 
 private:
 
@@ -1155,33 +1149,33 @@ public:
 
 	TODO: comment signature.
 	*/
-	wsstring() :
-		wstring(smc_cchFixed) {
+	smstr() :
+		mstr(smc_cchFixed) {
 	}
-	wsstring(wsstring const & wss) :
-		wstring(smc_cchFixed) {
-		operator=(wss);
+	smstr(smstr const & s) :
+		mstr(smc_cchFixed) {
+		operator=(s);
 	}
-	// This won’t throw exceptions - see operator=(wsstring &&).
-	wsstring(wsstring && wss) :
-		wstring(smc_cchFixed) {
-		operator=(std::move(wss));
+	// This won’t throw exceptions - see operator=(smstr &&).
+	smstr(smstr && s) :
+		mstr(smc_cchFixed) {
+		operator=(std::move(s));
 	}
-	wsstring(string_base const & sb) :
-		wstring(smc_cchFixed) {
-		operator=(sb);
+	smstr(str_base const & s) :
+		mstr(smc_cchFixed) {
+		operator=(s);
 	}
-	wsstring(string_base && sb) :
-		wstring(smc_cchFixed) {
-		operator=(std::move(sb));
+	smstr(str_base && s) :
+		mstr(smc_cchFixed) {
+		operator=(std::move(s));
 	}
-	wsstring(wdstring && wds) :
-		wstring(smc_cchFixed) {
-		operator=(std::move(wds));
+	smstr(dmstr && s) :
+		mstr(smc_cchFixed) {
+		operator=(std::move(s));
 	}
 	template <size_t t_cch>
-	wsstring(C const (& ach)[t_cch]) :
-		wstring(smc_cchFixed) {
+	smstr(C const (& ach)[t_cch]) :
+		mstr(smc_cchFixed) {
 		operator=(ach);
 	}
 
@@ -1190,33 +1184,33 @@ public:
 
 	TODO: comment signature.
 	*/
-	wsstring & operator=(wsstring const & ws) {
-		wstring::operator=(ws);
+	smstr & operator=(smstr const & s) {
+		mstr::operator=(s);
 		return *this;
 	}
 	// If the source is using its static item array, it will be copied without allocating a dynamic
 	// one; if the source is dynamic, it will be moved. Either way, this won’t throw.
-	wsstring & operator=(wsstring && ws) {
-		wstring::operator=(std::move(ws));
+	smstr & operator=(smstr && s) {
+		mstr::operator=(std::move(s));
 		return *this;
 	}
-	// This also covers wsstring of different template arguments.
-	wsstring & operator=(string_base const & sb) {
-		wstring::operator=(sb);
+	// This also covers smstr of different template arguments.
+	smstr & operator=(str_base const & s) {
+		mstr::operator=(s);
 		return *this;
 	}
-	// This also covers wsstring of different template arguments.
-	wsstring & operator=(string_base && sb) {
-		wstring::operator=(std::move(sb));
+	// This also covers smstr of different template arguments.
+	smstr & operator=(str_base && s) {
+		mstr::operator=(std::move(s));
 		return *this;
 	}
-	wsstring & operator=(wdstring && wds) {
-		wstring::operator=(std::move(wds));
+	smstr & operator=(dmstr && s) {
+		mstr::operator=(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
-	wsstring & operator=(C const (& ach)[t_cch]) {
-		wstring::operator=(ach);
+	smstr & operator=(C const (& ach)[t_cch]) {
+		mstr::operator=(ach);
 		return *this;
 	}
 
@@ -1231,24 +1225,24 @@ private:
 	std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(C) * smc_cchFixed)];
 };
 
-typedef wdstring_<char_t> wdstring;
-typedef wdstring_<char8_t> wdstring8;
-typedef wdstring_<char16_t> wdstring16;
-typedef wdstring_<char32_t> wdstring32;
+typedef dmstr_<char_t> dmstr;
+typedef dmstr_<char8_t> dmstr8;
+typedef dmstr_<char16_t> dmstr16;
+typedef dmstr_<char32_t> dmstr32;
 
 
-// Specialization of to_string_backend.
+// Specialization of to_str_backend.
 template <size_t t_cchStatic, typename C, class TTraits>
-class to_string_backend<wsstring<t_cchStatic, C, TTraits>> :
-	public to_string_backend<string_base_<C, TTraits>> {
+class to_str_backend<smstr<t_cchStatic, C, TTraits>> :
+	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	to_string_backend(char_range const & crFormat = char_range()) :
-		to_string_backend<string_base_<C, TTraits>>(crFormat) {
+	to_str_backend(char_range const & crFormat = char_range()) :
+		to_str_backend<str_base_<C, TTraits>>(crFormat) {
 	}
 };
 
@@ -1259,8 +1253,8 @@ namespace std {
 
 // Specialization of std::hash.
 template <size_t t_cchStatic, typename C, class TTraits>
-struct hash<abc::wsstring<t_cchStatic, C, TTraits>> :
-	public hash<abc::string_base_<C, TTraits>> {
+struct hash<abc::smstr<t_cchStatic, C, TTraits>> :
+	public hash<abc::str_base_<C, TTraits>> {
 };
 
 } //namespace std

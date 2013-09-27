@@ -135,7 +135,7 @@ public:
 
 	/** Returns the stack frames collected for this thread up to this point.
 	*/
-	static wdstring get_trace_contents() {
+	static dmstr get_trace_contents() {
 		return get_trace_stream()->get_contents();
 	}
 
@@ -143,9 +143,9 @@ public:
 	/** Returns a stream to which the stack frame can be output. The stream is thread-local, which is
 	why this can’t be just a static member variable.
 	*/
-	static string_ostream * get_trace_stream() {
+	static str_ostream * get_trace_stream() {
 		if (!sm_psosScopeTrace) {
-			sm_psosScopeTrace.reset(new string_ostream());
+			sm_psosScopeTrace.reset(new str_ostream());
 		}
 		return sm_psosScopeTrace.get();
 	}
@@ -221,7 +221,7 @@ private:
 	bool m_bScopeRenderingStarted;
 
 	/** Stream that collects the rendered scope trace when an exception is thrown. */
-	static /*tls*/ std::unique_ptr<string_ostream> sm_psosScopeTrace;
+	static /*tls*/ std::unique_ptr<str_ostream> sm_psosScopeTrace;
 	/** Number of the next stack frame to be added to the rendered trace. */
 	static /*tls*/ unsigned sm_iStackDepth;
 	/** Count of references to the current rendered trace. Managed by abc::exception. */

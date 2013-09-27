@@ -38,10 +38,10 @@ ostream::ostream() :
 
 /// Returns true if the current contents of the stream match the specified string.
 //
-bool ostream::contents_equal(cstring const & sExpected) {
+bool ostream::contents_equal(istr const & sExpected) {
 	abc_trace_fn((this, sExpected));
 
-	cstring sActual(unsafe, m_achBuf, m_cchUsed);
+	istr sActual(unsafe, m_achBuf, m_cchUsed);
 	return sActual == sExpected;
 }
 

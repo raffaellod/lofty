@@ -23,20 +23,20 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_string_backend_base
+// abc::_int_to_str_backend_base
 
 
 namespace abc {
 
-char_t const _int_to_string_backend_base::smc_achIntToStrU[16] = {
+char_t const _int_to_str_backend_base::smc_achIntToStrU[16] = {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-char_t const _int_to_string_backend_base::smc_achIntToStrL[16] = {
+char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
 
 
-_int_to_string_backend_base::_int_to_string_backend_base(
+_int_to_str_backend_base::_int_to_str_backend_base(
 	unsigned cbInt, char_range const & crFormat
 ) :
 	m_pchIntToStr(smc_achIntToStrL),
@@ -156,8 +156,8 @@ default_notation:
 }
 
 
-void _int_to_string_backend_base::add_prefixes_and_write(
-	bool bNegative, ostream * posOut, wstring * psBuf, char_t * pchBufFirstUsed
+void _int_to_str_backend_base::add_prefixes_and_write(
+	bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 ) const {
 	abc_trace_fn((this, bNegative, posOut, psBuf/*, pchBufFirstUsed*/));
 
@@ -197,11 +197,11 @@ void _int_to_string_backend_base::add_prefixes_and_write(
 
 
 template <typename I>
-inline void _int_to_string_backend_base::write_impl(I i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
 	abc_trace_fn((this, i, posOut));
 
 	// Create a buffer of sufficient size for binary notation (the largest).
-	wsstring<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
+	smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
 	sBuf.set_size(m_cchBuf);
 	char_t * pch(sBuf.end().base());
 
@@ -229,36 +229,36 @@ inline void _int_to_string_backend_base::write_impl(I i, ostream * posOut) const
 }
 
 
-void _int_to_string_backend_base::write_s64(int64_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_s64(int64_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-void _int_to_string_backend_base::write_u64(uint64_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_u64(uint64_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-void _int_to_string_backend_base::write_s32(int32_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-void _int_to_string_backend_base::write_u32(uint32_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-void _int_to_string_backend_base::write_s16(int16_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-void _int_to_string_backend_base::write_u16(uint16_t i, ostream * posOut) const {
+void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
@@ -270,12 +270,12 @@ void _int_to_string_backend_base::write_u16(uint16_t i, ostream * posOut) const 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_string_backend<bool>
+// abc::to_str_backend<bool>
 
 
 namespace abc {
 
-to_string_backend<bool>::to_string_backend(char_range const & crFormat /*= char_range()*/) {
+to_str_backend<bool>::to_str_backend(char_range const & crFormat /*= char_range()*/) {
 	abc_trace_fn((this, crFormat));
 
 	auto it(crFormat.cbegin());
@@ -291,7 +291,7 @@ to_string_backend<bool>::to_string_backend(char_range const & crFormat /*= char_
 }
 
 
-void to_string_backend<bool>::write(bool b, ostream * posOut) {
+void to_str_backend<bool>::write(bool b, ostream * posOut) {
 	abc_trace_fn((this, b, posOut));
 
 	// TODO: apply format options.
@@ -306,18 +306,18 @@ void to_string_backend<bool>::write(bool b, ostream * posOut) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_string_backend<void const volatile *>
+// abc::to_str_backend<void const volatile *>
 
 
 namespace abc {
 
-char_t const to_string_backend<void const volatile *>::smc_achFormat[] = SL("#x");
+char_t const to_str_backend<void const volatile *>::smc_achFormat[] = SL("#x");
 
 
-to_string_backend<void const volatile *>::to_string_backend(
+to_str_backend<void const volatile *>::to_str_backend(
 	char_range const & crFormat /*= char_range()*/
 ) :
-	to_string_backend<uintptr_t>(char_range(smc_achFormat)) {
+	to_str_backend<uintptr_t>(char_range(smc_achFormat)) {
 	abc_trace_fn((this, crFormat));
 
 	auto it(crFormat.cbegin());

@@ -149,12 +149,12 @@ public:
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity) = 0;
 
 
-	/** Reads a whole line in the provided wstring_, discarding any line termination characters read.
+	/** Reads a whole line in the provided mstr_, discarding any line termination characters read.
 
 	TODO: comment signature.
 	*/
 	template <typename C, class TTraits>
-	istream & read_line(wstring_<C, TTraits> * ps, text::encoding enc = TTraits::host_encoding) {
+	istream & read_line(mstr_<C, TTraits> * ps, text::encoding enc = TTraits::host_encoding) {
 		_read_line(
 			ps->get_raw(), enc,
 			TTraits::max_codepoint_length, reinterpret_cast<text::str_str_fn>(TTraits::str_str)
@@ -180,7 +180,7 @@ private:
 	TODO: comment signature.
 	*/
 	virtual void _read_line(
-		_raw_string & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	) = 0;
 };
 
@@ -192,7 +192,7 @@ private:
 TODO: comment signature.
 */
 template <typename C, class TTraits>
-inline abc::istream & operator>>(abc::istream & is, abc::wstring_<C, TTraits> & s) {
+inline abc::istream & operator>>(abc::istream & is, abc::mstr_<C, TTraits> & s) {
 	return is.read_line(&s);
 }
 
@@ -211,7 +211,7 @@ strings using a format string.
 The implementation of print() is entirely contained in abc::_ostream_print_helper, which accesses
 the individual arguments in a recursive way, from the most-derived class down to the base class,
 which also contains most of the implementation. Combined with the usage of [DOC:3984
-abc::to_string()], this enables a type-safe variadic alternative to C’s printf, and voids the
+abc::to_str()], this enables a type-safe variadic alternative to C’s printf, and voids the
 requirement for explicit specification of the argumment types (such as %d, %s), much like Python’s
 str.format().
 
@@ -227,7 +227,7 @@ A replacement field can specify an argument index; if omitted, the argument used
 following the last used one, or the first if no arguments have been used up to that point. After the
 optional argument index, a conversion might be requested (TODO), and an optional type-dependent
 format specification can be indicated; this will be passed as-is to the specialization of
-abc::to_string_backend for the selected argument.
+abc::to_str_backend for the selected argument.
 
 Grammar for a replacement field:
 
@@ -278,7 +278,7 @@ public:
 	TODO: comment signature.
 	*/
 	template <typename ... Ts>
-	void print(cstring const & sFormat, Ts const & ... ts);
+	void print(istr const & sFormat, Ts const & ... ts);
 
 
 	/** Writes an array of bytes to the stream, translating them to the file’s character encoding
@@ -298,7 +298,7 @@ TODO: comment signature.
 */
 template <typename T>
 inline abc::ostream & operator<<(abc::ostream & os, T const & t) {
-	abc::to_string_backend<T> tsb;
+	abc::to_str_backend<T> tsb;
 	tsb.write(t, &os);
 	return os;
 }
@@ -324,7 +324,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	_ostream_print_helper(ostream * pos, cstring const & sFormat);
+	_ostream_print_helper(ostream * pos, istr const & sFormat);
 
 
 	/** Writes the provided arguments to the target ostream, performing replacements as necessary.
@@ -359,7 +359,7 @@ private:
 	TODO: comment signature.
 	*/
 	ABC_FUNC_NORETURN void throw_syntax_error(
-		cstring const & sDescription, cstring::const_iterator it
+		istr const & sDescription, istr::const_iterator it
 	) const;
 
 
@@ -368,13 +368,12 @@ private:
 
 	TODO: comment signature.
 	*/
-	void write_format_up_to(cstring::const_iterator itUpTo);
+	void write_format_up_to(istr::const_iterator itUpTo);
 
 
 protected:
 
-	/** Target ostream. Needs to be a pointer because to_string_backend::write() requires a pointer.
-	*/
+	/** Target ostream. Needs to be a pointer because to_str_backend::write() requires a pointer. */
 	ostream * m_pos;
 	/** Start of the format specification of the current replacement. */
 	char_t const * m_pchReplFormatSpecBegin;
@@ -387,9 +386,9 @@ protected:
 private:
 
 	/** Format string. */
-	cstring const & m_sFormat;
+	istr const & m_sFormat;
 	/** First format string character to be written yet. */
-	cstring::const_iterator m_itFormatToWriteBegin;
+	istr::const_iterator m_itFormatToWriteBegin;
 };
 
 // Recursion step: extract one argument, recurse with the rest.
@@ -405,7 +404,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	_ostream_print_helper(ostream * pos, cstring const & sFormat, T0 const & t0, Ts const & ... ts) :
+	_ostream_print_helper(ostream * pos, istr const & sFormat, T0 const & t0, Ts const & ... ts) :
 		osph_base(pos, sFormat, ts ...),
 		m_t0(t0) {
 	}
@@ -431,7 +430,7 @@ protected:
 	*/
 	void write_repl(unsigned iArg) {
 		if (iArg == 0) {
-			to_string_backend<T0> tsb(char_range(
+			to_str_backend<T0> tsb(char_range(
 				osph_base::m_pchReplFormatSpecBegin, osph_base::m_pchReplFormatSpecEnd
 			));
 			tsb.write(m_t0, osph_base::m_pos);
@@ -451,7 +450,7 @@ private:
 
 // Now it’s possible to implement this.
 template <typename ... Ts>
-inline void ostream::print(cstring const & sFormat, Ts const & ... ts) {
+inline void ostream::print(istr const & sFormat, Ts const & ... ts) {
 	_ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
 	osph.run();
 }

@@ -53,13 +53,3 @@ assignment:
 Check that integer conversions don’t use static_cast:
 	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include tools
 
-
-
-
-TODO
-----
-cstring > istr (immutable string)
-wstring > mstr (mutable string)
-wsstring > smstr (statically-allocated mutable string)
-wdstring > dmstr (dynamically-allocated mutable string)
-

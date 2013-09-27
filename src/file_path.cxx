@@ -88,23 +88,23 @@ char_t const file_path::smc_aszRoot[] =
 
 
 
-file_path & file_path::operator/=(cstring const & s) {
+file_path & file_path::operator/=(istr const & s) {
 	abc_trace_fn((this, s));
 
 	// Only the root already ends in a separator; everything else needs one.
-	m_s = normalize((!m_s || is_root() ? wdstring(m_s) : m_s + smc_aszSeparator[0]) + s);
+	m_s = normalize((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator[0]) + s);
 	return *this;
 }
 
 
-wdstring file_path::get_base_name() const {
+dmstr file_path::get_base_name() const {
 	abc_trace_fn((this));
 
 	// An empty path has no base name.
 	if (!m_s || is_root()) {
 		return m_s;
 	}
-	wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
+	dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
 	// it != NULL always, because this is not the root.
 	assert(it);
 	return m_s.substr(it + 1 /*smc_aszSeparator*/);
@@ -114,7 +114,7 @@ wdstring file_path::get_base_name() const {
 /*static*/ file_path file_path::get_current_dir() {
 	abc_trace_fn(());
 
-	wdstring s;
+	dmstr s;
 #if ABC_HOST_API_POSIX
 	s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
 		if (::getcwd(pch, cchMax)) {
@@ -150,7 +150,7 @@ file_path file_path::get_parent_dir() const {
 		// The root is its own parent.
 		return file_path(m_s);
 	}
-	wdstring::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
+	dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
 #if ABC_HOST_API_POSIX
 	if (it == m_s.cbegin() + 0 /*"/"*/) {
 		// The parent is the root, so keep the slash or we’ll end up with an empty string.
@@ -172,11 +172,11 @@ file_path file_path::get_parent_dir() const {
 /*static*/ file_path file_path::get_root() {
 	abc_trace_fn(());
 
-	return wdstring(smc_aszRoot);
+	return dmstr(smc_aszRoot);
 }
 
 
-/*static*/ bool file_path::is_absolute(cstring const & s) {
+/*static*/ bool file_path::is_absolute(istr const & s) {
 	abc_trace_fn((s));
 
 #if ABC_HOST_API_POSIX
@@ -225,7 +225,7 @@ bool file_path::is_root() const {
 }
 
 
-/*static*/ wdstring file_path::normalize(wdstring s) {
+/*static*/ dmstr file_path::normalize(dmstr s) {
 	abc_trace_fn((s));
 
 	size_t cch(s.get_size());
@@ -235,7 +235,7 @@ bool file_path::is_root() const {
 	}
 	// If it’s a relative path, make it absolute.
 	if (!is_absolute(s)) {
-		wdstring sAbs(std::move(get_current_dir().m_s));
+		dmstr sAbs(std::move(get_current_dir().m_s));
 		sAbs += smc_aszSeparator[0];
 		sAbs += s;
 		s = std::move(sAbs);
@@ -301,9 +301,9 @@ bool file_path::is_root() const {
 				// previous separator is not the root separator (in which case that’d be enough).
 				if (cDots > 1 && pchDst > pchRootSep) {
 					// Find the previous separator, skipping the one we just got back to.
-					wdstring::const_iterator itOneUp(s.find_last(
+					dmstr::const_iterator itOneUp(s.find_last(
 						char32_t(smc_aszSeparator[0]),
-						wdstring::const_iterator(pchDst - 1 /*'/'*/)
+						dmstr::const_iterator(pchDst - 1 /*'/'*/)
 					));
 					// Resume writing from the separator we just found.
 					pchDst = const_cast<char_t *>(itOneUp.base());
@@ -324,8 +324,8 @@ bool file_path::is_root() const {
 	// separator is not the root separator (in which case that’d be enough).
 	if (cDots > 1 && pchDst > pchRootSep) {
 		// Find the previous separator, skipping the one we just got back to.
-		wdstring::const_iterator itOneUp(
-			s.find_last(char32_t(smc_aszSeparator[0]), wdstring::const_iterator(pchDst - 1 /*'/'*/))
+		dmstr::const_iterator itOneUp(
+			s.find_last(char32_t(smc_aszSeparator[0]), dmstr::const_iterator(pchDst - 1 /*'/'*/))
 		);
 		// Resume writing from the separator we just found.
 		pchDst = const_cast<char_t *>(itOneUp.base());
@@ -342,7 +342,7 @@ bool file_path::is_root() const {
 }
 
 
-to_string_backend<file_path>::to_string_backend(char_range const & crFormat /*= char_range()*/) {
+to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_range()*/) {
 	auto it(crFormat.cbegin());
 
 	// TODO: parse the format string.
@@ -356,9 +356,9 @@ to_string_backend<file_path>::to_string_backend(char_range const & crFormat /*= 
 }
 
 
-void to_string_backend<file_path>::write(file_path const & fp, ostream * posOut) {
+void to_str_backend<file_path>::write(file_path const & fp, ostream * posOut) {
 	// TODO: apply format options.
-	*posOut << static_cast<cstring const &>(fp);
+	*posOut << static_cast<istr const &>(fp);
 }
 
 } //namespace abc

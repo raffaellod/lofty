@@ -1661,7 +1661,7 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
 
 
 void syntax_error::_print_extended_info(ostream * pos) const {
-	cstring sFormat;
+	istr sFormat;
 	if (m_crSource) {
 		if (m_iChar) {
 			if (m_iLine) {
