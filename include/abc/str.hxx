@@ -68,7 +68,7 @@ protected:
 namespace abc {
 
 /** Mid-class for the specializations of to_str_backend for string types. This is used by string
-literal types as well (see to_string_backend.hxx).
+literal types as well (see to_str_backend.hxx).
 */
 template <typename T, typename C>
 class _str_to_str_backend :

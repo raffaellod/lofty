@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/cppmacros.hxx>
-#include <abc/string_iostream.hxx>
+#include <abc/str_iostream.hxx>
 
 
 

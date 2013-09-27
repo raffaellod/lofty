@@ -262,7 +262,7 @@ ABC_RELOP_IMPL(<=)
 
 namespace abc {
 
-// Forward declaration from abc/to_string_backend.hxx.
+// Forward declaration from abc/to_str_backend.hxx.
 template <typename T>
 class to_str_backend;
 

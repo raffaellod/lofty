@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/string_iostream.hxx>
+#include <abc/str_iostream.hxx>
 #include <abc/trace.hxx>
 
 

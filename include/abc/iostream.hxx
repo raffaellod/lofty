@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/file.hxx>
-#include <abc/to_string_backend.hxx>
+#include <abc/to_str_backend.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

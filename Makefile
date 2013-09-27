@@ -40,13 +40,13 @@ check: \
 	$(O)test.tmp/unittest/0010-module.ut.log \
 	$(O)test.tmp/unittest/0020-exception.ut.log \
 	$(O)test.tmp/unittest/0030-enum.ut.log \
-	$(O)test.tmp/unittest/0040-string.ut.log \
+	$(O)test.tmp/unittest/0040-str.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
 	$(O)test.tmp/unittest/0060-file_path.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
-	$(O)test.tmp/unittest/0150-to_string_backend.ut.log \
+	$(O)test.tmp/unittest/0150-to_str_backend.ut.log \
 	$(O)test.tmp/unittest/0170-ostream-print.ut.log \
-	$(O)test.tmp/unittest/0190-string_ostream.ut.log \
+	$(O)test.tmp/unittest/0190-str_ostream.ut.log \
 	$(O)test.tmp/unittest/0250-file_ostream.py.log \
 	$(O)test.tmp/unittest/0280-file_istream.py.log
 #	$(O)test.tmp/unittest/0350-subproc.ut.log
@@ -69,9 +69,9 @@ $(O)lib/libabc$(LIBEXT): \
 	$(O)obj/iostream.cxx$(OBJEXT) \
 	$(O)obj/memory.cxx$(OBJEXT) \
 	$(O)obj/module.cxx$(OBJEXT) \
-	$(O)obj/string.cxx$(OBJEXT) \
-	$(O)obj/string_iostream.cxx$(OBJEXT) \
-	$(O)obj/to_string_backend.cxx$(OBJEXT) \
+	$(O)obj/str.cxx$(OBJEXT) \
+	$(O)obj/str_iostream.cxx$(OBJEXT) \
+	$(O)obj/to_str_backend.cxx$(OBJEXT) \
 	$(O)obj/text.cxx$(OBJEXT) \
 	$(O)obj/trace.cxx$(OBJEXT) \
 	$(O)obj/utf_traits.cxx$(OBJEXT) \
@@ -88,8 +88,8 @@ $(O)bin/unittest/0020-exception$(EXEEXT): \
 $(O)bin/unittest/0030-enum$(EXEEXT): \
 	$(O)obj/unittest/0030-enum.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0040-string$(EXEEXT): \
-	$(O)obj/unittest/0040-string.cxx$(OBJEXT) \
+$(O)bin/unittest/0040-str$(EXEEXT): \
+	$(O)obj/unittest/0040-str.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0050-vector$(EXEEXT): \
 	$(O)obj/unittest/0050-vector.cxx$(OBJEXT) \
@@ -100,16 +100,16 @@ $(O)bin/unittest/0060-file_path$(EXEEXT): \
 $(O)bin/unittest/0080-map$(EXEEXT): \
 	$(O)obj/unittest/0080-map.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0150-to_string_backend$(EXEEXT): \
-	$(O)obj/unittest/0150-to_string_backend.cxx$(OBJEXT) \
+$(O)bin/unittest/0150-to_str_backend$(EXEEXT): \
+	$(O)obj/unittest/0150-to_str_backend.cxx$(OBJEXT) \
 	$(O)obj/mock/iostream.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0170-ostream-print$(EXEEXT): \
 	$(O)obj/unittest/0170-ostream-print.cxx$(OBJEXT) \
 	$(O)obj/mock/iostream.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0190-string_ostream$(EXEEXT): \
-	$(O)obj/unittest/0190-string_ostream.cxx$(OBJEXT) \
+$(O)bin/unittest/0190-str_ostream$(EXEEXT): \
+	$(O)obj/unittest/0190-str_ostream.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0250-file_ostream$(EXEEXT): \
 	$(O)obj/unittest/0250-file_ostream.cxx$(OBJEXT) \
