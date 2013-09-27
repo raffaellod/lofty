@@ -49,8 +49,6 @@ public:
 
 
 	/** Destructor.
-
-	TODO: comment signature.
 	*/
 	virtual ~file_stream_base();
 
@@ -58,8 +56,6 @@ public:
 protected:
 
 	/** Releases any objects constructed by file_?stream::_construct_std_file_?stream().
-
-	TODO: comment signature.
 	*/
 	static void _release_std_file_streams();
 
@@ -214,36 +210,29 @@ public:
 
 
 	/** Destructor.
-
-	TODO: comment signature.
 	*/
 	virtual ~file_istream();
 
 
 	/** Returns the stream associated to the standard input (stdin).
 
-	TODO: comment signature.
+	return
+		Standard input stream.
 	*/
-	static std::shared_ptr<file_istream> const & get_stdin();
+	static std::shared_ptr<file_istream> const & stdin();
 
 
 	/** See istream::is_at_end().
-
-	TODO: comment signature.
 	*/
 	virtual bool is_at_end() const;
 
 
 	/** See istream::read().
-
-	TODO: comment signature.
 	*/
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
 
 
 	/** See istream::unread().
-
-	TODO: comment signature.
 	*/
 	virtual void unread(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
@@ -252,7 +241,8 @@ private:
 
 	/** Allocates m_pbReadBuf if it hasn’t been yet, and returns it as a simple byte pointer.
 
-	TODO: comment signature.
+	return
+		Pointer to the internal read buffer, of size m_cbReadBufBulk bytes.
 	*/
 	int8_t * _get_read_buffer();
 
@@ -267,15 +257,11 @@ private:
 
 
 	/** Code common to all constructors.
-
-	TODO: comment signature.
 	*/
 	void _post_construct();
 
 
 	/** See istream::_read_line().
-
-	TODO: comment signature.
 	*/
 	virtual void _read_line(
 		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
@@ -325,38 +311,34 @@ public:
 
 
 	/** Destructor.
-
-	TODO: comment signature.
 	*/
 	virtual ~file_ostream();
 
 
 	/** See ostream::flush().
-
-	TODO: comment signature.
 	*/
 	virtual void flush();
 
 
 	/** See ostream::write().
-
-	TODO: comment signature.
 	*/
 	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 	/** Returns the stream associated to the standard error output (stderr).
 
-	TODO: comment signature.
+	return
+		Standard error output stream.
 	*/
-	static std::shared_ptr<file_ostream> const & get_stderr();
+	static std::shared_ptr<file_ostream> const & stderr();
 
 
 	/** Returns the stream associated to the standard output (stdout).
 
-	TODO: comment signature.
+	return
+		Standard output stream.
 	*/
-	static std::shared_ptr<file_ostream> const & get_stdout();
+	static std::shared_ptr<file_ostream> const & stdout();
 
 
 private:

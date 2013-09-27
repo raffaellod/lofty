@@ -37,7 +37,7 @@ public:
 
 		size_t cArgs(vsArgs.get_size());
 		if (cArgs >= 2 && vsArgs[1] == SL("-o")) {
-			pfos = file_ostream::get_stdout();
+			pfos = file_ostream::stdout();
 			sName = SL("stdout");
 		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
 			if (cArgs == 4 && vsArgs[3] == SL("-utf8")) {

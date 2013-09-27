@@ -291,7 +291,7 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*static*/ std::shared_ptr<file_istream> const & file_istream::get_stdin() {
+/*static*/ std::shared_ptr<file_istream> const & file_istream::stdin() {
 	abc_trace_fn(());
 
 	if (!g_ppfisStdIn) {
@@ -490,7 +490,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::get_stderr() {
+/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
 	abc_trace_fn(());
 
 	if (!g_ppfosStdErr) {
@@ -500,7 +500,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::get_stdout() {
+/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
 	abc_trace_fn(());
 
 	if (!g_ppfosStdOut) {

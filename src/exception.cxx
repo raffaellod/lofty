@@ -1146,7 +1146,7 @@ void exception::_print_extended_info(ostream * pos) const {
 
 
 /*static*/ void exception::_uncaught_exception_end(std::exception const * pstdx /*= NULL*/) {
-	std::shared_ptr<file_ostream> pfosStdErr(file_ostream::get_stderr());
+	std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
 	exception const * pabcx;
 	if (pstdx) {
 		// We have a std::exception: print its what() and check if it’s also a abc::exception.
@@ -1382,7 +1382,7 @@ namespace abc {
 	if (!sm_bReentering) {
 		sm_bReentering = true;
 		try {
-			std::shared_ptr<file_ostream> pfosStdErr(file_ostream::get_stderr());
+			std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
 			pfosStdErr->print(
 				SL("Assertion failed: ( {} ) in file {}:{}: in function {}\n"),
 				pszExpr, pszFileName, iLine, pszFunction

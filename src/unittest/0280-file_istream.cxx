@@ -35,7 +35,7 @@ public:
 
 		size_t cArgs(vsArgs.get_size());
 		if (cArgs >= 2 && vsArgs[1] == SL("-i")) {
-			pfis = file_istream::get_stdin();
+			pfis = file_istream::stdin();
 		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
 			pfis = std::make_shared<file_istream>(vsArgs[2]);
 		}
@@ -43,7 +43,7 @@ public:
 		if (!pfis) {
 			return EXIT_FAILURE;
 		}
-		auto pstdout(file_ostream::get_stdout());
+		auto pstdout(file_ostream::stdout());
 		for (dmstr s; *pfis >> s; ) {
 			*pstdout << s << SL("\n");
 		}
