@@ -1,5 +1,6 @@
 bin
 dep
+doc/C++11 N3242.pdf
 lib
 obj
 __pycache__
