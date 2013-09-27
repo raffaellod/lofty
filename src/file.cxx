@@ -301,7 +301,7 @@ size_t file::write(void const * p, size_t cb) {
 }
 
 
-/*static*/ std::shared_ptr<file> const & file::get_stderr() {
+/*static*/ std::shared_ptr<file> const & file::stderr() {
 	abc_trace_fn(());
 
 	if (!g_ppfileStdErr) {
@@ -320,7 +320,7 @@ size_t file::write(void const * p, size_t cb) {
 }
 
 
-/*static*/ std::shared_ptr<file> const & file::get_stdin() {
+/*static*/ std::shared_ptr<file> const & file::stdin() {
 	abc_trace_fn(());
 
 	if (!g_ppfileStdIn) {
@@ -339,7 +339,7 @@ size_t file::write(void const * p, size_t cb) {
 }
 
 
-/*static*/ std::shared_ptr<file> const & file::get_stdout() {
+/*static*/ std::shared_ptr<file> const & file::stdout() {
 	abc_trace_fn(());
 
 	if (!g_ppfileStdOut) {

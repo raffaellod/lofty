@@ -199,81 +199,97 @@ public:
 
 
 	/** Ensures that no write buffers contain any data.
-
-	TODO: comment signature.
 	*/
 	void flush();
 
 
 	/** Returns true if the file has a defined size, which is stored in m_cb.
 
-	TODO: comment signature.
+	return
+		true if the file has a size, or false otherwise.
 	*/
-	bool get_has_size() const {
+	bool has_size() const {
 		return m_bHasSize;
 	}
 
 
 	/** Returns true if the OS is buffering reads/writes to m_fd.
 
-	TODO: comment signature.
+	return
+		true if the file is buffered by the OS, or false otherwise.
 	*/
-	bool get_buffered() const {
+	bool is_buffered() const {
 		return m_bBuffered;
 	}
 
 
+	/** Reads at most cbMax bytes from the file.
+
+	p
+		Address of the destination buffer.
+	cbMax
+		Size of the destination buffer, in bytes.
+	return
+		Count of bytes read. For non-zero values of cb, a return value of 0 indicates that the end of
+		the file was reached.
+	*/
+	size_t read(void * p, size_t cbMax);
+
+
 	/** Returns the physical alignment for unbuffered/direct disk access.
 
-	TODO: comment signature.
+	return
+		Alignment boundary, in bytes.
 	*/
-	unsigned get_physical_alignment() const {
+	unsigned physical_alignment() const {
 		return m_cbPhysAlign;
 	}
 
 
 	/** Returns the computed size of the file, if applicable, or 0 otherwise.
 
-	TODO: comment signature.
+	return
+		Size of the file, in bytes.
 	*/
-	fileint_t get_size() const {
+	fileint_t size() const {
 		return m_cb;
 	}
 
 
-	/** Reads at most cbMax bytes from the file.
-
-	TODO: comment signature.
-	*/
-	size_t read(void * p, size_t cbMax);
-
-
 	/** Writes an array of bytes to the file.
 
-	TODO: comment signature.
+	p
+		Address of the source buffer.
+	cb
+		Size of the source buffer, in bytes.
+	return
+		Count of bytes written.
 	*/
 	size_t write(void const * p, size_t cb);
 
 
 	/** Returns the file associated to the standard error output (stderr).
 
-	TODO: comment signature.
+	return
+		Standard error file.
 	*/
-	static std::shared_ptr<file> const & get_stderr();
+	static std::shared_ptr<file> const & stderr();
 
 
 	/** Returns the file associated to the standard input (stdin).
 
-	TODO: comment signature.
+	return
+		Standard input file.
 	*/
-	static std::shared_ptr<file> const & get_stdin();
+	static std::shared_ptr<file> const & stdin();
 
 
 	/** Returns the file associated to the standard output (stdout).
 
-	TODO: comment signature.
+	return
+		Standard output file.
 	*/
-	static std::shared_ptr<file> const & get_stdout();
+	static std::shared_ptr<file> const & stdout();
 
 
 private:
@@ -301,8 +317,6 @@ private:
 
 
 	/** Releases any objects constructed by _construct_std_file().
-
-	TODO: comment signature.
 	*/
 	static void _release_std_files();
 

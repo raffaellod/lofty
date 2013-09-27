@@ -127,7 +127,7 @@ file_istream::file_istream(file_path const & fp) :
 		m_enc = text::guess_encoding(
 			pRawReadBuf,
 			m_cbReadBufUsed,
-			m_pfile->get_has_size() ? std::min<fileint_t>(m_pfile->get_size(), smc_cbAlignedMax) : 0,
+			m_pfile->has_size() ? std::min<fileint_t>(m_pfile->size(), smc_cbAlignedMax) : 0,
 			&cbBom
 		);
 		if (cbBom) {
@@ -295,7 +295,7 @@ file_istream::file_istream(file_path const & fp) :
 	abc_trace_fn(());
 
 	if (!g_ppfisStdIn) {
-		_construct_std_file_istream(file::get_stdin(), &g_ppfisStdIn);
+		_construct_std_file_istream(file::stdin(), &g_ppfisStdIn);
 	}
 	return *g_ppfisStdIn;
 }
@@ -395,7 +395,7 @@ void file_istream::_post_construct() {
 	// If no specific size is imposed by unbuffered access, pick a good enough size; also impose a
 	// big enough number in case the physical align is too small.
 	m_cbReadBufBulk = std::max<size_t>(
-		m_pfile->get_buffered() ? 0 : m_pfile->get_physical_alignment(), 4096
+		m_pfile->is_buffered() ? 0 : m_pfile->physical_alignment(), 4096
 	);
 	// The read buffer is created on demand.
 	m_ibReadBufUsed = 0;
@@ -494,7 +494,7 @@ file_ostream::file_ostream(file_path const & fp) :
 	abc_trace_fn(());
 
 	if (!g_ppfosStdErr) {
-		_construct_std_file_ostream(file::get_stderr(), &g_ppfosStdErr);
+		_construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
 	}
 	return *g_ppfosStdErr;
 }
@@ -504,7 +504,7 @@ file_ostream::file_ostream(file_path const & fp) :
 	abc_trace_fn(());
 
 	if (!g_ppfosStdOut) {
-		_construct_std_file_ostream(file::get_stdout(), &g_ppfosStdOut);
+		_construct_std_file_ostream(file::stdout(), &g_ppfosStdOut);
 	}
 	return *g_ppfosStdOut;
 }
