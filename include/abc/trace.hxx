@@ -254,7 +254,7 @@ public:
 		try {
 			ostream * pos(base_scope_trace::scope_render_start_or_continue());
 			if (pos) {
-				*pos << m_t0;
+				pos->write(m_t0);
 			}
 		} catch (...) {
 			// Don’t allow a trace to interfere with the program flow.

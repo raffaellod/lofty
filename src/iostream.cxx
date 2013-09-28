@@ -106,7 +106,7 @@ void _ostream_print_helper<>::write_format_up_to(istr::const_iterator itUpTo) {
 	abc_trace_fn((this/*, itUpTo*/));
 
 	if (itUpTo > m_itFormatToWriteBegin) {
-		m_pos->write(
+		m_pos->write_raw(
 			m_itFormatToWriteBegin.base(),
 			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
 			text::utf_traits<>::host_encoding

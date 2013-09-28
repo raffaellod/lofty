@@ -58,11 +58,11 @@ public:
 			return EXIT_FAILURE;
 		}
 		pfos->set_encoding(enc);
-		*pfos << SL("Testing ")
-				<< sName
-				<< SL(" (")
-				<< sEnc
-				<< SL(" encoding)\n");
+		pfos->write(SL("Testing "));
+		pfos->write(sName);
+		pfos->write(SL(" ("));
+		pfos->write(sEnc);
+		pfos->write(SL(" encoding)\n"));
 
 		// Test results determined by external program.
 		return EXIT_SUCCESS;

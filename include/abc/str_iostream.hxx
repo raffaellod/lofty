@@ -55,15 +55,11 @@ public:
 
 
 	/** See istream::read().
-
-	TODO: comment signature.
 	*/
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
 
 
 	/** See istream::unread().
-
-	TODO: comment signature.
 	*/
 	virtual void unread(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
@@ -71,8 +67,6 @@ public:
 protected:
 
 	/** See istream::_read_line().
-
-	TODO: comment signature.
 	*/
 	virtual void _read_line(
 		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
@@ -125,11 +119,9 @@ public:
 	string_type get_contents();
 
 
-	/** See ostream::write().
-
-	TODO: comment signature.
+	/** See ostream::write_raw().
 	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 protected:

@@ -40,8 +40,6 @@ class stream_base {
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	stream_base();
 
@@ -51,27 +49,30 @@ public:
 	virtual ~stream_base();
 
 
-	/** Returns the encoding of the data read from or written to this stream.
+	/** Returns the encoding of the data read from or written to the stream.
 
-	TODO: comment signature.
+	return
+		Current encoding.
 	*/
 	text::encoding get_encoding() const {
 		return m_enc;
 	}
 
 
-	/** Returns the line terminator of the text read from or written to this stream.
+	/** Returns the line terminator of the text read from or written to the stream.
 
-	TODO: comment signature.
+	return
+		Current line terminator.
 	*/
 	text::line_terminator get_line_terminator() const {
 		return m_lterm;
 	}
 
 
-	/** Sets the encoding of the data read from or written to this stream.
+	/** Sets the encoding of the data read from or written to the stream.
 
-	TODO: comment signature.
+	enc
+		New encoding to be used for future data reads/writes.
 	*/
 	virtual void set_encoding(text::encoding enc);
 
@@ -79,7 +80,8 @@ public:
 	/** Sets the line terminator to be assumed for the text read from this stream, that to be used
 	when writing to it.
 
-	TODO: comment signature.
+	lterm
+		New line terminator to be used for future data reads/writes.
 	*/
 	virtual void set_line_terminator(text::line_terminator lterm);
 
@@ -111,8 +113,6 @@ class istream :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	istream() :
 		stream_base() {
@@ -120,26 +120,26 @@ public:
 
 
 	/** Destructor.
-
-	TODO: comment signature.
 	*/
 	virtual ~istream();
 
 
-	/** An istream at EOF evaulates to false; true otherwise.
+	/** Returns whether the stream has more data to be read.
 
-	TODO: comment signature.
+	return
+		false if at_end() would return true, or true otherwise.
 	*/
 	explicit_operator_bool() const {
-		return !is_at_end();
+		return !at_end();
 	}
 
 
-	/** Returns true if the istream has reached the end of the data, or false otherwise.
+	/** Returns true if the stream has reached the end of the data.
 
-	TODO: comment signature.
+	return
+		true if the stream contains no more data to read, or false otherwise.
 	*/
-	virtual bool is_at_end() const = 0;
+	virtual bool at_end() const = 0;
 
 
 	/** Reads at most cbMax bytes from the stream into the specified buffer.
@@ -185,16 +185,6 @@ private:
 };
 
 } //namespace abc
-
-
-/** Extraction operator for abc::istream.
-
-TODO: comment signature.
-*/
-template <typename C, class TTraits>
-inline abc::istream & operator>>(abc::istream & is, abc::mstr_<C, TTraits> & s) {
-	return is.read_line(&s);
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,8 +242,6 @@ class ostream :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	ostream() :
 		stream_base() {
@@ -267,8 +255,6 @@ public:
 
 	/** Ensures that any write buffers are written to the stream. The default implementation is a
 	no-op.
-
-	TODO: comment signature.
 	*/
 	virtual void flush();
 
@@ -281,27 +267,28 @@ public:
 	void print(istr const & sFormat, Ts const & ... ts);
 
 
+	/** Writes a value to the stream using the default formatting for abc::to_str_backend().
+
+	TODO: comment signature.
+	*/
+	template <typename T>
+	inline void write(T const & t) {
+		abc::to_str_backend<T> tsb;
+		tsb.write(t, this);
+	}
+
+
 	/** Writes an array of bytes to the stream, translating them to the file’s character encoding
 	first, if necessary.
 
 	TODO: comment signature.
 	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity) = 0;
+	virtual void write_raw(
+		void const * p, size_t cb, text::encoding enc = text::encoding::identity
+	) = 0;
 };
 
 } //namespace abc
-
-
-/** Insertion operator for abc::ostream.
-
-TODO: comment signature.
-*/
-template <typename T>
-inline abc::ostream & operator<<(abc::ostream & os, T const & t) {
-	abc::to_str_backend<T> tsb;
-	tsb.write(t, &os);
-	return os;
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,8 +315,6 @@ public:
 
 
 	/** Writes the provided arguments to the target ostream, performing replacements as necessary.
-
-	TODO: comment signature.
 	*/
 	void run();
 
@@ -411,8 +396,6 @@ public:
 
 
 	/** See _ostream_print_helper<>::run().
-
-	TODO: comment signature.
 	*/
 	void run() {
 		while (osph_base::write_format_up_to_next_repl()) {
@@ -472,8 +455,6 @@ class iostream :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	iostream();
 

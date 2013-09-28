@@ -365,7 +365,7 @@ to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_r
 
 void to_str_backend<file_path>::write(file_path const & fp, ostream * posOut) {
 	// TODO: apply format options.
-	*posOut << static_cast<istr const &>(fp);
+	posOut->write(static_cast<istr const &>(fp));
 }
 
 } //namespace abc

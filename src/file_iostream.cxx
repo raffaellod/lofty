@@ -101,7 +101,7 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*virtual*/ bool file_istream::is_at_end() const {
+/*virtual*/ bool file_istream::at_end() const {
 	return m_bAtEof;
 }
 
@@ -478,7 +478,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ void file_ostream::write(
+/*virtual*/ void file_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

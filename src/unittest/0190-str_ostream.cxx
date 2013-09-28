@@ -36,12 +36,12 @@ public:
 		str_ostream sos;
 		istr sEnc(SL("host"));
 
-		sos << istr8(U8L("Testing string (UTF-8 encoding)"));
+		sos.write(istr8(U8L("Testing string (UTF-8 encoding)")));
 #ifdef U16L
-		sos << istr16(U16L("Testing string (UTF-16 encoding)"));
+		sos.write(istr16(U16L("Testing string (UTF-16 encoding)")));
 #endif
 #ifdef U32L
-		sos << istr32(U32L("Testing string (UTF-32 encoding)"));
+		sos.write(istr32(U32L("Testing string (UTF-32 encoding)")));
 #endif		
 
 		return EXIT_SUCCESS;

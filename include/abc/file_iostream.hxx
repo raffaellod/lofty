@@ -214,9 +214,9 @@ public:
 	virtual ~file_istream();
 
 
-	/** See istream::is_at_end().
+	/** See istream::at_end().
 	*/
-	virtual bool is_at_end() const;
+	virtual bool at_end() const;
 
 
 	/** See istream::read().
@@ -336,9 +336,9 @@ public:
 	static std::shared_ptr<file_ostream> const & stdout();
 
 
-	/** See ostream::write().
+	/** See ostream::write_raw().
 	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 private:
