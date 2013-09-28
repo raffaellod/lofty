@@ -1,6 +1,7 @@
-abc.sdf
-abc.suo
-abc.vcxproj.user
+*.opensdf
+*.sdf
+*.suo
+*.vcxproj.user
 bin
 dep
 doc/C++11 N3242.pdf
