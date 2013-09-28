@@ -179,6 +179,14 @@ public:
 	}
 
 
+	/** Returns the last component in the path.
+
+	return
+		Last component in the path.
+	*/
+	dmstr base_name() const;
+
+
 	/** Support for relational operators.
 
 	TODO: comment signature.
@@ -186,34 +194,6 @@ public:
 	int compare_to(istr const & s) const {
 		return m_s.compare_to(s);
 	}
-
-
-	/** Returns a read-only pointer to the path string. See dmstr::get_data().
-
-	return
-		Pointer to the path string’s character buffer.
-	*/
-	char_t const * data() const {
-		return m_s.get_data();
-	}
-
-
-	/** Returns the count of characters in the path.
-
-	return
-		Count of characters.
-	*/
-	size_t size() const {
-		return m_s.get_size();
-	}
-
-
-	/** Returns the last component in the path.
-
-	return
-		Last component in the path.
-	*/
-	dmstr base_name() const;
 
 
 	/** Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
@@ -224,29 +204,13 @@ public:
 	static file_path current_dir();
 
 
-	/** Returns the directory containing the path.
+	/** Returns a read-only pointer to the path string. See dmstr::get_data().
 
 	return
-		Parent directory of the path.
+		Pointer to the path string’s character buffer.
 	*/
-	file_path parent_dir() const;
-
-
-	/** Returns the root (POSIX) or the namespace root (Windows).
-
-	return
-		Root directory.
-	*/
-	static file_path root();
-
-
-	/** Returns the platform-dependent path component separator.
-
-	return
-		Path component separator.
-	*/
-	static istr separator() {
-		return istr(smc_aszSeparator);
+	char_t const * data() const {
+		return m_s.get_data();
 	}
 
 
@@ -283,6 +247,42 @@ public:
 		true if the path represents a root directory, of false otherwise.
 	*/
 	bool is_root() const;
+
+
+	/** Returns the directory containing the path.
+
+	return
+		Parent directory of the path.
+	*/
+	file_path parent_dir() const;
+
+
+	/** Returns the root (POSIX) or the namespace root (Windows).
+
+	return
+		Root directory.
+	*/
+	static file_path root();
+
+
+	/** Returns the platform-dependent path component separator.
+
+	return
+		Path component separator.
+	*/
+	static istr separator() {
+		return istr(smc_aszSeparator);
+	}
+
+
+	/** Returns the count of characters in the path.
+
+	return
+		Count of characters.
+	*/
+	size_t size() const {
+		return m_s.get_size();
+	}
 
 
 private:

@@ -148,40 +148,6 @@ dmstr file_path::base_name() const {
 }
 
 
-file_path file_path::parent_dir() const {
-	abc_trace_fn((this));
-
-	// An empty path has no parent directory.
-	if (!m_s || is_root()) {
-		// The root is its own parent.
-		return file_path(m_s);
-	}
-	dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-#if ABC_HOST_API_POSIX
-	if (it == m_s.cbegin() + 0 /*"/"*/) {
-		// The parent is the root, so keep the slash or we’ll end up with an empty string.
-		++it;
-	}
-#elif ABC_HOST_API_WIN32
-	if (it == m_s.cbegin() + 6 /*"\\?\C:\"*/) {
-		// The parent is a volume root, so keep the slash or we’ll end up with a volume designator.
-		++it;
-	}
-#else
-	#error TODO-PORT: HOST_API
-#endif
-	return m_s.substr(0, it - m_s.cbegin());
-}
-
-
-// This can’t be in the header file, because the size of smc_aszRoot is only known here.
-/*static*/ file_path file_path::root() {
-	abc_trace_fn(());
-
-	return dmstr(smc_aszRoot);
-}
-
-
 /*static*/ bool file_path::is_absolute(istr const & s) {
 	abc_trace_fn((s));
 
@@ -228,6 +194,41 @@ bool file_path::is_root() const {
 #else
 	#error TODO-PORT: HOST_API
 #endif
+}
+
+
+file_path file_path::parent_dir() const {
+	abc_trace_fn((this));
+
+	// An empty path has no parent directory.
+	if (!m_s || is_root()) {
+		// The root is its own parent.
+		return file_path(m_s);
+	}
+	dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
+#if ABC_HOST_API_POSIX
+	if (it == m_s.cbegin() + 0 /*"/"*/) {
+		// The parent is the root, so keep the slash or we’ll end up with an empty string.
+		++it;
+	}
+#elif ABC_HOST_API_WIN32
+	if (it == m_s.cbegin() + 6 /*"\\?\C:\"*/) {
+		// The parent is a volume root, so keep the slash or we’ll end up with a volume designator.
+		++it;
+	}
+#else
+	#error TODO-PORT: HOST_API
+#endif
+	return m_s.substr(0, it - m_s.cbegin());
+}
+
+
+// In spite of the fact it’s a one-lines, this can’t be in the header file because the size of
+// smc_aszRoot is only known here.
+/*static*/ file_path file_path::root() {
+	abc_trace_fn(());
+
+	return dmstr(smc_aszRoot);
 }
 
 
