@@ -214,14 +214,6 @@ public:
 	virtual ~file_istream();
 
 
-	/** Returns the stream associated to the standard input (stdin).
-
-	return
-		Standard input stream.
-	*/
-	static std::shared_ptr<file_istream> const & stdin();
-
-
 	/** See istream::is_at_end().
 	*/
 	virtual bool is_at_end() const;
@@ -230,6 +222,14 @@ public:
 	/** See istream::read().
 	*/
 	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
+
+
+	/** Returns the stream associated to the standard input (stdin).
+
+	return
+		Standard input stream.
+	*/
+	static std::shared_ptr<file_istream> const & stdin();
 
 
 	/** See istream::unread().
@@ -320,11 +320,6 @@ public:
 	virtual void flush();
 
 
-	/** See ostream::write().
-	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
-
-
 	/** Returns the stream associated to the standard error output (stderr).
 
 	return
@@ -339,6 +334,11 @@ public:
 		Standard output stream.
 	*/
 	static std::shared_ptr<file_ostream> const & stdout();
+
+
+	/** See ostream::write().
+	*/
+	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 private:

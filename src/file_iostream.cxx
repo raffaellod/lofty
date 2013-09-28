@@ -208,6 +208,16 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
+/*static*/ std::shared_ptr<file_istream> const & file_istream::stdin() {
+	abc_trace_fn(());
+
+	if (!g_ppfisStdIn) {
+		_construct_std_file_istream(file::stdin(), &g_ppfisStdIn);
+	}
+	return *g_ppfisStdIn;
+}
+
+
 /*virtual*/ void file_istream::unread(void const * p, size_t cb, text::encoding enc) {
 	abc_trace_fn((this, p, cb, enc));
 
@@ -288,16 +298,6 @@ file_istream::file_istream(file_path const & fp) :
 		}
 		m_cbReadBufUsed += cbXcoded;
 	}
-}
-
-
-/*static*/ std::shared_ptr<file_istream> const & file_istream::stdin() {
-	abc_trace_fn(());
-
-	if (!g_ppfisStdIn) {
-		_construct_std_file_istream(file::stdin(), &g_ppfisStdIn);
-	}
-	return *g_ppfisStdIn;
 }
 
 
@@ -458,6 +458,26 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
+/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
+	abc_trace_fn(());
+
+	if (!g_ppfosStdErr) {
+		_construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
+	}
+	return *g_ppfosStdErr;
+}
+
+
+/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
+	abc_trace_fn(());
+
+	if (!g_ppfosStdOut) {
+		_construct_std_file_ostream(file::stdout(), &g_ppfosStdOut);
+	}
+	return *g_ppfosStdOut;
+}
+
+
 /*virtual*/ void file_ostream::write(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
@@ -487,26 +507,6 @@ file_ostream::file_ostream(file_path const & fp) :
 			m_pfile->write(m_pbWriteBuf.get(), cbBuf);
 		}
 	}
-}
-
-
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
-	abc_trace_fn(());
-
-	if (!g_ppfosStdErr) {
-		_construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
-	}
-	return *g_ppfosStdErr;
-}
-
-
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
-	abc_trace_fn(());
-
-	if (!g_ppfosStdOut) {
-		_construct_std_file_ostream(file::stdout(), &g_ppfosStdOut);
-	}
-	return *g_ppfosStdOut;
 }
 
 
