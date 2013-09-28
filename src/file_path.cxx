@@ -42,10 +42,11 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	fp
+		Path to get statistics for.
 	*/
 	file_stat(file_path const & fp) {
-		if (::stat(fp.get_data(), this)) {
+		if (::stat(fp.data(), this)) {
 			throw_os_error();
 		}
 	}
@@ -53,12 +54,17 @@ public:
 
 #elif ABC_HOST_API_WIN32
 
-/** Checks whether the file has the specified attribute(s) set.
+/** Checks whether a path has the specified attribute(s) set.
 
-TODO: comment signature.
+fp
+	Path to get attributes of.
+fi
+	Combination of one or more FILE_ATTRIBUTE_* flags to check for.
+return
+	true if the path has all the file attributes in fi, or false otherwise.
 */
-static bool file_attrs(DWORD fi) const {
-	DWORD fiAttrs(::GetFileAttributes(get_data()));
+static bool file_attrs(file_path const & fp, DWORD fi) const {
+	DWORD fiAttrs(::GetFileAttributes(data()));
 	if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
 		throw_os_error();
 	}
@@ -97,7 +103,7 @@ file_path & file_path::operator/=(istr const & s) {
 }
 
 
-dmstr file_path::get_base_name() const {
+dmstr file_path::base_name() const {
 	abc_trace_fn((this));
 
 	// An empty path has no base name.
@@ -111,7 +117,7 @@ dmstr file_path::get_base_name() const {
 }
 
 
-/*static*/ file_path file_path::get_current_dir() {
+/*static*/ file_path file_path::current_dir() {
 	abc_trace_fn(());
 
 	dmstr s;
@@ -142,7 +148,7 @@ dmstr file_path::get_base_name() const {
 }
 
 
-file_path file_path::get_parent_dir() const {
+file_path file_path::parent_dir() const {
 	abc_trace_fn((this));
 
 	// An empty path has no parent directory.
@@ -169,7 +175,7 @@ file_path file_path::get_parent_dir() const {
 
 
 // This can’t be in the header file, because the size of smc_aszRoot is only known here.
-/*static*/ file_path file_path::get_root() {
+/*static*/ file_path file_path::root() {
 	abc_trace_fn(());
 
 	return dmstr(smc_aszRoot);
@@ -205,7 +211,7 @@ bool file_path::is_dir() const {
 #if ABC_HOST_API_POSIX
 	return S_ISDIR(file_stat(*this).st_mode);
 #elif ABC_HOST_API_WIN32
-	return file_attrs(FILE_ATTRIBUTE_DIRECTORY);
+	return file_attrs(*this, FILE_ATTRIBUTE_DIRECTORY);
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -235,7 +241,7 @@ bool file_path::is_root() const {
 	}
 	// If it’s a relative path, make it absolute.
 	if (!is_absolute(s)) {
-		dmstr sAbs(std::move(get_current_dir().m_s));
+		dmstr sAbs(std::move(current_dir().m_s));
 		sAbs += smc_aszSeparator[0];
 		sAbs += s;
 		s = std::move(sAbs);

@@ -36,8 +36,9 @@ namespace abc {
 
 /** DOC:7101 abc::file_path
 
-File paths are always stored in absolute notation, prepending the current directory on assignment if
-necessary.
+An abc::file_path instance is always either an empty path string ("") or a normalized, absolute
+path. File paths are always stored in absolute notation, prepending the current directory on
+assignment if necessary.
 
 Under Win32, all DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 namespace, which
 means they all start with “\\?\” (automatically prepended, forming e.g. “\\?\C:\My\File”). This
@@ -45,7 +46,7 @@ prefix is also considered the root, although trying to do anything with it other
 more path components will most likely result in exceptions being thrown. Nonetheless, this
 convention allows to have a single root in Win32 just like under POSIX.
 
-Reference for Python’s implementation: <http://docs.python.org/3/library/os.path.html>
+Reference for Python’s approach: <http://docs.python.org/3/library/os.path.html>
 Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247.aspx>
 */
 
@@ -54,7 +55,8 @@ Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa
 class _file_path_iterator;
 #endif
 
-/** Filesystem path. */
+/** Filesystem path.
+*/
 class file_path :
 	public support_explicit_operator_bool<file_path> {
 
@@ -109,9 +111,10 @@ public:
 	}
 
 
-	/** Returns true if the length is greater than 0.
+	/** Returns true if the path length is greater than 0.
 
-	TODO: comment signature.
+	return
+		true if the length of the path string is greater than 0, or false otherwise.
 	*/
 	explicit_operator_bool() const {
 		return m_s.get_size() > 0;
@@ -120,7 +123,8 @@ public:
 
 	/** Automatic cast to string.
 
-	TODO: comment signature.
+	return
+		An immutable, constant reference to the internal path string.
 	*/
 	operator istr const &() const {
 		return m_s;
@@ -129,7 +133,10 @@ public:
 
 	/** Concatenation-assignment operator.
 
-	TODO: comment signature.
+	s
+		String to append.
+	return
+		*this.
 	*/
 	file_path & operator+=(istr const & s) {
 		m_s = normalize(m_s + s);
@@ -139,7 +146,10 @@ public:
 
 	/** Concatenation operator.
 
-	TODO: comment signature.
+	s
+		String to append.
+	return
+		Resulting path.
 	*/
 	file_path operator+(istr const & s) const {
 		return file_path(*this) += s;
@@ -149,14 +159,20 @@ public:
 	/** Path-correct concatenation-assignment operator. Joins the current path with the provided
 	string, inserting a separator if necessary.
 
-	TODO: comment signature.
+	s
+		Path component(s) to append.
+	return
+		*this.
 	*/
 	file_path & operator/=(istr const & s);
 
 
 	/** Path-correct concatenation operator. See operator/=() for details.
 
-	TODO: comment signature.
+	s
+		Path component(s) to append.
+	return
+		Resulting path.
 	*/
 	file_path operator/(istr const & s) const {
 		return file_path(*this) /= s;
@@ -174,55 +190,62 @@ public:
 
 	/** Returns a read-only pointer to the path string. See dmstr::get_data().
 
-	TODO: comment signature.
+	return
+		Pointer to the path string’s character buffer.
 	*/
-	char_t const * get_data() const {
+	char_t const * data() const {
 		return m_s.get_data();
 	}
 
 
 	/** Returns the count of characters in the path.
 
-	TODO: comment signature.
+	return
+		Count of characters.
 	*/
-	size_t get_size() const {
+	size_t size() const {
 		return m_s.get_size();
 	}
 
 
-	/** Returns the last component in this path.
+	/** Returns the last component in the path.
 
-	TODO: comment signature.
+	return
+		Last component in the path.
 	*/
-	dmstr get_base_name() const;
+	dmstr base_name() const;
 
 
-	/** Returns the current directory.
+	/** Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
 
-	TODO: comment signature.
+	return
+		Current directory.
 	*/
-	static file_path get_current_dir();
+	static file_path current_dir();
 
 
-	/** Returns the directory containing this file.
+	/** Returns the directory containing the path.
 
-	TODO: comment signature.
+	return
+		Parent directory of the path.
 	*/
-	file_path get_parent_dir() const;
+	file_path parent_dir() const;
 
 
 	/** Returns the root (POSIX) or the namespace root (Windows).
 
-	TODO: comment signature.
+	return
+		Root directory.
 	*/
-	static file_path get_root();
+	static file_path root();
 
 
 	/** Returns the platform-dependent path component separator.
 
-	TODO: comment signature.
+	return
+		Path component separator.
 	*/
-	static istr get_separator() {
+	static istr separator() {
 		return istr(smc_aszSeparator);
 	}
 
@@ -238,21 +261,26 @@ public:
 
 	/** Returns true if the specified string represents an absolute path.
 
-	TODO: comment signature.
+	s
+		Path to analyze.
+	return
+		true if s represents an absolute path, or false otherwise.
 	*/
 	static bool is_absolute(istr const & s);
 
 
-	/** Returns true if this path represents a directory.
+	/** Returns true if the path represents a directory.
 
-	TODO: comment signature.
+	return
+		true if the path represents a directory, of false otherwise.
 	*/
 	bool is_dir() const;
 
 
-	/** Returns true if this->get_parent_dir() == *this.
+	/** Returns true if this->parent_dir() == *this.
 
-	TODO: comment signature.
+	return
+		true if the path represents a root directory, of false otherwise.
 	*/
 	bool is_root() const;
 
@@ -264,7 +292,10 @@ private:
 	•	Interprets . and .. special components;
 	•	Removes any trailing separators.
 
-	TODO: comment signature.
+	s
+		Path to normalize.
+	return
+		Normalized path.
 	*/
 	static dmstr normalize(dmstr s);
 
@@ -327,6 +358,8 @@ namespace std {
 template <>
 struct hash<abc::file_path>  {
 
+	/** See std::hash::operator()().
+	*/
 	size_t operator()(abc::file_path const & fp) const {
 		return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
 	}
@@ -349,51 +382,51 @@ public:
 	//
 	_file_path_iterator(file_path const & pathDir, istr const & sPattern) :
 		m_pathBaseDir(pathDir),
-		m_hSearch(find_first_file((m_pathBaseDir / sPattern).get_data(), &m_wfd)),
+		m_hSearch(find_first_file((m_pathBaseDir / sPattern).data(), &m_wfd)),
 		m_bEOF(m_hSearch == INVALID_HANDLE_VALUE) {
-		if (!m_bEOF)
+		if (!m_bEOF) {
 			m_pathCurr = next_file_path();
+		}
 	}
-	_file_path_iterator(_file_path_iterator && iter) throw() :
+	_file_path_iterator(_file_path_iterator && iter) :
 		m_pathBaseDir(std::move(iter.m_pathBaseDir)),
 		m_hSearch(iter.m_hSearch),
 		m_bEOF(iter.m_bEOF) {
-		mem_copy(&m_wfd, 1, &iter.m_wfd);
+		memory::copy(&m_wfd, &iter.m_wfd);
 		iter.m_hSearch = INVALID_HANDLE_VALUE;
 	}
 
 
 	// Destructor.
 	//
-	~_file_path_iterator() throw() {
-		if (m_hSearch != INVALID_HANDLE_VALUE)
+	~_file_path_iterator() {
+		if (m_hSearch != INVALID_HANDLE_VALUE) {
 			::FindClose(m_hSearch);
+		}
 	}
 
 
 	// Assignment operator.
 	//
-	_file_path_iterator & operator=(_file_path_iterator && iter) throw();
+	_file_path_iterator & operator=(_file_path_iterator && iter);
 
 
 	// Dereferencing operator.
 	//
-	file_path & operator*() throw() {
-
+	file_path & operator*() {
 		return m_pathCurr;
-
 	}
-	file_path const & operator*() const throw() {
+	file_path const & operator*() const {
 		return m_pathCurr;
 	}
 
 
 	// Dereferencing member access operator.
 	//
-	file_path & operator->() throw() {
+	file_path & operator->() {
 		return m_pathCurr;
 	}
-	file_path const & operator->() const throw() {
+	file_path const & operator->() const {
 		return m_pathCurr;
 	}
 
@@ -401,12 +434,13 @@ public:
 	// Prefix increment operator.
 	//
 	_file_path_iterator & operator++() {
-		if (::FindNextFileW(m_hSearch, &m_wfd))
+		if (::FindNextFileW(m_hSearch, &m_wfd)) {
 			m_pathCurr = next_file_path();
-		else {
+		} else {
 			unsigned long iErr(::GetLastError());
-			if (iErr != ERROR_NO_MORE_FILES)
+			if (iErr != ERROR_NO_MORE_FILES) {
 				throw_os_error(iErr);
+			}
 			// Remember we hit the bottom.
 			m_bEOF = true;
 		}
@@ -416,7 +450,7 @@ public:
 
 	// Returns true if there are still files to be enumerated.
 	//
-	operator bool() const throw() {
+	operator bool() const {
 		return !m_bEOF;
 	}
 
@@ -425,15 +459,14 @@ private:
 
 	// Wrapper for ::FindFirstFile(), to support RIIA.
 	//
-	static HANDLE find_first_file(
-		char_t const * pszPattern, WIN32_FIND_DATA * pwfd
-	) {
+	static HANDLE find_first_file(char_t const * pszPattern, WIN32_FIND_DATA * pwfd) {
 		HANDLE h(::FindFirstFileW(pszPattern, pwfd));
 		if (h == INVALID_HANDLE_VALUE) {
 
 			unsigned long iErr(::GetLastError());
-			if (iErr != ERROR_FILE_NOT_FOUND)
+			if (iErr != ERROR_FILE_NOT_FOUND) {
 				throw_os_error(iErr);
+			}
 		}
 		return h;
 	}

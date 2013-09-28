@@ -38,7 +38,7 @@ dynamic_module::dynamic_module(dynamic_module && dm) :
 	dm.m_bOwn = false;
 }
 dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
-	m_hdynmod(::LoadLibraryEx(fp.get_data(), NULL, bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE)),
+	m_hdynmod(::LoadLibraryEx(fp.data(), NULL, bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE)),
 	m_bOwn(true) {
 	abc_trace_fn((this, /*fp, */bInit));
 
@@ -140,7 +140,7 @@ namespace abc {
 
 code_module::code_module(file_path const & fp) :
 #if ABC_HOST_API_POSIX
-	m_hdynmod(::dlopen(fp.get_data(), RTLD_LAZY)) {
+	m_hdynmod(::dlopen(fp.data(), RTLD_LAZY)) {
 	abc_trace_fn((this/*, fp*/));
 
 	if (!m_hdynmod) {

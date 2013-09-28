@@ -33,7 +33,7 @@ public:
 
 		// Basic operations.
 		{
-			file_path fp(file_path::get_current_dir());
+			file_path fp(file_path::current_dir());
 
 			// These should be normalized out.
 			if (fp != fp / SL("")) {

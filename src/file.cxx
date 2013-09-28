@@ -402,7 +402,7 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 	if (!m_bBuffered) {
 		fi |= O_DIRECT;
 	}
-	fd = ::open(fp.get_data(), fi, 0666);
+	fd = ::open(fp.data(), fi, 0666);
 #elif ABC_HOST_API_WIN32
 	DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
 	m_bAppend = false;
@@ -437,7 +437,7 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 	} else if (bRead) {
 		fi |= FILE_FLAG_SEQUENTIAL_SCAN;
 	}
-	fd = ::CreateFile(fp.get_data(), fiAccess, fiShareMode, NULL, iAction, fi, NULL);
+	fd = ::CreateFile(fp.data(), fiAccess, fiShareMode, NULL, iAction, fi, NULL);
 #else
 	#error TODO-PORT: HOST_API
 #endif
