@@ -36,7 +36,7 @@ namespace abc {
 
 /** UTF-8 character type. */
 typedef char char8_t;
-#if _GCC_VER >= 40400
+#if defined(_GCC_VER) && _GCC_VER >= 40400
 	// char16_t is a native type, different than uint16_t.
 	#define ABC_CXX_CHAR16
 	// char32_t is a native type, different than uint32_t.
@@ -53,7 +53,7 @@ typedef char char8_t;
 		#define U8L(s) s
 	#endif
 #else
-	#if _MSC_VER && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
+	#if defined(_MSC_VER) && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
 		#error Please compile with /Zc:wchar_t
 	#endif
 	#if ABC_HOST_API_WIN32

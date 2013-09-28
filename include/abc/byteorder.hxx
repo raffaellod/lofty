@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_HOST_LITTLE_ENDIAN 0
 #define ABC_HOST_BIG_ENDIAN 0
 
-#if _GCC_VER
+#if defined(_GCC_VER)
 	#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 		#undef ABC_HOST_LITTLE_ENDIAN
 		#define ABC_HOST_LITTLE_ENDIAN 1

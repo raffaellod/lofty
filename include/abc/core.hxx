@@ -107,6 +107,25 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #elif ABC_HOST_API_WIN32
 
+	// Make sure WINVER is defined.
+	#ifndef WINVER
+		// Pick a default Windows version.
+		#ifdef _WIN64
+			// The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
+			// Edition (5.2).
+			#define WINVER 0x0502
+		#else
+			// The earliest Win32 implementations are Windows 95 (4.0) and Windows NT 4 (4.0).
+			#define WINVER 0x0400
+		#endif
+	#endif
+
+	// Make sure _WIN32_WINNT is defined for WINVER values representing NT-only Windows versions.
+	// The first NT-only version of Windows is 5.0 (Windows 2000; Windows Me is 4.9).
+	#if !defined(_WIN32_WINNT) && WINVER >= 0x0500
+		#define _WIN32_WINNT WINVER
+	#endif
+
 	// Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
 	#if defined(UNICODE) && !defined(_UNICODE)
 		#define _UNICODE
@@ -114,6 +133,8 @@ You should have received a copy of the GNU General Public License along with ABC
 		#undef _UNICODE
 	#endif
 
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
 #endif
 
 
@@ -308,7 +329,7 @@ union max_align_t {
 
 
 // Support loose exception specifications.
-#if _GCC_VER >= 40600
+#if defined(_GCC_VER) && _GCC_VER >= 40600
 	#define noexcept_false \
 		noexcept(false)
 	#define noexcept_true \

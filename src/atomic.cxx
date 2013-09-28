@@ -29,7 +29,9 @@ namespace abc {
 
 namespace atomic {
 
+#if ABC_HOST_API_POSIX
 pthread_mutex_t g_mtx(PTHREAD_MUTEX_INITIALIZER);
+#endif
 
 } //namespace atomic
 

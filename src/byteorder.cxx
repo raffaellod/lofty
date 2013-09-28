@@ -29,17 +29,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 uint16_t bswap_16(uint16_t i) {
 	return
-		((i & 0xff00) >> 8) |
-		((i & 0x00ff) << 8);
+		((i & 0xff00u) >> 8) |
+		((i & 0x00ffu) << 8);
 }
 
 
 uint32_t bswap_32(uint32_t i) {
 	return
-		((i & 0xff000000) >> 24) |
-		((i & 0x00ff0000) >>  8) |
-		((i & 0x0000ff00) <<  8) |
-		((i & 0x000000ff) << 24);
+		((i & 0xff000000u) >> 24) |
+		((i & 0x00ff0000u) >>  8) |
+		((i & 0x0000ff00u) <<  8) |
+		((i & 0x000000ffu) << 24);
 }
 
 
