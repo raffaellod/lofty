@@ -106,7 +106,7 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*virtual*/ size_t file_istream::read(
+/*virtual*/ size_t file_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cbMax, enc));
@@ -166,7 +166,7 @@ file_istream::file_istream(file_path const & fp) :
 		int8_t * pbRawReadBuf(pbReadBuf + m_ibReadBufUsed);
 		for (;;) {
 			// Transcode the buffer, from the start of the bytes already in the read buffer. This also
-			// allows to re-read bytes that have been unread().
+			// allows to re-read bytes that have been unread.
 			void const * pBufUsed(pbReadBuf + m_ibReadBufUsed);
 			text::transcode(std::nothrow, m_enc, &pBufUsed, &m_cbReadBufUsed, enc, &p, &cbAvail);
 			m_ibReadBufUsed = size_t(static_cast<int8_t const *>(pBufUsed) - pbReadBuf);
@@ -218,14 +218,14 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*virtual*/ void file_istream::unread(void const * p, size_t cb, text::encoding enc) {
+/*virtual*/ void file_istream::unread_raw(void const * p, size_t cb, text::encoding enc) {
 	abc_trace_fn((this, p, cb, enc));
 
 	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
 		enc = text::encoding::identity;
 	}
-	// This must have been set by a preceding call to read().
+	// This must have been set by a preceding call to read_raw().
 	assert(m_enc != text::encoding::unknown);
 	int8_t * pbReadBuf(_get_read_buffer());
 	if (enc == m_enc || enc == text::encoding::identity) {
@@ -314,9 +314,9 @@ int8_t * file_istream::_get_read_buffer() {
 
 
 /*virtual*/ void file_istream::_read_line(
-	_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-	abc_trace_fn((this, /*rs, */enc, cchCodePointMax/*, pfnStrStr*/));
+	abc_trace_fn((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
 
 	size_t cbChar(text::get_encoding_size(enc));
 	assert(cbChar > 0);
@@ -334,13 +334,13 @@ int8_t * file_istream::_get_read_buffer() {
 		if (cchAvail < cchCodePointMax) {
 			// Need to enlarge the string buffer.
 			cchMax += m_cchBufferStep;
-			rs.set_capacity(cbChar, cchMax, false);
+			prs->set_capacity(cbChar, cchMax, false);
 			cchAvail = cchMax - cchFilled;
 		}
 
 		// Read as many characters as possible, appending to the current end of the string.
-		int8_t * pbLastEnd(rs.get_data<int8_t>() + (cchFilled << cbCharLog2));
-		size_t cbRead(read(pbLastEnd, cchAvail << cbCharLog2, enc));
+		int8_t * pbLastEnd(prs->get_data<int8_t>() + (cchFilled << cbCharLog2));
+		size_t cbRead(read_raw(pbLastEnd, cchAvail << cbCharLog2, enc));
 		if (!cbRead) {
 			break;
 		}
@@ -370,7 +370,7 @@ int8_t * file_istream::_get_read_buffer() {
 			if (pbLineEnd != pbBeforeLastEnd + cchBeforeLastEnd) {
 				// Move back to the read buffer any read bytes beyond the line terminator.
 				size_t ibLineEnd(size_t(pbLineEnd - pbLastEnd));
-				unread(pbLineEnd + cbLTerm, cbRead - ibLineEnd - cbLTerm, enc);
+				unread_raw(pbLineEnd + cbLTerm, cbRead - ibLineEnd - cbLTerm, enc);
 				// We’re actually only filling up the characters up to the line end.
 				cchFilled += ibLineEnd >> cbCharLog2;
 				break;
@@ -380,7 +380,7 @@ int8_t * file_istream::_get_read_buffer() {
 		// Add the characters read as part of the line.
 		cchFilled += cbRead >> cbCharLog2;
 	}
-	rs.set_size(cbChar, cchFilled);
+	prs->set_size(cbChar, cchFilled);
 }
 
 
@@ -400,8 +400,8 @@ void file_istream::_post_construct() {
 	// The read buffer is created on demand.
 	m_ibReadBufUsed = 0;
 	m_cbReadBufUsed = 0;
-	// Always give an optimistic start; if the file is actually empty, the first call to read() will
-	// make this true.
+	// Always give an optimistic start; if the file is actually empty, the first call to read_raw()
+	// will make this true.
 	m_bAtEof = false;
 }
 

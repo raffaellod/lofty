@@ -83,7 +83,7 @@ namespace abc {
 There are a few conditions in which file_istream will be forced to use a read buffer (m_pbReadBuf),
 instead of a memory map, for its read methods:
 
-1.	Reusing bytes previously pushed back with istream::unread().
+1.	Reusing bytes previously pushed back with istream::unread_raw().
 2.	Reading from a non-disk file (pipe, socket, …).
 3.	Any time memmap() (or equivalent) fails.
 
@@ -131,7 +131,7 @@ The read buffer is maintained with these usage constraints:
 	│         h i j k l m n o p │   other bytes along with which it constitutes a character.
 	└───────────────────────────┘
 
-2.	Issues due to a buffer refill immediately followed by an unread() call:
+2.	Issues due to a buffer refill immediately followed by an unread_raw() call:
 
 	┌─────────────────┐   The read buffer has just been filled via an OS read() API call.
 	│ a b c d e f g h │
@@ -219,9 +219,9 @@ public:
 	virtual bool at_end() const;
 
 
-	/** See istream::read().
+	/** See istream::read_raw().
 	*/
-	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
+	virtual size_t read_raw(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
 
 
 	/** Returns the stream associated to the standard input (stdin).
@@ -232,9 +232,11 @@ public:
 	static std::shared_ptr<file_istream> const & stdin();
 
 
-	/** See istream::unread().
+	/** See istream::unread_raw().
 	*/
-	virtual void unread(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void unread_raw(
+		void const * p, size_t cb, text::encoding enc = text::encoding::identity
+	);
 
 
 private:
@@ -264,7 +266,7 @@ private:
 	/** See istream::_read_line().
 	*/
 	virtual void _read_line(
-		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
 

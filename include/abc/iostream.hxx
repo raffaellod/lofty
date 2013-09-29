@@ -142,32 +142,53 @@ public:
 	virtual bool at_end() const = 0;
 
 
-	/** Reads at most cbMax bytes from the stream into the specified buffer.
+	/** Reads a whole line in the provided mutable string, discarding any line termination characters
+	read.
 
-	TODO: comment signature.
-	*/
-	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity) = 0;
-
-
-	/** Reads a whole line in the provided mstr_, discarding any line termination characters read.
-
-	TODO: comment signature.
+	ps
+		Pointer to the string that will receive the line read.
+	enc
+		Encoding used by the string pointed to by prs. If not the same as stream’s encoding, a
+		conversion will be performed.
+	return
+		*this.
 	*/
 	template <typename C, class TTraits>
 	istream & read_line(mstr_<C, TTraits> * ps, text::encoding enc = TTraits::host_encoding) {
 		_read_line(
-			ps->get_raw(), enc,
+			&ps->get_raw(), enc,
 			TTraits::max_codepoint_length, reinterpret_cast<text::str_str_fn>(TTraits::str_str)
 		);
 		return *this;
 	}
 
 
+	/** Reads at most cbMax bytes from the stream into the specified buffer.
+
+	p
+		Pointer to the buffer to read the data into.
+	cbMax
+		Capacity of the buffer pointed to by p, in bytes.
+	enc
+		Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
+		conversion will be performed.
+	*/
+	virtual size_t read_raw(
+		void * p, size_t cbMax, text::encoding enc = text::encoding::identity
+	) = 0;
+
+
 	/** Pretends to undo the reads of cbMax bytes, which must be provided in the specified buffer.
 
-	TODO: comment signature.
+	p
+		Pointer to the buffer to unread (write back to the read buffer).
+	cb
+		Size of the buffer pointed to by p, in bytes.
+	enc
+		Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
+		conversion will be performed.
 	*/
-	virtual void unread(
+	virtual void unread_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	) = 0;
 
@@ -177,10 +198,19 @@ private:
 	/** Implementation of read_line(): reads a whole line in the provided string, discarding the line
 	terminator read (if any) and appending a NUL character.
 
-	TODO: comment signature.
+	prs
+		Pointer to the string that will receive the line read.
+	enc
+		Encoding used by the string pointed to by prs. If not the same as stream’s encoding, a
+		conversion will be performed.
+	cchCodePointMax
+		Maximum size, in *prs characters, of a single Unicode code point. Used to calculate buffer
+		sizes.
+	pfnStrStr
+		Pointer to a substring-search function suitable for the character type of *prs.
 	*/
 	virtual void _read_line(
-		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	) = 0;
 };
 
@@ -261,27 +291,42 @@ public:
 
 	/** Writes multiple values combined together in the specified format.
 
-	TODO: comment signature.
+	sFormat
+		Format string to parse for replacements.
+	ts
+		Replacement values.
+	return
+		*this.
 	*/
 	template <typename ... Ts>
-	void print(istr const & sFormat, Ts const & ... ts);
+	ostream & print(istr const & sFormat, Ts const & ... ts);
 
 
 	/** Writes a value to the stream using the default formatting for abc::to_str_backend().
 
-	TODO: comment signature.
+	t
+		Value to write.
+	return
+		*this.
 	*/
 	template <typename T>
-	inline void write(T const & t) {
+	inline ostream & write(T const & t) {
 		abc::to_str_backend<T> tsb;
 		tsb.write(t, this);
+		return *this;
 	}
 
 
 	/** Writes an array of bytes to the stream, translating them to the file’s character encoding
 	first, if necessary.
 
-	TODO: comment signature.
+	p
+		Pointer to the buffer to write.
+	cb
+		Size of the buffer pointed to by p, in bytes.
+	enc
+		Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
+		conversion will be performed.
 	*/
 	virtual void write_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
@@ -309,7 +354,10 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
 	*/
 	_ostream_print_helper(ostream * pos, istr const & sFormat);
 
@@ -325,14 +373,16 @@ protected:
 	and returns true, or writes the remaining characters of the format string and returns false if no
 	more replacement are found.
 
-	TODO: comment signature.
+	return
+		true if another replacement was found and should be printed, or false otherwise.
 	*/
 	bool write_format_up_to_next_repl();
 
 
 	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
-	TODO: comment signature.
+	iArg
+		0-based index of the template argument to write.
 	*/
 	ABC_FUNC_NORETURN void write_repl(unsigned iArg);
 
@@ -341,7 +391,10 @@ private:
 
 	/** Throws an instance of abc::syntax_error(), providing accurate context information.
 
-	TODO: comment signature.
+	sDescription
+		Error description.
+	it
+		Position of the offending character in m_sFormat.
 	*/
 	ABC_FUNC_NORETURN void throw_syntax_error(
 		istr const & sDescription, istr::const_iterator it
@@ -351,7 +404,8 @@ private:
 	/** Writes the portion of format string between the first character to be written
 	(m_itFormatToWriteBegin) and the specified one, and updates m_itFormatToWriteBegin.
 
-	TODO: comment signature.
+	itUpTo
+		First character not to be written.
 	*/
 	void write_format_up_to(istr::const_iterator itUpTo);
 
@@ -387,7 +441,14 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
+	t0
+		First replacement value.
+	ts
+		Remaining replacement values.
 	*/
 	_ostream_print_helper(ostream * pos, istr const & sFormat, T0 const & t0, Ts const & ... ts) :
 		osph_base(pos, sFormat, ts ...),
@@ -409,7 +470,8 @@ protected:
 
 	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
-	TODO: comment signature.
+	iArg
+		0-based index of the template argument to write.
 	*/
 	void write_repl(unsigned iArg) {
 		if (iArg == 0) {
@@ -433,9 +495,10 @@ private:
 
 // Now it’s possible to implement this.
 template <typename ... Ts>
-inline void ostream::print(istr const & sFormat, Ts const & ... ts) {
+inline ostream & ostream::print(istr const & sFormat, Ts const & ... ts) {
 	_ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
 	osph.run();
+	return *this;
 }
 
 } //namespace abc
