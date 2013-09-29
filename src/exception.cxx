@@ -1156,7 +1156,7 @@ void exception::_print_extended_info(ostream * pos) const {
 		// abc::exception, the class has a custom implementation, probably to print something useful.
 		if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
 			try {
-				*pfosStdErr << SL("Extended information:\n");
+				pfosStdErr->write(SL("Extended information:\n"));
 				pabcx->_print_extended_info(pfosStdErr.get());
 			} catch (...) {
 				// The exception is not rethrown, because we don’t want exception details to interfere
@@ -1167,10 +1167,10 @@ void exception::_print_extended_info(ostream * pos) const {
 	} else {
 		// Some other type of exception; not much to say.
 		pabcx = NULL;
-		*pfosStdErr << SL("Unhandled exception: (unknown type)\n");
+		pfosStdErr->write(SL("Unhandled exception: (unknown type)\n"));
 	}
 
-	*pfosStdErr << SL("Stack trace:\n");
+	pfosStdErr->write(SL("Stack trace:\n"));
 	if (pabcx) {
 		// Frame 0 is the location of the abc_throw() statement.
 		pfosStdErr->print(
@@ -1179,7 +1179,7 @@ void exception::_print_extended_info(ostream * pos) const {
 		);
 	}
 	// Print the stack trace collected via abc_trace_fn().
-	*pfosStdErr << _scope_trace<>::get_trace_contents();
+	pfosStdErr->write(_scope_trace<>::get_trace_contents());
 }
 
 
@@ -1570,7 +1570,7 @@ void memory_address_error::_print_extended_info(ostream * pos) const {
 	if (m_pInvalid != smc_achUnknownAddress) {
 		pos->print(SL("invalid address: {}\n"), m_pInvalid);
 	} else {
-		*pos << smc_achUnknownAddress;
+		pos->write(smc_achUnknownAddress);
 	}
 	generic_error::_print_extended_info(pos);
 }

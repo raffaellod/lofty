@@ -80,7 +80,7 @@ ostream * _scope_trace<>::scope_render_start_or_continue() {
 		// Add this argument to the current trace.
 		ostream * pso(get_trace_stream());
 		if (m_bScopeRenderingStarted) {
-			*pso << SL(", ");
+			pso->write(SL(", "));
 		} else {
 			// First argument for the current function, so print the function name as well.
 			m_bScopeRenderingStarted = true;

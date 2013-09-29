@@ -54,7 +54,7 @@ str_istream::str_istream(dmstr && s) :
 }
 
 
-size_t str_istream::read(
+size_t str_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
 	UNUSED_ARG(p);
@@ -64,7 +64,7 @@ size_t str_istream::read(
 }
 
 
-/*virtual*/ void str_istream::unread(void const * p, size_t cb, text::encoding enc) {
+/*virtual*/ void str_istream::unread_raw(void const * p, size_t cb, text::encoding enc) {
 	UNUSED_ARG(p);
 	UNUSED_ARG(cb);
 	UNUSED_ARG(enc);
@@ -72,9 +72,9 @@ size_t str_istream::read(
 
 
 /*virtual*/ void str_istream::_read_line(
-	_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-	UNUSED_ARG(rs);
+	UNUSED_ARG(prs);
 	UNUSED_ARG(enc);
 	UNUSED_ARG(cchCodePointMax);
 	UNUSED_ARG(pfnStrStr);
@@ -104,7 +104,7 @@ str_ostream::string_type str_ostream::get_contents() {
 }
 
 
-/*virtual*/ void str_ostream::write(
+/*virtual*/ void str_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

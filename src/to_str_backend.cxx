@@ -192,7 +192,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
 		*--pch = chSign;
 	}
 	// Write the constructed string.
-	posOut->write(pch, size_t(pchBufEnd - pch), text::encoding::host);
+	posOut->write_raw(pch, size_t(pchBufEnd - pch), text::encoding::host);
 }
 
 
@@ -296,9 +296,9 @@ void to_str_backend<bool>::write(bool b, ostream * posOut) {
 
 	// TODO: apply format options.
 	if (b) {
-		*posOut << SL("true");
+		posOut->write(SL("true"));
 	} else {
-		*posOut << SL("false");
+		posOut->write(SL("false"));
 	}
 }
 

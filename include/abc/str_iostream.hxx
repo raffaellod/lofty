@@ -54,28 +54,24 @@ public:
 	virtual ~str_istream();
 
 
-	/** See istream::read().
-
-	TODO: comment signature.
+	/** See istream::read_raw().
 	*/
-	virtual size_t read(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
+	virtual size_t read_raw(void * p, size_t cbMax, text::encoding enc = text::encoding::identity);
 
 
-	/** See istream::unread().
-
-	TODO: comment signature.
+	/** See istream::unread_raw().
 	*/
-	virtual void unread(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void unread_raw(
+		void const * p, size_t cb, text::encoding enc = text::encoding::identity
+	);
 
 
 protected:
 
 	/** See istream::_read_line().
-
-	TODO: comment signature.
 	*/
 	virtual void _read_line(
-		_raw_str & rs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+		_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
 
@@ -107,8 +103,6 @@ class str_ostream :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	str_ostream();
 
@@ -120,16 +114,15 @@ public:
 
 	/** Returns and empties the contents of the stream.
 
-	TODO: comment signature.
+	return
+		Former contents of the stream.
 	*/
 	string_type get_contents();
 
 
-	/** See ostream::write().
-
-	TODO: comment signature.
+	/** See ostream::write_raw().
 	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 protected:

@@ -50,7 +50,7 @@ void _str_to_str_backend_base::write(
 	abc_trace_fn((this, p, cb, enc, posOut));
 
 	// TODO: apply format options.
-	posOut->write(p, cb, enc);
+	posOut->write_raw(p, cb, enc);
 }
 
 } //namespace abc

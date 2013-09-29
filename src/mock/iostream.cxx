@@ -48,7 +48,7 @@ bool ostream::contents_equal(istr const & sExpected) {
 
 /// See ostream::write().
 //
-/*virtual*/ void ostream::write(
+/*virtual*/ void ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

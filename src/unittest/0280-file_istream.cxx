@@ -44,8 +44,9 @@ public:
 			return EXIT_FAILURE;
 		}
 		auto pstdout(file_ostream::stdout());
-		for (dmstr s; *pfis >> s; ) {
-			*pstdout << s << SL("\n");
+		for (dmstr s; pfis->read_line(&s); ) {
+			pstdout->write(s);
+			pstdout->write(SL("\n"));
 		}
 
 		// Test results determined by external program.

@@ -59,8 +59,6 @@ class ostream :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	ostream();
 
@@ -73,17 +71,15 @@ public:
 
 
 	/** Empties the contents of the stream.
-
-	TODO: comment signature.
 	*/
 	void reset() {
 		m_cchUsed = 0;
 	}
 
 
-	/** See ostream::write().
+	/** See ostream::write_raw().
 	*/
-	virtual void write(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+	virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 private:
