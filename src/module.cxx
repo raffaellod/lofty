@@ -59,7 +59,7 @@ dynamic_module & dynamic_module::operator=(dynamic_module && dm) {
 }
 
 
-file_path dynamic_module::get_file_name() const {
+file_path dynamic_module::file_name() const {
 	abc_trace_fn((this));
 
 	dmstr s;
