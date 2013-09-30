@@ -337,7 +337,7 @@ public:
 		return TTraits::str_cmp(data(), size(), ach, t_cch - 1 /*NUL*/);
 	}
 	// This overload needs to be template, or it will take precedence over the one above.
-	template <typename = void>
+	template <typename>
 	int compare_to(C const * psz) const {
 		return TTraits::str_cmp(data(), size(), psz, TTraits::str_len(psz));
 	}
@@ -539,7 +539,7 @@ protected:
 	inline bool operator op(abc::str_base_<C, TTraits> const & s, C const * psz) { \
 		return s.compare_to(psz) op 0; \
 	} \
-	template <typename C, class TTraits, size_t t_cch> \
+	template <typename C, class TTraits> \
 	inline bool operator op(C const * psz, abc::str_base_<C, TTraits> const & s) { \
 		return -s.compare_to(psz) op 0; \
 	}
