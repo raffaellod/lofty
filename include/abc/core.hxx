@@ -210,13 +210,9 @@ TODO: comment signature.
 	#define ABC_CLASS_PREVENT_COPYING(cls) \
 		private: \
 		\
-			cls(cls const &) { \
-				class_ ## cls ## _cannot_be_copied(); \
-			} \
-			\
-			cls & operator=(cls const &) { \
-				class_ ## cls ## _cannot_be_copied(); \
-			}
+			cls(cls const &); \
+		\
+			cls & operator=(cls const &);
 #endif
 
 
