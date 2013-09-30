@@ -113,7 +113,7 @@ namespace memory {
 
 void * _raw_alloc(size_t cb);
 
-template <typename T = void>
+template <typename T>
 void free(T * pt);
 
 } //namespace memory
@@ -376,7 +376,7 @@ specified number of bytes.
 
 TODO: comment signature.
 */
-template <typename T = void>
+template <typename T>
 inline std::unique_ptr<T, deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
 	return make_unique_ptr<T>(static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra)));
 }
@@ -390,7 +390,7 @@ inline std::unique_ptr<void, deleter<void>> alloc(size_t cb /*= 1*/, size_t cbEx
 
 TODO: comment signature.
 */
-template <typename T /*= void*/>
+template <typename T>
 inline void free(T * pt) {
 	::free(pt);
 }
@@ -401,7 +401,7 @@ specialization that ignores pointer types (void), and allocates the specified nu
 
 TODO: comment signature.
 */
-template <typename T = void>
+template <typename T>
 inline T * realloc(T * pt, size_t c, size_t cbExtra = 0) {
 	return static_cast<T *>(_raw_realloc(pt, sizeof(T) * c + cbExtra));
 }
@@ -409,7 +409,7 @@ template <>
 inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
 	return _raw_realloc(p, cb + cbExtra);
 }
-template <typename T = void>
+template <typename T>
 inline void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
 	T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
 	ppt->release();
@@ -439,7 +439,7 @@ namespace memory {
 
 TODO: comment signature.
 */
-template <typename T = void>
+template <typename T>
 inline T * clear(T * ptDst, size_t c = 1) {
 	return static_cast<T *>(clear<void>(ptDst, sizeof(T) * c));
 }
@@ -461,7 +461,7 @@ copies the specified number of bytes.
 
 TODO: comment signature.
 */
-template <typename T = void>
+template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc) {
 	// Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
 	// that the compiler can inline the copy.
@@ -490,7 +490,7 @@ inline void * copy(void * pDst, void const * pSrc) {
 	*reinterpret_cast<int8_t *>(pDst) = *reinterpret_cast<int8_t const *>(pSrc);
 	return pDst;
 }
-template <typename T = void>
+template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
 	return static_cast<T *>(copy<void>(ptDst, ptSrc, sizeof(T) * c));
 }
@@ -512,7 +512,7 @@ types (void), and copies the specified number of bytes.
 
 TODO: comment signature.
 */
-template <typename T = void>
+template <typename T>
 inline T * move(T * ptDst, T const * ptSrc, size_t c) {
 	return static_cast<T *>(move<void>(ptDst, ptSrc, sizeof(T) * c));
 }
