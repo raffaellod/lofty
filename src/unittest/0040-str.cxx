@@ -95,8 +95,16 @@ public:
 			s += SL("efghijklmnopqrstuvwxyz");
 			// false: while this will need to reallocate, the heap should be able to just resize the
 			// allocated block, so the pointer won’t change.
+			// TODO: FIXME: can result in sporadic failures depending on heap reallocation strategy.
 			if (!check_str(false, 26, 55) || s != SL("abcdefghijklmnopqrstuvwxyz")) {
 				return 19;
+			}
+
+			s = SL("a\0b");
+			s += SL("\0c");
+			// false: there should have been plenty of storage allocated.
+			if (!check_str(false, 5, 55) || s != SL("a\0b\0c") || SL("a\0b\0c") != s) {
+				return 20;
 			}
 		}
 
