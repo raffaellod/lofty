@@ -80,7 +80,7 @@ TODO: comment signature.
 TODO: comment signature.
 */
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
-				{ ABC_CPP_TOSTRING(name), value },
+				{ SL(ABC_CPP_TOSTRING(name)), value },
 
 } //namespace abc
 
