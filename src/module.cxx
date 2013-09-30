@@ -179,7 +179,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
 	void * pfn;
 #if ABC_HOST_API_POSIX
 	::dlerror();
-	pfn = ::dlsym(m_hdynmod, sSymbol.get_data());
+	pfn = ::dlsym(m_hdynmod, sSymbol.data());
 	if (char * pszError = ::dlerror()) {
 		// TODO: we have a description, but no error code.
 		UNUSED_ARG(pszError);
@@ -187,7 +187,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
 		throw 123;
 	}
 #elif ABC_HOST_API_WIN32
-	pfn = ::GetProcAddress(m_hdynmod, sSymbol.get_data());
+	pfn = ::GetProcAddress(m_hdynmod, sSymbol.data());
 	if (!pfn) {
 		throw_os_error();
 	}

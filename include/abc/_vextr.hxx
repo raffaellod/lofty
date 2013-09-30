@@ -541,17 +541,21 @@ protected:
 		not called before the transaction is destructed, it’s up to the client to also ensure that any
 		and all objects constructed in the work array have been properly destructed.
 
-		TODO: comment signature.
+		cbItem
+			Size of one item, in bytes.
+		[bNulT]
+			true if the item array is NUL-terminated, or false otherwise.
 		*/
 		void commit(size_t cbItem = 0, bool bNulT = false);
 
 
 		/** Returns the work item array.
 
-		TODO: comment signature.
+		return
+			Pointer to the working item array.
 		*/
-		template <typename T = void>
-		T * get_work_array() const {
+		template <typename T>
+		T * work_array() const {
 			return static_cast<T *>(m_p);
 		}
 
@@ -560,7 +564,8 @@ protected:
 		switching item arrays. If the array was/will be only resized, the return value is false,
 		because the reallocation did/will take care of moving the item array.
 
-		TODO: comment signature.
+		return
+			true if the pointer to the item array will be changed upon destruction, or false otherwise.
 		*/
 		bool will_replace_item_array() const {
 			return m_p != m_prvib->m_p;
@@ -601,33 +606,40 @@ public:
 
 	/** Returns a pointer to the item array.
 
-	TODO: comment signature.
+	return
+		Pointer to the item array.
 	*/
-	template <typename T = void>
-	T * get_data() {
+	template <typename T>
+	T * data() {
 		return static_cast<T *>(m_p);
 	}
-	template <typename T = void>
-	T const * get_data() const {
+	template <typename T>
+	T const * data() const {
 		return static_cast<T const *>(m_p);
 	}
 
 
-	/** See buffered_vector::get_capacity() and _raw_str::get_capacity().
+	/** See buffered_vector::capacity() and _raw_str::capacity().
 
-	TODO: comment signature.
+	[bNulT]
+		true if the item array is NUL-terminated, or false otherwise.
+	return
+		Count of item slots in the item array.
 	*/
-	size_t get_capacity(bool bNulT = false) const {
+	size_t capacity(bool bNulT = false) const {
 		size_t ciMax(m_rvpd.get_ciMax());
 		return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
 	}
 
 
-	/** See buffered_vector::get_size() and _raw_str::get_size().
+	/** See buffered_vector::size() and _raw_str::size().
 
-	TODO: comment signature.
+	[bNulT]
+		true if the item array is NUL-terminated, or false otherwise.
+	return
+		Count of items in the item array.
 	*/
-	size_t get_size(bool bNulT = false) const {
+	size_t size(bool bNulT = false) const {
 		return m_ci - (bNulT ? 1 /*NUL*/ : 0);
 	}
 
@@ -683,16 +695,16 @@ protected:
 
 	TODO: comment signature.
 	*/
-	template <typename T = void>
-	T * get_static_array_ptr();
+	template <typename T>
+	T * static_array_ptr();
 
 
-	/** Returns the size of the array returned by get_static_array_ptr(), or 0 if no such array is
+	/** Returns the size of the array returned by static_array_ptr(), or 0 if no such array is
 	present.
 
 	TODO: comment signature.
 	*/
-	size_t get_static_capacity() const;
+	size_t static_capacity() const;
 
 
 	/** Returns true if m_p points to a read-only item array.
@@ -770,8 +782,8 @@ TODO: comment signature.
 
 // Now these can be implemented.
 
-template <typename T /*= void*/>
-inline T * _raw_vextr_impl_base::get_static_array_ptr() {
+template <typename T>
+inline T * _raw_vextr_impl_base::static_array_ptr() {
 	if (!m_rvpd.get_bHasStatic()) {
 		return NULL;
 	}
@@ -782,7 +794,7 @@ inline T * _raw_vextr_impl_base::get_static_array_ptr() {
 }
 
 
-inline size_t _raw_vextr_impl_base::get_static_capacity() const {
+inline size_t _raw_vextr_impl_base::static_capacity() const {
 	if (!m_rvpd.get_bHasStatic()) {
 		return 0;
 	}
@@ -816,7 +828,7 @@ public:
 	*/
 	void append(void_cda const & type, void const * pAdd, size_t ciAdd, bool bMove) {
 		if (ciAdd) {
-			_insert(type, get_size(), pAdd, ciAdd, bMove);
+			_insert(type, size(), pAdd, ciAdd, bMove);
 		}
 	}
 
@@ -928,7 +940,7 @@ public:
 	*/
 	void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
 		if (ciAdd) {
-			_insert_or_remove(cbItem, get_size(bNulT), pAdd, ciAdd, 0, bNulT);
+			_insert_or_remove(cbItem, size(bNulT), pAdd, ciAdd, 0, bNulT);
 		}
 	}
 
@@ -982,7 +994,7 @@ public:
 			assign_move(std::move(rtvi), bNulT);
 		} else {
 			// Can’t move, so copy instead.
-			assign_copy(cbItem, rtvi.m_p, rtvi.get_size(bNulT), bNulT);
+			assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
 			// And now empty the source.
 			rtvi.assign_empty(bNulT);
 		}
@@ -1003,7 +1015,7 @@ public:
 			_assign_share(rtvi);
 		} else {
 			// Non-read-only, cannot share.
-			assign_copy(cbItem, rtvi.m_p, rtvi.get_size(bNulT), bNulT);
+			assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
 		}
 	}
 
@@ -1111,8 +1123,8 @@ public:
 	TODO: comment signature.
 	*/
 	iterator begin() {
-		// const_cast is required because base_str_::get_data() returns const only.
-		return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->get_data()));
+		// const_cast is required because base_str_::data() returns const only.
+		return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->data()));
 	}
 	const_iterator begin() const {
 		return cbegin();
@@ -1124,7 +1136,7 @@ public:
 	TODO: comment signature.
 	*/
 	const_iterator cbegin() const {
-		return const_iterator(static_cast<TCont const *>(this)->get_data());
+		return const_iterator(static_cast<TCont const *>(this)->data());
 	}
 
 
@@ -1142,7 +1154,7 @@ public:
 	TODO: comment signature.
 	*/
 	const_iterator cend() const {
-		return const_iterator(cbegin() + ptrdiff_t(static_cast<TCont const *>(this)->get_size()));
+		return const_iterator(cbegin() + ptrdiff_t(static_cast<TCont const *>(this)->size()));
 	}
 
 
@@ -1160,7 +1172,7 @@ public:
 	TODO: comment signature.
 	*/
 	iterator end() {
-		return iterator(begin() + ptrdiff_t(static_cast<TCont *>(this)->get_size()));
+		return iterator(begin() + ptrdiff_t(static_cast<TCont *>(this)->size()));
 	}
 	const_iterator end() const {
 		return cend();

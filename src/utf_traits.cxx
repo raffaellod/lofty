@@ -43,7 +43,7 @@ static void _build_failure_restart_table(
 
 	// TODO: FIXME: this should be set_size(), not set_capacity().
 	pvcchFailNext->set_capacity(size_t(pchNeedleEnd - pchNeedleBegin), false);
-	size_t * pcchFailNext0(pvcchFailNext->get_data());
+	size_t * pcchFailNext0(pvcchFailNext->data());
 
 	// The earliest repetition of a non-first character can only occur on the fourth character, so
 	// start by skipping two characters and storing two zeroes for them, then the first iteration
@@ -355,7 +355,7 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 		// Build the failure restart table.
 		vector<size_t, 64> vcchFailNext;
 		_build_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
-		size_t const * pcchFailNext(vcchFailNext.get_data());
+		size_t const * pcchFailNext(vcchFailNext.data());
 
 		size_t iFailNext(0);
 		while (pchHaystack < pchHaystackEnd) {

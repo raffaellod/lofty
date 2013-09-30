@@ -117,7 +117,7 @@ public:
 		true if the length of the path string is greater than 0, or false otherwise.
 	*/
 	explicit_operator_bool() const {
-		return m_s.get_size() > 0;
+		return m_s.size() > 0;
 	}
 
 
@@ -204,13 +204,13 @@ public:
 	static file_path current_dir();
 
 
-	/** Returns a read-only pointer to the path string. See dmstr::get_data().
+	/** Returns a read-only pointer to the path string. See dmstr::data().
 
 	return
 		Pointer to the path string’s character buffer.
 	*/
 	char_t const * data() const {
-		return m_s.get_data();
+		return m_s.data();
 	}
 
 
@@ -281,7 +281,7 @@ public:
 		Count of characters.
 	*/
 	size_t size() const {
-		return m_s.get_size();
+		return m_s.size();
 	}
 
 

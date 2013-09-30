@@ -268,7 +268,7 @@ public:
 	TODO: comment signature.
 	*/
 	buffered_vector & operator=(buffered_vector const & bv) {
-		raw_vector::assign_copy(bv.get_data(), bv.get_size(), false);
+		raw_vector::assign_copy(bv.data(), bv.size(), false);
 		return *this;
 	}
 	buffered_vector & operator=(buffered_vector && v) {
@@ -300,7 +300,7 @@ public:
 		return *this;
 	}
 	buffered_vector & operator+=(vector0 const & t) {
-		append(t.get_data(), t.get_size(), false);
+		append(t.data(), t.size(), false);
 		return *this;
 	}
 
@@ -310,14 +310,14 @@ public:
 	TODO: comment signature.
 	*/
 	vector0 operator+(T const & t) const {
-		return vector0(get_data(), get_size(), &t, 1);
+		return vector0(data(), size(), &t, 1);
 	}
 	template <size_t t_ci>
 	vector0 operator+(T const (& at)[t_ci]) const {
-		return vector0(get_data(), get_size(), at, t_ci);
+		return vector0(data(), size(), at, t_ci);
 	}
 	vector0 operator+(vector0 const & t) const {
-		return vector0(get_data(), get_size(), t.get_data(), t.get_size());
+		return vector0(data(), size(), t.data(), t.size());
 	}
 
 
@@ -326,16 +326,16 @@ public:
 	TODO: comment signature.
 	*/
 	T & operator[](size_t i) {
-		if (i >= get_size()) {
+		if (i >= size()) {
 			abc_throw(index_error(intptr_t(i)));
 		}
-		return get_data()[i];
+		return data()[i];
 	}
 	T const & operator[](size_t i) const {
-		if (i >= get_size()) {
+		if (i >= size()) {
 			abc_throw(index_error(intptr_t(i)));
 		}
-		return get_data()[i];
+		return data()[i];
 	}
 
 
@@ -344,7 +344,7 @@ public:
 	TODO: comment signature.
 	*/
 	explicit_operator_bool() const {
-		return get_size() > 0;
+		return size() > 0;
 	}
 
 
@@ -381,8 +381,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_capacity() const {
-		return raw_vector::get_capacity();
+	size_t capacity() const {
+		return raw_vector::capacity();
 	}
 
 
@@ -390,15 +390,15 @@ public:
 
 	TODO: comment signature.
 	*/
-	T * get_data() {
+	T * data() {
 		// For some reason, gcc doesn’t like this:
-		//    return raw_vector::get_data<T>();
-		return _raw_vextr_impl_base::get_data<T>();
+		//    return raw_vector::data<T>();
+		return _raw_vextr_impl_base::data<T>();
 	}
-	T const * get_data() const {
+	T const * data() const {
 		// For some reason, gcc doesn’t like this:
-		//    return raw_vector::get_data<T>();
-		return _raw_vextr_impl_base::get_data<T>();
+		//    return raw_vector::data<T>();
+		return _raw_vextr_impl_base::data<T>();
 	}
 
 
@@ -406,8 +406,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_size() const {
-		return raw_vector::get_size();
+	size_t size() const {
+		return raw_vector::size();
 	}
 
 
@@ -417,7 +417,7 @@ public:
 	TODO: comment signature.
 	*/
 	ptrdiff_t index_of(T const & t, ptrdiff_t iFirst = 0) const {
-		T const * pt0(get_data()), * ptEnd(pt0 + get_size());
+		T const * pt0(data()), * ptEnd(pt0 + size());
 		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt < ptEnd; ++pt) {
 			if (*pt == t) {
 				return pt - pt0;
@@ -464,10 +464,10 @@ public:
 	TODO: comment signature.
 	*/
 	ptrdiff_t last_index_of(T const & t) const {
-		return last_index_of(t, get_size());
+		return last_index_of(t, size());
 	}
 	ptrdiff_t last_index_of(T const & t, ptrdiff_t iFirst) const {
-		T const * pt0(get_data());
+		T const * pt0(data());
 		for (T const * pt(pt0 + raw_vector::adjust_index(iFirst)); pt >= pt0; --pt) {
 			if (*pt == t) {
 				return pt - pt0;
@@ -530,11 +530,11 @@ public:
 		the vector.
 	*/
 	vector0 slice(ptrdiff_t iFirst) const {
-		return slice(iFirst, get_size());
+		return slice(iFirst, size());
 	}
 	vector0 slice(ptrdiff_t iFirst, ptrdiff_t ci) const {
 		raw_vector::adjust_range(&iFirst, &ci);
-		return vector0(get_data() + iFirst, size_t(ci));
+		return vector0(data() + iFirst, size_t(ci));
 	}
 
 

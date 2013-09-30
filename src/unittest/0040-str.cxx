@@ -36,7 +36,7 @@ public:
 			dmstr s;
 			// Initialize member variables for check_str().
 			m_psCheck = &static_cast<istr const &>(s);
-			m_pchCheck = s.get_data();
+			m_pchCheck = s.data();
 
 			s += SL("a");
 			// true: operator+= must have created an item array (there was none).
@@ -376,19 +376,19 @@ private:
 		abc_trace_fn((bPtrChanged, cch, cchCapacity));
 
 		// Check if the item array has changed in accordance to the expectation.
-		if ((m_pchCheck != m_psCheck->get_data()) != bPtrChanged) {
+		if ((m_pchCheck != m_psCheck->data()) != bPtrChanged) {
 			return false;
 		}
 		// Check if the character count matches the expectation.
-		if (m_psCheck->get_size() != cch) {
+		if (m_psCheck->size() != cch) {
 			return false;
 		}
 		// Check if the capacity matches the expectation.
-		if (m_psCheck->get_capacity() != cchCapacity) {
+		if (m_psCheck->capacity() != cchCapacity) {
 			return false;
 		}
 		// Update the item array pointer for the next call.
-		m_pchCheck = m_psCheck->get_data();
+		m_pchCheck = m_psCheck->data();
 		return true;
 	}
 

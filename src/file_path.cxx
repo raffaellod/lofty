@@ -152,10 +152,10 @@ dmstr file_path::base_name() const {
 	abc_trace_fn((s));
 
 #if ABC_HOST_API_POSIX
-	return s.get_size() >= 1 /*"/"*/ && s[0] == '/';
+	return s.size() >= 1 /*"/"*/ && s[0] == '/';
 #elif ABC_HOST_API_WIN32
-	size_t cch(s.get_size());
-	char_t const * pch(s.get_data());
+	size_t cch(s.size());
+	char_t const * pch(s.data());
 	// Win32 namespace root: best case.
 	if (cch >= 4 /*"\\?\"*/ && pch[0] == '\\' && pch[1] == '\\' && pch[2] == '?' && pch[3] == '\\') {
 		return true;
@@ -188,9 +188,9 @@ bool file_path::is_root() const {
 	abc_trace_fn((this));
 
 #if ABC_HOST_API_POSIX
-	return m_s.get_size() == 1 /*"/"*/;
+	return m_s.size() == 1 /*"/"*/;
 #elif ABC_HOST_API_WIN32
-	return m_s.get_size() == 7 /*"\\?\C:\"*/;
+	return m_s.size() == 7 /*"\\?\C:\"*/;
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -235,7 +235,7 @@ file_path file_path::parent_dir() const {
 /*static*/ dmstr file_path::normalize(dmstr s) {
 	abc_trace_fn((s));
 
-	size_t cch(s.get_size());
+	size_t cch(s.size());
 	// An empty string is okay.
 	if (!cch) {
 		return std::move(s);
@@ -246,10 +246,10 @@ file_path file_path::parent_dir() const {
 		sAbs += smc_aszSeparator[0];
 		sAbs += s;
 		s = std::move(sAbs);
-		cch = s.get_size();
+		cch = s.size();
 	}
 	// Check for the correct root format, and save the index of its separator.
-	char_t const * pch0(s.get_data());
+	char_t const * pch0(s.data());
 	char_t const * pchRootSep(pch0);
 #if ABC_HOST_API_POSIX
 	// Nothing else to do.
@@ -344,7 +344,7 @@ file_path file_path::parent_dir() const {
 	}
 
 	// Adjust the length based on the position of the last character written.
-	s.set_size(size_t(pchDst - s.get_data()));
+	s.set_size(size_t(pchDst - s.data()));
 	return std::move(s);
 }
 
