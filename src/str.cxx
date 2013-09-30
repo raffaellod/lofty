@@ -80,7 +80,7 @@ size_t _raw_str::hash(size_t cbItem) const {
 #endif
 	size_t iHash(c_iFNVBasis);
 	int8_t const * pbBegin(static_cast<int8_t const *>(m_p)),
-					 * pbEnd(pbBegin + cbItem * get_size());
+					 * pbEnd(pbBegin + cbItem * size());
 	for (int8_t const * pb(pbBegin); pb < pbEnd; ++pb) {
 		iHash ^= size_t(*pb);
 		iHash *= c_iFNVPrime;
@@ -92,7 +92,7 @@ size_t _raw_str::hash(size_t cbItem) const {
 void _raw_str::set_size(size_t cbItem, size_t cch) {
 	abc_trace_fn((this, cbItem, cch));
 
-	if (cch > get_capacity()) {
+	if (cch > capacity()) {
 		// Enlarge and NUL-terminate the item array.
 		set_capacity(cbItem, cch, true);
 	} else {

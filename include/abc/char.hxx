@@ -363,9 +363,10 @@ public:
 
 	/** Returns the count of characters in the range.
 
-	TODO: comment signature.
+	return
+		Count of characters.
 	*/
-	size_t get_size() const {
+	size_t size() const {
 		return size_t(m_pchEnd - m_pchBegin);
 	}
 

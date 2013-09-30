@@ -35,7 +35,7 @@ public:
 		text::encoding enc(text::encoding::host);
 		istr sName, sEnc(SL("host"));
 
-		size_t cArgs(vsArgs.get_size());
+		size_t cArgs(vsArgs.size());
 		if (cArgs >= 2 && vsArgs[1] == SL("-o")) {
 			pfos = file_ostream::stdout();
 			sName = SL("stdout");

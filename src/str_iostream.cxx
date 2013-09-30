@@ -126,7 +126,7 @@ str_ostream::string_type str_ostream::get_contents() {
 		// Optimal case: no transcoding necessary.
 		// Enlarge the string as necessary, then overwrite any character in the affected range.
 		m_sBuf.set_capacity((m_ibWrite + cb) / cbChar, true);
-		memory::copy<void>(reinterpret_cast<int8_t *>(m_sBuf.get_data()) + m_ibWrite, p, cb);
+		memory::copy<void>(reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite, p, cb);
 		m_ibWrite += cb;
 	} else {
 		do {
@@ -134,8 +134,8 @@ str_ostream::string_type str_ostream::get_contents() {
 			size_t cbDstEst(text::estimate_transcoded_size(enc, p, cb, m_enc));
 			m_sBuf.set_capacity((m_ibWrite + cbDstEst) / cbChar, true);
 			// Get the resulting buffer and its actual size.
-			void * pBuf(reinterpret_cast<int8_t *>(m_sBuf.get_data()) + m_ibWrite);
-			size_t cbBuf(cbChar * m_sBuf.get_capacity() - m_ibWrite);
+			void * pBuf(reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite);
+			size_t cbBuf(cbChar * m_sBuf.capacity() - m_ibWrite);
 			// Fill as much of the buffer as possible, and advance m_ibWrite accordingly.
 			m_ibWrite += text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBuf, &cbBuf);
 		} while (cb);

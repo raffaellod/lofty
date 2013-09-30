@@ -33,7 +33,7 @@ public:
 
 		std::shared_ptr<file_istream> pfis;
 
-		size_t cArgs(vsArgs.get_size());
+		size_t cArgs(vsArgs.size());
 		if (cArgs >= 2 && vsArgs[1] == SL("-i")) {
 			pfis = file_istream::stdin();
 		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {

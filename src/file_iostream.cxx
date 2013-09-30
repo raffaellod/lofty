@@ -339,7 +339,7 @@ int8_t * file_istream::_get_read_buffer() {
 		}
 
 		// Read as many characters as possible, appending to the current end of the string.
-		int8_t * pbLastEnd(prs->get_data<int8_t>() + (cchFilled << cbCharLog2));
+		int8_t * pbLastEnd(prs->data<int8_t>() + (cchFilled << cbCharLog2));
 		size_t cbRead(read_raw(pbLastEnd, cchAvail << cbCharLog2, enc));
 		if (!cbRead) {
 			break;

@@ -221,7 +221,7 @@ public:
 		try {
 			// Non-obvious division by zero: this program takes no arguments, so vsArgs.size() is
 			// always 1. The conditional code makes use of the quotient, so it can’t be optimized away.
-			if (1 / (vsArgs.get_size() - 1)) {
+			if (1 / (vsArgs.size() - 1)) {
 				return 110;
 			} else {
 				return 111;

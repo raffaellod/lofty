@@ -115,7 +115,7 @@ public:
 	*/
 	void write(char_range_<C> const & cr, ostream * posOut) {
 		str_to_str_backend::write(
-			cr.cbegin().base(), sizeof(C) * cr.get_size(), text::utf_traits<C>::host_encoding, posOut
+			cr.cbegin().base(), sizeof(C) * cr.size(), text::utf_traits<C>::host_encoding, posOut
 		);
 	}
 };
@@ -143,8 +143,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_capacity() const {
-		return _raw_trivial_vextr_impl::get_capacity(true);
+	size_t capacity() const {
+		return _raw_trivial_vextr_impl::capacity(true);
 	}
 
 
@@ -153,8 +153,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_size() const {
-		return _raw_trivial_vextr_impl::get_size(true);
+	size_t size() const {
+		return _raw_trivial_vextr_impl::size(true);
 	}
 
 
@@ -308,10 +308,10 @@ public:
 	TODO: comment signature.
 	*/
 	C operator[](size_t i) const {
-		if (i > get_size()) {
+		if (i > size()) {
 			abc_throw(index_error(intptr_t(i)));
 		}
-		return get_data()[i];
+		return data()[i];
 	}
 
 
@@ -320,7 +320,7 @@ public:
 	TODO: comment signature.
 	*/
 	explicit_operator_bool() const {
-		return get_size() > 0;
+		return size() > 0;
 	}
 
 
@@ -329,17 +329,17 @@ public:
 	TODO: comment signature.
 	*/
 	int compare_to(istr const & s) const {
-		return TTraits::str_cmp(get_data(), get_size(), s.get_data(), s.get_size());
+		return TTraits::str_cmp(data(), size(), s.data(), s.size());
 	}
 	template <size_t t_cch>
 	int compare_to(C const (& ach)[t_cch]) const {
 		assert(ach[t_cch - 1 /*NUL*/] == '\0');
-		return TTraits::str_cmp(get_data(), get_size(), ach, t_cch - 1 /*NUL*/);
+		return TTraits::str_cmp(data(), size(), ach, t_cch - 1 /*NUL*/);
 	}
 	// This overload needs to be template, or it will take precedence over the one above.
 	template <typename = void>
 	int compare_to(C const * psz) const {
-		return TTraits::str_cmp(get_data(), get_size(), psz, TTraits::str_len(psz));
+		return TTraits::str_cmp(data(), size(), psz, TTraits::str_len(psz));
 	}
 
 
@@ -394,8 +394,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_capacity() const {
-		return _raw_str::get_capacity();
+	size_t capacity() const {
+		return _raw_str::capacity();
 	}
 
 
@@ -403,8 +403,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	C const * get_data() const {
-		return _raw_str::get_data<C>();
+	C const * data() const {
+		return _raw_str::data<C>();
 	}
 
 
@@ -424,8 +424,8 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_size() const {
-		return _raw_str::get_size();
+	size_t size() const {
+		return _raw_str::size();
 	}
 
 
@@ -433,9 +433,9 @@ public:
 
 	TODO: comment signature.
 	*/
-	size_t get_size_cp() const {
-		C const * pchBegin(get_data());
-		return TTraits::str_cp_len(pchBegin, pchBegin + get_size());
+	size_t size_cp() const {
+		C const * pchBegin(data());
+		return TTraits::str_cp_len(pchBegin, pchBegin + size());
 	}
 
 
@@ -449,11 +449,11 @@ public:
 		of the string.
 	*/
 	dmstr substr(ptrdiff_t ichFirst) const {
-		return substr(ichFirst, get_size());
+		return substr(ichFirst, size());
 	}
 	dmstr substr(ptrdiff_t ichFirst, ptrdiff_t cch) const {
 		adjust_range(&ichFirst, &cch);
-		return dmstr(get_data() + ichFirst, size_t(cch));
+		return dmstr(data() + ichFirst, size_t(cch));
 	}
 	dmstr substr(const_iterator itFirst) const {
 		return substr(itFirst, itvec::cend());
@@ -575,9 +575,7 @@ public:
 	/** See to_str_backend::write().
 	*/
 	void write(str_base_<C, TTraits> const & s, ostream * posOut) {
-		str_to_str_backend::write(
-			s.get_data(), sizeof(C) * s.get_size(), TTraits::host_encoding, posOut
-		);
+		str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
 	}
 };
 
@@ -767,7 +765,7 @@ public:
 		return operator=(static_cast<str_base &&>(s));
 	}
 	mstr_ & operator=(str_base const & s) {
-		assign_copy(s.get_data(), s.get_size());
+		assign_copy(s.data(), s.size());
 		return *this;
 	}
 	mstr_ & operator=(str_base && s) {
@@ -801,7 +799,7 @@ public:
 		return *this;
 	}
 	mstr_ & operator+=(istr const & s) {
-		append(s.get_data(), s.get_size());
+		append(s.data(), s.size());
 		return *this;
 	}
 
@@ -820,10 +818,10 @@ public:
 	TODO: comment signature.
 	*/
 	C & operator[](size_t i) {
-		if (i > str_base::get_size()) {
+		if (i > str_base::size()) {
 			abc_throw(index_error(intptr_t(i)));
 		}
-		return get_data()[i];
+		return data()[i];
 	}
 	C operator[](size_t i) const {
 		return str_base::operator[](intptr_t(i));
@@ -843,11 +841,11 @@ public:
 
 	TODO: comment signature.
 	*/
-	C * get_data() {
-		return _raw_str::get_data<C>();
+	C * data() {
+		return _raw_str::data<C>();
 	}
-	C const * get_data() const {
-		return _raw_str::get_data<C>();
+	C const * data() const {
+		return _raw_str::data<C>();
 	}
 
 
@@ -871,11 +869,11 @@ public:
 		typedef _raw_vextr_impl_base rvib;
 		// The initial size avoids a couple of reallocations.
 		// Also, these numbers should guarantee that set_capacity() will allocate exactly the
-		// requested number of characters, eliminating the need to query back with get_capacity().
+		// requested number of characters, eliminating the need to query back with capacity().
 		size_t cchRet(rvib::smc_cMinSlots * rvib::smc_iGrowthRate * rvib::smc_iGrowthRate);
 		for (size_t cchMax(cchRet); cchRet >= cchMax; cchMax *= rvib::smc_iGrowthRate) {
 			set_capacity(cchMax - 1 /*NUL*/, false);
-			cchRet = fnRead(get_data(), cchMax);
+			cchRet = fnRead(data(), cchMax);
 		}
 		// Finalize the length.
 		set_size(cchRet);
@@ -1044,18 +1042,16 @@ template <typename C, class TTraits>
 inline abc::dmstr_<C, TTraits> operator+(
 	abc::str_base_<C, TTraits> const & s1, abc::str_base_<C, TTraits> const & s2
 ) {
-	return abc::dmstr_<C, TTraits>(
-		s1.get_data(), s1.get_size(), s2.get_data(), s2.get_size()
-	);
+	return abc::dmstr_<C, TTraits>(s1.data(), s1.size(), s2.data(), s2.size());
 }
 // Overloads taking a character literal.
 template <typename C, class TTraits>
 inline abc::dmstr_<C, TTraits> operator+(abc::str_base_<C, TTraits> const & s, C ch) {
-	return abc::dmstr_<C, TTraits>(s.get_data(), s.get_size(), &ch, 1);
+	return abc::dmstr_<C, TTraits>(s.data(), s.size(), &ch, 1);
 }
 template <typename C, class TTraits>
 inline abc::dmstr_<C, TTraits> operator+(C ch, abc::str_base_<C, TTraits> const & s) {
-	return abc::dmstr_<C, TTraits>(&ch, 1, s.get_data(), s.get_size());
+	return abc::dmstr_<C, TTraits>(&ch, 1, s.data(), s.size());
 }
 // Overloads taking a string literal.
 template <typename C, class TTraits, size_t t_cch>
@@ -1063,14 +1059,14 @@ inline abc::dmstr_<C, TTraits> operator+(
 	abc::str_base_<C, TTraits> const & s, C const (& ach)[t_cch]
 ) {
 	assert(ach[t_cch - 1 /*NUL*/] == '\0');
-	return abc::dmstr_<C, TTraits>(s.get_data(), s.get_size(), ach, t_cch - 1 /*NUL*/);
+	return abc::dmstr_<C, TTraits>(s.data(), s.size(), ach, t_cch - 1 /*NUL*/);
 }
 template <typename C, class TTraits, size_t t_cch>
 inline abc::dmstr_<C, TTraits> operator+(
 	C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s
 ) {
 	assert(ach[t_cch - 1 /*NUL*/] == '\0');
-	return abc::dmstr_<C, TTraits>(ach, t_cch - 1 /*NUL*/, s.get_data(), s.get_size());
+	return abc::dmstr_<C, TTraits>(ach, t_cch - 1 /*NUL*/, s.data(), s.size());
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.

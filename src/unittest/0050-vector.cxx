@@ -98,22 +98,22 @@ public:
 			vector<int> v;
 
 			v.append(1);
-			if (v.get_size() != 1 || v[0] != 1) {
+			if (v.size() != 1 || v[0] != 1) {
 				return 1;
 			}
 
 			v = v + (vector<int>() += 2) + v;
-			if (v.get_size() != 3 || v[0] != 1 || v[1] != 2 || v[2] != 1) {
+			if (v.size() != 3 || v[0] != 1 || v[1] != 2 || v[2] != 1) {
 				return 2;
 			}
 
 			v = v.slice(1, 3);
-			if (v.get_size() != 2 || v[0] != 2 || v[1] != 1) {
+			if (v.size() != 2 || v[0] != 2 || v[1] != 1) {
 				return 3;
 			}
 
 			v.append(3);
-			if (v.get_size() != 3 || v[0] != 2 || v[1] != 1 || v[2] != 3) {
+			if (v.size() != 3 || v[0] != 2 || v[1] != 1 || v[2] != 3) {
 				return 4;
 			}
 
@@ -133,7 +133,7 @@ public:
 			}
 
 			v.remove(it1);
-			if (v.get_size() != 2 || v[0] != 2 || v[1] != 3) {
+			if (v.size() != 2 || v[0] != 2 || v[1] != 3) {
 				return 8;
 			}
 		}
@@ -142,52 +142,50 @@ public:
 		// descriptors only switch to dynamic descriptors if necessary.
 		{
 			vector<int> v0;
-			pi = v0.get_data();
+			pi = v0.data();
 			v0.append(0);
-			if (v0.get_data() == pi) {
+			if (v0.data() == pi) {
 				return 50;
 			}
 
 			vector<int, 3> v1;
-			pi = v1.get_data();
+			pi = v1.data();
 			v1.append(1);
-			if (v1.get_data() == pi) {
+			if (v1.data() == pi) {
 				return 51;
 			}
-			pi = v1.get_data();
+			pi = v1.data();
 			v1.append(2);
-			if (v1.get_data() != pi) {
+			if (v1.data() != pi) {
 				return 52;
 			}
 
 			vector<int, 1> v2;
-			pi = v2.get_data();
+			pi = v2.data();
 			v2.append(3);
-			if (v2.get_data() == pi) {
+			if (v2.data() == pi) {
 				return 53;
 			}
 
-			pi = v0.get_data();
+			pi = v0.data();
 			v0 = v1 + v2;
-			if (
-				v0.get_data() == pi || v0.get_size() != 3 || v0[0] != 1 || v0[1] != 2 || v0[2] != 3
-			) {
+			if (v0.data() == pi || v0.size() != 3 || v0[0] != 1 || v0[1] != 2 || v0[2] != 3) {
 				return 54;
 			}
 
-			pi = v1.get_data();
+			pi = v1.data();
 			v1 = v2 + v0;
 			if (
-				v1.get_data() == pi || v1.get_size() != 4 ||
+				v1.data() == pi || v1.size() != 4 ||
 				v1[0] != 3 || v1[1] != 1 || v1[2] != 2 || v1[3] != 3
 			) {
 				return 55;
 			}
 
-			pi = v2.get_data();
+			pi = v2.data();
 			v2 = v0 + v1;
 			if (
-				v2.get_data() == pi || v2.get_size() != 7 ||
+				v2.data() == pi || v2.size() != 7 ||
 				v2[0] != 1 || v2[1] != 2 || v2[2] != 3 ||
 				v2[3] != 3 || v2[4] != 1 || v2[5] != 2 || v2[6] != 3
 			) {
