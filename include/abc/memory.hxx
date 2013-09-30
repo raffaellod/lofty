@@ -37,30 +37,6 @@ You should have received a copy of the GNU General Public License along with ABC
 	// Clean up pollution caused by previous headers.
 	extern "C" {
 
-	// malloc(), realloc(), free()
-
-	#undef malloc
-	void * malloc(size_t cb);
-
-	#undef realloc
-	void * realloc(void * p, size_t cb);
-
-	#undef free
-	void free(void * p);
-
-
-	// memset(), memcpy(), memmove()
-
-	#undef memset
-	void * memset(void * pDst, int iValue, size_t cb);
-
-	#undef memcpy
-	void * memcpy(void * pDst, void const * pSrc, size_t cb);
-
-	#undef memmove
-	void * memmove(void * pDst, void const * pSrc, size_t cb);
-
-
 	// Rtl*Memory*
 
 	#undef RtlZeroMemory

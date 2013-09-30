@@ -19,36 +19,3 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #define _ABC_MEMORY_HXX_IMPL
 #include <abc/core.hxx>
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - dynamic memory allocation
-
-
-#if ABC_HOST_API_WIN32
-
-extern "C" void * malloc(size_t cb) {
-	return ::HeapAlloc(::GetProcessHeap(), 0, cb);
-}
-
-
-extern "C" void * realloc(void * p, size_t cb) {
-	HANDLE hHeap(::GetProcessHeap());
-	if (p) {
-		return ::HeapReAlloc(hHeap, 0, p, cb);
-	} else {
-		return ::HeapAlloc(hHeap, 0, cb);
-	}
-}
-
-
-extern "C" void free(void * p) {
-	::HeapFree(::GetProcessHeap(), 0, p);
-}
-
-#endif //if ABC_HOST_API_WIN32
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
