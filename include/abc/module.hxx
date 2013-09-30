@@ -183,9 +183,10 @@ public:
 
 	/** Returns the file name of the module.
 
-	TODO: comment signature.
+	return
+		Full path to the module.
 	*/
-	file_path get_file_name() const;
+	file_path file_name() const;
 
 
 private:
@@ -260,6 +261,8 @@ protected:
 
 	/** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
 	own HINSTANCE (Win), which must not be released upon destruction of this object.
+
+	TODO: comment signature.
 	*/
 #if ABC_HOST_API_POSIX
 	resource_module() {
@@ -326,7 +329,14 @@ public:
 
 	/** Returns a pointer to the specified symbol in the module.
 
-	TODO: comment signature.
+	sSymbol
+		Symbol name.
+	[ppfn]
+		Pointer to a variable that will receive, upon return, the address of the symbol. Specifying
+		this arguments will automatically select the right template type, so the resulting method
+		invocation will be much more readable.
+	return
+		Address of the symbol; same as *ppfn, if ppfn is provided.
 	*/
 	template <typename F>
 	F get_symbol(istr const & sSymbol, F * ppfn = NULL) {
@@ -363,7 +373,8 @@ private:
 
 	/** Returns a void pointer to the specified symbol in the module.
 
-	TODO: comment signature.
+	sSymbol
+		Symbol name.
 	*/
 	void * _get_symbol(istr const & sSymbol);
 
@@ -415,8 +426,6 @@ public:
 #if ABC_HOST_API_WIN32
 
 	/** Increases the number of references to this module.
-
-	TODO: comment signature.
 	*/
 	void add_ref() {
 		atomic::increment(&m_cRefs);
@@ -424,8 +433,6 @@ public:
 
 
 	/** Decreases the number of references to this module.
-
-	TODO: comment signature.
 	*/
 	void release() {
 		atomic::decrement(&m_cRefs);
@@ -434,9 +441,10 @@ public:
 
 	/** Returns the number of references to this module.
 
-	TODO: comment signature.
+	return
+		Reference count.
 	*/
-	bool use_count() {
+	atomic::int_t use_count() {
 		return m_cRefs;
 	}
 
@@ -445,9 +453,14 @@ public:
 
 protected:
 
-	/** Fills up a string vector from the command line arguments.
+	/** Fills up a string vector from the command-line arguments.
 
-	TODO: comment signature.
+	cArgs
+		Number of arguments.
+	ppszArgs
+		Arguments.
+	pvsRet
+		Vector to receive unsafe istr instances containing each argument.
 	*/
 	static void _build_args(
 #if ABC_HOST_API_POSIX
@@ -467,7 +480,8 @@ protected:
 	underlying module_impl_base, allowing derived class to use a default constructor instead of
 	requiring them to conditionally enable a Win32-specific one just to forward the HINSTANCE.
 
-	TODO: comment signature.
+	hinst
+		Handle to the module’s instance.
 	*/
 	void _preconstruct(HINSTANCE hinst) {
 		sm_hinst = hinst;
@@ -513,7 +527,12 @@ public:
 
 	/** Entry point for POSIX executables.
 
-	TODO: comment signature.
+	cArgs
+		Number of arguments.
+	ppszArgs
+		Arguments.
+	return
+		Return code of the program.
 	*/
 	static int entry_point_main(int cArgs, char_t ** ppszArgs) {
 		// Establish this as early as possible.
@@ -542,7 +561,10 @@ public:
 
 	/** Entry point for Windows executables.
 
-	TODO: comment signature.
+	hinst
+		Module’s instance handle.
+	iShowCmd
+		Indication on how the application’s main window should be displayed; one of SW_* flags.
 	*/
 	static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
 		UNUSED_ARG(iShowCmd);
@@ -571,7 +593,12 @@ public:
 
 	/** Entry point for Windows DLLs.
 
-	TODO: comment signature.
+	hinst
+		Module’s instance handle.
+	iReason
+		Reason why the DLL entry point was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
+	return
+		true in case of success, or false otherwise.
 	*/
 	static BOOL entry_point_win_dll(HINSTANCE hinst, DWORD iReason) try {
 		switch (iReason) {
@@ -620,7 +647,12 @@ public:
 
 #if ABC_OUTPUT_POSIX_EXE || ABC_OUTPUT_WIN32_EXE
 
-	/** TODO: comment.
+	/** Entry point of the program.
+
+	vsArgs
+		Command-line arguments.
+	return
+		Return code of the program.
 	*/
 	int main(vector<istr const> const & vsArgs) {
 		UNUSED_ARG(vsArgs);
@@ -637,7 +669,10 @@ public:
 	}
 
 
-	/** TODO: comment signature.
+	/** Invoked by COM to determine whether the DLL is no longer in use and can be unloaded.
+
+	return
+		S_OK if the DLL is no longer needed, or S_FALSE otherwise.
 	*/
 	HRESULT DllCanUnloadNow() {
 		return use_count() > 0 ? S_FALSE : S_OK;

@@ -39,7 +39,10 @@ namespace numeric {
 /** Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
 
-TODO: comment signature.
+t
+	Value to check for negativity.
+return
+	true if t is negative, or false otherwise.
 */
 template <typename T>
 inline /*constexpr*/ bool is_negative(
@@ -70,13 +73,17 @@ namespace abc {
 
 namespace numeric {
 
-/** Defines the minimum value for a numeric type. */
+/** Defines the minimum value for a numeric type.
+*/
 template <typename T>
 struct min;
 
-/** Defines the maximum value for a numeric type. */
+
+/** Defines the maximum value for a numeric type.
+*/
 template <typename T>
 struct max;
+
 
 // Specialization of min and max for UTF character types (note: wchar_t is not among these).
 template <>
