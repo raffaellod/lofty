@@ -342,14 +342,9 @@ public:
 
 namespace abc {
 
-/** Helper for ostream::print().
+/** Template-free implementation of abc::_ostream_print_helper.
 */
-template <typename ... Ts>
-class _ostream_print_helper;
-
-// Base recursion step: no arguments to replace.
-template <>
-class _ostream_print_helper<> {
+class _ostream_print_helper_impl {
 public:
 
 	/** Constructor.
@@ -359,7 +354,7 @@ public:
 	sFormat
 		Format string to parse for replacements.
 	*/
-	_ostream_print_helper(ostream * pos, istr const & sFormat);
+	_ostream_print_helper_impl(ostream * pos, istr const & sFormat);
 
 
 	/** Writes the provided arguments to the target ostream, performing replacements as necessary.
@@ -369,6 +364,12 @@ public:
 
 protected:
 
+	/** Throws an instance of abc::index_error(), providing the invalid replacement index found in
+	the format string.
+	*/
+	ABC_FUNC_NORETURN void throw_index_error();
+
+
 	/** Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
 	and returns true, or writes the remaining characters of the format string and returns false if no
 	more replacement are found.
@@ -377,14 +378,6 @@ protected:
 		true if another replacement was found and should be printed, or false otherwise.
 	*/
 	bool write_format_up_to_next_repl();
-
-
-	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
-
-	iArg
-		0-based index of the template argument to write.
-	*/
-	ABC_FUNC_NORETURN void write_repl(unsigned iArg);
 
 
 private:
@@ -430,6 +423,47 @@ private:
 	istr::const_iterator m_itFormatToWriteBegin;
 };
 
+
+/** Helper for/implementation of abc::ostream::print().
+*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+template <typename ... Ts>
+class _ostream_print_helper;
+
+// Base recursion step: no arguments to replace.
+template <>
+class _ostream_print_helper<> :
+	public _ostream_print_helper_impl {
+public:
+
+	/** Constructor.
+
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
+	*/
+	_ostream_print_helper(ostream * pos, istr const & sFormat) :
+		_ostream_print_helper_impl(pos, sFormat) {
+	}
+
+
+protected:
+
+	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	iArg
+		0-based index of the template argument to write.
+	*/
+	ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
+		// This is the last recursion stage, with no replacements available, so if we got here
+		// ostream::print() was called with insufficient replacements for the given format string.
+		UNUSED_ARG(iArg);
+		_ostream_print_helper_impl::throw_index_error();
+	}
+};
+
 // Recursion step: extract one argument, recurse with the rest.
 template <typename T0, typename ... Ts>
 class _ostream_print_helper<T0, Ts ...> :
@@ -468,10 +502,7 @@ public:
 
 protected:
 
-	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
-
-	iArg
-		0-based index of the template argument to write.
+	/** See _ostream_print_helper<>::write_repl().
 	*/
 	void write_repl(unsigned iArg) {
 		if (iArg == 0) {
@@ -492,14 +523,28 @@ private:
 	T0 const & m_t0;
 };
 
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// TODO
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
 
 // Now it’s possible to implement this.
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 template <typename ... Ts>
 inline ostream & ostream::print(istr const & sFormat, Ts const & ... ts) {
 	_ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
 	osph.run();
 	return *this;
 }
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// TODO
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
 
