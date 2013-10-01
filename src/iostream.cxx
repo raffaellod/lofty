@@ -94,25 +94,8 @@ void _ostream_print_helper_impl::run() {
 }
 
 
-void _ostream_print_helper_impl::throw_syntax_error(
-	istr const & sDescription, istr::const_iterator it
-) const {
-	// +1 because the first character is 1, to human beings.
-	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
-}
-
-
-void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
-	abc_trace_fn((this/*, itUpTo*/));
-
-	if (itUpTo > m_itFormatToWriteBegin) {
-		m_pos->write_raw(
-			m_itFormatToWriteBegin.base(),
-			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
-			text::utf_traits<>::host_encoding
-		);
-		m_itFormatToWriteBegin = itUpTo;
-	}
+void _ostream_print_helper_impl::throw_index_error() {
+	abc_throw(index_error(m_iSubstArg));
 }
 
 
@@ -227,8 +210,25 @@ bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
 }
 
 
-void _ostream_print_helper_impl::throw_index_error() {
-	abc_throw(index_error(m_iSubstArg));
+void _ostream_print_helper_impl::throw_syntax_error(
+	istr const & sDescription, istr::const_iterator it
+) const {
+	// +1 because the first character is 1, to human beings.
+	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+}
+
+
+void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
+	abc_trace_fn((this/*, itUpTo*/));
+
+	if (itUpTo > m_itFormatToWriteBegin) {
+		m_pos->write_raw(
+			m_itFormatToWriteBegin.base(),
+			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
+			text::utf_traits<>::host_encoding
+		);
+		m_itFormatToWriteBegin = itUpTo;
+	}
 }
 
 } //namespace abc
