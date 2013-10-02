@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\abc">
+      <UniqueIdentifier>{c807e1c1-9393-47bf-bfbd-5e13ac37371d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stl">
+      <UniqueIdentifier>{26f46c64-c324-43ed-948d-fe89f1684eb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\abc\mock">
+      <UniqueIdentifier>{7a187248-faf4-4b98-95f4-95f8b3c3c27b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\mock">
+      <UniqueIdentifier>{42cf34e7-da0f-4285-86e6-eb4a8873f534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unittest">
+      <UniqueIdentifier>{1f2d5f17-529a-4eb4-9b68-d06992b0f5e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\_vextr.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utf_traits.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\atomic.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bitmanip.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\byteorder.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enum.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exception.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_iostream.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_path.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\iostream.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\str.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\str_iostream.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\text.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\to_str_backend.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mock\iostream.cxx">
+      <Filter>Source Files\mock</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0005-cppmacros.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0010-module.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0020-exception.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0030-enum.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0040-str.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0050-vector.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0060-file_path.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0080-map.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0150-to_str_backend.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0170-ostream-print.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0190-str_ostream.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0250-file_ostream.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unittest\0280-file_istream.cxx">
+      <Filter>Source Files\unittest</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\abc\mock\iostream.hxx">
+      <Filter>Header Files\abc\mock</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\_map_base.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\_vextr.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\atomic.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\bitmanip.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\byteorder.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\char.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\core.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\cppmacros.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\enum.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\exception.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\file.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\file_iostream.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\file_path.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\iostream.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\map.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\memory.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\module.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\numeric.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\persto.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\str.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\str_iostream.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\text.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\to_str_backend.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\trace.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\type_raw_cda.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\utf_traits.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\abc\vector.hxx">
+      <Filter>Header Files\abc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\algorithm">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\exception">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\functional">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\memory">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\new">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\tuple">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\type_traits">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\typeinfo">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl\utility">
+      <Filter>Header Files\stl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="README" />
+  </ItemGroup>
+</Project>
