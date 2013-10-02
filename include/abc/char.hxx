@@ -324,7 +324,8 @@ is not yet defined (nor can it be, such as very early header files). Part of the
 in str.hxx/cxx.
 */
 template <typename C>
-class char_range_ {
+class char_range_ :
+	public support_explicit_operator_bool<char_range_<C>> {
 public:
 
 	/** Constructor.
