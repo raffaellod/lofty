@@ -1038,7 +1038,7 @@ void throw_os_error(errint_t err) {
 
 		case ERROR_NO_UNICODE_TRANSLATION: // No mapping for the Unicode character exists in the
 			// target multibyte code page.
-			abc_throw(unicode_translate_error(err));
+			abc_throw(text_encode_error(err));
 	}
 }
 
