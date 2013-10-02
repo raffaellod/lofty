@@ -424,10 +424,10 @@ public:
 	/** String literal. \
 	*/ \
 	template <size_t t_cch> \
-	class to_str_backend<C[t_cch]> : \
-		public _str_to_str_backend<C[t_cch], C> { \
+	class to_str_backend<C const [t_cch]> : \
+		public _str_to_str_backend<C const [t_cch], C> { \
 	\
-		typedef _str_to_str_backend<C[t_cch], C> str_to_str_backend; \
+		typedef _str_to_str_backend<C const [t_cch], C> str_to_str_backend; \
 	\
 	public: \
 	\
