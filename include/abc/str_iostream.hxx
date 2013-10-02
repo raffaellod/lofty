@@ -262,7 +262,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 
 
 template <typename T>
-inline dmstr to_str(T const & t, istr const & sFormat = istr()) {
+inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
 	str_ostream os;
 	to_str_backend<T> tsb(sFormat);
 	tsb.write(t, &os);

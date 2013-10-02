@@ -22,19 +22,19 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_scope_trace
+// abc::_scope_trace_impl
 
 
 namespace abc {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<str_ostream> _scope_trace<>::sm_psosScopeTrace;
-/*tls*/ unsigned _scope_trace<>::sm_cScopeTraceRefs(0);
-/*tls*/ unsigned _scope_trace<>::sm_iStackDepth(0);
-/*tls*/ bool _scope_trace<>::sm_bReentering(false);
+/*tls*/ std::unique_ptr<str_ostream> _scope_trace_impl::sm_psosScopeTrace;
+/*tls*/ unsigned _scope_trace_impl::sm_cScopeTraceRefs(0);
+/*tls*/ unsigned _scope_trace_impl::sm_iStackDepth(0);
+/*tls*/ bool _scope_trace_impl::sm_bReentering(false);
 
 
-_scope_trace<>::~_scope_trace() {
+_scope_trace_impl::~_scope_trace_impl() {
 	// If the rendering has already started, override sm_bReentering, because the most-derived class
 	// must’ve been the one to set sm_bReentering (otherwise m_bScopeRenderingStarted wouldn’t be
 	// set), so this trace must be completed.
@@ -68,13 +68,14 @@ _scope_trace<>::~_scope_trace() {
 }
 
 
-ostream * _scope_trace<>::scope_render_start_or_continue() {
-	// See similar condition in ~_scope_trace().
+ostream * _scope_trace_impl::scope_render_start_or_continue() {
+	// See similar condition in ~_scope_trace_impl().
 	if (m_bScopeRenderingStarted || (!sm_bReentering && std::uncaught_exception())) {
-		// See similar condition in ~_scope_trace().
+		// See similar condition in ~_scope_trace_impl().
 		if (!m_bScopeRenderingStarted) {
-			// Note: we don’t reset this variable in this method, but in ~_scope_trace(), since that
-			// will always be called last in the destructor sequence - and it will always be called.
+			// Note: we don’t reset this variable in this method, but in ~_scope_trace_impl(), since
+			// that will always be called last in the destructor sequence - and it will always be
+			// called.
 			sm_bReentering = true;
 		}
 		// Add this argument to the current trace.
