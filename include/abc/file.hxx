@@ -147,14 +147,7 @@ private:
 	bool m_bOwn;
 
 	/** Logically null file descriptor. */
-	static filedesc_t const smc_fdNull =
-#if ABC_HOST_API_POSIX
-		-1;
-#elif ABC_HOST_API_WIN32
-		INVALID_HANDLE_VALUE;
-#else
-	#error TODO-PORT: HOST_API
-#endif
+	static filedesc_t const smc_fdNull;
 };
 
 } //namespace abc

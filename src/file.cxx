@@ -37,6 +37,16 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
+filedesc_t const filedesc::smc_fdNull =
+#if ABC_HOST_API_POSIX
+		-1;
+#elif ABC_HOST_API_WIN32
+		INVALID_HANDLE_VALUE;
+#else
+	#error TODO-PORT: HOST_API
+#endif
+
+
 filedesc::filedesc(filedesc && fd) :
 	m_fd(fd.m_fd),
 	m_bOwn(fd.m_bOwn) {
