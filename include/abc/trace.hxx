@@ -97,40 +97,46 @@ Currently unsupported:
 /** Implementation of abc_trace_fn() and similar macros.
 */
 #define _abc_trace_scope_impl(var, args) \
-	auto var(abc::_scope_trace<>::make args ); \
+	auto var(abc::_scope_trace_impl::make args ); \
 	var._set_context(__FILE__, __LINE__, _ABC_THIS_FUNC)
 
 
 /** Tracks local variables, to be used during e.g. a stack unwind. */
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 template <typename ... Ts>
 class _scope_trace;
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// TODO
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_scope_trace
+// abc::_scope_trace_impl
 
 
 namespace abc {
 
-// Base specialization.
-template <>
-class _scope_trace<> {
+class _scope_trace_impl {
 public:
 
 	/** Constructor.
 	*/
-	_scope_trace() :
+	_scope_trace_impl() :
 		m_bScopeRenderingStarted(false) {
 	}
 
 
-	/** Destructor. It also completes the trace (possibly started by a derived _scope_trace
-	specialization) for this scope.
+	/** Destructor. It also completes the trace (started by a _scope_trace specialization) for this
+	scope.
 	*/
-	~_scope_trace();
+	~_scope_trace_impl();
 
 
 	/** Returns the stack frames collected for this thread up to this point.
@@ -154,10 +160,18 @@ public:
 	/** Similar to std::make_tuple(), allows to use the keyword auto to specify (omit, really) the
 	type of the variable, which would otherwise require knowing the types of the template arguments.
 	*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 	template <typename ... Ts>
 	static _scope_trace<Ts ...> make(Ts const & ... ts) {
 		return _scope_trace<Ts ...>(ts ...);
 	}
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// TODO
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
 	/** Erases any collected stack frames.
@@ -192,7 +206,7 @@ public:
 	tuple. See the implementation of abc_trace_fn() if this isn’t clear enough.
 
 	Also, while we could make the filename and function char_range’s instead of char *, that would
-	waste nearly twice as much stack space for each _scope_trace object, so that’s not a viable
+	waste nearly twice as much stack space for each _scope_trace_impl object, so that’s not a viable
 	option.
 	*/
 	void _set_context(char const * pszFileName, uint16_t iLine, char const * pszFunction) {
@@ -231,6 +245,24 @@ private:
 	get stuck in an infinite recursion. */
 	static /*tls*/ bool sm_bReentering;
 };
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_scope_trace
+
+
+namespace abc {
+
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// Base specialization.
+template <>
+class _scope_trace<> :
+	public _scope_trace_impl {
+};
+
 // Recursive specialization.
 template <typename T0, typename ... Ts>
 class _scope_trace<T0, Ts ...> :
@@ -268,6 +300,12 @@ protected:
 	/** Nth argument. */
 	T0 const & m_t0;
 };
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// TODO
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
 
