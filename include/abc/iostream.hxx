@@ -370,7 +370,7 @@ public:
 	*/
 	template <typename T>
 	ostream & write(T const & t) {
-		abc::to_str_backend<T> tsb;
+		to_str_backend<T> tsb;
 		tsb.write(t, this);
 		return *this;
 	}
