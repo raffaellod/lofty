@@ -33,6 +33,13 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
+// Some C libraries (such as MS CRT) define these as macros.
+#ifdef stdin
+	#undef stdin
+	#undef stdout
+	#undef stderr
+#endif
+
 /** List of standard (OS-provided) files.
 */
 ABC_ENUM(stdfile, \
