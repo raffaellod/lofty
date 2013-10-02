@@ -76,7 +76,7 @@ namespace abc {
 }
 
 
-_ostream_print_helper<>::_ostream_print_helper(ostream * pos, istr const & sFormat) :
+_ostream_print_helper_impl::_ostream_print_helper_impl(ostream * pos, istr const & sFormat) :
 	m_pos(pos),
 	// write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
 	m_iSubstArg(unsigned(-1)),
@@ -85,7 +85,7 @@ _ostream_print_helper<>::_ostream_print_helper(ostream * pos, istr const & sForm
 }
 
 
-void _ostream_print_helper<>::run() {
+void _ostream_print_helper_impl::run() {
 	// Since this specialization has no replacements, verify that the format string doesn’t specify
 	// any either.
 	if (write_format_up_to_next_repl()) {
@@ -94,29 +94,12 @@ void _ostream_print_helper<>::run() {
 }
 
 
-void _ostream_print_helper<>::throw_syntax_error(
-	istr const & sDescription, istr::const_iterator it
-) const {
-	// +1 because the first character is 1, to human beings.
-	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+void _ostream_print_helper_impl::throw_index_error() {
+	abc_throw(index_error(m_iSubstArg));
 }
 
 
-void _ostream_print_helper<>::write_format_up_to(istr::const_iterator itUpTo) {
-	abc_trace_fn((this/*, itUpTo*/));
-
-	if (itUpTo > m_itFormatToWriteBegin) {
-		m_pos->write_raw(
-			m_itFormatToWriteBegin.base(),
-			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
-			text::utf_traits<>::host_encoding
-		);
-		m_itFormatToWriteBegin = itUpTo;
-	}
-}
-
-
-bool _ostream_print_helper<>::write_format_up_to_next_repl() {
+bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
 	abc_trace_fn((this));
 
 	// Search for the next replacement, if any.
@@ -227,11 +210,25 @@ bool _ostream_print_helper<>::write_format_up_to_next_repl() {
 }
 
 
-void _ostream_print_helper<>::write_repl(unsigned iArg) {
-	// This is the last recursion stage, with no replacements available, so if we got here
-	// ostream::print() was called with insufficient replacements for the given format string.
-	UNUSED_ARG(iArg);
-	abc_throw(index_error(m_iSubstArg));
+void _ostream_print_helper_impl::throw_syntax_error(
+	istr const & sDescription, istr::const_iterator it
+) const {
+	// +1 because the first character is 1, to human beings.
+	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+}
+
+
+void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
+	abc_trace_fn((this/*, itUpTo*/));
+
+	if (itUpTo > m_itFormatToWriteBegin) {
+		m_pos->write_raw(
+			m_itFormatToWriteBegin.base(),
+			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
+			text::utf_traits<>::host_encoding
+		);
+		m_itFormatToWriteBegin = itUpTo;
+	}
 }
 
 } //namespace abc

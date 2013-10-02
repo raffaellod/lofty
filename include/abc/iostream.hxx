@@ -298,8 +298,67 @@ public:
 	return
 		*this.
 	*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 	template <typename ... Ts>
 	ostream & print(istr const & sFormat, Ts const & ... ts);
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+	ostream & print(istr const & sFormat);
+	template <typename T0>
+	ostream & print(istr const & sFormat, T0 const & t0);
+	template <typename T0, typename T1>
+	ostream & print(istr const & sFormat, T0 const & t0, T1 const & t1);
+	template <typename T0, typename T1, typename T2>
+	ostream & print(istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2);
+	template <typename T0, typename T1, typename T2, typename T3>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+	);
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4
+	);
+	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4, T5 const & t5
+	);
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+	>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4, T5 const & t5, T6 const & t6
+	);
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7
+	>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7
+	);
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7, typename T8
+	>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
+	);
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7, typename T8, typename T9
+	>
+	ostream & print(
+		istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+		T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+	);
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
 	/** Writes a value to the stream using the default formatting for abc::to_str_backend().
@@ -310,7 +369,7 @@ public:
 		*this.
 	*/
 	template <typename T>
-	inline ostream & write(T const & t) {
+	ostream & write(T const & t) {
 		abc::to_str_backend<T> tsb;
 		tsb.write(t, this);
 		return *this;
@@ -342,14 +401,9 @@ public:
 
 namespace abc {
 
-/** Helper for ostream::print().
+/** Template-free implementation of abc::_ostream_print_helper.
 */
-template <typename ... Ts>
-class _ostream_print_helper;
-
-// Base recursion step: no arguments to replace.
-template <>
-class _ostream_print_helper<> {
+class _ostream_print_helper_impl {
 public:
 
 	/** Constructor.
@@ -359,7 +413,7 @@ public:
 	sFormat
 		Format string to parse for replacements.
 	*/
-	_ostream_print_helper(ostream * pos, istr const & sFormat);
+	_ostream_print_helper_impl(ostream * pos, istr const & sFormat);
 
 
 	/** Writes the provided arguments to the target ostream, performing replacements as necessary.
@@ -369,6 +423,12 @@ public:
 
 protected:
 
+	/** Throws an instance of abc::index_error(), providing the invalid replacement index found in
+	the format string.
+	*/
+	ABC_FUNC_NORETURN void throw_index_error();
+
+
 	/** Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
 	and returns true, or writes the remaining characters of the format string and returns false if no
 	more replacement are found.
@@ -377,14 +437,6 @@ protected:
 		true if another replacement was found and should be printed, or false otherwise.
 	*/
 	bool write_format_up_to_next_repl();
-
-
-	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
-
-	iArg
-		0-based index of the template argument to write.
-	*/
-	ABC_FUNC_NORETURN void write_repl(unsigned iArg);
 
 
 private:
@@ -430,6 +482,47 @@ private:
 	istr::const_iterator m_itFormatToWriteBegin;
 };
 
+
+/** Helper for/implementation of abc::ostream::print().
+*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+template <typename ... Ts>
+class _ostream_print_helper;
+
+// Base recursion step: no arguments to replace.
+template <>
+class _ostream_print_helper<> :
+	public _ostream_print_helper_impl {
+public:
+
+	/** Constructor.
+
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
+	*/
+	_ostream_print_helper(ostream * pos, istr const & sFormat) :
+		_ostream_print_helper_impl(pos, sFormat) {
+	}
+
+
+protected:
+
+	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	iArg
+		0-based index of the template argument to write.
+	*/
+	ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
+		// This is the last recursion stage, with no replacements available, so if we got here
+		// ostream::print() was called with insufficient replacements for the given format string.
+		UNUSED_ARG(iArg);
+		_ostream_print_helper_impl::throw_index_error();
+	}
+};
+
 // Recursion step: extract one argument, recurse with the rest.
 template <typename T0, typename ... Ts>
 class _ostream_print_helper<T0, Ts ...> :
@@ -468,10 +561,7 @@ public:
 
 protected:
 
-	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
-
-	iArg
-		0-based index of the template argument to write.
+	/** See _ostream_print_helper<>::write_repl().
 	*/
 	void write_repl(unsigned iArg) {
 		if (iArg == 0) {
@@ -492,14 +582,329 @@ private:
 	T0 const & m_t0;
 };
 
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+// Recursion step: extract one argument, recurse with the rest.
+template <
+	typename T0 = void, typename T1 = void, typename T2 = void, typename T3 = void,
+	typename T4 = void, typename T5 = void, typename T6 = void, typename T7 = void,
+	typename T8 = void, typename T9 = void
+>
+class _ostream_print_helper :
+	public _ostream_print_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+
+	typedef _ostream_print_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> osph_base;
+
+public:
+
+	/** Constructor.
+
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
+	t0
+		First replacement value.
+	t1
+		Second replacement value.
+	t2
+		Third replacement value.
+	t3
+		Fourth replacement value.
+	t4
+		Fifth replacement value.
+	t5
+		Sixth replacement value.
+	t6
+		Seventh replacement value.
+	t7
+		Eighth replacement value.
+	t8
+		Ninth replacement value.
+	t9
+		Tenth replacement value.
+	*/
+	template <typename U0>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0
+	) :
+		osph_base(pos, sFormat),
+		m_t0(t0) {
+	}
+	template <typename U0, typename U1>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1
+	) :
+		osph_base(pos, sFormat, t1),
+		m_t0(t0) {
+	}
+	template <typename U0, typename U1, typename U2>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2
+	) :
+		osph_base(pos, sFormat, t1, t2),
+		m_t0(t0) {
+	}
+	template <typename U0, typename U1, typename U2, typename U3>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3
+	) :
+		osph_base(pos, sFormat, t1, t2, t3),
+		m_t0(t0) {
+	}
+	template <typename U0, typename U1, typename U2, typename U3, typename U4>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4),
+		m_t0(t0) {
+	}
+	template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4, t5),
+		m_t0(t0) {
+	}
+	template <
+		typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
+	>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
+		U6 const & t6
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4, t5, t6),
+		m_t0(t0) {
+	}
+	template <
+		typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+		typename U7
+	>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
+		U6 const & t6, U7 const & t7
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4, t5, t6, t7),
+		m_t0(t0) {
+	}
+	template <
+		typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+		typename U7, typename U8
+	>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
+		U6 const & t6, U7 const & t7, U8 const & t8
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4, t5, t6, t7, t8),
+		m_t0(t0) {
+	}
+	template <
+		typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+		typename U7, typename U8, typename U9
+	>
+	_ostream_print_helper(
+		typename std::enable_if<!std::is_void<U0>::value, ostream *>::type pos, istr const & sFormat,
+		U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
+		U6 const & t6, U7 const & t7, U8 const & t8, U9 const & t9
+	) :
+		osph_base(pos, sFormat, t1, t2, t3, t4, t5, t6, t7, t8, t9),
+		m_t0(t0) {
+	}
+
+
+	/** See _ostream_print_helper<>::run().
+	*/
+	void run() {
+		while (osph_base::write_format_up_to_next_repl()) {
+			// Perform and write the replacement.
+			write_repl(osph_base::m_iSubstArg);
+		}
+	}
+
+
+protected:
+
+	/** See _ostream_print_helper<>::write_repl().
+	*/
+	void write_repl(unsigned iArg) {
+		if (iArg == 0) {
+			to_str_backend<T0> tsb(char_range(
+				osph_base::m_pchReplFormatSpecBegin, osph_base::m_pchReplFormatSpecEnd
+			));
+			tsb.write(m_t0, osph_base::m_pos);
+		} else {
+			// Recurse to the previous level.
+			osph_base::write_repl(iArg - 1);
+		}
+	}
+
+
+private:
+
+	/** Nth replacement. */
+	T0 const & m_t0;
+};
+
+// Base recursion step: no arguments to replace.
+template <>
+class _ostream_print_helper<> :
+	public _ostream_print_helper_impl {
+public:
+
+	/** Constructor.
+
+	pos
+		Stream to write to.
+	sFormat
+		Format string to parse for replacements.
+	*/
+	_ostream_print_helper(ostream * pos, istr const & sFormat) :
+		_ostream_print_helper_impl(pos, sFormat) {
+	}
+
+
+protected:
+
+	/** Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+
+	iArg
+		0-based index of the template argument to write.
+	*/
+	ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
+		// This is the last recursion stage, with no replacements available, so if we got here
+		// ostream::print() was called with insufficient replacements for the given format string.
+		UNUSED_ARG(iArg);
+		_ostream_print_helper_impl::throw_index_error();
+	}
+};
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
 
 // Now it’s possible to implement this.
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 template <typename ... Ts>
 inline ostream & ostream::print(istr const & sFormat, Ts const & ... ts) {
 	_ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
 	osph.run();
 	return *this;
 }
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+inline ostream & ostream::print(istr const & sFormat) {
+	_ostream_print_helper<> osph(this, sFormat);
+	osph.run();
+	return *this;
+}
+template <typename T0>
+inline ostream & ostream::print(istr const & sFormat, T0 const & t0) {
+	_ostream_print_helper<T0> osph(this, sFormat, t0);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1>
+inline ostream & ostream::print(istr const & sFormat, T0 const & t0, T1 const & t1) {
+	_ostream_print_helper<T0, T1> osph(this, sFormat, t0, t1);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1, typename T2>
+inline ostream & ostream::print(istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2) {
+	_ostream_print_helper<T0, T1, T2> osph(this, sFormat, t0, t1, t2);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1, typename T2, typename T3>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+) {
+	_ostream_print_helper<T0, T1, T2, T3> osph(this, sFormat, t0, t1, t2, t3);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4> osph(this, sFormat, t0, t1, t2, t3, t4);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+	T5 const & t5
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4, T5> osph(this, sFormat, t0, t1, t2, t3, t4, t5);
+	osph.run();
+	return *this;
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+	T5 const & t5, T6 const & t6
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4, T5, T6> osph(
+		this, sFormat, t0, t1, t2, t3, t4, t5, t6
+	);
+	osph.run();
+	return *this;
+}
+template <
+	typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+	typename T7
+>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+	T5 const & t5, T6 const & t6, T7 const & t7
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7> osph(
+		this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7
+	);
+	osph.run();
+	return *this;
+}
+template <
+	typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+	typename T7, typename T8
+>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+	T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> osph(
+		this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7, t8
+	);
+	osph.run();
+	return *this;
+}
+template <
+	typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+	typename T7, typename T8, typename T9
+>
+inline ostream & ostream::print(
+	istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+	T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+) {
+	_ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> osph(
+		this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
+	);
+	osph.run();
+	return *this;
+}
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
 

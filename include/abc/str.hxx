@@ -381,12 +381,67 @@ public:
 	}
 
 
-	/** Uses the current contents of this string to generate a new one using str_ostream::print().
+	/** Uses the current contents of the string to generate a new one using str_ostream::print().
+
+	Implemented in str_iostream.hxx due to its dependency on str_iostream.
 
 	TODO: comment signature.
 	*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
 	template <typename ... Ts>
 	dmstr format(Ts const & ... ts) const;
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+	dmstr format() const;
+	template <typename T0>
+	dmstr format(T0 const & t0) const;
+	template <typename T0, typename T1>
+	dmstr format(T0 const & t0, T1 const & t1) const;
+	template <typename T0, typename T1, typename T2>
+	dmstr format(T0 const & t0, T1 const & t1, T2 const & t2) const;
+	template <typename T0, typename T1, typename T2, typename T3>
+	dmstr format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) const;
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+	dmstr format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) const;
+	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+	dmstr format(
+		T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
+	) const;
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+	>
+	dmstr format(
+		T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+		T6 const & t6
+	) const;
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7
+	>
+	dmstr format(
+		T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+		T6 const & t6, T7 const & t7
+	) const;
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7, typename T8
+	>
+	dmstr format(
+		T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+		T6 const & t6, T7 const & t7, T8 const & t8
+	) const;
+	template <
+		typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+		typename T7, typename T8, typename T9
+	>
+	dmstr format(
+		T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+		T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+	) const;
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
 	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
