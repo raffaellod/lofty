@@ -292,7 +292,8 @@ namespace abc {
 				support_explicit_operator_bool<T1> const & lhs, \
 				support_explicit_operator_bool<T2> const & rhs \
 			) { \
-				cannot_compare_to(lhs, rhs); \
+				void cannot_compare(void const *, void const *); \
+				cannot_compare(&lhs, &rhs); \
 				return false; \
 			}
 
