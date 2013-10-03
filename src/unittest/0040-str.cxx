@@ -296,10 +296,16 @@ public:
 			istr8 const s8(U8L("àßçàŒ"));
 			istr8::const_iterator it;
 
+#if defined(U32L) || defined(U16L)
+#if defined(U32L)
 			it = s8.find(U32L('ß'));
+#elif defined(U16L)
+			it = s8.find(U16L('ß'));
+#endif
 			if (it != s8.cbegin() + 2) {
 				return 80;
 			}
+#endif //if defined(U32L) || defined(U16L)
 
 			it = s8.find(U8L("àß"));
 			if (it != s8.cbegin() + 0) {
@@ -322,10 +328,16 @@ public:
 			istr16 const s16(U16L("àßçàŒ"));
 			istr16::const_iterator it;
 
+#if defined(U32L) || defined(U16L)
+#if defined(U32L)
 			it = s16.find(U32L('ß'));
+#elif defined(U16L)
+			it = s16.find(U16L('ß'));
+#endif
 			if (it != s16.cbegin() + 1) {
 				return 90;
 			}
+#endif //if defined(U32L) || defined(U16L)
 
 			it = s16.find(U16L("àß"));
 			if (it != s16.cbegin() + 0) {
