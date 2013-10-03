@@ -168,9 +168,7 @@ public:
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 	template <typename ... Ts>
-	static _scope_trace<Ts ...> make(Ts const & ... ts) {
-		return _scope_trace<Ts ...>(ts ...);
-	}
+	static _scope_trace<Ts ...> make(Ts const & ... ts);
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
