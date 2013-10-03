@@ -589,14 +589,6 @@ protected:
 	template <typename C, class TTraits, size_t t_cch> \
 	inline bool operator op(C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s) { \
 		return -s.compare_to(ach) op 0; \
-	} \
-	template <typename C, class TTraits> \
-	inline bool operator op(abc::str_base_<C, TTraits> const & s, C const * psz) { \
-		return s.compare_to(psz) op 0; \
-	} \
-	template <typename C, class TTraits> \
-	inline bool operator op(C const * psz, abc::str_base_<C, TTraits> const & s) { \
-		return -s.compare_to(psz) op 0; \
 	}
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
