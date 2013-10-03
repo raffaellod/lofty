@@ -452,6 +452,24 @@ public:
 		} \
 	}; \
 	\
+	/** Non-const string literal. \
+	\
+	TODO: remove the need for this. \
+	*/ \
+	template <size_t t_cch> \
+	class to_str_backend<C [t_cch]> : \
+		public to_str_backend<C const [t_cch]> { \
+	public: \
+	\
+		/** Constructor. \
+	\
+		TODO: comment signature. \
+		*/ \
+		to_str_backend(char_range const & crFormat = char_range()) : \
+			to_str_backend<C const [t_cch]>(crFormat) { \
+		} \
+	}; \
+	\
 	/** Pointer to NUL-terminated string. \
 	*/ \
 	template <> \
