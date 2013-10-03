@@ -483,7 +483,7 @@ protected:
 	hinst
 		Handle to the module’s instance.
 	*/
-	void _preconstruct(HINSTANCE hinst) {
+	static void _preconstruct(HINSTANCE hinst) {
 		sm_hinst = hinst;
 	}
 
