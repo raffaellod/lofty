@@ -152,16 +152,19 @@ dmstr file_path::base_name() const {
 	abc_trace_fn((s));
 
 #if ABC_HOST_API_POSIX
-	return s.size() >= 1 /*"/"*/ && s[0] == '/';
+	return s.size() >= 1 /*"/"*/ && s[0] == CL('/');
 #elif ABC_HOST_API_WIN32
 	size_t cch(s.size());
 	char_t const * pch(s.data());
 	// Win32 namespace root: best case.
-	if (cch >= 4 /*"\\?\"*/ && pch[0] == '\\' && pch[1] == '\\' && pch[2] == '?' && pch[3] == '\\') {
+	if (
+		cch >= 4 /*"\\?\"*/ &&
+		pch[0] == CL('\\') && pch[1] == CL('\\') && pch[2] == CL('?') && pch[3] == CL('\\')
+	) {
 		return true;
 	}
 	// DOS-style root, starting with a volume designator.
-	if (cch >= 2 /*"X:"*/ && pch[1] == ':') {
+	if (cch >= 2 /*"X:"*/ && pch[1] == CL(':')) {
 		return true;
 	}
 	return false;
@@ -254,7 +257,7 @@ file_path file_path::parent_dir() const {
 #if ABC_HOST_API_POSIX
 	// Nothing else to do.
 #elif ABC_HOST_API_WIN32
-	if (pch0[0] != '\\') {
+	if (pch0[0] != CL('\\')) {
 		// The path is not in “\\?\X:\path” format; make it so.
 		s = smc_aszRoot + s;
 		cch += countof(smc_aszRoot);
@@ -262,18 +265,18 @@ file_path file_path::parent_dir() const {
 	// Check the root format.
 	if (
 		cch < 7 /*"\\?\X:\"*/ ||
-		pch0[0] != '\\' || pch0[1] != '\\' || pch0[2] != '?' ||
-		pch0[3] != '\\' || pch0[5] != ':'  || pch0[6] != '\\'
+		pch0[0] != CL('\\') || pch0[1] != CL('\\') || pch0[2] != CL('?' ) ||
+		pch0[3] != CL('\\') || pch0[5] != CL(':' ) || pch0[6] != CL('\\')
 	) {
 		throw_os_error(ERROR_BAD_PATHNAME);
 	}
 	{
 		// Check and normalize the volume designator.
 		char_t ch(pch0[4]);
-		if (ch >= 'a' && ch <= 'z') {
-			ch -= 'a' - 'A';
+		if (ch >= CL('a') && ch <= CL('z')) {
+			ch -= CL('a') - CL('A');
 			s[4] = ch;
-		} else if (ch < 'A' || ch > 'Z') {
+		} else if (ch < CL('A') || ch > CL('Z')) {
 			throw_os_error(ERROR_INVALID_DRIVE);
 		}
 	}
@@ -291,10 +294,10 @@ file_path file_path::parent_dir() const {
 	size_t cDots(0);
 	for (char_t const * pchSrc(pchRootSep), * pchMax(pch0 + cch); pchSrc < pchMax; ++pchSrc) {
 		char_t ch(*pchSrc);
-		if (ch == '.' && cDots < 2) {
+		if (ch == CL('.') && cDots < 2) {
 			// Count for “.” and “..”.
 			++cDots;
-		} else if (ch == '\\' || ch == '/') {
+		} else if (ch == CL('\\') || ch == CL('/')) {
 			if (!bFoundSep) {
 				// No preceding separators: track this as the first one.
 				bFoundSep = true;

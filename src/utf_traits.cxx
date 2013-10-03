@@ -539,7 +539,7 @@ char16_t const utf16_traits::bom[] = {
 	// In UTF-16, there’s always at most two characters per code point.
 	char16_t chNeedle0(pchNeedle[0]);
 	// We only have a second character if the first is a surrogate first half.
-	char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : char16_t('\0'));
+	char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : U16CL('\0'));
 	// The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
 	// pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
 	for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
@@ -577,7 +577,7 @@ char16_t const utf16_traits::bom[] = {
 	// Notice that this function is very much a mirrored version of str_chr(), so even the needle is
 	// stored mirrored in chNeedle0/1: chNeedle1 is always used, and in case of a surrogate we use
 	// chNeedle0 as well.
-	char16_t chNeedle0((pchNeedle[0] & 0xfc00) == 0xd800 ? pchNeedle[0] : char16_t('\0'));
+	char16_t chNeedle0((pchNeedle[0] & 0xfc00) == 0xd800 ? pchNeedle[0] : U16CL('\0'));
 	char16_t chNeedle1(pchNeedle[chNeedle0 ? 1 : 0]);
 	// The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
 	// pch[0] == chNeedle1 and chNeedle0 != NUL then pch[-1] must be accessible.

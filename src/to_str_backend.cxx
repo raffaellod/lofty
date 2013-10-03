@@ -29,10 +29,12 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 char_t const _int_to_str_backend_base::smc_achIntToStrU[16] = {
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+	CL('0'), CL('1'), CL('2'), CL('3'), CL('4'), CL('5'), CL('6'), CL('7'), CL('8'), CL('9'),
+	CL('A'), CL('B'), CL('C'), CL('D'), CL('E'), CL('F')
 };
 char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+	CL('0'), CL('1'), CL('2'), CL('3'), CL('4'), CL('5'), CL('6'), CL('7'), CL('8'), CL('9'),
+	CL('a'), CL('b'), CL('c'), CL('d'), CL('e'), CL('f')
 };
 
 
@@ -43,11 +45,11 @@ _int_to_str_backend_base::_int_to_str_backend_base(
 	m_iBaseOrShift(10),
 	// Default to generating at least a single zero.
 	m_cchWidth(1),
-	m_chPad(' '),
+	m_chPad(CL(' ')),
 	// A sign will only be displayed if the number is negative and no prefix is applied.
-	m_chSign('\0'),
-	m_chPrefix0('\0'),
-	m_chPrefix1('\0') {
+	m_chSign(CL('\0')),
+	m_chPrefix0(CL('\0')),
+	m_chPrefix1(CL('\0')) {
 	abc_trace_fn((this, cbInt, crFormat));
 
 	bool bPrefix(false), bDefaultNotation(true);
@@ -58,7 +60,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(
 	}
 	ch = *it++;
 	// Display a plus or a space in front of non-negative numbers.
-	if (ch == '+' || ch == ' ') {
+	if (ch == CL('+') || ch == CL(' ')) {
 		// Force this character to be displayed for non-negative numbers.
 		m_chSign = ch;
 		if (it == crFormat.cend()) {
@@ -67,7 +69,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(
 		ch = *it++;
 	}
 	// Prefix with 0b, 0B, 0, 0x or 0X.
-	if (ch == '#') {
+	if (ch == CL('#')) {
 		bPrefix = true;
 		if (it == crFormat.cend()) {
 			goto default_notation;
@@ -75,68 +77,68 @@ _int_to_str_backend_base::_int_to_str_backend_base(
 		ch = *it++;
 	}
 	// Pad with zeroes instead of spaces.
-	if (ch == '0') {
-		m_chPad = '0';
+	if (ch == CL('0')) {
+		m_chPad = CL('0');
 		if (it == crFormat.cend()) {
 			goto default_notation;
 		}
 		ch = *it++;
 	}
 	// “Width” - minimum number of digits.
-	if (ch >= '1' && ch <= '9') {
+	if (ch >= CL('1') && ch <= CL('9')) {
 		// Undo the default; the following loop will yield at least 1 anyway (because we don’t get
 		// here for a 0 - see if above).
 		m_cchWidth = 0;
 		do {
-			m_cchWidth = m_cchWidth * 10 + unsigned(ch) - '0';
+			m_cchWidth = m_cchWidth * 10 + unsigned(ch) - CL('0');
 			if (it == crFormat.cend()) {
 				goto default_notation;
 			}
 			ch = *it++;
-		} while (ch >= '0' && ch <= '9');
+		} while (ch >= CL('0') && ch <= CL('9'));
 	}
 
 	bDefaultNotation = false;
 default_notation:
 	// If we skipped the assignment to false, we run out of characters, so default the notation.
 	if (bDefaultNotation) {
-		ch = 'd';
+		ch = CL('d');
 	}
 
 	// Determine which notation to use, which will also yield the approximate number of characters
 	// per byte.
 	unsigned cchByte;
 	switch (ch) {
-		case 'b':
-		case 'B':
-		case 'o':
-		case 'x':
-		case 'X':
+		case CL('b'):
+		case CL('B'):
+		case CL('o'):
+		case CL('x'):
+		case CL('X'):
 			if (bPrefix) {
-				m_chPrefix0 = '0';
+				m_chPrefix0 = CL('0');
 			}
 			// Fall through.
-		case 'd':
+		case CL('d'):
 			switch (ch) {
-				case 'b': // Binary notation, lowercase prefix.
-				case 'B': // Binary notation, uppercase prefix.
+				case CL('b'): // Binary notation, lowercase prefix.
+				case CL('B'): // Binary notation, uppercase prefix.
 					m_chPrefix1 = ch;
 					m_iBaseOrShift = 1;
 					cchByte = 8;
 					break;
-				case 'o': // Octal notation.
+				case CL('o'): // Octal notation.
 					m_iBaseOrShift = 3;
 					cchByte = 3;
 					break;
-				case 'X': // Hexadecimal notation, uppercase prefix and letters.
+				case CL('X'): // Hexadecimal notation, uppercase prefix and letters.
 					m_pchIntToStr = smc_achIntToStrU;
 					// Fall through.
-				case 'x': // Hexadecimal notation, lowercase prefix and letters.
+				case CL('x'): // Hexadecimal notation, lowercase prefix and letters.
 					m_chPrefix1 = ch;
 					m_iBaseOrShift = 4;
 					cchByte = 2;
 					break;
-				case 'd': // Decimal notation.
+				case CL('d'): // Decimal notation.
 					m_iBaseOrShift = 10;
 					cchByte = 3;
 					break;
@@ -165,15 +167,15 @@ void _int_to_str_backend_base::add_prefixes_and_write(
 	char_t * pch(pchBufFirstUsed);
 	// Ensure that at least one digit is generated.
 	if (pch == pchBufEnd) {
-		*--pch = '0';
+		*--pch = CL('0');
 	}
 	// Determine the sign character: only if in decimal notation, and make it a minus sign if the
 	// number is negative.
-	char_t chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
+	char_t chSign(m_iBaseOrShift == 10 ? bNegative ? CL('-') : m_chSign : CL('\0'));
 	// Decide whether we’ll put a sign last, after the padding.
-	bool bSignLast(chSign && m_chPad == '0');
+	bool bSignLast(chSign && m_chPad == CL('0'));
 	// Add the sign character if there’s no prefix and the padding is not zeroes.
-	if (chSign && m_chPad != '0') {
+	if (chSign && m_chPad != CL('0')) {
 		*--pch = chSign;
 	}
 	// Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).

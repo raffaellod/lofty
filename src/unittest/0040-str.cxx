@@ -40,11 +40,11 @@ public:
 
 			s += SL("a");
 			// true: operator+= must have created an item array (there was none).
-			if (!check_str(true, 1, 7) || s[0] != 'a') {
+			if (!check_str(true, 1, 7) || s[0] != CL('a')) {
 				return 10;
 			}
 
-			s = s + 'b' + s;
+			s = s + CL('b') + s;
 			// true: a new string is created by operator+, which replaces s by operator=.
 			if (!check_str(true, 3, 7) || s != SL("aba")) {
 				return 11;
@@ -56,7 +56,7 @@ public:
 				return 12;
 			}
 
-			s += 'c';
+			s += CL('c');
 			// false: there should’ve been enough space for 'c'.
 			if (!check_str(false, 3, 7) || s != SL("bac")) {
 				return 13;
@@ -64,31 +64,37 @@ public:
 
 			s = s.substr(0, -1);
 			// true: s got replaced by operator=.
-			if (!check_str(true, 2, 7) || s[0] != 'b' || s[1] != 'a') {
+			if (!check_str(true, 2, 7) || s[0] != CL('b') || s[1] != CL('a')) {
 				return 14;
 			}
 
 			s += s;
 			// false: there should’ve been enough space for “baba”.
-			if (!check_str(false, 4, 7) || s[0] != 'b' || s[1] != 'a' || s[2] != 'b' || s[3] != 'a') {
+			if (
+				!check_str(false, 4, 7) ||
+				s[0] != CL('b') || s[1] != CL('a') || s[2] != CL('b') || s[3] != CL('a')
+			) {
 				return 15;
 			}
 
 			s = s.substr(-3, -2);
 			// true: s got replaced by operator=.
-			if (!check_str(true, 1, 7) || s[0] != 'a') {
+			if (!check_str(true, 1, 7) || s[0] != CL('a')) {
 				return 16;
 			}
 
-			s = dmstr(SL("ab")) + 'c';
+			s = dmstr(SL("ab")) + CL('c');
 			// true: s got replaced by operator=.
-			if (!check_str(true, 3, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c') {
+			if (!check_str(true, 3, 7) || s[0] != CL('a') || s[1] != CL('b') || s[2] != CL('c')) {
 				return 17;
 			}
 
-			s += 'd';
+			s += CL('d');
 			// false: there should’ve been enough space for “abcd”.
-			if (!check_str(false, 4, 7) || s[0] != 'a' || s[1] != 'b' || s[2] != 'c' || s[3] != 'd') {
+			if (
+				!check_str(false, 4, 7) ||
+				s[0] != CL('a') || s[1] != CL('b') || s[2] != CL('c') || s[3] != CL('d')
+			) {
 				return 18;
 			}
 
@@ -120,7 +126,7 @@ public:
 			istr8 const s8(U8SL("acabaabca"));
 			istr8::const_iterator
 
-			it = s8.find('b');
+			it = s8.find(U32CL('b'));
 			if (it != s8.cbegin() + 3) {
 				return 50;
 			}
@@ -150,7 +156,7 @@ public:
 				return 55;
 			}
 
-			it = s8.find_last('b');
+			it = s8.find_last(U32CL('b'));
 			if (it != s8.cend() - 3) {
 				return 56;
 			}
@@ -178,7 +184,7 @@ public:
 			istr16 const s16(U16SL("acabaabca"));
 			istr16::const_iterator it;
 
-			it = s16.find('b');
+			it = s16.find(U32CL('b'));
 			if (it != s16.cbegin() + 3) {
 				return 60;
 			}
@@ -208,7 +214,7 @@ public:
 				return 65;
 			}
 
-			it = s16.find_last('b');
+			it = s16.find_last(U32CL('b'));
 			if (it != s16.cend() - 3) {
 				return 66;
 			}
@@ -236,7 +242,7 @@ public:
 			istr32 const s32(U32SL("acabaabca"));
 			istr32::const_iterator it;
 
-			it = s32.find('b');
+			it = s32.find(U32CL('b'));
 			if (it != s32.cbegin() + 3) {
 				return 70;
 			}
@@ -266,7 +272,7 @@ public:
 				return 75;
 			}
 
-			it = s32.find_last('b');
+			it = s32.find_last(U32CL('b'));
 			if (it != s32.cend() - 3) {
 				return 76;
 			}
@@ -296,16 +302,10 @@ public:
 			istr8 const s8(U8SL("àßçàŒ"));
 			istr8::const_iterator it;
 
-#if defined(U32SL) || defined(U16SL)
-#if defined(U32SL)
 			it = s8.find(U32CL('ß'));
-#elif defined(U16SL)
-			it = s8.find(U16CL('ß'));
-#endif
 			if (it != s8.cbegin() + 2) {
 				return 80;
 			}
-#endif //if defined(U32SL) || defined(U16SL)
 
 			it = s8.find(U8SL("àß"));
 			if (it != s8.cbegin() + 0) {
@@ -328,16 +328,10 @@ public:
 			istr16 const s16(U16SL("àßçàŒ"));
 			istr16::const_iterator it;
 
-#if defined(U32SL) || defined(U16SL)
-#if defined(U32SL)
 			it = s16.find(U32CL('ß'));
-#elif defined(U16SL)
-			it = s16.find(U16CL('ß'));
-#endif
 			if (it != s16.cbegin() + 1) {
 				return 90;
 			}
-#endif //if defined(U32SL) || defined(U16SL)
 
 			it = s16.find(U16SL("àß"));
 			if (it != s16.cbegin() + 0) {
@@ -360,7 +354,7 @@ public:
 			istr32 const s32(U32SL("àßçàŒ"));
 			istr32::const_iterator it;
 
-			it = s32.find(U32SL('ß'));
+			it = s32.find(U32CL('ß'));
 			if (it != s32.cbegin() + 1) {
 				return 100;
 			}

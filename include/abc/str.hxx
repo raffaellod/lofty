@@ -333,7 +333,7 @@ public:
 	}
 	template <size_t t_cch>
 	int compare_to(C const (& ach)[t_cch]) const {
-		assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 		return TTraits::str_cmp(data(), size(), ach, t_cch - 1 /*NUL*/);
 	}
 	// This overload needs to be template, or it will take precedence over the one above.
@@ -692,7 +692,7 @@ public:
 	template <size_t t_cch>
 	istr_(C const (& ach)[t_cch]) :
 		str_base(ach, t_cch - 1 /*NUL*/) {
-		assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 	}
 	istr_(C const * psz, size_t cch) :
 		str_base(0) {
@@ -825,7 +825,7 @@ public:
 	}
 	template <size_t t_cch>
 	mstr_ & operator=(C const (& ach)[t_cch]) {
-		assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 		assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
@@ -841,7 +841,7 @@ public:
 	}
 	template <size_t t_cch>
 	mstr_ & operator+=(C const (& ach)[t_cch]) {
-		assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 		append(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
@@ -1105,14 +1105,14 @@ template <typename C, class TTraits, size_t t_cch>
 inline abc::dmstr_<C, TTraits> operator+(
 	abc::str_base_<C, TTraits> const & s, C const (& ach)[t_cch]
 ) {
-	assert(ach[t_cch - 1 /*NUL*/] == '\0');
+	assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 	return abc::dmstr_<C, TTraits>(s.data(), s.size(), ach, t_cch - 1 /*NUL*/);
 }
 template <typename C, class TTraits, size_t t_cch>
 inline abc::dmstr_<C, TTraits> operator+(
 	C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s
 ) {
-	assert(ach[t_cch - 1 /*NUL*/] == '\0');
+	assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 	return abc::dmstr_<C, TTraits>(ach, t_cch - 1 /*NUL*/, s.data(), s.size());
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
