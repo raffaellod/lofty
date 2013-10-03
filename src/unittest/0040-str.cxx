@@ -115,9 +115,9 @@ public:
 		// •  first and last characters match 'a', but other inner ones do too;
 		// •  would match “abcd” were it not for the last character;
 		// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-#ifdef U8L
+#ifdef U8SL
 		{
-			istr8 const s8(U8L("acabaabca"));
+			istr8 const s8(U8SL("acabaabca"));
 			istr8::const_iterator
 
 			it = s8.find('b');
@@ -125,27 +125,27 @@ public:
 				return 50;
 			}
 
-			it = s8.find(U8L("ab"));
+			it = s8.find(U8SL("ab"));
 			if (it != s8.cbegin() + 2) {
 				return 51;
 			}
 
-			it = s8.find(U8L("abca"));
+			it = s8.find(U8SL("abca"));
 			if (it != s8.cbegin() + 5) {
 				return 52;
 			}
 
-			it = s8.find(U8L("abcd"));
+			it = s8.find(U8SL("abcd"));
 			if (it != s8.cend()) {
 				return 53;
 			}
 
-			it = s8.find(U8L("abaabc"));
+			it = s8.find(U8SL("abaabc"));
 			if (it != s8.cbegin() + 2) {
 				return 54;
 			}
 
-			it = s8.find(U8L("abaabcd"));
+			it = s8.find(U8SL("abaabcd"));
 			if (it != s8.cend()) {
 				return 55;
 			}
@@ -156,26 +156,26 @@ public:
 			}
 
 #if 0
-			it = s8.find_last(U8L("ab"));
+			it = s8.find_last(U8SL("ab"));
 			if (it != s8.cend() - 4) {
 				return 57;
 			}
 
-			it = s8.find_last(U8L("ac"));
+			it = s8.find_last(U8SL("ac"));
 			if (it != s8.cend() - 9) {
 				return 58;
 			}
 
-			it = s8.find_last(U8L("ca"));
+			it = s8.find_last(U8SL("ca"));
 			if (it != s8.cend() - 2) {
 				return 59;
 			}
 #endif
 		}
 #endif
-#ifdef U16L
+#ifdef U16SL
 		{
-			istr16 const s16(U16L("acabaabca"));
+			istr16 const s16(U16SL("acabaabca"));
 			istr16::const_iterator it;
 
 			it = s16.find('b');
@@ -183,27 +183,27 @@ public:
 				return 60;
 			}
 
-			it = s16.find(U16L("ab"));
+			it = s16.find(U16SL("ab"));
 			if (it != s16.cbegin() + 2) {
 				return 61;
 			}
 
-			it = s16.find(U16L("abca"));
+			it = s16.find(U16SL("abca"));
 			if (it != s16.cbegin() + 5) {
 				return 62;
 			}
 
-			it = s16.find(U16L("abcd"));
+			it = s16.find(U16SL("abcd"));
 			if (it != s16.cend()) {
 				return 63;
 			}
 
-			it = s16.find(U16L("abaabc"));
+			it = s16.find(U16SL("abaabc"));
 			if (it != s16.cbegin() + 2) {
 				return 64;
 			}
 
-			it = s16.find(U16L("abaabcd"));
+			it = s16.find(U16SL("abaabcd"));
 			if (it != s16.cend()) {
 				return 65;
 			}
@@ -214,26 +214,26 @@ public:
 			}
 
 #if 0
-			it = s16.find_last(U16L("ab"));
+			it = s16.find_last(U16SL("ab"));
 			if (it != s16.cend() - 4) {
 				return 67;
 			}
 
-			it = s16.find_last(U16L("ac"));
+			it = s16.find_last(U16SL("ac"));
 			if (it != s16.cend() - 9) {
 				return 68;
 			}
 
-			it = s16.find_last(U16L("ca"));
+			it = s16.find_last(U16SL("ca"));
 			if (it != s16.cend() - 2) {
 				return 69;
 			}
 #endif
 		}
 #endif
-#ifdef U32L
+#ifdef U32SL
 		{
-			istr32 const s32(U32L("acabaabca"));
+			istr32 const s32(U32SL("acabaabca"));
 			istr32::const_iterator it;
 
 			it = s32.find('b');
@@ -241,27 +241,27 @@ public:
 				return 70;
 			}
 
-			it = s32.find(U32L("ab"));
+			it = s32.find(U32SL("ab"));
 			if (it != s32.cbegin() + 2) {
 				return 71;
 			}
 
-			it = s32.find(U32L("abca"));
+			it = s32.find(U32SL("abca"));
 			if (it != s32.cbegin() + 5) {
 				return 72;
 			}
 
-			it = s32.find(U32L("abcd"));
+			it = s32.find(U32SL("abcd"));
 			if (it != s32.cend()) {
 				return 73;
 			}
 
-			it = s32.find(U32L("abaabc"));
+			it = s32.find(U32SL("abaabc"));
 			if (it != s32.cbegin() + 2) {
 				return 74;
 			}
 
-			it = s32.find(U32L("abaabcd"));
+			it = s32.find(U32SL("abaabcd"));
 			if (it != s32.cend()) {
 				return 75;
 			}
@@ -272,17 +272,17 @@ public:
 			}
 
 #if 0
-			it = s32.find_last(U32L("ab"));
+			it = s32.find_last(U32SL("ab"));
 			if (it != s32.cend() - 4) {
 				return 77;
 			}
 
-			it = s32.find_last(U32L("ac"));
+			it = s32.find_last(U32SL("ac"));
 			if (it != s32.cend() - 9) {
 				return 78;
 			}
 
-			it = s32.find_last(U32L("ca"));
+			it = s32.find_last(U32SL("ca"));
 			if (it != s32.cend() - 2) {
 				return 79;
 			}
@@ -291,91 +291,91 @@ public:
 #endif
 
 		// Non-ASCII character and substring search.
-#ifdef U8L
+#ifdef U8SL
 		{
-			istr8 const s8(U8L("àßçàŒ"));
+			istr8 const s8(U8SL("àßçàŒ"));
 			istr8::const_iterator it;
 
-#if defined(U32L) || defined(U16L)
-#if defined(U32L)
-			it = s8.find(U32L('ß'));
-#elif defined(U16L)
-			it = s8.find(U16L('ß'));
+#if defined(U32SL) || defined(U16SL)
+#if defined(U32SL)
+			it = s8.find(U32CL('ß'));
+#elif defined(U16SL)
+			it = s8.find(U16CL('ß'));
 #endif
 			if (it != s8.cbegin() + 2) {
 				return 80;
 			}
-#endif //if defined(U32L) || defined(U16L)
+#endif //if defined(U32SL) || defined(U16SL)
 
-			it = s8.find(U8L("àß"));
+			it = s8.find(U8SL("àß"));
 			if (it != s8.cbegin() + 0) {
 				return 81;
 			}
 
-			it = s8.find(U8L("àŒ"));
+			it = s8.find(U8SL("àŒ"));
 			if (it != s8.cbegin() + 6) {
 				return 82;
 			}
 
-			it = s8.find(U8L("àü"));
+			it = s8.find(U8SL("àü"));
 			if (it != s8.cend()) {
 				return 83;
 			}
 		}
 #endif
-#ifdef U16L
+#ifdef U16SL
 		{
-			istr16 const s16(U16L("àßçàŒ"));
+			istr16 const s16(U16SL("àßçàŒ"));
 			istr16::const_iterator it;
 
-#if defined(U32L) || defined(U16L)
-#if defined(U32L)
-			it = s16.find(U32L('ß'));
-#elif defined(U16L)
-			it = s16.find(U16L('ß'));
+#if defined(U32SL) || defined(U16SL)
+#if defined(U32SL)
+			it = s16.find(U32CL('ß'));
+#elif defined(U16SL)
+			it = s16.find(U16CL('ß'));
 #endif
 			if (it != s16.cbegin() + 1) {
 				return 90;
 			}
-#endif //if defined(U32L) || defined(U16L)
+#endif //if defined(U32SL) || defined(U16SL)
 
-			it = s16.find(U16L("àß"));
+			it = s16.find(U16SL("àß"));
 			if (it != s16.cbegin() + 0) {
 				return 91;
 			}
 
-			it = s16.find(U16L("àŒ"));
+			it = s16.find(U16SL("àŒ"));
 			if (it != s16.cbegin() + 3) {
 				return 92;
 			}
 
-			it = s16.find(U16L("àü"));
+			it = s16.find(U16SL("àü"));
 			if (it != s16.cend()) {
 				return 93;
 			}
 		}
 #endif
-#ifdef U32L
+#ifdef U32SL
 		{
-			istr32 const s32(U32L("àßçàŒ"));
+			istr32 const s32(U32SL("àßçàŒ"));
 			istr32::const_iterator it;
 
-			it = s32.find(U32L('ß'));
+			it = s32.find(U32SL('ß'));
 			if (it != s32.cbegin() + 1) {
 				return 100;
 			}
 
-			it = s32.find(U32L("àß"));
+			it = s32.find(U32SL("àß"));
 			if (it != s32.cbegin() + 0) {
 				return 101;
 			}
 
-			it = s32.find(U32L("àŒ"));
+			it = s32.find(U32SL("àŒ"));
 			if (it != s32.cbegin() + 3) {
 				return 102;
 			}
 
-			it = s32.find(U32L("àü"));
+			it = s32.find(U32SL("àü"));
 			if (it != s32.cend()) {
 				return 103;
 			}

@@ -36,12 +36,12 @@ public:
 		str_ostream sos;
 		istr sEnc(SL("host"));
 
-		sos.write(istr8(U8L("Testing string (UTF-8 encoding)")));
-#ifdef U16L
-		sos.write(istr16(U16L("Testing string (UTF-16 encoding)")));
+		sos.write(istr8(U8SL("Testing string (UTF-8 encoding)")));
+#ifdef U16SL
+		sos.write(istr16(U16SL("Testing string (UTF-16 encoding)")));
 #endif
-#ifdef U32L
-		sos.write(istr32(U32L("Testing string (UTF-32 encoding)")));
+#ifdef U32SL
+		sos.write(istr32(U32SL("Testing string (UTF-32 encoding)")));
 #endif		
 
 		return EXIT_SUCCESS;

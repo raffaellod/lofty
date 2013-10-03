@@ -34,53 +34,122 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/** UTF-8 character type. */
-typedef char char8_t;
+/** Indicates the level of UTF-8 string literals support:
+•	0 if UTF-8 string literals are not supported;
+•	1 if UTF-8 string literals are supported.
+*/
+#define ABC_CXX_UTF8LIT 0
+
+/** Indicates how char16_t is defined:
+•	0 if char16_t is not a native type, e.g. it’s just a typedef for uint16_t;
+•	1 if char16_t is not the same as uint16_t, but it’s just a typedef for native 16-bit wchar_t;
+•	2 if char16_t is a native type, distinct from uint16_t.
+*/
+#define ABC_CXX_CHAR16 0
+
+/** Indicates how char32_t is defined:
+•	0 if char32_t is not a native type, e.g. it’s just a typedef for uint32_t;
+•	1 if char32_t is not the same as uint32_t, but it’s just a typedef for native 32-bit wchar_t;
+•	2 if char32_t is a native type, distinct from uint32_t.
+*/
+#define ABC_CXX_CHAR32 0
+
 #if defined(_GCC_VER) && _GCC_VER >= 40400
 	// char16_t is a native type, different than uint16_t.
-	#define ABC_CXX_CHAR16
+	#undef ABC_CXX_CHAR16
+	#define ABC_CXX_CHAR16 2
 	// char32_t is a native type, different than uint32_t.
-	#define ABC_CXX_CHAR32
-	/** UTF-16 string literal. */
-	#define U16L(s) u ## s
-	/** UTF-32 string literal. */
-	#define U32L(s) U ## s
+	#undef ABC_CXX_CHAR32
+	#define ABC_CXX_CHAR32 2
+
 	#if _GCC_VER >= 40500
-		/** UTF-8 string literal. */
-		#define U8L(s) u8 ## s
-	#else
-		/** UTF-8 string literal. */
-		#define U8L(s) s
+		// UTF-8 string literals are supported.
+		#undef ABC_CXX_UTF8LIT
+		#define ABC_CXX_UTF8LIT 1
 	#endif
 #else
 	#if defined(_MSC_VER) && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
 		#error Please compile with /Zc:wchar_t
 	#endif
+
 	#if ABC_HOST_API_WIN32
-		// char16_t is a native type, different than uint16_t.
-		#define ABC_CXX_CHAR16
-		/** UTF-16 character type. */
-		typedef wchar_t char16_t;
-		/** UTF-32 character type. */
-		typedef uint32_t char32_t;
+		// char16_t is not a native type, but we can typedef it as wchar_t.
+		#undef ABC_CXX_CHAR16
+		#define ABC_CXX_CHAR16 1
 	#else
-		// char32_t is a native type, different than uint32_t.
-		#define ABC_CXX_CHAR32
-		/** UTF-16 character type. */
-		typedef uint16_t char16_t;
-		/** UTF-32 character type. */
-		typedef wchar_t char32_t;
+		// char32_t is not a native type, but we can typedef it as wchar_t.
+		#undef ABC_CXX_CHAR32
+		#define ABC_CXX_CHAR32 1
 	#endif
-	/** UTF-8 string literal. */
-	#define U8L(s) s
-	#if ABC_HOST_API_WIN32
-		/** UTF-16 string literal. */
-		#define U16L(s) L ## s
-	#else
-		/** UTF-32 string literal. */
-		#define U32L(s) L ## s
-	#endif		
 #endif
+
+#if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
+	#error Unexpected: one of ABC_CXX_CHAR16 or ABC_CXX_CHAR32 must be > 0
+#endif
+
+
+/** UTF-8 character type. */
+typedef char char8_t;
+
+/** UTF-16 character type. */
+#if ABC_CXX_CHAR16 == 1
+	typedef wchar_t char16_t;
+#elif ABC_CXX_CHAR16 == 0
+	typedef uint16_t char16_t;
+#endif
+
+/** UTF-32 character type. */
+#if ABC_CXX_CHAR32 == 1
+	typedef wchar_t char32_t;
+#elif ABC_CXX_CHAR32 == 0
+	typedef uint32_t char32_t;
+#endif
+
+/** UCS-16 character literal. */
+#if ABC_CXX_CHAR16 == 2
+	#define U16CL(ch) u ## ch
+#elif ABC_CXX_CHAR16 == 1
+	#define U16CL(ch) L ## ch
+#elif ABC_CXX_CHAR16 == 0
+	// No native type for char16_t, but we can at least use 32-bit wchar_t to store any Unicode
+	// character correctly, and then truncate that to our typedef’ed char16_t.
+	// TODO: make the truncation explicit (compiler warning?).
+	#define U16CL(s) char16_t(L ## s)
+#endif
+
+/** UCS-32 character literal. */
+#if ABC_CXX_CHAR32 == 2
+	#define U32CL(ch) U ## ch
+#elif ABC_CXX_CHAR32 == 1
+	#define U32CL(ch) L ## ch
+#elif ABC_CXX_CHAR32 == 0
+	// No native type for char32_t, but we can at least use 16-bit wchar_t to store most Unicode
+	// characters correctly, and then cast that to our typedef’ed char32_t.
+	#define U32CL(s) char32_t(L ## s)
+#endif
+
+/** UTF-8 string literal. */
+#if ABC_CXX_UTF8LIT == 1
+	#define U8SL(s) u8 ## s
+#else
+	// Rely on the source files being encoded in UTF-8.
+	#define U8SL(s) s
+#endif
+
+/** UTF-16 string literal. */
+#if ABC_CXX_CHAR16 == 2
+	#define U16SL(s) u ## s
+#elif ABC_CXX_CHAR16 == 1
+	#define U16SL(s) L ## s
+#endif
+
+/** UTF-32 string literal. */
+#if ABC_CXX_CHAR32 == 2
+	#define U32SL(s) U ## s
+#elif ABC_CXX_CHAR32 == 1
+	#define U32SL(s) L ## s
+#endif
+
 
 /** UTF-* encoding supported by the host. */
 #if ABC_HOST_API_WIN32 && defined(UNICODE)
@@ -98,13 +167,22 @@ typedef char char8_t;
 	typedef char32_t char_t;
 #endif
 
+/** Default character literal type for the host. */
+#if ABC_HOST_UTF == 8
+	#define CL(ch) ch
+#elif ABC_HOST_UTF == 16
+	#define CL(ch) U16CL(ch)
+#elif ABC_HOST_UTF == 32
+	#define CL(ch) U32CL(ch)
+#endif
+
 /** Default string literal type for the host. */
 #if ABC_HOST_UTF == 8
-	#define SL(s) U8L(s)
+	#define SL(s) U8SL(s)
 #elif ABC_HOST_UTF == 16
-	#define SL(s) U16L(s)
+	#define SL(s) U16SL(s)
 #elif ABC_HOST_UTF == 32
-	#define SL(s) U32L(s)
+	#define SL(s) U32SL(s)
 #endif
 
 } //namespace abc
@@ -341,7 +419,7 @@ public:
 		m_pchBegin(ach),
 		m_pchEnd(ach + t_cch - 1 /*NUL*/) {
 		// Cannot assert in this header file.
-		//assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		//assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 	}
 	char_range_(C const * pchBegin, size_t cch) :
 		m_pchBegin(pchBegin),

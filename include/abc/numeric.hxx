@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 
-#include <abc/core.hxx>
+#include <abc/char.hxx>
 #include <type_traits>
 
 
@@ -90,7 +90,7 @@ template <>
 struct min<    char> : public std::integral_constant<    char, CHAR_MIN> {};
 template <>
 struct max<    char> : public std::integral_constant<    char, CHAR_MAX> {};
-#ifdef ABC_CXX_CHAR16
+#if ABC_CXX_CHAR16 > 0
 template <>
 struct min<char16_t> : public std::integral_constant<char16_t,        0> {};
 template <>
@@ -101,8 +101,8 @@ struct max<char16_t> : public std::integral_constant<char16_t,
 		0xffff
 #endif
 	> {};
-#endif //ifdef ABC_CXX_CHAR16
-#ifdef ABC_CXX_CHAR32
+#endif //if ABC_CXX_CHAR16 > 0
+#if ABC_CXX_CHAR32 > 0
 template <>
 struct min<char32_t> : public std::integral_constant<char32_t,        0> {};
 template <>
@@ -113,7 +113,7 @@ struct max<char32_t> : public std::integral_constant<char32_t,
 		0xffffffff
 #endif
 	> {};
-#endif //ifdef ABC_CXX_CHAR32
+#endif //if ABC_CXX_CHAR32 > 0
 
 // Specialization of min and max for integer types.
 template <>
