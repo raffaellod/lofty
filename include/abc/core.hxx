@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_CORE_HXX
 
 
-#include <limits.h> // CHAR_BIT *_MAX *_MIN
-#include <stdint.h> // *int*_t __WORDSIZE (if supported)
-#include <stddef.h> // size_t
-
 #if defined(__GNUC__)
 	// Make version checks for GCC less cumbersome.
 	#define _GCC_VER \
@@ -36,6 +32,20 @@ You should have received a copy of the GNU General Public License along with ABC
 	#if _MSC_VER < 1600
 		#error Unsupported version of MSC (>= MSC 16 / VC++ 10 / VS 2010 required)
 	#endif
+#endif
+
+#ifdef _MSC_VER
+	// Silence warnings from system header files.
+	#pragma warning(push)
+	#pragma warning(disable: 4668)
+#endif
+
+#include <limits.h> // CHAR_BIT *_MAX *_MIN
+#include <stdint.h> // *int*_t __WORDSIZE (if supported)
+#include <stddef.h> // size_t
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
 #endif
 
 
@@ -133,8 +143,27 @@ You should have received a copy of the GNU General Public License along with ABC
 		#undef _UNICODE
 	#endif
 
+	#ifdef _MSC_VER
+		// Silence warnings from system header files.
+		// These must be disabled until the end of the compilation unit, because that’s when they
+		// are raised.
+
+		// “Unreferenced inline function has been removed”
+		#pragma warning(disable: 4514)
+
+		// These can be restored after including header files.
+		#pragma warning(push)
+
+		// “'macro' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+		#pragma warning(disable: 4668)
+	#endif
+
 	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
+	#include <windows.h>
+
+	#ifdef _MSC_VER
+		#pragma warning(pop)
+	#endif
 #endif
 
 
