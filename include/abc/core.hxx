@@ -35,8 +35,27 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #ifdef _MSC_VER
+	// Suppress unnecessary warnings.
+
+	// “conditional expression is constant”
+	#pragma warning(disable: 4127)
+	// “'class' : default constructor could not be generated”
+	#pragma warning(disable: 4510)
+	// “'class' : assignment operator could not be generated”
+	#pragma warning(disable: 4512)
+	// “class 'class' can never be instantiated - user defined constructor required”
+	#pragma warning(disable: 4610)
+	// “'class' : copy constructor could not be generated because a base class copy constructor is inaccessible”
+	#pragma warning(disable: 4625)
+	// “'class' : assignment operator could not be generated because a base class assignment operator is inaccessible”
+	#pragma warning(disable: 4626)
+	// 'function' : function not inlined
+	#pragma warning(disable: 4710)
+
 	// Silence warnings from system header files.
 	#pragma warning(push)
+
+	// “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
 	#pragma warning(disable: 4668)
 #endif
 
