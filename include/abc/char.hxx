@@ -41,16 +41,16 @@ namespace abc {
 #define ABC_CXX_UTF8LIT 0
 
 /** Indicates how char16_t is defined:
-•	0 if char16_t is not a native type, e.g. it’s just a typedef for uint16_t;
-•	1 if char16_t is not the same as uint16_t, but it’s just a typedef for native 16-bit wchar_t;
-•	2 if char16_t is a native type, distinct from uint16_t.
+	2 - char16_t is a native type, distinct from uint16_t and wchar_t;
+	1 - abc::char16_t is a typedef for native 16-bit wchar_t, distinct from uint16_t;
+	0 - abc::char16_t is a typedef for uint16_t.
 */
 #define ABC_CXX_CHAR16 0
 
 /** Indicates how char32_t is defined:
-•	0 if char32_t is not a native type, e.g. it’s just a typedef for uint32_t;
-•	1 if char32_t is not the same as uint32_t, but it’s just a typedef for native 32-bit wchar_t;
-•	2 if char32_t is a native type, distinct from uint32_t.
+	2 - char32_t is a native type, distinct from uint32_t and wchar_t;
+	1 - abc::char32_t is a typedef for native 32-bit wchar_t, distinct from uint32_t;
+	0 - abc::char32_t is a typedef for uint32_t.
 */
 #define ABC_CXX_CHAR32 0
 
@@ -114,7 +114,7 @@ typedef char char8_t;
 	// No native type for char16_t, but we can at least use 32-bit wchar_t to store any Unicode
 	// character correctly, and then truncate that to our typedef’ed char16_t.
 	// TODO: make the truncation explicit (compiler warning?).
-	#define U16CL(s) char16_t(L ## s)
+	#define U16CL(s) abc::char16_t(L ## s)
 #endif
 
 /** UCS-32 character literal. */
@@ -125,7 +125,7 @@ typedef char char8_t;
 #elif ABC_CXX_CHAR32 == 0
 	// No native type for char32_t, but we can at least use 16-bit wchar_t to store most Unicode
 	// characters correctly, and then cast that to our typedef’ed char32_t.
-	#define U32CL(s) char32_t(L ## s)
+	#define U32CL(s) abc::char32_t(L ## s)
 #endif
 
 /** UTF-8 string literal. */
