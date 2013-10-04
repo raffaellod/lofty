@@ -133,10 +133,10 @@ inline I decrement(I volatile * pi) {
 #elif ABC_HOST_API_WIN32
 	switch (sizeof(I)) {
 		case sizeof(long):
-			return ::InterlockedDecrement(reinterpret_cast<long volatile *>(pi));
+			return I(::InterlockedDecrement(reinterpret_cast<long volatile *>(pi)));
 #if _WIN32_WINNT >= 0x0502
 		case sizeof(long long):
-			return ::InterlockedDecrement64(reinterpret_cast<long long volatile *>(pi));
+			return I(::InterlockedDecrement64(reinterpret_cast<long long volatile *>(pi)));
 #endif //if _WIN32_WINNT >= 0x0502
 	}
 #else
@@ -161,10 +161,10 @@ inline I increment(I volatile * pi) {
 #elif ABC_HOST_API_WIN32
 	switch (sizeof(I)) {
 		case sizeof(long):
-			return ::InterlockedIncrement(reinterpret_cast<long volatile *>(pi));
+			return I(::InterlockedIncrement(reinterpret_cast<long volatile *>(pi)));
 #if _WIN32_WINNT >= 0x0502
 		case sizeof(long long):
-			return ::InterlockedIncrement64(reinterpret_cast<long long volatile *>(pi));
+			return I(::InterlockedIncrement64(reinterpret_cast<long long volatile *>(pi)));
 #endif //if _WIN32_WINNT >= 0x0502
 	}
 #else
