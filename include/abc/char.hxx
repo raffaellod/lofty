@@ -25,7 +25,19 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 
+#ifdef _MSC_VER
+	// Silence warnings from system header files.
+	#pragma warning(push)
+
+	// “'function': exception specification does not match previous declaration”
+	#pragma warning(disable: 4986)
+#endif
+
 #include <iterator>
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 
 
