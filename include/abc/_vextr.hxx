@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef ABC__VEXTR_HXX
 #define ABC__VEXTR_HXX
 
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif

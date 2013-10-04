@@ -20,11 +20,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef ABC_CHAR_HXX
 #define ABC_CHAR_HXX
 
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
 
-#include <abc/core.hxx>
 #include <iterator>
 
 

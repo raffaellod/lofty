@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef ABC_UTF_TRAITS_HXX
 #define ABC_UTF_TRAITS_HXX
 
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif

@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef ABC_TO_STRING_BACKEND_HXX
 #define ABC_TO_STRING_BACKEND_HXX
 
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
