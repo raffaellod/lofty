@@ -686,7 +686,7 @@ protected:
 	*/
 	void assign_empty(bool bNulT = false) {
 		m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL;
-		m_ci = bNulT ? 1 /*NUL*/ : 0;
+		m_ci = bNulT ? 1u /*NUL*/ : 0;
 		m_rvpd.set(0, false);
 	}
 
