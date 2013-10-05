@@ -470,12 +470,12 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 			if (enc != encoding::utf16le && enc != encoding::utf16be) {
 				abc_throw(argument_error());
 			}
-			uint16_t chCr(enc == encoding::utf16le
+			uint16_t chCr(uint16_t(enc == encoding::utf16le
 				? STATIC_BYTEORDER_HOSTTOLE16(0x000d) : STATIC_BYTEORDER_HOSTTOBE16(0x000d)
-			);
-			uint16_t chLf(enc == encoding::utf16le
-				? STATIC_BYTEORDER_HOSTTOLE16(0x000a) : STATIC_BYTEORDER_HOSTTOBE16(0x000d)
-			);
+			));
+			uint16_t chLf(uint16_t(enc == encoding::utf16le
+				? STATIC_BYTEORDER_HOSTTOLE16(0x000au) : STATIC_BYTEORDER_HOSTTOBE16(0x000du)
+			));
 			for (
 				uint16_t const * pchBuf(static_cast<uint16_t const *>(pBuf));
 				pchBuf < static_cast<uint16_t const *>(pBufMax);
@@ -689,7 +689,7 @@ size_t transcode(
 
 			case encoding::utf16le:
 			case encoding::utf16be: {
-				unsigned cbCont((ch32 > 0x00ffff) << 1);
+				unsigned cbCont(unsigned(ch32 > 0x00ffff) << 1);
 				if (pbDst + sizeof(char16_t) + cbCont > pbDstEnd) {
 					goto break_for;
 				}
