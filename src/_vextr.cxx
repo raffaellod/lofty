@@ -124,7 +124,7 @@ void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT
 
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= false*/) :
 	m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL),
-	m_ci(bNulT ? 1 /*NUL*/ : 0),
+	m_ci(bNulT ? 1u /*NUL*/ : 0),
 	m_rvpd(0, false, ciStaticMax > 0) {
 	abc_trace_fn((this, ciStaticMax, bNulT));
 
@@ -139,7 +139,7 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= fa
 
 
 size_t _raw_vextr_impl_base::adjust_index(ptrdiff_t i, bool bNulT /*= false*/) const {
-	ptrdiff_t cMaxItems(size(bNulT));
+	ptrdiff_t cMaxItems(ptrdiff_t(size(bNulT)));
 	if (i < 0) {
 		i += cMaxItems;
 		if (i < 0) {
@@ -155,7 +155,7 @@ size_t _raw_vextr_impl_base::adjust_index(ptrdiff_t i, bool bNulT /*= false*/) c
 void _raw_vextr_impl_base::adjust_range(
 	ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT /*= false*/
 ) const {
-	ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems(size(bNulT));
+	ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems(ptrdiff_t(size(bNulT)));
 	if (iFirst < 0) {
 		iFirst += cMaxItems;
 		if (iFirst < 0) {
