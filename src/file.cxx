@@ -157,7 +157,8 @@ size_t file::read(void * p, size_t cbMax) {
 		// reading them does not fail.
 		DWORD cbLastRead;
 		if (!::ReadFile(
-			m_fd.get(), pb, std::min<size_t>(cbMax, numeric::max<DWORD>::value), &cbLastRead, NULL
+			m_fd.get(), pb,
+			DWORD(std::min<size_t>(cbMax, numeric::max<DWORD>::value)), &cbLastRead, NULL
 		)) {
 			DWORD iErr(::GetLastError());
 			if (iErr == ERROR_HANDLE_EOF) {
@@ -194,14 +195,14 @@ size_t file::write(void const * p, size_t cb) {
 		/// Constructor.
 		//
 		file_lock() :
-			m_fd(INVALID_FILE_HANDLE) {
+			m_fd(INVALID_HANDLE_VALUE) {
 		}
 
 
 		/// Destructor.
 		//
 		~file_lock() {
-			if (m_fd != INVALID_FILE_HANDLE) {
+			if (m_fd != INVALID_HANDLE_VALUE) {
 				unlock();
 			}
 		}
@@ -213,10 +214,11 @@ size_t file::write(void const * p, size_t cb) {
 		//
 		bool lock(filedesc_t fd, fileint_t ibOffset, fileint_t cb) {
 			assert(m_fd == INVALID_FILE_HANDLE);
-			m_ibOffset.QuadPart = ibOffset;
-			m_cb.QuadPart = cb;
+			m_fd = fd;
+			m_ibOffset.QuadPart = LONGLONG(ibOffset);
+			m_cb.QuadPart = LONGLONG(cb);
 			if (!::LockFile(
-				m_fd, m_ibOffset.LowPart, m_ibOffset.HighPart, m_cb.LowPart, m_cb.HighPart
+				m_fd, m_ibOffset.LowPart, DWORD(m_ibOffset.HighPart), m_cb.LowPart, DWORD(m_cb.HighPart)
 			)) {
 				DWORD iErr(::GetLastError());
 				if (iErr == ERROR_LOCK_VIOLATION) {
@@ -231,7 +233,7 @@ size_t file::write(void const * p, size_t cb) {
 		void unlock() {
 			assert(m_fd != INVALID_FILE_HANDLE);
 			if (!::UnlockFile(
-				m_fd, m_ibOffset.LowPart, m_ibOffset.HighPart, m_cb.LowPart, m_cb.HighPart
+				m_fd, m_ibOffset.LowPart, DWORD(m_ibOffset.HighPart), m_cb.LowPart, DWORD(m_cb.HighPart)
 			)) {
 				throw_os_error();
 			}
@@ -260,7 +262,9 @@ size_t file::write(void const * p, size_t cb) {
 		do {
 			// TODO: this should really be moved to a file::seek() method.
 #if _WIN32_WINNT >= 0x0500
-			if (!::SetFilePointerEx(m_fd.get(), 0, &ibEOF, FILE_END)) {
+			LARGE_INTEGER ibZero;
+			ibZero.QuadPart = 0;
+			if (!::SetFilePointerEx(m_fd.get(), ibZero, &ibEOF, FILE_END)) {
 				throw_os_error();
 			}
 #else //if _WIN32_WINNT >= 0x0500
@@ -272,7 +276,7 @@ size_t file::write(void const * p, size_t cb) {
 				}
 			}
 #endif //if _WIN32_WINNT >= 0x0500 … else
-		} while (!flAppend.lock(m_fd.get(), ibEOF.QuadPart, cb));
+		} while (!flAppend.lock(m_fd.get(), fileint_t(ibEOF.QuadPart), cb));
 		// Now the write can occur; the lock will be released automatically at the end.
 	}
 #endif
@@ -295,7 +299,8 @@ size_t file::write(void const * p, size_t cb) {
 		// writing them does not fail.
 		DWORD cbLastWritten;
 		if (!::WriteFile(
-			m_fd.get(), pb, std::min<size_t>(cb, numeric::max<DWORD>::value), &cbLastWritten, NULL
+			m_fd.get(), pb,
+			DWORD(std::min<size_t>(cb, numeric::max<DWORD>::value)), &cbLastWritten, NULL
 		)) {
 			throw_os_error();
 		}
@@ -416,7 +421,7 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 #elif ABC_HOST_API_WIN32
 	DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
 	m_bAppend = false;
-	switch (fam) {
+	switch (fam.base()) {
 		case access_mode::read:
 			fiAccess = GENERIC_READ;
 			fiShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
@@ -441,10 +446,11 @@ filedesc file::_open(file_path const & fp, access_mode fam) {
 			iAction = OPEN_ALWAYS;
 			m_bAppend = true;
 			break;
+		no_default;
 	}
 	if (!m_bBuffered) {
 		fi |= FILE_FLAG_NO_BUFFERING;
-	} else if (bRead) {
+	} else if (fiAccess & GENERIC_READ) {
 		fi |= FILE_FLAG_SEQUENTIAL_SCAN;
 	}
 	fd = ::CreateFile(fp.data(), fiAccess, fiShareMode, NULL, iAction, fi, NULL);
@@ -478,15 +484,18 @@ filedesc file::_post_open(filedesc && fd) {
 
 #elif ABC_HOST_API_WIN32
 
-	m_bHasSize = (::GetFileType(fd) == FILE_TYPE_DISK);
+	m_bHasSize = (::GetFileType(fd.get()) == FILE_TYPE_DISK);
 	if (m_bHasSize) {
 #if _WIN32_WINNT >= 0x0500
-		static_assert(sizeof(m_cb) == sizeof(LARGE_INTEGER));
-		if (!::GetFileSizeEx(fd, reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
+		static_assert(
+				sizeof(m_cb) == sizeof(LARGE_INTEGER),
+				"fileint_t must be the same size as LARGE_INTEGER"
+			);
+		if (!::GetFileSizeEx(fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
 			throw_os_error();
 		}
 #else //if _WIN32_WINNT >= 0x0500
-		DWORD cbHigh, cbLow(::GetFileSize(fd, &cbHigh));
+		DWORD cbHigh, cbLow(::GetFileSize(fd.get(), &cbHigh));
 		if (cbLow == INVALID_FILE_SIZE) {
 			DWORD iErr(::GetLastError());
 			if (iErr != ERROR_SUCCESS) {
