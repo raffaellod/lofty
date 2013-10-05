@@ -63,8 +63,8 @@ fi
 return
 	true if the path has all the file attributes in fi, or false otherwise.
 */
-static bool file_attrs(file_path const & fp, DWORD fi) const {
-	DWORD fiAttrs(::GetFileAttributes(data()));
+static bool file_attrs(file_path const & fp, DWORD fi) {
+	DWORD fiAttrs(::GetFileAttributes(fp.data()));
 	if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
 		throw_os_error();
 	}
@@ -135,7 +135,7 @@ dmstr file_path::base_name() const {
 	});
 #elif ABC_HOST_API_WIN32
 	s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
-		DWORD cch(::GetCurrentDirectory(cchMax, pch));
+		DWORD cch(::GetCurrentDirectory(DWORD(cchMax), pch));
 		if (!cch) {
 			throw_os_error();
 		}
