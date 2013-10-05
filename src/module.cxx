@@ -40,7 +40,7 @@ dynamic_module::dynamic_module(dynamic_module && dm) :
 	dm.m_bOwn = false;
 }
 dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
-	m_hdynmod(::LoadLibraryEx(fp.data(), NULL, bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE)),
+	m_hdynmod(::LoadLibraryEx(fp.data(), NULL, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE))),
 	m_bOwn(true) {
 	abc_trace_fn((this, /*fp, */bInit));
 
@@ -65,12 +65,13 @@ file_path dynamic_module::file_name() const {
 	abc_trace_fn((this));
 
 	dmstr s;
-	s.grow_for([m_hdynmod] (char_t * pch, size_t cchMax) -> size_t {
+	hdynmod_t hdynmod(m_hdynmod);
+	s.grow_for([hdynmod] (char_t * pch, size_t cchMax) -> size_t {
 		// Since ::GetModuleFileName() does not include the terminating NUL in the returned character
 		// count, it has to return at most cchMax - 1 characters; if it returns cchMax, the buffer was
 		// not large enough.
 
-		size_t cchRet(::GetModuleFileName(m_hdynmod, pch, cchMax));
+		size_t cchRet(::GetModuleFileName(hdynmod, pch, DWORD(cchMax)));
 		if (!cchRet) {
 			throw_os_error();
 		}
@@ -125,7 +126,7 @@ size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const
 	UNUSED_ARG(cchMax);
 	return 0;
 #elif ABC_HOST_API_WIN32
-	return ::LoadString(m_hdynmod, WORD(id), psz, int(cchMax));
+	return size_t(::LoadString(m_hdynmod, WORD(id), psz, int(cchMax)));
 #else
 	#error TODO-PORT: HOST_API
 #endif
@@ -189,7 +190,8 @@ void * code_module::_get_symbol(istr const & sSymbol) {
 		throw 123;
 	}
 #elif ABC_HOST_API_WIN32
-	pfn = ::GetProcAddress(m_hdynmod, sSymbol.data());
+	// TODO: FIXME: translate sSymbol.data() from istr to istr8.
+	pfn = ::GetProcAddress(m_hdynmod, NULL);
 	if (!pfn) {
 		throw_os_error();
 	}
@@ -248,7 +250,7 @@ module_impl_base::module_impl_base() :
 		pvsRet->append(istr(unsafe, ppszArgs[i]));
 	}
 #elif ABC_HOST_API_WIN32
-	abc_trace_fn(());
+	abc_trace_fn((pvsRet));
 
 #else
 	#error TODO-PORT: HOST_API

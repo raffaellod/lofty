@@ -190,10 +190,14 @@ public:
 	file_path file_name() const;
 
 
-private:
+protected:
 
 	/** Handle to the module. */
 	hdynmod_t m_hdynmod;
+
+
+private:
+
 	/** If false, the handle was provided by the caller of the constructor, and it will not be
 	released. */
 	bool m_bOwn;
