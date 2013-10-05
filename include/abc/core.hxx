@@ -37,6 +37,10 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifdef _MSC_VER
 	// Suppress unnecessary warnings.
 
+	// “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
+	#pragma warning(disable: 4061)
+	// “enumerator 'name' in switch of enum 'type' is not handled”
+	#pragma warning(disable: 4062)
 	// “conditional expression is constant”
 	#pragma warning(disable: 4127)
 	// “'class' : default constructor could not be generated”
