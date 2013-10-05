@@ -187,6 +187,16 @@ You should have received a copy of the GNU General Public License along with ABC
 	#ifdef _MSC_VER
 		#pragma warning(pop)
 	#endif
+
+	// Quoting MSDN:
+	// “To avoid conflicts with min and max in WINDEF.H, use _MIN and _MAX instead. These macros
+	// evaluate to _cpp_min and _cpp_max, respectively.”
+	// Of course we don’t care for old compatibility macros, and want to use std::min/max instead, so
+	// undefine these macros.
+	#ifdef min
+		#undef min
+		#undef max
+	#endif
 #endif
 
 
