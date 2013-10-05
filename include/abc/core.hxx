@@ -268,8 +268,6 @@ TODO: comment signature.
 #endif
 
 
-namespace abc {
-
 /** Declares an explicit conversion operator to bool.
 */
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
@@ -278,17 +276,23 @@ namespace abc {
 		explicit operator bool
 
 
+	namespace abc {
+
 	/** A class derived from this one receives support for C++11 explicit operator bool even on
 	non-compliant compilers.
 	*/
 	template <typename T>
 	struct support_explicit_operator_bool {};
 
+	} //namespace abc
+
 #else //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 	#define explicit_operator_bool \
 		bool _explicit_operator_bool
 
+
+	namespace abc {
 
 	/** Non-template helper for support_explicit_operator_bool.
 	*/
@@ -325,6 +329,7 @@ namespace abc {
 		}
 	};
 
+	} //namespace abc
 
 	// Disable relational operators for support_explicit_operator_bool.
 
@@ -333,7 +338,8 @@ namespace abc {
 		#define ABC_RELOP_IMPL(op) \
 			template <typename T1, typename T2> \
 			bool operator op( \
-				support_explicit_operator_bool<T1> const &, support_explicit_operator_bool<T2> const & \
+				abc::support_explicit_operator_bool<T1> const &,
+				abc::support_explicit_operator_bool<T2> const & \
 			) = delete;
 
 	#else //ifdef ABC_CXX_FUNCTION_DELETE
@@ -341,13 +347,9 @@ namespace abc {
 		#define ABC_RELOP_IMPL(op) \
 			template <typename T1, typename T2> \
 			inline bool operator op( \
-				support_explicit_operator_bool<T1> const & lhs, \
-				support_explicit_operator_bool<T2> const & rhs \
-			) { \
-				void cannot_compare(void const *, void const *); \
-				cannot_compare(&lhs, &rhs); \
-				return false; \
-			}
+				abc::support_explicit_operator_bool<T1> const & lhs, \
+				abc::support_explicit_operator_bool<T2> const & rhs \
+			);
 
 	#endif //ifdef ABC_CXX_FUNCTION_DELETE … else
 
@@ -356,8 +358,6 @@ namespace abc {
 	#undef ABC_RELOP_IMPL
 
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
-
-} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
