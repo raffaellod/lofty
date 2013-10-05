@@ -19,7 +19,9 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/module.hxx>
 #include <abc/trace.hxx>
-#include <dlfcn.h> // RTLD_LAZY dlclose() dlopen() dlerror() dlsym()
+#if ABC_HOST_API_POSIX
+	#include <dlfcn.h> // RTLD_LAZY dlclose() dlopen() dlerror() dlsym()
+#endif
 
 
 
