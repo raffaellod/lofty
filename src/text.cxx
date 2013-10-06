@@ -33,7 +33,7 @@ namespace abc {
 
 namespace text {
 
-uint8_t const gc_cbEncChar[] = {
+_ABC_API_SYM uint8_t const gc_cbEncChar[] = {
 	0, // encoding::unknown
 	0, // encoding::identity
 	1, // encoding::utf8
@@ -47,7 +47,9 @@ uint8_t const gc_cbEncChar[] = {
 };
 
 
-size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst) {
+_ABC_API_SYM size_t estimate_transcoded_size(
+	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
+) {
 	abc_trace_fn((encSrc, pSrc, cbSrc, encDst));
 
 	// Average size, in bytes, of 10 characters in each supported encoding.
@@ -92,7 +94,9 @@ size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc
 }
 
 
-void const * get_line_terminator_bytes(encoding enc, line_terminator lterm, size_t * pcb) {
+_ABC_API_SYM void const * get_line_terminator_bytes(
+	encoding enc, line_terminator lterm, size_t * pcb
+) {
 	abc_trace_fn((enc, lterm, pcb));
 
 	// Characters that compose line terminators, in every encoding. Below we cherry-pick from these
@@ -184,7 +188,7 @@ void const * get_line_terminator_bytes(encoding enc, line_terminator lterm, size
 }
 
 
-encoding guess_encoding(
+_ABC_API_SYM encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= NULL*/
 ) {
 	abc_trace_fn((pBuf, cbBuf, cbSrcTotal, pcbBom));
@@ -417,7 +421,7 @@ encoding guess_encoding(
 }
 
 
-line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
+_ABC_API_SYM line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
 	abc_trace_fn((pBuf, cchBuf, enc));
 
 	size_t cbChar(get_encoding_size(enc));
@@ -534,7 +538,7 @@ line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding
 }
 
 
-size_t transcode(
+_ABC_API_SYM size_t transcode(
 	std::nothrow_t const &,
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax

@@ -78,7 +78,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	_int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
+	_ABC_API_SYM _int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
 
 
 protected:
@@ -87,7 +87,7 @@ protected:
 
 	TODO: comment signature.
 	*/
-	void add_prefixes_and_write(
+	_ABC_API_SYM void add_prefixes_and_write(
 		bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 	) const;
 
@@ -104,20 +104,23 @@ protected:
 
 	TODO: comment signature.
 	*/
-	void write_s64(int64_t i, ostream * posOut) const;
+	_ABC_API_SYM void write_s64(int64_t i, ostream * posOut) const;
 
 
 	/** Converts a 64-bit unsigned integer to its string representation.
 
 	TODO: comment signature.
 	*/
-	void write_u64(uint64_t i, ostream * posOut) const;
+	_ABC_API_SYM void write_u64(uint64_t i, ostream * posOut) const;
 
 
 	/** Converts a 32-bit signed integer to its string representation.
 
 	TODO: comment signature.
 	*/
+#if ABC_HOST_WORD_SIZE < 64
+	_ABC_API_SYM
+#endif
 	void write_s32(int32_t i, ostream * posOut) const;
 
 
@@ -125,6 +128,9 @@ protected:
 
 	TODO: comment signature.
 	*/
+#if ABC_HOST_WORD_SIZE < 64
+	_ABC_API_SYM
+#endif
 	void write_u32(uint32_t i, ostream * posOut) const;
 
 
@@ -132,6 +138,9 @@ protected:
 
 	TODO: comment signature.
 	*/
+#if ABC_HOST_WORD_SIZE < 32
+	_ABC_API_SYM
+#endif
 	void write_s16(int16_t i, ostream * posOut) const;
 
 
@@ -139,6 +148,9 @@ protected:
 
 	TODO: comment signature.
 	*/
+#if ABC_HOST_WORD_SIZE < 32
+	_ABC_API_SYM
+#endif
 	void write_u16(uint16_t i, ostream * posOut) const;
 
 
@@ -187,9 +199,9 @@ protected:
 	char_t m_chPrefix1;
 
 	/** Map from int [0-15] to its uppercase hexadecimal representation. */
-	static char_t const smc_achIntToStrU[16];
+	_ABC_API_SYM static char_t const smc_achIntToStrU[16];
 	/** Map from int [0-15] to its lowercase hexadecimal representation. */
-	static char_t const smc_achIntToStrL[16];
+	_ABC_API_SYM static char_t const smc_achIntToStrL[16];
 };
 
 
@@ -339,14 +351,14 @@ public:
 
 	TODO: comment signature.
 	*/
-	to_str_backend(char_range const & crFormat = char_range());
+	_ABC_API_SYM to_str_backend(char_range const & crFormat = char_range());
 
 
 	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
-	void write(bool b, ostream * posOut);
+	_ABC_API_SYM void write(bool b, ostream * posOut);
 };
 
 
@@ -385,7 +397,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	to_str_backend(char_range const & crFormat = char_range());
+	_ABC_API_SYM to_str_backend(char_range const & crFormat = char_range());
 
 
 	/** See to_str_backend::write().
@@ -400,7 +412,7 @@ public:
 protected:
 
 	/** Format string used to display the address. */
-	static char_t const smc_achFormat[];
+	_ABC_API_SYM static char_t const smc_achFormat[];
 };
 
 
