@@ -110,6 +110,11 @@ void free(T * pt);
 	#pragma warning(disable: 4986)
 #endif
 
+// In Win32, MSC expects ::new() and ::delete() to use the cdecl calling convention.
+#if defined(_MSC_VER) && defined(_WIN32) && !defined(_WIN64)
+	#define operator __cdecl operator
+#endif
+
 inline void * operator new(size_t cb) decl_throw((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
@@ -137,6 +142,10 @@ inline void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
 	abc::memory::free(p);
 }
 
+
+#ifdef operator
+	#undef operator
+#endif
 
 #ifdef _MSC_VER
 	#pragma warning(pop)
