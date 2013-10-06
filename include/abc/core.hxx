@@ -123,12 +123,10 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 /** Machine word size for this microarchitecture. */
-#if ABC_HOST_API_WIN32
-	#ifdef _WIN64
-		#define ABC_HOST_WORD_SIZE 64
-	#else
-		#define ABC_HOST_WORD_SIZE 32
-	#endif
+#if ABC_HOST_API_WIN64
+	#define ABC_HOST_WORD_SIZE 64
+#elif ABC_HOST_API_WIN32
+	#define ABC_HOST_WORD_SIZE 32
 #elif defined(__WORDSIZE)
 	#define ABC_HOST_WORD_SIZE __WORDSIZE
 #else
@@ -149,7 +147,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	// Make sure WINVER is defined.
 	#ifndef WINVER
 		// Pick a default Windows version.
-		#ifdef _WIN64
+		#if ABC_HOST_API_WIN64
 			// The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
 			// Edition (5.2).
 			#define WINVER 0x0502

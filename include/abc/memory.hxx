@@ -90,7 +90,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 // In Win32, MSC expects ::new() and ::delete() to use the cdecl calling convention.
-#if defined(_MSC_VER) && defined(_WIN32) && !defined(_WIN64)
+#if defined(_MSC_VER) && ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
 	#define operator __cdecl operator
 #endif
 
