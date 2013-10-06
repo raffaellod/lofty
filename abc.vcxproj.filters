@@ -22,12 +22,6 @@
     <Filter Include="Header Files\abc\mock">
       <UniqueIdentifier>{7a187248-faf4-4b98-95f4-95f8b3c3c27b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\mock">
-      <UniqueIdentifier>{42cf34e7-da0f-4285-86e6-eb4a8873f534}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\unittest">
-      <UniqueIdentifier>{1f2d5f17-529a-4eb4-9b68-d06992b0f5e0}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\_vextr.cxx">
@@ -86,48 +80,6 @@
     </ClCompile>
     <ClCompile Include="src\trace.cxx">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mock\iostream.cxx">
-      <Filter>Source Files\mock</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0005-cppmacros.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0010-module.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0020-exception.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0030-enum.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0040-str.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0050-vector.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0060-file_path.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0080-map.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0150-to_str_backend.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0170-ostream-print.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0190-str_ostream.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0250-file_ostream.cxx">
-      <Filter>Source Files\unittest</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unittest\0280-file_istream.cxx">
-      <Filter>Source Files\unittest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

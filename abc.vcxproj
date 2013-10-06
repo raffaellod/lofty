@@ -32,7 +32,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug-9x'">
     <CharacterSet>MultiByte</CharacterSet>
@@ -69,7 +69,6 @@
       <CallingConvention>StdCall</CallingConvention>
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -91,10 +90,11 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release-9x'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
@@ -102,10 +102,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release-9x'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
@@ -125,26 +126,12 @@
     <ClCompile Include="src\file_path.cxx" />
     <ClCompile Include="src\iostream.cxx" />
     <ClCompile Include="src\memory.cxx" />
-    <ClCompile Include="src\mock\iostream.cxx" />
     <ClCompile Include="src\module.cxx" />
     <ClCompile Include="src\str.cxx" />
     <ClCompile Include="src\str_iostream.cxx" />
     <ClCompile Include="src\text.cxx" />
     <ClCompile Include="src\to_str_backend.cxx" />
     <ClCompile Include="src\trace.cxx" />
-    <ClCompile Include="src\unittest\0005-cppmacros.cxx" />
-    <ClCompile Include="src\unittest\0010-module.cxx" />
-    <ClCompile Include="src\unittest\0020-exception.cxx" />
-    <ClCompile Include="src\unittest\0030-enum.cxx" />
-    <ClCompile Include="src\unittest\0040-str.cxx" />
-    <ClCompile Include="src\unittest\0050-vector.cxx" />
-    <ClCompile Include="src\unittest\0060-file_path.cxx" />
-    <ClCompile Include="src\unittest\0080-map.cxx" />
-    <ClCompile Include="src\unittest\0150-to_str_backend.cxx" />
-    <ClCompile Include="src\unittest\0170-ostream-print.cxx" />
-    <ClCompile Include="src\unittest\0190-str_ostream.cxx" />
-    <ClCompile Include="src\unittest\0250-file_ostream.cxx" />
-    <ClCompile Include="src\unittest\0280-file_istream.cxx" />
     <ClCompile Include="src\utf_traits.cxx" />
     <ClCompile Include="src\_vextr.cxx" />
   </ItemGroup>
