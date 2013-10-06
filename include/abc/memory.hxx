@@ -83,27 +83,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // :: globals - standard new/delete operators
 
 
-// Forward declarations.
-namespace abc {
-
-namespace memory {
-
-void * _raw_alloc(size_t cb);
-
-template <typename T>
-void free(T * pt);
-
-} //namespace memory
-
-} //namespace abc
-
-
-// This will cause code for the following functions to be generated for the compiled unit. Other
-// units will just inline these (very) thin wrappers.
-#ifdef _ABC_MEMORY_HXX_IMPL
-	#define inline
-#endif
-
 #ifdef _MSC_VER
 	#pragma warning(push)
 	// “'operator': exception specification does not match previous declaration”
@@ -115,33 +94,16 @@ void free(T * pt);
 	#define operator __cdecl operator
 #endif
 
-inline void * operator new(size_t cb) decl_throw((std::bad_alloc)) {
-	return abc::memory::_raw_alloc(cb);
-}
-inline void * operator new[](size_t cb) decl_throw((std::bad_alloc)) {
-	return abc::memory::_raw_alloc(cb);
-}
-inline void * operator new(size_t cb, std::nothrow_t const &) decl_throw(()) {
-	return ::malloc(cb);
-}
-inline void * operator new[](size_t cb, std::nothrow_t const &) decl_throw(()) {
-	return ::malloc(cb);
-}
+void * operator new(size_t cb) decl_throw((std::bad_alloc));
+void * operator new[](size_t cb) decl_throw((std::bad_alloc));
+void * operator new(size_t cb, std::nothrow_t const &) decl_throw(());
+void * operator new[](size_t cb, std::nothrow_t const &) decl_throw(());
 
 
-inline void operator delete(void * p) decl_throw(()) {
-	abc::memory::free(p);
-}
-inline void operator delete[](void * p) decl_throw(()) {
-	abc::memory::free(p);
-}
-inline void operator delete(void * p, std::nothrow_t const &) decl_throw(()) {
-	abc::memory::free(p);
-}
-inline void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
-	abc::memory::free(p);
-}
-
+void operator delete(void * p) decl_throw(());
+void operator delete[](void * p) decl_throw(());
+void operator delete(void * p, std::nothrow_t const &) decl_throw(());
+void operator delete[](void * p, std::nothrow_t const &) decl_throw(());
 
 #ifdef operator
 	#undef operator
@@ -149,10 +111,6 @@ inline void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
 
 #ifdef _MSC_VER
 	#pragma warning(pop)
-#endif
-
-#ifdef _ABC_MEMORY_HXX_IMPL
-	#undef inline
 #endif
 
 
@@ -275,6 +233,11 @@ public:
 namespace abc {
 
 namespace memory {
+
+// Forward declaration.
+template <typename T>
+void free(T * pt);
+
 
 /** Deleter that deallocates memory using memory::free().
 */

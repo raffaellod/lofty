@@ -18,5 +18,72 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#define _ABC_MEMORY_HXX_IMPL
 #include <abc/memory.hxx>
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// :: globals - standard new/delete operators
+
+
+// Forward declarations.
+namespace abc {
+
+namespace memory {
+
+void * _raw_alloc(size_t cb);
+
+template <typename T>
+void free(T * pt);
+
+} //namespace memory
+
+} //namespace abc
+
+
+#ifdef _MSC_VER
+	#pragma warning(push)
+	// “'operator': exception specification does not match previous declaration”
+	#pragma warning(disable: 4986)
+#endif
+
+// In Win32, MSC expects ::new() and ::delete() to use the cdecl calling convention.
+#if defined(_MSC_VER) && defined(_WIN32) && !defined(_WIN64)
+	#define operator __cdecl operator
+#endif
+
+void * operator new(size_t cb) decl_throw((std::bad_alloc)) {
+	return abc::memory::_raw_alloc(cb);
+}
+void * operator new[](size_t cb) decl_throw((std::bad_alloc)) {
+	return abc::memory::_raw_alloc(cb);
+}
+void * operator new(size_t cb, std::nothrow_t const &) decl_throw(()) {
+	return ::malloc(cb);
+}
+void * operator new[](size_t cb, std::nothrow_t const &) decl_throw(()) {
+	return ::malloc(cb);
+}
+
+
+void operator delete(void * p) decl_throw(()) {
+	abc::memory::free(p);
+}
+void operator delete[](void * p) decl_throw(()) {
+	abc::memory::free(p);
+}
+void operator delete(void * p, std::nothrow_t const &) decl_throw(()) {
+	abc::memory::free(p);
+}
+void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
+	abc::memory::free(p);
+}
+
+
+#ifdef operator
+	#undef operator
+#endif
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
