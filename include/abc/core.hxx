@@ -255,6 +255,46 @@ reached. */
 	#define ABC_FUNC_NORETURN
 #endif
 
+/** Declares a symbol to be publicly visible (exported) in the shared library being built. */
+#if ABC_HOST_API_WIN32
+	#if defined(_GCC_VER)
+		#define ABC_SYM_EXPORT \
+			__attribute__((dllexport))
+	#elif defined(_MSC_VER)
+		#define ABC_SYM_EXPORT \
+			__declspec(dllexport)
+	#endif
+#else
+	#if defined(_GCC_VER)
+		#define ABC_SYM_EXPORT \
+			__attribute__((visibility("default")))
+	#endif
+#endif
+
+/** Declares a symbol to be imported from a shared library. */
+#if ABC_HOST_API_WIN32
+	#if defined(_GCC_VER)
+		#define ABC_SYM_IMPORT \
+			__attribute__((dllimport))
+	#elif defined(_MSC_VER)
+		#define ABC_SYM_IMPORT \
+			__declspec(dllimport)
+	#endif
+#else
+	#if defined(_GCC_VER)
+		#define ABC_SYM_IMPORT \
+			__attribute__((visibility("default")))
+	#endif
+#endif
+
+/** Declares a symbol to be publicly visible (from the ABC shared library) or imported from ABC’s
+shared library (into another library/executable). */
+#ifdef _ABC_LIB_BUILD
+	#define _ABC_API_SYM ABC_SYM_EXPORT
+#else
+	#define _ABC_API_SYM ABC_SYM_IMPORT
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - extended features that can take advantage of C++11 or fallback to more risky, but
