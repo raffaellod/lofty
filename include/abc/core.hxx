@@ -51,9 +51,11 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4512)
 	// “class 'class' can never be instantiated - user defined constructor required”
 	#pragma warning(disable: 4610)
-	// “'class' : copy constructor could not be generated because a base class copy constructor is inaccessible”
+	// “'class' : copy constructor could not be generated because a base class copy constructor is
+	// inaccessible”
 	#pragma warning(disable: 4625)
-	// “'class' : assignment operator could not be generated because a base class assignment operator is inaccessible”
+	// “'class' : assignment operator could not be generated because a base class assignment operator
+	// is inaccessible”
 	#pragma warning(disable: 4626)
 	// 'function' : function not inlined
 	#pragma warning(disable: 4710)
@@ -242,7 +244,7 @@ constructor (N2346). */
 	#pragma once
 #endif
 
-/** Defines a function as never returning (e.g. by causing the process to terminate, or by throwing
+/** Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
 reached. */
 #if defined(_GCC_VER)
@@ -300,10 +302,11 @@ shared library (into another library/executable). */
 // abc globals - extended features that can take advantage of C++11 or fallback to more risky, but
 // still functional alternatives
 
-/** Makes the class un-copiable. Move constructors and/or assignment operators may be still
+/** Makes a class un-copiable. Move constructors and/or assignment operators may be still
 available, though.
 
-TODO: comment signature.
+cls
+	Class for which to disable copy constructor and assingment operator.
 */
 #ifdef ABC_CXX_FUNCTION_DELETE
 	#define ABC_CLASS_PREVENT_COPYING(cls) \
@@ -446,7 +449,12 @@ union max_align_t {
 	#define noexcept_if(cond)
 #endif
 
-// Support for pre-C++11 declarations. Use double parentheses for the list.
+
+/** Supports pre-C++11 exception specification declarations. Use double parentheses for the list.
+
+list
+	Parentheses-enclosed list of types the function/method may throw.
+*/
 #define decl_throw(list) \
 	throw list
 
@@ -454,7 +462,8 @@ union max_align_t {
 /** Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
 this purpose, but this is noticeably shorter :)
 
-TODO: comment signature.
+x
+	Unused argument.
 */
 #define UNUSED_ARG(x) \
 	static_cast<void>(x)
@@ -481,7 +490,10 @@ those expected by the case labels.
 
 /** Returns the number of items in a (static) array.
 
-TODO: comment signature.
+array
+	Array for which to compute the count of items.
+return
+	Count of items in array.
 */
 #undef countof
 #define countof(array) \
@@ -501,7 +513,10 @@ TODO: comment signature.
 /** Returns the compiler-computed alignment for the specified data type. When compiler support is
 lacking, this can be inaccurate for long double.
 
-TODO: comment signature.
+type
+	Type for which the alignment is to be computed.
+return
+	Alignment of type.
 */
 #undef alignof
 #if defined(_GCC_VER)
