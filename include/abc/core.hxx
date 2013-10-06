@@ -43,6 +43,8 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4062)
 	// “conditional expression is constant”
 	#pragma warning(disable: 4127)
+	// “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
+	#pragma warning(disable: 4290)
 	// “'class' : default constructor could not be generated”
 	#pragma warning(disable: 4510)
 	// “'class' : assignment operator could not be generated”

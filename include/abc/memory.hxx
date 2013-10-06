@@ -104,6 +104,12 @@ void free(T * pt);
 	#define inline
 #endif
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	// “'operator': exception specification does not match previous declaration”
+	#pragma warning(disable: 4986)
+#endif
+
 inline void * operator new(size_t cb) decl_throw((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
@@ -131,6 +137,10 @@ inline void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
 	abc::memory::free(p);
 }
 
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 #ifdef _ABC_MEMORY_HXX_IMPL
 	#undef inline
