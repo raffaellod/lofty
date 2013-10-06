@@ -55,6 +55,8 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4626)
 	// 'function' : function not inlined
 	#pragma warning(disable: 4710)
+	// “'struct' : 'n' bytes padding added after data member 'member'”
+	#pragma warning(disable: 4820)
 
 	// Silence warnings from system header files.
 	#pragma warning(push)
