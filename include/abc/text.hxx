@@ -97,9 +97,6 @@ ABC_ENUM(line_terminator, \
 );
 
 
-/** Character size, in bytes, for each recognized encoding. */
-extern uint8_t const gc_cbEncChar[];
-
 /** This can be used by any char32_t-returning function that needs to return a value that’s
 obviously not a char32_t value. */
 char32_t const invalid_char(~char32_t(0));
@@ -138,9 +135,7 @@ encodings (e.g. identity_encoding).
 
 TODO: comment signature.
 */
-inline /*constexpr*/ size_t get_encoding_size(encoding enc) {
-	return gc_cbEncChar[enc.base()];
-}
+size_t get_encoding_size(encoding enc);
 
 
 /** Returns a byte sequence representing a line terminator in the requested encoding.

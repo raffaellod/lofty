@@ -33,20 +33,6 @@ namespace abc {
 
 namespace text {
 
-uint8_t const gc_cbEncChar[] = {
-	0, // encoding::unknown
-	0, // encoding::identity
-	1, // encoding::utf8
-	2, // encoding::utf16le
-	2, // encoding::utf16be
-	4, // encoding::utf32le
-	4, // encoding::utf32be
-	1, // encoding::iso_8859_1
-	1, // encoding::windows_1252
-	1, // encoding::ebcdic
-};
-
-
 size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst) {
 	abc_trace_fn((encSrc, pSrc, cbSrc, encDst));
 
@@ -89,6 +75,24 @@ size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc
 		// Integer overflow occurred: evaluate the expression in the origianal order.
 		return ((cbSrc + cbSrcAvg - 1) / cbSrcAvg) * cbDstAvg;
 	}
+}
+
+
+size_t get_encoding_size(encoding enc) {
+	// Character size, in bytes, for each recognized encoding.
+	static uint8_t const sc_acbEncChar[] = {
+		0, // encoding::unknown
+		0, // encoding::identity
+		1, // encoding::utf8
+		2, // encoding::utf16le
+		2, // encoding::utf16be
+		4, // encoding::utf32le
+		4, // encoding::utf32be
+		1, // encoding::iso_8859_1
+		1, // encoding::windows_1252
+		1, // encoding::ebcdic
+	};
+	return sc_acbEncChar[enc.base()];
 }
 
 
