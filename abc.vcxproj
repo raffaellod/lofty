@@ -69,6 +69,8 @@
       <CallingConvention>StdCall</CallingConvention>
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>abc/core.hxx</PrecompiledHeaderFile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -117,7 +119,9 @@
     <ClCompile Include="src\atomic.cxx" />
     <ClCompile Include="src\bitmanip.cxx" />
     <ClCompile Include="src\byteorder.cxx" />
-    <ClCompile Include="src\core.cxx" />
+    <ClCompile Include="src\core.cxx">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\enum.cxx" />
     <ClCompile Include="src\exception.cxx" />
     <ClCompile Include="src\file.cxx" />

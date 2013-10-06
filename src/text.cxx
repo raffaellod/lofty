@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+#include <abc/core.hxx>
 #include <abc/exception.hxx>
 #include <abc/byteorder.hxx>
 #include <abc/text.hxx>
