@@ -29,33 +29,33 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-str_istream::str_istream(istr const & s) :
+_ABC_API_SYM str_istream::str_istream(istr const & s) :
 	istream(),
 	m_sBuf(s),
 	m_ibRead(0) {
 }
-str_istream::str_istream(istr && s) :
+_ABC_API_SYM str_istream::str_istream(istr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-str_istream::str_istream(mstr && s) :
+_ABC_API_SYM str_istream::str_istream(mstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-str_istream::str_istream(dmstr && s) :
+_ABC_API_SYM str_istream::str_istream(dmstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
 
 
-/*virtual*/ str_istream::~str_istream() {
+_ABC_API_SYM /*virtual*/ str_istream::~str_istream() {
 }
 
 
-size_t str_istream::read_raw(
+_ABC_API_SYM size_t str_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
 	UNUSED_ARG(p);
@@ -65,14 +65,16 @@ size_t str_istream::read_raw(
 }
 
 
-/*virtual*/ void str_istream::unread_raw(void const * p, size_t cb, text::encoding enc) {
+_ABC_API_SYM /*virtual*/ void str_istream::unread_raw(
+	void const * p, size_t cb, text::encoding enc
+) {
 	UNUSED_ARG(p);
 	UNUSED_ARG(cb);
 	UNUSED_ARG(enc);
 }
 
 
-/*virtual*/ void str_istream::_read_line(
+_ABC_API_SYM /*virtual*/ void str_istream::_read_line(
 	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
 	UNUSED_ARG(prs);
@@ -90,22 +92,22 @@ size_t str_istream::read_raw(
 
 namespace abc {
 
-str_ostream::str_ostream() :
+_ABC_API_SYM str_ostream::str_ostream() :
 	ostream(),
 	m_ibWrite(0) {
 }
 
 
-/*virtual*/ str_ostream::~str_ostream() {
+_ABC_API_SYM /*virtual*/ str_ostream::~str_ostream() {
 }
 
 
-str_ostream::string_type str_ostream::get_contents() {
+_ABC_API_SYM str_ostream::string_type str_ostream::get_contents() {
 	return std::move(m_sBuf);
 }
 
 
-/*virtual*/ void str_ostream::write_raw(
+_ABC_API_SYM /*virtual*/ void str_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

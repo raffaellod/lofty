@@ -43,8 +43,8 @@ CPPFLAGS+= -Wall -Wextra -pedantic -Wundef -Wshadow -Wconversion -Wsign-conversi
 CPPFLAGS+= -Wmissing-declarations -Wpacked -Wunreachable-code -Winline
 # Other interesting GCC cpp flags; enable them once in a while:
 #CPPFLAGS+= -Wmissing-noreturn -Wpadded
-CFLAGS+= -std=c99 $(CPPFLAGS)
-CXXFLAGS+= -std=c++0x -fnon-call-exceptions $(CPPFLAGS)
+CFLAGS+= -std=c99 -fvisibility=hidden $(CPPFLAGS)
+CXXFLAGS+= -std=c++0x -fnon-call-exceptions -fvisibility=hidden $(CPPFLAGS)
 CTUNEFLAGS+= -O2
 LDLIBS+=-ldl -lpthread
 LDFLAGS+=-Wl,--as-needed
