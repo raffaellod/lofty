@@ -17,5 +17,6 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#define _ABC_MEMORY_HXX_IMPL
 #include <abc/core.hxx>
+#define _ABC_MEMORY_HXX_IMPL
+#include <abc/memory.hxx>
