@@ -102,15 +102,11 @@ public:
 
 
 	/** Destructor.
-
-	TODO: comment signature.
 	*/
 	virtual ~exception() decl_throw(());
 
 
-	/** Assignment operator.
-
-	TODO: comment signature.
+	/** Assignment operator. See std::exception::operator=().
 	*/
 	exception & operator=(exception const & x);
 
@@ -139,7 +135,8 @@ public:
 
 	/** See std::exception::what().
 
-	TODO: comment signature.
+	return
+		Name of the exception class.
 	*/
 	virtual char const * what() const decl_throw(());
 
@@ -148,7 +145,8 @@ protected:
 
 	/** Prints extended information for the exception.
 
-	TODO: comment signature.
+	pos
+		Pointer to a stream to write to.
 	*/
 	virtual void _print_extended_info(ostream * pos) const;
 
@@ -158,42 +156,23 @@ public:
 	/** Establishes, and restores upon destruction, special-case handlers to convert non-C++
 	asynchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
 
+	For unsupported OSes, this class is empty. A little silly, but avoids conditional code in other
+	files that shouldn’t care whether the target OS is supported in this respect or not.
+
 	Note: this class uses global or thread-local variables (OS-dependent) for all its member
 	variables, since their types cannot be specified without #including a lot of files into this one.
 	*/
 	class async_handler_manager {
+#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
 	public:
 
-#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
 		/** Constructor.
-
-		TODO: comment signature.
 		*/
 		async_handler_manager();
 
 		/** Destructor.
-
-		TODO: comment signature.
 		*/
 		~async_handler_manager();
-#else
-		// For unsupported OSes, these are just no-ops. A little silly, but avoids conditional code in
-		// other files that shouldn’t care whether the target OS is supported in this respect or not.
-
-		/** Constructor.
-
-		TODO: comment signature.
-		*/
-		async_handler_manager() {
-		}
-
-
-		/** Destructor.
-
-		TODO: comment signature.
-		*/
-		~async_handler_manager() {
-		}
 #endif
 	};
 
@@ -305,7 +284,8 @@ namespace abc {
 
 /** Throws an exception matching a specified OS-defined error, or the last reported by the OS.
 
-TODO: comment signature.
+err
+	OS-defined error number.
 */
 ABC_FUNC_NORETURN void throw_os_error();
 ABC_FUNC_NORETURN void throw_os_error(errint_t err);
@@ -327,18 +307,17 @@ public:
 	generic_error(generic_error const & x);
 
 
-	/** Assignment operator.
-
-	TODO: comment signature.
+	/** Assignment operator. See abc::exception::operator=().
 	*/
 	generic_error & operator=(generic_error const & x);
 
 
-	/** Returns the OS-specific error number, if any.
+	/** Returns the OS-defined error number, if any.
 
-	TODO: comment signature.
+	return
+		OS-defined error number.
 	*/
-	errint_t get_os_error() const {
+	errint_t os_error() const {
 		return m_err;
 	}
 
@@ -355,13 +334,13 @@ protected:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
 	inline bool operator op(abc::generic_error const & ge1, abc::generic_error const & ge2) { \
-		return ge1.get_os_error() op ge2.get_os_error(); \
+		return ge1.os_error() op ge2.os_error(); \
 	} \
 	inline bool operator op(abc::generic_error const & ge, abc::errint_t err) { \
-		return ge.get_os_error() op err; \
+		return ge.os_error() op err; \
 	} \
 	inline bool operator op(abc::errint_t err, abc::generic_error const & ge) { \
-		return err op ge.get_os_error(); \
+		return err op ge.os_error(); \
 	}
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -548,18 +527,17 @@ public:
 	index_error(index_error const & x);
 
 
-	/** Assignment operator.
-
-	TODO: comment signature.
+	/** Assignment operator. See abc::lookup_error::operator=().
 	*/
 	index_error & operator=(index_error const & x);
 
 
 	/** Returns the invalid index.
 
-	TODO: comment signature.
+	return
+		Index that was not valid in the context in which it was used.
 	*/
-	intptr_t get_index() const {
+	intptr_t index() const {
 		return m_iInvalid;
 	}
 
@@ -567,8 +545,6 @@ public:
 protected:
 
 	/** See exception::_print_extended_info().
-
-	TODO: comment signature.
 	*/
 	virtual void _print_extended_info(ostream * pos) const;
 
@@ -603,18 +579,17 @@ public:
 	memory_address_error(memory_address_error const & x);
 
 
-	/** Assignment operator.
-
-	TODO: comment signature.
+	/** Assignment operator. See abc::generic_error::operator=().
 	*/
 	memory_address_error & operator=(memory_address_error const & x);
 
 
 	/** Returns the faulty address.
 
-	TODO: comment signature.
+	return
+		Value of the pointer that was dereferenced.
 	*/
-	void const * get_address() const {
+	void const * address() const {
 		return m_pInvalid;
 	}
 
@@ -622,8 +597,6 @@ public:
 protected:
 
 	/** See exception::_print_extended_info().
-
-	TODO: comment signature.
 	*/
 	virtual void _print_extended_info(ostream * pos) const;
 
@@ -757,7 +730,7 @@ public:
 		syntax_error(SL("expression cannot be empty"))
 		syntax_error(SL("unmatched '{'"), sExpr, iChar)
 		syntax_error(SL("expected expression"), char_range(), iChar, iLine)
-		syntax_error(SL("unexpected end of file"), fpSource.get_path(), iChar, iLine)
+		syntax_error(SL("unexpected end of file"), fpSource, iChar, iLine)
 
 	TODO: comment signature.
 	*/
@@ -768,9 +741,8 @@ public:
 	);
 	syntax_error(syntax_error const & x);
 
-	/** Assignment operator.
 
-	TODO: comment signature.
+	/** Assignment operator. See abc::generic_error::operator=().
 	*/
 	syntax_error & operator=(syntax_error const & x);
 
@@ -778,8 +750,6 @@ public:
 protected:
 
 	/** See exception::_print_extended_info().
-
-	TODO: comment signature.
 	*/
 	virtual void _print_extended_info(ostream * pos) const;
 
