@@ -84,7 +84,7 @@ namespace abc {
 
 namespace text {
 
-char8_t const utf8_traits::bom[] = { char8_t(0xef), char8_t(0xbb), char8_t(0xbf) };
+char8_t const utf8_traits::bom[] = { '\xef', '\xbb', '\xbf' };
 
 // Optimization 1: odd indices would have the same values as the preceding even ones, so the number
 // of elements can be cut in half.
