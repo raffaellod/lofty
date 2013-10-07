@@ -94,9 +94,8 @@ namespace abc {
 		#define ABC_CXX_CHAR32 1
 	#endif
 #endif
-
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
-	#error Unexpected: one of ABC_CXX_CHAR16 or ABC_CXX_CHAR32 must be > 0
+	#error ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic
 #endif
 
 
@@ -117,7 +116,14 @@ typedef char char8_t;
 	typedef uint32_t char32_t;
 #endif
 
-/** UCS-16 character literal. */
+
+/** Defines a UCS-16 character literal.
+
+ch
+	Character literal.
+return
+	UCS-16 character literal.
+*/
 #if ABC_CXX_CHAR16 == 2
 	#define U16CL(ch) u ## ch
 #elif ABC_CXX_CHAR16 == 1
@@ -126,21 +132,37 @@ typedef char char8_t;
 	// No native type for char16_t, but we can at least use 32-bit wchar_t to store any Unicode
 	// character correctly, and then truncate that to our typedef’ed char16_t.
 	// TODO: make the truncation explicit (compiler warning?).
-	#define U16CL(s) abc::char16_t(L ## s)
+	#define U16CL(ch) abc::char16_t(L ## ch)
 #endif
 
-/** UCS-32 character literal. */
+
+/** Defines a UTF-32/UCS-32 character literal. Code points outside the Basic Multilingual Plane are
+not supported on all platforms.
+
+ch
+	Character literal.
+return
+	UTF-32/UCS-32 character literal.
+*/
 #if ABC_CXX_CHAR32 == 2
 	#define U32CL(ch) U ## ch
 #elif ABC_CXX_CHAR32 == 1
 	#define U32CL(ch) L ## ch
 #elif ABC_CXX_CHAR32 == 0
-	// No native type for char32_t, but we can at least use 16-bit wchar_t to store most Unicode
+	// No native type for char32_t, but we can at least use 16-bit wchar_t to store all Unicode BMP
 	// characters correctly, and then cast that to our typedef’ed char32_t.
-	#define U32CL(s) abc::char32_t(L ## s)
+	#define U32CL(ch) abc::char32_t(L ## ch)
 #endif
 
-/** UTF-8 string literal. */
+
+/** Defines a UTF-8 string literal. On some platforms, this relies on the source files being encoded
+in UTF-8.
+
+s
+	String literal.
+return
+	UTF-8 string literal.
+*/
 #if ABC_CXX_UTF8LIT == 1
 	#define U8SL(s) u8 ## s
 #else
@@ -148,14 +170,29 @@ typedef char char8_t;
 	#define U8SL(s) s
 #endif
 
-/** UTF-16 string literal. */
+
+/** Defines a UTF-16 string literal. Not supported on all platforms; check with #ifdef before using.
+
+s
+	String literal.
+return
+	UTF-16 string literal.
+*/
 #if ABC_CXX_CHAR16 == 2
 	#define U16SL(s) u ## s
 #elif ABC_CXX_CHAR16 == 1
 	#define U16SL(s) L ## s
 #endif
 
-/** UTF-32 string literal. */
+
+/** Defines a UTF-32/UCS-32 string literal. Not supported on all platforms; check with #ifdef before
+using.
+
+s
+	String literal.
+return
+	UTF-32 string literal.
+*/
 #if ABC_CXX_CHAR32 == 2
 	#define U32SL(s) U ## s
 #elif ABC_CXX_CHAR32 == 1
@@ -179,7 +216,14 @@ typedef char char8_t;
 	typedef char32_t char_t;
 #endif
 
-/** Default character literal type for the host. */
+
+/** Defines a character literal of the default host character literal type.
+
+ch
+	Character literal.
+return
+	UCS character literal.
+*/
 #if ABC_HOST_UTF == 8
 	#define CL(ch) ch
 #elif ABC_HOST_UTF == 16
@@ -188,7 +232,14 @@ typedef char char8_t;
 	#define CL(ch) U32CL(ch)
 #endif
 
-/** Default string literal type for the host. */
+
+/** Defines a string literal of the default host string literal type.
+
+s
+	String literal.
+return
+	UTF string literal.
+*/
 #if ABC_HOST_UTF == 8
 	#define SL(s) U8SL(s)
 #elif ABC_HOST_UTF == 16
