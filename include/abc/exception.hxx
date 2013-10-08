@@ -64,15 +64,24 @@ since this file is included in virtually every file whereas trace.hxx is not.
 
 /** Throws the specified object, after providing it with debug information.
 
-TODO: comment signature.
+x
+	Exception instance to be thrown.
 */
 #define abc_throw(x) \
-	throw(abc::exception::_before_throw((x), __FILE__, __LINE__, _ABC_THIS_FUNC))
+	do { \
+		auto _x((x)); \
+		_x._before_throw(__FILE__, __LINE__, _ABC_THIS_FUNC); \
+		throw _x; \
+	} while (false)
 
 
-/** Verifies an expression at compile time. Failure is reported as a compiler error.
+/** Verifies an expression at compile time; failure is reported as a compiler error. See C++11 § 7
+“Declarations” point 4.
 
-TODO: comment signature.
+expr
+	bool-convertible constant expression to be evaluated.
+msg
+	Diagnostic message to be output in case expr evaluates to false.
 */
 #if !defined(_GCC_VER) && !defined(_MSC_VER)
 	#define static_assert(expr, msg) \
@@ -113,22 +122,20 @@ public:
 
 	/** Stores context information to be displayed if the exception is not caught.
 
-	TODO: comment signature.
+	pszFileName
+		Name of the file in which the exception is being thrown.
+	iLine
+		Line in pszFileName where the throw statement is located.
+	pszFunction
+		Function that is throwing the exception.
 	*/
 	void _before_throw(char const * pszFileName, uint16_t iLine, char const * pszFunction);
-	// Overload that operates on a temporary object that it also returns.
-	template <class T>
-	static T && _before_throw(
-		T && t, char const * pszFileName, uint16_t iLine, char const * pszFunction
-	) {
-		t._before_throw(pszFunction, iLine, pszFileName);
-		return static_cast<T &&>(t);
-	}
 
 
 	/** Shows a stack trace after an exception has unwound the stack up to the main() level.
 
-	TODO: comment signature.
+	[pstdx]
+		Caught exception.
 	*/
 	static void _uncaught_exception_end(std::exception const * pstdx = NULL);
 
