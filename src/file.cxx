@@ -224,7 +224,7 @@ size_t file::write(void const * p, size_t cb) {
 			true if the specified range could be locked, or false if the range has already been locked.
 		*/
 		bool lock(filedesc_t fd, fileint_t ibOffset, fileint_t cb) {
-			if (m_fd != INVALID_FILE_HANDLE) {
+			if (m_fd != INVALID_HANDLE_VALUE) {
 				unlock();
 			}
 			m_fd = fd;
