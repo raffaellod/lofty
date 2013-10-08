@@ -1193,7 +1193,7 @@ void exception::_print_extended_info(ostream * pos) const {
 
 // These should be member variables of exception::async_handler_manager.
 
-/// Signals that we can translate into C++ exceptions.
+/** Signals that we can translate into C++ exceptions. */
 static int const g_aiHandledSignals[] = {
 // Signal (Default action) Description (standard).
 //	SIGABRT, // (Core) Abort signal from abort(3) (POSIX.1-1990).
@@ -1217,11 +1217,12 @@ static int const g_aiHandledSignals[] = {
 //	SIGUSR1  // (Term) User-defined signal 1 (POSIX.1-1990).
 //	SIGUSR2  // (Term) User-defined signal 2 (POSIX.1-1990).
 };
-/// Default handler for each of the signals above.
+/** Default handler for each of the signals above. */
 static struct ::sigaction g_asaDefault[countof(g_aiHandledSignals)];
 
 
-/// Translates POSIX signals into C++ exceptions, whenever possible.
+/** Translates POSIX signals into C++ exceptions, whenever possible.
+*/
 static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 	abc_trace_fn((iSignal, psi, pctx));
 
