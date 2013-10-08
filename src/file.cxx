@@ -187,21 +187,22 @@ size_t file::write(void const * p, size_t cb) {
 	// Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
 	// write-protect the bytes we’re going to add, and then release the write protection.
 
-	/// Win32 ::LockFile() / ::UnlockFile() helper.
-	// TODO: this will probably find use somewhere else as well, so move it to file.hxx.
-	//
+	/** Win32 ::LockFile() / ::UnlockFile() helper.
+
+	TODO: this will probably find use somewhere else as well, so move it to file.hxx.
+	*/
 	class file_lock {
 	public:
 	
-		/// Constructor.
-		//
+		/** Constructor.
+		*/
 		file_lock() :
 			m_fd(INVALID_HANDLE_VALUE) {
 		}
 
 
-		/// Destructor.
-		//
+		/** Destructor.
+		*/
 		~file_lock() {
 			if (m_fd != INVALID_HANDLE_VALUE) {
 				unlock();
@@ -209,12 +210,23 @@ size_t file::write(void const * p, size_t cb) {
 		}
 
 
-		/// Attempts to lock a range of bytes for the specified file. Returns true if a lock was
-		// acquired, false if it was not because of any or all of the requested bytes being locked by
-		// another process, or throws an exception for any other error.
-		//
+		/** Attempts to lock a range of bytes for the specified file. Returns true if a lock was
+		acquired, false if it was not because of any or all of the requested bytes being locked by
+		another process, or throws an exception for any other error.
+
+		fd
+			Open file to lock.
+		ibOffset
+			Offset of the first byte to lock.
+		cb
+			Count of bytes to lock, starting from ibOffset.
+		return
+			true if the specified range could be locked, or false if the range has already been locked.
+		*/
 		bool lock(filedesc_t fd, fileint_t ibOffset, fileint_t cb) {
-			assert(m_fd == INVALID_FILE_HANDLE);
+			if (m_fd != INVALID_FILE_HANDLE) {
+				unlock();
+			}
 			m_fd = fd;
 			m_ibOffset.QuadPart = LONGLONG(ibOffset);
 			m_cb.QuadPart = LONGLONG(cb);
@@ -231,8 +243,9 @@ size_t file::write(void const * p, size_t cb) {
 		}
 
 
+		/** Releases the lock acquired by lock().
+		*/
 		void unlock() {
-			assert(m_fd != INVALID_FILE_HANDLE);
 			if (!::UnlockFile(
 				m_fd, m_ibOffset.LowPart, DWORD(m_ibOffset.HighPart), m_cb.LowPart, DWORD(m_cb.HighPart)
 			)) {
@@ -243,11 +256,11 @@ size_t file::write(void const * p, size_t cb) {
 
 	private:
 
-		/// Locked file.
+		/** Locked file. */
 		filedesc_t m_fd;
-		/// Start of the locked byte range.
+		/** Start of the locked byte range. */
 		LARGE_INTEGER m_ibOffset;
-		/// Length of the locked byte range.
+		/** Length of the locked byte range. */
 		LARGE_INTEGER m_cb;
 	};
 
