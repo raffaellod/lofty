@@ -36,8 +36,6 @@ ostream::ostream() :
 }
 
 
-/// Returns true if the current contents of the stream match the specified string.
-//
 bool ostream::contents_equal(istr const & sExpected) {
 	abc_trace_fn((this, sExpected));
 
@@ -46,8 +44,6 @@ bool ostream::contents_equal(istr const & sExpected) {
 }
 
 
-/// See ostream::write().
-//
 /*virtual*/ void ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
