@@ -1570,6 +1570,25 @@ void index_error::_print_extended_info(ostream * pos) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::invalid_path_error
+
+
+namespace abc {
+
+invalid_path_error::invalid_path_error() :
+	generic_error() {
+	m_pszWhat = "abc::invalid_path_error";
+}
+
+
+void invalid_path_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<invalid_path_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io_error
 
 

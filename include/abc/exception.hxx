@@ -833,6 +833,31 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::invalid_path_error
+
+
+namespace abc {
+
+/** The specified file path is not a valid path.
+*/
+class invalid_path_error :
+	public virtual generic_error {
+public:
+
+	/** Constructor.
+	*/
+	invalid_path_error();
+
+
+	/** See abc::generic_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io_error
 
 
@@ -1155,8 +1180,6 @@ namespace abc {
 ABC_DERIVE_ERROR_CLASS(attribute_error, generic_error);
 /** A buffer-related I/O operation could not be performed. */
 ABC_DERIVE_ERROR_CLASS(buffer_error, io_error);
-/** The specified file path is not a valid path. */
-ABC_DERIVE_ERROR_CLASS(invalid_path_error, generic_error);
 /** Mapping (dictionary) key not found in the set of existing keys. */
 ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 /** A network-related error occurred. */
