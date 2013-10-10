@@ -57,7 +57,10 @@ You should have received a copy of the GNU General Public License along with ABC
 	// “'class' : assignment operator could not be generated because a base class assignment operator
 	// is inaccessible”
 	#pragma warning(disable: 4626)
-	// 'function' : function not inlined
+	// “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
+	// catch site”
+	#pragma warning(disable: 4673)
+	// “'function' : function not inlined”
 	#pragma warning(disable: 4710)
 	// “'struct' : 'n' bytes padding added after data member 'member'”
 	#pragma warning(disable: 4820)
