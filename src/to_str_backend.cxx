@@ -149,7 +149,7 @@ default_notation:
 			}
 			// If we still have any characters, they are garbage (fall through).
 		default:
-			abc_throw(syntax_error(
+			abc_throw(syntax_error, (
 				SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 			));
 	}
@@ -287,7 +287,7 @@ _ABC_API_SYM to_str_backend<bool>::to_str_backend(char_range const & crFormat /*
 
 	// If we still have any characters, they are garbage.
 	if (it != crFormat.cend()) {
-		abc_throw(syntax_error(
+		abc_throw(syntax_error, (
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
 	}
@@ -329,7 +329,7 @@ _ABC_API_SYM to_str_backend<void const volatile *>::to_str_backend(
 
 	// If we still have any characters, they are garbage.
 	if (it != crFormat.cend()) {
-		abc_throw(syntax_error(
+		abc_throw(syntax_error, (
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
 	}

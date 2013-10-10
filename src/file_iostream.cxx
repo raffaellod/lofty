@@ -246,7 +246,7 @@ file_istream::file_istream(file_path const & fp) :
 		}
 		if (cb > m_ibReadBufUsed) {
 			// Can’t unread more bytes than the read buffer can take.
-			abc_throw(buffer_error());
+			abc_throw(buffer_error, ());
 		}
 		// Copy to the read buffer, before the current start.
 		memory::copy<void>(pbReadBuf + m_ibReadBufUsed - cb, p, cb);
@@ -285,7 +285,7 @@ file_istream::file_istream(file_path const & fp) :
 			}
 			if (cb) {
 				// The read buffer has no more room available.
-				abc_throw(buffer_error());
+				abc_throw(buffer_error, ());
 			}
 		}
 		// All bytes in the source buffer were transcoded; now make sure that they immediately precede
@@ -321,7 +321,7 @@ int8_t * file_istream::_get_read_buffer() {
 
 	size_t cbChar(text::get_encoding_size(enc));
 	assert(cbChar > 0);
-	// Little hack to obtain an index in range 0 to 2 (1 -> 0, 2 -> 1, 4 -> 2), for use as bit shift
+	// Little hack to obtain an index in range 0 to 2 (1 → 0, 2 → 1, 4 → 2), for use as bit shift
 	// count.
 	size_t cbCharLog2((0x2010u >> (cbChar - 1) * 4) & 0xf);
 

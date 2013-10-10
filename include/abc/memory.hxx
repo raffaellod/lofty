@@ -181,7 +181,7 @@ public:
 		UNUSED_ARG(pHint);
 		// c must fit in our static buffer, and we must still have a buffer.
 		if (c > max_size() || !m_p) {
-			abc_throw(memory_allocation_error());
+			abc_throw(memory_allocation_error, ());
 		}
 
 		pointer pt(static_cast<pointer>(m_p));
@@ -310,7 +310,7 @@ TODO: comment signature.
 inline void * _raw_alloc(size_t cb) {
 	void * p(::malloc(cb));
 	if (!p) {
-		abc_throw(memory_allocation_error());
+		abc_throw(memory_allocation_error, ());
 	}
 	return p;
 }
@@ -323,7 +323,7 @@ TODO: comment signature.
 inline void * _raw_realloc(void * p, size_t cb) {
 	p = ::realloc(p, cb);
 	if (!p) {
-		abc_throw(memory_allocation_error());
+		abc_throw(memory_allocation_error, ());
 	}
 	return p;
 }

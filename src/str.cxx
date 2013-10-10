@@ -38,7 +38,7 @@ _str_to_str_backend_base::_str_to_str_backend_base(char_range const & crFormat) 
 
 	// If we still have any characters, they are garbage.
 	if (it != crFormat.cend()) {
-		abc_throw(syntax_error(
+		abc_throw(syntax_error, (
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cend())
 		));
 	}

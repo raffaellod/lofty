@@ -90,13 +90,13 @@ void _ostream_print_helper_impl::run() {
 	// Since this specialization has no replacements, verify that the format string doesn’t specify
 	// any either.
 	if (write_format_up_to_next_repl()) {
-		abc_throw(index_error(m_iSubstArg));
+		abc_throw(index_error, (m_iSubstArg));
 	}
 }
 
 
 void _ostream_print_helper_impl::throw_index_error() {
-	abc_throw(index_error(m_iSubstArg));
+	abc_throw(index_error, (m_iSubstArg));
 }
 
 
@@ -215,7 +215,7 @@ void _ostream_print_helper_impl::throw_syntax_error(
 	istr const & sDescription, istr::const_iterator it
 ) const {
 	// +1 because the first character is 1, to human beings.
-	abc_throw(syntax_error(sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+	abc_throw(syntax_error, (sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
 }
 
 

@@ -121,8 +121,8 @@ public:
 	static /*constexpr*/ unsigned leading_to_cont_length(char8_t ch) {
 		unsigned i(static_cast<uint8_t>(ch));
 		// See comments on smc_acbConts in utf_traits.cxx to understand this way of accessing it.
-		//             (smc_acbConts[byte index] >> [nibble index -> 0 or 4]) & nibble mask
-		return unsigned(smc_acbConts[  i >> 2  ] >> (     (i & 2) << 1     )) & 0xfu;
+		//             (smc_acbConts[byte index] >> [nibble index → 0 or 4]) & nibble mask
+		return unsigned(smc_acbConts[  i >> 2  ] >> (    (i & 2) << 1     )) & 0xfu;
 	}
 
 

@@ -368,7 +368,7 @@ public:
 		size_t ie(lookup(cbKey, pfnKeyEqual, pKey, hash));
 		size_t hashEntry(m_prmd->get_phashes()[ie]);
 		if (!is_entry_active(hashEntry)) {
-			abc_throw(key_error());
+			abc_throw(key_error, ());
 		}
 		return m_prmd->get_value_at(cbVal, ie);
 	}
@@ -568,7 +568,7 @@ struct _raw_complex_map_impl :
 		size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
 		size_t * phashEntry(&m_prmd->get_phashes()[ie]);
 		if (!is_entry_active(*phashEntry)) {
-			abc_throw(key_error());
+			abc_throw(key_error, ());
 		}
 
 		void * pEntryKey(m_prmd->get_key_at(typeKey.cb, ie));

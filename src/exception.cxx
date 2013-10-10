@@ -67,21 +67,21 @@ void throw_os_error(errint_t err) {
 		case ENOTBLK: // Block device required (Linux)
 #endif
 		case ENOTSOCK: // Socket operation on non-socket (POSIX.1-2001)
-			abc_throw(argument_error(err));
+			abc_throw(argument_error, (err));
 
 
 		case ERANGE: // Math result not representable (POSIX.1-2001, C99)
-			abc_throw(arithmetic_error(err));
+			abc_throw(arithmetic_error, (err));
 
 
 #ifdef ENOBUFS
 		case ENOBUFS: // No buffer space available (Linux)
-			abc_throw(buffer_error(err));
+			abc_throw(buffer_error, (err));
 #endif
 
 
 		case EDOM: // Math argument out of domain of func (POSIX.1-2001, C99)
-			abc_throw(domain_error(err));
+			abc_throw(domain_error, (err));
 
 
 		case ECHILD: // No child processes (POSIX.1-2001)
@@ -90,12 +90,12 @@ void throw_os_error(errint_t err) {
 		case ENOEXEC: // Exec format error (POSIX.1-2001)
 		case ENOLCK: // No locks available (POSIX.1-2001)
 		case ESRCH: // No such process (POSIX.1-2001)
-			abc_throw(environment_error(err));
+			abc_throw(environment_error, (err));
 
 
 		case ENODEV: // No such device (POSIX.1-2001)
 		case ENOENT: // No such file or directory (POSIX.1-2001)
-			abc_throw(file_not_found_error(err));
+			abc_throw(file_not_found_error, (err));
 
 
 		case EIDRM: // Identifier removed (POSIX.1-2001)
@@ -103,7 +103,7 @@ void throw_os_error(errint_t err) {
 		case EMULTIHOP: // Multihop attempted (POSIX.1-2001)
 		case ENOPROTOOPT: // Protocol not available (POSIX.1-2001)
 		default:
-			abc_throw(generic_error(err));
+			abc_throw(generic_error, (err));
 
 
 		case EAGAIN: // Try again (POSIX.1-2001)
@@ -150,15 +150,15 @@ void throw_os_error(errint_t err) {
 		case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
 #endif
 		case EXDEV: // Improper link (POSIX.1-2001)
-			abc_throw(io_error(err));
+			abc_throw(io_error, (err));
 
 
 		case ENOMEM: // Out of memory (POSIX.1-2001)
-			abc_throw(memory_allocation_error(err));
+			abc_throw(memory_allocation_error, (err));
 
 
 		case EFAULT: // Bad address (POSIX.1-2001)
-			abc_throw(memory_address_error(err));
+			abc_throw(memory_address_error, (err));
 
 
 		case EADDRINUSE: // Address already in use (POSIX.1-2001).
@@ -181,7 +181,7 @@ void throw_os_error(errint_t err) {
 #ifdef ESOCKTNOSUPPORT
 		case ESOCKTNOSUPPORT: // Socket type not supported (Linux)
 #endif
-			abc_throw(network_error(err));
+			abc_throw(network_error, (err));
 
 
 #ifdef ECOMM
@@ -209,20 +209,20 @@ void throw_os_error(errint_t err) {
 		case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
 #endif
 		case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
-			abc_throw(network_io_error(err));
+			abc_throw(network_io_error, (err));
 
 
 		case ENOSYS: // Function not implemented (POSIX.1-2001)
-			abc_throw(not_implemented_error(err));
+			abc_throw(not_implemented_error, (err));
 
 
 		case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
-			abc_throw(overflow_error(err));
+			abc_throw(overflow_error, (err));
 
 
 		case EACCES: // Permission denied (POSIX.1-2001)
 		case EPERM: // Operation not permitted (POSIX.1-2001)
-			abc_throw(security_error(err));
+			abc_throw(security_error, (err));
 	}
 }
 
@@ -340,14 +340,14 @@ void throw_os_error(errint_t err) {
 		case ERROR_WINDOW_NOT_COMBOBOX: // The window is not a combo box.
 		case ERROR_WINDOW_NOT_DIALOG: // The window is not a valid dialog window.
 		case ERROR_WINDOW_OF_OTHER_THREAD: // Invalid window; it belongs to another thread.
-			abc_throw(argument_error(err));
+			abc_throw(argument_error, (err));
 
 
 		case ERROR_BUFFER_OVERFLOW: // The file name is too long.
 		case ERROR_INSUFFICIENT_BUFFER: // The data area passed to a system call is too small.
 		case ERROR_INVALID_USER_BUFFER: // The supplied user buffer is not valid for the requested
 			// operation.
-			abc_throw(buffer_error(err));
+			abc_throw(buffer_error, (err));
 
 
 		case ERROR_CHILD_MUST_BE_VOLATILE: // Cannot create a stable subkey under a volatile parent
@@ -371,12 +371,12 @@ void throw_os_error(errint_t err) {
 		case ERROR_TOO_MANY_SEMAPHORES: // Cannot create another system semaphore.
 		case ERROR_TOO_MANY_TCBS: // Cannot create another thread.
 		case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
-			abc_throw(environment_error(err));
+			abc_throw(environment_error, (err));
 
 
 		case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
 		case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-			abc_throw(file_not_found_error(err));
+			abc_throw(file_not_found_error, (err));
 
 
 		case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
@@ -611,12 +611,12 @@ void throw_os_error(errint_t err) {
 		case ERROR_TRANSFORM_NOT_SUPPORTED: // The requested transformation operation is not
 			// supported.
 		default:
-			abc_throw(generic_error(err));
+			abc_throw(generic_error, (err));
 
 
 		case ERROR_BAD_PATHNAME: // The specified path is invalid.
 		case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
-			abc_throw(invalid_path_error(err));
+			abc_throw(invalid_path_error, (err));
 
 
 		case ERROR_ALREADY_ASSIGNED: // The local device name is already in use.
@@ -821,13 +821,13 @@ void throw_os_error(errint_t err) {
 		case ERROR_WRITE_PROTECT: // The media is write protected.
 		case ERROR_WRONG_DISK: // The wrong diskette is in the drive. Insert %2 (Volume Serial Number:
 			// %3) into drive %1.
-			abc_throw(io_error(err));
+			abc_throw(io_error, (err));
 
 
 		case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
 		case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
 		case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
-			abc_throw(key_error(err));
+			abc_throw(key_error, (err));
 
 
 		case ERROR_NO_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
@@ -839,12 +839,12 @@ void throw_os_error(errint_t err) {
 		case ERROR_OUTOFMEMORY: // Not enough storage is available to complete this operation.
 		case ERROR_PAGED_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
 			// requested service.
-			abc_throw(memory_allocation_error(err));
+			abc_throw(memory_allocation_error, (err));
 
 
 		case ERROR_INVALID_ADDRESS: // Attempt to access invalid address.
 		case ERROR_NOACCESS: // Invalid access to memory location.
-			abc_throw(memory_address_error(err));
+			abc_throw(memory_address_error, (err));
 
 
 		case ERROR_ACTIVE_CONNECTIONS: // Active connections still exist.
@@ -883,7 +883,7 @@ void throw_os_error(errint_t err) {
 		case ERROR_TOO_MANY_SESS: // The network BIOS session limit was exceeded.
 		case ERROR_UNEXP_NET_ERR: // An unexpected network error occurred.
 		case ERROR_WINS_INTERNAL: // WINS encountered an error while processing the command.
-			abc_throw(network_error(err));
+			abc_throw(network_error, (err));
 
 
 		case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
@@ -898,11 +898,11 @@ void throw_os_error(errint_t err) {
 		case ERROR_NETWORK_BUSY: // The network is busy.
 		case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
 		case ERROR_REQUEST_ABORTED: // The request was aborted.
-			abc_throw(network_io_error(err));
+			abc_throw(network_io_error, (err));
 
 
 		case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
-			abc_throw(overflow_error(err));
+			abc_throw(overflow_error, (err));
 
 
 		case ERROR_ACCESS_DENIED: // Access is denied.
@@ -1034,12 +1034,12 @@ void throw_os_error(errint_t err) {
 		case ERROR_VC_DISCONNECTED: // The session was canceled.
 		case ERROR_WRONG_PASSWORD: // Unable to update the password. The value provided as the current
 			// password is incorrect.
-			abc_throw(security_error(err));
+			abc_throw(security_error, (err));
 
 
 		case ERROR_NO_UNICODE_TRANSLATION: // No mapping for the Unicode character exists in the
 			// target multibyte code page.
-			abc_throw(text_encode_error(err));
+			abc_throw(text_encode_error, (err));
 	}
 }
 
@@ -1074,7 +1074,6 @@ void throw_os_error(errint_t err) {
 namespace abc {
 
 exception::exception() :
-	std::exception(),
 	m_pszWhat("abc::exception"),
 	m_pszSourceFunction(NULL),
 	m_pszSourceFileName(NULL),
@@ -1082,7 +1081,6 @@ exception::exception() :
 	m_bInFlight(false) {
 }
 exception::exception(exception const & x) :
-	std::exception(x),
 	m_pszWhat(x.m_pszWhat),
 	m_pszSourceFunction(x.m_pszSourceFunction),
 	m_pszSourceFileName(x.m_pszSourceFileName),
@@ -1095,7 +1093,7 @@ exception::exception(exception const & x) :
 }
 
 
-/*virtual*/ exception::~exception() decl_throw(()) {
+/*virtual*/ exception::~exception() {
 	// See [DOC:8503 Stack tracing].
 	if (m_bInFlight) {
 		_scope_trace<>::trace_stream_release();
@@ -1106,7 +1104,6 @@ exception::exception(exception const & x) :
 exception & exception::operator=(exception const & x) {
 	abc_trace_fn((this/*, x*/));
 
-	std::exception::operator=(x);
 	m_pszWhat = x.m_pszWhat;
 	m_pszSourceFunction = x.m_pszSourceFunction;
 	m_pszSourceFileName = x.m_pszSourceFileName;
@@ -1184,7 +1181,7 @@ void exception::_print_extended_info(ostream * pos) const {
 }
 
 
-/*virtual*/ char const * exception::what() const decl_throw(()) {
+char const * exception::what() const {
 	return m_pszWhat;
 }
 
@@ -1271,17 +1268,17 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 			// on going - even the code to throw an exception could be compromised.
 			switch (psi->si_code) {
 				case BUS_ADRALN: // Invalid address alignment.
-					abc_throw(abc::memory_access_error(psi->si_addr));
+					abc_throw(abc::memory_access_error, (psi->si_addr));
 			}
 			break;
 
 		case SIGFPE:
 			switch (psi->si_code) {
 				case FPE_INTDIV: // Integer divide by zero.
-					abc_throw(abc::division_by_zero_error());
+					abc_throw(abc::division_by_zero_error, ());
 
 				case FPE_INTOVF: // Integer overflow.
-					abc_throw(abc::overflow_error());
+					abc_throw(abc::overflow_error, ());
 
 				case FPE_FLTDIV: // Floating-point divide by zero.
 				case FPE_FLTOVF: // Floating-point overflow.
@@ -1289,17 +1286,17 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 				case FPE_FLTRES: // Floating-point inexact result.
 				case FPE_FLTINV: // Floating-point invalid operation.
 				case FPE_FLTSUB: // Subscript out of range.
-					abc_throw(abc::floating_point_error());
+					abc_throw(abc::floating_point_error, ());
 			}
 			// At the time of writing, the above case labels don’t leave out any values, but that’s not
 			// necessarily going to be true in 5 years, so…
-			abc_throw(abc::arithmetic_error());
+			abc_throw(abc::arithmetic_error, ());
 
 		case SIGSEGV:
 			if (psi->si_addr == NULL) {
-				abc_throw(abc::null_pointer_error());
+				abc_throw(abc::null_pointer_error, ());
 			} else {
-				abc_throw(abc::memory_address_error(psi->si_addr));
+				abc_throw(abc::memory_address_error, (psi->si_addr));
 			}
 	}
 	// Handle all unrecognized cases here. Since here we only handle signals for which the default
@@ -1346,9 +1343,14 @@ exception::async_handler_manager::~async_handler_manager() {
 
 namespace abc {
 
-argument_error::argument_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<argument_error>::mapped_error) {
+argument_error::argument_error() :
+	generic_error() {
 	m_pszWhat = "abc::argument_error";
+}
+
+
+void argument_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<argument_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1360,9 +1362,14 @@ argument_error::argument_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-arithmetic_error::arithmetic_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<arithmetic_error>::mapped_error) {
+arithmetic_error::arithmetic_error() :
+	generic_error() {
 	m_pszWhat = "abc::arithmetic_error";
+}
+
+
+void arithmetic_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<arithmetic_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1395,7 +1402,7 @@ namespace abc {
 		}
 		sm_bReentering = false;
 	}
-	abc_throw(assertion_error());
+	abc_throw(assertion_error, ());
 }
 
 } //namespace abc
@@ -1407,9 +1414,14 @@ namespace abc {
 
 namespace abc {
 
-division_by_zero_error::division_by_zero_error(errint_t err /*= 0*/) :
-	arithmetic_error(err ? err : os_error_mapping<division_by_zero_error>::mapped_error) {
+division_by_zero_error::division_by_zero_error() :
+	arithmetic_error() {
 	m_pszWhat = "abc::division_by_zero_error";
+}
+
+
+void division_by_zero_error::init(errint_t err /*= 0*/) {
+	arithmetic_error::init(err ? err : os_error_mapping<division_by_zero_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1421,9 +1433,13 @@ division_by_zero_error::division_by_zero_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-domain_error::domain_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<domain_error>::mapped_error) {
+domain_error::domain_error() :
+	generic_error() {
 	m_pszWhat = "abc::domain_error";
+}
+
+void domain_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<domain_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1435,9 +1451,14 @@ domain_error::domain_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-floating_point_error::floating_point_error(errint_t err /*= 0*/) :
-	arithmetic_error(err ? err : os_error_mapping<floating_point_error>::mapped_error) {
+floating_point_error::floating_point_error() :
+	arithmetic_error() {
 	m_pszWhat = "abc::floating_point_error";
+}
+
+
+void floating_point_error::init(errint_t err /*= 0*/) {
+	arithmetic_error::init(err ? err : os_error_mapping<floating_point_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1449,9 +1470,8 @@ floating_point_error::floating_point_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-generic_error::generic_error(errint_t err /*= 0*/) :
-	exception(),
-	m_err(err) {
+generic_error::generic_error() :
+	exception() {
 	m_pszWhat = "abc::generic_error";
 }
 generic_error::generic_error(generic_error const & x) :
@@ -1472,14 +1492,51 @@ generic_error & generic_error::operator=(generic_error const & x) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::environment_error
+
+
+namespace abc {
+
+environment_error::environment_error() :
+	generic_error() {
+	m_pszWhat = "abc::environment_error";
+}
+
+
+void environment_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::file_not_found_error
+
+
+namespace abc {
+
+file_not_found_error::file_not_found_error() :
+	environment_error() {
+	m_pszWhat = "abc::file_not_found_error";
+}
+
+
+void file_not_found_error::init(errint_t err /*= 0*/) {
+	environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::index_error
 
 
 namespace abc {
 
-index_error::index_error(intptr_t iInvalid, errint_t err /*= 0*/) :
-	lookup_error(err ? err : os_error_mapping<index_error>::mapped_error),
-	m_iInvalid(iInvalid) {
+index_error::index_error() :
+	lookup_error() {
 	m_pszWhat = "abc::index_error";
 }
 index_error::index_error(index_error const & x) :
@@ -1498,9 +1555,34 @@ index_error & index_error::operator=(index_error const & x) {
 }
 
 
+void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
+	lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
+	m_iInvalid = iInvalid;
+}
+
+
 void index_error::_print_extended_info(ostream * pos) const {
 	pos->print(SL("invalid index: {}\n"), m_iInvalid);
 	lookup_error::_print_extended_info(pos);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io_error
+
+
+namespace abc {
+
+io_error::io_error() :
+	environment_error() {
+	m_pszWhat = "abc::io_error";
+}
+
+
+void io_error::init(errint_t err /*= 0*/) {
+	environment_error::init(err ? err : os_error_mapping<io_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1512,9 +1594,14 @@ void index_error::_print_extended_info(ostream * pos) const {
 
 namespace abc {
 
-lookup_error::lookup_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<lookup_error>::mapped_error) {
+lookup_error::lookup_error() :
+	generic_error() {
 	m_pszWhat = "abc::lookup_error";
+}
+
+
+void lookup_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<lookup_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1526,9 +1613,16 @@ lookup_error::lookup_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-memory_access_error::memory_access_error(void const * pInvalid, errint_t err /*= 0*/) :
-	memory_address_error(pInvalid, err ? err : os_error_mapping<memory_access_error>::mapped_error) {
+memory_access_error::memory_access_error() :
+	memory_address_error() {
 	m_pszWhat = "abc::memory_access_error";
+}
+
+
+void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
+	memory_address_error::init(
+		pInvalid, err ? err : os_error_mapping<memory_access_error>::mapped_error
+	);
 }
 
 } //namespace abc
@@ -1543,14 +1637,8 @@ namespace abc {
 char_t const memory_address_error::smc_achUnknownAddress[] = SL("unknown memory address");
 
 
-memory_address_error::memory_address_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<memory_address_error>::mapped_error),
-	m_pInvalid(smc_achUnknownAddress) {
-	m_pszWhat = "abc::memory_address_error";
-}
-memory_address_error::memory_address_error(void const * pInvalid, errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<memory_address_error>::mapped_error),
-	m_pInvalid(pInvalid) {
+memory_address_error::memory_address_error() :
+	generic_error() {
 	m_pszWhat = "abc::memory_address_error";
 }
 memory_address_error::memory_address_error(memory_address_error const & x) :
@@ -1565,6 +1653,12 @@ memory_address_error & memory_address_error::operator=(memory_address_error cons
 	generic_error::operator=(x);
 	m_pInvalid = x.m_pInvalid;
 	return *this;
+}
+
+
+void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<memory_address_error>::mapped_error);
+	m_pInvalid = pInvalid;
 }
 
 
@@ -1586,10 +1680,14 @@ void memory_address_error::_print_extended_info(ostream * pos) const {
 
 namespace abc {
 
-memory_allocation_error::memory_allocation_error(errint_t err /*= 0*/) :
-	generic_error(err ? err : os_error_mapping<memory_allocation_error>::mapped_error),
-	std::bad_alloc() {
+memory_allocation_error::memory_allocation_error() :
+	generic_error() {
 	m_pszWhat = "abc::memory_allocation_error";
+}
+
+
+void memory_allocation_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<memory_allocation_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1601,9 +1699,14 @@ memory_allocation_error::memory_allocation_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-null_pointer_error::null_pointer_error(errint_t err /*= 0*/) :
-	memory_address_error(NULL, err ? err : os_error_mapping<null_pointer_error>::mapped_error) {
+null_pointer_error::null_pointer_error() :
+	memory_address_error() {
 	m_pszWhat = "abc::null_pointer_error";
+}
+
+
+void null_pointer_error::init(errint_t err /*= 0*/) {
+	memory_address_error::init(NULL, err ? err : os_error_mapping<null_pointer_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1615,9 +1718,14 @@ null_pointer_error::null_pointer_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-overflow_error::overflow_error(errint_t err /*= 0*/) :
-	arithmetic_error(err ? err : os_error_mapping<overflow_error>::mapped_error) {
+overflow_error::overflow_error() :
+	arithmetic_error() {
 	m_pszWhat = "abc::overflow_error";
+}
+
+
+void overflow_error::init(errint_t err /*= 0*/) {
+	arithmetic_error::init(err ? err : os_error_mapping<overflow_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1629,16 +1737,8 @@ overflow_error::overflow_error(errint_t err /*= 0*/) :
 
 namespace abc {
 
-syntax_error::syntax_error(
-	char_range const & crDescription /*= char_range()*/, 
-	char_range const & crSource /*= char_range()*/, unsigned iChar /*= 0*/, unsigned iLine /*= 0*/,
-	errint_t err /*= 0*/
-) :
-	generic_error(err ? err : os_error_mapping<syntax_error>::mapped_error),
-	m_crDescription(crDescription),
-	m_crSource(crSource),
-	m_iChar(iChar),
-	m_iLine(iLine) {
+syntax_error::syntax_error() :
+	generic_error() {
 	m_pszWhat = "abc::syntax_error";
 }
 syntax_error::syntax_error(syntax_error const & x) :
@@ -1659,6 +1759,19 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
 	m_iChar = x.m_iChar;
 	m_iLine = x.m_iLine;
 	return *this;
+}
+
+
+void syntax_error::init(
+	char_range const & crDescription /*= char_range()*/, 
+	char_range const & crSource /*= char_range()*/, unsigned iChar /*= 0*/, unsigned iLine /*= 0*/,
+	errint_t err /*= 0*/
+) {
+	generic_error::init(err ? err : os_error_mapping<syntax_error>::mapped_error);
+	m_crDescription = crDescription;
+	m_crSource = crSource;
+	m_iChar = iChar;
+	m_iLine = iLine;
 }
 
 

@@ -328,13 +328,13 @@ public:
 	*/
 	T & operator[](size_t i) {
 		if (i >= size()) {
-			abc_throw(index_error(intptr_t(i)));
+			abc_throw(index_error, (intptr_t(i)));
 		}
 		return data()[i];
 	}
 	T const & operator[](size_t i) const {
 		if (i >= size()) {
-			abc_throw(index_error(intptr_t(i)));
+			abc_throw(index_error, (intptr_t(i)));
 		}
 		return data()[i];
 	}

@@ -65,9 +65,9 @@ public:
 			} catch (derived1_error const & e) {
 				return 23;
 			} catch (generic_error const & e) {
-				if (e != os_error_mapping<generic_error>::mapped_error) {
-					return 24;
-				}
+//				if (e != os_error_mapping<generic_error>::mapped_error) {
+//					return 24;
+//				}
 				// Success.
 			} catch (exception const & e) {
 				return 25;
@@ -83,9 +83,9 @@ public:
 			} catch (derived2_error const & e) {
 				return 32;
 			} catch (derived1_error const & e) {
-				if (e != os_error_mapping<derived1_error>::mapped_error) {
-					return 33;
-				}
+//				if (e != os_error_mapping<derived1_error>::mapped_error) {
+//					return 33;
+//				}
 				// Success.
 			} catch (generic_error const & e) {
 				return 34;
@@ -101,9 +101,9 @@ public:
 			} catch (derived3_error const & e) {
 				return 41;
 			} catch (derived2_error const & e) {
-				if (e != os_error_mapping<derived2_error>::mapped_error) {
-					return 42;
-				}
+//				if (e != os_error_mapping<derived2_error>::mapped_error) {
+//					return 42;
+//				}
 				// Success.
 			} catch (derived1_error const & e) {
 				return 43;
@@ -119,9 +119,9 @@ public:
 				throw_derived3_error(2351);
 				return 50;
 			} catch (derived3_error const & e) {
-				if (e != os_error_mapping<derived3_error>::mapped_error) {
-					return 51;
-				}
+//				if (e != os_error_mapping<derived3_error>::mapped_error) {
+//					return 51;
+//				}
 				// Success.
 			} catch (derived2_error const & e) {
 				return 52;
@@ -241,35 +241,35 @@ public:
 	void throw_exception() {
 		abc_trace_fn(());
 
-		abc_throw(exception());
+		abc_throw(exception, ());
 	}
 
 
 	void throw_generic_error() {
 		abc_trace_fn(());
 
-		abc_throw(generic_error());
+		abc_throw(generic_error, ());
 	}
 
 
 	void throw_derived1_error() {
 		abc_trace_fn(());
 
-		abc_throw(derived1_error());
+		abc_throw(derived1_error, ());
 	}
 
 
 	void throw_derived2_error() {
 		abc_trace_fn(());
 
-		abc_throw(derived2_error());
+		abc_throw(derived2_error, ());
 	}
 
 
 	void throw_derived3_error(int i) {
 		abc_trace_fn((i));
 
-		abc_throw(derived3_error());
+		abc_throw(derived3_error, ());
 	}
 };
 
