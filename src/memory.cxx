@@ -52,30 +52,30 @@ void free(T * pt);
 	#define operator __cdecl operator
 #endif
 
-void * operator new(size_t cb) decl_throw((std::bad_alloc)) {
+void * operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
-void * operator new[](size_t cb) decl_throw((std::bad_alloc)) {
+void * operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
-void * operator new(size_t cb, std::nothrow_t const &) decl_throw(()) {
+void * operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	return ::malloc(cb);
 }
-void * operator new[](size_t cb, std::nothrow_t const &) decl_throw(()) {
+void * operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	return ::malloc(cb);
 }
 
 
-void operator delete(void * p) decl_throw(()) {
+void operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete[](void * p) decl_throw(()) {
+void operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete(void * p, std::nothrow_t const &) decl_throw(()) {
+void operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete[](void * p, std::nothrow_t const &) decl_throw(()) {
+void operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
 

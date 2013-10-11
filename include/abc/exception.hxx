@@ -211,13 +211,13 @@ public:
 
 	/** Destructor.
 	*/
-	virtual ~_exception_aggregator() decl_throw(()) {
+	virtual ~_exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
 	}
 
 
 	/** See std::exception::what().
 	*/
-	virtual const char * what() const decl_throw(()) {
+	virtual const char * what() const ABC_STL_NOEXCEPT_TRUE() {
 		return TAbc::what();
 	}
 };

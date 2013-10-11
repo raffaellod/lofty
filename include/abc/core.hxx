@@ -222,6 +222,23 @@ constructor (N2346). */
 	#define ABC_CXX_FUNCTION_DELETE
 #endif
 
+/** If defined, the compiler supports the noexcept exception specification. */
+#if defined(_GCC_VER) && _GCC_VER >= 40600
+	#define ABC_CXX_NOEXCEPT
+#endif
+
+/** If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
+*/
+#if defined(_GCC_VER) && _GCC_VER >= 40700
+	#define ABC_CXX_STL_USES_NOEXCEPT
+#endif
+
+/** If defined, the STL implements C++11 type traits (as opposed to the early implementations).
+*/
+#if defined(_GCC_VER) && _GCC_VER >= 40700
+	#define ABC_CXX_STL_CXX11_TYPE_TRAITS
+#endif
+
 /** If defined, the compiler supports template friend declarations (N1791). */
 #if (defined(_GCC_VER) && _GCC_VER >= 40500) || defined(_MSC_VER)
 	#define ABC_CXX_TEMPLATE_FRIENDS
@@ -300,8 +317,8 @@ shared library (into another library/executable). */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - extended features that can take advantage of C++11 or fallback to more risky, but
-// still functional alternatives
+// abc globals - extended features that can take advantage of C++11 or fallback to still-functional
+// alternatives
 
 /** Makes a class un-copiable. Move constructors and/or assignment operators may be still
 available, though.
@@ -340,7 +357,8 @@ cls
 	non-compliant compilers.
 	*/
 	template <typename T>
-	struct support_explicit_operator_bool {};
+	struct support_explicit_operator_bool {
+	};
 
 	} //namespace abc
 
@@ -418,6 +436,48 @@ cls
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
 
+/** Declares a function/method as never throwing exceptions. Supports both C++11 noexcept specifier
+and pre-C++11 throw() exception specifications.
+*/
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+	#define ABC_STL_NOEXCEPT_TRUE() \
+		noexcept(true)
+#else
+	#define ABC_STL_NOEXCEPT_TRUE() \
+		throw()
+#endif
+
+
+/** Declares a function/method as possibly throwing exceptions. Supports both C++11 noexcept
+specifier and pre-C++11 throw() exception specifications.
+
+old_throw_decl
+	Parentheses-enclosed list of types the function/method may throw.
+*/
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+	#define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+		noexcept(false)
+#else
+	#define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+		throw old_throw_decl
+#endif
+
+
+/** Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
+Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
+
+old_throw_decl
+	Parentheses-enclosed list of types the function/method may throw.
+*/
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+	#define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+		noexcept(cond)
+#else
+	#define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+		throw old_throw_decl
+#endif
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - other
 
@@ -433,31 +493,6 @@ union max_align_t {
 };
 
 } //namespace std
-
-
-// Support loose exception specifications.
-#if defined(_GCC_VER) && _GCC_VER >= 40600
-	#define noexcept_false \
-		noexcept(false)
-	#define noexcept_true \
-		noexcept(true)
-	#define noexcept_if(cond) \
-		noexcept(cond)
-#else
-	#define noexcept_false
-	#define noexcept_true \
-		throw()
-	#define noexcept_if(cond)
-#endif
-
-
-/** Supports pre-C++11 exception specification declarations. Use double parentheses for the list.
-
-list
-	Parentheses-enclosed list of types the function/method may throw.
-*/
-#define decl_throw(list) \
-	throw list
 
 
 /** Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for

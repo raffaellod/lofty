@@ -89,21 +89,21 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4986)
 #endif
 
-// In Win32, MSC expects ::new() and ::delete() to use the cdecl calling convention.
+// In Win32, MSC (only?) expects ::new() and ::delete() to use the cdecl calling convention.
 #if defined(_MSC_VER) && ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
 	#define operator __cdecl operator
 #endif
 
-void * operator new(size_t cb) decl_throw((std::bad_alloc));
-void * operator new[](size_t cb) decl_throw((std::bad_alloc));
-void * operator new(size_t cb, std::nothrow_t const &) decl_throw(());
-void * operator new[](size_t cb, std::nothrow_t const &) decl_throw(());
+void * operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 
-void operator delete(void * p) decl_throw(());
-void operator delete[](void * p) decl_throw(());
-void operator delete(void * p, std::nothrow_t const &) decl_throw(());
-void operator delete[](void * p, std::nothrow_t const &) decl_throw(());
+void operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
+void operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
+void operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 #ifdef operator
 	#undef operator
