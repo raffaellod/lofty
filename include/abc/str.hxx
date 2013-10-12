@@ -484,12 +484,13 @@ public:
 
 	/** Work around the protected inheritance, forcing the raw access to be explicit.
 
-	TODO: comment signature.
+	return
+		Reference to *this as a _raw_str instance.
 	*/
-	_raw_str & get_raw() {
+	_raw_str & raw() {
 		return *this;
 	}
-	_raw_str const & get_raw() const {
+	_raw_str const & raw() const {
 		return *this;
 	}
 
@@ -657,7 +658,7 @@ template <typename C, class TTraits>
 struct hash<abc::str_base_<C, TTraits>> {
 
 	size_t operator()(abc::str_base_<C, TTraits> const & s) const {
-		return s.get_raw().hash(sizeof(C));
+		return s.raw().hash(sizeof(C));
 	}
 };
 

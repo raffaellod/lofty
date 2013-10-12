@@ -157,7 +157,7 @@ public:
 	template <typename C, class TTraits>
 	istream & read_line(mstr_<C, TTraits> * ps, text::encoding enc = TTraits::host_encoding) {
 		_read_line(
-			&ps->get_raw(), enc,
+			&ps->raw(), enc,
 			TTraits::max_codepoint_length, reinterpret_cast<text::str_str_fn>(TTraits::str_str)
 		);
 		return *this;
