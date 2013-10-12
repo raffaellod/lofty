@@ -304,6 +304,16 @@ public:
 
 public:
 
+	/** Allows automatic cross-class-hierarchy casts.
+
+	return
+		Const reference to *this as an immutable string.
+	*/
+	operator istr const &() const {
+		return *static_cast<istr const *>(this);
+	}
+
+
 	/** Character access operator.
 
 	TODO: comment signature.
@@ -318,7 +328,8 @@ public:
 
 	/** Returns true if the length is greater than 0.
 
-	TODO: comment signature.
+	return
+		true if the string is not empty, or false otherwise.
 	*/
 	explicit_operator_bool() const {
 		return size() > 0;
@@ -327,7 +338,12 @@ public:
 
 	/** Support for relational operators.
 
-	TODO: comment signature.
+	s
+		String to compare to.
+	ach
+		String literal to compare to.
+	psz
+		Pointer to a NUL-terminated string to compare to.
 	*/
 	int compare_to(istr const & s) const {
 		return TTraits::str_cmp(data(), size(), s.data(), s.size());
@@ -448,7 +464,8 @@ public:
 	/** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
 	terminator.
 
-	TODO: comment signature.
+	return
+		Size of the string buffer, in characters.
 	*/
 	size_t capacity() const {
 		return _raw_str::capacity();
@@ -457,7 +474,8 @@ public:
 
 	/** Returns a read-only pointer to the character array.
 
-	TODO: comment signature.
+	return
+		Pointer to the character array.
 	*/
 	C const * data() const {
 		return _raw_str::data<C>();
@@ -478,7 +496,8 @@ public:
 
 	/** Returns the count of characters in the string.
 
-	TODO: comment signature.
+	return
+		Count of characters.
 	*/
 	size_t size() const {
 		return _raw_str::size();
@@ -547,7 +566,8 @@ protected:
 
 	/** See _raw_str::assign_move().
 
-	TODO: comment signature.
+	s
+		Source string.
 	*/
 	void assign_move(str_base_ && s) {
 		_raw_str::assign_move(static_cast<_raw_str &&>(s));
@@ -556,7 +576,8 @@ protected:
 
 	/** See _raw_str::assign_move_dynamic_or_copy().
 
-	TODO: comment signature.
+	s
+		Source string.
 	*/
 	void assign_move_dynamic_or_copy(str_base_ && s) {
 		_raw_str::assign_move_dynamic_or_copy(sizeof(C), static_cast<_raw_str &&>(s));
@@ -565,7 +586,8 @@ protected:
 
 	/** See _raw_str::assign_share_ro_or_copy().
 
-	TODO: comment signature.
+	s
+		Source string.
 	*/
 	void assign_share_ro_or_copy(str_base_ const & s) {
 		_raw_str::assign_share_ro_or_copy(sizeof(C), s);
@@ -611,9 +633,7 @@ class to_str_backend<str_base_<C, TTraits>> :
 
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See _str_to_str_backend<str_base_<C, TTraits>, C>::_str_to_str_backend().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		str_to_str_backend(crFormat) {
@@ -676,19 +696,21 @@ public:
 	}
 	istr_(istr_ const & s) :
 		str_base(0) {
-		operator=(s);
+		assign_share_ro_or_copy(s);
 	}
 	istr_(istr_ && s) :
 		str_base(0) {
-		operator=(std::move(s));
+		// Non-const, so it can’t be anything but a real istr_, so it owns its item array.
+		assign_move(std::move(s));
 	}
-	istr_(str_base && s) :
+	// This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
+	istr_(mstr && s) :
 		str_base(0) {
-		operator=(std::move(s));
+		assign_move_dynamic_or_copy(std::move(s));
 	}
 	istr_(dmstr && s) :
 		str_base(0) {
-		operator=(std::move(s));
+		assign_move(std::move(s));
 	}
 	template <size_t t_cch>
 	istr_(C const (& ach)[t_cch]) :
@@ -709,7 +731,12 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	s
+		Source string.
+	ach
+		Source NUL-terminated string literal.
+	return
+		*this.
 	*/
 	istr_ & operator=(istr_ const & s) {
 		assign_share_ro_or_copy(s);
@@ -720,7 +747,8 @@ public:
 		assign_move(std::move(s));
 		return *this;
 	}
-	istr_ & operator=(str_base && s) {
+	// This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
+	istr_ & operator=(mstr && s) {
 		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
@@ -758,9 +786,7 @@ class to_str_backend<istr_<C, TTraits>> :
 	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		to_str_backend<str_base_<C, TTraits>>(crFormat) {
@@ -788,7 +814,7 @@ struct hash<abc::istr_<C, TTraits>> :
 namespace abc {
 
 /** str_base_-derived class, to be used as argument type for functions that want to modify a string
-argument, since unlike istr_, it allows in-place alterations to the string. Both smstr and dmstr_
+argument, since unlike istr_, it allows in-place alterations to the string. Both smstr_ and dmstr_
 are automatically converted to this.
 */
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
@@ -803,20 +829,23 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	s
+		Source string.
+	ach
+		Source NUL-terminated string literal.
+	return
+		*this.
 	*/
 	mstr_ & operator=(mstr_ const & s) {
-		return operator=(static_cast<str_base const &>(s));
-	}
-	// WARNING - this move-assignment operator CAN throw!
-	mstr_ & operator=(mstr_ && s) {
-		return operator=(static_cast<str_base &&>(s));
-	}
-	mstr_ & operator=(str_base const & s) {
 		assign_copy(s.data(), s.size());
 		return *this;
 	}
-	mstr_ & operator=(str_base && s) {
+	mstr_ & operator=(istr const & s) {
+		assign_copy(s.data(), s.size());
+		return *this;
+	}
+	// This can throw exceptions, but it’s allowed to since it’s not the mstr_ && overload.
+	mstr_ & operator=(istr && s) {
 		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
@@ -849,15 +878,6 @@ public:
 	mstr_ & operator+=(istr const & s) {
 		append(s.data(), s.size());
 		return *this;
-	}
-
-
-	/** Allows automatic cross-class-hierarchy casts.
-
-	TODO: comment signature.
-	*/
-	operator istr const &() const {
-		return *static_cast<istr const *>(static_cast<str_base const *>(this));
 	}
 
 
@@ -972,9 +992,7 @@ class to_str_backend<mstr_<C, TTraits>> :
 	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		to_str_backend<str_base_<C, TTraits>>(crFormat) {
@@ -1001,8 +1019,8 @@ struct hash<abc::mstr_<C, TTraits>> :
 
 namespace abc {
 
-/** mstr_-derived class, good for clients that need in-place manipulation of strings whose length
-is unknown at design time.
+/** mstr_-derived class, good for clients that need in-place manipulation of strings whose length is
+unknown at design time.
 */
 template <typename C, class TTraits /*= text::utf_traits<C>*/>
 class dmstr_ :
@@ -1023,24 +1041,35 @@ public:
 	}
 	dmstr_(dmstr_ const & s) :
 		mstr(0) {
-		operator=(s);
+		assign_copy(s.data(), s.size());
 	}
 	dmstr_(dmstr_ && s) :
 		mstr(0) {
-		operator=(std::move(s));
+		assign_move(std::move(s));
 	}
-	dmstr_(str_base const & s) :
+	dmstr_(istr const & s) :
 		mstr(0) {
-		operator=(s);
+		assign_copy(s.data(), s.size());
 	}
-	dmstr_(str_base && s) :
+	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
+	dmstr_(istr && s) :
 		mstr(0) {
-		operator=(std::move(s));
+		assign_move_dynamic_or_copy(std::move(s));
+	}
+	dmstr_(mstr const & s) :
+		mstr(0) {
+		assign_copy(s.data(), s.size());
+	}
+	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
+	dmstr_(mstr && s) :
+		mstr(0) {
+		assign_move_dynamic_or_copy(std::move(s));
 	}
 	template <size_t t_cch>
 	dmstr_(C const (& ach)[t_cch]) :
 		mstr(0) {
-		operator=(ach);
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
+		assign_copy(ach, t_cch - 1 /*NUL*/);
 	}
 	dmstr_(C const * pch, size_t cch) :
 		mstr(0) {
@@ -1054,22 +1083,37 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	s
+		Source string.
+	ach
+		Source NUL-terminated string literal.
+	return
+		*this.
 	*/
 	dmstr_ & operator=(dmstr_ const & s) {
-		mstr::operator=(s);
+		assign_copy(s.data(), s.size());
 		return *this;
 	}
 	dmstr_ & operator=(dmstr_ && s) {
-		mstr::operator=(std::move(s));
+		assign_move(std::move(s));
 		return *this;
 	}
-	dmstr_ & operator=(str_base const & s) {
-		mstr::operator=(s);
+	dmstr_ & operator=(istr const & s) {
+		assign_copy(s.data(), s.size());
 		return *this;
 	}
-	dmstr_ & operator=(str_base && s) {
-		mstr::operator=(std::move(s));
+	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
+	dmstr_ & operator=(istr && s) {
+		assign_move_dynamic_or_copy(std::move(s));
+		return *this;
+	}
+	dmstr_ & operator=(mstr const & s) {
+		assign_copy(s.data(), s.size());
+		return *this;
+	}
+	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
+	dmstr_ & operator=(mstr && s) {
+		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
@@ -1118,6 +1162,7 @@ inline abc::dmstr_<C, TTraits> operator+(
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
+// TODO: verify that compilers actually select this overload whenever possible.
 template <typename C, class TTraits>
 inline abc::dmstr_<C, TTraits> operator+(abc::dmstr_<C, TTraits> && s, C ch) {
 	s += ch;
@@ -1138,9 +1183,7 @@ class to_str_backend<dmstr_<C, TTraits>> :
 	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		to_str_backend<str_base_<C, TTraits>>(crFormat) {
@@ -1198,63 +1241,83 @@ public:
 	}
 	smstr(smstr const & s) :
 		mstr(smc_cchFixed) {
-		operator=(s);
+		assign_copy(s.data(), s.size());
 	}
-	// This won’t throw exceptions - see operator=(smstr &&).
+	// If the source is using its static item array, it will be copied without allocating a dynamic
+	// one; if the source is dynamic, it will be moved. Either way, this won’t throw.
 	smstr(smstr && s) :
 		mstr(smc_cchFixed) {
-		operator=(std::move(s));
+		assign_move_dynamic_or_copy(std::move(s));
 	}
-	smstr(str_base const & s) :
+	smstr(istr const & s) :
 		mstr(smc_cchFixed) {
-		operator=(s);
+		assign_copy(s.data(), s.size());
 	}
-	smstr(str_base && s) :
+	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
+	smstr(istr && s) :
 		mstr(smc_cchFixed) {
-		operator=(std::move(s));
+		assign_move_dynamic_or_copy(std::move(s));
+	}
+	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
+	// This also covers smstr_ of different template arguments.
+	smstr(mstr && s) :
+		mstr(smc_cchFixed) {
+		assign_move_dynamic_or_copy(std::move(s));
 	}
 	smstr(dmstr && s) :
 		mstr(smc_cchFixed) {
-		operator=(std::move(s));
+		assign_move(std::move(s));
 	}
 	template <size_t t_cch>
 	smstr(C const (& ach)[t_cch]) :
 		mstr(smc_cchFixed) {
-		operator=(ach);
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
+		assign_copy(ach, t_cch - 1 /*NUL*/);
 	}
 
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	s
+		Source string.
+	ach
+		Source NUL-terminated string literal.
+	return
+		*this.
 	*/
 	smstr & operator=(smstr const & s) {
-		mstr::operator=(s);
+		assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// If the source is using its static item array, it will be copied without allocating a dynamic
 	// one; if the source is dynamic, it will be moved. Either way, this won’t throw.
 	smstr & operator=(smstr && s) {
-		mstr::operator=(std::move(s));
+		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
-	// This also covers smstr of different template arguments.
-	smstr & operator=(str_base const & s) {
-		mstr::operator=(s);
+	smstr & operator=(istr const & s) {
+		assign_copy(s.data(), s.size());
 		return *this;
 	}
-	// This also covers smstr of different template arguments.
-	smstr & operator=(str_base && s) {
-		mstr::operator=(std::move(s));
+	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
+	smstr & operator=(istr && s) {
+		assign_move_dynamic_or_copy(std::move(s));
+		return *this;
+	}
+	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
+	// This also covers smstr_ of different template arguments.
+	smstr & operator=(mstr && s) {
+		assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	smstr & operator=(dmstr && s) {
-		mstr::operator=(std::move(s));
+		assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
 	smstr & operator=(C const (& ach)[t_cch]) {
-		mstr::operator=(ach);
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
+		assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
 

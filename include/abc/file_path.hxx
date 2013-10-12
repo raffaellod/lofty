@@ -85,9 +85,6 @@ public:
 	file_path(mstr && s) :
 		m_s(normalize(std::move(s))) {
 	}
-	file_path(dmstr && s) :
-		m_s(normalize(std::move(s))) {
-	}
 
 
 	/** Assignment operator.
