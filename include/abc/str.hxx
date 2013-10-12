@@ -696,21 +696,21 @@ public:
 	}
 	istr_(istr_ const & s) :
 		str_base(0) {
-		assign_share_ro_or_copy(s);
+		this->assign_share_ro_or_copy(s);
 	}
 	istr_(istr_ && s) :
 		str_base(0) {
 		// Non-const, so it can’t be anything but a real istr_, so it owns its item array.
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
 	istr_(mstr && s) :
 		str_base(0) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	istr_(dmstr && s) :
 		str_base(0) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 	}
 	template <size_t t_cch>
 	istr_(C const (& ach)[t_cch]) :
@@ -719,7 +719,7 @@ public:
 	}
 	istr_(C const * psz, size_t cch) :
 		str_base(0) {
-		assign_copy(psz, cch);
+		this->assign_copy(psz, cch);
 	}
 	istr_(unsafe_t, C const * psz) :
 		str_base(psz, TTraits::str_len(psz)) {
@@ -739,21 +739,21 @@ public:
 		*this.
 	*/
 	istr_ & operator=(istr_ const & s) {
-		assign_share_ro_or_copy(s);
+		this->assign_share_ro_or_copy(s);
 		return *this;
 	}
 	istr_ & operator=(istr_ && s) {
 		// Non-const, so it can’t be anything but a real istr_, so it owns its item array.
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
 	istr_ & operator=(mstr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	istr_ & operator=(dmstr && s) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
@@ -837,26 +837,26 @@ public:
 		*this.
 	*/
 	mstr_ & operator=(mstr_ const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	mstr_ & operator=(istr const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the mstr_ && overload.
 	mstr_ & operator=(istr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	mstr_ & operator=(dmstr && s) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
 	mstr_ & operator=(C const (& ach)[t_cch]) {
 		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
-		assign_copy(ach, t_cch - 1 /*NUL*/);
+		this->assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
 
@@ -1041,43 +1041,43 @@ public:
 	}
 	dmstr_(dmstr_ const & s) :
 		mstr(0) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 	}
 	dmstr_(dmstr_ && s) :
 		mstr(0) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 	}
 	dmstr_(istr const & s) :
 		mstr(0) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
 	dmstr_(istr && s) :
 		mstr(0) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	dmstr_(mstr const & s) :
 		mstr(0) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
 	dmstr_(mstr && s) :
 		mstr(0) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	template <size_t t_cch>
 	dmstr_(C const (& ach)[t_cch]) :
 		mstr(0) {
 		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
-		assign_copy(ach, t_cch - 1 /*NUL*/);
+		this->assign_copy(ach, t_cch - 1 /*NUL*/);
 	}
 	dmstr_(C const * pch, size_t cch) :
 		mstr(0) {
-		assign_copy(pch, cch);
+		this->assign_copy(pch, cch);
 	}
 	dmstr_(C const * pch1, size_t cch1, C const * pch2, size_t cch2) :
 		mstr(0) {
-		assign_copy(pch1, cch1, pch2, cch2);
+		this->assign_copy(pch1, cch1, pch2, cch2);
 	}
 
 
@@ -1091,34 +1091,35 @@ public:
 		*this.
 	*/
 	dmstr_ & operator=(dmstr_ const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	dmstr_ & operator=(dmstr_ && s) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 		return *this;
 	}
 	dmstr_ & operator=(istr const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
 	dmstr_ & operator=(istr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	dmstr_ & operator=(mstr const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
 	dmstr_ & operator=(mstr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
 	dmstr_ & operator=(C const (& ach)[t_cch]) {
-		mstr::operator=(ach);
+		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
+		this->assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
 };
