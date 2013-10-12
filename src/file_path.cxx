@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #if ABC_HOST_API_POSIX
 	#include <errno.h> // errno E*
 	#include <sys/stat.h> // S_*, stat()
+	#include <unistd.h> // getcwd()
 #endif
 
 
