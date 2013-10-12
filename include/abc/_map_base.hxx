@@ -582,11 +582,11 @@ struct _raw_complex_map_impl :
 	}
 
 
-	/** See the template version _map_impl::remove_all().
+	/** See the template version _map_impl::clear().
 
 	TODO: comment signature.
 	*/
-	void remove_all(void_cda const & typeKey, void_cda const & typeVal) {
+	void clear(void_cda const & typeKey, void_cda const & typeVal) {
 		release_desc(typeKey, typeVal);
 		// Switch to the embedded descriptor and empty it.
 		m_prmd = get_embedded_desc();

@@ -89,8 +89,6 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 
 	/** Destructs every key and value in the descriptor, then releases it.
-
-	TODO: comment signature.
 	*/
 	void release_desc() {
 		_raw_complex_map_impl::release_desc(type_raw_cda<TKey>(), type_raw_cda<TVal>());
@@ -107,11 +105,9 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 
 	/** Removes all items from the map.
-
-	TODO: comment signature.
 	*/
-	void remove_all() {
-		_raw_complex_map_impl::remove_all(type_raw_cda<TKey>(), type_raw_cda<TVal>());
+	void clear() {
+		_raw_complex_map_impl::clear(type_raw_cda<TKey>(), type_raw_cda<TVal>());
 	}
 
 
@@ -257,21 +253,18 @@ public:
 
 	/** Removes an item from the map.
 
-	TODO: comment signature.
+	key
+		Key associated to the item to be removed.
 	*/
-	TMap & remove(TKey const & key) {
+	void remove(TKey const & key) {
 		_raw_map_cast()->remove(key, key_hash(key));
-		return *static_cast<TMap *>(this);
 	}
 
 
 	/** Removes all the items in the map.
-
-	TODO: comment signature.
 	*/
-	TMap & remove_all() {
-		_raw_map_cast()->remove_all();
-		return *static_cast<TMap *>(this);
+	void clear() {
+		_raw_map_cast()->clear();
 	}
 
 

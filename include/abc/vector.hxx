@@ -114,11 +114,9 @@ public:
 
 
 #if 0
-	/** See vector::remove_all().
-
-	TODO: comment signature.
+	/** See vector::clear().
 	*/
-	void remove_all() {
+	void clear() {
 		this->~_raw_vector();
 		construct_empty();
 	}
@@ -211,11 +209,9 @@ public:
 
 
 #if 0
-	/** See vector::remove_all().
-
-	TODO: comment signature.
+	/** See vector::clear().
 	*/
-	void remove_all() {
+	void clear() {
 		this->~_raw_vector();
 		construct_empty();
 	}
@@ -493,11 +489,9 @@ public:
 
 
 	/** Removes all the elements in the vector.
-
-	TODO: comment signature.
 	*/
-	void remove_all() {
-		raw_vector::remove_all();
+	void clear() {
+		raw_vector::clear();
 	}
 
 
