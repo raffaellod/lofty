@@ -212,7 +212,7 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
 	I iRest(i);
 	if (m_iBaseOrShift == 10) {
 		// Base 10: must use % and /.
-		I iDivider(m_iBaseOrShift);
+		I iDivider((I(m_iBaseOrShift)));
 		while (iRest) {
 			I iMod(iRest % iDivider);
 			iRest /= iDivider;

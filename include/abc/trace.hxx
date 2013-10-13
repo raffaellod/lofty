@@ -99,7 +99,7 @@ Currently unsupported:
 */
 #define _abc_trace_scope_impl(var, args) \
 	auto var(abc::_scope_trace_impl::make args ); \
-	var._set_context(__FILE__, __LINE__, _ABC_THIS_FUNC)
+	var._set_context(__FILE__, uint16_t(__LINE__), _ABC_THIS_FUNC)
 
 
 /** Tracks local variables, to be used during e.g. a stack unwind. */

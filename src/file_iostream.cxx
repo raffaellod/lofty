@@ -128,7 +128,7 @@ file_istream::file_istream(file_path const & fp) :
 		m_enc = text::guess_encoding(
 			pRawReadBuf,
 			m_cbReadBufUsed,
-			m_pfile->has_size() ? std::min<fileint_t>(m_pfile->size(), smc_cbAlignedMax) : 0,
+			m_pfile->has_size() ? size_t(std::min<fileint_t>(m_pfile->size(), smc_cbAlignedMax)) : 0,
 			&cbBom
 		);
 		if (cbBom) {

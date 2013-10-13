@@ -320,7 +320,7 @@ _ABC_API_SYM encoding guess_encoding(
 			for (unsigned ess(ESS_UTF16LE); ess <= ESS_UTF16BE; ess <<= 2) {
 				// This will go ahead with the check if ib is indexing the most significant byte, i.e.
 				// odd for LE and even for BE.
-				if ((fess & ess) && (ib & sizeof(char16_t)) == (ess != ESS_UTF16LE)) {
+				if ((fess & ess) && ((ib & sizeof(char16_t)) != 0) == (ess != ESS_UTF16LE)) {
 					switch (b & 0xfc) {
 						case 0xd8: {
 							// There must be a surrogate second after 1 byte, and there have to be enough
