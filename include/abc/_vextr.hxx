@@ -854,6 +854,14 @@ public:
 	void assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi);
 
 
+	/** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
+	contained items instead.
+
+	TODO: comment signature.
+	*/
+	void assign_move_dynamic_or_copy(void_cda const & type, _raw_complex_vextr_impl && rcvi);
+
+
 	/** Destructs a range of items, or the whole item array. It does not deallocate the item array.
 
 	TODO: comment signature.
@@ -879,11 +887,11 @@ public:
 	}
 
 
-	/** See _raw_vector::remove().
+	/** See _raw_vector::remove_at().
 
 	TODO: comment signature.
 	*/
-	void remove(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
+	void remove_at(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
 
 
 	/** See _raw_vector::set_capacity().
@@ -987,19 +995,7 @@ public:
 	*/
 	void assign_move_dynamic_or_copy(
 		size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
-	) {
-		if (rtvi.m_p == m_p) {
-			return;
-		}
-		if (rtvi.m_rvpd.get_bDynamic()) {
-			assign_move(std::move(rtvi), bNulT);
-		} else {
-			// Can’t move, so copy instead.
-			assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
-			// And now empty the source.
-			rtvi.assign_empty(bNulT);
-		}
-	}
+	);
 
 
 	/** Shares the source’s item array if read-only, else copies it to *this.
@@ -1035,11 +1031,11 @@ public:
 	}
 
 
-	/** See _raw_vector::remove().
+	/** See _raw_vector::remove_at().
 
 	TODO: comment signature.
 	*/
-	void remove(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
+	void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
 		adjust_range(&iOffset, &ciRemove, bNulT);
 		if (ciRemove) {
 			_insert_or_remove(cbItem, size_t(iOffset), NULL, 0, size_t(ciRemove), bNulT);
@@ -1078,7 +1074,7 @@ private:
 	void _assign_share(_raw_trivial_vextr_impl const & rtvi);
 
 
-	/** Actual implementation append(), insert() and remove(). It only validates pAdd.
+	/** Actual implementation append(), insert() and remove_at().
 
 	TODO: comment signature.
 	*/

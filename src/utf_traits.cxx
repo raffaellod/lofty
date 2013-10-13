@@ -38,7 +38,7 @@ TODO: comment signature.
 */
 template <typename C>
 static void _build_failure_restart_table(
-	C const * pchNeedleBegin, C const * pchNeedleEnd, buffered_vector<size_t> * pvcchFailNext
+	C const * pchNeedleBegin, C const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
 ) {
 	abc_trace_fn((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
 
@@ -354,7 +354,7 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 		*/
 
 		// Build the failure restart table.
-		vector<size_t, 64> vcchFailNext;
+		smvector<size_t, 64> vcchFailNext;
 		_build_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
 		size_t const * pcchFailNext(vcchFailNext.data());
 

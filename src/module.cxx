@@ -240,7 +240,7 @@ module_impl_base::module_impl_base() :
 #else
 	#error TODO-PORT: HOST_API
 #endif
-	buffered_vector<istr const> * pvsRet
+	mvector<istr const> * pvsRet
 ) {
 #if ABC_HOST_API_POSIX
 	abc_trace_fn((cArgs, ppszArgs, pvsRet));

@@ -475,7 +475,7 @@ protected:
 #else
 	#error TODO-PORT: HOST_API
 #endif
-		buffered_vector<istr const> * pvsRet
+		mvector<istr const> * pvsRet
 	);
 
 
@@ -548,7 +548,7 @@ public:
 
 			// Use a vector<istr const> to avoid dynamic allocation of the vector’s array for just a
 			// few arguments.
-			vector<istr const, 8> vsArgs;
+			smvector<istr const, 8> vsArgs;
 			_build_args(cArgs, ppszArgs, &vsArgs);
 
 			// Invoke the program-defined main().
@@ -581,7 +581,7 @@ public:
 			_preconstruct(hinst);
 			T t;
 
-			vector<istr const, 8> vsArgs;
+			smvector<istr const, 8> vsArgs;
 
 			// Invoke the program-defined main().
 			return t.main(vsArgs);
@@ -659,7 +659,7 @@ public:
 	return
 		Return code of the program.
 	*/
-	int main(vector<istr const> const & vsArgs) {
+	int main(mvector<istr const> const & vsArgs) {
 		UNUSED_ARG(vsArgs);
 		return EXIT_SUCCESS;
 	}

@@ -309,7 +309,27 @@ void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_ve
 }
 
 
-void _raw_complex_vextr_impl::remove(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove) {
+void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
+	void_cda const & type, _raw_complex_vextr_impl && rcvi
+) {
+	if (rcvi.m_p == m_p) {
+		return;
+	}
+	if (rcvi.m_rvpd.get_bDynamic()) {
+		assign_move(type, std::move(rcvi));
+	} else {
+		// Can’t move, so use a different item array and move the items to it instead.
+		assign_copy(type, rcvi.m_p, rcvi.size(), true);
+		// And now empty the source.
+		rcvi.destruct_items(type);
+		rcvi.assign_empty();
+	}
+}
+
+
+void _raw_complex_vextr_impl::remove_at(
+	void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
+) {
 	abc_trace_fn((this, /*type, */iOffset, ciRemove));
 
 	adjust_range(&iOffset, &ciRemove);
@@ -434,6 +454,23 @@ void _raw_trivial_vextr_impl::assign_copy(
 	}
 
 	trn.commit(cbItem, bNulT);
+}
+
+
+void _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
+	size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT /*= false*/
+) {
+	if (rtvi.m_p == m_p) {
+		return;
+	}
+	if (rtvi.m_rvpd.get_bDynamic()) {
+		assign_move(std::move(rtvi), bNulT);
+	} else {
+		// Can’t move, so copy instead.
+		assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
+		// And now empty the source.
+		rtvi.assign_empty(bNulT);
+	}
 }
 
 

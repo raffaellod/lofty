@@ -87,7 +87,7 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<istr const> const & vsArgs) {
+	int main(mvector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
@@ -95,14 +95,15 @@ public:
 
 		// Simple manipulation tests.
 		{
-			vector<int> v;
+			dmvector<int> v;
 
 			v.append(1);
 			if (v.size() != 1 || v[0] != 1) {
 				return 1;
 			}
 
-			v = v + (vector<int>() += 2) + v;
+			v = v + v;
+			v.insert(1, 2);
 			if (v.size() != 3 || v[0] != 1 || v[1] != 2 || v[2] != 1) {
 				return 2;
 			}
@@ -132,7 +133,7 @@ public:
 				return 7;
 			}
 
-			v.remove(it1);
+			v.remove_at(it1);
 			if (v.size() != 2 || v[0] != 2 || v[1] != 3) {
 				return 8;
 			}
@@ -141,14 +142,14 @@ public:
 		// Try mix’n’matching vectors of different sizes, and check that vectors using static
 		// descriptors only switch to dynamic descriptors if necessary.
 		{
-			vector<int> v0;
+			dmvector<int> v0;
 			pi = v0.data();
 			v0.append(0);
 			if (v0.data() == pi) {
 				return 50;
 			}
 
-			vector<int, 3> v1;
+			smvector<int, 3> v1;
 			pi = v1.data();
 			v1.append(1);
 			if (v1.data() == pi) {
@@ -160,7 +161,7 @@ public:
 				return 52;
 			}
 
-			vector<int, 1> v2;
+			smvector<int, 1> v2;
 			pi = v2.data();
 			v2.append(3);
 			if (v2.data() == pi) {
@@ -196,7 +197,7 @@ public:
 		// Check that returning a vector with a dynamically allocated descriptor does not cause a new
 		// descriptor to be allocated, nor copies the items.
 		{
-			vector<test_with_ptr> v(move_constr_test(&pi));
+			dmvector<test_with_ptr> v(move_constr_test(&pi));
 			if (v[0].get_ptr() != pi) {
 				return 100;
 			}
@@ -213,7 +214,7 @@ public:
 		// Check that returning a vector with a dynamically allocated descriptor into a vector with a
 		// statically allocated descriptor causes the items to be moved to the static descriptor.
 		{
-			vector<test_with_ptr, 2> v(move_constr_test(&pi));
+			smvector<test_with_ptr, 2> v(move_constr_test(&pi));
 			if (v[0].get_ptr() != pi) {
 				return 130;
 			}
@@ -232,9 +233,9 @@ public:
 
 	TODO: comment signature.
 	*/
-	vector<test_with_ptr> move_constr_test(int const ** ppi) {
+	dmvector<test_with_ptr> move_constr_test(int const ** ppi) {
 		// vector::vector();
-		vector<test_with_ptr> v;
+		dmvector<test_with_ptr> v;
 		// test_with_ptr::test_with_ptr();
 		// vector::add(T && t);
 		v.append(test_with_ptr());

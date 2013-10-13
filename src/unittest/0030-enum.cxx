@@ -33,7 +33,7 @@ class test_module :
 	public module_impl<test_module> {
 public:
 
-	int main(vector<istr const> const & vsArgs) {
+	int main(mvector<istr const> const & vsArgs) {
 		abc_trace_fn((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
