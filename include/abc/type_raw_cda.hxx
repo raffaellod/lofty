@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_TYPE_RAW_CDA_HXX
 
 #include <abc/core.hxx>
+#include <type_traits>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
@@ -118,7 +119,13 @@ struct typed_raw_cda {
 		if (std::has_trivial_copy_constructor<T>::value) {
 			// No constructor, fastest copy possible.
 			memory::copy(ptDst, ptSrc, ci);
-		} else if (std::has_nothrow_copy_constructor<T>::value) {
+		} else if (
+#if defined(_GCC_VER) && _GCC_VER >= 40700
+			std::is_nothrow_copy_constructible<T>::value
+#else
+			std::has_nothrow_copy_constructor<T>::value
+#endif
+		) {
 			// Not trivial, but it won’t throw either.
 			for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
 				::new(ptDst) T(*ptSrc);
