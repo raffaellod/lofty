@@ -58,7 +58,7 @@ protected:
 
 	/** Releases any objects constructed by file_?stream::_construct_std_file_?stream().
 	*/
-	static void _release_std_file_streams();
+	static void ABC_FUNC_C_CALLBACK _release_std_file_streams();
 
 
 protected:

@@ -533,7 +533,7 @@ filedesc file::_post_open(filedesc && fd) {
 }
 
 
-/*static*/ void file::_release_std_files() {
+/*static*/ void ABC_FUNC_C_CALLBACK file::_release_std_files() {
 	abc_trace_fn(());
 
 	// TODO: mutex!
