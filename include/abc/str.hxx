@@ -310,13 +310,16 @@ public:
 		Const reference to *this as an immutable string.
 	*/
 	operator istr const &() const {
-		return *static_cast<istr const *>(this);
+		return static_cast<istr const &>(*this);
 	}
 
 
 	/** Character access operator.
 
-	TODO: comment signature.
+	i
+		Character index.
+	return
+		Character at index i.
 	*/
 	C operator[](size_t i) const {
 		if (i > size()) {
@@ -882,9 +885,7 @@ public:
 	}
 
 
-	/** Item access operator.
-
-	TODO: comment signature.
+	/** See str_base_::operator[]().
 	*/
 	C & operator[](size_t i) {
 		if (i > str_base::size()) {
@@ -1067,7 +1068,7 @@ public:
 		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	template <size_t t_cch>
-	dmstr_(C const (& ach)[t_cch]) :
+	explicit dmstr_(C const (& ach)[t_cch]) :
 		mstr(0) {
 		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
 		this->assign_copy(ach, t_cch - 1 /*NUL*/);
@@ -1164,7 +1165,7 @@ inline abc::dmstr_<C, TTraits> operator+(
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
-// TODO: verify that compilers actually select this overload whenever possible.
+// TODO: verify that compilers actually select these overloads whenever possible.
 template <typename C, class TTraits>
 inline abc::dmstr_<C, TTraits> operator+(abc::dmstr_<C, TTraits> && s, C ch) {
 	s += ch;
@@ -1243,38 +1244,38 @@ public:
 	}
 	smstr(smstr const & s) :
 		mstr(smc_cchFixed) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 	}
 	// If the source is using its static item array, it will be copied without allocating a dynamic
 	// one; if the source is dynamic, it will be moved. Either way, this won’t throw.
 	smstr(smstr && s) :
 		mstr(smc_cchFixed) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	smstr(istr const & s) :
 		mstr(smc_cchFixed) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
 	smstr(istr && s) :
 		mstr(smc_cchFixed) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
 	// This also covers smstr_ of different template arguments.
 	smstr(mstr && s) :
 		mstr(smc_cchFixed) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 	}
 	smstr(dmstr && s) :
 		mstr(smc_cchFixed) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 	}
 	template <size_t t_cch>
-	smstr(C const (& ach)[t_cch]) :
+	explicit smstr(C const (& ach)[t_cch]) :
 		mstr(smc_cchFixed) {
 		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
-		assign_copy(ach, t_cch - 1 /*NUL*/);
+		this->assign_copy(ach, t_cch - 1 /*NUL*/);
 	}
 
 
@@ -1288,38 +1289,38 @@ public:
 		*this.
 	*/
 	smstr & operator=(smstr const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// If the source is using its static item array, it will be copied without allocating a dynamic
 	// one; if the source is dynamic, it will be moved. Either way, this won’t throw.
 	smstr & operator=(smstr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	smstr & operator=(istr const & s) {
-		assign_copy(s.data(), s.size());
+		this->assign_copy(s.data(), s.size());
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
 	smstr & operator=(istr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	// This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
 	// This also covers smstr_ of different template arguments.
 	smstr & operator=(mstr && s) {
-		assign_move_dynamic_or_copy(std::move(s));
+		this->assign_move_dynamic_or_copy(std::move(s));
 		return *this;
 	}
 	smstr & operator=(dmstr && s) {
-		assign_move(std::move(s));
+		this->assign_move(std::move(s));
 		return *this;
 	}
 	template <size_t t_cch>
 	smstr & operator=(C const (& ach)[t_cch]) {
 		assert(ach[t_cch - 1 /*NUL*/] == CL('\0'));
-		assign_copy(ach, t_cch - 1 /*NUL*/);
+		this->assign_copy(ach, t_cch - 1 /*NUL*/);
 		return *this;
 	}
 
