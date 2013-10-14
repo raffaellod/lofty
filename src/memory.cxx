@@ -47,42 +47,33 @@ void free(T * pt);
 	#pragma warning(disable: 4986)
 #endif
 
-// In Win32, MSC expects ::new() and ::delete() to use the cdecl calling convention.
-#if defined(_MSC_VER) && ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-	#define operator __cdecl operator
-#endif
-
-void * operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
-void * operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
 	return abc::memory::_raw_alloc(cb);
 }
-void * operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void * ABC_STL_CALLCONV operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	return ::malloc(cb);
 }
-void * operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	return ::malloc(cb);
 }
 
 
-void operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
-void operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
 	abc::memory::free(p);
 }
 
-
-#ifdef operator
-	#undef operator
-#endif
 
 #ifdef _MSC_VER
 	#pragma warning(pop)

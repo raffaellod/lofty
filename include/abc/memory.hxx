@@ -72,7 +72,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	#define _abc_alloca(cb) \
 		__builtin_alloca((cb))
 #elif defined(_MSC_VER)
-	extern "C" void * __cdecl _alloca(size_t cb);
+	extern "C" void * ABC_STL_CALLCONV _alloca(size_t cb);
 	#define _abc_alloca(cb) \
 		_alloca(cb)
 #endif
@@ -89,25 +89,16 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4986)
 #endif
 
-// In Win32, MSC (only?) expects ::new() and ::delete() to use the cdecl calling convention.
-#if defined(_MSC_VER) && ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-	#define operator __cdecl operator
-#endif
-
-void * operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
-void * operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * ABC_STL_CALLCONV operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * ABC_STL_CALLCONV operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 
-void operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
-void operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
-void operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
-void operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
-
-#ifdef operator
-	#undef operator
-#endif
+void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
+void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
+void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 #ifdef _MSC_VER
 	#pragma warning(pop)

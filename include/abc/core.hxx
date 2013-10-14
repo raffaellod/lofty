@@ -255,12 +255,12 @@ constructor (N2346). */
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - non-standard, but commonly available, extensions
 
-/** Declares a function as a C callback, i.e. the function uses a calling convention appropriate for
-a C callback. */
+/** Declares a function as using the same calling convention as the host C library/STL
+implementation. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-	#define ABC_FUNC_C_CALLBACK __cdecl
+	#define ABC_STL_CALLCONV __cdecl
 #else
-	#define ABC_FUNC_C_CALLBACK
+	#define ABC_STL_CALLCONV
 #endif
 
 /** If defined, the compiler supports #pragma once, which tells the preprocessor not to parsing a

@@ -59,7 +59,7 @@ file_stream_base::file_stream_base(
 }
 
 
-/*static*/ void ABC_FUNC_C_CALLBACK file_stream_base::_release_std_file_streams() {
+/*static*/ void ABC_STL_CALLCONV file_stream_base::_release_std_file_streams() {
 	// TODO: mutex!
 	// Destruct the shared pointers, which will allow the files to be released if these were the last
 	// strong references to them.

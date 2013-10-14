@@ -319,7 +319,7 @@ private:
 
 	/** Releases any objects constructed by _construct_std_file().
 	*/
-	static void ABC_FUNC_C_CALLBACK _release_std_files();
+	static void ABC_STL_CALLCONV _release_std_files();
 
 
 private:
