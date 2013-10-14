@@ -26,21 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // :: globals - standard new/delete operators
 
 
-// Forward declarations.
-namespace abc {
-
-namespace memory {
-
-void * _raw_alloc(size_t cb);
-
-template <typename T>
-void free(T * pt);
-
-} //namespace memory
-
-} //namespace abc
-
-
 #ifdef _MSC_VER
 	#pragma warning(push)
 	// “'operator': exception specification does not match previous declaration”
