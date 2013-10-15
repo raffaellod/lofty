@@ -738,6 +738,14 @@ protected:
 	}
 
 
+	/** Throws an exception if the specified index is out of bounds for the item array.
+
+	i
+		Index to validate.
+	*/
+	void validate_index(intptr_t i) const;
+
+
 protected:
 
 	/** Pointer to the item array. */

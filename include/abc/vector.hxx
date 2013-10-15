@@ -277,10 +277,8 @@ public:
 	return
 		Element at index i.
 	*/
-	T const & operator[](size_t i) const {
-		if (i >= size()) {
-			abc_throw(index_error, (intptr_t(i)));
-		}
+	T const & operator[](intptr_t i) const {
+		this->validate_index(i);
 		return data()[i];
 	}
 
@@ -498,10 +496,10 @@ public:
 
 	/** See vector_base::operator[]().
 	*/
-	T & operator[](size_t i) {
+	T & operator[](intptr_t i) {
 		return const_cast<T &>(vector_base<T>::operator[](i));
 	}
-	T const & operator[](size_t i) const {
+	T const & operator[](intptr_t i) const {
 		return vector_base<T>::operator[](i);
 	}
 

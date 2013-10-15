@@ -321,10 +321,8 @@ public:
 	return
 		Character at index i.
 	*/
-	C operator[](size_t i) const {
-		if (i > size()) {
-			abc_throw(index_error, (intptr_t(i)));
-		}
+	C operator[](intptr_t i) const {
+		this->validate_index(i);
 		return data()[i];
 	}
 
