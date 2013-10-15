@@ -458,7 +458,7 @@ public:
 		TODO: comment signature. \
 		*/ \
 		void write(C const (& ach)[t_cch], ostream * posOut) { \
-			assert(ach[t_cch - 1 /*NUL*/] == CL('\0')); \
+			assert(ach[t_cch - 1 /*NUL*/] == '\0'); \
 			str_to_str_backend::write( \
 				ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
 			); \
