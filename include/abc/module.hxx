@@ -41,7 +41,7 @@ namespace abc {
 */
 #if ABC_OUTPUT_POSIX_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		extern "C" int main(int cArgs, char_t ** ppszArgs) { \
+		extern "C" int main(int cArgs, char ** ppszArgs) { \
 			return cls::entry_point_main(cArgs, ppszArgs); \
 		}
 #elif ABC_OUTPUT_WIN32_EXE
