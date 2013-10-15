@@ -600,8 +600,9 @@ public:
 	/** Destructor.
 	*/
 	~_raw_vextr_impl_base() {
-		if (m_rvpd.get_bDynamic())
+		if (m_rvpd.get_bDynamic()) {
 			memory::free(m_p);
+		}
 	}
 
 
