@@ -606,6 +606,19 @@ public:
 	}
 
 
+	/** See buffered_vector::capacity() and _raw_str::capacity().
+
+	[bNulT]
+		true if the item array is NUL-terminated, or false otherwise.
+	return
+		Count of item slots in the item array.
+	*/
+	size_t capacity(bool bNulT = false) const {
+		size_t ciMax(m_rvpd.get_ciMax());
+		return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
+	}
+
+
 	/** Returns a pointer to the item array.
 
 	return
@@ -618,19 +631,6 @@ public:
 	template <typename T>
 	T const * data() const {
 		return static_cast<T const *>(m_p);
-	}
-
-
-	/** See buffered_vector::capacity() and _raw_str::capacity().
-
-	[bNulT]
-		true if the item array is NUL-terminated, or false otherwise.
-	return
-		Count of item slots in the item array.
-	*/
-	size_t capacity(bool bNulT = false) const {
-		size_t ciMax(m_rvpd.get_ciMax());
-		return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
 	}
 
 
@@ -692,6 +692,16 @@ protected:
 	}
 
 
+	/** Returns true if m_p points to a read-only item array.
+
+	TODO: comment signature.
+	*/
+	bool is_item_array_readonly() const {
+		// No capacity means read-only item array.
+		return m_rvpd.get_ciMax() == 0;
+	}
+
+
 	/** Returns a pointer to the static item array that follows this object, if present, or NULL
 	otherwise.
 
@@ -707,16 +717,6 @@ protected:
 	TODO: comment signature.
 	*/
 	size_t static_capacity() const;
-
-
-	/** Returns true if m_p points to a read-only item array.
-
-	TODO: comment signature.
-	*/
-	bool is_item_array_readonly() const {
-		// No capacity means read-only item array.
-		return m_rvpd.get_ciMax() == 0;
-	}
 
 
 	/** Puts a NUL terminator at the provided address.
