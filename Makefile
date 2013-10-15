@@ -35,6 +35,9 @@ LDFLAGS+=-L$(O)lib
 all: \
 	$(O)lib/libabc$(LIBEXT)
 
+test: \
+	$(O)bin/abc-test$(EXEEXT)
+
 check: \
 	$(O)test.tmp/unittest/0005-cppmacros.cxx.i.log \
 	$(O)test.tmp/unittest/0010-module.ut.log \
@@ -77,6 +80,17 @@ $(O)lib/libabc$(LIBEXT): \
 	$(O)obj/utf_traits.cxx$(OBJEXT) \
 	$(O)obj/_vextr.cxx$(OBJEXT)
 #	$(O)obj/subproc$(OBJEXT)
+
+# Testing support library.
+$(O)lib/libabc-testing$(LIBEXT): \
+	$(O)obj/testing/module.cxx$(OBJEXT)
+
+# Test suite.
+$(O)bin/abc-test$(EXEEXT): \
+	$(O)obj/test/abc-test.cxx$(OBJEXT) \
+	| $(O)lib/libabc$(LIBEXT) \
+	  $(O)lib/libabc-testing$(LIBEXT)
+$(O)bin/abc-test$(EXEEXT): LDLIBS+=-labc-testing
 
 # Test programs.
 $(O)bin/unittest/0010-module$(EXEEXT): \

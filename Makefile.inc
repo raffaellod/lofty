@@ -150,6 +150,10 @@ dist:
 
 # Performs self-tests (if any). The user must build the program before running the tests, but needs
 # not install the program.
+.PHONY: test
+
+# Performs self-tests (if any). The user must build the program before running the tests, but needs
+# not install the program.
 .PHONY: check
 check:
 	$(Q)$(ABC_PATH)tools/makecheck.py --summary $^
