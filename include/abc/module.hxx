@@ -422,7 +422,7 @@ public:
 	*/
 	~module_impl_base() {
 #if ABC_HOST_API_WIN32
-		assert(m_cRefs == 0);
+		ABC_ASSERT(m_cRefs == 0);
 #endif
 		g_pmib = NULL;
 	}

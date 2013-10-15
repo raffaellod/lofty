@@ -393,16 +393,15 @@ to be incorrect.
 
 TODO: comment signature.
 */
-#undef assert
 #ifdef DEBUG
-	#define assert(expr) \
+	#define ABC_ASSERT(expr) \
 		do { \
 			if (!(expr)) { \
 				abc::assertion_error::_assertion_failed(__FILE__, __LINE__, _ABC_THIS_FUNC, #expr); \
 			} \
 		} while (0)
 #else
-	#define assert(expr) \
+	#define ABC_ASSERT(expr) \
 		static_cast<void>(0)
 #endif
 

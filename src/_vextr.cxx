@@ -303,7 +303,7 @@ void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_ve
 	if (rcvi.m_p == m_p) {
 		return;
 	}
-	assert(rcvi.m_rvpd.get_bDynamic());
+	ABC_ASSERT(rcvi.m_rvpd.get_bDynamic());
 	// Discard the current contents.
 	destruct_items(type);
 	this->~_raw_complex_vextr_impl();
@@ -484,10 +484,10 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
 void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi) {
 	abc_trace_fn((this/*, rtvi*/));
 
-	assert(rtvi.m_p != m_p);
+	ABC_ASSERT(rtvi.m_p != m_p);
 	// Only allow sharing read-only or dynamically-allocated item arrays (the latter only as part of
 	// moving them).
-	assert(rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic());
+	ABC_ASSERT(rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic());
 	// Discard the current contents.
 	this->~_raw_trivial_vextr_impl();
 	// Take over the dynamic array.
@@ -503,7 +503,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 ) {
 	abc_trace_fn((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
 
-	assert(ciAdd || ciRemove);
+	ABC_ASSERT(ciAdd || ciRemove);
 	transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove), bNulT);
 	size_t cbOffset(cbItem * iOffset);
 	// Regardless of an item array switch, the items beyond the insertion point (when adding) or the

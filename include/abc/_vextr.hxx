@@ -659,7 +659,7 @@ protected:
 		m_ci(ciSrc),
 		// ciMax = 0 means that the item array is read-only.
 		m_rvpd(0, false, false) {
-		assert(pConstSrc);
+		ABC_ASSERT(pConstSrc);
 	}
 
 

@@ -186,7 +186,7 @@ _ABC_API_SYM void const * get_line_terminator_bytes(
 	lts_t const * plts(
 		sc_lts[enc.base() - encoding::_charsets_offset][lterm.base() - line_terminator::_known_offset]
 	);
-	assert(plts);
+	ABC_ASSERT(plts);
 	*pcb = plts->cb;
 	return plts->p;
 }

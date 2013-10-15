@@ -482,7 +482,7 @@ public:
 		m_pchBegin(ach),
 		m_pchEnd(ach + t_cch - 1 /*NUL*/) {
 		// Cannot assert in this header file.
-		//assert(ach[t_cch - 1 /*NUL*/] == '\0');
+		//ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
 	}
 	char_range_(C const * pchBegin, size_t cch) :
 		m_pchBegin(pchBegin),

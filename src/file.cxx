@@ -391,7 +391,7 @@ size_t file::write(void const * p, size_t cb) {
 	abc_trace_fn((fd, pppf));
 
 	// TODO: mutex!
-	assert(!*pppf);
+	ABC_ASSERT(!*pppf);
 	// TODO: reduce the number of dynamic allocations.
 
 	std::unique_ptr<std::shared_ptr<file>> ppf(new std::shared_ptr<file>());

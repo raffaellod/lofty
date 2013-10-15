@@ -39,7 +39,7 @@ void throw_os_error() {
 	throw_os_error(errno);
 }
 void throw_os_error(errint_t err) {
-	assert(err != 0);
+	ABC_ASSERT(err != 0);
 	switch (err) {
 		case E2BIG: // Argument list too long (POSIX.1-2001)
 		case EBADF: // Bad file number (POSIX.1-2001)
@@ -232,7 +232,7 @@ void throw_os_error() {
 	throw_os_error(::GetLastError());
 }
 void throw_os_error(errint_t err) {
-	assert(err != ERROR_SUCCESS);
+	ABC_ASSERT(err != ERROR_SUCCESS);
 	switch (err) {
 		// TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
 		// we shouldn’t throw due to them.

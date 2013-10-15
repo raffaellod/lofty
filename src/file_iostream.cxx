@@ -117,7 +117,7 @@ file_istream::file_istream(file_path const & fp) :
 		// just use the regular read buffer instead of the (possibly too small) provided p.
 		void * pRawReadBuf(_get_read_buffer() + m_ibReadBufUsed);
 		// Since nobody set m_enc yet, the buffer must have never been used.
-		assert(!m_cbReadBufUsed);
+		ABC_ASSERT(!m_cbReadBufUsed);
 		m_cbReadBufUsed = m_pfile->read(
 			pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
 		);
@@ -227,7 +227,7 @@ file_istream::file_istream(file_path const & fp) :
 		enc = text::encoding::identity;
 	}
 	// This must have been set by a preceding call to read_raw().
-	assert(m_enc != text::encoding::unknown);
+	ABC_ASSERT(m_enc != text::encoding::unknown);
 	int8_t * pbReadBuf(_get_read_buffer());
 	if (enc == m_enc || enc == text::encoding::identity) {
 		// Optimal case: no transcoding necessary.
@@ -320,7 +320,7 @@ int8_t * file_istream::_get_read_buffer() {
 	abc_trace_fn((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
 
 	size_t cbChar(text::get_encoding_size(enc));
-	assert(cbChar > 0);
+	ABC_ASSERT(cbChar > 0);
 	// Little hack to obtain an index in range 0 to 2 (1 → 0, 2 → 1, 4 → 2), for use as bit shift
 	// count.
 	size_t cbCharLog2((0x2010u >> (cbChar - 1) * 4) & 0xf);
@@ -413,7 +413,7 @@ void file_istream::_post_construct() {
 	abc_trace_fn((/*pfile, */pppfis));
 
 	// TODO: mutex!
-	assert(!*pppfis);
+	ABC_ASSERT(!*pppfis);
 	// TODO: reduce the number of dynamic allocations.
 
 	std::unique_ptr<std::shared_ptr<file_istream>> ppfis(new std::shared_ptr<file_istream>());
@@ -517,7 +517,7 @@ file_ostream::file_ostream(file_path const & fp) :
 	abc_trace_fn((/*pfile, */pppfos));
 
 	// TODO: mutex!
-	assert(!*pppfos);
+	ABC_ASSERT(!*pppfos);
 	// TODO: reduce the number of dynamic allocations.
 
 	std::unique_ptr<std::shared_ptr<file_ostream>> ppfos(new std::shared_ptr<file_ostream>());
