@@ -39,14 +39,20 @@ unit::unit() {
 
 
 void unit::init(runner * prunner) {
+	m_prunner = prunner;
 }
 
 
-void unit::assert(bool bExpr, char const * pszExpr) {
+void unit::assert(bool bExpr, istr const & sExpr) {
+	m_prunner->log_result(bExpr, sExpr);
+	if (!bExpr) {
+		// TODO: throw.
+	}
 }
 
 
-void unit::expect(bool bExpr, char const * pszExpr) {
+void unit::expect(bool bExpr, istr const & sExpr) {
+	m_prunner->log_result(bExpr, sExpr);
 }
 
 

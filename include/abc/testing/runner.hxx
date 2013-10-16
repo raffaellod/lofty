@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
+#include <abc/str.hxx>
 
 
 
@@ -48,6 +49,11 @@ public:
 	/** Destructor.
 	*/
 	~runner();
+
+
+	/** Logs the result of a test.
+	*/
+	void log_result(bool bSuccess, istr const & sExpr);
 
 
 	/** Executes each loaded unit test.

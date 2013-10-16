@@ -75,7 +75,7 @@ protected:
 	pszExpr
 		Failed assertion.
 	*/
-	void assert(bool bExpr, char const * pszExpr);
+	void assert(bool bExpr, istr const & sExpr);
 
 
 	/** Validates an expectation.
@@ -85,7 +85,13 @@ protected:
 	pszExpr
 		Failed assertion.
 	*/
-	void expect(bool bExpr, char const * pszExpr);
+	void expect(bool bExpr, istr const & sExpr);
+
+
+protected:
+
+	/** Runner executing this test. */
+	runner * m_prunner;
 };
 
 } //namespace testing
@@ -100,7 +106,7 @@ expr
 	Expression that should evaulate to non-false (true).
 */
 #define ABC_TESTING_ASSERT(expr) \
-	this->assert(!!(expr), #expr)
+	this->assert(!!(expr), SL(#expr))
 
 
 /** Verifies that the specified expression evaluates as non-false (true).
@@ -109,7 +115,7 @@ expr
 	Expression that should evaulate to non-false (true).
 */
 #define ABC_TESTING_EXPECT(expr) \
-	this->expect(!!(expr), #expr)
+	this->expect(!!(expr), SL(#expr))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

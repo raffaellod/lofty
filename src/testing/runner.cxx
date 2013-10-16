@@ -38,6 +38,10 @@ runner::~runner() {
 }
 
 
+void runner::log_result(bool bSuccess, istr const & sExpr) {
+}
+
+
 void runner::run() {
 	// TODO: implementation.
 }
