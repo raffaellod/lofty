@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/testing/runner.hxx>
+#include <abc/testing/unit.hxx>
 #include <abc/trace.hxx>
 
 
@@ -35,6 +36,27 @@ runner::runner() {
 
 
 runner::~runner() {
+	// TODO: currently abc::*vector containers don’t support move-only types; remove this manual
+	// cleanup code when std::unique_ptr becomes supported.
+	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
+		delete *it;
+	}
+}
+
+
+void runner::load_registered_units() {
+	for (
+		unit_factory_impl::factory_list_item * pfli = unit_factory_impl::get_factory_list_head();
+		pfli;
+		pfli = pfli->pfliNext
+	) {
+		// Instantiate the unit test.
+		auto punit(pfli->pfnFactory(this));
+		// TODO: currently abc::*vector containers don’t support move-only types; change to use
+		// std::unique_ptr when that becomes supported.
+		m_vpu.append(punit.release());
+//		m_vpu.append(std::move(punit));
+	}
 }
 
 

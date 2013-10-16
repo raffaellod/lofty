@@ -25,6 +25,8 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 #include <abc/str.hxx>
+#include <abc/vector.hxx>
+#include <memory>
 
 
 
@@ -35,6 +37,10 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 namespace testing {
+
+// Forward declarations.
+class unit;
+
 
 /** Executes unit tests.
 */
@@ -51,6 +57,11 @@ public:
 	~runner();
 
 
+	/** Loads all the units registered with ABC_TESTING_UNIT_REGISTER() and prepares to run them.
+	*/
+	void load_registered_units();
+
+
 	/** Logs the result of a test.
 	*/
 	void log_result(bool bSuccess, istr const & sExpr);
@@ -59,6 +70,15 @@ public:
 	/** Executes each loaded unit test.
 	*/
 	void run();
+
+
+private:
+
+	/** Vector of loaded test units to be executed. */
+	// TODO: currently abc::*vector containers don’t support move-only types; change to use
+	// std::unique_ptr when that becomes supported.
+	dmvector<unit *> m_vpu;
+//	dmvector<std::unique_ptr<unit>> m_vpu;
 };
 
 } //namespace testing

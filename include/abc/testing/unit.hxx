@@ -25,7 +25,6 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 #include <abc/testing/runner.hxx>
-#include <memory>
 
 
 
@@ -130,7 +129,7 @@ namespace testing {
 abc::testing::runner instance to instantiate and execute each unit.
 */
 class unit_factory_impl {
-protected:
+public:
 
 	/** Factory function, returning an abc::testing::unit instance. */
 	typedef std::unique_ptr<unit> (* factory_fn)(runner * prunner);
@@ -154,9 +153,20 @@ public:
 	}
 
 
+	/** Returns a pointer to the head of the list of factory functions, which the caller can then use
+	to walk the entire list (ending when an item’s next pointer is NULL).
+
+	return
+		Pointer to the head of the list.
+	*/
+	static factory_list_item * get_factory_list_head() {
+		return sm_pfliHead;
+	}
+
+
 private:
 
-	/** Pointer to the head of the list of factory function. */
+	/** Pointer to the head of the list of factory functions. */
 	static factory_list_item * sm_pfliHead;
 };
 

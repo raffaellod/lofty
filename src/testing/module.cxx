@@ -37,6 +37,7 @@ int module::main(mvector<istr const> const & vsArgs) {
 	UNUSED_ARG(vsArgs);
 
 	runner r;
+	r.load_registered_units();
 	r.run();
 
 	return EXIT_SUCCESS;
