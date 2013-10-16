@@ -1168,12 +1168,12 @@ void exception::_print_extended_info(ostream * pos) const {
 		pfosStdErr->write(SL("Unhandled exception: (unknown type)\n"));
 	}
 
-	pfosStdErr->write(SL("Stack trace:\n"));
+	pfosStdErr->write(SL("Stack trace (most recent call first):\n"));
 	if (pabcx) {
 		// Frame 0 is the location of the abc_throw() statement.
 		pfosStdErr->print(
 			SL("#0 {} at {}:{}\n"),
-			pabcx->m_pszSourceFileName, pabcx->m_pszSourceFunction, pabcx->m_iSourceLine
+			pabcx->m_pszSourceFunction, pabcx->m_pszSourceFileName, pabcx->m_iSourceLine
 		);
 	}
 	// Print the stack trace collected via abc_trace_fn().
