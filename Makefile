@@ -84,6 +84,7 @@ $(O)lib/libabc$(LIBEXT): \
 # Testing support library.
 $(O)lib/libabc-testing$(LIBEXT): \
 	$(O)obj/testing/module.cxx$(OBJEXT) \
+	$(O)obj/testing/runner.cxx$(OBJEXT) \
 	$(O)obj/testing/unit.cxx$(OBJEXT)
 
 # Test suite.

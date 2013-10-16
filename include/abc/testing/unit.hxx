@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
-#include <abc/testing/module.hxx>
+#include <abc/testing/runner.hxx>
 #include <memory>
 
 
@@ -55,10 +55,10 @@ public:
 	/** Initializes the object. Split into a method separated from the constructor so that derived
 	classes don’t need to declare a constructor just to forward its arguments.
 
-	pmod
-		Pointer to the testing module.
+	prunner
+		Pointer to the test runner.
 	*/
-	void init(module * pmod);
+	void init(runner * prunner);
 
 
 	/** Executes the unit test.
@@ -120,14 +120,14 @@ namespace abc {
 
 namespace testing {
 
-/** Registers a abc::testing::unit-derived class with abc::testing::module, providing the module
-with a callback enabling it to create an instance of the unit.
+/** Maintains a list of abc::testing::unit-derived classes that can be used by an
+abc::testing::runner instance to instantiate and execute each unit.
 */
 class unit_factory_impl {
 protected:
 
 	/** Factory function, returning an abc::testing::unit instance. */
-	typedef std::unique_ptr<unit> (* factory_fn)(module * pmod);
+	typedef std::unique_ptr<unit> (* factory_fn)(runner * prunner);
 	/** Linked list item. */
 	struct factory_list_item {
 		factory_list_item * pfliNext;
@@ -168,7 +168,7 @@ namespace abc {
 namespace testing {
 
 /** Template version of abc::testing::unit_factory_impl, able to instantiate classes derived from
-abc::testing::unit-derived.
+abc::testing::unit.
 */
 template <class T>
 class unit_factory :
@@ -184,12 +184,12 @@ public:
 
 	/** Class factory for T.
 
-	pmod
-		Module to provide to the unit.
+	prunner
+		Runner to provide to the unit.
 	*/
-	static std::unique_ptr<unit> factory(module * pmod) {
+	static std::unique_ptr<unit> factory(runner * prunner) {
 		std::unique_ptr<T> pt(new T());
-		pt->init(pmod);
+		pt->init(prunner);
 		return std::move(pt);
 	}
 
@@ -201,7 +201,7 @@ private:
 };
 
 
-/** Registers an abc::testing::unit-derived class with the testing module.
+/** Registers an abc::testing::unit-derived class for execution by an abc::testing::runner instance.
 
 cls
 	Unit class.

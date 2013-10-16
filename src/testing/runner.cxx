@@ -17,57 +17,30 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/testing/unit.hxx>
+#include <abc/testing/runner.hxx>
 #include <abc/trace.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit
+// abc::testing::runner
 
 
 namespace abc {
 
 namespace testing {
 
-unit::unit() {
+runner::runner() {
 }
 
 
-/*virtual*/ unit::~unit() {
+runner::~runner() {
 }
 
 
-void unit::init(runner * prunner) {
+void runner::run() {
+	// TODO: implementation.
 }
-
-
-void unit::assert(bool bExpr, char const * pszExpr) {
-}
-
-
-void unit::expect(bool bExpr, char const * pszExpr) {
-}
-
-
-/*virtual*/ void unit::run() {
-	// Default implementation: do nothing.
-}
-
-} //namespace testing
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit_factory_impl
-
-
-namespace abc {
-
-namespace testing {
-
-/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead = NULL;
 
 } //namespace testing
 

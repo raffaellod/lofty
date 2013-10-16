@@ -17,42 +17,43 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/testing/unit.hxx>
-#include <abc/trace.hxx>
+#ifndef ABC_TESTING_RUNNER_HXX
+#define ABC_TESTING_RUNNER_HXX
+
+#include <abc/core.hxx>
+#ifdef ABC_CXX_PRAGMA_ONCE
+	#pragma once
+#endif
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit
+// abc::testing::runner
 
 
 namespace abc {
 
 namespace testing {
 
-unit::unit() {
-}
+/** Executes unit tests.
+*/
+class runner {
+public:
+
+	/** Constructor.
+	*/
+	runner();
 
 
-/*virtual*/ unit::~unit() {
-}
+	/** Destructor.
+	*/
+	~runner();
 
 
-void unit::init(runner * prunner) {
-}
-
-
-void unit::assert(bool bExpr, char const * pszExpr) {
-}
-
-
-void unit::expect(bool bExpr, char const * pszExpr) {
-}
-
-
-/*virtual*/ void unit::run() {
-	// Default implementation: do nothing.
-}
+	/** Executes each loaded unit test.
+	*/
+	void run();
+};
 
 } //namespace testing
 
@@ -60,19 +61,7 @@ void unit::expect(bool bExpr, char const * pszExpr) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit_factory_impl
 
 
-namespace abc {
-
-namespace testing {
-
-/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead = NULL;
-
-} //namespace testing
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif //ifndef ABC_TESTING_RUNNER_HXX
 

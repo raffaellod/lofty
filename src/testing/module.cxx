@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/testing/module.hxx>
+#include <abc/testing/runner.hxx>
 #include <abc/trace.hxx>
 
 
@@ -34,6 +35,10 @@ int module::main(mvector<istr const> const & vsArgs) {
 	abc_trace_fn((/*vsArgs*/));
 
 	UNUSED_ARG(vsArgs);
+
+	runner r;
+	r.run();
+
 	return EXIT_SUCCESS;
 }
 
