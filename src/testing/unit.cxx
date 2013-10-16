@@ -17,36 +17,42 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TESTING_MODULE_HXX
-#define ABC_TESTING_MODULE_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
-#endif
-#include <abc/module.hxx>
+#include <abc/testing/unit.hxx>
+#include <abc/trace.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::module
+// abc::testing::unit
 
 
 namespace abc {
 
 namespace testing {
 
-/** Testing module. It interacts with registered abc::testing::unit-derived classes,
-allowing for the execution of unit tests.
-*/
-class module :
-	public module_impl<module> {
-public:
+unit::unit() {
+}
 
-	/** See abc::module_impl::main().
-	*/
-	int main(mvector<istr const> const & vsArgs);
-};
+
+/*virtual*/ unit::~unit() {
+}
+
+
+void unit::init(module * pmod) {
+}
+
+
+void unit::assert(bool bExpr, char const * pszExpr) {
+}
+
+
+void unit::expect(bool bExpr, char const * pszExpr) {
+}
+
+
+/*virtual*/ void unit::run() {
+	// Default implementation: do nothing.
+}
 
 } //namespace testing
 
@@ -54,7 +60,19 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::testing::unit_factory_impl
 
 
-#endif //ifndef ABC_TESTING_MODULE_HXX
+namespace abc {
+
+namespace testing {
+
+/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead = NULL;
+
+} //namespace testing
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
