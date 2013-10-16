@@ -65,7 +65,9 @@ void runner::log_result(bool bSuccess, istr const & sExpr) {
 
 
 void runner::run() {
-	// TODO: implementation.
+	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
+		(*it)->run();
+	}
 }
 
 } //namespace testing
