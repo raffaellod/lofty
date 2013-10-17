@@ -90,6 +90,14 @@ public:
 	void log_result(bool bSuccess, istr const & sExpr);
 
 
+	/** Prints test results based on the results collected by process_logs().
+
+	return
+		true if all tests passed, or false otherwise.
+	*/
+	bool log_summary();
+
+
 	/** Executes each loaded unit test.
 	*/
 	void run();
@@ -104,6 +112,10 @@ private:
 //	dmvector<std::unique_ptr<unit>> m_vpu;
 	/** Output stream. */
 	std::shared_ptr<ostream> m_pos;
+	/** Total count of assertion/expectation tests executed. */
+	unsigned m_cTotalTests;
+	/** Total count of successful assertion/expectation tests. */
+	unsigned m_cPassedTests;
 };
 
 } //namespace testing

@@ -50,7 +50,9 @@ namespace abc {
 namespace testing {
 
 runner::runner(std::shared_ptr<ostream> posOut) :
-	m_pos(std::move(posOut)) {
+	m_pos(std::move(posOut)),
+	m_cTotalTests(0),
+	m_cPassedTests(0) {
 }
 
 
@@ -81,8 +83,32 @@ void runner::load_registered_units() {
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
 	m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
+	if (bSuccess) {
+		++m_cPassedTests;
+	}
+	++m_cTotalTests;
 }
 
+
+bool runner::log_summary() {
+	if (m_cTotalTests == 0) {
+		m_pos->write(SL("No tests performed\n"));
+	} else {
+		m_pos->print(
+			SL("Tests completed: ")
+			SL("{} performed, ")
+			SL("{} passed ({}%), ")
+			SL("{} failed ({}%)\n"),
+
+			m_cTotalTests,
+			m_cPassedTests,
+			m_cPassedTests * 100 / m_cTotalTests,
+			m_cTotalTests - m_cPassedTests,
+			((m_cTotalTests - m_cPassedTests) * 100 + 1) / m_cTotalTests
+		);
+	}
+	return m_cPassedTests == m_cTotalTests;
+}
 
 void runner::run() {
 	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {

@@ -40,6 +40,7 @@ int module::main(mvector<istr const> const & vsArgs) {
 	runner r(file_ostream::stderr());
 	r.load_registered_units();
 	r.run();
+	r.log_summary();
 
 	return EXIT_SUCCESS;
 }
