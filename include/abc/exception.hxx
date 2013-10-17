@@ -306,12 +306,15 @@ public:
 	void _before_throw(char const * pszFileName, uint16_t iLine, char const * pszFunction);
 
 
-	/** Shows a stack trace after an exception has unwound the stack up to the main() level.
+	/** Writes detailed information about an exception, as well as any scope/stack trace generated up
+	to the point of the call to this function.
 
+	[pos]
+		Stream to write to. If omitted, the stack trace will be written to stderr.
 	[pstdx]
 		Caught exception.
 	*/
-	static void _uncaught_exception_end(std::exception const * pstdx = NULL);
+	static void write_with_scope_trace(ostream * pos = NULL, std::exception const * pstdx = NULL);
 
 
 	/** See std::exception::what(). Note that this is not virtual, because derived classes don’t need

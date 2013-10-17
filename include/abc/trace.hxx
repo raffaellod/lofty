@@ -46,7 +46,7 @@ every provided argument.
 abc::_scope_trace::~_scope_trace() detects if the object is being destroyed due to an exceptional
 stack unwinding, in which case it will dump its contents into a thread-local stack trace buffer. The
 outermost catch block (main-level) will output the generated stack trace, if available, using
-abc::exception::_uncaught_exception_end().
+abc::exception::write_with_scope_trace().
 
 When a abc::exception is thrown (it becomes “in-flight”), it will request that the stack trace
 buffer be cleared and it will count itself a a reference to the new trace; when copied, the number

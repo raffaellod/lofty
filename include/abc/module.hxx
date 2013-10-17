@@ -554,10 +554,10 @@ public:
 			// Invoke the program-defined main().
 			return t.main(vsArgs);
 		} catch (std::exception const & x) {
-			exception::_uncaught_exception_end(&x);
+			exception::write_with_scope_trace(NULL, &x);
 			return 123;
 		} catch (...) {
-			exception::_uncaught_exception_end();
+			exception::write_with_scope_trace();
 			return 123;
 		}
 	}
@@ -586,10 +586,10 @@ public:
 			// Invoke the program-defined main().
 			return t.main(vsArgs);
 		} catch (std::exception const & x) {
-			exception::_uncaught_exception_end(&x);
+			exception::write_with_scope_trace(NULL, &x);
 			return 123;
 		} catch (...) {
-			exception::_uncaught_exception_end();
+			exception::write_with_scope_trace();
 			return 123;
 		}
 	}
@@ -635,10 +635,10 @@ public:
 				return true;
 		}
 	} catch (std::exception const & x) {
-		exception::_uncaught_exception_end(&x);
+		exception::write_with_scope_trace(NULL, &x);
 		return false;
 	} catch (...) {
-		exception::_uncaught_exception_end();
+		exception::write_with_scope_trace();
 		return false;
 	}
 

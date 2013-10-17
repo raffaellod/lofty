@@ -1143,19 +1143,23 @@ void exception::_print_extended_info(ostream * pos) const {
 }
 
 
-/*static*/ void exception::_uncaught_exception_end(std::exception const * pstdx /*= NULL*/) {
-	std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
+/*static*/ void exception::write_with_scope_trace(
+	ostream * pos /*= NULL*/, std::exception const * pstdx /*= NULL*/
+) {
+	if (!pos) {
+		pos = file_ostream::stderr().get();
+	}
 	exception const * pabcx;
 	if (pstdx) {
 		// We have a std::exception: print its what() and check if it’s also a abc::exception.
-		pfosStdErr->print(SL("Unhandled exception: {}\n"), pstdx->what());
+		pos->print(SL("Unhandled exception: {}\n"), pstdx->what());
 		pabcx = dynamic_cast<exception const *>(pstdx);
 		// If the virtual method _print_extended_info() is not the default one provided by
 		// abc::exception, the class has a custom implementation, probably to print something useful.
 		if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
 			try {
-				pfosStdErr->write(SL("Extended information:\n"));
-				pabcx->_print_extended_info(pfosStdErr.get());
+				pos->write(SL("Extended information:\n"));
+				pabcx->_print_extended_info(pos);
 			} catch (...) {
 				// The exception is not rethrown, because we don’t want exception details to interfere
 				// with the display of the (more important) exception information.
@@ -1165,19 +1169,19 @@ void exception::_print_extended_info(ostream * pos) const {
 	} else {
 		// Some other type of exception; not much to say.
 		pabcx = NULL;
-		pfosStdErr->write(SL("Unhandled exception: (unknown type)\n"));
+		pos->write(SL("Unhandled exception: (unknown type)\n"));
 	}
 
-	pfosStdErr->write(SL("Stack trace (most recent call first):\n"));
+	pos->write(SL("Stack trace (most recent call first):\n"));
 	if (pabcx) {
 		// Frame 0 is the location of the abc_throw() statement.
-		pfosStdErr->print(
+		pos->print(
 			SL("#0 {} at {}:{}\n"),
 			pabcx->m_pszSourceFunction, pabcx->m_pszSourceFileName, pabcx->m_iSourceLine
 		);
 	}
 	// Print the stack trace collected via abc_trace_fn().
-	pfosStdErr->write(_scope_trace_impl::get_trace_contents());
+	pos->write(_scope_trace_impl::get_trace_contents());
 }
 
 
