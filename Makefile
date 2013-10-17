@@ -43,7 +43,6 @@ check: \
 	$(O)test.tmp/unittest/0010-module.ut.log \
 	$(O)test.tmp/unittest/0020-exception.ut.log \
 	$(O)test.tmp/unittest/0030-enum.ut.log \
-	$(O)test.tmp/unittest/0040-str.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
 	$(O)test.tmp/unittest/0060-file_path.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
@@ -90,6 +89,7 @@ $(O)lib/libabc-testing$(LIBEXT): \
 # Test suite.
 $(O)bin/abc-test$(EXEEXT): \
 	$(O)obj/test/abc-test.cxx$(OBJEXT) \
+	$(O)obj/test/str.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT) \
 	  $(O)lib/libabc-testing$(LIBEXT)
 $(O)bin/abc-test$(EXEEXT): LDLIBS+=-labc-testing
@@ -103,9 +103,6 @@ $(O)bin/unittest/0020-exception$(EXEEXT): \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0030-enum$(EXEEXT): \
 	$(O)obj/unittest/0030-enum.cxx$(OBJEXT) \
-	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0040-str$(EXEEXT): \
-	$(O)obj/unittest/0040-str.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0050-vector$(EXEEXT): \
 	$(O)obj/unittest/0050-vector.cxx$(OBJEXT) \
