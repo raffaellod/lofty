@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/testing/module.hxx>
 #include <abc/testing/runner.hxx>
+#include <abc/file_iostream.hxx>
 #include <abc/trace.hxx>
 
 
@@ -36,7 +37,7 @@ int module::main(mvector<istr const> const & vsArgs) {
 
 	UNUSED_ARG(vsArgs);
 
-	runner r;
+	runner r(file_ostream::stderr());
 	r.load_registered_units();
 	r.run();
 

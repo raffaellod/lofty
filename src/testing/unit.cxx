@@ -46,7 +46,7 @@ void unit::init(runner * prunner) {
 void unit::assert(bool bExpr, istr const & sExpr) {
 	m_prunner->log_result(bExpr, sExpr);
 	if (!bExpr) {
-		// TODO: throw.
+		abc_throw(abc::testing::assertion_error, ());
 	}
 }
 

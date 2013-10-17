@@ -24,10 +24,33 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
-#include <abc/str.hxx>
+#include <abc/iostream.hxx>
 #include <abc/vector.hxx>
-#include <memory>
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::testing::assertion_error
+
+
+namespace abc {
+
+namespace testing {
+
+/** Thrown to indicate that a test assertion failed, and the execution of the unit must be halted.
+*/
+class assertion_error :
+	public virtual exception {
+public:
+
+	/** Constructor.
+	*/
+	assertion_error();
+};
+
+} //namespace testing
+
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +72,7 @@ public:
 
 	/** Constructor.
 	*/
-	runner();
+	runner(std::shared_ptr<ostream> posOut);
 
 
 	/** Destructor.
@@ -79,6 +102,8 @@ private:
 	// std::unique_ptr when that becomes supported.
 	dmvector<unit *> m_vpu;
 //	dmvector<std::unique_ptr<unit>> m_vpu;
+	/** Output stream. */
+	std::shared_ptr<ostream> m_pos;
 };
 
 } //namespace testing

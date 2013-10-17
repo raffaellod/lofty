@@ -24,6 +24,24 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::testing::assertion_error
+
+
+namespace abc {
+
+namespace testing {
+
+assertion_error::assertion_error() :
+	exception() {
+	m_pszWhat = "abc::assertion_error";
+}
+
+} //namespace testing
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::runner
 
 
@@ -31,7 +49,8 @@ namespace abc {
 
 namespace testing {
 
-runner::runner() {
+runner::runner(std::shared_ptr<ostream> posOut) :
+	m_pos(std::move(posOut)) {
 }
 
 
@@ -61,12 +80,22 @@ void runner::load_registered_units() {
 
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
+	m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
 }
 
 
 void runner::run() {
 	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
-		(*it)->run();
+		try {
+			(*it)->run();
+		} catch (assertion_error const &) {
+			// This exception type is only used to interrupt abc::testing::unit::run().
+			m_pos->write(SL("Unit execution interrupted\n"));
+		} catch (std::exception const & x) {
+			exception::write_with_scope_trace(m_pos.get(), &x);
+		} catch (...) {
+			exception::write_with_scope_trace(m_pos.get());
+		}
 	}
 }
 
