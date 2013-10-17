@@ -65,6 +65,14 @@ public:
 	virtual void run();
 
 
+	/** Returns a short description for the testing unit.
+
+	return
+		Unit title.
+	*/
+	virtual istr title() = 0;
+
+
 protected:
 
 	/** Validates an assertion.

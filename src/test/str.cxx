@@ -94,10 +94,17 @@ class str_basic :
 	public str_unit_base {
 public:
 
+	/** See str_unit_base::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - basic operations"));
+	}
+
+
+	/** See str_unit_base::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
-
-//		testing::test_group tg(SL("Basic operations"));
 
 		dmstr s;
 		init_check_str(s);
@@ -180,6 +187,15 @@ class str8_substr_ascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - ASCII character and substring search - UTF-8 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
@@ -247,6 +263,15 @@ class str16_substr_ascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - ASCII character and substring search - UTF-16 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
@@ -314,6 +339,15 @@ class str32_substr_ascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - ASCII character and substring search - UTF-32 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
@@ -381,6 +415,15 @@ class str8_substr_nonascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - non-ASCII character and substring search - UTF-8 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
@@ -422,6 +465,15 @@ class str16_substr_nonascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - non-ASCII character and substring search - UTF-16 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
@@ -463,6 +515,15 @@ class str32_substr_nonascii :
 	public testing::unit {
 public:
 
+	/** See abc::testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("str classes - non-ASCII character and substring search - UTF-32 strings"));
+	}
+
+
+	/** See abc::testing::unit::run().
+	*/
 	virtual void run() {
 		abc_trace_fn(());
 
