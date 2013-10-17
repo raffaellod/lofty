@@ -288,12 +288,6 @@ public:
 	exception & operator=(exception const & x);
 
 
-	/** Initializes the information associated to the exception.
-	*/
-	void init() {
-	}
-
-
 	/** Stores context information to be displayed if the exception is not caught.
 
 	pszFileName
@@ -306,15 +300,10 @@ public:
 	void _before_throw(char const * pszFileName, uint16_t iLine, char const * pszFunction);
 
 
-	/** Writes detailed information about an exception, as well as any scope/stack trace generated up
-	to the point of the call to this function.
-
-	[pos]
-		Stream to write to. If omitted, the stack trace will be written to stderr.
-	[pstdx]
-		Caught exception.
+	/** Initializes the information associated to the exception.
 	*/
-	static void write_with_scope_trace(ostream * pos = NULL, std::exception const * pstdx = NULL);
+	void init() {
+	}
 
 
 	/** See std::exception::what(). Note that this is not virtual, because derived classes don’t need
@@ -325,6 +314,17 @@ public:
 		Name of the exception class.
 	*/
 	char const * what() const;
+
+
+	/** Writes detailed information about an exception, as well as any scope/stack trace generated up
+	to the point of the call to this function.
+
+	[pos]
+		Stream to write to. If omitted, the stack trace will be written to stderr.
+	[pstdx]
+		Caught exception.
+	*/
+	static void write_with_scope_trace(ostream * pos = NULL, std::exception const * pstdx = NULL);
 
 
 protected:

@@ -1137,9 +1137,8 @@ void exception::_before_throw(char const * pszFileName, uint16_t iLine, char con
 }
 
 
-void exception::_print_extended_info(ostream * pos) const {
-	// Nothing to print.
-	UNUSED_ARG(pos);
+char const * exception::what() const {
+	return m_pszWhat;
 }
 
 
@@ -1185,8 +1184,9 @@ void exception::_print_extended_info(ostream * pos) const {
 }
 
 
-char const * exception::what() const {
-	return m_pszWhat;
+void exception::_print_extended_info(ostream * pos) const {
+	// Nothing to print.
+	UNUSED_ARG(pos);
 }
 
 
