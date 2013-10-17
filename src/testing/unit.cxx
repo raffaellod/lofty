@@ -55,11 +55,6 @@ void unit::expect(bool bExpr, istr const & sExpr) {
 	m_prunner->log_result(bExpr, sExpr);
 }
 
-
-/*virtual*/ void unit::run() {
-	// Default implementation: do nothing.
-}
-
 } //namespace testing
 
 } //namespace abc

@@ -62,7 +62,7 @@ public:
 
 	/** Executes the unit test.
 	*/
-	virtual void run();
+	virtual void run() = 0;
 
 
 	/** Returns a short description for the testing unit.
