@@ -151,6 +151,11 @@ dist:
 # Performs self-tests (if any). The user must build the program before running the tests, but needs
 # not install the program.
 .PHONY: test
+test:
+ifeq ($(VERBOSE),0)
+	@echo "$(CLR_CMD)  TEST  $(CLR_RST) $<"
+endif
+	$(Q)$<
 
 # Performs self-tests (if any). The user must build the program before running the tests, but needs
 # not install the program.
