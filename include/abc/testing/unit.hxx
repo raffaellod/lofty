@@ -227,7 +227,7 @@ cls
 	namespace testing { \
 	namespace { \
 	\
-	unit_factory<cls> uf; \
+	unit_factory<cls> ABC_CPP_APPEND_UID(uf); \
 	template <> \
 	/*static*/ unit_factory_impl::factory_list_item unit_factory<cls>::sm_fli = { \
 		NULL, \
