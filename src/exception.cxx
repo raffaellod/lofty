@@ -1088,7 +1088,7 @@ exception::exception(exception const & x) :
 	m_bInFlight(x.m_bInFlight) {
 	// See [DOC:8503 Stack tracing].
 	if (m_bInFlight) {
-		_scope_trace<>::trace_stream_addref();
+		_scope_trace_impl::trace_stream_addref();
 	}
 }
 
@@ -1096,7 +1096,7 @@ exception::exception(exception const & x) :
 /*virtual*/ exception::~exception() {
 	// See [DOC:8503 Stack tracing].
 	if (m_bInFlight) {
-		_scope_trace<>::trace_stream_release();
+		_scope_trace_impl::trace_stream_release();
 	}
 }
 
@@ -1114,11 +1114,11 @@ exception & exception::operator=(exception const & x) {
 	// release()/addref().
 	if (m_bInFlight != x.m_bInFlight) {
 		if (m_bInFlight) {
-			_scope_trace<>::trace_stream_release();
+			_scope_trace_impl::trace_stream_release();
 		}
 		m_bInFlight = x.m_bInFlight;
 		if (m_bInFlight) {
-			_scope_trace<>::trace_stream_addref();
+			_scope_trace_impl::trace_stream_addref();
 		}
 	}
 	return *this;
@@ -1131,8 +1131,8 @@ void exception::_before_throw(char const * pszFileName, uint16_t iLine, char con
 	m_iSourceLine = iLine;
 	// Clear any old trace stream buffer and create a new one with *this as its only reference. See
 	// [DOC:8503 Stack tracing].
-	_scope_trace<>::trace_stream_reset();
-	_scope_trace<>::trace_stream_addref();
+	_scope_trace_impl::trace_stream_reset();
+	_scope_trace_impl::trace_stream_addref();
 	m_bInFlight = true;
 }
 
@@ -1177,7 +1177,7 @@ void exception::_print_extended_info(ostream * pos) const {
 		);
 	}
 	// Print the stack trace collected via abc_trace_fn().
-	pfosStdErr->write(_scope_trace<>::get_trace_contents());
+	pfosStdErr->write(_scope_trace_impl::get_trace_contents());
 }
 
 
