@@ -33,6 +33,9 @@
     <ClInclude Include="..\include\abc\testing\runner.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\abc\testing\core.hxx">
+      <Filter>Header Files\abc\testing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\testing\module.cxx">
@@ -42,6 +45,9 @@
       <Filter>Source Files\testing</Filter>
     </ClCompile>
     <ClCompile Include="..\src\testing\runner.cxx">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\core.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
   </ItemGroup>

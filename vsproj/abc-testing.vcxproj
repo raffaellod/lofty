@@ -50,7 +50,7 @@
       <CallingConvention>StdCall</CallingConvention>
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>abc/testing/core.hxx</PrecompiledHeaderFile>
       <PreprocessorDefinitions>_ABC_TESTING_LIB_BUILD;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -80,11 +80,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\abc\testing\core.hxx" />
     <ClInclude Include="..\include\abc\testing\module.hxx" />
     <ClInclude Include="..\include\abc\testing\runner.hxx" />
     <ClInclude Include="..\include\abc\testing\unit.hxx" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\testing\core.cxx">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\testing\module.cxx" />
     <ClCompile Include="..\src\testing\runner.cxx" />
     <ClCompile Include="..\src\testing\unit.cxx" />
