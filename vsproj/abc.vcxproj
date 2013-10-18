@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)-$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)..\include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
+    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

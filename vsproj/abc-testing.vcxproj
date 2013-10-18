@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{17793F28-5995-4CAF-8114-53C3558433C9}</ProjectGuid>
-    <RootNamespace>abctesting</RootNamespace>
+    <RootNamespace>abc-testing</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)-$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)..\include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
+    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
