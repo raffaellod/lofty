@@ -44,27 +44,27 @@ public:
 
 	TODO: comment signature.
 	*/
-	_ABC_API_SYM explicit str_istream(istr const & s);
-	_ABC_API_SYM explicit str_istream(istr && s);
-	_ABC_API_SYM explicit str_istream(mstr && s);
-	_ABC_API_SYM explicit str_istream(dmstr && s);
+	ABCAPI explicit str_istream(istr const & s);
+	ABCAPI explicit str_istream(istr && s);
+	ABCAPI explicit str_istream(mstr && s);
+	ABCAPI explicit str_istream(dmstr && s);
 
 
 	/** Destructor.
 	*/
-	_ABC_API_SYM virtual ~str_istream();
+	ABCAPI virtual ~str_istream();
 
 
 	/** See istream::read_raw().
 	*/
-	_ABC_API_SYM virtual size_t read_raw(
+	ABCAPI virtual size_t read_raw(
 		void * p, size_t cbMax, text::encoding enc = text::encoding::identity
 	);
 
 
 	/** See istream::unread_raw().
 	*/
-	_ABC_API_SYM virtual void unread_raw(
+	ABCAPI virtual void unread_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	);
 
@@ -73,7 +73,7 @@ protected:
 
 	/** See istream::_read_line().
 	*/
-	_ABC_API_SYM virtual void _read_line(
+	ABCAPI virtual void _read_line(
 		_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
@@ -107,12 +107,12 @@ public:
 
 	/** Constructor.
 	*/
-	_ABC_API_SYM str_ostream();
+	ABCAPI str_ostream();
 
 
 	/** Destructor.
 	*/
-	_ABC_API_SYM virtual ~str_ostream();
+	ABCAPI virtual ~str_ostream();
 
 
 	/** Returns and empties the contents of the stream.
@@ -120,12 +120,12 @@ public:
 	return
 		Former contents of the stream.
 	*/
-	_ABC_API_SYM string_type get_contents();
+	ABCAPI string_type get_contents();
 
 
 	/** See ostream::write_raw().
 	*/
-	_ABC_API_SYM virtual void write_raw(
+	ABCAPI virtual void write_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	);
 

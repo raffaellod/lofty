@@ -255,6 +255,13 @@ constructor (N2346). */
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - non-standard, but commonly available, extensions
 
+/** Calling convention for ABC functions/methods. */
+#if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
+	#define ABCFNCC __stdcall
+#else
+	#define ABCFNCC
+#endif
+
 /** Declares a function as using the same calling convention as the host C library/STL
 implementation. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
@@ -320,9 +327,9 @@ reached. */
 /** Declares a symbol to be publicly visible (from the ABC shared library) or imported from ABC’s
 shared library (into another library/executable). */
 #ifdef _ABC_LIB_BUILD
-	#define _ABC_API_SYM ABC_SYM_EXPORT
+	#define ABCAPI ABC_SYM_EXPORT
 #else
-	#define _ABC_API_SYM ABC_SYM_IMPORT
+	#define ABCAPI ABC_SYM_IMPORT
 #endif
 
 

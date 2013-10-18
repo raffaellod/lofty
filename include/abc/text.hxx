@@ -127,7 +127,7 @@ although special cases such as surrogates might make the estimate too low.
 
 TODO: comment signature.
 */
-_ABC_API_SYM size_t estimate_transcoded_size(
+ABCAPI size_t estimate_transcoded_size(
 	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 );
 
@@ -137,14 +137,14 @@ encodings (e.g. identity_encoding).
 
 TODO: comment signature.
 */
-_ABC_API_SYM size_t get_encoding_size(encoding enc);
+ABCAPI size_t get_encoding_size(encoding enc);
 
 
 /** Returns a byte sequence representing a line terminator in the requested encoding.
 
 TODO: comment signature.
 */
-_ABC_API_SYM void const * get_line_terminator_bytes(
+ABCAPI void const * get_line_terminator_bytes(
 	encoding enc, line_terminator lterm, size_t * pcb
 );
 
@@ -158,7 +158,7 @@ buffer.
 
 TODO: comment signature.
 */
-_ABC_API_SYM encoding guess_encoding(
+ABCAPI encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
 );
 
@@ -169,7 +169,7 @@ character is inferred via enc.
 
 TODO: comment signature.
 */
-_ABC_API_SYM line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
+ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
 
 
 /** Converts from one character encoding to another. All pointed-by variables are updated to discard
@@ -179,7 +179,7 @@ UTF validity: not necessary; invalid sequences are replaced with text::replaceme
 
 TODO: comment signature.
 */
-_ABC_API_SYM size_t transcode(
+ABCAPI size_t transcode(
 	std::nothrow_t const &,
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax

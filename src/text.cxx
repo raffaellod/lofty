@@ -33,7 +33,7 @@ namespace abc {
 
 namespace text {
 
-_ABC_API_SYM size_t estimate_transcoded_size(
+ABCAPI size_t estimate_transcoded_size(
 	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 ) {
 	abc_trace_fn((encSrc, pSrc, cbSrc, encDst));
@@ -80,7 +80,7 @@ _ABC_API_SYM size_t estimate_transcoded_size(
 }
 
 
-_ABC_API_SYM size_t get_encoding_size(encoding enc) {
+ABCAPI size_t get_encoding_size(encoding enc) {
 	// Character size, in bytes, for each recognized encoding.
 	static uint8_t const sc_acbEncChar[] = {
 		0, // encoding::unknown
@@ -98,7 +98,7 @@ _ABC_API_SYM size_t get_encoding_size(encoding enc) {
 }
 
 
-_ABC_API_SYM void const * get_line_terminator_bytes(
+ABCAPI void const * get_line_terminator_bytes(
 	encoding enc, line_terminator lterm, size_t * pcb
 ) {
 	abc_trace_fn((enc, lterm, pcb));
@@ -192,7 +192,7 @@ _ABC_API_SYM void const * get_line_terminator_bytes(
 }
 
 
-_ABC_API_SYM encoding guess_encoding(
+ABCAPI encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= NULL*/
 ) {
 	abc_trace_fn((pBuf, cbBuf, cbSrcTotal, pcbBom));
@@ -425,7 +425,7 @@ _ABC_API_SYM encoding guess_encoding(
 }
 
 
-_ABC_API_SYM line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
+ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
 	abc_trace_fn((pBuf, cchBuf, enc));
 
 	size_t cbChar(get_encoding_size(enc));
@@ -542,7 +542,7 @@ _ABC_API_SYM line_terminator guess_line_terminator(void const * pBuf, size_t cch
 }
 
 
-_ABC_API_SYM size_t transcode(
+ABCAPI size_t transcode(
 	std::nothrow_t const &,
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax

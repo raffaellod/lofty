@@ -29,17 +29,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-_ABC_API_SYM char_t const _int_to_str_backend_base::smc_achIntToStrU[16] = {
+char_t const _int_to_str_backend_base::smc_achIntToStrU[16] = {
 	CL('0'), CL('1'), CL('2'), CL('3'), CL('4'), CL('5'), CL('6'), CL('7'), CL('8'), CL('9'),
 	CL('A'), CL('B'), CL('C'), CL('D'), CL('E'), CL('F')
 };
-_ABC_API_SYM char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
+char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
 	CL('0'), CL('1'), CL('2'), CL('3'), CL('4'), CL('5'), CL('6'), CL('7'), CL('8'), CL('9'),
 	CL('a'), CL('b'), CL('c'), CL('d'), CL('e'), CL('f')
 };
 
 
-_ABC_API_SYM _int_to_str_backend_base::_int_to_str_backend_base(
+ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
 	unsigned cbInt, char_range const & crFormat
 ) :
 	m_pchIntToStr(smc_achIntToStrL),
@@ -159,7 +159,7 @@ default_notation:
 }
 
 
-_ABC_API_SYM void _int_to_str_backend_base::add_prefixes_and_write(
+ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 	bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 ) const {
 	abc_trace_fn((this, bNegative, posOut, psBuf/*, pchBufFirstUsed*/));
@@ -232,36 +232,36 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
 }
 
 
-_ABC_API_SYM void _int_to_str_backend_base::write_s64(int64_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-_ABC_API_SYM void _int_to_str_backend_base::write_u64(uint64_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-_ABC_API_SYM void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-_ABC_API_SYM void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-_ABC_API_SYM void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
 
-_ABC_API_SYM void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
 	write_impl(i, posOut);
 }
 
@@ -278,7 +278,9 @@ _ABC_API_SYM void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posO
 
 namespace abc {
 
-_ABC_API_SYM to_str_backend<bool>::to_str_backend(char_range const & crFormat /*= char_range()*/) {
+ABCAPI to_str_backend<bool>::to_str_backend(
+	char_range const & crFormat /*= char_range()*/
+) {
 	abc_trace_fn((this, crFormat));
 
 	auto it(crFormat.cbegin());
@@ -294,7 +296,7 @@ _ABC_API_SYM to_str_backend<bool>::to_str_backend(char_range const & crFormat /*
 }
 
 
-_ABC_API_SYM void to_str_backend<bool>::write(bool b, ostream * posOut) {
+ABCAPI void to_str_backend<bool>::write(bool b, ostream * posOut) {
 	abc_trace_fn((this, b, posOut));
 
 	// TODO: apply format options.
@@ -314,10 +316,10 @@ _ABC_API_SYM void to_str_backend<bool>::write(bool b, ostream * posOut) {
 
 namespace abc {
 
-_ABC_API_SYM char_t const to_str_backend<void const volatile *>::smc_achFormat[] = SL("#x");
+char_t const to_str_backend<void const volatile *>::smc_achFormat[] = SL("#x");
 
 
-_ABC_API_SYM to_str_backend<void const volatile *>::to_str_backend(
+ABCAPI to_str_backend<void const volatile *>::to_str_backend(
 	char_range const & crFormat /*= char_range()*/
 ) :
 	to_str_backend<uintptr_t>(char_range(smc_achFormat)) {
