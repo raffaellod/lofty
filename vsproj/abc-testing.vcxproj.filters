@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\abc">
+      <UniqueIdentifier>{8d1a1482-ff29-47b3-a03e-90077f5d7830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\abc\testing">
+      <UniqueIdentifier>{7d27bd94-830e-4d4a-b96d-0b68b3b0136e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\testing">
+      <UniqueIdentifier>{42e6d6bf-5bc8-4a7b-8f8e-0b2e47f7ca26}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\abc\testing\module.hxx">
+      <Filter>Header Files\abc\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\abc\testing\unit.hxx">
+      <Filter>Header Files\abc\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\abc\testing\runner.hxx">
+      <Filter>Header Files\abc\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\abc\testing\core.hxx">
+      <Filter>Header Files\abc\testing</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\testing\module.cxx">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\unit.cxx">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\runner.cxx">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\core.cxx">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

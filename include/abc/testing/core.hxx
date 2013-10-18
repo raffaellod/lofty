@@ -17,44 +17,27 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TESTING_MODULE_HXX
-#define ABC_TESTING_MODULE_HXX
+#ifndef ABC_TESTING_CORE_HXX
+#define ABC_TESTING_CORE_HXX
 
-#include <abc/testing/core.hxx>
+
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
-#include <abc/module.hxx>
 
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::module
-
-
-namespace abc {
-
-namespace testing {
-
-/** Testing module. It interacts with registered abc::testing::unit-derived classes,
-allowing for the execution of unit tests.
-*/
-class module :
-	public module_impl<module> {
-public:
-
-	/** See abc::module_impl::main().
-	*/
-	int main(mvector<istr const> const & vsArgs);
-};
-
-} //namespace testing
-
-} //namespace abc
+/** Declares a symbol to be publicly visible (from the ABC testing shared library) or imported from
+ABC’s testing shared library (into another library/executable). */
+#ifdef _ABC_TESTING_LIB_BUILD
+	#define _ABC_TESTING_API_SYM ABC_SYM_EXPORT
+#else
+	#define _ABC_TESTING_API_SYM ABC_SYM_IMPORT
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TESTING_MODULE_HXX
+#endif //ifndef ABC_TESTING_CORE_HXX
 

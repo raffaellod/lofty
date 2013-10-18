@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6306600A-9419-4FE3-B64B-F58569610D87}</ProjectGuid>
-    <RootNamespace>abc</RootNamespace>
+    <ProjectGuid>{17793F28-5995-4CAF-8114-53C3558433C9}</ProjectGuid>
+    <RootNamespace>abc-testing</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)-$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
+    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -51,8 +51,8 @@
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>abc/core.hxx</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>_ABC_LIB_BUILD;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>abc/testing/core.hxx</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>_ABC_TESTING_LIB_BUILD;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -80,70 +80,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\atomic.cxx" />
-    <ClCompile Include="src\bitmanip.cxx" />
-    <ClCompile Include="src\byteorder.cxx" />
-    <ClCompile Include="src\core.cxx">
+    <ClInclude Include="..\include\abc\testing\core.hxx" />
+    <ClInclude Include="..\include\abc\testing\module.hxx" />
+    <ClInclude Include="..\include\abc\testing\runner.hxx" />
+    <ClInclude Include="..\include\abc\testing\unit.hxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\testing\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\enum.cxx" />
-    <ClCompile Include="src\exception.cxx" />
-    <ClCompile Include="src\file.cxx" />
-    <ClCompile Include="src\file_iostream.cxx" />
-    <ClCompile Include="src\file_path.cxx" />
-    <ClCompile Include="src\iostream.cxx" />
-    <ClCompile Include="src\memory.cxx" />
-    <ClCompile Include="src\module.cxx" />
-    <ClCompile Include="src\str.cxx" />
-    <ClCompile Include="src\str_iostream.cxx" />
-    <ClCompile Include="src\text.cxx" />
-    <ClCompile Include="src\to_str_backend.cxx" />
-    <ClCompile Include="src\trace.cxx" />
-    <ClCompile Include="src\utf_traits.cxx" />
-    <ClCompile Include="src\_vextr.cxx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\abc\atomic.hxx" />
-    <ClInclude Include="include\abc\bitmanip.hxx" />
-    <ClInclude Include="include\abc\byteorder.hxx" />
-    <ClInclude Include="include\abc\char.hxx" />
-    <ClInclude Include="include\abc\core.hxx" />
-    <ClInclude Include="include\abc\cppmacros.hxx" />
-    <ClInclude Include="include\abc\enum.hxx" />
-    <ClInclude Include="include\abc\exception.hxx" />
-    <ClInclude Include="include\abc\file.hxx" />
-    <ClInclude Include="include\abc\file_iostream.hxx" />
-    <ClInclude Include="include\abc\file_path.hxx" />
-    <ClInclude Include="include\abc\iostream.hxx" />
-    <ClInclude Include="include\abc\map.hxx" />
-    <ClInclude Include="include\abc\memory.hxx" />
-    <ClInclude Include="include\abc\mock\iostream.hxx" />
-    <ClInclude Include="include\abc\module.hxx" />
-    <ClInclude Include="include\abc\numeric.hxx" />
-    <ClInclude Include="include\abc\persto.hxx" />
-    <ClInclude Include="include\abc\str.hxx" />
-    <ClInclude Include="include\abc\str_iostream.hxx" />
-    <ClInclude Include="include\abc\text.hxx" />
-    <ClInclude Include="include\abc\to_str_backend.hxx" />
-    <ClInclude Include="include\abc\trace.hxx" />
-    <ClInclude Include="include\abc\type_raw_cda.hxx" />
-    <ClInclude Include="include\abc\utf_traits.hxx" />
-    <ClInclude Include="include\abc\vector.hxx" />
-    <ClInclude Include="include\abc\_map_base.hxx" />
-    <ClInclude Include="include\abc\_vextr.hxx" />
-    <ClInclude Include="include\stl\algorithm" />
-    <ClInclude Include="include\stl\exception" />
-    <ClInclude Include="include\stl\functional" />
-    <ClInclude Include="include\stl\memory" />
-    <ClInclude Include="include\stl\new" />
-    <ClInclude Include="include\stl\tuple" />
-    <ClInclude Include="include\stl\typeinfo" />
-    <ClInclude Include="include\stl\type_traits" />
-    <ClInclude Include="include\stl\utility" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitignore" />
-    <None Include="README" />
+    <ClCompile Include="..\src\testing\module.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\runner.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\unit.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
