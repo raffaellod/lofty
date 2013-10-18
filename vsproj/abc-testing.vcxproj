@@ -42,7 +42,7 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)-$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
+    <IncludePath>$(ProjectDir)..\include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
