@@ -88,10 +88,17 @@
   <ItemGroup>
     <ClCompile Include="..\src\testing\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\module.cxx" />
-    <ClCompile Include="..\src\testing\runner.cxx" />
-    <ClCompile Include="..\src\testing\unit.cxx" />
+    <ClCompile Include="..\src\testing\module.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\runner.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\unit.cxx">
+      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
