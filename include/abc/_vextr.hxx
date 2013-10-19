@@ -496,7 +496,7 @@ namespace abc {
 /** Template-independent members of _raw_*_vextr_impl that are identical for trivial and non-trivial
 types.
 */
-class _raw_vextr_impl_base {
+class ABCAPI _raw_vextr_impl_base {
 
 	ABC_CLASS_PREVENT_COPYING(_raw_vextr_impl_base)
 
@@ -512,7 +512,7 @@ protected:
 	For size increases, the reallocation (if any) is performed in the constructor; for decreases,
 	it’s performed in commit().
 	*/
-	class transaction {
+	class ABCAPI transaction {
 
 		ABC_CLASS_PREVENT_COPYING(transaction)
 
@@ -825,7 +825,7 @@ namespace abc {
 
 /** Template-independent implementation of a vector for non-trivial contained types.
 */
-class _raw_complex_vextr_impl :
+class ABCAPI _raw_complex_vextr_impl :
 	public _raw_vextr_impl_base {
 
 	ABC_CLASS_PREVENT_COPYING(_raw_complex_vextr_impl)
@@ -945,7 +945,7 @@ namespace abc {
 /** Template-independent implementation of a vector for trivial contained types. The entire class is
 NUL-termination-aware; this is the most derived common base class of both vector and str_.
 */
-class _raw_trivial_vextr_impl :
+class ABCAPI _raw_trivial_vextr_impl :
 	public _raw_vextr_impl_base {
 
 	ABC_CLASS_PREVENT_COPYING(_raw_trivial_vextr_impl)
