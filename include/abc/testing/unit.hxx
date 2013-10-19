@@ -38,7 +38,7 @@ namespace testing {
 
 /** Base class for unit tests.
 */
-class unit {
+class ABCTESTINGAPI unit {
 public:
 
 	/** Constructor.

@@ -39,7 +39,7 @@ namespace testing {
 
 /** Thrown to indicate that a test assertion failed, and the execution of the unit must be halted.
 */
-class assertion_error :
+class ABCTESTINGAPI assertion_error :
 	public virtual exception {
 public:
 
@@ -67,7 +67,7 @@ class unit;
 
 /** Executes unit tests.
 */
-class runner {
+class ABCTESTINGAPI runner {
 public:
 
 	/** Constructor.
