@@ -233,16 +233,14 @@ cls
 #define ABC_TESTING_UNIT_REGISTER(cls) \
 	namespace abc { \
 	namespace testing { \
-	namespace { \
 	\
-	unit_factory<cls> ABC_CPP_APPEND_UID(uf); \
+	unit_factory<cls> ABC_CPP_APPEND_UID(g__uf); \
 	template <> \
 	/*static*/ unit_factory_impl::factory_list_item unit_factory<cls>::sm_fli = { \
 		NULL, \
 		unit_factory<cls>::factory \
 	}; \
 	\
-	} /*namespace*/ \
 	} /*namespace testing*/ \
 	} /*namespace abc*/
 
