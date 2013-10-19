@@ -211,7 +211,6 @@ void * code_module::_get_symbol(istr const & sSymbol) {
 
 namespace abc {
 
-module_impl_base * g_pmib(NULL);
 #if ABC_HOST_API_WIN32
 HINSTANCE module_impl_base::sm_hinst;
 #endif
@@ -228,7 +227,6 @@ module_impl_base::module_impl_base() :
 #else
 	#error TODO-PORT: HOST_API
 #endif
-	g_pmib = this;
 }
 
 

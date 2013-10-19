@@ -41,11 +41,15 @@ namespace abc {
 */
 #if ABC_OUTPUT_POSIX_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
+		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		\
 		extern "C" int main(int cArgs, char ** ppszArgs) { \
 			return cls::entry_point_main(cArgs, ppszArgs); \
 		}
 #elif ABC_OUTPUT_WIN32_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
+		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		\
 		extern "C" int WINAPI wWinMain( \
 			HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
 		) { \
@@ -54,6 +58,8 @@ namespace abc {
 		}
 #elif ABC_OUTPUT_WIN32_DLL
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
+		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		\
 		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
 			UNUSED_ARG(pReserved); \
 			return cls::entry_point_win_dll(hinst, iReason); \
@@ -89,10 +95,6 @@ namespace abc {
 #else
 	#error TODO-PORT: HOST_API
 #endif
-
-
-/** Pointer to the module_impl_base interface of the application-defined module object. */
-extern class module_impl_base * g_pmib;
 
 } //namespace abc
 
@@ -424,7 +426,6 @@ public:
 #if ABC_HOST_API_WIN32
 		ABC_ASSERT(m_cRefs == 0);
 #endif
-		g_pmib = NULL;
 	}
 
 
@@ -528,6 +529,20 @@ class module_impl :
 	public module_impl_base {
 public:
 
+	/** Constructor.
+	*/
+	module_impl() {
+		sm_ptOnlyInstance = static_cast<T *>(this);
+	}
+
+
+	/** Destructor.
+	*/
+	~module_impl() {
+		sm_ptOnlyInstance = NULL;
+	}
+
+
 #if ABC_OUTPUT_POSIX_EXE
 
 	/** Entry point for POSIX executables.
@@ -621,13 +636,13 @@ public:
 
 			case DLL_PROCESS_DETACH: {
 				// The unique_ptr will take care of deleting pt.
-				std::unique_ptr<T> pt(static_cast<T *>(g_pmib));
+				std::unique_ptr<T> pt(T::sm_ptOnlyInstance);
 				return pt->dll_main(iReason);
 			}
 
 			case DLL_THREAD_ATTACH:
 			case DLL_THREAD_DETACH: {
-				T * pt(static_cast<T *>(g_pmib));
+				T * pt(T::sm_ptOnlyInstance);
 				return pt->dll_main(iReason);
 			}
 
@@ -684,6 +699,11 @@ public:
 	}
 
 #endif
+
+private:
+
+	/** Pointer to the one and only instance of the application-defined module class. */
+	static T * sm_ptOnlyInstance;
 };
 
 } //namespace abc
