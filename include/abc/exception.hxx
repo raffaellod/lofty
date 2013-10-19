@@ -472,8 +472,8 @@ namespace abc {
 err
 	OS-defined error number.
 */
-ABC_FUNC_NORETURN void throw_os_error();
-ABC_FUNC_NORETURN void throw_os_error(errint_t err);
+ABCAPI ABC_FUNC_NORETURN void throw_os_error();
+ABCAPI ABC_FUNC_NORETURN void throw_os_error(errint_t err);
 
 #endif
 
@@ -608,7 +608,7 @@ namespace abc {
 
 /** Base for arithmetic errors.
 */
-class arithmetic_error :
+class ABCAPI arithmetic_error :
 	public virtual generic_error {
 public:
 
@@ -633,7 +633,7 @@ namespace abc {
 
 /** The divisor of a division or modulo operation was zero.
 */
-class division_by_zero_error :
+class ABCAPI division_by_zero_error :
 	public virtual arithmetic_error {
 public:
 
@@ -656,7 +656,7 @@ public:
 
 namespace abc {
 
-class domain_error :
+class ABCAPI domain_error :
 	public virtual generic_error {
 public:
 
@@ -681,7 +681,7 @@ namespace abc {
 
 /** Base for errors that occur in the outer system.
 */
-class environment_error :
+class ABCAPI environment_error :
 	public virtual generic_error {
 public:
 
@@ -706,7 +706,7 @@ namespace abc {
 
 /** A file could not be found.
 */
-class file_not_found_error :
+class ABCAPI file_not_found_error :
 	public virtual environment_error {
 public:
 
@@ -731,7 +731,7 @@ namespace abc {
 
 /** A floating point operation failed.
 */
-class floating_point_error :
+class ABCAPI floating_point_error :
 	public virtual arithmetic_error {
 public:
 
@@ -756,7 +756,7 @@ namespace abc {
 
 /** Base for errors due to an invalid key or index being used on a mapping or sequence.
 */
-class lookup_error :
+class ABCAPI lookup_error :
 	public virtual generic_error {
 public:
 
@@ -781,7 +781,7 @@ namespace abc {
 
 /** Sequence subscript out of range.
 */
-class index_error :
+class ABCAPI index_error :
 	public virtual lookup_error {
 public:
 
@@ -842,7 +842,7 @@ namespace abc {
 
 /** The specified file path is not a valid path.
 */
-class invalid_path_error :
+class ABCAPI invalid_path_error :
 	public virtual generic_error {
 public:
 
@@ -867,7 +867,7 @@ namespace abc {
 
 /** An I/O operation failed for an I/O-related reason.
 */
-class io_error :
+class ABCAPI io_error :
 	public virtual environment_error {
 public:
 
@@ -892,7 +892,7 @@ namespace abc {
 
 /** An attempt was made to access an invalid memory location.
 */
-class memory_address_error :
+class ABCAPI memory_address_error :
 	public virtual generic_error {
 public:
 
@@ -958,7 +958,7 @@ namespace abc {
 
 /** An invalid memory access (e.g. misaligned pointer) was detected.
 */
-class memory_access_error :
+class ABCAPI memory_access_error :
 	public virtual memory_address_error {
 public:
 
@@ -983,7 +983,7 @@ namespace abc {
 
 /** A memory allocation request could not be satisfied.
 */
-class memory_allocation_error :
+class ABCAPI memory_allocation_error :
 	public virtual generic_error {
 public:
 
@@ -1012,7 +1012,7 @@ namespace abc {
 
 /** An attempt was made to access the memory location 0 (NULL).
 */
-class null_pointer_error :
+class ABCAPI null_pointer_error :
 	public virtual memory_address_error {
 public:
 
@@ -1039,7 +1039,7 @@ namespace abc {
 standardization of floating point exception handling in C, most floating point operations are also
 not checked.
 */
-class overflow_error :
+class ABCAPI overflow_error :
 	public virtual arithmetic_error {
 public:
 
@@ -1064,7 +1064,7 @@ namespace abc {
 
 /** The syntax for the specified expression is invalid.
 */
-class syntax_error :
+class ABCAPI syntax_error :
 	public virtual generic_error {
 public:
 
@@ -1141,7 +1141,7 @@ private:
 namespace abc {
 
 #define ABC_DERIVE_ERROR_CLASS(derived, base) \
-	class derived : \
+	class ABCAPI derived : \
 		public virtual base { \
 	public: \
 	\
@@ -1159,7 +1159,7 @@ namespace abc {
 
 
 #define ABC_DERIVE_ERROR_CLASS2(derived, base1, base2) \
-	class derived : \
+	class ABCAPI derived : \
 		public virtual base1, \
 		public virtual base2 { \
 	public: \

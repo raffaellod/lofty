@@ -35,10 +35,10 @@ namespace abc {
 
 #if ABC_HOST_API_POSIX
 
-void throw_os_error() {
+ABCAPI void throw_os_error() {
 	throw_os_error(errno);
 }
-void throw_os_error(errint_t err) {
+ABCAPI void throw_os_error(errint_t err) {
 	ABC_ASSERT(err != 0);
 	switch (err) {
 		case E2BIG: // Argument list too long (POSIX.1-2001)
@@ -228,10 +228,10 @@ void throw_os_error(errint_t err) {
 
 #elif ABC_HOST_API_WIN32
 
-void throw_os_error() {
+ABCAPI void throw_os_error() {
 	throw_os_error(::GetLastError());
 }
-void throw_os_error(errint_t err) {
+ABCAPI void throw_os_error(errint_t err) {
 	ABC_ASSERT(err != ERROR_SUCCESS);
 	switch (err) {
 		// TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
