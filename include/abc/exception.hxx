@@ -263,7 +263,7 @@ class ostream;
 
 /** Base for all abc exceptions classes.
 */
-class exception {
+class ABCAPI exception {
 public:
 
 	/** Related STL exception class. */
@@ -411,7 +411,7 @@ TODO: comment signature.
 
 /** An assertion failed.
 */
-class assertion_error :
+class ABCAPI assertion_error :
 	public exception {
 public:
 
@@ -441,7 +441,7 @@ namespace abc {
 
 /** The user hit an interrupt key (usually Ctrl-C or Del).
 */
-class user_interrupt :
+class ABCAPI user_interrupt :
 	public exception {
 public:
 };
@@ -480,7 +480,7 @@ ABC_FUNC_NORETURN void throw_os_error(errint_t err);
 
 /** Base for all error-related exceptions classes.
 */
-class generic_error :
+class ABCAPI generic_error :
 	public exception {
 public:
 
@@ -581,7 +581,7 @@ namespace abc {
 
 /** A function/method received an argument that had an inappropriate value.
 */
-class argument_error :
+class ABCAPI argument_error :
 	public virtual generic_error {
 public:
 

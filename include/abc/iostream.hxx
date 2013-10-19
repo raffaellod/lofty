@@ -37,7 +37,7 @@ namespace abc {
 
 /** Base for abstract data streams.
 */
-class stream_base {
+class ABCAPI stream_base {
 public:
 
 	/** Constructor.
@@ -108,7 +108,7 @@ namespace abc {
 
 /** Read-only abstract stream.
 */
-class istream :
+class ABCAPI istream :
 	public virtual stream_base,
 	public support_explicit_operator_bool<istream> {
 public:
@@ -268,7 +268,7 @@ syntax>
 
 /** Write-only abstract stream.
 */
-class ostream :
+class ABCAPI ostream :
 	public virtual stream_base {
 public:
 
@@ -404,7 +404,7 @@ namespace abc {
 
 /** Template-free implementation of abc::_ostream_print_helper.
 */
-class _ostream_print_helper_impl {
+class ABCAPI _ostream_print_helper_impl {
 public:
 
 	/** Constructor.
@@ -918,7 +918,7 @@ namespace abc {
 
 /** Read/write abstract stream.
 */
-class iostream :
+class ABCAPI iostream :
 	public virtual istream,
 	public virtual ostream {
 public:

@@ -148,7 +148,7 @@ namespace abc {
 
 /** Dynamically loadable module.
 */
-class dynamic_module {
+class ABCAPI dynamic_module {
 
 	ABC_CLASS_PREVENT_COPYING(dynamic_module)
 
@@ -216,7 +216,7 @@ namespace abc {
 
 /** Resource dynamically loadable module.
 */
-class resource_module
+class ABCAPI resource_module
 #if ABC_HOST_API_WIN32
 	: public dynamic_module
 #endif
@@ -292,7 +292,7 @@ namespace abc {
 
 /** Code dynamically loadable module.
 */
-class code_module
+class ABCAPI code_module
 #if ABC_HOST_API_WIN32
 	: public dynamic_module
 #endif
@@ -403,7 +403,7 @@ namespace abc {
 
 /** Base class for implementing a dynamically loadable module.
 */
-class module_impl_base :
+class ABCAPI module_impl_base :
 	public code_module,
 	public resource_module {
 

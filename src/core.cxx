@@ -40,7 +40,7 @@ namespace abc {
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
-void _explob_helper::bool_true() const {
+ABCAPI void _explob_helper::bool_true() const {
 }
 
 #endif

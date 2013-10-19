@@ -40,7 +40,7 @@ namespace abc {
 /** Base class for the specializations of to_str_backend for string types. Not using templates, so
 the implementation can be in a cxx file.
 */
-class _str_to_str_backend_base {
+class ABCAPI _str_to_str_backend_base {
 public:
 
 	/** Constructor.

@@ -85,7 +85,7 @@ namespace abc {
 /** Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
 doesn’t always own the wrapped filedesc_t (e.g. for standard files).
 */
-class filedesc :
+class ABCAPI filedesc :
 	public support_explicit_operator_bool<filedesc> {
 
 	ABC_CLASS_PREVENT_COPYING(filedesc)
@@ -169,7 +169,7 @@ namespace abc {
 
 /** Wrapper for the OS’s native file API.
 */
-class file {
+class ABCAPI file {
 
 	ABC_CLASS_PREVENT_COPYING(file)
 

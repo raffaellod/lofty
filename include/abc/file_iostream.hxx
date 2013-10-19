@@ -37,7 +37,7 @@ namespace abc {
 
 /** Base class for file-based data streams.
 */
-class file_stream_base :
+class ABCAPI file_stream_base :
 	public virtual stream_base {
 public:
 
@@ -197,7 +197,7 @@ instead of getting a segfault or memory corruption, in file_istream tests.
 
 /** Implementation of an read-only stream based on a file.
 */
-class file_istream :
+class ABCAPI file_istream :
 	public virtual file_stream_base,
 	public virtual istream {
 public:
@@ -300,7 +300,7 @@ namespace abc {
 
 /** Implementation of an write-only stream based on a file.
 */
-class file_ostream :
+class ABCAPI file_ostream :
 	public virtual file_stream_base,
 	public virtual ostream {
 public:
@@ -374,7 +374,7 @@ namespace abc {
 
 /** Implementation of a read/write stream based on a file.
 */
-class file_iostream :
+class ABCAPI file_iostream :
 	public virtual file_istream,
 	public virtual file_ostream {
 public:

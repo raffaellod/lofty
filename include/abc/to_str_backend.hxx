@@ -71,14 +71,14 @@ class ostream;
 
 /** Base class for the specializations of to_str_backend for integer types.
 */
-class _int_to_str_backend_base {
+class ABCAPI _int_to_str_backend_base {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	ABCAPI _int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
+	_int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
 
 
 protected:
@@ -87,7 +87,7 @@ protected:
 
 	TODO: comment signature.
 	*/
-	ABCAPI void add_prefixes_and_write(
+	void add_prefixes_and_write(
 		bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 	) const;
 
@@ -104,14 +104,14 @@ protected:
 
 	TODO: comment signature.
 	*/
-	ABCAPI void write_s64(int64_t i, ostream * posOut) const;
+	void write_s64(int64_t i, ostream * posOut) const;
 
 
 	/** Converts a 64-bit unsigned integer to its string representation.
 
 	TODO: comment signature.
 	*/
-	ABCAPI void write_u64(uint64_t i, ostream * posOut) const;
+	void write_u64(uint64_t i, ostream * posOut) const;
 
 
 	/** Converts a 32-bit signed integer to its string representation.
@@ -344,21 +344,21 @@ class to_str_backend;
 
 // Specialization for bool.
 template <>
-class to_str_backend<bool> {
+class ABCAPI to_str_backend<bool> {
 public:
 
 	/** Constructor.
 
 	TODO: comment signature.
 	*/
-	ABCAPI to_str_backend(char_range const & crFormat = char_range());
+	to_str_backend(char_range const & crFormat = char_range());
 
 
 	/** See to_str_backend::write().
 
 	TODO: comment signature.
 	*/
-	ABCAPI void write(bool b, ostream * posOut);
+	void write(bool b, ostream * posOut);
 };
 
 
@@ -389,7 +389,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 
 // Specialization for void const volatile *.
 template <>
-class to_str_backend<void const volatile *> :
+class ABCAPI to_str_backend<void const volatile *> :
 	protected to_str_backend<uintptr_t> {
 public:
 
@@ -397,7 +397,7 @@ public:
 
 	TODO: comment signature.
 	*/
-	ABCAPI to_str_backend(char_range const & crFormat = char_range());
+	to_str_backend(char_range const & crFormat = char_range());
 
 
 	/** See to_str_backend::write().

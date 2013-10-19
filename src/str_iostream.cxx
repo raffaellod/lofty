@@ -29,33 +29,33 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-ABCAPI str_istream::str_istream(istr const & s) :
+str_istream::str_istream(istr const & s) :
 	istream(),
 	m_sBuf(s),
 	m_ibRead(0) {
 }
-ABCAPI str_istream::str_istream(istr && s) :
+str_istream::str_istream(istr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-ABCAPI str_istream::str_istream(mstr && s) :
+str_istream::str_istream(mstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
-ABCAPI str_istream::str_istream(dmstr && s) :
+str_istream::str_istream(dmstr && s) :
 	istream(),
 	m_sBuf(std::move(s)),
 	m_ibRead(0) {
 }
 
 
-ABCAPI /*virtual*/ str_istream::~str_istream() {
+/*virtual*/ str_istream::~str_istream() {
 }
 
 
-ABCAPI size_t str_istream::read_raw(
+size_t str_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
 	UNUSED_ARG(p);
@@ -65,7 +65,7 @@ ABCAPI size_t str_istream::read_raw(
 }
 
 
-ABCAPI /*virtual*/ void str_istream::unread_raw(
+/*virtual*/ void str_istream::unread_raw(
 	void const * p, size_t cb, text::encoding enc
 ) {
 	UNUSED_ARG(p);
@@ -74,7 +74,7 @@ ABCAPI /*virtual*/ void str_istream::unread_raw(
 }
 
 
-ABCAPI /*virtual*/ void str_istream::_read_line(
+/*virtual*/ void str_istream::_read_line(
 	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
 	UNUSED_ARG(prs);
@@ -92,22 +92,22 @@ ABCAPI /*virtual*/ void str_istream::_read_line(
 
 namespace abc {
 
-ABCAPI str_ostream::str_ostream() :
+str_ostream::str_ostream() :
 	ostream(),
 	m_ibWrite(0) {
 }
 
 
-ABCAPI /*virtual*/ str_ostream::~str_ostream() {
+/*virtual*/ str_ostream::~str_ostream() {
 }
 
 
-ABCAPI str_ostream::string_type str_ostream::get_contents() {
+str_ostream::string_type str_ostream::get_contents() {
 	return std::move(m_sBuf);
 }
 
 
-ABCAPI /*virtual*/ void str_ostream::write_raw(
+/*virtual*/ void str_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
 	abc_trace_fn((this, p, cb, enc));

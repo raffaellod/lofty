@@ -36,7 +36,7 @@ namespace abc {
 
 /** Implementation of an read-only stream based on a string.
 */
-class str_istream :
+class ABCAPI str_istream :
 	public virtual istream {
 public:
 
@@ -44,27 +44,27 @@ public:
 
 	TODO: comment signature.
 	*/
-	ABCAPI explicit str_istream(istr const & s);
-	ABCAPI explicit str_istream(istr && s);
-	ABCAPI explicit str_istream(mstr && s);
-	ABCAPI explicit str_istream(dmstr && s);
+	explicit str_istream(istr const & s);
+	explicit str_istream(istr && s);
+	explicit str_istream(mstr && s);
+	explicit str_istream(dmstr && s);
 
 
 	/** Destructor.
 	*/
-	ABCAPI virtual ~str_istream();
+	virtual ~str_istream();
 
 
 	/** See istream::read_raw().
 	*/
-	ABCAPI virtual size_t read_raw(
+	virtual size_t read_raw(
 		void * p, size_t cbMax, text::encoding enc = text::encoding::identity
 	);
 
 
 	/** See istream::unread_raw().
 	*/
-	ABCAPI virtual void unread_raw(
+	virtual void unread_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	);
 
@@ -73,7 +73,7 @@ protected:
 
 	/** See istream::_read_line().
 	*/
-	ABCAPI virtual void _read_line(
+	virtual void _read_line(
 		_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 	);
 
@@ -98,7 +98,7 @@ namespace abc {
 
 /** Implementation of an write-only stream based on a string.
 */
-class str_ostream :
+class ABCAPI str_ostream :
 	public virtual ostream {
 
 	typedef dmstr string_type;
@@ -107,12 +107,12 @@ public:
 
 	/** Constructor.
 	*/
-	ABCAPI str_ostream();
+	str_ostream();
 
 
 	/** Destructor.
 	*/
-	ABCAPI virtual ~str_ostream();
+	virtual ~str_ostream();
 
 
 	/** Returns and empties the contents of the stream.
@@ -120,12 +120,12 @@ public:
 	return
 		Former contents of the stream.
 	*/
-	ABCAPI string_type get_contents();
+	string_type get_contents();
 
 
 	/** See ostream::write_raw().
 	*/
-	ABCAPI virtual void write_raw(
+	virtual void write_raw(
 		void const * p, size_t cb, text::encoding enc = text::encoding::identity
 	);
 

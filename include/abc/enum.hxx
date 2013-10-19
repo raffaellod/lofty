@@ -95,7 +95,7 @@ namespace abc {
 
 /** Enumeration member (name/value pair).
 */
-struct enum_member {
+struct ABCAPI enum_member {
 
 	/** Name. */
 	char_t const * pszName;
@@ -125,7 +125,7 @@ class ostream;
 
 /** Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
-class _enum_to_str_backend_impl {
+class ABCAPI _enum_to_str_backend_impl {
 public:
 
 	/** Constructor.

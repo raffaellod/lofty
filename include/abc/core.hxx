@@ -43,6 +43,8 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma warning(disable: 4062)
 	// “conditional expression is constant”
 	#pragma warning(disable: 4127)
+	// “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients of class 'class1'”
+	#pragma warning(disable: 4251)
 	// “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
 	#pragma warning(disable: 4290)
 	// “'class' : default constructor could not be generated”
@@ -397,7 +399,7 @@ cls
 
 		/** A pointer to this method is used as a boolean true by support_explicit_operator_bool.
 		*/
-		void bool_true() const;
+		ABCAPI void bool_true() const;
 	};
 
 
