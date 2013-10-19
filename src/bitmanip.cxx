@@ -30,16 +30,14 @@ namespace abc {
 
 namespace bitmanip {
 
-template <>
-uint8_t _raw_ceiling_to_pow2(uint8_t i) {
+ABCAPI uint8_t _raw_ceiling_to_pow2(uint8_t i) {
 	unsigned iPow2(unsigned(i - 1));
 	iPow2 |= iPow2 >> 1;
 	iPow2 |= iPow2 >> 2;
 	iPow2 |= iPow2 >> 4;
 	return uint8_t(iPow2 + 1);
 }
-template <>
-uint16_t _raw_ceiling_to_pow2(uint16_t i) {
+ABCAPI uint16_t _raw_ceiling_to_pow2(uint16_t i) {
 	unsigned iPow2(unsigned(i - 1));
 	iPow2 |= iPow2 >> 1;
 	iPow2 |= iPow2 >> 2;
@@ -47,8 +45,7 @@ uint16_t _raw_ceiling_to_pow2(uint16_t i) {
 	iPow2 |= iPow2 >> 8;
 	return uint16_t(iPow2 + 1);
 }
-template <>
-uint32_t _raw_ceiling_to_pow2(uint32_t i) {
+ABCAPI uint32_t _raw_ceiling_to_pow2(uint32_t i) {
 	--i;
 	i |= i >> 1;
 	i |= i >> 2;
@@ -57,8 +54,7 @@ uint32_t _raw_ceiling_to_pow2(uint32_t i) {
 	i |= i >> 16;
 	return i + 1;
 }
-template <>
-uint64_t _raw_ceiling_to_pow2(uint64_t i) {
+ABCAPI uint64_t _raw_ceiling_to_pow2(uint64_t i) {
 	--i;
 	i |= i >> 1;
 	i |= i >> 2;
