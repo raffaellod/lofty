@@ -41,14 +41,16 @@ namespace abc {
 */
 #if ABC_OUTPUT_POSIX_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		template <> \
+		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
 		\
 		extern "C" int main(int cArgs, char ** ppszArgs) { \
 			return cls::entry_point_main(cArgs, ppszArgs); \
 		}
 #elif ABC_OUTPUT_WIN32_EXE
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		template <> \
+		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
 		\
 		extern "C" int WINAPI wWinMain( \
 			HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
@@ -58,7 +60,8 @@ namespace abc {
 		}
 #elif ABC_OUTPUT_WIN32_DLL
 	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		/*static*/ cls * cls::sm_ptOnlyInstance; \
+		template <> \
+		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
 		\
 		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
 			UNUSED_ARG(pReserved); \
