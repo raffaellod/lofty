@@ -648,7 +648,7 @@ cls
 		#define ABC_MAIN_APP_MODULE(cls) \
 			ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
 			\
-			extern "C" int ABC_STL_CALLCONV main(int cArgs, wchar_t ** ppszArgs) { \
+			extern "C" int ABC_STL_CALLCONV wmain(int cArgs, wchar_t ** ppszArgs) { \
 				return cls::entry_point_main(cArgs, ppszArgs); \
 			}
 	#endif
