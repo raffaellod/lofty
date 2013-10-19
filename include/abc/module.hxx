@@ -560,7 +560,7 @@ public:
 			// Use a vector<istr const> to avoid dynamic allocation of the vector’s array for just a
 			// few arguments.
 			smvector<istr const, 8> vsArgs;
-			_build_args(cArgs, ppszArgs, &vsArgs);
+			module_impl<T>::_build_args(cArgs, ppszArgs, &vsArgs);
 
 			// Invoke the program-defined main().
 			return t.main(vsArgs);
