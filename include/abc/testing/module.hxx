@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::module
+// abc::testing::app_module
 
 
 namespace abc {
@@ -39,13 +39,13 @@ namespace testing {
 /** Testing module. It interacts with registered abc::testing::unit-derived classes,
 allowing for the execution of unit tests.
 */
-class module :
-	public module_impl<module> {
+class app_module :
+	public app_module_impl<app_module> {
 public:
 
 	/** See abc::module_impl::main().
 	*/
-	int main(mvector<istr const> const & vsArgs);
+	ABCTESTINGAPI int main(mvector<istr const> const & vsArgs);
 };
 
 } //namespace testing

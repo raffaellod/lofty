@@ -1336,7 +1336,18 @@ exception::async_handler_manager::~async_handler_manager() {
 	}
 }
 
-#endif //if ABC_HOST_API_LINUX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_LINUX
+
+exception::async_handler_manager::async_handler_manager() {
+	// TODO: implementation.
+}
+
+
+exception::async_handler_manager::~async_handler_manager() {
+	// TODO: implementation.
+}
+
+#endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
 
 } //namespace abc
 

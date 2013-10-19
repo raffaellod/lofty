@@ -37,41 +37,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/** TODO: comment.
-*/
-#if ABC_OUTPUT_POSIX_EXE
-	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		template <> \
-		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
-		\
-		extern "C" int main(int cArgs, char ** ppszArgs) { \
-			return cls::entry_point_main(cArgs, ppszArgs); \
-		}
-#elif ABC_OUTPUT_WIN32_EXE
-	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		template <> \
-		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
-		\
-		extern "C" int WINAPI wWinMain( \
-			HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
-		) { \
-			UNUSED_ARG(pszCmdLine); \
-			return cls::entry_point_win_exe(hinst, iShowCmd); \
-		}
-#elif ABC_OUTPUT_WIN32_DLL
-	#define ABC_DECLARE_MODULE_IMPL_CLASS(cls) \
-		template <> \
-		/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL); \
-		\
-		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
-			UNUSED_ARG(pReserved); \
-			return cls::entry_point_win_dll(hinst, iReason); \
-		}
-#else
-	#error TODO-PORT: OUTPUT
-#endif
-
-
 /** Thread ID type. */
 #if ABC_HOST_API_POSIX
 	typedef pthread_t tid_t;
@@ -546,7 +511,35 @@ public:
 	}
 
 
-#if ABC_OUTPUT_POSIX_EXE
+private:
+
+	/** Pointer to the one and only instance of the application-defined module class. */
+	static T * sm_ptOnlyInstance;
+};
+
+} //namespace abc
+
+/** Defines the static members of a abc::module_impl specialization.
+*/
+#define ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+	template <> \
+	/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::app_module_impl
+
+
+namespace abc {
+
+/** Partial implementation of an application module.
+*/
+template <class T>
+class app_module_impl :
+	public module_impl<T> {
+public:
+
+#if ABC_HOST_API_POSIX
 
 	/** Entry point for POSIX executables.
 
@@ -580,7 +573,7 @@ public:
 		}
 	}
 
-#elif ABC_OUTPUT_WIN32_EXE
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 	/** Entry point for Windows executables.
 
@@ -612,7 +605,75 @@ public:
 		}
 	}
 
-#elif ABC_OUTPUT_WIN32_DLL
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+	#error TODO-PORT: OUTPUT
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+
+
+// Overridables to define the behavior of the application.
+public:
+
+	/** Entry point of the application.
+
+	vsArgs
+		Command-line arguments.
+	return
+		Return code of the program.
+	*/
+	int main(mvector<istr const> const & vsArgs) {
+		UNUSED_ARG(vsArgs);
+		return 0;
+	}
+};
+
+} //namespace abc
+
+
+/** Declares an abc::app_module_impl-derived class as being the main module for the application.
+
+cls
+	Main abc::app_module_impl-derived class.
+*/
+#if ABC_HOST_API_POSIX
+	#define ABC_MAIN_APP_MODULE(cls) \
+		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+		\
+		extern "C" int main(int cArgs, char ** ppszArgs) { \
+			return cls::entry_point_main(cArgs, ppszArgs); \
+		}
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+	#define ABC_MAIN_APP_MODULE(cls) \
+		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+		\
+		extern "C" int WINAPI wWinMain( \
+			HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
+		) { \
+			UNUSED_ARG(pszCmdLine); \
+			return cls::entry_point_win_exe(hinst, iShowCmd); \
+		}
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+	#error TODO-PORT: OUTPUT
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::library_module_impl
+
+
+namespace abc {
+
+/** Partial implementation of a shared library module.
+*/
+template <class T>
+class library_module_impl :
+	public module_impl<T> {
+public:
+
+#if ABC_HOST_API_POSIX
+
+	// TODO
+
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 	/** Entry point for Windows DLLs.
 
@@ -660,29 +721,19 @@ public:
 		return false;
 	}
 
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: OUTPUT
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
-// Overridables to define the behavior of the program/library.
+// Overridables to define the behavior of the library.
 public:
 
-#if ABC_OUTPUT_POSIX_EXE || ABC_OUTPUT_WIN32_EXE
+#if ABC_HOST_API_POSIX
 
-	/** Entry point of the program.
+	// TODO
 
-	vsArgs
-		Command-line arguments.
-	return
-		Return code of the program.
-	*/
-	int main(mvector<istr const> const & vsArgs) {
-		UNUSED_ARG(vsArgs);
-		return EXIT_SUCCESS;
-	}
-
-#elif ABC_OUTPUT_WIN32_DLL
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 	/** TODO: comment signature.
 	*/
@@ -701,15 +752,37 @@ public:
 		return use_count() > 0 ? S_FALSE : S_OK;
 	}
 
-#endif
-
-private:
-
-	/** Pointer to the one and only instance of the application-defined module class. */
-	static T * sm_ptOnlyInstance;
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+	#error TODO-PORT: OUTPUT
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 };
 
 } //namespace abc
+
+
+/** Declares an abc::library_module_impl-derived class as being the main module for the library.
+
+cls
+	Main abc::library_module_impl-derived class.
+*/
+#if ABC_HOST_API_POSIX
+	#define ABC_MAIN_LIBRARY_MODULE(cls) \
+		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+		\
+		extern "C" int main(int cArgs, char ** ppszArgs) { \
+			return cls::entry_point_main(cArgs, ppszArgs); \
+		}
+#elif ABC_HOST_API_WIN32
+	#define ABC_MAIN_LIBRARY_MODULE(cls) \
+		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+		\
+		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
+			UNUSED_ARG(pReserved); \
+			return cls::entry_point_win_dll(hinst, iReason); \
+		}
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+	#error TODO-PORT: OUTPUT
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

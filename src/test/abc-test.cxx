@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::testing::module
 
 
-ABC_DECLARE_MODULE_IMPL_CLASS(abc::testing::module)
+ABC_MAIN_APP_MODULE(abc::testing::app_module)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

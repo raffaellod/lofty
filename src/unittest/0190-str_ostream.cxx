@@ -24,8 +24,8 @@ using namespace abc;
 
 
 
-class test_module :
-	public module_impl<test_module> {
+class test_app_module :
+	public app_module_impl<test_app_module> {
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
@@ -48,5 +48,5 @@ public:
 	}
 };
 
-ABC_DECLARE_MODULE_IMPL_CLASS(test_module)
+ABC_MAIN_APP_MODULE(test_app_module)
 
