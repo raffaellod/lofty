@@ -136,7 +136,7 @@ namespace testing {
 /** Maintains a list of abc::testing::unit-derived classes that can be used by an
 abc::testing::runner instance to instantiate and execute each unit.
 */
-class unit_factory_impl {
+class ABCTESTINGAPI unit_factory_impl {
 public:
 
 	/** Factory function, returning an abc::testing::unit instance. */

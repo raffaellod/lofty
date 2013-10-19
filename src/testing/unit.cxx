@@ -69,7 +69,7 @@ namespace abc {
 
 namespace testing {
 
-/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead = NULL;
+/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead(NULL);
 
 } //namespace testing
 
