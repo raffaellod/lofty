@@ -231,16 +231,8 @@ module_impl_base::module_impl_base() :
 
 
 /*static*/ void module_impl_base::_build_args(
-#if ABC_HOST_API_POSIX
-	int cArgs, char_t ** ppszArgs,
-#elif ABC_HOST_API_WIN32
-	// ::GetCommandLine() provides the data.
-#else
-	#error TODO-PORT: HOST_API
-#endif
-	mvector<istr const> * pvsRet
+	int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet
 ) {
-#if ABC_HOST_API_POSIX
 	abc_trace_fn((cArgs, ppszArgs, pvsRet));
 
 	pvsRet->set_capacity(size_t(cArgs), false);
@@ -248,13 +240,14 @@ module_impl_base::module_impl_base() :
 	for (int i(0); i < cArgs; ++i) {
 		pvsRet->append(istr(unsafe, ppszArgs[i]));
 	}
-#elif ABC_HOST_API_WIN32
+}
+#if ABC_HOST_API_WIN32
+/*static*/ void module_impl_base::_build_args(mvector<istr const> * pvsRet) {
 	abc_trace_fn((pvsRet));
 
-#else
-	#error TODO-PORT: HOST_API
-#endif
+	// TODO: call ::GetCommandLine() and parse its result.
 }
+#endif
 
 
 } //namespace abc

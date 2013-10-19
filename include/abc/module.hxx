@@ -436,16 +436,11 @@ protected:
 	pvsRet
 		Vector to receive unsafe istr instances containing each argument.
 	*/
-	static void _build_args(
-#if ABC_HOST_API_POSIX
-		int cArgs, char_t ** ppszArgs,
-#elif ABC_HOST_API_WIN32
-		// Will use ::GetCommandLine() internally.
-#else
-	#error TODO-PORT: HOST_API
+	static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
+#if ABC_HOST_API_WIN32
+	// Overload that uses ::GetCommandLine() internally.
+	static void _build_args(mvector<istr const> * pvsRet);
 #endif
-		mvector<istr const> * pvsRet
-	);
 
 
 #if ABC_HOST_API_WIN32
@@ -539,12 +534,10 @@ class app_module_impl :
 	public module_impl<T> {
 public:
 
-#if ABC_HOST_API_POSIX
-
-	/** Entry point for POSIX executables.
+	/** C-style entry point for executables.
 
 	cArgs
-		Number of arguments.
+		Count of arguments.
 	ppszArgs
 		Arguments.
 	return
@@ -557,8 +550,7 @@ public:
 			// Create and initialize the module.
 			T t;
 
-			// Use a vector<istr const> to avoid dynamic allocation of the vector’s array for just a
-			// few arguments.
+			// Use a smvector to avoid dynamic allocation for just a few arguments.
 			smvector<istr const, 8> vsArgs;
 			module_impl<T>::_build_args(cArgs, ppszArgs, &vsArgs);
 
@@ -573,7 +565,8 @@ public:
 		}
 	}
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+
+#if ABC_HOST_API_WIN32
 
 	/** Entry point for Windows executables.
 
@@ -605,9 +598,7 @@ public:
 		}
 	}
 
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-	#error TODO-PORT: OUTPUT
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_WIN32
 
 
 // Overridables to define the behavior of the application.
@@ -642,15 +633,25 @@ cls
 			return cls::entry_point_main(cArgs, ppszArgs); \
 		}
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-	#define ABC_MAIN_APP_MODULE(cls) \
-		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-		\
-		extern "C" int WINAPI wWinMain( \
-			HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
-		) { \
-			UNUSED_ARG(pszCmdLine); \
-			return cls::entry_point_win_exe(hinst, iShowCmd); \
-		}
+	// TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
+	#ifdef ABC_HOST_API_WIN32_GUI
+		#define ABC_MAIN_APP_MODULE(cls) \
+			ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+			\
+			extern "C" int WINAPI wWinMain( \
+				HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
+			) { \
+				UNUSED_ARG(pszCmdLine); \
+				return cls::entry_point_win_exe(hinst, iShowCmd); \
+			}
+	#else
+		#define ABC_MAIN_APP_MODULE(cls) \
+			ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+			\
+			extern "C" int ABC_STL_CALLCONV main(int cArgs, wchar_t ** ppszArgs) { \
+				return cls::entry_point_main(cArgs, ppszArgs); \
+			}
+	#endif
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
