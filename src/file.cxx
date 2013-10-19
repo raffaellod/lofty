@@ -390,6 +390,18 @@ size_t file::write(void const * p, size_t cb) {
 /*static*/ void file::_construct_std_file(filedesc_t fd, std::shared_ptr<file> ** pppf) {
 	abc_trace_fn((fd, pppf));
 
+	// TODO: under Win32, GUI subsystem programs will get NULL when calling ::GetStdHandle(). This
+	// needs to be handled here, with two options:
+	// a. Return a NULL std::shared_ptr. This means that all callers will need additional checks to
+	//	   detect this condition; further downstream, some code will need to use alternative means of
+	//    output (a message box?).
+	// b. Dynamically create a console to write to. This is not very Win32-like, but it allows to
+	//    output larger amounts of data that would be unsightly in a message box.
+	//
+	// Note that this is not an issue for POSIX programs, because when a standard file handle is
+	// redirected to /dev/null, it’s still a valid file handle, so no errors occur when reading/
+	// writing to it.
+
 	// TODO: mutex!
 	ABC_ASSERT(!*pppf);
 	// TODO: reduce the number of dynamic allocations.
