@@ -118,9 +118,6 @@ protected:
 
 	TODO: comment signature.
 	*/
-#if ABC_HOST_WORD_SIZE < 64
-	ABCAPI
-#endif
 	void write_s32(int32_t i, ostream * posOut) const;
 
 
@@ -128,9 +125,6 @@ protected:
 
 	TODO: comment signature.
 	*/
-#if ABC_HOST_WORD_SIZE < 64
-	ABCAPI
-#endif
 	void write_u32(uint32_t i, ostream * posOut) const;
 
 
@@ -138,9 +132,6 @@ protected:
 
 	TODO: comment signature.
 	*/
-#if ABC_HOST_WORD_SIZE < 32
-	ABCAPI
-#endif
 	void write_s16(int16_t i, ostream * posOut) const;
 
 
@@ -148,9 +139,6 @@ protected:
 
 	TODO: comment signature.
 	*/
-#if ABC_HOST_WORD_SIZE < 32
-	ABCAPI
-#endif
 	void write_u16(uint16_t i, ostream * posOut) const;
 
 
