@@ -19,9 +19,6 @@
     <Filter Include="Header Files\stl">
       <UniqueIdentifier>{26f46c64-c324-43ed-948d-fe89f1684eb1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\abc\mock">
-      <UniqueIdentifier>{7a187248-faf4-4b98-95f4-95f8b3c3c27b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\_vextr.cxx">
@@ -83,9 +80,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\abc\mock\iostream.hxx">
-      <Filter>Header Files\abc\mock</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\abc\_map_base.hxx">
       <Filter>Header Files\abc</Filter>
     </ClInclude>
