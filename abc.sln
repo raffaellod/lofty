@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "abc-test", "vsproj\abc-test.vcxproj", "{2AD1C390-5C5F-4CCC-A0F2-D197B6E2F20B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6306600A-9419-4FE3-B64B-F58569610D87} = {6306600A-9419-4FE3-B64B-F58569610D87}
+		{17793F28-5995-4CAF-8114-53C3558433C9} = {17793F28-5995-4CAF-8114-53C3558433C9}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "abc", "vsproj\abc.vcxproj", "{6306600A-9419-4FE3-B64B-F58569610D87}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "abc-testing", "vsproj\abc-testing.vcxproj", "{17793F28-5995-4CAF-8114-53C3558433C9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6306600A-9419-4FE3-B64B-F58569610D87} = {6306600A-9419-4FE3-B64B-F58569610D87}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "abc-test", "vsproj\abc-test.vcxproj", "{2AD1C390-5C5F-4CCC-A0F2-D197B6E2F20B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6306600A-9419-4FE3-B64B-F58569610D87} = {6306600A-9419-4FE3-B64B-F58569610D87}
-		{17793F28-5995-4CAF-8114-53C3558433C9} = {17793F28-5995-4CAF-8114-53C3558433C9}
 	EndProjectSection
 EndProject
 Global
