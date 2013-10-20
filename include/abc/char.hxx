@@ -132,7 +132,7 @@ return
 	// No native type for char16_t, but we can at least use 32-bit wchar_t to store any Unicode
 	// character correctly, and then truncate that to our typedef’ed char16_t.
 	// TODO: make the truncation explicit (compiler warning?).
-	#define U16CL(ch) abc::char16_t(L ## ch)
+	#define U16CL(ch) ::abc::char16_t(L ## ch)
 #endif
 
 
@@ -151,7 +151,7 @@ return
 #elif ABC_CXX_CHAR32 == 0
 	// No native type for char32_t, but we can at least use 16-bit wchar_t to store all Unicode BMP
 	// characters correctly, and then cast that to our typedef’ed char32_t.
-	#define U32CL(ch) abc::char32_t(L ## ch)
+	#define U32CL(ch) ::abc::char32_t(L ## ch)
 #endif
 
 
