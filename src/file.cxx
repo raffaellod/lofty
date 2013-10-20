@@ -105,15 +105,15 @@ static std::shared_ptr<file> * g_ppfileStdOut(NULL);
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
-	/** Set by file::_attach(). */
+	/** Set by file::_construct_matching_type(). */
 	struct ::stat statFile;
 #endif
-	/** See file::m_fd. To be set before calling file::_attach(). */
+	/** See file::m_fd. To be set before calling file::_construct_matching_type(). */
 	filedesc fd;
-	/** See file::m_bBuffered. To be set before calling file::_attach(). */
+	/** See file::m_bBuffered. To be set before calling file::_construct_matching_type(). */
 	bool bBuffered:1;
 #if ABC_HOST_API_WIN32
-	/** See regular_file::m_bAppend. To be set before calling file::_attach(). */
+	/** See regular_file::m_bAppend. To be set before calling file::_construct_matching_type(). */
 	bool bAppend:1;
 #endif
 };
@@ -142,7 +142,7 @@ file::file(_file_init_data * pfid) :
 	// opened in append mode.
 	fid.bAppend = false;
 #endif
-	return _attach(&fid);
+	return _construct_matching_type(&fid);
 }
 
 
@@ -234,7 +234,7 @@ void file::flush() {
 	if (!fid.fd) {
 		throw_os_error();
 	}
-	return _attach(&fid);
+	return _construct_matching_type(&fid);
 }
 
 
@@ -392,7 +392,7 @@ void file::flush() {
 }
 
 
-/*static*/ std::shared_ptr<file> file::_attach(_file_init_data * pfid) {
+/*static*/ std::shared_ptr<file> file::_construct_matching_type(_file_init_data * pfid) {
 	abc_trace_fn((pfid));
 
 #if ABC_HOST_API_POSIX
