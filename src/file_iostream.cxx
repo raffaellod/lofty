@@ -51,7 +51,7 @@ file_stream_base::file_stream_base(
 	file_path const & fp, file::access_mode fam, bool bBuffered /*= true*/
 ) :
 	stream_base(),
-	m_pfile(std::make_shared<file>(fp, fam, bBuffered)) {
+	m_pfile(file::open(fp, fam, bBuffered)) {
 }
 
 

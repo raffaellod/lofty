@@ -167,7 +167,12 @@ private:
 
 namespace abc {
 
-/** Wrapper for the OS’s native file API.
+// Forward declaration. This is only defined in file.cxx, after the necessary header files have been
+// included.
+struct _file_init_data;
+
+
+/** OS-native file (regular or pseudo).
 */
 class ABCAPI file {
 
@@ -193,13 +198,28 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	pfid
+		Data used to initialize the object, as set by open() and other methods.
 	*/
-	explicit file(filedesc && fd);
-	file(file_path const & fp, access_mode fam, bool bBuffered = true);
+	file(_file_init_data * pfid);
 
 
-	/** Ensures that no write buffers contain any data.
+	/** Destructor.
+	*/
+	virtual ~file();
+
+
+	/** Returns new file object controlling the specified file descriptor.
+
+	fd
+		File descriptor to take ownership of.
+	return
+		Pointer to a new file controlling fd.
+	*/
+	static std::shared_ptr<file> attach(filedesc && fd);
+
+
+	/** Writes to the file any data being buffered.
 	*/
 	void flush();
 
@@ -224,6 +244,29 @@ public:
 	}
 
 
+	/** Opens a file, returning a new file object with the desired access to the specified file.
+
+	fp
+		Path to the file.
+	fam
+		Desired access mode.
+	[bBuffered]
+		If true, access to the file will be buffered by the OS, if false, access to the file will be
+		unbuffered.
+	return
+		Pointer to a new file object for fp.
+	*/
+	static std::shared_ptr<file> open(file_path const & fp, access_mode fam, bool bBuffered = true);
+
+
+	/** Returns the physical alignment for unbuffered/direct disk access.
+
+	return
+		Alignment boundary, in bytes.
+	*/
+	virtual unsigned physical_alignment() const;
+
+
 	/** Reads at most cbMax bytes from the file.
 
 	p
@@ -234,39 +277,15 @@ public:
 		Count of bytes read. For non-zero values of cb, a return value of 0 indicates that the end of
 		the file was reached.
 	*/
-	size_t read(void * p, size_t cbMax);
+	virtual size_t read(void * p, size_t cbMax);
 
 
-	/** Returns the physical alignment for unbuffered/direct disk access.
-
-	return
-		Alignment boundary, in bytes.
-	*/
-	unsigned physical_alignment() const {
-		return m_cbPhysAlign;
-	}
-
-
-	/** Returns the computed size of the file, if applicable, or 0 otherwise.
+	/** Returns the computed size of the file if applicable, or 0 otherwise.
 
 	return
-		Size of the file, in bytes.
+		Size of the file, in bytes, or 0 if not applicable.
 	*/
-	fileint_t size() const {
-		return m_cb;
-	}
-
-
-	/** Writes an array of bytes to the file.
-
-	p
-		Address of the source buffer.
-	cb
-		Size of the source buffer, in bytes.
-	return
-		Count of bytes written.
-	*/
-	size_t write(void const * p, size_t cb);
+	virtual fileint_t size() const;
 
 
 	/** Returns the file associated to the standard error output (stderr).
@@ -293,28 +312,40 @@ public:
 	static std::shared_ptr<file> const & stdout();
 
 
+	/** Writes an array of bytes to the file.
+
+	p
+		Address of the source buffer.
+	cb
+		Size of the source buffer, in bytes.
+	return
+		Count of bytes written.
+	*/
+	virtual size_t write(void const * p, size_t cb);
+
+
 private:
 
-	/** Initializes a standard file.
+	/** Instantiates a file of the appropriate type for the descriptor in *pfid, returning a shared
+	pointer to it.
 
-	TODO: comment signature.
+	pfid
+		Data that will be passed to the constructor of the file object.
+	return
+		Shared pointer to the newly created file object.
+	*/
+	static std::shared_ptr<file> _construct_matching_type(_file_init_data * pfid);
+
+
+	/** Initializes a standard file object.
+
+	fd
+		Standard file descriptor to create a file object for.
+	pppf
+		Second-level pointer to a shared pointer; the shared pointer will be dynamically allocated,
+		and the file object it will point to will also be dynamically allocated.
 	*/
 	static void _construct_std_file(filedesc_t fd, std::shared_ptr<file> ** pppf);
-
-
-	/** Opens a file, with the desired access mode. It touches member variables, but not m_fd.
-
-	TODO: comment signature.
-	*/
-	filedesc _open(file_path const & fp, access_mode fam);
-
-
-	/** Performs initialization to be done after having obtained a valid file descriptor. It touches
-	member variables, but not m_fd.
-
-	TODO: comment signature.
-	*/
-	filedesc _post_open(filedesc && fd);
 
 
 	/** Releases any objects constructed by _construct_std_file().
@@ -322,23 +353,131 @@ private:
 	static void ABC_STL_CALLCONV _release_std_files();
 
 
-private:
+protected:
+
+	/** Descriptor of the underlying file. */
+	filedesc m_fd;
+	/** If true, the file has a defined size, otherwise size() will always return 0. */
+	bool m_bHasSize:1;
+	/** If true, the OS will buffer reads/writes to m_fd. */
+	bool m_bBuffered:1;
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::console_file
+
+
+namespace abc {
+
+/** Console/terminal pseudo-file.
+*/
+class ABCAPI console_file :
+	public file {
+
+	ABC_CLASS_PREVENT_COPYING(console_file)
+
+public:
+
+	/** Constructor. See abc::file::file().
+	*/
+	console_file(_file_init_data * pfid);
+
+
+#if ABC_HOST_API_WIN32
+
+	// In Win32, console files must use a dedicated API in order to support the native character
+	// type.
+
+	/** See abc::file::read().
+	*/
+	virtual size_t read(void * p, size_t cbMax);
+
+
+	/** See abc::file::write().
+	*/
+	virtual size_t write(void const * p, size_t cb);
+
+#endif //if ABC_HOST_API_WIN32
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::pipe_file
+
+
+namespace abc {
+
+/** Pipe file.
+*/
+class ABCAPI pipe_file :
+	public file {
+
+	ABC_CLASS_PREVENT_COPYING(pipe_file)
+
+public:
+
+	/** Constructor. See abc::file::file().
+	*/
+	pipe_file(_file_init_data * pfid);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::regular_file
+
+
+namespace abc {
+
+/** File that behaves like a regular file on disk.
+*/
+class ABCAPI regular_file :
+	public file {
+
+	ABC_CLASS_PREVENT_COPYING(regular_file)
+
+public:
+
+	/** Constructor. See abc::file::file().
+	*/
+	regular_file(_file_init_data * pfid);
+
+
+	/** See abc::file::physical_alignment().
+	*/
+	virtual unsigned physical_alignment() const;
+
+
+	/** See abc::file::size().
+	*/
+	virtual fileint_t size() const;
+
+
+#if ABC_HOST_API_WIN32
+
+	/** See abc::file::write(). This override is necessary to emulate O_APPEND in Win32.
+	*/
+	virtual size_t write(void const * p, size_t cb);
+
+#endif //if ABC_HOST_API_WIN32
+
+
+protected:
 
 	/** Computed size of the file. */
 	fileint_t m_cb;
 	/** Physical alignment for unbuffered/direct disk access. */
 	unsigned m_cbPhysAlign;
-	/** If true, the file has a defined size, which is stored in m_cb. */
-	bool m_bHasSize:1;
-	/** If true, the OS is buffering reads/writes to m_fd; otherwise, use of m_cbPhysAlign is
-	enforced. */
-	bool m_bBuffered:1;
 #if ABC_HOST_API_WIN32
-	/** If true, write() will emulate POSIX’s O_APPEND. */
+	/** If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it. */
 	bool m_bAppend:1;
 #endif
-	/** Descriptor of the underlying file. */
-	filedesc m_fd;
 };
 
 } //namespace abc
