@@ -222,7 +222,7 @@ void file::flush() {
 			break;
 		no_default;
 	}
-	if (!m_bBuffered) {
+	if (!fid.bBuffered) {
 		fi |= FILE_FLAG_NO_BUFFERING;
 	} else if (fiAccess & GENERIC_READ) {
 		fi |= FILE_FLAG_SEQUENTIAL_SCAN;
@@ -418,7 +418,7 @@ void file::flush() {
 			// and GetStdHandle have the GENERIC_READ and GENERIC_WRITE access rights”, so we can trust
 			// this to succeed for console handles.
 			DWORD iConsoleMode;
-			if (::GetConsoleMode(pfid->fd.get(), iConsoleMode)) {
+			if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
 				return std::make_shared<console_file>(pfid);
 			}
 			break;
@@ -516,16 +516,20 @@ console_file::console_file(_file_init_data * pfid) :
 /*virtual*/ size_t console_file::read(void * p, size_t cbMax) {
 	abc_trace_fn((this, p, cbMax));
 
+	// Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
+	// divided by sizeof(char_t).
+	size_t cchMax(cbMax / sizeof(char_t));
+
 	int8_t * pb(static_cast<int8_t *>(p));
 	// ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
-	// of masking them by skipping the call (e.g. due to cbMax == 0 on input).
+	// of masking them by skipping the call (e.g. due to cchMax == 0 on input).
 	do {
 		// This will be repeated at least once, and as long as we still have some bytes to read, and
 		// reading them does not fail.
-		DWORD cbLastRead;
+		DWORD cchLastRead;
 		if (!::ReadConsole(
 			m_fd.get(), pb,
-			DWORD(std::min<size_t>(cbMax, numeric::max<DWORD>::value)), &cbLastRead, NULL
+			DWORD(std::min<size_t>(cchMax, numeric::max<DWORD>::value)), &cchLastRead, NULL
 		)) {
 			DWORD iErr(::GetLastError());
 			if (iErr == ERROR_HANDLE_EOF) {
@@ -534,37 +538,41 @@ console_file::console_file(_file_init_data * pfid) :
 			throw_os_error(iErr);
 		}
 		// Some bytes were read; prepare for the next attempt.
-		pb += cbLastRead;
-		cbMax -= size_t(cbLastRead);
-	} while (cbMax);
+		pb += cchLastRead * sizeof(char_t);
+		cchMax -= size_t(cchLastRead);
+	} while (cchMax);
 
-	return size_t(pb - static_cast<int8_t *>(p));
+	return size_t(pb - static_cast<int8_t *>(p)) * sizeof(char_t);
 }
 
 
 /*virtual*/ size_t console_file::write(void const * p, size_t cb) {
 	abc_trace_fn((this, p, cb));
 
+	// Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
+	// divided by sizeof(char_t).
+	size_t cch(cb / sizeof(char_t));
+
 	int8_t const * pb(static_cast<int8_t const *>(p));
 
 	// ::WriteConsole() is invoked at least once, so we give it a chance to report any errors,
-	// instead of masking them by skipping the call (e.g. due to cb == 0 on input).
+	// instead of masking them by skipping the call (e.g. due to cch == 0 on input).
 	do {
 		// This will be repeated at least once, and as long as we still have some bytes to write, and
 		// writing them does not fail.
-		DWORD cbLastWritten;
-		if (!::WriteFile(
+		DWORD cchLastWritten;
+		if (!::WriteConsole(
 			m_fd.get(), pb,
-			DWORD(std::min<size_t>(cb, numeric::max<DWORD>::value)), &cbLastWritten, NULL
+			DWORD(std::min<size_t>(cch, numeric::max<DWORD>::value)), &cchLastWritten, NULL
 		)) {
 			throw_os_error();
 		}
 		// Some bytes were written; prepare for the next attempt.
-		pb += cbLastWritten;
-		cb -= size_t(cbLastWritten);
-	} while (cb);
+		pb += cchLastWritten * sizeof(char_t);
+		cch -= size_t(cchLastWritten);
+	} while (cch);
 
-	return size_t(pb - static_cast<int8_t const *>(p));
+	return size_t(pb - static_cast<int8_t const *>(p)) * sizeof(char_t);
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -610,10 +618,10 @@ regular_file::regular_file(_file_init_data * pfid) :
 
 #if _WIN32_WINNT >= 0x0500
 	static_assert(
-			sizeof(m_cb) == sizeof(LARGE_INTEGER),
-			"fileint_t must be the same size as LARGE_INTEGER"
-		);
-	if (!::GetFileSizeEx(fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
+		sizeof(m_cb) == sizeof(LARGE_INTEGER),
+		"fileint_t must be the same size as LARGE_INTEGER"
+	);
+	if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
 		throw_os_error();
 	}
 #else //if _WIN32_WINNT >= 0x0500
