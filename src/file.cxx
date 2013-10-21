@@ -414,9 +414,9 @@ void file::flush() {
 			// Serial line or console.
 			// Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
 			// which could be a problem with stdout/stderr because we don’t ask for that permission for
-			// these handles; however, “The handles returned by CreateFile, CreateConsoleScreenBuffer,
-			// and GetStdHandle have the GENERIC_READ and GENERIC_WRITE access rights”, so we can trust
-			// this to succeed for console handles.
+			// these handles; however, for consoles, “The handles returned by CreateFile,
+			// CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE
+			// access rights”, so we can trust this to succeed for console handles.
 			DWORD iConsoleMode;
 			if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
 				return std::make_shared<console_file>(pfid);
