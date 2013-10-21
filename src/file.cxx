@@ -549,6 +549,8 @@ console_file::console_file(_file_init_data * pfid) :
 /*virtual*/ size_t console_file::write(void const * p, size_t cb) {
 	abc_trace_fn((this, p, cb));
 
+	// TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
+
 	// Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
 	// divided by sizeof(char_t).
 	size_t cch(cb / sizeof(char_t));
@@ -600,14 +602,13 @@ pipe_file::pipe_file(_file_init_data * pfid) :
 namespace abc {
 
 regular_file::regular_file(_file_init_data * pfid) :
-	file(pfid)  {
+	file(pfid) {
 	abc_trace_fn((this, pfid));
 
 	m_bHasSize = true;
 
 #if ABC_HOST_API_POSIX
 
-//	struct ::stat statFile;
 	m_cb = size_t(pfid->statFile.st_size);
 	if (!m_bBuffered) {
 		// For unbuffered access, use the filesystem-suggested I/O size increment.
