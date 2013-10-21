@@ -47,8 +47,10 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 /** Indicates the level of UTF-8 string literals support:
-•	0 if UTF-8 string literals are not supported;
-•	1 if UTF-8 string literals are supported.
+•	2 - The UTF-8 string literal prefix (u8) is supported;
+•	1 - The u8 prefix is not supported, but the compiler will generate valid UTF-8 string literals if
+		 the source file is UTF-8+BOM-encoded;
+•	0 - UTF-8 string literals are not supported in any way.
 */
 #define ABC_CXX_UTF8LIT 0
 
@@ -77,7 +79,7 @@ namespace abc {
 	#if _GCC_VER >= 40500
 		// UTF-8 string literals are supported.
 		#undef ABC_CXX_UTF8LIT
-		#define ABC_CXX_UTF8LIT 1
+		#define ABC_CXX_UTF8LIT 2
 	#endif
 #else
 	#if defined(_MSC_VER) && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
@@ -92,6 +94,19 @@ namespace abc {
 		// char32_t is not a native type, but we can typedef it as wchar_t.
 		#undef ABC_CXX_CHAR32
 		#define ABC_CXX_CHAR32 1
+	#endif
+	#if !defined(_MSC_VER)
+		// MSC16 will transcode non-wchar_t string literals into whatever single-byte encoding is
+		// selected for the user running cl.exe; a solution has been provided in form of a hotfix
+		// (<http://support.microsoft.com/kb/2284668/en-us>), but it no longer seems available, and it
+		// was not ported to MSC17/VS2012, thought it seems it was finally built into MSC18/VS2013
+		// (<http://connect.microsoft.com/VisualStudio/feedback/details/773186/pragma-execution-
+		// character-set-utf-8-didnt-support-in-vc-2012>).
+		//
+		// Here we assume that no other compiler exhibits such a random behavior, and they will all
+		// emit valid UTF-8 string literals it the source file is UTF-8+BOM-encoded.
+		#undef ABC_CXX_UTF8LIT
+		#define ABC_CXX_UTF8LIT 1
 	#endif
 #endif
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
@@ -163,9 +178,9 @@ s
 return
 	UTF-8 string literal.
 */
-#if ABC_CXX_UTF8LIT == 1
+#if ABC_CXX_UTF8LIT == 2
 	#define U8SL(s) u8 ## s
-#else
+#elif ABC_CXX_UTF8LIT == 1
 	// Rely on the source files being encoded in UTF-8.
 	#define U8SL(s) s
 #endif
