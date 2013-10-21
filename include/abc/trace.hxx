@@ -98,7 +98,7 @@ Currently unsupported:
 /** Implementation of abc_trace_fn() and similar macros.
 */
 #define _abc_trace_scope_impl(var, args) \
-	auto var(abc::_scope_trace_impl::make args ); \
+	auto var(::abc::_scope_trace_impl::make args ); \
 	var._set_context(__FILE__, uint16_t(__LINE__), _ABC_THIS_FUNC)
 
 
