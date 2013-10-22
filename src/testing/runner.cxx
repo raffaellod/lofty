@@ -52,6 +52,8 @@ namespace testing {
 
 runner::runner(std::shared_ptr<ostream> posOut) :
 	m_pos(std::move(posOut)),
+	m_cTotalUnits(0),
+	m_cPassedUnits(0),
 	m_cTotalTests(0),
 	m_cPassedTests(0) {
 }
@@ -83,7 +85,9 @@ void runner::load_registered_units() {
 
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
-	m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
+	if (!bSuccess /*|| verbose*/) {
+		m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
+	}
 	if (bSuccess) {
 		++m_cPassedTests;
 	}
@@ -96,7 +100,19 @@ bool runner::log_summary() {
 		m_pos->write(SL("No tests performed\n"));
 	} else {
 		m_pos->print(
-			SL("Tests completed: ")
+			SL("Units summary: ")
+			SL("{} executed, ")
+			SL("{} passed ({}%), ")
+			SL("{} failed ({}%)\n"),
+
+			m_cTotalUnits,
+			m_cPassedUnits,
+			m_cPassedUnits * 100 / m_cTotalUnits,
+			m_cTotalUnits - m_cPassedUnits,
+			((m_cTotalUnits - m_cPassedUnits) * 100 + 1) / m_cTotalUnits
+		);
+		m_pos->print(
+			SL("Tests summary: ")
 			SL("{} performed, ")
 			SL("{} passed ({}%), ")
 			SL("{} failed ({}%)\n"),
@@ -120,8 +136,18 @@ void runner::run() {
 
 
 void runner::run_unit(unit & u) {
+	m_pos->print(SL("Testing unit \"{}\" ...\n"), u.title());
+
+	// Save the current total and passed counts, so we can compare them after running the unit.
+	unsigned cPrevTotalTests(m_cTotalTests), cPrevPassedTests(m_cPassedTests);
+	bool bPassed(false);
 	try {
 		u.run();
+		// If both the total and the passed count increased, the unit passed.
+		if (cPrevTotalTests - m_cTotalTests == cPrevPassedTests - m_cPassedTests) {
+			bPassed = true;
+			++m_cPassedUnits;
+		}
 	} catch (assertion_error const &) {
 		// This exception type is only used to interrupt abc::testing::unit::run().
 		m_pos->write(SL("Unit execution interrupted\n"));
@@ -130,6 +156,9 @@ void runner::run_unit(unit & u) {
 	} catch (...) {
 		exception::write_with_scope_trace(m_pos.get());
 	}
+	++m_cTotalUnits;
+
+	m_pos->print(SL("Completed unit \"{}\": {}\n"), u.title(), bPassed ? SL("pass") : SL("fail"));
 }
 
 } //namespace testing

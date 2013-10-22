@@ -117,6 +117,10 @@ private:
 //	dmvector<std::unique_ptr<unit>> m_vpu;
 	/** Output stream. */
 	std::shared_ptr<ostream> m_pos;
+	/** Total count of units executed. */
+	unsigned m_cTotalUnits;
+	/** Total count of successful units. */
+	unsigned m_cPassedUnits;
 	/** Total count of assertion/expectation tests executed. */
 	unsigned m_cTotalTests;
 	/** Total count of successful assertion/expectation tests. */
