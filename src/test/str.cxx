@@ -101,7 +101,7 @@ public:
 	/** See str_unit_base::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		dmstr s;
 		init_str_ptr(s);
@@ -197,6 +197,8 @@ ABC_TESTING_UNIT_REGISTER(abc::test::str_basic)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str8_substr_ascii
 
+#ifdef U8SL
+
 namespace abc {
 
 namespace test {
@@ -215,7 +217,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -224,41 +226,20 @@ public:
 		// •  first and last characters match 'a', but other inner ones do too;
 		// •  would match “abcd” were it not for the last character;
 		// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-#ifdef U8SL
 		istr8 const s8(U8SL("acabaabca"));
-		istr8::const_iterator
+		istr8::const_iterator it;
 
-		it = s8.find(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 3);
-
-		it = s8.find(U8SL("ab"));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 2);
-
-		it = s8.find(U8SL("abca"));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 5);
-
-		it = s8.find(U8SL("abcd"));
-		ABC_TESTING_EXPECT(it == s8.cend());
-
-		it = s8.find(U8SL("abaabc"));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 2);
-
-		it = s8.find(U8SL("abaabcd"));
-		ABC_TESTING_EXPECT(it == s8.cend());
-
-		it = s8.find_last(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s8.cend() - 3);
-
+		ABC_TESTING_EXPECT(s8.find(U32CL('b')) == s8.cbegin() + 3);
+		ABC_TESTING_EXPECT(s8.find(U8SL("ab")) == s8.cbegin() + 2);
+		ABC_TESTING_EXPECT(s8.find(U8SL("abca")) == s8.cbegin() + 5);
+		ABC_TESTING_EXPECT(s8.find(U8SL("abcd")) == s8.cend());
+		ABC_TESTING_EXPECT(s8.find(U8SL("abaabc")) == s8.cbegin() + 2);
+		ABC_TESTING_EXPECT(s8.find(U8SL("abaabcd")) == s8.cend());
+		ABC_TESTING_EXPECT(s8.find_last(U32CL('b')) == s8.cend() - 3);
 #if 0
-		it = s8.find_last(U8SL("ab"));
-		ABC_TESTING_EXPECT(it == s8.cend() - 4);
-
-		it = s8.find_last(U8SL("ac"));
-		ABC_TESTING_EXPECT(it == s8.cend() - 9);
-
-		it = s8.find_last(U8SL("ca"));
-		ABC_TESTING_EXPECT(it == s8.cend() - 2);
-#endif
+		ABC_TESTING_EXPECT(s8.find_last(U8SL("ab")) == s8.cend() - 4);
+		ABC_TESTING_EXPECT(s8.find_last(U8SL("ac")) == s8.cend() - 9);
+		ABC_TESTING_EXPECT(s8.find_last(U8SL("ca")) == s8.cend() - 2);
 #endif
 	}
 };
@@ -269,9 +250,13 @@ public:
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str8_substr_ascii)
 
+#endif //ifdef U8SL
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str16_substr_ascii
+
+#ifdef U16SL
 
 namespace abc {
 
@@ -291,7 +276,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -300,41 +285,20 @@ public:
 		// •  first and last characters match 'a', but other inner ones do too;
 		// •  would match “abcd” were it not for the last character;
 		// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-#ifdef U16SL
 		istr16 const s16(U16SL("acabaabca"));
 		istr16::const_iterator it;
 
-		it = s16.find(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 3);
-
-		it = s16.find(U16SL("ab"));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 2);
-
-		it = s16.find(U16SL("abca"));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 5);
-
-		it = s16.find(U16SL("abcd"));
-		ABC_TESTING_EXPECT(it == s16.cend());
-
-		it = s16.find(U16SL("abaabc"));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 2);
-
-		it = s16.find(U16SL("abaabcd"));
-		ABC_TESTING_EXPECT(it == s16.cend());
-
-		it = s16.find_last(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s16.cend() - 3);
-
+		ABC_TESTING_EXPECT(s16.find(U32CL('b')) == s16.cbegin() + 3);
+		ABC_TESTING_EXPECT(s16.find(U16SL("ab")) == s16.cbegin() + 2);
+		ABC_TESTING_EXPECT(s16.find(U16SL("abca")) == s16.cbegin() + 5);
+		ABC_TESTING_EXPECT(s16.find(U16SL("abcd")) == s16.cend());
+		ABC_TESTING_EXPECT(s16.find(U16SL("abaabc")) == s16.cbegin() + 2);
+		ABC_TESTING_EXPECT(s16.find(U16SL("abaabcd")) == s16.cend());
+		ABC_TESTING_EXPECT(s16.find_last(U32CL('b')) == s16.cend() - 3);
 #if 0
-		it = s16.find_last(U16SL("ab"));
-		ABC_TESTING_EXPECT(it == s16.cend() - 4);
-
-		it = s16.find_last(U16SL("ac"));
-		ABC_TESTING_EXPECT(it == s16.cend() - 9);
-
-		it = s16.find_last(U16SL("ca"));
-		ABC_TESTING_EXPECT(it == s16.cend() - 2);
-#endif
+		ABC_TESTING_EXPECT(s16.find_last(U16SL("ab")) == s16.cend() - 4);
+		ABC_TESTING_EXPECT(s16.find_last(U16SL("ac")) == s16.cend() - 9);
+		ABC_TESTING_EXPECT(s16.find_last(U16SL("ca")) == s16.cend() - 2);
 #endif
 	}
 };
@@ -345,9 +309,13 @@ public:
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str16_substr_ascii)
 
+#endif //ifdef U16SL
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str32_substr_ascii
+
+#ifdef U32SL
 
 namespace abc {
 
@@ -367,7 +335,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -376,41 +344,20 @@ public:
 		// •  first and last characters match 'a', but other inner ones do too;
 		// •  would match “abcd” were it not for the last character;
 		// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-#ifdef U32SL
 		istr32 const s32(U32SL("acabaabca"));
 		istr32::const_iterator it;
 
-		it = s32.find(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 3);
-
-		it = s32.find(U32SL("ab"));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 2);
-
-		it = s32.find(U32SL("abca"));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 5);
-
-		it = s32.find(U32SL("abcd"));
-		ABC_TESTING_EXPECT(it == s32.cend());
-
-		it = s32.find(U32SL("abaabc"));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 2);
-
-		it = s32.find(U32SL("abaabcd"));
-		ABC_TESTING_EXPECT(it == s32.cend());
-
-		it = s32.find_last(U32CL('b'));
-		ABC_TESTING_EXPECT(it == s32.cend() - 3);
-
+		ABC_TESTING_EXPECT(s32.find(U32CL('b')) == s32.cbegin() + 3);
+		ABC_TESTING_EXPECT(s32.find(U32SL("ab")) == s32.cbegin() + 2);
+		ABC_TESTING_EXPECT(s32.find(U32SL("abca")) == s32.cbegin() + 5);
+		ABC_TESTING_EXPECT(s32.find(U32SL("abcd")) == s32.cend());
+		ABC_TESTING_EXPECT(s32.find(U32SL("abaabc")) == s32.cbegin() + 2);
+		ABC_TESTING_EXPECT(s32.find(U32SL("abaabcd")) == s32.cend());
+		ABC_TESTING_EXPECT(s32.find_last(U32CL('b')) == s32.cend() - 3);
 #if 0
-		it = s32.find_last(U32SL("ab"));
-		ABC_TESTING_EXPECT(it == s32.cend() - 4);
-
-		it = s32.find_last(U32SL("ac"));
-		ABC_TESTING_EXPECT(it == s32.cend() - 9);
-
-		it = s32.find_last(U32SL("ca"));
-		ABC_TESTING_EXPECT(it == s32.cend() - 2);
-#endif
+		ABC_TESTING_EXPECT(s32.find_last(U32SL("ab")) == s32.cend() - 4);
+		ABC_TESTING_EXPECT(s32.find_last(U32SL("ac")) == s32.cend() - 9);
+		ABC_TESTING_EXPECT(s32.find_last(U32SL("ca")) == s32.cend() - 2);
 #endif
 	}
 };
@@ -421,9 +368,13 @@ public:
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str32_substr_ascii)
 
+#endif //ifdef U32SL
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str8_substr_nonascii
+
+#ifdef U8SL
 
 namespace abc {
 
@@ -443,25 +394,16 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// Non-ASCII character and substring search.
-#ifdef U8SL
 		istr8 const s8(U8SL("àßçàŒ"));
 		istr8::const_iterator it;
 
-		it = s8.find(U32CL('ß'));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 2);
-
-		it = s8.find(U8SL("àß"));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 0);
-
-		it = s8.find(U8SL("àŒ"));
-		ABC_TESTING_EXPECT(it == s8.cbegin() + 6);
-
-		it = s8.find(U8SL("àü"));
-		ABC_TESTING_EXPECT(it == s8.cend());
-#endif
+		ABC_TESTING_EXPECT(s8.find(U32CL('ß')) == s8.cbegin() + 2);
+		ABC_TESTING_EXPECT(s8.find(U8SL("àß")) == s8.cbegin() + 0);
+		ABC_TESTING_EXPECT(s8.find(U8SL("àŒ")) == s8.cbegin() + 6);
+		ABC_TESTING_EXPECT(s8.find(U8SL("àü")) == s8.cend());
 	}
 };
 
@@ -471,9 +413,13 @@ public:
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str8_substr_nonascii)
 
+#endif //ifdef U8SL
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str16_substr_nonascii
+
+#ifdef U16SL
 
 namespace abc {
 
@@ -493,25 +439,16 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// Non-ASCII character and substring search.
-#ifdef U16SL
 		istr16 const s16(U16SL("àßçàŒ"));
 		istr16::const_iterator it;
 
-		it = s16.find(U32CL('ß'));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 1);
-
-		it = s16.find(U16SL("àß"));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 0);
-
-		it = s16.find(U16SL("àŒ"));
-		ABC_TESTING_EXPECT(it == s16.cbegin() + 3);
-
-		it = s16.find(U16SL("àü"));
-		ABC_TESTING_EXPECT(it == s16.cend());
-#endif
+		ABC_TESTING_EXPECT(s16.find(U32CL('ß')) == s16.cbegin() + 1);
+		ABC_TESTING_EXPECT(s16.find(U16SL("àß")) == s16.cbegin() + 0);
+		ABC_TESTING_EXPECT(s16.find(U16SL("àŒ")) == s16.cbegin() + 3);
+		ABC_TESTING_EXPECT(s16.find(U16SL("àü")) == s16.cend());
 	}
 };
 
@@ -521,9 +458,13 @@ public:
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str16_substr_nonascii)
 
+#endif //ifdef U16SL
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str32_substr_nonascii
+
+#ifdef U32SL
 
 namespace abc {
 
@@ -543,25 +484,16 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn(());
+		abc_trace_fn((this));
 
 		// Non-ASCII character and substring search.
-#ifdef U32SL
 		istr32 const s32(U32SL("àßçàŒ"));
 		istr32::const_iterator it;
 
-		it = s32.find(U32CL('ß'));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 1);
-
-		it = s32.find(U32SL("àß"));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 0);
-
-		it = s32.find(U32SL("àŒ"));
-		ABC_TESTING_EXPECT(it == s32.cbegin() + 3);
-
-		it = s32.find(U32SL("àü"));
-		ABC_TESTING_EXPECT(it == s32.cend());
-#endif
+		ABC_TESTING_EXPECT(s32.find(U32CL('ß')) == s32.cbegin() + 1);
+		ABC_TESTING_EXPECT(s32.find(U32SL("àß")) == s32.cbegin() + 0);
+		ABC_TESTING_EXPECT(s32.find(U32SL("àŒ")) == s32.cbegin() + 3);
+		ABC_TESTING_EXPECT(s32.find(U32SL("àü")) == s32.cend());
 	}
 };
 
@@ -570,6 +502,8 @@ public:
 } //namespace abc
 
 ABC_TESTING_UNIT_REGISTER(abc::test::str32_substr_nonascii)
+
+#endif //ifdef U32SL
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
