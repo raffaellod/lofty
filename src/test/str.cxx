@@ -32,12 +32,12 @@ class str_unit_base :
 	public testing::unit {
 protected:
 
-	/** Initializes the private data members used by check_str().
+	/** Initializes the private data members used by str_ptr_changed().
 
 	s
 		String to initialize with.
 	*/
-	void init_check_str(istr const & s) {
+	void init_str_ptr(istr const & s) {
 		abc_trace_fn((s));
 
 		m_psCheck = &s;
@@ -47,24 +47,20 @@ protected:
 
 	/** Checks if a string’s item array has been reallocated, and verifies its character count.
 
-	TODO: comment signature.
+	bPtrChanged
+		Validates that the string’s character array pointer has changed if true, or that it has not
+		changed if false.
+	return
+		true if the validation is successful, or false otherwise.
 	*/
-	bool check_str(bool bPtrChanged, size_t cch, size_t cchCapacity = 0) {
-		abc_trace_fn((bPtrChanged, cch, cchCapacity));
+	bool str_ptr_changed(bool bPtrChanged) {
+		abc_trace_fn((bPtrChanged));
 
 		// Update the item array pointer for the next call.
 		char_t const * pchCheckOld(m_pchCheck);
 		m_pchCheck = m_psCheck->data();
 		// Check if the item array has changed in accordance to the expectation.
 		if ((pchCheckOld != m_psCheck->data()) != bPtrChanged) {
-			return false;
-		}
-		// Check if the character count matches the expectation.
-		if (m_psCheck->size() != cch) {
-			return false;
-		}
-		// Check if the capacity matches the expectation.
-		if (m_psCheck->capacity() != cchCapacity) {
 			return false;
 		}
 		return true;
@@ -108,63 +104,85 @@ public:
 		abc_trace_fn(());
 
 		dmstr s;
-		init_check_str(s);
+		init_str_ptr(s);
 
 		s += SL("a");
 		// true: operator+= must have created an item array (there was none).
-		ABC_TESTING_EXPECT(check_str(true, 1, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 1);
+		ABC_TESTING_EXPECT(s.capacity() >= 1);
 		ABC_TESTING_ASSERT(s[0] == CL('a'));
 
 		s = s + CL('b') + s;
 		// true: a new string is created by operator+, which replaces s by operator=.
-		ABC_TESTING_EXPECT(check_str(true, 3, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 3);
+		ABC_TESTING_EXPECT(s.capacity() >= 3);
 		ABC_TESTING_EXPECT(s == SL("aba"));
 
 		s = s.substr(1, 3);
 		// true: s got replaced by operator=.
-		ABC_TESTING_EXPECT(check_str(true, 2, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 2);
+		ABC_TESTING_EXPECT(s.capacity() >= 2);
 		ABC_TESTING_EXPECT(s == SL("ba"));
 
 		s += CL('c');
 		// false: there should’ve been enough space for 'c'.
-		ABC_TESTING_EXPECT(check_str(false, 3, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(false));
+		ABC_TESTING_EXPECT(s.size() == 3);
+		ABC_TESTING_EXPECT(s.capacity() >= 3);
 		ABC_TESTING_EXPECT(s == SL("bac"));
 
 		s = s.substr(0, -1);
 		// true: s got replaced by operator=.
-		ABC_TESTING_EXPECT(check_str(true, 2, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 2);
+		ABC_TESTING_EXPECT(s.capacity() >= 2);
 		ABC_TESTING_EXPECT(s[0] == CL('b') && s[1] == CL('a'));
 
 		s += s;
 		// false: there should’ve been enough space for “baba”.
-		ABC_TESTING_EXPECT(check_str(false, 4, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(false));
+		ABC_TESTING_EXPECT(s.size() == 4);
+		ABC_TESTING_EXPECT(s.capacity() >= 4);
 		ABC_TESTING_EXPECT(s[0] == CL('b') && s[1] == CL('a') && s[2] == CL('b') && s[3] == CL('a'));
 
 		s = s.substr(-3, -2);
 		// true: s got replaced by operator=.
-		ABC_TESTING_EXPECT(check_str(true, 1, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 1);
+		ABC_TESTING_EXPECT(s.capacity() >= 1);
 		ABC_TESTING_EXPECT(s[0] == CL('a'));
 
 		s = dmstr(SL("ab")) + CL('c');
 		// true: s got replaced by operator=.
-		ABC_TESTING_EXPECT(check_str(true, 3, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(true));
+		ABC_TESTING_EXPECT(s.size() == 3);
+		ABC_TESTING_EXPECT(s.capacity() >= 3);
 		ABC_TESTING_EXPECT(s[0] == CL('a') && s[1] == CL('b') && s[2] == CL('c'));
 
 		s += CL('d');
 		// false: there should’ve been enough space for “abcd”.
-		ABC_TESTING_EXPECT(check_str(false, 4, 7));
+		ABC_TESTING_EXPECT(str_ptr_changed(false));
+		ABC_TESTING_EXPECT(s.size() == 4);
+		ABC_TESTING_EXPECT(s.capacity() >= 4);
 		ABC_TESTING_EXPECT(s[0] == CL('a') && s[1] == CL('b') && s[2] == CL('c') && s[3] == CL('d'));
 
 		s += SL("efghijklmnopqrstuvwxyz");
-		// Cannot expect (ABC_TESTING_EXPECT) this to behave in any specific way, since the item array
-		// may or may not change depending on heap reallocation strategy.
-		check_str(false, 26, 55);
+		// Cannot expect (ABC_TESTING_EXPECT) this to behave in any specific way, since the character
+		// array may or may not change depending on heap reallocation strategy.
+		str_ptr_changed(false);
+		ABC_TESTING_EXPECT(s.size() == 26);
+		ABC_TESTING_EXPECT(s.capacity() >= 26);
 		ABC_TESTING_EXPECT(s == SL("abcdefghijklmnopqrstuvwxyz"));
 
 		s = SL("a\0b");
 		s += SL("\0c");
 		// false: there should have been plenty of storage allocated.
-		ABC_TESTING_EXPECT(check_str(false, 5, 55));
+		ABC_TESTING_EXPECT(str_ptr_changed(false));
+		ABC_TESTING_EXPECT(s.size() == 5);
+		ABC_TESTING_EXPECT(s.capacity() >= 5);
 		ABC_TESTING_EXPECT(s == SL("a\0b\0c") && SL("a\0b\0c") == s);
 	}
 };
