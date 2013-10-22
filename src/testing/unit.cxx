@@ -70,7 +70,9 @@ namespace abc {
 namespace testing {
 
 /*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead(NULL);
-/*static*/ unit_factory_impl::factory_list_item ** unit_factory_impl::sm_ppfliTailNext(NULL);
+// MSC16 BUG: for some reason, this will be parsed as a function declaration if written as a
+// constructor call.
+/*static*/ unit_factory_impl::factory_list_item ** unit_factory_impl::sm_ppfliTailNext = NULL;
 
 
 unit_factory_impl::unit_factory_impl(factory_list_item * pfli) {
