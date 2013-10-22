@@ -52,8 +52,11 @@ protected:
 	bool check_str(bool bPtrChanged, size_t cch, size_t cchCapacity = 0) {
 		abc_trace_fn((bPtrChanged, cch, cchCapacity));
 
+		// Update the item array pointer for the next call.
+		char_t const * pchCheckOld(m_pchCheck);
+		m_pchCheck = m_psCheck->data();
 		// Check if the item array has changed in accordance to the expectation.
-		if ((m_pchCheck != m_psCheck->data()) != bPtrChanged) {
+		if ((pchCheckOld != m_psCheck->data()) != bPtrChanged) {
 			return false;
 		}
 		// Check if the character count matches the expectation.
@@ -64,8 +67,6 @@ protected:
 		if (m_psCheck->capacity() != cchCapacity) {
 			return false;
 		}
-		// Update the item array pointer for the next call.
-		m_pchCheck = m_psCheck->data();
 		return true;
 	}
 
@@ -155,10 +156,9 @@ public:
 		ABC_TESTING_EXPECT(s[0] == CL('a') && s[1] == CL('b') && s[2] == CL('c') && s[3] == CL('d'));
 
 		s += SL("efghijklmnopqrstuvwxyz");
-		// false: while this will need to reallocate, the heap should be able to just resize the
-		// allocated block, so the pointer won’t change.
-		// TODO: FIXME: can result in sporadic failures depending on heap reallocation strategy.
-		ABC_TESTING_EXPECT(check_str(false, 26, 55));
+		// Cannot expect (ABC_TESTING_EXPECT) this to behave in any specific way, since the item array
+		// may or may not change depending on heap reallocation strategy.
+		check_str(false, 26, 55);
 		ABC_TESTING_EXPECT(s == SL("abcdefghijklmnopqrstuvwxyz"));
 
 		s = SL("a\0b");
