@@ -224,6 +224,10 @@ private:
 	static factory_list_item sm_fli;
 };
 
+} //namespace testing
+
+} //namespace abc
+
 
 /** Registers an abc::testing::unit-derived class for execution by an abc::testing::runner instance.
 
@@ -243,10 +247,6 @@ cls
 	\
 	} /*namespace testing*/ \
 	} /*namespace abc*/
-
-} //namespace testing
-
-} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
