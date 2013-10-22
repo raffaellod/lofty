@@ -195,7 +195,7 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 		*--pch = chSign;
 	}
 	// Write the constructed string.
-	posOut->write_raw(pch, size_t(pchBufEnd - pch), text::encoding::host);
+	posOut->write_raw(pch, sizeof(char_t) * size_t(pchBufEnd - pch), text::encoding::host);
 }
 
 
