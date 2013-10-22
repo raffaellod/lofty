@@ -111,18 +111,24 @@ bool runner::log_summary() {
 	return m_cPassedTests == m_cTotalTests;
 }
 
+
 void runner::run() {
 	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
-		try {
-			(*it)->run();
-		} catch (assertion_error const &) {
-			// This exception type is only used to interrupt abc::testing::unit::run().
-			m_pos->write(SL("Unit execution interrupted\n"));
-		} catch (std::exception const & x) {
-			exception::write_with_scope_trace(m_pos.get(), &x);
-		} catch (...) {
-			exception::write_with_scope_trace(m_pos.get());
-		}
+		run_unit(**it);
+	}
+}
+
+
+void runner::run_unit(unit & u) {
+	try {
+		u.run();
+	} catch (assertion_error const &) {
+		// This exception type is only used to interrupt abc::testing::unit::run().
+		m_pos->write(SL("Unit execution interrupted\n"));
+	} catch (std::exception const & x) {
+		exception::write_with_scope_trace(m_pos.get(), &x);
+	} catch (...) {
+		exception::write_with_scope_trace(m_pos.get());
 	}
 }
 

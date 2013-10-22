@@ -103,6 +103,11 @@ public:
 	void run();
 
 
+	/** Executes a unit test.
+	*/
+	void run_unit(unit & u);
+
+
 private:
 
 	/** Vector of loaded test units to be executed. */
