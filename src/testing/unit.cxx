@@ -40,11 +40,15 @@ unit::unit() {
 
 
 void unit::init(runner * prunner) {
+	abc_trace_fn((prunner));
+
 	m_prunner = prunner;
 }
 
 
 void unit::assert(bool bExpr, istr const & sExpr) {
+	abc_trace_fn((bExpr, sExpr));
+
 	m_prunner->log_result(bExpr, sExpr);
 	if (!bExpr) {
 		abc_throw(abc::testing::assertion_error, ());
@@ -53,6 +57,8 @@ void unit::assert(bool bExpr, istr const & sExpr) {
 
 
 void unit::expect(bool bExpr, istr const & sExpr) {
+	abc_trace_fn((bExpr, sExpr));
+
 	m_prunner->log_result(bExpr, sExpr);
 }
 

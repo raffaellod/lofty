@@ -69,6 +69,8 @@ runner::~runner() {
 
 
 void runner::load_registered_units() {
+	abc_trace_fn(());
+
 	for (
 		unit_factory_impl::factory_list_item * pfli = unit_factory_impl::get_factory_list_head();
 		pfli;
@@ -85,6 +87,8 @@ void runner::load_registered_units() {
 
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
+	abc_trace_fn((bSuccess, sExpr));
+
 	if (!bSuccess /*|| verbose*/) {
 		m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
 	}
@@ -96,6 +100,8 @@ void runner::log_result(bool bSuccess, istr const & sExpr) {
 
 
 bool runner::log_summary() {
+	abc_trace_fn(());
+
 	if (m_cTotalTests == 0) {
 		m_pos->write(SL("No tests performed\n"));
 	} else {
@@ -129,6 +135,8 @@ bool runner::log_summary() {
 
 
 void runner::run() {
+	abc_trace_fn(());
+
 	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
 		run_unit(**it);
 	}
@@ -136,6 +144,8 @@ void runner::run() {
 
 
 void runner::run_unit(unit & u) {
+	abc_trace_fn((/*u*/));
+
 	m_pos->print(SL("Testing unit \"{}\" ...\n"), u.title());
 
 	// Save the current total and passed counts, so we can compare them after running the unit.
