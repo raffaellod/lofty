@@ -70,6 +70,20 @@ namespace abc {
 namespace testing {
 
 /*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead(NULL);
+/*static*/ unit_factory_impl::factory_list_item ** unit_factory_impl::sm_ppfliTailNext(NULL);
+
+
+unit_factory_impl::unit_factory_impl(factory_list_item * pfli) {
+	if (sm_pfliHead) {
+		// We have a head and therefore a tail as well: add *pfli as the new tail.
+		*sm_ppfliTailNext = pfli;
+	} else {
+		// We don’t have a head yet: set it up now.
+		sm_pfliHead = pfli;
+	}
+	// Save the “next” pointer of *pfli for the next call.
+	sm_ppfliTailNext = &pfli->pfliNext;
+}
 
 } //namespace testing
 

@@ -155,10 +155,7 @@ public:
 	pfli
 		Pointer to the derived class’s factory list item.
 	*/
-	unit_factory_impl(factory_list_item * pfli) {
-		pfli->pfliNext = sm_pfliHead;
-		sm_pfliHead = pfli;
-	}
+	unit_factory_impl(factory_list_item * pfli);
 
 
 	/** Returns a pointer to the head of the list of factory functions, which the caller can then use
@@ -176,6 +173,8 @@ private:
 
 	/** Pointer to the head of the list of factory functions. */
 	static factory_list_item * sm_pfliHead;
+	/** Pointer to the “next” pointer of the tail of the list of factory functions. */
+	static factory_list_item ** sm_ppfliTailNext;
 };
 
 } //namespace testing
