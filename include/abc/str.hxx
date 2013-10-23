@@ -935,14 +935,15 @@ public:
 	*/
 	void grow_for(std::function<size_t (C * pch, size_t cchMax)> fnRead) {
 		typedef _raw_vextr_impl_base rvib;
-		// The initial size avoids a couple of reallocations.
-		// Also, these numbers should guarantee that set_capacity() will allocate exactly the
-		// requested number of characters, eliminating the need to query back with capacity().
-		size_t cchRet(rvib::smc_cMinSlots * rvib::smc_iGrowthRate * rvib::smc_iGrowthRate);
-		for (size_t cchMax(cchRet); cchRet >= cchMax; cchMax *= rvib::smc_iGrowthRate) {
+		// The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
+		// Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly
+		// the requested number of characters, eliminating the need to query back with capacity().
+		size_t cchRet, cchMax(rvib::smc_cMinSlots * rvib::smc_iGrowthRate);
+		do {
+			cchMax *= rvib::smc_iGrowthRate;
 			set_capacity(cchMax - 1 /*NUL*/, false);
 			cchRet = fnRead(data(), cchMax);
-		}
+		} while (cchRet >= cchMax);
 		// Finalize the length.
 		set_size(cchRet);
 	}
