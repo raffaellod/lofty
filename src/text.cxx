@@ -710,7 +710,7 @@ ABCAPI size_t transcode(
 				} else {
 					ch16Dst0 = char16_t(ch32);
 				}
-				if (encSrc != encoding::utf16_host) {
+				if (encDst != encoding::utf16_host) {
 					ch16Dst0 = byteorder::swap(ch16Dst0);
 					if (cbCont) {
 						ch16Dst1 = byteorder::swap(ch16Dst1);
