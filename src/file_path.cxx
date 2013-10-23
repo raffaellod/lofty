@@ -136,13 +136,24 @@ dmstr file_path::base_name() const {
 		return cchMax;
 	});
 #elif ABC_HOST_API_WIN32
-	s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
-		DWORD cch(::GetCurrentDirectory(DWORD(cchMax), pch));
+	// Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
+	// mstr::grow_for() allocate space for that too, by adding the size of the root to the buffer
+	// size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
+	// reserve space for the root prefix.
+	size_t const c_cchRoot(countof(smc_aszRoot) - 1 /*NUL*/);
+	s.grow_for([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
+		if (c_cchRoot >= cchMax) {
+			// If the buffer is not large enough to hold the root prefix, request a larger one.
+			return cchMax;
+		}
+		DWORD cch(::GetCurrentDirectory(DWORD(cchMax - c_cchRoot), pch + c_cchRoot));
 		if (!cch) {
 			throw_os_error();
 		}
-		return cch;
+		return cch + c_cchRoot;
 	});
+	// Now that the current directory has been retrieved, prepend the root prefix.
+	memory::copy(s.data(), smc_aszRoot, c_cchRoot);
 #else
 	#error TODO-PORT: HOST_API
 #endif
