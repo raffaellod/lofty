@@ -264,7 +264,7 @@ void file::flush() {
 		if (cbLastRead < 0) {
 			throw_os_error();
 		}
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 		// This will be repeated at least once, and as long as we still have some bytes to read, and
 		// reading them does not fail.
 		DWORD cbLastRead;
@@ -278,9 +278,9 @@ void file::flush() {
 			}
 			throw_os_error(iErr);
 		}
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 		// Some bytes were read; prepare for the next attempt.
 		pb += cbLastRead;
 		cbMax -= size_t(cbLastRead);
@@ -370,7 +370,7 @@ void file::flush() {
 		if (cbLastWritten < 0) {
 			throw_os_error();
 		}
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 		// This will be repeated at least once, and as long as we still have some bytes to write, and
 		// writing them does not fail.
 		DWORD cbLastWritten;
@@ -380,9 +380,9 @@ void file::flush() {
 		)) {
 			throw_os_error();
 		}
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 		// Some bytes were written; prepare for the next attempt.
 		pb += cbLastWritten;
 		cb -= size_t(cbLastWritten);

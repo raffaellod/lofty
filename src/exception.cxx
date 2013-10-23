@@ -226,7 +226,7 @@ ABCAPI void throw_os_error(errint_t err) {
 	}
 }
 
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 ABCAPI void throw_os_error() {
 	throw_os_error(::GetLastError());
@@ -1043,7 +1043,7 @@ ABCAPI void throw_os_error(errint_t err) {
 	}
 }
 
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 
 // Default translations between exception class to OS-specific error code.
@@ -1265,7 +1265,7 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 				"popf"
 			);
 	#endif
-#endif
+#endif //ifdef __GNUC__
 
 			// There aren’t many codes here that are safe to handle; most of them indicate that there
 			// is some major memory corruption going on, and in that case we really don’t want to keep

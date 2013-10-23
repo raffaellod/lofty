@@ -81,7 +81,7 @@ namespace abc {
 		#undef ABC_CXX_UTF8LIT
 		#define ABC_CXX_UTF8LIT 2
 	#endif
-#else
+#else //if defined(_GCC_VER) && _GCC_VER >= 40400
 	#if defined(_MSC_VER) && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
 		#error Please compile with /Zc:wchar_t
 	#endif
@@ -108,7 +108,7 @@ namespace abc {
 		#undef ABC_CXX_UTF8LIT
 		#define ABC_CXX_UTF8LIT 1
 	#endif
-#endif
+#endif //if defined(_GCC_VER) && _GCC_VER >= 40400 … else
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
 	#error ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic
 #endif

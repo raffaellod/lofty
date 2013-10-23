@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	#include <stdlib.h> // free() malloc() realloc()
 	#include <memory.h> // memcpy() memmove() memset()
 
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 	// Clean up pollution caused by previous headers.
 	extern "C" {
@@ -64,7 +64,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 	} //extern "C"
 
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 /** TODO: comment or remove.
 */

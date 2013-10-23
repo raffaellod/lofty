@@ -54,7 +54,7 @@ public:
 	}
 };
 
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 /** Checks whether a path has the specified attribute(s) set.
 
@@ -73,7 +73,7 @@ static bool file_attrs(file_path const & fp, DWORD fi) {
 	return (fiAttrs & fi) == fi;
 }
 
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 
 
@@ -135,7 +135,7 @@ dmstr file_path::base_name() const {
 		// Report that the provided buffer was too small.
 		return cchMax;
 	});
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 	// Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
 	// mstr::grow_for() allocate space for that too, by adding the size of the root to the buffer
 	// size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
@@ -154,9 +154,9 @@ dmstr file_path::base_name() const {
 	});
 	// Now that the current directory has been retrieved, prepend the root prefix.
 	memory::copy(s.data(), smc_aszRoot, c_cchRoot);
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 	return std::move(s);
 }
 
@@ -166,7 +166,7 @@ dmstr file_path::base_name() const {
 
 #if ABC_HOST_API_POSIX
 	return s.size() >= 1 /*"/"*/ && s[0] == CL('/');
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 	size_t cch(s.size());
 	char_t const * pch(s.data());
 	// Win32 namespace root: best case.
@@ -181,9 +181,9 @@ dmstr file_path::base_name() const {
 		return true;
 	}
 	return false;
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
 
@@ -269,7 +269,7 @@ file_path file_path::parent_dir() const {
 	char_t const * pchRootSep(pch0);
 #if ABC_HOST_API_POSIX
 	// Nothing else to do.
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 	if (pch0[0] != CL('\\')) {
 		// The path is not in “\\?\X:\path” format; make it so.
 		s = smc_aszRoot + s;
@@ -295,9 +295,9 @@ file_path file_path::parent_dir() const {
 	}
 	// Point to the last of the separators checked for above.
 	pchRootSep += 6;
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 	#error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 	// Collapse sequences of separators, normalize separators, and interpret . and .. components.
 
 	// Skip any character up to the root separator; the separator itself is included to activare the

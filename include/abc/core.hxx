@@ -74,7 +74,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 	// “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
 	#pragma warning(disable: 4668)
-#endif
+#endif //ifdef _MSC_VER
 
 #include <limits.h> // CHAR_BIT *_MAX *_MIN
 #include <stdint.h> // *int*_t __WORDSIZE (if supported)
@@ -149,7 +149,7 @@ You should have received a copy of the GNU General Public License along with ABC
 	// This prevents stat() from failing for files bigger than 2 GiB.
 	#define _FILE_OFFSET_BITS 64
 
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 	// Make sure WINVER is defined.
 	#ifndef WINVER
@@ -208,7 +208,7 @@ You should have received a copy of the GNU General Public License along with ABC
 		#undef min
 		#undef max
 	#endif
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
