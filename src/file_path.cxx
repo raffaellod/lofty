@@ -239,7 +239,7 @@ file_path file_path::parent_dir() const {
 }
 
 
-// In spite of the fact it’s a one-lines, this can’t be in the header file because the size of
+// In spite of the fact it’s a one-liner, this can’t be in the header file because the size of
 // smc_aszRoot is only known here.
 /*static*/ file_path file_path::root() {
 	abc_trace_fn(());
