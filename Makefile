@@ -44,7 +44,6 @@ check: \
 	$(O)test.tmp/unittest/0020-exception.ut.log \
 	$(O)test.tmp/unittest/0030-enum.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
-	$(O)test.tmp/unittest/0060-file_path.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
 	$(O)test.tmp/unittest/0150-to_str_backend.ut.log \
 	$(O)test.tmp/unittest/0170-ostream-print.ut.log \
@@ -106,9 +105,6 @@ $(O)bin/unittest/0030-enum$(EXEEXT): \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0050-vector$(EXEEXT): \
 	$(O)obj/unittest/0050-vector.cxx$(OBJEXT) \
-	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0060-file_path$(EXEEXT): \
-	$(O)obj/unittest/0060-file_path.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0080-map$(EXEEXT): \
 	$(O)obj/unittest/0080-map.cxx$(OBJEXT) \
