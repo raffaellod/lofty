@@ -17,108 +17,75 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/module.hxx>
+#include <abc/testing/unit.hxx>
 #include <abc/trace.hxx>
-using namespace abc;
 
 
-class test_app_module :
-	public app_module_impl<test_app_module> {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::file_path_normalization
+
+namespace abc {
+
+namespace test {
+
+class file_path_normalization :
+	public testing::unit {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		abc_trace_fn((/*vsArgs*/));
+	/** See testing::unit::title().
+	*/
+	virtual istr title() {
+		return istr(SL("abc::file_path - normalizations"));
+	}
 
-		UNUSED_ARG(vsArgs);
 
-		// Basic operations.
-		{
-			file_path fp(file_path::current_dir());
+	/** See testing::unit::run().
+	*/
+	virtual void run() {
+		abc_trace_fn((this));
 
-			// These should be normalized out.
-			if (fp != fp / SL("")) {
-				return 10;
-			}
-			if (fp != fp / SL("/")) {
-				return 11;
-			}
-			if (fp != fp / SL("//")) {
-				return 12;
-			}
-			if (fp != fp / SL(".")) {
-				return 13;
-			}
-			if (fp != fp / SL("/.")) {
-				return 14;
-			}
-			if (fp != fp / SL("./")) {
-				return 15;
-			}
-			if (fp != fp / SL("/./")) {
-				return 16;
-			}
-			if (fp != fp / SL("./.")) {
-				return 17;
-			}
+		file_path fp(file_path::current_dir());
 
-			// These should NOT be normalized: three dots are just another regular path component.
-			if (fp == fp / SL("...")) {
-				return 20;
-			}
-			if (fp == fp / SL("/...")) {
-				return 21;
-			}
-			if (fp == fp / SL(".../")) {
-				return 22;
-			}
-			if (fp == fp / SL("/.../")) {
-				return 23;
-			}
+		// These should be normalized out.
+		ABC_TESTING_EXPECT(fp == fp / SL(""));
+		ABC_TESTING_EXPECT(fp == fp / SL("/"));
+		ABC_TESTING_EXPECT(fp == fp / SL("//"));
+		ABC_TESTING_EXPECT(fp == fp / SL("."));
+		ABC_TESTING_EXPECT(fp == fp / SL("/."));
+		ABC_TESTING_EXPECT(fp == fp / SL("./"));
+		ABC_TESTING_EXPECT(fp == fp / SL("/./"));
+		ABC_TESTING_EXPECT(fp == fp / SL("./."));
 
-			// Now with one additional trailing component.
-			if (fp / SL("test") != fp / SL("/test")) {
-				return 30;
-			}
-			if (fp / SL("test") != fp / SL("//test")) {
-				return 31;
-			}
-			if (fp / SL("test") != fp / SL("./test")) {
-				return 32;
-			}
-			if (fp / SL("test") != fp / SL("/./test")) {
-				return 33;
-			}
-			if (fp / SL("test") != fp / SL("././test")) {
-				return 34;
-			}
+		// These should NOT be normalized: three dots are just another regular path component.
+		ABC_TESTING_EXPECT(fp != fp / SL("..."));
+		ABC_TESTING_EXPECT(fp != fp / SL("/..."));
+		ABC_TESTING_EXPECT(fp != fp / SL(".../"));
+		ABC_TESTING_EXPECT(fp != fp / SL("/.../"));
 
-			// Verify that ".." works.
-			if (fp / SL("a/..") != fp) {
-				return 40;
-			}
-			if (fp / SL("a/../b") != fp / SL("b")) {
-				return 41;
-			}
-			if (fp / SL("a/../b/..") != fp) {
-				return 42;
-			}
-			if (fp / SL("a/b/../..") != fp) {
-				return 43;
-			}
-			if (fp / SL("a/b/../c") != fp / SL("a/c")) {
-				return 44;
-			}
-			if (fp / SL("a/../b/../c") != fp / SL("c")) {
-				return 45;
-			}
-			if (fp / SL("a/b/../../c") != fp / SL("c")) {
-				return 46;
-			}
-		}
+		// Now with one additional trailing component.
+		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("/test"));
+		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("//test"));
+		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("./test"));
+		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("/./test"));
+		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("././test"));
 
-		return EXIT_SUCCESS;
+		// Verify that ".." works.
+		ABC_TESTING_EXPECT(fp / SL("a/..") == fp);
+		ABC_TESTING_EXPECT(fp / SL("a/../b") == fp / SL("b"));
+		ABC_TESTING_EXPECT(fp / SL("a/../b/..") == fp);
+		ABC_TESTING_EXPECT(fp / SL("a/b/../..") == fp);
+		ABC_TESTING_EXPECT(fp / SL("a/b/../c") == fp / SL("a/c"));
+		ABC_TESTING_EXPECT(fp / SL("a/../b/../c") == fp / SL("c"));
+		ABC_TESTING_EXPECT(fp / SL("a/b/../../c") == fp / SL("c"));
 	}
 };
 
-ABC_MAIN_APP_MODULE(test_app_module)
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_UNIT_REGISTER(abc::test::file_path_normalization)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
