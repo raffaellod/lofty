@@ -24,18 +24,14 @@ written with these principles in mind:
 
 •  Full support for text-based and GUI applications, as well as service-oriented
    architectures;
-•  Intelligent usage of C++11 features;
-•  Compatibility and integration with C++11 STL;
+•  Intelligent usage of C++11 features and interoperability with the C++11 STL;
 •  Extended run-time debugging support, with aims to reach or exceed that of
    languages such as Java or Python, featuring full stack traces (including
    arguments and locals) and a diverse and semantically-rich exception class
    hierarchy;
 •  Modern I/O and IPC classes, inspired by Python’s library;
-•  Portability to some of the most common modern operating systems;
-•  Transactional operation wherever/whenever possible;
 •  Compiler-enforced type safety (no void pointers, no C-style variadic
    functions).
-
 
 
 Coding and formatting style
