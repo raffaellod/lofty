@@ -45,16 +45,24 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	crFormat
+		Formatting options.
 	*/
 	_str_to_str_backend_base(char_range const & crFormat);
 
 
 protected:
 
-	/** Writes the contents of the str, applying the specified format.
+	/** Writes a string, applying the formatting options.
 
-	TODO: comment signature.
+	p
+		Pointer to the string to write.
+	cb
+		Size of the string pointed to by p, in bytes.
+	enc
+		Text encoding of the string pointed to by p.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(void const * p, size_t cb, text::encoding enc, ostream * posOut);
 };
@@ -78,7 +86,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	crFormat
+		Formatting options.
 	*/
 	_str_to_str_backend(char_range const & crFormat) :
 		_str_to_str_backend_base(crFormat) {
@@ -105,14 +114,20 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		str_to_str_backend(crFormat) {
 	}
 
 
-	/** See to_str_backend::write().
+	/** Writes a character range, applying the formatting options.
+
+	cr
+		Range of characters to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(char_range_<C> const & cr, ostream * posOut) {
 		str_to_str_backend::write(
@@ -635,14 +650,22 @@ class to_str_backend<str_base_<C, TTraits>> :
 
 public:
 
-	/** Constructor. See _str_to_str_backend<str_base_<C, TTraits>, C>::_str_to_str_backend().
+	/** Constructor.
+
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		str_to_str_backend(crFormat) {
 	}
 
 
-	/** See to_str_backend::write().
+	/** Writes a string, applying the formatting options.
+
+	s
+		String to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(str_base_<C, TTraits> const & s, ostream * posOut) {
 		str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
@@ -1346,9 +1369,7 @@ class to_str_backend<smstr<t_cchStatic, C, TTraits>> :
 	public to_str_backend<str_base_<C, TTraits>> {
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		to_str_backend<str_base_<C, TTraits>>(crFormat) {

@@ -34,13 +34,16 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/** DOC:3984 abc::to_str()
+/** DOC:3984 abc::to_str() and abc::to_str_backend()
 
 abc::to_str() is a thin wrapper around abc::to_str_backend, so that any class can provide even a
-partial specialization for it (partial specializations of function are stil not allowed in C++11).
+partial specialization for it (partial specializations of function are still not allowed in C++11).
 
-The format specification is provided by beginning and end pointer, so that a caller can specifiy a
-non-NUL-terminated substring of a larger string.
+The format specification is provided to a to_str_backend specialization by passing it a
+abc::char_range, so a caller can specify a non-NUL-terminated substring of a larger string without
+the need for temporary strings. Once a to_str_backend instance has been constructed, it must be able
+to sequentially process an infinite number of conversions, i.e. instances of a to_str_backend
+specialization must be reusable.
 
 The interpretation of the format specification is up to the specialization of abc::to_str_backend.
 */
@@ -49,6 +52,13 @@ The interpretation of the format specification is up to the specialization of ab
 
 Cannot be implemented here because iostream.hxx (required for the core of the implementation,
 abc::str_ostream) depends on this file - circular dependency.
+
+t
+	Object to generate a string representation for.
+sFormat
+	Type-specific format string.
+return
+	String representation of t according to sFormat.
 */
 template <typename T>
 dmstr to_str(T const & t, istr const & sFormat = istr());
@@ -76,7 +86,10 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	cbInt
+		Size of the integer type.
+	crFormat
+		Formatting options.
 	*/
 	_int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
 
@@ -85,66 +98,63 @@ protected:
 
 	/** Writes the provided buffer to *posOut, prefixed as necessary.
 
-	TODO: comment signature.
+	bNegative
+		true if the number is negative, or false otherwise.
+	posOut
+		Pointer to the output stream to write to.
+	psBuf
+		Pointer to the string containing the characters to write.
+	pchBufFirstUsed
+		Pointer to the first used character in *psBuf; the last used character is always the last
+		character in *psBuf.
 	*/
 	void add_prefixes_and_write(
 		bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 	) const;
 
 
-	/** Converts a signed integer to its string representation.
+	/** Converts an integer to its string representation.
 
-	TODO: comment signature.
+	i
+		Integer to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	template <typename I>
 	void write_impl(I i, ostream * posOut) const;
 
 
-	/** Converts a 64-bit signed integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 64-bit signed integer to its string representation. See write_impl().
 	*/
 	void write_s64(int64_t i, ostream * posOut) const;
 
 
-	/** Converts a 64-bit unsigned integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 64-bit unsigned integer to its string representation. See write_impl().
 	*/
 	void write_u64(uint64_t i, ostream * posOut) const;
 
 
-	/** Converts a 32-bit signed integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 32-bit signed integer to its string representation. See write_impl().
 	*/
 	void write_s32(int32_t i, ostream * posOut) const;
 
 
-	/** Converts a 32-bit unsigned integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 32-bit unsigned integer to its string representation. See write_impl().
 	*/
 	void write_u32(uint32_t i, ostream * posOut) const;
 
 
-	/** Converts a 16-bit signed integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 16-bit signed integer to its string representation. See write_impl().
 	*/
 	void write_s16(int16_t i, ostream * posOut) const;
 
 
-	/** Converts a 16-bit unsigned integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts a 16-bit unsigned integer to its string representation. See write_impl().
 	*/
 	void write_u16(uint16_t i, ostream * posOut) const;
 
 
-	/** Converts an 8-bit signed integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts an 8-bit signed integer to its string representation. See write_impl().
 	*/
 	void write_s8(int8_t i, ostream * posOut) const {
 		if (m_iBaseOrShift == 10) {
@@ -157,9 +167,7 @@ protected:
 	}
 
 
-	/** Converts an 8-bit unsigned integer to its string representation.
-
-	TODO: comment signature.
+	/** Converts an 8-bit unsigned integer to its string representation. See write_impl().
 	*/
 	void write_u8(uint8_t i, ostream * posOut) const {
 		write_u16(i, posOut);
@@ -255,14 +263,15 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	crFormat
+		Formatting options.
 	*/
 	_int_to_str_backend(char_range const & crFormat) :
 		_int_to_str_backend_base(sizeof(I), crFormat) {
 	}
 
 
-	/** See to_str_backend::write().
+	/** Converts an integer to its string representation.
 
 	This design is rather tricky in the way one implementation calls another:
 
@@ -278,7 +287,10 @@ public:
 	The net result is that after all the inlining occurs, this will become a direct call to the
 	fastest implementation for I of any given size.
 
-	TODO: comment signature.
+	i
+		Integer to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(I i, ostream * posOut) {
 		if (sizeof(i) <= sizeof(int8_t)) {
@@ -337,14 +349,18 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range());
 
 
-	/** See to_str_backend::write().
+	/** Converts a boolean value to its string representation.
 
-	TODO: comment signature.
+	b
+		Boolean value to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(bool b, ostream * posOut);
 };
@@ -357,7 +373,11 @@ public:
 		public _int_to_str_backend<I> { \
 	public: \
 	\
-		/** Constructor. */ \
+		/** Constructor.
+
+		[crFormat]
+			Formatting options.
+		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
 			_int_to_str_backend<I>(crFormat) { \
 		} \
@@ -383,14 +403,18 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range());
 
 
-	/** See to_str_backend::write().
+	/** Converts a pointer to a string representation.
 
-	TODO: comment signature.
+	p
+		Pointer to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(void const volatile * p, ostream * posOut) {
 		to_str_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), posOut);
@@ -412,7 +436,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		to_str_backend<void const volatile *>(crFormat) {
@@ -432,18 +457,22 @@ public:
 	\
 	public: \
 	\
-		/** Constructor. \
-	\
-		TODO: comment signature. \
+		/** Constructor.
+
+		[crFormat]
+			Formatting options.
 		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
 			str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
-		/** See to_str_backend::write(). \
-	\
-		TODO: comment signature. \
+		/** Writes a string, applying the formatting options.
+
+		ach
+			String to write.
+		posOut
+			Pointer to the output stream to write to.
 		*/ \
 		void write(C const (& ach)[t_cch], ostream * posOut) { \
 			ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0'); \
@@ -453,25 +482,26 @@ public:
 		} \
 	}; \
 	\
-	/** Non-const string literal. \
-	\
-	TODO: remove the need for this. \
+	/** Non-const string literal.
+
+	TODO: remove the need for this.
 	*/ \
 	template <size_t t_cch> \
 	class to_str_backend<C [t_cch]> : \
 		public to_str_backend<C const [t_cch]> { \
 	public: \
 	\
-		/** Constructor. \
-	\
-		TODO: comment signature. \
+		/** Constructor.
+
+		[crFormat]
+			Formatting options.
 		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
 			to_str_backend<C const [t_cch]>(crFormat) { \
 		} \
 	}; \
 	\
-	/** Pointer to NUL-terminated string. \
+	/** Pointer to NUL-terminated string.
 	*/ \
 	template <> \
 	class to_str_backend<C const *> : \
@@ -481,18 +511,22 @@ public:
 	\
 	public: \
 	\
-		/** Constructor. \
-	\
-		TODO: comment signature. \
+		/** Constructor.
+
+		[crFormat]
+			Formatting options.
 		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
 			str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
-		/** See to_str_backend::write(). \
-	\
-		TODO: comment signature. \
+		/** Writes a NUL-terminated string, applying the formatting options.
+
+		psz
+			Pointer to the string to write.
+		posOut
+			Pointer to the output stream to write to.
 		*/ \
 		void write(C const * psz, ostream * posOut) { \
 			str_to_str_backend::write( \
