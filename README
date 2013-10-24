@@ -69,7 +69,34 @@ for most of the features that had originally been planned, so development of ABC
 as it is now was finally started.
 
 
-3. Compatibility
+3. “How?” to use it
+-------------------
+
+This is the most basic program with ABC:
+
+   #include <abc/module.hxx>
+   #include <abc/trace.hxx>
+   using namespace abc;
+
+   class my_app_module :
+      public app_module_impl<my_app_module> {
+   public:
+
+      int main(mvector<istr const> const & vsArgs) {
+         abc_trace_fn((/*vsArgs*/));
+
+         return 0;
+      }
+   };
+
+   ABC_MAIN_APP_MODULE(my_app_module)
+
+It doesn’t do anything, but it executes and terminates.
+
+TODO: explain the above example, add DOC: link to how modules work.
+
+
+4. Compatibility
 ----------------
 
 ABC is in full development, so the compatibility can and will change over time
