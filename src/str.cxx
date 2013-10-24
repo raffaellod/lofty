@@ -24,12 +24,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend_base
+// abc::_str_to_str_backend
 
 
 namespace abc {
 
-_str_to_str_backend_base::_str_to_str_backend_base(char_range const & crFormat) {
+_str_to_str_backend::_str_to_str_backend(char_range const & crFormat) {
 	abc_trace_fn((this, crFormat));
 
 	auto it(crFormat.cbegin());
@@ -45,9 +45,7 @@ _str_to_str_backend_base::_str_to_str_backend_base(char_range const & crFormat) 
 }
 
 
-void _str_to_str_backend_base::write(
-	void const * p, size_t cb, text::encoding enc, ostream * posOut
-) {
+void _str_to_str_backend::write(void const * p, size_t cb, text::encoding enc, ostream * posOut) {
 	abc_trace_fn((this, p, cb, enc, posOut));
 
 	// TODO: apply format options.

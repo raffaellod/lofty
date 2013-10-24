@@ -451,10 +451,7 @@ public:
 	*/ \
 	template <size_t t_cch> \
 	class to_str_backend<C const [t_cch]> : \
-		public _str_to_str_backend<C const [t_cch], C> { \
-	\
-		typedef _str_to_str_backend<C const [t_cch], C> str_to_str_backend; \
-	\
+		public _str_to_str_backend { \
 	public: \
 	\
 		/** Constructor.
@@ -463,7 +460,7 @@ public:
 			Formatting options.
 		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
-			str_to_str_backend(crFormat) { \
+			_str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
@@ -476,7 +473,7 @@ public:
 		*/ \
 		void write(C const (& ach)[t_cch], ostream * posOut) { \
 			ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0'); \
-			str_to_str_backend::write( \
+			_str_to_str_backend::write( \
 				ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
 			); \
 		} \
@@ -505,10 +502,7 @@ public:
 	*/ \
 	template <> \
 	class to_str_backend<C const *> : \
-		public _str_to_str_backend<C const *, C> { \
-	\
-		typedef _str_to_str_backend<C const *, C> str_to_str_backend; \
-	\
+		public _str_to_str_backend { \
 	public: \
 	\
 		/** Constructor.
@@ -517,7 +511,7 @@ public:
 			Formatting options.
 		*/ \
 		to_str_backend(char_range const & crFormat = char_range()) : \
-			str_to_str_backend(crFormat) { \
+			_str_to_str_backend(crFormat) { \
 		} \
 	\
 	\
@@ -529,7 +523,7 @@ public:
 			Pointer to the output stream to write to.
 		*/ \
 		void write(C const * psz, ostream * posOut) { \
-			str_to_str_backend::write( \
+			_str_to_str_backend::write( \
 				psz, sizeof(C) * text::utf_traits<C>::str_len(psz), \
 				text::utf_traits<C>::host_encoding, posOut \
 			); \

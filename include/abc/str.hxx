@@ -32,15 +32,16 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend_base
+// abc::_str_to_str_backend
 
 
 namespace abc {
 
 /** Base class for the specializations of to_str_backend for string types. Not using templates, so
-the implementation can be in a cxx file.
+the implementation can be in a cxx file. This is used by string literal types as well (see
+to_str_backend.hxx).
 */
-class ABCAPI _str_to_str_backend_base {
+class ABCAPI _str_to_str_backend {
 public:
 
 	/** Constructor.
@@ -48,7 +49,7 @@ public:
 	crFormat
 		Formatting options.
 	*/
-	_str_to_str_backend_base(char_range const & crFormat);
+	_str_to_str_backend(char_range const & crFormat);
 
 
 protected:
@@ -71,33 +72,6 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend
-
-
-namespace abc {
-
-/** Mid-class for the specializations of to_str_backend for string types. This is used by string
-literal types as well (see to_str_backend.hxx).
-*/
-template <typename T, typename C>
-class _str_to_str_backend :
-	public _str_to_str_backend_base {
-public:
-
-	/** Constructor.
-
-	crFormat
-		Formatting options.
-	*/
-	_str_to_str_backend(char_range const & crFormat) :
-		_str_to_str_backend_base(crFormat) {
-	}
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::char_range_
 
 
@@ -106,10 +80,7 @@ namespace abc {
 // Specialization of to_str_backend.
 template <typename C>
 class to_str_backend<char_range_<C>> :
-	public _str_to_str_backend<char_range_<C>, C> {
-
-	typedef _str_to_str_backend<char_range_<C>, C> str_to_str_backend;
-
+	public _str_to_str_backend {
 public:
 
 	/** Constructor.
@@ -118,7 +89,7 @@ public:
 		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
-		str_to_str_backend(crFormat) {
+		_str_to_str_backend(crFormat) {
 	}
 
 
@@ -130,7 +101,7 @@ public:
 		Pointer to the output stream to write to.
 	*/
 	void write(char_range_<C> const & cr, ostream * posOut) {
-		str_to_str_backend::write(
+		_str_to_str_backend::write(
 			cr.cbegin().base(), sizeof(C) * cr.size(), text::utf_traits<C>::host_encoding, posOut
 		);
 	}
@@ -644,10 +615,7 @@ namespace abc {
 // Specialization of to_str_backend.
 template <typename C, class TTraits>
 class to_str_backend<str_base_<C, TTraits>> :
-	public _str_to_str_backend<str_base_<C, TTraits>, C> {
-
-	typedef _str_to_str_backend<str_base_<C, TTraits>, C> str_to_str_backend;
-
+	public _str_to_str_backend {
 public:
 
 	/** Constructor.
@@ -656,7 +624,7 @@ public:
 		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
-		str_to_str_backend(crFormat) {
+		_str_to_str_backend(crFormat) {
 	}
 
 
@@ -668,7 +636,7 @@ public:
 		Pointer to the output stream to write to.
 	*/
 	void write(str_base_<C, TTraits> const & s, ostream * posOut) {
-		str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
+		_str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
 	}
 };
 
