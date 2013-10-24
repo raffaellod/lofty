@@ -57,8 +57,8 @@ Here’s what ABC has to offer, compared to other libraries/frameworks:
 ABC was started in the mid-2000s with a dual scope: on one hand explore if it
 was possible, (ab)using templates and other C++ features, to have automatic
 error reporting similar to what higher-level languages such as Python and Java
-offer; on the other hand, he wanted to be able to write programs that were
-light, fast, easy to write, and easy to read years later.
+offer; on the other hand, a required target was to be able to write programs
+that would be light, fast, easy to write, and easy to read years later.
 
 At the time, the features of C++ were insufficient to accomplish all that
 without using some sort of pre-preprocessor, so the project goals lead to
