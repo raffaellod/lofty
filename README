@@ -47,15 +47,15 @@ Supported build systems:
    •  binutils (version to be determined - anything from 2010 on should work)
    •  make (version to be determined - 3.80 should suffice)
 
-•  MSBuild toolchain
-   •  Microsoft C 16 (Visual C++ 10 / Visual Studio 2010)
+•  Microsoft toolchain
+   •  Visual C++ 10 (MSC 16 / Visual Studio 2010)
    •  MSBuild 4.0 (Visual Studio 2010)
 
 Supported operating systems:
 
 •  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some really cool
    exception handling-related features;
-•  Microsoft Windows, temporarily only via Visual C++ 10, which means only
+•  Microsoft Windows - temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
 
