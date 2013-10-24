@@ -58,19 +58,3 @@ Supported operating systems:
 •  Microsoft Windows - temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
-
-Coding and formatting style
----------------------------
-
-Check quotes style:
-	grep -Rn "[A-Za-z]'[A-Za-z]" src include tools
-	grep -Rn ' "[A-Za-z]' src include tools
-	grep -Rn '[A-Za-z]" ' src include tools
-
-Check that initializations are done using constructor syntax instead of
-assignment:
-	grep -Rn ' [_A-Za-z0-9]\+ = ' src include tools
-
-Check that integer conversions don’t use static_cast:
-	grep -Rn 'static_cast<[_ 0-9A-Za-z]\+>' src include tools
-
