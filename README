@@ -16,11 +16,11 @@ You should have received a copy of the GNU General Public License along with
 ABC. If not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------
 
-Introduction
-------------
+1. Introduction (“what?”)
+-------------------------
 
 Application-Building Components (ABC) is a framework for C++11 designed and
-written with these principles in mind:
+written with these features in mind:
 
 •  Full support for text-based and GUI applications, as well as service-oriented
    architectures;
@@ -34,8 +34,43 @@ written with these principles in mind:
    functions).
 
 
-Compatibility
--------------
+2. “Why?” (and “When?”, while we’re at it)
+------------------------------------------
+
+Here’s what ABC has to offer, compared to other libraries/frameworks:
+•  Full support for stack dumps (like Python or Java);
+•  Programs don’t just crash - every error is an exception (including e.g.
+   accessing a null pointer);
+•  Rich exception class hierarchy, allowing clean-looking error handling;
+•  C++-only (unlike, say, glib), so it was designed around features of the
+   language rather than adapting to C++ an existing design;
+•  Does not require a pre-preprocessor (unlike, say, Qt) because it gets
+   everything done with a few macros and a lot of templates;
+•  Does not clutter the code with macros (unlike, say, Boost, glib, Qt);
+•  Offers an approachable and intuitive programming style, similar to Python
+   (unlike Boost);
+•  It’s built on top of the core STL (unlike most frameworks), and follows the
+   same patterns and naming convention;
+•  Achieves high execution efficiency due to the extensive use of std::move()
+   and de-templated containers.
+
+ABC was started in the mid-2000s with a dual scope: on one hand explore if it
+was possible, (ab)using templates and other C++ features, to have automatic
+error reporting similar to what higher-level languages such as Python and Java
+offer; on the other hand, he wanted to be able to write programs that were
+light, fast, easy to write, and easy to read years later.
+
+At the time, the features of C++ were insufficient to accomplish all that
+without using some sort of pre-preprocessor, so the project goals lead to
+several dead-ended projects.
+
+When C++11 finally reached the final draft status, it turned out that it allowed
+for most of the features that had originally been planned, so development of ABC
+as it is now was finally started.
+
+
+3. Compatibility
+----------------
 
 ABC is in full development, so the compatibility can and will change over time
 (hopefully expanding).
