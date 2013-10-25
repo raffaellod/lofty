@@ -396,8 +396,6 @@ class ABCAPI module_impl_base :
 public:
 
 	/** Constructor.
-
-	TODO: comment signature.
 	*/
 	module_impl_base();
 
