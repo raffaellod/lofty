@@ -69,7 +69,12 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	fp
+		Source file path.
+	s
+		Source string.
+	return
+		*this.
 	*/
 	file_path() {
 	}
@@ -89,7 +94,12 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	fp
+		Source file path.
+	s
+		Source string.
+	return
+		*this.
 	*/
 	file_path & operator=(file_path const & fp) {
 		m_s = fp.m_s;
@@ -187,7 +197,13 @@ public:
 
 	/** Support for relational operators.
 
-	TODO: comment signature.
+	s
+		String to compare to.
+	return
+		Standard comparison result integer:
+		•	> 0 if *this > s;
+		•	  0 if *this == s;
+		•	< 0 if *this < s.
 	*/
 	int compare_to(istr const & s) const {
 		return m_s.compare_to(s);
@@ -335,14 +351,18 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	[crFormat]
+		Formatting options.
 	*/
 	to_str_backend(char_range const & crFormat = char_range());
 
 
-	/** Writes the path, applying the specified format.
+	/** Writes a string, applying the formatting options.
 
-	TODO: comment signature.
+	fp
+		File path to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write(file_path const & fp, ostream * posOut);
 };
