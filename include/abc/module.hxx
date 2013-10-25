@@ -369,6 +369,20 @@ private:
 // abc::module_impl_base
 
 
+/** DOC:1063 Application modules
+
+Programs using ABC declare their main() function by deriving a class from abc::app_module_impl,
+overriding its main() method, and declaring that the derived class contains the program’s entry
+point using ABC_MAIN_APP_MODULE().
+
+The ABC_MAIN_APP_MODULE() macro defines the actual entry point of the program, using whatever
+protocol is supported by the host (e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows). This is a
+very thin wrapper around a static method of abc::app_module_impl which takes care of setting up the
+outermost try/catch block to intercept uncaught exceptions (see [DOC:8503 Stack tracing]), as well
+as instantiating the application-defined abc::app_module_impl-derived class, invoking its main()
+method and returning.
+*/
+
 namespace abc {
 
 /** Base class for implementing a dynamically loadable module.
