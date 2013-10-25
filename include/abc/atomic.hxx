@@ -56,9 +56,15 @@ extern pthread_mutex_t g_mtx;
 
 
 /** Atomically add the second argument to the number pointed to by the first argument, storing the
-result in *pi and returning it.
+result in *piDst and returning it.
 
-TODO: comment signature.
+piDst
+	Pointer to an integer variable whose value is the left addend and that will receive the sum upon
+	return.
+iAddend
+	Right addend.
+return
+	Sum of *piDst + iAddend.
 */
 template <typename I>
 I add(I volatile * piDst, I iAddend) {
@@ -86,7 +92,15 @@ I add(I volatile * piDst, I iAddend) {
 /** Atomically add the second argument to the number pointed to by the first argument, storing the
 result in *pi and returning it.
 
-TODO: comment signature.
+piDst
+	Pointer to an integer variable whose value is to be replaced with iNewValue if and only if it
+	matches iComparand.
+iNewValue
+	Value to assign to *piDst.
+iComparand
+	Expected current value of *piDst.
+return
+	Previous value of *pi, as well as the current one if *pi was not changed.
 */
 template <typename I>
 I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
@@ -120,7 +134,10 @@ I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 /** Atomically decrements the number pointed to by the argument, storing the result in *pi and
 returning it.
 
-TODO: comment signature.
+pi
+	Pointer to an integer variable whose value is to be decremented by 1.
+return
+	New value of *pi.
 */
 template <typename I>
 inline I decrement(I volatile * pi) {
@@ -148,7 +165,10 @@ inline I decrement(I volatile * pi) {
 /** Atomically increments the number pointed to by the argument, storing the result in *pi and
 returning it.
 
-TODO: comment signature.
+pi
+	Pointer to an integer variable whose value is to be incremented by 1.
+return
+	New value of *pi.
 */
 template <typename I>
 inline I increment(I volatile * pi) {
@@ -176,7 +196,13 @@ inline I increment(I volatile * pi) {
 /** Atomically subtracts the second argument from the number pointed to by the first argument,
 storing the result in *pi and returning it.
 
-TODO: comment signature.
+piDst
+	Pointer to an integer variable whose value is the minuend and that will receive the difference
+	upon return.
+iAddend
+	Subtrahend.
+return
+	Difference of *piDst - iAddend.
 */
 template <typename I>
 I subtract(I volatile * piDst, I iSubtrahend) {
