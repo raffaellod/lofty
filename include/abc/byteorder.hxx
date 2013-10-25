@@ -87,7 +87,10 @@ namespace byteorder {
 /** Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order.
 */
 template <typename I>
 inline I swap(I i) {
@@ -104,7 +107,10 @@ inline I swap(I i) {
 
 /** Converts a number from host endianness to big endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 template <typename I>
 inline I host_to_be(I i) {
@@ -118,7 +124,10 @@ inline I host_to_be(I i) {
 
 /** Converts a number from host endianness to little endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 template <typename I>
 inline I host_to_le(I i) {
@@ -132,7 +141,10 @@ inline I host_to_le(I i) {
 
 /** Converts a number from big endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 template <typename I>
 inline I be_to_host(I i) {
@@ -146,7 +158,10 @@ inline I be_to_host(I i) {
 
 /** Converts a number from little endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 template <typename I>
 inline I le_to_host(I i) {
@@ -167,7 +182,10 @@ inline I le_to_host(I i) {
 
 /** Unconditionally flips the byte order in a 16-bit number.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order.
 */
 #define STATIC_BYTEORDER_SWAP16(i) \
 	( \
@@ -177,7 +195,10 @@ TODO: comment signature.
 
 /** Unconditionally flips the byte order in a 32-bit number.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order.
 */
 #define STATIC_BYTEORDER_SWAP32(i) \
 	( \
@@ -189,7 +210,10 @@ TODO: comment signature.
 
 /** Unconditionally flips the byte order in a 64-bit number.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order.
 */
 #define STATIC_BYTEORDER_SWAP64(i) \
 	( \
@@ -206,7 +230,10 @@ TODO: comment signature.
 
 /** Converts a 16-bit number from host endianness to big endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOBE16(i) STATIC_BYTEORDER_SWAP16(i)
@@ -217,7 +244,10 @@ TODO: comment signature.
 
 /** Converts a 32-bit number from host endianness to big endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOBE32(i) STATIC_BYTEORDER_SWAP32(i)
@@ -228,7 +258,10 @@ TODO: comment signature.
 
 /** Converts a 64-bit number from host endianness to big endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOBE64(i) STATIC_BYTEORDER_SWAP64(i)
@@ -239,7 +272,10 @@ TODO: comment signature.
 
 /** Converts a 16-bit number from host endianness to little endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOLE16(i) uint16_t(i)
@@ -250,7 +286,10 @@ TODO: comment signature.
 
 /** Converts a 32-bit number from host endianness to little endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOLE32(i) uint32_t(i)
@@ -261,7 +300,10 @@ TODO: comment signature.
 
 /** Converts a 64-bit number from host endianness to little endian.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_HOSTTOLE64(i) uint64_t(i)
@@ -272,7 +314,10 @@ TODO: comment signature.
 
 /** Converts a 16-bit number from big endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_BETOHOST16(i) STATIC_BYTEORDER_SWAP16(i)
@@ -283,7 +328,10 @@ TODO: comment signature.
 
 /** Converts a 32-bit number from big endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_BETOHOST32(i) STATIC_BYTEORDER_SWAP32(i)
@@ -294,7 +342,10 @@ TODO: comment signature.
 
 /** Converts a 64-bit number from big endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_BETOHOST64(i) STATIC_BYTEORDER_SWAP64(i)
@@ -305,7 +356,10 @@ TODO: comment signature.
 
 /** Converts a 16-bit number from little endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_LETOHOST16(i) uint16_t(i)
@@ -316,7 +370,10 @@ TODO: comment signature.
 
 /** Converts a 32-bit number from little endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_LETOHOST32(i) uint32_t(i)
@@ -327,7 +384,10 @@ TODO: comment signature.
 
 /** Converts a 64-bit number from little endian to host endianness.
 
-TODO: comment signature.
+i
+	Source integer.
+return
+	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
 	#define STATIC_BYTEORDER_LETOHOST64(i) uint64_t(i)
