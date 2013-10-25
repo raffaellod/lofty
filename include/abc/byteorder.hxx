@@ -187,7 +187,7 @@ i
 return
 	Integer with the same byte values as i, but in reverse order.
 */
-#define STATIC_BYTEORDER_SWAP16(i) \
+#define ABC_BYTEORDER_SWAP16(i) \
 	( \
 		((uint16_t(i) & 0xff00) >> 8) | \
 		((uint16_t(i) & 0x00ff) << 8) \
@@ -200,7 +200,7 @@ i
 return
 	Integer with the same byte values as i, but in reverse order.
 */
-#define STATIC_BYTEORDER_SWAP32(i) \
+#define ABC_BYTEORDER_SWAP32(i) \
 	( \
 		((uint32_t(i) & 0xff000000) >> 24) | \
 		((uint32_t(i) & 0x00ff0000) >>  8) | \
@@ -215,7 +215,7 @@ i
 return
 	Integer with the same byte values as i, but in reverse order.
 */
-#define STATIC_BYTEORDER_SWAP64(i) \
+#define ABC_BYTEORDER_SWAP64(i) \
 	( \
 		((uint64_t(i) & 0xff00000000000000ull) >> 56) | \
 		((uint64_t(i) & 0x00ff000000000000ull) >> 40) | \
@@ -236,9 +236,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOBE16(i) STATIC_BYTEORDER_SWAP16(i)
+	#define ABC_BYTEORDER_HOSTTOBE16(i) ABC_BYTEORDER_SWAP16(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOBE16(i) uint16_t(i)
+	#define ABC_BYTEORDER_HOSTTOBE16(i) uint16_t(i)
 #endif
 
 
@@ -250,9 +250,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOBE32(i) STATIC_BYTEORDER_SWAP32(i)
+	#define ABC_BYTEORDER_HOSTTOBE32(i) ABC_BYTEORDER_SWAP32(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOBE32(i) uint32_t(i)
+	#define ABC_BYTEORDER_HOSTTOBE32(i) uint32_t(i)
 #endif
 
 
@@ -264,9 +264,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOBE64(i) STATIC_BYTEORDER_SWAP64(i)
+	#define ABC_BYTEORDER_HOSTTOBE64(i) ABC_BYTEORDER_SWAP64(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOBE64(i) uint64_t(i)
+	#define ABC_BYTEORDER_HOSTTOBE64(i) uint64_t(i)
 #endif
 
 
@@ -278,9 +278,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOLE16(i) uint16_t(i)
+	#define ABC_BYTEORDER_HOSTTOLE16(i) uint16_t(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOLE16(i) STATIC_BYTEORDER_SWAP16(i)
+	#define ABC_BYTEORDER_HOSTTOLE16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
 
 
@@ -292,9 +292,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOLE32(i) uint32_t(i)
+	#define ABC_BYTEORDER_HOSTTOLE32(i) uint32_t(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOLE32(i) STATIC_BYTEORDER_SWAP32(i)
+	#define ABC_BYTEORDER_HOSTTOLE32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
 
 
@@ -306,9 +306,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_HOSTTOLE64(i) uint64_t(i)
+	#define ABC_BYTEORDER_HOSTTOLE64(i) uint64_t(i)
 #else
-	#define STATIC_BYTEORDER_HOSTTOLE64(i) STATIC_BYTEORDER_SWAP64(i)
+	#define ABC_BYTEORDER_HOSTTOLE64(i) ABC_BYTEORDER_SWAP64(i)
 #endif
 
 
@@ -320,9 +320,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_BETOHOST16(i) STATIC_BYTEORDER_SWAP16(i)
+	#define ABC_BYTEORDER_BETOHOST16(i) ABC_BYTEORDER_SWAP16(i)
 #else
-	#define STATIC_BYTEORDER_BETOHOST16(i) uint16_t(i)
+	#define ABC_BYTEORDER_BETOHOST16(i) uint16_t(i)
 #endif
 
 
@@ -334,9 +334,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_BETOHOST32(i) STATIC_BYTEORDER_SWAP32(i)
+	#define ABC_BYTEORDER_BETOHOST32(i) ABC_BYTEORDER_SWAP32(i)
 #else
-	#define STATIC_BYTEORDER_BETOHOST32(i) uint32_t(i)
+	#define ABC_BYTEORDER_BETOHOST32(i) uint32_t(i)
 #endif
 
 
@@ -348,9 +348,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_BETOHOST64(i) STATIC_BYTEORDER_SWAP64(i)
+	#define ABC_BYTEORDER_BETOHOST64(i) ABC_BYTEORDER_SWAP64(i)
 #else
-	#define STATIC_BYTEORDER_BETOHOST64(i) uint64_t(i)
+	#define ABC_BYTEORDER_BETOHOST64(i) uint64_t(i)
 #endif
 
 
@@ -362,9 +362,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_LETOHOST16(i) uint16_t(i)
+	#define ABC_BYTEORDER_LETOHOST16(i) uint16_t(i)
 #else
-	#define STATIC_BYTEORDER_LETOHOST16(i) STATIC_BYTEORDER_SWAP16(i)
+	#define ABC_BYTEORDER_LETOHOST16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
 
 
@@ -376,9 +376,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_LETOHOST32(i) uint32_t(i)
+	#define ABC_BYTEORDER_LETOHOST32(i) uint32_t(i)
 #else
-	#define STATIC_BYTEORDER_LETOHOST32(i) STATIC_BYTEORDER_SWAP32(i)
+	#define ABC_BYTEORDER_LETOHOST32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
 
 
@@ -390,9 +390,9 @@ return
 	Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-	#define STATIC_BYTEORDER_LETOHOST64(i) uint64_t(i)
+	#define ABC_BYTEORDER_LETOHOST64(i) uint64_t(i)
 #else
-	#define STATIC_BYTEORDER_LETOHOST64(i) STATIC_BYTEORDER_SWAP64(i)
+	#define ABC_BYTEORDER_LETOHOST64(i) ABC_BYTEORDER_SWAP64(i)
 #endif
 
 

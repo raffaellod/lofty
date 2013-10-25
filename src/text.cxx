@@ -108,16 +108,16 @@ ABCAPI void const * get_line_terminator_bytes(
 
 	static uint8_t const sc_abAscii[2] = { 0x0d, 0x0a };
 	static uint16_t const sc_abU16le[2] = {
-		STATIC_BYTEORDER_HOSTTOLE16(0x000d), STATIC_BYTEORDER_HOSTTOLE16(0x000a)
+		ABC_BYTEORDER_HOSTTOLE16(0x000d), ABC_BYTEORDER_HOSTTOLE16(0x000a)
 	};
 	static uint16_t const sc_abU16be[2] = {
-		STATIC_BYTEORDER_HOSTTOBE16(0x000d), STATIC_BYTEORDER_HOSTTOBE16(0x000a)
+		ABC_BYTEORDER_HOSTTOBE16(0x000d), ABC_BYTEORDER_HOSTTOBE16(0x000a)
 	};
 	static uint32_t const sc_abU32le[2] = {
-		STATIC_BYTEORDER_HOSTTOLE32(0x000d), STATIC_BYTEORDER_HOSTTOLE32(0x000a)
+		ABC_BYTEORDER_HOSTTOLE32(0x000d), ABC_BYTEORDER_HOSTTOLE32(0x000a)
 	};
 	static uint32_t const sc_abU32be[2] = {
-		STATIC_BYTEORDER_HOSTTOBE32(0x00000d), STATIC_BYTEORDER_HOSTTOBE32(0x00000a)
+		ABC_BYTEORDER_HOSTTOBE32(0x00000d), ABC_BYTEORDER_HOSTTOBE32(0x00000a)
 	};
 	static uint8_t const sc_bEbcdic(0x15);
 
@@ -480,10 +480,10 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
 				abc_throw(argument_error, ());
 			}
 			uint16_t chCr(uint16_t(enc == encoding::utf16le
-				? STATIC_BYTEORDER_HOSTTOLE16(0x000d) : STATIC_BYTEORDER_HOSTTOBE16(0x000d)
+				? ABC_BYTEORDER_HOSTTOLE16(0x000d) : ABC_BYTEORDER_HOSTTOBE16(0x000d)
 			));
 			uint16_t chLf(uint16_t(enc == encoding::utf16le
-				? STATIC_BYTEORDER_HOSTTOLE16(0x000au) : STATIC_BYTEORDER_HOSTTOBE16(0x000du)
+				? ABC_BYTEORDER_HOSTTOLE16(0x000au) : ABC_BYTEORDER_HOSTTOBE16(0x000du)
 			));
 			for (
 				uint16_t const * pchBuf(static_cast<uint16_t const *>(pBuf));
@@ -511,10 +511,10 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
 				abc_throw(argument_error, ());
 			}
 			uint32_t chCr(enc == encoding::utf32le
-				? STATIC_BYTEORDER_HOSTTOLE32(0x00000d) : STATIC_BYTEORDER_HOSTTOBE32(0x00000d)
+				? ABC_BYTEORDER_HOSTTOLE32(0x00000d) : ABC_BYTEORDER_HOSTTOBE32(0x00000d)
 			);
 			uint32_t chLf(enc == encoding::utf32le
-				? STATIC_BYTEORDER_HOSTTOLE32(0x00000a) : STATIC_BYTEORDER_HOSTTOBE32(0x00000d)
+				? ABC_BYTEORDER_HOSTTOLE32(0x00000a) : ABC_BYTEORDER_HOSTTOBE32(0x00000d)
 			);
 			for (
 				uint32_t const * pchBuf(static_cast<uint32_t const *>(pBuf));
