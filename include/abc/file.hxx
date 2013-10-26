@@ -94,7 +94,11 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	fd
+		Source file descriptor.
+	[bOwn]
+		If true, the filedesc object will take ownership of the raw descriptor (i.e. it will release
+		it whenever appropriate); if false, the raw descriptor will never be closed by this instance.
 	*/
 	filedesc() :
 		m_fd(smc_fdNull), m_bOwn(false) {
@@ -112,7 +116,10 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	fd
+		Source file descriptor.
+	return
+		*this.
 	*/
 	filedesc & operator=(filedesc_t fd);
 	filedesc & operator=(filedesc && fd);
@@ -120,16 +127,18 @@ public:
 
 	/** Safe bool operator.
 
-	TODO: comment signature.
+	return
+		true if the object has a valid file descriptor, or false otherwise.
 	*/
 	explicit_operator_bool() const {
 		return m_fd != smc_fdNull;
 	}
 
 
-	/** Returns the wrapped file descriptor.
+	/** Returns the wrapped raw file descriptor.
 
-	TODO: comment signature.
+	return
+		Wrapped raw file descriptor.
 	*/
 	filedesc_t get() const {
 		return m_fd;
@@ -138,7 +147,8 @@ public:
 
 	/** Yields ownership over the wrapped file descriptor, returning it.
 
-	TODO: comment signature.
+	return
+		Unowned raw file descriptor.
 	*/
 	filedesc_t release() {
 		filedesc_t fd(m_fd);
