@@ -21,10 +21,11 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_TYPE_RAW_CDA_HXX
 
 #include <abc/core.hxx>
-#include <type_traits>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
+
+#include <type_traits>
 
 
 

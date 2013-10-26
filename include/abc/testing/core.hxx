@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef ABC_TESTING_CORE_HXX
 #define ABC_TESTING_CORE_HXX
 
-
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once

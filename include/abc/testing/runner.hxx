@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
+
 #include <abc/iostream.hxx>
 #include <abc/vector.hxx>
 
