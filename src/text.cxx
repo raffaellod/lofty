@@ -381,7 +381,7 @@ ABCAPI encoding guess_encoding(
 			// Lastly, check for one or more BOMs. This needs to be last, so if it enables other
 			// checks, they don’t get performed on the last BOM byte it just analyzed, which would most
 			// likely cause them to fail.
-			for (size_t iBsd(0); iBsd < countof(sc_absd); ++iBsd) {
+			for (size_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
 				unsigned essBom(sc_absd[iBsd].ess);
 				if (fess & essBom) {
 					if (b != sc_absd[iBsd].pabBom[ib]) {

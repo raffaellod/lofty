@@ -1219,7 +1219,7 @@ static int const g_aiHandledSignals[] = {
 //	SIGUSR2  // (Term) User-defined signal 2 (POSIX.1-1990).
 };
 /** Default handler for each of the signals above. */
-static struct ::sigaction g_asaDefault[countof(g_aiHandledSignals)];
+static struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
 
 /** Translates POSIX signals into C++ exceptions, whenever possible.
@@ -1323,7 +1323,7 @@ exception::async_handler_manager::async_handler_manager() {
 	saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
 
 	// Setup handlers for the signals in g_aiHandledSignals.
-	for (int i(countof(g_aiHandledSignals)); --i >= 0; ) {
+	for (int i(ABC_COUNTOF(g_aiHandledSignals)); --i >= 0; ) {
 		::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
 	}
 }
@@ -1331,7 +1331,7 @@ exception::async_handler_manager::async_handler_manager() {
 
 exception::async_handler_manager::~async_handler_manager() {
 	// Restore the saved signal handlers.
-	for (int i(countof(g_aiHandledSignals)); --i >= 0; ) {
+	for (int i(ABC_COUNTOF(g_aiHandledSignals)); --i >= 0; ) {
 		::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], NULL);
 	}
 }

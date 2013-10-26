@@ -551,8 +551,8 @@ array
 return
 	Count of items in array.
 */
-#undef countof
-#define countof(array) \
+#undef ABC_COUNTOF
+#define ABC_COUNTOF(array) \
 	(sizeof(array) / sizeof((array)[0]))
 
 

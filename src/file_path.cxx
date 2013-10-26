@@ -140,7 +140,7 @@ dmstr file_path::base_name() const {
 	// mstr::grow_for() allocate space for that too, by adding the size of the root to the buffer
 	// size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
 	// reserve space for the root prefix.
-	size_t const c_cchRoot(countof(smc_aszRoot) - 1 /*NUL*/);
+	size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
 	s.grow_for([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
 		if (c_cchRoot >= cchMax) {
 			// If the buffer is not large enough to hold the root prefix, request a larger one.
@@ -273,7 +273,7 @@ file_path file_path::parent_dir() const {
 	if (pch0[0] != CL('\\')) {
 		// The path is not in “\\?\X:\path” format; make it so.
 		s = smc_aszRoot + s;
-		cch += countof(smc_aszRoot);
+		cch += ABC_COUNTOF(smc_aszRoot);
 	}
 	// Check the root format.
 	if (
