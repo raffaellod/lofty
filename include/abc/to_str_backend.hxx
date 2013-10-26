@@ -36,8 +36,19 @@ namespace abc {
 
 /** DOC:3984 abc::to_str() and abc::to_str_backend()
 
-abc::to_str() is a thin wrapper around abc::to_str_backend, so that any class can provide even a
-partial specialization for it (partial specializations of function are still not allowed in C++11).
+abc::to_str() is a more advanced counterpart to std::to_string() (see C++11 § 21.5 “Numeric
+conversions”); here are the main differences when compared to the STL function:
+
+•  It accepts an additional argument, controlling how the conversion to string is to be done;
+
+•  Its default specialization relies on abc::to_str_backend(), which outputs its result to an
+   abc::ostream instance; this means that the complete specialization is shared with
+   abc::ostream::print() (see [DOC:7103 abc::ostream::print()]);
+
+•  Since the default implementation of abc::to_str() is a thin wrapper around abc::to_str_backend,
+   implementors can provide a partial specialization for it (partial specializations of function are
+   still not allowed in C++11), allowing to share parts of the implementation among convertible
+   classes.
 
 The format specification is provided to a to_str_backend specialization by passing it a
 abc::char_range, so a caller can specify a non-NUL-terminated substring of a larger string without
