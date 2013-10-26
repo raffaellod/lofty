@@ -591,7 +591,7 @@ public:
 		Iterator.
 	*/
 	const_reverse_iterator crbegin() const {
-		return const_reverse_iterator(m_pchBegin);
+		return const_reverse_iterator(m_pchEnd);
 	}
 
 
@@ -611,7 +611,7 @@ public:
 		Iterator.
 	*/
 	const_reverse_iterator crend() const {
-		return const_reverse_iterator(m_pchEnd);
+		return const_reverse_iterator(m_pchBegin);
 	}
 
 
