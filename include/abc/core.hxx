@@ -434,7 +434,7 @@ cls
 		#define ABC_RELOP_IMPL(op) \
 			template <typename T1, typename T2> \
 			bool operator op( \
-				abc::support_explicit_operator_bool<T1> const &,
+				abc::support_explicit_operator_bool<T1> const &, \
 				abc::support_explicit_operator_bool<T2> const & \
 			) = delete;
 
