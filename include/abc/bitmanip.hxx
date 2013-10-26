@@ -47,9 +47,8 @@ namespace bitmanip {
 */
 
 
-/** Helper for ceiling_to_pow2, to unify specializations based on sizeof(I).
-
-TODO: comment signature.
+/** Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
+abc::bitmanip::ceiling_to_pow2().
 */
 ABCAPI uint8_t _raw_ceiling_to_pow2(uint8_t i);
 ABCAPI uint16_t _raw_ceiling_to_pow2(uint16_t i);
@@ -59,7 +58,10 @@ ABCAPI uint64_t _raw_ceiling_to_pow2(uint64_t i);
 
 /** Returns the argument rounded up to the closest power of 2.
 
-TODO: comment signature.
+i
+	Integer to round up.
+return
+	Smallest power of 2 that’s not smaller than i.
 */
 template <typename I>
 inline I ceiling_to_pow2(I i) {
@@ -78,7 +80,12 @@ inline I ceiling_to_pow2(I i) {
 
 /** Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
 
-TODO: comment signature.
+i
+	Integer to round up.
+iStep
+	Power of 2 to use as step to increment i.
+return
+	Smallest multiple of iStep that’s not smaller than i.
 */
 template <typename I>
 inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
@@ -90,7 +97,12 @@ inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
 /** Rotates bits to the left (most significant bits shifted out, and back in to become least
 significant).
 
-TODO: comment signature.
+i
+	Integer the bits of which are to be rotated.
+c
+	Count of positions the bits in i will be shifted.
+return
+	Rotated bits of i.
 */
 template <typename I>
 inline /*constexpr*/ I rotate_l(I i, unsigned c) {
@@ -101,7 +113,12 @@ inline /*constexpr*/ I rotate_l(I i, unsigned c) {
 /** Rotates bits to the right (least significant bits shifted out, and back in to become most
 significant).
 
-TODO: comment signature.
+i
+	Integer the bits of which are to be rotated.
+c
+	Count of positions the bits in i will be shifted.
+return
+	Rotated bits of i.
 */
 template <typename I>
 inline /*constexpr*/ I rotate_r(I i, unsigned c) {
