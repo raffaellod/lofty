@@ -556,16 +556,6 @@ return
 	(sizeof(array) / sizeof((array)[0]))
 
 
-/** Returns the offset, in bytes, of a struct/class member. It doesn’t trigger warnings, since it
-doesn’t use NULL as the fake address.
-
-TODO: comment signature.
-*/
-#undef offsetof
-#define offsetof(type, member) \
-	(reinterpret_cast<size_t>(&reinterpret_cast<type *>(1024)->member) - 1024)
-
-
 /** Returns the compiler-computed alignment for the specified data type. When compiler support is
 lacking, this can be inaccurate for long double.
 
