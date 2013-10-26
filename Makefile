@@ -80,13 +80,13 @@ $(O)lib/libabc$(LIBEXT): \
 
 # Testing support library.
 $(O)lib/libabc-testing$(LIBEXT): \
+	$(O)obj/testing/mock/iostream.cxx$(OBJEXT) \
 	$(O)obj/testing/module.cxx$(OBJEXT) \
 	$(O)obj/testing/runner.cxx$(OBJEXT) \
 	$(O)obj/testing/unit.cxx$(OBJEXT)
 
 # Test suite.
 $(O)bin/abc-test$(EXEEXT): \
-	$(O)obj/mock/iostream.cxx$(OBJEXT) \
 	$(O)obj/test/abc-test.cxx$(OBJEXT) \
 	$(O)obj/test/file_path.cxx$(OBJEXT) \
 	$(O)obj/test/str.cxx$(OBJEXT) \
@@ -113,7 +113,7 @@ $(O)bin/unittest/0080-map$(EXEEXT): \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0170-ostream-print$(EXEEXT): \
 	$(O)obj/unittest/0170-ostream-print.cxx$(OBJEXT) \
-	$(O)obj/mock/iostream.cxx$(OBJEXT) \
+	$(O)obj/testing/mock/iostream.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0190-str_ostream$(EXEEXT): \
 	$(O)obj/unittest/0190-str_ostream.cxx$(OBJEXT) \

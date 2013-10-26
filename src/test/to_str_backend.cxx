@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/testing/unit.hxx>
+#include <abc/testing/mock/iostream.hxx>
 #include <abc/trace.hxx>
-#include <abc/mock/iostream.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ protected:
 	) {
 		abc_trace_fn((t, achFormatSpec, achExpected));
 
-		mock::ostream mos;
+		testing::mock::ostream mos;
 		to_str_backend<T> tsb(achFormatSpec);
 		tsb.write(t, &mos);
 		return mos.contents_equal(achExpected);

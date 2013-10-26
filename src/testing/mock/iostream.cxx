@@ -17,16 +17,19 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/mock/iostream.hxx>
+#include <abc/testing/core.hxx>
+#include <abc/testing/mock/iostream.hxx>
 #include <abc/trace.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::mock::istream
+// abc::testing::mock::istream
 
 
 namespace abc {
+
+namespace testing {
 
 namespace mock {
 
@@ -55,6 +58,8 @@ bool ostream::contents_equal(istr const & sExpected) {
 }
 
 } //namespace mock
+
+} //namespace testing
 
 } //namespace abc
 

@@ -17,15 +17,15 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_MOCK_IOSTREAM_HXX
-#define ABC_MOCK_IOSTREAM_HXX
+#ifndef ABC_TESTING_MOCK_IOSTREAM_HXX
+#define ABC_TESTING_MOCK_IOSTREAM_HXX
 
-#include <abc/core.hxx>
+#include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
 	#pragma once
 #endif
-
 #include <abc/iostream.hxx>
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,17 +34,21 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
+namespace testing {
+
 namespace mock {
 
 #if 0
 /** Implementation of an read-only stream based on a string.
 */
-class istream :
+class ABCTESTINGAPI istream :
 	public virtual ::abc::istream {
 };
 #endif
 
 } //namespace mock
+
+} //namespace testing
 
 } //namespace abc
 
@@ -55,11 +59,13 @@ class istream :
 
 namespace abc {
 
+namespace testing {
+
 namespace mock {
 
 /** Implementation of an write-only stream based on a string.
 */
-class ostream :
+class ABCTESTINGAPI ostream :
 	public virtual ::abc::ostream {
 public:
 
@@ -70,7 +76,10 @@ public:
 
 	/** Returns true if the current contents of the stream match the specified string.
 
-	TODO: comment signature.
+	sExpected
+		String to compare with the contents of the stream.
+	return
+		true if the contents equal sExpected, or false otherwise.
 	*/
 	bool contents_equal(istr const & sExpected);
 
@@ -98,11 +107,13 @@ private:
 
 } //namespace mock
 
+} //namespace testing
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_MOCK_IOSTREAM_HXX
+#endif //ifndef ABC_TESTING_MOCK_IOSTREAM_HXX
 

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/module.hxx>
-#include <abc/mock/iostream.hxx>
+#include <abc/testing/mock/iostream.hxx>
 #include <abc/trace.hxx>
 using namespace abc;
 
@@ -33,7 +33,7 @@ public:
 
 		UNUSED_ARG(vsArgs);
 
-		mock::ostream mos;
+		testing::mock::ostream mos;
 
 		// Syntax errors.
 

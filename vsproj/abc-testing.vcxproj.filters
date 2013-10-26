@@ -2,16 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <UniqueIdentifier>{4fc737f1-c7a5-4376-a066-2a32d752a2ff}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Source Files\testing">
+      <UniqueIdentifier>{42e6d6bf-5bc8-4a7b-8f8e-0b2e47f7ca26}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Source Files\testing\mock">
+      <UniqueIdentifier>{1912ef58-9048-402e-b2fc-88b9f76f44cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89bd-4b04-88eb-625fbe52ebfb}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Header Files\abc">
       <UniqueIdentifier>{8d1a1482-ff29-47b3-a03e-90077f5d7830}</UniqueIdentifier>
@@ -19,35 +21,45 @@
     <Filter Include="Header Files\abc\testing">
       <UniqueIdentifier>{7d27bd94-830e-4d4a-b96d-0b68b3b0136e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\testing">
-      <UniqueIdentifier>{42e6d6bf-5bc8-4a7b-8f8e-0b2e47f7ca26}</UniqueIdentifier>
+    <Filter Include="Header Files\abc\testing\mock">
+      <UniqueIdentifier>{05a878b2-94b9-4be5-bed4-8e2ae5869bb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\abc\testing\module.hxx">
+    <ClInclude Include="..\include\abc\testing\core.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\testing\unit.hxx">
+    <ClInclude Include="..\include\abc\testing\mock\ostream.hxx">
+      <Filter>Header Files\abc\testing\mock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\abc\testing\module.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
     <ClInclude Include="..\include\abc\testing\runner.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\testing\core.hxx">
+    <ClInclude Include="..\include\abc\testing\unit.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\testing\module.cxx">
+    <ClCompile Include="..\src\testing\core.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\testing\unit.cxx">
+    <ClCompile Include="..\src\testing\mock\ostream.cxx">
+      <Filter>Source Files\testing\mock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\module.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
     <ClCompile Include="..\src\testing\runner.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\testing\core.cxx">
+    <ClCompile Include="..\src\testing\unit.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
   </ItemGroup>

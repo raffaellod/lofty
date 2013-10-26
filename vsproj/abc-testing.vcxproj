@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\abc\testing\core.hxx" />
+    <ClInclude Include="..\include\abc\testing\mock\ostream.hxx" />
     <ClInclude Include="..\include\abc\testing\module.hxx" />
     <ClInclude Include="..\include\abc\testing\runner.hxx" />
     <ClInclude Include="..\include\abc\testing\unit.hxx" />
@@ -92,6 +93,9 @@
     <ClCompile Include="..\src\testing\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\src\testing\mock\ostream.cxx">
+      <ObjectFileName>$(IntDir)testing-mock-%(Filename).obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\src\testing\module.cxx">
       <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
