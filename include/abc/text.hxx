@@ -113,7 +113,17 @@ size_t const max_codepoint_length(6);
 
 /** Prototype of a void version of str_str().
 
-TODO: comment signature.
+pchHaystackBegin
+	Pointer to the first character of the string to be searched.
+pchHaystackEnd
+	Pointer to beyond the last character of the string to be searched.
+pchNeedleBegin
+	Pointer to the first character of the string to search for.
+pchNeedleEnd
+	Pointer to beyond the last character of the string to search for.
+return
+	Pointer to the beginning of the first match, in the string to be searched, of the string to
+	search for, or NULL if no matches are found.
 */
 typedef void const * (* str_str_fn)(
 	void const * pchHaystackBegin, void const * pchHaystackEnd,
@@ -125,7 +135,16 @@ typedef void const * (* str_str_fn)(
 different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source size,
 although special cases such as surrogates might make the estimate too low.
 
-TODO: comment signature.
+encSrc
+	Source encoding.
+pSrc
+	Pointer to the source string.
+cbSrc
+	Length of the source string, in bytes.
+encDst
+	Target encoding.
+return
+	Estimated size necessary for the destination string, in bytes.
 */
 ABCAPI size_t estimate_transcoded_size(
 	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
@@ -135,14 +154,26 @@ ABCAPI size_t estimate_transcoded_size(
 /** Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
 encodings (e.g. identity_encoding).
 
-TODO: comment signature.
+enc
+	Desired encoding.
+return
+	Size of a character (not a code point, which can require more than one character) for the
+	specified encoding, in bytes.
 */
 ABCAPI size_t get_encoding_size(encoding enc);
 
 
 /** Returns a byte sequence representing a line terminator in the requested encoding.
 
-TODO: comment signature.
+enc
+	Desired encoding.
+lterm
+	Desired line terminator sequence.
+pcb
+	Pointer to a variable that will receive the size, in bytes, of the line terminator sequence
+	string.
+return
+	Pointer to a non-NUL-terminated line terminator sequence.
 */
 ABCAPI void const * get_line_terminator_bytes(
 	encoding enc, line_terminator lterm, size_t * pcb
@@ -156,7 +187,17 @@ While this function can check for validity of some encodings, it does not guaran
 example, for a return value of utf8_encoding utf8_traits::is_valid() will return true for the same
 buffer.
 
-TODO: comment signature.
+pBuf
+	Pointer to a character string the encoding of which needs to be determined.
+cbBuf
+	Size of the string pointed to by pBuf, in bytes.
+[cbSrcTotal]
+	Total size, in bytes, of a larger string of which *pBuf is the beginning.
+[pcbBom]
+	Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
+	of the string, in bytes, or 0 otherwise.
+return
+	Detected encoding of the string pointed to by pBuf.
 */
 ABCAPI encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
@@ -167,7 +208,14 @@ ABCAPI encoding guess_encoding(
 specified encoding. The second argument is really character count, it’s not a typo; the size of each
 character is inferred via enc.
 
-TODO: comment signature.
+pBuf
+	Pointer to a character string the line terminator sequence of which needs to be determined.
+cchBuf
+	Size of the string pointed to by pBuf, in characters.
+enc
+	Encoding of the string pointed to by pBuf.
+return
+	Detected line terminator sequence of the string pointed to by pBuf.
 */
 ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
 
@@ -177,7 +225,24 @@ the bytes used in the conversion; the number of bytes written is returned.
 
 UTF validity: not necessary; invalid sequences are replaced with text::replacement_char.
 
-TODO: comment signature.
+encSrc
+	Encoding of the string pointed to by *ppSrc.
+ppSrc
+	Pointer to a pointer to the source string; the pointed-to pointer will be incremented as
+	characters are transcoded.
+pcbSrc
+	Pointer to a variable that holds the size of the string pointed to by *ppSrc, and that will be
+	decremented by the number of source characters transcoded.
+encDst
+	Encoding of the string pointed to by *ppDst.
+ppDst
+	Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
+	characters are stored in the buffer.
+pcbDstMax
+	Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
+	decremented by the number of characters stored in the buffer.
+return
+	Count of bytes that were written to **ppDst.
 */
 ABCAPI size_t transcode(
 	std::nothrow_t const &,
