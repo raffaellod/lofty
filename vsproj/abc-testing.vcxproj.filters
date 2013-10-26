@@ -33,7 +33,7 @@
     <ClInclude Include="..\include\abc\testing\core.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\testing\mock\ostream.hxx">
+    <ClInclude Include="..\include\abc\testing\mock\iostream.hxx">
       <Filter>Header Files\abc\testing\mock</Filter>
     </ClInclude>
     <ClInclude Include="..\include\abc\testing\module.hxx">
@@ -50,7 +50,7 @@
     <ClCompile Include="..\src\testing\core.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\testing\mock\ostream.cxx">
+    <ClCompile Include="..\src\testing\mock\iostream.cxx">
       <Filter>Source Files\testing\mock</Filter>
     </ClCompile>
     <ClCompile Include="..\src\testing\module.cxx">
