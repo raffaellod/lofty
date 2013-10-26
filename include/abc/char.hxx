@@ -294,7 +294,10 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	pt
+		Pointer to set the iterator to.
+	it
+		Source iterator.
 	*/
 	/*constexpr*/ pointer_iterator() :
 		m_ptval(NULL) {
@@ -311,7 +314,8 @@ public:
 
 	/** Dereferencing operator.
 
-	TODO: comment signature.
+	return
+		Reference to the current item.
 	*/
 	TVal & operator*() const {
 		return *m_ptval;
@@ -320,7 +324,8 @@ public:
 
 	/** Dereferencing member access operator.
 
-	TODO: comment signature.
+	return
+		Pointer to the current item.
 	*/
 	TVal * operator->() const {
 		return m_ptval;
@@ -329,7 +334,10 @@ public:
 
 	/** Element access operator.
 
-	TODO: comment signature.
+	i	
+		Index relative to *this.
+	return
+		Reference to the specified item.
 	*/
 	TVal & operator[](ptrdiff_t i) const {
 		return m_ptval[i];
@@ -338,7 +346,8 @@ public:
 
 	/** Returns true if the internal pointer is not NULL.
 
-	TODO: comment signature.
+	return
+		true if the iterator is on a valid item, or false if it’s set to NULL.
 	*/
 	explicit_operator_bool() const {
 		return m_ptval != NULL;
@@ -347,7 +356,10 @@ public:
 
 	/** Addition-assignment operator.
 
-	TODO: comment signature.
+	i
+		Count of positions by which to advance the iterator.
+	return
+		*this after it’s moved forward by i positions.
 	*/
 	pointer_iterator & operator+=(ptrdiff_t i) {
 		m_ptval += i;
@@ -357,7 +369,10 @@ public:
 
 	/** Subtraction-assignment operator.
 
-	TODO: comment signature.
+	i
+		Count of positions by which to rewind the iterator.
+	return
+		*this after it’s moved backwards by i positions.
 	*/
 	pointer_iterator & operator-=(ptrdiff_t i) {
 		m_ptval -= i;
@@ -367,7 +382,10 @@ public:
 
 	/** Addition operator.
 
-	TODO: comment signature.
+	i
+		Count of positions by which to advance the iterator.
+	return
+		Iterator that’s i items ahead of *this.
 	*/
 	pointer_iterator operator+(ptrdiff_t i) const {
 		return pointer_iterator(m_ptval + i);
@@ -379,7 +397,10 @@ public:
 
 	/** Subtraction operator.
 
-	TODO: comment signature.
+	i
+		Count of positions by which to rewind the iterator.
+	return
+		Iterator that’s i items behind *this.
 	*/
 	pointer_iterator operator-(ptrdiff_t i) const {
 		return pointer_iterator(m_ptval - i);
@@ -391,7 +412,8 @@ public:
 
 	/** Preincrement operator.
 
-	TODO: comment signature.
+	return
+		*this after it’s moved to the value following the one currently pointed to by.
 	*/
 	pointer_iterator & operator++() {
 		++m_ptval;
@@ -401,7 +423,8 @@ public:
 
 	/** Postincrement operator.
 
-	TODO: comment signature.
+	return
+		Iterator pointing to the value following the one pointed to by this iterator.
 	*/
 	pointer_iterator operator++(int) {
 		return pointer_iterator(m_ptval++);
@@ -410,7 +433,8 @@ public:
 
 	/** Predecrement operator.
 
-	TODO: comment signature.
+	return
+		*this after it’s moved to the value preceding the one currently pointed to by.
 	*/
 	pointer_iterator & operator--() {
 		--m_ptval;
@@ -420,7 +444,8 @@ public:
 
 	/** Postdecrement operator.
 
-	TODO: comment signature.
+	return
+		Iterator pointing to the value preceding the one pointed to by this iterator.
 	*/
 	pointer_iterator operator--(int) {
 		return pointer_iterator(m_ptval--);
@@ -429,7 +454,8 @@ public:
 
 	/** Returns the underlying iterator type.
 
-	TODO: comment signature.
+	return
+		Pointer to the value pointed to by this iterator.
 	*/
 	TVal * base() const {
 		return m_ptval;
@@ -486,7 +512,14 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	ach
+		Source string literal.
+	pchBegin
+		Pointer to the beginning of a character array.
+	pchEnd
+		Pointer to the end of *pchBegin.
+	cch
+		Count of characters in *pchBegin.
 	*/
 	char_range_() :
 		m_pchBegin(NULL),
@@ -511,7 +544,8 @@ public:
 
 	/** Returns true if the range comprises at least one character.
 
-	TODO: comment signature.
+	return
+		true if the range is not empty, or false otherwise.
 	*/
 	explicit_operator_bool() const {
 		return m_pchEnd > m_pchBegin;
@@ -541,36 +575,40 @@ public:
 
 public:
 
-	/** Returns a const forward iterator set to the first element.
+	/** Returns a const forward iterator set to the first character in the range.
 
-	TODO: comment signature.
+	return
+		Iterator.
 	*/
 	const_iterator cbegin() const {
 		return const_iterator(m_pchBegin);
 	}
 
 
-	/** Returns a const reverse iterator set to the first element.
+	/** Returns a const reverse iterator set beyond the last character in the range.
 
-	TODO: comment signature.
+	return
+		Iterator.
 	*/
 	const_reverse_iterator crbegin() const {
 		return const_reverse_iterator(m_pchBegin);
 	}
 
 
-	/** Returns a const forward iterator set beyond the last element.
+	/** Returns a const forward iterator set beyond the last character in the range.
 
-	TODO: comment signature.
+	return
+		Iterator.
 	*/
 	const_iterator cend() const {
 		return const_iterator(m_pchEnd);
 	}
 
 
-	/** Returns a const reverse iterator set beyond the last element.
+	/** Returns a const reverse iterator set to the first character in the range.
 
-	TODO: comment signature.
+	return
+		Iterator.
 	*/
 	const_reverse_iterator crend() const {
 		return const_reverse_iterator(m_pchEnd);
