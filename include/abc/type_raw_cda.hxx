@@ -69,8 +69,6 @@ struct void_cda {
 
 	/** Size of a variable of this type, in bytes. */
 	size_t cb;
-	/** Alignment of a variable of this type, in bytes. */
-	size_t cbAlign;
 	/** Function to copy items from one array to another. */
 	copy_fn copy_constr;
 	/** Function to move items from one array to another. */
@@ -290,7 +288,6 @@ template <class T>
 /*constexpr*/ void_cda const & type_raw_cda() {
 	static void_cda const sc_vrcda = {
 		sizeof(T),
-		alignof(T),
 		reinterpret_cast<void_cda:: copy_fn>(typed_raw_cda<T>::copy_constr),
 		reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::move_constr),
 		reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::overlapping_move_constr),
