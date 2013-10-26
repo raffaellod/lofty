@@ -36,7 +36,14 @@ protected:
 	/** Writes the first argument using the second as format specification, and compares the result
 	with the provided expectation, returning true if they match.
 
-	TODO: comment signature.
+	t
+		Value to output.
+	achFormatSpec
+		Format specification for t.
+	achExpected
+		Expected string rendering of t formatted according to achFormatSpec.
+	return
+		true if the rendering of t as a string matches achExpected exactly, or false otherwise.
 	*/
 	template <typename T, size_t t_cchFormatSpec, size_t t_cchExpected>
 	static bool check_to_str_backend_output(
