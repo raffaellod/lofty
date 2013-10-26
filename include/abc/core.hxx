@@ -634,7 +634,7 @@ struct unsafe_t {};
 
 /** Constant used as extra argument for functions to force clients to acknowledge they are
 performing unsafe operations. */
-extern unsafe_t const unsafe;
+extern ABCAPI unsafe_t const unsafe;
 
 } //namespace abc
 

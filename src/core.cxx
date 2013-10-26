@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-unsafe_t const unsafe;
+ABCAPI unsafe_t const unsafe;
 
 } //namespace abc
 
