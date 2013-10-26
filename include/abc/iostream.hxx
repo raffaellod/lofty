@@ -519,7 +519,7 @@ protected:
 	ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
 		// This is the last recursion stage, with no replacements available, so if we got here
 		// ostream::print() was called with insufficient replacements for the given format string.
-		UNUSED_ARG(iArg);
+		ABC_UNUSED_ARG(iArg);
 		_ostream_print_helper_impl::throw_index_error();
 	}
 };
@@ -783,7 +783,7 @@ protected:
 	ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
 		// This is the last recursion stage, with no replacements available, so if we got here
 		// ostream::print() was called with insufficient replacements for the given format string.
-		UNUSED_ARG(iArg);
+		ABC_UNUSED_ARG(iArg);
 		_ostream_print_helper_impl::throw_index_error();
 	}
 };

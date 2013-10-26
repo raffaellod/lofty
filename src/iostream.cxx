@@ -169,7 +169,7 @@ bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
 // TODO	case CL('r'):
 // TODO	case CL('a'):
 				chConversion = ch;
-				UNUSED_ARG(chConversion);
+				ABC_UNUSED_ARG(chConversion);
 				break;
 			default:
 				throw_syntax_error(SL("unknown conversion specifier"), it);

@@ -95,7 +95,7 @@ namespace abc {
 resource_module::resource_module(file_path const & fp)
 #if ABC_HOST_API_POSIX
 {
-	UNUSED_ARG(fp);
+	ABC_UNUSED_ARG(fp);
 #elif ABC_HOST_API_WIN32
 	: dynamic_module(fp, false) {
 #else
@@ -105,7 +105,7 @@ resource_module::resource_module(file_path const & fp)
 resource_module::resource_module(resource_module && rm)
 #if ABC_HOST_API_POSIX
 {
-	UNUSED_ARG(rm);
+	ABC_UNUSED_ARG(rm);
 #elif ABC_HOST_API_WIN32
 	: dynamic_module(std::move(rm)) {
 #else
@@ -122,9 +122,9 @@ size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const
 	ABC_TRACE_FN((this, id, /*psz, */cchMax));
 
 #if ABC_HOST_API_POSIX
-	UNUSED_ARG(id);
-	UNUSED_ARG(psz);
-	UNUSED_ARG(cchMax);
+	ABC_UNUSED_ARG(id);
+	ABC_UNUSED_ARG(psz);
+	ABC_UNUSED_ARG(cchMax);
 	return 0;
 #elif ABC_HOST_API_WIN32
 	return size_t(::LoadString(m_hdynmod, WORD(id), psz, int(cchMax)));
@@ -186,7 +186,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
 	pfn = ::dlsym(m_hdynmod, sSymbol.data());
 	if (char * pszError = ::dlerror()) {
 		// TODO: we have a description, but no error code.
-		UNUSED_ARG(pszError);
+		ABC_UNUSED_ARG(pszError);
 //		throw_os_error();
 		throw 123;
 	}

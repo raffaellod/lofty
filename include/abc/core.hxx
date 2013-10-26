@@ -521,7 +521,7 @@ this purpose, but this is noticeably shorter :)
 x
 	Unused argument.
 */
-#define UNUSED_ARG(x) \
+#define ABC_UNUSED_ARG(x) \
 	static_cast<void>(x)
 
 

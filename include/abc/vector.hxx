@@ -145,7 +145,7 @@ public:
 	TODO: comment signature.
 	*/
 	void append(void const * pAdd, size_t ciAdd, bool bMove) {
-		UNUSED_ARG(bMove);
+		ABC_UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::append(sizeof(T), pAdd, ciAdd);
 	}
 
@@ -155,14 +155,14 @@ public:
 	TODO: comment signature.
 	*/
 	void assign_copy(void const * p, size_t ci, bool bMove) {
-		UNUSED_ARG(bMove);
+		ABC_UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
 	}
 	void assign_copy(
 		void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
 	) {
-		UNUSED_ARG(bMove1);
-		UNUSED_ARG(bMove2);
+		ABC_UNUSED_ARG(bMove1);
+		ABC_UNUSED_ARG(bMove2);
 		_raw_trivial_vextr_impl::assign_copy(sizeof(T), p1, ci1, p2, ci2);
 	}
 
@@ -182,7 +182,7 @@ public:
 	TODO: comment signature.
 	*/
 	void insert(ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove) {
-		UNUSED_ARG(bMove);
+		ABC_UNUSED_ARG(bMove);
 		_raw_trivial_vextr_impl::insert(sizeof(T), iOffset, pAdd, ciAdd);
 	}
 

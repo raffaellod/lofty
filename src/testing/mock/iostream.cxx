@@ -52,7 +52,7 @@ bool ostream::contents_equal(istr const & sExpected) {
 ) {
 	ABC_TRACE_FN((this, p, cb, enc));
 
-	UNUSED_ARG(enc);
+	ABC_UNUSED_ARG(enc);
 	memory::copy<void>(m_achBuf + m_cchUsed, p, cb);
 	m_cchUsed += cb / sizeof(m_achBuf[0]);
 }

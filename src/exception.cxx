@@ -1186,7 +1186,7 @@ char const * exception::what() const {
 
 void exception::_print_extended_info(ostream * pos) const {
 	// Nothing to print.
-	UNUSED_ARG(pos);
+	ABC_UNUSED_ARG(pos);
 }
 
 

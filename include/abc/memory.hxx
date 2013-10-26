@@ -169,7 +169,7 @@ public:
 	TODO: comment signature.
 	*/
 	pointer allocate(size_type c, void const * pHint = 0) {
-		UNUSED_ARG(pHint);
+		ABC_UNUSED_ARG(pHint);
 		// c must fit in our static buffer, and we must still have a buffer.
 		if (c > max_size() || !m_p) {
 			abc_throw(memory_allocation_error, ());
@@ -186,8 +186,8 @@ public:
 	TODO: comment signature.
 	*/
 	void deallocate(pointer p, size_type c) {
-		UNUSED_ARG(p);
-		UNUSED_ARG(c);
+		ABC_UNUSED_ARG(p);
+		ABC_UNUSED_ARG(c);
 	}
 
 
@@ -267,7 +267,7 @@ struct noop_deleter {
 	TODO: comment signature.
 	*/
 	void operator()(T * pt) const {
-		UNUSED_ARG(pt);
+		ABC_UNUSED_ARG(pt);
 	}
 };
 

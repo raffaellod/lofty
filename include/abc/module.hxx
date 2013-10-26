@@ -215,7 +215,7 @@ public:
 	*/
 	resource_module & operator=(resource_module && rm) {
 #if ABC_HOST_API_POSIX
-		UNUSED_ARG(rm);
+		ABC_UNUSED_ARG(rm);
 #elif ABC_HOST_API_WIN32
 		dynamic_module::operator=(std::move(rm));
 #else
@@ -588,7 +588,7 @@ public:
 		Indication on how the application’s main window should be displayed; one of SW_* flags.
 	*/
 	static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
-		UNUSED_ARG(iShowCmd);
+		ABC_UNUSED_ARG(iShowCmd);
 
 		// Establish this as early as possible.
 		exception::async_handler_manager eahm;
@@ -624,7 +624,7 @@ public:
 		Return code of the program.
 	*/
 	int main(mvector<istr const> const & vsArgs) {
-		UNUSED_ARG(vsArgs);
+		ABC_UNUSED_ARG(vsArgs);
 		return 0;
 	}
 };
@@ -653,7 +653,7 @@ cls
 			extern "C" int WINAPI wWinMain( \
 				HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
 			) { \
-				UNUSED_ARG(pszCmdLine); \
+				ABC_UNUSED_ARG(pszCmdLine); \
 				return cls::entry_point_win_exe(hinst, iShowCmd); \
 			}
 	#else
@@ -751,7 +751,7 @@ public:
 	/** TODO: comment signature.
 	*/
 	bool dll_main(int iReason) {
-		UNUSED_ARG(iReason);
+		ABC_UNUSED_ARG(iReason);
 		return true;
 	}
 
@@ -790,7 +790,7 @@ cls
 		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
 		\
 		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
-			UNUSED_ARG(pReserved); \
+			ABC_UNUSED_ARG(pReserved); \
 			return cls::entry_point_win_dll(hinst, iReason); \
 		}
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32

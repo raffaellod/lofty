@@ -58,7 +58,7 @@ ABCAPI size_t estimate_transcoded_size(
 	}
 	// TODO: use this to give a more accurate estimate for UTF-8, by evaluating which language block
 	// seems to be dominant in the source.
-	UNUSED_ARG(pSrc);
+	ABC_UNUSED_ARG(pSrc);
 
 	// Estimate the number of code points in the source.
 	size_t cbSrcAvg(sc_acbAvg10Chars[encSrc.base() - encoding::_charsets_offset]),

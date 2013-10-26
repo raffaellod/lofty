@@ -31,7 +31,7 @@ public:
 	int main(mvector<istr const> const & vsArgs) {
 		ABC_TRACE_FN((/*vsArgs*/));
 
-		UNUSED_ARG(vsArgs);
+		ABC_UNUSED_ARG(vsArgs);
 		{
 			// Simple manipulation tests.
 			map<istr const, int> m;

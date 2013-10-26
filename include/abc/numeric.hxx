@@ -55,7 +55,7 @@ template <typename T>
 inline /*constexpr*/ bool is_negative(
 	typename std::enable_if<!std::is_signed<T>::value, T>::type t
 ) {
-	UNUSED_ARG(t);
+	ABC_UNUSED_ARG(t);
 	return false;
 }
 

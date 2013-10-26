@@ -58,9 +58,9 @@ str_istream::str_istream(dmstr && s) :
 size_t str_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
-	UNUSED_ARG(p);
-	UNUSED_ARG(cbMax);
-	UNUSED_ARG(enc);
+	ABC_UNUSED_ARG(p);
+	ABC_UNUSED_ARG(cbMax);
+	ABC_UNUSED_ARG(enc);
 	return 0;
 }
 
@@ -68,19 +68,19 @@ size_t str_istream::read_raw(
 /*virtual*/ void str_istream::unread_raw(
 	void const * p, size_t cb, text::encoding enc
 ) {
-	UNUSED_ARG(p);
-	UNUSED_ARG(cb);
-	UNUSED_ARG(enc);
+	ABC_UNUSED_ARG(p);
+	ABC_UNUSED_ARG(cb);
+	ABC_UNUSED_ARG(enc);
 }
 
 
 /*virtual*/ void str_istream::_read_line(
 	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-	UNUSED_ARG(prs);
-	UNUSED_ARG(enc);
-	UNUSED_ARG(cchCodePointMax);
-	UNUSED_ARG(pfnStrStr);
+	ABC_UNUSED_ARG(prs);
+	ABC_UNUSED_ARG(enc);
+	ABC_UNUSED_ARG(cchCodePointMax);
+	ABC_UNUSED_ARG(pfnStrStr);
 }
 
 } //namespace abc

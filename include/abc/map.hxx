@@ -280,18 +280,18 @@ protected:
 		m_prmd->reset();
 	}
 	_map_impl(_raw_map_desc * prmd, map0 const & m) {
-		UNUSED_ARG(prmd);
+		ABC_UNUSED_ARG(prmd);
 		m_prmd = NULL;
 		assign(m);
 	}
 	_map_impl(_raw_map_desc * prmd, map0 && m) {
-		UNUSED_ARG(prmd);
+		ABC_UNUSED_ARG(prmd);
 		m_prmd = NULL;
 		assign(std::move(m));
 	}
 	template <size_t t_ceStatic2>
 	_map_impl(_raw_map_desc * prmd, map<TKey, TVal, t_ceStatic2> && m) {
-		UNUSED_ARG(prmd);
+		ABC_UNUSED_ARG(prmd);
 		m_prmd = NULL;
 		assign(std::move(m));
 	}
