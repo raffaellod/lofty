@@ -413,13 +413,14 @@ cls
 		/** Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
 		explicit operator bool().
 
-		TODO: comment signature.
+		return
+			A valid pointer if T::explicit_operator_bool() returns true, or NULL otherwise.
 		*/
 		operator _explob_helper::bool_type() const {
 			if (static_cast<T const *>(this)->_explicit_operator_bool()) {
 				return &_explob_helper::bool_true;
 			} else {
-				return 0;
+				return NULL;
 			}
 		}
 	};
@@ -599,7 +600,10 @@ return
 storage with alignment suitable for any type, just like ::malloc() does. Identical to
 bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
 
-TODO: comment signature.
+cb
+	Size to be aligned to sizeof(std::max_align_t).
+return
+	Multiple of sizeof(std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
 	((size_t(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
