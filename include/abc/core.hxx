@@ -573,15 +573,14 @@ type
 return
 	Alignment of type.
 */
-#undef alignof
 #if defined(_GCC_VER)
-	#define alignof(type) \
+	#define ABC_ALIGNOF(type) \
 		__alignof__(type)
 #elif defined(_MSC_VER)
-	#define alignof(type) \
+	#define ABC_ALIGNOF(type) \
 		__alignof(type)
 #else
-	#define alignof(type) \
+	#define ABC_ALIGNOF(type) \
 		offsetof(abc::_alignof_helper<type>, t)
 
 	namespace abc {
