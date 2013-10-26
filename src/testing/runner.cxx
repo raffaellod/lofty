@@ -69,7 +69,7 @@ runner::~runner() {
 
 
 void runner::load_registered_units() {
-	abc_trace_fn(());
+	abc_trace_fn((this));
 
 	for (
 		unit_factory_impl::factory_list_item * pfli = unit_factory_impl::get_factory_list_head();
@@ -87,7 +87,7 @@ void runner::load_registered_units() {
 
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
-	abc_trace_fn((bSuccess, sExpr));
+	abc_trace_fn((this, bSuccess, sExpr));
 
 	if (!bSuccess /*|| verbose*/) {
 		m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
@@ -100,7 +100,7 @@ void runner::log_result(bool bSuccess, istr const & sExpr) {
 
 
 bool runner::log_summary() {
-	abc_trace_fn(());
+	abc_trace_fn((this));
 
 	if (m_cTotalTests == 0) {
 		m_pos->write(SL("No tests performed\n"));
@@ -135,7 +135,7 @@ bool runner::log_summary() {
 
 
 void runner::run() {
-	abc_trace_fn(());
+	abc_trace_fn((this));
 
 	for (auto it(m_vpu.begin()); it != m_vpu.end(); ++it) {
 		run_unit(**it);
@@ -144,7 +144,7 @@ void runner::run() {
 
 
 void runner::run_unit(unit & u) {
-	abc_trace_fn((/*u*/));
+	abc_trace_fn((this/*, u*/));
 
 	m_pos->print(SL("Testing unit \"{}\" ...\n"), u.title());
 

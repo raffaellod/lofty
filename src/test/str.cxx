@@ -38,7 +38,7 @@ protected:
 		String to initialize with.
 	*/
 	void init_str_ptr(istr const & s) {
-		abc_trace_fn((s));
+		abc_trace_fn((this, s));
 
 		m_psCheck = &s;
 		m_pchCheck = s.data();
@@ -54,7 +54,7 @@ protected:
 		true if the validation is successful, or false otherwise.
 	*/
 	bool str_ptr_changed(bool bPtrChanged) {
-		abc_trace_fn((bPtrChanged));
+		abc_trace_fn((this, bPtrChanged));
 
 		// Update the item array pointer for the next call.
 		char_t const * pchCheckOld(m_pchCheck);
