@@ -629,12 +629,12 @@ private:
 };
 
 
-/** See unsafe. */
+/** See abc::unsafe. */
 struct unsafe_t {};
 
 /** Constant used as extra argument for functions to force clients to acknowledge they are
-performing unsafe operations. */
-extern ABCAPI unsafe_t const unsafe;
+performing unsafe operations. Use as an extra first argument, similary to std::nothrow. */
+unsafe_t const unsafe;
 
 } //namespace abc
 
