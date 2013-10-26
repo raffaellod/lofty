@@ -51,7 +51,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
 	m_chSign(CL('\0')),
 	m_chPrefix0(CL('\0')),
 	m_chPrefix1(CL('\0')) {
-	abc_trace_fn((this, cbInt, crFormat));
+	ABC_TRACE_FN((this, cbInt, crFormat));
 
 	bool bPrefix(false), bDefaultNotation(true);
 	auto it(crFormat.cbegin());
@@ -162,7 +162,7 @@ default_notation:
 ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 	bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
 ) const {
-	abc_trace_fn((this, bNegative, posOut, psBuf/*, pchBufFirstUsed*/));
+	ABC_TRACE_FN((this, bNegative, posOut, psBuf/*, pchBufFirstUsed*/));
 
 	char_t const * pchBufEnd(psBuf->cend().base());
 	char_t * pch(pchBufFirstUsed);
@@ -201,7 +201,7 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 
 template <typename I>
 inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
-	abc_trace_fn((this, i, posOut));
+	ABC_TRACE_FN((this, i, posOut));
 
 	// Create a buffer of sufficient size for binary notation (the largest).
 	smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
@@ -281,7 +281,7 @@ namespace abc {
 ABCAPI to_str_backend<bool>::to_str_backend(
 	char_range const & crFormat /*= char_range()*/
 ) {
-	abc_trace_fn((this, crFormat));
+	ABC_TRACE_FN((this, crFormat));
 
 	auto it(crFormat.cbegin());
 
@@ -297,7 +297,7 @@ ABCAPI to_str_backend<bool>::to_str_backend(
 
 
 ABCAPI void to_str_backend<bool>::write(bool b, ostream * posOut) {
-	abc_trace_fn((this, b, posOut));
+	ABC_TRACE_FN((this, b, posOut));
 
 	// TODO: apply format options.
 	if (b) {
@@ -323,7 +323,7 @@ ABCAPI to_str_backend<void const volatile *>::to_str_backend(
 	char_range const & crFormat /*= char_range()*/
 ) :
 	to_str_backend<uintptr_t>(char_range(smc_achFormat)) {
-	abc_trace_fn((this, crFormat));
+	ABC_TRACE_FN((this, crFormat));
 
 	auto it(crFormat.cbegin());
 

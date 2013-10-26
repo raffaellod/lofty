@@ -97,7 +97,7 @@ char_t const file_path::smc_aszRoot[] =
 
 
 file_path & file_path::operator/=(istr const & s) {
-	abc_trace_fn((this, s));
+	ABC_TRACE_FN((this, s));
 
 	// Only the root already ends in a separator; everything else needs one.
 	m_s = normalize((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator[0]) + s);
@@ -106,7 +106,7 @@ file_path & file_path::operator/=(istr const & s) {
 
 
 dmstr file_path::base_name() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	// An empty path has no base name.
 	if (!m_s || is_root()) {
@@ -120,7 +120,7 @@ dmstr file_path::base_name() const {
 
 
 /*static*/ file_path file_path::current_dir() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	dmstr s;
 #if ABC_HOST_API_POSIX
@@ -162,7 +162,7 @@ dmstr file_path::base_name() const {
 
 
 /*static*/ bool file_path::is_absolute(istr const & s) {
-	abc_trace_fn((s));
+	ABC_TRACE_FN((s));
 
 #if ABC_HOST_API_POSIX
 	return s.size() >= 1 /*"/"*/ && s[0] == CL('/');
@@ -188,7 +188,7 @@ dmstr file_path::base_name() const {
 
 
 bool file_path::is_dir() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 #if ABC_HOST_API_POSIX
 	return S_ISDIR(file_stat(*this).st_mode);
@@ -201,7 +201,7 @@ bool file_path::is_dir() const {
 
 
 bool file_path::is_root() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 #if ABC_HOST_API_POSIX
 	return m_s.size() == 1 /*"/"*/;
@@ -214,7 +214,7 @@ bool file_path::is_root() const {
 
 
 file_path file_path::parent_dir() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	// An empty path has no parent directory.
 	if (!m_s || is_root()) {
@@ -242,14 +242,14 @@ file_path file_path::parent_dir() const {
 // In spite of the fact it’s a one-liner, this can’t be in the header file because the size of
 // smc_aszRoot is only known here.
 /*static*/ file_path file_path::root() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	return dmstr(smc_aszRoot);
 }
 
 
 /*static*/ dmstr file_path::normalize(dmstr s) {
-	abc_trace_fn((s));
+	ABC_TRACE_FN((s));
 
 	size_t cch(s.size());
 	// An empty string is okay.

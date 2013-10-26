@@ -101,7 +101,7 @@ void _ostream_print_helper_impl::throw_index_error() {
 
 
 bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	// Search for the next replacement, if any.
 	istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
@@ -220,7 +220,7 @@ void _ostream_print_helper_impl::throw_syntax_error(
 
 
 void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
-	abc_trace_fn((this/*, itUpTo*/));
+	ABC_TRACE_FN((this/*, itUpTo*/));
 
 	if (itUpTo > m_itFormatToWriteBegin) {
 		m_pos->write_raw(

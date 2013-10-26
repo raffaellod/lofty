@@ -43,7 +43,7 @@ dynamic_module::dynamic_module(dynamic_module && dm) :
 dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
 	m_hdynmod(::LoadLibraryEx(fp.data(), NULL, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE))),
 	m_bOwn(true) {
-	abc_trace_fn((this, /*fp, */bInit));
+	ABC_TRACE_FN((this, /*fp, */bInit));
 
 	if (!m_hdynmod) {
 		throw_os_error();
@@ -52,7 +52,7 @@ dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
 
 
 dynamic_module & dynamic_module::operator=(dynamic_module && dm) {
-	abc_trace_fn((this/*, dm*/));
+	ABC_TRACE_FN((this/*, dm*/));
 
 	m_hdynmod = dm.m_hdynmod;
 	m_bOwn = dm.m_bOwn;
@@ -63,7 +63,7 @@ dynamic_module & dynamic_module::operator=(dynamic_module && dm) {
 
 
 file_path dynamic_module::file_name() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	dmstr s;
 	hdynmod_t hdynmod(m_hdynmod);
@@ -119,7 +119,7 @@ resource_module::~resource_module() {
 
 
 size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const {
-	abc_trace_fn((this, id, /*psz, */cchMax));
+	ABC_TRACE_FN((this, id, /*psz, */cchMax));
 
 #if ABC_HOST_API_POSIX
 	UNUSED_ARG(id);
@@ -145,7 +145,7 @@ namespace abc {
 code_module::code_module(file_path const & fp) :
 #if ABC_HOST_API_POSIX
 	m_hdynmod(::dlopen(fp.data(), RTLD_LAZY)) {
-	abc_trace_fn((this/*, fp*/));
+	ABC_TRACE_FN((this/*, fp*/));
 
 	if (!m_hdynmod) {
 		throw_os_error();
@@ -178,7 +178,7 @@ code_module::~code_module() {
 
 
 void * code_module::_get_symbol(istr const & sSymbol) {
-	abc_trace_fn((this, sSymbol));
+	ABC_TRACE_FN((this, sSymbol));
 
 	void * pfn;
 #if ABC_HOST_API_POSIX
@@ -233,7 +233,7 @@ module_impl_base::module_impl_base() :
 /*static*/ void module_impl_base::_build_args(
 	int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet
 ) {
-	abc_trace_fn((cArgs, ppszArgs, pvsRet));
+	ABC_TRACE_FN((cArgs, ppszArgs, pvsRet));
 
 	pvsRet->set_capacity(size_t(cArgs), false);
 	// Make each string not allocate a new character array.
@@ -243,7 +243,7 @@ module_impl_base::module_impl_base() :
 }
 #if ABC_HOST_API_WIN32
 /*static*/ void module_impl_base::_build_args(mvector<istr const> * pvsRet) {
-	abc_trace_fn((pvsRet));
+	ABC_TRACE_FN((pvsRet));
 
 	// TODO: call ::GetCommandLine() and parse its result.
 }

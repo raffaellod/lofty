@@ -41,7 +41,7 @@ _raw_vextr_impl_base::transaction::transaction(
 	m_ci(size_t(ciNew >= 0 ? ciNew + (bNulT ? 1 /*NUL*/ : 0) : ptrdiff_t(m_prvib->m_ci) + ciDelta)),
 	m_rvpd(0, false, false),
 	m_bFree(false) {
-	abc_trace_fn((this, cbItem, prvib, ciNew, ciDelta, bNulT));
+	ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta, bNulT));
 
 	size_t ciStaticMax;
 	if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
@@ -101,7 +101,7 @@ _raw_vextr_impl_base::transaction::transaction(
 
 
 void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT /*= false*/) {
-	abc_trace_fn((this, cbItem, bNulT));
+	ABC_TRACE_FN((this, cbItem, bNulT));
 
 	// Add a NUL terminator to the item array, if not read-only (== if capacity > 0).
 	if (bNulT && m_rvpd.get_ciMax() > 0) {
@@ -127,7 +127,7 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= fa
 	m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL),
 	m_ci(bNulT ? 1u /*NUL*/ : 0),
 	m_rvpd(0, false, ciStaticMax > 0) {
-	abc_trace_fn((this, ciStaticMax, bNulT));
+	ABC_TRACE_FN((this, ciStaticMax, bNulT));
 
 	if (ciStaticMax) {
 		// Assign ciStaticMax to the static item array that follows *this.
@@ -197,7 +197,7 @@ namespace abc {
 void _raw_complex_vextr_impl::assign_copy(
 	void_cda const & type, void const * p, size_t ci, bool bMove
 ) {
-	abc_trace_fn((this, /*type, */p, ci, bMove));
+	ABC_TRACE_FN((this, /*type, */p, ci, bMove));
 
 	transaction trn(type.cb, this, ptrdiff_t(ci));
 	size_t ciOrig(size());
@@ -238,7 +238,7 @@ void _raw_complex_vextr_impl::assign_copy(
 	void_cda const & type,
 	void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
 ) {
-	abc_trace_fn((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
+	ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
 
 	transaction trn(type.cb, this, ptrdiff_t(ci1 + ci2));
 	size_t ciOrig(size());
@@ -298,7 +298,7 @@ void _raw_complex_vextr_impl::assign_copy(
 
 
 void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi) {
-	abc_trace_fn((this/*, type, rcvi*/));
+	ABC_TRACE_FN((this/*, type, rcvi*/));
 
 	if (rcvi.m_p == m_p) {
 		return;
@@ -337,7 +337,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
 void _raw_complex_vextr_impl::remove_at(
 	void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
 ) {
-	abc_trace_fn((this, /*type, */iOffset, ciRemove));
+	ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
 
 	adjust_range(&iOffset, &ciRemove);
 	if (!ciRemove) {
@@ -372,7 +372,7 @@ void _raw_complex_vextr_impl::remove_at(
 void _raw_complex_vextr_impl::_insert(
 	void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
 ) {
-	abc_trace_fn((this, /*type, */iOffset, pAdd, ciAdd, bMove));
+	ABC_TRACE_FN((this, /*type, */iOffset, pAdd, ciAdd, bMove));
 
 	transaction trn(type.cb, this, -1, ptrdiff_t(ciAdd));
 	size_t ibOffset(type.cb * iOffset);
@@ -413,7 +413,7 @@ void _raw_complex_vextr_impl::_insert(
 
 
 void _raw_complex_vextr_impl::set_capacity(void_cda const & type, size_t ciMin, bool bPreserve) {
-	abc_trace_fn((this, /*type, */ciMin, bPreserve));
+	ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
 	size_t ciOrig(size());
 	transaction trn(type.cb, this, ptrdiff_t(ciMin));
@@ -446,7 +446,7 @@ namespace abc {
 void _raw_trivial_vextr_impl::assign_copy(
 	size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT /*= false*/
 ) {
-	abc_trace_fn((this, cbItem, p1, ci1, p2, ci2, bNulT));
+	ABC_TRACE_FN((this, cbItem, p1, ci1, p2, ci2, bNulT));
 
 	transaction trn(cbItem, this, ptrdiff_t(ci1 + ci2), 0, bNulT);
 	int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -482,7 +482,7 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
 
 
 void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi) {
-	abc_trace_fn((this/*, rtvi*/));
+	ABC_TRACE_FN((this/*, rtvi*/));
 
 	ABC_ASSERT(rtvi.m_p != m_p);
 	// Only allow sharing read-only or dynamically-allocated item arrays (the latter only as part of
@@ -501,7 +501,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 	size_t cbItem,
 	size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT /*= false*/
 ) {
-	abc_trace_fn((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
+	ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
 
 	ABC_ASSERT(ciAdd || ciRemove);
 	transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove), bNulT);
@@ -531,7 +531,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 void _raw_trivial_vextr_impl::set_capacity(
 	size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT /*= false*/
 ) {
-	abc_trace_fn((this, cbItem, ciMin, bPreserve));
+	ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
 
 	size_t ciOrig(size());
 	transaction trn(cbItem, this, ptrdiff_t(ciMin), 0, bNulT);

@@ -36,7 +36,7 @@ namespace text {
 ABCAPI size_t estimate_transcoded_size(
 	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 ) {
-	abc_trace_fn((encSrc, pSrc, cbSrc, encDst));
+	ABC_TRACE_FN((encSrc, pSrc, cbSrc, encDst));
 
 	// Average size, in bytes, of 10 characters in each supported encoding.
 	static uint8_t const sc_acbAvg10Chars[] = {
@@ -101,7 +101,7 @@ ABCAPI size_t get_encoding_size(encoding enc) {
 ABCAPI void const * get_line_terminator_bytes(
 	encoding enc, line_terminator lterm, size_t * pcb
 ) {
-	abc_trace_fn((enc, lterm, pcb));
+	ABC_TRACE_FN((enc, lterm, pcb));
 
 	// Characters that compose line terminators, in every encoding. Below we cherry-pick from these
 	// arrays the individual sequences; that’s why here 0x0d always comes before 0x0a.
@@ -195,7 +195,7 @@ ABCAPI void const * get_line_terminator_bytes(
 ABCAPI encoding guess_encoding(
 	void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= NULL*/
 ) {
-	abc_trace_fn((pBuf, cbBuf, cbSrcTotal, pcbBom));
+	ABC_TRACE_FN((pBuf, cbBuf, cbSrcTotal, pcbBom));
 
 	uint8_t const * pbBuf(static_cast<uint8_t const *>(pBuf));
 	// If the total size is not specified, assume that the buffer is the whole source.
@@ -426,7 +426,7 @@ ABCAPI encoding guess_encoding(
 
 
 ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
-	abc_trace_fn((pBuf, cchBuf, enc));
+	ABC_TRACE_FN((pBuf, cchBuf, enc));
 
 	size_t cbChar(get_encoding_size(enc));
 	// Reject non-charset encodings, because we can’t determine what value CR or LF should have.
@@ -547,7 +547,7 @@ ABCAPI size_t transcode(
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax
 ) {
-	abc_trace_fn((encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax));
+	ABC_TRACE_FN((encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax));
 
 	uint8_t const * pbSrc(static_cast<uint8_t const *>(*ppSrc));
 	uint8_t       * pbDst(static_cast<uint8_t       *>(*ppDst));

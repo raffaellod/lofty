@@ -38,9 +38,9 @@ namespace abc {
 /** DOC:8503 Stack tracing
 
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
-abc_trace_fn((arg1, arg2, …)) in order to have its name show up in a post-exception stack trace.
+ABC_TRACE_FN((arg1, arg2, …)) in order to have its name show up in a post-exception stack trace.
 
-abc_trace_fn() initializes a local variable of type abc::_scope_trace which will store references to
+ABC_TRACE_FN() initializes a local variable of type abc::_scope_trace which will store references to
 every provided argument.
 
 abc::_scope_trace::~_scope_trace() detects if the object is being destroyed due to an exceptional
@@ -92,12 +92,12 @@ Currently unsupported:
 
 /** Provides stack frame logging for the function in which it’s used.
 */
-#define abc_trace_fn(args) \
-	_abc_trace_scope_impl(ABC_CPP_APPEND_UID(_scope_trace_), args)
+#define ABC_TRACE_FN(args) \
+	_ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(_scope_trace_), args)
 
-/** Implementation of abc_trace_fn() and similar macros.
+/** Implementation of ABC_TRACE_FN() and similar macros.
 */
-#define _abc_trace_scope_impl(var, args) \
+#define _ABC_TRACE_SCOPE_IMPL(var, args) \
 	auto var(::abc::_scope_trace_impl::make args ); \
 	var._set_context(__FILE__, uint16_t(__LINE__), _ABC_THIS_FUNC)
 
@@ -256,7 +256,7 @@ public:
 
 	/** Assigns a context to the scope trace. These cannot be merged with the constructor because we
 	want the constructor to be invoked with all the arguments as a single parenthesis-delimited
-	tuple. See the implementation of abc_trace_fn() if this isn’t clear enough.
+	tuple. See the implementation of ABC_TRACE_FN() if this isn’t clear enough.
 
 	Also, while we could make the filename and function char_range’s instead of char *, that would
 	waste nearly twice as much stack space for each _scope_trace_impl object, so that’s not a viable

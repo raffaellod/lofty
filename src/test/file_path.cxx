@@ -42,7 +42,7 @@ public:
 	/** See testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		file_path fp(file_path::current_dir());
 

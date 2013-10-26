@@ -29,7 +29,7 @@ class test_app_module :
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
-		abc_trace_fn((/*vsArgs*/));
+		ABC_TRACE_FN((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
 

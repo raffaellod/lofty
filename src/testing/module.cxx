@@ -34,7 +34,7 @@ namespace abc {
 namespace testing {
 
 ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
-	abc_trace_fn((/*vsArgs*/));
+	ABC_TRACE_FN((/*vsArgs*/));
 
 	UNUSED_ARG(vsArgs);
 

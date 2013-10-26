@@ -1102,7 +1102,7 @@ exception::exception(exception const & x) :
 
 
 exception & exception::operator=(exception const & x) {
-	abc_trace_fn((this/*, x*/));
+	ABC_TRACE_FN((this/*, x*/));
 
 	m_pszWhat = x.m_pszWhat;
 	m_pszSourceFunction = x.m_pszSourceFunction;
@@ -1179,7 +1179,7 @@ char const * exception::what() const {
 			pabcx->m_pszSourceFunction, pabcx->m_pszSourceFileName, pabcx->m_iSourceLine
 		);
 	}
-	// Print the stack trace collected via abc_trace_fn().
+	// Print the stack trace collected via ABC_TRACE_FN().
 	pos->write(_scope_trace_impl::get_trace_contents());
 }
 
@@ -1225,7 +1225,7 @@ static struct ::sigaction g_asaDefault[countof(g_aiHandledSignals)];
 /** Translates POSIX signals into C++ exceptions, whenever possible.
 */
 static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
-	abc_trace_fn((iSignal, psi, pctx));
+	ABC_TRACE_FN((iSignal, psi, pctx));
 
 	// Don’t let external programs mess with us: if the source is not the kernel, ignore the error.
 	// POSIX.1-2008 states that:
@@ -1496,7 +1496,7 @@ generic_error::generic_error(generic_error const & x) :
 
 
 generic_error & generic_error::operator=(generic_error const & x) {
-	abc_trace_fn((this/*, x*/));
+	ABC_TRACE_FN((this/*, x*/));
 
 	exception::operator=(x);
 	m_err = x.m_err;
@@ -1562,7 +1562,7 @@ index_error::index_error(index_error const & x) :
 
 
 index_error & index_error::operator=(index_error const & x) {
-	abc_trace_fn((this/*, x*/));
+	ABC_TRACE_FN((this/*, x*/));
 
 	lookup_error::operator=(x);
 	m_iInvalid = x.m_iInvalid;
@@ -1682,7 +1682,7 @@ memory_address_error::memory_address_error(memory_address_error const & x) :
 
 
 memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
-	abc_trace_fn((this/*, x*/));
+	ABC_TRACE_FN((this/*, x*/));
 
 	generic_error::operator=(x);
 	m_pInvalid = x.m_pInvalid;
@@ -1785,7 +1785,7 @@ syntax_error::syntax_error(syntax_error const & x) :
 
 
 syntax_error & syntax_error::operator=(syntax_error const & x) {
-	abc_trace_fn((this/*, x*/));
+	ABC_TRACE_FN((this/*, x*/));
 
 	generic_error::operator=(x);
 	m_crDescription = x.m_crDescription;

@@ -38,7 +38,7 @@ protected:
 		String to initialize with.
 	*/
 	void init_str_ptr(istr const & s) {
-		abc_trace_fn((this, s));
+		ABC_TRACE_FN((this, s));
 
 		m_psCheck = &s;
 		m_pchCheck = s.data();
@@ -54,7 +54,7 @@ protected:
 		true if the validation is successful, or false otherwise.
 	*/
 	bool str_ptr_changed(bool bPtrChanged) {
-		abc_trace_fn((this, bPtrChanged));
+		ABC_TRACE_FN((this, bPtrChanged));
 
 		// Update the item array pointer for the next call.
 		char_t const * pchCheckOld(m_pchCheck);
@@ -101,7 +101,7 @@ public:
 	/** See str_unit_base::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		dmstr s;
 		init_str_ptr(s);
@@ -217,7 +217,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -276,7 +276,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -335,7 +335,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// ASCII character and substring search.
 		// The string “acabaabca” has the following properties:
@@ -394,7 +394,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// Non-ASCII character and substring search.
 		istr8 const s8(U8SL("àßçàŒ"));
@@ -439,7 +439,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// Non-ASCII character and substring search.
 		istr16 const s16(U16SL("àßçàŒ"));
@@ -484,7 +484,7 @@ public:
 	/** See abc::testing::unit::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// Non-ASCII character and substring search.
 		istr32 const s32(U32SL("àßçàŒ"));

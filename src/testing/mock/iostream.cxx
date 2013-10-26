@@ -40,7 +40,7 @@ ostream::ostream() :
 
 
 bool ostream::contents_equal(istr const & sExpected) {
-	abc_trace_fn((this, sExpected));
+	ABC_TRACE_FN((this, sExpected));
 
 	istr sActual(unsafe, m_achBuf, m_cchUsed);
 	return sActual == sExpected;
@@ -50,7 +50,7 @@ bool ostream::contents_equal(istr const & sExpected) {
 /*virtual*/ void ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
-	abc_trace_fn((this, p, cb, enc));
+	ABC_TRACE_FN((this, p, cb, enc));
 
 	UNUSED_ARG(enc);
 	memory::copy<void>(m_achBuf + m_cchUsed, p, cb);

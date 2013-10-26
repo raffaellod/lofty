@@ -32,7 +32,7 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
-	abc_trace_fn((pem, i));
+	ABC_TRACE_FN((pem, i));
 
 	for (; pem->pszName; ++pem) {
 		if (i == pem->iValue) {
@@ -43,7 +43,7 @@ enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
 	abc_throw(domain_error, ());
 }
 enum_member const * enum_member::find_in_map(enum_member const * pem, char_t const * psz) {
-	abc_trace_fn((pem, psz));
+	ABC_TRACE_FN((pem, psz));
 
 	for (; pem->pszName; ++pem) {
 		if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0) {
@@ -64,7 +64,7 @@ enum_member const * enum_member::find_in_map(enum_member const * pem, char_t con
 namespace abc {
 
 _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat) {
-	abc_trace_fn((crFormat));
+	ABC_TRACE_FN((crFormat));
 
 	auto it(crFormat.cbegin());
 
@@ -80,7 +80,7 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat
 
 
 void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
-	abc_trace_fn((i, pem, posOut));
+	ABC_TRACE_FN((i, pem, posOut));
 
 	enum_member const * petvp(enum_member::find_in_map(pem, i));
 	// TODO: apply format options.

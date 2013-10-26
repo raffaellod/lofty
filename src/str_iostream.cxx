@@ -110,7 +110,7 @@ str_ostream::string_type str_ostream::get_contents() {
 /*virtual*/ void str_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
-	abc_trace_fn((this, p, cb, enc));
+	ABC_TRACE_FN((this, p, cb, enc));
 
 	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.

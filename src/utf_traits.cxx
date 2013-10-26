@@ -40,7 +40,7 @@ template <typename C>
 static void _build_failure_restart_table(
 	C const * pchNeedleBegin, C const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
 ) {
-	abc_trace_fn((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
+	ABC_TRACE_FN((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
 
 	// TODO: FIXME: this should be set_size(), not set_capacity().
 	pvcchFailNext->set_capacity(size_t(pchNeedleEnd - pchNeedleBegin), false);

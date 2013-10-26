@@ -110,7 +110,7 @@ file_istream::file_istream(file_path const & fp) :
 /*virtual*/ size_t file_istream::read_raw(
 	void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
 ) {
-	abc_trace_fn((this, p, cbMax, enc));
+	ABC_TRACE_FN((this, p, cbMax, enc));
 
 	if (m_enc == text::encoding::unknown) {
 		// If the encoding is still undefined, try to guess it now. To have a big enough buffer, we’ll
@@ -210,7 +210,7 @@ file_istream::file_istream(file_path const & fp) :
 
 
 /*static*/ std::shared_ptr<file_istream> const & file_istream::stdin() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfisStdIn) {
 		_construct_std_file_istream(file::stdin(), &g_ppfisStdIn);
@@ -220,7 +220,7 @@ file_istream::file_istream(file_path const & fp) :
 
 
 /*virtual*/ void file_istream::unread_raw(void const * p, size_t cb, text::encoding enc) {
-	abc_trace_fn((this, p, cb, enc));
+	ABC_TRACE_FN((this, p, cb, enc));
 
 	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
@@ -303,7 +303,7 @@ file_istream::file_istream(file_path const & fp) :
 
 
 int8_t * file_istream::_get_read_buffer() {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	if (!m_pbReadBuf) {
 		// Create the multipurpose read buffer. See [DOC:0674 abc::file_istream buffering].
@@ -317,7 +317,7 @@ int8_t * file_istream::_get_read_buffer() {
 /*virtual*/ void file_istream::_read_line(
 	_raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-	abc_trace_fn((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
+	ABC_TRACE_FN((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
 
 	size_t cbChar(text::get_encoding_size(enc));
 	ABC_ASSERT(cbChar > 0);
@@ -386,7 +386,7 @@ int8_t * file_istream::_get_read_buffer() {
 
 
 void file_istream::_post_construct() {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	// This default is enough to read lines from an 80-column file, with a single allocation.
 	m_cchBufferStep = 128;
@@ -410,7 +410,7 @@ void file_istream::_post_construct() {
 /*static*/ void file_istream::_construct_std_file_istream(
 	std::shared_ptr<file> const & pfile, std::shared_ptr<file_istream> ** pppfis
 ) {
-	abc_trace_fn((/*pfile, */pppfis));
+	ABC_TRACE_FN((/*pfile, */pppfis));
 
 	// TODO: mutex!
 	ABC_ASSERT(!*pppfis);
@@ -460,7 +460,7 @@ file_ostream::file_ostream(file_path const & fp) :
 
 
 /*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfosStdErr) {
 		_construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
@@ -470,7 +470,7 @@ file_ostream::file_ostream(file_path const & fp) :
 
 
 /*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfosStdOut) {
 		_construct_std_file_ostream(file::stdout(), &g_ppfosStdOut);
@@ -482,7 +482,7 @@ file_ostream::file_ostream(file_path const & fp) :
 /*virtual*/ void file_ostream::write_raw(
 	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
-	abc_trace_fn((this, p, cb, enc));
+	ABC_TRACE_FN((this, p, cb, enc));
 
 	if (enc == text::encoding::unknown) {
 		// Treat unknown as identity.
@@ -514,7 +514,7 @@ file_ostream::file_ostream(file_path const & fp) :
 /*virtual*/ void file_ostream::_construct_std_file_ostream(
 	std::shared_ptr<file> const & pfile, std::shared_ptr<file_ostream> ** pppfos
 ) {
-	abc_trace_fn((/*pfile, */pppfos));
+	ABC_TRACE_FN((/*pfile, */pppfos));
 
 	// TODO: mutex!
 	ABC_ASSERT(!*pppfos);

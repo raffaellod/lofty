@@ -32,7 +32,7 @@ class test_app_module :
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
-		abc_trace_fn((/*vsArgs*/));
+		ABC_TRACE_FN((/*vsArgs*/));
 
 		UNUSED_ARG(vsArgs);
 
@@ -239,35 +239,35 @@ public:
 
 
 	void throw_exception() {
-		abc_trace_fn(());
+		ABC_TRACE_FN(());
 
 		abc_throw(exception, ());
 	}
 
 
 	void throw_generic_error() {
-		abc_trace_fn(());
+		ABC_TRACE_FN(());
 
 		abc_throw(generic_error, ());
 	}
 
 
 	void throw_derived1_error() {
-		abc_trace_fn(());
+		ABC_TRACE_FN(());
 
 		abc_throw(derived1_error, ());
 	}
 
 
 	void throw_derived2_error() {
-		abc_trace_fn(());
+		ABC_TRACE_FN(());
 
 		abc_throw(derived2_error, ());
 	}
 
 
 	void throw_derived3_error(int i) {
-		abc_trace_fn((i));
+		ABC_TRACE_FN((i));
 
 		abc_throw(derived3_error, ());
 	}

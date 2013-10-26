@@ -131,7 +131,7 @@ file::file(_file_init_data * pfid) :
 
 
 /*static*/ std::shared_ptr<file> file::attach(filedesc && fd) {
-	abc_trace_fn((/*fd*/));
+	ABC_TRACE_FN((/*fd*/));
 
 	_file_init_data fid;
 	fid.fd = std::move(fd);
@@ -147,7 +147,7 @@ file::file(_file_init_data * pfid) :
 
 
 void file::flush() {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 #if ABC_HOST_API_POSIX
 	// TODO: investigate fdatasync().
@@ -167,7 +167,7 @@ void file::flush() {
 /*static*/ std::shared_ptr<file> file::open(
 	file_path const & fp, access_mode fam, bool bBuffered /*= true*/
 ) {
-	abc_trace_fn((fp, fam, bBuffered));
+	ABC_TRACE_FN((fp, fam, bBuffered));
 
 	_file_init_data fid;
 	fid.bBuffered = bBuffered;
@@ -244,7 +244,7 @@ void file::flush() {
 
 
 /*virtual*/ size_t file::read(void * p, size_t cbMax) {
-	abc_trace_fn((this, p, cbMax));
+	ABC_TRACE_FN((this, p, cbMax));
 
 	int8_t * pb(static_cast<int8_t *>(p));
 	// The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
@@ -296,7 +296,7 @@ void file::flush() {
 
 
 /*static*/ std::shared_ptr<file> const & file::stderr() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfileStdErr) {
 		_construct_std_file(
@@ -315,7 +315,7 @@ void file::flush() {
 
 
 /*static*/ std::shared_ptr<file> const & file::stdin() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfileStdIn) {
 		_construct_std_file(
@@ -334,7 +334,7 @@ void file::flush() {
 
 
 /*static*/ std::shared_ptr<file> const & file::stdout() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	if (!g_ppfileStdOut) {
 		_construct_std_file(
@@ -353,7 +353,7 @@ void file::flush() {
 
 
 /*virtual*/ size_t file::write(void const * p, size_t cb) {
-	abc_trace_fn((this, p, cb));
+	ABC_TRACE_FN((this, p, cb));
 
 	int8_t const * pb(static_cast<int8_t const *>(p));
 
@@ -393,7 +393,7 @@ void file::flush() {
 
 
 /*static*/ std::shared_ptr<file> file::_construct_matching_type(_file_init_data * pfid) {
-	abc_trace_fn((pfid));
+	ABC_TRACE_FN((pfid));
 
 #if ABC_HOST_API_POSIX
 	if (::fstat(pfid->fd.get(), &pfid->statFile)) {
@@ -446,7 +446,7 @@ void file::flush() {
 
 
 /*static*/ void file::_construct_std_file(filedesc_t fd, std::shared_ptr<file> ** pppf) {
-	abc_trace_fn((fd, pppf));
+	ABC_TRACE_FN((fd, pppf));
 
 	// TODO: under Win32, GUI subsystem programs will get NULL when calling ::GetStdHandle(). This
 	// needs to be handled here, with two options:
@@ -478,7 +478,7 @@ void file::flush() {
 
 
 /*static*/ void ABC_STL_CALLCONV file::_release_std_files() {
-	abc_trace_fn(());
+	ABC_TRACE_FN(());
 
 	// TODO: mutex!
 	// Destruct the shared pointers, which will allow the files to be released if they were the last
@@ -514,7 +514,7 @@ console_file::console_file(_file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
 
 /*virtual*/ size_t console_file::read(void * p, size_t cbMax) {
-	abc_trace_fn((this, p, cbMax));
+	ABC_TRACE_FN((this, p, cbMax));
 
 	// Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
 	// divided by sizeof(char_t).
@@ -547,7 +547,7 @@ console_file::console_file(_file_init_data * pfid) :
 
 
 /*virtual*/ size_t console_file::write(void const * p, size_t cb) {
-	abc_trace_fn((this, p, cb));
+	ABC_TRACE_FN((this, p, cb));
 
 	// TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
 
@@ -603,7 +603,7 @@ namespace abc {
 
 regular_file::regular_file(_file_init_data * pfid) :
 	file(pfid) {
-	abc_trace_fn((this, pfid));
+	ABC_TRACE_FN((this, pfid));
 
 	m_bHasSize = true;
 
@@ -650,14 +650,14 @@ regular_file::regular_file(_file_init_data * pfid) :
 
 
 /*virtual*/ unsigned regular_file::physical_alignment() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	return m_cbPhysAlign;
 }
 
 
 /*virtual*/ fileint_t regular_file::size() const {
-	abc_trace_fn((this));
+	ABC_TRACE_FN((this));
 
 	return m_cb;
 }
@@ -666,7 +666,7 @@ regular_file::regular_file(_file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
 
 /*virtual*/ size_t regular_file::write(void const * p, size_t cb) {
-	abc_trace_fn((this, p, cb));
+	ABC_TRACE_FN((this, p, cb));
 
 	// Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
 	// write-protect the bytes we’re going to add, and then release the write protection.

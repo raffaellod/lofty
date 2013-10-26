@@ -44,7 +44,7 @@ protected:
 		char_t const (& achFormatSpec)[t_cchFormatSpec],
 		char_t const (& achExpected)[t_cchExpected]
 	) {
-		abc_trace_fn((t, achFormatSpec, achExpected));
+		ABC_TRACE_FN((t, achFormatSpec, achExpected));
 
 		testing::mock::ostream mos;
 		to_str_backend<T> tsb(achFormatSpec);
@@ -79,7 +79,7 @@ public:
 	/** See to_str_backend_unit_base::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// Test zero, decimal base.
 		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL(""), SL("0")));
@@ -134,7 +134,7 @@ public:
 	/** See to_str_backend_unit_base::run().
 	*/
 	virtual void run() {
-		abc_trace_fn((this));
+		ABC_TRACE_FN((this));
 
 		// Test zero, hexadecimal base.
 		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL("x"), SL("0")));
