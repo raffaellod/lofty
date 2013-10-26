@@ -89,6 +89,9 @@
     <ClCompile Include="..\src\test\str.cxx">
       <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\src\test\to_str_backend.cxx">
+      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

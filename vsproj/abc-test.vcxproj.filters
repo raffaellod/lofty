@@ -21,10 +21,13 @@
     <ClCompile Include="..\src\test\abc-test.cxx">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\test\file_path.cxx">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\test\str.cxx">
       <Filter>Source Files\test</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\file_path.cxx">
+    <ClCompile Include="..\src\test\to_str_backend.cxx">
       <Filter>Source Files\test</Filter>
     </ClCompile>
   </ItemGroup>
