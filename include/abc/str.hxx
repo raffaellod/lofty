@@ -331,6 +331,11 @@ public:
 		String literal to compare to.
 	psz
 		Pointer to a NUL-terminated string to compare to.
+	return
+		Standard comparison result integer:
+		•	> 0 if *this > argument;
+		•	  0 if *this == argument;
+		•	< 0 if *this < argument.
 	*/
 	int compare_to(istr const & s) const {
 		return TTraits::str_cmp(data(), size(), s.data(), s.size());
