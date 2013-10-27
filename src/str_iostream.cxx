@@ -102,7 +102,7 @@ str_ostream::str_ostream() :
 }
 
 
-str_ostream::string_type str_ostream::get_contents() {
+str_ostream::str_type str_ostream::get_contents() {
 	return std::move(m_sBuf);
 }
 
@@ -124,7 +124,7 @@ str_ostream::string_type str_ostream::get_contents() {
 		// Nothing to do.
 		return;
 	}
-	size_t cbChar(sizeof(string_type::value_type));
+	size_t cbChar(sizeof(str_type::value_type));
 	if (enc == m_enc || enc == text::encoding::identity) {
 		// Optimal case: no transcoding necessary.
 		// Enlarge the string as necessary, then overwrite any character in the affected range.

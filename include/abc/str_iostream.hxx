@@ -100,8 +100,10 @@ namespace abc {
 */
 class ABCAPI str_ostream :
 	public virtual ostream {
+public:
 
-	typedef dmstr string_type;
+	/** Type of the string used as buffer. */
+	typedef dmstr str_type;
 
 public:
 
@@ -120,7 +122,7 @@ public:
 	return
 		Former contents of the stream.
 	*/
-	string_type get_contents();
+	str_type get_contents();
 
 
 	/** See ostream::write_raw().
@@ -133,7 +135,7 @@ public:
 protected:
 
 	/** Target string. */
-	string_type m_sBuf;
+	str_type m_sBuf;
 	/** Current write offset into the string, in bytes. Seeks can only change this in increments of a
 	character, but internal code doesn’t have to. */
 	size_t m_ibWrite;
