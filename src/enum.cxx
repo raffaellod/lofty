@@ -64,7 +64,7 @@ enum_member const * enum_member::find_in_map(enum_member const * pem, char_t con
 namespace abc {
 
 _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat) {
-	ABC_TRACE_FN((crFormat));
+	ABC_TRACE_FN((this, crFormat));
 
 	auto it(crFormat.cbegin());
 
@@ -80,7 +80,7 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat
 
 
 void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
-	ABC_TRACE_FN((i, pem, posOut));
+	ABC_TRACE_FN((this, i, pem, posOut));
 
 	enum_member const * petvp(enum_member::find_in_map(pem, i));
 	// TODO: apply format options.

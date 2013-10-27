@@ -29,7 +29,7 @@ class test_app_module :
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((/*vsArgs*/));
+		ABC_TRACE_FN((this/*, vsArgs*/));
 
 		ABC_UNUSED_ARG(vsArgs);
 
@@ -104,7 +104,7 @@ public:
 			return 25;
 		}
 
-		// Single string replacement, deducted argument index.
+		// Single string replacement, deduced argument index.
 
 		mos.reset();
 		mos.print(SL("{}"), SL("a"));

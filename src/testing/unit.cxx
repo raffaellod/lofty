@@ -47,7 +47,7 @@ void unit::init(runner * prunner) {
 
 
 void unit::assert(bool bExpr, istr const & sExpr) {
-	ABC_TRACE_FN((bExpr, sExpr));
+	ABC_TRACE_FN((this, bExpr, sExpr));
 
 	m_prunner->log_result(bExpr, sExpr);
 	if (!bExpr) {
@@ -57,7 +57,7 @@ void unit::assert(bool bExpr, istr const & sExpr) {
 
 
 void unit::expect(bool bExpr, istr const & sExpr) {
-	ABC_TRACE_FN((bExpr, sExpr));
+	ABC_TRACE_FN((this, bExpr, sExpr));
 
 	m_prunner->log_result(bExpr, sExpr);
 }

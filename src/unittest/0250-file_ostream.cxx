@@ -29,7 +29,7 @@ class test_app_module :
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((/*vsArgs*/));
+		ABC_TRACE_FN((this/*, vsArgs*/));
 
 		std::shared_ptr<file_ostream> pfos;
 		text::encoding enc(text::encoding::host);

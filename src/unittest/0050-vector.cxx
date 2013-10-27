@@ -88,7 +88,7 @@ class test_app_module :
 public:
 
 	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((/*vsArgs*/));
+		ABC_TRACE_FN((this/*, vsArgs*/));
 
 		ABC_UNUSED_ARG(vsArgs);
 		int const * pi;
