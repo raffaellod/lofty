@@ -272,9 +272,9 @@ implementation. */
 	#define ABC_STL_CALLCONV
 #endif
 
-/** If defined, the compiler supports #pragma once, which tells the preprocessor not to parsing a
+/** If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
-#if defined(_MSC_VER)
+#if defined(_GCC_VER) || defined(_MSC_VER)
 	#define ABC_CXX_PRAGMA_ONCE
 
 	// Use it now for this file.
