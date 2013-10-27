@@ -65,7 +65,10 @@ public:
 
 	/** Returns the sequence indicator bit mask suitable to precede a continuation of cbCont bytes.
 
-	TODO: comment signature.
+	cbCont
+		Length of the sequence, in bytes.
+	return
+		Sequence indicator bit mask.
 	*/
 	static /*constexpr*/ char8_t cont_length_to_seq_indicator(unsigned cbCont) {
 		// 0x3f00 will produce 0x00 (when >> 0), 0xc0 (2), 0xe0 (3), 0xf0 (4).
@@ -77,26 +80,43 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	pchBegin
+		Pointer to the beginning of the string.
+	pchEnd
+		Pointer beyond the end of the string.
+	return
+		Count of code points included in the string.
 	*/
 	static size_t cp_len(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
-	/** Converts a UTF-32 character in this UTF representation. pchDst is assumed to be at least
-	max_codepoint_length characters; the actual encoded length is returned.
+	/** Converts a UTF-32 character in this UTF representation.
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	ch32
+		UTF-32 character to be transcoded.
+	pchDst
+		Buffer to receive the transcoded version of ch32; *pchDst is assumed to be at least
+		max_codepoint_length characters.
+	return
+		Count of characters written to the buffer pointed to by pchDst.
 	*/
 	static unsigned from_utf32(char32_t ch32, char8_t * pchDst);
 
 
-	/** Returns true if the string is valid UTF, false otherwise.
+	/** Checks if a string is valid UTF.
 
 	UTF validity: checked.
 
-	TODO: comment signature.
+	psz
+		Pointer to the NUL-terminated character array to be checked.
+	pch
+		Pointer to the character array to be checked.
+	cch
+		Size of the array pointed to by pch, in characters.
+	return
+		true if the string is valid UTF, or false otherwise.
 	*/
 	static bool is_valid(char8_t const * psz);
 	static bool is_valid(char8_t const * pch, size_t cch);
@@ -105,7 +125,12 @@ public:
 	/** Returns the bits in a leading byte that are part of the encoded code point. Notice that the
 	bits will need to be shifted in the right position to form a valid UTF-32 character.
 
-	TODO: comment signature.
+	ch
+		First byte of an UTF-8 code point.
+	cbCont
+		Length of the remainder of the UTF-8 byte sequence, in bytes.
+	return
+		Bits in ch that participate in the code point.
 	*/
 	static /*constexpr*/ char32_t get_leading_cp_bits(char8_t ch, unsigned cbCont) {
 		return char32_t(ch & (0x7f >> smc_acbitShiftMask[cbCont]));
@@ -113,10 +138,13 @@ public:
 
 
 	/** Returns the continuation length (run length - 1) of an UTF-8 sequence, given its leading
-	byte. The return value is 0 if the character is not a leading byte, i.e. it’s a code point
-	encoded as a single byte, or it’s an invalid sequence.
+	byte.
 
-	TODO: comment signature.
+	ch
+		First byte of an UTF-8 code point.
+	return
+		Length of the sequence continuation, or 0 if the character is not a leading byte, i.e. it’s a
+		code point encoded as a single byte or an invalid sequence.
 	*/
 	static /*constexpr*/ unsigned leading_to_cont_length(char8_t ch) {
 		unsigned i(static_cast<uint8_t>(ch));
@@ -127,12 +155,23 @@ public:
 
 
 	/** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
-	matches are found. For the char32_t needle overload, the needle is a pointer because a code point
-	can require more than one non-UTF-32 character to be encoded.
+	matches are found. For the non-char32_t needle overload, the needle is a pointer because a code
+	point	can require more than one non-UTF-32 character to be encoded.
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	pchHaystackBegin
+		Pointer to the first character of the string to be searched.
+	pchHaystackEnd
+		Pointer to beyond the last character of the string to be searched.
+	chNeedle
+		Code point to search for.
+	pchNeedle
+		Pointer to the encoded code point (UTF character sequence) to search for; its length is
+		deduced automatically.
+	return
+		Pointer to the beginning of the first match, in the string to be searched, of the code point
+		to search for, or NULL if no matches are found.
 	*/
 	static char8_t const * str_chr(
 		char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
@@ -148,7 +187,18 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	pchHaystackBegin
+		Pointer to the first character of the string to be searched.
+	pchHaystackEnd
+		Pointer to beyond the last character of the string to be searched.
+	chNeedle
+		Code point to search for.
+	pchNeedle
+		Pointer to the encoded code point (UTF character sequence) to search for; its length is
+		deduced automatically.
+	return
+		Pointer to the beginning of the last match, in the string to be searched, of the code point
+		to search for, or NULL if no matches are found.
 	*/
 	static char8_t const * str_chr_r(
 		char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
@@ -169,7 +219,23 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	psz1
+		Pointer to the first NUL-terminated string to be compared.
+	psz2
+		Pointer to the second NUL-terminated string to be compared.
+	pch1
+		Pointer to the beginning of the first string to be compared.
+	cch1
+		Length of the string pointed to by pch1, in characters.
+	pch2
+		Pointer to the beginning of the second string to be compared.
+	cch2
+		Length of the string pointed to by pch2, in characters.
+	return
+		Standard comparison result integer:
+		•	> 0 if string 1 > string 2;
+		•	  0 if string 1 == string 2;
+		•	< 0 if string 1 < string 2.
 	*/
 	static int str_cmp(char8_t const * psz1, char8_t const * psz2);
 	static int str_cmp(char8_t const * pch1, size_t cch1, char8_t const * pch2, size_t cch2);
@@ -179,7 +245,10 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	psz
+		Pointer to the NUL-terminated string of which to calculate the length.
+	return
+		Length of the string pointed to by psz, in characters.
 	*/
 	static size_t str_len(char8_t const * psz);
 
@@ -188,7 +257,17 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	pchHaystackBegin
+		Pointer to the first character of the string to be searched.
+	pchHaystackEnd
+		Pointer to beyond the last character of the string to be searched.
+	pchNeedleBegin
+		Pointer to the first character of the string to search for.
+	pchNeedleEnd
+		Pointer to beyond the last character of the string to search for.
+	return
+		Pointer to the beginning of the first match, in the string to be searched, of the string to
+		search for, or NULL if no matches are found.
 	*/
 	static char8_t const * str_str(
 		char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
@@ -200,7 +279,17 @@ public:
 
 	UTF validity: necessary.
 
-	TODO: comment signature.
+	pchHaystackBegin
+		Pointer to the first character of the string to be searched.
+	pchHaystackEnd
+		Pointer to beyond the last character of the string to be searched.
+	pchNeedleBegin
+		Pointer to the first character of the string to search for.
+	pchNeedleEnd
+		Pointer to beyond the last character of the string to search for.
+	return
+		Pointer to the beginning of the last match, in the string to be searched, of the string to
+		search for, or NULL if no matches are found.
 	*/
 	static char8_t const * str_str_r(
 		char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
