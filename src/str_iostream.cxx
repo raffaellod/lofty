@@ -95,6 +95,7 @@ namespace abc {
 str_ostream::str_ostream() :
 	ostream(),
 	m_ibWrite(0) {
+	m_enc = str_type::traits::host_encoding;
 }
 
 
@@ -112,17 +113,13 @@ str_ostream::str_type str_ostream::get_contents() {
 ) {
 	ABC_TRACE_FN((this, p, cb, enc));
 
-	if (enc == text::encoding::unknown) {
-		// Treat unknown as identity.
-		enc = text::encoding::identity;
-	}
-	if (m_enc == text::encoding::unknown) {
-		// This is the first output, so it decides for the whole file.
-		m_enc = enc;
-	}
 	if (!cb) {
 		// Nothing to do.
 		return;
+	}
+	if (enc == text::encoding::unknown) {
+		// Treat unknown as identity.
+		enc = text::encoding::identity;
 	}
 	size_t cbChar(sizeof(str_type::value_type));
 	if (enc == m_enc || enc == text::encoding::identity) {
