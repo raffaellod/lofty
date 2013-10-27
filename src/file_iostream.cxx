@@ -459,7 +459,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
+/*static*/ std::shared_ptr<file_ostream> const & file_ostream::stderr() {
 	ABC_TRACE_FN(());
 
 	if (!g_ppfosStdErr) {
@@ -469,7 +469,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
+/*static*/ std::shared_ptr<file_ostream> const & file_ostream::stdout() {
 	ABC_TRACE_FN(());
 
 	if (!g_ppfosStdOut) {
@@ -511,7 +511,7 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ void file_ostream::_construct_std_file_ostream(
+/*static*/ void file_ostream::_construct_std_file_ostream(
 	std::shared_ptr<file> const & pfile, std::shared_ptr<file_ostream> ** pppfos
 ) {
 	ABC_TRACE_FN((/*pfile, */pppfos));

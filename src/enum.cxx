@@ -31,7 +31,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
+/*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
 	ABC_TRACE_FN((pem, i));
 
 	for (; pem->pszName; ++pem) {
@@ -42,7 +42,9 @@ enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
 	// TODO: provide more information in the exception.
 	abc_throw(domain_error, ());
 }
-enum_member const * enum_member::find_in_map(enum_member const * pem, char_t const * psz) {
+/*static*/ enum_member const * enum_member::find_in_map(
+	enum_member const * pem, char_t const * psz
+) {
 	ABC_TRACE_FN((pem, psz));
 
 	for (; pem->pszName; ++pem) {
