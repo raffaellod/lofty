@@ -104,6 +104,7 @@ str_ostream::str_ostream() :
 
 
 str_ostream::str_type str_ostream::release_content() {
+	m_ibWrite = 0;
 	return std::move(m_sBuf);
 }
 
