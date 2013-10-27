@@ -284,6 +284,8 @@ public:
 
 	/** Character type. */
 	typedef C char_t;
+	/** String traits. */
+	typedef TTraits traits;
 	/** See _iterable_vector::const_iterator. */
 	typedef typename itvec::const_iterator const_iterator;
 
