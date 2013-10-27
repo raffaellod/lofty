@@ -117,12 +117,12 @@ public:
 	virtual ~str_ostream();
 
 
-	/** Returns and empties the contents of the stream.
+	/** Yields ownership of the string buffer.
 
 	return
-		Former contents of the stream.
+		Former content of the stream.
 	*/
-	str_type get_contents();
+	str_type release_content();
 
 
 	/** See ostream::write_raw().
@@ -151,7 +151,7 @@ template <typename ... Ts>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(Ts const & ... ts) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), ts ...);
-	return os.get_contents();
+	return os.release_content();
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -160,14 +160,14 @@ template <typename C, class TTraits>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format() const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this));
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(T0 const & t0) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0);
-	return os.get_contents();
+	return os.release_content();
 }
 
 template <typename C, class TTraits>
@@ -175,7 +175,7 @@ template <typename T0, typename T1>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(T0 const & t0, T1 const & t1) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0, typename T1, typename T2>
@@ -184,7 +184,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0, typename T1, typename T2, typename T3>
@@ -193,7 +193,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
@@ -202,7 +202,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -211,7 +211,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <
@@ -223,7 +223,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <
@@ -236,7 +236,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <
@@ -249,7 +249,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7, t8);
-	return os.get_contents();
+	return os.release_content();
 }
 template <typename C, class TTraits>
 template <
@@ -262,7 +262,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 ) const {
 	str_ostream os;
 	os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
-	return os.get_contents();
+	return os.release_content();
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -273,7 +273,7 @@ inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
 	str_ostream os;
 	to_str_backend<T> tsb(sFormat);
 	tsb.write(t, &os);
-	return os.get_contents();
+	return os.release_content();
 }
 
 } //namespace abc

@@ -103,7 +103,7 @@ str_ostream::str_ostream() :
 }
 
 
-str_ostream::str_type str_ostream::get_contents() {
+str_ostream::str_type str_ostream::release_content() {
 	return std::move(m_sBuf);
 }
 

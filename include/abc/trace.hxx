@@ -148,7 +148,7 @@ public:
 	/** Returns the stack frames collected for this thread up to this point.
 	*/
 	static dmstr get_trace_contents() {
-		return get_trace_stream()->get_contents();
+		return get_trace_stream()->release_content();
 	}
 
 
