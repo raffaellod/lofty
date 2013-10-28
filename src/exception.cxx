@@ -1180,7 +1180,7 @@ char const * exception::what() const {
 		);
 	}
 	// Print the stack trace collected via ABC_TRACE_FN().
-	pos->write(_scope_trace_impl::get_trace_contents());
+	pos->write(_scope_trace_impl::get_trace_stream()->release_content());
 }
 
 

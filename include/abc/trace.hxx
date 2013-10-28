@@ -145,13 +145,6 @@ public:
 	~_scope_trace_impl();
 
 
-	/** Returns the stack frames collected for this thread up to this point.
-	*/
-	static dmstr get_trace_contents() {
-		return get_trace_stream()->release_content();
-	}
-
-
 	/** Returns a stream to which the stack frame can be output. The stream is thread-local, which is
 	why this can’t be just a static member variable.
 	*/
