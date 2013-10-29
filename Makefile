@@ -45,7 +45,6 @@ check: \
 	$(O)test.tmp/unittest/0030-enum.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
-	$(O)test.tmp/unittest/0170-ostream-print.ut.log \
 	$(O)test.tmp/unittest/0190-str_ostream.ut.log \
 	$(O)test.tmp/unittest/0250-file_ostream.py.log \
 	$(O)test.tmp/unittest/0280-file_istream.py.log
@@ -110,10 +109,6 @@ $(O)bin/unittest/0050-vector$(EXEEXT): \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0080-map$(EXEEXT): \
 	$(O)obj/unittest/0080-map.cxx$(OBJEXT) \
-	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0170-ostream-print$(EXEEXT): \
-	$(O)obj/unittest/0170-ostream-print.cxx$(OBJEXT) \
-	$(O)obj/testing/mock/iostream.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0190-str_ostream$(EXEEXT): \
 	$(O)obj/unittest/0190-str_ostream.cxx$(OBJEXT) \
