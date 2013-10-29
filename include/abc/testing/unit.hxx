@@ -155,7 +155,7 @@ expr
 		bool _bCaught(false); \
 		try { \
 			static_cast<void>(expr); \
-		} catch (type const & x) { \
+		} catch (type const &) { \
 			_bCaught = true; \
 		} \
 		this->expect(_bCaught, SL(#expr)); \
