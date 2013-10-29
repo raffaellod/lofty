@@ -106,6 +106,11 @@ public:
 		dmstr s;
 		init_str_ptr(s);
 
+		// Only the trailing NUL character should be accessible.
+		ABC_TESTING_EXPECT_EXCEPTION(index_error, s[-1]);
+		ABC_TESTING_EXPECT_NO_EXCEPTIONS(s[0]);
+		ABC_TESTING_EXPECT_EXCEPTION(index_error, s[1]);
+
 		s += SL("a");
 		// true: operator+= must have created an item array (there was none).
 		ABC_TESTING_EXPECT(str_ptr_changed(true));
