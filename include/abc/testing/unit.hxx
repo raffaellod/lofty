@@ -126,6 +126,42 @@ expr
 	this->expect(!!(expr), SL(#expr))
 
 
+/** Verifies that the specified expression does not throw.
+
+expr
+	Expression that should not throw.
+*/
+#define ABC_TESTING_EXPECT_NO_EXCEPTIONS(expr) \
+	do { \
+		bool _bCaught(false); \
+		try { \
+			static_cast<void>(expr); \
+		} catch (...) { \
+			_bCaught = true; \
+		} \
+		this->expect(!_bCaught, SL(#expr)); \
+	} while (false)
+
+
+/** Verifies that the specified expression throws an exception of the specified type.
+
+type
+	Exception class that should be caught.
+expr
+	Expression that should throw.
+*/
+#define ABC_TESTING_EXPECT_EXCEPTION(type, expr) \
+	do { \
+		bool _bCaught(false); \
+		try { \
+			static_cast<void>(expr); \
+		} catch (type const & x) { \
+			_bCaught = true; \
+		} \
+		this->expect(_bCaught, SL(#expr)); \
+	} while (false)
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::unit_factory_impl
 
