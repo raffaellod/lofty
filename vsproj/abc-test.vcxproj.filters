@@ -24,6 +24,9 @@
     <ClCompile Include="..\src\test\file_path.cxx">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\test\ostream-print.cxx">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\test\str.cxx">
       <Filter>Source Files\test</Filter>
     </ClCompile>
