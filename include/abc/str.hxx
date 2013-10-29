@@ -883,14 +883,13 @@ public:
 
 	/** See str_base_::operator[]().
 	*/
-	C & operator[](size_t i) {
-		if (i > str_base::size()) {
-			abc_throw(index_error, (intptr_t(i)));
-		}
+	C & operator[](intptr_t i) {
+		this->validate_index(i);
 		return data()[i];
 	}
-	C operator[](size_t i) const {
-		return str_base::operator[](intptr_t(i));
+	C operator[](intptr_t i) const {
+		this->validate_index(i);
+		return data()[i];
 	}
 
 
