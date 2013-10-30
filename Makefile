@@ -86,6 +86,7 @@ $(O)lib/libabc-testing$(LIBEXT): \
 # Test suite.
 $(O)bin/abc-test$(EXEEXT): \
 	$(O)obj/test/abc-test.cxx$(OBJEXT) \
+	$(O)obj/test/exception.cxx$(OBJEXT) \
 	$(O)obj/test/file_path.cxx$(OBJEXT) \
 	$(O)obj/test/ostream-print.cxx$(OBJEXT) \
 	$(O)obj/test/str.cxx$(OBJEXT) \
