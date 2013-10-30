@@ -36,7 +36,7 @@ public:
 	/** See testing::unit::title().
 	*/
 	virtual istr title() {
-		return istr(SL("ostream_print - no replacements"));
+		return istr(SL("abc::ostream::print() - no replacements"));
 	}
 
 
@@ -94,7 +94,7 @@ public:
 	/** See testing::unit::title().
 	*/
 	virtual istr title() {
-		return istr(SL("ostream_print - one replacement"));
+		return istr(SL("abc::ostream::print() - one replacement"));
 	}
 
 
@@ -158,7 +158,7 @@ public:
 	/** See testing::unit::title().
 	*/
 	virtual istr title() {
-		return istr(SL("ostream_print - two replacements"));
+		return istr(SL("abc::ostream::print() - two replacements"));
 	}
 
 
