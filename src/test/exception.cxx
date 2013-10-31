@@ -272,18 +272,18 @@ public:
 			"orl $0x00040000,(%esp)\n"
 			"popf"
 		);
-		#define ABC_ALIGN_CHECK 1
+		#define ABC_ALIGN_CHECK
 	#elif defined(__x86_64__)
 		__asm__(
 			"pushf\n"
 			"orl $0x0000000000040000,(%rsp)\n"
 			"popf"
 		);
-		#define ABC_ALIGN_CHECK 1
+		#define ABC_ALIGN_CHECK
 	#endif
 #endif
 
-#if ABC_ALIGN_CHECK
+#ifdef ABC_ALIGN_CHECK
 		bCaughtCorrect = false;
 		try {
 			// Create an int (with another one following it) and a pointer to it.
@@ -319,7 +319,7 @@ public:
 		);
 	#endif
 #endif
-#endif //if ABC_ALIGN_CHECK
+#endif //ifdef ABC_ALIGN_CHECK
 
 		bCaughtCorrect = false;
 		try {
