@@ -133,7 +133,8 @@ str_ostream::str_type str_ostream::release_content() {
 		do {
 			// Calculate the additional size required, and enlarge the string.
 			size_t cbDstEst(text::estimate_transcoded_size(enc, p, cb, m_enc));
-			m_sBuf.set_capacity((m_ibWrite + cbDstEst) / cbChar, true);
+			// Add cbChar - 1 to avoid rounding down and losing one character.
+			m_sBuf.set_capacity((m_ibWrite + cbDstEst + cbChar - 1) / cbChar, true);
 			// Get the resulting buffer and its actual size.
 			void * pBuf(reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite);
 			size_t cbBuf(cbChar * m_sBuf.capacity() - m_ibWrite);
