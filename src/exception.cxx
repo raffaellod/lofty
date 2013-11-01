@@ -1338,13 +1338,100 @@ exception::async_handler_manager::~async_handler_manager() {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_LINUX
 
+// These should be member variables of exception::async_handler_manager.
+
+/** Signals that we can translate into C++ exceptions. */
+static ::_se_translator_function g_sefDefault;
+
+
+/** Translates POSIX signals into C++ exceptions, whenever possible.
+*/
+static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
+	ABC_TRACE_FN((iCode, pxpInfo));
+
+	switch (iCode) {
+		case EXCEPTION_ACCESS_VIOLATION: { // Attempt to read from or write to an inaccessible
+			// address.
+			// ExceptionInformation[0] contains a read-write flag that indicates the type of operation
+			// that caused the access violation. If this value is zero, the thread attempted to read
+			// the inaccessible data. If this value is 1, the thread attempted to write to an
+			// inaccessible address. If this value is 8, the thread causes a user-mode data execution
+			// prevention (DEP) violation.
+			// ExceptionInformation[1] specifies the virtual address of the inaccessible data.
+			void const * pAddr(reinterpret_cast<void const *>(
+				pxpInfo->ExceptionRecord->ExceptionInformation[1]
+			));
+			if (pAddr == NULL) {
+				abc_throw(abc::null_pointer_error, ());
+			} else {
+				abc_throw(abc::memory_address_error, (pAddr));
+			}
+		}
+
+//		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: // Attempt to access an array element that is out of
+			// bounds, and the underlying hardware supports bounds checking.
+//			break;
+
+		case EXCEPTION_DATATYPE_MISALIGNMENT: // Attempt to read or write data that is misaligned on
+			// hardware that does not provide alignment.
+			abc_throw(abc::memory_access_error, (NULL));
+
+		case EXCEPTION_FLT_DENORMAL_OPERAND: // An operand in a floating-point operation is too small
+			// to represent as a standard floating-point value.
+			// Fall through.
+		case EXCEPTION_FLT_DIVIDE_BY_ZERO: // Attempt to divide a floating-point value by a floating-
+			// point divisor of zero.
+			// Fall through.
+		case EXCEPTION_FLT_INEXACT_RESULT: // The result of a floating-point operation cannot be
+			// represented exactly as a decimal fraction.
+			// Fall through.
+		case EXCEPTION_FLT_INVALID_OPERATION: // Other floating-point exception.
+			// Fall through.
+		case EXCEPTION_FLT_OVERFLOW: // The exponent of a floating-point operation is greater than the
+			// magnitude allowed by the corresponding type.
+			// Fall through.
+		case EXCEPTION_FLT_STACK_CHECK: // The stack overflowed or underflowed as a result of a
+			// floating-point operation.
+			// Fall through.
+		case EXCEPTION_FLT_UNDERFLOW: // The exponent of a floating-point operation is less than the
+			// magnitude allowed by the corresponding type.
+			abc_throw(abc::floating_point_error, ());
+
+		case EXCEPTION_ILLEGAL_INSTRUCTION: // Attempt to execute an invalid instruction.
+			break;
+
+		case EXCEPTION_IN_PAGE_ERROR: // Attempt to access a page that was not present, and the system
+			// was unable to load the page. For example, this exception might occur if a network
+			// connection is lost while running a program over the network.
+			break;
+
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
+			// The thread attempted to divide an integer value by an integer divisor of zero.
+			abc_throw(abc::division_by_zero_error, ());
+
+		case EXCEPTION_INT_OVERFLOW:
+			// The result of an integer operation caused a carry out of the most significant bit of the
+			// result.
+			abc_throw(abc::overflow_error, ());
+
+		case EXCEPTION_PRIV_INSTRUCTION: // Attempt to execute an instruction whose operation is not
+			// allowed in the current machine mode.
+			break;
+
+		case EXCEPTION_STACK_OVERFLOW: // The thread used up its stack.
+			break;
+	}
+}
+
+
 exception::async_handler_manager::async_handler_manager() {
-	// TODO: implementation.
+	// Install the translator of Win32 structured exceptions into C++ exceptions.
+	g_sefDefault = ::_set_se_translator(eahm_se_translator);
 }
 
 
 exception::async_handler_manager::~async_handler_manager() {
-	// TODO: implementation.
+	::_set_se_translator(g_sefDefault);
 }
 
 #endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
