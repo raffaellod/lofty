@@ -76,7 +76,7 @@ This covers the following code flows:
 	exception was thrown. This is acceptable, since it cannot be determined whether the two
 	exceptions were related.
 
-See related diagram [DIA:8503 Stack tracing] for all code flows covered by this design.
+See related diagram [IMG:8503 Stack trace generation] for all code flows covered by this design.
 See also [DOC:8191 Throwing exceptions] and abc::exception for the remainder of the implementation.
 
 Currently unsupported:
