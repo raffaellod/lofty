@@ -152,14 +152,18 @@ example based on the previous one:
 																	│└────────────────────┴───────────────┘│
 																	└──────────────────────────────────────┘
 
+Note: multiple vtables (and therefore typeid and identifies) can and will be generated for
+abc::_exception_aggregator (with identical template arguments) across all binaries, because no
+exported definition of it is available; this could be a problem if any code were to catch instances
+of abc::_exception_aggregator, because exceptions thrown in one library wouldn’t be caught by a
+catch block in another. However, this is not an issue because no code should be catching
+abc::_exception_aggregator instance; clients will instead catch the appropriate ABC or STL exception
+class, and these are indeed defined once for all binaries, and are therefore unique.
+
 See related diagram [DIA:8190 Exception class hierarchy] for a diagram of the entire ABC exception
 class hierarchy, including the relations with the STL hierarchy.
 
 See [DOC:8191 Throwing exceptions] for more information on abc_throw().
-
-TODO: ensure that the vtables (and therefore typeid and identifies) of abc::_exception_aggregator
-are generated a single time across all binaries, otherwise exceptions thrown in one library won’t be
-caught by a catch block in another!
 */
 
 /** DOC:8191 Throwing exceptions
