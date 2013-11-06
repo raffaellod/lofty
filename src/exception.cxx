@@ -1511,6 +1511,25 @@ namespace abc {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::buffer_error
+
+
+namespace abc {
+
+buffer_error::buffer_error() :
+	generic_error() {
+	m_pszWhat = "abc::buffer_error";
+}
+
+
+void buffer_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<buffer_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::division_by_zero_error
 
 
