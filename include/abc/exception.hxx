@@ -159,10 +159,16 @@ catch block in another. However, this is not an issue because no code should be 
 abc::_exception_aggregator instance; clients will instead catch the appropriate ABC or STL exception
 class, and these are indeed defined once for all binaries, and are therefore unique.
 
+See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
+
+Most of the exception class hierarchy is based on Python’s, which was chosen as model because of its
+breadth and depth.
+
 See related diagram [DIA:8190 Exception class hierarchy] for a diagram of the entire ABC exception
 class hierarchy, including the relations with the STL hierarchy.
 
-See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
+Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
+exceptions.html>.
 */
 
 /** DOC:8191 Throwing exceptions
