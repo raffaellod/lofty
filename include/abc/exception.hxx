@@ -275,7 +275,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	x
+		Source error.
 	*/
 	exception();
 	exception(exception const & x);
@@ -397,7 +398,8 @@ namespace abc {
 /** Verifies a condition at runtime, throwing a assertion_error exception if the assertion turns out
 to be incorrect.
 
-TODO: comment signature.
+expr
+	Expression to be validated.
 */
 #ifdef DEBUG
 	#define ABC_ASSERT(expr) \
@@ -418,7 +420,7 @@ class ABCAPI assertion_error :
 	public exception {
 public:
 
-	/** TODO: comment.
+	/** Throws an exception of type ab::assertion_error due to an expression failing validation.
 	*/
 	static ABC_FUNC_NORETURN void _assertion_failed(
 		char const * pszFileName, unsigned iLine, char const * pszFunction, char const * pszExpr
@@ -489,7 +491,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	x
+		Source error.
 	*/
 	generic_error();
 	generic_error(generic_error const & x);
@@ -815,7 +818,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	x
+		Source error.
 	*/
 	index_error();
 	index_error(index_error const & x);
@@ -951,7 +955,8 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	x
+		Source error.
 	*/
 	memory_address_error();
 	memory_address_error(memory_address_error const & x);
