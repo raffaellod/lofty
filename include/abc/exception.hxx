@@ -1290,53 +1290,6 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc other exception classes
-
-
-namespace abc {
-
-#define ABC_DERIVE_ERROR_CLASS(derived, base) \
-	class ABCAPI derived : \
-		public virtual base { \
-	public: \
-	\
-		/** Constructor. */ \
-		derived() : \
-			base() { \
-		} \
-	\
-	\
-		/** See base::init(). */ \
-		void init(errint_t err = 0) { \
-			base::init(err ? err : os_error_mapping<derived>::mapped_error); \
-		} \
-	}
-
-
-#define ABC_DERIVE_ERROR_CLASS2(derived, base1, base2) \
-	class ABCAPI derived : \
-		public virtual base1, \
-		public virtual base2 { \
-	public: \
-	\
-		/** Constructor. */ \
-		derived() : \
-			base1(), \
-			base2() { \
-		} \
-	\
-	\
-		/** See base1::init() and base2::init(). */ \
-		void init(errint_t err = 0) { \
-			base1::init(err ? err : os_error_mapping<derived>::mapped_error); \
-			base2::init(err ? err : os_error_mapping<derived>::mapped_error); \
-		} \
-	}
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifndef ABC_EXCEPTION_HXX
