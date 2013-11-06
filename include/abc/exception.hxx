@@ -25,7 +25,6 @@ You should have received a copy of the GNU General Public License along with ABC
 	#pragma once
 #endif
 
-#include <abc/core.hxx>
 #include <abc/char.hxx>
 #include <exception>
 
