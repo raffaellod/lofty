@@ -1083,6 +1083,32 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::network_io_error
+
+
+namespace abc {
+
+/** An I/O operation failed for a network-related reason.
+*/
+class ABCAPI network_io_error :
+	public virtual io_error,
+	public virtual network_error {
+public:
+
+	/** Constructor.
+	*/
+	network_io_error();
+
+
+	/** See abc::io_error::init() and abc::network_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
 
 
@@ -1306,9 +1332,6 @@ namespace abc {
 			base2::init(err ? err : os_error_mapping<derived>::mapped_error); \
 		} \
 	}
-
-/** An I/O operation failed for a network-related reason. */
-ABC_DERIVE_ERROR_CLASS2(network_io_error, io_error, network_error);
 
 } //namespace abc
 

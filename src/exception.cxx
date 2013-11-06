@@ -1872,6 +1872,30 @@ void network_error::init(errint_t err /*= 0*/) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::network_io_error
+
+
+namespace abc {
+
+network_io_error::network_io_error() :
+	io_error(),
+	network_error() {
+	m_pszWhat = "abc::network_io_error";
+}
+
+
+void network_io_error::init(errint_t err /*= 0*/) {
+	if (!err) {
+		err = os_error_mapping<network_io_error>::mapped_error;
+	}
+	io_error::init(err);
+	network_error::init(err);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
 
 
