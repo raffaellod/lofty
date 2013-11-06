@@ -91,8 +91,8 @@ This is the most basic program with ABC:
 
    ABC_MAIN_APP_MODULE(my_app_module)
 
-It doesn’t do anything, but it executes and terminates. See [DOC:1063 Application modules] for more
-information on this basic code setup.
+It doesn’t do anything, but it executes and terminates. See [DOC:1063
+Application modules] for more information on this basic code setup.
 
 TODO: more examples, or more links to examples.
 
