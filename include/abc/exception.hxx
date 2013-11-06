@@ -1220,12 +1220,6 @@ implementation of an interface; in practice, this should be avoided. */
 ABC_DERIVE_ERROR_CLASS(not_implemented_error, generic_error);
 /** An operation failed to prevent a security hazard. */
 ABC_DERIVE_ERROR_CLASS(security_error, environment_error);
-/** A text encoding or decoding error occurred. */
-ABC_DERIVE_ERROR_CLASS(text_error, generic_error);
-/** A text decoding error occurred. */
-ABC_DERIVE_ERROR_CLASS(text_decode_error, text_error);
-/** A text encoding error occurred. */
-ABC_DERIVE_ERROR_CLASS(text_encode_error, text_error);
 
 } //namespace abc
 

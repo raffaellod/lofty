@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#include <abc/exception.hxx>
 #include <abc/byteorder.hxx>
 #include <abc/text.hxx>
 #include <abc/utf_traits.hxx>
@@ -764,6 +763,75 @@ break_for:
 	*pcbDstMax -= cbDstUsed;
 	*ppDst = pbDst;
 	return cbDstUsed;
+}
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::error
+
+
+namespace abc {
+
+namespace text {
+
+error::error() :
+	generic_error() {
+	m_pszWhat = "abc::text::error";
+}
+
+
+void error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<error>::mapped_error);
+}
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::decode_error
+
+
+namespace abc {
+
+namespace text {
+
+decode_error::decode_error() :
+	error() {
+	m_pszWhat = "abc::text::decode_error";
+}
+
+
+void decode_error::init(errint_t err /*= 0*/) {
+	error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
+}
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::encode_error
+
+
+namespace abc {
+
+namespace text {
+
+encode_error::encode_error() :
+	error() {
+	m_pszWhat = "abc::text::encode_error";
+}
+
+
+void encode_error::init(errint_t err /*= 0*/) {
+	error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
 }
 
 } //namespace text

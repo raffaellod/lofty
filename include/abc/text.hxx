@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/byteorder.hxx>
 #include <abc/enum.hxx>
+#include <abc/exception.hxx>
 #include <memory>
 
 
@@ -249,6 +250,93 @@ ABCAPI size_t transcode(
 	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
 	encoding encDst, void       ** ppDst, size_t * pcbDstMax
 );
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::error
+
+
+namespace abc {
+
+namespace text {
+
+/** A text encoding or decoding error occurred.
+*/
+class ABCAPI error :
+	public virtual generic_error {
+public:
+
+	/** Constructor.
+	*/
+	error();
+
+
+	/** See abc::generic_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::decode_error
+
+
+namespace abc {
+
+namespace text {
+
+/** A text decoding error occurred.
+*/
+class ABCAPI decode_error :
+	public virtual error {
+public:
+
+	/** Constructor.
+	*/
+	decode_error();
+
+
+	/** See abc::text::error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace text
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::encode_error
+
+
+namespace abc {
+
+namespace text {
+
+/** A text encoding error occurred.
+*/
+class ABCAPI encode_error :
+	public virtual error {
+public:
+
+	/** Constructor.
+	*/
+	encode_error();
+
+
+	/** See abc::text::error::init().
+	*/
+	void init(errint_t err = 0);
+};
 
 } //namespace text
 
