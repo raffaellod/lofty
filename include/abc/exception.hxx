@@ -1111,6 +1111,31 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::security_error
+
+
+namespace abc {
+
+/** An operation failed to prevent a security hazard.
+*/
+class ABCAPI security_error :
+	public virtual environment_error {
+public:
+
+	/** Constructor.
+	*/
+	security_error();
+
+
+	/** See abc::environment_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::syntax_error
 
 
@@ -1240,8 +1265,6 @@ ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 ABC_DERIVE_ERROR_CLASS(network_error, environment_error);
 /** An I/O operation failed for a network-related reason. */
 ABC_DERIVE_ERROR_CLASS2(network_io_error, io_error, network_error);
-/** An operation failed to prevent a security hazard. */
-ABC_DERIVE_ERROR_CLASS(security_error, environment_error);
 
 } //namespace abc
 

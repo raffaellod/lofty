@@ -1891,6 +1891,25 @@ void overflow_error::init(errint_t err /*= 0*/) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::security_error
+
+
+namespace abc {
+
+security_error::security_error() :
+	environment_error() {
+	m_pszWhat = "abc::security_error";
+}
+
+
+void security_error::init(errint_t err /*= 0*/) {
+	environment_error::init(err ? err : os_error_mapping<security_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::syntax_error
 
 
