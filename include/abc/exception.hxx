@@ -1033,6 +1033,32 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::not_implemented_error
+
+
+namespace abc {
+
+/** Method not implemented for this class. Usually thrown when a class is not able to provide a full
+implementation of an interface; in practice, this should be avoided.
+*/
+class ABCAPI not_implemented_error :
+	public virtual generic_error {
+public:
+
+	/** Constructor.
+	*/
+	not_implemented_error();
+
+
+	/** See abc::generic_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::null_pointer_error
 
 
@@ -1214,9 +1240,6 @@ ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 ABC_DERIVE_ERROR_CLASS(network_error, environment_error);
 /** An I/O operation failed for a network-related reason. */
 ABC_DERIVE_ERROR_CLASS2(network_io_error, io_error, network_error);
-/** Method not implemented for this class. Usually thrown when a class is not able to provide a full
-implementation of an interface; in practice, this should be avoided. */
-ABC_DERIVE_ERROR_CLASS(not_implemented_error, generic_error);
 /** An operation failed to prevent a security hazard. */
 ABC_DERIVE_ERROR_CLASS(security_error, environment_error);
 

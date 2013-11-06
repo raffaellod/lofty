@@ -1834,6 +1834,25 @@ void memory_allocation_error::init(errint_t err /*= 0*/) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::not_implemented_error
+
+
+namespace abc {
+
+not_implemented_error::not_implemented_error() :
+	generic_error() {
+	m_pszWhat = "abc::not_implemented_error";
+}
+
+
+void not_implemented_error::init(errint_t err /*= 0*/) {
+	generic_error::init(err ? err : os_error_mapping<not_implemented_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::null_pointer_error
 
 
