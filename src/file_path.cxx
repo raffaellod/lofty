@@ -372,7 +372,7 @@ to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_r
 
 	// If we still have any characters, they are garbage.
 	if (it != crFormat.cend()) {
-		abc_throw(syntax_error, (
+		ABC_THROW(syntax_error, (
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
 	}

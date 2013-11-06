@@ -67,21 +67,21 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ENOTBLK: // Block device required (Linux)
 #endif
 		case ENOTSOCK: // Socket operation on non-socket (POSIX.1-2001)
-			abc_throw(argument_error, (err));
+			ABC_THROW(argument_error, (err));
 
 
 		case ERANGE: // Math result not representable (POSIX.1-2001, C99)
-			abc_throw(arithmetic_error, (err));
+			ABC_THROW(arithmetic_error, (err));
 
 
 #ifdef ENOBUFS
 		case ENOBUFS: // No buffer space available (Linux)
-			abc_throw(buffer_error, (err));
+			ABC_THROW(buffer_error, (err));
 #endif
 
 
 		case EDOM: // Math argument out of domain of func (POSIX.1-2001, C99)
-			abc_throw(domain_error, (err));
+			ABC_THROW(domain_error, (err));
 
 
 		case ECHILD: // No child processes (POSIX.1-2001)
@@ -90,12 +90,12 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ENOEXEC: // Exec format error (POSIX.1-2001)
 		case ENOLCK: // No locks available (POSIX.1-2001)
 		case ESRCH: // No such process (POSIX.1-2001)
-			abc_throw(environment_error, (err));
+			ABC_THROW(environment_error, (err));
 
 
 		case ENODEV: // No such device (POSIX.1-2001)
 		case ENOENT: // No such file or directory (POSIX.1-2001)
-			abc_throw(file_not_found_error, (err));
+			ABC_THROW(file_not_found_error, (err));
 
 
 		case EIDRM: // Identifier removed (POSIX.1-2001)
@@ -103,7 +103,7 @@ ABCAPI void throw_os_error(errint_t err) {
 		case EMULTIHOP: // Multihop attempted (POSIX.1-2001)
 		case ENOPROTOOPT: // Protocol not available (POSIX.1-2001)
 		default:
-			abc_throw(generic_error, (err));
+			ABC_THROW(generic_error, (err));
 
 
 		case EAGAIN: // Try again (POSIX.1-2001)
@@ -150,15 +150,15 @@ ABCAPI void throw_os_error(errint_t err) {
 		case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
 #endif
 		case EXDEV: // Improper link (POSIX.1-2001)
-			abc_throw(io_error, (err));
+			ABC_THROW(io_error, (err));
 
 
 		case ENOMEM: // Out of memory (POSIX.1-2001)
-			abc_throw(memory_allocation_error, (err));
+			ABC_THROW(memory_allocation_error, (err));
 
 
 		case EFAULT: // Bad address (POSIX.1-2001)
-			abc_throw(memory_address_error, (err));
+			ABC_THROW(memory_address_error, (err));
 
 
 		case EADDRINUSE: // Address already in use (POSIX.1-2001).
@@ -181,7 +181,7 @@ ABCAPI void throw_os_error(errint_t err) {
 #ifdef ESOCKTNOSUPPORT
 		case ESOCKTNOSUPPORT: // Socket type not supported (Linux)
 #endif
-			abc_throw(network_error, (err));
+			ABC_THROW(network_error, (err));
 
 
 #ifdef ECOMM
@@ -209,20 +209,20 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
 #endif
 		case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
-			abc_throw(network_io_error, (err));
+			ABC_THROW(network_io_error, (err));
 
 
 		case ENOSYS: // Function not implemented (POSIX.1-2001)
-			abc_throw(not_implemented_error, (err));
+			ABC_THROW(not_implemented_error, (err));
 
 
 		case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
-			abc_throw(overflow_error, (err));
+			ABC_THROW(overflow_error, (err));
 
 
 		case EACCES: // Permission denied (POSIX.1-2001)
 		case EPERM: // Operation not permitted (POSIX.1-2001)
-			abc_throw(security_error, (err));
+			ABC_THROW(security_error, (err));
 	}
 }
 
@@ -340,14 +340,14 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_WINDOW_NOT_COMBOBOX: // The window is not a combo box.
 		case ERROR_WINDOW_NOT_DIALOG: // The window is not a valid dialog window.
 		case ERROR_WINDOW_OF_OTHER_THREAD: // Invalid window; it belongs to another thread.
-			abc_throw(argument_error, (err));
+			ABC_THROW(argument_error, (err));
 
 
 		case ERROR_BUFFER_OVERFLOW: // The file name is too long.
 		case ERROR_INSUFFICIENT_BUFFER: // The data area passed to a system call is too small.
 		case ERROR_INVALID_USER_BUFFER: // The supplied user buffer is not valid for the requested
 			// operation.
-			abc_throw(buffer_error, (err));
+			ABC_THROW(buffer_error, (err));
 
 
 		case ERROR_CHILD_MUST_BE_VOLATILE: // Cannot create a stable subkey under a volatile parent
@@ -371,12 +371,12 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_TOO_MANY_SEMAPHORES: // Cannot create another system semaphore.
 		case ERROR_TOO_MANY_TCBS: // Cannot create another thread.
 		case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
-			abc_throw(environment_error, (err));
+			ABC_THROW(environment_error, (err));
 
 
 		case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
 		case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-			abc_throw(file_not_found_error, (err));
+			ABC_THROW(file_not_found_error, (err));
 
 
 		case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
@@ -611,12 +611,12 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_TRANSFORM_NOT_SUPPORTED: // The requested transformation operation is not
 			// supported.
 		default:
-			abc_throw(generic_error, (err));
+			ABC_THROW(generic_error, (err));
 
 
 		case ERROR_BAD_PATHNAME: // The specified path is invalid.
 		case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
-			abc_throw(invalid_path_error, (err));
+			ABC_THROW(invalid_path_error, (err));
 
 
 		case ERROR_ALREADY_ASSIGNED: // The local device name is already in use.
@@ -821,13 +821,13 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_WRITE_PROTECT: // The media is write protected.
 		case ERROR_WRONG_DISK: // The wrong diskette is in the drive. Insert %2 (Volume Serial Number:
 			// %3) into drive %1.
-			abc_throw(io_error, (err));
+			ABC_THROW(io_error, (err));
 
 
 		case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
 		case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
 		case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
-			abc_throw(key_error, (err));
+			ABC_THROW(key_error, (err));
 
 
 		case ERROR_NO_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
@@ -839,12 +839,12 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_OUTOFMEMORY: // Not enough storage is available to complete this operation.
 		case ERROR_PAGED_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
 			// requested service.
-			abc_throw(memory_allocation_error, (err));
+			ABC_THROW(memory_allocation_error, (err));
 
 
 		case ERROR_INVALID_ADDRESS: // Attempt to access invalid address.
 		case ERROR_NOACCESS: // Invalid access to memory location.
-			abc_throw(memory_address_error, (err));
+			ABC_THROW(memory_address_error, (err));
 
 
 		case ERROR_ACTIVE_CONNECTIONS: // Active connections still exist.
@@ -883,7 +883,7 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_TOO_MANY_SESS: // The network BIOS session limit was exceeded.
 		case ERROR_UNEXP_NET_ERR: // An unexpected network error occurred.
 		case ERROR_WINS_INTERNAL: // WINS encountered an error while processing the command.
-			abc_throw(network_error, (err));
+			ABC_THROW(network_error, (err));
 
 
 		case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
@@ -898,11 +898,11 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_NETWORK_BUSY: // The network is busy.
 		case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
 		case ERROR_REQUEST_ABORTED: // The request was aborted.
-			abc_throw(network_io_error, (err));
+			ABC_THROW(network_io_error, (err));
 
 
 		case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
-			abc_throw(overflow_error, (err));
+			ABC_THROW(overflow_error, (err));
 
 
 		case ERROR_ACCESS_DENIED: // Access is denied.
@@ -1034,12 +1034,12 @@ ABCAPI void throw_os_error(errint_t err) {
 		case ERROR_VC_DISCONNECTED: // The session was canceled.
 		case ERROR_WRONG_PASSWORD: // Unable to update the password. The value provided as the current
 			// password is incorrect.
-			abc_throw(security_error, (err));
+			ABC_THROW(security_error, (err));
 
 
 		case ERROR_NO_UNICODE_TRANSLATION: // No mapping for the Unicode character exists in the
 			// target multibyte code page.
-			abc_throw(text_encode_error, (err));
+			ABC_THROW(text_encode_error, (err));
 	}
 }
 
@@ -1173,7 +1173,7 @@ char const * exception::what() const {
 
 	pos->write(SL("Stack trace (most recent call first):\n"));
 	if (pabcx) {
-		// Frame 0 is the location of the abc_throw() statement.
+		// Frame 0 is the location of the ABC_THROW() statement.
 		pos->print(
 			SL("#0 {} at {}:{}\n"),
 			pabcx->m_pszSourceFunction, pabcx->m_pszSourceFileName, pabcx->m_iSourceLine
@@ -1272,17 +1272,17 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 			// on going - even the code to throw an exception could be compromised.
 			switch (psi->si_code) {
 				case BUS_ADRALN: // Invalid address alignment.
-					abc_throw(abc::memory_access_error, (psi->si_addr));
+					ABC_THROW(abc::memory_access_error, (psi->si_addr));
 			}
 			break;
 
 		case SIGFPE:
 			switch (psi->si_code) {
 				case FPE_INTDIV: // Integer divide by zero.
-					abc_throw(abc::division_by_zero_error, ());
+					ABC_THROW(abc::division_by_zero_error, ());
 
 				case FPE_INTOVF: // Integer overflow.
-					abc_throw(abc::overflow_error, ());
+					ABC_THROW(abc::overflow_error, ());
 
 				case FPE_FLTDIV: // Floating-point divide by zero.
 				case FPE_FLTOVF: // Floating-point overflow.
@@ -1290,17 +1290,17 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 				case FPE_FLTRES: // Floating-point inexact result.
 				case FPE_FLTINV: // Floating-point invalid operation.
 				case FPE_FLTSUB: // Subscript out of range.
-					abc_throw(abc::floating_point_error, ());
+					ABC_THROW(abc::floating_point_error, ());
 			}
 			// At the time of writing, the above case labels don’t leave out any values, but that’s not
 			// necessarily going to be true in 5 years, so…
-			abc_throw(abc::arithmetic_error, ());
+			ABC_THROW(abc::arithmetic_error, ());
 
 		case SIGSEGV:
 			if (psi->si_addr == NULL) {
-				abc_throw(abc::null_pointer_error, ());
+				ABC_THROW(abc::null_pointer_error, ());
 			} else {
-				abc_throw(abc::memory_address_error, (psi->si_addr));
+				ABC_THROW(abc::memory_address_error, (psi->si_addr));
 			}
 	}
 	// Handle all unrecognized cases here. Since here we only handle signals for which the default
@@ -1362,9 +1362,9 @@ static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) 
 				pxpInfo->ExceptionRecord->ExceptionInformation[1]
 			));
 			if (pAddr == NULL) {
-				abc_throw(abc::null_pointer_error, ());
+				ABC_THROW(abc::null_pointer_error, ());
 			} else {
-				abc_throw(abc::memory_address_error, (pAddr));
+				ABC_THROW(abc::memory_address_error, (pAddr));
 			}
 		}
 
@@ -1374,7 +1374,7 @@ static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) 
 
 		case EXCEPTION_DATATYPE_MISALIGNMENT: // Attempt to read or write data that is misaligned on
 			// hardware that does not provide alignment.
-			abc_throw(abc::memory_access_error, (NULL));
+			ABC_THROW(abc::memory_access_error, (NULL));
 
 		case EXCEPTION_FLT_DENORMAL_OPERAND: // An operand in a floating-point operation is too small
 			// to represent as a standard floating-point value.
@@ -1395,7 +1395,7 @@ static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) 
 			// Fall through.
 		case EXCEPTION_FLT_UNDERFLOW: // The exponent of a floating-point operation is less than the
 			// magnitude allowed by the corresponding type.
-			abc_throw(abc::floating_point_error, ());
+			ABC_THROW(abc::floating_point_error, ());
 
 		case EXCEPTION_ILLEGAL_INSTRUCTION: // Attempt to execute an invalid instruction.
 			break;
@@ -1407,12 +1407,12 @@ static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) 
 
 		case EXCEPTION_INT_DIVIDE_BY_ZERO:
 			// The thread attempted to divide an integer value by an integer divisor of zero.
-			abc_throw(abc::division_by_zero_error, ());
+			ABC_THROW(abc::division_by_zero_error, ());
 
 		case EXCEPTION_INT_OVERFLOW:
 			// The result of an integer operation caused a carry out of the most significant bit of the
 			// result.
-			abc_throw(abc::overflow_error, ());
+			ABC_THROW(abc::overflow_error, ());
 
 		case EXCEPTION_PRIV_INSTRUCTION: // Attempt to execute an instruction whose operation is not
 			// allowed in the current machine mode.
@@ -1504,7 +1504,7 @@ namespace abc {
 		}
 		sm_bReentering = false;
 	}
-	abc_throw(assertion_error, ());
+	ABC_THROW(assertion_error, ());
 }
 
 } //namespace abc

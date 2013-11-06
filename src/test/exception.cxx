@@ -167,35 +167,35 @@ public:
 	void throw_exception() {
 		ABC_TRACE_FN((this));
 
-		abc_throw(exception, ());
+		ABC_THROW(exception, ());
 	}
 
 
 	void throw_generic_error() {
 		ABC_TRACE_FN((this));
 
-		abc_throw(generic_error, ());
+		ABC_THROW(generic_error, ());
 	}
 
 
 	void throw_derived1_error() {
 		ABC_TRACE_FN((this));
 
-		abc_throw(derived1_error, ());
+		ABC_THROW(derived1_error, ());
 	}
 
 
 	void throw_derived2_error() {
 		ABC_TRACE_FN((this));
 
-		abc_throw(derived2_error, ());
+		ABC_THROW(derived2_error, ());
 	}
 
 
 	void throw_derived3_error(int i) {
 		ABC_TRACE_FN((this, i));
 
-		abc_throw(derived3_error, ());
+		ABC_THROW(derived3_error, ());
 	}
 };
 

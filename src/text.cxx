@@ -50,10 +50,10 @@ ABCAPI size_t estimate_transcoded_size(
 	};
 
 	if (encSrc < encoding::_charsets_offset) {
-		abc_throw(argument_error, ());
+		ABC_THROW(argument_error, ());
 	}
 	if (encDst < encoding::_charsets_offset) {
-		abc_throw(argument_error, ());
+		ABC_THROW(argument_error, ());
 	}
 	// TODO: use this to give a more accurate estimate for UTF-8, by evaluating which language block
 	// seems to be dominant in the source.
@@ -171,12 +171,12 @@ ABCAPI void const * get_line_terminator_bytes(
 
 	// Reject non-charset encodings, because we can’t determine what value CR or LF should have.
 	if (!get_encoding_size(enc)) {
-		abc_throw(argument_error, ());
+		ABC_THROW(argument_error, ());
 	}
 	// Reject line_terminator::nel for every encoding except encoding::ebcdic, for which it’s the
 	// only allowed line_terminator.
 	if ((enc == encoding::ebcdic) != (lterm == line_terminator::nel)) {
-		abc_throw(argument_error, ());
+		ABC_THROW(argument_error, ());
 	}
 	// Do the NEL > CRLF remapping mentioned above.
 	if (enc == encoding::ebcdic) {
@@ -430,7 +430,7 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
 	size_t cbChar(get_encoding_size(enc));
 	// Reject non-charset encodings, because we can’t determine what value CR or LF should have.
 	if (!cbChar) {
-		abc_throw(argument_error, ());
+		ABC_THROW(argument_error, ());
 	}
 
 	line_terminator lterm(line_terminator::unknown);
@@ -476,7 +476,7 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
 
 		case sizeof(char16_t): {
 			if (enc != encoding::utf16le && enc != encoding::utf16be) {
-				abc_throw(argument_error, ());
+				ABC_THROW(argument_error, ());
 			}
 			uint16_t chCr(uint16_t(enc == encoding::utf16le
 				? ABC_BYTEORDER_HOSTTOLE16(0x000d) : ABC_BYTEORDER_HOSTTOBE16(0x000d)
@@ -507,7 +507,7 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
 
 		case sizeof(char32_t): {
 			if (enc != encoding::utf32le && enc != encoding::utf32be) {
-				abc_throw(argument_error, ());
+				ABC_THROW(argument_error, ());
 			}
 			uint32_t chCr(enc == encoding::utf32le
 				? ABC_BYTEORDER_HOSTTOLE32(0x00000d) : ABC_BYTEORDER_HOSTTOBE32(0x00000d)

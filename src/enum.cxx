@@ -40,7 +40,7 @@ namespace abc {
 		}
 	}
 	// TODO: provide more information in the exception.
-	abc_throw(domain_error, ());
+	ABC_THROW(domain_error, ());
 }
 /*static*/ enum_member const * enum_member::find_in_map(
 	enum_member const * pem, char_t const * psz
@@ -53,7 +53,7 @@ namespace abc {
 		}
 	}
 	// TODO: provide more information in the exception.
-	abc_throw(domain_error, ());
+	ABC_THROW(domain_error, ());
 }
 
 } //namespace abc
@@ -74,7 +74,7 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat
 
 	// If we still have any characters, they are garbage.
 	if (it != crFormat.cend()) {
-		abc_throw(syntax_error, (
+		ABC_THROW(syntax_error, (
 			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
 		));
 	}

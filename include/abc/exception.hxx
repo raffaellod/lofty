@@ -102,17 +102,17 @@ MSVCRT might not know which of the two casts to favor.
 In the current implementation of the exception class hierarchy instead, the ABC and the STL
 hierarchies are kept completely separated; they are only combined when an exception is thrown, by
 instantiating the class template abc::_exception_aggregator, specializations of which create the
-leaf classes mentioned earlier; this is conveniently handled in the abc_throw() statement. See this
+leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See this
 example based on the previous one:
 
-	class abc::exception {									 abc_throw(abc::exception, ())
+	class abc::exception {									 ABC_THROW(abc::exception, ())
 		typedef std::exception related_std;				┌────────────────┐
 		…															│ std::exception │
 	};																├────────────────┤
 																	│ abc::exception │
 																	└────────────────┘
 
-	class abc::network_error :								 abc_throw(abc::network_error, ())
+	class abc::network_error :								 ABC_THROW(abc::network_error, ())
 		public virtual abc::exception {					┌────────────────────┐
 		…															│ std::exception     │
 	};																├────────────────────┤
@@ -122,7 +122,7 @@ example based on the previous one:
 																	│└──────────────────┘│
 																	└────────────────────┘
 
-	class abc::io_error :									 abc_throw(abc::io_error, ())
+	class abc::io_error :									 ABC_THROW(abc::io_error, ())
 		public virtual abc::exception {					┌────────────────────────┐
 		typedef std::ios_base::failure related_std;	│ std::ios_base::failure │
 		…															│┌──────────────────────┐│
@@ -135,7 +135,7 @@ example based on the previous one:
 																	│└──────────────────────┘│
 																	└────────────────────────┘
 
-	class abc::network_io_error :							 abc_throw(abc::network_io_error, ())
+	class abc::network_io_error :							 ABC_THROW(abc::network_io_error, ())
 		public virtual abc::network_error,				┌──────────────────────────────────────┐
 		public virtual abc::io_error {					│ std::ios_base::failure               │
 		typedef std::ios_base::failure related_std;	│┌────────────────────────────────────┐│
@@ -162,20 +162,20 @@ class, and these are indeed defined once for all binaries, and are therefore uni
 See related diagram [DIA:8190 Exception class hierarchy] for a diagram of the entire ABC exception
 class hierarchy, including the relations with the STL hierarchy.
 
-See [DOC:8191 Throwing exceptions] for more information on abc_throw().
+See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
 */
 
 /** DOC:8191 Throwing exceptions
 
-abc_throw() instantiates a specialization of the class template abc::_exception_aggregator, fills it
+ABC_THROW() instantiates a specialization of the class template abc::_exception_aggregator, fills it
 up with context information and the remaining arguments, and then throws it. This is the suggested
 way of throwing an exception within code using ABC. See [DOC:8190 Exception class hierarchy] for
 more information on abc::_exception_aggregator and why it exists.
 
-Combined with [DOC:8503 Stack tracing], the use of abc_throw() augments the stack trace with the
+Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace with the
 exact line where the throw statement occurred.
 
-Only instances of abc::exception (or a derived class) can be thrown using abc_throw(), because of
+Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
 the additional members that the latter expects to be able to set in the former.
 
 The class abc::exception also implements the actual stack trace printing for abc::_stack_trace,
@@ -234,7 +234,7 @@ info
 	Parentheses-enclosed list of data that will be associated to the exception, as accepted by
 	x::init().
 */
-#define abc_throw(x, info) \
+#define ABC_THROW(x, info) \
 	do { \
 		::abc::_exception_aggregator<x> _x; \
 		_x.init info; \
@@ -593,7 +593,7 @@ public:
 
 	/** Constructor.
 
-	TODO: add arguments name/value, to be passed by macro abc_throw_argument_error(argname).
+	TODO: add arguments name/value, to be passed by macro ABC_THROW_ARGUMENT_ERROR(argname).
 	*/
 	argument_error();
 

@@ -181,7 +181,7 @@ void _raw_vextr_impl_base::adjust_range(
 
 void _raw_vextr_impl_base::validate_index(intptr_t i) const {
 	if (i < 0 || i >= intptr_t(m_ci)) {
-		abc_throw(index_error, (i));
+		ABC_THROW(index_error, (i));
 	}
 }
 
