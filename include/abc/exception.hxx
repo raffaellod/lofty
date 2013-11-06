@@ -1185,7 +1185,7 @@ namespace abc {
 /** An attribute reference or assignment failed. */
 ABC_DERIVE_ERROR_CLASS(attribute_error, generic_error);
 /** A buffer-related I/O operation could not be performed. */
-ABC_DERIVE_ERROR_CLASS(buffer_error, io_error);
+ABC_DERIVE_ERROR_CLASS(buffer_error, generic_error);
 /** Mapping (dictionary) key not found in the set of existing keys. */
 ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 /** A network-related error occurred. */
