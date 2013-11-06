@@ -1691,6 +1691,25 @@ void index_error::_print_extended_info(ostream * pos) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::key_error
+
+
+namespace abc {
+
+key_error::key_error() :
+	lookup_error() {
+	m_pszWhat = "abc::key_error";
+}
+
+
+void key_error::init(errint_t err /*= 0*/) {
+	lookup_error::init(err ? err : os_error_mapping<key_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::invalid_path_error
 
 

@@ -863,6 +863,31 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::key_error
+
+
+namespace abc {
+
+/** Mapping (dictionary) key not found in the set of existing keys.
+*/
+class ABCAPI key_error :
+	public virtual lookup_error {
+public:
+
+	/** Constructor.
+	*/
+	key_error();
+
+
+	/** See abc::lookup_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::invalid_path_error
 
 
@@ -1257,8 +1282,6 @@ namespace abc {
 		} \
 	}
 
-/** Mapping (dictionary) key not found in the set of existing keys. */
-ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 /** A network-related error occurred. */
 ABC_DERIVE_ERROR_CLASS(network_error, environment_error);
 /** An I/O operation failed for a network-related reason. */
