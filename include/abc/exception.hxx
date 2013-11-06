@@ -1257,8 +1257,6 @@ namespace abc {
 		} \
 	}
 
-/** An attribute reference or assignment failed. */
-ABC_DERIVE_ERROR_CLASS(attribute_error, generic_error);
 /** Mapping (dictionary) key not found in the set of existing keys. */
 ABC_DERIVE_ERROR_CLASS(key_error, lookup_error);
 /** A network-related error occurred. */
