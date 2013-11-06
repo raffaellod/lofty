@@ -1853,6 +1853,25 @@ void memory_allocation_error::init(errint_t err /*= 0*/) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::network_error
+
+
+namespace abc {
+
+network_error::network_error() :
+	environment_error() {
+	m_pszWhat = "abc::network_error";
+}
+
+
+void network_error::init(errint_t err /*= 0*/) {
+	environment_error::init(err ? err : os_error_mapping<network_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
 
 

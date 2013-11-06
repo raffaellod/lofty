@@ -1058,6 +1058,31 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::network_error
+
+
+namespace abc {
+
+/** A network-related error occurred.
+*/
+class ABCAPI network_error :
+	public virtual environment_error {
+public:
+
+	/** Constructor.
+	*/
+	network_error();
+
+
+	/** See abc::environment_error::init().
+	*/
+	void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
 
 
@@ -1282,8 +1307,6 @@ namespace abc {
 		} \
 	}
 
-/** A network-related error occurred. */
-ABC_DERIVE_ERROR_CLASS(network_error, environment_error);
 /** An I/O operation failed for a network-related reason. */
 ABC_DERIVE_ERROR_CLASS2(network_io_error, io_error, network_error);
 
