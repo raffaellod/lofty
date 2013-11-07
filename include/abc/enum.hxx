@@ -37,14 +37,28 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 
-/** TODO: comment + document design.
-
-Loosely based on <http://www.python.org/dev/peps/pep-0435/>
+/** Defines an enumeration class derived from abc::enum_impl.
 
 TODO: allow specifying a default value (instead of having __default = max + 1).
 
+TODO: document design.
+
+The enumerated constants are not merged in the containing scope, as it happens with C++ enums; in
+order to access the values, they must be qualified with the class name (name::value).
+
+The underlying C++ enumeration will be available as name::enum_type; this should be used as little
+as possible.
+
+This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
+
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
 etc.
+
+name
+	Name of the enumeration type.
+...
+	Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
+	name::enum_type.
 */
 #define ABC_ENUM(name, ...) \
 	struct ABC_CPP_CAT(_, name, _e) { \
@@ -70,7 +84,10 @@ etc.
 
 /** Expands into an enum name/value assignment.
 
-TODO: comment signature.
+name
+	Name of the enumeration constant.
+value
+	Value of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER(name, value) \
 			name = value,
@@ -78,7 +95,10 @@ TODO: comment signature.
 
 /** Expands into an abc::enum_member initializer.
 
-TODO: comment signature.
+name
+	Name of the enumeration constant.
+value
+	Value of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
 				{ SL(ABC_CPP_TOSTRING(name)), value },
@@ -103,9 +123,18 @@ struct ABCAPI enum_member {
 	int iValue;
 
 
-	/** Finds and returns the member associated to the specified enumerated value or name.
+	/** Finds and returns the member associated to the specified enumerated value or name. If no
+	match is found, an exception will be throw.
 
-	TODO: comment signature.
+	pem
+		Pointer to the first item in the enumeration members array; the last item in the array has a
+		NULL name.
+	i
+		Value of the constant to search for.
+	psz
+		Name of the constant to search for.
+	return
+		Pointer to the matching name/value pair.
 	*/
 	static enum_member const * find_in_map(enum_member const * pem, int i);
 	static enum_member const * find_in_map(enum_member const * pem, char_t const * psz);
@@ -130,16 +159,20 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	crFormat
+		Formatting options.
 	*/
 	_enum_to_str_backend_impl(char_range const & crFormat);
 
 
 protected:
 
-	/** See to_str_backend::write().
+	/** Writes an enumeration value, applying the formatting options.
 
-	TODO: comment signature.
+	e
+		Enumeration value to write.
+	posOut
+		Pointer to the output stream to write to.
 	*/
 	void write_impl(int i, enum_member const * pem, ostream * posOut);
 };
@@ -165,7 +198,14 @@ public:
 
 	/** Constructor.
 
-	TODO: comment signature.
+	e
+		Source value.
+	i
+		Integer value to be converted to enum_type. If i has a value not in enum_type, an exception
+		will be thrown.
+	psz
+		String to be converted to enum_type. If *psz does not match exactly the name of one of the
+		members of enum_type, an exception will be thrown.
 	*/
 	enum_impl() :
 		m_e(enum_type::__default) {
@@ -181,6 +221,7 @@ public:
 		m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), i)->iValue)) {
 	}
 	// Conversion from string.
+	// TODO: change to accept abc::char_range, so we get automatic conversion from abc::*str.
 	explicit enum_impl(char_t const * psz) :
 		m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), psz)->iValue)) {
 	}
@@ -188,7 +229,10 @@ public:
 
 	/** Assignment operator.
 
-	TODO: comment signature.
+	e
+		Source value.
+	return
+		*this.
 	*/
 	enum_impl & operator=(enum_impl const & e) {
 		m_e = e.m_e;
@@ -202,7 +246,8 @@ public:
 
 	/** Returns the current base enumerated value.
 
-	TODO: comment signature.
+	return
+		Current value.
 	*/
 	enum_type base() const {
 		return m_e;
@@ -211,7 +256,10 @@ public:
 
 	/** Returns the name of the current enumerated value.
 
-	TODO: comment signature.
+	TODO: change to return abc::char_range, so we get automatic conversion to abc::istr const.
+
+	return
+		Name of the current value.
 	*/
 	char_t const * name() const {
 		return _member()->pszName;
@@ -222,7 +270,8 @@ protected:
 
 	/** Returns a pointer to the name/value pair for the current value.
 
-	TODO: comment signature.
+	return
+		Pointer to the name/value pair for the current value.
 	*/
 	enum_member const * _member() const {
 		return enum_member::find_in_map(T::_get_map(), m_e);
@@ -274,18 +323,14 @@ class to_str_backend<enum_impl<T>> :
 	public _enum_to_str_backend_impl {
 public:
 
-	/** Constructor.
-
-	TODO: comment signature.
+	/** Constructor. See abc::_enum_to_str_backend_impl::_enum_to_str_backend_impl().
 	*/
 	to_str_backend(char_range const & crFormat = char_range()) :
 		_enum_to_str_backend_impl(crFormat) {
 	}
 
 
-	/** See to_str_backend::write().
-
-	TODO: comment signature.
+	/** See abc::_enum_to_str_backend_impl::write().
 	*/
 	void write(enum_impl<T> e, ostream * posOut) {
 		_enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), posOut);
