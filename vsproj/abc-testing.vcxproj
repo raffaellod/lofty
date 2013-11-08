@@ -87,7 +87,7 @@
     <ClInclude Include="..\include\abc\testing\mock\iostream.hxx" />
     <ClInclude Include="..\include\abc\testing\module.hxx" />
     <ClInclude Include="..\include\abc\testing\runner.hxx" />
-    <ClInclude Include="..\include\abc\testing\unit.hxx" />
+    <ClInclude Include="..\include\abc\testing\test_case.hxx" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\testing\core.cxx">
@@ -103,7 +103,7 @@
     <ClCompile Include="..\src\testing\runner.cxx">
       <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\unit.cxx">
+    <ClCompile Include="..\src\testing\test_case.cxx">
       <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>

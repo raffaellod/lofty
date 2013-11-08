@@ -81,7 +81,7 @@ $(O)lib/libabc-testing$(LIBEXT): \
 	$(O)obj/testing/mock/iostream.cxx$(OBJEXT) \
 	$(O)obj/testing/module.cxx$(OBJEXT) \
 	$(O)obj/testing/runner.cxx$(OBJEXT) \
-	$(O)obj/testing/unit.cxx$(OBJEXT)
+	$(O)obj/testing/test_case.cxx$(OBJEXT)
 
 # Test suite.
 $(O)bin/abc-test$(EXEEXT): \

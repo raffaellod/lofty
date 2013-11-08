@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/testing/core.hxx>
 #include <abc/testing/runner.hxx>
-#include <abc/testing/unit.hxx>
+#include <abc/testing/test_case.hxx>
 #include <abc/trace.hxx>
 
 

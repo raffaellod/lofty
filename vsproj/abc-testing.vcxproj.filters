@@ -42,7 +42,7 @@
     <ClInclude Include="..\include\abc\testing\runner.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\testing\unit.hxx">
+    <ClInclude Include="..\include\abc\testing\test_case.hxx">
       <Filter>Header Files\abc\testing</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,7 +59,7 @@
     <ClCompile Include="..\src\testing\runner.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\testing\unit.cxx">
+    <ClCompile Include="..\src\testing\test_case.cxx">
       <Filter>Source Files\testing</Filter>
     </ClCompile>
   </ItemGroup>
