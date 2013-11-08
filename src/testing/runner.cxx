@@ -107,7 +107,7 @@ bool runner::log_summary() {
 		m_pos->write(SL("No tests performed\n"));
 	} else {
 		m_pos->print(
-			SL("Test cases summary: ")
+			SL("Test cases: ")
 			SL("{} executed, ")
 			SL("{} passed ({}%), ")
 			SL("{} failed ({}%)\n"),
@@ -119,7 +119,7 @@ bool runner::log_summary() {
 			((m_cTotalTestCases - m_cPassedTestCases) * 100 + 1) / m_cTotalTestCases
 		);
 		m_pos->print(
-			SL("Assertions summary: ")
+			SL("Assertions: ")
 			SL("{} performed, ")
 			SL("{} passed ({}%), ")
 			SL("{} failed ({}%)\n"),
@@ -147,7 +147,7 @@ void runner::run() {
 void runner::run_test_case(test_case & tc) {
 	ABC_TRACE_FN((this/*, u*/));
 
-	m_pos->print(SL("Running test case \"{}\" ...\n"), tc.title());
+	m_pos->print(SL("Test case: {}: running...\n"), tc.title());
 
 	// Save the current total and passed counts, so we can compare them after running the test case.
 	unsigned cPrevTotalTests(m_cTotalTests), cPrevPassedTests(m_cPassedTests);
@@ -170,7 +170,7 @@ void runner::run_test_case(test_case & tc) {
 	++m_cTotalTestCases;
 
 	m_pos->print(
-		SL("Completed test case \"{}\": {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail")
+		SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail")
 	);
 }
 
