@@ -30,17 +30,17 @@ namespace abc {
 namespace test {
 
 class ostream_print_no_replacements :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::ostream::print() - no replacements"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -77,7 +77,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::ostream_print_no_replacements)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::ostream_print_no_replacements)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,17 +88,17 @@ namespace abc {
 namespace test {
 
 class ostream_print_one_replacement :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::ostream::print() - one replacement"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -141,7 +141,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::ostream_print_one_replacement)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::ostream_print_one_replacement)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,17 +152,17 @@ namespace abc {
 namespace test {
 
 class ostream_print_two_replacements :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::ostream::print() - two replacements"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -197,7 +197,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::ostream_print_two_replacements)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::ostream_print_two_replacements)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

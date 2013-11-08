@@ -22,14 +22,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_unit_base
+// abc::test::str_test_case_base
 
 namespace abc {
 
 namespace test {
 
-class str_unit_base :
-	public testing::unit {
+class str_test_case_base :
+	public testing::test_case {
 protected:
 
 	/** Initializes the private data members used by str_ptr_changed().
@@ -88,17 +88,17 @@ namespace abc {
 namespace test {
 
 class str_basic :
-	public str_unit_base {
+	public str_test_case_base {
 public:
 
-	/** See str_unit_base::title().
+	/** See str_test_case_base::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - basic operations"));
 	}
 
 
-	/** See str_unit_base::run().
+	/** See str_test_case_base::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -196,7 +196,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str_basic)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,17 +209,17 @@ namespace abc {
 namespace test {
 
 class str8_substr_ascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - ASCII character and substring search - UTF-8 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -253,7 +253,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str8_substr_ascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str8_substr_ascii)
 
 #endif //ifdef U8SL
 
@@ -268,17 +268,17 @@ namespace abc {
 namespace test {
 
 class str16_substr_ascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - ASCII character and substring search - UTF-16 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -312,7 +312,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str16_substr_ascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str16_substr_ascii)
 
 #endif //ifdef U16SL
 
@@ -327,17 +327,17 @@ namespace abc {
 namespace test {
 
 class str32_substr_ascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - ASCII character and substring search - UTF-32 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -371,7 +371,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str32_substr_ascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str32_substr_ascii)
 
 #endif //ifdef U32SL
 
@@ -386,17 +386,17 @@ namespace abc {
 namespace test {
 
 class str8_substr_nonascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - non-ASCII character and substring search - UTF-8 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -416,7 +416,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str8_substr_nonascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str8_substr_nonascii)
 
 #endif //ifdef U8SL
 
@@ -431,17 +431,17 @@ namespace abc {
 namespace test {
 
 class str16_substr_nonascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - non-ASCII character and substring search - UTF-16 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -461,7 +461,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str16_substr_nonascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str16_substr_nonascii)
 
 #endif //ifdef U16SL
 
@@ -476,17 +476,17 @@ namespace abc {
 namespace test {
 
 class str32_substr_nonascii :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See abc::testing::unit::title().
+	/** See abc::testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("str classes - non-ASCII character and substring search - UTF-32 strings"));
 	}
 
 
-	/** See abc::testing::unit::run().
+	/** See abc::testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -506,7 +506,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::str32_substr_nonascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str32_substr_nonascii)
 
 #endif //ifdef U32SL
 

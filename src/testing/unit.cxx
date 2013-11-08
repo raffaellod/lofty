@@ -24,29 +24,29 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit
+// abc::testing::test_case
 
 
 namespace abc {
 
 namespace testing {
 
-unit::unit() {
+test_case::test_case() {
 }
 
 
-/*virtual*/ unit::~unit() {
+/*virtual*/ test_case::~test_case() {
 }
 
 
-void unit::init(runner * prunner) {
+void test_case::init(runner * prunner) {
 	ABC_TRACE_FN((prunner));
 
 	m_prunner = prunner;
 }
 
 
-void unit::assert(bool bExpr, istr const & sExpr) {
+void test_case::assert(bool bExpr, istr const & sExpr) {
 	ABC_TRACE_FN((this, bExpr, sExpr));
 
 	m_prunner->log_result(bExpr, sExpr);
@@ -56,7 +56,7 @@ void unit::assert(bool bExpr, istr const & sExpr) {
 }
 
 
-void unit::expect(bool bExpr, istr const & sExpr) {
+void test_case::expect(bool bExpr, istr const & sExpr) {
 	ABC_TRACE_FN((this, bExpr, sExpr));
 
 	m_prunner->log_result(bExpr, sExpr);
@@ -68,20 +68,21 @@ void unit::expect(bool bExpr, istr const & sExpr) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit_factory_impl
+// abc::testing::test_case_factory_impl
 
 
 namespace abc {
 
 namespace testing {
 
-/*static*/ unit_factory_impl::factory_list_item * unit_factory_impl::sm_pfliHead(NULL);
+/*static*/ test_case_factory_impl::factory_list_item * test_case_factory_impl::sm_pfliHead(NULL);
 // MSC16 BUG: for some reason, this will be parsed as a function declaration if written as a
 // constructor call.
-/*static*/ unit_factory_impl::factory_list_item ** unit_factory_impl::sm_ppfliTailNext = NULL;
+/*static*/ test_case_factory_impl::factory_list_item **
+	test_case_factory_impl::sm_ppfliTailNext = NULL;
 
 
-unit_factory_impl::unit_factory_impl(factory_list_item * pfli) {
+test_case_factory_impl::test_case_factory_impl(factory_list_item * pfli) {
 	if (sm_pfliHead) {
 		// We have a head and therefore a tail as well: add *pfli as the new tail.
 		*sm_ppfliTailNext = pfli;

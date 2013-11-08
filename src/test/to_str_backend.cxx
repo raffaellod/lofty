@@ -23,14 +23,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_backend_unit_base
+// abc::test::to_str_backend_test_case_base
 
 namespace abc {
 
 namespace test {
 
-class to_str_backend_unit_base :
-	public testing::unit {
+class to_str_backend_test_case_base :
+	public testing::test_case {
 protected:
 
 	/** Writes the first argument using the second as format specification, and compares the result
@@ -73,17 +73,17 @@ namespace abc {
 namespace test {
 
 class to_str_backend_int :
-	public to_str_backend_unit_base {
+	public to_str_backend_test_case_base {
 public:
 
-	/** See to_str_backend_unit_base::title().
+	/** See to_str_backend_test_case_base::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::to_str_backend - int"));
 	}
 
 
-	/** See to_str_backend_unit_base::run().
+	/** See to_str_backend_test_case_base::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -117,7 +117,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::to_str_backend_int)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_backend_int)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,17 +128,17 @@ namespace abc {
 namespace test {
 
 class to_str_backend_int8 :
-	public to_str_backend_unit_base {
+	public to_str_backend_test_case_base {
 public:
 
-	/** See to_str_backend_unit_base::title().
+	/** See to_str_backend_test_case_base::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::to_str_backend - int8_t"));
 	}
 
 
-	/** See to_str_backend_unit_base::run().
+	/** See to_str_backend_test_case_base::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -172,7 +172,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::to_str_backend_int8)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_backend_int8)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

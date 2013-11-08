@@ -29,17 +29,17 @@ namespace abc {
 namespace test {
 
 class file_path_normalization :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::file_path - normalizations"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -84,7 +84,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::file_path_normalization)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

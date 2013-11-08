@@ -29,7 +29,7 @@ namespace abc {
 namespace test {
 
 class exception_polymorphism :
-	public testing::unit {
+	public testing::test_case {
 
 	typedef environment_error    derived1_error;
 	typedef io_error             derived2_error;
@@ -37,14 +37,14 @@ class exception_polymorphism :
 
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::exception - polymorphism"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -203,7 +203,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::exception_polymorphism)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -214,17 +214,17 @@ namespace abc {
 namespace test {
 
 class exception_from_os_hard_error :
-	public testing::unit {
+	public testing::test_case {
 public:
 
-	/** See testing::unit::title().
+	/** See testing::test_case::title().
 	*/
 	virtual istr title() {
 		return istr(SL("abc::exception - conversion of hard OS errors into C++ exceptions"));
 	}
 
 
-	/** See testing::unit::run().
+	/** See testing::test_case::run().
 	*/
 	virtual void run() {
 		ABC_TRACE_FN((this));
@@ -346,7 +346,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_UNIT_REGISTER(abc::test::exception_from_os_hard_error)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_from_os_hard_error)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

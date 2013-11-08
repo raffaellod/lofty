@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TESTING_UNIT_HXX
-#define ABC_TESTING_UNIT_HXX
+#ifndef ABC_TESTING_TEST_CASE_HXX
+#define ABC_TESTING_TEST_CASE_HXX
 
 #include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -30,26 +30,26 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit
+// abc::testing::test_case
 
 
 namespace abc {
 
 namespace testing {
 
-/** Base class for unit tests.
+/** Base class for test cases.
 */
-class ABCTESTINGAPI unit {
+class ABCTESTINGAPI test_case {
 public:
 
 	/** Constructor.
 	*/
-	unit();
+	test_case();
 
 
 	/** Destructor.
 	*/
-	virtual ~unit();
+	virtual ~test_case();
 
 
 	/** Initializes the object. Split into a method separated from the constructor so that derived
@@ -61,15 +61,15 @@ public:
 	void init(runner * prunner);
 
 
-	/** Executes the unit test.
+	/** Executes the test case.
 	*/
 	virtual void run() = 0;
 
 
-	/** Returns a short description for the testing unit.
+	/** Returns a short description for the test case.
 
 	return
-		Unit title.
+		Test case title.
 	*/
 	virtual istr title() = 0;
 
@@ -163,21 +163,21 @@ expr
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit_factory_impl
+// abc::testing::test_case_factory_impl
 
 
 namespace abc {
 
 namespace testing {
 
-/** Maintains a list of abc::testing::unit-derived classes that can be used by an
-abc::testing::runner instance to instantiate and execute each unit.
+/** Maintains a list of abc::testing::test_case-derived classes that can be used by an
+abc::testing::runner instance to instantiate and execute each test case.
 */
-class ABCTESTINGAPI unit_factory_impl {
+class ABCTESTINGAPI test_case_factory_impl {
 public:
 
-	/** Factory function, returning an abc::testing::unit instance. */
-	typedef std::unique_ptr<unit> (* factory_fn)(runner * prunner);
+	/** Factory function, returning an abc::testing::test_case instance. */
+	typedef std::unique_ptr<test_case> (* factory_fn)(runner * prunner);
 	/** Linked list item. */
 	struct factory_list_item {
 		factory_list_item * pfliNext;
@@ -192,7 +192,7 @@ public:
 	pfli
 		Pointer to the derived class’s factory list item.
 	*/
-	unit_factory_impl(factory_list_item * pfli);
+	test_case_factory_impl(factory_list_item * pfli);
 
 
 	/** Returns a pointer to the head of the list of factory functions, which the caller can then use
@@ -220,34 +220,34 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::unit_factory
+// abc::testing::test_case_factory
 
 
 namespace abc {
 
 namespace testing {
 
-/** Template version of abc::testing::unit_factory_impl, able to instantiate classes derived from
-abc::testing::unit.
+/** Template version of abc::testing::test_case_factory_impl, able to instantiate classes derived
+from abc::testing::test_case.
 */
 template <class T>
-class unit_factory :
-	public unit_factory_impl {
+class test_case_factory :
+	public test_case_factory_impl {
 public:
 
 	/** Constructor.
 	*/
-	unit_factory() :
-		unit_factory_impl(&sm_fli) {
+	test_case_factory() :
+		test_case_factory_impl(&sm_fli) {
 	}
 
 
 	/** Class factory for T.
 
 	prunner
-		Runner to provide to the unit.
+		Runner to provide to the test case.
 	*/
-	static std::unique_ptr<unit> factory(runner * prunner) {
+	static std::unique_ptr<test_case> factory(runner * prunner) {
 		std::unique_ptr<T> pt(new T());
 		pt->init(prunner);
 		return std::move(pt);
@@ -265,20 +265,21 @@ private:
 } //namespace abc
 
 
-/** Registers an abc::testing::unit-derived class for execution by an abc::testing::runner instance.
+/** Registers an abc::testing::test_case-derived class for execution by an abc::testing::runner
+instance.
 
 cls
-	Unit class.
+	Test case class.
 */
-#define ABC_TESTING_UNIT_REGISTER(cls) \
+#define ABC_TESTING_REGISTER_TEST_CASE(cls) \
 	namespace abc { \
 	namespace testing { \
 	\
-	static unit_factory<cls> ABC_CPP_APPEND_UID(g__unit_factory_); \
+	static test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
 	template <> \
-	/*static*/ unit_factory_impl::factory_list_item unit_factory<cls>::sm_fli = { \
+	/*static*/ test_case_factory_impl::factory_list_item test_case_factory<cls>::sm_fli = { \
 		NULL, \
-		unit_factory<cls>::factory \
+		test_case_factory<cls>::factory \
 	}; \
 	\
 	} /*namespace testing*/ \
@@ -288,5 +289,5 @@ cls
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TESTING_UNIT_HXX
+#endif //ifndef ABC_TESTING_TEST_CASE_HXX
 

@@ -37,8 +37,8 @@ namespace abc {
 
 namespace testing {
 
-/** Testing module. It interacts with registered abc::testing::unit-derived classes,
-allowing for the execution of unit tests.
+/** Testing module. It interacts with registered abc::testing::test_case-derived classes,
+allowing for the execution of test cases.
 */
 class app_module :
 	public app_module_impl<app_module> {

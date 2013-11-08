@@ -38,7 +38,8 @@ namespace abc {
 
 namespace testing {
 
-/** Thrown to indicate that a test assertion failed, and the execution of the unit must be halted.
+/** Thrown to indicate that a test assertion failed, and the execution of the test case must be
+halted.
 */
 class ABCTESTINGAPI assertion_error :
 	public virtual exception {
@@ -63,10 +64,10 @@ namespace abc {
 namespace testing {
 
 // Forward declarations.
-class unit;
+class test_case;
 
 
-/** Executes unit tests.
+/** Executes test cases.
 */
 class ABCTESTINGAPI runner {
 public:
@@ -81,7 +82,8 @@ public:
 	~runner();
 
 
-	/** Loads all the units registered with ABC_TESTING_UNIT_REGISTER() and prepares to run them.
+	/** Loads all the units registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
+	them.
 	*/
 	void load_registered_units();
 
@@ -99,14 +101,14 @@ public:
 	bool log_summary();
 
 
-	/** Executes each loaded unit test.
+	/** Executes each loaded test case.
 	*/
 	void run();
 
 
-	/** Executes a unit test.
+	/** Executes a test case.
 	*/
-	void run_unit(unit & u);
+	void run_test_case(test_case & tc);
 
 
 private:
@@ -114,8 +116,8 @@ private:
 	/** Vector of loaded test units to be executed. */
 	// TODO: currently abc::*vector containers don’t support move-only types; change to use
 	// std::unique_ptr when that becomes supported.
-	dmvector<unit *> m_vpu;
-//	dmvector<std::unique_ptr<unit>> m_vpu;
+	dmvector<test_case *> m_vptc;
+//	dmvector<std::unique_ptr<test_case>> m_vptc;
 	/** Output stream. */
 	std::shared_ptr<ostream> m_pos;
 	/** Total count of units executed. */
