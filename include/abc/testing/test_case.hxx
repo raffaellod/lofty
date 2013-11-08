@@ -82,10 +82,8 @@ protected:
 		Result of the assertion expression.
 	pszExpr
 		Assertion being tested.
-	return
-		bExpr.
 	*/
-	bool assert(bool bExpr, istr const & sExpr);
+	void assert(bool bExpr, istr const & sExpr);
 
 
 protected:
