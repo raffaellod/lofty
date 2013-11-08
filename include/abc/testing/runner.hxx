@@ -82,10 +82,10 @@ public:
 	~runner();
 
 
-	/** Loads all the units registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
+	/** Loads all the test cases registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
 	them.
 	*/
-	void load_registered_units();
+	void load_registered_test_cases();
 
 
 	/** Logs the result of a test.
@@ -113,17 +113,17 @@ public:
 
 private:
 
-	/** Vector of loaded test units to be executed. */
+	/** Vector of loaded test test cases to be executed. */
 	// TODO: currently abc::*vector containers don’t support move-only types; change to use
 	// std::unique_ptr when that becomes supported.
 	dmvector<test_case *> m_vptc;
 //	dmvector<std::unique_ptr<test_case>> m_vptc;
 	/** Output stream. */
 	std::shared_ptr<ostream> m_pos;
-	/** Total count of units executed. */
-	unsigned m_cTotalUnits;
-	/** Total count of successful units. */
-	unsigned m_cPassedUnits;
+	/** Total count of test cases executed. */
+	unsigned m_cTotalTestCases;
+	/** Total count of successful test cases. */
+	unsigned m_cPassedTestCases;
 	/** Total count of assertion/expectation tests executed. */
 	unsigned m_cTotalTests;
 	/** Total count of successful assertion/expectation tests. */

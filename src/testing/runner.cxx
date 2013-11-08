@@ -52,8 +52,8 @@ namespace testing {
 
 runner::runner(std::shared_ptr<ostream> posOut) :
 	m_pos(std::move(posOut)),
-	m_cTotalUnits(0),
-	m_cPassedUnits(0),
+	m_cTotalTestCases(0),
+	m_cPassedTestCases(0),
 	m_cTotalTests(0),
 	m_cPassedTests(0) {
 }
@@ -68,7 +68,7 @@ runner::~runner() {
 }
 
 
-void runner::load_registered_units() {
+void runner::load_registered_test_cases() {
 	ABC_TRACE_FN((this));
 
 	for (
@@ -78,11 +78,11 @@ void runner::load_registered_units() {
 		pfli = pfli->pfliNext
 	) {
 		// Instantiate the test case.
-		auto punit(pfli->pfnFactory(this));
+		auto ptc(pfli->pfnFactory(this));
 		// TODO: currently abc::*vector containers don’t support move-only types; change to use
 		// std::unique_ptr when that becomes supported.
-		m_vptc.append(punit.release());
-//		m_vptc.append(std::move(punit));
+		m_vptc.append(ptc.release());
+//		m_vptc.append(std::move(ptc));
 	}
 }
 
@@ -112,11 +112,11 @@ bool runner::log_summary() {
 			SL("{} passed ({}%), ")
 			SL("{} failed ({}%)\n"),
 
-			m_cTotalUnits,
-			m_cPassedUnits,
-			m_cPassedUnits * 100 / m_cTotalUnits,
-			m_cTotalUnits - m_cPassedUnits,
-			((m_cTotalUnits - m_cPassedUnits) * 100 + 1) / m_cTotalUnits
+			m_cTotalTestCases,
+			m_cPassedTestCases,
+			m_cPassedTestCases * 100 / m_cTotalTestCases,
+			m_cTotalTestCases - m_cPassedTestCases,
+			((m_cTotalTestCases - m_cPassedTestCases) * 100 + 1) / m_cTotalTestCases
 		);
 		m_pos->print(
 			SL("Assertions summary: ")
@@ -157,7 +157,7 @@ void runner::run_test_case(test_case & tc) {
 		// If both the total and the passed count increased, the test case passed.
 		if (cPrevTotalTests - m_cTotalTests == cPrevPassedTests - m_cPassedTests) {
 			bPassed = true;
-			++m_cPassedUnits;
+			++m_cPassedTestCases;
 		}
 	} catch (assertion_error const &) {
 		// This exception type is only used to interrupt abc::testing::test_case::run().
@@ -167,7 +167,7 @@ void runner::run_test_case(test_case & tc) {
 	} catch (...) {
 		exception::write_with_scope_trace(m_pos.get());
 	}
-	++m_cTotalUnits;
+	++m_cTotalTestCases;
 
 	m_pos->print(
 		SL("Completed test case \"{}\": {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail")
