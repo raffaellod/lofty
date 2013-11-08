@@ -107,10 +107,7 @@ bool runner::log_summary() {
 		m_pos->write(SL("No tests performed\n"));
 	} else {
 		m_pos->print(
-			SL("Test cases: ")
-			SL("{} executed, ")
-			SL("{} passed ({}%), ")
-			SL("{} failed ({}%)\n"),
+			SL("Test cases: {} executed, {} passed ({}%), {} failed ({}%)\n"),
 
 			m_cTotalTestCases,
 			m_cPassedTestCases,
@@ -119,10 +116,7 @@ bool runner::log_summary() {
 			((m_cTotalTestCases - m_cPassedTestCases) * 100 + 1) / m_cTotalTestCases
 		);
 		m_pos->print(
-			SL("Assertions: ")
-			SL("{} performed, ")
-			SL("{} passed ({}%), ")
-			SL("{} failed ({}%)\n"),
+			SL("Assertions: {} performed, {} passed ({}%), {} failed ({}%)\n"),
 
 			m_cTotalAssertions,
 			m_cPassedAssertions,
@@ -171,9 +165,7 @@ void runner::run_test_case(test_case & tc) {
 	}
 	++m_cTotalTestCases;
 
-	m_pos->print(
-		SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail")
-	);
+	m_pos->print(SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail"));
 }
 
 } //namespace testing
