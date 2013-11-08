@@ -54,8 +54,8 @@ runner::runner(std::shared_ptr<ostream> posOut) :
 	m_pos(std::move(posOut)),
 	m_cTotalTestCases(0),
 	m_cPassedTestCases(0),
-	m_cTotalTests(0),
-	m_cPassedTests(0) {
+	m_cTotalAssertions(0),
+	m_cPassedAssertions(0) {
 }
 
 
@@ -94,16 +94,16 @@ void runner::log_result(bool bSuccess, istr const & sExpr) {
 		m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
 	}
 	if (bSuccess) {
-		++m_cPassedTests;
+		++m_cPassedAssertions;
 	}
-	++m_cTotalTests;
+	++m_cTotalAssertions;
 }
 
 
 bool runner::log_summary() {
 	ABC_TRACE_FN((this));
 
-	if (m_cTotalTests == 0) {
+	if (m_cTotalAssertions == 0) {
 		m_pos->write(SL("No tests performed\n"));
 	} else {
 		m_pos->print(
@@ -124,14 +124,14 @@ bool runner::log_summary() {
 			SL("{} passed ({}%), ")
 			SL("{} failed ({}%)\n"),
 
-			m_cTotalTests,
-			m_cPassedTests,
-			m_cPassedTests * 100 / m_cTotalTests,
-			m_cTotalTests - m_cPassedTests,
-			((m_cTotalTests - m_cPassedTests) * 100 + 1) / m_cTotalTests
+			m_cTotalAssertions,
+			m_cPassedAssertions,
+			m_cPassedAssertions * 100 / m_cTotalAssertions,
+			m_cTotalAssertions - m_cPassedAssertions,
+			((m_cTotalAssertions - m_cPassedAssertions) * 100 + 1) / m_cTotalAssertions
 		);
 	}
-	return m_cPassedTests == m_cTotalTests;
+	return m_cPassedAssertions == m_cTotalAssertions;
 }
 
 
@@ -150,12 +150,14 @@ void runner::run_test_case(test_case & tc) {
 	m_pos->print(SL("Test case: {}: running...\n"), tc.title());
 
 	// Save the current total and passed counts, so we can compare them after running the test case.
-	unsigned cPrevTotalTests(m_cTotalTests), cPrevPassedTests(m_cPassedTests);
+	unsigned cPrevTotalAssertions(m_cTotalAssertions), cPrevPassedAssertions(m_cPassedAssertions);
 	bool bPassed(false);
 	try {
 		tc.run();
 		// If both the total and the passed count increased, the test case passed.
-		if (cPrevTotalTests - m_cTotalTests == cPrevPassedTests - m_cPassedTests) {
+		if (
+			cPrevTotalAssertions - m_cTotalAssertions == cPrevPassedAssertions - m_cPassedAssertions
+		) {
 			bPassed = true;
 			++m_cPassedTestCases;
 		}

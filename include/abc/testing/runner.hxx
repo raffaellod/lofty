@@ -93,10 +93,10 @@ public:
 	void log_result(bool bSuccess, istr const & sExpr);
 
 
-	/** Prints test results based on the results collected by process_logs().
+	/** Prints test results based on the information collected by log_result() and run_test_case().
 
 	return
-		true if all tests passed, or false otherwise.
+		true if all assertions were successful, or false otherwise.
 	*/
 	bool log_summary();
 
@@ -124,10 +124,10 @@ private:
 	unsigned m_cTotalTestCases;
 	/** Total count of successful test cases. */
 	unsigned m_cPassedTestCases;
-	/** Total count of assertion/expectation tests executed. */
-	unsigned m_cTotalTests;
-	/** Total count of successful assertion/expectation tests. */
-	unsigned m_cPassedTests;
+	/** Total count of assertions performed. */
+	unsigned m_cTotalAssertions;
+	/** Total count of successful assertions. */
+	unsigned m_cPassedAssertions;
 };
 
 } //namespace testing
