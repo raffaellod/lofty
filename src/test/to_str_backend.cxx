@@ -89,27 +89,27 @@ public:
 		ABC_TRACE_FN((this));
 
 		// Test zero, decimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL(""), SL("0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL(" 1"), SL(" 0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL("01"), SL("0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL(" 2"), SL(" 0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(0, SL("02"), SL("00")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(0, SL(""), SL("0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(0, SL(" 1"), SL(" 0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(0, SL("01"), SL("0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(0, SL(" 2"), SL(" 0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(0, SL("02"), SL("00")));
 
 		// Test positive values, decimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(1, SL(""), SL("1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(1, SL(" 1"), SL(" 1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(1, SL("01"), SL("1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(1, SL(" 2"), SL(" 1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(1, SL("02"), SL("01")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(1, SL(""), SL("1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(1, SL(" 1"), SL(" 1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(1, SL("01"), SL("1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(1, SL(" 2"), SL(" 1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(1, SL("02"), SL("01")));
 
 		// Test negative values, decimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL(""), SL("-1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL(" 1"), SL("-1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL("01"), SL("-1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL(" 2"), SL("-1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL("02"), SL("-1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL(" 3"), SL(" -1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(-1, SL("03"), SL("-01")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL(""), SL("-1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL(" 1"), SL("-1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL("01"), SL("-1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL(" 2"), SL("-1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL("02"), SL("-1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL(" 3"), SL(" -1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(-1, SL("03"), SL("-01")));
 	}
 };
 
@@ -144,27 +144,27 @@ public:
 		ABC_TRACE_FN((this));
 
 		// Test zero, hexadecimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL("x"), SL("0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL(" 1x"), SL("0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL("01x"), SL("0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL(" 2x"), SL(" 0")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(0), SL("02x"), SL("00")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(0), SL("x"), SL("0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(0), SL(" 1x"), SL("0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(0), SL("01x"), SL("0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(0), SL(" 2x"), SL(" 0")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(0), SL("02x"), SL("00")));
 
 		// Test positive values, hexadecimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(1), SL("x"), SL("1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(1), SL(" 1x"), SL("1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(1), SL("01x"), SL("1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(1), SL(" 2x"), SL(" 1")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(1), SL("02x"), SL("01")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(1), SL("x"), SL("1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(1), SL(" 1x"), SL("1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(1), SL("01x"), SL("1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(1), SL(" 2x"), SL(" 1")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(1), SL("02x"), SL("01")));
 
 		// Test negative values, hexadecimal base.
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL("x"), SL("ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL(" 1x"), SL("ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL("01x"), SL("ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL(" 2x"), SL("ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL("02x"), SL("ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL(" 3x"), SL(" ff")));
-		ABC_TESTING_EXPECT(check_to_str_backend_output(int8_t(-1), SL("03x"), SL("0ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL("x"), SL("ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL(" 1x"), SL("ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL("01x"), SL("ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL(" 2x"), SL("ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL("02x"), SL("ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL(" 3x"), SL(" ff")));
+		ABC_TESTING_ASSERT_TRUE(check_to_str_backend_output(int8_t(-1), SL("03x"), SL("0ff")));
 	}
 };
 

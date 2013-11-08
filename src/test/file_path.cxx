@@ -47,36 +47,36 @@ public:
 		file_path fp(file_path::current_dir());
 
 		// These should be normalized out.
-		ABC_TESTING_EXPECT(fp == fp / SL(""));
-		ABC_TESTING_EXPECT(fp == fp / SL("/"));
-		ABC_TESTING_EXPECT(fp == fp / SL("//"));
-		ABC_TESTING_EXPECT(fp == fp / SL("."));
-		ABC_TESTING_EXPECT(fp == fp / SL("/."));
-		ABC_TESTING_EXPECT(fp == fp / SL("./"));
-		ABC_TESTING_EXPECT(fp == fp / SL("/./"));
-		ABC_TESTING_EXPECT(fp == fp / SL("./."));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL(""));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/"));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("//"));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("."));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/."));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./"));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/./"));
+		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./."));
 
 		// These should NOT be normalized: three dots are just another regular path component.
-		ABC_TESTING_EXPECT(fp != fp / SL("..."));
-		ABC_TESTING_EXPECT(fp != fp / SL("/..."));
-		ABC_TESTING_EXPECT(fp != fp / SL(".../"));
-		ABC_TESTING_EXPECT(fp != fp / SL("/.../"));
+		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("..."));
+		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/..."));
+		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL(".../"));
+		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/.../"));
 
 		// Now with one additional trailing component.
-		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("/test"));
-		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("//test"));
-		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("./test"));
-		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("/./test"));
-		ABC_TESTING_EXPECT(fp / SL("test") == fp / SL("././test"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/test"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("//test"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("./test"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/./test"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("././test"));
 
 		// Verify that ".." works.
-		ABC_TESTING_EXPECT(fp / SL("a/..") == fp);
-		ABC_TESTING_EXPECT(fp / SL("a/../b") == fp / SL("b"));
-		ABC_TESTING_EXPECT(fp / SL("a/../b/..") == fp);
-		ABC_TESTING_EXPECT(fp / SL("a/b/../..") == fp);
-		ABC_TESTING_EXPECT(fp / SL("a/b/../c") == fp / SL("a/c"));
-		ABC_TESTING_EXPECT(fp / SL("a/../b/../c") == fp / SL("c"));
-		ABC_TESTING_EXPECT(fp / SL("a/b/../../c") == fp / SL("c"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/.."), fp);
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b"), fp / SL("b"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/.."), fp);
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../.."), fp);
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../c"), fp / SL("a/c"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/../c"), fp / SL("c"));
+		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../../c"), fp / SL("c"));
 	}
 };
 

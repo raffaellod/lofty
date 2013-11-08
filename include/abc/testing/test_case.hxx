@@ -81,19 +81,11 @@ protected:
 	bExpr
 		Result of the assertion expression.
 	pszExpr
-		Failed assertion.
+		Assertion being tested.
+	return
+		bExpr.
 	*/
-	void assert(bool bExpr, istr const & sExpr);
-
-
-	/** Validates an expectation.
-
-	bExpr
-		Result of the expectation expression.
-	pszExpr
-		Failed assertion.
-	*/
-	void expect(bool bExpr, istr const & sExpr);
+	bool assert(bool bExpr, istr const & sExpr);
 
 
 protected:
@@ -107,31 +99,12 @@ protected:
 } //namespace abc
 
 
-/** Asserts that the specified expression evaluates as non-false (true); throws an exception if the
-assertion fails.
-
-expr
-	Expression that should evaulate to non-false (true).
-*/
-#define ABC_TESTING_ASSERT(expr) \
-	this->assert(!!(expr), SL(#expr))
-
-
-/** Verifies that the specified expression evaluates as non-false (true).
-
-expr
-	Expression that should evaulate to non-false (true).
-*/
-#define ABC_TESTING_EXPECT(expr) \
-	this->expect(!!(expr), SL(#expr))
-
-
-/** Verifies that the specified expression does not throw.
+/** Asserts that the specified expression does not throw.
 
 expr
 	Expression that should not throw.
 */
-#define ABC_TESTING_EXPECT_NO_EXCEPTIONS(expr) \
+#define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
 	do { \
 		bool _bCaught(false); \
 		try { \
@@ -139,18 +112,61 @@ expr
 		} catch (...) { \
 			_bCaught = true; \
 		} \
-		this->expect(!_bCaught, SL(#expr)); \
+		this->assert(!_bCaught, SL(#expr)); \
 	} while (false)
 
 
-/** Verifies that the specified expression throws an exception of the specified type.
+/** Asserts that the specified expressions evaluate to the same value.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_EQUAL(expr1, expr2) \
+	this->assert(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2))
+
+
+/** Asserts that the specified expression evaluates to false.
+
+expr
+	Expression that should evaulate to false.
+*/
+#define ABC_TESTING_ASSERT_FALSE(expr) \
+	/* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
+	this->assert(!static_cast<bool>(expr), SL(#expr) SL(" == false"))
+
+
+/** Asserts that the first expression evaluates to at least the same value as the second expression.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
+	this->assert(expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
+
+
+/** Asserts that the specified expressions don’t evaluate to the same value.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_NOT_EQUAL(expr1, expr2) \
+	this->assert(expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
+
+
+/** Asserts that the specified expression throws an exception of the specified type.
 
 type
 	Exception class that should be caught.
 expr
 	Expression that should throw.
 */
-#define ABC_TESTING_EXPECT_EXCEPTION(type, expr) \
+#define ABC_TESTING_ASSERT_THROWS(type, expr) \
 	do { \
 		bool _bCaught(false); \
 		try { \
@@ -158,8 +174,17 @@ expr
 		} catch (type const &) { \
 			_bCaught = true; \
 		} \
-		this->expect(_bCaught, SL(#expr)); \
+		this->assert(_bCaught, SL(#expr)); \
 	} while (false)
+
+
+/** Asserts that the specified expression evaluates to true.
+
+expr
+	Expression that should evaulate to true.
+*/
+#define ABC_TESTING_ASSERT_TRUE(expr) \
+	this->assert(expr, SL(#expr) SL(" == true"))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

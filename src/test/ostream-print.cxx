@@ -49,27 +49,27 @@ public:
 
 		// Syntax errors.
 		mos.reset();
-		ABC_TESTING_EXPECT_EXCEPTION(syntax_error, mos.print(SL("{")));
+		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{")));
 		mos.reset();
-		ABC_TESTING_EXPECT_EXCEPTION(syntax_error, mos.print(SL("{{{")));
+		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{{{")));
 		mos.reset();
-		ABC_TESTING_EXPECT_EXCEPTION(syntax_error, mos.print(SL("}")));
+		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}")));
 		mos.reset();
-		ABC_TESTING_EXPECT_EXCEPTION(syntax_error, mos.print(SL("}}}")));
+		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}}}")));
 
 		// No replacements.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("")), mos.contents_equal(SL(""))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("")), mos.contents_equal(SL(""))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x")), mos.contents_equal(SL("x"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x")), mos.contents_equal(SL("x"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x"), SL("a")), mos.contents_equal(SL("x"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x"), SL("a")), mos.contents_equal(SL("x"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{{")), mos.contents_equal(SL("{"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{")), mos.contents_equal(SL("{"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("}}")), mos.contents_equal(SL("}"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("}}")), mos.contents_equal(SL("}"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{{}}")), mos.contents_equal(SL("{}"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{}}")), mos.contents_equal(SL("{}"))));
 	}
 };
 
@@ -107,33 +107,33 @@ public:
 
 		// Single string replacement, deduced argument index.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{}"), SL("a")), mos.contents_equal(SL("a"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), SL("a")), mos.contents_equal(SL("a"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{}"), SL("a")), mos.contents_equal(SL("xa"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}"), SL("a")), mos.contents_equal(SL("xa"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{}x"), SL("a")), mos.contents_equal(SL("ax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}x"), SL("a")), mos.contents_equal(SL("ax"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{}x"), SL("a")), mos.contents_equal(SL("xax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}x"), SL("a")), mos.contents_equal(SL("xax"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{{{}}}"), SL("a")), mos.contents_equal(SL("{a}"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{{}}}"), SL("a")), mos.contents_equal(SL("{a}"))));
 
 		// Single string replacement, explicit index.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}"), SL("a")), mos.contents_equal(SL("a"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}"), SL("a")), mos.contents_equal(SL("a"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{0}"), SL("a")), mos.contents_equal(SL("xa"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}"), SL("a")), mos.contents_equal(SL("xa"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}x"), SL("a")), mos.contents_equal(SL("ax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x"), SL("a")), mos.contents_equal(SL("ax"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{0}x"), SL("a")), mos.contents_equal(SL("xax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x"), SL("a")), mos.contents_equal(SL("xax"))));
 
 		// Single integer replacement, various ways of reference, various format options.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{}"), 34), mos.contents_equal(SL("34"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), 34), mos.contents_equal(SL("34"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{:x}"), 34), mos.contents_equal(SL("22"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:x}"), 34), mos.contents_equal(SL("22"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{:#x}"), 34), mos.contents_equal(SL("0x22"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:#x}"), 34), mos.contents_equal(SL("0x22"))));
 	}
 };
 
@@ -171,25 +171,25 @@ public:
 
 		// Single string replacement, referenced twice.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}{0}"), SL("a")), mos.contents_equal(SL("aa"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{0}"), SL("a")), mos.contents_equal(SL("aa"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}x{0}"), SL("a")), mos.contents_equal(SL("axa"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}"), SL("a")), mos.contents_equal(SL("axa"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{0}x{0}"), SL("a")), mos.contents_equal(SL("xaxa"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}"), SL("a")), mos.contents_equal(SL("xaxa"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}x{0}x"), SL("a")), mos.contents_equal(SL("axax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}x"), SL("a")), mos.contents_equal(SL("axax"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("x{0}x{0}x"), SL("a")), mos.contents_equal(SL("xaxax"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}x"), SL("a")), mos.contents_equal(SL("xaxax"))));
 
 		// Two string replacements, various ways of reference.
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{}{}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}{}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{0}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{1}{0}"), SL("a"), SL("b")), mos.contents_equal(SL("ba"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{0}"), SL("a"), SL("b")), mos.contents_equal(SL("ba"))));
 		mos.reset();
-		ABC_TESTING_EXPECT((mos.print(SL("{1}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("bb"))));
+		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("bb"))));
 	}
 };
 

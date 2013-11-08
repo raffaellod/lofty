@@ -46,20 +46,14 @@ void test_case::init(runner * prunner) {
 }
 
 
-void test_case::assert(bool bExpr, istr const & sExpr) {
+bool test_case::assert(bool bExpr, istr const & sExpr) {
 	ABC_TRACE_FN((this, bExpr, sExpr));
 
 	m_prunner->log_result(bExpr, sExpr);
-	if (!bExpr) {
+	/*if (!bExpr) {
 		ABC_THROW(abc::testing::assertion_error, ());
-	}
-}
-
-
-void test_case::expect(bool bExpr, istr const & sExpr) {
-	ABC_TRACE_FN((this, bExpr, sExpr));
-
-	m_prunner->log_result(bExpr, sExpr);
+	}*/
+	return bExpr;
 }
 
 } //namespace testing
