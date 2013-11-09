@@ -135,6 +135,17 @@ expr
 	this->assert(!static_cast<bool>(expr), SL(#expr) SL(" == false"))
 
 
+/** Asserts that the first expression evaluates to more than the second expression.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_GREATER(expr1, expr2) \
+	this->assert(expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
+
+
 /** Asserts that the first expression evaluates to at least the same value as the second expression.
 
 expr1
@@ -144,6 +155,28 @@ expr2
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
 	this->assert(expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
+
+
+/** Asserts that the first expression evaluates to less than the second expression.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_LESS(expr1, expr2) \
+	this->assert(expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
+
+
+/** Asserts that the first expression evaluates to at most the same value as the second expression.
+
+expr1
+	First expression.
+expr2
+	Second expression.
+*/
+#define ABC_TESTING_ASSERT_LESS_EQUAL(expr1, expr2) \
+	this->assert(expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
 
 
 /** Asserts that the specified expressions don’t evaluate to the same value.
