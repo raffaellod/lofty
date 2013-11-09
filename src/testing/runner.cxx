@@ -72,13 +72,12 @@ void runner::load_registered_test_cases() {
 	ABC_TRACE_FN((this));
 
 	for (
-		test_case_factory_impl::factory_list_item * pfli =
-			test_case_factory_impl::get_factory_list_head();
-		pfli;
-		pfli = pfli->pfliNext
+		test_case_factory_impl::list_item * pli = test_case_factory_impl::get_factory_list_head();
+		pli;
+		pli = pli->pliNext
 	) {
 		// Instantiate the test case.
-		auto ptc(pfli->pfnFactory(this));
+		auto ptc(pli->pfnFactory(this));
 		// TODO: currently abc::*vector containers don’t support move-only types; change to use
 		// std::unique_ptr when that becomes supported.
 		m_vptc.append(ptc.release());

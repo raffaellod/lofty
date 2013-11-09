@@ -235,8 +235,8 @@ public:
 	/** Factory function, returning an abc::testing::test_case instance. */
 	typedef std::unique_ptr<test_case> (* factory_fn)(runner * prunner);
 	/** Linked list item. */
-	struct factory_list_item {
-		factory_list_item * pfliNext;
+	struct list_item {
+		list_item * pliNext;
 		factory_fn pfnFactory;
 	};
 
@@ -245,10 +245,10 @@ public:
 
 	/** Constructor.
 
-	pfli
+	pli
 		Pointer to the derived class’s factory list item.
 	*/
-	test_case_factory_impl(factory_list_item * pfli);
+	test_case_factory_impl(list_item * pli);
 
 
 	/** Returns a pointer to the head of the list of factory functions, which the caller can then use
@@ -257,17 +257,17 @@ public:
 	return
 		Pointer to the head of the list.
 	*/
-	static factory_list_item * get_factory_list_head() {
-		return sm_pfliHead;
+	static list_item * get_factory_list_head() {
+		return sm_pliHead;
 	}
 
 
 private:
 
 	/** Pointer to the head of the list of factory functions. */
-	static factory_list_item * sm_pfliHead;
+	static list_item * sm_pliHead;
 	/** Pointer to the “next” pointer of the tail of the list of factory functions. */
-	static factory_list_item ** sm_ppfliTailNext;
+	static list_item ** sm_ppliTailNext;
 };
 
 } //namespace testing
@@ -294,7 +294,7 @@ public:
 	/** Constructor.
 	*/
 	test_case_factory() :
-		test_case_factory_impl(&sm_fli) {
+		test_case_factory_impl(&sm_li) {
 	}
 
 
@@ -313,7 +313,7 @@ public:
 private:
 
 	/** Entry in the list of factory functions for this class. */
-	static factory_list_item sm_fli;
+	static list_item sm_li;
 };
 
 } //namespace testing
@@ -333,7 +333,7 @@ cls
 	\
 	static test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
 	template <> \
-	/*static*/ test_case_factory_impl::factory_list_item test_case_factory<cls>::sm_fli = { \
+	/*static*/ test_case_factory_impl::list_item test_case_factory<cls>::sm_li = { \
 		NULL, \
 		test_case_factory<cls>::factory \
 	}; \
