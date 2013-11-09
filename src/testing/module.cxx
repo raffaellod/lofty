@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2013
 Raffaello D. Di Napoli
@@ -34,16 +34,16 @@ namespace abc {
 namespace testing {
 
 ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
-	ABC_TRACE_FN((this/*, vsArgs*/));
+   ABC_TRACE_FN((this/*, vsArgs*/));
 
-	ABC_UNUSED_ARG(vsArgs);
+   ABC_UNUSED_ARG(vsArgs);
 
-	runner r(file_ostream::stderr());
-	r.load_registered_test_cases();
-	r.run();
-	bool bAllPassed(r.log_summary());
+   runner r(file_ostream::stderr());
+   r.load_registered_test_cases();
+   r.run();
+   bool bAllPassed(r.log_summary());
 
-	return bAllPassed ? 0 : 1;
+   return bAllPassed ? 0 : 1;
 }
 
 } //namespace testing

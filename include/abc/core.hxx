@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,58 +22,58 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 #if defined(__GNUC__)
-	// Make version checks for GCC less cumbersome.
-	#define _GCC_VER \
-		(__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-	#if _GCC_VER < 40300
-		#error Unsupported version of GCC (>= 4.3.0 required)
-	#endif
+   // Make version checks for GCC less cumbersome.
+   #define _GCC_VER \
+      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+   #if _GCC_VER < 40300
+      #error Unsupported version of GCC (>= 4.3.0 required)
+   #endif
 #elif defined(_MSC_VER)
-	#if _MSC_VER < 1600
-		#error Unsupported version of MSC (>= MSC 16 / VC++ 10 / VS 2010 required)
-	#endif
+   #if _MSC_VER < 1600
+      #error Unsupported version of MSC (>= MSC 16 / VC++ 10 / VS 2010 required)
+   #endif
 #endif
 
 #ifdef _MSC_VER
-	// Suppress unnecessary warnings.
+   // Suppress unnecessary warnings.
 
-	// “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
-	#pragma warning(disable: 4061)
-	// “enumerator 'name' in switch of enum 'type' is not handled”
-	#pragma warning(disable: 4062)
-	// “conditional expression is constant”
-	#pragma warning(disable: 4127)
-	// “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients of class 'class1'”
-	#pragma warning(disable: 4251)
-	// “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
-	#pragma warning(disable: 4290)
-	// “'class' : default constructor could not be generated”
-	#pragma warning(disable: 4510)
-	// “'class' : assignment operator could not be generated”
-	#pragma warning(disable: 4512)
-	// “class 'class' can never be instantiated - user defined constructor required”
-	#pragma warning(disable: 4610)
-	// “'class' : copy constructor could not be generated because a base class copy constructor is
-	// inaccessible”
-	#pragma warning(disable: 4625)
-	// “'class' : assignment operator could not be generated because a base class assignment operator
-	// is inaccessible”
-	#pragma warning(disable: 4626)
-	// “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
-	// catch site”
-	#pragma warning(disable: 4673)
-	// “'function' : function not inlined”
-	#pragma warning(disable: 4710)
-	// “function 'function' selected for automatic inline expansion”
-	#pragma warning(disable: 4711)
-	// “'struct' : 'n' bytes padding added after data member 'member'”
-	#pragma warning(disable: 4820)
+   // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
+   #pragma warning(disable: 4061)
+   // “enumerator 'name' in switch of enum 'type' is not handled”
+   #pragma warning(disable: 4062)
+   // “conditional expression is constant”
+   #pragma warning(disable: 4127)
+   // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients of class 'class1'”
+   #pragma warning(disable: 4251)
+   // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
+   #pragma warning(disable: 4290)
+   // “'class' : default constructor could not be generated”
+   #pragma warning(disable: 4510)
+   // “'class' : assignment operator could not be generated”
+   #pragma warning(disable: 4512)
+   // “class 'class' can never be instantiated - user defined constructor required”
+   #pragma warning(disable: 4610)
+   // “'class' : copy constructor could not be generated because a base class copy constructor is
+   // inaccessible”
+   #pragma warning(disable: 4625)
+   // “'class' : assignment operator could not be generated because a base class assignment operator
+   // is inaccessible”
+   #pragma warning(disable: 4626)
+   // “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
+   // catch site”
+   #pragma warning(disable: 4673)
+   // “'function' : function not inlined”
+   #pragma warning(disable: 4710)
+   // “function 'function' selected for automatic inline expansion”
+   #pragma warning(disable: 4711)
+   // “'struct' : 'n' bytes padding added after data member 'member'”
+   #pragma warning(disable: 4820)
 
-	// Silence warnings from system header files.
-	#pragma warning(push)
+   // Silence warnings from system header files.
+   #pragma warning(push)
 
-	// “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
-	#pragma warning(disable: 4668)
+   // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+   #pragma warning(disable: 4668)
 #endif //ifdef _MSC_VER
 
 #include <limits.h> // CHAR_BIT *_MAX *_MIN
@@ -81,7 +81,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <stddef.h> // size_t
 
 #ifdef _MSC_VER
-	#pragma warning(pop)
+   #pragma warning(pop)
 #endif
 
 
@@ -97,47 +97,47 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_OUTPUT_POSIX_EXE 0
 
 #if defined(_WIN32)
-	// Compiling for Win32.
-	#undef ABC_HOST_API_WIN32
-	#define ABC_HOST_API_WIN32 1
-	#ifdef _WIN64
-		// Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
-		#undef ABC_HOST_API_WIN64
-		#define ABC_HOST_API_WIN64 1
-	#endif
-	#ifdef _WINDLL
-		#undef ABC_OUTPUT_WIN32_DLL
-		#define ABC_OUTPUT_WIN32_DLL 1
-	#else
-		#undef ABC_OUTPUT_WIN32_EXE
-		#define ABC_OUTPUT_WIN32_EXE 1
-	#endif
+   // Compiling for Win32.
+   #undef ABC_HOST_API_WIN32
+   #define ABC_HOST_API_WIN32 1
+   #ifdef _WIN64
+      // Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
+      #undef ABC_HOST_API_WIN64
+      #define ABC_HOST_API_WIN64 1
+   #endif
+   #ifdef _WINDLL
+      #undef ABC_OUTPUT_WIN32_DLL
+      #define ABC_OUTPUT_WIN32_DLL 1
+   #else
+      #undef ABC_OUTPUT_WIN32_EXE
+      #define ABC_OUTPUT_WIN32_EXE 1
+   #endif
 #elif defined(__linux__)
-	// Compiling for Linux.
-	#undef ABC_HOST_API_LINUX
-	#define ABC_HOST_API_LINUX 1
-	#undef ABC_HOST_API_POSIX
-	#define ABC_HOST_API_POSIX 1
-	#undef ABC_OUTPUT_POSIX_EXE
-	#define ABC_OUTPUT_POSIX_EXE 1
+   // Compiling for Linux.
+   #undef ABC_HOST_API_LINUX
+   #define ABC_HOST_API_LINUX 1
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+   #undef ABC_OUTPUT_POSIX_EXE
+   #define ABC_OUTPUT_POSIX_EXE 1
 #elif defined(__posix__)
-	// Compiling for POSIX.
-	#undef ABC_HOST_API_POSIX
-	#define ABC_HOST_API_POSIX 1
-	#undef ABC_OUTPUT_POSIX_EXE
-	#define ABC_OUTPUT_POSIX_EXE 1
+   // Compiling for POSIX.
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+   #undef ABC_OUTPUT_POSIX_EXE
+   #define ABC_OUTPUT_POSIX_EXE 1
 #endif
 
 
 /** Machine word size for this microarchitecture. */
 #if ABC_HOST_API_WIN64
-	#define ABC_HOST_WORD_SIZE 64
+   #define ABC_HOST_WORD_SIZE 64
 #elif ABC_HOST_API_WIN32
-	#define ABC_HOST_WORD_SIZE 32
+   #define ABC_HOST_WORD_SIZE 32
 #elif defined(__WORDSIZE)
-	#define ABC_HOST_WORD_SIZE __WORDSIZE
+   #define ABC_HOST_WORD_SIZE __WORDSIZE
 #else
-	#error Unable to determine the word size for this microarchitecture
+   #error Unable to determine the word size for this microarchitecture
 #endif
 
 
@@ -146,68 +146,68 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #if ABC_HOST_API_POSIX
 
-	// This prevents stat() from failing for files bigger than 2 GiB.
-	#define _FILE_OFFSET_BITS 64
+   // This prevents stat() from failing for files bigger than 2 GiB.
+   #define _FILE_OFFSET_BITS 64
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-	// Make sure WINVER is defined.
-	#ifndef WINVER
-		// Pick a default Windows version.
-		#if ABC_HOST_API_WIN64
-			// The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
-			// Edition (5.2).
-			#define WINVER 0x0502
-		#else
-			// The earliest Win32 implementations are Windows 95 (4.0) and Windows NT 4 (4.0).
-			#define WINVER 0x0400
-		#endif
-	#endif
+   // Make sure WINVER is defined.
+   #ifndef WINVER
+      // Pick a default Windows version.
+      #if ABC_HOST_API_WIN64
+         // The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
+         // Edition (5.2).
+         #define WINVER 0x0502
+      #else
+         // The earliest Win32 implementations are Windows 95 (4.0) and Windows NT 4 (4.0).
+         #define WINVER 0x0400
+      #endif
+   #endif
 
-	// Make sure _WIN32_WINNT is defined for WINVER values representing NT-only Windows versions.
-	// The first NT-only version of Windows is 5.0 (Windows 2000; Windows Me is 4.9).
-	#if !defined(_WIN32_WINNT) && WINVER >= 0x0500
-		#define _WIN32_WINNT WINVER
-	#endif
+   // Make sure _WIN32_WINNT is defined for WINVER values representing NT-only Windows versions.
+   // The first NT-only version of Windows is 5.0 (Windows 2000; Windows Me is 4.9).
+   #if !defined(_WIN32_WINNT) && WINVER >= 0x0500
+      #define _WIN32_WINNT WINVER
+   #endif
 
-	// Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
-	#if defined(UNICODE) && !defined(_UNICODE)
-		#define _UNICODE
-	#elif !defined(UNICODE) && defined(_UNICODE)
-		#undef _UNICODE
-	#endif
+   // Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
+   #if defined(UNICODE) && !defined(_UNICODE)
+      #define _UNICODE
+   #elif !defined(UNICODE) && defined(_UNICODE)
+      #undef _UNICODE
+   #endif
 
-	#ifdef _MSC_VER
-		// Silence warnings from system header files.
-		// These must be disabled until the end of the compilation unit, because that’s when they
-		// are raised.
+   #ifdef _MSC_VER
+      // Silence warnings from system header files.
+      // These must be disabled until the end of the compilation unit, because that’s when they
+      // are raised.
 
-		// “Unreferenced inline function has been removed”
-		#pragma warning(disable: 4514)
+      // “Unreferenced inline function has been removed”
+      #pragma warning(disable: 4514)
 
-		// These can be restored after including header files.
-		#pragma warning(push)
+      // These can be restored after including header files.
+      #pragma warning(push)
 
-		// “'macro' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
-		#pragma warning(disable: 4668)
-	#endif
+      // “'macro' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+      #pragma warning(disable: 4668)
+   #endif
 
-	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+   #define WIN32_LEAN_AND_MEAN
+   #include <windows.h>
 
-	#ifdef _MSC_VER
-		#pragma warning(pop)
-	#endif
+   #ifdef _MSC_VER
+      #pragma warning(pop)
+   #endif
 
-	// Quoting MSDN:
-	// “To avoid conflicts with min and max in WINDEF.H, use _MIN and _MAX instead. These macros
-	// evaluate to _cpp_min and _cpp_max, respectively.”
-	// Of course we don’t care for old compatibility macros, and want to use std::min/max instead, so
-	// undefine these macros.
-	#ifdef min
-		#undef min
-		#undef max
-	#endif
+   // Quoting MSDN:
+   // “To avoid conflicts with min and max in WINDEF.H, use _MIN and _MAX instead. These macros
+   // evaluate to _cpp_min and _cpp_max, respectively.”
+   // Of course we don’t care for old compatibility macros, and want to use std::min/max instead, so
+   // undefine these macros.
+   #ifdef min
+      #undef min
+      #undef max
+   #endif
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 
@@ -217,40 +217,40 @@ You should have received a copy of the GNU General Public License along with ABC
 /** If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
 #if defined(_GCC_VER) && _GCC_VER >= 40500
-	#define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
+   #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /** If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
 #if defined(_GCC_VER) && _GCC_VER >= 40400
-	#define ABC_CXX_FUNCTION_DELETE
+   #define ABC_CXX_FUNCTION_DELETE
 #endif
 
 /** If defined, the compiler supports the noexcept exception specification. */
 #if defined(_GCC_VER) && _GCC_VER >= 40600
-	#define ABC_CXX_NOEXCEPT
+   #define ABC_CXX_NOEXCEPT
 #endif
 
 /** If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
 */
 #if defined(_GCC_VER) && _GCC_VER >= 40700
-	#define ABC_CXX_STL_USES_NOEXCEPT
+   #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
 /** If defined, the STL implements C++11 type traits (as opposed to the early implementations).
 */
 #if defined(_GCC_VER) && _GCC_VER >= 40700
-	#define ABC_CXX_STL_CXX11_TYPE_TRAITS
+   #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
 /** If defined, the compiler supports template friend declarations (N1791). */
 #if (defined(_GCC_VER) && _GCC_VER >= 40500) || defined(_MSC_VER)
-	#define ABC_CXX_TEMPLATE_FRIENDS
+   #define ABC_CXX_TEMPLATE_FRIENDS
 #endif
 
 /** If defined, the compiler supports variadic templates (N2242). */
 #if defined(_GCC_VER)
-	#define ABC_CXX_VARIADIC_TEMPLATES
+   #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
 
@@ -259,79 +259,79 @@ constructor (N2346). */
 
 /** Calling convention for ABC functions/methods. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-	#define ABCFNCC __stdcall
+   #define ABCFNCC __stdcall
 #else
-	#define ABCFNCC
+   #define ABCFNCC
 #endif
 
 /** Declares a function as using the same calling convention as the host C library/STL
 implementation. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-	#define ABC_STL_CALLCONV __cdecl
+   #define ABC_STL_CALLCONV __cdecl
 #else
-	#define ABC_STL_CALLCONV
+   #define ABC_STL_CALLCONV
 #endif
 
 /** If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
 #if defined(_GCC_VER) || defined(_MSC_VER)
-	#define ABC_CXX_PRAGMA_ONCE
+   #define ABC_CXX_PRAGMA_ONCE
 
-	// Use it now for this file.
-	#pragma once
+   // Use it now for this file.
+   #pragma once
 #endif
 
 /** Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
 reached. */
 #if defined(_GCC_VER)
-	#define ABC_FUNC_NORETURN \
-		__attribute__((noreturn))
+   #define ABC_FUNC_NORETURN \
+      __attribute__((noreturn))
 #elif defined(_MSC_VER)
-	#define ABC_FUNC_NORETURN \
-		__declspec(noreturn)
+   #define ABC_FUNC_NORETURN \
+      __declspec(noreturn)
 #else
-	#define ABC_FUNC_NORETURN
+   #define ABC_FUNC_NORETURN
 #endif
 
 /** Declares a symbol to be publicly visible (exported) in the shared library being built. */
 #if ABC_HOST_API_WIN32
-	#if defined(_GCC_VER)
-		#define ABC_SYM_EXPORT \
-			__attribute__((dllexport))
-	#elif defined(_MSC_VER)
-		#define ABC_SYM_EXPORT \
-			__declspec(dllexport)
-	#endif
+   #if defined(_GCC_VER)
+      #define ABC_SYM_EXPORT \
+         __attribute__((dllexport))
+   #elif defined(_MSC_VER)
+      #define ABC_SYM_EXPORT \
+         __declspec(dllexport)
+   #endif
 #else
-	#if defined(_GCC_VER)
-		#define ABC_SYM_EXPORT \
-			__attribute__((visibility("default")))
-	#endif
+   #if defined(_GCC_VER)
+      #define ABC_SYM_EXPORT \
+         __attribute__((visibility("default")))
+   #endif
 #endif
 
 /** Declares a symbol to be imported from a shared library. */
 #if ABC_HOST_API_WIN32
-	#if defined(_GCC_VER)
-		#define ABC_SYM_IMPORT \
-			__attribute__((dllimport))
-	#elif defined(_MSC_VER)
-		#define ABC_SYM_IMPORT \
-			__declspec(dllimport)
-	#endif
+   #if defined(_GCC_VER)
+      #define ABC_SYM_IMPORT \
+         __attribute__((dllimport))
+   #elif defined(_MSC_VER)
+      #define ABC_SYM_IMPORT \
+         __declspec(dllimport)
+   #endif
 #else
-	#if defined(_GCC_VER)
-		#define ABC_SYM_IMPORT \
-			__attribute__((visibility("default")))
-	#endif
+   #if defined(_GCC_VER)
+      #define ABC_SYM_IMPORT \
+         __attribute__((visibility("default")))
+   #endif
 #endif
 
 /** Declares a symbol to be publicly visible (from the ABC shared library) or imported from ABC’s
 shared library (into another library/executable). */
 #ifdef _ABC_LIB_BUILD
-	#define ABCAPI ABC_SYM_EXPORT
+   #define ABCAPI ABC_SYM_EXPORT
 #else
-	#define ABCAPI ABC_SYM_IMPORT
+   #define ABCAPI ABC_SYM_IMPORT
 #endif
 
 
@@ -343,22 +343,22 @@ shared library (into another library/executable). */
 available, though.
 
 cls
-	Class for which to disable copy constructor and assingment operator.
+   Class for which to disable copy constructor and assingment operator.
 */
 #ifdef ABC_CXX_FUNCTION_DELETE
-	#define ABC_CLASS_PREVENT_COPYING(cls) \
-		public: \
-		\
-			cls(cls const &) = delete; \
-			\
-			cls & operator=(cls const &) = delete;
+   #define ABC_CLASS_PREVENT_COPYING(cls) \
+      public: \
+      \
+         cls(cls const &) = delete; \
+         \
+         cls & operator=(cls const &) = delete;
 #else
-	#define ABC_CLASS_PREVENT_COPYING(cls) \
-		private: \
-		\
-			cls(cls const &); \
-		\
-			cls & operator=(cls const &);
+   #define ABC_CLASS_PREVENT_COPYING(cls) \
+      private: \
+      \
+         cls(cls const &); \
+      \
+         cls & operator=(cls const &);
 #endif
 
 
@@ -366,92 +366,92 @@ cls
 */
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
-	#define explicit_operator_bool \
-		explicit operator bool
+   #define explicit_operator_bool \
+      explicit operator bool
 
 
-	namespace abc {
+   namespace abc {
 
-	/** A class derived from this one receives support for C++11 explicit operator bool even on
-	non-compliant compilers.
-	*/
-	template <typename T>
-	struct support_explicit_operator_bool {
-	};
+   /** A class derived from this one receives support for C++11 explicit operator bool even on
+   non-compliant compilers.
+   */
+   template <typename T>
+   struct support_explicit_operator_bool {
+   };
 
-	} //namespace abc
+   } //namespace abc
 
 #else //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
-	#define explicit_operator_bool \
-		bool _explicit_operator_bool
+   #define explicit_operator_bool \
+      bool _explicit_operator_bool
 
 
-	namespace abc {
+   namespace abc {
 
-	/** Non-template helper for support_explicit_operator_bool.
-	*/
-	struct _explob_helper {
+   /** Non-template helper for support_explicit_operator_bool.
+   */
+   struct _explob_helper {
 
-		/** Non-bool boolean type. */
-		typedef void (_explob_helper::* bool_type)() const;
-
-
-		/** A pointer to this method is used as a boolean true by support_explicit_operator_bool.
-		*/
-		ABCAPI void bool_true() const;
-	};
+      /** Non-bool boolean type. */
+      typedef void (_explob_helper::* bool_type)() const;
 
 
+      /** A pointer to this method is used as a boolean true by support_explicit_operator_bool.
+      */
+      ABCAPI void bool_true() const;
+   };
 
-	/** A class derived from this one receives support for C++11 explicit operator bool even on
-	non-compliant compilers.
-	*/
-	template <typename T>
-	struct support_explicit_operator_bool {
 
-		/** Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
-		explicit operator bool().
 
-		return
-			A valid pointer if T::explicit_operator_bool() returns true, or NULL otherwise.
-		*/
-		operator _explob_helper::bool_type() const {
-			if (static_cast<T const *>(this)->_explicit_operator_bool()) {
-				return &_explob_helper::bool_true;
-			} else {
-				return NULL;
-			}
-		}
-	};
+   /** A class derived from this one receives support for C++11 explicit operator bool even on
+   non-compliant compilers.
+   */
+   template <typename T>
+   struct support_explicit_operator_bool {
 
-	} //namespace abc
+      /** Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
+      explicit operator bool().
 
-	// Disable relational operators for support_explicit_operator_bool.
+      return
+         A valid pointer if T::explicit_operator_bool() returns true, or NULL otherwise.
+      */
+      operator _explob_helper::bool_type() const {
+         if (static_cast<T const *>(this)->_explicit_operator_bool()) {
+            return &_explob_helper::bool_true;
+         } else {
+            return NULL;
+         }
+      }
+   };
 
-	#ifdef ABC_CXX_FUNCTION_DELETE
+   } //namespace abc
 
-		#define ABC_RELOP_IMPL(op) \
-			template <typename T1, typename T2> \
-			bool operator op( \
-				abc::support_explicit_operator_bool<T1> const &, \
-				abc::support_explicit_operator_bool<T2> const & \
-			) = delete;
+   // Disable relational operators for support_explicit_operator_bool.
 
-	#else //ifdef ABC_CXX_FUNCTION_DELETE
+   #ifdef ABC_CXX_FUNCTION_DELETE
 
-		#define ABC_RELOP_IMPL(op) \
-			template <typename T1, typename T2> \
-			inline bool operator op( \
-				abc::support_explicit_operator_bool<T1> const & lhs, \
-				abc::support_explicit_operator_bool<T2> const & rhs \
-			);
+      #define ABC_RELOP_IMPL(op) \
+         template <typename T1, typename T2> \
+         bool operator op( \
+            abc::support_explicit_operator_bool<T1> const &, \
+            abc::support_explicit_operator_bool<T2> const & \
+         ) = delete;
 
-	#endif //ifdef ABC_CXX_FUNCTION_DELETE … else
+   #else //ifdef ABC_CXX_FUNCTION_DELETE
 
-	ABC_RELOP_IMPL(==)
-	ABC_RELOP_IMPL(!=)
-	#undef ABC_RELOP_IMPL
+      #define ABC_RELOP_IMPL(op) \
+         template <typename T1, typename T2> \
+         inline bool operator op( \
+            abc::support_explicit_operator_bool<T1> const & lhs, \
+            abc::support_explicit_operator_bool<T2> const & rhs \
+         );
+
+   #endif //ifdef ABC_CXX_FUNCTION_DELETE … else
+
+   ABC_RELOP_IMPL(==)
+   ABC_RELOP_IMPL(!=)
+   #undef ABC_RELOP_IMPL
 
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
@@ -460,11 +460,11 @@ cls
 and pre-C++11 throw() exception specifications.
 */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
-	#define ABC_STL_NOEXCEPT_TRUE() \
-		noexcept(true)
+   #define ABC_STL_NOEXCEPT_TRUE() \
+      noexcept(true)
 #else
-	#define ABC_STL_NOEXCEPT_TRUE() \
-		throw()
+   #define ABC_STL_NOEXCEPT_TRUE() \
+      throw()
 #endif
 
 
@@ -472,14 +472,14 @@ and pre-C++11 throw() exception specifications.
 specifier and pre-C++11 throw() exception specifications.
 
 old_throw_decl
-	Parentheses-enclosed list of types the function/method may throw.
+   Parentheses-enclosed list of types the function/method may throw.
 */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
-	#define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
-		noexcept(false)
+   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+      noexcept(false)
 #else
-	#define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
-		throw old_throw_decl
+   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+      throw old_throw_decl
 #endif
 
 
@@ -487,14 +487,14 @@ old_throw_decl
 Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
 
 old_throw_decl
-	Parentheses-enclosed list of types the function/method may throw.
+   Parentheses-enclosed list of types the function/method may throw.
 */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
-	#define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
-		noexcept(cond)
+   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+      noexcept(cond)
 #else
-	#define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
-		throw old_throw_decl
+   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+      throw old_throw_decl
 #endif
 
 
@@ -507,9 +507,9 @@ namespace std {
 18.2 “<cstddef>”).
 */
 union max_align_t {
-	double d;
-	long double ld;
-	long long ll;
+   double d;
+   long double ld;
+   long long ll;
 };
 
 } //namespace std
@@ -519,10 +519,10 @@ union max_align_t {
 this purpose, but this is noticeably shorter :)
 
 x
-	Unused argument.
+   Unused argument.
 */
 #define ABC_UNUSED_ARG(x) \
-	static_cast<void>(x)
+   static_cast<void>(x)
 
 
 /** Tells the compiler that a switch statement that apparently doesn’t test for all possible cases
@@ -534,55 +534,55 @@ variable would seem to be left uninitialized if the switch argument has a value 
 those expected by the case labels.
 */
 #if defined(_MSC_VER)
-	#define no_default \
-		default: \
-			__assume(0)
+   #define no_default \
+      default: \
+         __assume(0)
 #else
-	#define no_default \
-		default: \
-			break
+   #define no_default \
+      default: \
+         break
 #endif
 
 
 /** Returns the number of items in a (static) array.
 
 array
-	Array for which to compute the count of items.
+   Array for which to compute the count of items.
 return
-	Count of items in array.
+   Count of items in array.
 */
 #undef ABC_COUNTOF
 #define ABC_COUNTOF(array) \
-	(sizeof(array) / sizeof((array)[0]))
+   (sizeof(array) / sizeof((array)[0]))
 
 
 /** Returns the compiler-computed alignment for the specified data type. When compiler support is
 lacking, this can be inaccurate for long double.
 
 type
-	Type for which the alignment is to be computed.
+   Type for which the alignment is to be computed.
 return
-	Alignment of type.
+   Alignment of type.
 */
 #if defined(_GCC_VER)
-	#define ABC_ALIGNOF(type) \
-		__alignof__(type)
+   #define ABC_ALIGNOF(type) \
+      __alignof__(type)
 #elif defined(_MSC_VER)
-	#define ABC_ALIGNOF(type) \
-		__alignof(type)
+   #define ABC_ALIGNOF(type) \
+      __alignof(type)
 #else
-	#define ABC_ALIGNOF(type) \
-		offsetof(abc::_alignof_helper<type>, t)
+   #define ABC_ALIGNOF(type) \
+      offsetof(abc::_alignof_helper<type>, t)
 
-	namespace abc {
+   namespace abc {
 
-	template <typename T>
-	struct _alignof_helper {
-		int8_t misaligner;
-		T t;
-	};
+   template <typename T>
+   struct _alignof_helper {
+      int8_t misaligner;
+      T t;
+   };
 
-	} //namespace abc
+   } //namespace abc
 #endif
 
 
@@ -591,12 +591,12 @@ storage with alignment suitable for any type, just like ::malloc() does. Identic
 bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
 
 cb
-	Size to be aligned to sizeof(std::max_align_t).
+   Size to be aligned to sizeof(std::max_align_t).
 return
-	Multiple of sizeof(std::max_align_t) not smaller than cb.
+   Multiple of sizeof(std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
-	((size_t(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
+   ((size_t(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
 
 namespace abc {
@@ -609,16 +609,16 @@ template <typename T>
 union force_max_align {
 public:
 
-	/** Actual storage. */
-	T t;
+   /** Actual storage. */
+   T t;
 
 
 private:
 
-	/** Forces the whole union to have the most generic alignment; on many architectures this will be
-	2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
-	pointers it returns. */
-	std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
+   /** Forces the whole union to have the most generic alignment; on many architectures this will be
+   2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
+   pointers it returns. */
+   std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
 };
 
 

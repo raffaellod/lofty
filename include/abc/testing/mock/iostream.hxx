@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 #include <abc/iostream.hxx>
 
@@ -42,7 +42,7 @@ namespace mock {
 /** Implementation of an read-only stream based on a string.
 */
 class ABCTESTINGAPI istream :
-	public virtual ::abc::istream {
+   public virtual ::abc::istream {
 };
 #endif
 
@@ -66,43 +66,43 @@ namespace mock {
 /** Implementation of an write-only stream based on a string.
 */
 class ABCTESTINGAPI ostream :
-	public virtual ::abc::ostream {
+   public virtual ::abc::ostream {
 public:
 
-	/** Constructor.
-	*/
-	ostream();
+   /** Constructor.
+   */
+   ostream();
 
 
-	/** Returns true if the current contents of the stream match the specified string.
+   /** Returns true if the current contents of the stream match the specified string.
 
-	sExpected
-		String to compare with the contents of the stream.
-	return
-		true if the contents equal sExpected, or false otherwise.
-	*/
-	bool contents_equal(istr const & sExpected);
-
-
-	/** Empties the contents of the stream.
-	*/
-	void reset() {
-		m_cchUsed = 0;
-	}
+   sExpected
+      String to compare with the contents of the stream.
+   return
+      true if the contents equal sExpected, or false otherwise.
+   */
+   bool contents_equal(istr const & sExpected);
 
 
-	/** See ostream::write_raw().
-	*/
-	virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+   /** Empties the contents of the stream.
+   */
+   void reset() {
+      m_cchUsed = 0;
+   }
+
+
+   /** See ostream::write_raw().
+   */
+   virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 
 
 private:
 
-	/** Target buffer. */
-	char_t m_achBuf[4096];
-	/** Current write offset into the string, in bytes. Seeks can only change this in increments of a
-	character, but internal code doesn’t have to. */
-	size_t m_cchUsed;
+   /** Target buffer. */
+   char_t m_achBuf[4096];
+   /** Current write offset into the string, in bytes. Seeks can only change this in increments of a
+   character, but internal code doesn’t have to. */
+   size_t m_cchUsed;
 };
 
 } //namespace mock

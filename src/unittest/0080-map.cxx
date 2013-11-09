@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -25,29 +25,29 @@ using namespace abc;
 
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		ABC_UNUSED_ARG(vsArgs);
-		{
-			// Simple manipulation tests.
-			map<istr const, int> m;
-			m.add(SL("1"), 1);
-			if (m.get_size() != 1 || m[SL("1")] != 1) {
-				return 1;
-			}
+      ABC_UNUSED_ARG(vsArgs);
+      {
+         // Simple manipulation tests.
+         map<istr const, int> m;
+         m.add(SL("1"), 1);
+         if (m.get_size() != 1 || m[SL("1")] != 1) {
+            return 1;
+         }
 
-			m.add(SL("2"), 2);
-			m.add(SL("3"), 3);
-			m.add(SL("4"), 4);
-			m.add(SL("5"), 5);
-		}
+         m.add(SL("2"), 2);
+         m.add(SL("3"), 3);
+         m.add(SL("4"), 4);
+         m.add(SL("5"), 5);
+      }
 
-		return EXIT_SUCCESS;
-	}
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

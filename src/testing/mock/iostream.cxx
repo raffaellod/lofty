@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -34,27 +34,27 @@ namespace testing {
 namespace mock {
 
 ostream::ostream() :
-	::abc::ostream(),
-	m_cchUsed(0) {
+   ::abc::ostream(),
+   m_cchUsed(0) {
 }
 
 
 bool ostream::contents_equal(istr const & sExpected) {
-	ABC_TRACE_FN((this, sExpected));
+   ABC_TRACE_FN((this, sExpected));
 
-	istr sActual(unsafe, m_achBuf, m_cchUsed);
-	return sActual == sExpected;
+   istr sActual(unsafe, m_achBuf, m_cchUsed);
+   return sActual == sExpected;
 }
 
 
 /*virtual*/ void ostream::write_raw(
-	void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
+   void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {
-	ABC_TRACE_FN((this, p, cb, enc));
+   ABC_TRACE_FN((this, p, cb, enc));
 
-	ABC_UNUSED_ARG(enc);
-	memory::copy<void>(m_achBuf + m_cchUsed, p, cb);
-	m_cchUsed += cb / sizeof(m_achBuf[0]);
+   ABC_UNUSED_ARG(enc);
+   memory::copy<void>(m_achBuf + m_cchUsed, p, cb);
+   m_cchUsed += cb / sizeof(m_achBuf[0]);
 }
 
 } //namespace mock

@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -33,156 +33,156 @@ char32_t const _raw_vextr_impl_base::smc_chNUL(U32CL('\0'));
 
 
 _raw_vextr_impl_base::transaction::transaction(
-	size_t cbItem,
-	_raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta /*= 0*/, bool bNulT /*= false*/
+   size_t cbItem,
+   _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta /*= 0*/, bool bNulT /*= false*/
 ) :
-	m_prvib(prvib),
-	// Calculate the new number of items, if expressed as a delta.
-	m_ci(size_t(ciNew >= 0 ? ciNew + (bNulT ? 1 /*NUL*/ : 0) : ptrdiff_t(m_prvib->m_ci) + ciDelta)),
-	m_rvpd(0, false, false),
-	m_bFree(false) {
-	ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta, bNulT));
+   m_prvib(prvib),
+   // Calculate the new number of items, if expressed as a delta.
+   m_ci(size_t(ciNew >= 0 ? ciNew + (bNulT ? 1 /*NUL*/ : 0) : ptrdiff_t(m_prvib->m_ci) + ciDelta)),
+   m_rvpd(0, false, false),
+   m_bFree(false) {
+   ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta, bNulT));
 
-	size_t ciStaticMax;
-	if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
-		// Empty string/array: just use the static NUL character or no item array at all.
-		m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : NULL;
-		// A read-only item array has no capacity. This was already set above.
-		// m_rvpd.set_ciMax(0);
-	} else if (
-		// This will return NULL if there’s no static item array.
-		(m_p = m_prvib->static_array_ptr<void>()) &&
-		m_ci <= (ciStaticMax = m_prvib->static_capacity())
-	) {
-		// The static item array is large enough.
-		m_rvpd.set_ciMax(ciStaticMax);
-	} else if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
-		// The current item array is large enough, no need to change anything.
-		m_p = m_prvib->m_p;
-		m_rvpd = m_prvib->m_rvpd;
-	} else {
-		// The current item array (static or dynamic) is not large enough.
+   size_t ciStaticMax;
+   if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
+      // Empty string/array: just use the static NUL character or no item array at all.
+      m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : NULL;
+      // A read-only item array has no capacity. This was already set above.
+      // m_rvpd.set_ciMax(0);
+   } else if (
+      // This will return NULL if there’s no static item array.
+      (m_p = m_prvib->static_array_ptr<void>()) &&
+      m_ci <= (ciStaticMax = m_prvib->static_capacity())
+   ) {
+      // The static item array is large enough.
+      m_rvpd.set_ciMax(ciStaticMax);
+   } else if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
+      // The current item array is large enough, no need to change anything.
+      m_p = m_prvib->m_p;
+      m_rvpd = m_prvib->m_rvpd;
+   } else {
+      // The current item array (static or dynamic) is not large enough.
 
-		// Calculate the total allocation size.
-		// TODO: better algorithm.
-		size_t ciMax(m_ci * _raw_vextr_impl_base::smc_iGrowthRate);
-		// Apply some constraints.
-		if (ciMax < _raw_vextr_impl_base::smc_cMinSlots) {
-			ciMax = _raw_vextr_impl_base::smc_cMinSlots;
-		} else {
-			// Ensure that the lower bits are clear by rounding up.
-			ciMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ciMax);
-		}
-		// Check for overflow.
-		// TODO: verify that the compiler doesn’t optimize this if away.
-		if (ciMax <= m_ci) {
-			// Theoretically, this could result in ciMax < m_ci; in practice it doesn’t matter because
-			// the following memory allocation will fail for such sizes.
-			ciMax = _raw_vextr_packed_data::smc_ciMaxMask;
-		}
+      // Calculate the total allocation size.
+      // TODO: better algorithm.
+      size_t ciMax(m_ci * _raw_vextr_impl_base::smc_iGrowthRate);
+      // Apply some constraints.
+      if (ciMax < _raw_vextr_impl_base::smc_cMinSlots) {
+         ciMax = _raw_vextr_impl_base::smc_cMinSlots;
+      } else {
+         // Ensure that the lower bits are clear by rounding up.
+         ciMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ciMax);
+      }
+      // Check for overflow.
+      // TODO: verify that the compiler doesn’t optimize this if away.
+      if (ciMax <= m_ci) {
+         // Theoretically, this could result in ciMax < m_ci; in practice it doesn’t matter because
+         // the following memory allocation will fail for such sizes.
+         ciMax = _raw_vextr_packed_data::smc_ciMaxMask;
+      }
 
-		size_t cb(cbItem * ciMax);
-		if (m_prvib->m_rvpd.get_bDynamic()) {
-			// Resize the current dynamically-allocated item array. Notice that the reallocation is
-			// effective immediately, which means that m_prvib must be updated now - if no exceptions
-			// are thrown, that is.
-			m_prvib->m_p = memory::_raw_realloc(m_prvib->m_p, cb);
-			m_p = m_prvib->m_p;
-			m_prvib->m_rvpd.set_ciMax(ciMax);
-		} else {
-			// Allocate a new item array.
-			m_p = memory::_raw_alloc(cb);
-			m_bFree = true;
-		}
+      size_t cb(cbItem * ciMax);
+      if (m_prvib->m_rvpd.get_bDynamic()) {
+         // Resize the current dynamically-allocated item array. Notice that the reallocation is
+         // effective immediately, which means that m_prvib must be updated now - if no exceptions
+         // are thrown, that is.
+         m_prvib->m_p = memory::_raw_realloc(m_prvib->m_p, cb);
+         m_p = m_prvib->m_p;
+         m_prvib->m_rvpd.set_ciMax(ciMax);
+      } else {
+         // Allocate a new item array.
+         m_p = memory::_raw_alloc(cb);
+         m_bFree = true;
+      }
 
-		m_rvpd.set(ciMax, true);
-	}
+      m_rvpd.set(ciMax, true);
+   }
 }
 
 
 void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT /*= false*/) {
-	ABC_TRACE_FN((this, cbItem, bNulT));
+   ABC_TRACE_FN((this, cbItem, bNulT));
 
-	// Add a NUL terminator to the item array, if not read-only (== if capacity > 0).
-	if (bNulT && m_rvpd.get_ciMax() > 0) {
-		_raw_vextr_impl_base::terminate(
-			cbItem, static_cast<int8_t *>(m_p) + cbItem * (m_ci - 1 /*NUL*/)
-		);
-	}
-	// If we are abandoning the old item array, proceed to destruct it if necessary.
-	if (m_p != m_prvib->m_p) {
-		m_prvib->~_raw_vextr_impl_base();
-		m_prvib->m_p = m_p;
-	}
-	// Update the target object.
-	m_prvib->m_ci = m_ci;
-	m_prvib->m_rvpd = m_rvpd;
-	// This object no longer owns the temporary item array.
-	m_bFree = false;
-	// TODO: consider releasing some memory from an oversized dynamically-allocated item array.
+   // Add a NUL terminator to the item array, if not read-only (== if capacity > 0).
+   if (bNulT && m_rvpd.get_ciMax() > 0) {
+      _raw_vextr_impl_base::terminate(
+         cbItem, static_cast<int8_t *>(m_p) + cbItem * (m_ci - 1 /*NUL*/)
+      );
+   }
+   // If we are abandoning the old item array, proceed to destruct it if necessary.
+   if (m_p != m_prvib->m_p) {
+      m_prvib->~_raw_vextr_impl_base();
+      m_prvib->m_p = m_p;
+   }
+   // Update the target object.
+   m_prvib->m_ci = m_ci;
+   m_prvib->m_rvpd = m_rvpd;
+   // This object no longer owns the temporary item array.
+   m_bFree = false;
+   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
 
 
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= false*/) :
-	m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL),
-	m_ci(bNulT ? 1u /*NUL*/ : 0),
-	m_rvpd(0, false, ciStaticMax > 0) {
-	ABC_TRACE_FN((this, ciStaticMax, bNulT));
+   m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL),
+   m_ci(bNulT ? 1u /*NUL*/ : 0),
+   m_rvpd(0, false, ciStaticMax > 0) {
+   ABC_TRACE_FN((this, ciStaticMax, bNulT));
 
-	if (ciStaticMax) {
-		// Assign ciStaticMax to the static item array that follows *this.
-		_raw_vextr_impl_base_with_static_item_array * prvibwsia(
-			static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
-		);
-		prvibwsia->m_ciStaticMax = ciStaticMax;
-	}
+   if (ciStaticMax) {
+      // Assign ciStaticMax to the static item array that follows *this.
+      _raw_vextr_impl_base_with_static_item_array * prvibwsia(
+         static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
+      );
+      prvibwsia->m_ciStaticMax = ciStaticMax;
+   }
 }
 
 
 size_t _raw_vextr_impl_base::adjust_index(ptrdiff_t i, bool bNulT /*= false*/) const {
-	ptrdiff_t cMaxItems(ptrdiff_t(size(bNulT)));
-	if (i < 0) {
-		i += cMaxItems;
-		if (i < 0) {
-			i = 0;
-		}
-	} else if (i > cMaxItems) {
-		i = cMaxItems;
-	}
-	return size_t(i);
+   ptrdiff_t cMaxItems(ptrdiff_t(size(bNulT)));
+   if (i < 0) {
+      i += cMaxItems;
+      if (i < 0) {
+         i = 0;
+      }
+   } else if (i > cMaxItems) {
+      i = cMaxItems;
+   }
+   return size_t(i);
 }
 
 
 void _raw_vextr_impl_base::adjust_range(
-	ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT /*= false*/
+   ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT /*= false*/
 ) const {
-	ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems(ptrdiff_t(size(bNulT)));
-	if (iFirst < 0) {
-		iFirst += cMaxItems;
-		if (iFirst < 0) {
-			iFirst = 0;
-		}
-	} else if (iFirst > cMaxItems) {
-		iFirst = cMaxItems;
-		ci = 0;
-	}
-	if (ci < 0) {
-		ci += cMaxItems - iFirst;
-		if (ci < 0) {
-			ci = 0;
-		}
-	} else if (iFirst + ci > cMaxItems) {
-		ci = cMaxItems - iFirst;
-	}
-	*piFirst = iFirst;
-	*pci = ci;
+   ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems(ptrdiff_t(size(bNulT)));
+   if (iFirst < 0) {
+      iFirst += cMaxItems;
+      if (iFirst < 0) {
+         iFirst = 0;
+      }
+   } else if (iFirst > cMaxItems) {
+      iFirst = cMaxItems;
+      ci = 0;
+   }
+   if (ci < 0) {
+      ci += cMaxItems - iFirst;
+      if (ci < 0) {
+         ci = 0;
+      }
+   } else if (iFirst + ci > cMaxItems) {
+      ci = cMaxItems - iFirst;
+   }
+   *piFirst = iFirst;
+   *pci = ci;
 }
 
 
 void _raw_vextr_impl_base::validate_index(intptr_t i) const {
-	if (i < 0 || i >= intptr_t(m_ci)) {
-		ABC_THROW(index_error, (i));
-	}
+   if (i < 0 || i >= intptr_t(m_ci)) {
+      ABC_THROW(index_error, (i));
+   }
 }
 
 } //namespace abc
@@ -195,243 +195,243 @@ void _raw_vextr_impl_base::validate_index(intptr_t i) const {
 namespace abc {
 
 void _raw_complex_vextr_impl::assign_copy(
-	void_cda const & type, void const * p, size_t ci, bool bMove
+   void_cda const & type, void const * p, size_t ci, bool bMove
 ) {
-	ABC_TRACE_FN((this, /*type, */p, ci, bMove));
+   ABC_TRACE_FN((this, /*type, */p, ci, bMove));
 
-	transaction trn(type.cb, this, ptrdiff_t(ci));
-	size_t ciOrig(size());
-	// If we’re moving, assume that destructing the current items first and then moving in the source
-	// items is an exception-safe approach; this way the creation of a backup can be avoided.
-	std::unique_ptr<int8_t[]> pbBackup;
-	if (!bMove && ci) {
-		// If we’re going to overwrite the old item array, move the items to a backup array, so we can
-		// restore them in case of exceptions thrown while copy-constructing the new objects.
-		if (ciOrig && !trn.will_replace_item_array()) {
-			pbBackup.reset(new int8_t[type.cb * ciOrig]);
-			type.move_constr(pbBackup.get(), m_p, ciOrig);
-			type.destruct(m_p, ciOrig);
-		}
-		try {
-			type.copy_constr(trn.work_array<void>(), p, ci);
-		} catch (...) {
-			// If earlier we decided to make a backup, restore it now, then destruct it.
-			if (pbBackup) {
-				type.move_constr(m_p, pbBackup.get(), ciOrig);
-				type.destruct(pbBackup.get(), ciOrig);
-			}
-			throw;
-		}
-	}
-	if (ciOrig) {
-		// If we made a backup, it also means that now this is the only copy of the original items,
-		// so we must use it to destruct them, instead of m_p.
-		type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
-	}
-	// Now that the current items have been destructed, move-construct the new items.
-	if (bMove && ci) {
-		type.move_constr(trn.work_array<void>(), const_cast<void *>(p), ci);
-	}
-	trn.commit();
+   transaction trn(type.cb, this, ptrdiff_t(ci));
+   size_t ciOrig(size());
+   // If we’re moving, assume that destructing the current items first and then moving in the source
+   // items is an exception-safe approach; this way the creation of a backup can be avoided.
+   std::unique_ptr<int8_t[]> pbBackup;
+   if (!bMove && ci) {
+      // If we’re going to overwrite the old item array, move the items to a backup array, so we can
+      // restore them in case of exceptions thrown while copy-constructing the new objects.
+      if (ciOrig && !trn.will_replace_item_array()) {
+         pbBackup.reset(new int8_t[type.cb * ciOrig]);
+         type.move_constr(pbBackup.get(), m_p, ciOrig);
+         type.destruct(m_p, ciOrig);
+      }
+      try {
+         type.copy_constr(trn.work_array<void>(), p, ci);
+      } catch (...) {
+         // If earlier we decided to make a backup, restore it now, then destruct it.
+         if (pbBackup) {
+            type.move_constr(m_p, pbBackup.get(), ciOrig);
+            type.destruct(pbBackup.get(), ciOrig);
+         }
+         throw;
+      }
+   }
+   if (ciOrig) {
+      // If we made a backup, it also means that now this is the only copy of the original items,
+      // so we must use it to destruct them, instead of m_p.
+      type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
+   }
+   // Now that the current items have been destructed, move-construct the new items.
+   if (bMove && ci) {
+      type.move_constr(trn.work_array<void>(), const_cast<void *>(p), ci);
+   }
+   trn.commit();
 }
 void _raw_complex_vextr_impl::assign_copy(
-	void_cda const & type,
-	void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
+   void_cda const & type,
+   void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
 ) {
-	ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
+   ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
 
-	transaction trn(type.cb, this, ptrdiff_t(ci1 + ci2));
-	size_t ciOrig(size());
-	std::unique_ptr<int8_t[]> pbBackup;
-	int8_t * pbWorkCopy(trn.work_array<int8_t>());
-	if (ci1 || ci2) {
-		// If we’re going to overwrite the old item array, move the items to a backup array, so we can
-		// restore them in case of exceptions thrown while constructing the new objects.
-		if (ciOrig && !trn.will_replace_item_array()) {
-			pbBackup.reset(new int8_t[type.cb * ciOrig]);
-			type.move_constr(pbBackup.get(), m_p, ciOrig);
-			type.destruct(m_p, ciOrig);
-		}
-		try {
-			if (ci1) {
-				if (bMove1) {
-					type.move_constr(pbWorkCopy, const_cast<void *>(p1), ci1);
-				} else {
-					type.copy_constr(pbWorkCopy, p1, ci1);
-				}
-				pbWorkCopy += type.cb * ci1;
-			}
-			if (ci2) {
-				if (bMove2) {
-					type.move_constr(pbWorkCopy, const_cast<void *>(p2), ci2);
-				} else {
-					type.copy_constr(pbWorkCopy, p2, ci2);
-				}
-			}
-		} catch (...) {
-			// If we already constructed the copies of p1, destruct them.
-			int8_t * pbWorkCopyBegin(trn.work_array<int8_t>());
-			if (pbWorkCopy > pbWorkCopyBegin) {
-				if (bMove1) {
-					// If we moved them from p1, don’t forget to move them back. Of course this means
-					// that we first have to destruct p1’s items and re-construct them.
-					type.destruct(const_cast<void *>(p1), ci1);
-					type.move_constr(const_cast<void *>(p1), pbWorkCopyBegin, ci1);
-				}
-				type.destruct(pbWorkCopyBegin, ci1);
-			}
-			// If earlier we decided to make a backup, restore it now, then destruct it.
-			if (pbBackup) {
-				type.move_constr(m_p, pbBackup.get(), ciOrig);
-				type.destruct(pbBackup.get(), ciOrig);
-			}
-			throw;
-		}
-	}
-	if (ciOrig) {
-		// If we made a backup, it also means that now this is the only copy of the original items, so
-		// we must use it to destruct them, instead of m_p.
-		type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
-	}
-	trn.commit();
+   transaction trn(type.cb, this, ptrdiff_t(ci1 + ci2));
+   size_t ciOrig(size());
+   std::unique_ptr<int8_t[]> pbBackup;
+   int8_t * pbWorkCopy(trn.work_array<int8_t>());
+   if (ci1 || ci2) {
+      // If we’re going to overwrite the old item array, move the items to a backup array, so we can
+      // restore them in case of exceptions thrown while constructing the new objects.
+      if (ciOrig && !trn.will_replace_item_array()) {
+         pbBackup.reset(new int8_t[type.cb * ciOrig]);
+         type.move_constr(pbBackup.get(), m_p, ciOrig);
+         type.destruct(m_p, ciOrig);
+      }
+      try {
+         if (ci1) {
+            if (bMove1) {
+               type.move_constr(pbWorkCopy, const_cast<void *>(p1), ci1);
+            } else {
+               type.copy_constr(pbWorkCopy, p1, ci1);
+            }
+            pbWorkCopy += type.cb * ci1;
+         }
+         if (ci2) {
+            if (bMove2) {
+               type.move_constr(pbWorkCopy, const_cast<void *>(p2), ci2);
+            } else {
+               type.copy_constr(pbWorkCopy, p2, ci2);
+            }
+         }
+      } catch (...) {
+         // If we already constructed the copies of p1, destruct them.
+         int8_t * pbWorkCopyBegin(trn.work_array<int8_t>());
+         if (pbWorkCopy > pbWorkCopyBegin) {
+            if (bMove1) {
+               // If we moved them from p1, don’t forget to move them back. Of course this means
+               // that we first have to destruct p1’s items and re-construct them.
+               type.destruct(const_cast<void *>(p1), ci1);
+               type.move_constr(const_cast<void *>(p1), pbWorkCopyBegin, ci1);
+            }
+            type.destruct(pbWorkCopyBegin, ci1);
+         }
+         // If earlier we decided to make a backup, restore it now, then destruct it.
+         if (pbBackup) {
+            type.move_constr(m_p, pbBackup.get(), ciOrig);
+            type.destruct(pbBackup.get(), ciOrig);
+         }
+         throw;
+      }
+   }
+   if (ciOrig) {
+      // If we made a backup, it also means that now this is the only copy of the original items, so
+      // we must use it to destruct them, instead of m_p.
+      type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
+   }
+   trn.commit();
 }
 
 
 void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi) {
-	ABC_TRACE_FN((this/*, type, rcvi*/));
+   ABC_TRACE_FN((this/*, type, rcvi*/));
 
-	if (rcvi.m_p == m_p) {
-		return;
-	}
-	ABC_ASSERT(rcvi.m_rvpd.get_bDynamic());
-	// Discard the current contents.
-	destruct_items(type);
-	this->~_raw_complex_vextr_impl();
-	// Take over the dynamic array.
-	m_p = rcvi.m_p;
-	m_ci = rcvi.m_ci;
-	m_rvpd = rcvi.m_rvpd;
-	// And now empty the source.
-	rcvi.assign_empty();
+   if (rcvi.m_p == m_p) {
+      return;
+   }
+   ABC_ASSERT(rcvi.m_rvpd.get_bDynamic());
+   // Discard the current contents.
+   destruct_items(type);
+   this->~_raw_complex_vextr_impl();
+   // Take over the dynamic array.
+   m_p = rcvi.m_p;
+   m_ci = rcvi.m_ci;
+   m_rvpd = rcvi.m_rvpd;
+   // And now empty the source.
+   rcvi.assign_empty();
 }
 
 
 void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
-	void_cda const & type, _raw_complex_vextr_impl && rcvi
+   void_cda const & type, _raw_complex_vextr_impl && rcvi
 ) {
-	if (rcvi.m_p == m_p) {
-		return;
-	}
-	if (rcvi.m_rvpd.get_bDynamic()) {
-		assign_move(type, std::move(rcvi));
-	} else {
-		// Can’t move, so use a different item array and move the items to it instead.
-		assign_copy(type, rcvi.m_p, rcvi.size(), true);
-		// And now empty the source.
-		rcvi.destruct_items(type);
-		rcvi.assign_empty();
-	}
+   if (rcvi.m_p == m_p) {
+      return;
+   }
+   if (rcvi.m_rvpd.get_bDynamic()) {
+      assign_move(type, std::move(rcvi));
+   } else {
+      // Can’t move, so use a different item array and move the items to it instead.
+      assign_copy(type, rcvi.m_p, rcvi.size(), true);
+      // And now empty the source.
+      rcvi.destruct_items(type);
+      rcvi.assign_empty();
+   }
 }
 
 
 void _raw_complex_vextr_impl::remove_at(
-	void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
+   void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
 ) {
-	ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
+   ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
 
-	adjust_range(&iOffset, &ciRemove);
-	if (!ciRemove) {
-		return;
-	}
-	transaction trn(type.cb, this, -1, -ciRemove);
-	size_t cbOffset(type.cb * size_t(iOffset));
-	// Destruct the items to be removed.
-	type.destruct(data<int8_t>() + cbOffset, size_t(ciRemove));
-	// The items beyond the last removed must be either copied to the new item array at ciRemove
-	// offset, or shifted closer to the start.
-	if (size_t ciTail = size() - size_t(iOffset + ciRemove)) {
-		int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
-				 * pbOrigTail(data<int8_t>() + cbOffset + type.cb * size_t(ciRemove));
-		if (trn.will_replace_item_array()) {
-			type.move_constr(pbWorkTail, pbOrigTail, ciTail);
-			type.destruct(pbOrigTail, ciTail);
-		} else {
-			type.overlapping_move_constr(pbWorkTail, pbOrigTail, ciTail);
-		}
-	}
-	// Also move to the new array the items before the first deleted one, otherwise we’ll lose them
-	// in the switch.
-	if (iOffset && trn.will_replace_item_array()) {
-		type.move_constr(trn.work_array<void>(), m_p, size_t(iOffset));
-		type.destruct(m_p, size_t(iOffset));
-	}
-	trn.commit();
+   adjust_range(&iOffset, &ciRemove);
+   if (!ciRemove) {
+      return;
+   }
+   transaction trn(type.cb, this, -1, -ciRemove);
+   size_t cbOffset(type.cb * size_t(iOffset));
+   // Destruct the items to be removed.
+   type.destruct(data<int8_t>() + cbOffset, size_t(ciRemove));
+   // The items beyond the last removed must be either copied to the new item array at ciRemove
+   // offset, or shifted closer to the start.
+   if (size_t ciTail = size() - size_t(iOffset + ciRemove)) {
+      int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
+             * pbOrigTail(data<int8_t>() + cbOffset + type.cb * size_t(ciRemove));
+      if (trn.will_replace_item_array()) {
+         type.move_constr(pbWorkTail, pbOrigTail, ciTail);
+         type.destruct(pbOrigTail, ciTail);
+      } else {
+         type.overlapping_move_constr(pbWorkTail, pbOrigTail, ciTail);
+      }
+   }
+   // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
+   // in the switch.
+   if (iOffset && trn.will_replace_item_array()) {
+      type.move_constr(trn.work_array<void>(), m_p, size_t(iOffset));
+      type.destruct(m_p, size_t(iOffset));
+   }
+   trn.commit();
 }
 
 
 void _raw_complex_vextr_impl::_insert(
-	void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+   void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
 ) {
-	ABC_TRACE_FN((this, /*type, */iOffset, pAdd, ciAdd, bMove));
+   ABC_TRACE_FN((this, /*type, */iOffset, pAdd, ciAdd, bMove));
 
-	transaction trn(type.cb, this, -1, ptrdiff_t(ciAdd));
-	size_t ibOffset(type.cb * iOffset);
-	int8_t * pbOffset(trn.work_array<int8_t>() + ibOffset);
-	// Regardless of whether we’re switching item arrays, the items beyond the insertion point must
-	// always be moved.
-	size_t ciTail(size() - iOffset);
-	if (ciTail) {
-		type.overlapping_move_constr(
-			pbOffset + type.cb * ciAdd, data<int8_t>() + ibOffset, ciTail
-		);
-	}
-	// Copy/move the new items over.
-	if (bMove) {
-		// No point in using try/catch here; we just assume that a move constructor won’t throw.
-		type.move_constr(pbOffset, const_cast<void *>(pAdd), ciAdd);
-	} else {
-		try {
-			type.copy_constr(pbOffset, pAdd, ciAdd);
-		} catch (...) {
-			// Undo the overlapping_move_constr() above.
-			if (ciTail) {
-				type.overlapping_move_constr(
-					data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
-				);
-			}
-			throw;
-		}
-	}
-	// Also move to the new array the items before the insertion point, otherwise we’ll lose them in
-	// the switch.
-	if (iOffset && trn.will_replace_item_array()) {
-		type.move_constr(trn.work_array<void>(), m_p, iOffset);
-		type.destruct(m_p, iOffset);
-	}
-	trn.commit();
+   transaction trn(type.cb, this, -1, ptrdiff_t(ciAdd));
+   size_t ibOffset(type.cb * iOffset);
+   int8_t * pbOffset(trn.work_array<int8_t>() + ibOffset);
+   // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
+   // always be moved.
+   size_t ciTail(size() - iOffset);
+   if (ciTail) {
+      type.overlapping_move_constr(
+         pbOffset + type.cb * ciAdd, data<int8_t>() + ibOffset, ciTail
+      );
+   }
+   // Copy/move the new items over.
+   if (bMove) {
+      // No point in using try/catch here; we just assume that a move constructor won’t throw.
+      type.move_constr(pbOffset, const_cast<void *>(pAdd), ciAdd);
+   } else {
+      try {
+         type.copy_constr(pbOffset, pAdd, ciAdd);
+      } catch (...) {
+         // Undo the overlapping_move_constr() above.
+         if (ciTail) {
+            type.overlapping_move_constr(
+               data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
+            );
+         }
+         throw;
+      }
+   }
+   // Also move to the new array the items before the insertion point, otherwise we’ll lose them in
+   // the switch.
+   if (iOffset && trn.will_replace_item_array()) {
+      type.move_constr(trn.work_array<void>(), m_p, iOffset);
+      type.destruct(m_p, iOffset);
+   }
+   trn.commit();
 }
 
 
 void _raw_complex_vextr_impl::set_capacity(void_cda const & type, size_t ciMin, bool bPreserve) {
-	ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
+   ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
-	size_t ciOrig(size());
-	transaction trn(type.cb, this, ptrdiff_t(ciMin));
-	if (trn.will_replace_item_array()) {
-		// Destruct every item from the array we’re abandoning, but first move-construct them if
-		// told to do so.
-		if (bPreserve) {
-			type.move_constr(trn.work_array<void>(), m_p, ciOrig);
-		}
-		type.destruct(m_p, ciOrig);
-		if (!bPreserve) {
-			// We just destructed the items.
-			ciOrig = 0;
-		}
-	}
-	trn.commit();
-	// The transaction changed the size to ciMin, which is incorrect.
-	m_ci = ciOrig;
+   size_t ciOrig(size());
+   transaction trn(type.cb, this, ptrdiff_t(ciMin));
+   if (trn.will_replace_item_array()) {
+      // Destruct every item from the array we’re abandoning, but first move-construct them if
+      // told to do so.
+      if (bPreserve) {
+         type.move_constr(trn.work_array<void>(), m_p, ciOrig);
+      }
+      type.destruct(m_p, ciOrig);
+      if (!bPreserve) {
+         // We just destructed the items.
+         ciOrig = 0;
+      }
+   }
+   trn.commit();
+   // The transaction changed the size to ciMin, which is incorrect.
+   m_ci = ciOrig;
 }
 
 } //namespace abc
@@ -444,108 +444,108 @@ void _raw_complex_vextr_impl::set_capacity(void_cda const & type, size_t ciMin, 
 namespace abc {
 
 void _raw_trivial_vextr_impl::assign_copy(
-	size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT /*= false*/
+   size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT /*= false*/
 ) {
-	ABC_TRACE_FN((this, cbItem, p1, ci1, p2, ci2, bNulT));
+   ABC_TRACE_FN((this, cbItem, p1, ci1, p2, ci2, bNulT));
 
-	transaction trn(cbItem, this, ptrdiff_t(ci1 + ci2), 0, bNulT);
-	int8_t * pbWorkCopy(trn.work_array<int8_t>());
-	if (ci1) {
-		size_t cbSrc(cbItem * ci1);
-		memory::copy<void>(pbWorkCopy, p1, cbSrc);
-		pbWorkCopy += cbSrc;
-	}
-	if (ci2) {
-		size_t cbSrc(cbItem * ci2);
-		memory::copy<void>(pbWorkCopy, p2, cbSrc);
-	}
+   transaction trn(cbItem, this, ptrdiff_t(ci1 + ci2), 0, bNulT);
+   int8_t * pbWorkCopy(trn.work_array<int8_t>());
+   if (ci1) {
+      size_t cbSrc(cbItem * ci1);
+      memory::copy<void>(pbWorkCopy, p1, cbSrc);
+      pbWorkCopy += cbSrc;
+   }
+   if (ci2) {
+      size_t cbSrc(cbItem * ci2);
+      memory::copy<void>(pbWorkCopy, p2, cbSrc);
+   }
 
-	trn.commit(cbItem, bNulT);
+   trn.commit(cbItem, bNulT);
 }
 
 
 void _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
-	size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT /*= false*/
+   size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT /*= false*/
 ) {
-	if (rtvi.m_p == m_p) {
-		return;
-	}
-	if (rtvi.m_rvpd.get_bDynamic()) {
-		assign_move(std::move(rtvi), bNulT);
-	} else {
-		// Can’t move, so copy instead.
-		assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
-		// And now empty the source.
-		rtvi.assign_empty(bNulT);
-	}
+   if (rtvi.m_p == m_p) {
+      return;
+   }
+   if (rtvi.m_rvpd.get_bDynamic()) {
+      assign_move(std::move(rtvi), bNulT);
+   } else {
+      // Can’t move, so copy instead.
+      assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
+      // And now empty the source.
+      rtvi.assign_empty(bNulT);
+   }
 }
 
 
 void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi) {
-	ABC_TRACE_FN((this/*, rtvi*/));
+   ABC_TRACE_FN((this/*, rtvi*/));
 
-	ABC_ASSERT(rtvi.m_p != m_p);
-	// Only allow sharing read-only or dynamically-allocated item arrays (the latter only as part of
-	// moving them).
-	ABC_ASSERT(rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic());
-	// Discard the current contents.
-	this->~_raw_trivial_vextr_impl();
-	// Take over the dynamic array.
-	m_p = rtvi.m_p;
-	m_ci = rtvi.m_ci;
-	m_rvpd = rtvi.m_rvpd;
+   ABC_ASSERT(rtvi.m_p != m_p);
+   // Only allow sharing read-only or dynamically-allocated item arrays (the latter only as part of
+   // moving them).
+   ABC_ASSERT(rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic());
+   // Discard the current contents.
+   this->~_raw_trivial_vextr_impl();
+   // Take over the dynamic array.
+   m_p = rtvi.m_p;
+   m_ci = rtvi.m_ci;
+   m_rvpd = rtvi.m_rvpd;
 }
 
 
 void _raw_trivial_vextr_impl::_insert_or_remove(
-	size_t cbItem,
-	size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT /*= false*/
+   size_t cbItem,
+   size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT /*= false*/
 ) {
-	ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
+   ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
 
-	ABC_ASSERT(ciAdd || ciRemove);
-	transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove), bNulT);
-	size_t cbOffset(cbItem * iOffset);
-	// Regardless of an item array switch, the items beyond the insertion point (when adding) or the
-	// last removed (when removing) must always be moved/copied.
-	if (size_t ciTail = size(bNulT) - (iOffset + ciRemove)) {
-		memory::move(
-			trn.work_array<int8_t>() + cbOffset + cbItem * ciAdd,
-			data<int8_t>() + cbOffset + cbItem * ciRemove,
-			cbItem * ciTail
-		);
-	}
-	if (ciAdd) {
-		// Copy the new items over.
-		memory::copy<void>(trn.work_array<int8_t>() + cbOffset, pAdd, cbItem * ciAdd);
-	}
-	// Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
-	if (cbOffset && trn.will_replace_item_array()) {
-		memory::copy(trn.work_array<void>(), m_p, cbOffset);
-	}
+   ABC_ASSERT(ciAdd || ciRemove);
+   transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove), bNulT);
+   size_t cbOffset(cbItem * iOffset);
+   // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
+   // last removed (when removing) must always be moved/copied.
+   if (size_t ciTail = size(bNulT) - (iOffset + ciRemove)) {
+      memory::move(
+         trn.work_array<int8_t>() + cbOffset + cbItem * ciAdd,
+         data<int8_t>() + cbOffset + cbItem * ciRemove,
+         cbItem * ciTail
+      );
+   }
+   if (ciAdd) {
+      // Copy the new items over.
+      memory::copy<void>(trn.work_array<int8_t>() + cbOffset, pAdd, cbItem * ciAdd);
+   }
+   // Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
+   if (cbOffset && trn.will_replace_item_array()) {
+      memory::copy(trn.work_array<void>(), m_p, cbOffset);
+   }
 
-	trn.commit(cbItem, bNulT);
+   trn.commit(cbItem, bNulT);
 }
 
 
 void _raw_trivial_vextr_impl::set_capacity(
-	size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT /*= false*/
+   size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT /*= false*/
 ) {
-	ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
+   ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
 
-	size_t ciOrig(size());
-	transaction trn(cbItem, this, ptrdiff_t(ciMin), 0, bNulT);
-	if (trn.will_replace_item_array()) {
-		if (bPreserve) {
-			memory::copy(trn.work_array<void>(), m_p, cbItem * ciOrig);
-		} else {
-			// We’ll lose the item array when the transaction is commited.
-			ciOrig = 0;
-		}
-	}
-	trn.commit(cbItem, bNulT);
-	// The transaction changed the size to ciMin, which is incorrect.
-	m_ci = ciOrig;
+   size_t ciOrig(size());
+   transaction trn(cbItem, this, ptrdiff_t(ciMin), 0, bNulT);
+   if (trn.will_replace_item_array()) {
+      if (bPreserve) {
+         memory::copy(trn.work_array<void>(), m_p, cbItem * ciOrig);
+      } else {
+         // We’ll lose the item array when the transaction is commited.
+         ciOrig = 0;
+      }
+   }
+   trn.commit(cbItem, bNulT);
+   // The transaction changed the size to ciMin, which is incorrect.
+   m_ci = ciOrig;
 }
 
 } //namespace abc

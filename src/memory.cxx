@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -27,39 +27,39 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 #ifdef _MSC_VER
-	#pragma warning(push)
-	// “'operator': exception specification does not match previous declaration”
-	#pragma warning(disable: 4986)
+   #pragma warning(push)
+   // “'operator': exception specification does not match previous declaration”
+   #pragma warning(disable: 4986)
 #endif
 
 void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
-	return abc::memory::_raw_alloc(cb);
+   return abc::memory::_raw_alloc(cb);
 }
 void * ABC_STL_CALLCONV operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
-	return abc::memory::_raw_alloc(cb);
+   return abc::memory::_raw_alloc(cb);
 }
 void * ABC_STL_CALLCONV operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-	return ::malloc(cb);
+   return ::malloc(cb);
 }
 void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-	return ::malloc(cb);
+   return ::malloc(cb);
 }
 
 
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
-	abc::memory::free(p);
+   abc::memory::free(p);
 }
 void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
-	abc::memory::free(p);
+   abc::memory::free(p);
 }
 void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-	abc::memory::free(p);
+   abc::memory::free(p);
 }
 void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-	abc::memory::free(p);
+   abc::memory::free(p);
 }
 
 
 #ifdef _MSC_VER
-	#pragma warning(pop)
+   #pragma warning(pop)
 #endif

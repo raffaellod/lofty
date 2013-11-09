@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -30,8 +30,8 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 stream_base::stream_base() :
-	m_enc(text::encoding::unknown),
-	m_lterm(text::line_terminator::unknown) {
+   m_enc(text::encoding::unknown),
+   m_lterm(text::line_terminator::unknown) {
 }
 
 
@@ -40,12 +40,12 @@ stream_base::stream_base() :
 
 
 /*virtual*/ void stream_base::set_encoding(text::encoding enc) {
-	m_enc = enc;
+   m_enc = enc;
 }
 
 
 /*virtual*/ void stream_base::set_line_terminator(text::line_terminator lterm) {
-	m_lterm = lterm;
+   m_lterm = lterm;
 }
 
 } //namespace abc
@@ -78,158 +78,158 @@ namespace abc {
 
 
 _ostream_print_helper_impl::_ostream_print_helper_impl(ostream * pos, istr const & sFormat) :
-	m_pos(pos),
-	// write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
-	m_iSubstArg(unsigned(-1)),
-	m_sFormat(sFormat),
-	m_itFormatToWriteBegin(sFormat.cbegin()) {
+   m_pos(pos),
+   // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
+   m_iSubstArg(unsigned(-1)),
+   m_sFormat(sFormat),
+   m_itFormatToWriteBegin(sFormat.cbegin()) {
 }
 
 
 void _ostream_print_helper_impl::run() {
-	// Since this specialization has no replacements, verify that the format string doesn’t specify
-	// any either.
-	if (write_format_up_to_next_repl()) {
-		ABC_THROW(index_error, (m_iSubstArg));
-	}
+   // Since this specialization has no replacements, verify that the format string doesn’t specify
+   // any either.
+   if (write_format_up_to_next_repl()) {
+      ABC_THROW(index_error, (m_iSubstArg));
+   }
 }
 
 
 void _ostream_print_helper_impl::throw_index_error() {
-	ABC_THROW(index_error, (m_iSubstArg));
+   ABC_THROW(index_error, (m_iSubstArg));
 }
 
 
 bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
-	ABC_TRACE_FN((this));
+   ABC_TRACE_FN((this));
 
-	// Search for the next replacement, if any.
-	istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
-	char_t ch;
-	for (;;) {
-		if (it >= itEnd) {
-			// The format string is over; write any characters not yet written.
-			write_format_up_to(itEnd);
-			// Report that no more replacement fields were found.
-			return false;
-		}
-		ch = *it++;
-		if (ch == CL('{') || ch == CL('}')) {
-			if (ch == CL('{')) {
-				// Mark the beginning of the replacement field.
-				itReplFieldBegin = it - 1;
-				if (it >= itEnd) {
-					throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-				}
-				ch = *it;
-				if (ch != CL('{')) {
-					// We found the beginning of a replacement field.
-					break;
-				}
-			} else if (ch == CL('}')) {
-				if (it >= itEnd || *it != CL('}')) {
-					throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
-				}
-			}
-			// Convert “{{” into “{” or “}}” into “}”.
-			// Write up to and including the first brace.
-			write_format_up_to(it);
-			// The next call to write_format_up_to() will skip the second brace.
-			m_itFormatToWriteBegin = ++it;
-		}
-	}
+   // Search for the next replacement, if any.
+   istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
+   char_t ch;
+   for (;;) {
+      if (it >= itEnd) {
+         // The format string is over; write any characters not yet written.
+         write_format_up_to(itEnd);
+         // Report that no more replacement fields were found.
+         return false;
+      }
+      ch = *it++;
+      if (ch == CL('{') || ch == CL('}')) {
+         if (ch == CL('{')) {
+            // Mark the beginning of the replacement field.
+            itReplFieldBegin = it - 1;
+            if (it >= itEnd) {
+               throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+            }
+            ch = *it;
+            if (ch != CL('{')) {
+               // We found the beginning of a replacement field.
+               break;
+            }
+         } else if (ch == CL('}')) {
+            if (it >= itEnd || *it != CL('}')) {
+               throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
+            }
+         }
+         // Convert “{{” into “{” or “}}” into “}”.
+         // Write up to and including the first brace.
+         write_format_up_to(it);
+         // The next call to write_format_up_to() will skip the second brace.
+         m_itFormatToWriteBegin = ++it;
+      }
+   }
 
-	// Check if we have an argument index.
-	if (ch >= CL('0') && ch <= CL('9')) {
-		// Consume as many digits as there are, and convert them into the argument index.
-		unsigned iArg(0);
-		do {
-			iArg *= 10;
-			iArg += unsigned(ch - CL('0'));
-		} while (++it < itEnd && (ch = *it, ch >= CL('0') && ch <= CL('9')));
-		if (it >= itEnd) {
-			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-		}
-		// Save this index as the last used one.
-		m_iSubstArg = iArg;
-	} else {
-		// The argument index is missing, so just use the next one.
-		++m_iSubstArg;
-	}
+   // Check if we have an argument index.
+   if (ch >= CL('0') && ch <= CL('9')) {
+      // Consume as many digits as there are, and convert them into the argument index.
+      unsigned iArg(0);
+      do {
+         iArg *= 10;
+         iArg += unsigned(ch - CL('0'));
+      } while (++it < itEnd && (ch = *it, ch >= CL('0') && ch <= CL('9')));
+      if (it >= itEnd) {
+         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+      }
+      // Save this index as the last used one.
+      m_iSubstArg = iArg;
+   } else {
+      // The argument index is missing, so just use the next one.
+      ++m_iSubstArg;
+   }
 
-	// Check for a conversion specifier; defaults to string.
-	char_t chConversion(CL('s'));
-	if (ch == CL('!')) {
-		if (++it >= itEnd) {
-			throw_syntax_error(SL("expected conversion specifier"), it);
-		}
-		ch = *it;
-		switch (ch) {
-			case CL('s'):
-// TODO	case CL('r'):
-// TODO	case CL('a'):
-				chConversion = ch;
-				ABC_UNUSED_ARG(chConversion);
-				break;
-			default:
-				throw_syntax_error(SL("unknown conversion specifier"), it);
-		}
-		if (++it >= itEnd) {
-			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-		}
-		ch = *it;
-	}
+   // Check for a conversion specifier; defaults to string.
+   char_t chConversion(CL('s'));
+   if (ch == CL('!')) {
+      if (++it >= itEnd) {
+         throw_syntax_error(SL("expected conversion specifier"), it);
+      }
+      ch = *it;
+      switch (ch) {
+         case CL('s'):
+// TODO: case CL('r'):
+// TODO: case CL('a'):
+            chConversion = ch;
+            ABC_UNUSED_ARG(chConversion);
+            break;
+         default:
+            throw_syntax_error(SL("unknown conversion specifier"), it);
+      }
+      if (++it >= itEnd) {
+         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+      }
+      ch = *it;
+   }
 
-	// Check for a format specification.
-	if (ch == CL(':')) {
-		if (++it >= itEnd) {
-			throw_syntax_error(SL("expected format specification"), it);
-		}
-		m_pchReplFormatSpecBegin = it.base();
-		// Find the end of the replacement field.
-		it = m_sFormat.find(U32CL('}'), it);
-		if (it == m_sFormat.cend()) {
-			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-		}
-		m_pchReplFormatSpecEnd = it.base();
-	} else {
-		// If there’s no format specification, it must be the end of the replacement field.
-		if (ch != CL('}')) {
-			throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-		}
-		// Set the format specification to nothing.
-		m_pchReplFormatSpecBegin = NULL;
-		m_pchReplFormatSpecEnd = NULL;
-	}
+   // Check for a format specification.
+   if (ch == CL(':')) {
+      if (++it >= itEnd) {
+         throw_syntax_error(SL("expected format specification"), it);
+      }
+      m_pchReplFormatSpecBegin = it.base();
+      // Find the end of the replacement field.
+      it = m_sFormat.find(U32CL('}'), it);
+      if (it == m_sFormat.cend()) {
+         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+      }
+      m_pchReplFormatSpecEnd = it.base();
+   } else {
+      // If there’s no format specification, it must be the end of the replacement field.
+      if (ch != CL('}')) {
+         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+      }
+      // Set the format specification to nothing.
+      m_pchReplFormatSpecBegin = NULL;
+      m_pchReplFormatSpecEnd = NULL;
+   }
 
-	// Write the format string characters up to the beginning of the replacement.
-	write_format_up_to(itReplFieldBegin);
-	// Update this, so the next call to write_format_up_to() will skip over this replacement field.
-	m_itFormatToWriteBegin = it + 1 /*'}'*/;
-	// Report that a substitution must be written.
-	return true;
+   // Write the format string characters up to the beginning of the replacement.
+   write_format_up_to(itReplFieldBegin);
+   // Update this, so the next call to write_format_up_to() will skip over this replacement field.
+   m_itFormatToWriteBegin = it + 1 /*'}'*/;
+   // Report that a substitution must be written.
+   return true;
 }
 
 
 void _ostream_print_helper_impl::throw_syntax_error(
-	istr const & sDescription, istr::const_iterator it
+   istr const & sDescription, istr::const_iterator it
 ) const {
-	// +1 because the first character is 1, to human beings.
-	ABC_THROW(syntax_error, (sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+   // +1 because the first character is 1, to human beings.
+   ABC_THROW(syntax_error, (sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
 }
 
 
 void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
-	ABC_TRACE_FN((this/*, itUpTo*/));
+   ABC_TRACE_FN((this/*, itUpTo*/));
 
-	if (itUpTo > m_itFormatToWriteBegin) {
-		m_pos->write_raw(
-			m_itFormatToWriteBegin.base(),
-			sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
-			text::utf_traits<>::host_encoding
-		);
-		m_itFormatToWriteBegin = itUpTo;
-	}
+   if (itUpTo > m_itFormatToWriteBegin) {
+      m_pos->write_raw(
+         m_itFormatToWriteBegin.base(),
+         sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
+         text::utf_traits<>::host_encoding
+      );
+      m_itFormatToWriteBegin = itUpTo;
+   }
 }
 
 } //namespace abc
@@ -242,9 +242,9 @@ void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo)
 namespace abc {
 
 iostream::iostream() :
-	stream_base(),
-	istream(),
-	ostream() {
+   stream_base(),
+   istream(),
+   ostream() {
 }
 
 

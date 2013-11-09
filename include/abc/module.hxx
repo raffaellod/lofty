@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/atomic.hxx>
@@ -39,29 +39,29 @@ namespace abc {
 
 /** Thread ID type. */
 #if ABC_HOST_API_POSIX
-	typedef pthread_t tid_t;
+   typedef pthread_t tid_t;
 #elif ABC_HOST_API_WIN32
-	typedef DWORD tid_t;
+   typedef DWORD tid_t;
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 
 /** Process ID type. */
 #if ABC_HOST_API_POSIX
-	// pid_t is already defined.
+   // pid_t is already defined.
 #elif ABC_HOST_API_WIN32
-	typedef DWORD pid_t;
+   typedef DWORD pid_t;
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 
 /** Native OS dynamic library/module handle. */
 #if ABC_HOST_API_POSIX
-	typedef void * hdynmod_t;
+   typedef void * hdynmod_t;
 #elif ABC_HOST_API_WIN32
-	typedef HINSTANCE hdynmod_t;
+   typedef HINSTANCE hdynmod_t;
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 
 } //namespace abc
@@ -78,11 +78,11 @@ namespace abc {
 */
 template <typename T>
 class thread :
-	public T {
+   public T {
 private:
 
-	/** Thread ID (TID). */
-	tid_t m_tid;
+   /** Thread ID (TID). */
+   tid_t m_tid;
 };
 
 } //namespace abc
@@ -98,11 +98,11 @@ namespace abc {
 */
 template <typename T>
 class process :
-	public T {
+   public T {
 private:
 
-	/** Process ID (PID). */
-	pid_t m_pid;
+   /** Process ID (PID). */
+   pid_t m_pid;
 };
 
 } //namespace abc
@@ -120,57 +120,57 @@ namespace abc {
 */
 class ABCAPI dynamic_module {
 
-	ABC_CLASS_PREVENT_COPYING(dynamic_module)
+   ABC_CLASS_PREVENT_COPYING(dynamic_module)
 
 public:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	dynamic_module(dynamic_module && dm);
-	dynamic_module(file_path const & fp, bool bInit);
-	dynamic_module(hdynmod_t hdynmod) :
-		m_hdynmod(hdynmod),
-		m_bOwn(false) {
-	}
-
-
-	/** Destructor.
-	*/
-	~dynamic_module() {
-		if (m_bOwn) {
-			::FreeLibrary(m_hdynmod);
-		}
-	}
+   TODO: comment signature.
+   */
+   dynamic_module(dynamic_module && dm);
+   dynamic_module(file_path const & fp, bool bInit);
+   dynamic_module(hdynmod_t hdynmod) :
+      m_hdynmod(hdynmod),
+      m_bOwn(false) {
+   }
 
 
-	/** Assignment operator.
+   /** Destructor.
+   */
+   ~dynamic_module() {
+      if (m_bOwn) {
+         ::FreeLibrary(m_hdynmod);
+      }
+   }
 
-	TODO: comment signature.
-	*/
-	dynamic_module & operator=(dynamic_module && dm);
+
+   /** Assignment operator.
+
+   TODO: comment signature.
+   */
+   dynamic_module & operator=(dynamic_module && dm);
 
 
-	/** Returns the file name of the module.
+   /** Returns the file name of the module.
 
-	return
-		Full path to the module.
-	*/
-	file_path file_name() const;
+   return
+      Full path to the module.
+   */
+   file_path file_name() const;
 
 
 protected:
 
-	/** Handle to the module. */
-	hdynmod_t m_hdynmod;
+   /** Handle to the module. */
+   hdynmod_t m_hdynmod;
 
 
 private:
 
-	/** If false, the handle was provided by the caller of the constructor, and it will not be
-	released. */
-	bool m_bOwn;
+   /** If false, the handle was provided by the caller of the constructor, and it will not be
+   released. */
+   bool m_bOwn;
 };
 
 } //namespace abc
@@ -188,66 +188,66 @@ namespace abc {
 */
 class ABCAPI resource_module
 #if ABC_HOST_API_WIN32
-	: public dynamic_module
+   : public dynamic_module
 #endif
 {
 
-	ABC_CLASS_PREVENT_COPYING(resource_module)
+   ABC_CLASS_PREVENT_COPYING(resource_module)
 
 public:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	resource_module(file_path const & fp);
-	resource_module(resource_module && rm);
-
-
-	/** Destructor.
-	*/
-	~resource_module();
+   TODO: comment signature.
+   */
+   resource_module(file_path const & fp);
+   resource_module(resource_module && rm);
 
 
-	/** Assignment operator.
+   /** Destructor.
+   */
+   ~resource_module();
 
-	TODO: comment signature.
-	*/
-	resource_module & operator=(resource_module && rm) {
+
+   /** Assignment operator.
+
+   TODO: comment signature.
+   */
+   resource_module & operator=(resource_module && rm) {
 #if ABC_HOST_API_POSIX
-		ABC_UNUSED_ARG(rm);
+      ABC_UNUSED_ARG(rm);
 #elif ABC_HOST_API_WIN32
-		dynamic_module::operator=(std::move(rm));
+      dynamic_module::operator=(std::move(rm));
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
-		return *this;
-	}
+      return *this;
+   }
 
 
-	/** Loads a string from the module’s resources.
+   /** Loads a string from the module’s resources.
 
-	TODO: comment signature.
-	*/
-	size_t load_string(short id, char_t * psz, size_t cchMax) const;
+   TODO: comment signature.
+   */
+   size_t load_string(short id, char_t * psz, size_t cchMax) const;
 
 
 protected:
 
-	/** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-	own HINSTANCE (Win), which must not be released upon destruction of this object.
+   /** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
+   own HINSTANCE (Win), which must not be released upon destruction of this object.
 
-	TODO: comment signature.
-	*/
+   TODO: comment signature.
+   */
 #if ABC_HOST_API_POSIX
-	resource_module() {
-	}
+   resource_module() {
+   }
 #elif ABC_HOST_API_WIN32
-	resource_module(hdynmod_t hdynmod) :
-		dynamic_module(hdynmod) {
-	}
+   resource_module(hdynmod_t hdynmod) :
+      dynamic_module(hdynmod) {
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 };
 
@@ -264,101 +264,101 @@ namespace abc {
 */
 class ABCAPI code_module
 #if ABC_HOST_API_WIN32
-	: public dynamic_module
+   : public dynamic_module
 #endif
 {
 
-	ABC_CLASS_PREVENT_COPYING(code_module)
+   ABC_CLASS_PREVENT_COPYING(code_module)
 
 public:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	code_module(file_path const & fp);
-	code_module(code_module && cm);
-
-
-	/** Destructor.
-	*/
-	~code_module();
+   TODO: comment signature.
+   */
+   code_module(file_path const & fp);
+   code_module(code_module && cm);
 
 
-	/** Assignment operator.
+   /** Destructor.
+   */
+   ~code_module();
 
-	TODO: comment signature.
-	*/
-	code_module & operator=(code_module && cm) {
+
+   /** Assignment operator.
+
+   TODO: comment signature.
+   */
+   code_module & operator=(code_module && cm) {
 #if ABC_HOST_API_POSIX
-		m_hdynmod = cm.m_hdynmod;
-		cm.m_hdynmod = NULL;
+      m_hdynmod = cm.m_hdynmod;
+      cm.m_hdynmod = NULL;
 #elif ABC_HOST_API_WIN32
-		dynamic_module::operator=(std::move(cm));
+      dynamic_module::operator=(std::move(cm));
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
-		return *this;
-	}
+      return *this;
+   }
 
 
-	/** Returns a pointer to the specified symbol in the module.
+   /** Returns a pointer to the specified symbol in the module.
 
-	sSymbol
-		Symbol name.
-	[ppfn]
-		Pointer to a variable that will receive, upon return, the address of the symbol. Specifying
-		this arguments will automatically select the right template type, so the resulting method
-		invocation will be much more readable.
-	return
-		Address of the symbol; same as *ppfn, if ppfn is provided.
-	*/
-	template <typename F>
-	F get_symbol(istr const & sSymbol, F * ppfn = NULL) {
-		F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
-		if (ppfn) {
-			*ppfn = pfn;
-		}
-		return pfn;
-	}
+   sSymbol
+      Symbol name.
+   [ppfn]
+      Pointer to a variable that will receive, upon return, the address of the symbol. Specifying
+      this arguments will automatically select the right template type, so the resulting method
+      invocation will be much more readable.
+   return
+      Address of the symbol; same as *ppfn, if ppfn is provided.
+   */
+   template <typename F>
+   F get_symbol(istr const & sSymbol, F * ppfn = NULL) {
+      F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
+      if (ppfn) {
+         *ppfn = pfn;
+      }
+      return pfn;
+   }
 
 
 protected:
 
-	/** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-	own HINSTANCE (Win) or nothing (POSIX.1-2001), which must not be released upon destruction of
-	this object.
+   /** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
+   own HINSTANCE (Win) or nothing (POSIX.1-2001), which must not be released upon destruction of
+   this object.
 
-	TODO: comment signature.
-	*/
+   TODO: comment signature.
+   */
 #if ABC_HOST_API_POSIX
-	code_module() :
-		m_hdynmod(NULL) {
-	}
+   code_module() :
+      m_hdynmod(NULL) {
+   }
 #elif ABC_HOST_API_WIN32
-	code_module(hdynmod_t hdynmod) :
-		dynamic_module(hdynmod) {
-	}
+   code_module(hdynmod_t hdynmod) :
+      dynamic_module(hdynmod) {
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 
 
 private:
 
-	/** Returns a void pointer to the specified symbol in the module.
+   /** Returns a void pointer to the specified symbol in the module.
 
-	sSymbol
-		Symbol name.
-	*/
-	void * _get_symbol(istr const & sSymbol);
+   sSymbol
+      Symbol name.
+   */
+   void * _get_symbol(istr const & sSymbol);
 
 
 #if ABC_HOST_API_POSIX
 private:
 
-	/** Handle to the module. */
-	hdynmod_t m_hdynmod;
+   /** Handle to the module. */
+   hdynmod_t m_hdynmod;
 #endif
 };
 
@@ -388,85 +388,85 @@ namespace abc {
 /** Base class for implementing a dynamically loadable module.
 */
 class ABCAPI module_impl_base :
-	public code_module,
-	public resource_module {
+   public code_module,
+   public resource_module {
 
-	ABC_CLASS_PREVENT_COPYING(module_impl_base)
+   ABC_CLASS_PREVENT_COPYING(module_impl_base)
 
 public:
 
-	/** Constructor.
-	*/
-	module_impl_base();
+   /** Constructor.
+   */
+   module_impl_base();
 
 
-	/** Destructor.
-	*/
-	~module_impl_base() {
+   /** Destructor.
+   */
+   ~module_impl_base() {
 #if ABC_HOST_API_WIN32
-		ABC_ASSERT(m_cRefs == 0);
+      ABC_ASSERT(m_cRefs == 0);
 #endif
-	}
+   }
 
 
 #if ABC_HOST_API_WIN32
 
-	/** Increases the number of references to this module.
-	*/
-	void add_ref() {
-		atomic::increment(&m_cRefs);
-	}
+   /** Increases the number of references to this module.
+   */
+   void add_ref() {
+      atomic::increment(&m_cRefs);
+   }
 
 
-	/** Decreases the number of references to this module.
-	*/
-	void release() {
-		atomic::decrement(&m_cRefs);
-	}
+   /** Decreases the number of references to this module.
+   */
+   void release() {
+      atomic::decrement(&m_cRefs);
+   }
 
 
-	/** Returns the number of references to this module.
+   /** Returns the number of references to this module.
 
-	return
-		Reference count.
-	*/
-	atomic::int_t use_count() {
-		return m_cRefs;
-	}
+   return
+      Reference count.
+   */
+   atomic::int_t use_count() {
+      return m_cRefs;
+   }
 
 #endif //if ABC_HOST_API_WIN32
 
 
 protected:
 
-	/** Fills up a string vector from the command-line arguments.
+   /** Fills up a string vector from the command-line arguments.
 
-	cArgs
-		Number of arguments.
-	ppszArgs
-		Arguments.
-	pvsRet
-		Vector to receive unsafe istr instances containing each argument.
-	*/
-	static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
+   cArgs
+      Number of arguments.
+   ppszArgs
+      Arguments.
+   pvsRet
+      Vector to receive unsafe istr instances containing each argument.
+   */
+   static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
 #if ABC_HOST_API_WIN32
-	// Overload that uses ::GetCommandLine() internally.
-	static void _build_args(mvector<istr const> * pvsRet);
+   // Overload that uses ::GetCommandLine() internally.
+   static void _build_args(mvector<istr const> * pvsRet);
 #endif
 
 
 #if ABC_HOST_API_WIN32
 
-	/** Enables clients of a module_impl_base-derived class to pass the module HINSTANCE to the
-	underlying module_impl_base, allowing derived class to use a default constructor instead of
-	requiring them to conditionally enable a Win32-specific one just to forward the HINSTANCE.
+   /** Enables clients of a module_impl_base-derived class to pass the module HINSTANCE to the
+   underlying module_impl_base, allowing derived class to use a default constructor instead of
+   requiring them to conditionally enable a Win32-specific one just to forward the HINSTANCE.
 
-	hinst
-		Handle to the module’s instance.
-	*/
-	static void _preconstruct(HINSTANCE hinst) {
-		sm_hinst = hinst;
-	}
+   hinst
+      Handle to the module’s instance.
+   */
+   static void _preconstruct(HINSTANCE hinst) {
+      sm_hinst = hinst;
+   }
 
 #endif //if ABC_HOST_API_WIN32
 
@@ -474,17 +474,17 @@ protected:
 private:
 
 #if ABC_HOST_API_WIN32
-	/** Reference count. Used by module types that decide for themselves when they can be discarded
-	(DLLs, services). */
-	atomic::int_t mutable volatile m_cRefs;
+   /** Reference count. Used by module types that decide for themselves when they can be discarded
+   (DLLs, services). */
+   atomic::int_t mutable volatile m_cRefs;
 #endif
 
 private:
 
 #if ABC_HOST_API_WIN32
-	/** Stores the Windows-provided module HINSTANCE, so it can be provided to the constructors of
-	code_module and resource_module. */
-	static HINSTANCE sm_hinst;
+   /** Stores the Windows-provided module HINSTANCE, so it can be provided to the constructors of
+   code_module and resource_module. */
+   static HINSTANCE sm_hinst;
 #endif
 };
 
@@ -501,27 +501,27 @@ namespace abc {
 */
 template <class T>
 class module_impl :
-	public module_impl_base {
+   public module_impl_base {
 public:
 
-	/** Constructor.
-	*/
-	module_impl() {
-		sm_ptOnlyInstance = static_cast<T *>(this);
-	}
+   /** Constructor.
+   */
+   module_impl() {
+      sm_ptOnlyInstance = static_cast<T *>(this);
+   }
 
 
-	/** Destructor.
-	*/
-	~module_impl() {
-		sm_ptOnlyInstance = NULL;
-	}
+   /** Destructor.
+   */
+   ~module_impl() {
+      sm_ptOnlyInstance = NULL;
+   }
 
 
 private:
 
-	/** Pointer to the one and only instance of the application-defined module class. */
-	static T * sm_ptOnlyInstance;
+   /** Pointer to the one and only instance of the application-defined module class. */
+   static T * sm_ptOnlyInstance;
 };
 
 } //namespace abc
@@ -529,8 +529,8 @@ private:
 /** Defines the static members of a abc::module_impl specialization.
 */
 #define ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-	template <> \
-	/*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL);
+   template <> \
+   /*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -543,72 +543,72 @@ namespace abc {
 */
 template <class T>
 class app_module_impl :
-	public module_impl<T> {
+   public module_impl<T> {
 public:
 
-	/** C-style entry point for executables.
+   /** C-style entry point for executables.
 
-	cArgs
-		Count of arguments.
-	ppszArgs
-		Arguments.
-	return
-		Return code of the program.
-	*/
-	static int entry_point_main(int cArgs, char_t ** ppszArgs) {
-		// Establish this as early as possible.
-		exception::async_handler_manager eahm;
-		try {
-			// Create and initialize the module.
-			T t;
+   cArgs
+      Count of arguments.
+   ppszArgs
+      Arguments.
+   return
+      Return code of the program.
+   */
+   static int entry_point_main(int cArgs, char_t ** ppszArgs) {
+      // Establish this as early as possible.
+      exception::async_handler_manager eahm;
+      try {
+         // Create and initialize the module.
+         T t;
 
-			// Use a smvector to avoid dynamic allocation for just a few arguments.
-			smvector<istr const, 8> vsArgs;
-			module_impl<T>::_build_args(cArgs, ppszArgs, &vsArgs);
+         // Use a smvector to avoid dynamic allocation for just a few arguments.
+         smvector<istr const, 8> vsArgs;
+         module_impl<T>::_build_args(cArgs, ppszArgs, &vsArgs);
 
-			// Invoke the program-defined main().
-			return t.main(vsArgs);
-		} catch (std::exception const & x) {
-			exception::write_with_scope_trace(NULL, &x);
-			return 123;
-		} catch (...) {
-			exception::write_with_scope_trace();
-			return 123;
-		}
-	}
+         // Invoke the program-defined main().
+         return t.main(vsArgs);
+      } catch (std::exception const & x) {
+         exception::write_with_scope_trace(NULL, &x);
+         return 123;
+      } catch (...) {
+         exception::write_with_scope_trace();
+         return 123;
+      }
+   }
 
 
 #if ABC_HOST_API_WIN32
 
-	/** Entry point for Windows executables.
+   /** Entry point for Windows executables.
 
-	hinst
-		Module’s instance handle.
-	iShowCmd
-		Indication on how the application’s main window should be displayed; one of SW_* flags.
-	*/
-	static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
-		ABC_UNUSED_ARG(iShowCmd);
+   hinst
+      Module’s instance handle.
+   iShowCmd
+      Indication on how the application’s main window should be displayed; one of SW_* flags.
+   */
+   static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
+      ABC_UNUSED_ARG(iShowCmd);
 
-		// Establish this as early as possible.
-		exception::async_handler_manager eahm;
-		try {
-			// Create and initialize the module.
-			_preconstruct(hinst);
-			T t;
+      // Establish this as early as possible.
+      exception::async_handler_manager eahm;
+      try {
+         // Create and initialize the module.
+         _preconstruct(hinst);
+         T t;
 
-			smvector<istr const, 8> vsArgs;
+         smvector<istr const, 8> vsArgs;
 
-			// Invoke the program-defined main().
-			return t.main(vsArgs);
-		} catch (std::exception const & x) {
-			exception::write_with_scope_trace(NULL, &x);
-			return 123;
-		} catch (...) {
-			exception::write_with_scope_trace();
-			return 123;
-		}
-	}
+         // Invoke the program-defined main().
+         return t.main(vsArgs);
+      } catch (std::exception const & x) {
+         exception::write_with_scope_trace(NULL, &x);
+         return 123;
+      } catch (...) {
+         exception::write_with_scope_trace();
+         return 123;
+      }
+   }
 
 #endif //if ABC_HOST_API_WIN32
 
@@ -616,17 +616,17 @@ public:
 // Overridables to define the behavior of the application.
 public:
 
-	/** Entry point of the application.
+   /** Entry point of the application.
 
-	vsArgs
-		Command-line arguments.
-	return
-		Return code of the program.
-	*/
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_UNUSED_ARG(vsArgs);
-		return 0;
-	}
+   vsArgs
+      Command-line arguments.
+   return
+      Return code of the program.
+   */
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_UNUSED_ARG(vsArgs);
+      return 0;
+   }
 };
 
 } //namespace abc
@@ -635,37 +635,37 @@ public:
 /** Declares an abc::app_module_impl-derived class as being the main module for the application.
 
 cls
-	Main abc::app_module_impl-derived class.
+   Main abc::app_module_impl-derived class.
 */
 #if ABC_HOST_API_POSIX
-	#define ABC_MAIN_APP_MODULE(cls) \
-		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-		\
-		extern "C" int main(int cArgs, char ** ppszArgs) { \
-			return cls::entry_point_main(cArgs, ppszArgs); \
-		}
+   #define ABC_MAIN_APP_MODULE(cls) \
+      ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+      \
+      extern "C" int main(int cArgs, char ** ppszArgs) { \
+         return cls::entry_point_main(cArgs, ppszArgs); \
+      }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-	// TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
-	#ifdef ABC_HOST_API_WIN32_GUI
-		#define ABC_MAIN_APP_MODULE(cls) \
-			ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-			\
-			extern "C" int WINAPI wWinMain( \
-				HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
-			) { \
-				ABC_UNUSED_ARG(pszCmdLine); \
-				return cls::entry_point_win_exe(hinst, iShowCmd); \
-			}
-	#else
-		#define ABC_MAIN_APP_MODULE(cls) \
-			ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-			\
-			extern "C" int ABC_STL_CALLCONV wmain(int cArgs, wchar_t ** ppszArgs) { \
-				return cls::entry_point_main(cArgs, ppszArgs); \
-			}
-	#endif
+   // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
+   #ifdef ABC_HOST_API_WIN32_GUI
+      #define ABC_MAIN_APP_MODULE(cls) \
+         ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+         \
+         extern "C" int WINAPI wWinMain( \
+            HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
+         ) { \
+            ABC_UNUSED_ARG(pszCmdLine); \
+            return cls::entry_point_win_exe(hinst, iShowCmd); \
+         }
+   #else
+      #define ABC_MAIN_APP_MODULE(cls) \
+         ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+         \
+         extern "C" int ABC_STL_CALLCONV wmain(int cArgs, wchar_t ** ppszArgs) { \
+            return cls::entry_point_main(cArgs, ppszArgs); \
+         }
+   #endif
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-	#error TODO-PORT: OUTPUT
+   #error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
@@ -679,63 +679,63 @@ namespace abc {
 */
 template <class T>
 class library_module_impl :
-	public module_impl<T> {
+   public module_impl<T> {
 public:
 
 #if ABC_HOST_API_POSIX
 
-	// TODO
+   // TODO
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-	/** Entry point for Windows DLLs.
+   /** Entry point for Windows DLLs.
 
-	hinst
-		Module’s instance handle.
-	iReason
-		Reason why the DLL entry point was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
-	return
-		true in case of success, or false otherwise.
-	*/
-	static BOOL entry_point_win_dll(HINSTANCE hinst, DWORD iReason) try {
-		switch (iReason) {
-			case DLL_PROCESS_ATTACH: {
-				// Allocate a new module on the heap, since this function will return immediately.
-				_preconstruct(hinst);
-				std::unique_ptr<T> pt(new T());
-				if (!pt->dll_main(iReason)) {
-					return false;
-				}
-				// If we got to this point, dll_main() succeeded, so we want to avoid deleting pt.
-				pt.release();
-				return true;
-			}
+   hinst
+      Module’s instance handle.
+   iReason
+      Reason why the DLL entry point was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
+   return
+      true in case of success, or false otherwise.
+   */
+   static BOOL entry_point_win_dll(HINSTANCE hinst, DWORD iReason) try {
+      switch (iReason) {
+         case DLL_PROCESS_ATTACH: {
+            // Allocate a new module on the heap, since this function will return immediately.
+            _preconstruct(hinst);
+            std::unique_ptr<T> pt(new T());
+            if (!pt->dll_main(iReason)) {
+               return false;
+            }
+            // If we got to this point, dll_main() succeeded, so we want to avoid deleting pt.
+            pt.release();
+            return true;
+         }
 
-			case DLL_PROCESS_DETACH: {
-				// The unique_ptr will take care of deleting pt.
-				std::unique_ptr<T> pt(T::sm_ptOnlyInstance);
-				return pt->dll_main(iReason);
-			}
+         case DLL_PROCESS_DETACH: {
+            // The unique_ptr will take care of deleting pt.
+            std::unique_ptr<T> pt(T::sm_ptOnlyInstance);
+            return pt->dll_main(iReason);
+         }
 
-			case DLL_THREAD_ATTACH:
-			case DLL_THREAD_DETACH: {
-				T * pt(T::sm_ptOnlyInstance);
-				return pt->dll_main(iReason);
-			}
+         case DLL_THREAD_ATTACH:
+         case DLL_THREAD_DETACH: {
+            T * pt(T::sm_ptOnlyInstance);
+            return pt->dll_main(iReason);
+         }
 
-			default:
-				return true;
-		}
-	} catch (std::exception const & x) {
-		exception::write_with_scope_trace(NULL, &x);
-		return false;
-	} catch (...) {
-		exception::write_with_scope_trace();
-		return false;
-	}
+         default:
+            return true;
+      }
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(NULL, &x);
+      return false;
+   } catch (...) {
+      exception::write_with_scope_trace();
+      return false;
+   }
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-	#error TODO-PORT: OUTPUT
+   #error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
@@ -744,29 +744,29 @@ public:
 
 #if ABC_HOST_API_POSIX
 
-	// TODO
+   // TODO
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-	/** TODO: comment signature.
-	*/
-	bool dll_main(int iReason) {
-		ABC_UNUSED_ARG(iReason);
-		return true;
-	}
+   /** TODO: comment signature.
+   */
+   bool dll_main(int iReason) {
+      ABC_UNUSED_ARG(iReason);
+      return true;
+   }
 
 
-	/** Invoked by COM to determine whether the DLL is no longer in use and can be unloaded.
+   /** Invoked by COM to determine whether the DLL is no longer in use and can be unloaded.
 
-	return
-		S_OK if the DLL is no longer needed, or S_FALSE otherwise.
-	*/
-	HRESULT DllCanUnloadNow() {
-		return use_count() > 0 ? S_FALSE : S_OK;
-	}
+   return
+      S_OK if the DLL is no longer needed, or S_FALSE otherwise.
+   */
+   HRESULT DllCanUnloadNow() {
+      return use_count() > 0 ? S_FALSE : S_OK;
+   }
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-	#error TODO-PORT: OUTPUT
+   #error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 };
 
@@ -776,25 +776,25 @@ public:
 /** Declares an abc::library_module_impl-derived class as being the main module for the library.
 
 cls
-	Main abc::library_module_impl-derived class.
+   Main abc::library_module_impl-derived class.
 */
 #if ABC_HOST_API_POSIX
-	#define ABC_MAIN_LIBRARY_MODULE(cls) \
-		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-		\
-		extern "C" int main(int cArgs, char ** ppszArgs) { \
-			return cls::entry_point_main(cArgs, ppszArgs); \
-		}
+   #define ABC_MAIN_LIBRARY_MODULE(cls) \
+      ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+      \
+      extern "C" int main(int cArgs, char ** ppszArgs) { \
+         return cls::entry_point_main(cArgs, ppszArgs); \
+      }
 #elif ABC_HOST_API_WIN32
-	#define ABC_MAIN_LIBRARY_MODULE(cls) \
-		ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
-		\
-		extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
-			ABC_UNUSED_ARG(pReserved); \
-			return cls::entry_point_win_dll(hinst, iReason); \
-		}
+   #define ABC_MAIN_LIBRARY_MODULE(cls) \
+      ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
+      \
+      extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) { \
+         ABC_UNUSED_ARG(pReserved); \
+         return cls::entry_point_win_dll(hinst, iReason); \
+      }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-	#error TODO-PORT: OUTPUT
+   #error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 

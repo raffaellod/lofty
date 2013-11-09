@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 
@@ -42,9 +42,9 @@ result in __VA_ARGS__ being expanded correctly, working around the bug.
 /** Expands into its argument, working around [DOC:1829 __VA_ARGS__ MSC16 bug].
 
 x
-	Argument to expand into.
+   Argument to expand into.
 return
-	x.
+   x.
 */
 #define ABC_1829(x) x
 
@@ -52,158 +52,158 @@ return
 /** Expands into the count of its arguments.
 
 ...
-	Arguments to count.
+   Arguments to count.
 return
-	Count of the arguments.
+   Count of the arguments.
 */
 #define ABC_CPP_LIST_COUNT(...) \
-	ABC_1829(_ABC_CPP_LIST_COUNT_IMPL(__VA_ARGS__, \
-		99, 98, 97, 96, 95, 94, 93, 92, 91, 90, \
-		89, 88, 87, 86, 85, 84, 83, 82, 81, 80, \
-		79, 78, 77, 76, 75, 74, 73, 72, 71, 70, \
-		69, 68, 67, 66, 65, 64, 63, 62, 61, 60, \
-		59, 58, 57, 56, 55, 54, 53, 52, 51, 50, \
-		49, 48, 47, 46, 45, 44, 43, 42, 41, 40, \
-		39, 38, 37, 36, 35, 34, 33, 32, 31, 30, \
-		29, 28, 27, 26, 25, 24, 23, 22, 21, 20, \
-		19, 18, 17, 16, 15, 14, 13, 12, 11, 10, \
-		 9,  8,  7,  6,  5,  4,  3,  2,  1,     \
-		_ \
-	))
+   ABC_1829(_ABC_CPP_LIST_COUNT_IMPL(__VA_ARGS__, \
+      99, 98, 97, 96, 95, 94, 93, 92, 91, 90, \
+      89, 88, 87, 86, 85, 84, 83, 82, 81, 80, \
+      79, 78, 77, 76, 75, 74, 73, 72, 71, 70, \
+      69, 68, 67, 66, 65, 64, 63, 62, 61, 60, \
+      59, 58, 57, 56, 55, 54, 53, 52, 51, 50, \
+      49, 48, 47, 46, 45, 44, 43, 42, 41, 40, \
+      39, 38, 37, 36, 35, 34, 33, 32, 31, 30, \
+      29, 28, 27, 26, 25, 24, 23, 22, 21, 20, \
+      19, 18, 17, 16, 15, 14, 13, 12, 11, 10, \
+       9,  8,  7,  6,  5,  4,  3,  2,  1,     \
+      _ \
+   ))
 
 #define _ABC_CPP_LIST_COUNT_IMPL( \
-		_99, _98, _97, _96, _95, _94, _93, _92, _91, _90, \
-		_89, _88, _87, _86, _85, _84, _83, _82, _81, _80, \
-		_79, _78, _77, _76, _75, _74, _73, _72, _71, _70, \
-		_69, _68, _67, _66, _65, _64, _63, _62, _61, _60, \
-		_59, _58, _57, _56, _55, _54, _53, _52, _51, _50, \
-		_49, _48, _47, _46, _45, _44, _43, _42, _41, _40, \
-		_39, _38, _37, _36, _35, _34, _33, _32, _31, _30, \
-		_29, _28, _27, _26, _25, _24, _23, _22, _21, _20, \
-		_19, _18, _17, _16, _15, _14, _13, _12, _11, _10, \
-		 _9,  _8,  _7,  _6,  _5,  _4,  _3,  _2,  _1,      \
-		count, ... \
-	) \
-	count
+      _99, _98, _97, _96, _95, _94, _93, _92, _91, _90, \
+      _89, _88, _87, _86, _85, _84, _83, _82, _81, _80, \
+      _79, _78, _77, _76, _75, _74, _73, _72, _71, _70, \
+      _69, _68, _67, _66, _65, _64, _63, _62, _61, _60, \
+      _59, _58, _57, _56, _55, _54, _53, _52, _51, _50, \
+      _49, _48, _47, _46, _45, _44, _43, _42, _41, _40, \
+      _39, _38, _37, _36, _35, _34, _33, _32, _31, _30, \
+      _29, _28, _27, _26, _25, _24, _23, _22, _21, _20, \
+      _19, _18, _17, _16, _15, _14, _13, _12, _11, _10, \
+       _9,  _8,  _7,  _6,  _5,  _4,  _3,  _2,  _1,      \
+      count, ... \
+   ) \
+   count
 
 
 /** Expands into a joined version of the two provided tokens. Necessary to implement the more
 generic ABC_CPP_CAT().
 
 token1
-	Left token to join.
+   Left token to join.
 token2
-	Right token to join.
+   Right token to join.
 return
-	Concatenation of token1 and token2, in this order.
+   Concatenation of token1 and token2, in this order.
 */
 #define ABC_CPP_CAT2(token1, token2) \
-	_ABC_CPP_CAT2_IMPL(token1, token2)
+   _ABC_CPP_CAT2_IMPL(token1, token2)
 
 #define _ABC_CPP_CAT2_IMPL(token1, token2) \
-	token1 ## token2
+   token1 ## token2
 
 
 /** Expands into a joined version of the provided tokens.
 
 ...
-	Tokens to join.
+   Tokens to join.
 return
-	Tokens joined in the order in which they were provided.
+   Tokens joined in the order in which they were provided.
 */
 #define ABC_CPP_CAT(...) \
-	ABC_1829(ABC_CPP_CAT2(_ABC_CPP_CAT_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(__VA_ARGS__))
+   ABC_1829(ABC_CPP_CAT2(_ABC_CPP_CAT_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(__VA_ARGS__))
 
 #define _ABC_CPP_CAT_1(token1) \
-	_ABC_CPP_CAT_1_IMPL(token1)
+   _ABC_CPP_CAT_1_IMPL(token1)
 #define _ABC_CPP_CAT_1_IMPL(token1) \
-	token1
+   token1
 #define _ABC_CPP_CAT_2(token1, token2) \
-	_ABC_CPP_CAT_2_IMPL(token1, token2)
+   _ABC_CPP_CAT_2_IMPL(token1, token2)
 #define _ABC_CPP_CAT_2_IMPL(token1, token2) \
-	token1 ## token2
+   token1 ## token2
 #define _ABC_CPP_CAT_3(t1, t2, t3) \
-	_ABC_CPP_CAT_3_IMPL(t1, t2, t3)
+   _ABC_CPP_CAT_3_IMPL(t1, t2, t3)
 #define _ABC_CPP_CAT_3_IMPL(t1, t2, t3) \
-	t1 ## t2 ## t3
+   t1 ## t2 ## t3
 #define _ABC_CPP_CAT_4(t1, t2, t3, t4) \
-	_ABC_CPP_CAT_4_IMPL(t1, t2, t3, t4)
+   _ABC_CPP_CAT_4_IMPL(t1, t2, t3, t4)
 #define _ABC_CPP_CAT_4_IMPL(t1, t2, t3, t4) \
-	t1 ## t2 ## t3 ## t4
+   t1 ## t2 ## t3 ## t4
 #define _ABC_CPP_CAT_5(t1, t2, t3, t4, t5) \
-	_ABC_CPP_CAT_5_IMPL(t1, t2, t3, t4, t5)
+   _ABC_CPP_CAT_5_IMPL(t1, t2, t3, t4, t5)
 #define _ABC_CPP_CAT_5_IMPL(t1, t2, t3, t4, t5) \
-	t1 ## t2 ## t3 ## t4 ## t5
+   t1 ## t2 ## t3 ## t4 ## t5
 #define _ABC_CPP_CAT_6(t1, t2, t3, t4, t5, t6) \
-	_ABC_CPP_CAT_6_IMPL(t1, t2, t3, t4, t5, t6)
+   _ABC_CPP_CAT_6_IMPL(t1, t2, t3, t4, t5, t6)
 #define _ABC_CPP_CAT_6_IMPL(t1, t2, t3, t4, t5, t6) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6
 #define _ABC_CPP_CAT_7(t1, t2, t3, t4, t5, t6, t7) \
-	_ABC_CPP_CAT_7_IMPL(t1, t2, t3, t4, t5, t6, t7)
+   _ABC_CPP_CAT_7_IMPL(t1, t2, t3, t4, t5, t6, t7)
 #define _ABC_CPP_CAT_7_IMPL(t1, t2, t3, t4, t5, t6, t7) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7
 #define _ABC_CPP_CAT_8(t1, t2, t3, t4, t5, t6, t7, t8) \
-	_ABC_CPP_CAT_8_IMPL(t1, t2, t3, t4, t5, t6, t7, t8)
+   _ABC_CPP_CAT_8_IMPL(t1, t2, t3, t4, t5, t6, t7, t8)
 #define _ABC_CPP_CAT_8_IMPL(t1, t2, t3, t4, t5, t6, t7, t8) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8
 #define _ABC_CPP_CAT_9(t1, t2, t3, t4, t5, t6, t7, t8, t9) \
-	_ABC_CPP_CAT_9_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9)
+   _ABC_CPP_CAT_9_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9)
 #define _ABC_CPP_CAT_9_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9
 #define _ABC_CPP_CAT_10(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) \
-	_ABC_CPP_CAT_10_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)
+   _ABC_CPP_CAT_10_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)
 #define _ABC_CPP_CAT_10_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10
 #define _ABC_CPP_CAT_11(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11) \
-	_ABC_CPP_CAT_11_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11)
+   _ABC_CPP_CAT_11_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11)
 #define _ABC_CPP_CAT_11_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11
 #define _ABC_CPP_CAT_12(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) \
-	_ABC_CPP_CAT_12_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
+   _ABC_CPP_CAT_12_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
 #define _ABC_CPP_CAT_12_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12
 #define _ABC_CPP_CAT_13(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13) \
-	_ABC_CPP_CAT_13_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13)
+   _ABC_CPP_CAT_13_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13)
 #define _ABC_CPP_CAT_13_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13
 #define _ABC_CPP_CAT_14(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) \
-	_ABC_CPP_CAT_14_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14)
+   _ABC_CPP_CAT_14_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14)
 #define _ABC_CPP_CAT_14_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14
 #define _ABC_CPP_CAT_15(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
-	_ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15)
+   _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15)
 #define _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
-	t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
+   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
 
 
 /** Expands into a string version of the specified token.
 
 x
-	Expression to convert to a string literal.
+   Expression to convert to a string literal.
 return
-	String literal representing the specified expression.
+   String literal representing the specified expression.
 */
 #define ABC_CPP_TOSTRING(x) \
-	_ABC_CPP_TOSTRING_IMPL(x)
+   _ABC_CPP_TOSTRING_IMPL(x)
 
 #define _ABC_CPP_TOSTRING_IMPL(x) \
-	#x
+   #x
 
 
 /** Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
 guaranteed on all platforms.
 
 s
-	Prefix for the unique identifier.
+   Prefix for the unique identifier.
 return
-	Unique identifier.
+   Unique identifier.
 */
 #if defined(_GCC_VER) || defined(_MSC_VER)
-	#define ABC_CPP_APPEND_UID(s) \
-		ABC_CPP_CAT2(s, __COUNTER__)
+   #define ABC_CPP_APPEND_UID(s) \
+      ABC_CPP_CAT2(s, __COUNTER__)
 #else
-	#define ABC_CPP_APPEND_UID(s) \
-		ABC_CPP_CAT2(s, __LINE__)
+   #define ABC_CPP_APPEND_UID(s) \
+      ABC_CPP_CAT2(s, __LINE__)
 #endif
 
 
@@ -211,28 +211,28 @@ return
 whether bit evaluates to 1 or 0, respectively.
 
 bit
-	Boolean selector of the macro that folllows.
+   Boolean selector of the macro that folllows.
 return
-	Execution of the macro that follows.
+   Execution of the macro that follows.
 */
 #define ABC_CPP_IIF(bit) \
-	ABC_CPP_CAT2(_ABC_CPP_IIF_, bit)
+   ABC_CPP_CAT2(_ABC_CPP_IIF_, bit)
 
 #define _ABC_CPP_IIF_0(true_part, ...) \
-	__VA_ARGS__
+   __VA_ARGS__
 #define _ABC_CPP_IIF_1(true_part, ...) \
-	true_part
+   true_part
 
 
 /** Expands into the complement of the specified bit.
 
 bit
-	Bit to complement.
+   Bit to complement.
 return
-	Complement of the expansion of bit.
+   Complement of the expansion of bit.
 */
 #define ABC_CPP_COMPL(bit) \
-	ABC_CPP_CAT2(_ABC_CPP_COMPL_, bit)
+   ABC_CPP_CAT2(_ABC_CPP_COMPL_, bit)
 
 #define _ABC_CPP_COMPL_0 1
 #define _ABC_CPP_COMPL_1 0
@@ -241,12 +241,12 @@ return
 /** Expands into the argument + 1.
 
 int
-	Number.
+   Number.
 return
-	Number + 1.
+   Number + 1.
 */
 #define ABC_CPP_INC(int) \
-	ABC_CPP_CAT2(_ABC_CPP_INC_, int)
+   ABC_CPP_CAT2(_ABC_CPP_INC_, int)
 
 #define _ABC_CPP_INC_0   1
 #define _ABC_CPP_INC_1   2
@@ -353,12 +353,12 @@ return
 /** Expands into the argument - 1.
 
 int
-	Number.
+   Number.
 return
-	Number - 1.
+   Number - 1.
 */
 #define ABC_CPP_DEC(int) \
-	ABC_CPP_CAT2(_ABC_CPP_DEC_, int)
+   ABC_CPP_CAT2(_ABC_CPP_DEC_, int)
 
 #define _ABC_CPP_DEC_0   0
 #define _ABC_CPP_DEC_1   0
@@ -466,83 +466,83 @@ return
 latter is expanded or not.
 
 ...
-	Unused.
+   Unused.
 */
 // Comma after 0 necessary just to provide something for _ABC_CPP_CHECK_EXPAND’s “...”.
 #define ABC_CPP_CHECK(...) \
-	ABC_1829(_ABC_CPP_CHECK_EXPAND(__VA_ARGS__, 0, ))
+   ABC_1829(_ABC_CPP_CHECK_EXPAND(__VA_ARGS__, 0, ))
 
 #define _ABC_CPP_CHECK_EXPAND(ignore, ret, ...) \
-	ret
+   ret
 
 // Expands into a placeholder and 1, which will replace the 0 if passed as argument to
 // ABC_CPP_CHECK().
 //
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
-	dummy, 1
+   dummy, 1
 
 
 /** Expands into either 1 or 0 depending on whether the argument is a tuple or not.
 
 x
-	Expression.
+   Expression.
 return
-	1 if the argument is a tuple, or 0 otherwise.
+   1 if the argument is a tuple, or 0 otherwise.
 */
 #define ABC_CPP_IS_TUPLE(x) \
-	ABC_CPP_CHECK(_ABC_CPP_MAKE_CHECK_RET_ONE x)
+   ABC_CPP_CHECK(_ABC_CPP_MAKE_CHECK_RET_ONE x)
 
 
 /** Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
 respectively.
 
 x
-	Expression to negate.
+   Expression to negate.
 return
-	0 or 1.
+   0 or 1.
 */
 #define ABC_CPP_NOT(x) \
-	ABC_CPP_CHECK(ABC_CPP_CAT2(_ABC_CPP_NOT_, x))
+   ABC_CPP_CHECK(ABC_CPP_CAT2(_ABC_CPP_NOT_, x))
 
 #define _ABC_CPP_NOT_0 \
-	_ABC_CPP_MAKE_CHECK_RET_ONE()
+   _ABC_CPP_MAKE_CHECK_RET_ONE()
 
 
 /** Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
 respectively.
 
 x
-	Expression to convert to a boolean value.
+   Expression to convert to a boolean value.
 return
-	0 or 1.
+   0 or 1.
 */
 #define ABC_CPP_BOOL(x) \
-	ABC_CPP_COMPL(ABC_CPP_NOT(x))
+   ABC_CPP_COMPL(ABC_CPP_NOT(x))
 
 
 /** Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether x evaluates to non-0 or 0, respectively.
 
 x
-	Condition.
+   Condition.
 return
-	Execution of the macro that follows.
+   Execution of the macro that follows.
 */
 #define ABC_CPP_IF(x) \
-	ABC_CPP_IIF(ABC_CPP_BOOL(x))
+   ABC_CPP_IIF(ABC_CPP_BOOL(x))
 
 
 /** Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
 
 macro
-	Macro to invoke on each item in the remaining arguments.
+   Macro to invoke on each item in the remaining arguments.
 return
-	Result of the expansion of macro.
+   Result of the expansion of macro.
 */
 #define ABC_CPP_LIST_WALK(macro, ...) \
-	ABC_1829(ABC_CPP_CAT2(_ABC_CPP_LIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
+   ABC_1829(ABC_CPP_CAT2(_ABC_CPP_LIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
 
 #define _ABC_CPP_LIST_W_0(macro)
 #define _ABC_CPP_LIST_W_1(macro, head) macro(head)
@@ -650,12 +650,12 @@ return
 as arguments.
 
 macro
-	Macro to invoke on each tuple in the remaining arguments.
+   Macro to invoke on each tuple in the remaining arguments.
 return
-	Result of the expansion of macro.
+   Result of the expansion of macro.
 */
 #define ABC_CPP_TUPLELIST_WALK(macro, ...) \
-	ABC_1829(ABC_CPP_CAT2(_ABC_CPP_TUPLELIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
+   ABC_1829(ABC_CPP_CAT2(_ABC_CPP_TUPLELIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
 
 #define _ABC_CPP_TUPLELIST_W_0(macro)
 #define _ABC_CPP_TUPLELIST_W_1(macro, head) macro head

@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -29,55 +29,55 @@ namespace abc {
 namespace test {
 
 class file_path_normalization :
-	public testing::test_case {
+   public testing::test_case {
 public:
 
-	/** See testing::test_case::title().
-	*/
-	virtual istr title() {
-		return istr(SL("abc::file_path - normalizations"));
-	}
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::file_path - normalizations"));
+   }
 
 
-	/** See testing::test_case::run().
-	*/
-	virtual void run() {
-		ABC_TRACE_FN((this));
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
 
-		file_path fp(file_path::current_dir());
+      file_path fp(file_path::current_dir());
 
-		// These should be normalized out.
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL(""));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/"));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("//"));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("."));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/."));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./"));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/./"));
-		ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./."));
+      // These should be normalized out.
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL(""));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/"));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("//"));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("."));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/."));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./"));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("/./"));
+      ABC_TESTING_ASSERT_EQUAL(fp, fp / SL("./."));
 
-		// These should NOT be normalized: three dots are just another regular path component.
-		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("..."));
-		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/..."));
-		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL(".../"));
-		ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/.../"));
+      // These should NOT be normalized: three dots are just another regular path component.
+      ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("..."));
+      ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/..."));
+      ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL(".../"));
+      ABC_TESTING_ASSERT_NOT_EQUAL(fp, fp / SL("/.../"));
 
-		// Now with one additional trailing component.
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/test"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("//test"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("./test"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/./test"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("././test"));
+      // Now with one additional trailing component.
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/test"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("//test"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("./test"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("/./test"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("test"), fp / SL("././test"));
 
-		// Verify that ".." works.
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/.."), fp);
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b"), fp / SL("b"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/.."), fp);
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../.."), fp);
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../c"), fp / SL("a/c"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/../c"), fp / SL("c"));
-		ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../../c"), fp / SL("c"));
-	}
+      // Verify that ".." works.
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/.."), fp);
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b"), fp / SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/.."), fp);
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../.."), fp);
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../c"), fp / SL("a/c"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/../b/../c"), fp / SL("c"));
+      ABC_TESTING_ASSERT_EQUAL(fp / SL("a/b/../../c"), fp / SL("c"));
+   }
 };
 
 } //namespace test

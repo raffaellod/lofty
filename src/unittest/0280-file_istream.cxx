@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -25,33 +25,33 @@ using namespace abc;
 
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		std::shared_ptr<file_istream> pfis;
+      std::shared_ptr<file_istream> pfis;
 
-		size_t cArgs(vsArgs.size());
-		if (cArgs >= 2 && vsArgs[1] == SL("-i")) {
-			pfis = file_istream::stdin();
-		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
-			pfis = std::make_shared<file_istream>(vsArgs[2]);
-		}
+      size_t cArgs(vsArgs.size());
+      if (cArgs >= 2 && vsArgs[1] == SL("-i")) {
+         pfis = file_istream::stdin();
+      } else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
+         pfis = std::make_shared<file_istream>(vsArgs[2]);
+      }
 
-		if (!pfis) {
-			return EXIT_FAILURE;
-		}
-		auto pstdout(file_ostream::stdout());
-		for (dmstr s; pfis->read_line(&s); ) {
-			pstdout->write(s);
-			pstdout->write(SL("\n"));
-		}
+      if (!pfis) {
+         return EXIT_FAILURE;
+      }
+      auto pstdout(file_ostream::stdout());
+      for (dmstr s; pfis->read_line(&s); ) {
+         pstdout->write(s);
+         pstdout->write(SL("\n"));
+      }
 
-		// Test results determined by external program.
-		return EXIT_SUCCESS;
-	}
+      // Test results determined by external program.
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

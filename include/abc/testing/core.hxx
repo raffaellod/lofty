@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2013
 Raffaello D. Di Napoli
@@ -22,16 +22,16 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 
 /** Declares a symbol to be publicly visible (from the ABC testing shared library) or imported from
 ABC’s testing shared library (into another library/executable). */
 #ifdef _ABC_TESTING_LIB_BUILD
-	#define ABCTESTINGAPI ABC_SYM_EXPORT
+   #define ABCTESTINGAPI ABC_SYM_EXPORT
 #else
-	#define ABCTESTINGAPI ABC_SYM_IMPORT
+   #define ABCTESTINGAPI ABC_SYM_IMPORT
 #endif
 
 

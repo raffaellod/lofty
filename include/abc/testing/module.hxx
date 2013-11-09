@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/module.hxx>
@@ -41,12 +41,12 @@ namespace testing {
 allowing for the execution of test cases.
 */
 class app_module :
-	public app_module_impl<app_module> {
+   public app_module_impl<app_module> {
 public:
 
-	/** See abc::module_impl::main().
-	*/
-	ABCTESTINGAPI int main(mvector<istr const> const & vsArgs);
+   /** See abc::module_impl::main().
+   */
+   ABCTESTINGAPI int main(mvector<istr const> const & vsArgs);
 };
 
 } //namespace testing

@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/exception.hxx>
@@ -30,51 +30,51 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #if ABC_HOST_API_POSIX
 
-	#include <stdlib.h> // free() malloc() realloc()
-	#include <memory.h> // memcpy() memmove() memset()
+   #include <stdlib.h> // free() malloc() realloc()
+   #include <memory.h> // memcpy() memmove() memset()
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-	// Clean up pollution caused by previous headers.
-	extern "C" {
+   // Clean up pollution caused by previous headers.
+   extern "C" {
 
-	// Rtl*Memory*
+   // Rtl*Memory*
 
-	#undef RtlZeroMemory
-	WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, size_t cb);
+   #undef RtlZeroMemory
+   WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, size_t cb);
 
-	#undef RtlFillMemory
-	WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, size_t cb, UCHAR iValue);
+   #undef RtlFillMemory
+   WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, size_t cb, UCHAR iValue);
 
-	#undef RtlFillMemoryUlong
-	WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, size_t cb, ULONG iValue);
+   #undef RtlFillMemoryUlong
+   WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, size_t cb, ULONG iValue);
 
-	#undef RtlFillMemoryUlonglong
-	WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, size_t cb, ULONGLONG iValue);
+   #undef RtlFillMemoryUlonglong
+   WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, size_t cb, ULONGLONG iValue);
 
-	#undef RtlCopyMemory
-	WINBASEAPI void WINAPI RtlCopyMemory(
-		void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
-	);
+   #undef RtlCopyMemory
+   WINBASEAPI void WINAPI RtlCopyMemory(
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
+   );
 
-	#undef RtlMoveMemory
-	WINBASEAPI void WINAPI RtlMoveMemory(
-		void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
-	);
+   #undef RtlMoveMemory
+   WINBASEAPI void WINAPI RtlMoveMemory(
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
+   );
 
-	} //extern "C"
+   } //extern "C"
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 /** TODO: comment or remove.
 */
 #if defined(_GCC_VER)
-	#define _abc_alloca(cb) \
-		__builtin_alloca((cb))
+   #define _abc_alloca(cb) \
+      __builtin_alloca((cb))
 #elif defined(_MSC_VER)
-	extern "C" void * ABC_STL_CALLCONV _alloca(size_t cb);
-	#define _abc_alloca(cb) \
-		_alloca(cb)
+   extern "C" void * ABC_STL_CALLCONV _alloca(size_t cb);
+   #define _abc_alloca(cb) \
+      _alloca(cb)
 #endif
 
 
@@ -84,9 +84,9 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 #ifdef _MSC_VER
-	#pragma warning(push)
-	// “'operator': exception specification does not match previous declaration”
-	#pragma warning(disable: 4986)
+   #pragma warning(push)
+   // “'operator': exception specification does not match previous declaration”
+   #pragma warning(disable: 4986)
 #endif
 
 void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
@@ -101,7 +101,7 @@ void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_
 void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 #ifdef _MSC_VER
-	#pragma warning(pop)
+   #pragma warning(pop)
 #endif
 
 
@@ -121,83 +121,83 @@ template <typename T>
 class static_allocator {
 
 #ifdef ABC_CXX_TEMPLATE_FRIENDS
-	template <typename T2>
-	friend class static_allocator;
+   template <typename T2>
+   friend class static_allocator;
 #endif
 
 public:
 
-	typedef T const * const_pointer;
-	typedef T * pointer;
-	typedef typename std::allocator<T>::size_type size_type;
+   typedef T const * const_pointer;
+   typedef T * pointer;
+   typedef typename std::allocator<T>::size_type size_type;
 
-	template <typename T2>
-	struct rebind {
-		typedef static_allocator<T2> other;
-	};
+   template <typename T2>
+   struct rebind {
+      typedef static_allocator<T2> other;
+   };
 
 
 public:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	static_allocator() :
-		m_p(NULL),
-		m_cb(0) {
-	}
-	// This overload takes ownership of the provided static buffer.
-	template <typename T2>
-	static_allocator(T2 * t2) :
-		m_p(t2),
-		m_cb(sizeof(T2)) {
-	}
-	static_allocator(static_allocator const & sa) :
-		m_p(sa.m_p),
-		m_cb(sa.m_cb) {
-	}
-	template <class T2>
-	static_allocator(static_allocator<T2> const & sat2) :
-		m_p(sat2.m_p),
-		m_cb(sat2.m_cb) {
-	}
-
-
-	/** Allocates enough storage for the specified number of T objects.
-
-	TODO: comment signature.
-	*/
-	pointer allocate(size_type c, void const * pHint = 0) {
-		ABC_UNUSED_ARG(pHint);
-		// c must fit in our static buffer, and we must still have a buffer.
-		if (c > max_size() || !m_p) {
-			ABC_THROW(memory_allocation_error, ());
-		}
-
-		pointer pt(static_cast<pointer>(m_p));
-		m_p = NULL;
-		return pt;
-	}
+   TODO: comment signature.
+   */
+   static_allocator() :
+      m_p(NULL),
+      m_cb(0) {
+   }
+   // This overload takes ownership of the provided static buffer.
+   template <typename T2>
+   static_allocator(T2 * t2) :
+      m_p(t2),
+      m_cb(sizeof(T2)) {
+   }
+   static_allocator(static_allocator const & sa) :
+      m_p(sa.m_p),
+      m_cb(sa.m_cb) {
+   }
+   template <class T2>
+   static_allocator(static_allocator<T2> const & sat2) :
+      m_p(sat2.m_p),
+      m_cb(sat2.m_cb) {
+   }
 
 
-	/** Deallocates the storage associated to the specified T instance.
+   /** Allocates enough storage for the specified number of T objects.
 
-	TODO: comment signature.
-	*/
-	void deallocate(pointer p, size_type c) {
-		ABC_UNUSED_ARG(p);
-		ABC_UNUSED_ARG(c);
-	}
+   TODO: comment signature.
+   */
+   pointer allocate(size_type c, void const * pHint = 0) {
+      ABC_UNUSED_ARG(pHint);
+      // c must fit in our static buffer, and we must still have a buffer.
+      if (c > max_size() || !m_p) {
+         ABC_THROW(memory_allocation_error, ());
+      }
+
+      pointer pt(static_cast<pointer>(m_p));
+      m_p = NULL;
+      return pt;
+   }
 
 
-	/** Returns the maximum number of items that allocate() can create storage for.
+   /** Deallocates the storage associated to the specified T instance.
 
-	TODO: comment signature.
-	*/
-	size_type max_size() const {
-		return m_cb / sizeof(T);
-	}
+   TODO: comment signature.
+   */
+   void deallocate(pointer p, size_type c) {
+      ABC_UNUSED_ARG(p);
+      ABC_UNUSED_ARG(c);
+   }
+
+
+   /** Returns the maximum number of items that allocate() can create storage for.
+
+   TODO: comment signature.
+   */
+   size_type max_size() const {
+      return m_cb / sizeof(T);
+   }
 
 
 #ifdef ABC_CXX_TEMPLATE_FRIENDS
@@ -206,10 +206,10 @@ private:
 public:
 #endif
 
-	/** Pointer to the static storage. */
-	void * m_p;
-	/** Maximum size available in the static storage. */
-	size_t m_cb;
+   /** Pointer to the static storage. */
+   void * m_p;
+   /** Maximum size available in the static storage. */
+   size_t m_cb;
 };
 
 } //namespace memory
@@ -235,13 +235,13 @@ void free(T * pt);
 template <typename T>
 struct deleter {
 
-	/** Deallocates the specified memory block.
+   /** Deallocates the specified memory block.
 
-	TODO: comment signature.
-	*/
-	void operator()(T * pt) const {
-		free(pt);
-	}
+   TODO: comment signature.
+   */
+   void operator()(T * pt) const {
+      free(pt);
+   }
 };
 
 } //namespace memory
@@ -262,13 +262,13 @@ namespace memory {
 template <typename T>
 struct noop_deleter {
 
-	/** Deallocates the specified memory block.
+   /** Deallocates the specified memory block.
 
-	TODO: comment signature.
-	*/
-	void operator()(T * pt) const {
-		ABC_UNUSED_ARG(pt);
-	}
+   TODO: comment signature.
+   */
+   void operator()(T * pt) const {
+      ABC_UNUSED_ARG(pt);
+   }
 };
 
 } //namespace memory
@@ -290,7 +290,7 @@ TODO: comment signature.
 */
 template <typename T>
 inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = NULL) {
-	return std::unique_ptr<T, deleter<T>>(pt);
+   return std::unique_ptr<T, deleter<T>>(pt);
 }
 
 
@@ -299,11 +299,11 @@ inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = NULL) {
 TODO: comment signature.
 */
 inline void * _raw_alloc(size_t cb) {
-	void * p(::malloc(cb));
-	if (!p) {
-		ABC_THROW(memory_allocation_error, ());
-	}
-	return p;
+   void * p(::malloc(cb));
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
 }
 
 
@@ -312,11 +312,11 @@ inline void * _raw_alloc(size_t cb) {
 TODO: comment signature.
 */
 inline void * _raw_realloc(void * p, size_t cb) {
-	p = ::realloc(p, cb);
-	if (!p) {
-		ABC_THROW(memory_allocation_error, ());
-	}
-	return p;
+   p = ::realloc(p, cb);
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
 }
 
 
@@ -328,11 +328,11 @@ TODO: comment signature.
 */
 template <typename T>
 inline std::unique_ptr<T, deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
-	return make_unique_ptr<T>(static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra)));
+   return make_unique_ptr<T>(static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra)));
 }
 template <>
 inline std::unique_ptr<void, deleter<void>> alloc(size_t cb /*= 1*/, size_t cbExtra /*= 0*/) {
-	return make_unique_ptr<void>(_raw_alloc(cb + cbExtra));
+   return make_unique_ptr<void>(_raw_alloc(cb + cbExtra));
 }
 
 
@@ -342,7 +342,7 @@ TODO: comment signature.
 */
 template <typename T>
 inline void free(T * pt) {
-	::free(pt);
+   ::free(pt);
 }
 
 
@@ -353,23 +353,23 @@ TODO: comment signature.
 */
 template <typename T>
 inline T * realloc(T * pt, size_t c, size_t cbExtra = 0) {
-	return static_cast<T *>(_raw_realloc(pt, sizeof(T) * c + cbExtra));
+   return static_cast<T *>(_raw_realloc(pt, sizeof(T) * c + cbExtra));
 }
 template <>
 inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
-	return _raw_realloc(p, cb + cbExtra);
+   return _raw_realloc(p, cb + cbExtra);
 }
 template <typename T>
 inline void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
-	T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
-	ppt->release();
-	ppt->reset(pt);
+   T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
+   ppt->release();
+   ppt->reset(pt);
 }
 template <>
 inline void realloc(std::unique_ptr<void, deleter<void>> * pp, size_t cb, size_t cbExtra /*= 0*/) {
-	void * p(_raw_realloc(pp->get(), cb + cbExtra));
-	pp->release();
-	pp->reset(p);
+   void * p(_raw_realloc(pp->get(), cb + cbExtra));
+   pp->release();
+   pp->reset(p);
 }
 
 } //namespace memory
@@ -391,18 +391,18 @@ TODO: comment signature.
 */
 template <typename T>
 inline T * clear(T * ptDst, size_t c = 1) {
-	return static_cast<T *>(clear<void>(ptDst, sizeof(T) * c));
+   return static_cast<T *>(clear<void>(ptDst, sizeof(T) * c));
 }
 template <>
 inline void * clear(void * pDst, size_t cb /*= 1*/) {
 #if ABC_HOST_API_POSIX
-	::memset(pDst, 0, cb);
+   ::memset(pDst, 0, cb);
 #elif ABC_HOST_API_WIN32
-	::RtlZeroMemory(pDst, cb);
+   ::RtlZeroMemory(pDst, cb);
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
-	return pDst;
+   return pDst;
 }
 
 
@@ -413,47 +413,47 @@ TODO: comment signature.
 */
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc) {
-	// Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
-	// that the compiler can inline the copy.
-	switch (sizeof(T)) {
-		case sizeof(int8_t):
-			*reinterpret_cast<int8_t *>(ptDst) = *reinterpret_cast<int8_t const *>(ptSrc);
-			break;
-		case sizeof(int16_t):
-			*reinterpret_cast<int16_t *>(ptDst) = *reinterpret_cast<int16_t const *>(ptSrc);
-			break;
-		case sizeof(int32_t):
-			*reinterpret_cast<int32_t *>(ptDst) = *reinterpret_cast<int32_t const *>(ptSrc);
-			break;
-		case sizeof(int64_t):
-			*reinterpret_cast<int64_t *>(ptDst) = *reinterpret_cast<int64_t const *>(ptSrc);
-			break;
-		default:
-			copy<void>(ptDst, ptSrc, sizeof(T));
-			break;
-	}
-	return static_cast<T *>(ptDst);
+   // Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
+   // that the compiler can inline the copy.
+   switch (sizeof(T)) {
+      case sizeof(int8_t):
+         *reinterpret_cast<int8_t *>(ptDst) = *reinterpret_cast<int8_t const *>(ptSrc);
+         break;
+      case sizeof(int16_t):
+         *reinterpret_cast<int16_t *>(ptDst) = *reinterpret_cast<int16_t const *>(ptSrc);
+         break;
+      case sizeof(int32_t):
+         *reinterpret_cast<int32_t *>(ptDst) = *reinterpret_cast<int32_t const *>(ptSrc);
+         break;
+      case sizeof(int64_t):
+         *reinterpret_cast<int64_t *>(ptDst) = *reinterpret_cast<int64_t const *>(ptSrc);
+         break;
+      default:
+         copy<void>(ptDst, ptSrc, sizeof(T));
+         break;
+   }
+   return static_cast<T *>(ptDst);
 }
 // Nobody should want to use this, but it’s here for consistency.
 template <>
 inline void * copy(void * pDst, void const * pSrc) {
-	*reinterpret_cast<int8_t *>(pDst) = *reinterpret_cast<int8_t const *>(pSrc);
-	return pDst;
+   *reinterpret_cast<int8_t *>(pDst) = *reinterpret_cast<int8_t const *>(pSrc);
+   return pDst;
 }
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
-	return static_cast<T *>(copy<void>(ptDst, ptSrc, sizeof(T) * c));
+   return static_cast<T *>(copy<void>(ptDst, ptSrc, sizeof(T) * c));
 }
 template <>
 inline void * copy(void * pDst, void const * pSrc, size_t cb) {
 #if ABC_HOST_API_POSIX
-	::memcpy(pDst, pSrc, cb);
+   ::memcpy(pDst, pSrc, cb);
 #elif ABC_HOST_API_WIN32
-	::RtlMoveMemory(pDst, pSrc, cb);
+   ::RtlMoveMemory(pDst, pSrc, cb);
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
-	return pDst;
+   return pDst;
 }
 
 
@@ -464,18 +464,18 @@ TODO: comment signature.
 */
 template <typename T>
 inline T * move(T * ptDst, T const * ptSrc, size_t c) {
-	return static_cast<T *>(move<void>(ptDst, ptSrc, sizeof(T) * c));
+   return static_cast<T *>(move<void>(ptDst, ptSrc, sizeof(T) * c));
 }
 template <>
 inline void * move(void * pDst, void const * pSrc, size_t cb) {
 #if ABC_HOST_API_POSIX
-	::memmove(pDst, pSrc, cb);
+   ::memmove(pDst, pSrc, cb);
 #elif ABC_HOST_API_WIN32
-	::RtlMoveMemory(pDst, pSrc, cb);
+   ::RtlMoveMemory(pDst, pSrc, cb);
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
-	return pDst;
+   return pDst;
 }
 
 
@@ -485,23 +485,23 @@ TODO: comment signature.
 */
 template <typename T>
 inline T * set(T * ptDst, T const & tValue, size_t c) {
-	switch (sizeof(T)) {
+   switch (sizeof(T)) {
 #if ABC_HOST_API_POSIX
-		case sizeof(int8_t):
-			::memset(ptDst, tValue, c);
-			break;
+      case sizeof(int8_t):
+         ::memset(ptDst, tValue, c);
+         break;
 #elif ABC_HOST_API_WIN32
-		case sizeof(UCHAR):
-			::RtlFillMemory(ptDst, c, tValue);
-			break;
+      case sizeof(UCHAR):
+         ::RtlFillMemory(ptDst, c, tValue);
+         break;
 #endif
-		default:
-			for (T const * ptDstMax(ptDst + c); ptDst < ptDstMax; ++ptDst) {
-				copy(ptDst, &tValue);
-			}
-			break;
-	}
-	return ptDst;
+      default:
+         for (T const * ptDstMax(ptDst + c); ptDst < ptDstMax; ++ptDst) {
+            copy(ptDst, &tValue);
+         }
+         break;
+   }
+   return ptDst;
 }
 
 } //namespace memory

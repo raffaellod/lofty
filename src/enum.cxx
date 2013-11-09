@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -32,28 +32,28 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
-	ABC_TRACE_FN((pem, i));
+   ABC_TRACE_FN((pem, i));
 
-	for (; pem->pszName; ++pem) {
-		if (i == pem->iValue) {
-			return pem;
-		}
-	}
-	// TODO: provide more information in the exception.
-	ABC_THROW(domain_error, ());
+   for (; pem->pszName; ++pem) {
+      if (i == pem->iValue) {
+         return pem;
+      }
+   }
+   // TODO: provide more information in the exception.
+   ABC_THROW(domain_error, ());
 }
 /*static*/ enum_member const * enum_member::find_in_map(
-	enum_member const * pem, char_t const * psz
+   enum_member const * pem, char_t const * psz
 ) {
-	ABC_TRACE_FN((pem, psz));
+   ABC_TRACE_FN((pem, psz));
 
-	for (; pem->pszName; ++pem) {
-		if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0) {
-			return pem;
-		}
-	}
-	// TODO: provide more information in the exception.
-	ABC_THROW(domain_error, ());
+   for (; pem->pszName; ++pem) {
+      if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0) {
+         return pem;
+      }
+   }
+   // TODO: provide more information in the exception.
+   ABC_THROW(domain_error, ());
 }
 
 } //namespace abc
@@ -66,27 +66,27 @@ namespace abc {
 namespace abc {
 
 _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat) {
-	ABC_TRACE_FN((this, crFormat));
+   ABC_TRACE_FN((this, crFormat));
 
-	auto it(crFormat.cbegin());
+   auto it(crFormat.cbegin());
 
-	// TODO: parse the format string.
+   // TODO: parse the format string.
 
-	// If we still have any characters, they are garbage.
-	if (it != crFormat.cend()) {
-		ABC_THROW(syntax_error, (
-			SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
-		));
-	}
+   // If we still have any characters, they are garbage.
+   if (it != crFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+      ));
+   }
 }
 
 
 void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
-	ABC_TRACE_FN((this, i, pem, posOut));
+   ABC_TRACE_FN((this, i, pem, posOut));
 
-	enum_member const * petvp(enum_member::find_in_map(pem, i));
-	// TODO: apply format options.
-	posOut->write(petvp->pszName);
+   enum_member const * petvp(enum_member::find_in_map(pem, i));
+   // TODO: apply format options.
+   posOut->write(petvp->pszName);
 }
 
 } //namespace abc

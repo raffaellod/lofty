@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2013
 Raffaello D. Di Napoli
@@ -40,19 +40,19 @@ test_case::test_case() {
 
 
 void test_case::init(runner * prunner) {
-	ABC_TRACE_FN((prunner));
+   ABC_TRACE_FN((prunner));
 
-	m_prunner = prunner;
+   m_prunner = prunner;
 }
 
 
 void test_case::assert(bool bExpr, istr const & sExpr) {
-	ABC_TRACE_FN((this, bExpr, sExpr));
+   ABC_TRACE_FN((this, bExpr, sExpr));
 
-	m_prunner->log_result(bExpr, sExpr);
-	/*if (!bExpr) {
-		ABC_THROW(abc::testing::assertion_error, ());
-	}*/
+   m_prunner->log_result(bExpr, sExpr);
+   /*if (!bExpr) {
+      ABC_THROW(abc::testing::assertion_error, ());
+   }*/
 }
 
 } //namespace testing
@@ -75,15 +75,15 @@ namespace testing {
 
 
 test_case_factory_impl::test_case_factory_impl(list_item * pli) {
-	if (sm_pliHead) {
-		// We have a head and therefore a tail as well: add *pli as the new tail.
-		*sm_ppliTailNext = pli;
-	} else {
-		// We don’t have a head yet: set it up now.
-		sm_pliHead = pli;
-	}
-	// Save the “next” pointer of *pli for the next call.
-	sm_ppliTailNext = &pli->pliNext;
+   if (sm_pliHead) {
+      // We have a head and therefore a tail as well: add *pli as the new tail.
+      *sm_ppliTailNext = pli;
+   } else {
+      // We don’t have a head yet: set it up now.
+      sm_pliHead = pli;
+   }
+   // Save the “next” pointer of *pli for the next call.
+   sm_ppliTailNext = &pli->pliNext;
 }
 
 } //namespace testing

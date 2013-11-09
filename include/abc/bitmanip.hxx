@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 
@@ -36,14 +36,14 @@ namespace abc {
 namespace bitmanip {
 
 /* Intrinsics in VS2010:
-•	_BitScanForward
-•	_BitScanReverse
-•	_bittest
-•	_bittestandcomplement
-•	_bittestandreset
-•	_bittestandset
-•	_InterlockedCompareExchange
-•	_InterlockedCompareExchange64
+•  _BitScanForward
+•  _BitScanReverse
+•  _bittest
+•  _bittestandcomplement
+•  _bittestandreset
+•  _bittestandset
+•  _InterlockedCompareExchange
+•  _InterlockedCompareExchange64
 */
 
 
@@ -59,38 +59,38 @@ ABCAPI uint64_t _raw_ceiling_to_pow2(uint64_t i);
 /** Returns the argument rounded up to the closest power of 2.
 
 i
-	Integer to round up.
+   Integer to round up.
 return
-	Smallest power of 2 that’s not smaller than i.
+   Smallest power of 2 that’s not smaller than i.
 */
 template <typename I>
 inline I ceiling_to_pow2(I i) {
-	switch (sizeof(I)) {
-		case sizeof(uint8_t):
-			return _raw_ceiling_to_pow2(uint8_t(i));
-		case sizeof(uint16_t):
-			return _raw_ceiling_to_pow2(uint16_t(i));
-		case sizeof(uint32_t):
-			return _raw_ceiling_to_pow2(uint32_t(i));
-		case sizeof(uint64_t):
-			return _raw_ceiling_to_pow2(uint64_t(i));
-	}
+   switch (sizeof(I)) {
+      case sizeof(uint8_t):
+         return _raw_ceiling_to_pow2(uint8_t(i));
+      case sizeof(uint16_t):
+         return _raw_ceiling_to_pow2(uint16_t(i));
+      case sizeof(uint32_t):
+         return _raw_ceiling_to_pow2(uint32_t(i));
+      case sizeof(uint64_t):
+         return _raw_ceiling_to_pow2(uint64_t(i));
+   }
 }
 
 
 /** Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
 
 i
-	Integer to round up.
+   Integer to round up.
 iStep
-	Power of 2 to use as step to increment i.
+   Power of 2 to use as step to increment i.
 return
-	Smallest multiple of iStep that’s not smaller than i.
+   Smallest multiple of iStep that’s not smaller than i.
 */
 template <typename I>
 inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
-	--iStep;
-	return (i + iStep) & ~iStep;
+   --iStep;
+   return (i + iStep) & ~iStep;
 }
 
 
@@ -98,15 +98,15 @@ inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
 significant).
 
 i
-	Integer the bits of which are to be rotated.
+   Integer the bits of which are to be rotated.
 c
-	Count of positions the bits in i will be shifted.
+   Count of positions the bits in i will be shifted.
 return
-	Rotated bits of i.
+   Rotated bits of i.
 */
 template <typename I>
 inline /*constexpr*/ I rotate_l(I i, unsigned c) {
-	return (i << c) | (i >> (sizeof(I) * CHAR_BIT - c));
+   return (i << c) | (i >> (sizeof(I) * CHAR_BIT - c));
 }
 
 
@@ -114,15 +114,15 @@ inline /*constexpr*/ I rotate_l(I i, unsigned c) {
 significant).
 
 i
-	Integer the bits of which are to be rotated.
+   Integer the bits of which are to be rotated.
 c
-	Count of positions the bits in i will be shifted.
+   Count of positions the bits in i will be shifted.
 return
-	Rotated bits of i.
+   Rotated bits of i.
 */
 template <typename I>
 inline /*constexpr*/ I rotate_r(I i, unsigned c) {
-	return (i >> c) | (i << (sizeof(I) * CHAR_BIT - c));
+   return (i >> c) | (i << (sizeof(I) * CHAR_BIT - c));
 }
 
 } //namespace bitmanip

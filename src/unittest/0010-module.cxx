@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -23,15 +23,15 @@ using namespace abc;
 
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		ABC_UNUSED_ARG(vsArgs);
-		return EXIT_SUCCESS;
-	}
+      ABC_UNUSED_ARG(vsArgs);
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -25,48 +25,48 @@ using namespace abc;
 
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		std::shared_ptr<file_ostream> pfos;
-		text::encoding enc(text::encoding::host);
-		istr sName, sEnc(SL("host"));
+      std::shared_ptr<file_ostream> pfos;
+      text::encoding enc(text::encoding::host);
+      istr sName, sEnc(SL("host"));
 
-		size_t cArgs(vsArgs.size());
-		if (cArgs >= 2 && vsArgs[1] == SL("-o")) {
-			pfos = file_ostream::stdout();
-			sName = SL("stdout");
-		} else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
-			if (cArgs == 4 && vsArgs[3] == SL("-utf8")) {
-				enc = text::encoding::utf8;
-				sEnc = SL("UTF-8");
-			} else if (cArgs == 4 && vsArgs[3] == SL("-utf16be")) {
-				enc = text::encoding::utf16be;
-				sEnc = SL("UTF-16BE");
-			} else if (cArgs == 4 && vsArgs[3] == SL("-utf32le")) {
-				enc = text::encoding::utf32le;
-				sEnc = SL("UTF-32LE");
-			}
-			pfos = std::make_shared<file_ostream>(vsArgs[2]);
-			sName = SL("file");
-		}
+      size_t cArgs(vsArgs.size());
+      if (cArgs >= 2 && vsArgs[1] == SL("-o")) {
+         pfos = file_ostream::stdout();
+         sName = SL("stdout");
+      } else if (cArgs >= 3 && vsArgs[1] == SL("-f") && vsArgs[2]) {
+         if (cArgs == 4 && vsArgs[3] == SL("-utf8")) {
+            enc = text::encoding::utf8;
+            sEnc = SL("UTF-8");
+         } else if (cArgs == 4 && vsArgs[3] == SL("-utf16be")) {
+            enc = text::encoding::utf16be;
+            sEnc = SL("UTF-16BE");
+         } else if (cArgs == 4 && vsArgs[3] == SL("-utf32le")) {
+            enc = text::encoding::utf32le;
+            sEnc = SL("UTF-32LE");
+         }
+         pfos = std::make_shared<file_ostream>(vsArgs[2]);
+         sName = SL("file");
+      }
 
-		if (!pfos) {
-			return EXIT_FAILURE;
-		}
-		pfos->set_encoding(enc);
-		pfos->write(SL("Testing "));
-		pfos->write(sName);
-		pfos->write(SL(" ("));
-		pfos->write(sEnc);
-		pfos->write(SL(" encoding)\n"));
+      if (!pfos) {
+         return EXIT_FAILURE;
+      }
+      pfos->set_encoding(enc);
+      pfos->write(SL("Testing "));
+      pfos->write(sName);
+      pfos->write(SL(" ("));
+      pfos->write(sEnc);
+      pfos->write(SL(" encoding)\n"));
 
-		// Test results determined by external program.
-		return EXIT_SUCCESS;
-	}
+      // Test results determined by external program.
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

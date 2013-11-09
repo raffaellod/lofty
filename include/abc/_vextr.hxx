@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/numeric.hxx>
@@ -35,22 +35,22 @@ You should have received a copy of the GNU General Public License along with ABC
 
 *str_ and *vector are implemented using the same base set of classes:
 
-•	_raw_vextr_impl_base, core functionality for a vector of items: a little code and all member
-	variables; this is then extended by three implementation classes:
+•  _raw_vextr_impl_base, core functionality for a vector of items: a little code and all member
+   variables; this is then extended by three implementation classes:
 
-	•	_raw_complex_vextr_impl, implementation of a vector of objects of non-trivial class: this is
-		fully transactional and therefore exception-proof, but it's of course slower and uses more
-		memory even during simpler operations;
+   •  _raw_complex_vextr_impl, implementation of a vector of objects of non-trivial class: this is
+      fully transactional and therefore exception-proof, but it's of course slower and uses more
+      memory even during simpler operations;
 
-	•	_raw_trivial_vextr_impl, implementation of a vector of plain values (instances of trivial
-		class or native type): this is a near-optimal solution, still exception-proof but also taking
-		advantage of the knowledge that no copy constructors need to be called; this class also
-		supports the presence of a last element of value 0, opening up for the implementation of a
-		string-like vector:
+   •  _raw_trivial_vextr_impl, implementation of a vector of plain values (instances of trivial
+      class or native type): this is a near-optimal solution, still exception-proof but also taking
+      advantage of the knowledge that no copy constructors need to be called; this class also
+      supports the presence of a last element of value 0, opening up for the implementation of a
+      string-like vector:
 
-		•	_raw_str, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
-			provides means for clients of str_ to avoid having to be templates themselves, by giving
-			access to type-deleted (void *) methods.
+      •  _raw_str, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
+         provides means for clients of str_ to avoid having to be templates themselves, by giving
+         access to type-deleted (void *) methods.
 
 A vector/string using a static item array is nearly as fast as the C-style direct manipulation of an
 array, only wasting a very small amount of space, and providing the ability to switch to a
@@ -63,215 +63,215 @@ used by both.
 
 Underlying data storage:
 
-1.	istr() or dmstr()
-	┌───┬───┬───────┐
-	│ p │ 1 │ 0|f|f │
-	└───┴───┴───────┘
-	  │                 ┌────┐
-	  ╰────────────────▶│ \0 │						Read-only memory (NUL)
-		                 └────┘
+1. istr() or dmstr()
+   ┌───┬───┬───────┐
+   │ p │ 1 │ 0|f|f │
+   └───┴───┴───────┘
+     │                 ┌────┐
+     ╰────────────────▶│ \0 │               Read-only memory (NUL)
+                       └────┘
 
-2.	smstr<5>()
-	┌───┬───┬───────╥───┬─────────┐
-	│ p │ 1 │ 0|f|t ║ 4 │ - - - - │				Static (can be stack-allocated) fixed-size buffer
-	└───┴───┴───────╨───┴─────────┘
-	  │                 ┌────┐
-	  └────────────────▶│ \0 │						Read-only memory (NUL)
-		                 └────┘
+2. smstr<5>()
+   ┌───┬───┬───────╥───┬─────────┐
+   │ p │ 1 │ 0|f|t ║ 4 │ - - - - │          Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴───────╨───┴─────────┘
+     │                 ┌────┐
+     └────────────────▶│ \0 │               Read-only memory (NUL)
+                       └────┘
 
-3.	istr("abc"):
-	┌───┬───┬───────┐
-	│ p │ 4 │ 0|f|f │
-	└───┴───┴───────┘
-	  │                 ┌──────────┐
-	  └────────────────▶│ a b c \0 │				Read-only memory
-		                 └──────────┘
+3. istr("abc"):
+   ┌───┬───┬───────┐
+   │ p │ 4 │ 0|f|f │
+   └───┴───┴───────┘
+     │                 ┌──────────┐
+     └────────────────▶│ a b c \0 │         Read-only memory
+                       └──────────┘
 
-4.	dmstr("abc")
-	┌───┬───┬───────┐
-	│ p │ 4 │ 8|t|f │
-	└───┴───┴───────┘
-	  │                 ┌──────────────────┐
-	  └────────────────▶│ a b c \0 - - - - │	Dynamically-allocated variable-size buffer
-		                 └──────────────────┘
+4. dmstr("abc")
+   ┌───┬───┬───────┐
+   │ p │ 4 │ 8|t|f │
+   └───┴───┴───────┘
+     │                 ┌──────────────────┐
+     └────────────────▶│ a b c \0 - - - - │ Dynamically-allocated variable-size buffer
+                       └──────────────────┘
 
-5.	smstr<3>("abc")
-	┌───┬───┬───────╥───┬──────────┐
-	│ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │				Static (can be stack-allocated) fixed-size buffer
-	└───┴───┴───────╨───┴──────────┘
-	  │                 ▲
-	  └─────────────────┘
+5. smstr<3>("abc")
+   ┌───┬───┬───────╥───┬──────────┐
+   │ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │         Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴───────╨───┴──────────┘
+     │                 ▲
+     └─────────────────┘
 
-6.	smstr<2>("abc"):
-	┌───┬───┬───────╥───┬───────┐
-	│ p │ 4 │ 8|t|t ║ 3 │ - - - │					Static (can be stack-allocated) fixed-size buffer
-	└───┴───┴───────╨───┴───────┘
-	  │                 ┌──────────────────┐
-	  └────────────────▶│ a b c \0 - - - - │	Dynamically-allocated variable-size buffer
-		                 └──────────────────┘
+6. smstr<2>("abc"):
+   ┌───┬───┬───────╥───┬───────┐
+   │ p │ 4 │ 8|t|t ║ 3 │ - - - │            Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴───────╨───┴───────┘
+     │                 ┌──────────────────┐
+     └────────────────▶│ a b c \0 - - - - │ Dynamically-allocated variable-size buffer
+                       └──────────────────┘
 
 
 String types:
 
-	istr (immutable string)
-		Item array can be read-only (and shared) or dynamic.
-	smstr (statically- or dynamically-allocated mutable string)
-		Item array cannot be read-only nor shared, but it can be static or dynamic.
-	dmstr (dynamically-allocated mutable string)
-		Item array cannot be read-only, nor shared, nor static - always dynamic and writable.
+   istr (immutable string)
+      Item array can be read-only (and shared) or dynamic.
+   smstr (statically- or dynamically-allocated mutable string)
+      Item array cannot be read-only nor shared, but it can be static or dynamic.
+   dmstr (dynamically-allocated mutable string)
+      Item array cannot be read-only, nor shared, nor static - always dynamic and writable.
 
 
 Argument usage scenarios:
 
-	istr           g_is;
-	istr const     gc_is;
-	dmstr          g_dms;
-	dmstr const    gc_dms;
-	smstr<n>       g_sms;
-	smstr<n> const gc_sms;
-	mstr           g_ms;
-	mstr const     gc_ms;
+   istr           g_is;
+   istr const     gc_is;
+   dmstr          g_dms;
+   dmstr const    gc_dms;
+   smstr<n>       g_sms;
+   smstr<n> const gc_sms;
+   mstr           g_ms;
+   mstr const     gc_ms;
 
 
-•	No need to modify:
+•  No need to modify:
 
-	void f1(istr const & isArg) {
-		// N/A - const.
-		isArg += "abc";
+   void f1(istr const & isArg) {
+      // N/A - const.
+      isArg += "abc";
 
-		// Share a read-only item array, or copy it: istr::operator=(istr const &)
-		// Use assign_share_ro_or_copy().
-		g_is = isArg;
+      // Share a read-only item array, or copy it: istr::operator=(istr const &)
+      // Use assign_share_ro_or_copy().
+      g_is = isArg;
 
-		// TODO: validate these!
-		// 1. Copy-construct: istr::istr(istr const &)
-		//    Use assign_share_ro_or_copy(): will share a read-only item array, but will copy anything
-		//    else. It's a copy - it's expected to have a separate life.
-		// 2. Move-assign from the copy: istr::operator=(istr &&) (“nothrow”)
-		//    Use assign_move().
-		g_is = std::move(isArg);
-		// 3. Destruct the now-empty copy: istr::~istr()
+      // TODO: validate these!
+      // 1. Copy-construct: istr::istr(istr const &)
+      //    Use assign_share_ro_or_copy(): will share a read-only item array, but will copy anything
+      //    else. It's a copy - it's expected to have a separate life.
+      // 2. Move-assign from the copy: istr::operator=(istr &&) (“nothrow”)
+      //    Use assign_move().
+      g_is = std::move(isArg);
+      // 3. Destruct the now-empty copy: istr::~istr()
 
-		// Copy the item array: mstr::operator=(istr const &)
-		// Use assign_copy().
-		g_ms = isArg;
+      // Copy the item array: mstr::operator=(istr const &)
+      // Use assign_copy().
+      g_ms = isArg;
 
-		// TODO: validate these!
-		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-		//    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
-		//    else (like assign_copy()).
-		g_ms = std::move(isArg);
-		// 3. Same as 3. above.
+      // TODO: validate these!
+      // 1. Same as 1. above.
+      // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
+      //    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
+      //    else (like assign_copy()).
+      g_ms = std::move(isArg);
+      // 3. Same as 3. above.
 
-		// Copy the item array: dmstr::operator=(istr const &)
-		// Use assign_copy().
-		g_dms = isArg;
+      // Copy the item array: dmstr::operator=(istr const &)
+      // Use assign_copy().
+      g_dms = isArg;
 
-		// TODO: validate these!
-		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-		//    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
-		//    else (like assign_copy()).
-		g_dms = std::move(isArg);
-		// 3. Same as 3. above.
+      // TODO: validate these!
+      // 1. Same as 1. above.
+      // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
+      //    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
+      //    else (like assign_copy()).
+      g_dms = std::move(isArg);
+      // 3. Same as 3. above.
 
-		// Copy the item array: smstr<n>::operator=(istr const &)
-		// Use assign_copy().
-		g_sms = isArg;
+      // Copy the item array: smstr<n>::operator=(istr const &)
+      // Use assign_copy().
+      g_sms = isArg;
 
-		// TODO: validate these!
-		// 1. Same as 1. above.
-		// 2. Move-assign from the copy: smstr<n>::operator=(istr &&) (can throw)
-		//    See considerations for 2. above.
-		g_sms = std::move(isArg);
-		// 3. Same as 3. above.
-	}
+      // TODO: validate these!
+      // 1. Same as 1. above.
+      // 2. Move-assign from the copy: smstr<n>::operator=(istr &&) (can throw)
+      //    See considerations for 2. above.
+      g_sms = std::move(isArg);
+      // 3. Same as 3. above.
+   }
 
-	// 1. Construct a temporary object: istr::istr(char (& ach)[t_cch])
-	f1("abc");
-	// 2. Destruct the temporary object: istr::~istr()
+   // 1. Construct a temporary object: istr::istr(char (& ach)[t_cch])
+   f1("abc");
+   // 2. Destruct the temporary object: istr::~istr()
 
-	// Pass by const &.
-	f1(g_is);
-	f1(gc_is);
+   // Pass by const &.
+   f1(g_is);
+   f1(gc_is);
 
-	// Invoke mstr::operator istr const &() const. Given that it's a REFERENCE, it's fine if the
-	// source goes away and you get a crash: it's like freeing a pointer after passing it around.
-	f1(g_ms);
-	f1(gc_ms);
+   // Invoke mstr::operator istr const &() const. Given that it's a REFERENCE, it's fine if the
+   // source goes away and you get a crash: it's like freeing a pointer after passing it around.
+   f1(g_ms);
+   f1(gc_ms);
 
-	// Invoke dmstr::operator istr const &() const. See considerations above.
-	f1(g_dms);
-	f1(gc_dms);
+   // Invoke dmstr::operator istr const &() const. See considerations above.
+   f1(g_dms);
+   f1(gc_dms);
 
-	// Invoke smstr<n>::operator istr const &() const. See considerations above.
-	f1(g_sms);
-	f1(gc_sms);
-
-
-•	Writable dynamic string:
-
-	void f2(dmstr * pdmsArg) {
-		// Modify the buffer, maybe changing it for size reasons.
-		*pdmsArg += "abc";
-
-		// Copy the item array: istr::operator=(dmstr const &)
-		// Use assign_copy(). Can never share, because dmstr never uses a read-only buffer.
-		g_is = *pdmsArg;
-
-		// Move the item array: istr::operator=(dmstr &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-		g_is = std::move(*pdmsArg);
-
-		// Copy the item array: mstr::operator=(dmstr const &)
-		// Use assign_copy().
-		g_ms = *pdmsArg;
-
-		// Move the item array: mstr::operator=(dmstr &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-		g_ms = std::move(*pdmsArg);
-
-		// Copy the item array: dmstr::operator=(dmstr const &)
-		// Use assign_copy().
-		g_dms = *pdmsArg;
-
-		// Move the item array: dmstr::operator=(dmstr &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because mdstr cannot be a smstr<n> under covers.
-		g_dms = std::move(*pdmsArg);
-
-		// Copy the item array: smstr<n>::operator=(dmstr const &)
-		// Use assign_copy().
-		g_sms = *pdmsArg;
-
-		// Move the item array: smstr<n>::operator=(dmstr &&) (“nothrow”)
-		// Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-		g_sms = std::move(*pdmsArg);
-	}
-
-	// N/A - no such conversion.
-	f2("abc");
-	f2(&g_is);
-	f2(&gc_is);
-
-	// N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
-	// above cannot be guaranteed.
-	f2(&g_ms);
-	f2(&gc_ms);
-
-	// Pass by &.
-	f2(&g_dms);
-
-	// N/A - const.
-	f2(&gc_dms);
-
-	// N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
-	// above cannot be guaranteed.
-	f2(&g_sms);
-	f2(&gc_sms);
+   // Invoke smstr<n>::operator istr const &() const. See considerations above.
+   f1(g_sms);
+   f1(gc_sms);
 
 
-•	Writable (static or dynamic) string:
+•  Writable dynamic string:
+
+   void f2(dmstr * pdmsArg) {
+      // Modify the buffer, maybe changing it for size reasons.
+      *pdmsArg += "abc";
+
+      // Copy the item array: istr::operator=(dmstr const &)
+      // Use assign_copy(). Can never share, because dmstr never uses a read-only buffer.
+      g_is = *pdmsArg;
+
+      // Move the item array: istr::operator=(dmstr &&) (“nothrow”)
+      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+      g_is = std::move(*pdmsArg);
+
+      // Copy the item array: mstr::operator=(dmstr const &)
+      // Use assign_copy().
+      g_ms = *pdmsArg;
+
+      // Move the item array: mstr::operator=(dmstr &&) (“nothrow”)
+      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+      g_ms = std::move(*pdmsArg);
+
+      // Copy the item array: dmstr::operator=(dmstr const &)
+      // Use assign_copy().
+      g_dms = *pdmsArg;
+
+      // Move the item array: dmstr::operator=(dmstr &&) (“nothrow”)
+      // Use assign_move(). “nothrow” because mdstr cannot be a smstr<n> under covers.
+      g_dms = std::move(*pdmsArg);
+
+      // Copy the item array: smstr<n>::operator=(dmstr const &)
+      // Use assign_copy().
+      g_sms = *pdmsArg;
+
+      // Move the item array: smstr<n>::operator=(dmstr &&) (“nothrow”)
+      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
+      g_sms = std::move(*pdmsArg);
+   }
+
+   // N/A - no such conversion.
+   f2("abc");
+   f2(&g_is);
+   f2(&gc_is);
+
+   // N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
+   // above cannot be guaranteed.
+   f2(&g_ms);
+   f2(&gc_ms);
+
+   // Pass by &.
+   f2(&g_dms);
+
+   // N/A - const.
+   f2(&gc_dms);
+
+   // N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
+   // above cannot be guaranteed.
+   f2(&g_sms);
+   f2(&gc_sms);
+
+
+•  Writable (static or dynamic) string:
 
    void f3(mstr * pmsArg) {
       // Modify the buffer, maybe changing it for size reasons.
@@ -338,35 +338,35 @@ Argument usage scenarios:
 
 From the above, it emerges that:
 
-•	mstr and smstr<n> cannot publicly derive from istr or dmstr, because that would enable automatic
-	down-cast to i/dmstr &, which would then expose to the i/dmstr move constructor/assignment
-	operator being invoked to move a static item array, which is wrong, or (if attempting to work
-	around the move) would result in the static item array being copied, which would violate the
-	“nothrow” requirement for the move constructor/assignment operator.
+•  mstr and smstr<n> cannot publicly derive from istr or dmstr, because that would enable automatic
+   down-cast to i/dmstr &, which would then expose to the i/dmstr move constructor/assignment
+   operator being invoked to move a static item array, which is wrong, or (if attempting to work
+   around the move) would result in the static item array being copied, which would violate the
+   “nothrow” requirement for the move constructor/assignment operator.
 
-•	dmstr can publicly derive from mstr, with mstr being a base class for both dmstr and smstr<n>.
+•  dmstr can publicly derive from mstr, with mstr being a base class for both dmstr and smstr<n>.
 
-•	The only differences between istr and istr const & are:
-	1.	istr const & can be using a static item array (because it can be a smstr<n>), while any other
-		istr will always use a const/read-only item array or a dynamic one;
-	2.	other string types can only be automatically converted to istr const &.
+•  The only differences between istr and istr const & are:
+   1. istr const & can be using a static item array (because it can be a smstr<n>), while any other
+      istr will always use a const/read-only item array or a dynamic one;
+   2. other string types can only be automatically converted to istr const &.
 
-•	The difference between istr and mstr (and therefore dmstr/smstr<n>) is that the former can be
-	constructed from a static string without copying it, but only offers read-only methods and
-	operators; the latter offers the whole range of features one would expect, but will create a new
-	item array upon construction or assignment (or use the embedded static one, in case of smstr<n>).
+•  The difference between istr and mstr (and therefore dmstr/smstr<n>) is that the former can be
+   constructed from a static string without copying it, but only offers read-only methods and
+   operators; the latter offers the whole range of features one would expect, but will create a new
+   item array upon construction or assignment (or use the embedded static one, in case of smstr<n>).
 
-•	mstr cannot have a “nothrow” move constructor or assignment operator from itself, because the
-	underlying objects might have static item arrays of different sizes. This isn't a huge deal-
-	breaker because of the intended limited usage for mstr and smstr<n>.
+•  mstr cannot have a “nothrow” move constructor or assignment operator from itself, because the
+   underlying objects might have static item arrays of different sizes. This isn't a huge deal-
+   breaker because of the intended limited usage for mstr and smstr<n>.
 
 The resulting class hierarchy is therefore:
 
-	str_base (near-complete implementation of istr)
-		istr
-		mstr (near-complete implementation of dmstr/smstr<n>)
-			dmstr
-			smstr<n>
+   str_base (near-complete implementation of istr)
+      istr
+      mstr (near-complete implementation of dmstr/smstr<n>)
+         dmstr
+         smstr<n>
 
              ┌─────────────────────────────────────────────────────────┐
              │                     Functional need                     │
@@ -392,96 +392,96 @@ namespace abc {
 class _raw_vextr_packed_data {
 public:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	_raw_vextr_packed_data(size_t ciMax, bool bDynamic, bool bHasStatic) :
-		m_iPackedData(
-			ciMax | (bDynamic ? smc_bDynamicMask : 0) | (bHasStatic ? smc_bHasStaticMask : 0)
-		) {
-	}
-
-
-	/** Assignment operator. Updates all components except bHasStatic.
-
-	TODO: comment signature.
-	*/
-	_raw_vextr_packed_data & operator=(_raw_vextr_packed_data const & rvpd) {
-		m_iPackedData = (rvpd.m_iPackedData & ~smc_bHasStaticMask)
-						  | (m_iPackedData & smc_bHasStaticMask);
-		return *this;
-	}
+   TODO: comment signature.
+   */
+   _raw_vextr_packed_data(size_t ciMax, bool bDynamic, bool bHasStatic) :
+      m_iPackedData(
+         ciMax | (bDynamic ? smc_bDynamicMask : 0) | (bHasStatic ? smc_bHasStaticMask : 0)
+      ) {
+   }
 
 
-	/** Assigns new values to all components except bHasStatic.
+   /** Assignment operator. Updates all components except bHasStatic.
 
-	TODO: comment signature.
-	*/
-	_raw_vextr_packed_data & set(size_t ciMax, bool bDynamic) {
-		m_iPackedData = ciMax
-						  | (bDynamic ? smc_bDynamicMask : 0)
-						  | (m_iPackedData & smc_bHasStaticMask);
-		return *this;
-	}
-
-
-	/** Returns/assigns ciMax.
-
-	TODO: comment signature.
-	*/
-	size_t get_ciMax() const {
-		return m_iPackedData & smc_ciMaxMask;
-	}
-	size_t set_ciMax(size_t ciMax) {
-		m_iPackedData = (m_iPackedData & ~smc_ciMaxMask) | ciMax;
-		return ciMax;
-	}
+   TODO: comment signature.
+   */
+   _raw_vextr_packed_data & operator=(_raw_vextr_packed_data const & rvpd) {
+      m_iPackedData = (rvpd.m_iPackedData & ~smc_bHasStaticMask)
+                    | (m_iPackedData & smc_bHasStaticMask);
+      return *this;
+   }
 
 
-	/** Returns true if the parent object’s m_p points to a dynamically-allocated item array.
+   /** Assigns new values to all components except bHasStatic.
 
-	TODO: comment signature.
-	*/
-//	bool is_item_array_dynamic() const {
-	bool get_bDynamic() const {
-		return (m_iPackedData & smc_bDynamicMask) != 0;
-	}
+   TODO: comment signature.
+   */
+   _raw_vextr_packed_data & set(size_t ciMax, bool bDynamic) {
+      m_iPackedData = ciMax
+                    | (bDynamic ? smc_bDynamicMask : 0)
+                    | (m_iPackedData & smc_bHasStaticMask);
+      return *this;
+   }
 
 
-	/** Returns true if the parent object is followed by a static item array.
+   /** Returns/assigns ciMax.
 
-	TODO: comment signature.
-	*/
-//	bool has_static_item_array() const {
-	bool get_bHasStatic() const {
-		return (m_iPackedData & smc_bHasStaticMask) != 0;
-	}
+   TODO: comment signature.
+   */
+   size_t get_ciMax() const {
+      return m_iPackedData & smc_ciMaxMask;
+   }
+   size_t set_ciMax(size_t ciMax) {
+      m_iPackedData = (m_iPackedData & ~smc_ciMaxMask) | ciMax;
+      return ciMax;
+   }
+
+
+   /** Returns true if the parent object’s m_p points to a dynamically-allocated item array.
+
+   TODO: comment signature.
+   */
+// bool is_item_array_dynamic() const {
+   bool get_bDynamic() const {
+      return (m_iPackedData & smc_bDynamicMask) != 0;
+   }
+
+
+   /** Returns true if the parent object is followed by a static item array.
+
+   TODO: comment signature.
+   */
+// bool has_static_item_array() const {
+   bool get_bHasStatic() const {
+      return (m_iPackedData & smc_bHasStaticMask) != 0;
+   }
 
 
 private:
 
-	/** Bit-field composed by the following components:
+   /** Bit-field composed by the following components:
 
-	bool const bHasStatic
-		true if the parent object is followed by a static item array.
-	bool bDynamic
-		true if the item array was dynamically allocated.
-	size_t ciMax;
-		Size of the item array.
-	*/
-	size_t m_iPackedData;
+   bool const bHasStatic
+      true if the parent object is followed by a static item array.
+   bool bDynamic
+      true if the item array was dynamically allocated.
+   size_t ciMax;
+      Size of the item array.
+   */
+   size_t m_iPackedData;
 
-	/** Mask to access bHasStatic from m_iPackedData. */
-	static size_t const smc_bHasStaticMask = 0x01;
-	/** Mask to access bDynamic from m_iPackedData. */
-	static size_t const smc_bDynamicMask = 0x02;
+   /** Mask to access bHasStatic from m_iPackedData. */
+   static size_t const smc_bHasStaticMask = 0x01;
+   /** Mask to access bDynamic from m_iPackedData. */
+   static size_t const smc_bDynamicMask = 0x02;
 
 
 public:
 
-	/** Mask to access ciMax from m_iPackedData. */
-	static size_t const smc_ciMaxMask = ~(smc_bDynamicMask | smc_bHasStaticMask);
+   /** Mask to access ciMax from m_iPackedData. */
+   static size_t const smc_ciMaxMask = ~(smc_bDynamicMask | smc_bHasStaticMask);
 };
 
 } //namespace abc
@@ -498,285 +498,285 @@ types.
 */
 class ABCAPI _raw_vextr_impl_base {
 
-	ABC_CLASS_PREVENT_COPYING(_raw_vextr_impl_base)
+   ABC_CLASS_PREVENT_COPYING(_raw_vextr_impl_base)
 
 protected:
 
-	/** Allows to get a temporary item array from a pool of options, then work with it, and upon
-	destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base,
-	or properly discarded.
+   /** Allows to get a temporary item array from a pool of options, then work with it, and upon
+   destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base,
+   or properly discarded.
 
-	A transaction will not take care of copying the item array, if switching to a different item
-	array.
+   A transaction will not take care of copying the item array, if switching to a different item
+   array.
 
-	For size increases, the reallocation (if any) is performed in the constructor; for decreases,
-	it’s performed in commit().
-	*/
-	class ABCAPI transaction {
+   For size increases, the reallocation (if any) is performed in the constructor; for decreases,
+   it’s performed in commit().
+   */
+   class ABCAPI transaction {
 
-		ABC_CLASS_PREVENT_COPYING(transaction)
+      ABC_CLASS_PREVENT_COPYING(transaction)
 
-	public:
+   public:
 
-		/** Constructor.
+      /** Constructor.
 
-		TODO: comment signature.
-		*/
-		transaction(
-			size_t cbItem,
-			_raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0, bool bNulT = false
-		);
-
-
-		/** Destructor.
-		*/
-		~transaction() {
-			if (m_bFree) {
-				memory::free(m_p);
-			}
-		}
+      TODO: comment signature.
+      */
+      transaction(
+         size_t cbItem,
+         _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0, bool bNulT = false
+      );
 
 
-		/** Commits the transaction; if the item array is to be replaced, the current one will be
-		released if necessary; it’s up to the client to destruct any items in it. If this method is
-		not called before the transaction is destructed, it’s up to the client to also ensure that any
-		and all objects constructed in the work array have been properly destructed.
-
-		cbItem
-			Size of one item, in bytes.
-		[bNulT]
-			true if the item array is NUL-terminated, or false otherwise.
-		*/
-		void commit(size_t cbItem = 0, bool bNulT = false);
+      /** Destructor.
+      */
+      ~transaction() {
+         if (m_bFree) {
+            memory::free(m_p);
+         }
+      }
 
 
-		/** Returns the work item array.
+      /** Commits the transaction; if the item array is to be replaced, the current one will be
+      released if necessary; it’s up to the client to destruct any items in it. If this method is
+      not called before the transaction is destructed, it’s up to the client to also ensure that any
+      and all objects constructed in the work array have been properly destructed.
 
-		return
-			Pointer to the working item array.
-		*/
-		template <typename T>
-		T * work_array() const {
-			return static_cast<T *>(m_p);
-		}
-
-
-		/** Returns true if the contents of the item array need to migrated due to the transaction
-		switching item arrays. If the array was/will be only resized, the return value is false,
-		because the reallocation did/will take care of moving the item array.
-
-		return
-			true if the pointer to the item array will be changed upon destruction, or false otherwise.
-		*/
-		bool will_replace_item_array() const {
-			return m_p != m_prvib->m_p;
-		}
+      cbItem
+         Size of one item, in bytes.
+      [bNulT]
+         true if the item array is NUL-terminated, or false otherwise.
+      */
+      void commit(size_t cbItem = 0, bool bNulT = false);
 
 
-	private:
+      /** Returns the work item array.
 
-		/** Subject of the transaction. */
-		_raw_vextr_impl_base * m_prvib;
-		/** Pointer to the item array to which clients must write. This may or may not be the same as
-		m_prvib->m_p, depending on whether we needed a new item array. This pointer will replace
-		m_prvib->m_p upon commit(). */
-		void * m_p;
-		/** Number of currently used items in m_p. */
-		size_t m_ci;
-		/** See _raw_vextr_impl_base::m_rvpd. */
-		_raw_vextr_packed_data m_rvpd;
-		/** true if m_p has been dynamically allocated for the transaction and needs to be freed in
-		the destructor, either because the transaction didn’t get committed, or because it did and the
-		item array is now owned by m_prvib. */
-		bool m_bFree;
-	};
+      return
+         Pointer to the working item array.
+      */
+      template <typename T>
+      T * work_array() const {
+         return static_cast<T *>(m_p);
+      }
 
-	// Allow transactions to access the protected members.
-	friend class transaction;
+
+      /** Returns true if the contents of the item array need to migrated due to the transaction
+      switching item arrays. If the array was/will be only resized, the return value is false,
+      because the reallocation did/will take care of moving the item array.
+
+      return
+         true if the pointer to the item array will be changed upon destruction, or false otherwise.
+      */
+      bool will_replace_item_array() const {
+         return m_p != m_prvib->m_p;
+      }
+
+
+   private:
+
+      /** Subject of the transaction. */
+      _raw_vextr_impl_base * m_prvib;
+      /** Pointer to the item array to which clients must write. This may or may not be the same as
+      m_prvib->m_p, depending on whether we needed a new item array. This pointer will replace
+      m_prvib->m_p upon commit(). */
+      void * m_p;
+      /** Number of currently used items in m_p. */
+      size_t m_ci;
+      /** See _raw_vextr_impl_base::m_rvpd. */
+      _raw_vextr_packed_data m_rvpd;
+      /** true if m_p has been dynamically allocated for the transaction and needs to be freed in
+      the destructor, either because the transaction didn’t get committed, or because it did and the
+      item array is now owned by m_prvib. */
+      bool m_bFree;
+   };
+
+   // Allow transactions to access the protected members.
+   friend class transaction;
 
 
 public:
 
-	/** Destructor.
-	*/
-	~_raw_vextr_impl_base() {
-		if (m_rvpd.get_bDynamic()) {
-			memory::free(m_p);
-		}
-	}
+   /** Destructor.
+   */
+   ~_raw_vextr_impl_base() {
+      if (m_rvpd.get_bDynamic()) {
+         memory::free(m_p);
+      }
+   }
 
 
-	/** See buffered_vector::capacity() and _raw_str::capacity().
+   /** See buffered_vector::capacity() and _raw_str::capacity().
 
-	[bNulT]
-		true if the item array is NUL-terminated, or false otherwise.
-	return
-		Count of item slots in the item array.
-	*/
-	size_t capacity(bool bNulT = false) const {
-		size_t ciMax(m_rvpd.get_ciMax());
-		return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
-	}
-
-
-	/** Returns a pointer to the item array.
-
-	return
-		Pointer to the item array.
-	*/
-	template <typename T>
-	T * data() {
-		return static_cast<T *>(m_p);
-	}
-	template <typename T>
-	T const * data() const {
-		return static_cast<T const *>(m_p);
-	}
+   [bNulT]
+      true if the item array is NUL-terminated, or false otherwise.
+   return
+      Count of item slots in the item array.
+   */
+   size_t capacity(bool bNulT = false) const {
+      size_t ciMax(m_rvpd.get_ciMax());
+      return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
+   }
 
 
-	/** See buffered_vector::size() and _raw_str::size().
+   /** Returns a pointer to the item array.
 
-	[bNulT]
-		true if the item array is NUL-terminated, or false otherwise.
-	return
-		Count of items in the item array.
-	*/
-	size_t size(bool bNulT = false) const {
-		return m_ci - (bNulT ? 1 /*NUL*/ : 0);
-	}
-
-
-protected:
-
-	/** Constructor. Constructs the object as empty, setting m_p to NULL or an empty string.
-
-	TODO: comment signature.
-	*/
-	_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT = false);
-	// Constructs the object, assigning an item array.
-	_raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc) :
-		m_p(const_cast<void *>(pConstSrc)),
-		m_ci(ciSrc),
-		// ciMax = 0 means that the item array is read-only.
-		m_rvpd(0, false, false) {
-		ABC_ASSERT(pConstSrc);
-	}
+   return
+      Pointer to the item array.
+   */
+   template <typename T>
+   T * data() {
+      return static_cast<T *>(m_p);
+   }
+   template <typename T>
+   T const * data() const {
+      return static_cast<T const *>(m_p);
+   }
 
 
-	/** Adjusts a 0-based index in the array. If negative, it’s interpreted as a 1-based index from
-	the end.
+   /** See buffered_vector::size() and _raw_str::size().
 
-	TODO: comment signature.
-	*/
-	size_t adjust_index(ptrdiff_t i, bool bNulT = false) const;
-
-
-	/** Adjusts a 0-based index and count in the array. iFirst is treated like adjust_index() does;
-	if the count of items is negative, it’s the count of elements to skip from the end of the item
-	array.
-
-	TODO: comment signature.
-	*/
-	void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT = false) const;
-
-
-	/** Resets the contents of the object to an empty item array (a single NUL for string, no array
-	at all for everything else).
-
-	TODO: comment signature.
-	*/
-	void assign_empty(bool bNulT = false) {
-		m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL;
-		m_ci = bNulT ? 1u /*NUL*/ : 0;
-		m_rvpd.set(0, false);
-	}
-
-
-	/** Returns true if m_p points to a read-only item array.
-
-	TODO: comment signature.
-	*/
-	bool is_item_array_readonly() const {
-		// No capacity means read-only item array.
-		return m_rvpd.get_ciMax() == 0;
-	}
-
-
-	/** Returns a pointer to the static item array that follows this object, if present, or NULL
-	otherwise.
-
-	TODO: comment signature.
-	*/
-	template <typename T>
-	T * static_array_ptr();
-
-
-	/** Returns the size of the array returned by static_array_ptr(), or 0 if no such array is
-	present.
-
-	TODO: comment signature.
-	*/
-	size_t static_capacity() const;
-
-
-	/** Puts a NUL terminator at the provided address.
-
-	TODO: comment signature.
-	*/
-	static void terminate(size_t cbItem, void * p) {
-		switch (cbItem) {
-			case sizeof(int8_t):
-				*static_cast<int8_t *>(p) = 0;
-				break;
-			case sizeof(int16_t):
-				*static_cast<int16_t *>(p) = 0;
-				break;
-			case sizeof(int32_t):
-				*static_cast<int32_t *>(p) = 0;
-				break;
-		}
-	}
-
-
-	/** Throws an exception if the specified index is out of bounds for the item array.
-
-	i
-		Index to validate.
-	*/
-	void validate_index(intptr_t i) const;
+   [bNulT]
+      true if the item array is NUL-terminated, or false otherwise.
+   return
+      Count of items in the item array.
+   */
+   size_t size(bool bNulT = false) const {
+      return m_ci - (bNulT ? 1 /*NUL*/ : 0);
+   }
 
 
 protected:
 
-	/** Pointer to the item array. */
-	void * m_p;
-	/** Number of currently used items in m_p. */
-	size_t m_ci;
-	/** Size of the item array pointed to by m_p, and other bits. */
-	_raw_vextr_packed_data m_rvpd;
+   /** Constructor. Constructs the object as empty, setting m_p to NULL or an empty string.
 
-	/** NUL terminator of the largest character type. */
-	static char32_t const smc_chNUL;
-	/** No less than this many items. Must be greater than, and not overlap any bits with,
-	_raw_vextr_impl_base::smc_ciMaxMask. */
-	static size_t const smc_cMinSlots = 8;
-	/** Size multiplier. This should take into account that we want to reallocate as rarely as
-	possible, so every time we do it it should be for a rather conspicuous growth. */
-	static unsigned const smc_iGrowthRate = 2;
+   TODO: comment signature.
+   */
+   _raw_vextr_impl_base(size_t ciStaticMax, bool bNulT = false);
+   // Constructs the object, assigning an item array.
+   _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc) :
+      m_p(const_cast<void *>(pConstSrc)),
+      m_ci(ciSrc),
+      // ciMax = 0 means that the item array is read-only.
+      m_rvpd(0, false, false) {
+      ABC_ASSERT(pConstSrc);
+   }
+
+
+   /** Adjusts a 0-based index in the array. If negative, it’s interpreted as a 1-based index from
+   the end.
+
+   TODO: comment signature.
+   */
+   size_t adjust_index(ptrdiff_t i, bool bNulT = false) const;
+
+
+   /** Adjusts a 0-based index and count in the array. iFirst is treated like adjust_index() does;
+   if the count of items is negative, it’s the count of elements to skip from the end of the item
+   array.
+
+   TODO: comment signature.
+   */
+   void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT = false) const;
+
+
+   /** Resets the contents of the object to an empty item array (a single NUL for string, no array
+   at all for everything else).
+
+   TODO: comment signature.
+   */
+   void assign_empty(bool bNulT = false) {
+      m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL;
+      m_ci = bNulT ? 1u /*NUL*/ : 0;
+      m_rvpd.set(0, false);
+   }
+
+
+   /** Returns true if m_p points to a read-only item array.
+
+   TODO: comment signature.
+   */
+   bool is_item_array_readonly() const {
+      // No capacity means read-only item array.
+      return m_rvpd.get_ciMax() == 0;
+   }
+
+
+   /** Returns a pointer to the static item array that follows this object, if present, or NULL
+   otherwise.
+
+   TODO: comment signature.
+   */
+   template <typename T>
+   T * static_array_ptr();
+
+
+   /** Returns the size of the array returned by static_array_ptr(), or 0 if no such array is
+   present.
+
+   TODO: comment signature.
+   */
+   size_t static_capacity() const;
+
+
+   /** Puts a NUL terminator at the provided address.
+
+   TODO: comment signature.
+   */
+   static void terminate(size_t cbItem, void * p) {
+      switch (cbItem) {
+         case sizeof(int8_t):
+            *static_cast<int8_t *>(p) = 0;
+            break;
+         case sizeof(int16_t):
+            *static_cast<int16_t *>(p) = 0;
+            break;
+         case sizeof(int32_t):
+            *static_cast<int32_t *>(p) = 0;
+            break;
+      }
+   }
+
+
+   /** Throws an exception if the specified index is out of bounds for the item array.
+
+   i
+      Index to validate.
+   */
+   void validate_index(intptr_t i) const;
+
+
+protected:
+
+   /** Pointer to the item array. */
+   void * m_p;
+   /** Number of currently used items in m_p. */
+   size_t m_ci;
+   /** Size of the item array pointed to by m_p, and other bits. */
+   _raw_vextr_packed_data m_rvpd;
+
+   /** NUL terminator of the largest character type. */
+   static char32_t const smc_chNUL;
+   /** No less than this many items. Must be greater than, and not overlap any bits with,
+   _raw_vextr_impl_base::smc_ciMaxMask. */
+   static size_t const smc_cMinSlots = 8;
+   /** Size multiplier. This should take into account that we want to reallocate as rarely as
+   possible, so every time we do it it should be for a rather conspicuous growth. */
+   static unsigned const smc_iGrowthRate = 2;
 };
 
 
 /** Used to find out what the offset are for an embedded static item array.
 */
 class _raw_vextr_impl_base_with_static_item_array :
-	public _raw_vextr_impl_base {
+   public _raw_vextr_impl_base {
 public:
 
-	/** Static size. */
-	size_t m_ciStaticMax;
-	/** First item of the static array. This can’t be a T[], because we don’t want its items to be
-	constructed/destructed automatically, and because this class doesn’t know its size. */
-	std::max_align_t m_tFirst;
+   /** Static size. */
+   size_t m_ciStaticMax;
+   /** First item of the static array. This can’t be a T[], because we don’t want its items to be
+   constructed/destructed automatically, and because this class doesn’t know its size. */
+   std::max_align_t m_tFirst;
 };
 
 
@@ -787,31 +787,31 @@ macro.
 TODO: comment signature.
 */
 #define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ci) \
-	((size_t(ci) + ~_raw_vextr_packed_data::smc_ciMaxMask) & _raw_vextr_packed_data::smc_ciMaxMask)
+   ((size_t(ci) + ~_raw_vextr_packed_data::smc_ciMaxMask) & _raw_vextr_packed_data::smc_ciMaxMask)
 
 
 // Now these can be implemented.
 
 template <typename T>
 inline T * _raw_vextr_impl_base::static_array_ptr() {
-	if (!m_rvpd.get_bHasStatic()) {
-		return NULL;
-	}
-	_raw_vextr_impl_base_with_static_item_array * prvibwsia(
-		static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
-	);
-	return reinterpret_cast<T *>(&prvibwsia->m_tFirst);
+   if (!m_rvpd.get_bHasStatic()) {
+      return NULL;
+   }
+   _raw_vextr_impl_base_with_static_item_array * prvibwsia(
+      static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
+   );
+   return reinterpret_cast<T *>(&prvibwsia->m_tFirst);
 }
 
 
 inline size_t _raw_vextr_impl_base::static_capacity() const {
-	if (!m_rvpd.get_bHasStatic()) {
-		return 0;
-	}
-	_raw_vextr_impl_base_with_static_item_array const * prvibwsia(
-		static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
-	);
-	return prvibwsia->m_ciStaticMax;
+   if (!m_rvpd.get_bHasStatic()) {
+      return 0;
+   }
+   _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
+      static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
+   );
+   return prvibwsia->m_ciStaticMax;
 }
 
 } //namespace abc
@@ -826,111 +826,111 @@ namespace abc {
 /** Template-independent implementation of a vector for non-trivial contained types.
 */
 class ABCAPI _raw_complex_vextr_impl :
-	public _raw_vextr_impl_base {
+   public _raw_vextr_impl_base {
 
-	ABC_CLASS_PREVENT_COPYING(_raw_complex_vextr_impl)
+   ABC_CLASS_PREVENT_COPYING(_raw_complex_vextr_impl)
 
 public:
 
-	/** See _raw_vector::append().
+   /** See _raw_vector::append().
 
-	TODO: comment signature.
-	*/
-	void append(void_cda const & type, void const * pAdd, size_t ciAdd, bool bMove) {
-		if (ciAdd) {
-			_insert(type, size(), pAdd, ciAdd, bMove);
-		}
-	}
-
-
-	/** Copies or moves the contents of the source to *this, according to the source type. If bMove
-	== true, the source items will be moved by having their const-ness cast away - be careful.
-
-	TODO: comment signature.
-	*/
-	void assign_copy(void_cda const & type, void const * p, size_t ci, bool bMove);
-	void assign_copy(
-		void_cda const & type,
-		void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
-	);
+   TODO: comment signature.
+   */
+   void append(void_cda const & type, void const * pAdd, size_t ciAdd, bool bMove) {
+      if (ciAdd) {
+         _insert(type, size(), pAdd, ciAdd, bMove);
+      }
+   }
 
 
-	/** Moves the contents of the source to *this, taking ownership of the whole item array (items
-	are not moved nor copied).
+   /** Copies or moves the contents of the source to *this, according to the source type. If bMove
+   == true, the source items will be moved by having their const-ness cast away - be careful.
 
-	TODO: comment signature.
-	*/
-	void assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi);
-
-
-	/** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
-	contained items instead.
-
-	TODO: comment signature.
-	*/
-	void assign_move_dynamic_or_copy(void_cda const & type, _raw_complex_vextr_impl && rcvi);
+   TODO: comment signature.
+   */
+   void assign_copy(void_cda const & type, void const * p, size_t ci, bool bMove);
+   void assign_copy(
+      void_cda const & type,
+      void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
+   );
 
 
-	/** Destructs a range of items, or the whole item array. It does not deallocate the item array.
+   /** Moves the contents of the source to *this, taking ownership of the whole item array (items
+   are not moved nor copied).
 
-	TODO: comment signature.
-	*/
-	void destruct_items(void_cda const & type) {
-		type.destruct(m_p, m_ci);
-	}
-	void destruct_items(void_cda const & type, size_t ci) {
-		type.destruct(m_p, ci);
-	}
+   TODO: comment signature.
+   */
+   void assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi);
 
 
-	/** See _raw_vector::insert().
+   /** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
+   contained items instead.
 
-	TODO: comment signature.
-	*/
-	void insert(
-		void_cda const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
-	) {
-		if (ciAdd) {
-			_insert(type, adjust_index(iOffset), pAdd, ciAdd, bMove);
-		}
-	}
+   TODO: comment signature.
+   */
+   void assign_move_dynamic_or_copy(void_cda const & type, _raw_complex_vextr_impl && rcvi);
 
 
-	/** See _raw_vector::remove_at().
+   /** Destructs a range of items, or the whole item array. It does not deallocate the item array.
 
-	TODO: comment signature.
-	*/
-	void remove_at(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
+   TODO: comment signature.
+   */
+   void destruct_items(void_cda const & type) {
+      type.destruct(m_p, m_ci);
+   }
+   void destruct_items(void_cda const & type, size_t ci) {
+      type.destruct(m_p, ci);
+   }
 
 
-	/** See _raw_vector::set_capacity().
+   /** See _raw_vector::insert().
 
-	TODO: comment signature.
-	*/
-	void set_capacity(void_cda const & type, size_t ciMin, bool bPreserve);
+   TODO: comment signature.
+   */
+   void insert(
+      void_cda const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+   ) {
+      if (ciAdd) {
+         _insert(type, adjust_index(iOffset), pAdd, ciAdd, bMove);
+      }
+   }
+
+
+   /** See _raw_vector::remove_at().
+
+   TODO: comment signature.
+   */
+   void remove_at(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
+
+
+   /** See _raw_vector::set_capacity().
+
+   TODO: comment signature.
+   */
+   void set_capacity(void_cda const & type, size_t ciMin, bool bPreserve);
 
 
 protected:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	_raw_complex_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
-		_raw_vextr_impl_base(ciStaticMax, bNulT) {
-	}
-	_raw_complex_vextr_impl(void const * pConstSrc, size_t ciSrc) :
-		_raw_vextr_impl_base(pConstSrc, ciSrc) {
-	}
+   TODO: comment signature.
+   */
+   _raw_complex_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
+      _raw_vextr_impl_base(ciStaticMax, bNulT) {
+   }
+   _raw_complex_vextr_impl(void const * pConstSrc, size_t ciSrc) :
+      _raw_vextr_impl_base(pConstSrc, ciSrc) {
+   }
 
 
 private:
 
-	/** Actual implementation of append() and insert(). Does not validate iOffset or ciAdd.
+   /** Actual implementation of append() and insert(). Does not validate iOffset or ciAdd.
 
-	TODO: comment signature.
-	*/
-	void _insert(void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove);
+   TODO: comment signature.
+   */
+   void _insert(void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove);
 };
 
 } //namespace abc
@@ -946,151 +946,151 @@ namespace abc {
 NUL-termination-aware; this is the most derived common base class of both vector and str_.
 */
 class ABCAPI _raw_trivial_vextr_impl :
-	public _raw_vextr_impl_base {
+   public _raw_vextr_impl_base {
 
-	ABC_CLASS_PREVENT_COPYING(_raw_trivial_vextr_impl)
+   ABC_CLASS_PREVENT_COPYING(_raw_trivial_vextr_impl)
 
 public:
 
-	/** See _raw_vector::append() and _raw_str::append().
+   /** See _raw_vector::append() and _raw_str::append().
 
-	TODO: comment signature.
-	*/
-	void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
-		if (ciAdd) {
-			_insert_or_remove(cbItem, size(bNulT), pAdd, ciAdd, 0, bNulT);
-		}
-	}
-
-
-	/** Copies the contents of the source array to *this.
-
-	TODO: comment signature.
-	*/
-	void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
-		if (p == m_p) {
-			return;
-		}
-		// The two-source overload is fast enough. Pass it as the second source, because its code path
-		// is faster.
-		assign_copy(cbItem, NULL, 0, p, ci, bNulT);
-	}
-	// This overload must never be called with p1 or p2 == m_p.
-	void assign_copy(
-		size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
-	);
+   TODO: comment signature.
+   */
+   void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
+      if (ciAdd) {
+         _insert_or_remove(cbItem, size(bNulT), pAdd, ciAdd, 0, bNulT);
+      }
+   }
 
 
-	/** Moves the source’s item array to *this. This must be called with rtvi being in control of a
-	read-only or dynamic item array; see [DOC:4019 abc::*str_ and abc::*vector design] to see how
-	str_ and vector ensure this.
+   /** Copies the contents of the source array to *this.
 
-	TODO: comment signature.
-	*/
-	void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
-		if (rtvi.m_p == m_p) {
-			return;
-		}
-		// Share the item array.
-		_assign_share(rtvi);
-		// And now empty the source.
-		rtvi.assign_empty(bNulT);
-	}
-
-
-	/** Moves the source’s item array if dynamically-allocated, else copies it to *this.
-
-	TODO: comment signature.
-	*/
-	void assign_move_dynamic_or_copy(
-		size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
-	);
+   TODO: comment signature.
+   */
+   void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
+      if (p == m_p) {
+         return;
+      }
+      // The two-source overload is fast enough. Pass it as the second source, because its code path
+      // is faster.
+      assign_copy(cbItem, NULL, 0, p, ci, bNulT);
+   }
+   // This overload must never be called with p1 or p2 == m_p.
+   void assign_copy(
+      size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
+   );
 
 
-	/** Shares the source’s item array if read-only, else copies it to *this.
+   /** Moves the source’s item array to *this. This must be called with rtvi being in control of a
+   read-only or dynamic item array; see [DOC:4019 abc::*str_ and abc::*vector design] to see how
+   str_ and vector ensure this.
 
-	TODO: comment signature.
-	*/
-	void assign_share_ro_or_copy(
-		size_t cbItem, _raw_trivial_vextr_impl const & rtvi, bool bNulT = false
-	) {
-		if (rtvi.m_p == m_p) {
-			return;
-		}
-		if (rtvi.is_item_array_readonly()) {
-			_assign_share(rtvi);
-		} else {
-			// Non-read-only, cannot share.
-			assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
-		}
-	}
+   TODO: comment signature.
+   */
+   void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
+      if (rtvi.m_p == m_p) {
+         return;
+      }
+      // Share the item array.
+      _assign_share(rtvi);
+      // And now empty the source.
+      rtvi.assign_empty(bNulT);
+   }
 
 
-	/** See _raw_vector::insert().
+   /** Moves the source’s item array if dynamically-allocated, else copies it to *this.
 
-	TODO: comment signature.
-	*/
-	void insert(
-		size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bNulT = false
-	) {
-		if (ciAdd) {
-			size_t iRealOffset(adjust_index(iOffset, bNulT));
-			_insert_or_remove(cbItem, iRealOffset, pAdd, ciAdd, 0, bNulT);
-		}
-	}
+   TODO: comment signature.
+   */
+   void assign_move_dynamic_or_copy(
+      size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
+   );
 
 
-	/** See _raw_vector::remove_at().
+   /** Shares the source’s item array if read-only, else copies it to *this.
 
-	TODO: comment signature.
-	*/
-	void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
-		adjust_range(&iOffset, &ciRemove, bNulT);
-		if (ciRemove) {
-			_insert_or_remove(cbItem, size_t(iOffset), NULL, 0, size_t(ciRemove), bNulT);
-		}
-	}
+   TODO: comment signature.
+   */
+   void assign_share_ro_or_copy(
+      size_t cbItem, _raw_trivial_vextr_impl const & rtvi, bool bNulT = false
+   ) {
+      if (rtvi.m_p == m_p) {
+         return;
+      }
+      if (rtvi.is_item_array_readonly()) {
+         _assign_share(rtvi);
+      } else {
+         // Non-read-only, cannot share.
+         assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
+      }
+   }
 
 
-	/** See _raw_vector::set_capacity().
+   /** See _raw_vector::insert().
 
-	TODO: comment signature.
-	*/
-	void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT = false);
+   TODO: comment signature.
+   */
+   void insert(
+      size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bNulT = false
+   ) {
+      if (ciAdd) {
+         size_t iRealOffset(adjust_index(iOffset, bNulT));
+         _insert_or_remove(cbItem, iRealOffset, pAdd, ciAdd, 0, bNulT);
+      }
+   }
+
+
+   /** See _raw_vector::remove_at().
+
+   TODO: comment signature.
+   */
+   void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
+      adjust_range(&iOffset, &ciRemove, bNulT);
+      if (ciRemove) {
+         _insert_or_remove(cbItem, size_t(iOffset), NULL, 0, size_t(ciRemove), bNulT);
+      }
+   }
+
+
+   /** See _raw_vector::set_capacity().
+
+   TODO: comment signature.
+   */
+   void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT = false);
 
 
 protected:
 
-	/** Constructor.
+   /** Constructor.
 
-	TODO: comment signature.
-	*/
-	_raw_trivial_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
-		_raw_vextr_impl_base(ciStaticMax, bNulT) {
-	}
-	_raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc) :
-		_raw_vextr_impl_base(pConstSrc, ciSrc) {
-	}
+   TODO: comment signature.
+   */
+   _raw_trivial_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
+      _raw_vextr_impl_base(ciStaticMax, bNulT) {
+   }
+   _raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc) :
+      _raw_vextr_impl_base(pConstSrc, ciSrc) {
+   }
 
 
 private:
 
-	/** Shares the source’s item array. It only allows sharing read-only or dynamically-allocated
-	item arrays (the latter only as part of moving them).
+   /** Shares the source’s item array. It only allows sharing read-only or dynamically-allocated
+   item arrays (the latter only as part of moving them).
 
-	TODO: comment signature.
-	*/
-	void _assign_share(_raw_trivial_vextr_impl const & rtvi);
+   TODO: comment signature.
+   */
+   void _assign_share(_raw_trivial_vextr_impl const & rtvi);
 
 
-	/** Actual implementation append(), insert() and remove_at().
+   /** Actual implementation append(), insert() and remove_at().
 
-	TODO: comment signature.
-	*/
-	void _insert_or_remove(
-		size_t cbItem,
-		size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT = false
-	);
+   TODO: comment signature.
+   */
+   void _insert_or_remove(
+      size_t cbItem,
+      size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT = false
+   );
 };
 
 } //namespace abc
@@ -1109,104 +1109,104 @@ template <class TCont, typename TVal>
 struct _iterable_vector {
 public:
 
-	typedef TVal value_type;
-	typedef TVal * pointer;
-	typedef TVal const * const_pointer;
-	typedef TVal & reference;
-	typedef TVal const & const_reference;
-	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
-	typedef pointer_iterator<TCont, TVal> iterator;
-	typedef pointer_iterator<TCont, TVal const> const_iterator;
-	typedef std::reverse_iterator<iterator> reverse_iterator;
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+   typedef TVal value_type;
+   typedef TVal * pointer;
+   typedef TVal const * const_pointer;
+   typedef TVal & reference;
+   typedef TVal const & const_reference;
+   typedef size_t size_type;
+   typedef ptrdiff_t difference_type;
+   typedef pointer_iterator<TCont, TVal> iterator;
+   typedef pointer_iterator<TCont, TVal const> const_iterator;
+   typedef std::reverse_iterator<iterator> reverse_iterator;
+   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
 public:
 
-	/** Returns a forward iterator set to the first element.
+   /** Returns a forward iterator set to the first element.
 
-	TODO: comment signature.
-	*/
-	iterator begin() {
-		// const_cast is required because base_str_::data() returns const only.
-		return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->data()));
-	}
-	const_iterator begin() const {
-		return cbegin();
-	}
-
-
-	/** Returns a const forward iterator set to the first element.
-
-	TODO: comment signature.
-	*/
-	const_iterator cbegin() const {
-		return const_iterator(static_cast<TCont const *>(this)->data());
-	}
+   TODO: comment signature.
+   */
+   iterator begin() {
+      // const_cast is required because base_str_::data() returns const only.
+      return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->data()));
+   }
+   const_iterator begin() const {
+      return cbegin();
+   }
 
 
-	/** Returns a const reverse iterator set to the first element.
+   /** Returns a const forward iterator set to the first element.
 
-	TODO: comment signature.
-	*/
-	const_reverse_iterator crbegin() const {
-		return const_reverse_iterator(cbegin());
-	}
-
-
-	/** Returns a const forward iterator set beyond the last element.
-
-	TODO: comment signature.
-	*/
-	const_iterator cend() const {
-		return const_iterator(cbegin() + ptrdiff_t(static_cast<TCont const *>(this)->size()));
-	}
+   TODO: comment signature.
+   */
+   const_iterator cbegin() const {
+      return const_iterator(static_cast<TCont const *>(this)->data());
+   }
 
 
-	/** Returns a const reverse iterator set beyond the last element.
+   /** Returns a const reverse iterator set to the first element.
 
-	TODO: comment signature.
-	*/
-	const_reverse_iterator crend() const {
-		return const_reverse_iterator(cend());
-	}
-
-
-	/** Returns a forward iterator set beyond the last element.
-
-	TODO: comment signature.
-	*/
-	iterator end() {
-		return iterator(begin() + ptrdiff_t(static_cast<TCont *>(this)->size()));
-	}
-	const_iterator end() const {
-		return cend();
-	}
+   TODO: comment signature.
+   */
+   const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cbegin());
+   }
 
 
-	/** Returns a reverse iterator set to the first element of the vector.
+   /** Returns a const forward iterator set beyond the last element.
 
-	TODO: comment signature.
-	*/
-	reverse_iterator rbegin() {
-		return reverse_iterator(begin());
-	}
-	const_reverse_iterator rbegin() const {
-		return crbegin();
-	}
+   TODO: comment signature.
+   */
+   const_iterator cend() const {
+      return const_iterator(cbegin() + ptrdiff_t(static_cast<TCont const *>(this)->size()));
+   }
 
 
-	/** Returns a reverse iterator set beyond the last element.
+   /** Returns a const reverse iterator set beyond the last element.
 
-	TODO: comment signature.
-	*/
-	reverse_iterator rend() {
-		return reverse_iterator(end());
-	}
-	const_reverse_iterator rend() const {
-		return crend();
-	}
+   TODO: comment signature.
+   */
+   const_reverse_iterator crend() const {
+      return const_reverse_iterator(cend());
+   }
+
+
+   /** Returns a forward iterator set beyond the last element.
+
+   TODO: comment signature.
+   */
+   iterator end() {
+      return iterator(begin() + ptrdiff_t(static_cast<TCont *>(this)->size()));
+   }
+   const_iterator end() const {
+      return cend();
+   }
+
+
+   /** Returns a reverse iterator set to the first element of the vector.
+
+   TODO: comment signature.
+   */
+   reverse_iterator rbegin() {
+      return reverse_iterator(begin());
+   }
+   const_reverse_iterator rbegin() const {
+      return crbegin();
+   }
+
+
+   /** Returns a reverse iterator set beyond the last element.
+
+   TODO: comment signature.
+   */
+   reverse_iterator rend() {
+      return reverse_iterator(end());
+   }
+   const_reverse_iterator rend() const {
+      return crend();
+   }
 };
 
 } //namespace abc

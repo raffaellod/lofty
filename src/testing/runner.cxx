@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2013
 Raffaello D. Di Napoli
@@ -33,8 +33,8 @@ namespace abc {
 namespace testing {
 
 assertion_error::assertion_error() :
-	exception() {
-	m_pszWhat = "abc::assertion_error";
+   exception() {
+   m_pszWhat = "abc::assertion_error";
 }
 
 } //namespace testing
@@ -51,120 +51,120 @@ namespace abc {
 namespace testing {
 
 runner::runner(std::shared_ptr<ostream> posOut) :
-	m_pos(std::move(posOut)),
-	m_cTotalTestCases(0),
-	m_cPassedTestCases(0),
-	m_cTotalAssertions(0),
-	m_cPassedAssertions(0) {
+   m_pos(std::move(posOut)),
+   m_cTotalTestCases(0),
+   m_cPassedTestCases(0),
+   m_cTotalAssertions(0),
+   m_cPassedAssertions(0) {
 }
 
 
 runner::~runner() {
-	// TODO: currently abc::*vector containers don’t support move-only types; remove this manual
-	// cleanup code when std::unique_ptr becomes supported.
-	for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
-		delete *it;
-	}
+   // TODO: currently abc::*vector containers don’t support move-only types; remove this manual
+   // cleanup code when std::unique_ptr becomes supported.
+   for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
+      delete *it;
+   }
 }
 
 
 void runner::load_registered_test_cases() {
-	ABC_TRACE_FN((this));
+   ABC_TRACE_FN((this));
 
-	for (
-		test_case_factory_impl::list_item * pli(test_case_factory_impl::get_factory_list_head());
-		pli;
-		pli = pli->pliNext
-	) {
-		// Instantiate the test case.
-		auto ptc(pli->pfnFactory(this));
-		// TODO: currently abc::*vector containers don’t support move-only types; change to use
-		// std::unique_ptr when that becomes supported.
-		m_vptc.append(ptc.release());
-//		m_vptc.append(std::move(ptc));
-	}
+   for (
+      test_case_factory_impl::list_item * pli(test_case_factory_impl::get_factory_list_head());
+      pli;
+      pli = pli->pliNext
+   ) {
+      // Instantiate the test case.
+      auto ptc(pli->pfnFactory(this));
+      // TODO: currently abc::*vector containers don’t support move-only types; change to use
+      // std::unique_ptr when that becomes supported.
+      m_vptc.append(ptc.release());
+//    m_vptc.append(std::move(ptc));
+   }
 }
 
 
 void runner::log_result(bool bSuccess, istr const & sExpr) {
-	ABC_TRACE_FN((this, bSuccess, sExpr));
+   ABC_TRACE_FN((this, bSuccess, sExpr));
 
-	if (!bSuccess /*|| verbose*/) {
-		m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
-	}
-	if (bSuccess) {
-		++m_cPassedAssertions;
-	}
-	++m_cTotalAssertions;
+   if (!bSuccess /*|| verbose*/) {
+      m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
+   }
+   if (bSuccess) {
+      ++m_cPassedAssertions;
+   }
+   ++m_cTotalAssertions;
 }
 
 
 bool runner::log_summary() {
-	ABC_TRACE_FN((this));
+   ABC_TRACE_FN((this));
 
-	if (m_cTotalAssertions == 0) {
-		m_pos->write(SL("No tests performed\n"));
-	} else {
-		m_pos->print(
-			SL("Test cases: {} executed, {} passed ({}%), {} failed ({}%)\n"),
+   if (m_cTotalAssertions == 0) {
+      m_pos->write(SL("No tests performed\n"));
+   } else {
+      m_pos->print(
+         SL("Test cases: {} executed, {} passed ({}%), {} failed ({}%)\n"),
 
-			m_cTotalTestCases,
-			m_cPassedTestCases,
-			m_cPassedTestCases * 100 / m_cTotalTestCases,
-			m_cTotalTestCases - m_cPassedTestCases,
-			((m_cTotalTestCases - m_cPassedTestCases) * 100 + 1) / m_cTotalTestCases
-		);
-		m_pos->print(
-			SL("Assertions: {} performed, {} passed ({}%), {} failed ({}%)\n"),
+         m_cTotalTestCases,
+         m_cPassedTestCases,
+         m_cPassedTestCases * 100 / m_cTotalTestCases,
+         m_cTotalTestCases - m_cPassedTestCases,
+         ((m_cTotalTestCases - m_cPassedTestCases) * 100 + 1) / m_cTotalTestCases
+      );
+      m_pos->print(
+         SL("Assertions: {} performed, {} passed ({}%), {} failed ({}%)\n"),
 
-			m_cTotalAssertions,
-			m_cPassedAssertions,
-			m_cPassedAssertions * 100 / m_cTotalAssertions,
-			m_cTotalAssertions - m_cPassedAssertions,
-			((m_cTotalAssertions - m_cPassedAssertions) * 100 + 1) / m_cTotalAssertions
-		);
-	}
-	return m_cPassedAssertions == m_cTotalAssertions;
+         m_cTotalAssertions,
+         m_cPassedAssertions,
+         m_cPassedAssertions * 100 / m_cTotalAssertions,
+         m_cTotalAssertions - m_cPassedAssertions,
+         ((m_cTotalAssertions - m_cPassedAssertions) * 100 + 1) / m_cTotalAssertions
+      );
+   }
+   return m_cPassedAssertions == m_cTotalAssertions;
 }
 
 
 void runner::run() {
-	ABC_TRACE_FN((this));
+   ABC_TRACE_FN((this));
 
-	for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
-		run_test_case(**it);
-	}
+   for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
+      run_test_case(**it);
+   }
 }
 
 
 void runner::run_test_case(test_case & tc) {
-	ABC_TRACE_FN((this/*, u*/));
+   ABC_TRACE_FN((this/*, u*/));
 
-	m_pos->print(SL("Test case: {}: running...\n"), tc.title());
+   m_pos->print(SL("Test case: {}: running...\n"), tc.title());
 
-	// Save the current total and passed counts, so we can compare them after running the test case.
-	unsigned cPrevTotalAssertions(m_cTotalAssertions), cPrevPassedAssertions(m_cPassedAssertions);
-	bool bPassed(false);
-	try {
-		tc.run();
-		// If both the total and the passed count increased, the test case passed.
-		if (
-			cPrevTotalAssertions - m_cTotalAssertions == cPrevPassedAssertions - m_cPassedAssertions
-		) {
-			bPassed = true;
-			++m_cPassedTestCases;
-		}
-	} catch (assertion_error const &) {
-		// This exception type is only used to interrupt abc::testing::test_case::run().
-		m_pos->write(SL("Test case execution interrupted\n"));
-	} catch (std::exception const & x) {
-		exception::write_with_scope_trace(m_pos.get(), &x);
-	} catch (...) {
-		exception::write_with_scope_trace(m_pos.get());
-	}
-	++m_cTotalTestCases;
+   // Save the current total and passed counts, so we can compare them after running the test case.
+   unsigned cPrevTotalAssertions(m_cTotalAssertions), cPrevPassedAssertions(m_cPassedAssertions);
+   bool bPassed(false);
+   try {
+      tc.run();
+      // If both the total and the passed count increased, the test case passed.
+      if (
+         cPrevTotalAssertions - m_cTotalAssertions == cPrevPassedAssertions - m_cPassedAssertions
+      ) {
+         bPassed = true;
+         ++m_cPassedTestCases;
+      }
+   } catch (assertion_error const &) {
+      // This exception type is only used to interrupt abc::testing::test_case::run().
+      m_pos->write(SL("Test case execution interrupted\n"));
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(m_pos.get(), &x);
+   } catch (...) {
+      exception::write_with_scope_trace(m_pos.get());
+   }
+   ++m_cTotalTestCases;
 
-	m_pos->print(SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail"));
+   m_pos->print(SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail"));
 }
 
 } //namespace testing

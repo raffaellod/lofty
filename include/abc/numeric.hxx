@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/char.hxx>
@@ -41,22 +41,22 @@ namespace numeric {
 will never be negative (i.e. T is unsigned).
 
 t
-	Value to check for negativity.
+   Value to check for negativity.
 return
-	true if t is negative, or false otherwise.
+   true if t is negative, or false otherwise.
 */
 template <typename T>
 inline /*constexpr*/ bool is_negative(
-	typename std::enable_if<std::is_signed<T>::value, T>::type t
+   typename std::enable_if<std::is_signed<T>::value, T>::type t
 ) {
-	return t < T(0);
+   return t < T(0);
 }
 template <typename T>
 inline /*constexpr*/ bool is_negative(
-	typename std::enable_if<!std::is_signed<T>::value, T>::type t
+   typename std::enable_if<!std::is_signed<T>::value, T>::type t
 ) {
-	ABC_UNUSED_ARG(t);
-	return false;
+   ABC_UNUSED_ARG(t);
+   return false;
 }
 
 
@@ -97,11 +97,11 @@ struct min<char16_t> : public std::integral_constant<char16_t,        0> {};
 template <>
 struct max<char16_t> : public std::integral_constant<char16_t,
 #ifdef UINT_LEAST16_MAX
-		UINT_LEAST16_MAX
+      UINT_LEAST16_MAX
 #else
-		0xffff
+      0xffff
 #endif
-	> {};
+   > {};
 #endif //if ABC_CXX_CHAR16 > 0
 #if ABC_CXX_CHAR32 > 0
 template <>
@@ -109,11 +109,11 @@ struct min<char32_t> : public std::integral_constant<char32_t,        0> {};
 template <>
 struct max<char32_t> : public std::integral_constant<char32_t,
 #ifdef UINT_LEAST32_MAX
-		UINT_LEAST32_MAX
+      UINT_LEAST32_MAX
 #else
-		0xffffffff
+      0xffffffff
 #endif
-	> {};
+   > {};
 #endif //if ABC_CXX_CHAR32 > 0
 
 // Specialization of min and max for integer types.

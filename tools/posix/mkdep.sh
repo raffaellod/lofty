@@ -1,5 +1,5 @@
 #!/bin/sh
-# -*- coding: utf-8; mode: sh; tab-width: 3 -*-
+# -*- coding: utf-8; mode: sh; tab-width: 3; indent-tabs-mode: nil -*-
 #
 # Copyright 2010, 2011, 2012, 2013
 # Raffaello D. Di Napoli
@@ -27,30 +27,30 @@ depfile="${2}"
 
 # Prints a list of dependencies.
 mkdep() {
-	case "${1}" in
-	(*.c)
-		${CPP} -MM -MG -MT "\$(O)obj/${srcfile##*/}\$(OBJEXT)" ${CFLAGS} "${1}"
-		;;
-	(*.cxx|*.cpp|*.cc)
-		${CPP} -MM -MG -MT "\$(O)obj/${srcfile##*/}\$(OBJEXT)" ${CXXFLAGS} "${1}"
-		;;
-	(*)
-		echo "${0##*/}: error: Unable to determine dependencies for ${srcfile}" >&2
-		return 1
-		;;
-	esac
+   case "${1}" in
+   (*.c)
+      ${CPP} -MM -MG -MT "\$(O)obj/${srcfile##*/}\$(OBJEXT)" ${CFLAGS} "${1}"
+      ;;
+   (*.cxx|*.cpp|*.cc)
+      ${CPP} -MM -MG -MT "\$(O)obj/${srcfile##*/}\$(OBJEXT)" ${CXXFLAGS} "${1}"
+      ;;
+   (*)
+      echo "${0##*/}: error: Unable to determine dependencies for ${srcfile}" >&2
+      return 1
+      ;;
+   esac
 }
 dep="$(mkdep "${srcfile}")" || exit ${?}
 
 # Make the dependencies a single line, and add the result to the list.
 echo "${dep}" |
 sed -ne '
-	H								# Append every line to the hold space.
-	$ {							# In the end, ...
-		x							# Move the hold space to the pattern space.
-		s/ *\\[\r\n]* */ /g	# Properly replace any continuation newlines.
-		s/[\r\n]*//g			# Delete any remaining newlines.
-		p							# Print the result.
-	}
+   H                      # Append every line to the hold space.
+   $ {                    # In the end, ...
+      x                   # Move the hold space to the pattern space.
+      s/ *\\[\r\n]* */ /g # Properly replace any continuation newlines.
+      s/[\r\n]*//g        # Delete any remaining newlines.
+      p                   # Print the result.
+   }
 ' >"${depfile}"
 

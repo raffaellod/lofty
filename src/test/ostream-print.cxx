@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -30,47 +30,47 @@ namespace abc {
 namespace test {
 
 class ostream_print_no_replacements :
-	public testing::test_case {
+   public testing::test_case {
 public:
 
-	/** See testing::test_case::title().
-	*/
-	virtual istr title() {
-		return istr(SL("abc::ostream::print() - no replacements"));
-	}
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::ostream::print() - no replacements"));
+   }
 
 
-	/** See testing::test_case::run().
-	*/
-	virtual void run() {
-		ABC_TRACE_FN((this));
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
 
-		testing::mock::ostream mos;
+      testing::mock::ostream mos;
 
-		// Syntax errors.
-		mos.reset();
-		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{")));
-		mos.reset();
-		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{{{")));
-		mos.reset();
-		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}")));
-		mos.reset();
-		ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}}}")));
+      // Syntax errors.
+      mos.reset();
+      ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{")));
+      mos.reset();
+      ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("{{{")));
+      mos.reset();
+      ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}")));
+      mos.reset();
+      ABC_TESTING_ASSERT_THROWS(syntax_error, mos.print(SL("}}}")));
 
-		// No replacements.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("")), mos.contents_equal(SL(""))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x")), mos.contents_equal(SL("x"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x"), SL("a")), mos.contents_equal(SL("x"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{")), mos.contents_equal(SL("{"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("}}")), mos.contents_equal(SL("}"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{}}")), mos.contents_equal(SL("{}"))));
-	}
+      // No replacements.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("")), mos.contents_equal(SL(""))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x")), mos.contents_equal(SL("x"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x"), SL("a")), mos.contents_equal(SL("x"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{")), mos.contents_equal(SL("{"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("}}")), mos.contents_equal(SL("}"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{}}")), mos.contents_equal(SL("{}"))));
+   }
 };
 
 } //namespace test
@@ -88,53 +88,53 @@ namespace abc {
 namespace test {
 
 class ostream_print_one_replacement :
-	public testing::test_case {
+   public testing::test_case {
 public:
 
-	/** See testing::test_case::title().
-	*/
-	virtual istr title() {
-		return istr(SL("abc::ostream::print() - one replacement"));
-	}
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::ostream::print() - one replacement"));
+   }
 
 
-	/** See testing::test_case::run().
-	*/
-	virtual void run() {
-		ABC_TRACE_FN((this));
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
 
-		testing::mock::ostream mos;
+      testing::mock::ostream mos;
 
-		// Single string replacement, deduced argument index.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), SL("a")), mos.contents_equal(SL("a"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}"), SL("a")), mos.contents_equal(SL("xa"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}x"), SL("a")), mos.contents_equal(SL("ax"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}x"), SL("a")), mos.contents_equal(SL("xax"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{{}}}"), SL("a")), mos.contents_equal(SL("{a}"))));
+      // Single string replacement, deduced argument index.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), SL("a")), mos.contents_equal(SL("a"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}"), SL("a")), mos.contents_equal(SL("xa"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}x"), SL("a")), mos.contents_equal(SL("ax"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{}x"), SL("a")), mos.contents_equal(SL("xax"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{{{}}}"), SL("a")), mos.contents_equal(SL("{a}"))));
 
-		// Single string replacement, explicit index.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}"), SL("a")), mos.contents_equal(SL("a"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}"), SL("a")), mos.contents_equal(SL("xa"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x"), SL("a")), mos.contents_equal(SL("ax"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x"), SL("a")), mos.contents_equal(SL("xax"))));
+      // Single string replacement, explicit index.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}"), SL("a")), mos.contents_equal(SL("a"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}"), SL("a")), mos.contents_equal(SL("xa"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x"), SL("a")), mos.contents_equal(SL("ax"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x"), SL("a")), mos.contents_equal(SL("xax"))));
 
-		// Single integer replacement, various ways of reference, various format options.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), 34), mos.contents_equal(SL("34"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:x}"), 34), mos.contents_equal(SL("22"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:#x}"), 34), mos.contents_equal(SL("0x22"))));
-	}
+      // Single integer replacement, various ways of reference, various format options.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}"), 34), mos.contents_equal(SL("34"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:x}"), 34), mos.contents_equal(SL("22"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{:#x}"), 34), mos.contents_equal(SL("0x22"))));
+   }
 };
 
 } //namespace test
@@ -152,45 +152,45 @@ namespace abc {
 namespace test {
 
 class ostream_print_two_replacements :
-	public testing::test_case {
+   public testing::test_case {
 public:
 
-	/** See testing::test_case::title().
-	*/
-	virtual istr title() {
-		return istr(SL("abc::ostream::print() - two replacements"));
-	}
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::ostream::print() - two replacements"));
+   }
 
 
-	/** See testing::test_case::run().
-	*/
-	virtual void run() {
-		ABC_TRACE_FN((this));
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
 
-		testing::mock::ostream mos;
+      testing::mock::ostream mos;
 
-		// Single string replacement, referenced twice.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{0}"), SL("a")), mos.contents_equal(SL("aa"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}"), SL("a")), mos.contents_equal(SL("axa"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}"), SL("a")), mos.contents_equal(SL("xaxa"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}x"), SL("a")), mos.contents_equal(SL("axax"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}x"), SL("a")), mos.contents_equal(SL("xaxax"))));
+      // Single string replacement, referenced twice.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{0}"), SL("a")), mos.contents_equal(SL("aa"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}"), SL("a")), mos.contents_equal(SL("axa"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}"), SL("a")), mos.contents_equal(SL("xaxa"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}x{0}x"), SL("a")), mos.contents_equal(SL("axax"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("x{0}x{0}x"), SL("a")), mos.contents_equal(SL("xaxax"))));
 
-		// Two string replacements, various ways of reference.
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}{}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{0}"), SL("a"), SL("b")), mos.contents_equal(SL("ba"))));
-		mos.reset();
-		ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("bb"))));
-	}
+      // Two string replacements, various ways of reference.
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{}{}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{0}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("ab"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{0}"), SL("a"), SL("b")), mos.contents_equal(SL("ba"))));
+      mos.reset();
+      ABC_TESTING_ASSERT_TRUE((mos.print(SL("{1}{1}"), SL("a"), SL("b")), mos.contents_equal(SL("bb"))));
+   }
 };
 
 } //namespace test

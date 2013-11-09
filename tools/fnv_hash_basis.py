@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8; mode: python; tab-width: 3 -*-
+# -*- coding: utf-8; mode: python; tab-width: 3; indent-tabs-mode: nil -*-
 #
 # Copyright 2010, 2011, 2012, 2013
 # Raffaello D. Di Napoli
@@ -25,22 +25,22 @@ import sys
 
 
 def fnv_hash_basis(cBits, iFNVPrime):
-	"""Calculates the basis number for the FNV-1a hash algorithm."""
+   """Calculates the basis number for the FNV-1a hash algorithm."""
 
-	# Constants.
-	sFNVBasis = 'chongo <Landon Curt Noll> /\\../\\'
+   # Constants.
+   sFNVBasis = 'chongo <Landon Curt Noll> /\\../\\'
 
-	# Calculate the hash.
-	iHashMod = 2 ** cBits
-	iFNVBasis = 0
-	for ch in sFNVBasis:
-#		sys.stdout.write('Char {} (basis = {})\n'.format(ch, iFNVBasis))
-		iFNVBasis *= iFNVPrime
-		iFNVBasis %= iHashMod
-		iFNVBasis ^= ord(ch)
-	sys.stdout.write('Using prime = {:#x}, {}-bit basis = {}\n'.format(iFNVPrime, cBits, iFNVBasis))
+   # Calculate the hash.
+   iHashMod = 2 ** cBits
+   iFNVBasis = 0
+   for ch in sFNVBasis:
+#     sys.stdout.write('Char {} (basis = {})\n'.format(ch, iFNVBasis))
+      iFNVBasis *= iFNVPrime
+      iFNVBasis %= iHashMod
+      iFNVBasis ^= ord(ch)
+   sys.stdout.write('Using prime = {:#x}, {}-bit basis = {}\n'.format(iFNVPrime, cBits, iFNVBasis))
 
 
 if __name__ == '__main__':
-	fnv_hash_basis(int(sys.argv[1], 0), int(sys.argv[2], 0))
+   fnv_hash_basis(int(sys.argv[1], 0), int(sys.argv[2], 0))
 

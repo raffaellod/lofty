@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -25,27 +25,27 @@ using namespace abc;
 
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		ABC_UNUSED_ARG(vsArgs);
+      ABC_UNUSED_ARG(vsArgs);
 
-		str_ostream sos;
-		istr sEnc(SL("host"));
+      str_ostream sos;
+      istr sEnc(SL("host"));
 
-		sos.write(istr8(U8SL("Testing string (UTF-8 encoding)")));
+      sos.write(istr8(U8SL("Testing string (UTF-8 encoding)")));
 #ifdef U16SL
-		sos.write(istr16(U16SL("Testing string (UTF-16 encoding)")));
+      sos.write(istr16(U16SL("Testing string (UTF-16 encoding)")));
 #endif
 #ifdef U32SL
-		sos.write(istr32(U32SL("Testing string (UTF-32 encoding)")));
-#endif		
+      sos.write(istr32(U32SL("Testing string (UTF-32 encoding)")));
+#endif
 
-		return EXIT_SUCCESS;
-	}
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

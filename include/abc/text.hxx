@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #include <abc/byteorder.hxx>
@@ -43,58 +43,58 @@ namespace text {
 on this.
 */
 ABC_ENUM(encoding, \
-	/** Unknown/undetermined encoding. */ \
-	(unknown,          0), \
-	/** Identity encoding: no transcoding is to occur. */ \
-	(identity,         1), \
-	/** Offset of the first charset encoding (as opposed to non-charsets, such as “unknown” and
-	 * “identity”). */ \
-	(_charsets_offset, 2), \
-	/** UTF-8 encoding. */ \
-	(utf8,             2), \
-	/** UTF-16 Little Endian encoding. */ \
-	(utf16le,          3), \
-	/** UTF-16 Big Endian encoding. */ \
-	(utf16be,          4), \
-	/** UTF-32 Little Endian encoding. */ \
-	(utf32le,          5), \
-	/** UTF-32 Big Endian encoding. */ \
-	(utf32be,          6), \
-	/** ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
-	 * representation. */ \
-	(iso_8859_1,       7), \
-	/** Windows-1252 encoding. Only supported in detection and handling, but not as internal string
-	 * representation. */ \
-	(windows_1252,     8), \
-	/** EBCDIC encoding. Only supported in detection and handling, but not as internal string
-	 * representation. */ \
-	(ebcdic,           9), \
-	/** UTF-16 encoding (host endianness). */ \
-	(utf16_host,       (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
-	/** UTF-32 encoding (host endianness). */ \
-	(utf32_host,       (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)), \
-	/** Default host encoding. */ \
-	(host,             (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
+   /** Unknown/undetermined encoding. */ \
+   (unknown,          0), \
+   /** Identity encoding: no transcoding is to occur. */ \
+   (identity,         1), \
+   /** Offset of the first charset encoding (as opposed to non-charsets, such as “unknown” and
+    * “identity”). */ \
+   (_charsets_offset, 2), \
+   /** UTF-8 encoding. */ \
+   (utf8,             2), \
+   /** UTF-16 Little Endian encoding. */ \
+   (utf16le,          3), \
+   /** UTF-16 Big Endian encoding. */ \
+   (utf16be,          4), \
+   /** UTF-32 Little Endian encoding. */ \
+   (utf32le,          5), \
+   /** UTF-32 Big Endian encoding. */ \
+   (utf32be,          6), \
+   /** ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
+    * representation. */ \
+   (iso_8859_1,       7), \
+   /** Windows-1252 encoding. Only supported in detection and handling, but not as internal string
+    * representation. */ \
+   (windows_1252,     8), \
+   /** EBCDIC encoding. Only supported in detection and handling, but not as internal string
+    * representation. */ \
+   (ebcdic,           9), \
+   /** UTF-16 encoding (host endianness). */ \
+   (utf16_host,       (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
+   /** UTF-32 encoding (host endianness). */ \
+   (utf32_host,       (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)), \
+   /** Default host encoding. */ \
+   (host,             (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
 );
 
 
 /** Recognized line terminators.
 */
 ABC_ENUM(line_terminator, \
-	/** Unknown/undetermined line terminator. */ \
-	(unknown,       0), \
-	/** Offset of the first known line terminator. */ \
-	(_known_offset, 1), \
-	/** Old Mac style: Carriage Return, '\r'. */ \
-	(cr,            1), \
-	/** Unix/POSIX style: Line Feed, '\n'. */ \
-	(lf,            2), \
-	/** DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */ \
-	(cr_lf,         3), \
-	/** EBCDIC style: Next Line, '\x15'. */ \
-	(nel,           4), \
-	/** Default host line terminator. */ \
-	(host,          (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
+   /** Unknown/undetermined line terminator. */ \
+   (unknown,       0), \
+   /** Offset of the first known line terminator. */ \
+   (_known_offset, 1), \
+   /** Old Mac style: Carriage Return, '\r'. */ \
+   (cr,            1), \
+   /** Unix/POSIX style: Line Feed, '\n'. */ \
+   (lf,            2), \
+   /** DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */ \
+   (cr_lf,         3), \
+   /** EBCDIC style: Next Line, '\x15'. */ \
+   (nel,           4), \
+   /** Default host line terminator. */ \
+   (host,          (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
 );
 
 
@@ -115,20 +115,20 @@ size_t const max_codepoint_length(6);
 /** Prototype of a void version of str_str().
 
 pchHaystackBegin
-	Pointer to the first character of the string to be searched.
+   Pointer to the first character of the string to be searched.
 pchHaystackEnd
-	Pointer to beyond the last character of the string to be searched.
+   Pointer to beyond the last character of the string to be searched.
 pchNeedleBegin
-	Pointer to the first character of the string to search for.
+   Pointer to the first character of the string to search for.
 pchNeedleEnd
-	Pointer to beyond the last character of the string to search for.
+   Pointer to beyond the last character of the string to search for.
 return
-	Pointer to the beginning of the first match, in the string to be searched, of the string to
-	search for, or NULL if no matches are found.
+   Pointer to the beginning of the first match, in the string to be searched, of the string to
+   search for, or NULL if no matches are found.
 */
 typedef void const * (* str_str_fn)(
-	void const * pchHaystackBegin, void const * pchHaystackEnd,
-	void const * pchNeedleBegin, void const * pchNeedleEnd
+   void const * pchHaystackBegin, void const * pchHaystackEnd,
+   void const * pchNeedleBegin, void const * pchNeedleEnd
 );
 
 
@@ -137,18 +137,18 @@ different encoding. For example, transcoding from UTF-32 to UTF-16 will yield ha
 although special cases such as surrogates might make the estimate too low.
 
 encSrc
-	Source encoding.
+   Source encoding.
 pSrc
-	Pointer to the source string.
+   Pointer to the source string.
 cbSrc
-	Length of the source string, in bytes.
+   Length of the source string, in bytes.
 encDst
-	Target encoding.
+   Target encoding.
 return
-	Estimated size necessary for the destination string, in bytes.
+   Estimated size necessary for the destination string, in bytes.
 */
 ABCAPI size_t estimate_transcoded_size(
-	encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
+   encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 );
 
 
@@ -156,10 +156,10 @@ ABCAPI size_t estimate_transcoded_size(
 encodings (e.g. identity_encoding).
 
 enc
-	Desired encoding.
+   Desired encoding.
 return
-	Size of a character (not a code point, which can require more than one character) for the
-	specified encoding, in bytes.
+   Size of a character (not a code point, which can require more than one character) for the
+   specified encoding, in bytes.
 */
 ABCAPI size_t get_encoding_size(encoding enc);
 
@@ -167,17 +167,17 @@ ABCAPI size_t get_encoding_size(encoding enc);
 /** Returns a byte sequence representing a line terminator in the requested encoding.
 
 enc
-	Desired encoding.
+   Desired encoding.
 lterm
-	Desired line terminator sequence.
+   Desired line terminator sequence.
 pcb
-	Pointer to a variable that will receive the size, in bytes, of the line terminator sequence
-	string.
+   Pointer to a variable that will receive the size, in bytes, of the line terminator sequence
+   string.
 return
-	Pointer to a non-NUL-terminated line terminator sequence.
+   Pointer to a non-NUL-terminated line terminator sequence.
 */
 ABCAPI void const * get_line_terminator_bytes(
-	encoding enc, line_terminator lterm, size_t * pcb
+   encoding enc, line_terminator lterm, size_t * pcb
 );
 
 
@@ -189,19 +189,19 @@ example, for a return value of utf8_encoding utf8_traits::is_valid() will return
 buffer.
 
 pBuf
-	Pointer to a character string the encoding of which needs to be determined.
+   Pointer to a character string the encoding of which needs to be determined.
 cbBuf
-	Size of the string pointed to by pBuf, in bytes.
+   Size of the string pointed to by pBuf, in bytes.
 [cbSrcTotal]
-	Total size, in bytes, of a larger string of which *pBuf is the beginning.
+   Total size, in bytes, of a larger string of which *pBuf is the beginning.
 [pcbBom]
-	Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
-	of the string, in bytes, or 0 otherwise.
+   Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
+   of the string, in bytes, or 0 otherwise.
 return
-	Detected encoding of the string pointed to by pBuf.
+   Detected encoding of the string pointed to by pBuf.
 */
 ABCAPI encoding guess_encoding(
-	void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
+   void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
 );
 
 
@@ -210,13 +210,13 @@ specified encoding. The second argument is really character count, it’s not a 
 character is inferred via enc.
 
 pBuf
-	Pointer to a character string the line terminator sequence of which needs to be determined.
+   Pointer to a character string the line terminator sequence of which needs to be determined.
 cchBuf
-	Size of the string pointed to by pBuf, in characters.
+   Size of the string pointed to by pBuf, in characters.
 enc
-	Encoding of the string pointed to by pBuf.
+   Encoding of the string pointed to by pBuf.
 return
-	Detected line terminator sequence of the string pointed to by pBuf.
+   Detected line terminator sequence of the string pointed to by pBuf.
 */
 ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
 
@@ -227,28 +227,28 @@ the bytes used in the conversion; the number of bytes written is returned.
 UTF validity: not necessary; invalid sequences are replaced with text::replacement_char.
 
 encSrc
-	Encoding of the string pointed to by *ppSrc.
+   Encoding of the string pointed to by *ppSrc.
 ppSrc
-	Pointer to a pointer to the source string; the pointed-to pointer will be incremented as
-	characters are transcoded.
+   Pointer to a pointer to the source string; the pointed-to pointer will be incremented as
+   characters are transcoded.
 pcbSrc
-	Pointer to a variable that holds the size of the string pointed to by *ppSrc, and that will be
-	decremented by the number of source characters transcoded.
+   Pointer to a variable that holds the size of the string pointed to by *ppSrc, and that will be
+   decremented by the number of source characters transcoded.
 encDst
-	Encoding of the string pointed to by *ppDst.
+   Encoding of the string pointed to by *ppDst.
 ppDst
-	Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
-	characters are stored in the buffer.
+   Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
+   characters are stored in the buffer.
 pcbDstMax
-	Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
-	decremented by the number of characters stored in the buffer.
+   Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
+   decremented by the number of characters stored in the buffer.
 return
-	Count of bytes that were written to **ppDst.
+   Count of bytes that were written to **ppDst.
 */
 ABCAPI size_t transcode(
-	std::nothrow_t const &,
-	encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
-	encoding encDst, void       ** ppDst, size_t * pcbDstMax
+   std::nothrow_t const &,
+   encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
+   encoding encDst, void       ** ppDst, size_t * pcbDstMax
 );
 
 } //namespace text
@@ -267,17 +267,17 @@ namespace text {
 /** A text encoding or decoding error occurred.
 */
 class ABCAPI error :
-	public virtual generic_error {
+   public virtual generic_error {
 public:
 
-	/** Constructor.
-	*/
-	error();
+   /** Constructor.
+   */
+   error();
 
 
-	/** See abc::generic_error::init().
-	*/
-	void init(errint_t err = 0);
+   /** See abc::generic_error::init().
+   */
+   void init(errint_t err = 0);
 };
 
 } //namespace text
@@ -296,17 +296,17 @@ namespace text {
 /** A text decoding error occurred.
 */
 class ABCAPI decode_error :
-	public virtual error {
+   public virtual error {
 public:
 
-	/** Constructor.
-	*/
-	decode_error();
+   /** Constructor.
+   */
+   decode_error();
 
 
-	/** See abc::text::error::init().
-	*/
-	void init(errint_t err = 0);
+   /** See abc::text::error::init().
+   */
+   void init(errint_t err = 0);
 };
 
 } //namespace text
@@ -325,17 +325,17 @@ namespace text {
 /** A text encoding error occurred.
 */
 class ABCAPI encode_error :
-	public virtual error {
+   public virtual error {
 public:
 
-	/** Constructor.
-	*/
-	encode_error();
+   /** Constructor.
+   */
+   encode_error();
 
 
-	/** See abc::text::error::init().
-	*/
-	void init(errint_t err = 0);
+   /** See abc::text::error::init().
+   */
+   void init(errint_t err = 0);
 };
 
 } //namespace text

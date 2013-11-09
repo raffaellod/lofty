@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -24,31 +24,31 @@ using namespace abc;
 
 
 ABC_ENUM(test_enum, \
-	(value1, 15), \
-	(value2, 56), \
-	(value3, 91) \
+   (value1, 15), \
+   (value2, 56), \
+   (value3, 91) \
 );
 
 class test_app_module :
-	public app_module_impl<test_app_module> {
+   public app_module_impl<test_app_module> {
 public:
 
-	int main(mvector<istr const> const & vsArgs) {
-		ABC_TRACE_FN((this/*, vsArgs*/));
+   int main(mvector<istr const> const & vsArgs) {
+      ABC_TRACE_FN((this/*, vsArgs*/));
 
-		ABC_UNUSED_ARG(vsArgs);
+      ABC_UNUSED_ARG(vsArgs);
 
-		test_enum e(test_enum::value2);
+      test_enum e(test_enum::value2);
 
-		if (e != test_enum::value2) {
-			return 1;
-		}
-		if (to_str(e) != SL("value2")) {
-			return 2;
-		}
+      if (e != test_enum::value2) {
+         return 1;
+      }
+      if (to_str(e) != SL("value2")) {
+         return 2;
+      }
 
-		return EXIT_SUCCESS;
-	}
+      return EXIT_SUCCESS;
+   }
 };
 
 ABC_MAIN_APP_MODULE(test_app_module)

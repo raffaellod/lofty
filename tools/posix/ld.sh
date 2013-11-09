@@ -1,5 +1,5 @@
 #!/bin/sh
-# -*- coding: utf-8; mode: sh; tab-width: 3 -*-
+# -*- coding: utf-8; mode: sh; tab-width: 3; indent-tabs-mode: nil -*-
 #
 # Copyright 2010, 2011, 2012, 2013
 # Raffaello D. Di Napoli
@@ -28,47 +28,47 @@ output=
 # The remaining arguments are the rest of the command line, which includes the object files we want
 # to look at.
 for arg; do
-	if [ "${output}" = -next ]; then
-		output="${arg}"
-	else
-		case "${arg}" in
-		(-o)
-			output=-next
-			;;
-		(-*)
-			;;
-		(*)
-			# If a C++ file caused the C++ linker driver to be selected, we won’t override that.
-			if [ "${ld}" != "${CXX}" ]; then
-				argsrc="${arg%${OBJEXT}}"
-				if [ "${argsrc}" != "${arg}" ]; then
-					case "${argsrc}" in
-					(*.c)
-						ld="${CC}"
-						;;
-					(*.cxx|*.cpp|*.cc)
-						ld="${CXX}"
-						# A single C++ file forces the linker driver to be the C++ one, even if we have
-						# other non-C++ files.
-						break
-						;;
-					esac
-				fi
-			fi
-			;;
-		esac
-	fi
+   if [ "${output}" = -next ]; then
+      output="${arg}"
+   else
+      case "${arg}" in
+      (-o)
+         output=-next
+         ;;
+      (-*)
+         ;;
+      (*)
+         # If a C++ file caused the C++ linker driver to be selected, we won’t override that.
+         if [ "${ld}" != "${CXX}" ]; then
+            argsrc="${arg%${OBJEXT}}"
+            if [ "${argsrc}" != "${arg}" ]; then
+               case "${argsrc}" in
+               (*.c)
+                  ld="${CC}"
+                  ;;
+               (*.cxx|*.cpp|*.cc)
+                  ld="${CXX}"
+                  # A single C++ file forces the linker driver to be the C++ one, even if we have
+                  # other non-C++ files.
+                  break
+                  ;;
+               esac
+            fi
+         fi
+         ;;
+      esac
+   fi
 done
 if [ -z "${ld}" ]; then
-	echo "${0##*/}: error: Unable to determine which link driver to use${output:+ for ${output}}" >&2
-	return 1
+   echo "${0##*/}: error: Unable to determine which link driver to use${output:+ for ${output}}" >&2
+   return 1
 fi
 
 # Execute the command.
 if [ ${VERBOSE} = 0 ]; then
-	echo "${CLR_CMD}  LD    ${CLR_RST} ${output}"
+   echo "${CLR_CMD}  LD    ${CLR_RST} ${output}"
 else
-	echo "${ld} ${@}"
+   echo "${ld} ${@}"
 fi
 exec ${ld} "${@}"
 

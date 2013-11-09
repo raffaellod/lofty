@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; mode: c++; tab-width: 3 -*-
+﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
 Copyright 2010, 2011, 2012, 2013
 Raffaello D. Di Napoli
@@ -22,11 +22,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
-	#pragma once
+   #pragma once
 #endif
 
 #if ABC_HOST_API_POSIX
-	#include <pthread.h>
+   #include <pthread.h>
 #endif
 
 
@@ -41,13 +41,13 @@ namespace atomic {
 
 /** Integer type of optimal size for atomic operations (usually the machine’s word size). */
 #if ABC_HOST_API_POSIX
-	// No preference really, since we use don’t use atomic intrinsics.
-	typedef int int_t;
+   // No preference really, since we use don’t use atomic intrinsics.
+   typedef int int_t;
 #elif ABC_HOST_API_WIN32
-	// Win32 uses long to mean 32 bits, always.
-	typedef long int_t;
+   // Win32 uses long to mean 32 bits, always.
+   typedef long int_t;
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 
 #if ABC_HOST_API_POSIX
@@ -59,32 +59,32 @@ extern pthread_mutex_t g_mtx;
 result in *piDst and returning it.
 
 piDst
-	Pointer to an integer variable whose value is the left addend and that will receive the sum upon
-	return.
+   Pointer to an integer variable whose value is the left addend and that will receive the sum upon
+   return.
 iAddend
-	Right addend.
+   Right addend.
 return
-	Sum of *piDst + iAddend.
+   Sum of *piDst + iAddend.
 */
 template <typename I>
 I add(I volatile * piDst, I iAddend) {
 #if ABC_HOST_API_POSIX
-	I iRet;
-	pthread_mutex_lock(&g_mtx);
-	iRet = (*piDst += iAddend);
-	pthread_mutex_unlock(&g_mtx);
-	return iRet;
+   I iRet;
+   pthread_mutex_lock(&g_mtx);
+   iRet = (*piDst += iAddend);
+   pthread_mutex_unlock(&g_mtx);
+   return iRet;
 #elif ABC_HOST_API_WIN32
-	switch (sizeof(I)) {
-		case sizeof(long):
-			return ::InterlockedAdd(reinterpret_cast<long volatile *>(piDst), iAddend);
+   switch (sizeof(I)) {
+      case sizeof(long):
+         return ::InterlockedAdd(reinterpret_cast<long volatile *>(piDst), iAddend);
 #if _WIN32_WINNT >= 0x0502
-		case sizeof(long long):
-			return ::InterlockedAdd64(reinterpret_cast<long long volatile *>(piDst), iAddend);
+      case sizeof(long long):
+         return ::InterlockedAdd64(reinterpret_cast<long long volatile *>(piDst), iAddend);
 #endif //if _WIN32_WINNT >= 0x0502
-	}
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 }
 
@@ -93,40 +93,40 @@ I add(I volatile * piDst, I iAddend) {
 result in *pi and returning it.
 
 piDst
-	Pointer to an integer variable whose value is to be replaced with iNewValue if and only if it
-	matches iComparand.
+   Pointer to an integer variable whose value is to be replaced with iNewValue if and only if it
+   matches iComparand.
 iNewValue
-	Value to assign to *piDst.
+   Value to assign to *piDst.
 iComparand
-	Expected current value of *piDst.
+   Expected current value of *piDst.
 return
-	Previous value of *pi, as well as the current one if *pi was not changed.
+   Previous value of *pi, as well as the current one if *pi was not changed.
 */
 template <typename I>
 I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #if ABC_HOST_API_POSIX
-	I iOldValue;
-	pthread_mutex_lock(&g_mtx);
-	if ((iOldValue = *piDst) == iComparand) {
-		*piDst = iNewValue;
-	}
-	pthread_mutex_unlock(&g_mtx);
-	return iOldValue;
+   I iOldValue;
+   pthread_mutex_lock(&g_mtx);
+   if ((iOldValue = *piDst) == iComparand) {
+      *piDst = iNewValue;
+   }
+   pthread_mutex_unlock(&g_mtx);
+   return iOldValue;
 #elif ABC_HOST_API_WIN32
-	switch (sizeof(I)) {
-		case sizeof(long):
-			return ::InterlockedCompareExchange(
-				reinterpret_cast<long volatile *>(piDst), iNewValue, iComparand
-			);
+   switch (sizeof(I)) {
+      case sizeof(long):
+         return ::InterlockedCompareExchange(
+            reinterpret_cast<long volatile *>(piDst), iNewValue, iComparand
+         );
 #if _WIN32_WINNT >= 0x0502
-		case sizeof(long long):
-			return ::InterlockedCompareExchange64(
-				reinterpret_cast<long long volatile *>(piDst), iNewValue, iComparand
-			);
+      case sizeof(long long):
+         return ::InterlockedCompareExchange64(
+            reinterpret_cast<long long volatile *>(piDst), iNewValue, iComparand
+         );
 #endif //if _WIN32_WINNT >= 0x0502
-	}
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 }
 
@@ -135,29 +135,29 @@ I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 returning it.
 
 pi
-	Pointer to an integer variable whose value is to be decremented by 1.
+   Pointer to an integer variable whose value is to be decremented by 1.
 return
-	New value of *pi.
+   New value of *pi.
 */
 template <typename I>
 inline I decrement(I volatile * pi) {
 #if ABC_HOST_API_POSIX
-	I iRet;
-	pthread_mutex_lock(&g_mtx);
-	iRet = --*pi;
-	pthread_mutex_unlock(&g_mtx);
-	return iRet;
+   I iRet;
+   pthread_mutex_lock(&g_mtx);
+   iRet = --*pi;
+   pthread_mutex_unlock(&g_mtx);
+   return iRet;
 #elif ABC_HOST_API_WIN32
-	switch (sizeof(I)) {
-		case sizeof(long):
-			return I(::InterlockedDecrement(reinterpret_cast<long volatile *>(pi)));
+   switch (sizeof(I)) {
+      case sizeof(long):
+         return I(::InterlockedDecrement(reinterpret_cast<long volatile *>(pi)));
 #if _WIN32_WINNT >= 0x0502
-		case sizeof(long long):
-			return I(::InterlockedDecrement64(reinterpret_cast<long long volatile *>(pi)));
+      case sizeof(long long):
+         return I(::InterlockedDecrement64(reinterpret_cast<long long volatile *>(pi)));
 #endif //if _WIN32_WINNT >= 0x0502
-	}
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 }
 
@@ -166,29 +166,29 @@ inline I decrement(I volatile * pi) {
 returning it.
 
 pi
-	Pointer to an integer variable whose value is to be incremented by 1.
+   Pointer to an integer variable whose value is to be incremented by 1.
 return
-	New value of *pi.
+   New value of *pi.
 */
 template <typename I>
 inline I increment(I volatile * pi) {
 #if ABC_HOST_API_POSIX
-	I iRet;
-	pthread_mutex_lock(&g_mtx);
-	iRet = ++*pi;
-	pthread_mutex_unlock(&g_mtx);
-	return iRet;
+   I iRet;
+   pthread_mutex_lock(&g_mtx);
+   iRet = ++*pi;
+   pthread_mutex_unlock(&g_mtx);
+   return iRet;
 #elif ABC_HOST_API_WIN32
-	switch (sizeof(I)) {
-		case sizeof(long):
-			return I(::InterlockedIncrement(reinterpret_cast<long volatile *>(pi)));
+   switch (sizeof(I)) {
+      case sizeof(long):
+         return I(::InterlockedIncrement(reinterpret_cast<long volatile *>(pi)));
 #if _WIN32_WINNT >= 0x0502
-		case sizeof(long long):
-			return I(::InterlockedIncrement64(reinterpret_cast<long long volatile *>(pi)));
+      case sizeof(long long):
+         return I(::InterlockedIncrement64(reinterpret_cast<long long volatile *>(pi)));
 #endif //if _WIN32_WINNT >= 0x0502
-	}
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 }
 
@@ -197,36 +197,36 @@ inline I increment(I volatile * pi) {
 storing the result in *pi and returning it.
 
 piDst
-	Pointer to an integer variable whose value is the minuend and that will receive the difference
-	upon return.
+   Pointer to an integer variable whose value is the minuend and that will receive the difference
+   upon return.
 iAddend
-	Subtrahend.
+   Subtrahend.
 return
-	Difference of *piDst - iAddend.
+   Difference of *piDst - iAddend.
 */
 template <typename I>
 I subtract(I volatile * piDst, I iSubtrahend) {
 #if ABC_HOST_API_POSIX
-	I iRet;
-	pthread_mutex_lock(&g_mtx);
-	iRet = (*piDst -= iSubtrahend);
-	pthread_mutex_unlock(&g_mtx);
-	return iRet;
+   I iRet;
+   pthread_mutex_lock(&g_mtx);
+   iRet = (*piDst -= iSubtrahend);
+   pthread_mutex_unlock(&g_mtx);
+   return iRet;
 #elif ABC_HOST_API_WIN32
-	switch (sizeof(I)) {
-		case sizeof(long):
-			return ::InterlockedAdd(
-				reinterpret_cast<long volatile *>(piDst), -long(iSubtrahend)
-			);
+   switch (sizeof(I)) {
+      case sizeof(long):
+         return ::InterlockedAdd(
+            reinterpret_cast<long volatile *>(piDst), -long(iSubtrahend)
+         );
 #if _WIN32_WINNT >= 0x0502
-		case sizeof(long long):
-			return ::InterlockedAdd64(
-				reinterpret_cast<long long volatile *>(piDst), -long long(iSubtrahend)
-			);
+      case sizeof(long long):
+         return ::InterlockedAdd64(
+            reinterpret_cast<long long volatile *>(piDst), -long long(iSubtrahend)
+         );
 #endif //if _WIN32_WINNT >= 0x0502
-	}
+   }
 #else
-	#error TODO-PORT: HOST_API
+   #error TODO-PORT: HOST_API
 #endif
 }
 
