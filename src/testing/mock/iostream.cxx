@@ -39,14 +39,6 @@ ostream::ostream() :
 }
 
 
-bool ostream::contents_equal(istr const & sExpected) {
-   ABC_TRACE_FN((this, sExpected));
-
-   istr sActual(unsafe, m_achBuf, m_cchUsed);
-   return sActual == sExpected;
-}
-
-
 /*virtual*/ void ostream::write_raw(
    void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
 ) {

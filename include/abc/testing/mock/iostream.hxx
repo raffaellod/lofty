@@ -74,14 +74,14 @@ public:
    ostream();
 
 
-   /** Returns true if the current contents of the stream match the specified string.
+   /** Returns a string referencing the current contents of the stream.
 
-   sExpected
-      String to compare with the contents of the stream.
    return
-      true if the contents equal sExpected, or false otherwise.
+      Contents of the stream.
    */
-   bool contents_equal(istr const & sExpected);
+   istr const contents() const {
+      return istr(unsafe, m_achBuf, m_cchUsed);
+   }
 
 
    /** Empties the contents of the stream.
