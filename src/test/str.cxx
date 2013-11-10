@@ -94,7 +94,7 @@ public:
    /** See str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - basic operations"));
+      return istr(SL("abc::*str classes - basic operations"));
    }
 
 
@@ -226,7 +226,7 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - ASCII character and substring search - UTF-8 strings"));
+      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-8 strings"));
    }
 
 
@@ -285,7 +285,7 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - ASCII character and substring search - UTF-16 strings"));
+      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-16 strings"));
    }
 
 
@@ -344,7 +344,7 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - ASCII character and substring search - UTF-32 strings"));
+      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-32 strings"));
    }
 
 
@@ -403,7 +403,9 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - non-ASCII character and substring search - UTF-8 strings"));
+      return istr(
+         SL("abc::*str classes - non-ASCII character and substring search - UTF-8 strings")
+      );
    }
 
 
@@ -448,7 +450,9 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - non-ASCII character and substring search - UTF-16 strings"));
+      return istr(
+         SL("abc::*str classes - non-ASCII character and substring search - UTF-16 strings")
+      );
    }
 
 
@@ -493,7 +497,9 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("str classes - non-ASCII character and substring search - UTF-32 strings"));
+      return istr(
+         SL("abc::*str classes - non-ASCII character and substring search - UTF-32 strings")
+      );
    }
 
 

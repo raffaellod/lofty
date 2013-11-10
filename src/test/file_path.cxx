@@ -35,7 +35,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path - normalizations"));
+      return istr(SL("abc::file_path - normalization"));
    }
 
 
