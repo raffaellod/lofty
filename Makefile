@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: Makefile; tab-width: 3 -*-
+# -*- coding: utf-8; mode: Makefile; tab-width: 8 -*-
 #
 # Copyright 2010, 2011, 2012, 2013
 # Raffaello D. Di Napoli
