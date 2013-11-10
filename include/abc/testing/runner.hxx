@@ -73,6 +73,9 @@ class ABCTESTINGAPI runner {
 public:
 
    /** Constructor.
+
+   posOut
+      Pointer to the output stream that will be used to log the results of the tests.
    */
    runner(std::shared_ptr<ostream> posOut);
 
@@ -88,12 +91,24 @@ public:
    void load_registered_test_cases();
 
 
-   /** Logs the result of a test.
+   /** Logs the result of an assertion.
+
+   bSuccess
+      Result of the assertion.
+   sExpr
+      Subject of the assertion.
+   sExpected
+      Expected value of sExpr.
+   sActual
+      Actual value of sExpr.
    */
-   void log_result(bool bSuccess, istr const & sExpr);
+   void log_assertion(
+      bool bSuccess, istr const & sExpr, istr const & sExpected, istr const & sActual
+   );
 
 
-   /** Prints test results based on the information collected by log_result() and run_test_case().
+   /** Prints test results based on the information collected by log_assertion() and
+   run_test_case().
 
    return
       true if all assertions were successful, or false otherwise.
@@ -107,6 +122,9 @@ public:
 
 
    /** Executes a test case.
+
+   tc
+      Test case to execute.
    */
    void run_test_case(test_case & tc);
 

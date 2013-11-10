@@ -79,11 +79,34 @@ protected:
    /** Validates an assertion.
 
    bExpr
+      Value of the asserted expression.
+   sExpr
+      Asserted expression.
+   */
+   void assert_bool(bool bExpr, istr const & sExpr) {
+//    ABC_TRACE_FN((this, bExpr, sExpr));
+
+      m_prunner->log_assertion(bExpr, sExpr, SL("true"), SL("false"));
+   }
+
+
+   /** Validates a comparison assertion.
+
+   bExpr
       Result of the assertion expression.
    pszExpr
       Assertion being tested.
    */
-   void assert(bool bExpr, istr const & sExpr);
+   template <typename T1, typename T2>
+   void assert_cmp(bool bSuccess, istr const & sExpr, T1 const & t1Expected, T2 const & t2Actual) {
+//    ABC_TRACE_FN((this, bCmp, sExpr));
+
+      if (bSuccess) {
+         m_prunner->log_assertion(true, sExpr, istr(), istr());
+      } else {
+         m_prunner->log_assertion(false, sExpr, to_str(t1Expected), to_str(t2Actual));
+      }
+   }
 
 
 protected:
@@ -110,7 +133,7 @@ expr
       } catch (...) { \
          _bCaught = true; \
       } \
-      this->assert(!_bCaught, SL(#expr)); \
+      this->assert_bool(!_bCaught, SL(#expr)); \
    } while (false)
 
 
@@ -122,7 +145,20 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr1, expr2) \
-   this->assert(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2))
+   this->assert_bool(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2))
+
+
+/** Asserts that the specified expressions evaluate to the same value.
+
+expr1
+   First expression.
+expr2
+   Second expression.
+*/
+#define ABC_TESTING_ASSERT_EQUAL2(expr1, expr2) \
+   do { \
+      this->assert_cmp(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2), expr2, expr1); \
+   } while (false)
 
 
 /** Asserts that the specified expression evaluates to false.
@@ -132,7 +168,7 @@ expr
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
    /* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
-   this->assert(!static_cast<bool>(expr), SL(#expr) SL(" == false"))
+   this->assert_bool(!static_cast<bool>(expr), SL(#expr) SL(" == false"))
 
 
 /** Asserts that the first expression evaluates to more than the second expression.
@@ -143,7 +179,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr1, expr2) \
-   this->assert(expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
+   this->assert_bool(expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at least the same value as the second expression.
@@ -154,7 +190,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
-   this->assert(expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
+   this->assert_bool(expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to less than the second expression.
@@ -165,7 +201,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS(expr1, expr2) \
-   this->assert(expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
+   this->assert_bool(expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at most the same value as the second expression.
@@ -176,7 +212,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr1, expr2) \
-   this->assert(expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
+   this->assert_bool(expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
 
 
 /** Asserts that the specified expressions don’t evaluate to the same value.
@@ -187,7 +223,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr1, expr2) \
-   this->assert(expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
+   this->assert_bool(expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
 
 
 /** Asserts that the specified expression throws an exception of the specified type.
@@ -205,7 +241,7 @@ expr
       } catch (type const &) { \
          _bCaught = true; \
       } \
-      this->assert(_bCaught, SL(#expr)); \
+      this->assert_bool(_bCaught, SL(#expr)); \
    } while (false)
 
 
@@ -215,7 +251,7 @@ expr
    Expression that should evaulate to true.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert(expr, SL(#expr) SL(" == true"))
+   this->assert_bool(expr, SL(#expr) SL(" == true"))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

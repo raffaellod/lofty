@@ -86,11 +86,17 @@ void runner::load_registered_test_cases() {
 }
 
 
-void runner::log_result(bool bSuccess, istr const & sExpr) {
-   ABC_TRACE_FN((this, bSuccess, sExpr));
+void runner::log_assertion(
+   bool bSuccess, istr const & sExpr, istr const & sExpected, istr const & sActual
+) {
+   ABC_TRACE_FN((this, bSuccess, sExpr, sExpected, sActual));
 
-   if (!bSuccess /*|| verbose*/) {
-      m_pos->print(SL("{}: {}\n"), bSuccess ? SL("Pass") : SL("Fail"), sExpr);
+   if (!bSuccess) {
+      m_pos->print(
+         SL("Assertion failed: {}; expected: {}, actual: {}\n"), sExpr, sExpected, sActual
+      );
+   } else if (false /*|| verbose*/) {
+      m_pos->print(SL("Assertion passed: {}\n"), sExpr);
    }
    if (bSuccess) {
       ++m_cPassedAssertions;
