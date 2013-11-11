@@ -74,8 +74,44 @@ return
 template <typename T>
 dmstr to_str(T const & t, istr const & sFormat = istr());
 
+/** Generates a string suitable for display from an object. Once constructed with the desired format
+specification, an instance can convert to a string any number of T instances. */
+template <typename T>
+class to_str_backend;
+
 } //namespace abc
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for bool
+
+
+namespace abc {
+
+template <>
+class ABCAPI to_str_backend<bool> {
+public:
+
+   /** Constructor.
+
+   [crFormat]
+      Formatting options.
+   */
+   to_str_backend(char_range const & crFormat = char_range());
+
+
+   /** Converts a boolean value to its string representation.
+
+   b
+      Boolean value to write.
+   posOut
+      Pointer to the output stream to write to.
+   */
+   void write(bool b, ostream * posOut);
+};
+
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -343,41 +379,11 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend
+// abc::to_str_backend - specialization for integer types
 
 
 namespace abc {
 
-/** Generates a string suitable for display from an object. Once constructed with the desired format
-specification, an instance can convert to a string any number of T instances. */
-template <typename T>
-class to_str_backend;
-
-// Specialization for bool.
-template <>
-class ABCAPI to_str_backend<bool> {
-public:
-
-   /** Constructor.
-
-   [crFormat]
-      Formatting options.
-   */
-   to_str_backend(char_range const & crFormat = char_range());
-
-
-   /** Converts a boolean value to its string representation.
-
-   b
-      Boolean value to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(bool b, ostream * posOut);
-};
-
-
-// Specialization for integer types.
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(I) \
    template <> \
    class to_str_backend<I> : \
@@ -405,6 +411,14 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long long)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specializations for pointer types
+
+
+namespace abc {
 
 // Specialization for void const volatile *.
 template <>
@@ -439,7 +453,7 @@ protected:
 };
 
 
-// Specialization for any pointer-to-type.
+// Specialization for any pointer type.
 template <typename T>
 class to_str_backend<T *> :
    public to_str_backend<void const volatile *> {
@@ -455,8 +469,15 @@ public:
    }
 };
 
+} //namespace abc
 
-// Specialization for string literal types.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for string literal types
+
+
+namespace abc {
+
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
    /** String literal. \
    */ \
