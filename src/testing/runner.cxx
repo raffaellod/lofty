@@ -87,7 +87,8 @@ void runner::load_registered_test_cases() {
 
 
 void runner::log_assertion(
-   bool bSuccess, istr const & sExpr, istr const & sExpected, istr const & sActual
+   bool bSuccess, istr const & sExpr,
+   istr const & sExpected /*= istr()*/, istr const & sActual /*= istr()*/
 ) {
    ABC_TRACE_FN((this, bSuccess, sExpr, sExpected, sActual));
 

@@ -103,7 +103,8 @@ public:
       Actual value of sExpr.
    */
    void log_assertion(
-      bool bSuccess, istr const & sExpr, istr const & sExpected, istr const & sActual
+      bool bSuccess, istr const & sExpr,
+      istr const & sExpected = istr(), istr const & sActual = istr()
    );
 
 

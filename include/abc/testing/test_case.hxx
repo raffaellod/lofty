@@ -104,7 +104,7 @@ protected:
 //    ABC_TRACE_FN((this, texpr, texpected, sExpr));
 
       if (texpr == texpected) {
-         m_prunner->log_assertion(true, sExpr, istr(), istr());
+         m_prunner->log_assertion(true, sExpr);
       } else {
          m_prunner->log_assertion(false, sExpr, to_str(texpected), to_str(texpr));
       }
