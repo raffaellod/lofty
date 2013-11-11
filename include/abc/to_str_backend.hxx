@@ -57,6 +57,13 @@ to sequentially process an infinite number of conversions, i.e. instances of a t
 specialization must be reusable.
 
 The interpretation of the format specification is up to the specialization of abc::to_str_backend.
+
+When code causes the compiler to instantiate a specialization of abc::to_str_backend that has not
+been defined, GCC will generate an error:
+
+   error: ‘abc::to_str_backend<my_type> …’ has incomplete type
+
+The only fix for this is to provide an explicit specialization of abc::to_str_backend for my_type.
 */
 
 /** Returns the string representation of the specified value, optionally with a custom format.
