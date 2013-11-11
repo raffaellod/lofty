@@ -37,19 +37,33 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 
-/** Defines an enumeration class derived from abc::enum_impl.
+/** DOC:3549 Enumeration classes
 
-TODO: allow specifying a default value (instead of having __default = max + 1).
+ABC features support for advanced enumeration classes. These are the features that set them apart
+from C++11 “enum class” enumerations:
 
-TODO: document design.
+•  Strong typing: constants from one enumeration are not automatically converted to a different
+   enumeration type;
+•  Scoped constants: the enumeration members are members of the enumeration class, not of its
+   containing namespace; different classes can therefore use constants of the same name (note that
+   this will not confuse developers, since the constants will need to be qualified with the
+   enumeration type name);
+•  Conversion from/to string: instances of an ABC enumeration class can be serialized and
+   deserialized as strings with no additional code.
 
-The enumerated constants are not merged in the containing scope, as it happens with C++ enums; in
-order to access the values, they must be qualified with the class name (name::value).
+The ABC_ENUM() macro declares an enumeration class containing the members provided as a list.
 
-The underlying C++ enumeration will be available as name::enum_type; this should be used as little
-as possible.
+The name provided to ABC_ENUM() is associated to a C++ class, not the C++ enum; the latter is
+available through the former, as in as my_enum::enum_type; there should little to no need to ever
+directly refer to the C++ enum type.
 
 This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
+*/
+
+/** Defines an enumeration class derived from abc::enum_impl. See [DOC:3549 Enumeration classes] for
+more information.
+
+TODO: allow specifying a default value (instead of having __default = max + 1).
 
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
 etc.
