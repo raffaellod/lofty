@@ -24,6 +24,44 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for bool
+
+
+namespace abc {
+
+ABCAPI to_str_backend<bool>::to_str_backend(
+   char_range const & crFormat /*= char_range()*/
+) {
+   ABC_TRACE_FN((this, crFormat));
+
+   auto it(crFormat.cbegin());
+
+   // TODO: parse the format string.
+
+   // If we still have any characters, they are garbage.
+   if (it != crFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+      ));
+   }
+}
+
+
+ABCAPI void to_str_backend<bool>::write(bool b, ostream * posOut) {
+   ABC_TRACE_FN((this, b, posOut));
+
+   // TODO: apply format options.
+   if (b) {
+      posOut->write(SL("true"));
+   } else {
+      posOut->write(SL("false"));
+   }
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_int_to_str_backend_base
 
 
@@ -268,44 +306,6 @@ ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) co
 #endif //if ABC_HOST_WORD_SIZE < 32
 #endif //if ABC_HOST_WORD_SIZE < 64
 
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend<bool>
-
-
-namespace abc {
-
-ABCAPI to_str_backend<bool>::to_str_backend(
-   char_range const & crFormat /*= char_range()*/
-) {
-   ABC_TRACE_FN((this, crFormat));
-
-   auto it(crFormat.cbegin());
-
-   // TODO: parse the format string.
-
-   // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
-      ));
-   }
-}
-
-
-ABCAPI void to_str_backend<bool>::write(bool b, ostream * posOut) {
-   ABC_TRACE_FN((this, b, posOut));
-
-   // TODO: apply format options.
-   if (b) {
-      posOut->write(SL("true"));
-   } else {
-      posOut->write(SL("false"));
-   }
-}
 
 } //namespace abc
 
