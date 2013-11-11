@@ -625,6 +625,44 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for abc::pointer_iterator
+
+
+namespace abc {
+
+template <typename TCont, typename TVal>
+class ABCAPI to_str_backend<pointer_iterator<TCont, TVal>> :
+   protected to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
+public:
+
+   /** Constructor.
+
+   [crFormat]
+      Formatting options.
+   */
+   to_str_backend(char_range const & crFormat = char_range()) :
+      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>(crFormat) {
+   }
+
+
+   /** Writes a NUL-terminated string, applying the formatting options.
+
+   psz
+      Pointer to the string to write.
+   posOut
+      Pointer to the output stream to write to.
+   */
+   void write(pointer_iterator<TCont, TVal> const & it, ostream * posOut) {
+      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>::write(
+         it.base(), posOut
+      );
+   }
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifndef ABC_TO_STRING_BACKEND_HXX
