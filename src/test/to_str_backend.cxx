@@ -58,7 +58,7 @@ protected:
 
 protected:
 
-   /** TODO: comments. */
+   /** Stream to convert to string into. */
    testing::mock::ostream m_mos;
 };
 
