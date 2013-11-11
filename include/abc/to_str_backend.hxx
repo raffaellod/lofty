@@ -480,12 +480,60 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for string literal types
+// abc::to_str_backend - specialization for character and string literal types
 
 
 namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
+   /** Character literal. \
+   */ \
+   template <> \
+   class to_str_backend<C> : \
+      public _str_to_str_backend { \
+   public: \
+   \
+      /** Constructor.
+
+      [crFormat]
+         Formatting options.
+      */ \
+      to_str_backend(char_range const & crFormat = char_range()) : \
+         _str_to_str_backend(crFormat) { \
+      } \
+   \
+   \
+      /** Writes a character, applying the formatting options.
+
+      ch
+         Character to write.
+      posOut
+         Pointer to the output stream to write to.
+      */ \
+      void write(C ch, ostream * posOut) { \
+         _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, posOut); \
+      } \
+   }; \
+   \
+   /** Const character literal. \
+
+   TODO: remove the need for this.
+   */ \
+   template <> \
+   class to_str_backend<C const> : \
+      public to_str_backend<C> { \
+   public: \
+   \
+      /** Constructor.
+
+      [crFormat]
+         Formatting options.
+      */ \
+      to_str_backend(char_range const & crFormat = char_range()) : \
+         to_str_backend<C>(crFormat) { \
+      } \
+   }; \
+   \
    /** String literal. \
    */ \
    template <size_t t_cch> \
