@@ -47,7 +47,7 @@ public:
          return 2;
       }
 
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 

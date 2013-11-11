@@ -223,7 +223,7 @@ public:
          }
       }
 
-      return EXIT_SUCCESS;
+      return 0;
    }
 
 

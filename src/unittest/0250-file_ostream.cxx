@@ -55,7 +55,7 @@ public:
       }
 
       if (!pfos) {
-         return EXIT_FAILURE;
+         return 1;
       }
       pfos->set_encoding(enc);
       pfos->write(SL("Testing "));
@@ -65,7 +65,7 @@ public:
       pfos->write(SL(" encoding)\n"));
 
       // Test results determined by external program.
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 

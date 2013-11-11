@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/atomic.hxx>
 #include <abc/vector.hxx>
 #include <abc/file_path.hxx>
-#include <stdlib.h> // EXIT_SUCCESS EXIT_FAILURE
 
 
 

@@ -44,7 +44,7 @@ public:
       sos.write(istr32(U32SL("Testing string (UTF-32 encoding)")));
 #endif
 
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 

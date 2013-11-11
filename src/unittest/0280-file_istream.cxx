@@ -41,7 +41,7 @@ public:
       }
 
       if (!pfis) {
-         return EXIT_FAILURE;
+         return 1;
       }
       auto pstdout(file_ostream::stdout());
       for (dmstr s; pfis->read_line(&s); ) {
@@ -50,7 +50,7 @@ public:
       }
 
       // Test results determined by external program.
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 

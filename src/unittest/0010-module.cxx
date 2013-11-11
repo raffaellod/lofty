@@ -30,7 +30,7 @@ public:
       ABC_TRACE_FN((this/*, vsArgs*/));
 
       ABC_UNUSED_ARG(vsArgs);
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 

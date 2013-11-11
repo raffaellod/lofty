@@ -46,7 +46,7 @@ public:
          m.add(SL("5"), 5);
       }
 
-      return EXIT_SUCCESS;
+      return 0;
    }
 };
 
