@@ -45,25 +45,19 @@ protected:
    }
 
 
-   /** Checks if a string’s item array has been reallocated, and verifies its character count.
+   /** Checks if a string’s item array has been reallocated.
 
-   bPtrChanged
-      Validates that the string’s character array pointer has changed if true, or that it has not
-      changed if false.
    return
-      true if the validation is successful, or false otherwise.
+      true if the string’s character array pointer has changed, or false otherwise.
    */
-   bool str_ptr_changed(bool bPtrChanged) {
-      ABC_TRACE_FN((this, bPtrChanged));
+   bool str_ptr_changed() {
+      ABC_TRACE_FN((this));
 
       // Update the item array pointer for the next call.
       char_t const * pchCheckOld(m_pchCheck);
       m_pchCheck = m_psCheck->data();
-      // Check if the item array has changed in accordance to the expectation.
-      if ((pchCheckOld != m_psCheck->data()) != bPtrChanged) {
-         return false;
-      }
-      return true;
+      // Check if the item array has changed.
+      return pchCheckOld != m_psCheck->data();
    }
 
 
@@ -113,35 +107,35 @@ public:
 
       s += SL("a");
       // true: operator+= must have created an item array (there was none).
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
 
       s = s + CL('b') + s;
       // true: a new string is created by operator+, which replaces s by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3);
       ABC_TESTING_ASSERT_EQUAL(s, SL("aba"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2);
       ABC_TESTING_ASSERT_EQUAL(s, SL("ba"));
 
       s += CL('c');
       // false: there should’ve been enough space for 'c'.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(false));
+      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bac"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
@@ -149,7 +143,7 @@ public:
 
       s += s;
       // false: there should’ve been enough space for “baba”.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(false));
+      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
@@ -159,14 +153,14 @@ public:
 
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
 
       s = dmstr(SL("ab")) + CL('c');
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(true));
+      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
@@ -175,7 +169,7 @@ public:
 
       s += CL('d');
       // false: there should’ve been enough space for “abcd”.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(false));
+      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
@@ -186,7 +180,7 @@ public:
       s += SL("efghijklmnopqrstuvwxyz");
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
       // character array may or may not change depending on heap reallocation strategy.
-      str_ptr_changed(false);
+      str_ptr_changed();
       ABC_TESTING_ASSERT_EQUAL(s.size(), 26u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26);
       ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
@@ -194,7 +188,7 @@ public:
       s = SL("a\0b");
       s += SL("\0c");
       // false: there should have been plenty of storage allocated.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed(false));
+      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
