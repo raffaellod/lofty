@@ -90,21 +90,23 @@ protected:
    }
 
 
-   /** Validates a comparison assertion.
+   /** Validates an equality assertion.
 
-   bExpr
-      Result of the assertion expression.
-   pszExpr
-      Assertion being tested.
+   texpr
+      Expression to be evaluated.
+   texpected
+      Expected value of texpr.
+   sExpr
+      String representing texpr.
    */
-   template <typename T1, typename T2>
-   void assert_cmp(bool bSuccess, istr const & sExpr, T1 const & t1Expected, T2 const & t2Actual) {
-//    ABC_TRACE_FN((this, bCmp, sExpr));
+   template <typename TExpr, typename TExpected>
+   void assert_equal(TExpr const & texpr, TExpected const & texpected, istr const & sExpr) {
+//    ABC_TRACE_FN((this, texpr, texpected, sExpr));
 
-      if (bSuccess) {
+      if (texpr == texpected) {
          m_prunner->log_assertion(true, sExpr, istr(), istr());
       } else {
-         m_prunner->log_assertion(false, sExpr, to_str(t1Expected), to_str(t2Actual));
+         m_prunner->log_assertion(false, sExpr, to_str(texpected), to_str(texpr));
       }
    }
 
@@ -139,25 +141,14 @@ expr
 
 /** Asserts that the specified expressions evaluate to the same value.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to be evaluated.
+expected
+   Expected value of expr.
 */
-#define ABC_TESTING_ASSERT_EQUAL(expr1, expr2) \
-   this->assert_bool(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2))
-
-
-/** Asserts that the specified expressions evaluate to the same value.
-
-expr1
-   First expression.
-expr2
-   Second expression.
-*/
-#define ABC_TESTING_ASSERT_EQUAL2(expr1, expr2) \
+#define ABC_TESTING_ASSERT_EQUAL(expr, expected) \
    do { \
-      this->assert_cmp(expr1 == expr2, SL(#expr1) SL(" == ") SL(#expr2), expr2, expr1); \
+      this->assert_equal(expr, expected, SL(#expr) SL(" == ") SL(#expected)); \
    } while (false)
 
 
