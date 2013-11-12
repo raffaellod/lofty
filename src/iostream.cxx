@@ -220,7 +220,7 @@ void _ostream_print_helper_impl::throw_syntax_error(
 
 
 void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
-   ABC_TRACE_FN((this/*, itUpTo*/));
+   ABC_TRACE_FN((this, itUpTo));
 
    if (itUpTo > m_itFormatToWriteBegin) {
       m_pos->write_raw(
