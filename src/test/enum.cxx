@@ -17,11 +17,16 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/module.hxx>
-#include <abc/str_iostream.hxx>
+#include <abc/testing/test_case.hxx>
 #include <abc/trace.hxx>
-using namespace abc;
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::enum_basic
+
+namespace abc {
+
+namespace test {
 
 ABC_ENUM(test_enum, \
    (value1, 15), \
@@ -29,27 +34,36 @@ ABC_ENUM(test_enum, \
    (value3, 91) \
 );
 
-class test_app_module :
-   public app_module_impl<test_app_module> {
+
+class enum_basic :
+   public testing::test_case {
 public:
 
-   int main(mvector<istr const> const & vsArgs) {
-      ABC_TRACE_FN((this/*, vsArgs*/));
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::enum-derived classes - basic operations"));
+   }
 
-      ABC_UNUSED_ARG(vsArgs);
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
 
       test_enum e(test_enum::value2);
 
-      if (e != test_enum::value2) {
-         return 1;
-      }
-      if (to_str(e) != SL("value2")) {
-         return 2;
-      }
-
-      return 0;
+      ABC_TESTING_ASSERT_TRUE(e == test_enum::value2);
+      ABC_TESTING_ASSERT_EQUAL(to_str(e), SL("value2"));
    }
 };
 
-ABC_MAIN_APP_MODULE(test_app_module)
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::enum_basic)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
