@@ -41,7 +41,6 @@ test: \
 check: \
 	$(O)test.tmp/unittest/0005-cppmacros.cxx.i.log \
 	$(O)test.tmp/unittest/0010-module.ut.log \
-	$(O)test.tmp/unittest/0030-enum.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
 	$(O)test.tmp/unittest/0190-str_ostream.ut.log \
@@ -98,9 +97,6 @@ $(O)bin/abc-test$(EXEEXT): LDLIBS+=-labc-testing
 # Test programs.
 $(O)bin/unittest/0010-module$(EXEEXT): \
 	$(O)obj/unittest/0010-module.cxx$(OBJEXT) \
-	| $(O)lib/libabc$(LIBEXT)
-$(O)bin/unittest/0030-enum$(EXEEXT): \
-	$(O)obj/unittest/0030-enum.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT)
 $(O)bin/unittest/0050-vector$(EXEEXT): \
 	$(O)obj/unittest/0050-vector.cxx$(OBJEXT) \
