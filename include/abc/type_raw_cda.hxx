@@ -52,6 +52,16 @@ struct void_cda {
    typedef void (* copy_fn)(void * pDst, void const * pSrc, size_t ci);
 
 
+   /** Prototype of a function that destructs items in an array.
+
+   p
+      Pointer to the array.
+   ci
+      Count of items to destruct.
+   */
+   typedef void (* destr_fn)(void * p, size_t ci);
+
+
    /** Prototype of a function that compares two values for equality.
 
    p1
@@ -76,26 +86,16 @@ struct void_cda {
    typedef void (* move_fn)(void * pDst, void * pSrc, size_t ci);
 
 
-   /** Prototype of a function that destructs items in an array.
-
-   p
-      Pointer to the array.
-   ci
-      Count of items to destruct.
-   */
-   typedef void (* destr_fn)(void * p, size_t ci);
-
-
    /** Size of a variable of this type, in bytes. */
    size_t cb;
    /** Function to copy items from one array to another. */
    copy_fn copy_constr;
-   /** Function to move items from one array to another. */
-   move_fn move_constr;
    /** Function to destruct items in an array. */
    destr_fn destruct;
    /** Function to compare two items for equality. */
    equal_fn equal;
+   /** Function to move items from one array to another. */
+   move_fn move_constr;
 };
 
 } //namespace abc
@@ -244,9 +244,9 @@ template <class T>
    static void_cda const sc_vrcda = {
       sizeof(T),
       reinterpret_cast<void_cda:: copy_fn>(typed_raw_cda<T>::copy_constr),
-      reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::move_constr),
       reinterpret_cast<void_cda::destr_fn>(typed_raw_cda<T>::destruct),
-      reinterpret_cast<void_cda::equal_fn>(typed_raw_cda<T>::equal)
+      reinterpret_cast<void_cda::equal_fn>(typed_raw_cda<T>::equal),
+      reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::move_constr)
    };
    return sc_vrcda;
 }
