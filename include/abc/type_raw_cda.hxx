@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::type_raw_cda_base
+// abc::void_cda
 
 
 namespace abc {
@@ -42,28 +42,46 @@ struct void_cda {
 
    /** Prototype of a function that copies items from one array to another.
 
-   TODO: comment signature.
+   pDst
+      Pointer to the destination array. The items are supposed to be uninitialized.
+   pSrc
+      Pointer to the source array.
+   ci
+      Count of items to copy.
    */
    typedef void (* copy_fn)(void * pDst, void const * pSrc, size_t ci);
 
 
    /** Prototype of a function that compares two values for equality.
 
-   TODO: comment signature.
+   p1
+      Pointer to the first item.
+   p2
+      Pointer to the second item.
+   return
+      true if the items are equal, or false otherwise.
    */
    typedef bool (* equal_fn)(void const * p1, void const * p2);
 
 
    /** Prototype of a function that moves items from one array to another.
 
-   TODO: comment signature.
+   pDst
+      Pointer to the destination array. The items are supposed to be uninitialized.
+   pSrc
+      Pointer to the source array.
+   ci
+      Count of items to move.
    */
    typedef void (* move_fn)(void * pDst, void * pSrc, size_t ci);
 
 
    /** Prototype of a function that destructs items in an array.
 
-   TODO: comment signature.
+   p
+      Pointer to the array.
+   ci
+      Count of items to destruct.
    */
    typedef void (* destr_fn)(void * p, size_t ci);
 
@@ -110,7 +128,12 @@ struct typed_raw_cda {
    /** Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   TODO: comment signature.
+   ptDst
+      Pointer to the destination array. The items are supposed to be uninitialized.
+   ptSrc
+      Pointer to the source array.
+   ci
+      Count of items to copy.
    */
    static void copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
       if (std::has_trivial_copy_constructor<T>::value) {
@@ -145,9 +168,12 @@ struct typed_raw_cda {
    }
 
 
-   /** Destroys a range of items in an array.
+   /** Destructs a range of items in an array.
 
-   TODO: comment signature.
+   pt
+      Pointer to the array.
+   ci
+      Count of items to destruct.
    */
    static void destruct(T * pt, size_t ci) {
       if (!std::has_trivial_destructor<T>::value) {
@@ -161,7 +187,12 @@ struct typed_raw_cda {
 
    /** Compares two values for equality.
 
-   TODO: comment signature.
+   pt1
+      Pointer to the first item.
+   pt2
+      Pointer to the second item.
+   return
+      true if the items are equal, or false otherwise.
    */
    static bool equal(void const * pt1, void const * pt2) {
       return *static_cast<T const *>(pt1) == *static_cast<T const *>(pt2);
@@ -171,7 +202,12 @@ struct typed_raw_cda {
    /** Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   TODO: comment signature.
+   ptDst
+      Pointer to the destination array. The items are supposed to be uninitialized.
+   ptSrc
+      Pointer to the source array.
+   ci
+      Count of items to move.
    */
    static void move_constr(T * ptDst, T * ptSrc, size_t ci) {
       for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
