@@ -74,8 +74,6 @@ struct void_cda {
    copy_fn copy_constr;
    /** Function to move items from one array to another. */
    move_fn move_constr;
-   /** Function to move items within an array. */
-   move_fn overlapping_move_constr;
    /** Function to destruct items in an array. */
    destr_fn destruct;
    /** Function to compare two items for equality. */
@@ -180,86 +178,6 @@ struct typed_raw_cda {
          ::new(ptDst) T(std::move(*ptSrc));
       }
    }
-
-
-   /** Safely moves a range of items to another position in the same array, carefully moving items
-   in case the source and the destination ranges overlap. Note that this will also destruct the
-   source items.
-
-   TODO: comment signature.
-   */
-   static void overlapping_move_constr(T * ptDst, T * ptSrc, size_t ci) {
-      if (ptDst == ptSrc) {
-         return;
-      }
-      T const * ptSrcEnd(ptSrc + ci);
-      if (ptDst < ptSrc && ptSrc < ptDst + ci) {
-         // ┌─────────────────┐ 
-         // │ a - - B C D e f │
-         // ├─────────────────┤
-         // │ a B C D - - e f │
-         // └─────────────────┘
-         //
-         // Move the items from left to right (the block moves from right to left).
-
-         T const * ptSrcBegin(ptSrc), * ptDstEnd(ptDst + ci);
-         // First, move-construct the items that don’t overlap.
-         for (; ptDst < ptSrcBegin; ++ptSrc, ++ptDst) {
-            ::new(ptDst) T(std::move(*ptSrc));
-         }
-         // ┌─────────────────┐ 
-         // │ a B C b c D e f │ (lowercase b and c indicate the moved-out items)
-         // └─────────────────┘
-         // Second, move-assign all the items in the overlapping area to shift them.
-         for (; ptDst < ptDstEnd; ++ptSrc, ++ptDst) {
-            *ptDst = std::move(*ptSrc);
-         }
-         // ┌─────────────────┐ 
-         // │ a B C D c d e f │
-         // └─────────────────┘
-         // Third, destruct the items that have no replacement and have just been moved out.
-         for (ptSrc = ptDst; ptSrc < ptSrcEnd; ++ptSrc) {
-            ptSrc->~T();
-         }
-      } else if (ptSrc < ptDst && ptDst < ptSrc + ci) {
-         // ┌─────────────────┐
-         // │ a B C D - - e f │
-         // ├─────────────────┤
-         // │ a - - B C D e f │
-         // └─────────────────┘
-         //
-         // This situation is the mirror of the above, so the move must be done using decrementing
-         // pointers, sweeping right to left (the block moves from left to right).
-
-         T const * ptSrcBegin(ptSrc), * ptDstBegin(ptDst), * ptDstEnd(ptDst + ci);
-         // First, move-construct the items that don’t overlap.
-         for (
-            ptSrc = const_cast<T *>(ptSrcEnd),
-            ptDst = const_cast<T *>(ptDstEnd);
-            --ptDst >= --ptSrcEnd;
-         ) {
-            ::new(ptDst) T(std::move(*ptSrc));
-         }
-         // ┌─────────────────┐
-         // │ a B c d C D e f │ (lowercase c and d indicate the moved-out items)
-         // └─────────────────┘
-         // Second, move-assign all the items in the overlapping area to shift them.
-         for (; ptSrc >= ptSrcBegin; --ptSrc, --ptDst) {
-            *ptDst = std::move(*ptSrc);
-         }
-         // ┌─────────────────┐
-         // │ a b c B C D e f │
-         // └─────────────────┘
-         // Third, destruct the items that have no replacement and have just been moved out.
-         for (ptSrc = const_cast<T *>(ptDstBegin); ptSrc >= ptSrcBegin; --ptSrc) {
-            ptSrc->~T();
-         }
-      } else {
-         for (; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
-            ::new(ptDst) T(std::move(*ptSrc));
-         }
-      }
-   }
 };
 
 // Remove const, but not volatile. Or maybe remove both?
@@ -291,7 +209,6 @@ template <class T>
       sizeof(T),
       reinterpret_cast<void_cda:: copy_fn>(typed_raw_cda<T>::copy_constr),
       reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::move_constr),
-      reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::overlapping_move_constr),
       reinterpret_cast<void_cda::destr_fn>(typed_raw_cda<T>::destruct),
       reinterpret_cast<void_cda::equal_fn>(typed_raw_cda<T>::equal)
    };

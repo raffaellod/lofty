@@ -334,6 +334,101 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
 }
 
 
+/** Safely moves a range of items to another position in the same array, carefully moving items in
+case the source and the destination ranges overlap. Note that this will also destruct the source
+items.
+
+TODO: comment signature.
+*/
+static void overlapping_move_constr(void_cda const & type, void * pDst, void * pSrc, size_t ci) {
+   if (pDst == pSrc) {
+      return;
+   }
+   int8_t * pbSrc(static_cast<int8_t *>(pSrc));
+   int8_t * pbDst(static_cast<int8_t *>(pDst));
+   int8_t * pbSrcEnd(pbSrc + type.cb * ci);
+   int8_t * pbDstEnd(pbDst + type.cb * ci);
+   if (pbDst < pbSrc && pbSrc < pbDstEnd) {
+      // ┌─────────────────┐
+      // │ a - - B C D e f │
+      // ├─────────────────┤
+      // │ a B C D - - e f │
+      // └─────────────────┘
+      //
+      // Move the items from left to right (the block moves from right to left).
+
+      int8_t * pbOverlapBegin(pbSrc);
+      int8_t * pbOverlapEnd(pbDstEnd);
+      size_t ciBeforeOverlap(size_t(pbOverlapBegin - pbDst) / type.cb);
+      size_t ciOverlapping(size_t(pbOverlapEnd - pbOverlapBegin) / type.cb);
+      size_t ciAfterOverlap(size_t(pbSrcEnd - pbOverlapEnd) / type.cb);
+
+      if (ciBeforeOverlap) {
+         // First, move-construct the items that don’t overlap.
+         type.move_constr(pbDst, pbSrc, ciBeforeOverlap);
+      }
+      // ┌─────────────────┐
+      // │ a B C b c D e f │ (lowercase b and c indicate the moved-out items)
+      // └─────────────────┘
+      if (ciOverlapping) {
+         // Second, move-assign all the items in the overlapping area to shift them.
+         type.destruct(pbOverlapBegin, ciOverlapping);
+         type.move_constr(pbOverlapBegin, pbOverlapEnd, ciOverlapping);
+      }
+      // ┌─────────────────┐
+      // │ a B C D c d e f │
+      // └─────────────────┘
+      if (ciAfterOverlap) {
+         // Third, destruct the items that have no replacement and have just been moved out.
+         type.destruct(pbOverlapEnd, ciAfterOverlap);
+      }
+   } else if (pbSrc < pbDst && pbDst < pbSrcEnd) {
+      // ┌─────────────────┐
+      // │ a B C D - - e f │
+      // ├─────────────────┤
+      // │ a - - B C D e f │
+      // └─────────────────┘
+      //
+      // This situation is the mirror of the above, so the move must be done backwards, copying
+      // right to left (the block moves from left to right).
+
+      int8_t * pbOverlapBegin(pbDst);
+      int8_t * pbOverlapEnd(pbSrcEnd);
+      size_t ciBeforeOverlap(size_t(pbOverlapBegin - pbSrc) / type.cb);
+      size_t ciOverlapping(size_t(pbOverlapEnd - pbOverlapBegin) / type.cb);
+      size_t ciAfterOverlap(size_t(pbDstEnd - pbOverlapEnd) / type.cb);
+
+      if (ciAfterOverlap) {
+         // First, move-construct the items on the right of the overlapping area.
+         type.move_constr(pbOverlapEnd, pbSrcEnd - (pbDstEnd - pbOverlapEnd), ciAfterOverlap);
+      }
+      // ┌─────────────────┐
+      // │ a B c d C D e f │ (lowercase c and d indicate the moved-out items)
+      // └─────────────────┘
+      if (ciOverlapping) {
+         // Second, move-assign backwards all the items in the overlapping area to shift them.
+         int8_t * pbSrcItem(pbSrcEnd - (pbDstEnd - pbOverlapEnd));
+         int8_t * pbDstItem(pbOverlapEnd);
+         while (pbSrcItem > pbSrc) {
+            pbSrcItem -= type.cb;
+            pbDstItem -= type.cb;
+            type.destruct(pbDstItem, 1);
+            type.move_constr(pbDstItem, pbSrcItem, 1);
+         }
+      }
+      // ┌─────────────────┐
+      // │ a b c B C D e f │
+      // └─────────────────┘
+      if (ciBeforeOverlap) {
+         // Third, destruct the items that have no replacement and have just been moved out.
+         type.destruct(pbSrc, ciBeforeOverlap);
+      }
+   } else {
+      type.move_constr(pbDst, pbSrc, ci);
+   }
+}
+
+
 void _raw_complex_vextr_impl::remove_at(
    void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
 ) {
@@ -356,7 +451,7 @@ void _raw_complex_vextr_impl::remove_at(
          type.move_constr(pbWorkTail, pbOrigTail, ciTail);
          type.destruct(pbOrigTail, ciTail);
       } else {
-         type.overlapping_move_constr(pbWorkTail, pbOrigTail, ciTail);
+         overlapping_move_constr(type, pbWorkTail, pbOrigTail, ciTail);
       }
    }
    // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
@@ -381,8 +476,8 @@ void _raw_complex_vextr_impl::_insert(
    // always be moved.
    size_t ciTail(size() - iOffset);
    if (ciTail) {
-      type.overlapping_move_constr(
-         pbOffset + type.cb * ciAdd, data<int8_t>() + ibOffset, ciTail
+      overlapping_move_constr(
+         type, pbOffset + type.cb * ciAdd, data<int8_t>() + ibOffset, ciTail
       );
    }
    // Copy/move the new items over.
@@ -395,8 +490,8 @@ void _raw_complex_vextr_impl::_insert(
       } catch (...) {
          // Undo the overlapping_move_constr() above.
          if (ciTail) {
-            type.overlapping_move_constr(
-               data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
+            overlapping_move_constr(
+               type, data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
             );
          }
          throw;
