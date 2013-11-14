@@ -1120,6 +1120,18 @@ public:
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
+
+
+#ifdef _MSC_VER
+
+   /** MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base_. See
+	str_base_::operator istr const &().
+   */
+   operator istr const &() const {
+      return str_base::operator istr const &();
+   }
+
+#endif //ifdef _MSC_VER
 };
 
 } //namespace abc
