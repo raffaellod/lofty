@@ -480,7 +480,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for character and string literal types
+// abc::to_str_backend - specialization for character literal types
 
 
 namespace abc {
@@ -532,8 +532,26 @@ namespace abc {
       to_str_backend(char_range const & crFormat = char_range()) : \
          to_str_backend<C>(crFormat) { \
       } \
-   }; \
-   \
+   };
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char8_t)
+#if ABC_CXX_CHAR16 > 0
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
+#endif //if ABC_CXX_CHAR16 > 0
+#if ABC_CXX_CHAR32 > 0
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
+#endif //if ABC_CXX_CHAR32 > 0
+#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for string literal types
+
+
+namespace abc {
+
+#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
    /** String literal. \
    */ \
    template <size_t t_cch> \
