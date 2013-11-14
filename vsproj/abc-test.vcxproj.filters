@@ -13,31 +13,28 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\test">
-      <UniqueIdentifier>{e10b2fc3-1fce-4648-8b25-9ea728563bda}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\test\abc-test.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\abc-test.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\enum.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\to_str_backend.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\exception.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\enum.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\file_path.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\exception.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\ostream-print.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\file_path.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\str.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\ostream-print.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\test\to_str_backend.cxx">
-      <Filter>Source Files\test</Filter>
+    <ClCompile Include="..\src\abc-test\str.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

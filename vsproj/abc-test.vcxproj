@@ -80,26 +80,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\test\abc-test.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\abc-test.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\enum.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\enum.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\exception.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\exception.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\file_path.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\file_path.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\ostream-print.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\ostream-print.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\str.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\str.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\test\to_str_backend.cxx">
-      <ObjectFileName>$(IntDir)test-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-test\to_str_backend.cxx">
+      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

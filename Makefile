@@ -54,43 +54,43 @@ check: \
 
 # THE libabc.
 $(O)lib/libabc$(LIBEXT): \
-	$(O)obj/atomic.cxx$(OBJEXT) \
-	$(O)obj/bitmanip.cxx$(OBJEXT) \
-	$(O)obj/byteorder.cxx$(OBJEXT) \
-	$(O)obj/core.cxx$(OBJEXT) \
-	$(O)obj/file.cxx$(OBJEXT) \
-	$(O)obj/file_iostream.cxx$(OBJEXT) \
-	$(O)obj/file_path.cxx$(OBJEXT) \
-	$(O)obj/enum.cxx$(OBJEXT) \
-	$(O)obj/exception.cxx$(OBJEXT) \
-	$(O)obj/iostream.cxx$(OBJEXT) \
-	$(O)obj/memory.cxx$(OBJEXT) \
-	$(O)obj/module.cxx$(OBJEXT) \
-	$(O)obj/str.cxx$(OBJEXT) \
-	$(O)obj/str_iostream.cxx$(OBJEXT) \
-	$(O)obj/to_str_backend.cxx$(OBJEXT) \
-	$(O)obj/text.cxx$(OBJEXT) \
-	$(O)obj/trace.cxx$(OBJEXT) \
-	$(O)obj/utf_traits.cxx$(OBJEXT) \
-	$(O)obj/_vextr.cxx$(OBJEXT)
-#	$(O)obj/subproc$(OBJEXT)
+	$(O)obj/abc/atomic.cxx$(OBJEXT) \
+	$(O)obj/abc/bitmanip.cxx$(OBJEXT) \
+	$(O)obj/abc/byteorder.cxx$(OBJEXT) \
+	$(O)obj/abc/core.cxx$(OBJEXT) \
+	$(O)obj/abc/file.cxx$(OBJEXT) \
+	$(O)obj/abc/file_iostream.cxx$(OBJEXT) \
+	$(O)obj/abc/file_path.cxx$(OBJEXT) \
+	$(O)obj/abc/enum.cxx$(OBJEXT) \
+	$(O)obj/abc/exception.cxx$(OBJEXT) \
+	$(O)obj/abc/iostream.cxx$(OBJEXT) \
+	$(O)obj/abc/memory.cxx$(OBJEXT) \
+	$(O)obj/abc/module.cxx$(OBJEXT) \
+	$(O)obj/abc/str.cxx$(OBJEXT) \
+	$(O)obj/abc/str_iostream.cxx$(OBJEXT) \
+	$(O)obj/abc/to_str_backend.cxx$(OBJEXT) \
+	$(O)obj/abc/text.cxx$(OBJEXT) \
+	$(O)obj/abc/trace.cxx$(OBJEXT) \
+	$(O)obj/abc/utf_traits.cxx$(OBJEXT) \
+	$(O)obj/abc/_vextr.cxx$(OBJEXT)
+#	$(O)obj/abc/subproc$(OBJEXT)
 
 # Testing support library.
 $(O)lib/libabc-testing$(LIBEXT): \
-	$(O)obj/testing/mock/iostream.cxx$(OBJEXT) \
-	$(O)obj/testing/module.cxx$(OBJEXT) \
-	$(O)obj/testing/runner.cxx$(OBJEXT) \
-	$(O)obj/testing/test_case.cxx$(OBJEXT)
+	$(O)obj/abc-testing/mock/iostream.cxx$(OBJEXT) \
+	$(O)obj/abc-testing/module.cxx$(OBJEXT) \
+	$(O)obj/abc-testing/runner.cxx$(OBJEXT) \
+	$(O)obj/abc-testing/test_case.cxx$(OBJEXT)
 
 # Test suite.
 $(O)bin/abc-test$(EXEEXT): \
-	$(O)obj/test/abc-test.cxx$(OBJEXT) \
-	$(O)obj/test/enum.cxx$(OBJEXT) \
-	$(O)obj/test/exception.cxx$(OBJEXT) \
-	$(O)obj/test/file_path.cxx$(OBJEXT) \
-	$(O)obj/test/ostream-print.cxx$(OBJEXT) \
-	$(O)obj/test/str.cxx$(OBJEXT) \
-	$(O)obj/test/to_str_backend.cxx$(OBJEXT) \
+	$(O)obj/abc-test/abc-test.cxx$(OBJEXT) \
+	$(O)obj/abc-test/enum.cxx$(OBJEXT) \
+	$(O)obj/abc-test/exception.cxx$(OBJEXT) \
+	$(O)obj/abc-test/file_path.cxx$(OBJEXT) \
+	$(O)obj/abc-test/ostream-print.cxx$(OBJEXT) \
+	$(O)obj/abc-test/str.cxx$(OBJEXT) \
+	$(O)obj/abc-test/to_str_backend.cxx$(OBJEXT) \
 	| $(O)lib/libabc$(LIBEXT) \
 	  $(O)lib/libabc-testing$(LIBEXT)
 $(O)bin/abc-test$(EXEEXT): LDLIBS+=-labc-testing

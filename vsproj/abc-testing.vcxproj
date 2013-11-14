@@ -90,21 +90,21 @@
     <ClInclude Include="..\include\abc\testing\test_case.hxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\testing\core.cxx">
+    <ClCompile Include="..\src\abc-testing\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\mock\iostream.cxx">
-      <ObjectFileName>$(IntDir)testing-mock-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-testing\mock\iostream.cxx">
+      <ObjectFileName>$(IntDir)abc-testing-mock-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\module.cxx">
-      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-testing\module.cxx">
+      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\runner.cxx">
-      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-testing\runner.cxx">
+      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\testing\test_case.cxx">
-      <ObjectFileName>$(IntDir)testing-%(Filename).obj</ObjectFileName>
+    <ClCompile Include="..\src\abc-testing\test_case.cxx">
+      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -81,27 +81,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\atomic.cxx" />
-    <ClCompile Include="..\src\bitmanip.cxx" />
-    <ClCompile Include="..\src\byteorder.cxx" />
-    <ClCompile Include="..\src\core.cxx">
+    <ClCompile Include="..\src\abc\atomic.cxx" />
+    <ClCompile Include="..\src\abc\bitmanip.cxx" />
+    <ClCompile Include="..\src\abc\byteorder.cxx" />
+    <ClCompile Include="..\src\abc\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\src\enum.cxx" />
-    <ClCompile Include="..\src\exception.cxx" />
-    <ClCompile Include="..\src\file.cxx" />
-    <ClCompile Include="..\src\file_iostream.cxx" />
-    <ClCompile Include="..\src\file_path.cxx" />
-    <ClCompile Include="..\src\iostream.cxx" />
-    <ClCompile Include="..\src\memory.cxx" />
-    <ClCompile Include="..\src\module.cxx" />
-    <ClCompile Include="..\src\str.cxx" />
-    <ClCompile Include="..\src\str_iostream.cxx" />
-    <ClCompile Include="..\src\text.cxx" />
-    <ClCompile Include="..\src\to_str_backend.cxx" />
-    <ClCompile Include="..\src\trace.cxx" />
-    <ClCompile Include="..\src\utf_traits.cxx" />
-    <ClCompile Include="..\src\_vextr.cxx" />
+    <ClCompile Include="..\src\abc\enum.cxx" />
+    <ClCompile Include="..\src\abc\exception.cxx" />
+    <ClCompile Include="..\src\abc\file.cxx" />
+    <ClCompile Include="..\src\abc\file_iostream.cxx" />
+    <ClCompile Include="..\src\abc\file_path.cxx" />
+    <ClCompile Include="..\src\abc\iostream.cxx" />
+    <ClCompile Include="..\src\abc\memory.cxx" />
+    <ClCompile Include="..\src\abc\module.cxx" />
+    <ClCompile Include="..\src\abc\str.cxx" />
+    <ClCompile Include="..\src\abc\str_iostream.cxx" />
+    <ClCompile Include="..\src\abc\text.cxx" />
+    <ClCompile Include="..\src\abc\to_str_backend.cxx" />
+    <ClCompile Include="..\src\abc\trace.cxx" />
+    <ClCompile Include="..\src\abc\utf_traits.cxx" />
+    <ClCompile Include="..\src\abc\_vextr.cxx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\abc\atomic.hxx" />
@@ -131,15 +131,6 @@
     <ClInclude Include="..\include\abc\vector.hxx" />
     <ClInclude Include="..\include\abc\_map_base.hxx" />
     <ClInclude Include="..\include\abc\_vextr.hxx" />
-    <ClInclude Include="..\include\stl\algorithm" />
-    <ClInclude Include="..\include\stl\exception" />
-    <ClInclude Include="..\include\stl\functional" />
-    <ClInclude Include="..\include\stl\memory" />
-    <ClInclude Include="..\include\stl\new" />
-    <ClInclude Include="..\include\stl\tuple" />
-    <ClInclude Include="..\include\stl\typeinfo" />
-    <ClInclude Include="..\include\stl\type_traits" />
-    <ClInclude Include="..\include\stl\utility" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
