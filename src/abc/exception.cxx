@@ -1346,7 +1346,7 @@ static ::_se_translator_function g_sefDefault;
 
 /** Translates POSIX signals into C++ exceptions, whenever possible.
 */
-static void eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
+static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
    ABC_TRACE_FN((iCode, pxpInfo));
 
    switch (iCode) {
