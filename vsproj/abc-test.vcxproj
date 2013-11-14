@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(SolutionDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -80,27 +80,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\abc-test\abc-test.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\enum.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\exception.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\file_path.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\ostream-print.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\str.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-test\to_str_backend.cxx">
-      <ObjectFileName>$(IntDir)abc-test-%(Filename).obj</ObjectFileName>
-    </ClCompile>
+    <ClCompile Include="..\src\abc-test\abc-test.cxx" />
+    <ClCompile Include="..\src\abc-test\enum.cxx" />
+    <ClCompile Include="..\src\abc-test\exception.cxx" />
+    <ClCompile Include="..\src\abc-test\file_path.cxx" />
+    <ClCompile Include="..\src\abc-test\ostream-print.cxx" />
+    <ClCompile Include="..\src\abc-test\str.cxx" />
+    <ClCompile Include="..\src\abc-test\to_str_backend.cxx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

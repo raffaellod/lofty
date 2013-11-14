@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(SolutionDir)include;$(VCInstallDir)include;$(WindowsSdkDir)include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -92,20 +92,11 @@
   <ItemGroup>
     <ClCompile Include="..\src\abc-testing\core.cxx">
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\abc-testing\mock\iostream.cxx">
-      <ObjectFileName>$(IntDir)abc-testing-mock-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-testing\module.cxx">
-      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-testing\runner.cxx">
-      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\abc-testing\test_case.cxx">
-      <ObjectFileName>$(IntDir)abc-testing-%(Filename).obj</ObjectFileName>
-    </ClCompile>
+    <ClCompile Include="..\src\abc-testing\mock\iostream.cxx" />
+    <ClCompile Include="..\src\abc-testing\module.cxx" />
+    <ClCompile Include="..\src\abc-testing\runner.cxx" />
+    <ClCompile Include="..\src\abc-testing\test_case.cxx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\COPYING" />
