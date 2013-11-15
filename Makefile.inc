@@ -155,7 +155,7 @@ test:
 ifeq ($(VERBOSE),0)
 	@echo "$(CLR_CMD)  TEST  $(CLR_RST) $<"
 endif
-	$(Q)$<
+	$(Q)env LD_LIBRARY_PATH=$(ABC_PATH)/lib:${LD_LIBRARY_PATH} $<
 
 # Performs self-tests (if any). The user must build the program before running the tests, but needs
 # not install the program.
@@ -188,6 +188,15 @@ $(O)bin/%$(EXEEXT):
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	@env $(foreach var, OBJEXT CC CXX CPP VERBOSE CLR_CMD CLR_RST, $(var)="$($(var))") \
 		$(ABC_PATH)tools/posix/ld.sh $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+# Link rule for shared libraries.
+$(O)lib/%$(SOEXT): CFLAGS+=-fPIC
+$(O)lib/%$(SOEXT): CXXFLAGS+=-fPIC
+$(O)lib/%$(SOEXT):
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	@env $(foreach var, OBJEXT CC CXX CPP VERBOSE CLR_CMD CLR_RST, $(var)="$($(var))") \
+		$(ABC_PATH)tools/posix/ld.sh $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
+
 
 # Librarian rule for static libraries.
 $(O)lib/%$(LIBEXT):
@@ -269,9 +278,11 @@ $(O)test.tmp/%.ut.log: $(O)bin/%
 ifneq ($(VERBOSE),0)
 	@echo "$(ABC_PATH)tools/makecheck.py --unittest $@ $^"
 endif
-	@env $(foreach var, \
-		DEBUG DEBUGGER VERBOSE CLR_CMD CLR_PASS CLR_FAIL CLR_RST, \
-	$(var)="$($(var))") \
+	@env \
+		LD_LIBRARY_PATH=$(ABC_PATH)/lib:${LD_LIBRARY_PATH} \
+		$(foreach var, \
+			DEBUG DEBUGGER VERBOSE CLR_CMD CLR_PASS CLR_FAIL CLR_RST, \
+		$(var)="$($(var))") \
 		$(ABC_PATH)tools/makecheck.py --unittest $@ $^
 
 
@@ -281,9 +292,11 @@ $(O)test.tmp/%.py.log: $(O)bin/% $(srcdir)/%.py
 ifneq ($(VERBOSE),0)
 	@echo "$(ABC_PATH)tools/makecheck.py --unittest $@ $^"
 endif
-	@env $(foreach var, \
-		DEBUG DEBUGGER VERBOSE CLR_CMD CLR_PASS CLR_FAIL CLR_RST, \
-	$(var)="$($(var))") \
+	@env \
+		LD_LIBRARY_PATH=$(ABC_PATH)/lib:${LD_LIBRARY_PATH} \
+		$(foreach var, \
+			DEBUG DEBUGGER VERBOSE CLR_CMD CLR_PASS CLR_FAIL CLR_RST, \
+		$(var)="$($(var))") \
 		$(ABC_PATH)tools/makecheck.py --unittest $@ $^
 
 
