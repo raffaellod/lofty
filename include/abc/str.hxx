@@ -118,7 +118,7 @@ namespace abc {
 
 /** Template-independent methods of str_.
 */
-class _raw_str :
+class ABCAPI _raw_str :
    public _raw_trivial_vextr_impl {
 
    ABC_CLASS_PREVENT_COPYING(_raw_str)
