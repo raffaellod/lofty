@@ -194,8 +194,8 @@ struct typed_raw_cda {
    return
       true if the items are equal, or false otherwise.
    */
-   static bool equal(void const * pt1, void const * pt2) {
-      return *static_cast<T const *>(pt1) == *static_cast<T const *>(pt2);
+   static bool equal(T const * pt1, T const * pt2) {
+      return pt1 == pt2;
    }
 
 
