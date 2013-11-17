@@ -189,7 +189,7 @@ public:
    */
    template <typename T>
    static bool _typed_equal(T const * pt1, T const * pt2) {
-      return pt1 == pt2;
+      return *pt1 == *pt2;
    }
 
 
