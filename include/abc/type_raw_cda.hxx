@@ -35,10 +35,24 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
+/** DOC:3395 Move constructors and exceptions
+
+In this section, “move constructor” will strictly refer to class::class(class &&).
+
+All classes must provide move constructors and assignment operators if the copy constructor would
+result in execution of exception-prone code (e.g. resource allocation).
+
+Because move constructors are employed widely in container classes that need to provide strong
+exception guarantee (fully transacted operation) even in case of moves, move constructors must not
+throw exceptions. This requirement is relaxed for moves that involve two different classes, since
+these will not be used by container classes.
+*/
+
 /** Encapsulates raw constructors, destructors and assignment operators for a type. To be
 instantiated via type_raw_cda.
 */
 struct void_cda {
+public:
 
    /** Prototype of a function that copies items from one array to another.
 
@@ -86,6 +100,8 @@ struct void_cda {
    typedef void (* move_fn)(void * pDst, void * pSrc, size_t ci);
 
 
+public:
+
    /** Size of a variable of this type, in bytes. */
    size_t cb;
    /** Function to copy items from one array to another. */
@@ -96,34 +112,9 @@ struct void_cda {
    equal_fn equal;
    /** Function to move items from one array to another. */
    move_fn move_constr;
-};
-
-} //namespace abc
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::typed_raw_cda
-
-
-namespace abc {
-
-/** DOC:3395 Move constructors and exceptions
-
-In this section, “move constructor” will strictly refer to class::class(class &&).
-
-All classes must provide move constructors and assignment operators if the copy constructor would
-result in execution of exception-prone code (e.g. resource allocation).
-
-Because move constructors are employed widely in container classes that need to provide strong
-exception guarantee (fully transacted operation) even in case of moves, move constructors must not
-throw exceptions. This requirement is relaxed for moves that involve two different classes, since
-these will not be used by container classes.
-*/
-
-/** Defines a generic data type.
-*/
-template <typename T>
-struct typed_raw_cda {
+public:
 
    /** Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
@@ -135,7 +126,8 @@ struct typed_raw_cda {
    ci
       Count of items to copy.
    */
-   static void copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
+   template <typename T>
+   static void _typed_copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
          memory::copy(ptDst, ptSrc, ci);
@@ -175,7 +167,8 @@ struct typed_raw_cda {
    ci
       Count of items to destruct.
    */
-   static void destruct(T * pt, size_t ci) {
+   template <typename T>
+   static void _typed_destruct(T * pt, size_t ci) {
       if (!std::has_trivial_destructor<T>::value) {
          // The destructor is not a no-op.
          for (T * ptEnd(pt + ci); pt < ptEnd; ++pt) {
@@ -194,7 +187,8 @@ struct typed_raw_cda {
    return
       true if the items are equal, or false otherwise.
    */
-   static bool equal(T const * pt1, T const * pt2) {
+   template <typename T>
+   static bool _typed_equal(T const * pt1, T const * pt2) {
       return pt1 == pt2;
    }
 
@@ -209,21 +203,12 @@ struct typed_raw_cda {
    ci
       Count of items to move.
    */
-   static void move_constr(T * ptDst, T * ptSrc, size_t ci) {
+   template <typename T>
+   static void _typed_move_constr(T * ptDst, T * ptSrc, size_t ci) {
       for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
          ::new(ptDst) T(std::move(*ptSrc));
       }
    }
-};
-
-// Remove const, but not volatile. Or maybe remove both?
-template <typename T>
-struct typed_raw_cda<T const> :
-   public typed_raw_cda<T> {
-};
-template <typename T>
-struct typed_raw_cda<T const volatile> :
-   public typed_raw_cda<T volatile> {
 };
 
 } //namespace abc
@@ -235,7 +220,7 @@ struct typed_raw_cda<T const volatile> :
 
 namespace abc {
 
-/** Returns a void_cda populated with the static methods from a typed_raw_cda.
+/** Returns a void_cda populated with typed static methods.
 
 TODO: comment signature.
 */
@@ -243,10 +228,18 @@ template <class T>
 /*constexpr*/ void_cda const & type_raw_cda() {
    static void_cda const sc_vrcda = {
       sizeof(T),
-      reinterpret_cast<void_cda:: copy_fn>(typed_raw_cda<T>::copy_constr),
-      reinterpret_cast<void_cda::destr_fn>(typed_raw_cda<T>::destruct),
-      reinterpret_cast<void_cda::equal_fn>(typed_raw_cda<T>::equal),
-      reinterpret_cast<void_cda:: move_fn>(typed_raw_cda<T>::move_constr)
+      reinterpret_cast<void_cda::copy_fn>(
+         void_cda::_typed_copy_constr<typename std::remove_cv<T>::type>
+      ),
+      reinterpret_cast<void_cda::destr_fn>(
+         void_cda::_typed_destruct<typename std::remove_cv<T>::type>
+      ),
+      reinterpret_cast<void_cda::equal_fn>(
+         void_cda::_typed_equal<typename std::remove_cv<T>::type>
+      ),
+      reinterpret_cast<void_cda::move_fn>(
+         void_cda::_typed_move_constr<typename std::remove_cv<T>::type>
+      )
    };
    return sc_vrcda;
 }
