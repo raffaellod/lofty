@@ -125,7 +125,14 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   dm
+      Source dynamic module.
+   fp
+      Path to the dynamic module to load.
+   bInit
+      If true, any startup code of the dynamic module will be executed; if false, it will not.
+   hdynmod
+      Handle to the dynamic module.
    */
    dynamic_module(dynamic_module && dm);
    dynamic_module(file_path const & fp, bool bInit);
@@ -146,7 +153,10 @@ public:
 
    /** Assignment operator.
 
-   TODO: comment signature.
+   dm
+      Source dynamic module.
+   return
+      *this.
    */
    dynamic_module & operator=(dynamic_module && dm);
 
@@ -197,7 +207,10 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   fp
+      Path to the resource module.
+   rm
+      Source resource module.
    */
    resource_module(file_path const & fp);
    resource_module(resource_module && rm);
@@ -210,7 +223,10 @@ public:
 
    /** Assignment operator.
 
-   TODO: comment signature.
+   rm
+      Source resource module.
+   return
+      *this.
    */
    resource_module & operator=(resource_module && rm) {
 #if ABC_HOST_API_POSIX
@@ -226,7 +242,14 @@ public:
 
    /** Loads a string from the module’s resources.
 
-   TODO: comment signature.
+   id
+      Resource identifier.
+   psz
+      Pointer to the destination string buffer.
+   cchMax
+      Size of the destination string buffer, in characters.
+   return
+      Count of characters copied to *psz, excluding the NUL terminator.
    */
    size_t load_string(short id, char_t * psz, size_t cchMax) const;
 
@@ -234,9 +257,10 @@ public:
 protected:
 
    /** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-   own HINSTANCE (Win), which must not be released upon destruction of this object.
+   own HINSTANCE (Win only), which must not be released upon destruction of this object.
 
-   TODO: comment signature.
+   hdynmod
+      Handle to the dynamic module.
    */
 #if ABC_HOST_API_POSIX
    resource_module() {
@@ -273,7 +297,10 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   fp
+      Path to the resource module.
+   cm
+      Source code module.
    */
    code_module(file_path const & fp);
    code_module(code_module && cm);
@@ -286,7 +313,10 @@ public:
 
    /** Assignment operator.
 
-   TODO: comment signature.
+   cm
+      Source code module.
+   return
+      *this.
    */
    code_module & operator=(code_module && cm) {
 #if ABC_HOST_API_POSIX
@@ -325,10 +355,10 @@ public:
 protected:
 
    /** Constructor. This overload is meant to be used by module_impl_base, so that it can supply its
-   own HINSTANCE (Win) or nothing (POSIX.1-2001), which must not be released upon destruction of
-   this object.
+   own HINSTANCE (Win only), which must not be released upon destruction of this object.
 
-   TODO: comment signature.
+   hdynmod
+      Handle to the dynamic module.
    */
 #if ABC_HOST_API_POSIX
    code_module() :
@@ -349,6 +379,8 @@ private:
 
    sSymbol
       Symbol name.
+   return
+      Address of the symbol.
    */
    void * _get_symbol(istr const & sSymbol);
 
