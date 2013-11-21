@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License along with
 ABC. If not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------
 
-1. Introduction (“what?”)
--------------------------
+1. Introduction
+---------------
 
 Application-Building Components (ABC) is a framework for C++11 designed and
 written with these features in mind:
@@ -34,8 +34,8 @@ written with these features in mind:
    functions).
 
 
-2. “Why?” (and “When?”, while we’re at it)
-------------------------------------------
+2. Why ABC?
+-----------
 
 Here’s what ABC has to offer, compared to other libraries/frameworks:
 •  Full support for stack dumps (like Python or Java);
@@ -54,6 +54,10 @@ Here’s what ABC has to offer, compared to other libraries/frameworks:
 •  Achieves high execution efficiency due to the extensive use of std::move()
    and de-templated containers.
 
+
+2.1. Some history
+-----------------
+
 ABC was started in the mid-2000s with a dual scope: on one hand explore if it
 was possible, (ab)using templates and other C++ features, to have automatic
 error reporting similar to what higher-level languages such as Python and Java
@@ -69,8 +73,37 @@ for most of the features that had originally been planned, so development of ABC
 as it is now was finally started.
 
 
-3. “How?” to use it
--------------------
+3. Compatibility
+----------------
+
+ABC is in full development, so the compatibility can and will change over time
+(hopefully expanding).
+
+Supported build systems:
+
+•  GNU toolchain
+   •  GCC 4.3.0 to 4.7.x (4.8.x to be tested)
+   •  binutils (version to be determined - anything from 2010 on should work)
+   •  make (version to be determined - 3.80 should suffice)
+
+•  Microsoft toolchain
+   •  Visual C++ 10 (MSC 16 / Visual Studio 2010)
+   •  MSBuild 4.0 (Visual Studio 2010)
+
+Supported operating systems:
+
+•  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some really cool
+   exception handling-related features;
+•  Microsoft Windows - temporarily only via Visual C++ 10, which means only
+   Windows XP and later versions are supported.
+
+
+4. Using ABC
+------------
+
+
+4.1. “Hello world” using ABC
+----------------------------
 
 This is the most basic program with ABC:
 
@@ -94,30 +127,6 @@ This is the most basic program with ABC:
 It doesn’t do anything, but it executes and terminates. See [DOC:1063
 Application modules] for more information on this basic code setup.
 
+TODO: make this an actual “Hello world” example.
 TODO: more examples, or more links to examples.
-
-
-4. Compatibility
-----------------
-
-ABC is in full development, so the compatibility can and will change over time
-(hopefully expanding).
-
-Supported build systems:
-
-•  GNU toolchain
-   •  GCC 4.3.0 to 4.7.x (4.8.x to be tested)
-   •  binutils (version to be determined - anything from 2010 on should work)
-   •  make (version to be determined - 3.80 should suffice)
-
-•  Microsoft toolchain
-   •  Visual C++ 10 (MSC 16 / Visual Studio 2010)
-   •  MSBuild 4.0 (Visual Studio 2010)
-
-Supported operating systems:
-
-•  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some really cool
-   exception handling-related features;
-•  Microsoft Windows - temporarily only via Visual C++ 10, which means only
-   Windows XP and later versions are supported.
 
