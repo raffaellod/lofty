@@ -55,7 +55,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void add(TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal) {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_copy_fn<TKey>();
       typeKey.set_destr_fn<TKey>();
       typeKey.set_equal_fn<TKey>();
@@ -76,7 +76,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void assign(_raw_map_root const & rmrSrc, bool bMove) {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_copy_fn<TKey>();
       typeKey.set_destr_fn<TKey>();
       typeKey.set_move_fn<TKey>();
@@ -95,7 +95,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    TVal * get_value(TKey const * pkey, size_t hash) {
-      void_cda typeKey;
+      type_void_adapter typeKey;
       typeKey.set_equal_fn<TKey>();
       return static_cast<TVal *>(_raw_complex_map_impl::get_value(
          sizeof(TKey), sizeof(TVal), typeKey.equal, pkey, hash
@@ -109,7 +109,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    /** Destructs every key and value in the descriptor, then releases it.
    */
    void release_desc() {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_size<TKey>();
       typeVal.set_destr_fn<TVal>();
@@ -123,7 +123,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void remove(TKey const * pkey, size_t hash) {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_equal_fn<TKey>();
       typeKey.set_size<TKey>();
@@ -136,7 +136,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    /** Removes all items from the map.
    */
    void clear() {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_size<TKey>();
       typeVal.set_destr_fn<TVal>();
@@ -153,7 +153,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    size_t set_item(
       TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal
    ) {
-      void_cda typeKey, typeVal;
+      type_void_adapter typeKey, typeVal;
       typeKey.set_copy_fn<TKey>();
       typeKey.set_destr_fn<TKey>();
       typeKey.set_equal_fn<TKey>();

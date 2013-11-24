@@ -363,7 +363,8 @@ public:
    TODO: comment signature.
    */
    void * get_value(
-      size_t cbKey, size_t cbVal, void_cda::equal_fn pfnKeyEqual, void const * pKey, size_t hash
+      size_t cbKey, size_t cbVal, type_void_adapter::equal_fn pfnKeyEqual,
+      void const * pKey, size_t hash
    ) {
       size_t ie(lookup(cbKey, pfnKeyEqual, pKey, hash));
       size_t hashEntry(m_prmd->get_phashes()[ie]);
@@ -373,7 +374,8 @@ public:
       return m_prmd->get_value_at(cbVal, ie);
    }
    void const * get_value(
-      size_t cbKey, size_t cbVal, void_cda::equal_fn pfnKeyEqual, void const * pKey, size_t hash
+      size_t cbKey, size_t cbVal, type_void_adapter::equal_fn pfnKeyEqual,
+      void const * pKey, size_t hash
    ) const {
       return const_cast<_raw_map_root *>(this)->get_value(cbKey, cbVal, pfnKeyEqual, pKey, hash);
    }
@@ -394,7 +396,7 @@ public:
    TODO: comment signature.
    */
    size_t lookup(
-      size_t cbKey, void_cda::equal_fn pfnKeyEqual, void const * pKey, size_t hash
+      size_t cbKey, type_void_adapter::equal_fn pfnKeyEqual, void const * pKey, size_t hash
    ) const {
       size_t const * phashes(m_prmd->get_phashes());
       size_t hashFull(hash), i(hash);
@@ -484,7 +486,7 @@ struct _raw_complex_map_impl :
    TODO: comment signature.
    */
    void add(
-      void_cda const & typeKey, void_cda const & typeVal,
+      type_void_adapter const & typeKey, type_void_adapter const & typeVal,
       void const * pKey, size_t hash, void const * pVal, bool bMoveKey, bool bMoveVal
    ) {
       // The only way of knowing if set_item() took up one more entry is to count the number of used
@@ -509,7 +511,8 @@ struct _raw_complex_map_impl :
    TODO: comment signature.
    */
    void assign(
-      void_cda const & typeKey, void_cda const & typeVal, _raw_map_root const & rmrSrc, bool bMove
+      type_void_adapter const & typeKey, type_void_adapter const & typeVal,
+      _raw_map_root const & rmrSrc, bool bMove
    ) {
       if (&rmrSrc == this) {
          return;
@@ -540,7 +543,7 @@ struct _raw_complex_map_impl :
 
    TODO: comment signature.
    */
-   void release_desc(void_cda const & typeKey, void_cda const & typeVal) {
+   void release_desc(type_void_adapter const & typeKey, type_void_adapter const & typeVal) {
       size_t * phash(m_prmd->get_phashes());
       int8_t * pbKey(static_cast<int8_t *>(m_prmd->get_pKeys())),
              * pbVal(static_cast<int8_t *>(m_prmd->get_pVals()));
@@ -564,7 +567,10 @@ struct _raw_complex_map_impl :
 
    TODO: comment signature.
    */
-   void remove(void_cda const & typeKey, void_cda const & typeVal, void const * pKey, size_t hash) {
+   void remove(
+      type_void_adapter const & typeKey, type_void_adapter const & typeVal,
+      void const * pKey, size_t hash
+   ) {
       size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
       size_t * phashEntry(&m_prmd->get_phashes()[ie]);
       if (!is_entry_active(*phashEntry)) {
@@ -586,7 +592,7 @@ struct _raw_complex_map_impl :
 
    TODO: comment signature.
    */
-   void clear(void_cda const & typeKey, void_cda const & typeVal) {
+   void clear(type_void_adapter const & typeKey, type_void_adapter const & typeVal) {
       release_desc(typeKey, typeVal);
       // Switch to the embedded descriptor and empty it.
       m_prmd = get_embedded_desc();
@@ -599,7 +605,7 @@ struct _raw_complex_map_impl :
    TODO: comment signature.
    */
    size_t set_item(
-      void_cda const & typeKey, void_cda const & typeVal,
+      type_void_adapter const & typeKey, type_void_adapter const & typeVal,
       void const * pKey, size_t hash, void const * pVal, bool bMoveKey, bool bMoveVal
    ) {
       size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
@@ -669,7 +675,7 @@ protected:
    TODO: comment signature.
    */
    void new_desc_from(
-      void_cda const & typeKey, void_cda const & typeVal,
+      type_void_adapter const & typeKey, type_void_adapter const & typeVal,
       _raw_map_desc const * prmdSrc, size_t ceNew, bool bMove
    ) {
       _raw_map_desc * prmdDst, * pemdDst(get_embedded_desc());
@@ -765,7 +771,7 @@ protected:
 
    TODO: comment signature.
    */
-   void resize(void_cda const & typeKey, void_cda const & typeVal, size_t ceNew) {
+   void resize(type_void_adapter const & typeKey, type_void_adapter const & typeVal, size_t ceNew) {
       _raw_map_desc * prmd(get_embedded_desc());
       if (m_prmd == prmd && prmd->can_fit(ceNew)) {
          // If the embedded descriptor can still fit the items, don’t do anything at all.

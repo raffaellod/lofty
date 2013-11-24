@@ -195,7 +195,7 @@ void _raw_vextr_impl_base::validate_index(intptr_t i) const {
 namespace abc {
 
 void _raw_complex_vextr_impl::assign_copy(
-   void_cda const & type, void const * p, size_t ci, bool bMove
+   type_void_adapter const & type, void const * p, size_t ci, bool bMove
 ) {
    ABC_TRACE_FN((this, /*type, */p, ci, bMove));
 
@@ -235,7 +235,7 @@ void _raw_complex_vextr_impl::assign_copy(
    trn.commit();
 }
 void _raw_complex_vextr_impl::assign_copy(
-   void_cda const & type,
+   type_void_adapter const & type,
    void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
 ) {
    ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
@@ -297,7 +297,9 @@ void _raw_complex_vextr_impl::assign_copy(
 }
 
 
-void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi) {
+void _raw_complex_vextr_impl::assign_move(
+   type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
+) {
    ABC_TRACE_FN((this/*, type, rcvi*/));
 
    if (rcvi.m_p == m_p) {
@@ -317,7 +319,7 @@ void _raw_complex_vextr_impl::assign_move(void_cda const & type, _raw_complex_ve
 
 
 void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
-   void_cda const & type, _raw_complex_vextr_impl && rcvi
+   type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
 ) {
    if (rcvi.m_p == m_p) {
       return;
@@ -340,7 +342,9 @@ items.
 
 TODO: comment signature.
 */
-static void overlapping_move_constr(void_cda const & type, void * pDst, void * pSrc, size_t ci) {
+static void overlapping_move_constr(
+   type_void_adapter const & type, void * pDst, void * pSrc, size_t ci
+) {
    if (pDst == pSrc) {
       return;
    }
@@ -430,7 +434,7 @@ static void overlapping_move_constr(void_cda const & type, void * pDst, void * p
 
 
 void _raw_complex_vextr_impl::remove_at(
-   void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
+   type_void_adapter const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
 ) {
    ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
 
@@ -465,7 +469,7 @@ void _raw_complex_vextr_impl::remove_at(
 
 
 void _raw_complex_vextr_impl::_insert(
-   void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+   type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
 ) {
    ABC_TRACE_FN((this, /*type, */iOffset, pAdd, ciAdd, bMove));
 
@@ -507,7 +511,9 @@ void _raw_complex_vextr_impl::_insert(
 }
 
 
-void _raw_complex_vextr_impl::set_capacity(void_cda const & type, size_t ciMin, bool bPreserve) {
+void _raw_complex_vextr_impl::set_capacity(
+   type_void_adapter const & type, size_t ciMin, bool bPreserve
+) {
    ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
    size_t ciOrig(size());

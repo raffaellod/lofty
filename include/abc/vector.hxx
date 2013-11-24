@@ -49,7 +49,7 @@ public:
    /** Destructor.
    */
    ~_raw_vector() {
-      void_cda type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       destruct_items(type);
    }
@@ -60,7 +60,7 @@ public:
    TODO: comment signature.
    */
    void append(T const * pAdd, size_t ciAdd, bool bMove) {
-      void_cda type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -74,7 +74,7 @@ public:
    TODO: comment signature.
    */
    void assign_copy(T const * p, size_t ci, bool bMove) {
-      void_cda type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -82,7 +82,7 @@ public:
       _raw_complex_vextr_impl::assign_copy(type, p, ci, bMove);
    }
    void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
-      void_cda type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -96,7 +96,7 @@ public:
    TODO: comment signature.
    */
    void assign_move(_raw_complex_vextr_impl && rcvi) {
-      void_cda type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
@@ -107,7 +107,7 @@ public:
    TODO: comment signature.
    */
    void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
-      void_cda type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -121,7 +121,7 @@ public:
    TODO: comment signature.
    */
    void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
-      void_cda type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
@@ -142,7 +142,7 @@ public:
    TODO: comment signature.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
-      void_cda type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();

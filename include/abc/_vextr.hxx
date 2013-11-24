@@ -836,7 +836,7 @@ public:
 
    TODO: comment signature.
    */
-   void append(void_cda const & type, void const * pAdd, size_t ciAdd, bool bMove) {
+   void append(type_void_adapter const & type, void const * pAdd, size_t ciAdd, bool bMove) {
       if (ciAdd) {
          _insert(type, size(), pAdd, ciAdd, bMove);
       }
@@ -848,9 +848,9 @@ public:
 
    TODO: comment signature.
    */
-   void assign_copy(void_cda const & type, void const * p, size_t ci, bool bMove);
+   void assign_copy(type_void_adapter const & type, void const * p, size_t ci, bool bMove);
    void assign_copy(
-      void_cda const & type,
+      type_void_adapter const & type,
       void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
    );
 
@@ -860,7 +860,7 @@ public:
 
    TODO: comment signature.
    */
-   void assign_move(void_cda const & type, _raw_complex_vextr_impl && rcvi);
+   void assign_move(type_void_adapter const & type, _raw_complex_vextr_impl && rcvi);
 
 
    /** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
@@ -868,17 +868,19 @@ public:
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(void_cda const & type, _raw_complex_vextr_impl && rcvi);
+   void assign_move_dynamic_or_copy(
+      type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
+   );
 
 
    /** Destructs a range of items, or the whole item array. It does not deallocate the item array.
 
    TODO: comment signature.
    */
-   void destruct_items(void_cda const & type) {
+   void destruct_items(type_void_adapter const & type) {
       type.destruct(m_p, m_ci);
    }
-   void destruct_items(void_cda const & type, size_t ci) {
+   void destruct_items(type_void_adapter const & type, size_t ci) {
       type.destruct(m_p, ci);
    }
 
@@ -888,7 +890,7 @@ public:
    TODO: comment signature.
    */
    void insert(
-      void_cda const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+      type_void_adapter const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
    ) {
       if (ciAdd) {
          _insert(type, adjust_index(iOffset), pAdd, ciAdd, bMove);
@@ -900,14 +902,14 @@ public:
 
    TODO: comment signature.
    */
-   void remove_at(void_cda const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
+   void remove_at(type_void_adapter const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
 
 
    /** See _raw_vector::set_capacity().
 
    TODO: comment signature.
    */
-   void set_capacity(void_cda const & type, size_t ciMin, bool bPreserve);
+   void set_capacity(type_void_adapter const & type, size_t ciMin, bool bPreserve);
 
 
 protected:
@@ -930,7 +932,9 @@ private:
 
    TODO: comment signature.
    */
-   void _insert(void_cda const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove);
+   void _insert(
+      type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+   );
 };
 
 } //namespace abc

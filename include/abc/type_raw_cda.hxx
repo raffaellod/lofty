@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::void_cda
+// abc::type_void_adapter
 
 
 namespace abc {
@@ -50,7 +50,7 @@ these will not be used by container classes.
 
 /** Encapsulates raw constructors, destructors and assignment operators for a type.
 */
-struct void_cda {
+struct type_void_adapter {
 public:
 
    /** Prototype of a function that copies items from one array to another.
@@ -116,7 +116,7 @@ public:
 public:
 
 
-   void_cda() :
+   type_void_adapter() :
       cb(0),
       copy_constr(NULL),
       destruct(NULL),
