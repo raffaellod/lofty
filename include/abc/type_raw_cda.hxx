@@ -48,8 +48,7 @@ throw exceptions. This requirement is relaxed for moves that involve two differe
 these will not be used by container classes.
 */
 
-/** Encapsulates raw constructors, destructors and assignment operators for a type. To be
-instantiated via type_raw_cda.
+/** Encapsulates raw constructors, destructors and assignment operators for a type.
 */
 struct void_cda {
 public:
@@ -115,6 +114,48 @@ public:
 
 
 public:
+
+
+   void_cda() :
+      cb(0),
+      copy_constr(NULL),
+      destruct(NULL),
+      equal(NULL),
+      move_constr(NULL) {
+   }
+
+
+   template <typename T>
+   void set_copy_fn() {
+      copy_constr = reinterpret_cast<copy_fn>(_typed_copy_constr<typename std::remove_cv<T>::type>);
+   }
+
+
+   template <typename T>
+   void set_destr_fn() {
+      destruct = reinterpret_cast<destr_fn>(_typed_destruct<typename std::remove_cv<T>::type>);
+   }
+
+
+   template <typename T>
+   void set_equal_fn() {
+      equal = reinterpret_cast<equal_fn>(_typed_equal<typename std::remove_cv<T>::type>);
+   }
+
+
+   template <typename T>
+   void set_move_fn() {
+      move_constr = reinterpret_cast<move_fn>(_typed_move_constr<typename std::remove_cv<T>::type>);
+   }
+
+
+   template <typename T>
+   void set_size() {
+      cb = sizeof(T);
+   }
+
+
+private:
 
    /** Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
@@ -210,39 +251,6 @@ public:
       }
    }
 };
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::type_raw_cda
-
-
-namespace abc {
-
-/** Returns a void_cda populated with typed static methods.
-
-TODO: comment signature.
-*/
-template <class T>
-/*constexpr*/ void_cda const & type_raw_cda() {
-   static void_cda const sc_vrcda = {
-      sizeof(T),
-      reinterpret_cast<void_cda::copy_fn>(
-         void_cda::_typed_copy_constr<typename std::remove_cv<T>::type>
-      ),
-      reinterpret_cast<void_cda::destr_fn>(
-         void_cda::_typed_destruct<typename std::remove_cv<T>::type>
-      ),
-      reinterpret_cast<void_cda::equal_fn>(
-         void_cda::_typed_equal<typename std::remove_cv<T>::type>
-      ),
-      reinterpret_cast<void_cda::move_fn>(
-         void_cda::_typed_move_constr<typename std::remove_cv<T>::type>
-      )
-   };
-   return sc_vrcda;
-}
 
 } //namespace abc
 

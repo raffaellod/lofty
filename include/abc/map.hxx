@@ -55,9 +55,17 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void add(TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal) {
-      _raw_complex_map_impl::add(
-         type_raw_cda<TKey>(), type_raw_cda<TVal>(), pkey, hash, pval, bMoveKey, bMoveVal
-      );
+      void_cda typeKey, typeVal;
+      typeKey.set_copy_fn<TKey>();
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_equal_fn<TKey>();
+      typeKey.set_move_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_copy_fn<TVal>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_move_fn<TVal>();
+      typeVal.set_size<TVal>();
+      _raw_complex_map_impl::add(typeKey, typeVal, pkey, hash, pval, bMoveKey, bMoveVal);
    }
 
 
@@ -68,7 +76,16 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void assign(_raw_map_root const & rmrSrc, bool bMove) {
-      _raw_complex_map_impl::assign(type_raw_cda<TKey>(), type_raw_cda<TVal>(), rmrSrc, bMove);
+      void_cda typeKey, typeVal;
+      typeKey.set_copy_fn<TKey>();
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_move_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_copy_fn<TVal>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_move_fn<TVal>();
+      typeVal.set_size<TVal>();
+      _raw_complex_map_impl::assign(typeKey, typeVal, rmrSrc, bMove);
    }
 
 
@@ -78,9 +95,10 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    TVal * get_value(TKey const * pkey, size_t hash) {
-      void_cda const & typeKey(type_raw_cda<TKey>());
+      void_cda typeKey;
+      typeKey.set_equal_fn<TKey>();
       return static_cast<TVal *>(_raw_complex_map_impl::get_value(
-         typeKey.cb, sizeof(TVal), typeKey.equal, pkey, hash
+         sizeof(TKey), sizeof(TVal), typeKey.equal, pkey, hash
       ));
    }
    TVal const * get_value(TKey const * pkey, size_t hash) const {
@@ -91,7 +109,12 @@ struct _raw_map_impl<TKey, TVal, false> :
    /** Destructs every key and value in the descriptor, then releases it.
    */
    void release_desc() {
-      _raw_complex_map_impl::release_desc(type_raw_cda<TKey>(), type_raw_cda<TVal>());
+      void_cda typeKey, typeVal;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_size<TVal>();
+      _raw_complex_map_impl::release_desc(typeKey, typeVal);
    }
 
 
@@ -100,14 +123,25 @@ struct _raw_map_impl<TKey, TVal, false> :
    TODO: comment signature.
    */
    void remove(TKey const * pkey, size_t hash) {
-      _raw_complex_map_impl::remove(type_raw_cda<TKey>(), type_raw_cda<TVal>(), pkey, hash);
+      void_cda typeKey, typeVal;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_equal_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_size<TVal>();
+      _raw_complex_map_impl::remove(typeKey, typeVal, pkey, hash);
    }
 
 
    /** Removes all items from the map.
    */
    void clear() {
-      _raw_complex_map_impl::clear(type_raw_cda<TKey>(), type_raw_cda<TVal>());
+      void_cda typeKey, typeVal;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_size<TVal>();
+      _raw_complex_map_impl::clear(typeKey, typeVal);
    }
 
 
@@ -119,8 +153,18 @@ struct _raw_map_impl<TKey, TVal, false> :
    size_t set_item(
       TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal
    ) {
+      void_cda typeKey, typeVal;
+      typeKey.set_copy_fn<TKey>();
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_equal_fn<TKey>();
+      typeKey.set_move_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeVal.set_copy_fn<TVal>();
+      typeVal.set_destr_fn<TVal>();
+      typeVal.set_move_fn<TVal>();
+      typeVal.set_size<TVal>();
       return _raw_complex_map_impl::set_item(
-         type_raw_cda<TKey>(), type_raw_cda<TVal>(), pkey, hash, pval, bMoveKey, bMoveVal
+         typeKey, typeVal, pkey, hash, pval, bMoveKey, bMoveVal
       );
    }
 };

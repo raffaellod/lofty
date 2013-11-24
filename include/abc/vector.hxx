@@ -49,7 +49,9 @@ public:
    /** Destructor.
    */
    ~_raw_vector() {
-      destruct_items(type_raw_cda<T>());
+      void_cda type;
+      type.set_destr_fn<T>();
+      destruct_items(type);
    }
 
 
@@ -58,7 +60,12 @@ public:
    TODO: comment signature.
    */
    void append(T const * pAdd, size_t ciAdd, bool bMove) {
-      _raw_complex_vextr_impl::append(type_raw_cda<T>(), pAdd, ciAdd, bMove);
+      void_cda type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::append(type, pAdd, ciAdd, bMove);
    }
 
 
@@ -67,10 +74,20 @@ public:
    TODO: comment signature.
    */
    void assign_copy(T const * p, size_t ci, bool bMove) {
-      _raw_complex_vextr_impl::assign_copy(type_raw_cda<T>(), p, ci, bMove);
+      void_cda type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::assign_copy(type, p, ci, bMove);
    }
    void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
-      _raw_complex_vextr_impl::assign_copy(type_raw_cda<T>(), p1, ci1, bMove1, p2, ci2, bMove2);
+      void_cda type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::assign_copy(type, p1, ci1, bMove1, p2, ci2, bMove2);
    }
 
 
@@ -79,7 +96,9 @@ public:
    TODO: comment signature.
    */
    void assign_move(_raw_complex_vextr_impl && rcvi) {
-      _raw_complex_vextr_impl::assign_move(type_raw_cda<T>(), std::move(rcvi));
+      void_cda type;
+      type.set_destr_fn<T>();
+      _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
 
@@ -88,7 +107,12 @@ public:
    TODO: comment signature.
    */
    void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
-      _raw_complex_vextr_impl::insert(type_raw_cda<T>(), iOffset, pAdd, ciAdd, bMove);
+      void_cda type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::insert(type, iOffset, pAdd, ciAdd, bMove);
    }
 
 
@@ -97,7 +121,11 @@ public:
    TODO: comment signature.
    */
    void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
-      _raw_complex_vextr_impl::remove_at(type_raw_cda<T>(), iOffset, ciRemove);
+      void_cda type;
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::remove_at(type, iOffset, ciRemove);
    }
 
 
@@ -114,7 +142,11 @@ public:
    TODO: comment signature.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
-      _raw_complex_vextr_impl::set_capacity(type_raw_cda<T>(), ciMin, bPreserve);
+      void_cda type;
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::set_capacity(type, ciMin, bPreserve);
    }
 
 
