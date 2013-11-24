@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TYPE_RAW_CDA_HXX
-#define ABC_TYPE_RAW_CDA_HXX
+#ifndef ABC_TYPE_VOID_ADAPTER_HXX
+#define ABC_TYPE_VOID_ADAPTER_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -258,5 +258,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TYPE_RAW_CDA_HXX
+#endif //ifndef ABC_TYPE_VOID_ADAPTER_HXX
 
