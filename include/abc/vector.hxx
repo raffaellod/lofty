@@ -110,17 +110,14 @@ public:
    }
 
 
-   /** See vector::insert().
-
-   TODO: comment signature.
+   /** TODO: comment.
    */
-   void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
+   void insert_move(ptrdiff_t iOffset, T * p, size_t ci) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, iOffset, pAdd, ciAdd, bMove);
+      _raw_complex_vextr_impl::insert(type, iOffset, p, ci, true);
    }
 
 
@@ -223,17 +220,15 @@ public:
    }
 
 
-   /** See vector::insert().
-
-   TODO: comment signature.
+   /** TODO: comment.
    */
-   void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
+   void insert_copy(ptrdiff_t iOffset, T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, iOffset, pAdd, ciAdd, bMove);
+      _raw_complex_vextr_impl::insert(type, iOffset, p, ci, false);
    }
 
 
@@ -329,14 +324,17 @@ public:
    }
 
 
-   /** See vector::insert(). This specialization ignores completely the bMove argument, since
-   trivial types can only be copied.
-
-   TODO: comment signature.
+   /** TODO: comment.
    */
-   void insert(ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove) {
-      ABC_UNUSED_ARG(bMove);
-      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, pAdd, ciAdd);
+   void insert_copy(ptrdiff_t iOffset, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
+   }
+
+
+   /** TODO: comment.
+   */
+   void insert_move(ptrdiff_t iOffset, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
    }
 
 
@@ -671,28 +669,22 @@ public:
       0-based index of the element. If negative, it’s 1-based index from the end of the vector.
    */
    void insert(ptrdiff_t i, T const & t) {
-      insert(i, &t, 1);
+      this->insert_copy(i, &t, 1);
    }
    void insert(ptrdiff_t i, typename std::remove_const<T>::type && t) {
-      insert(i, &t, 1, true);
+      this->insert_move(i, &t, 1);
    }
    void insert(ptrdiff_t i, T const * pt, size_t ci) {
-      vector_base<T>::insert(i, pt, ci, false);
-   }
-   void insert(ptrdiff_t i, typename std::remove_const<T>::type * pt, size_t ci, bool bMove) {
-      vector_base<T>::insert(i, pt, ci, bMove);
+      this->insert_copy(i, pt, ci);
    }
    void insert(const_iterator it, T const & t) {
-      insert(it - itvec::cbegin(), t);
+      this->insert_copy(it - itvec::cbegin(), &t, 1);
    }
    void insert(const_iterator it, typename std::remove_const<T>::type && t) {
-      insert(it - itvec::cbegin(), std::move(t));
+      this->insert_move(it - itvec::cbegin(), std::move(t), &t, 1);
    }
    void insert(const_iterator it, T const * pt, size_t ci) {
-      insert(it - itvec::cbegin(), pt, ci);
-   }
-   void insert(const_iterator it, typename std::remove_const<T>::type * pt, size_t ci, bool bMove) {
-      insert(it - itvec::cbegin(), pt, ci, bMove);
+      this->insert_copy(it - itvec::cbegin(), pt, ci);
    }
 
 
