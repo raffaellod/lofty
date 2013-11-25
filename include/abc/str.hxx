@@ -207,8 +207,12 @@ protected:
    void assign_copy(size_t cbItem, void const * p, size_t ci) {
       _raw_trivial_vextr_impl::assign_copy(cbItem, p, ci, true);
    }
-   void assign_copy(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2) {
-      _raw_trivial_vextr_impl::assign_copy(cbItem, p1, ci1, p2, ci2, true);
+
+
+   /** TODO: comment.
+   */
+   void assign_concat(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2) {
+      _raw_trivial_vextr_impl::assign_concat(cbItem, p1, ci1, p2, ci2, true);
    }
 
 
@@ -554,8 +558,12 @@ protected:
    void assign_copy(C const * pch, size_t cch) {
       _raw_str::assign_copy(sizeof(C), pch, cch);
    }
-   void assign_copy(C const * pch1, size_t cch1, C const * pch2, size_t cch2) {
-      _raw_str::assign_copy(sizeof(C), pch1, cch1, pch2, cch2);
+
+
+   /** TODO: comment.
+   */
+   void assign_concat(C const * pch1, size_t cch1, C const * pch2, size_t cch2) {
+      _raw_str::assign_concat(sizeof(C), pch1, cch1, pch2, cch2);
    }
 
 
@@ -1075,7 +1083,7 @@ public:
    }
    dmstr_(C const * pch1, size_t cch1, C const * pch2, size_t cch2) :
       mstr(0) {
-      this->assign_copy(pch1, cch1, pch2, cch2);
+      this->assign_concat(pch1, cch1, pch2, cch2);
    }
 
 

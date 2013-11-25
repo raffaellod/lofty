@@ -844,13 +844,20 @@ public:
    }
 
 
-   /** Copies or moves the contents of the source to *this, according to the source type. If bMove
-   == true, the source items will be moved by having their const-ness cast away - be careful.
+   /** Copies the contents of the source to *this.
 
    TODO: comment signature.
    */
    void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
-   void assign_copy(
+
+
+   /** Copies or moves the contents of the two sources to *this, according to the source type. If
+   bMove{1,2} == true, the source items will be moved by having their const-ness cast away - be
+   careful.
+
+   TODO: comment signature.
+   */
+   void assign_concat(
       type_void_adapter const & type,
       void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
    );
@@ -976,12 +983,18 @@ public:
       if (p == m_p) {
          return;
       }
-      // The two-source overload is fast enough. Pass it as the second source, because its code path
-      // is faster.
-      assign_copy(cbItem, NULL, 0, p, ci, bNulT);
+      // assign_concat() is fast enough. Pass the source as the second argument pair, because its
+      // code path is faster.
+      assign_concat(cbItem, NULL, 0, p, ci, bNulT);
    }
-   // This overload must never be called with p1 or p2 == m_p.
-   void assign_copy(
+
+
+   /** Copies the contents of the two sources to *this. This overload must never be called with p1
+   or p2 == m_p.
+
+   TODO: comment signature.
+   */
+   void assign_concat(
       size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
    );
 

@@ -228,7 +228,9 @@ void _raw_complex_vextr_impl::assign_copy(
    }
    trn.commit();
 }
-void _raw_complex_vextr_impl::assign_copy(
+
+
+void _raw_complex_vextr_impl::assign_concat(
    type_void_adapter const & type,
    void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
 ) {
@@ -551,7 +553,7 @@ void _raw_complex_vextr_impl::set_capacity(
 
 namespace abc {
 
-void _raw_trivial_vextr_impl::assign_copy(
+void _raw_trivial_vextr_impl::assign_concat(
    size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT /*= false*/
 ) {
    ABC_TRACE_FN((this, cbItem, p1, ci1, p2, ci2, bNulT));

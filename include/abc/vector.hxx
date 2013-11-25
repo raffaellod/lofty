@@ -75,25 +75,17 @@ public:
    }
 
 
-   /** See vector::assign_copy().
-
-   TODO: comment signature.
+   /** TODO: comment.
    */
-   void assign_copy(T const * p, size_t ci) {
+   void assign_concat(
+      T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2
+   ) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_copy(type, p, ci);
-   }
-   void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
-      type_void_adapter type;
-      type.set_copy_fn<T>();
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
-      type.set_size<T>();
-      _raw_complex_vextr_impl::assign_copy(type, p1, ci1, bMove1, p2, ci2, bMove2);
+      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, bMove1, p2, ci2, bMove2);
    }
 
 
@@ -218,13 +210,19 @@ public:
       type.set_size<T>();
       _raw_complex_vextr_impl::assign_copy(type, p, ci);
    }
-   void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
+
+
+   /** TODO: comment.
+   */
+   void assign_concat(
+      T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2
+   ) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_copy(type, p1, ci1, bMove1, p2, ci2, bMove2);
+      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, bMove1, p2, ci2, bMove2);
    }
 
 
@@ -296,12 +294,16 @@ public:
    void assign_copy(void const * p, size_t ci) {
       _raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
    }
-   void assign_copy(
+
+
+   /** TODO: comment.
+   */
+   void assign_concat(
       void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
    ) {
       ABC_UNUSED_ARG(bMove1);
       ABC_UNUSED_ARG(bMove2);
-      _raw_trivial_vextr_impl::assign_copy(sizeof(T), p1, ci1, p2, ci2);
+      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
    }
 
 
@@ -775,19 +777,19 @@ public:
    }
    dmvector(mvector<T> const & v1, mvector<T> const & v2) :
       mvector<T>(0) {
-      this->assign_copy(v1.data(), v1.size(), false, v2.data(), v2.size(), false);
+      this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), false);
    }
    dmvector(mvector<T> && v1, mvector<T> const & v2) :
       mvector<T>(0) {
-      this->assign_copy(v1.data(), v1.size(), true, v2.data(), v2.size(), false);
+      this->assign_concat(v1.data(), v1.size(), true, v2.data(), v2.size(), false);
    }
    dmvector(mvector<T> const & v1, mvector<T> && v2) :
       mvector<T>(0) {
-      this->assign_copy(v1.data(), v1.size(), false, v2.data(), v2.size(), true);
+      this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), true);
    }
    dmvector(mvector<T> && v1, mvector<T> && v2) :
       mvector<T>(0) {
-      this->assign_copy(v1.data(), v1.size(), true, v2.data(), v2.size(), true);
+      this->assign_concat(v1.data(), v1.size(), true, v2.data(), v2.size(), true);
    }
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
@@ -800,7 +802,7 @@ public:
    }
    dmvector(T const * pt1, size_t ci1, T const * pt2, size_t ci2) :
       mvector<T>(0) {
-      this->assign_copy(pt1, ci1, false, pt2, ci2, false);
+      this->assign_concat(pt1, ci1, false, pt2, ci2, false);
    }
 
 
