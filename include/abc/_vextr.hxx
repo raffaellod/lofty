@@ -159,8 +159,8 @@ Argument usage scenarios:
       // TODO: validate these!
       // 1. Same as 1. above.
       // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-      //    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
-      //    else (like assign_copy()).
+      //    Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its
+      //    items.
       g_ms = std::move(isArg);
       // 3. Same as 3. above.
 
@@ -171,8 +171,8 @@ Argument usage scenarios:
       // TODO: validate these!
       // 1. Same as 1. above.
       // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-      //    Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
-      //    else (like assign_copy()).
+      //    Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its
+      //    items.
       g_dms = std::move(isArg);
       // 3. Same as 3. above.
 
@@ -282,7 +282,8 @@ Argument usage scenarios:
       g_is = *pmsArg;
 
       // Move the item array: istr::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_copy(). can throw because mstr can be a smstr<n> under covers!
+      // Use assign_move_dynamic_or_move_items(). can throw because mstr can be a smstr<n> under the
+      // covers!
       g_is = std::move(*pmsArg);
 
       // Copy the item array: mstr::operator=(mstr const &)
@@ -290,7 +291,7 @@ Argument usage scenarios:
       g_ms = *pmsArg;
 
       // Move the item array: mstr::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_copy(). See considerations above.
+      // Use assign_move_dynamic_or_move_items(). See considerations above.
       // WARNING - this class has a throwing move constructor/assignment operator!
       g_ms = std::move(*pmsArg);
 
@@ -307,7 +308,7 @@ Argument usage scenarios:
       g_sms = *pmsArg;
 
       // Move the item array: smstr<n>::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_copy(): will move a dynamic item array, or will copy anything
+      // Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its items.
       // else (like assign_copy()).
       g_sms = std::move(*pmsArg);
    }
@@ -868,7 +869,7 @@ public:
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(
+   void assign_move_dynamic_or_move_items(
       type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
    );
 
@@ -1002,11 +1003,12 @@ public:
    }
 
 
-   /** Moves the source’s item array if dynamically-allocated, else copies it to *this.
+   /** Moves the source’s item array if dynamically-allocated, else moves (copies, really - the
+   items are trivial) its items to *this.
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(
+   void assign_move_dynamic_or_move_items(
       size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
    );
 

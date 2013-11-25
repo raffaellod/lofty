@@ -312,7 +312,7 @@ void _raw_complex_vextr_impl::assign_move(
 }
 
 
-void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
+void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
 ) {
    if (rcvi.m_p == m_p) {
@@ -572,7 +572,7 @@ void _raw_trivial_vextr_impl::assign_copy(
 }
 
 
-void _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
+void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
    size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT /*= false*/
 ) {
    if (rtvi.m_p == m_p) {

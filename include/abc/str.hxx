@@ -221,12 +221,12 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_copy().
+   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(size_t cbItem, _raw_str && rs) {
-      _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(
+   void assign_move_dynamic_or_move_items(size_t cbItem, _raw_str && rs) {
+      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
          cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs), true
       );
    }
@@ -569,13 +569,13 @@ protected:
    }
 
 
-   /** See _raw_str::assign_move_dynamic_or_copy().
+   /** See _raw_str::assign_move_dynamic_or_move_items().
 
    s
       Source string.
    */
-   void assign_move_dynamic_or_copy(str_base_ && s) {
-      _raw_str::assign_move_dynamic_or_copy(sizeof(C), static_cast<_raw_str &&>(s));
+   void assign_move_dynamic_or_move_items(str_base_ && s) {
+      _raw_str::assign_move_dynamic_or_move_items(sizeof(C), static_cast<_raw_str &&>(s));
    }
 
 
@@ -706,7 +706,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
    istr_(mstr && s) :
       str_base(0) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    istr_(dmstr && s) :
       str_base(0) {
@@ -749,7 +749,7 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the istr_ && overload.
    istr_ & operator=(mstr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    istr_ & operator=(dmstr && s) {
@@ -846,7 +846,7 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr_ && overload.
    mstr_ & operator=(istr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    mstr_ & operator=(dmstr && s) {
@@ -1052,7 +1052,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
    dmstr_(istr && s) :
       mstr(0) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    dmstr_(mstr const & s) :
       mstr(0) {
@@ -1061,7 +1061,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
    dmstr_(mstr && s) :
       mstr(0) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    template <size_t t_cch>
    explicit dmstr_(C const (& ach)[t_cch]) :
@@ -1102,7 +1102,7 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
    dmstr_ & operator=(istr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    dmstr_ & operator=(mstr const & s) {
@@ -1111,7 +1111,7 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr_ && overload.
    dmstr_ & operator=(mstr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    template <size_t t_cch>
@@ -1258,7 +1258,7 @@ public:
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
       mstr(smc_cchFixed) {
@@ -1267,13 +1267,13 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
    smstr(istr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
    // This also covers smstr_ of different template arguments.
    smstr(mstr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
       mstr(smc_cchFixed) {
@@ -1303,7 +1303,7 @@ public:
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr & operator=(smstr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    smstr & operator=(istr const & s) {
@@ -1312,13 +1312,13 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
    smstr & operator=(istr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr_ && overload.
    // This also covers smstr_ of different template arguments.
    smstr & operator=(mstr && s) {
-      this->assign_move_dynamic_or_copy(std::move(s));
+      this->assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    smstr & operator=(dmstr && s) {

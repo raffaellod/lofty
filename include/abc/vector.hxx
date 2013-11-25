@@ -106,16 +106,16 @@ public:
    }
 
 
-   /** See vector::assign_move_dynamic_or_copy().
+   /** See vector::assign_move_dynamic_or_move_items().
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(_raw_complex_vextr_impl && rcvi) {
+   void assign_move_dynamic_or_move_items(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_move_dynamic_or_copy(type, std::move(rcvi));
+      _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
    }
 
 
@@ -295,12 +295,12 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_copy().
+   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
    TODO: comment signature.
    */
-   void assign_move_dynamic_or_copy(_raw_trivial_vextr_impl && rtvi) {
-      _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(std::move(rtvi));
+   void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
+      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
    }
 
 
@@ -535,13 +535,13 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::assign_move_dynamic_or_copy().
+   /** See _raw_vector<T>::assign_move_dynamic_or_move_items().
 
    v
       Source vector.
    */
-   void assign_move_dynamic_or_copy(vector_base && v) {
-      _raw_vector<T>::assign_move_dynamic_or_copy(static_cast<_raw_vector<T> &&>(v));
+   void assign_move_dynamic_or_move_items(vector_base && v) {
+      _raw_vector<T>::assign_move_dynamic_or_move_items(static_cast<_raw_vector<T> &&>(v));
    }
 };
 
@@ -755,7 +755,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
    dmvector(mvector<T> && v) :
       mvector<T>(0) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
    }
    dmvector(mvector<T> const & v1, mvector<T> const & v2) :
       mvector<T>(0) {
@@ -809,7 +809,7 @@ public:
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
    dmvector & operator=(mvector<T> && v) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
 };
@@ -881,7 +881,7 @@ public:
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
       mvector<T>(smc_ciFixed) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
@@ -891,7 +891,7 @@ public:
       typename std::enable_if<(t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2> &&>::type v
    ) :
       mvector<T>(smc_ciFixed) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(mvector<T> const & v) :
       mvector<T>(smc_ciFixed) {
@@ -901,7 +901,7 @@ public:
    // This also covers smvector of different static size > t_ciStatic.
    smvector(mvector<T> && v) :
       mvector<T>(smc_ciFixed) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T> && v) :
       mvector<T>(smc_ciFixed) {
@@ -929,7 +929,7 @@ public:
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector & operator=(smvector && v) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -939,7 +939,7 @@ public:
    smvector & operator=(
       typename std::enable_if<(t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2> &&>::type v
    ) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
    smvector & operator=(mvector<T> const & v) {
@@ -949,7 +949,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
    smvector & operator=(mvector<T> && v) {
-      this->assign_move_dynamic_or_copy(std::move(v));
+      this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
    smvector & operator=(dmvector<T> && v) {
