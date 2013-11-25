@@ -59,17 +59,19 @@ public:
    }
 
 
-   /** See vector::append().
+   /** Appends one or more items by moving them.
 
-   TODO: comment signature.
+   p
+      Pointer to the first item to add.
+   ci
+      Count of items to add.
    */
-   void append(T const * pAdd, size_t ciAdd, bool bMove) {
+   void append_move(T * p, size_t ci) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::append(type, pAdd, ciAdd, bMove);
+      _raw_complex_vextr_impl::append(type, p, ci, true);
    }
 
 
@@ -187,17 +189,20 @@ class _raw_vector<T, false, true> :
    public _raw_vector<T, false, false> {
 public:
 
-   /** See vector::append().
+   /** Appends one or more items by copying them.
 
-   TODO: comment signature.
+   p
+      Pointer to the first item to add.
+   ci
+      Count of items to add.
    */
-   void append(T const * pAdd, size_t ciAdd, bool bMove) {
+   void append_copy(T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::append(type, pAdd, ciAdd, bMove);
+      _raw_complex_vextr_impl::append(type, p, ci, false);
    }
 
 
@@ -259,14 +264,28 @@ class _raw_vector<T, true, true> :
    public _raw_trivial_vextr_impl {
 public:
 
-   /** See vector::append(). This specialization ignores completely the bMove argument, since
-   trivial types can only be copied.
+   /** Appends one or more items.
 
-   TODO: comment signature.
+   p
+      Pointer to the first item to add.
+   ci
+      Count of items to add.
    */
-   void append(void const * pAdd, size_t ciAdd, bool bMove) {
-      ABC_UNUSED_ARG(bMove);
-      _raw_trivial_vextr_impl::append(sizeof(T), pAdd, ciAdd);
+   void append_copy(void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
+   }
+
+
+   /** Appends one or more items. Semantically this is supposed to move them, but for trivial types
+   that’s the same as copying them.
+
+   p
+      Pointer to the first item to add.
+   ci
+      Count of items to add.
+   */
+   void append_move(void * p, size_t ci) {
+      _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
    }
 
 
@@ -599,11 +618,11 @@ public:
       *this.
    */
    mvector & operator+=(mvector const & v) {
-      append(v.data(), v.size(), false);
+      append_copy(v.data(), v.size());
       return *this;
    }
    mvector & operator+=(mvector && v) {
-      append(v.data(), v.size(), true);
+      append_move(v.data(), v.size());
       return *this;
    }
 
@@ -623,16 +642,13 @@ public:
    TODO: comment signature.
    */
    void append(T const & t) {
-      append(const_cast<typename std::remove_const<T>::type *>(&t), 1, false);
+      this->append_copy(&t, 1);
    }
    void append(typename std::remove_const<T>::type && t) {
-      append(&t, 1, true);
+      this->append_move(&t, 1);
    }
    void append(T const * pt, size_t ci) {
-      vector_base<T>::append(pt, ci, false);
-   }
-   void append(typename std::remove_const<T>::type * pt, size_t ci, bool bMove) {
-      vector_base<T>::append(pt, ci, bMove);
+      this->append_copy(pt, ci);
    }
 
 
