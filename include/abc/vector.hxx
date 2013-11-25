@@ -77,13 +77,13 @@ public:
 
    TODO: comment signature.
    */
-   void assign_copy(T const * p, size_t ci, bool bMove) {
+   void assign_copy(T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_copy(type, p, ci, bMove);
+      _raw_complex_vextr_impl::assign_copy(type, p, ci);
    }
    void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
       type_void_adapter type;
@@ -103,6 +103,19 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
+   }
+
+
+   /** See vector::assign_move_dynamic_or_copy().
+
+   TODO: comment signature.
+   */
+   void assign_move_dynamic_or_copy(_raw_complex_vextr_impl && rcvi) {
+      type_void_adapter type;
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::assign_move_dynamic_or_copy(type, std::move(rcvi));
    }
 
 
@@ -192,13 +205,13 @@ public:
 
    TODO: comment signature.
    */
-   void assign_copy(T const * p, size_t ci, bool bMove) {
+   void assign_copy(T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_copy(type, p, ci, bMove);
+      _raw_complex_vextr_impl::assign_copy(type, p, ci);
    }
    void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
       type_void_adapter type;
@@ -261,8 +274,7 @@ public:
 
    TODO: comment signature.
    */
-   void assign_copy(void const * p, size_t ci, bool bMove) {
-      ABC_UNUSED_ARG(bMove);
+   void assign_copy(void const * p, size_t ci) {
       _raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
    }
    void assign_copy(
@@ -280,6 +292,15 @@ public:
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move(std::move(rtvi));
+   }
+
+
+   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_copy().
+
+   TODO: comment signature.
+   */
+   void assign_move_dynamic_or_copy(_raw_trivial_vextr_impl && rtvi) {
+      _raw_trivial_vextr_impl::assign_move_dynamic_or_copy(std::move(rtvi));
    }
 
 
@@ -504,20 +525,6 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::assign_copy().
-
-   TODO: comment signature.
-   */
-   void assign_copy(T const * pt, size_t ci, bool bMove) {
-      _raw_vector<T>::assign_copy(pt, ci, bMove);
-   }
-   void assign_copy(
-      T const * pt1, size_t ci1, bool bMove1, T const * pt2, size_t ci2, bool bMove2
-   ) {
-      _raw_vector<T>::assign_copy(pt1, ci1, bMove1, pt2, ci2, bMove2);
-   }
-
-
    /** See _raw_vector<T>::assign_move().
 
    v
@@ -575,7 +582,7 @@ public:
       *this.
    */
    mvector & operator=(mvector const & v) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
       return *this;
    }
    mvector & operator=(dmvector<T> && v) {
@@ -735,7 +742,7 @@ public:
    }
    dmvector(dmvector const & v) :
       mvector<T>(0) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
    }
    dmvector(dmvector && v) :
       mvector<T>(0) {
@@ -743,7 +750,7 @@ public:
    }
    dmvector(mvector<T> const & v) :
       mvector<T>(0) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
    dmvector(mvector<T> && v) :
@@ -769,11 +776,11 @@ public:
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
       mvector<T>(0) {
-      this->assign_copy(at, t_ci, false);
+      this->assign_copy(at, t_ci);
    }
    dmvector(T const * pt, size_t ci) :
       mvector<T>(0) {
-      this->assign_copy(pt, ci, false);
+      this->assign_copy(pt, ci);
    }
    dmvector(T const * pt1, size_t ci1, T const * pt2, size_t ci2) :
       mvector<T>(0) {
@@ -789,7 +796,7 @@ public:
       *this;
    */
    dmvector & operator=(dmvector const & v) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
       return *this;
    }
    dmvector & operator=(dmvector && v) {
@@ -797,7 +804,7 @@ public:
       return *this;
    }
    dmvector & operator=(mvector<T> const & v) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
@@ -868,7 +875,7 @@ public:
    }
    smvector(smvector const & v) :
       mvector<T>(smc_ciFixed) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -888,7 +895,7 @@ public:
    }
    smvector(mvector<T> const & v) :
       mvector<T>(smc_ciFixed) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
@@ -903,11 +910,11 @@ public:
    template <size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
       mvector<T>(smc_ciFixed) {
-      this->assign_copy(at, t_ci, false);
+      this->assign_copy(at, t_ci);
    }
    smvector(T const * pt, size_t ci) :
       mvector<T>(smc_ciFixed) {
-      this->assign_copy(pt, ci, false);
+      this->assign_copy(pt, ci);
    }
 
 
@@ -916,7 +923,7 @@ public:
    TODO: comment signature.
    */
    smvector & operator=(smvector const & v) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -936,7 +943,7 @@ public:
       return *this;
    }
    smvector & operator=(mvector<T> const & v) {
-      this->assign_copy(v.data(), v.size(), false);
+      this->assign_copy(v.data(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.

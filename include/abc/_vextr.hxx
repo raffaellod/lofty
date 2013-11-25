@@ -848,7 +848,7 @@ public:
 
    TODO: comment signature.
    */
-   void assign_copy(type_void_adapter const & type, void const * p, size_t ci, bool bMove);
+   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
    void assign_copy(
       type_void_adapter const & type,
       void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2

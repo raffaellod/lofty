@@ -195,18 +195,16 @@ void _raw_vextr_impl_base::validate_index(intptr_t i) const {
 namespace abc {
 
 void _raw_complex_vextr_impl::assign_copy(
-   type_void_adapter const & type, void const * p, size_t ci, bool bMove
+   type_void_adapter const & type, void const * p, size_t ci
 ) {
-   ABC_TRACE_FN((this, /*type, */p, ci, bMove));
+   ABC_TRACE_FN((this, /*type, */p, ci));
 
    transaction trn(type.cb, this, ptrdiff_t(ci));
    size_t ciOrig(size());
-   // If we’re moving, assume that destructing the current items first and then moving in the source
-   // items is an exception-safe approach; this way the creation of a backup can be avoided.
+   // We’re going to overwrite the old item array, so move the items to a backup array, so we can
+   // restore them in case of exceptions thrown while copy-constructing the new objects.
    std::unique_ptr<int8_t[]> pbBackup;
-   if (!bMove && ci) {
-      // If we’re going to overwrite the old item array, move the items to a backup array, so we can
-      // restore them in case of exceptions thrown while copy-constructing the new objects.
+   if (ci) {
       if (ciOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[type.cb * ciOrig]);
          type.move_constr(pbBackup.get(), m_p, ciOrig);
@@ -227,10 +225,6 @@ void _raw_complex_vextr_impl::assign_copy(
       // If we made a backup, it also means that now this is the only copy of the original items,
       // so we must use it to destruct them, instead of m_p.
       type.destruct(pbBackup ? pbBackup.get() : m_p, ciOrig);
-   }
-   // Now that the current items have been destructed, move-construct the new items.
-   if (bMove && ci) {
-      type.move_constr(trn.work_array<void>(), const_cast<void *>(p), ci);
    }
    trn.commit();
 }
@@ -327,8 +321,21 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_copy(
    if (rcvi.m_rvpd.get_bDynamic()) {
       assign_move(type, std::move(rcvi));
    } else {
-      // Can’t move, so use a different item array and move the items to it instead.
-      assign_copy(type, rcvi.m_p, rcvi.size(), true);
+      // Can’t move the item array, so move the items instead.
+      {
+         size_t ciSrc(rcvi.size()), ciOrig(size());
+         transaction trn(type.cb, this, ptrdiff_t(ciSrc));
+         // Assume that destructing the current items first and then moving in rcvi’s items is an
+         // exception-safe approach.
+         if (ciOrig) {
+            type.destruct(m_p, ciOrig);
+         }
+         // Now that the current items have been destructed, move-construct the new items.
+         if (ciSrc) {
+            type.move_constr(trn.work_array<void>(), rcvi.m_p, ciSrc);
+         }
+         trn.commit();
+      }
       // And now empty the source.
       rcvi.destruct_items(type);
       rcvi.assign_empty();
