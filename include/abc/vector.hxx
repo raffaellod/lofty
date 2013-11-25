@@ -77,15 +77,12 @@ public:
 
    /** TODO: comment.
    */
-   void assign_concat(
-      T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2
-   ) {
+   void assign_concat_move(T const * p1, size_t ci1, T const * p2, size_t ci2) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, bMove1, p2, ci2, bMove2);
+      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, true, p2, ci2, true);
    }
 
 
@@ -303,6 +300,13 @@ public:
    ) {
       ABC_UNUSED_ARG(bMove1);
       ABC_UNUSED_ARG(bMove2);
+      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
+   }
+
+
+   /** TODO: comment.
+   */
+   void assign_concat_move(void const * p1, size_t ci1, void const * p2, size_t ci2) {
       _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
    }
 
@@ -789,7 +793,7 @@ public:
    }
    dmvector(mvector<T> && v1, mvector<T> && v2) :
       mvector<T>(0) {
-      this->assign_concat(v1.data(), v1.size(), true, v2.data(), v2.size(), true);
+      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
    }
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
