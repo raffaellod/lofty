@@ -34,15 +34,19 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/** Thin templated wrapper for _raw_*_vextr_impl, so make the interface of those two classes
+/** Thin templated wrapper for _raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations.
 */
-template <typename T, bool t_bTrivial = std::is_trivial<T>::value>
+template <
+   typename T,
+   bool t_bTrivial = std::is_trivial<T>::value,
+   bool t_bCopyConstructible = std::is_copy_constructible<T>::value
+>
 class _raw_vector;
 
-// Partial specialization for non-trivial types.
+// Partial specialization for non-trivial, non-copyable types.
 template <typename T>
-class _raw_vector<T, false> :
+class _raw_vector<T, false, false> :
    public _raw_complex_vextr_impl {
 public:
 
@@ -164,10 +168,81 @@ protected:
    }
 };
 
-// Partial specialization for trivial types. Methods here ignore the bMove argument for the
-// individual elements, because move semantics don’t apply (trivial values are always copied).
+// Partial specialization for non-trivial, copyable types.
 template <typename T>
-class _raw_vector<T, true> :
+class _raw_vector<T, false, true> :
+   public _raw_vector<T, false, false> {
+public:
+
+   /** See vector::append().
+
+   TODO: comment signature.
+   */
+   void append(T const * pAdd, size_t ciAdd, bool bMove) {
+      type_void_adapter type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::append(type, pAdd, ciAdd, bMove);
+   }
+
+
+   /** See vector::assign_copy().
+
+   TODO: comment signature.
+   */
+   void assign_copy(T const * p, size_t ci, bool bMove) {
+      type_void_adapter type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::assign_copy(type, p, ci, bMove);
+   }
+   void assign_copy(T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2) {
+      type_void_adapter type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::assign_copy(type, p1, ci1, bMove1, p2, ci2, bMove2);
+   }
+
+
+   /** See vector::insert().
+
+   TODO: comment signature.
+   */
+   void insert(ptrdiff_t iOffset, T const * pAdd, size_t ciAdd, bool bMove) {
+      type_void_adapter type;
+      type.set_copy_fn<T>();
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::insert(type, iOffset, pAdd, ciAdd, bMove);
+   }
+
+
+protected:
+
+   /** Constructor.
+
+   TODO: comment signature.
+   */
+   _raw_vector(size_t ciStaticMax) :
+      _raw_vector<T, false, false>(ciStaticMax) {
+   }
+   _raw_vector(void const * pConstSrc, size_t ciSrc) :
+      _raw_vector<T, false, false>(pConstSrc, ciSrc) {
+   }
+};
+
+// Partial specialization for trivial (and copyable) types. Methods here ignore the bMove argument
+// for the individual elements, because move semantics don’t apply (trivial values are always
+// copied).
+template <typename T>
+class _raw_vector<T, true, true> :
    public _raw_trivial_vextr_impl {
 public:
 
