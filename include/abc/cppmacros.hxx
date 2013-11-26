@@ -198,7 +198,7 @@ s
 return
    Unique identifier.
 */
-#if defined(_GCC_VER) || defined(_MSC_VER)
+#if ABC_HOST_GCC || ABC_HOST_MSC
    #define ABC_CPP_APPEND_UID(s) \
       ABC_CPP_CAT2(s, __COUNTER__)
 #else

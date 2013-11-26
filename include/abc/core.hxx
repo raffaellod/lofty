@@ -21,20 +21,27 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_CORE_HXX
 
 
+/** Version of GCC if building with it, or 0 otherwise. */
+#define ABC_HOST_GCC 0
+/** Version of MSC if building with it, or 0 otherwise. */
+#define ABC_HOST_MSC 0
+
 #if defined(__GNUC__)
-   // Make version checks for GCC less cumbersome.
-   #define _GCC_VER \
+   #undef ABC_HOST_GCC
+   #define ABC_HOST_GCC \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-   #if _GCC_VER < 40300
+   #if ABC_HOST_GCC < 40300
       #error Unsupported version of GCC (>= 4.3.0 required)
    #endif
 #elif defined(_MSC_VER)
    #if _MSC_VER < 1600
       #error Unsupported version of MSC (>= MSC 16 / VC++ 10 / VS 2010 required)
    #endif
+   #undef ABC_HOST_MSC
+   #define ABC_HOST_MSC _MSC_VER
 #endif
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    // Suppress unnecessary warnings.
 
    // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
@@ -74,13 +81,13 @@ You should have received a copy of the GNU General Public License along with ABC
 
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
-#endif //ifdef _MSC_VER
+#endif //if ABC_HOST_MSC
 
 #include <limits.h> // CHAR_BIT *_MAX *_MIN
 #include <stdint.h> // *int*_t __WORDSIZE (if supported)
 #include <stddef.h> // size_t
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
 
@@ -177,7 +184,7 @@ You should have received a copy of the GNU General Public License along with ABC
       #undef _UNICODE
    #endif
 
-   #ifdef _MSC_VER
+   #if ABC_HOST_MSC
       // Silence warnings from system header files.
       // These must be disabled until the end of the compilation unit, because that’s when they
       // are raised.
@@ -195,7 +202,7 @@ You should have received a copy of the GNU General Public License along with ABC
    #define WIN32_LEAN_AND_MEAN
    #include <windows.h>
 
-   #ifdef _MSC_VER
+   #if ABC_HOST_MSC
       #pragma warning(pop)
    #endif
 
@@ -216,40 +223,40 @@ You should have received a copy of the GNU General Public License along with ABC
 
 /** If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
-#if defined(_GCC_VER) && _GCC_VER >= 40500
+#if ABC_HOST_GCC >= 40500
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /** If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
-#if defined(_GCC_VER) && _GCC_VER >= 40400
+#if ABC_HOST_GCC >= 40400
    #define ABC_CXX_FUNCTION_DELETE
 #endif
 
 /** If defined, the compiler supports the noexcept exception specification. */
-#if defined(_GCC_VER) && _GCC_VER >= 40600
+#if ABC_HOST_GCC >= 40600
    #define ABC_CXX_NOEXCEPT
 #endif
 
 /** If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
 */
-#if defined(_GCC_VER) && _GCC_VER >= 40700
+#if ABC_HOST_GCC >= 40700
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
 /** If defined, the STL implements C++11 type traits (as opposed to the early implementations).
 */
-#if defined(_GCC_VER) && _GCC_VER >= 40700
+#if ABC_HOST_GCC >= 40700
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
 /** If defined, the compiler supports template friend declarations (N1791). */
-#if (defined(_GCC_VER) && _GCC_VER >= 40500) || defined(_MSC_VER)
+#if ABC_HOST_GCC >= 40500 || ABC_HOST_MSC
    #define ABC_CXX_TEMPLATE_FRIENDS
 #endif
 
 /** If defined, the compiler supports variadic templates (N2242). */
-#if defined(_GCC_VER)
+#if ABC_HOST_GCC
    #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
@@ -274,7 +281,7 @@ implementation. */
 
 /** If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
-#if defined(_GCC_VER) || defined(_MSC_VER)
+#if ABC_HOST_GCC || ABC_HOST_MSC
    #define ABC_CXX_PRAGMA_ONCE
 
    // Use it now for this file.
@@ -284,10 +291,10 @@ implementation. */
 /** Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
 reached. */
-#if defined(_GCC_VER)
+#if ABC_HOST_GCC
    #define ABC_FUNC_NORETURN \
       __attribute__((noreturn))
-#elif defined(_MSC_VER)
+#elif ABC_HOST_MSC
    #define ABC_FUNC_NORETURN \
       __declspec(noreturn)
 #else
@@ -296,15 +303,15 @@ reached. */
 
 /** Declares a symbol to be publicly visible (exported) in the shared library being built. */
 #if ABC_HOST_API_WIN32
-   #if defined(_GCC_VER)
+   #if ABC_HOST_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((dllexport))
-   #elif defined(_MSC_VER)
+   #elif ABC_HOST_MSC
       #define ABC_SYM_EXPORT \
          __declspec(dllexport)
    #endif
 #else
-   #if defined(_GCC_VER)
+   #if ABC_HOST_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((visibility("default")))
    #endif
@@ -312,15 +319,15 @@ reached. */
 
 /** Declares a symbol to be imported from a shared library. */
 #if ABC_HOST_API_WIN32
-   #if defined(_GCC_VER)
+   #if ABC_HOST_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((dllimport))
-   #elif defined(_MSC_VER)
+   #elif ABC_HOST_MSC
       #define ABC_SYM_IMPORT \
          __declspec(dllimport)
    #endif
 #else
-   #if defined(_GCC_VER)
+   #if ABC_HOST_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((visibility("default")))
    #endif
@@ -533,7 +540,7 @@ It can avoid warnings about not testing for all possible values for an enum, or 
 variable would seem to be left uninitialized if the switch argument has a value that’s not one of
 those expected by the case labels.
 */
-#if defined(_MSC_VER)
+#if ABC_HOST_MSC
    #define no_default \
       default: \
          __assume(0)
@@ -564,10 +571,10 @@ type
 return
    Alignment of type.
 */
-#if defined(_GCC_VER)
+#if ABC_HOST_GCC
    #define ABC_ALIGNOF(type) \
       __alignof__(type)
-#elif defined(_MSC_VER)
+#elif ABC_HOST_MSC
    #define ABC_ALIGNOF(type) \
       __alignof(type)
 #else

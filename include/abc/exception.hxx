@@ -189,10 +189,10 @@ since this file is included in virtually every file whereas trace.hxx is not.
 */
 
 /** Pretty-printed name of the current function. */
-#if defined(_GCC_VER)
+#if ABC_HOST_GCC
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
-#elif defined(_MSC_VER)
+#elif ABC_HOST_MSC
    #define _ABC_THIS_FUNC \
       __FUNCTION__
 #else
@@ -257,7 +257,7 @@ expr
 msg
    Diagnostic message to be output in case expr evaluates to false.
 */
-#if !defined(_GCC_VER) && !defined(_MSC_VER)
+#if !ABC_HOST_GCC && !ABC_HOST_MSC
    #define static_assert(expr, msg) \
       extern char _static_assert_failed[(expr) ? 1 : -1]
 #endif

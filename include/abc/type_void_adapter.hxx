@@ -173,7 +173,7 @@ private:
          // No constructor, fastest copy possible.
          memory::copy(ptDst, ptSrc, ci);
       } else if (
-#if defined(_GCC_VER) && _GCC_VER >= 40700
+#if ABC_HOST_GCC >= 40700
          std::is_nothrow_copy_constructible<T>::value
 #else
          std::has_nothrow_copy_constructor<T>::value

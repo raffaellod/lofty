@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License along with ABC
 // :: globals - standard new/delete operators
 
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    #pragma warning(push)
    // “'operator': exception specification does not match previous declaration”
    #pragma warning(disable: 4986)
@@ -60,6 +60,6 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 }
 
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    #pragma warning(pop)
 #endif

@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma once
 #endif
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    // Silence warnings from system header files.
    #pragma warning(push)
 
@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <iterator>
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
 
@@ -68,7 +68,7 @@ namespace abc {
 */
 #define ABC_CXX_CHAR32 0
 
-#if defined(_GCC_VER) && _GCC_VER >= 40400
+#if ABC_HOST_GCC >= 40400
    // char16_t is a native type, different than uint16_t.
    #undef ABC_CXX_CHAR16
    #define ABC_CXX_CHAR16 2
@@ -76,13 +76,13 @@ namespace abc {
    #undef ABC_CXX_CHAR32
    #define ABC_CXX_CHAR32 2
 
-   #if _GCC_VER >= 40500
+   #if ABC_HOST_GCC >= 40500
       // UTF-8 string literals are supported.
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 2
    #endif
-#else //if defined(_GCC_VER) && _GCC_VER >= 40400
-   #if defined(_MSC_VER) && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
+#else //if ABC_HOST_GCC >= 40400
+   #if ABC_HOST_MSC && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
       #error Please compile with /Zc:wchar_t
    #endif
 
@@ -95,7 +95,7 @@ namespace abc {
       #undef ABC_CXX_CHAR32
       #define ABC_CXX_CHAR32 1
    #endif
-   #if !defined(_MSC_VER)
+   #if !ABC_HOST_MSC
       // MSC16 will transcode non-wchar_t string literals into whatever single-byte encoding is
       // selected for the user running cl.exe; a solution has been provided in form of a hotfix
       // (<http://support.microsoft.com/kb/2284668/en-us>), but it no longer seems available, and it
@@ -108,7 +108,7 @@ namespace abc {
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 1
    #endif
-#endif //if defined(_GCC_VER) && _GCC_VER >= 40400 … else
+#endif //if ABC_HOST_GCC >= 40400 … else
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
    #error ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic
 #endif

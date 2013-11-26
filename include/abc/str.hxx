@@ -1130,7 +1130,7 @@ public:
    }
 
 
-#ifdef _MSC_VER
+#if ABC_HOST_MSC
 
    /** MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base_. See
 	str_base_::operator istr const &().
@@ -1139,7 +1139,7 @@ public:
       return str_base::operator istr const &();
    }
 
-#endif //ifdef _MSC_VER
+#endif //if ABC_HOST_MSC
 };
 
 } //namespace abc
