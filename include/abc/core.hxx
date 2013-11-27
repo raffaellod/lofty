@@ -563,36 +563,6 @@ return
    (sizeof(array) / sizeof((array)[0]))
 
 
-/** Returns the compiler-computed alignment for the specified data type. When compiler support is
-lacking, this can be inaccurate for long double.
-
-type
-   Type for which the alignment is to be computed.
-return
-   Alignment of type.
-*/
-#if ABC_HOST_GCC
-   #define ABC_ALIGNOF(type) \
-      __alignof__(type)
-#elif ABC_HOST_MSC
-   #define ABC_ALIGNOF(type) \
-      __alignof(type)
-#else
-   #define ABC_ALIGNOF(type) \
-      offsetof(abc::_alignof_helper<type>, t)
-
-   namespace abc {
-
-   template <typename T>
-   struct _alignof_helper {
-      int8_t misaligner;
-      T t;
-   };
-
-   } //namespace abc
-#endif
-
-
 /** Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
 storage with alignment suitable for any type, just like ::malloc() does. Identical to
 bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
