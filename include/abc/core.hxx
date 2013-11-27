@@ -93,15 +93,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - HOST_* and OUTPUT_*
+// abc globals - ABC_HOST_*
 
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
 #define ABC_HOST_API_LINUX 0
 #define ABC_HOST_API_POSIX 0
-#define ABC_OUTPUT_WIN32_DLL 0
-#define ABC_OUTPUT_WIN32_EXE 0
-#define ABC_OUTPUT_POSIX_EXE 0
 
 #if defined(_WIN32)
    // Compiling for Win32.
@@ -112,27 +109,16 @@ You should have received a copy of the GNU General Public License along with ABC
       #undef ABC_HOST_API_WIN64
       #define ABC_HOST_API_WIN64 1
    #endif
-   #ifdef _WINDLL
-      #undef ABC_OUTPUT_WIN32_DLL
-      #define ABC_OUTPUT_WIN32_DLL 1
-   #else
-      #undef ABC_OUTPUT_WIN32_EXE
-      #define ABC_OUTPUT_WIN32_EXE 1
-   #endif
 #elif defined(__linux__)
    // Compiling for Linux.
    #undef ABC_HOST_API_LINUX
    #define ABC_HOST_API_LINUX 1
    #undef ABC_HOST_API_POSIX
    #define ABC_HOST_API_POSIX 1
-   #undef ABC_OUTPUT_POSIX_EXE
-   #define ABC_OUTPUT_POSIX_EXE 1
 #elif defined(__posix__)
    // Compiling for POSIX.
    #undef ABC_HOST_API_POSIX
    #define ABC_HOST_API_POSIX 1
-   #undef ABC_OUTPUT_POSIX_EXE
-   #define ABC_OUTPUT_POSIX_EXE 1
 #endif
 
 
