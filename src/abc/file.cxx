@@ -220,7 +220,6 @@ void file::flush() {
          iAction = OPEN_ALWAYS;
          fid.bAppend = true;
          break;
-      no_default;
    }
    if (!fid.bBuffered) {
       fi |= FILE_FLAG_NO_BUFFERING;

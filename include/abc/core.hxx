@@ -532,25 +532,6 @@ x
    static_cast<void>(x)
 
 
-/** Tells the compiler that a switch statement that apparently doesn’t test for all possible cases
-for its argument (e.g. skips some values of an enum), does cover 100% of the actually possible
-cases.
-
-It can avoid warnings about not testing for all possible values for an enum, or cases where a
-variable would seem to be left uninitialized if the switch argument has a value that’s not one of
-those expected by the case labels.
-*/
-#if ABC_HOST_MSC
-   #define no_default \
-      default: \
-         __assume(0)
-#else
-   #define no_default \
-      default: \
-         break
-#endif
-
-
 /** Returns the number of items in a (static) array.
 
 array
