@@ -37,6 +37,26 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
+/** TODO: comment.
+
+TODO maybe move to other header file?
+*/
+template <typename T>
+union force_max_align {
+public:
+
+   /** Actual storage. */
+   T t;
+
+
+private:
+
+   /** Forces the whole union to have the most generic alignment; on many architectures this will be
+   2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
+   pointers it returns. */
+   std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
+};
+
 
 /** Template-independent map descriptor.
 
