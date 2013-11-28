@@ -88,6 +88,11 @@
     <ClCompile Include="..\src\abc-test\str.cxx" />
     <ClCompile Include="..\src\abc-test\to_str_backend.cxx" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\COPYING">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
