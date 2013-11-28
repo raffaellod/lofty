@@ -498,9 +498,6 @@ namespace abc {
 types.
 */
 class ABCAPI _raw_vextr_impl_base {
-
-   ABC_CLASS_PREVENT_COPYING(_raw_vextr_impl_base)
-
 protected:
 
    /** Allows to get a temporary item array from a pool of options, then work with it, and upon
@@ -828,9 +825,6 @@ namespace abc {
 */
 class ABCAPI _raw_complex_vextr_impl :
    public _raw_vextr_impl_base {
-
-   ABC_CLASS_PREVENT_COPYING(_raw_complex_vextr_impl)
-
 public:
 
    /** See _raw_vector::append().
@@ -959,9 +953,6 @@ NUL-termination-aware; this is the most derived common base class of both vector
 */
 class ABCAPI _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
-
-   ABC_CLASS_PREVENT_COPYING(_raw_trivial_vextr_impl)
-
 public:
 
    /** See _raw_vector::append() and _raw_str::append().

@@ -120,9 +120,6 @@ namespace abc {
 */
 class ABCAPI _raw_str :
    public _raw_trivial_vextr_impl {
-
-   ABC_CLASS_PREVENT_COPYING(_raw_str)
-
 public:
 
    /** Returns the current size of the str buffer, in characters, minus room for the trailing NUL
@@ -272,8 +269,6 @@ class str_base_ :
    protected _raw_str,
    public _iterable_vector<str_base_<C, TTraits>, C>,
    public support_explicit_operator_bool<str_base_<C, TTraits>> {
-
-   ABC_CLASS_PREVENT_COPYING(str_base_)
 
    typedef istr_<C, TTraits> istr;
    typedef dmstr_<C, TTraits> dmstr;

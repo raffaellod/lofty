@@ -196,9 +196,6 @@ namespace abc {
 */
 class _dynamic_map_desc :
    public _raw_map_desc {
-
-   ABC_CLASS_PREVENT_COPYING(_dynamic_map_desc)
-
 public:
 
    /** Allocates enough memory to contain the descriptor and a specified number of hashes, keys and
@@ -279,9 +276,6 @@ initialized in a constructor, because that would be called too late.
 template <typename TKey, typename TVal, size_t t_ceFixed>
 class _embedded_map_desc :
    public _raw_map_desc {
-
-   ABC_CLASS_PREVENT_COPYING(_embedded_map_desc)
-
 public:
 
    /** Constructor.

@@ -405,8 +405,6 @@ class vector_base :
    public _iterable_vector<vector_base<T>, T>,
    public support_explicit_operator_bool<vector_base<T>> {
 
-   ABC_CLASS_PREVENT_COPYING(vector_base)
-
    /** Shortcut for the base class providing iterator-based types and methods. */
    typedef _iterable_vector<vector_base<T>, T> itvec;
 
