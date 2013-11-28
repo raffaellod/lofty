@@ -133,7 +133,6 @@
     <ClInclude Include="..\include\abc\_vextr.hxx" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.gitignore" />
     <None Include="..\COPYING" />
     <None Include="..\README" />
   </ItemGroup>

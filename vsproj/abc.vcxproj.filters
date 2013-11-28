@@ -157,7 +157,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.gitignore" />
     <None Include="..\README" />
     <None Include="..\COPYING" />
   </ItemGroup>
