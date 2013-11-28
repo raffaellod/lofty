@@ -126,7 +126,7 @@
     <ClInclude Include="..\include\abc\text.hxx" />
     <ClInclude Include="..\include\abc\to_str_backend.hxx" />
     <ClInclude Include="..\include\abc\trace.hxx" />
-    <ClInclude Include="..\include\abc\type_raw_cda.hxx" />
+    <ClInclude Include="..\include\abc\type_void_adapter.hxx" />
     <ClInclude Include="..\include\abc\utf_traits.hxx" />
     <ClInclude Include="..\include\abc\vector.hxx" />
     <ClInclude Include="..\include\abc\_map_base.hxx" />

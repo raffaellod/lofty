@@ -149,10 +149,10 @@
     <ClInclude Include="..\include\abc\trace.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\type_raw_cda.hxx">
+    <ClInclude Include="..\include\abc\utf_traits.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\abc\utf_traits.hxx">
+    <ClInclude Include="..\include\abc\type_void_adapter.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
