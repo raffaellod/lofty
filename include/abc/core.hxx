@@ -372,7 +372,7 @@ namespace std {
 template <typename T>
 typename std::add_rvalue_reference<T>::type declval();
 
-template <typename T, bool t_bIsNoncopyable = false>
+template <typename T, typename = void>
 struct is_copy_constructible {
 private:
 
@@ -382,10 +382,15 @@ private:
 
 public:
 
-   static bool const value =
-      (sizeof(test(declval<typename add_reference<T>::type>())) == sizeof(int)) &&
-      !is_base_of< ::abc::noncopyable, T>::value;
+   static bool const value = (sizeof(
+      test(declval<typename add_reference<T>::type>())
+   ) == sizeof(int));
 };
+
+template <typename T>
+struct is_copy_constructible<T, typename enable_if<
+   is_base_of< ::abc::noncopyable, T>::value
+>::type> : public false_type {};
 
 #define ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
