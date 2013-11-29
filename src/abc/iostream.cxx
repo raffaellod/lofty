@@ -198,8 +198,8 @@ bool _ostream_print_helper_impl::write_format_up_to_next_repl() {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       // Set the format specification to nothing.
-      m_pchReplFormatSpecBegin = NULL;
-      m_pchReplFormatSpecEnd = NULL;
+      m_pchReplFormatSpecBegin = nullptr;
+      m_pchReplFormatSpecEnd = nullptr;
    }
 
    // Write the format string characters up to the beginning of the replacement.

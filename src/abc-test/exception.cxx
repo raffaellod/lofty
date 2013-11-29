@@ -234,22 +234,22 @@ public:
 
       bCaughtCorrect = false;
       try {
-         int * p(NULL);
+         int * p(nullptr);
          *p = 1;
-         sResult = SL("dereferenced NULL, but no exception thrown");
+         sResult = SL("dereferenced nullptr, but no exception thrown");
       } catch (null_pointer_error const &) {
-         sResult = SL("dereferenced NULL and caught abc::null_pointer_error");
+         sResult = SL("dereferenced nullptr and caught abc::null_pointer_error");
          bCaughtCorrect = true;
       } catch (memory_address_error const &) {
-         sResult = SL("dereferenced NULL, but caught abc::memory_address_error");
+         sResult = SL("dereferenced nullptr, but caught abc::memory_address_error");
       } catch (...) {
-         sResult = SL("dereferenced NULL, but caught unknown exception");
+         sResult = SL("dereferenced nullptr, but caught unknown exception");
       }
       assert_bool(bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
-         int * p(NULL);
+         int * p(nullptr);
          // Under POSIX, this also counts as second test for SIGSEGV, checking that the handler is
          // still in place after its first activation above.
          *++p = 1;

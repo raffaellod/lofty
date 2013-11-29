@@ -98,9 +98,9 @@ namespace abc {
 
 // These should be members of file, but since the file_?stream counterparts couldn’t be members of
 // file_stream_base, they are here.
-static std::shared_ptr<file> * g_ppfileStdErr(NULL);
-static std::shared_ptr<file> * g_ppfileStdIn(NULL);
-static std::shared_ptr<file> * g_ppfileStdOut(NULL);
+static std::shared_ptr<file> * g_ppfileStdErr(nullptr);
+static std::shared_ptr<file> * g_ppfileStdIn(nullptr);
+static std::shared_ptr<file> * g_ppfileStdOut(nullptr);
 
 
 struct _file_init_data {
@@ -227,7 +227,7 @@ void file::flush() {
    } else if (fiAccess & GENERIC_READ) {
       fi |= FILE_FLAG_SEQUENTIAL_SCAN;
    }
-   fid.fd = ::CreateFile(fp.data(), fiAccess, fiShareMode, NULL, iAction, fi, NULL);
+   fid.fd = ::CreateFile(fp.data(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -270,7 +270,7 @@ void file::flush() {
       DWORD cbLastRead;
       if (!::ReadFile(
          m_fd.get(), pb,
-         DWORD(std::min<size_t>(cbMax, numeric::max<DWORD>::value)), &cbLastRead, NULL
+         DWORD(std::min<size_t>(cbMax, numeric::max<DWORD>::value)), &cbLastRead, nullptr
       )) {
          DWORD iErr(::GetLastError());
          if (iErr == ERROR_HANDLE_EOF) {
@@ -376,7 +376,7 @@ void file::flush() {
       DWORD cbLastWritten;
       if (!::WriteFile(
          m_fd.get(), pb,
-         DWORD(std::min<size_t>(cb, numeric::max<DWORD>::value)), &cbLastWritten, NULL
+         DWORD(std::min<size_t>(cb, numeric::max<DWORD>::value)), &cbLastWritten, nullptr
       )) {
          throw_os_error();
       }
@@ -448,11 +448,11 @@ void file::flush() {
 /*static*/ void file::_construct_std_file(filedesc_t fd, std::shared_ptr<file> ** pppf) {
    ABC_TRACE_FN((fd, pppf));
 
-   // TODO: under Win32, GUI subsystem programs will get NULL when calling ::GetStdHandle(). This
+   // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
    // needs to be handled here, with two options:
-   // a. Return a NULL std::shared_ptr. This means that all callers will need additional checks to
-   //      detect this condition; further downstream, some code will need to use alternative means of
-   //    output (a message box?).
+   // a. Return a nullptr std::shared_ptr. This means that all callers will need additional checks
+   //    to detect this condition; further downstream, some code will need to use alternative means
+   //    of output (a message box?).
    // b. Dynamically create a console to write to. This is not very Win32-like, but it allows to
    //    output larger amounts of data that would be unsightly in a message box.
    //
@@ -485,15 +485,15 @@ void file::flush() {
    // strong references to them.
    if (g_ppfileStdErr) {
       delete g_ppfileStdErr;
-      g_ppfileStdErr = NULL;
+      g_ppfileStdErr = nullptr;
    }
    if (g_ppfileStdIn) {
       delete g_ppfileStdIn;
-      g_ppfileStdIn = NULL;
+      g_ppfileStdIn = nullptr;
    }
    if (g_ppfileStdOut) {
       delete g_ppfileStdOut;
-      g_ppfileStdOut = NULL;
+      g_ppfileStdOut = nullptr;
    }
 }
 
@@ -529,7 +529,7 @@ console_file::console_file(_file_init_data * pfid) :
       DWORD cchLastRead;
       if (!::ReadConsole(
          m_fd.get(), pb,
-         DWORD(std::min<size_t>(cchMax, numeric::max<DWORD>::value)), &cchLastRead, NULL
+         DWORD(std::min<size_t>(cchMax, numeric::max<DWORD>::value)), &cchLastRead, nullptr
       )) {
          DWORD iErr(::GetLastError());
          if (iErr == ERROR_HANDLE_EOF) {
@@ -565,7 +565,7 @@ console_file::console_file(_file_init_data * pfid) :
       DWORD cchLastWritten;
       if (!::WriteConsole(
          m_fd.get(), pb,
-         DWORD(std::min<size_t>(cch, numeric::max<DWORD>::value)), &cchLastWritten, NULL
+         DWORD(std::min<size_t>(cch, numeric::max<DWORD>::value)), &cchLastWritten, nullptr
       )) {
          throw_os_error();
       }

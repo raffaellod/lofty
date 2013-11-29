@@ -171,7 +171,7 @@ public:
       deduced automatically.
    return
       Pointer to the beginning of the first match, in the string to be searched, of the code point
-      to search for, or NULL if no matches are found.
+      to search for, or nullptr if no matches are found.
    */
    static char8_t const * str_chr(
       char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
@@ -198,7 +198,7 @@ public:
       deduced automatically.
    return
       Pointer to the beginning of the last match, in the string to be searched, of the code point
-      to search for, or NULL if no matches are found.
+      to search for, or nullptr if no matches are found.
    */
    static char8_t const * str_chr_r(
       char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
@@ -267,7 +267,7 @@ public:
       Pointer to beyond the last character of the string to search for.
    return
       Pointer to the beginning of the first match, in the string to be searched, of the string to
-      search for, or NULL if no matches are found.
+      search for, or nullptr if no matches are found.
    */
    static char8_t const * str_str(
       char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
@@ -289,7 +289,7 @@ public:
       Pointer to beyond the last character of the string to search for.
    return
       Pointer to the beginning of the last match, in the string to be searched, of the string to
-      search for, or NULL if no matches are found.
+      search for, or nullptr if no matches are found.
    */
    static char8_t const * str_str_r(
       char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,

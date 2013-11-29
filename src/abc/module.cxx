@@ -37,11 +37,11 @@ namespace abc {
 dynamic_module::dynamic_module(dynamic_module && dm) :
    m_hdynmod(dm.m_hdynmod),
    m_bOwn(dm.m_bOwn) {
-   dm.m_hdynmod = NULL;
+   dm.m_hdynmod = nullptr;
    dm.m_bOwn = false;
 }
 dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
-   m_hdynmod(::LoadLibraryEx(fp.data(), NULL, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE))),
+   m_hdynmod(::LoadLibraryEx(fp.data(), nullptr, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE))),
    m_bOwn(true) {
    ABC_TRACE_FN((this, /*fp, */bInit));
 
@@ -56,7 +56,7 @@ dynamic_module & dynamic_module::operator=(dynamic_module && dm) {
 
    m_hdynmod = dm.m_hdynmod;
    m_bOwn = dm.m_bOwn;
-   dm.m_hdynmod = NULL;
+   dm.m_hdynmod = nullptr;
    dm.m_bOwn = false;
    return *this;
 }
@@ -159,7 +159,7 @@ code_module::code_module(file_path const & fp) :
 code_module::code_module(code_module && cm) :
 #if ABC_HOST_API_POSIX
    m_hdynmod(cm.m_hdynmod) {
-   cm.m_hdynmod = NULL;
+   cm.m_hdynmod = nullptr;
 #elif ABC_HOST_API_WIN32
    dynamic_module(std::move(cm)) {
 #else
@@ -192,7 +192,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
    }
 #elif ABC_HOST_API_WIN32
    // TODO: FIXME: translate sSymbol.data() from istr to istr8.
-   pfn = ::GetProcAddress(m_hdynmod, NULL);
+   pfn = ::GetProcAddress(m_hdynmod, nullptr);
    if (!pfn) {
       throw_os_error();
    }

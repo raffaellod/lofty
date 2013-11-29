@@ -451,13 +451,13 @@ struct is_copy_constructible<T, typename enable_if<
       explicit operator bool().
 
       return
-         A valid pointer if T::explicit_operator_bool() returns true, or NULL otherwise.
+         A valid pointer if T::explicit_operator_bool() returns true, or nullptr otherwise.
       */
       operator _explob_helper::bool_type() const {
          if (static_cast<T const *>(this)->_explicit_operator_bool()) {
             return &_explob_helper::bool_true;
          } else {
-            return NULL;
+            return nullptr;
          }
       }
    };

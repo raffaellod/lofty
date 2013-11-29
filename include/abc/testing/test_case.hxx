@@ -279,7 +279,7 @@ public:
 
 
    /** Returns a pointer to the head of the list of factory functions, which the caller can then use
-   to walk the entire list (ending when an item’s next pointer is NULL).
+   to walk the entire list (ending when an item’s next pointer is nullptr).
 
    return
       Pointer to the head of the list.
@@ -361,7 +361,7 @@ cls
    static test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
    template <> \
    /*static*/ test_case_factory_impl::list_item test_case_factory<cls>::sm_li = { \
-      NULL, \
+      nullptr, \
       test_case_factory<cls>::factory \
    }; \
    \

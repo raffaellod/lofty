@@ -1075,8 +1075,8 @@ namespace abc {
 
 exception::exception() :
    m_pszWhat("abc::exception"),
-   m_pszSourceFunction(NULL),
-   m_pszSourceFileName(NULL),
+   m_pszSourceFunction(nullptr),
+   m_pszSourceFileName(nullptr),
    m_iSourceLine(0),
    m_bInFlight(false) {
 }
@@ -1143,7 +1143,7 @@ char const * exception::what() const {
 
 
 /*static*/ void exception::write_with_scope_trace(
-   ostream * pos /*= NULL*/, std::exception const * pstdx /*= NULL*/
+   ostream * pos /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
    if (!pos) {
       pos = file_ostream::stderr().get();
@@ -1167,7 +1167,7 @@ char const * exception::what() const {
       }
    } else {
       // Some other type of exception; not much to say.
-      pabcx = NULL;
+      pabcx = nullptr;
       pos->write(SL("Unhandled exception: (unknown type)\n"));
    }
 
@@ -1297,7 +1297,7 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
          ABC_THROW(abc::arithmetic_error, ());
 
       case SIGSEGV:
-         if (psi->si_addr == NULL) {
+         if (psi->si_addr == nullptr) {
             ABC_THROW(abc::null_pointer_error, ());
          } else {
             ABC_THROW(abc::memory_address_error, (psi->si_addr));
@@ -1332,7 +1332,7 @@ exception::async_handler_manager::async_handler_manager() {
 exception::async_handler_manager::~async_handler_manager() {
    // Restore the saved signal handlers.
    for (int i(ABC_COUNTOF(g_aiHandledSignals)); --i >= 0; ) {
-      ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], NULL);
+      ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], nullptr);
    }
 }
 
@@ -1361,7 +1361,7 @@ static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POI
          void const * pAddr(reinterpret_cast<void const *>(
             pxpInfo->ExceptionRecord->ExceptionInformation[1]
          ));
-         if (pAddr == NULL) {
+         if (pAddr == nullptr) {
             ABC_THROW(abc::null_pointer_error, ());
          } else {
             ABC_THROW(abc::memory_address_error, (pAddr));
@@ -1374,7 +1374,7 @@ static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POI
 
       case EXCEPTION_DATATYPE_MISALIGNMENT: // Attempt to read or write data that is misaligned on
          // hardware that does not provide alignment.
-         ABC_THROW(abc::memory_access_error, (NULL));
+         ABC_THROW(abc::memory_access_error, (nullptr));
 
       case EXCEPTION_FLT_DENORMAL_OPERAND: // An operand in a floating-point operation is too small
          // to represent as a standard floating-point value.
@@ -1927,7 +1927,9 @@ null_pointer_error::null_pointer_error() :
 
 
 void null_pointer_error::init(errint_t err /*= 0*/) {
-   memory_address_error::init(NULL, err ? err : os_error_mapping<null_pointer_error>::mapped_error);
+   memory_address_error::init(
+      nullptr, err ? err : os_error_mapping<null_pointer_error>::mapped_error
+   );
 }
 
 } //namespace abc

@@ -197,7 +197,7 @@ since this file is included in virtually every file whereas trace.hxx is not.
       __FUNCTION__
 #else
    #define _ABC_THIS_FUNC \
-      NULL
+      nullptr
 #endif
 
 
@@ -334,7 +334,9 @@ public:
    [pstdx]
       Caught exception.
    */
-   static void write_with_scope_trace(ostream * pos = NULL, std::exception const * pstdx = NULL);
+   static void write_with_scope_trace(
+      ostream * pos = nullptr, std::exception const * pstdx = nullptr
+   );
 
 
 protected:
@@ -1151,7 +1153,7 @@ public:
 
 namespace abc {
 
-/** An attempt was made to access the memory location 0 (NULL).
+/** An attempt was made to access the memory location 0 (nullptr).
 */
 class ABCAPI null_pointer_error :
    public virtual memory_address_error {

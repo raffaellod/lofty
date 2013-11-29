@@ -144,7 +144,7 @@ public:
    TODO: comment signature.
    */
    static_allocator() :
-      m_p(NULL),
+      m_p(nullptr),
       m_cb(0) {
    }
    // This overload takes ownership of the provided static buffer.
@@ -176,7 +176,7 @@ public:
       }
 
       pointer pt(static_cast<pointer>(m_p));
-      m_p = NULL;
+      m_p = nullptr;
       return pt;
    }
 
@@ -289,7 +289,7 @@ namespace memory {
 TODO: comment signature.
 */
 template <typename T>
-inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = NULL) {
+inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = nullptr) {
    return std::unique_ptr<T, deleter<T>>(pt);
 }
 

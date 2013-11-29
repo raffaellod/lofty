@@ -91,7 +91,7 @@ ostream * _scope_trace_impl::scope_render_start_or_continue() {
       // Return the stream, so the caller can print its m_t0.
       return pso;
    }
-   return NULL;
+   return nullptr;
 }
 
 } //namespace abc

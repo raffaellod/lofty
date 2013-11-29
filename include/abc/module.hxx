@@ -315,7 +315,7 @@ public:
    code_module & operator=(code_module && cm) {
 #if ABC_HOST_API_POSIX
       m_hdynmod = cm.m_hdynmod;
-      cm.m_hdynmod = NULL;
+      cm.m_hdynmod = nullptr;
 #elif ABC_HOST_API_WIN32
       dynamic_module::operator=(std::move(cm));
 #else
@@ -337,7 +337,7 @@ public:
       Address of the symbol; same as *ppfn, if ppfn is provided.
    */
    template <typename F>
-   F get_symbol(istr const & sSymbol, F * ppfn = NULL) {
+   F get_symbol(istr const & sSymbol, F * ppfn = nullptr) {
       F pfn(reinterpret_cast<F>(_get_symbol(sSymbol)));
       if (ppfn) {
          *ppfn = pfn;
@@ -356,7 +356,7 @@ protected:
    */
 #if ABC_HOST_API_POSIX
    code_module() :
-      m_hdynmod(NULL) {
+      m_hdynmod(nullptr) {
    }
 #elif ABC_HOST_API_WIN32
    code_module(hdynmod_t hdynmod) :
@@ -536,7 +536,7 @@ public:
    /** Destructor.
    */
    ~module_impl() {
-      sm_ptOnlyInstance = NULL;
+      sm_ptOnlyInstance = nullptr;
    }
 
 
@@ -552,7 +552,7 @@ private:
 */
 #define ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
    template <> \
-   /*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(NULL);
+   /*static*/ cls * ::abc::module_impl<cls>::sm_ptOnlyInstance(nullptr);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -591,7 +591,7 @@ public:
          // Invoke the program-defined main().
          return t.main(vsArgs);
       } catch (std::exception const & x) {
-         exception::write_with_scope_trace(NULL, &x);
+         exception::write_with_scope_trace(nullptr, &x);
          return 123;
       } catch (...) {
          exception::write_with_scope_trace();
@@ -624,7 +624,7 @@ public:
          // Invoke the program-defined main().
          return t.main(vsArgs);
       } catch (std::exception const & x) {
-         exception::write_with_scope_trace(NULL, &x);
+         exception::write_with_scope_trace(nullptr, &x);
          return 123;
       } catch (...) {
          exception::write_with_scope_trace();
@@ -749,7 +749,7 @@ public:
             return true;
       }
    } catch (std::exception const & x) {
-      exception::write_with_scope_trace(NULL, &x);
+      exception::write_with_scope_trace(nullptr, &x);
       return false;
    } catch (...) {
       exception::write_with_scope_trace();

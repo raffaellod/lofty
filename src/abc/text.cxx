@@ -164,7 +164,7 @@ ABCAPI void const * get_line_terminator_bytes(
       { &sc_ltsU32beCr, &sc_ltsU32beLf, &sc_ltsU32beCrLf }, // encoding::utf32be
       { &sc_ltsAsciiCr, &sc_ltsAsciiLf, &sc_ltsAsciiCrLf }, // encoding::iso_8859_1
       { &sc_ltsAsciiCr, &sc_ltsAsciiLf, &sc_ltsAsciiCrLf }, // encoding::windows_1252
-      {           NULL,           NULL, &sc_ltsEbcdicNel }  // encoding::ebcdic
+      {        nullptr,        nullptr, &sc_ltsEbcdicNel }  // encoding::ebcdic
    };
 
    // Finally, the actual code: just a simple lookup.
@@ -192,7 +192,7 @@ ABCAPI void const * get_line_terminator_bytes(
 
 
 ABCAPI encoding guess_encoding(
-   void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= NULL*/
+   void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= nullptr*/
 ) {
    ABC_TRACE_FN((pBuf, cbBuf, cbSrcTotal, pcbBom));
 

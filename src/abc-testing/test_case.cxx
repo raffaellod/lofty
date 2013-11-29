@@ -58,10 +58,10 @@ namespace abc {
 
 namespace testing {
 
-/*static*/ test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead(NULL);
+/*static*/ test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead(nullptr);
 // MSC16 BUG: for some reason, this will be parsed as a function declaration if written as a
 // constructor call.
-/*static*/ test_case_factory_impl::list_item ** test_case_factory_impl::sm_ppliTailNext = NULL;
+/*static*/ test_case_factory_impl::list_item ** test_case_factory_impl::sm_ppliTailNext = nullptr;
 
 
 test_case_factory_impl::test_case_factory_impl(list_item * pli) {

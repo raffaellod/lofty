@@ -644,7 +644,7 @@ public:
 
 protected:
 
-   /** Constructor. Constructs the object as empty, setting m_p to NULL or an empty string.
+   /** Constructor. Constructs the object as empty, setting m_p to nullptr or an empty string.
 
    TODO: comment signature.
    */
@@ -682,7 +682,7 @@ protected:
    TODO: comment signature.
    */
    void assign_empty(bool bNulT = false) {
-      m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL;
+      m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr;
       m_ci = bNulT ? 1u /*NUL*/ : 0;
       m_rvpd.set(0, false);
    }
@@ -698,7 +698,7 @@ protected:
    }
 
 
-   /** Returns a pointer to the static item array that follows this object, if present, or NULL
+   /** Returns a pointer to the static item array that follows this object, if present, or nullptr
    otherwise.
 
    TODO: comment signature.
@@ -791,7 +791,7 @@ TODO: comment signature.
 template <typename T>
 inline T * _raw_vextr_impl_base::static_array_ptr() {
    if (!m_rvpd.get_bHasStatic()) {
-      return NULL;
+      return nullptr;
    }
    _raw_vextr_impl_base_with_static_item_array * prvibwsia(
       static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
@@ -974,7 +974,7 @@ public:
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(cbItem, NULL, 0, p, ci, bNulT);
+      assign_concat(cbItem, nullptr, 0, p, ci, bNulT);
    }
 
 
@@ -1055,7 +1055,7 @@ public:
    void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
       adjust_range(&iOffset, &ciRemove, bNulT);
       if (ciRemove) {
-         _insert_or_remove(cbItem, size_t(iOffset), NULL, 0, size_t(ciRemove), bNulT);
+         _insert_or_remove(cbItem, size_t(iOffset), nullptr, 0, size_t(ciRemove), bNulT);
       }
    }
 

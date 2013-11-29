@@ -88,7 +88,7 @@ name
       static ::abc::enum_member const * _get_map() { \
          static ::abc::enum_member const sc_map[] = { \
             ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
-            { NULL, __default } \
+            { nullptr, __default } \
          }; \
          return sc_map; \
       } \
@@ -142,7 +142,7 @@ struct ABCAPI enum_member {
 
    pem
       Pointer to the first item in the enumeration members array; the last item in the array has a
-      NULL name.
+      nullptr name string pointer.
    i
       Value of the constant to search for.
    psz

@@ -34,9 +34,9 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 // These should be members of file_stream_base, but that’s not possible.
-static std::shared_ptr<file_ostream> * g_ppfosStdErr(NULL);
-static std::shared_ptr<file_istream> * g_ppfisStdIn(NULL);
-static std::shared_ptr<file_ostream> * g_ppfosStdOut(NULL);
+static std::shared_ptr<file_ostream> * g_ppfosStdErr(nullptr);
+static std::shared_ptr<file_istream> * g_ppfisStdIn(nullptr);
+static std::shared_ptr<file_ostream> * g_ppfosStdOut(nullptr);
 
 size_t const file_stream_base::smc_cbAlignedMax =
    numeric::max<size_t>::value & ~(sizeof(char32_t) - 1);
@@ -65,15 +65,15 @@ file_stream_base::file_stream_base(
    // strong references to them.
    if (g_ppfosStdErr) {
       delete g_ppfosStdErr;
-      g_ppfosStdErr = NULL;
+      g_ppfosStdErr = nullptr;
    }
    if (g_ppfisStdIn) {
       delete g_ppfisStdIn;
-      g_ppfisStdIn = NULL;
+      g_ppfisStdIn = nullptr;
    }
    if (g_ppfosStdOut) {
       delete g_ppfosStdOut;
-      g_ppfosStdOut = NULL;
+      g_ppfosStdOut = nullptr;
    }
 }
 

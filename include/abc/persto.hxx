@@ -34,7 +34,7 @@ General design:
    smart pointers which have both UID and memory address (if loaded) of the target object.
 
 •  When a persistable pointer is accessed via such smart pointer and the pointer’s memory address is
-   NULL but the UID is non-zero, a “load” class method of the pointed-to class (it’s a smart
+   nullptr but the UID is non-zero, a “load” class method of the pointed-to class (it’s a smart
    pointer, so it knows) is invoked, returning a real instance which is then bound to the pointer
    which, being shared, automatically makes the object visible to every client holding a reference
    to it.

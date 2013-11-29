@@ -45,12 +45,12 @@ _raw_vextr_impl_base::transaction::transaction(
 
    if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
       // Empty string/array: just use the static NUL character or no item array at all.
-      m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : NULL;
+      m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : nullptr;
       // A read-only item array has no capacity. This was already set above.
       // m_rvpd.set_ciMax(0);
       return;
    }
-   // This will return NULL if there’s no static item array.
+   // This will return nullptr if there’s no static item array.
    m_p = m_prvib->static_array_ptr<void>();
    if (m_p) {
       size_t ciStaticMax(m_prvib->static_capacity());
@@ -128,7 +128,7 @@ void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT
 
 
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= false*/) :
-   m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : NULL),
+   m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr),
    m_ci(bNulT ? 1u /*NUL*/ : 0),
    m_rvpd(0, false, ciStaticMax > 0) {
    ABC_TRACE_FN((this, ciStaticMax, bNulT));

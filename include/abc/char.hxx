@@ -317,7 +317,7 @@ public:
       Source iterator.
    */
    /*constexpr*/ pointer_iterator() :
-      m_ptval(NULL) {
+      m_ptval(nullptr) {
    }
    explicit pointer_iterator(TVal * pt) :
       m_ptval(pt) {
@@ -361,13 +361,13 @@ public:
    }
 
 
-   /** Returns true if the internal pointer is not NULL.
+   /** Returns true if the internal pointer is not nullptr.
 
    return
-      true if the iterator is on a valid item, or false if it’s set to NULL.
+      true if the iterator is on a valid item, or false if it’s set to nullptr.
    */
    explicit_operator_bool() const {
-      return m_ptval != NULL;
+      return m_ptval != nullptr;
    }
 
 
@@ -539,8 +539,8 @@ public:
       Count of characters in *pchBegin.
    */
    char_range_() :
-      m_pchBegin(NULL),
-      m_pchEnd(NULL) {
+      m_pchBegin(nullptr),
+      m_pchEnd(nullptr) {
    }
    template <size_t t_cch>
    char_range_(C const (& ach)[t_cch]) :

@@ -118,10 +118,10 @@ public:
 
    type_void_adapter() :
       cb(0),
-      copy_constr(NULL),
-      destruct(NULL),
-      equal(NULL),
-      move_constr(NULL) {
+      copy_constr(nullptr),
+      destruct(nullptr),
+      equal(nullptr),
+      move_constr(nullptr) {
    }
 
 

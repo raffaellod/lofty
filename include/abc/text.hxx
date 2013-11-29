@@ -123,7 +123,7 @@ pchNeedleEnd
    Pointer to beyond the last character of the string to search for.
 return
    Pointer to the beginning of the first match, in the string to be searched, of the string to
-   search for, or NULL if no matches are found.
+   search for, or nullptr if no matches are found.
 */
 typedef void const * (* str_str_fn)(
    void const * pchHaystackBegin, void const * pchHaystackEnd,
@@ -200,7 +200,7 @@ return
    Detected encoding of the string pointed to by pBuf.
 */
 ABCAPI encoding guess_encoding(
-   void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = NULL
+   void const * pBuf, size_t cbBuf, size_t cbSrcTotal = 0, size_t * pcbBom = nullptr
 );
 
 

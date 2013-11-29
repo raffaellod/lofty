@@ -81,6 +81,8 @@ namespace abc {
 
 namespace test {
 
+class aabbcc : public noncopyable {};
+
 class str_basic :
    public str_test_case_base {
 public:
@@ -96,6 +98,12 @@ public:
    */
    virtual void run() {
       ABC_TRACE_FN((this));
+
+      istr const c_s1;
+      istr const c_s2(c_s1);
+      static_assert(!std::is_copy_constructible<aabbcc>::value, "");
+      static_assert(std::is_copy_constructible<istr>::value, "");
+
 
       dmstr s;
       init_str_ptr(s);
