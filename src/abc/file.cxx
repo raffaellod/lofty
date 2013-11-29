@@ -196,6 +196,7 @@ void file::flush() {
    DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
    fid.bAppend = false;
    switch (fam.base()) {
+      default:
       case access_mode::read:
          fiAccess = GENERIC_READ;
          fiShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
