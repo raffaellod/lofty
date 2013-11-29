@@ -43,20 +43,24 @@ _raw_vextr_impl_base::transaction::transaction(
    m_bFree(false) {
    ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta, bNulT));
 
-   size_t ciStaticMax;
    if (m_ci == (bNulT ? 1 /*NUL*/ : 0)) {
       // Empty string/array: just use the static NUL character or no item array at all.
       m_p = bNulT ? const_cast<char32_t *>(&_raw_vextr_impl_base::smc_chNUL) : NULL;
       // A read-only item array has no capacity. This was already set above.
       // m_rvpd.set_ciMax(0);
-   } else if (
-      // This will return NULL if there’s no static item array.
-      (m_p = m_prvib->static_array_ptr<void>()) &&
-      m_ci <= (ciStaticMax = m_prvib->static_capacity())
-   ) {
-      // The static item array is large enough.
-      m_rvpd.set_ciMax(ciStaticMax);
-   } else if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
+      return;
+   }
+   // This will return NULL if there’s no static item array.
+   m_p = m_prvib->static_array_ptr<void>();
+   if (m_p) {
+      size_t ciStaticMax(m_prvib->static_capacity());
+      if (m_ci <= ciStaticMax) {
+         // The static item array is large enough.
+         m_rvpd.set_ciMax(ciStaticMax);
+         return;
+      }
+   }
+   if (m_ci <= m_prvib->m_rvpd.get_ciMax()) {
       // The current item array is large enough, no need to change anything.
       m_p = m_prvib->m_p;
       m_rvpd = m_prvib->m_rvpd;
