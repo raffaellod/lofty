@@ -33,24 +33,25 @@ You should have received a copy of the GNU General Public License along with ABC
    // “'function': exception specification does not match previous declaration”
    #pragma warning(disable: 4986)
 
-   #include <memory>
-
-   #pragma warning(pop)
-
-
-   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-
-      namespace std {
-
-      // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
-      template <typename T, typename TDeleter>
-      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
-
-      } //namespace abc
-
-   #endif
-
 #endif //if ABC_HOST_MSC
+
+#include <memory>
+
+#if ABC_HOST_MSC
+   #pragma warning(pop)
+#endif //if ABC_HOST_MSC
+
+#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+
+   namespace std {
+
+   // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
+   template <typename T, typename TDeleter>
+   struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+
+   } //namespace abc
+
+#endif
 
 #include <iterator>
 

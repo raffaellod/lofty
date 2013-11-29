@@ -363,9 +363,9 @@ private:
 
 } //namespace abc
 
-#if ABC_HOST_MSC < 1800
-
 #include <type_traits>
+
+#if ABC_HOST_MSC && ABC_HOST_MSC < 1800
 
 namespace std {
 
