@@ -86,10 +86,8 @@ namespace abc {
 doesn’t always own the wrapped filedesc_t (e.g. for standard files).
 */
 class ABCAPI filedesc :
-   public support_explicit_operator_bool<filedesc> {
-
-   ABC_CLASS_PREVENT_COPYING(filedesc)
-
+   public support_explicit_operator_bool<filedesc>,
+   public noncopyable {
 public:
 
    /** Constructor.
@@ -184,10 +182,8 @@ struct _file_init_data;
 
 /** OS-native file (regular or pseudo).
 */
-class ABCAPI file {
-
-   ABC_CLASS_PREVENT_COPYING(file)
-
+class ABCAPI file :
+   public noncopyable {
 public:
 
    /** File access modes.
@@ -386,9 +382,6 @@ namespace abc {
 */
 class ABCAPI console_file :
    public file {
-
-   ABC_CLASS_PREVENT_COPYING(console_file)
-
 public:
 
    /** Constructor. See abc::file::file().
@@ -426,9 +419,6 @@ namespace abc {
 */
 class ABCAPI pipe_file :
    public file {
-
-   ABC_CLASS_PREVENT_COPYING(pipe_file)
-
 public:
 
    /** Constructor. See abc::file::file().
@@ -449,9 +439,6 @@ namespace abc {
 */
 class ABCAPI regular_file :
    public file {
-
-   ABC_CLASS_PREVENT_COPYING(regular_file)
-
 public:
 
    /** Constructor. See abc::file::file().

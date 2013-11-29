@@ -26,18 +26,34 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #if ABC_HOST_MSC
+
    // Silence warnings from system header files.
    #pragma warning(push)
 
    // “'function': exception specification does not match previous declaration”
    #pragma warning(disable: 4986)
-#endif
+
+   #include <memory>
+
+   #pragma warning(pop)
+
+
+   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+
+      namespace std {
+
+      // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
+      template <typename T, typename TDeleter>
+      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+
+      } //namespace abc
+
+   #endif
+
+#endif //if ABC_HOST_MSC
 
 #include <iterator>
 
-#if ABC_HOST_MSC
-   #pragma warning(pop)
-#endif
 
 
 

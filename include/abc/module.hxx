@@ -117,10 +117,8 @@ namespace abc {
 
 /** Dynamically loadable module.
 */
-class ABCAPI dynamic_module {
-
-   ABC_CLASS_PREVENT_COPYING(dynamic_module)
-
+class ABCAPI dynamic_module :
+   public noncopyable {
 public:
 
    /** Constructor.
@@ -195,14 +193,12 @@ namespace abc {
 
 /** Resource dynamically loadable module.
 */
-class ABCAPI resource_module
+class ABCAPI resource_module :
 #if ABC_HOST_API_WIN32
-   : public dynamic_module
+   public dynamic_module {
+#else
+   public noncopyable {
 #endif
-{
-
-   ABC_CLASS_PREVENT_COPYING(resource_module)
-
 public:
 
    /** Constructor.
@@ -285,14 +281,12 @@ namespace abc {
 
 /** Code dynamically loadable module.
 */
-class ABCAPI code_module
+class ABCAPI code_module :
 #if ABC_HOST_API_WIN32
-   : public dynamic_module
+   public dynamic_module {
+#else
+   public noncopyable {
 #endif
-{
-
-   ABC_CLASS_PREVENT_COPYING(code_module)
-
 public:
 
    /** Constructor.
@@ -421,9 +415,6 @@ namespace abc {
 class ABCAPI module_impl_base :
    public code_module,
    public resource_module {
-
-   ABC_CLASS_PREVENT_COPYING(module_impl_base)
-
 public:
 
    /** Constructor.

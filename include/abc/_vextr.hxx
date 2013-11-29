@@ -510,10 +510,8 @@ protected:
    For size increases, the reallocation (if any) is performed in the constructor; for decreases,
    it’s performed in commit().
    */
-   class ABCAPI transaction {
-
-      ABC_CLASS_PREVENT_COPYING(transaction)
-
+   class ABCAPI transaction :
+      public noncopyable {
    public:
 
       /** Constructor.

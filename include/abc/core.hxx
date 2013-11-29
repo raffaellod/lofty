@@ -332,27 +332,66 @@ shared library (into another library/executable). */
 // abc globals - extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives
 
-/** Makes a class un-copiable. Move constructors and/or assignment operators may be still
-available, though.
+namespace abc {
 
-cls
-   Class for which to disable copy constructor and assingment operator.
+/** A class derived from this one is not copyable.
 */
+class ABCAPI noncopyable {
+protected:
+
+   noncopyable() {
+   }
+
 #ifdef ABC_CXX_FUNCTION_DELETE
-   #define ABC_CLASS_PREVENT_COPYING(cls) \
-      public: \
-      \
-         cls(cls const &) = delete; \
-         \
-         cls & operator=(cls const &) = delete;
-#else
-   #define ABC_CLASS_PREVENT_COPYING(cls) \
-      private: \
-      \
-         cls(cls const &); \
-      \
-         cls & operator=(cls const &);
-#endif
+
+protected:
+
+   noncopyable(noncopyable const &) = delete;
+
+   noncopyable & operator=(noncopyable const &) = delete;
+
+#else //ifdef ABC_CXX_FUNCTION_DELETE
+
+private:
+
+   noncopyable(noncopyable const &);
+
+   noncopyable & operator=(noncopyable const &);
+
+#endif //ifdef ABC_CXX_FUNCTION_DELETE … else
+};
+
+} //namespace abc
+
+#if ABC_HOST_MSC < 1800
+
+#include <type_traits>
+
+namespace std {
+
+template <typename T>
+typename std::add_rvalue_reference<T>::type declval();
+
+template <typename T, bool t_bIsNoncopyable = false>
+struct is_copy_constructible {
+private:
+
+   static int test(T &);
+   static char test(...);
+
+
+public:
+
+   static bool const value =
+      (sizeof(test(declval<typename add_reference<T>::type>())) == sizeof(int)) &&
+      !is_base_of< ::abc::noncopyable, T>::value;
+};
+
+#define ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+
+} //namespace std
+
+#endif //if ABC_HOST_MSC < 1800
 
 
 /** Declares an explicit conversion operator to bool.

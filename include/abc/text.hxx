@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/byteorder.hxx>
 #include <abc/enum.hxx>
 #include <abc/exception.hxx>
-#include <memory>
 
 
 

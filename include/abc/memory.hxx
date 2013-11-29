@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/exception.hxx>
-#include <memory>
+
 
 #if ABC_HOST_API_POSIX
 
