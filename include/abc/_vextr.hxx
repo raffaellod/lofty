@@ -701,7 +701,8 @@ protected:
    /** Returns a pointer to the static item array that follows this object, if present, or nullptr
    otherwise.
 
-   TODO: comment signature.
+   return
+      Pointer to the static item array, or nullptr if no item array is present.
    */
    template <typename T>
    T * static_array_ptr();
@@ -780,7 +781,10 @@ public:
 _raw_vextr_packed_data::smc_ciMaxMask. Should be a constexpr function, but for now it’s just a
 macro.
 
-TODO: comment signature.
+ci
+   Count of items.
+return
+   Rounded-up count of items.
 */
 #define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ci) \
    ((size_t(ci) + ~_raw_vextr_packed_data::smc_ciMaxMask) & _raw_vextr_packed_data::smc_ciMaxMask)
