@@ -702,7 +702,7 @@ protected:
    otherwise.
 
    return
-      Pointer to the static item array, or nullptr if no item array is present.
+      Pointer to the static item array, or nullptr if no static item array is present.
    */
    template <typename T>
    T * static_array_ptr();
@@ -711,14 +711,18 @@ protected:
    /** Returns the size of the array returned by static_array_ptr(), or 0 if no such array is
    present.
 
-   TODO: comment signature.
+   return
+      Capacity of the static item array, or 0 if no static item array is present.
    */
    size_t static_capacity() const;
 
 
    /** Puts a NUL terminator at the provided address.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item.
+   p
+      Pointer to the item to be overwritten with a NUL.
    */
    static void terminate(size_t cbItem, void * p) {
       switch (cbItem) {
