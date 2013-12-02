@@ -587,7 +587,7 @@ protected:
       bool m_bFree;
    };
 
-   // Allow transactions to access the protected members.
+   // Allow transactions to access this class’s protected members.
    friend class transaction;
 
 
@@ -602,10 +602,12 @@ public:
    }
 
 
-   /** See buffered_vector::capacity() and _raw_str::capacity().
+   /** Returns the count of item slots in the current item array.
 
    [bNulT]
-      true if the item array is NUL-terminated, or false otherwise.
+      If true, this vextr is intended to be NUL-terminated, and the returned count will not include
+      the trailing NUL terminator; in other words, the capacity will be underreported to reserve
+      space for the NUL terminator.
    return
       Count of item slots in the item array.
    */
@@ -676,10 +678,11 @@ protected:
    void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT = false) const;
 
 
-   /** Resets the contents of the object to an empty item array (a single NUL for string, no array
-   at all for everything else).
+   /** Resets the contents of the object to an empty item array: a single NUL character in case of
+   a string, or nullptr for everything else.
 
-   TODO: comment signature.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_empty(bool bNulT = false) {
       m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr;
@@ -690,7 +693,8 @@ protected:
 
    /** Returns true if m_p points to a read-only item array.
 
-   TODO: comment signature.
+   return
+      true if m_p points to a read-only item array, or false otherwise.
    */
    bool is_item_array_readonly() const {
       // No capacity means read-only item array.
