@@ -127,7 +127,7 @@ public:
 
    iOffset
       Index at which the elements should be inserted. If negative, it will be interpreted as an
-      offset from the end of the vextr.
+      offset from the end of the vector.
    pAdd
       Pointer to the first element to add.
    ciAdd
@@ -229,7 +229,7 @@ public:
 
    iOffset
       Index at which the elements should be inserted. If negative, it will be interpreted as an
-      offset from the end of the vextr.
+      offset from the end of the vector.
    pAdd
       Pointer to the first element to add.
    ciAdd
@@ -350,7 +350,7 @@ public:
 
    iOffset
       Index at which the items should be inserted. If negative, it’s going to be interpreted as an
-      index from the end of the vextr.
+      index from the end of the vector.
    p
       Pointer to the first element to add.
    ci
@@ -361,12 +361,12 @@ public:
    }
 
 
-   /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial types
-   that’s the same as copying them.
+   /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial
+   types that’s the same as copying them.
 
    iOffset
       Index at which the items should be inserted. If negative, it’s going to be interpreted as an
-      index from the end of the vextr.
+      index from the end of the vector.
    p
       Pointer to the first element to add.
    ci
