@@ -395,7 +395,12 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   ciMax
+      Count of slots in the item array.
+   bDynamic
+      true if the item array is allocated dynamically, or false otherwise (static or read-only).
+   bHasStatic
+      true if the parent object is followed by a static item array, or false otherwise.
    */
    _raw_vextr_packed_data(size_t ciMax, bool bDynamic, bool bHasStatic) :
       m_iPackedData(
@@ -406,7 +411,10 @@ public:
 
    /** Assignment operator. Updates all components except bHasStatic.
 
-   TODO: comment signature.
+   rvpd
+      Source data.
+   return
+      *this.
    */
    _raw_vextr_packed_data & operator=(_raw_vextr_packed_data const & rvpd) {
       m_iPackedData = (rvpd.m_iPackedData & ~smc_bHasStaticMask)
@@ -417,7 +425,12 @@ public:
 
    /** Assigns new values to all components except bHasStatic.
 
-   TODO: comment signature.
+   ciMax
+      Count of slots in the item array.
+   bDynamic
+      true if the item array is allocated dynamically, or false otherwise (static or read-only).
+   return
+      *this.
    */
    _raw_vextr_packed_data & set(size_t ciMax, bool bDynamic) {
       m_iPackedData = ciMax
@@ -427,22 +440,20 @@ public:
    }
 
 
-   /** Returns/assigns ciMax.
+   /** Returns ciMax.
 
-   TODO: comment signature.
+   return
+      Count of slots in the item array.
    */
    size_t get_ciMax() const {
       return m_iPackedData & smc_ciMaxMask;
-   }
-   size_t set_ciMax(size_t ciMax) {
-      m_iPackedData = (m_iPackedData & ~smc_ciMaxMask) | ciMax;
-      return ciMax;
    }
 
 
    /** Returns true if the parent object’s m_p points to a dynamically-allocated item array.
 
-   TODO: comment signature.
+   return
+      true if the item array is allocated dynamically, or false otherwise (static or read-only).
    */
 // bool is_item_array_dynamic() const {
    bool get_bDynamic() const {
@@ -452,11 +463,22 @@ public:
 
    /** Returns true if the parent object is followed by a static item array.
 
-   TODO: comment signature.
+   return
+      true if the object also has a static item array, or false otherwise.
    */
 // bool has_static_item_array() const {
    bool get_bHasStatic() const {
       return (m_iPackedData & smc_bHasStaticMask) != 0;
+   }
+
+
+   /** Assigns a new value to ciMax.
+
+   ciMax
+      Count of slots in the item array.
+   */
+   void set_ciMax(size_t ciMax) {
+      m_iPackedData = (m_iPackedData & ~smc_ciMaxMask) | ciMax;
    }
 
 
@@ -467,7 +489,7 @@ private:
    bool const bHasStatic
       true if the parent object is followed by a static item array.
    bool bDynamic
-      true if the item array was dynamically allocated.
+      true if the item array is allocated dynamically, or false otherwise (static or read-only).
    size_t ciMax;
       Size of the item array.
    */
@@ -516,7 +538,16 @@ protected:
 
       /** Constructor.
 
-      TODO: comment signature.
+      cbItem
+         Size of a single array item, in bytes.
+      prvib
+         Subject of the transaction.
+      ciNew
+         New item count, or -1 to use ciDelta instead.
+      [ciDelta]
+         Item count change; can be positive or negative.
+      [bNulT]
+         true if the item array is NUL-terminated, or false otherwise.
       */
       transaction(
          size_t cbItem,
@@ -539,7 +570,7 @@ protected:
       and all objects constructed in the work array have been properly destructed.
 
       cbItem
-         Size of one item, in bytes.
+         Size of a single array item, in bytes.
       [bNulT]
          true if the item array is NUL-terminated, or false otherwise.
       */
@@ -609,7 +640,7 @@ public:
       the trailing NUL terminator; in other words, the capacity will be underreported to reserve
       space for the NUL terminator.
    return
-      Count of item slots in the item array.
+      Count of slots in the item array.
    */
    size_t capacity(bool bNulT = false) const {
       size_t ciMax(m_rvpd.get_ciMax());
@@ -646,12 +677,20 @@ public:
 
 protected:
 
-   /** Constructor. Constructs the object as empty, setting m_p to nullptr or an empty string.
+   /** Constructor. The overload with ciStaticMax constructs the object as empty, setting m_p to
+   nullptr or an empty string; the overload with pConstSrc constructs the object assigning an item
+   array.
 
-   TODO: comment signature.
+   ciStaticMax
+      Count of slots in the static item array, or 0 if no static item array is present.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
+   pConstSrc
+      Pointer to an array that will be adopted by the vextr as read-only.
+   ciSrc
+      Count of items in the array pointed to by pConstSrc.
    */
    _raw_vextr_impl_base(size_t ciStaticMax, bool bNulT = false);
-   // Constructs the object, assigning an item array.
    _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc) :
       m_p(const_cast<void *>(pConstSrc)),
       m_ci(ciSrc),
@@ -724,7 +763,7 @@ protected:
    /** Puts a NUL terminator at the provided address.
 
    cbItem
-      Size of a single array item.
+      Size of a single array item, in bytes.
    p
       Pointer to the item to be overwritten with a NUL.
    */
@@ -837,9 +876,16 @@ class ABCAPI _raw_complex_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
-   /** See _raw_vector::append().
+   /** Appends one or more items.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   bMove
+      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void append(type_void_adapter const & type, void const * pAdd, size_t ciAdd, bool bMove) {
       if (ciAdd) {
@@ -848,18 +894,24 @@ public:
    }
 
 
-   /** Copies the contents of the source to *this.
-
-   TODO: comment signature.
-   */
-   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
-
-
    /** Copies or moves the contents of the two sources to *this, according to the source type. If
    bMove{1,2} == true, the source items will be moved by having their const-ness cast away - be
    careful.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   p1
+      Pointer to the first source array.
+   ci1
+      Count of items in the first source array.
+   bMove1
+      true to move the items from p1 to the vextr’s item array, or false to copy them instead.
+   p2
+      Pointer to the second source array.
+   ci2
+      Count of items in the second source array.
+   bMove2
+      true to move the items from p1 to the vextr’s item array, or false to copy them instead.
    */
    void assign_concat(
       type_void_adapter const & type,
@@ -867,18 +919,36 @@ public:
    );
 
 
+   /** Copies the contents of the source to *this.
+
+   type
+      Adapter for the items’ type.
+   p
+      Pointer to the source array.
+   ci
+      Count of items in the source array.
+   */
+   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
+
+
    /** Moves the contents of the source to *this, taking ownership of the whole item array (items
    are not moved nor copied).
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   rcvi
+      Source vextr.
    */
    void assign_move(type_void_adapter const & type, _raw_complex_vextr_impl && rcvi);
 
 
    /** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
-   contained items instead.
+   items instead.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   rcvi
+      Source vextr.
    */
    void assign_move_dynamic_or_move_items(
       type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
@@ -887,7 +957,10 @@ public:
 
    /** Destructs a range of items, or the whole item array. It does not deallocate the item array.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   ci
+      Count of items to destruct.
    */
    void destruct_items(type_void_adapter const & type) {
       type.destruct(m_p, m_ci);
@@ -897,9 +970,19 @@ public:
    }
 
 
-   /** See _raw_vector::insert().
+   /** Inserts elements at a specific position in the vextr.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   iOffset
+      Index at which the items should be inserted. If negative, it will be interpreted as an offset
+      from the end of the vextr.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   bMove
+      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void insert(
       type_void_adapter const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
@@ -910,25 +993,37 @@ public:
    }
 
 
-   /** See _raw_vector::remove_at().
+   /** Removes elements from the vextr.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   iOffset
+      Index at which the items should be removed. If negative, it will be interpreted as an offset
+      from the end of the vextr.
+   ciRemove
+      Count of items to remove.
    */
    void remove_at(type_void_adapter const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
 
 
-   /** See _raw_vector::set_capacity().
+   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any data in the current one will be lost unless bPreserve
+   == true.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   ciMin
+      Minimum count of items requested.
+   bPreserve
+      If true, the previous contents of the item array will be preserved even if the reallocation
+      causes the vextr to switch to a different item array.
    */
    void set_capacity(type_void_adapter const & type, size_t ciMin, bool bPreserve);
 
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_complex_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
       _raw_vextr_impl_base(ciStaticMax, bNulT) {
@@ -942,7 +1037,16 @@ private:
 
    /** Actual implementation of append() and insert(). Does not validate iOffset or ciAdd.
 
-   TODO: comment signature.
+   type
+      Adapter for the items’ type.
+   iOffset
+      Index at which the items should be inserted.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   bMove
+      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void _insert(
       type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
@@ -965,9 +1069,16 @@ class ABCAPI _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
-   /** See _raw_vector::append() and _raw_str::append().
+   /** Appends one or more items.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
       if (ciAdd) {
@@ -976,9 +1087,37 @@ public:
    }
 
 
+   /** Copies the contents of the two sources to *this. This method must never be called with p1 or
+   p2 == m_p.
+
+   cbItem
+      Size of a single array item, in bytes.
+   p1
+      Pointer to the first source array.
+   ci1
+      Count of items in the first source array.
+   p2
+      Pointer to the second source array.
+   ci2
+      Count of items in the second source array.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
+   */
+   void assign_concat(
+      size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
+   );
+
+
    /** Copies the contents of the source array to *this.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   p
+      Pointer to the source array.
+   ci
+      Count of items in the source array.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
       if (p == m_p) {
@@ -990,21 +1129,14 @@ public:
    }
 
 
-   /** Copies the contents of the two sources to *this. This overload must never be called with p1
-   or p2 == m_p.
-
-   TODO: comment signature.
-   */
-   void assign_concat(
-      size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
-   );
-
-
    /** Moves the source’s item array to *this. This must be called with rtvi being in control of a
    read-only or dynamic item array; see [DOC:4019 abc::*str_ and abc::*vector design] to see how
    str_ and vector ensure this.
 
-   TODO: comment signature.
+   rtvi
+      Source vextr.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
       if (rtvi.m_p == m_p) {
@@ -1017,10 +1149,15 @@ public:
    }
 
 
-   /** Moves the source’s item array if dynamically-allocated, else moves (copies, really - the
-   items are trivial) its items to *this.
+   /** Moves the source’s item array if dynamically-allocated, else copies its items (not move –
+   items are trivial) to *this.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   rtvi
+      Source vextr.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_move_dynamic_or_move_items(
       size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
@@ -1029,7 +1166,12 @@ public:
 
    /** Shares the source’s item array if read-only, else copies it to *this.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   rtvi
+      Source vextr.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_share_ro_or_copy(
       size_t cbItem, _raw_trivial_vextr_impl const & rtvi, bool bNulT = false
@@ -1046,9 +1188,19 @@ public:
    }
 
 
-   /** See _raw_vector::insert().
+   /** Inserts elements at a specific position in the vextr.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   iOffset
+      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
+      index from the end of the vextr.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void insert(
       size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bNulT = false
@@ -1060,9 +1212,17 @@ public:
    }
 
 
-   /** See _raw_vector::remove_at().
+   /** Removes elements from the vextr.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   iOffset
+      Index at which the items should be removed. If negative, it’s going to be interpreted as an
+      index from the end of the vextr.
+   ciRemove
+      Count of items to remove.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
       adjust_range(&iOffset, &ciRemove, bNulT);
@@ -1072,18 +1232,26 @@ public:
    }
 
 
-   /** See _raw_vector::set_capacity().
+   /** Ensures that the item array has at least ciMin of actual item space (excluding the trailing
+   NUL character, in case of NUL-terminated item array). If this causes *this to switch to using a
+   different item array, any data in the current one will be lost unless bPreserve == true.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   ciMin
+      Minimum count of items requested.
+   bPreserve
+      If true, the previous contents of the item array will be preserved even if the reallocation
+      causes the vextr to switch to a different item array.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT = false);
 
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_trivial_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
       _raw_vextr_impl_base(ciStaticMax, bNulT) {
@@ -1098,14 +1266,26 @@ private:
    /** Shares the source’s item array. It only allows sharing read-only or dynamically-allocated
    item arrays (the latter only as part of moving them).
 
-   TODO: comment signature.
+   rtvi
+      Source vextr.
    */
    void _assign_share(_raw_trivial_vextr_impl const & rtvi);
 
 
    /** Actual implementation append(), insert() and remove_at().
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   iOffset
+      Index at which the items should be inserted.
+   pAdd
+      Pointer to the first item to add.
+   ciAdd
+      Count of items to add.
+   ciAdd
+      Count of items to remove.
+   [bNulT]
+      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void _insert_or_remove(
       size_t cbItem,

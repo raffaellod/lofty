@@ -59,12 +59,12 @@ public:
    }
 
 
-   /** Appends one or more items by moving them.
+   /** Appends one or more elements by moving them to the end of the vector’s item array.
 
    p
-      Pointer to the first item to add.
+      Pointer to the first element to add.
    ci
-      Count of items to add.
+      Count of elements to add.
    */
    void append_move(T * p, size_t ci) {
       type_void_adapter type;
@@ -75,7 +75,16 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** Moves the contents of the two sources to *this.
+
+   p1
+      Pointer to the first source array.
+   ci1
+      Count of elements in the first source array.
+   p2
+      Pointer to the second source array.
+   ci2
+      Count of elements in the second source array.
    */
    void assign_concat_move(T const * p1, size_t ci1, T const * p2, size_t ci2) {
       type_void_adapter type;
@@ -86,9 +95,7 @@ public:
    }
 
 
-   /** See vector::assign_move().
-
-   TODO: comment signature.
+   /** See _raw_complex_vextr_impl::assign_move().
    */
    void assign_move(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
@@ -97,9 +104,7 @@ public:
    }
 
 
-   /** See vector::assign_move_dynamic_or_move_items().
-
-   TODO: comment signature.
+   /** See _raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    */
    void assign_move_dynamic_or_move_items(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
@@ -110,7 +115,23 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** Removes all elements from the vector.
+   */
+   void clear() {
+      this->~_raw_vector();
+      assign_empty();
+   }
+
+
+   /** Inserts elements at a specific position in the vector by moving them.
+
+   iOffset
+      Index at which the elements should be inserted. If negative, it will be interpreted as an
+      offset from the end of the vextr.
+   pAdd
+      Pointer to the first element to add.
+   ciAdd
+      Count of elements to add.
    */
    void insert_move(ptrdiff_t iOffset, T * p, size_t ci) {
       type_void_adapter type;
@@ -121,9 +142,7 @@ public:
    }
 
 
-   /** See vector::remove_at().
-
-   TODO: comment signature.
+   /** See _raw_complex_vextr_impl::remove_at().
    */
    void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
       type_void_adapter type;
@@ -134,17 +153,7 @@ public:
    }
 
 
-   /** See vector::clear().
-   */
-   void clear() {
-      this->~_raw_vector();
-      assign_empty();
-   }
-
-
-   /** See vector::set_capacity().
-
-   TODO: comment signature.
+   /** See _raw_complex_vextr_impl::set_capacity().
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       type_void_adapter type;
@@ -157,9 +166,7 @@ public:
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
    _raw_vector(size_t ciStaticMax) :
       _raw_complex_vextr_impl(ciStaticMax) {
@@ -175,12 +182,12 @@ class _raw_vector<T, false, true> :
    public _raw_vector<T, false, false> {
 public:
 
-   /** Appends one or more items by copying them.
+   /** Appends one or more elements by copying them to the end of the vector’s item array.
 
    p
-      Pointer to the first item to add.
+      Pointer to the first element to add.
    ci
-      Count of items to add.
+      Count of elements to add.
    */
    void append_copy(T const * p, size_t ci) {
       type_void_adapter type;
@@ -192,9 +199,7 @@ public:
    }
 
 
-   /** See vector::assign_copy().
-
-   TODO: comment signature.
+   /** See _raw_complex_vextr_impl::assign_copy().
    */
    void assign_copy(T const * p, size_t ci) {
       type_void_adapter type;
@@ -206,7 +211,7 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** See _raw_complex_vextr_impl::assign_concat().
    */
    void assign_concat(
       T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2
@@ -220,7 +225,15 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** Inserts elements at a specific position in the vector by copying them.
+
+   iOffset
+      Index at which the elements should be inserted. If negative, it will be interpreted as an
+      offset from the end of the vextr.
+   pAdd
+      Pointer to the first element to add.
+   ciAdd
+      Count of elements to add.
    */
    void insert_copy(ptrdiff_t iOffset, T const * p, size_t ci) {
       type_void_adapter type;
@@ -234,9 +247,7 @@ public:
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
    _raw_vector(size_t ciStaticMax) :
       _raw_vector<T, false, false>(ciStaticMax) {
@@ -254,25 +265,25 @@ class _raw_vector<T, true, true> :
    public _raw_trivial_vextr_impl {
 public:
 
-   /** Appends one or more items.
+   /** Appends one or more elements.
 
    p
-      Pointer to the first item to add.
+      Pointer to the first element to add.
    ci
-      Count of items to add.
+      Count of elements to add.
    */
    void append_copy(void const * p, size_t ci) {
       _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
    }
 
 
-   /** Appends one or more items. Semantically this is supposed to move them, but for trivial types
-   that’s the same as copying them.
+   /** Appends one or more elements. Semantically this is supposed to move them, but for trivial
+   types that’s the same as copying them.
 
    p
-      Pointer to the first item to add.
+      Pointer to the first element to add.
    ci
-      Count of items to add.
+      Count of elements to add.
    */
    void append_move(void * p, size_t ci) {
       _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
@@ -280,15 +291,13 @@ public:
 
 
    /** See _raw_trivial_vextr_impl::assign_copy().
-
-   TODO: comment signature.
    */
    void assign_copy(void const * p, size_t ci) {
       _raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
    }
 
 
-   /** TODO: comment.
+   /** See _raw_trivial_vextr_impl::assign_concat().
    */
    void assign_concat(
       void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
@@ -299,7 +308,16 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** Moves the contents of the two sources to *this.
+
+   p1
+      Pointer to the first source array.
+   ci1
+      Count of elements in the first source array.
+   p2
+      Pointer to the second source array.
+   ci2
+      Count of elements in the second source array.
    */
    void assign_concat_move(void const * p1, size_t ci1, void const * p2, size_t ci2) {
       _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
@@ -307,8 +325,6 @@ public:
 
 
    /** See _raw_trivial_vextr_impl::assign_move().
-
-   TODO: comment signature.
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move(std::move(rtvi));
@@ -316,38 +332,13 @@ public:
 
 
    /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
-
-   TODO: comment signature.
    */
    void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
    }
 
 
-   /** TODO: comment.
-   */
-   void insert_copy(ptrdiff_t iOffset, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
-   }
-
-
-   /** TODO: comment.
-   */
-   void insert_move(ptrdiff_t iOffset, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
-   }
-
-
-   /** See vector::remove_at().
-
-   TODO: comment signature.
-   */
-   void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
-      _raw_trivial_vextr_impl::remove_at(sizeof(T), iOffset, ciRemove);
-   }
-
-
-   /** See vector::clear().
+   /** Removes all elements from the vector.
    */
    void clear() {
       this->~_raw_vector();
@@ -355,9 +346,45 @@ public:
    }
 
 
-   /** See vector::set_capacity().
+   /** Inserts one or more elements.
 
-   TODO: comment signature.
+   iOffset
+      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
+      index from the end of the vextr.
+   p
+      Pointer to the first element to add.
+   ci
+      Count of elements to add.
+   */
+   void insert_copy(ptrdiff_t iOffset, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
+   }
+
+
+   /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial types
+   that’s the same as copying them.
+
+   iOffset
+      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
+      index from the end of the vextr.
+   p
+      Pointer to the first element to add.
+   ci
+      Count of elements to add.
+   */
+   void insert_move(ptrdiff_t iOffset, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::remove_at().
+   */
+   void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
+      _raw_trivial_vextr_impl::remove_at(sizeof(T), iOffset, ciRemove);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::set_capacity().
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       _raw_trivial_vextr_impl::set_capacity(sizeof(T), ciMin, bPreserve);
@@ -366,9 +393,7 @@ public:
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
    _raw_vector(size_t ciStaticMax) :
       _raw_trivial_vextr_impl(ciStaticMax) {
@@ -411,7 +436,7 @@ class vector_base :
 
 public:
 
-   /** Item type. */
+   /** Element type. */
    typedef T item_type;
    /** See _iterable_vector::const_iterator. */
    typedef typename itvec::const_iterator const_iterator;
@@ -479,7 +504,7 @@ public:
    }
 
 
-   /** Looks for the specified value; returns the index of the first matching item, or -1 for no
+   /** Looks for the specified value; returns the index of the first matching element, or -1 for no
    matches.
 
    TODO: comment signature.
@@ -495,7 +520,7 @@ public:
    }
 
 
-   /** Looks for the specified value; returns the index of the first matching item, or -1 for no
+   /** Looks for the specified value; returns the index of the first matching element, or -1 for no
    matches.
 
    TODO: comment signature.
@@ -534,9 +559,15 @@ public:
 
 protected:
 
-   /** Constructor.
+   /** Constructor. The overload with ciStatic constructs the object as empty, setting m_p to
+   nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
-   TODO: comment signature.
+   ciStatic
+      Count of slots in the static item array, or 0 if no static item array is present.
+   pt
+      Pointer to an array that will be adopted by the vector as read-only.
+   ci
+      Count of items in the array pointed to by pt.
    */
    vector_base(size_t ciStatic) :
       _raw_vector<T>(ciStatic) {
@@ -595,7 +626,8 @@ public:
 
 public:
 
-   /** Assignment operator.
+   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   *this.
 
    v
       Source vector.
@@ -641,7 +673,12 @@ public:
 
    /** Adds elements at the end of the vector.
 
-   TODO: comment signature.
+   t
+      Element to copy (const &) or move (&&) to the end of the vector.
+   pt
+      Pointer to an array of elements to copy to the end of the vector.
+   ci
+      Count of elements in the array pointed to by pt.
    */
    void append(T const & t) {
       this->append_copy(&t, 1);
@@ -654,7 +691,7 @@ public:
    }
 
 
-   /** Removes all the elements in the vector.
+   /** Removes all elements from the vector.
    */
    void clear() {
       vector_base<T>::clear();
@@ -663,8 +700,9 @@ public:
 
    /** Inserts elements at a specific position in the vector.
 
-   iFirst
+   i
       0-based index of the element. If negative, it’s 1-based index from the end of the vector.
+   TODO: comment signature.
    */
    void insert(ptrdiff_t i, T const & t) {
       this->insert_copy(i, &t, 1);
@@ -691,6 +729,10 @@ public:
    i
       0-based index of the element to be removed. If negative, it’s 1-based index from the end of
       the vector.
+   it
+      Iterator positioned on the first element to remove.
+   ciRemove
+      Count of elements to remove.
    */
    void remove_at(ptrdiff_t i, ptrdiff_t ciRemove = 1) {
       vector_base<T>::remove_at(i, ciRemove);
@@ -700,11 +742,15 @@ public:
    }
 
 
-   /** Ensures that the item array has at least cchMin of actual item space, excluding the trailing
-   NUL character. If this causes *this to switch to using a different item array, any data in the
-   current one will be lost unless bPreserve == true.
+   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any elements in the current one will be destructed unless
+   bPreserve == true, which will cause them to be moved to the new item array.
 
-   TODO: comment signature.
+   ciMin
+      Minimum count of elements requested.
+   bPreserve
+      If true, the previous contents of the item array will be preserved even if the reallocation
+      causes the vector to switch to a different item array.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       vector_base<T>::set_capacity(ciMin, bPreserve);
@@ -720,9 +766,10 @@ public:
 
 protected:
 
-   /** Constructor.
+   /** Constructor. Constructs the object as empty, setting m_p to nullptr.
 
-   TODO: comment signature.
+   ciStatic
+      Count of slots in the static item array, or 0 if no static item array is present.
    */
    mvector(size_t ciStaticMax) :
       vector_base<T>(ciStaticMax) {
@@ -745,9 +792,29 @@ class dmvector :
    public mvector<T> {
 public:
 
-   /** Constructor.
+   /** Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
+   *this.
 
-   TODO: comment signature.
+   v
+      Source vector.
+   v1
+      First source vector.
+   v2
+      Second source vector.
+   at
+      Source array whose elements should be copied.
+   pt
+      Pointer to an array whose elements should be copied.
+   ci
+      Count of items in the array pointed to by pt.
+   pt1
+      Pointer to an array whose elements should be copied.
+   ci1
+      Count of items in the array pointed to by pt1.
+   pt2
+      Pointer to an array whose elements should be copied.
+   ci2
+      Count of items in the array pointed to by pt2.
    */
    dmvector() :
       mvector<T>(0) {
@@ -800,7 +867,8 @@ public:
    }
 
 
-   /** Assignment operator.
+   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   *this.
 
    v
       Source vector.
@@ -844,7 +912,7 @@ inline abc::dmvector<T> operator+(abc::vector_base<T> const & v1, abc::vector_ba
       static_cast<abc::mvector<T> const &>(v1), static_cast<abc::mvector<T> const &>(v2)
    );
 }
-// Overloads taking an mvector rvalue-reference as either or both operands; they can avoid creating
+// Overloads taking an mvector r-value-reference as either or both operands; they can avoid creating
 // intermediate copies of the elements from one or both source vectors.
 // TODO: verify that compilers actually select these overloads whenever possible.
 template <typename T>
@@ -878,9 +946,16 @@ protected:
 
 public:
 
-   /** Constructor.
+   /** Constructor. R-value-reference arguments will have their contents transferred to *this.
 
-   TODO: comment signature.
+   v
+      Source vector.
+   at
+      Source array whose elements should be copied.
+   pt
+      Pointer to an array whose elements should be copied.
+   ci
+      Count of items in the array pointed to by pt.
    */
    smvector() :
       mvector<T>(smc_ciFixed) {
@@ -930,9 +1005,13 @@ public:
    }
 
 
-   /** Assignment operator.
+   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   *this.
 
-   TODO: comment signature.
+   v
+      Source vector.
+   return
+      *this;
    */
    smvector & operator=(smvector const & v) {
       this->assign_copy(v.data(), v.size());
