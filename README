@@ -98,11 +98,85 @@ Supported operating systems:
    Windows XP and later versions are supported.
 
 
-4. Using ABC
+4. Building ABC
+---------------
+
+At the moment, ABC lacks only offers very basic means for installation.
+
+
+4.1. Building ABC in a UNIX-like environment
+--------------------------------------------
+
+ABC can be built issuing a “make all” command as usual. (Note that “all” can be
+omitted, since it’s the default target.)
+
+Specifying an O=… argument will change the directory in which all the necessary
+intermediate and output directories are created, e.g.
+
+   make O=/tmp/build all
+
+Passing a VERBOSE=1 argument will cause make to print the actual commands being
+executed, instead of short activity indicators (e.g. “CPP”, “LD”):
+
+   make VERBOSE=1 all
+
+ABC supports parallel building, so you can significantly increase the build
+speed by passing make a -j option, e.g.:
+
+   make -j4 all
+
+
+4.2. Building ABC in Windows
+----------------------------
+
+ABC ships with a VS2010 solution, abc.sln; this can be used to build all ABC’s
+sub-projects, either directly from Visual Studio or from a command prompt using
+msbuild.
+
+
+4.2.1. Building ABC from Visual Studio
+--------------------------------------
+
+Open the solution abc.sln, then from the “Build” menu select “Rebuild All”.
+
+
+4.2.2. Building ABC using MSBuild
+---------------------------------
+
+From a command prompt that has been configured to run VS2010 commands, issue
+“msbuild abc.sln”.
+
+
+5. Installing ABC
+-----------------
+
+At the moment, ABC lacks only offers very basic means for installation.
+
+
+5.1. Installing ABC in a UNIX-like environment
+----------------------------------------------
+
+ABC can be installed issuing a “make install” command as usual.
+
+The default installation prefix is /usr/local; changing it can be accomplished
+by passing make an INSTALL_DIR argument, e.g.:
+
+   make INSTALL_DIR=/home/me install
+
+
+5.2. Installing ABC in Windows
+------------------------------
+
+ABC currently does not ship with an installer for Windows. To install ABC,
+copying its files to a position from which they will be accessible by your
+projects.
+
+
+6. Using ABC
 ------------
 
 
-4.1. “Hello world” using ABC
+6.1. “Hello world” using ABC
 ----------------------------
 
 This is the most basic program with ABC:
