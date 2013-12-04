@@ -20,9 +20,11 @@
 srcdir:=src
 generatedsources:=
 
+# ABC’s base path; used to locate ABC libraries, headers and tools. Can be relative or absolute.
 ABC_PATH:=./
 include $(ABC_PATH)Makefile.inc
 
+# Additional definitions for this Makefile. TODO: perhaps make auto-detected?
 CPPFLAGS+=-Iinclude
 LDFLAGS+=-L$(O)lib
 
@@ -30,7 +32,7 @@ LDFLAGS+=-L$(O)lib
 ####################################################################################################
 # Phony targets
 
-all: \
+all install: \
 	$(O)lib/libabc$(SOEXT) \
 	$(O)lib/libabc-testing$(SOEXT)
 

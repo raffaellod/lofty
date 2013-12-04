@@ -17,9 +17,15 @@
 # <http://www.gnu.org/licenses/>.
 #---------------------------------------------------------------------------------------------------
 
-# Ensure that this ends with a backslash.
+# Provide a default for installation.
+ifeq ($(INSTALL_DIR),)
+	INSTALL_DIR:=/usr/local
+endif
+
+# Ensure that these end with a backslash.
+override INSTALL_DIR:=$(INSTALL_DIR)/
 ifneq ($(O),)
-	O+=/
+	override O:=$(O)/
 endif
 
 # File names.
@@ -37,6 +43,8 @@ CP:=cp
 CPP:=$(CROSS_COMPILE)cpp
 CXX:=$(CROSS_COMPILE)g++
 DEBUGGER:=$(CROSS_COMPILE)gdb
+INSTALL:=install
+INSTALLDATA:=install -m 644
 
 # Program flags.
 CPPFLAGS+= -Wall -Wextra -pedantic -Wundef -Wshadow -Wconversion -Wsign-conversion -Wlogical-op
@@ -75,8 +83,6 @@ CLEAN_PHONY:=0
 #srcdir:=
 # Sources to be generated
 #generatedsources:=
-# Directory containing specialized unit test scripts.
-#UNITTESTSDIR:=
 
 
 # Eye-candy.
@@ -163,20 +169,20 @@ endif
 check:
 	$(Q)$(ABC_PATH)tools/makecheck.py --summary $^
 
-# Performs installation tests (if any). The user must build and install the program before running
-# the tests.
-.PHONY: installcheck
-installcheck: check install
-
-# Useful to create the directories where files are installed, and their parent directories.
-.PHONY: installdirs
-installdirs:
-
 .PHONY: install
-install: all installdirs
-
-.PHONY: uninstall
-uninstall:
+install:
+# Install in $(INSTALL_DIR) using the same relative path from $(O). If a file is executable, install
+# it as such.
+	@for SRC in $^; do \
+		DST=$(INSTALL_DIR)$${SRC#$(O)}; \
+		test -x $${SRC} && CMD=$(INSTALL) || CMD=$(INSTALLDATA); \
+		if test $(VERBOSE) = 0; then \
+			echo "$(CLR_CMD)INSTALL $(CLR_RST) $${DST}"; \
+		else \
+			echo $(INSTALL) $${SRC} $${DST}; \
+		fi; \
+		$${CMD} $${SRC} $${DST}; \
+	done
 
 
 
