@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- -*- coding: utf-8; mode: xml; tab-width: 3; indent-tabs-mode: nil -*-
+
+Copyright 2013
+Raffaello D. Di Napoli
+
+This file is part of Application-Building Components (henceforth referred to as ABC).
+
+ABC is free software: you can redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+ABC is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+License for more details.
+
+You should have received a copy of the GNU General Public License along with ABC. If not, see
+<http://www.gnu.org/licenses/>.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+<!-- ABC makefile for ABC itself. -->
+<abcmk>
+
+   <!-- Main ABC dynamic shared library. -->
+   <target type="dynlib" name="abc">
+      <source path="src/abc/atomic.cxx"/>
+      <source path="src/abc/bitmanip.cxx"/>
+      <source path="src/abc/byteorder.cxx"/>
+      <source path="src/abc/core.cxx"/>
+      <source path="src/abc/file.cxx"/>
+      <source path="src/abc/file_iostream.cxx"/>
+      <source path="src/abc/file_path.cxx"/>
+      <source path="src/abc/enum.cxx"/>
+      <source path="src/abc/exception.cxx"/>
+      <source path="src/abc/iostream.cxx"/>
+      <source path="src/abc/memory.cxx"/>
+      <source path="src/abc/module.cxx"/>
+      <source path="src/abc/str.cxx"/>
+      <source path="src/abc/str_iostream.cxx"/>
+      <source path="src/abc/to_str_backend.cxx"/>
+      <source path="src/abc/text.cxx" />
+      <source path="src/abc/trace.cxx"/>
+      <source path="src/abc/utf_traits.cxx"/>
+      <source path="src/abc/_vextr.cxx"/>
+      <unittest name="abc-test"/>
+      <unittest name="0005-cppmacros"/>
+      <unittest name="0010-module"/>
+      <unittest name="0050-vector"/>
+      <unittest name="0080-map"/>
+      <unittest name="0190-str_ostream"/>
+      <unittest name="0250-file_ostream"/>
+      <unittest name="0280-file_istream"/>
+   </target>
+   <target type="unittest" name="abc-test">
+      <!-- Default: runner type="exec" -->
+      <source path="src/abc-test/abc-test.cxx"/>
+      <source path="src/abc-test/enum.cxx"/>
+      <source path="src/abc-test/exception.cxx"/>
+      <source path="src/abc-test/file_path.cxx"/>
+      <source path="src/abc-test/ostream-print.cxx"/>
+      <source path="src/abc-test/str.cxx"/>
+      <source path="src/abc-test/to_str_backend.cxx"/>
+
+      <dynlib name="abc-testing"/>
+   </target>
+   <target type="unittest" name="0005-cppmacros">
+      <runner type="compare" expected-output-path="src/unittest/0005-cppmacros.cxx.i"/>
+      <source path="src/unittest/0005-cppmacros.cxx" tool="cpreproc"/>
+   </target>
+   <target type="unittest" name="0010-module">
+      <!-- Default: runner type="exec" -->
+      <source path="src/unittest/0010-module.cxx"/>
+   </target>
+   <target type="unittest" name="0050-vector">
+      <!-- Default: runner type="exec" -->
+      <source path="src/unittest/0050-vector.cxx"/>
+   </target>
+   <target type="unittest" name="0080-map">
+      <!-- Default: runner type="exec" -->
+      <source path="src/unittest/0080-map.cxx"/>
+   </target>
+   <target type="unittest" name="0190-str_ostream">
+      <!-- Default: runner type="exec" -->
+      <source path="src/unittest/0190-str_ostream.cxx"/>
+   </target>
+   <target type="unittest" name="0250-file_ostream">
+      <runner type="scripted" path="src/unittest/0250-file_ostream.py"/>
+      <source path="src/unittest/0250-file_ostream.cxx"/>
+   </target>
+   <target type="unittest" name="0280-file_istream">
+      <runner type="scripted" path="src/unittest/0280-file_istream.py"/>
+      <source path="src/unittest/0280-file_istream.cxx"/>
+   </target>
+
+   <!-- Testing-support library. -->
+   <target type="dynlib" name="abc-testing">
+      <source path="src/abc-testing/mock/iostream.cxx"/>
+      <source path="src/abc-testing/module.cxx"/>
+      <source path="src/abc-testing/runner.cxx"/>
+      <source path="src/abc-testing/test_case.cxx"/>
+
+      <dynlib name="abc"/>
+   </target>
+</abcmk>
+
