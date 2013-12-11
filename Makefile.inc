@@ -179,7 +179,7 @@ install:
 		if test $(VERBOSE) = 0; then \
 			echo "$(CLR_CMD)INSTALL $(CLR_RST) $${DST}"; \
 		else \
-			echo $(INSTALL) $${SRC} $${DST}; \
+			echo $${CMD} $${SRC} $${DST}; \
 		fi; \
 		$${CMD} $${SRC} $${DST}; \
 	done
