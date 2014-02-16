@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- -*- coding: utf-8; mode: xml; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013
+Copyright 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -52,7 +52,6 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="0280-file_istream"/>
    </target>
    <target type="unittest" name="abc-test">
-      <!-- Default: runner type="exec" -->
       <source path="src/abc-test/abc-test.cxx"/>
       <source path="src/abc-test/enum.cxx"/>
       <source path="src/abc-test/exception.cxx"/>
@@ -63,31 +62,27 @@ You should have received a copy of the GNU General Public License along with ABC
       <dynlib name="abc-testing"/>
    </target>
    <target type="unittest" name="0005-cppmacros">
-      <runner type="compare" expected-output-path="src/unittest/0005-cppmacros.cxx.i"/>
+      <expected-output path="src/unittest/0005-cppmacros.cxx.i"/>
       <source path="src/unittest/0005-cppmacros.cxx" tool="cpreproc"/>
    </target>
    <target type="unittest" name="0010-module">
-      <!-- Default: runner type="exec" -->
       <source path="src/unittest/0010-module.cxx"/>
    </target>
    <target type="unittest" name="0050-vector">
-      <!-- Default: runner type="exec" -->
       <source path="src/unittest/0050-vector.cxx"/>
    </target>
    <target type="unittest" name="0080-map">
-      <!-- Default: runner type="exec" -->
       <source path="src/unittest/0080-map.cxx"/>
    </target>
    <target type="unittest" name="0190-str_ostream">
-      <!-- Default: runner type="exec" -->
       <source path="src/unittest/0190-str_ostream.cxx"/>
    </target>
    <target type="unittest" name="0250-file_ostream">
-      <runner type="scripted" path="src/unittest/0250-file_ostream.py"/>
+      <script path="src/unittest/0250-file_ostream.py"/>
       <source path="src/unittest/0250-file_ostream.cxx"/>
    </target>
    <target type="unittest" name="0280-file_istream">
-      <runner type="scripted" path="src/unittest/0280-file_istream.py"/>
+      <script path="src/unittest/0250-file_ostream.py"/>
       <source path="src/unittest/0280-file_istream.cxx"/>
    </target>
 
