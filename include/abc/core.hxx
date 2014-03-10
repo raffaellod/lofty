@@ -321,7 +321,7 @@ reached. */
 
 /** Declares a symbol to be publicly visible (from the ABC shared library) or imported from ABC’s
 shared library (into another library/executable). */
-#ifdef _ABC_LIB_BUILD
+#ifdef ACBMK_BUILD_ABC
    #define ABCAPI ABC_SYM_EXPORT
 #else
    #define ABCAPI ABC_SYM_IMPORT

@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 /** Declares a symbol to be publicly visible (from the ABC testing shared library) or imported from
 ABC’s testing shared library (into another library/executable). */
-#ifdef _ABC_TESTING_LIB_BUILD
+#ifdef ABCMK_BUILD_ABC_TESTING
    #define ABCTESTINGAPI ABC_SYM_EXPORT
 #else
    #define ABCTESTINGAPI ABC_SYM_IMPORT

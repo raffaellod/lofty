@@ -52,7 +52,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>abc/core.hxx</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>_ABC_LIB_BUILD;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ABCMK_BUILD_ABC;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
