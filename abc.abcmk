@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with ABC
 <abcmk>
 
    <!-- Main ABC dynamic shared library. -->
-   <target type="dynlib" name="abc">
+   <dynlib name="abc">
       <source path="src/abc/atomic.cxx"/>
       <source path="src/abc/bitmanip.cxx"/>
       <source path="src/abc/byteorder.cxx"/>
@@ -50,8 +50,8 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="0190-str_ostream"/>
       <unittest name="0250-file_ostream"/>
       <unittest name="0280-file_istream"/>
-   </target>
-   <target type="unittest" name="abc-test">
+   </dynlib>
+   <unittest name="abc-test">
       <source path="src/abc-test/abc-test.cxx"/>
       <source path="src/abc-test/enum.cxx"/>
       <source path="src/abc-test/exception.cxx"/>
@@ -60,39 +60,39 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc-test/str.cxx"/>
       <source path="src/abc-test/to_str_backend.cxx"/>
       <dynlib name="abc-testing"/>
-   </target>
-   <target type="unittest" name="0005-cppmacros">
+   </unittest>
+   <unittest name="0005-cppmacros">
       <expected-output path="src/unittest/0005-cppmacros.cxx.i"/>
       <source path="src/unittest/0005-cppmacros.cxx" tool="preproc"/>
-   </target>
-   <target type="unittest" name="0010-module">
+   </unittest>
+   <unittest name="0010-module">
       <source path="src/unittest/0010-module.cxx"/>
-   </target>
-   <target type="unittest" name="0050-vector">
+   </unittest>
+   <unittest name="0050-vector">
       <source path="src/unittest/0050-vector.cxx"/>
-   </target>
-   <target type="unittest" name="0080-map">
+   </unittest>
+   <unittest name="0080-map">
       <source path="src/unittest/0080-map.cxx"/>
-   </target>
-   <target type="unittest" name="0190-str_ostream">
+   </unittest>
+   <unittest name="0190-str_ostream">
       <source path="src/unittest/0190-str_ostream.cxx"/>
-   </target>
-   <target type="unittest" name="0250-file_ostream">
+   </unittest>
+   <unittest name="0250-file_ostream">
       <script path="src/unittest/0250-file_ostream.py"/>
       <source path="src/unittest/0250-file_ostream.cxx"/>
-   </target>
-   <target type="unittest" name="0280-file_istream">
+   </unittest>
+   <unittest name="0280-file_istream">
       <script path="src/unittest/0250-file_ostream.py"/>
       <source path="src/unittest/0280-file_istream.cxx"/>
-   </target>
+   </unittest>
 
    <!-- Testing-support library. -->
-   <target type="dynlib" name="abc-testing">
+   <dynlib name="abc-testing">
       <source path="src/abc-testing/mock/iostream.cxx"/>
       <source path="src/abc-testing/module.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
       <source path="src/abc-testing/test_case.cxx"/>
       <dynlib name="abc"/>
-   </target>
+   </dynlib>
 </abcmk>
 
