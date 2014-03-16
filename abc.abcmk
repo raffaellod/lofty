@@ -63,6 +63,7 @@ You should have received a copy of the GNU General Public License along with ABC
    </unittest>
    <unittest name="0005-cppmacros">
       <expected-output path="src/unittest/0005-cppmacros.cxx.i"/>
+      <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
       <source path="src/unittest/0005-cppmacros.cxx" tool="preproc"/>
    </unittest>
    <unittest name="0010-module">

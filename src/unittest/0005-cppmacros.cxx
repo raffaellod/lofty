@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013
+Copyright 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/cppmacros.hxx>
 
-ABC_DIFFTEST_BEGIN
+ABCMK_CMP_BEGIN
 
 
 // FIXME: ABC_CPP_LIST_COUNT() returns 1 instead of 0.
@@ -36,5 +36,5 @@ ABC_CPP_LIST_WALK(SCALAR_WALKER, a, b, c, d)
 ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1))
 ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1), (b, 2), (c, 3), (d, 4))
 
-ABC_DIFFTEST_END
+ABCMK_CMP_END
 
