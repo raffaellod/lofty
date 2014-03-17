@@ -43,7 +43,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/utf_traits.cxx"/>
       <source path="src/abc/_vextr.cxx"/>
       <unittest name="abc-test"/>
-      <unittest name="0005-cppmacros"/>
+      <unittest name="abc-test-cppmacros"/>
       <unittest name="0010-module"/>
       <unittest name="0050-vector"/>
       <unittest name="0080-map"/>
@@ -61,10 +61,10 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc-test/to_str_backend.cxx"/>
       <dynlib name="abc-testing"/>
    </unittest>
-   <unittest name="0005-cppmacros">
-      <expected-output path="src/unittest/0005-cppmacros.cxx.i"/>
+   <unittest name="abc-test-cppmacros">
+      <expected-output path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
       <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
-      <source path="src/unittest/0005-cppmacros.cxx" tool="preproc"/>
+      <source path="src/abc-test-cppmacros/cppmacros.cxx" tool="preproc"/>
    </unittest>
    <unittest name="0010-module">
       <source path="src/unittest/0010-module.cxx"/>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Makefile; tab-width: 8 -*-
 #
-# Copyright 2010, 2011, 2012, 2013
+# Copyright 2010, 2011, 2012, 2013, 2014
 # Raffaello D. Di Napoli
 #
 # This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -40,7 +40,6 @@ test: \
 	$(O)bin/abc-test$(EXEEXT)
 
 check: \
-	$(O)test.tmp/unittest/0005-cppmacros.cxx.i.log \
 	$(O)test.tmp/unittest/0010-module.ut.log \
 	$(O)test.tmp/unittest/0050-vector.ut.log \
 	$(O)test.tmp/unittest/0080-map.ut.log \
