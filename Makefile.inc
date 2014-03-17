@@ -306,19 +306,6 @@ endif
 		$(ABC_PATH)tools/makecheck.py --unittest $@ $^
 
 
-# Rule to compare C/C++ preprocessed files with the expected outputs when make check is invoked.
-# Note: the file name of the output and expected output is the same; only the directories differ.
-$(O)test.tmp/%.cxx.i.log: $(O)obj/%.cxx.i $(srcdir)/%.cxx.i
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-ifneq ($(VERBOSE),0)
-	@echo "$(ABC_PATH)tools/makecheck.py --difftest $@ $^"
-endif
-	@env $(foreach var, \
-		DEBUG DEBUGGER VERBOSE CLR_CMD CLR_PASS CLR_FAIL CLR_RST, \
-	$(var)="$($(var))") \
-		$(ABC_PATH)tools/makecheck.py --difftest $@ $^
-
-
 
 ####################################################################################################
 # Other directives
