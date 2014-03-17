@@ -21,8 +21,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <!-- ABC makefile for ABC itself. -->
 <abcmk>
 
-   <!-- Main ABC dynamic shared library. -->
    <dynlib name="abc">
+      <!-- Main ABC dynamic shared library. -->
       <source path="src/abc/atomic.cxx"/>
       <source path="src/abc/bitmanip.cxx"/>
       <source path="src/abc/byteorder.cxx"/>
@@ -52,6 +52,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="0280-file_istream"/>
    </dynlib>
    <unittest name="abc-test">
+      <!-- Main unit test for ABC. -->
       <source path="src/abc-test/abc-test.cxx"/>
       <source path="src/abc-test/enum.cxx"/>
       <source path="src/abc-test/exception.cxx"/>
@@ -62,9 +63,10 @@ You should have received a copy of the GNU General Public License along with ABC
       <dynlib name="abc-testing"/>
    </unittest>
    <unittest name="abc-test-cppmacros">
-      <expected-output path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
+      <!-- Unit test for ABC’s preprocessor macros. -->
       <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
-      <source path="src/abc-test-cppmacros/cppmacros.cxx" tool="preproc"/>
+      <source tool="preproc" path="src/abc-test-cppmacros/cppmacros.cxx"/>
+      <expected-output       path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
    </unittest>
    <unittest name="0010-module">
       <source path="src/unittest/0010-module.cxx"/>
@@ -87,8 +89,8 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/unittest/0280-file_istream.cxx"/>
    </unittest>
 
-   <!-- Testing-support library. -->
    <dynlib name="abc-testing">
+      <!-- Testing-support library. -->
       <source path="src/abc-testing/mock/iostream.cxx"/>
       <source path="src/abc-testing/module.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
