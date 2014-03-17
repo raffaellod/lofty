@@ -190,7 +190,7 @@ This is the most basic program with ABC:
    public:
 
       int main(mvector<istr const> const & vsArgs) {
-         abc_trace_fn((/*vsArgs*/));
+         abc_trace_fn((vsArgs));
 
          return 0;
       }
