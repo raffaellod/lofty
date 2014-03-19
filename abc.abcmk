@@ -83,10 +83,6 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="0190-str_ostream">
          <source path="src/unittest/0190-str_ostream.cxx"/>
       </unittest>
-      <unittest name="0250-file_ostream">
-         <script path="src/unittest/0250-file_ostream.py"/>
-         <source path="src/unittest/0250-file_ostream.cxx"/>
-      </unittest>
       <unittest name="0280-file_istream">
          <script path="src/unittest/0250-file_ostream.py"/>
          <source path="src/unittest/0280-file_istream.cxx"/>
