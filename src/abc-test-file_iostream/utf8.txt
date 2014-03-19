@@ -1,0 +1,1 @@
+I/O test file encoded using UTF-8

@@ -44,6 +44,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/_vextr.cxx"/>
       <unittest name="abc-test"/>
       <unittest name="abc-test-cppmacros"/>
+      <unittest name="abc-test-file_ostream-write-utf8"/>
       <unittest name="0010-module"/>
       <unittest name="0050-vector"/>
       <unittest name="0080-map"/>
@@ -67,6 +68,10 @@ You should have received a copy of the GNU General Public License along with ABC
       <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
       <source tool="preproc" path="src/abc-test-cppmacros/cppmacros.cxx"/>
       <expected-output       path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
+   </unittest>
+   <unittest name="abc-test-file_ostream-write-utf8">
+      <source path="src/abc-test-file_iostream/file_ostream-write-utf8.cxx"/>
+      <expected-output path="src/abc-test-file_iostream/utf8.txt"/>
    </unittest>
    <unittest name="0010-module">
       <source path="src/unittest/0010-module.cxx"/>
