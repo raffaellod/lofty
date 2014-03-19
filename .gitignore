@@ -4,11 +4,10 @@
 *.suo
 *.vcxproj.user
 bin
-dep
 doc/C++11 N3242.pdf
+int
 ipch
 lib
-obj
 __pycache__
 temp
 test.tmp
