@@ -66,19 +66,16 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="abc-test-file_ostream-write-stdout-utf8">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf8.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf8.txt"/>
-         <compare mode="binary"/>
       </unittest>
 
       <unittest name="abc-test-file_ostream-write-stdout-utf16be">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf16be.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf16be.txt"/>
-         <compare mode="binary"/>
       </unittest>
 
       <unittest name="abc-test-file_ostream-write-stdout-utf32le">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf32le.txt"/>
-         <compare mode="binary"/>
       </unittest>
 
       <unittest name="0050-vector">
