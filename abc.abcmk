@@ -72,9 +72,6 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf32le.txt" mode="binary"/>
       </unittest>
-      <unittest name="0010-module">
-         <source path="src/unittest/0010-module.cxx"/>
-      </unittest>
       <unittest name="0050-vector">
          <source path="src/unittest/0050-vector.cxx"/>
       </unittest>
