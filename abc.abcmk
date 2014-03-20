@@ -50,6 +50,7 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/file_path.cxx"/>
          <source path="src/abc-test/ostream-print.cxx"/>
          <source path="src/abc-test/str.cxx"/>
+         <source path="src/abc-test/str_ostream.cxx"/>
          <source path="src/abc-test/to_str_backend.cxx"/>
          <dynlib name="abc-testing"/>
       </unittest>
@@ -79,9 +80,6 @@ You should have received a copy of the GNU General Public License along with ABC
       </unittest>
       <unittest name="0080-map">
          <source path="src/unittest/0080-map.cxx"/>
-      </unittest>
-      <unittest name="0190-str_ostream">
-         <source path="src/unittest/0190-str_ostream.cxx"/>
       </unittest>
       <unittest name="0280-file_istream">
          <script path="src/unittest/0280-file_istream.py"/>
