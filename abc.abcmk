@@ -42,6 +42,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/trace.cxx"/>
       <source path="src/abc/utf_traits.cxx"/>
       <source path="src/abc/_vextr.cxx"/>
+
       <unittest name="abc-test">
          <!-- Main unit test for ABC. -->
          <source path="src/abc-test/abc-test.cxx"/>
@@ -54,30 +55,37 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/to_str_backend.cxx"/>
          <dynlib name="abc-testing"/>
       </unittest>
+
       <unittest name="abc-test-cppmacros">
          <!-- Unit test for ABC’s preprocessor macros. -->
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
          <source tool="preproc" path="src/abc-test-cppmacros/cppmacros.cxx"/>
          <expected-output path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
       </unittest>
+
       <unittest name="abc-test-file_ostream-write-stdout-utf8">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf8.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf8.txt" mode="binary"/>
       </unittest>
+
       <unittest name="abc-test-file_ostream-write-stdout-utf16be">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf16be.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf16be.txt" mode="binary"/>
       </unittest>
+
       <unittest name="abc-test-file_ostream-write-stdout-utf32le">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf32le.txt" mode="binary"/>
       </unittest>
+
       <unittest name="0050-vector">
          <source path="src/unittest/0050-vector.cxx"/>
       </unittest>
+
       <unittest name="0080-map">
          <source path="src/unittest/0080-map.cxx"/>
       </unittest>
+
       <unittest name="0280-file_istream">
          <script path="src/unittest/0280-file_istream.py"/>
          <source path="src/unittest/0280-file_istream.cxx"/>
