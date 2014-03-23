@@ -139,14 +139,8 @@ private:
 // dmvector<std::unique_ptr<test_case>> m_vptc;
    /** Output stream. */
    std::shared_ptr<ostream> m_pos;
-   /** Total count of test cases executed. */
-   unsigned m_cTotalTestCases;
-   /** Total count of successful test cases. */
-   unsigned m_cPassedTestCases;
-   /** Total count of assertions performed. */
-   unsigned m_cTotalAssertions;
-   /** Total count of successful assertions. */
-   unsigned m_cPassedAssertions;
+   /** Total count of failed assertions. */
+   unsigned m_cFailedAssertions;
 };
 
 } //namespace testing
