@@ -92,24 +92,25 @@ void runner::log_assertion(
 ) {
    ABC_TRACE_FN((this, bSuccess, sExpr, sExpected, sActual));
 
-   if (!bSuccess) {
-      m_pos->print(
-         SL("Assertion failed: {}; expected: {}, actual: {}\n"), sExpr, sExpected, sActual
-      );
-   } else if (false /*|| verbose*/) {
-      m_pos->print(SL("Assertion passed: {}\n"), sExpr);
-   }
+   ++m_cTotalAssertions;
    if (bSuccess) {
       ++m_cPassedAssertions;
+      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}\n"), sExpr);
+   } else {
+      m_pos->print(
+         SL("ABCMK-TEST-ASSERT-FAIL {}\n")
+         SL("  expected: {}\n")
+         SL("  actual:   {}\n"),
+         sExpr, sExpected, sActual
+      );
    }
-   ++m_cTotalAssertions;
 }
 
 
 bool runner::log_summary() {
    ABC_TRACE_FN((this));
 
-   if (m_cTotalAssertions == 0) {
+   /*if (m_cTotalAssertions == 0) {
       m_pos->write(SL("No tests performed\n"));
    } else {
       m_pos->print(
@@ -130,7 +131,7 @@ bool runner::log_summary() {
          m_cTotalAssertions - m_cPassedAssertions,
          ((m_cTotalAssertions - m_cPassedAssertions) * 100 + 1) / m_cTotalAssertions
       );
-   }
+   }*/
    return m_cPassedAssertions == m_cTotalAssertions;
 }
 
@@ -147,23 +148,21 @@ void runner::run() {
 void runner::run_test_case(test_case & tc) {
    ABC_TRACE_FN((this/*, u*/));
 
-   m_pos->print(SL("Test case: {}: running...\n"), tc.title());
+   m_pos->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
 
    // Save the current total and passed counts, so we can compare them after running the test case.
    unsigned cPrevTotalAssertions(m_cTotalAssertions), cPrevPassedAssertions(m_cPassedAssertions);
-   bool bPassed(false);
    try {
       tc.run();
       // If both the total and the passed count increased, the test case passed.
       if (
          cPrevTotalAssertions - m_cTotalAssertions == cPrevPassedAssertions - m_cPassedAssertions
       ) {
-         bPassed = true;
          ++m_cPassedTestCases;
       }
    } catch (assertion_error const &) {
       // This exception type is only used to interrupt abc::testing::test_case::run().
-      m_pos->write(SL("Test case execution interrupted\n"));
+      m_pos->write(SL("test case execution interrupted\n"));
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(m_pos.get(), &x);
    } catch (...) {
@@ -171,7 +170,7 @@ void runner::run_test_case(test_case & tc) {
    }
    ++m_cTotalTestCases;
 
-   m_pos->print(SL("Test case: {}: {}\n"), tc.title(), bPassed ? SL("pass") : SL("fail"));
+   m_pos->print(SL("ABCMK-TEST-CASE-END\n"));
 }
 
 } //namespace testing
