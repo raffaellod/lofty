@@ -163,6 +163,10 @@ You should have received a copy of the GNU General Public License along with ABC
       #define _WIN32_WINNT WINVER
    #endif
 
+   // Only support Unicode Windows programs.
+   // TODO: support non-Unicode Windows programs (Win9x and Win16). In a very, very distant future!
+   #define UNICODE
+
    // Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
    #if defined(UNICODE) && !defined(_UNICODE)
       #define _UNICODE

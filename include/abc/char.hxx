@@ -99,20 +99,15 @@ namespace abc {
       #define ABC_CXX_UTF8LIT 2
    #endif
 #else //if ABC_HOST_GCC >= 40400
-   #if ABC_HOST_MSC && (!defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED))
-      #error Please compile with /Zc:wchar_t
-   #endif
+   #if ABC_HOST_MSC
+      #if !defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED)
+         #error Please compile with /Zc:wchar_t
+      #endif
 
-   #if ABC_HOST_API_WIN32
       // char16_t is not a native type, but we can typedef it as wchar_t.
       #undef ABC_CXX_CHAR16
       #define ABC_CXX_CHAR16 1
    #else
-      // char32_t is not a native type, but we can typedef it as wchar_t.
-      #undef ABC_CXX_CHAR32
-      #define ABC_CXX_CHAR32 1
-   #endif
-   #if !ABC_HOST_MSC
       // MSC16 will transcode non-wchar_t string literals into whatever single-byte encoding is
       // selected for the user running cl.exe; a solution has been provided in form of a hotfix
       // (<http://support.microsoft.com/kb/2284668/en-us>), but it no longer seems available, and it
@@ -124,6 +119,10 @@ namespace abc {
       // emit valid UTF-8 string literals it the source file is UTF-8+BOM-encoded.
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 1
+
+      // char32_t is not a native type, but we can typedef it as wchar_t.
+      #undef ABC_CXX_CHAR32
+      #define ABC_CXX_CHAR32 1
    #endif
 #endif //if ABC_HOST_GCC >= 40400 … else
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
