@@ -46,10 +46,12 @@ public:
 
       str_ostream sos;
 
+#ifdef U8SL
       ABC_TESTING_ASSERT_EQUAL(
          (sos.write(istr8(U8SL("I/O stream test from UTF-8 string"))), sos.release_content()),
          SL("I/O stream test from UTF-8 string")
       );
+#endif
 #ifdef U16SL
       ABC_TESTING_ASSERT_EQUAL(
          (sos.write(istr16(U16SL("I/O stream test from UTF-16 string"))), sos.release_content()),
