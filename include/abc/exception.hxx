@@ -329,9 +329,9 @@ public:
    /** Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
 
-   [pos]
+   pos
       Stream to write to. If omitted, the stack trace will be written to stderr.
-   [pstdx]
+   pstdx
       Caught exception.
    */
    static void write_with_scope_trace(
@@ -513,7 +513,7 @@ public:
 
    /** See abc::exception::init().
 
-   [err]
+   err
       OS-defined error number associated to the exception.
    */
    void init(errint_t err = 0) {
@@ -852,7 +852,7 @@ public:
 
    iInvalid
       Index that caused the error.
-   [err]
+   err
       OS-defined error number associated to the exception.
    */
    void init(intptr_t iInvalid, errint_t err = 0);
@@ -989,7 +989,7 @@ public:
 
    pInvalid
       Pointer that could not be dereferenced.
-   [err]
+   err
       OS-defined error number associated to the error.
    */
    void init(errint_t err = 0) {

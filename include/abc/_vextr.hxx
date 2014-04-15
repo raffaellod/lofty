@@ -544,9 +544,9 @@ protected:
          Subject of the transaction.
       ciNew
          New item count, or -1 to use ciDelta instead.
-      [ciDelta]
+      ciDelta
          Item count change; can be positive or negative.
-      [bNulT]
+      bNulT
          true if the item array is NUL-terminated, or false otherwise.
       */
       transaction(
@@ -571,7 +571,7 @@ protected:
 
       cbItem
          Size of a single array item, in bytes.
-      [bNulT]
+      bNulT
          true if the item array is NUL-terminated, or false otherwise.
       */
       void commit(size_t cbItem = 0, bool bNulT = false);
@@ -635,7 +635,7 @@ public:
 
    /** Returns the count of item slots in the current item array.
 
-   [bNulT]
+   bNulT
       If true, this vextr is intended to be NUL-terminated, and the returned count will not include
       the trailing NUL terminator; in other words, the capacity will be underreported to reserve
       space for the NUL terminator.
@@ -665,7 +665,7 @@ public:
 
    /** See buffered_vector::size() and _raw_str::size().
 
-   [bNulT]
+   bNulT
       true if the item array is NUL-terminated, or false otherwise.
    return
       Count of items in the item array.
@@ -683,7 +683,7 @@ protected:
 
    ciStaticMax
       Count of slots in the static item array, or 0 if no static item array is present.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    pConstSrc
       Pointer to an array that will be adopted by the vextr as read-only.
@@ -720,7 +720,7 @@ protected:
    /** Resets the contents of the object to an empty item array: a single NUL character in case of
    a string, or nullptr for everything else.
 
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_empty(bool bNulT = false) {
@@ -1077,7 +1077,7 @@ public:
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
@@ -1100,7 +1100,7 @@ public:
       Pointer to the second source array.
    ci2
       Count of items in the second source array.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_concat(
@@ -1116,7 +1116,7 @@ public:
       Pointer to the source array.
    ci
       Count of items in the source array.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
@@ -1135,7 +1135,7 @@ public:
 
    rtvi
       Source vextr.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
@@ -1156,7 +1156,7 @@ public:
       Size of a single array item, in bytes.
    rtvi
       Source vextr.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_move_dynamic_or_move_items(
@@ -1170,7 +1170,7 @@ public:
       Size of a single array item, in bytes.
    rtvi
       Source vextr.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void assign_share_ro_or_copy(
@@ -1199,7 +1199,7 @@ public:
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void insert(
@@ -1221,7 +1221,7 @@ public:
       index from the end of the vextr.
    ciRemove
       Count of items to remove.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
@@ -1243,7 +1243,7 @@ public:
    bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT = false);
@@ -1284,7 +1284,7 @@ private:
       Count of items to add.
    ciAdd
       Count of items to remove.
-   [bNulT]
+   bNulT
       true if the item array is a NUL-terminated string, or false otherwise.
    */
    void _insert_or_remove(

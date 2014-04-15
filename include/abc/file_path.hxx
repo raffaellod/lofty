@@ -351,7 +351,7 @@ public:
 
    /** Constructor.
 
-   [crFormat]
+   crFormat
       Formatting options.
    */
    to_str_backend(char_range const & crFormat = char_range());

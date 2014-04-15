@@ -544,7 +544,7 @@ public:
    iFirst
       0-based index of the first element. If negative, it’s 1-based index from the end of the
       vector.
-   [ci]
+   ci
       Count of elements to return. If negative, it’s the count of elements to skip, from the end of
       the vector.
    */

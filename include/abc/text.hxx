@@ -191,9 +191,9 @@ pBuf
    Pointer to a character string the encoding of which needs to be determined.
 cbBuf
    Size of the string pointed to by pBuf, in bytes.
-[cbSrcTotal]
+cbSrcTotal
    Total size, in bytes, of a larger string of which *pBuf is the beginning.
-[pcbBom]
+pcbBom
    Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
    of the string, in bytes, or 0 otherwise.
 return

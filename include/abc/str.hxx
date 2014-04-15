@@ -85,7 +85,7 @@ public:
 
    /** Constructor.
 
-   [crFormat]
+   crFormat
       Formatting options.
    */
    to_str_backend(char_range const & crFormat = char_range()) :
@@ -513,7 +513,7 @@ public:
    ichFirst
       0-based index of the first character. If negative, it’s 1-based index from the end of the
       string.
-   [cch]
+   cch
       Count of characters to return. If negative, it’s the count of characters to skip, from the end
       of the string.
    */
@@ -630,7 +630,7 @@ public:
 
    /** Constructor.
 
-   [crFormat]
+   crFormat
       Formatting options.
    */
    to_str_backend(char_range const & crFormat = char_range()) :

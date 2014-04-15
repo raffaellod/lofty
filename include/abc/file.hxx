@@ -94,7 +94,7 @@ public:
 
    fd
       Source file descriptor.
-   [bOwn]
+   bOwn
       If true, the filedesc object will take ownership of the raw descriptor (i.e. it will release
       it whenever appropriate); if false, the raw descriptor will never be closed by this instance.
    */
@@ -256,7 +256,7 @@ public:
       Path to the file.
    fam
       Desired access mode.
-   [bBuffered]
+   bBuffered
       If true, access to the file will be buffered by the OS, if false, access to the file will be
       unbuffered.
    return

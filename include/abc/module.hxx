@@ -329,7 +329,7 @@ public:
 
    sSymbol
       Symbol name.
-   [ppfn]
+   ppfn
       Pointer to a variable that will receive, upon return, the address of the symbol. Specifying
       this arguments will automatically select the right template type, so the resulting method
       invocation will be much more readable.
