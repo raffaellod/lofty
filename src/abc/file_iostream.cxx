@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -464,6 +464,30 @@ file_ostream::file_ostream(file_path const & fp) :
 
    if (!g_ppfosStdErr) {
       _construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
+
+#if ABC_HOST_API_WIN32
+      // TODO: document this behavior and the related enviroment variable.
+
+      // TODO: make the below code only pick up variables meant for this PID. This should eventually
+      // be made more general, as a way for an ABC-based parent process to communicate with an
+      // ABC-based child process.
+
+      // TODO: change to use a global “environment” map object instead of this ad-hoc code.
+      smstr<64> sEnc;
+      sEnc.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
+         // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
+         // enough, or the required size (length including NUL) otherwise.
+         return ::GetEnvironmentVariable(SL("ABC_STDERR_ENCODING"), pch, DWORD(cchMax));
+      });
+      try {
+         text::encoding enc(sEnc.data());
+         // If we’re still here, the encoding is valid; assign it to the stderr stream.
+         (*g_ppfosStdErr)->set_encoding(enc);
+      } catch (domain_error const &) {
+         // Ignore this invalid encoding setting.
+         // TODO: display a warning about ABC_STDERR_ENCODING being ignored.
+      }
+#endif
    }
    return *g_ppfosStdErr;
 }
