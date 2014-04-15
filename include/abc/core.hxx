@@ -165,7 +165,9 @@ You should have received a copy of the GNU General Public License along with ABC
 
    // Only support Unicode Windows programs.
    // TODO: support non-Unicode Windows programs (Win9x and Win16). In a very, very distant future!
-   #define UNICODE
+   #ifndef UNICODE
+      #define UNICODE
+   #endif
 
    // Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
    #if defined(UNICODE) && !defined(_UNICODE)
