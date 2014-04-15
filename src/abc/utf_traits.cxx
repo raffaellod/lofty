@@ -463,7 +463,8 @@ char16_t const utf16_traits::bom[] = {
          case 0xd800: {
             char32_t ch32(char32_t(ch & 0x03ff) << 10);
             // Surrogate first half; expect at least one more characer.
-            if (!(ch = *psz++)) {
+            ch = *psz++;
+            if (!ch) {
                return false;
             }
             // The next character must be a surrogate second half.
