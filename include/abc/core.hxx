@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -210,6 +210,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - C++11 compiler support
+
+// Ensure RTTI support is enabled for MSC.
+#if ABC_HOST_MSC && !defined(_CPPRTTI)
+   #error Please compile with /GR
+#endif
 
 /** If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
