@@ -53,6 +53,7 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/str.cxx"/>
          <source path="src/abc-test/str_ostream.cxx"/>
          <source path="src/abc-test/to_str_backend.cxx"/>
+         <source path="src/abc-test/vector.cxx"/>
          <dynlib name="abc-testing"/>
       </unittest>
 
@@ -76,10 +77,6 @@ You should have received a copy of the GNU General Public License along with ABC
       <unittest name="abc-test-file_ostream-write-stdout-utf32le">
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf32le.txt"/>
-      </unittest>
-
-      <unittest name="0050-vector">
-         <source path="src/unittest/0050-vector.cxx"/>
       </unittest>
 
       <unittest name="0080-map">
