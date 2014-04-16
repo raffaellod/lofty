@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -500,7 +500,7 @@ protected:
       abc::pointer_iterator<TCont, TVal1> const & it1, \
       abc::pointer_iterator<TCont, TVal2> const & it2 \
    ) { \
-      return it1.base() == it2.base(); \
+      return it1.base() op it2.base(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
