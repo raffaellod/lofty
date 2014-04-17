@@ -57,11 +57,15 @@ public:
    bool changed() {
       ABC_TRACE_FN((this));
 
-      typename T::const_pointer ptiOld(m_pti);
-      // Update the data pointer for the next call.
-      m_pti = m_t.data();
+      typename T::const_pointer ptiNew(m_t.data());
       // Check if the data pointer has changed.
-      return m_pti != ptiOld;
+      if (ptiNew != m_pti) {
+         // Update the data pointer for the next call.
+         m_pti = ptiNew;
+         return true;
+      } else {
+         return false;
+      }
    }
 
 
@@ -72,6 +76,23 @@ private:
    /** Pointer to m_t’s data. */
    typename T::const_pointer m_pti;
 };
+
+
+/** Allows to declare a container_data_ptr_tracker instance using the auto keyword.
+
+t
+   Object to track.
+return
+   Tracker instance.
+*/
+template <class T>
+container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
+
+
+template <class T>
+container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t) {
+   return container_data_ptr_tracker<T>(t);
+}
 
 } //namespace testing
 
@@ -290,63 +311,190 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v[0], 2);
       ABC_TESTING_ASSERT_EQUAL(v[1], 3);
    }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::vector_memory_mgmt
+
+
+namespace abc {
+
+namespace test {
+
+class vector_memory_mgmt :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*vector classes - memory management"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      dmvector<int> v1;
+      auto cdpt1(testing::make_container_data_ptr_tracker(v1));
+      // Note: the embedded item array size will probably be > 2.
+      smvector<int, 2> v2;
+      auto cdpt2(testing::make_container_data_ptr_tracker(v2));
+      // Note: the embedded item array size will probably be > 10.
+      smvector<int, 10> v3;
+      auto cdpt3(testing::make_container_data_ptr_tracker(v3));
+
+      // Add one element to each vector.
+
+      // Should allocate a new item array.
+      v1.append(10);
+      ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
+      ABC_TESTING_ASSERT_EQUAL(v1.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v1[0], 10);
+
+      // Should begin using the embedded item array.
+      v2.append(20);
+      ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
+      ABC_TESTING_ASSERT_EQUAL(v2.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
+
+      // Should begin using the embedded item array.
+      v3.append(30);
+      ABC_TESTING_ASSERT_TRUE(cdpt3.changed());
+      ABC_TESTING_ASSERT_EQUAL(v3.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
+
+      // Add more elements to each vector.
+
+      // These are too many for the newly-allocated item array, so a new one should be allocated.
+      v1.append(11);
+      v1.append(12);
+      v1.append(13);
+      v1.append(14);
+      v1.append(15);
+      v1.append(16);
+      v1.append(17);
+      v1.append(18);
+      v1.append(19);
+      ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
+      ABC_TESTING_ASSERT_EQUAL(v1.size(), 10u);
+      ABC_TESTING_ASSERT_EQUAL(v1[0], 10);
+      ABC_TESTING_ASSERT_EQUAL(v1[1], 11);
+      ABC_TESTING_ASSERT_EQUAL(v1[2], 12);
+      ABC_TESTING_ASSERT_EQUAL(v1[3], 13);
+      ABC_TESTING_ASSERT_EQUAL(v1[4], 14);
+      ABC_TESTING_ASSERT_EQUAL(v1[5], 15);
+      ABC_TESTING_ASSERT_EQUAL(v1[6], 16);
+      ABC_TESTING_ASSERT_EQUAL(v1[7], 17);
+      ABC_TESTING_ASSERT_EQUAL(v1[8], 18);
+      ABC_TESTING_ASSERT_EQUAL(v1[9], 19);
+
+      // These are too many for the embedded item array, so a new item array should be allocated.
+      v2.append(21);
+      v2.append(22);
+      v2.append(23);
+      v2.append(24);
+      v2.append(25);
+      v2.append(26);
+      v2.append(27);
+      v2.append(28);
+      v2.append(29);
+      ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
+      ABC_TESTING_ASSERT_EQUAL(v2.size(), 10u);
+      ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
+      ABC_TESTING_ASSERT_EQUAL(v2[1], 21);
+      ABC_TESTING_ASSERT_EQUAL(v2[2], 22);
+      ABC_TESTING_ASSERT_EQUAL(v2[3], 23);
+      ABC_TESTING_ASSERT_EQUAL(v2[4], 24);
+      ABC_TESTING_ASSERT_EQUAL(v2[5], 25);
+      ABC_TESTING_ASSERT_EQUAL(v2[6], 26);
+      ABC_TESTING_ASSERT_EQUAL(v2[7], 27);
+      ABC_TESTING_ASSERT_EQUAL(v2[8], 28);
+      ABC_TESTING_ASSERT_EQUAL(v2[9], 29);
+
+      // The embedded item array has room for this, so no reallocation is needed.
+      v3.append(31);
+      ABC_TESTING_ASSERT_FALSE(cdpt3.changed());
+      ABC_TESTING_ASSERT_EQUAL(v3.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
+      ABC_TESTING_ASSERT_EQUAL(v3[1], 31);
+
+      // Check assignment from larger to smaller static vectors.
+
+      // Should keep the current item array, copying v2’s items over.
+      v1 = v2;
+      ABC_TESTING_ASSERT_FALSE(cdpt1.changed());
+      ABC_TESTING_ASSERT_EQUAL(v1.size(), 10u);
+      ABC_TESTING_ASSERT_EQUAL(v1[0], 20);
+      ABC_TESTING_ASSERT_EQUAL(v1[1], 21);
+      ABC_TESTING_ASSERT_EQUAL(v1[2], 22);
+      ABC_TESTING_ASSERT_EQUAL(v1[3], 23);
+      ABC_TESTING_ASSERT_EQUAL(v1[4], 24);
+      ABC_TESTING_ASSERT_EQUAL(v1[5], 25);
+      ABC_TESTING_ASSERT_EQUAL(v1[6], 26);
+      ABC_TESTING_ASSERT_EQUAL(v1[7], 27);
+      ABC_TESTING_ASSERT_EQUAL(v1[8], 28);
+      ABC_TESTING_ASSERT_EQUAL(v1[9], 29);
+
+      // Should return to using the embedded item array, copying v3’s items over.
+      v2 = v3;
+      ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
+      ABC_TESTING_ASSERT_EQUAL(v2.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(v2[0], 30);
+      ABC_TESTING_ASSERT_EQUAL(v2[1], 31);
+      // “Rebrand” the items as 2x.
+      v2[0] = 20;
+      v2[1] = 21;
+
+      // The current item array should still be large enough, but this should drop it to use the
+      // temporary one created by operator+().
+      v1 = v2 + v3;
+      ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
+      ABC_TESTING_ASSERT_EQUAL(v1.size(), 4u);
+      ABC_TESTING_ASSERT_EQUAL(v1[0], 20);
+      ABC_TESTING_ASSERT_EQUAL(v1[1], 21);
+      ABC_TESTING_ASSERT_EQUAL(v1[2], 30);
+      ABC_TESTING_ASSERT_EQUAL(v1[3], 31);
+      // “Rebrand” the items as 1x.
+      v1[0] = 10;
+      v1[1] = 11;
+      v1[2] = 12;
+      v1[3] = 13;
+
+      // This should be too much for the embedded item array, so a new one should be allocated.
+      v3 += v1 + v2 + v1 + v3 + v1;
+      ABC_TESTING_ASSERT_TRUE(cdpt3.changed());
+      ABC_TESTING_ASSERT_EQUAL(v3.size(), 18u);
+      ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
+      ABC_TESTING_ASSERT_EQUAL(v3[1], 31);
+      ABC_TESTING_ASSERT_EQUAL(v3[2], 10);
+      ABC_TESTING_ASSERT_EQUAL(v3[3], 11);
+      ABC_TESTING_ASSERT_EQUAL(v3[4], 12);
+      ABC_TESTING_ASSERT_EQUAL(v3[5], 13);
+      ABC_TESTING_ASSERT_EQUAL(v3[6], 20);
+      ABC_TESTING_ASSERT_EQUAL(v3[7], 21);
+      ABC_TESTING_ASSERT_EQUAL(v3[8], 10);
+      ABC_TESTING_ASSERT_EQUAL(v3[9], 11);
+      ABC_TESTING_ASSERT_EQUAL(v3[10], 12);
+      ABC_TESTING_ASSERT_EQUAL(v3[11], 13);
+      ABC_TESTING_ASSERT_EQUAL(v3[12], 30);
+      ABC_TESTING_ASSERT_EQUAL(v3[13], 31);
+      ABC_TESTING_ASSERT_EQUAL(v3[14], 10);
+      ABC_TESTING_ASSERT_EQUAL(v3[15], 11);
+      ABC_TESTING_ASSERT_EQUAL(v3[16], 12);
+      ABC_TESTING_ASSERT_EQUAL(v3[17], 13);
+   }
 
 #if 0
-      // Try mix’n’matching vectors of different sizes, and check that vectors using static
-      // descriptors only switch to dynamic descriptors if necessary.
-      {
-         dmvector<int> v0;
-         pi = v0.data();
-         v0.append(0);
-         if (v0.data() == pi) {
-            return 50;
-         }
-
-         smvector<int, 3> v1;
-         pi = v1.data();
-         v1.append(1);
-         if (v1.data() == pi) {
-            return 51;
-         }
-         pi = v1.data();
-         v1.append(2);
-         if (v1.data() != pi) {
-            return 52;
-         }
-
-         smvector<int, 1> v2;
-         pi = v2.data();
-         v2.append(3);
-         if (v2.data() == pi) {
-            return 53;
-         }
-
-         pi = v0.data();
-         v0 = v1 + v2;
-         if (v0.data() == pi || v0.size() != 3 || v0[0] != 1 || v0[1] != 2 || v0[2] != 3) {
-            return 54;
-         }
-
-         pi = v1.data();
-         v1 = v2 + v0;
-         if (
-            v1.data() == pi || v1.size() != 4 ||
-            v1[0] != 3 || v1[1] != 1 || v1[2] != 2 || v1[3] != 3
-         ) {
-            return 55;
-         }
-
-         pi = v2.data();
-         v2 = v0 + v1;
-         if (
-            v2.data() == pi || v2.size() != 7 ||
-            v2[0] != 1 || v2[1] != 2 || v2[2] != 3 ||
-            v2[3] != 3 || v2[4] != 1 || v2[5] != 2 || v2[6] != 3
-         ) {
-            return 56;
-         }
-      }
-
       // Check that returning a vector with a dynamically allocated descriptor does not cause a new
       // descriptor to be allocated, nor copies the items.
       {
@@ -406,5 +554,5 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
 
