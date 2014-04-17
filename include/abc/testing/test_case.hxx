@@ -76,20 +76,6 @@ public:
 
 protected:
 
-   /** Validates an assertion.
-
-   bExpr
-      Value of the asserted expression.
-   sExpr
-      Asserted expression.
-   */
-   void assert_bool(bool bExpr, istr const & sExpr) {
-//    ABC_TRACE_FN((this, bExpr, sExpr));
-
-      m_prunner->log_assertion(bExpr, sExpr, SL("true"), SL("false"));
-   }
-
-
    /** Validates an equality assertion.
 
    texpr
@@ -100,14 +86,47 @@ protected:
       String representing texpr.
    */
    template <typename TExpr, typename TExpected>
-   void assert_equal(TExpr const & texpr, TExpected const & texpected, istr const & sExpr) {
+   void assert_equal(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & texpr, TExpected const & texpected, istr const & sExpr
+   ) {
 //    ABC_TRACE_FN((this, texpr, texpected, sExpr));
 
       if (texpr == texpected) {
-         m_prunner->log_assertion(true, sExpr);
+         m_prunner->log_assertion(pszFileName, iLine, true, sExpr);
       } else {
-         m_prunner->log_assertion(false, sExpr, to_str(texpected), to_str(texpr));
+         m_prunner->log_assertion(
+            pszFileName, iLine, false, sExpr, to_str(texpected), to_str(texpr)
+         );
       }
+   }
+
+
+   /** Validates an assertion to be false.
+
+   bExpr
+      Value of the asserted expression.
+   sExpr
+      Asserted expression.
+   */
+   void assert_false(char const * pszFileName, unsigned iLine, bool bExpr, istr const & sExpr) {
+//    ABC_TRACE_FN((this, bExpr, sExpr));
+
+      m_prunner->log_assertion(pszFileName, iLine, !bExpr, sExpr, SL("false"), SL("true"));
+   }
+
+
+   /** Validates an assertion to be true.
+
+   bExpr
+      Value of the asserted expression.
+   sExpr
+      Asserted expression.
+   */
+   void assert_true(char const * pszFileName, unsigned iLine, bool bExpr, istr const & sExpr) {
+//    ABC_TRACE_FN((this, bExpr, sExpr));
+
+      m_prunner->log_assertion(pszFileName, iLine, bExpr, sExpr, SL("true"), SL("false"));
    }
 
 
@@ -135,7 +154,7 @@ expr
       } catch (...) { \
          _bCaught = true; \
       } \
-      this->assert_bool(!_bCaught, SL(#expr)); \
+      this->assert_true(__FILE__, __LINE__, !_bCaught, SL(#expr)); \
    } while (false)
 
 
@@ -148,7 +167,7 @@ expected
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, expected) \
    do { \
-      this->assert_equal(expr, expected, SL(#expr) SL(" == ") SL(#expected)); \
+      this->assert_equal(__FILE__, __LINE__, expr, expected, SL(#expr) SL(" == ") SL(#expected)); \
    } while (false)
 
 
@@ -159,7 +178,7 @@ expr
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
    /* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
-   this->assert_bool(!static_cast<bool>(expr), SL(#expr) SL(" == false"))
+   this->assert_false(__FILE__, __LINE__, static_cast<bool>(expr), SL(#expr))
 
 
 /** Asserts that the first expression evaluates to more than the second expression.
@@ -170,7 +189,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr1, expr2) \
-   this->assert_bool(expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
+   this->assert_true(__FILE__, __LINE__, expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at least the same value as the second expression.
@@ -181,7 +200,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
-   this->assert_bool(expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
+   this->assert_true(__FILE__, __LINE__, expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to less than the second expression.
@@ -192,7 +211,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS(expr1, expr2) \
-   this->assert_bool(expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
+   this->assert_true(__FILE__, __LINE__, expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at most the same value as the second expression.
@@ -203,7 +222,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr1, expr2) \
-   this->assert_bool(expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
+   this->assert_true(__FILE__, __LINE__, expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
 
 
 /** Asserts that the specified expressions don’t evaluate to the same value.
@@ -214,7 +233,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr1, expr2) \
-   this->assert_bool(expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
+   this->assert_true(__FILE__, __LINE__, expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
 
 
 /** Asserts that the specified expression throws an exception of the specified type.
@@ -232,7 +251,7 @@ expr
       } catch (type const &) { \
          _bCaught = true; \
       } \
-      this->assert_bool(_bCaught, SL(#expr)); \
+      this->assert_true(__FILE__, __LINE__, _bCaught, SL(#expr)); \
    } while (false)
 
 
@@ -242,7 +261,7 @@ expr
    Expression that should evaulate to true.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_bool(expr, SL(#expr) SL(" == true"))
+   this->assert_true(__FILE__, __LINE__, expr, SL(#expr))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

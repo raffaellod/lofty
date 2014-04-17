@@ -72,7 +72,7 @@ public:
       } catch (...) {
          sResult = SL("threw abc::exception, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
@@ -94,7 +94,7 @@ public:
       } catch (...) {
          sResult = SL("threw abc::generic_error, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
@@ -116,7 +116,7 @@ public:
       } catch (...) {
          sResult = SL("threw derived1_error, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
@@ -138,7 +138,7 @@ public:
       } catch (...) {
          sResult = SL("threw derived2_error, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
@@ -160,7 +160,7 @@ public:
       } catch (...) {
          sResult = SL("threw derived3_error, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
    }
 
 
@@ -245,7 +245,7 @@ public:
       } catch (...) {
          sResult = SL("dereferenced nullptr, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       bCaughtCorrect = false;
       try {
@@ -262,7 +262,7 @@ public:
       } catch (...) {
          sResult = SL("dereferenced invalid pointer, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       // Enable alignment checking if the architecture supports it.
 #ifdef __GNUC__
@@ -301,7 +301,7 @@ public:
       } catch (...) {
          sResult = SL("unaligned memory access, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
 
       // Disable alignment checking back.
 #ifdef __GNUC__
@@ -338,7 +338,7 @@ public:
       } catch (...) {
          sResult = SL("divided by zero, but caught unknown exception");
       }
-      assert_bool(bCaughtCorrect, sResult);
+      assert_true(__FILE__, __LINE__, bCaughtCorrect, sResult);
    }
 };
 

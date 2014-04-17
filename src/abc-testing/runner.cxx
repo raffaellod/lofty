@@ -84,20 +84,20 @@ void runner::load_registered_test_cases() {
 
 
 void runner::log_assertion(
-   bool bSuccess, istr const & sExpr,
-   istr const & sExpected /*= istr()*/, istr const & sActual /*= istr()*/
+   char const * pszFileName, unsigned iLine, bool bSuccess,
+   istr const & sExpr, istr const & sExpected /*= istr()*/, istr const & sActual /*= istr()*/
 ) {
    ABC_TRACE_FN((this, bSuccess, sExpr, sExpected, sActual));
 
    if (bSuccess) {
-      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}\n"), sExpr);
+      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}:{}: {}\n"), pszFileName, iLine, sExpr);
    } else {
       ++m_cFailedAssertions;
       m_pos->print(
-         SL("ABCMK-TEST-ASSERT-FAIL {}\n")
+         SL("ABCMK-TEST-ASSERT-FAIL {}:{}: {}\n")
          SL("  expected: {}\n")
          SL("  actual:   {}\n"),
-         sExpr, sExpected, sActual
+         pszFileName, iLine, sExpr, sExpected, sActual
       );
    }
 }
