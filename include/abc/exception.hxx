@@ -244,7 +244,7 @@ info
    do { \
       ::abc::_exception_aggregator<x> _x; \
       _x.init info; \
-      _x._before_throw(__FILE__, uint16_t(__LINE__), _ABC_THIS_FUNC); \
+      _x._before_throw(__FILE__, __LINE__, _ABC_THIS_FUNC); \
       throw _x; \
    } while (false)
 
@@ -307,7 +307,7 @@ public:
    pszFunction
       Function that is throwing the exception.
    */
-   void _before_throw(char const * pszFileName, uint16_t iLine, char const * pszFunction);
+   void _before_throw(char const * pszFileName, unsigned iLine, char const * pszFunction);
 
 
    /** Initializes the information associated to the exception.

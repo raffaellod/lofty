@@ -1125,10 +1125,10 @@ exception & exception::operator=(exception const & x) {
 }
 
 
-void exception::_before_throw(char const * pszFileName, uint16_t iLine, char const * pszFunction) {
+void exception::_before_throw(char const * pszFileName, unsigned iLine, char const * pszFunction) {
    m_pszSourceFunction = pszFunction;
    m_pszSourceFileName = pszFileName;
-   m_iSourceLine = iLine;
+   m_iSourceLine = uint16_t(iLine);
    // Clear any old trace stream buffer and create a new one with *this as its only reference. See
    // [DOC:8503 Stack tracing].
    _scope_trace_impl::trace_stream_reset();
