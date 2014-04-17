@@ -652,11 +652,11 @@ public:
       *this.
    */
    mvector & operator+=(mvector const & v) {
-      append_copy(v.data(), v.size());
+      this->append_copy(v.data(), v.size());
       return *this;
    }
    mvector & operator+=(mvector && v) {
-      append_move(v.data(), v.size());
+      this->append_move(v.data(), v.size());
       return *this;
    }
 
