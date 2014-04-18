@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8; mode: python; tab-width: 3; indent-tabs-mode: nil -*-
 #
-# Copyright 2010, 2011, 2012, 2013
+# Copyright 2010, 2011, 2012, 2013, 2014
 # Raffaello D. Di Napoli
 #
 # This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -34,11 +34,12 @@ def fnv_hash_basis(cBits, iFNVPrime):
    iHashMod = 2 ** cBits
    iFNVBasis = 0
    for ch in sFNVBasis:
-#     sys.stdout.write('Char {} (basis = {})\n'.format(ch, iFNVBasis))
       iFNVBasis *= iFNVPrime
       iFNVBasis %= iHashMod
       iFNVBasis ^= ord(ch)
-   sys.stdout.write('Using prime = {:#x}, {}-bit basis = {}\n'.format(iFNVPrime, cBits, iFNVBasis))
+   print('Using prime = {0} ({0:#x}), {1}-bit basis = {2} ({2:#x})'.format(
+      iFNVPrime, cBits, iFNVBasis
+   ))
 
 
 if __name__ == '__main__':
