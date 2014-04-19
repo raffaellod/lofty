@@ -112,15 +112,15 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TEqual>
    void assert_equal(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TEqual const & tEqual, istr const & sExpr, istr const & sEqual
    ) {
-      bool bSuccess = (tActual == tExpected);
+      bool bSuccess = (tActual == tEqual);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL("== "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sEqual : istr(to_str(tEqual)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -137,75 +137,75 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TLBound>
    void assert_greater(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
-      bool bSuccess = (tActual > tExpected);
+      bool bSuccess = (tActual > tLBound);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL("> "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sLBound : istr(to_str(tLBound)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TLBound>
    void assert_greater_equal(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
-      bool bSuccess = (tActual > tExpected);
+      bool bSuccess = (tActual > tLBound);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL(">= "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sLBound : istr(to_str(tLBound)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
 
    /** Implementation of ABC_TESTING_ASSERT_LESS.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TUBound>
    void assert_less(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
-      bool bSuccess = (tActual < tExpected);
+      bool bSuccess = (tActual < tUBound);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL("<= "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sUBound : istr(to_str(tUBound)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
 
    /** Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TUBound>
    void assert_less_equal(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
-      bool bSuccess = (tActual <= tExpected);
+      bool bSuccess = (tActual <= tUBound);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL("<= "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sUBound : istr(to_str(tUBound)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
 
    /** Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
    */
-   template <typename TExpr, typename TActual>
+   template <typename TExpr, typename TNotEqual>
    void assert_not_equal(
       char const * pszFileName, unsigned iLine,
-      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+      TExpr const & tActual, TNotEqual const & tNotEqual, istr const & sExpr, istr const & sNotEqual
    ) {
-      bool bSuccess = (tActual != tExpected);
+      bool bSuccess = (tActual != tNotEqual);
       assert_impl(
          pszFileName, iLine, bSuccess, sExpr, SL("!= "),
-         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+         bSuccess ? sNotEqual : istr(to_str(tNotEqual)), bSuccess ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -231,10 +231,10 @@ protected:
 } //namespace abc
 
 
-/** Asserts that the specified expression does not throw.
+/** Asserts that an expression does not throw.
 
 expr
-   Expression that should not throw.
+   Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
    do { \
@@ -248,88 +248,88 @@ expr
    } while (false)
 
 
-/** Asserts that the specified expressions evaluate to the same value.
+/** Asserts that the value of an expression differs from a specified value.
 
 expr
-   Expression to be evaluated.
-expected
-   Expected value of expr.
+   Expression to evaluate.
+value
+   Value that expr should not evaluate to.
 */
-#define ABC_TESTING_ASSERT_EQUAL(expr1, expr2) \
-   this->assert_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_EQUAL(expr, value) \
+   this->assert_equal(__FILE__, __LINE__, expr, value, SL(#expr), SL(#value))
 
 
-/** Asserts that the specified expression evaluates to false.
+/** Asserts that an expression evaluates to false.
 
 expr
-   Expression that should evaulate to false.
+   Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
    /* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
    this->assert_false(__FILE__, __LINE__, expr, SL(#expr))
 
 
-/** Asserts that the first expression evaluates to more than the second expression.
+/** Asserts that the value of an expression is strictly greater than a lower bound.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to evaluate.
+lbound
+   Exclusive lower bound.
 */
-#define ABC_TESTING_ASSERT_GREATER(expr1, expr2) \
-   this->assert_greater(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
+   this->assert_greater(__FILE__, __LINE__, expr, lbound, SL(#expr), SL(#lbound))
 
 
-/** Asserts that the first expression evaluates to at least the same value as the second expression.
+/** Asserts that the value of an expression is greater-than or equal-to a lower bound.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to evaluate.
+lbound
+   Inclusive lower bound.
 */
-#define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
-   this->assert_greater_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
+   this->assert_greater_equal(__FILE__, __LINE__, expr, lbound, SL(#expr), SL(#lbound))
 
 
-/** Asserts that the first expression evaluates to less than the second expression.
+/** Asserts that the value of an expression is strictly less than an upper bound.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to evaluate.
+ubound
+   Exclusive upper bound.
 */
-#define ABC_TESTING_ASSERT_LESS(expr1, expr2) \
-   this->assert_less_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_LESS(expr, ubound) \
+   this->assert_less_equal(__FILE__, __LINE__, expr, expected, SL(#expr), SL(#ubound))
 
 
-/** Asserts that the first expression evaluates to at most the same value as the second expression.
+/** Asserts that the value of an expression is less-than or equal-to an upper bound.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to evaluate.
+ubound
+   Inclusive upper bound.
 */
-#define ABC_TESTING_ASSERT_LESS_EQUAL(expr1, expr2) \
-   this->assert_less_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
+   this->assert_less_equal(__FILE__, __LINE__, expr, ubound, SL(#expr), SL(#ubound))
 
 
-/** Asserts that the specified expressions don’t evaluate to the same value.
+/** Asserts that the value of an expression differs from a specified value.
 
-expr1
-   First expression.
-expr2
-   Second expression.
+expr
+   Expression to evaluate.
+value
+   Value that expr should not evaluate to.
 */
-#define ABC_TESTING_ASSERT_NOT_EQUAL(expr1, expr2) \
-   this->assert_not_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
+#define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
+   this->assert_not_equal(__FILE__, __LINE__, expr, value, SL(#expr), SL(#value))
 
 
-/** Asserts that the specified expression throws an exception of the specified type.
+/** Asserts that an expression throws a specific type of exception.
 
 type
    Exception class that should be caught.
 expr
-   Expression that should throw.
+   Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
    do { \
@@ -343,10 +343,10 @@ expr
    } while (false)
 
 
-/** Asserts that the specified expression evaluates to true.
+/** Asserts that an expression evaluates to true.
 
 expr
-   Expression that should evaulate to true.
+   Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
    this->assert_true(__FILE__, __LINE__, expr, SL(#expr))
