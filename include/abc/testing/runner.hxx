@@ -91,10 +91,8 @@ public:
    void load_registered_test_cases();
 
 
-   /** Logs the result of an assertion.
+   /** Logs a failed assertion.
 
-   bSuccess
-      Result of the assertion.
    sExpr
       Subject of the assertion.
    sExpected
@@ -102,9 +100,24 @@ public:
    sActual
       Actual value of sExpr.
    */
-   void log_assertion(
-      char const * pszFileName, unsigned iLine, bool bSuccess,
-      istr const & sExpr, istr const & sExpected = istr(), istr const & sActual = istr()
+   void log_assertion_fail(
+      char const * pszFileName, unsigned iLine,
+      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
+   );
+
+
+   /** Logs a validated assertion.
+
+   sExpr
+      Subject of the assertion.
+   sExpected
+      Expected value of sExpr.
+   sActual
+      Actual value of sExpr.
+   */
+   void log_assertion_pass(
+      char const * pszFileName, unsigned iLine,
+      istr const & sExpr, istr const & sOp, istr const & sExpected
    );
 
 

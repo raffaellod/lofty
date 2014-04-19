@@ -83,23 +83,31 @@ void runner::load_registered_test_cases() {
 }
 
 
-void runner::log_assertion(
-   char const * pszFileName, unsigned iLine, bool bSuccess,
-   istr const & sExpr, istr const & sExpected /*= istr()*/, istr const & sActual /*= istr()*/
+void runner::log_assertion_fail(
+   char const * pszFileName, unsigned iLine,
+   istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
 ) {
-   ABC_TRACE_FN((this, bSuccess, sExpr, sExpected, sActual));
+   ABC_TRACE_FN((this, pszFileName, iLine, sExpr, sOp, sExpected, sActual));
 
-   if (bSuccess) {
-      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}:{}: {}\n"), pszFileName, iLine, sExpr);
-   } else {
-      ++m_cFailedAssertions;
-      m_pos->print(
-         SL("ABCMK-TEST-ASSERT-FAIL {}:{}: {}\n")
-         SL("  expected: {}\n")
+   ++m_cFailedAssertions;
+   m_pos->print(
+      SL("ABCMK-TEST-ASSERT-FAIL {}:{}: {}\n")
+         SL("  expected: {}{}\n")
          SL("  actual:   {}\n"),
-         pszFileName, iLine, sExpr, sExpected, sActual
-      );
-   }
+      pszFileName, iLine, sExpr, sOp, sExpected, sActual
+   );
+}
+
+
+void runner::log_assertion_pass(
+   char const * pszFileName, unsigned iLine,
+   istr const & sExpr, istr const & sOp, istr const & sExpected
+) {
+   ABC_TRACE_FN((this, pszFileName, iLine, sExpr, sOp, sExpected));
+
+   m_pos->print(
+      SL("ABCMK-TEST-ASSERT-PASS {}:{}: {} {}{}\n"), pszFileName, iLine, sExpr, sOp, sExpected
+   );
 }
 
 

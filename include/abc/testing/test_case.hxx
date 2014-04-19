@@ -76,57 +76,147 @@ public:
 
 protected:
 
-   /** Validates an equality assertion.
+   /** Core implementation of ABC_TESTING_ASSERT_*.
 
-   texpr
-      Expression to be evaluated.
-   texpected
-      Expected value of texpr.
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   bSuccess
+      true if the assertion was valid, or false otherwise.
    sExpr
-      String representing texpr.
+      Source representation of the expression being evaluated.
+   sOp
+      Applied comparison operator.
+   sExpected
+      If bSuccess, expression generating the expected value (i.e. C++ expression, as a string); if
+      !bSuccess, computed expected value (i.e. the actual value returned by the C++ expression, as a
+      string).
+   sActual
+      Only used if !bSuccess, this is the computed actual value (i.e. return value of sExpr), as a
+      string.
    */
-   template <typename TExpr, typename TExpected>
-   void assert_equal(
-      char const * pszFileName, unsigned iLine,
-      TExpr const & texpr, TExpected const & texpected, istr const & sExpr
+   void assert_impl(
+      char const * pszFileName, unsigned iLine, bool bSuccess,
+      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
    ) {
-//    ABC_TRACE_FN((this, texpr, texpected, sExpr));
+//    ABC_TRACE_FN((this, pszFileName, iLine, bSuccess, sExpr, sOp, sExpected, sActual));
 
-      if (texpr == texpected) {
-         m_prunner->log_assertion(pszFileName, iLine, true, sExpr);
+      if (bSuccess) {
+         m_prunner->log_assertion_pass(pszFileName, iLine, sExpr, sOp, sExpected);
       } else {
-         m_prunner->log_assertion(
-            pszFileName, iLine, false, sExpr, to_str(texpected), to_str(texpr)
-         );
+         m_prunner->log_assertion_fail(pszFileName, iLine, sExpr, sOp, sExpected, sActual);
       }
    }
 
 
-   /** Validates an assertion to be false.
-
-   bExpr
-      Value of the asserted expression.
-   sExpr
-      Asserted expression.
+   /** Implementation of ABC_TESTING_ASSERT_EQUAL.
    */
-   void assert_false(char const * pszFileName, unsigned iLine, bool bExpr, istr const & sExpr) {
-//    ABC_TRACE_FN((this, bExpr, sExpr));
-
-      m_prunner->log_assertion(pszFileName, iLine, !bExpr, sExpr, SL("false"), SL("true"));
+   template <typename TExpr, typename TActual>
+   void assert_equal(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual == tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL("== "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
    }
 
 
-   /** Validates an assertion to be true.
-
-   bExpr
-      Value of the asserted expression.
-   sExpr
-      Asserted expression.
+   /** Implementation of ABC_TESTING_ASSERT_FALSE.
    */
-   void assert_true(char const * pszFileName, unsigned iLine, bool bExpr, istr const & sExpr) {
-//    ABC_TRACE_FN((this, bExpr, sExpr));
+   void assert_false(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr) {
+      assert_impl(
+         pszFileName, iLine, !bActual, sExpr, istr(),
+         !bActual ? istr() : SL("false"), SL("true")
+      );
+   }
 
-      m_prunner->log_assertion(pszFileName, iLine, bExpr, sExpr, SL("true"), SL("false"));
+
+   /** Implementation of ABC_TESTING_ASSERT_GREATER.
+   */
+   template <typename TExpr, typename TActual>
+   void assert_greater(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual > tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL("> "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
+   }
+
+
+   /** Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
+   */
+   template <typename TExpr, typename TActual>
+   void assert_greater_equal(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual > tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL(">= "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
+   }
+
+
+   /** Implementation of ABC_TESTING_ASSERT_LESS.
+   */
+   template <typename TExpr, typename TActual>
+   void assert_less(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual < tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL("<= "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
+   }
+
+
+   /** Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
+   */
+   template <typename TExpr, typename TActual>
+   void assert_less_equal(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual <= tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL("<= "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
+   }
+
+
+   /** Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
+   */
+   template <typename TExpr, typename TActual>
+   void assert_not_equal(
+      char const * pszFileName, unsigned iLine,
+      TExpr const & tActual, TActual const & tExpected, istr const & sExpr, istr const & sExpected
+   ) {
+      bool bSuccess = (tActual != tExpected);
+      assert_impl(
+         pszFileName, iLine, bSuccess, sExpr, SL("!= "),
+         bSuccess ? sExpected : istr(to_str(tExpected)), bSuccess ? istr() : istr(to_str(tActual))
+      );
+   }
+
+
+   /** Implementation of ABC_TESTING_ASSERT_TRUE.
+   */
+   void assert_true(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr) {
+      assert_impl(
+         pszFileName, iLine, bActual, sExpr, istr(), 
+         bActual ? istr() : SL("true"), SL("false")
+      );
    }
 
 
@@ -154,7 +244,7 @@ expr
       } catch (...) { \
          _bCaught = true; \
       } \
-      this->assert_true(__FILE__, __LINE__, !_bCaught, SL(#expr)); \
+      this->assert_false(__FILE__, __LINE__, _bCaught, SL(#expr)); \
    } while (false)
 
 
@@ -165,10 +255,8 @@ expr
 expected
    Expected value of expr.
 */
-#define ABC_TESTING_ASSERT_EQUAL(expr, expected) \
-   do { \
-      this->assert_equal(__FILE__, __LINE__, expr, expected, SL(#expr) SL(" == ") SL(#expected)); \
-   } while (false)
+#define ABC_TESTING_ASSERT_EQUAL(expr1, expr2) \
+   this->assert_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the specified expression evaluates to false.
@@ -178,7 +266,7 @@ expr
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
    /* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
-   this->assert_false(__FILE__, __LINE__, static_cast<bool>(expr), SL(#expr))
+   this->assert_false(__FILE__, __LINE__, expr, SL(#expr))
 
 
 /** Asserts that the first expression evaluates to more than the second expression.
@@ -189,7 +277,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr1, expr2) \
-   this->assert_true(__FILE__, __LINE__, expr1 > expr2, SL(#expr1) SL(" > ") SL(#expr2))
+   this->assert_greater(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at least the same value as the second expression.
@@ -200,7 +288,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr1, expr2) \
-   this->assert_true(__FILE__, __LINE__, expr1 >= expr2, SL(#expr1) SL(" >= ") SL(#expr2))
+   this->assert_greater_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to less than the second expression.
@@ -211,7 +299,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS(expr1, expr2) \
-   this->assert_true(__FILE__, __LINE__, expr1 < expr2, SL(#expr1) SL(" < ") SL(#expr2))
+   this->assert_less_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the first expression evaluates to at most the same value as the second expression.
@@ -222,7 +310,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr1, expr2) \
-   this->assert_true(__FILE__, __LINE__, expr1 <= expr2, SL(#expr1) SL(" <= ") SL(#expr2))
+   this->assert_less_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the specified expressions don’t evaluate to the same value.
@@ -233,7 +321,7 @@ expr2
    Second expression.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr1, expr2) \
-   this->assert_true(__FILE__, __LINE__, expr1 != expr2, SL(#expr1) SL(" != ") SL(#expr2))
+   this->assert_not_equal(__FILE__, __LINE__, expr1, expr2, SL(#expr1), SL(#expr2))
 
 
 /** Asserts that the specified expression throws an exception of the specified type.
