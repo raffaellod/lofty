@@ -99,15 +99,7 @@ protected:
    void assert_impl(
       char const * pszFileName, unsigned iLine, bool bSuccess,
       istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
-   ) {
-//    ABC_TRACE_FN((this, pszFileName, iLine, bSuccess, sExpr, sOp, sExpected, sActual));
-
-      if (bSuccess) {
-         m_prunner->log_assertion_pass(pszFileName, iLine, sExpr, sOp, sExpected);
-      } else {
-         m_prunner->log_assertion_fail(pszFileName, iLine, sExpr, sOp, sExpected, sActual);
-      }
-   }
+   );
 
 
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
@@ -127,12 +119,7 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_FALSE.
    */
-   void assert_false(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr) {
-      assert_impl(
-         pszFileName, iLine, !bActual, sExpr, istr(),
-         !bActual ? istr() : SL("false"), SL("true")
-      );
-   }
+   void assert_false(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
 
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER.
@@ -212,12 +199,7 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_TRUE.
    */
-   void assert_true(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr) {
-      assert_impl(
-         pszFileName, iLine, bActual, sExpr, istr(), 
-         bActual ? istr() : SL("true"), SL("false")
-      );
-   }
+   void assert_true(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
 
 
 protected:

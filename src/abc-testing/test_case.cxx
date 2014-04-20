@@ -45,6 +45,42 @@ void test_case::init(runner * prunner) {
    m_prunner = prunner;
 }
 
+
+void test_case::assert_impl(
+   char const * pszFileName, unsigned iLine, bool bSuccess,
+   istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
+) {
+   ABC_TRACE_FN((this, pszFileName, iLine, bSuccess, sExpr, sOp, sExpected, sActual));
+
+   if (bSuccess) {
+      m_prunner->log_assertion_pass(pszFileName, iLine, sExpr, sOp, sExpected);
+   } else {
+      m_prunner->log_assertion_fail(pszFileName, iLine, sExpr, sOp, sExpected, sActual);
+   }
+}
+
+
+void test_case::assert_false(
+   char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr
+) {
+   ABC_TRACE_FN((this, pszFileName, iLine, bActual, sExpr));
+
+   assert_impl(
+      pszFileName, iLine, !bActual, sExpr, istr(), !bActual ? istr() : SL("false"), SL("true")
+   );
+}
+
+
+void test_case::assert_true(
+   char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr
+) {
+   ABC_TRACE_FN((this, pszFileName, iLine, bActual, sExpr));
+
+   assert_impl(
+      pszFileName, iLine, bActual, sExpr, istr(), bActual ? istr() : SL("true"), SL("false")
+   );
+}
+
 } //namespace testing
 
 } //namespace abc
