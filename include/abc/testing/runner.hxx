@@ -91,44 +91,29 @@ public:
    void load_registered_test_cases();
 
 
-   /** Logs a failed assertion.
+   /** Logs an assertion.
 
    pszFileName
       Path to the source file containing the expression.
    iLine
       Source line number.
+   bPass
+      true if the assertion was valid, or false otherwise.
    sExpr
       Source representation of the expression being evaluated.
    sOp
       Applied comparison operator.
    sExpected
-      Computed expected value, i.e. the actual value returned by the C++ expression, as a string.
+      If bPass, expression generating the expected value (i.e. the C++ expression, as a string); if
+      !bPass, computed expected value (i.e. the actual value returned by the C++ expression, as a
+      string).
    sActual
-      Only used if !bSuccess, this is the computed actual value (i.e. return value of sExpr), as a
+      Only used if !bPass, this is the computed actual value (i.e. return value of sExpr), as a
       string.
    */
-   void log_assertion_fail(
-      char const * pszFileName, unsigned iLine,
-      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
-   );
-
-
-   /** Logs a validated assertion.
-
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
-   sExpr
-      Source representation of the expression being evaluated.
-   sOp
-      Applied comparison operator.
-   sExpected
-      Expression generating the expected value, i.e. the C++ expression, as a string.
-   */
-   void log_assertion_pass(
-      char const * pszFileName, unsigned iLine,
-      istr const & sExpr, istr const & sOp, istr const & sExpected
+   void log_assertion(
+      char const * pszFileName, unsigned iLine, bool bPass,
+      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual = istr()
    );
 
 

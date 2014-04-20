@@ -76,32 +76,6 @@ public:
 
 protected:
 
-   /** Core implementation of ABC_TESTING_ASSERT_*.
-
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
-   bSuccess
-      true if the assertion was valid, or false otherwise.
-   sExpr
-      Source representation of the expression being evaluated.
-   sOp
-      Applied comparison operator.
-   sExpected
-      If bSuccess, expression generating the expected value (i.e. C++ expression, as a string); if
-      !bSuccess, computed expected value (i.e. the actual value returned by the C++ expression, as a
-      string).
-   sActual
-      Only used if !bSuccess, this is the computed actual value (i.e. return value of sExpr), as a
-      string.
-   */
-   void assert_impl(
-      char const * pszFileName, unsigned iLine, bool bSuccess,
-      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual
-   );
-
-
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
    */
    template <typename TExpr, typename TEqual>
@@ -109,10 +83,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TEqual const & tEqual, istr const & sExpr, istr const & sEqual
    ) {
-      bool bSuccess = (tActual == tEqual);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL("== "),
-         bSuccess ? sEqual : istr(to_str(tEqual)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual == tEqual);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL("== "),
+         bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -129,10 +103,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
-      bool bSuccess = (tActual > tLBound);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL("> "),
-         bSuccess ? sLBound : istr(to_str(tLBound)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual > tLBound);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL("> "),
+         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -144,10 +118,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
-      bool bSuccess = (tActual > tLBound);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL(">= "),
-         bSuccess ? sLBound : istr(to_str(tLBound)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual > tLBound);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL(">= "),
+         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -159,10 +133,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
-      bool bSuccess = (tActual < tUBound);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL("<= "),
-         bSuccess ? sUBound : istr(to_str(tUBound)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual < tUBound);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL("<= "),
+         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -174,10 +148,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
-      bool bSuccess = (tActual <= tUBound);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL("<= "),
-         bSuccess ? sUBound : istr(to_str(tUBound)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual <= tUBound);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL("<= "),
+         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -189,10 +163,10 @@ protected:
       char const * pszFileName, unsigned iLine,
       TExpr const & tActual, TNotEqual const & tNotEqual, istr const & sExpr, istr const & sNotEqual
    ) {
-      bool bSuccess = (tActual != tNotEqual);
-      assert_impl(
-         pszFileName, iLine, bSuccess, sExpr, SL("!= "),
-         bSuccess ? sNotEqual : istr(to_str(tNotEqual)), bSuccess ? istr() : istr(to_str(tActual))
+      bool bPass = (tActual != tNotEqual);
+      m_prunner->log_assertion(
+         pszFileName, iLine, bPass, sExpr, SL("!= "),
+         bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
 
@@ -228,7 +202,7 @@ expr
       } catch (...) { \
          _pszCaughtWhat = "unknown type"; \
       } \
-      this->assert_impl( \
+      this->m_prunner->log_assertion( \
          __FILE__, __LINE__, !_pszCaughtWhat, SL(#expr), istr(), SL("does not throw"), \
          _pszCaughtWhat ? istr(istr(SL("throws {}")).format(_pszCaughtWhat)) : istr() \
       ); \
@@ -319,13 +293,13 @@ expr
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
    do { \
-      bool _bCaughtExpected(false); \
+      bool _bPass(false); \
       char const * _pszCaughtWhat(nullptr); \
       try { \
          static_cast<void>(expr); \
       } catch (type const & x) { \
          _pszCaughtWhat = x.what(); \
-         _bCaughtExpected = true; \
+         _bPass = true; \
       } catch (::std::exception const & x) { \
          _pszCaughtWhat = x.what(); \
       } catch (...) { \
@@ -335,10 +309,9 @@ expr
       if (_pszCaughtWhat) { \
          sCaughtWhat = istr(SL("throws {}")).format(_pszCaughtWhat); \
       } \
-      this->assert_impl( \
-         __FILE__, __LINE__, _bCaughtExpected, SL(#expr), istr(), \
-         _bCaughtExpected ? sCaughtWhat : istr(istr(SL("throws {}")).format(type().what())), \
-         sCaughtWhat \
+      this->m_prunner->log_assertion( \
+         __FILE__, __LINE__, _bPass, SL(#expr), istr(), \
+         _bPass ? sCaughtWhat : istr(istr(SL("throws {}")).format(type().what())), sCaughtWhat \
       ); \
    } while (false)
 
