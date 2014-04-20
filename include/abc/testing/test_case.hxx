@@ -261,7 +261,7 @@ value
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
-   this->assert_equal(__FILE__, __LINE__, expr, value, SL(#expr), SL(#value))
+   this->assert_equal(__FILE__, __LINE__, (expr), value, SL(#expr), SL(#value))
 
 
 /** Asserts that an expression evaluates to false.
@@ -270,7 +270,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(__FILE__, __LINE__, expr, SL(#expr))
+   this->assert_false(__FILE__, __LINE__, (expr), SL(#expr))
 
 
 /** Asserts that the value of an expression is strictly greater than a lower bound.
@@ -281,7 +281,7 @@ lbound
    Exclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
-   this->assert_greater(__FILE__, __LINE__, expr, lbound, SL(#expr), SL(#lbound))
+   this->assert_greater(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
 
 
 /** Asserts that the value of an expression is greater-than or equal-to a lower bound.
@@ -292,7 +292,7 @@ lbound
    Inclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
-   this->assert_greater_equal(__FILE__, __LINE__, expr, lbound, SL(#expr), SL(#lbound))
+   this->assert_greater_equal(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
 
 
 /** Asserts that the value of an expression is strictly less than an upper bound.
@@ -303,7 +303,7 @@ ubound
    Exclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS(expr, ubound) \
-   this->assert_less_equal(__FILE__, __LINE__, expr, expected, SL(#expr), SL(#ubound))
+   this->assert_less_equal(__FILE__, __LINE__, (expr), expected, SL(#expr), SL(#ubound))
 
 
 /** Asserts that the value of an expression is less-than or equal-to an upper bound.
@@ -314,7 +314,7 @@ ubound
    Inclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
-   this->assert_less_equal(__FILE__, __LINE__, expr, ubound, SL(#expr), SL(#ubound))
+   this->assert_less_equal(__FILE__, __LINE__, (expr), ubound, SL(#expr), SL(#ubound))
 
 
 /** Asserts that the value of an expression differs from a specified value.
@@ -325,7 +325,7 @@ value
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
-   this->assert_not_equal(__FILE__, __LINE__, expr, value, SL(#expr), SL(#value))
+   this->assert_not_equal(__FILE__, __LINE__, (expr), value, SL(#expr), SL(#value))
 
 
 /** Asserts that an expression throws a specific type of exception.
@@ -367,7 +367,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(__FILE__, __LINE__, expr, SL(#expr))
+   this->assert_true(__FILE__, __LINE__, (expr), SL(#expr))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
