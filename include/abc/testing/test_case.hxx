@@ -93,6 +93,19 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tEqual
+      Value that the expression should evaluate to.
+   sExpr
+      C++ code evaluating to tActual.
+   sEqual
+      C++ code evaluating to tEqual.
    */
    template <typename TExpr, typename TEqual>
    void assert_equal(
@@ -108,11 +121,33 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_FALSE.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   bActual
+      Actual value of the evaluated expression.
+   sExpr
+      C++ code evaluating to bActual.
    */
    void assert_false(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
 
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tLBound
+      Exclusive lower bound.
+   sExpr
+      C++ code evaluating to tActual.
+   sLBound
+      C++ code evaluating to tLBound.
    */
    template <typename TExpr, typename TLBound>
    void assert_greater(
@@ -128,6 +163,19 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tLBound
+      Inclusive lower bound.
+   sExpr
+      C++ code evaluating to tActual.
+   sLBound
+      C++ code evaluating to tLBound.
    */
    template <typename TExpr, typename TLBound>
    void assert_greater_equal(
@@ -143,6 +191,19 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_LESS.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tUBound
+      Exclusive upper bound.
+   sExpr
+      C++ code evaluating to tActual.
+   sUBound
+      C++ code evaluating to tUBound.
    */
    template <typename TExpr, typename TUBound>
    void assert_less(
@@ -158,6 +219,19 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tUBound
+      Inclusive upper bound.
+   sExpr
+      C++ code evaluating to tActual.
+   sUBound
+      C++ code evaluating to tUBound.
    */
    template <typename TExpr, typename TUBound>
    void assert_less_equal(
@@ -173,6 +247,19 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   tActual
+      Actual value of the evaluated expression.
+   tNotEqual
+      Value that the expression should not evaluate to.
+   sExpr
+      C++ code evaluating to tActual.
+   sNotEqual
+      C++ code evaluating to tNotEqual.
    */
    template <typename TExpr, typename TNotEqual>
    void assert_not_equal(
@@ -236,12 +323,12 @@ expr
    }, SL(#expr))
 
 
-/** Asserts that the value of an expression differs from a specified value.
+/** Asserts that the value of an expression equals a specific value.
 
 expr
    Expression to evaluate.
 value
-   Value that expr should not evaluate to.
+   Value that expr should evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
    this->assert_equal(__FILE__, __LINE__, (expr), value, SL(#expr), SL(#value))
@@ -256,7 +343,7 @@ expr
    this->assert_false(__FILE__, __LINE__, (expr), SL(#expr))
 
 
-/** Asserts that the value of an expression is strictly greater than a lower bound.
+/** Asserts that the value of an expression is strictly greater than a specific lower bound.
 
 expr
    Expression to evaluate.
@@ -267,7 +354,7 @@ lbound
    this->assert_greater(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
 
 
-/** Asserts that the value of an expression is greater-than or equal-to a lower bound.
+/** Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
 
 expr
    Expression to evaluate.
@@ -278,7 +365,7 @@ lbound
    this->assert_greater_equal(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
 
 
-/** Asserts that the value of an expression is strictly less than an upper bound.
+/** Asserts that the value of an expression is strictly less than a specific upper bound.
 
 expr
    Expression to evaluate.
@@ -289,7 +376,7 @@ ubound
    this->assert_less_equal(__FILE__, __LINE__, (expr), expected, SL(#expr), SL(#ubound))
 
 
-/** Asserts that the value of an expression is less-than or equal-to an upper bound.
+/** Asserts that the value of an expression is less-than or equal-to a specific upper bound.
 
 expr
    Expression to evaluate.
@@ -300,7 +387,7 @@ ubound
    this->assert_less_equal(__FILE__, __LINE__, (expr), ubound, SL(#expr), SL(#ubound))
 
 
-/** Asserts that the value of an expression differs from a specified value.
+/** Asserts that the value of an expression differs from a specific value.
 
 expr
    Expression to evaluate.
