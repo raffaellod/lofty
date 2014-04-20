@@ -76,6 +76,22 @@ public:
 
 protected:
 
+   /** Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   fnExpr
+      Functor wrapping the expression to evaluate.
+   sExpr
+      Source representation of the expression being evaluated.
+   */
+   void assert_does_not_throw(
+      char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr
+   );
+
+
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
    */
    template <typename TExpr, typename TEqual>
@@ -171,6 +187,27 @@ protected:
    }
 
 
+   /** Implementation of ABC_TESTING_ASSERT_THROWS.
+
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
+   fnExpr
+      Functor wrapping the expression to evaluate.
+   sExpr
+      Source representation of the expression being evaluated.
+   fnMatchType
+      Functor that checks whether an std::exception instance is of the desired derived type.
+   pszExpectedWhat
+      Return value of std::exception::what(), as overridden by the desired derived class.
+   */
+   void assert_throws(
+      char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr,
+      std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
+   );
+
+
    /** Implementation of ABC_TESTING_ASSERT_TRUE.
    */
    void assert_true(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
@@ -193,20 +230,10 @@ expr
    Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
-   do { \
-      char const * _pszCaughtWhat(nullptr); \
-      try { \
-         static_cast<void>(expr); \
-      } catch (::std::exception const & x) { \
-         _pszCaughtWhat = x.what(); \
-      } catch (...) { \
-         _pszCaughtWhat = "unknown type"; \
-      } \
-      this->m_prunner->log_assertion( \
-         __FILE__, __LINE__, !_pszCaughtWhat, SL(#expr), istr(), SL("does not throw"), \
-         _pszCaughtWhat ? istr(istr(SL("throws {}")).format(_pszCaughtWhat)) : istr() \
-      ); \
-   } while (false)
+   /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
+   this->assert_does_not_throw(__FILE__, __LINE__, [&] () -> void { \
+      static_cast<void>(expr); \
+   }, SL(#expr))
 
 
 /** Asserts that the value of an expression differs from a specified value.
@@ -292,28 +319,14 @@ expr
    Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
-   do { \
-      bool _bPass(false); \
-      char const * _pszCaughtWhat(nullptr); \
-      try { \
-         static_cast<void>(expr); \
-      } catch (type const & x) { \
-         _pszCaughtWhat = x.what(); \
-         _bPass = true; \
-      } catch (::std::exception const & x) { \
-         _pszCaughtWhat = x.what(); \
-      } catch (...) { \
-         _pszCaughtWhat = "unknown type"; \
-      } \
-      istr sCaughtWhat(SL("does not throw")); \
-      if (_pszCaughtWhat) { \
-         sCaughtWhat = istr(SL("throws {}")).format(_pszCaughtWhat); \
-      } \
-      this->m_prunner->log_assertion( \
-         __FILE__, __LINE__, _bPass, SL(#expr), istr(), \
-         _bPass ? sCaughtWhat : istr(istr(SL("throws {}")).format(type().what())), sCaughtWhat \
-      ); \
-   } while (false)
+   /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also
+   wrap the dynamic_cast in a lambda, so the caller doesn’t need to be a template to catch the
+   desired type of exception. */ \
+   this->assert_throws(__FILE__, __LINE__, [&] () -> void { \
+      static_cast<void>(expr); \
+   }, SL(#expr), [] (::std::exception const & x) -> bool { \
+      return dynamic_cast<type const *>(&x) != nullptr; \
+   }, type().what())
 
 
 /** Asserts that an expression evaluates to true.

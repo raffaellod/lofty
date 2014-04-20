@@ -46,6 +46,25 @@ void test_case::init(runner * prunner) {
 }
 
 
+void test_case::assert_does_not_throw(
+   char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr
+) {
+   ABC_TRACE_FN((this, pszFileName, iLine, /*fnExpr, */sExpr));
+
+   istr sCaughtWhat;
+   try {
+      fnExpr();
+   } catch (::std::exception const & x) {
+      sCaughtWhat = istr(SL("throws {}")).format(x.what());
+   } catch (...) {
+      sCaughtWhat = SL("unknown type");
+   }
+   m_prunner->log_assertion(
+      pszFileName, iLine, !sCaughtWhat, sExpr, istr(), SL("does not throw"), sCaughtWhat
+   );
+}
+
+
 void test_case::assert_false(
    char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr
 ) {
@@ -64,6 +83,31 @@ void test_case::assert_true(
 
    m_prunner->log_assertion(
       pszFileName, iLine, bActual, sExpr, istr(), bActual ? istr() : SL("true"), SL("false")
+   );
+}
+
+
+void test_case::assert_throws(
+   char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr,
+   std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
+) {
+   bool bPass(false);
+   istr sCaughtWhat;
+   try {
+      fnExpr();
+      sCaughtWhat = SL("does not throw");
+   } catch (::std::exception const & x) {
+      if (fnMatchType(x)) {
+         bPass = true;
+      } else {
+         sCaughtWhat = istr(SL("throws {}")).format(x.what());
+      }
+   } catch (...) {
+      sCaughtWhat = SL("unknown type");
+   }
+   this->m_prunner->log_assertion(
+      pszFileName, iLine, bPass, sExpr, istr(),
+      istr(SL("throws {}")).format(pszExpectedWhat), sCaughtWhat
    );
 }
 
