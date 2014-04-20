@@ -91,7 +91,7 @@ void runner::log_assertion_fail(
 
    ++m_cFailedAssertions;
    m_pos->print(
-      SL("ABCMK-TEST-ASSERT-FAIL {}:{}: {}\n")
+      SL("ABCMK-TEST-ASSERT-FAIL {}:{}: fail: {}\n")
          SL("  expected: {}{}\n")
          SL("  actual:   {}\n"),
       pszFileName, iLine, sExpr, sOp, sExpected, sActual
@@ -106,7 +106,7 @@ void runner::log_assertion_pass(
    ABC_TRACE_FN((this, pszFileName, iLine, sExpr, sOp, sExpected));
 
    m_pos->print(
-      SL("ABCMK-TEST-ASSERT-PASS {}:{}: {} {}{}\n"), pszFileName, iLine, sExpr, sOp, sExpected
+      SL("ABCMK-TEST-ASSERT-PASS {}:{}: pass: {} {}{}\n"), pszFileName, iLine, sExpr, sOp, sExpected
    );
 }
 
