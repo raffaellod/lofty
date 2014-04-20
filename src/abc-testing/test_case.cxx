@@ -40,7 +40,7 @@ test_case::test_case() {
 
 
 void test_case::init(runner * prunner) {
-   ABC_TRACE_FN((prunner));
+   ABC_TRACE_FN((this, prunner));
 
    m_prunner = prunner;
 }
