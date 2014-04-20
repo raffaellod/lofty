@@ -93,12 +93,19 @@ public:
 
    /** Logs a failed assertion.
 
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
    sExpr
-      Subject of the assertion.
+      Source representation of the expression being evaluated.
+   sOp
+      Applied comparison operator.
    sExpected
-      Expected value of sExpr.
+      Computed expected value, i.e. the actual value returned by the C++ expression, as a string.
    sActual
-      Actual value of sExpr.
+      Only used if !bSuccess, this is the computed actual value (i.e. return value of sExpr), as a
+      string.
    */
    void log_assertion_fail(
       char const * pszFileName, unsigned iLine,
@@ -108,12 +115,16 @@ public:
 
    /** Logs a validated assertion.
 
+   pszFileName
+      Path to the source file containing the expression.
+   iLine
+      Source line number.
    sExpr
-      Subject of the assertion.
+      Source representation of the expression being evaluated.
+   sOp
+      Applied comparison operator.
    sExpected
-      Expected value of sExpr.
-   sActual
-      Actual value of sExpr.
+      Expression generating the expected value, i.e. the C++ expression, as a string.
    */
    void log_assertion_pass(
       char const * pszFileName, unsigned iLine,
