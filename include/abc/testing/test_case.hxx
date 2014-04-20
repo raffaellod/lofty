@@ -238,13 +238,18 @@ expr
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
    do { \
-      bool _bCaught(false); \
+      char const * _pszCaughtWhat(nullptr); \
       try { \
          static_cast<void>(expr); \
+      } catch (::std::exception const & x) { \
+         _pszCaughtWhat = x.what(); \
       } catch (...) { \
-         _bCaught = true; \
+         _pszCaughtWhat = "unknown type"; \
       } \
-      this->assert_false(__FILE__, __LINE__, _bCaught, SL(#expr)); \
+      this->assert_impl( \
+         __FILE__, __LINE__, !_pszCaughtWhat, SL(#expr), istr(), SL("does not throw"), \
+         _pszCaughtWhat ? istr(istr(SL("throws {}")).format(_pszCaughtWhat)) : istr() \
+      ); \
    } while (false)
 
 
@@ -265,7 +270,6 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   /* Use static_cast() to make the compiler raise warnings in case expr is not of type bool. */ \
    this->assert_false(__FILE__, __LINE__, expr, SL(#expr))
 
 
@@ -333,13 +337,27 @@ expr
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
    do { \
-      bool _bCaught(false); \
+      bool _bCaughtExpected(false); \
+      char const * _pszCaughtWhat(nullptr); \
       try { \
          static_cast<void>(expr); \
-      } catch (type const &) { \
-         _bCaught = true; \
+      } catch (type const & x) { \
+         _pszCaughtWhat = x.what(); \
+         _bCaughtExpected = true; \
+      } catch (::std::exception const & x) { \
+         _pszCaughtWhat = x.what(); \
+      } catch (...) { \
+         _pszCaughtWhat = "unknown type"; \
       } \
-      this->assert_true(__FILE__, __LINE__, _bCaught, SL(#expr)); \
+      istr sCaughtWhat(SL("does not throw")); \
+      if (_pszCaughtWhat) { \
+         sCaughtWhat = istr(SL("throws {}")).format(_pszCaughtWhat); \
+      } \
+      this->assert_impl( \
+         __FILE__, __LINE__, _bCaughtExpected, SL(#expr), istr(), \
+         _bCaughtExpected ? sCaughtWhat : istr(istr(SL("throws {}")).format(type().what())), \
+         sCaughtWhat \
+      ); \
    } while (false)
 
 
