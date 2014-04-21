@@ -85,6 +85,8 @@ void test_case::assert_throws(
    source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr,
    std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
 ) {
+   ABC_TRACE_FN((this, srcloc, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat));
+
    bool bPass(false);
    istr sCaughtWhat;
    try {
