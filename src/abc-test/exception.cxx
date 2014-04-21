@@ -49,118 +49,14 @@ public:
    virtual void run() {
       ABC_TRACE_FN((this));
 
-      bool bCaughtCorrect;
-      istr sResult;
-
-      bCaughtCorrect = false;
-      try {
-         throw_exception();
-         sResult = SL("threw abc::exception, but exception not thrown");
-      } catch (derived3_error const &) {
-         sResult = SL("threw abc::exception, but caught derived3_error");
-      } catch (derived2_error const &) {
-         sResult = SL("threw abc::exception, but caught derived2_error");
-      } catch (derived1_error const &) {
-         sResult = SL("threw abc::exception, but caught derived1_error");
-      } catch (generic_error const &) {
-         sResult = SL("threw abc::exception, but caught abc::generic_error");
-      } catch (exception const &) {
-         sResult = SL("threw and caught abc::exception");
-         bCaughtCorrect = true;
-      } catch (std::exception const &) {
-         sResult = SL("threw abc::exception, but caught std::exception");
-      } catch (...) {
-         sResult = SL("threw abc::exception, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
-
-      bCaughtCorrect = false;
-      try {
-         throw_generic_error();
-         sResult = SL("threw abc::generic_error, but exception not thrown");
-      } catch (derived3_error const &) {
-         sResult = SL("threw abc::generic_error, but caught derived3_error");
-      } catch (derived2_error const &) {
-         sResult = SL("threw abc::generic_error, but caught derived2_error");
-      } catch (derived1_error const &) {
-         sResult = SL("threw abc::generic_error, but caught derived1_error");
-      } catch (generic_error const &) {
-         sResult = SL("threw and caught abc::generic_error");
-         bCaughtCorrect = true;
-      } catch (exception const &) {
-         sResult = SL("threw abc::generic_error, but caught abc::exception");
-      } catch (std::exception const &) {
-         sResult = SL("threw abc::generic_error, but caught std::exception");
-      } catch (...) {
-         sResult = SL("threw abc::generic_error, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
-
-      bCaughtCorrect = false;
-      try {
-         throw_derived1_error();
-         sResult = SL("threw derived1_error, but exception not thrown");
-      } catch (derived3_error const &) {
-         sResult = SL("threw derived1_error, but caught derived3_error");
-      } catch (derived2_error const &) {
-         sResult = SL("threw derived1_error, but caught derived2_error");
-      } catch (derived1_error const &) {
-         sResult = SL("threw and caught derived1_error");
-         bCaughtCorrect = true;
-      } catch (generic_error const &) {
-         sResult = SL("threw derived1_error, but caught abc::generic_error");
-      } catch (exception const &) {
-         sResult = SL("threw derived1_error, but caught abc::exception");
-      } catch (std::exception const &) {
-         sResult = SL("threw derived1_error, but caught std::exception");
-      } catch (...) {
-         sResult = SL("threw derived1_error, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
-
-      bCaughtCorrect = false;
-      try {
-         throw_derived2_error();
-         sResult = SL("threw derived2_error, but exception not thrown");
-      } catch (derived3_error const &) {
-         sResult = SL("threw derived2_error, but caught derived3_error");
-      } catch (derived2_error const &) {
-         sResult = SL("threw and caught derived2_error");
-         bCaughtCorrect = true;
-      } catch (derived1_error const &) {
-         sResult = SL("threw derived2_error, but caught derived1_error");
-      } catch (generic_error const &) {
-         sResult = SL("threw derived2_error, but caught abc::generic_error");
-      } catch (exception const &) {
-         sResult = SL("threw derived2_error, but caught abc::exception");
-      } catch (std::exception const &) {
-         sResult = SL("threw derived2_error, but caught std::exception");
-      } catch (...) {
-         sResult = SL("threw derived2_error, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
-
-      bCaughtCorrect = false;
-      try {
-         throw_derived3_error(2351);
-         sResult = SL("threw derived3_error, but exception not thrown");
-      } catch (derived3_error const &) {
-         sResult = SL("threw and caught derived3_error");
-         bCaughtCorrect = true;
-      } catch (derived2_error const &) {
-         sResult = SL("threw derived3_error, but caught derived2_error");
-      } catch (derived1_error const &) {
-         sResult = SL("threw derived3_error, but caught derived1_error");
-      } catch (generic_error const &) {
-         sResult = SL("threw derived3_error, but caught abc::generic_error");
-      } catch (exception const &) {
-         sResult = SL("threw derived3_error, but caught abc::exception");
-      } catch (std::exception const &) {
-         sResult = SL("threw derived3_error, but caught std::exception");
-      } catch (...) {
-         sResult = SL("threw derived3_error, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
+      ABC_TESTING_ASSERT_THROWS(exception, throw_exception());
+      ABC_TESTING_ASSERT_THROWS(generic_error, throw_generic_error());
+      ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived1_error());
+      ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived2_error());
+      ABC_TESTING_ASSERT_THROWS(derived2_error, throw_derived2_error());
+      ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived3_error(2351));
+//    ABC_TESTING_ASSERT_THROWS(derived2_error, throw_derived3_error(2351));
+      ABC_TESTING_ASSERT_THROWS(derived3_error, throw_derived3_error(2351));
    }
 
 
