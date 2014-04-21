@@ -47,9 +47,9 @@ void test_case::init(runner * prunner) {
 
 
 void test_case::assert_does_not_throw(
-   char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr
+   source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr
 ) {
-   ABC_TRACE_FN((this, pszFileName, iLine, /*fnExpr, */sExpr));
+   ABC_TRACE_FN((this, srcloc, /*fnExpr, */sExpr));
 
    istr sCaughtWhat;
    try {
@@ -59,36 +59,30 @@ void test_case::assert_does_not_throw(
    } catch (...) {
       sCaughtWhat = SL("unknown type");
    }
+   m_prunner->log_assertion(srcloc, !sCaughtWhat, sExpr, istr(), SL("does not throw"), sCaughtWhat);
+}
+
+
+void test_case::assert_false(source_location const & srcloc, bool bActual, istr const & sExpr) {
+   ABC_TRACE_FN((this, srcloc, bActual, sExpr));
+
    m_prunner->log_assertion(
-      pszFileName, iLine, !sCaughtWhat, sExpr, istr(), SL("does not throw"), sCaughtWhat
+      srcloc, !bActual, sExpr, istr(), !bActual ? istr() : SL("false"), SL("true")
    );
 }
 
 
-void test_case::assert_false(
-   char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr
-) {
-   ABC_TRACE_FN((this, pszFileName, iLine, bActual, sExpr));
+void test_case::assert_true(source_location const & srcloc, bool bActual, istr const & sExpr) {
+   ABC_TRACE_FN((this, srcloc, bActual, sExpr));
 
    m_prunner->log_assertion(
-      pszFileName, iLine, !bActual, sExpr, istr(), !bActual ? istr() : SL("false"), SL("true")
-   );
-}
-
-
-void test_case::assert_true(
-   char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr
-) {
-   ABC_TRACE_FN((this, pszFileName, iLine, bActual, sExpr));
-
-   m_prunner->log_assertion(
-      pszFileName, iLine, bActual, sExpr, istr(), bActual ? istr() : SL("true"), SL("false")
+      srcloc, bActual, sExpr, istr(), bActual ? istr() : SL("true"), SL("false")
    );
 }
 
 
 void test_case::assert_throws(
-   char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr,
+   source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr,
    std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
 ) {
    bool bPass(false);
@@ -106,8 +100,7 @@ void test_case::assert_throws(
       sCaughtWhat = SL("unknown type");
    }
    this->m_prunner->log_assertion(
-      pszFileName, iLine, bPass, sExpr, istr(),
-      istr(SL("throws {}")).format(pszExpectedWhat), sCaughtWhat
+      srcloc, bPass, sExpr, istr(), istr(SL("throws {}")).format(pszExpectedWhat), sCaughtWhat
    );
 }
 

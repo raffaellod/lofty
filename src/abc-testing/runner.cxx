@@ -84,23 +84,20 @@ void runner::load_registered_test_cases() {
 
 
 void runner::log_assertion(
-   char const * pszFileName, unsigned iLine, bool bPass,
+   source_location const & srcloc, bool bPass,
    istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual /*= istr()*/
 ) {
-   ABC_TRACE_FN((this, pszFileName, iLine, sExpr, sOp, sExpected, sActual));
+   ABC_TRACE_FN((this, srcloc, sExpr, sOp, sExpected, sActual));
 
    if (bPass) {
-      m_pos->print(
-         SL("ABCMK-TEST-ASSERT-PASS {}:{}: pass: {} {}{}\n"),
-         pszFileName, iLine, sExpr, sOp, sExpected
-      );
+      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected);
    } else {
       ++m_cFailedAssertions;
       m_pos->print(
-         SL("ABCMK-TEST-ASSERT-FAIL {}:{}: fail: {}\n")
+         SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
             SL("  expected: {}{}\n")
             SL("  actual:   {}\n"),
-         pszFileName, iLine, sExpr, sOp, sExpected, sActual
+         srcloc, sExpr, sOp, sExpected, sActual
       );
    }
 }
@@ -123,7 +120,7 @@ void runner::run() {
 
 
 void runner::run_test_case(test_case & tc) {
-   ABC_TRACE_FN((this/*, u*/));
+   ABC_TRACE_FN((this/*, tc*/));
 
    m_pos->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
 

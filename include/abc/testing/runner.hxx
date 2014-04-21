@@ -93,10 +93,8 @@ public:
 
    /** Logs an assertion.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    bPass
       true if the assertion was valid, or false otherwise.
    sExpr
@@ -112,7 +110,7 @@ public:
       string.
    */
    void log_assertion(
-      char const * pszFileName, unsigned iLine, bool bPass,
+      source_location const & srcloc, bool bPass,
       istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual = istr()
    );
 

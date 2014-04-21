@@ -78,26 +78,22 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    fnExpr
       Functor wrapping the expression to evaluate.
    sExpr
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr
+      source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr
    );
 
 
    /** Implementation of ABC_TESTING_ASSERT_EQUAL.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tEqual
@@ -109,12 +105,12 @@ protected:
    */
    template <typename TExpr, typename TEqual>
    void assert_equal(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TEqual const & tEqual, istr const & sExpr, istr const & sEqual
    ) {
       bool bPass = (tActual == tEqual);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL("== "),
+         srcloc, bPass, sExpr, SL("== "),
          bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -122,24 +118,20 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_FALSE.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    bActual
       Actual value of the evaluated expression.
    sExpr
       C++ code evaluating to bActual.
    */
-   void assert_false(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
+   void assert_false(source_location const & srcloc, bool bActual, istr const & sExpr);
 
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tLBound
@@ -151,12 +143,12 @@ protected:
    */
    template <typename TExpr, typename TLBound>
    void assert_greater(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL("> "),
+         srcloc, bPass, sExpr, SL("> "),
          bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -164,10 +156,8 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tLBound
@@ -179,12 +169,12 @@ protected:
    */
    template <typename TExpr, typename TLBound>
    void assert_greater_equal(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL(">= "),
+         srcloc, bPass, sExpr, SL(">= "),
          bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -192,10 +182,8 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_LESS.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tUBound
@@ -207,12 +195,12 @@ protected:
    */
    template <typename TExpr, typename TUBound>
    void assert_less(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
       bool bPass = (tActual < tUBound);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL("<= "),
+         srcloc, bPass, sExpr, SL("<= "),
          bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -220,10 +208,8 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tUBound
@@ -235,12 +221,12 @@ protected:
    */
    template <typename TExpr, typename TUBound>
    void assert_less_equal(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
    ) {
       bool bPass = (tActual <= tUBound);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL("<= "),
+         srcloc, bPass, sExpr, SL("<= "),
          bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -248,10 +234,8 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    tActual
       Actual value of the evaluated expression.
    tNotEqual
@@ -263,12 +247,12 @@ protected:
    */
    template <typename TExpr, typename TNotEqual>
    void assert_not_equal(
-      char const * pszFileName, unsigned iLine,
+      source_location const & srcloc,
       TExpr const & tActual, TNotEqual const & tNotEqual, istr const & sExpr, istr const & sNotEqual
    ) {
       bool bPass = (tActual != tNotEqual);
       m_prunner->log_assertion(
-         pszFileName, iLine, bPass, sExpr, SL("!= "),
+         srcloc, bPass, sExpr, SL("!= "),
          bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -276,10 +260,8 @@ protected:
 
    /** Implementation of ABC_TESTING_ASSERT_THROWS.
 
-   pszFileName
-      Path to the source file containing the expression.
-   iLine
-      Source line number.
+   srcloc
+      Location of the expression.
    fnExpr
       Functor wrapping the expression to evaluate.
    sExpr
@@ -290,14 +272,14 @@ protected:
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
-      char const * pszFileName, unsigned iLine, std::function<void ()> fnExpr, istr const & sExpr,
+      source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr,
       std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
    );
 
 
    /** Implementation of ABC_TESTING_ASSERT_TRUE.
    */
-   void assert_true(char const * pszFileName, unsigned iLine, bool bActual, istr const & sExpr);
+   void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
 
 
 protected:
@@ -318,7 +300,7 @@ expr
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
-   this->assert_does_not_throw(__FILE__, __LINE__, [&] () -> void { \
+   this->assert_does_not_throw(ABC_SOURCE_LOCATION(), [&] () -> void { \
       static_cast<void>(expr); \
    }, SL(#expr))
 
@@ -331,7 +313,7 @@ value
    Value that expr should evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
-   this->assert_equal(__FILE__, __LINE__, (expr), value, SL(#expr), SL(#value))
+   this->assert_equal(ABC_SOURCE_LOCATION(), (expr), value, SL(#expr), SL(#value))
 
 
 /** Asserts that an expression evaluates to false.
@@ -340,7 +322,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(__FILE__, __LINE__, (expr), SL(#expr))
+   this->assert_false(ABC_SOURCE_LOCATION(), (expr), SL(#expr))
 
 
 /** Asserts that the value of an expression is strictly greater than a specific lower bound.
@@ -351,7 +333,7 @@ lbound
    Exclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
-   this->assert_greater(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
+   this->assert_greater(ABC_SOURCE_LOCATION(), (expr), lbound, SL(#expr), SL(#lbound))
 
 
 /** Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
@@ -362,7 +344,7 @@ lbound
    Inclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
-   this->assert_greater_equal(__FILE__, __LINE__, (expr), lbound, SL(#expr), SL(#lbound))
+   this->assert_greater_equal(ABC_SOURCE_LOCATION(), (expr), lbound, SL(#expr), SL(#lbound))
 
 
 /** Asserts that the value of an expression is strictly less than a specific upper bound.
@@ -373,7 +355,7 @@ ubound
    Exclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS(expr, ubound) \
-   this->assert_less_equal(__FILE__, __LINE__, (expr), expected, SL(#expr), SL(#ubound))
+   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), expected, SL(#expr), SL(#ubound))
 
 
 /** Asserts that the value of an expression is less-than or equal-to a specific upper bound.
@@ -384,7 +366,7 @@ ubound
    Inclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
-   this->assert_less_equal(__FILE__, __LINE__, (expr), ubound, SL(#expr), SL(#ubound))
+   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), ubound, SL(#expr), SL(#ubound))
 
 
 /** Asserts that the value of an expression differs from a specific value.
@@ -395,7 +377,7 @@ value
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
-   this->assert_not_equal(__FILE__, __LINE__, (expr), value, SL(#expr), SL(#value))
+   this->assert_not_equal(ABC_SOURCE_LOCATION(), (expr), value, SL(#expr), SL(#value))
 
 
 /** Asserts that an expression throws a specific type of exception.
@@ -409,7 +391,7 @@ expr
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also
    wrap the dynamic_cast in a lambda, so the caller doesn’t need to be a template to catch the
    desired type of exception. */ \
-   this->assert_throws(__FILE__, __LINE__, [&] () -> void { \
+   this->assert_throws(ABC_SOURCE_LOCATION(), [&] () -> void { \
       static_cast<void>(expr); \
    }, SL(#expr), [] (::std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \
@@ -422,7 +404,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(__FILE__, __LINE__, (expr), SL(#expr))
+   this->assert_true(ABC_SOURCE_LOCATION(), (expr), SL(#expr))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
