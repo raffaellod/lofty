@@ -31,6 +31,61 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::source_location
+
+
+namespace abc {
+
+/** Source code location.
+*/
+class source_location {
+public:
+
+   /** Constructor.
+
+   pszFilePath
+      Path to the source file.
+   iLine
+      Line number in pszFilePath.
+   */
+   source_location(char const * pszFilePath, unsigned iLine) :
+      m_pszFilePath(pszFilePath),
+      m_iLine(uint16_t(iLine)) {
+   }
+
+
+   /** Returns the file path.
+
+   return
+      File path.
+   */
+   char const * file_path() const {
+      return m_pszFilePath;
+   }
+
+
+   /** Returns the line number.
+
+   return
+      Line number.
+   */
+   unsigned line_number() const {
+      return m_iLine;
+   }
+
+
+protected:
+
+   /** Path to the source file. */
+   char const * m_pszFilePath;
+   /** Line number in m_pszFilePath. */
+   uint16_t m_iLine;
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
 
 namespace abc {
