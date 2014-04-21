@@ -278,6 +278,13 @@ protected:
 
 
    /** Implementation of ABC_TESTING_ASSERT_TRUE.
+
+   srcloc
+      Location of the expression.
+   bActual
+      Actual value of the evaluated expression.
+   sExpr
+      C++ code evaluating to bActual.
    */
    void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
 
