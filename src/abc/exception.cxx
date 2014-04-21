@@ -1068,6 +1068,44 @@ ABCAPI void throw_os_error(errint_t err) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for abc::source_location
+
+
+namespace abc {
+
+ABCAPI to_str_backend<source_location>::to_str_backend(
+   char_range const & crFormat /*= char_range()*/
+) {
+   ABC_TRACE_FN((this, crFormat));
+
+   auto it(crFormat.cbegin());
+
+   // TODO: parse the format string.
+
+   // If we still have any characters, they are garbage.
+   if (it != crFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+      ));
+   }
+}
+
+
+ABCAPI void to_str_backend<source_location>::write(
+   source_location const & srcloc, ostream * posOut
+) {
+   ABC_TRACE_FN((this, srcloc, posOut));
+
+   // TODO: apply format options.
+   posOut->write(srcloc.file_path());
+   posOut->write(SL(":"));
+   posOut->write(srcloc.line_number());
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
 
 

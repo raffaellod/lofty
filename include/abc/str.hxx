@@ -77,7 +77,6 @@ protected:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <typename C>
 class to_str_backend<char_range_<C>> :
    public _str_to_str_backend {

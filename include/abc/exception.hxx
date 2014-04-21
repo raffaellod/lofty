@@ -96,6 +96,44 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for abc::source_location
+
+
+namespace abc {
+
+// Forward declaration from abc/iostream.hxx.
+class ostream;
+// Forward declaration from abc/to_str_backend.hxx.
+template <typename T>
+class to_str_backend;
+
+
+template <>
+class ABCAPI to_str_backend<source_location> {
+public:
+
+   /** Constructor.
+
+   crFormat
+      Formatting options.
+   */
+   to_str_backend(char_range const & crFormat = char_range());
+
+
+   /** Writes a source location, applying the formatting options.
+
+   srcloc
+      Source location to write.
+   posOut
+      Pointer to the output stream to write to.
+   */
+   void write(source_location const & srcloc, ostream * posOut);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
 
 
