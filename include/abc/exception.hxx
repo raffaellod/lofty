@@ -58,6 +58,10 @@ public:
    iLine
       Line number in pszFilePath.
    */
+   source_location() :
+      m_pszFilePath(nullptr),
+      m_iLine(0) {
+   }
    source_location(char const * pszFilePath, unsigned iLine) :
       m_pszFilePath(pszFilePath),
       m_iLine(uint16_t(iLine)) {
@@ -347,7 +351,7 @@ info
    do { \
       ::abc::_exception_aggregator<x> _x; \
       _x.init info; \
-      _x._before_throw(__FILE__, __LINE__, _ABC_THIS_FUNC); \
+      _x._before_throw(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC); \
       throw _x; \
    } while (false)
 
@@ -403,14 +407,12 @@ public:
 
    /** Stores context information to be displayed if the exception is not caught.
 
-   pszFileName
-      Name of the file in which the exception is being thrown.
-   iLine
-      Line in pszFileName where the throw statement is located.
+   srcloc
+      Location at which the exception is being thrown.
    pszFunction
       Function that is throwing the exception.
    */
-   void _before_throw(char const * pszFileName, unsigned iLine, char const * pszFunction);
+   void _before_throw(source_location const & srcloc, char const * pszFunction);
 
 
    /** Initializes the information associated to the exception.
@@ -489,10 +491,8 @@ private:
 
    /** Source function name. */
    char const * m_pszSourceFunction;
-   /** Name of the source file. */
-   char const * m_pszSourceFileName;
-   /** Number of the source line. */
-   uint16_t m_iSourceLine;
+   /** Source location. */
+   source_location m_srcloc;
    /** true if *this is an in-flight exception (it has been thrown) or is a copy of one. */
    bool m_bInFlight;
 };

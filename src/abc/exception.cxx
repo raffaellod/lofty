@@ -1114,15 +1114,12 @@ namespace abc {
 exception::exception() :
    m_pszWhat("abc::exception"),
    m_pszSourceFunction(nullptr),
-   m_pszSourceFileName(nullptr),
-   m_iSourceLine(0),
    m_bInFlight(false) {
 }
 exception::exception(exception const & x) :
    m_pszWhat(x.m_pszWhat),
    m_pszSourceFunction(x.m_pszSourceFunction),
-   m_pszSourceFileName(x.m_pszSourceFileName),
-   m_iSourceLine(x.m_iSourceLine),
+   m_srcloc(x.m_srcloc),
    m_bInFlight(x.m_bInFlight) {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
@@ -1144,8 +1141,7 @@ exception & exception::operator=(exception const & x) {
 
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
-   m_pszSourceFileName = x.m_pszSourceFileName;
-   m_iSourceLine = x.m_iSourceLine;
+   m_srcloc = x.m_srcloc;
    // Adopt the source’s in-flight status. See [DOC:8503 Stack tracing].
    // If the in-flight status is not changing, avoid the pointless (and dangerous, if done in this
    // sequence - it could delete the trace stream if *this was the last reference to it)
@@ -1163,10 +1159,9 @@ exception & exception::operator=(exception const & x) {
 }
 
 
-void exception::_before_throw(char const * pszFileName, unsigned iLine, char const * pszFunction) {
+void exception::_before_throw(source_location const & srcloc, char const * pszFunction) {
    m_pszSourceFunction = pszFunction;
-   m_pszSourceFileName = pszFileName;
-   m_iSourceLine = uint16_t(iLine);
+   m_srcloc = srcloc;
    // Clear any old trace stream buffer and create a new one with *this as its only reference. See
    // [DOC:8503 Stack tracing].
    _scope_trace_impl::trace_stream_reset();
@@ -1212,10 +1207,7 @@ char const * exception::what() const {
    pos->write(SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      pos->print(
-         SL("#0 {} at {}:{}\n"),
-         pabcx->m_pszSourceFunction, pabcx->m_pszSourceFileName, pabcx->m_iSourceLine
-      );
+      pos->print(SL("#0 {} at {}\n"), pabcx->m_pszSourceFunction, pabcx->m_srcloc);
    }
    // Print the stack trace collected via ABC_TRACE_FN().
    pos->write(_scope_trace_impl::get_trace_stream()->release_content());
