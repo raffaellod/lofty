@@ -125,42 +125,17 @@ public:
    virtual void run() {
       ABC_TRACE_FN((this));
 
-      bool bCaughtCorrect;
-      istr sResult;
-
-      bCaughtCorrect = false;
-      try {
+      {
          int * p(nullptr);
-         *p = 1;
-         sResult = SL("dereferenced nullptr, but no exception thrown");
-      } catch (null_pointer_error const &) {
-         sResult = SL("dereferenced nullptr and caught abc::null_pointer_error");
-         bCaughtCorrect = true;
-      } catch (memory_address_error const &) {
-         sResult = SL("dereferenced nullptr, but caught abc::memory_address_error");
-      } catch (...) {
-         sResult = SL("dereferenced nullptr, but caught unknown exception");
-      }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
+         ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
 
-      bCaughtCorrect = false;
-      try {
-         int * p(nullptr);
          // Under POSIX, this also counts as second test for SIGSEGV, checking that the handler is
          // still in place after its first activation above.
-         *++p = 1;
-         sResult = SL("dereferenced invalid pointer, but no exception thrown");
-      } catch (null_pointer_error const &) {
-         sResult = SL("dereferenced invalid pointer, but caught abc::null_pointer_error");
-      } catch (memory_address_error const &) {
-         sResult = SL("dereferenced invalid pointer and caught abc::memory_address_error");
-         bCaughtCorrect = true;
-      } catch (...) {
-         sResult = SL("dereferenced invalid pointer, but caught unknown exception");
+         ABC_TESTING_ASSERT_THROWS(memory_address_error, *++p = 1);
       }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
 
       // Enable alignment checking if the architecture supports it.
+#ifdef ABC_ALIGN_CHECK
 #ifdef __GNUC__
    #if defined(__i386__)
       __asm__(
@@ -179,25 +154,14 @@ public:
    #endif
 #endif
 
-#ifdef ABC_ALIGN_CHECK
-      bCaughtCorrect = false;
-      try {
+      {
          // Create an int (with another one following it) and a pointer to it.
          int i[2];
          void * p(&i[0]);
          // Misalign the pointer, partly entering the second int.
          p = static_cast<int8_t *>(p) + 1;
-         *static_cast<int *>(p) = 1;
-         sResult = SL("unaligned memory access, but no exception thrown");
-      } catch (memory_access_error const &) {
-         sResult = SL("unaligned memory access and caught abc::memory_access_error");
-         bCaughtCorrect = true;
-      } catch (memory_address_error const &) {
-         sResult = SL("unaligned memory access, but caught abc::memory_address_error");
-      } catch (...) {
-         sResult = SL("unaligned memory access, but caught unknown exception");
+         ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
       }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
 
       // Disable alignment checking back.
 #ifdef __GNUC__
@@ -217,24 +181,15 @@ public:
 #endif
 #endif //ifdef ABC_ALIGN_CHECK
 
-      bCaughtCorrect = false;
-      try {
-         // Non-obvious division by zero that can’t be detected at compile time: sResult always has
+      {
+         // Non-obvious division by zero that can’t be detected at compile time: sEmpty always has
          // a NUL terminator at its end, so use that as a zero divider.
-         int iQuot(1 / int(sResult[intptr_t(sResult.size())]));
-         // The call to istr::format() makes use of the result of the quotient, so it shouldn’t be
-         // optimized away.
-         istr(SL("{}")).format(iQuot);
-         sResult = SL("divided by zero, but no exception thrown");
-      } catch (division_by_zero_error const &) {
-         sResult = SL("divided by zero and caught abc::division_by_zero_error");
-         bCaughtCorrect = true;
-      } catch (arithmetic_error const &) {
-         sResult = SL("divided by zero, but caught abc::arithmetic_error");
-      } catch (...) {
-         sResult = SL("divided by zero, but caught unknown exception");
+         istr sEmpty;
+         int iZero(sEmpty[0]), iOne(1);
+         ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
+         // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
+         istr(SL("{}")).format(iOne);
       }
-      assert_true(ABC_SOURCE_LOCATION(), bCaughtCorrect, sResult);
    }
 };
 
