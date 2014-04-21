@@ -33,6 +33,15 @@ You should have received a copy of the GNU General Public License along with ABC
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::source_location
 
+/** Expands into the instantiation of a temporary abc::source_location object referencing the
+location in which it’s used.
+
+return
+   abc::source_location instance.
+*/
+#define ABC_SOURCE_LOCATION() \
+   (::abc::source_location(__FILE__, __LINE__))
+
 
 namespace abc {
 
