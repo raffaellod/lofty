@@ -99,7 +99,7 @@ Currently unsupported:
 */
 #define _ABC_TRACE_SCOPE_IMPL(var, args) \
    auto var(::abc::_scope_trace_impl::make args ); \
-   var._set_context(__FILE__, uint16_t(__LINE__), _ABC_THIS_FUNC)
+   var._set_context(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC)
 
 
 /** Tracks local variables, to be used during e.g. a stack unwind. */
@@ -251,13 +251,13 @@ public:
    want the constructor to be invoked with all the arguments as a single parenthesis-delimited
    tuple. See the implementation of ABC_TRACE_FN() if this isn’t clear enough.
 
-   Also, while we could make the filename and function char_range’s instead of char *, that would
-   waste nearly twice as much stack space for each _scope_trace_impl object, so that’s not a viable
-   option.
+   srcloc
+      Source location.
+   pszFunction
+      Function name.
    */
-   void _set_context(char const * pszFileName, uint16_t iLine, char const * pszFunction) {
-      m_pszFileName = pszFileName;
-      m_iLine = iLine;
+   void _set_context(source_location const & srcloc, char const * pszFunction) {
+      m_srcloc = srcloc;
       m_pszFunction = pszFunction;
    }
 
@@ -272,10 +272,8 @@ private:
 
    /** Function name. */
    char const * m_pszFunction;
-   /** Name of the source file. */
-   char const * m_pszFileName;
-   /** Number of the source line. */
-   uint16_t m_iLine;
+   /** Source location. */
+   source_location m_srcloc;
    /** If true, rendering of this scope trace has started (the function/scope name has been
    rendered). */
    bool m_bScopeRenderingStarted;

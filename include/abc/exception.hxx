@@ -516,7 +516,7 @@ expr
    #define ABC_ASSERT(expr) \
       do { \
          if (!(expr)) { \
-            abc::assertion_error::_assertion_failed(__FILE__, __LINE__, _ABC_THIS_FUNC, #expr); \
+            abc::assertion_error::_assertion_failed(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, #expr); \
          } \
       } while (0)
 #else
@@ -534,7 +534,7 @@ public:
    /** Throws an exception of type ab::assertion_error due to an expression failing validation.
    */
    static ABC_FUNC_NORETURN void _assertion_failed(
-      char const * pszFileName, unsigned iLine, char const * pszFunction, char const * pszExpr
+      source_location const & srcloc, char const * pszFunction, char const * pszExpr
    );
 
 

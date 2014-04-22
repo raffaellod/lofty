@@ -49,12 +49,12 @@ _scope_trace_impl::~_scope_trace_impl() {
          // Add this argument to the current trace.
          ostream * pso(get_trace_stream());
          if (m_bScopeRenderingStarted) {
-            pso->print(SL(" at {}:{}\n"), m_pszFileName, m_iLine);
+            pso->print(SL(" at {}\n"), m_srcloc);
          } else {
             // First argument for the current function, so print the function name as well.
             pso->print(
-               SL("#{} {} at {}:{}\n"),
-               ++sm_iStackDepth, m_pszFunction, m_pszFileName, m_iLine
+               SL("#{} {} at {}\n"),
+               ++sm_iStackDepth, m_pszFunction, m_srcloc
             );
          }
       } catch (...) {

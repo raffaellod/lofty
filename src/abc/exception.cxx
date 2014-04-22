@@ -1518,15 +1518,15 @@ namespace abc {
 
 
 /*static*/ void assertion_error::_assertion_failed(
-   char const * pszFileName, unsigned iLine, char const * pszFunction, char const * pszExpr
+   source_location const & srcloc, char const * pszFunction, char const * pszExpr
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
          std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
          pfosStdErr->print(
-            SL("Assertion failed: ( {} ) in file {}:{}: in function {}\n"),
-            pszExpr, pszFileName, iLine, pszFunction
+            SL("Assertion failed: ( {} ) in file {}: in function {}\n"),
+            pszExpr, srcloc, pszFunction
          );
       } catch (...) {
          sm_bReentering = false;
