@@ -457,6 +457,20 @@ public:
    }
 
 
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+   bool operator op(pointer_iterator const & itOther) const { \
+      return m_ptval op itOther.m_ptval; \
+   }
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+ABC_RELOP_IMPL(>)
+ABC_RELOP_IMPL(>=)
+ABC_RELOP_IMPL(<)
+ABC_RELOP_IMPL(<=)
+#undef ABC_RELOP_IMPL
+
+
    /** Returns the underlying iterator type.
 
    return
@@ -473,31 +487,6 @@ protected:
 };
 
 } //namespace abc
-
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   template <class TCont, typename TVal> \
-   inline bool operator op( \
-      abc::pointer_iterator<TCont, TVal> const & it1, \
-      abc::pointer_iterator<TCont, TVal> const & it2 \
-   ) { \
-      return it1.base() op it2.base(); \
-   } \
-   template <class TCont, typename TVal1, typename TVal2> \
-   inline bool operator op( \
-      abc::pointer_iterator<TCont, TVal1> const & it1, \
-      abc::pointer_iterator<TCont, TVal2> const & it2 \
-   ) { \
-      return it1.base() op it2.base(); \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-ABC_RELOP_IMPL(>)
-ABC_RELOP_IMPL(>=)
-ABC_RELOP_IMPL(<)
-ABC_RELOP_IMPL(<=)
-#undef ABC_RELOP_IMPL
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
