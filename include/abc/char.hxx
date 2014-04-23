@@ -292,8 +292,7 @@ namespace abc {
 /** Iterator based on a plain pointer.
 */
 template <typename TCont, typename TVal>
-class pointer_iterator :
-   public support_explicit_operator_bool<pointer_iterator<TCont, TVal>> {
+class pointer_iterator {
 public:
 
    typedef std::random_access_iterator_tag iterator_category;
@@ -357,16 +356,6 @@ public:
    */
    TVal & operator[](ptrdiff_t i) const {
       return m_ptval[i];
-   }
-
-
-   /** Returns true if the internal pointer is not nullptr.
-
-   return
-      true if the iterator is on a valid item, or false if it’s set to nullptr.
-   */
-   explicit_operator_bool() const {
-      return m_ptval != nullptr;
    }
 
 

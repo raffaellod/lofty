@@ -352,41 +352,67 @@ public:
    }
 
 
-   /** Searches for the specified value; returns an iterator to the first matching item, or
-   const_iterator() (evaluates to false) for no matches.
+   /** Searches for and returns the first occurrence of the specified character or substring.
 
-   TODO: comment signature.
+   chNeedle
+      Character to search for.
+   sNeedle
+      String to search for.
+   itWhence
+      Iterator to the first character whence the search should start. When not specified, it
+      defaults to this->cbegin().
+   return
+      Iterator to the first occurrence of the character/string, or this->cend() when no matches are
+      found.
    */
-   const_iterator find(char32_t chNeedle, const_iterator itFirst = const_iterator()) const {
-      return const_iterator(TTraits::str_chr(
-         (itFirst ? itFirst : itvec::cbegin()).base(), itvec::cend().base(),
-         chNeedle
-      ));
+   const_iterator find(char32_t chNeedle) const {
+      return find(chNeedle, itvec::cbegin());
    }
-   const_iterator find(istr const & sNeedle, const_iterator itFirst = const_iterator()) const {
-      return const_iterator(TTraits::str_str(
-         (itFirst ? itFirst : itvec::cbegin()).base(), itvec::cend().base(),
-         sNeedle.cbegin().base(), sNeedle.cend().base()
+   const_iterator find(char32_t chNeedle, const_iterator itWhence) const {
+      auto itEnd(itvec::cend());
+      C const * pch(TTraits::str_chr(itWhence.base(), itEnd.base(), chNeedle));
+      return pch ? const_iterator(pch) : itEnd;
+   }
+   const_iterator find(istr const & sNeedle) const {
+      return find(sNeedle, itvec::cbegin());
+   }
+   const_iterator find(istr const & sNeedle, const_iterator itWhence) const {
+      auto itEnd(itvec::cend());
+      C const * pch(TTraits::str_str(
+         itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
       ));
+      return pch ? const_iterator(pch) : itEnd;
    }
 
 
-   /** Searches for the specified value, starting from the end or the provided iterator; returns an
-   iterator to the first matching item, or const_iterator() (evaluates to false) for no matches.
+   /** Searches for and returns the last occurrence of the specified character or substring.
 
-   TODO: comment signature.
+   chNeedle
+      Character to search for.
+   sNeedle
+      String to search for.
+   itWhence
+      Iterator to the last character whence the search should start. When not specified, it
+      defaults to this->cend().
+   return
+      Iterator to the first occurrence of the character/string, or this->cend() when no matches are
+      found.
    */
-   const_iterator find_last(char32_t chNeedle, const_iterator itEnd = const_iterator()) const {
-      return const_iterator(TTraits::str_chr_r(
-         itvec::cbegin().base(), (itEnd ? itEnd : itvec::cend()).base(),
-         chNeedle
-      ));
+   const_iterator find_last(char32_t chNeedle) const {
+      return find_last(chNeedle, itvec::cend());
    }
-   const_iterator find_last(istr const & sNeedle, const_iterator itEnd = const_iterator()) const {
-      return const_iterator(TTraits::str_str_r(
-         itvec::cbegin().base(), (itEnd ? itEnd : itvec::cend()).base(),
-         sNeedle.cbegin().base(), sNeedle.cend().base()
+   const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const {
+      C const * pch(TTraits::str_chr_r(itvec::cbegin().base(), itWhence.base(), chNeedle));
+      return pch ? const_iterator(pch) : itvec::cend();
+   }
+   const_iterator find_last(istr const & sNeedle) const {
+      return find_last(sNeedle, itvec::cend());
+   }
+   const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const {
+      C const * pch(TTraits::str_str_r(
+         itvec::cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
       ));
+      return pch ? const_iterator(pch) : itvec::cend();
    }
 
 

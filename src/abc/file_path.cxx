@@ -113,8 +113,8 @@ dmstr file_path::base_name() const {
       return m_s;
    }
    dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-   // it != nullptr always, because this is not the root.
-   ABC_ASSERT(it);
+   // it != cend() always, because this is not the root.
+   ABC_ASSERT(it != m_s.cend());
    return m_s.substr(it + 1 /*smc_aszSeparator*/);
 }
 
