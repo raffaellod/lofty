@@ -29,6 +29,8 @@ written with these features in mind:
    languages such as Java or Python, featuring full stack traces (including
    arguments and locals) and a diverse and semantically-rich exception class
    hierarchy;
+•  Testing framework integrated in the library and in the included cross-
+   platform make utility (ABC Make);
 •  Modern I/O and IPC classes, inspired by Python’s library;
 •  Compiler-enforced type safety (no void pointers, no C-style variadic
    functions).
@@ -41,7 +43,7 @@ Here’s what ABC has to offer, compared to other libraries/frameworks:
 •  Full support for stack dumps (like Python or Java);
 •  Programs don’t just crash - every error is an exception (including e.g.
    accessing a null pointer);
-•  Rich exception class hierarchy, allowing clean-looking error handling;
+•  Rich exception class hierarchy, allowing for clean-looking error handling;
 •  C++-only (unlike, say, glib), so it was designed around features of the
    language rather than adapting to C++ an existing design;
 •  Does not require a pre-preprocessor (unlike, say, Qt) because it gets
@@ -84,18 +86,19 @@ Supported build systems:
 •  GNU toolchain
    •  GCC 4.3.0 to 4.7.x (4.8.x to be tested)
    •  binutils (version to be determined - anything from 2010 on should work)
-   •  make (version to be determined - 3.80 should suffice)
 
 •  Microsoft toolchain
    •  Visual C++ 10 (MSC 16 / Visual Studio 2010)
-   •  MSBuild 4.0 (Visual Studio 2010)
 
 Supported operating systems:
 
-•  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some really cool
+•  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some necessary
    exception handling-related features;
 •  Microsoft Windows - temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
+
+Additionally, ABC requires Python 3.2 or later to be installed on the host
+system.
 
 
 4. Building ABC
@@ -103,48 +106,24 @@ Supported operating systems:
 
 At the moment, ABC lacks only offers very basic means for installation.
 
+ABC comes with a built-in cross-platform make utility, ABC Make (see also
+[DOC:6931 ABC Make]); the way it works is very similar to the common UNIX make
+utility, but ABC Make makefiles are written in an XML syntax inspired by
+MSBuild format.
 
-4.1. Building ABC in a UNIX-like environment
---------------------------------------------
+TODO: document ABC Make makefile syntax and link to it from here.
 
-ABC can be built issuing a “make all” command as usual. (Note that “all” can be
-omitted, since it’s the default target.)
+ABC Make is currently written in Python, so it can be run prior to building
+ABC.
 
-Specifying an O=… argument will change the directory in which all the necessary
-intermediate and output directories are created, e.g.
+To build ABC, run from its base directory:
 
-   make O=/tmp/build all
-
-Passing a VERBOSE=1 argument will cause make to print the actual commands being
-executed, instead of short activity indicators (e.g. “CPP”, “LD”):
-
-   make VERBOSE=1 all
-
-ABC supports parallel building, so you can significantly increase the build
-speed by passing make a -j option, e.g.:
-
-   make -j4 all
+   src/abc-make.py
 
 
-4.2. Building ABC in Windows
-----------------------------
+This will create outputs in the bin/ and lib/ folders.
 
-ABC ships with a VS2010 solution, abc.sln; this can be used to build all ABC’s
-sub-projects, either directly from Visual Studio or from a command prompt using
-msbuild.
-
-
-4.2.1. Building ABC from Visual Studio
---------------------------------------
-
-Open the solution abc.sln, then from the “Build” menu select “Rebuild All”.
-
-
-4.2.2. Building ABC using MSBuild
----------------------------------
-
-From a command prompt that has been configured to run VS2010 commands, issue
-“msbuild abc.sln”.
+TODO: expand on ABC Make arguments.
 
 
 5. Installing ABC
@@ -152,24 +131,7 @@ From a command prompt that has been configured to run VS2010 commands, issue
 
 At the moment, ABC lacks only offers very basic means for installation.
 
-
-5.1. Installing ABC in a UNIX-like environment
-----------------------------------------------
-
-ABC can be installed issuing a “make install” command as usual.
-
-The default installation prefix is /usr/local; changing it can be accomplished
-by passing make an INSTALL_DIR argument, e.g.:
-
-   make INSTALL_DIR=/home/me install
-
-
-5.2. Installing ABC in Windows
-------------------------------
-
-ABC currently does not ship with an installer for Windows. To install ABC,
-copying its files to a position from which they will be accessible by your
-projects.
+TODO: make ABC installable.
 
 
 6. Using ABC
@@ -192,15 +154,18 @@ This is the most basic program with ABC:
       int main(mvector<istr const> const & vsArgs) {
          abc_trace_fn((vsArgs));
 
+         auto pstdout(file_ostream::stdout());
+         pstdout->write(SL("Hello World\n"));
+
          return 0;
       }
    };
 
    ABC_MAIN_APP_MODULE(my_app_module)
 
-It doesn’t do anything, but it executes and terminates. See [DOC:1063
-Application modules] for more information on this basic code setup.
+Once compiled, this will print out “Hello World” and terminate with exit code
+0. See [DOC:1063 Application modules] for more information on this basic code
+setup.
 
-TODO: make this an actual “Hello world” example.
 TODO: more examples, or more links to examples.
 
