@@ -258,7 +258,7 @@ example based on the previous one:
                                                    │└────────────────────┴───────────────┘│
                                                    └──────────────────────────────────────┘
 
-Note: multiple vtables (and therefore typeid and identifies) can and will be generated for
+Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
 abc::_exception_aggregator (with identical template arguments) across all binaries, because no
 exported definition of it is available; this could be a problem if any code were to catch instances
 of abc::_exception_aggregator, because exceptions thrown in one library wouldn’t be caught by a

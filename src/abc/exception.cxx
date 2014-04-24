@@ -1349,7 +1349,7 @@ exception::async_handler_manager::async_handler_manager() {
    // the handler, the restoration would be skipped, and if the signal were raised again, we’d just
    // crash.
    // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal, which
-   // we use to generate better exceptions.
+   // we use to generate more precise exceptions.
    saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
 
    // Setup handlers for the signals in g_aiHandledSignals.
