@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -185,7 +185,6 @@ ABCAPI void const * get_line_terminator_bytes(
    lts_t const * plts(
       sc_lts[enc.base() - encoding::_charsets_offset][lterm.base() - line_terminator::_known_offset]
    );
-   ABC_ASSERT(plts);
    *pcb = plts->cb;
    return plts->p;
 }

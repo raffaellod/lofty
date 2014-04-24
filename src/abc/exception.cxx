@@ -39,7 +39,7 @@ ABCAPI void throw_os_error() {
    throw_os_error(errno);
 }
 ABCAPI void throw_os_error(errint_t err) {
-   ABC_ASSERT(err != 0);
+   ABC_ASSERT(err != 0, SL("cannot throw an exception for a success"));
    switch (err) {
       case E2BIG: // Argument list too long (POSIX.1-2001)
       case EBADF: // Bad file number (POSIX.1-2001)
@@ -232,7 +232,7 @@ ABCAPI void throw_os_error() {
    throw_os_error(::GetLastError());
 }
 ABCAPI void throw_os_error(errint_t err) {
-   ABC_ASSERT(err != ERROR_SUCCESS);
+   ABC_ASSERT(err != ERROR_SUCCESS, SL("cannot throw an exception for a success"));
    switch (err) {
       // TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
       // we shouldn’t throw due to them.
@@ -1518,15 +1518,16 @@ namespace abc {
 
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_location const & srcloc, char_t const * pszFunction, char_t const * pszExpr
+   source_location const & srcloc, char_range const & crFunction, char_range const & crExpr,
+   char_range const & crMsg
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
          std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
          pfosStdErr->print(
-            SL("Assertion failed: ( {} ) in file {}: in function {}\n"),
-            pszExpr, srcloc, pszFunction
+            SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
+            crMsg, crExpr, srcloc, crFunction
          );
       } catch (...) {
          sm_bReentering = false;

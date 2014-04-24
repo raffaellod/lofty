@@ -342,7 +342,7 @@ public:
    }
    template <size_t t_cch>
    int compare_to(C const (& ach)[t_cch]) const {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       return TTraits::str_cmp(data(), size(), ach, t_cch - 1 /*NUL*/);
    }
    // This overload needs to be template, or it will take precedence over the one above.
@@ -743,7 +743,7 @@ public:
    template <size_t t_cch>
    istr_(C const (& ach)[t_cch]) :
       str_base(ach, t_cch - 1 /*NUL*/) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
    }
    istr_(C const * psz, size_t cch) :
       str_base(0) {
@@ -883,7 +883,7 @@ public:
    }
    template <size_t t_cch>
    mstr_ & operator=(C const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
@@ -899,7 +899,7 @@ public:
    }
    template <size_t t_cch>
    mstr_ & operator+=(C const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       append(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
@@ -1094,7 +1094,7 @@ public:
    template <size_t t_cch>
    explicit dmstr_(C const (& ach)[t_cch]) :
       mstr(0) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
    }
    dmstr_(C const * pch, size_t cch) :
@@ -1144,7 +1144,7 @@ public:
    }
    template <size_t t_cch>
    dmstr_ & operator=(C const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
@@ -1189,14 +1189,14 @@ template <typename C, class TTraits, size_t t_cch>
 inline abc::dmstr_<C, TTraits> operator+(
    abc::str_base_<C, TTraits> const & s, C const (& ach)[t_cch]
 ) {
-   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
    return abc::dmstr_<C, TTraits>(s.data(), s.size(), ach, t_cch - 1 /*NUL*/);
 }
 template <typename C, class TTraits, size_t t_cch>
 inline abc::dmstr_<C, TTraits> operator+(
    C const (& ach)[t_cch], abc::str_base_<C, TTraits> const & s
 ) {
-   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
    return abc::dmstr_<C, TTraits>(ach, t_cch - 1 /*NUL*/, s.data(), s.size());
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
@@ -1310,7 +1310,7 @@ public:
    template <size_t t_cch>
    explicit smstr(C const (& ach)[t_cch]) :
       mstr(smc_cchFixed) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
    }
 
@@ -1355,7 +1355,7 @@ public:
    }
    template <size_t t_cch>
    smstr & operator=(C const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
       this->assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }

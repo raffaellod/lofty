@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -696,7 +696,7 @@ protected:
       m_ci(ciSrc),
       // ciMax = 0 means that the item array is read-only.
       m_rvpd(0, false, false) {
-      ABC_ASSERT(pConstSrc);
+      ABC_ASSERT(pConstSrc, SL("cannot adopt nullptr as item array"));
    }
 
 

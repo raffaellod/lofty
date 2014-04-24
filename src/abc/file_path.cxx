@@ -113,8 +113,7 @@ dmstr file_path::base_name() const {
       return m_s;
    }
    dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-   // it != cend() always, because this is not the root.
-   ABC_ASSERT(it != m_s.cend());
+   ABC_ASSERT(it != m_s.cend(), SL("root case already considered, so should not find ‘/’ at [0]"));
    return m_s.substr(it + 1 /*smc_aszSeparator*/);
 }
 

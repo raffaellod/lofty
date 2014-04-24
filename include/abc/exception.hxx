@@ -516,11 +516,11 @@ expr
    Expression to be validated.
 */
 #ifdef DEBUG
-   #define ABC_ASSERT(expr) \
+   #define ABC_ASSERT(expr, sMsg) \
       do { \
          if (!(expr)) { \
             abc::assertion_error::_assertion_failed( \
-               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, SL(#expr) \
+               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, SL(#expr), sMsg \
             ); \
          } \
       } while (0)
@@ -539,7 +539,8 @@ public:
    /** Throws an exception of type ab::assertion_error due to an expression failing validation.
    */
    static ABC_FUNC_NORETURN void _assertion_failed(
-      source_location const & srcloc, char_t const * pszFunction, char_t const * pszExpr
+      source_location const & srcloc, char_range const & crFunction, char_range const & crExpr,
+      char_range const & crMsg
    );
 
 

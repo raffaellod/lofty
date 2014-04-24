@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -305,7 +305,7 @@ void _raw_complex_vextr_impl::assign_move(
    if (rcvi.m_p == m_p) {
       return;
    }
-   ABC_ASSERT(rcvi.m_rvpd.get_bDynamic());
+   ABC_ASSERT(rcvi.m_rvpd.get_bDynamic(), SL("cannot move a static item array"));
    // Discard the current contents.
    destruct_items(type);
    this->~_raw_complex_vextr_impl();
@@ -598,10 +598,11 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
 void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi) {
    ABC_TRACE_FN((this/*, rtvi*/));
 
-   ABC_ASSERT(rtvi.m_p != m_p);
-   // Only allow sharing read-only or dynamically-allocated item arrays (the latter only as part of
-   // moving them).
-   ABC_ASSERT(rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic());
+   ABC_ASSERT(rtvi.m_p != m_p, SL("cannot assign from self"));
+   ABC_ASSERT(
+      rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic(),
+      SL("can only share read-only or dynamic item arrays (the latter only as part of a move)")
+   );
    // Discard the current contents.
    this->~_raw_trivial_vextr_impl();
    // Take over the dynamic array.
@@ -617,7 +618,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 ) {
    ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove, bNulT));
 
-   ABC_ASSERT(ciAdd || ciRemove);
+   ABC_ASSERT(ciAdd || ciRemove, SL("must have items being added or removed"));
    transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove), bNulT);
    size_t cbOffset(cbItem * iOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the

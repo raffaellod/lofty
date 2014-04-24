@@ -116,8 +116,9 @@ file_istream::file_istream(file_path const & fp) :
       // If the encoding is still undefined, try to guess it now. To have a big enough buffer, we’ll
       // just use the regular read buffer instead of the (possibly too small) provided p.
       void * pRawReadBuf(_get_read_buffer() + m_ibReadBufUsed);
-      // Since nobody set m_enc yet, the buffer must have never been used.
-      ABC_ASSERT(!m_cbReadBufUsed);
+      ABC_ASSERT(
+         !m_cbReadBufUsed, SL("nobody set m_enc yet, so the read buffer must have never been used")
+      );
       m_cbReadBufUsed = m_pfile->read(
          pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
       );
@@ -226,8 +227,10 @@ file_istream::file_istream(file_path const & fp) :
       // Treat unknown as identity.
       enc = text::encoding::identity;
    }
-   // This must have been set by a preceding call to read_raw().
-   ABC_ASSERT(m_enc != text::encoding::unknown);
+   ABC_ASSERT(
+      m_enc != text::encoding::unknown,
+      SL("m_enc must have been set by a previous call to read_raw()")
+   );
    int8_t * pbReadBuf(_get_read_buffer());
    if (enc == m_enc || enc == text::encoding::identity) {
       // Optimal case: no transcoding necessary.
@@ -320,7 +323,7 @@ int8_t * file_istream::_get_read_buffer() {
    ABC_TRACE_FN((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
 
    size_t cbChar(text::get_encoding_size(enc));
-   ABC_ASSERT(cbChar > 0);
+   ABC_ASSERT(cbChar > 0, SL("invalid encoding caused text::get_encoding_size() to return 0"));
    // Little hack to obtain an index in range 0 to 2 (1 → 0, 2 → 1, 4 → 2), for use as bit shift
    // count.
    size_t cbCharLog2((0x2010u >> (cbChar - 1) * 4) & 0xf);
@@ -413,7 +416,9 @@ void file_istream::_post_construct() {
    ABC_TRACE_FN((/*pfile, */pppfis));
 
    // TODO: mutex!
-   ABC_ASSERT(!*pppfis);
+   ABC_ASSERT(
+      !*pppfis, SL("file_istream::_construct_std_file_istream() called twice for the same stream")
+   );
    // TODO: reduce the number of dynamic allocations.
 
    std::unique_ptr<std::shared_ptr<file_istream>> ppfis(new std::shared_ptr<file_istream>());
@@ -541,7 +546,9 @@ file_ostream::file_ostream(file_path const & fp) :
    ABC_TRACE_FN((/*pfile, */pppfos));
 
    // TODO: mutex!
-   ABC_ASSERT(!*pppfos);
+   ABC_ASSERT(
+      !*pppfos, SL("file_ostream::_construct_std_file_ostream() called twice for the same stream")
+   );
    // TODO: reduce the number of dynamic allocations.
 
    std::unique_ptr<std::shared_ptr<file_ostream>> ppfos(new std::shared_ptr<file_ostream>());

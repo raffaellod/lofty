@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -577,7 +577,7 @@ namespace abc {
          Pointer to the output stream to write to.
       */ \
       void write(C const (& ach)[t_cch], ostream * posOut) { \
-         ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0'); \
+         ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated")); \
          _str_to_str_backend::write( \
             ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
          ); \

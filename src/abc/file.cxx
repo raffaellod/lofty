@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -461,7 +461,7 @@ void file::flush() {
    // writing to it.
 
    // TODO: mutex!
-   ABC_ASSERT(!*pppf);
+   ABC_ASSERT(!*pppf, SL("file::_construct_std_file() called twice for the same file"));
    // TODO: reduce the number of dynamic allocations.
 
    std::unique_ptr<std::shared_ptr<file>> ppf(new std::shared_ptr<file>());
