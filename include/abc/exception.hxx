@@ -297,8 +297,11 @@ since this file is included in virtually every file whereas trace.hxx is not.
 
 /** Pretty-printed name of the current function. */
 #if ABC_HOST_GCC
+   // GCC chokes on SL(__PRETTY_FUNCTION__), claiming it expands to u8__PRETTY_FUNCTION__. This is
+   // inconsistent with the successful expansion of SL(__FILE__), but since it’s not really
+   // necessary, we just avoid using SL() here.
    #define _ABC_THIS_FUNC \
-      SL(__PRETTY_FUNCTION__)
+      __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
    #define _ABC_THIS_FUNC \
       SL(__FUNCTION__)
