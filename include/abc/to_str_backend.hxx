@@ -649,7 +649,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 namespace abc {
 
 template <typename TCont, typename TVal>
-class ABCAPI to_str_backend<pointer_iterator<TCont, TVal>> :
+class to_str_backend<pointer_iterator<TCont, TVal>> :
    protected to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
 public:
 
