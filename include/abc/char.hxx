@@ -459,8 +459,8 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(pointer_iterator const & itOther) const { \
-      return m_ptval op itOther.m_ptval; \
+   bool operator op(pointer_iterator const & it) const { \
+      return m_ptval op it.m_ptval; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
