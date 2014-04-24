@@ -426,7 +426,7 @@ public:
    */
    ~module_impl_base() {
 #if ABC_HOST_API_WIN32
-      ABC_ASSERT(m_cRefs == 0);
+      ABC_ASSERT(m_cRefs == 0, SL("module being destructed while still in use"));
 #endif
    }
 
