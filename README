@@ -129,7 +129,7 @@ TODO: expand on ABC Make arguments.
 5. Installing ABC
 -----------------
 
-At the moment, ABC lacks only offers very basic means for installation.
+At the moment, ABC lacks any means for installation.
 
 TODO: make ABC installable.
 
@@ -152,7 +152,7 @@ This is the most basic program with ABC:
    public:
 
       int main(mvector<istr const> const & vsArgs) {
-         abc_trace_fn((vsArgs));
+         ABC_TRACE_FN((this/*, vsArgs*/));
 
          auto pstdout(file_ostream::stdout());
          pstdout->write(SL("Hello World\n"));
