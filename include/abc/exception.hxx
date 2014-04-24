@@ -41,7 +41,7 @@ return
    abc::source_location instance.
 */
 #define ABC_SOURCE_LOCATION() \
-   (::abc::source_location(__FILE__, __LINE__))
+   (::abc::source_location(SL(__FILE__), __LINE__))
 
 
 namespace abc {
@@ -62,7 +62,7 @@ public:
       m_pszFilePath(nullptr),
       m_iLine(0) {
    }
-   source_location(char const * pszFilePath, unsigned iLine) :
+   source_location(char_t const * pszFilePath, unsigned iLine) :
       m_pszFilePath(pszFilePath),
       m_iLine(uint16_t(iLine)) {
    }
@@ -73,7 +73,7 @@ public:
    return
       File path.
    */
-   char const * file_path() const {
+   char_t const * file_path() const {
       return m_pszFilePath;
    }
 
@@ -91,7 +91,7 @@ public:
 protected:
 
    /** Path to the source file. */
-   char const * m_pszFilePath;
+   char_t const * m_pszFilePath;
    /** Line number in m_pszFilePath. */
    uint16_t m_iLine;
 };
@@ -298,10 +298,10 @@ since this file is included in virtually every file whereas trace.hxx is not.
 /** Pretty-printed name of the current function. */
 #if ABC_HOST_GCC
    #define _ABC_THIS_FUNC \
-      __PRETTY_FUNCTION__
+      SL(__PRETTY_FUNCTION__)
 #elif ABC_HOST_MSC
    #define _ABC_THIS_FUNC \
-      __FUNCTION__
+      SL(__FUNCTION__)
 #else
    #define _ABC_THIS_FUNC \
       nullptr
@@ -412,7 +412,7 @@ public:
    pszFunction
       Function that is throwing the exception.
    */
-   void _before_throw(source_location const & srcloc, char const * pszFunction);
+   void _before_throw(source_location const & srcloc, char_t const * pszFunction);
 
 
    /** Initializes the information associated to the exception.
@@ -490,7 +490,7 @@ protected:
 private:
 
    /** Source function name. */
-   char const * m_pszSourceFunction;
+   char_t const * m_pszSourceFunction;
    /** Source location. */
    source_location m_srcloc;
    /** true if *this is an in-flight exception (it has been thrown) or is a copy of one. */
@@ -516,7 +516,9 @@ expr
    #define ABC_ASSERT(expr) \
       do { \
          if (!(expr)) { \
-            abc::assertion_error::_assertion_failed(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, #expr); \
+            abc::assertion_error::_assertion_failed( \
+               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, SL(#expr) \
+            ); \
          } \
       } while (0)
 #else
@@ -534,7 +536,7 @@ public:
    /** Throws an exception of type ab::assertion_error due to an expression failing validation.
    */
    static ABC_FUNC_NORETURN void _assertion_failed(
-      source_location const & srcloc, char const * pszFunction, char const * pszExpr
+      source_location const & srcloc, char_t const * pszFunction, char_t const * pszExpr
    );
 
 

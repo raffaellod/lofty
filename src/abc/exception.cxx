@@ -1159,7 +1159,7 @@ exception & exception::operator=(exception const & x) {
 }
 
 
-void exception::_before_throw(source_location const & srcloc, char const * pszFunction) {
+void exception::_before_throw(source_location const & srcloc, char_t const * pszFunction) {
    m_pszSourceFunction = pszFunction;
    m_srcloc = srcloc;
    // Clear any old trace stream buffer and create a new one with *this as its only reference. See
@@ -1518,7 +1518,7 @@ namespace abc {
 
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_location const & srcloc, char const * pszFunction, char const * pszExpr
+   source_location const & srcloc, char_t const * pszFunction, char_t const * pszExpr
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;

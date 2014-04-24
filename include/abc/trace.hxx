@@ -256,7 +256,7 @@ public:
    pszFunction
       Function name.
    */
-   void _set_context(source_location const & srcloc, char const * pszFunction) {
+   void _set_context(source_location const & srcloc, char_t const * pszFunction) {
       m_srcloc = srcloc;
       m_pszFunction = pszFunction;
    }
@@ -271,7 +271,7 @@ protected:
 private:
 
    /** Function name. */
-   char const * m_pszFunction;
+   char_t const * m_pszFunction;
    /** Source location. */
    source_location m_srcloc;
    /** If true, rendering of this scope trace has started (the function/scope name has been
