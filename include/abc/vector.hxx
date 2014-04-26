@@ -430,7 +430,9 @@ See [DOC:4019 abc::*str_ and abc::*vector design] for implementation details for
 template <typename T, bool t_bCopyConstructible>
 class vector_base;
 
-// Partial specialization for non-copyable types.
+// Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
+// false on _raw_vector, so that vector_base<T, true> can inherit from this and still get all the
+// copyable-only members of _raw_vector<T, true>.
 template <typename T>
 class vector_base<T, false> :
    protected _raw_vector<T, std::is_copy_constructible<T>::value>,
@@ -665,7 +667,9 @@ dmvector are automatically converted to this.
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
 class mvector;
 
-// Partial specialization for non-copyable types.
+// Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
+// false on vector_base, so that mvector<T, true> can inherit from this and still get all the
+// copyable-only members of vector_base<T, true>.
 template <typename T>
 class mvector<T, false> :
    public vector_base<T, std::is_copy_constructible<T>::value> {
