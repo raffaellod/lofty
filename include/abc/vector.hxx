@@ -37,17 +37,14 @@ namespace abc {
 /** Thin templated wrapper for _raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations.
 */
-template <
-   typename T,
-   bool t_bTrivial = std::is_trivial<T>::value,
-   bool t_bCopyConstructible = std::is_copy_constructible<T>::value
->
+template <typename T, bool t_bCopyConstructible, bool t_bTrivial = std::is_trivial<T>::value>
 class _raw_vector;
 
-// Partial specialization for non-trivial, non-copyable types.
+// Partial specialization for non-copyable, non-trivial types.
 template <typename T>
 class _raw_vector<T, false, false> :
-   public _raw_complex_vextr_impl {
+   public _raw_complex_vextr_impl,
+   public noncopyable {
 public:
 
    /** Destructor.
@@ -174,11 +171,18 @@ protected:
    _raw_vector(void const * pConstSrc, size_t ciSrc) :
       _raw_complex_vextr_impl(pConstSrc, ciSrc) {
    }
+
+
+private:
+
+   // Hide these _raw_complex_vextr_impl methods to trigger errors as a debugging aid.
+
+   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
 };
 
-// Partial specialization for non-trivial, copyable types.
+// Partial specialization for copyable, non-trivial types.
 template <typename T>
-class _raw_vector<T, false, true> :
+class _raw_vector<T, true, false> :
    public _raw_vector<T, false, false> {
 public:
 
@@ -413,25 +417,30 @@ protected:
 namespace abc {
 
 // Forward declarations.
-template <typename T>
+template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class mvector;
-template <typename T>
+template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class dmvector;
-
 
 /** Base class for vectors.
 
 See [DOC:4019 abc::*str_ and abc::*vector design] for implementation details for this and all the
 *vector classes.
 */
-template <typename T>
-class vector_base :
-   protected _raw_vector<T>,
-   public _iterable_vector<vector_base<T>, T>,
-   public support_explicit_operator_bool<vector_base<T>> {
+template <typename T, bool t_bCopyConstructible>
+class vector_base;
 
+// Partial specialization for non-copyable types.
+template <typename T>
+class vector_base<T, false> :
+   protected _raw_vector<T, std::is_copy_constructible<T>::value>,
+   public _iterable_vector<vector_base<T, std::is_copy_constructible<T>::value>, T>,
+   public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
+
+   /** true if T is copy constructible, or false otherwise. */
+   static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
    /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T>, T> itvec;
+   typedef _iterable_vector<vector_base<T, smc_bCopyConstructible>, T> itvec;
 
 
 public:
@@ -473,7 +482,7 @@ public:
       Current size of the item array storage, in elements.
    */
    size_t capacity() const {
-      return _raw_vector<T>::capacity();
+      return _raw_vector<T, smc_bCopyConstructible>::capacity();
    }
 
 
@@ -484,12 +493,12 @@ public:
    */
    T * data() {
       // For some reason, GCC doesn’t like this:
-      //    return _raw_vector<T>::data<T>();
+      //    return _raw_vector<T, smc_bCopyConstructible>::data<T>();
       return _raw_vextr_impl_base::data<T>();
    }
    T const * data() const {
       // For some reason, GCC doesn’t like this:
-      //    return _raw_vector<T>::data<T>();
+      //    return _raw_vector<T, smc_bCopyConstructible>::data<T>();
       return _raw_vextr_impl_base::data<T>();
    }
 
@@ -500,7 +509,7 @@ public:
       Count of elements.
    */
    size_t size() const {
-      return _raw_vector<T>::size();
+      return _raw_vector<T, smc_bCopyConstructible>::size();
    }
 
 
@@ -539,6 +548,69 @@ public:
    }
 
 
+protected:
+
+   /** Constructor. The overload with ciStatic constructs the object as empty, setting m_p to
+   nullptr or an empty string; the overload with pt constructs the object assigning an item array.
+
+   ciStatic
+      Count of slots in the static item array, or 0 if no static item array is present.
+   pt
+      Pointer to an array that will be adopted by the vector as read-only.
+   ci
+      Count of items in the array pointed to by pt.
+   */
+   vector_base(size_t ciStatic) :
+      _raw_vector<T, smc_bCopyConstructible>(ciStatic) {
+   }
+   vector_base(T const * pt, size_t ci) :
+      _raw_vector<T, smc_bCopyConstructible>(pt, ci) {
+   }
+
+
+   /** See _raw_vector<T>::assign_move().
+
+   v
+      Source vector.
+   */
+   void assign_move(vector_base && v) {
+      _raw_vector<T, smc_bCopyConstructible>::assign_move(
+         static_cast<_raw_vector<T, smc_bCopyConstructible> &&>(v)
+      );
+   }
+
+
+   /** See _raw_vector<T>::assign_move_dynamic_or_move_items().
+
+   v
+      Source vector.
+   */
+   void assign_move_dynamic_or_move_items(vector_base && v) {
+      _raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
+         static_cast<_raw_vector<T, smc_bCopyConstructible> &&>(v)
+      );
+   }
+};
+
+// Partial specialization for copyable types.
+template <typename T>
+class vector_base<T, true> :
+   public vector_base<T, false> {
+
+   /** Shortcut for the base class providing iterator-based types and methods. */
+   typedef _iterable_vector<vector_base<T, true>, T> itvec;
+
+
+public:
+
+   /** Element type. */
+   typedef T item_type;
+   /** See _iterable_vector::const_iterator. */
+   typedef typename itvec::const_iterator const_iterator;
+
+
+public:
+
    /** Returns a segment of the vector.
 
    iFirst
@@ -548,12 +620,12 @@ public:
       Count of elements to return. If negative, it’s the count of elements to skip, from the end of
       the vector.
    */
-   dmvector<T> slice(ptrdiff_t iFirst) const {
-      return slice(iFirst, size());
+   dmvector<T, true> slice(ptrdiff_t iFirst) const {
+      return slice(iFirst, this->size());
    }
-   dmvector<T> slice(ptrdiff_t iFirst, ptrdiff_t ci) const {
+   dmvector<T, true> slice(ptrdiff_t iFirst, ptrdiff_t ci) const {
       this->adjust_range(&iFirst, &ci);
-      return dmvector<T>(data() + iFirst, size_t(ci));
+      return dmvector<T, true>(this->data() + iFirst, size_t(ci));
    }
 
 
@@ -570,30 +642,10 @@ protected:
       Count of items in the array pointed to by pt.
    */
    vector_base(size_t ciStatic) :
-      _raw_vector<T>(ciStatic) {
+      vector_base<T, false>(ciStatic) {
    }
    vector_base(T const * pt, size_t ci) :
-      _raw_vector<T>(pt, ci) {
-   }
-
-
-   /** See _raw_vector<T>::assign_move().
-
-   v
-      Source vector.
-   */
-   void assign_move(vector_base && v) {
-      _raw_vector<T>::assign_move(static_cast<_raw_vector<T> &&>(v));
-   }
-
-
-   /** See _raw_vector<T>::assign_move_dynamic_or_move_items().
-
-   v
-      Source vector.
-   */
-   void assign_move_dynamic_or_move_items(vector_base && v) {
-      _raw_vector<T>::assign_move_dynamic_or_move_items(static_cast<_raw_vector<T> &&>(v));
+      vector_base<T, false>(pt, ci) {
    }
 };
 
@@ -610,17 +662,164 @@ namespace abc {
 vector argument, since this allows for in-place alterations to the vector. Both smvector and
 dmvector are automatically converted to this.
 */
-template <typename T>
-class mvector :
-   public vector_base<T> {
+template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
+class mvector;
 
+// Partial specialization for non-copyable types.
+template <typename T>
+class mvector<T, false> :
+   public vector_base<T, std::is_copy_constructible<T>::value> {
+
+   /** true if T is copy constructible, or false otherwise. */
+   static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
    /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T>, T> itvec;
+   typedef _iterable_vector<vector_base<T, smc_bCopyConstructible>, T> itvec;
 
 
 public:
 
-   /** See vector_base<T>::const_iterator. */
+   /** See vector_base<T, smc_bCopyConstructible>::const_iterator. */
+   typedef typename itvec::const_iterator const_iterator;
+
+
+public:
+
+   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   *this.
+
+   v
+      Source vector.
+   return
+      *this.
+   */
+   mvector & operator=(dmvector<T> && v) {
+      this->assign_move(std::move(v));
+      return *this;
+   }
+
+
+   /** Concatenation-assignment operator.
+
+   v
+      Vector to concatenate.
+   return
+      *this.
+   */
+   mvector & operator+=(mvector && v) {
+      this->append_move(v.data(), v.size());
+      return *this;
+   }
+
+
+   /** See vector_base::operator[]().
+   */
+   T & operator[](intptr_t i) {
+      return const_cast<T &>(vector_base<T, smc_bCopyConstructible>::operator[](i));
+   }
+   T const & operator[](intptr_t i) const {
+      return vector_base<T, smc_bCopyConstructible>::operator[](i);
+   }
+
+
+   /** Adds elements at the end of the vector.
+
+   t
+      Element to copy (const &) or move (&&) to the end of the vector.
+   pt
+      Pointer to an array of elements to copy to the end of the vector.
+   ci
+      Count of elements in the array pointed to by pt.
+   */
+   void append(typename std::remove_const<T>::type && t) {
+      this->append_move(&t, 1);
+   }
+
+
+   /** Removes all elements from the vector.
+   */
+   void clear() {
+      vector_base<T, smc_bCopyConstructible>::clear();
+   }
+
+
+   /** Inserts elements at a specific position in the vector.
+
+   i
+      0-based index of the element. If negative, it’s 1-based index from the end of the vector.
+   TODO: comment signature.
+   */
+   void insert(ptrdiff_t i, typename std::remove_const<T>::type && t) {
+      this->insert_move(i, &t, 1);
+   }
+   void insert(const_iterator it, typename std::remove_const<T>::type && t) {
+      this->insert_move(it - itvec::cbegin(), std::move(t), &t, 1);
+   }
+
+
+   /** Removes elements from the vector.
+
+   i
+      0-based index of the element to be removed. If negative, it’s 1-based index from the end of
+      the vector.
+   it
+      Iterator positioned on the first element to remove.
+   ciRemove
+      Count of elements to remove.
+   */
+   void remove_at(ptrdiff_t i, ptrdiff_t ciRemove = 1) {
+      vector_base<T, smc_bCopyConstructible>::remove_at(i, ciRemove);
+   }
+   void remove_at(const_iterator it, ptrdiff_t ciRemove = 1) {
+      vector_base<T, smc_bCopyConstructible>::remove_at(it - itvec::cbegin(), ciRemove);
+   }
+
+
+   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any elements in the current one will be destructed unless
+   bPreserve == true, which will cause them to be moved to the new item array.
+
+   ciMin
+      Minimum count of elements requested.
+   bPreserve
+      If true, the previous contents of the item array will be preserved even if the reallocation
+      causes the vector to switch to a different item array.
+   */
+   void set_capacity(size_t ciMin, bool bPreserve) {
+      vector_base<T, smc_bCopyConstructible>::set_capacity(ciMin, bPreserve);
+   }
+
+
+   /** Resizes the vector so that it only takes up as much memory as strictly necessary.
+   */
+   void shrink_to_fit() {
+      // TODO: implement this.
+   }
+
+
+protected:
+
+   /** Constructor. Constructs the object as empty, setting m_p to nullptr.
+
+   ciStatic
+      Count of slots in the static item array, or 0 if no static item array is present.
+   */
+   mvector(size_t ciStaticMax) :
+      vector_base<T, smc_bCopyConstructible>(ciStaticMax) {
+   }
+};
+
+// Partial specialization for copyable types.
+template <typename T>
+class mvector<T, true> :
+   public mvector<T, false> {
+
+   /** Shortcut for the base class providing iterator-based types and methods. */
+   typedef _iterable_vector<vector_base<T, true>, T> itvec;
+
+
+public:
+
+   /** See vector_base<T, smc_bCopyConstructible>::const_iterator. */
    typedef typename itvec::const_iterator const_iterator;
 
 
@@ -661,16 +860,6 @@ public:
    }
 
 
-   /** See vector_base::operator[]().
-   */
-   T & operator[](intptr_t i) {
-      return const_cast<T &>(vector_base<T>::operator[](i));
-   }
-   T const & operator[](intptr_t i) const {
-      return vector_base<T>::operator[](i);
-   }
-
-
    /** Adds elements at the end of the vector.
 
    t
@@ -688,13 +877,6 @@ public:
    }
    void append(T const * pt, size_t ci) {
       this->append_copy(pt, ci);
-   }
-
-
-   /** Removes all elements from the vector.
-   */
-   void clear() {
-      vector_base<T>::clear();
    }
 
 
@@ -724,55 +906,12 @@ public:
    }
 
 
-   /** Removes elements from the vector.
-
-   i
-      0-based index of the element to be removed. If negative, it’s 1-based index from the end of
-      the vector.
-   it
-      Iterator positioned on the first element to remove.
-   ciRemove
-      Count of elements to remove.
-   */
-   void remove_at(ptrdiff_t i, ptrdiff_t ciRemove = 1) {
-      vector_base<T>::remove_at(i, ciRemove);
-   }
-   void remove_at(const_iterator it, ptrdiff_t ciRemove = 1) {
-      vector_base<T>::remove_at(it - itvec::cbegin(), ciRemove);
-   }
-
-
-   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
-   switch to using a different item array, any elements in the current one will be destructed unless
-   bPreserve == true, which will cause them to be moved to the new item array.
-
-   ciMin
-      Minimum count of elements requested.
-   bPreserve
-      If true, the previous contents of the item array will be preserved even if the reallocation
-      causes the vector to switch to a different item array.
-   */
-   void set_capacity(size_t ciMin, bool bPreserve) {
-      vector_base<T>::set_capacity(ciMin, bPreserve);
-   }
-
-
-   /** Resizes the vector so that it only takes up as much memory as strictly necessary.
-   */
-   void shrink_to_fit() {
-      // TODO: implement this.
-   }
-
-
 protected:
 
-   /** Constructor. Constructs the object as empty, setting m_p to nullptr.
-
-   ciStatic
-      Count of slots in the static item array, or 0 if no static item array is present.
+   /** See mvector<T, false>::mvector().
    */
    mvector(size_t ciStaticMax) :
-      vector_base<T>(ciStaticMax) {
+      mvector<T, false>(ciStaticMax) {
    }
 };
 
@@ -787,9 +926,67 @@ namespace abc {
 
 /** Dynamically-allocated mutable vector.
 */
+template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
+class dmvector;
+
+// Partial specialization for non-copyable types.
 template <typename T>
-class dmvector :
-   public mvector<T> {
+class dmvector<T, false> :
+   public mvector<T, false> {
+public:
+
+   /** Constructor. The individual items or the entire source item array will be moved to *this.
+
+   v
+      Source vector.
+   v1
+      First source vector.
+   v2
+      Second source vector.
+   ci
+      Count of items in the array pointed to by pt.
+   */
+   dmvector() :
+      mvector<T, false>(0) {
+   }
+   dmvector(dmvector && v) :
+      mvector<T, false>(0) {
+      this->assign_move(std::move(v));
+   }
+   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+   dmvector(mvector<T, false> && v) :
+      mvector<T, false>(0) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+   }
+   dmvector(mvector<T, false> && v1, mvector<T, false> && v2) :
+      mvector<T, false>(0) {
+      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
+   }
+
+
+   /** Assignment operator. The individual items or the entire source item array will be moved to
+   *this.
+
+   v
+      Source vector.
+   return
+      *this.
+   */
+   dmvector & operator=(dmvector && v) {
+      this->assign_move(std::move(v));
+      return *this;
+   }
+   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+   dmvector & operator=(mvector<T, false> && v) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+      return *this;
+   }
+};
+
+// Partial specialization for copyable types.
+template <typename T>
+class dmvector<T, true> :
+   public mvector<T, true> {
 public:
 
    /** Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
@@ -817,52 +1014,52 @@ public:
       Count of items in the array pointed to by pt2.
    */
    dmvector() :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
    }
    dmvector(dmvector const & v) :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
       this->assign_copy(v.data(), v.size());
    }
    dmvector(dmvector && v) :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
       this->assign_move(std::move(v));
    }
-   dmvector(mvector<T> const & v) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> const & v) :
+      mvector<T, true>(0) {
       this->assign_copy(v.data(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
-   dmvector(mvector<T> && v) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> && v) :
+      mvector<T, true>(0) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   dmvector(mvector<T> const & v1, mvector<T> const & v2) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
+      mvector<T, true>(0) {
       this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), false);
    }
-   dmvector(mvector<T> && v1, mvector<T> const & v2) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
+      mvector<T, true>(0) {
       this->assign_concat(v1.data(), v1.size(), true, v2.data(), v2.size(), false);
    }
-   dmvector(mvector<T> const & v1, mvector<T> && v2) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
+      mvector<T, true>(0) {
       this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), true);
    }
-   dmvector(mvector<T> && v1, mvector<T> && v2) :
-      mvector<T>(0) {
+   dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
+      mvector<T, true>(0) {
       this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
    }
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
       this->assign_copy(at, t_ci);
    }
    dmvector(T const * pt, size_t ci) :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
       this->assign_copy(pt, ci);
    }
    dmvector(T const * pt1, size_t ci1, T const * pt2, size_t ci2) :
-      mvector<T>(0) {
+      mvector<T, true>(0) {
       this->assign_concat(pt1, ci1, false, pt2, ci2, false);
    }
 
@@ -873,7 +1070,7 @@ public:
    v
       Source vector.
    return
-      *this;
+      *this.
    */
    dmvector & operator=(dmvector const & v) {
       this->assign_copy(v.data(), v.size());
@@ -883,12 +1080,12 @@ public:
       this->assign_move(std::move(v));
       return *this;
    }
-   dmvector & operator=(mvector<T> const & v) {
+   dmvector & operator=(mvector<T, true> const & v) {
       this->assign_copy(v.data(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
-   dmvector & operator=(mvector<T> && v) {
+   dmvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
@@ -907,25 +1104,34 @@ return
    Vector resulting from the concatenation of v1 and v2.
 */
 template <typename T>
-inline abc::dmvector<T> operator+(abc::vector_base<T> const & v1, abc::vector_base<T> const & v2) {
-   return abc::dmvector<T>(
-      static_cast<abc::mvector<T> const &>(v1), static_cast<abc::mvector<T> const &>(v2)
+inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
+operator+(abc::vector_base<T, true> const & v1, abc::vector_base<T, true> const & v2) {
+   return abc::dmvector<T, true>(
+      static_cast<abc::mvector<T, true> const &>(v1), static_cast<abc::mvector<T, true> const &>(v2)
    );
 }
 // Overloads taking an mvector r-value-reference as either or both operands; they can avoid creating
 // intermediate copies of the elements from one or both source vectors.
 // TODO: verify that compilers actually select these overloads whenever possible.
 template <typename T>
-inline abc::dmvector<T> operator+(abc::mvector<T> && v1, abc::mvector<T> const & v2) {
-   return abc::dmvector<T>(std::move(v1), v2);
+inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
+operator+(
+   abc::mvector<T, true> && v1, abc::mvector<T, true> const & v2
+) {
+   return abc::dmvector<T, true>(std::move(v1), v2);
 }
 template <typename T>
-inline abc::dmvector<T> operator+(abc::mvector<T> const & v1, abc::mvector<T> && v2) {
-   return abc::dmvector<T>(v1, std::move(v2));
+inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
+operator+(
+   abc::mvector<T, true> const & v1, abc::mvector<T, true> && v2
+) {
+   return abc::dmvector<T, true>(v1, std::move(v2));
 }
-template <typename T>
-inline abc::dmvector<T> operator+(abc::mvector<T> && v1, abc::mvector<T> && v2) {
-   return abc::dmvector<T>(std::move(v1), std::move(v2));
+template <typename T, bool t_bCopyConstructible>
+inline abc::dmvector<T, t_bCopyConstructible> operator+(
+   abc::mvector<T, t_bCopyConstructible> && v1, abc::mvector<T, t_bCopyConstructible> && v2
+) {
+   return abc::dmvector<T, t_bCopyConstructible>(std::move(v1), std::move(v2));
 }
 
 
@@ -935,9 +1141,114 @@ inline abc::dmvector<T> operator+(abc::mvector<T> && v1, abc::mvector<T> && v2) 
 
 namespace abc {
 
+/** mvector_-derived class, good for clients that need in-place manipulation of vectors that are
+most likely to be shorter than a known small size.
+*/
+template <
+   typename T, size_t t_ciStatic, bool t_bCopyConstructible = std::is_copy_constructible<T>::value
+>
+class smvector;
+
+// Partial specialization for non-copyable types.
 template <typename T, size_t t_ciStatic>
-class smvector :
-   public mvector<T> {
+class smvector<T, t_ciStatic, false> :
+   public mvector<T, false> {
+protected:
+
+   /** Actual static item array size. */
+   static size_t const smc_ciFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_ciStatic);
+
+
+public:
+
+   /** Constructor. The individual items or the entire source item array will be moved to *this.
+
+   v
+      Source vector.
+   */
+   smvector() :
+      mvector<T, false>(smc_ciFixed) {
+   }
+   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   smvector(smvector && v) :
+      mvector<T, false>(smc_ciFixed) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+   }
+   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
+   // way, this won’t throw.
+   template <size_t t_ciStatic2>
+   smvector(typename std::enable_if<
+      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, false> &&
+   >::type v) :
+      mvector<T, false>(smc_ciFixed) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+   }
+   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
+   // This also covers smvector of different static size > t_ciStatic.
+   smvector(mvector<T, false> && v) :
+      mvector<T, false>(smc_ciFixed) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+   }
+   smvector(dmvector<T, false> && v) :
+      mvector<T, false>(smc_ciFixed) {
+      this->assign_move(std::move(v));
+   }
+
+
+   /** Assignment operator. The individual items or the entire source item array will be moved to
+   *this.
+
+   v
+      Source vector.
+   return
+      *this.
+   */
+   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   smvector & operator=(smvector && v) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+      return *this;
+   }
+   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
+   // way, this won’t throw.
+   template <size_t t_ciStatic2>
+   smvector & operator=(typename std::enable_if<
+      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, false> &&
+   >::type v) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+      return *this;
+   }
+   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
+   // This also covers smvector of different static size > t_ciStatic.
+   smvector & operator=(mvector<T, false> && v) {
+      this->assign_move_dynamic_or_move_items(std::move(v));
+      return *this;
+   }
+   smvector & operator=(dmvector<T, false> && v) {
+      this->assign_move(std::move(v));
+      return *this;
+   }
+
+
+private:
+
+   // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
+
+   /** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
+   size_t m_ciStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(T) * smc_ciFixed)];
+};
+
+// Partial specialization for copyable types.
+template <
+   typename T, size_t t_ciStatic
+>
+class smvector<T, t_ciStatic, true> :
+   public mvector<T, true> {
 protected:
 
    /** Actual static item array size. */
@@ -958,49 +1269,49 @@ public:
       Count of items in the array pointed to by pt.
    */
    smvector() :
-      mvector<T>(smc_ciFixed) {
+      mvector<T, true>(smc_ciFixed) {
    }
    smvector(smvector const & v) :
-      mvector<T>(smc_ciFixed) {
+      mvector<T, true>(smc_ciFixed) {
       this->assign_copy(v.data(), v.size());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T>(smc_ciFixed) {
+      mvector<T, true>(smc_ciFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
    template <size_t t_ciStatic2>
-   smvector(
-      typename std::enable_if<(t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2> &&>::type v
-   ) :
-      mvector<T>(smc_ciFixed) {
+   smvector(typename std::enable_if<
+      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, true> &&
+   >::type v) :
+      mvector<T, true>(smc_ciFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   smvector(mvector<T> const & v) :
-      mvector<T>(smc_ciFixed) {
+   smvector(mvector<T, true> const & v) :
+      mvector<T, true>(smc_ciFixed) {
       this->assign_copy(v.data(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
-   smvector(mvector<T> && v) :
-      mvector<T>(smc_ciFixed) {
+   smvector(mvector<T, true> && v) :
+      mvector<T, true>(smc_ciFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   smvector(dmvector<T> && v) :
-      mvector<T>(smc_ciFixed) {
+   smvector(dmvector<T, true> && v) :
+      mvector<T, true>(smc_ciFixed) {
       this->assign_move(std::move(v));
    }
    template <size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
-      mvector<T>(smc_ciFixed) {
+      mvector<T, true>(smc_ciFixed) {
       this->assign_copy(at, t_ci);
    }
    smvector(T const * pt, size_t ci) :
-      mvector<T>(smc_ciFixed) {
+      mvector<T, true>(smc_ciFixed) {
       this->assign_copy(pt, ci);
    }
 
@@ -1011,7 +1322,7 @@ public:
    v
       Source vector.
    return
-      *this;
+      *this.
    */
    smvector & operator=(smvector const & v) {
       this->assign_copy(v.data(), v.size());
@@ -1027,23 +1338,23 @@ public:
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
    template <size_t t_ciStatic2>
-   smvector & operator=(
-      typename std::enable_if<(t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2> &&>::type v
-   ) {
+   smvector & operator=(typename std::enable_if<
+      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, true> &&
+   >::type v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   smvector & operator=(mvector<T> const & v) {
+   smvector & operator=(mvector<T, true> const & v) {
       this->assign_copy(v.data(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
-   smvector & operator=(mvector<T> && v) {
+   smvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   smvector & operator=(dmvector<T> && v) {
+   smvector & operator=(dmvector<T, true> && v) {
       this->assign_move(std::move(v));
       return *this;
    }
