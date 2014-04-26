@@ -140,10 +140,7 @@ public:
 private:
 
    /** Vector of loaded test test cases to be executed. */
-   // TODO: currently abc::*vector containers don’t support move-only types; change to use
-   // std::unique_ptr when that becomes supported.
-   dmvector<test_case *> m_vptc;
-// dmvector<std::unique_ptr<test_case>> m_vptc;
+   dmvector<std::unique_ptr<test_case>> m_vptc;
    /** Output stream. */
    std::shared_ptr<ostream> m_pos;
    /** Total count of failed assertions. */

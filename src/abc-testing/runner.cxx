@@ -57,11 +57,6 @@ runner::runner(std::shared_ptr<ostream> posOut) :
 
 
 runner::~runner() {
-   // TODO: currently abc::*vector containers don’t support move-only types; remove this manual
-   // cleanup code when std::unique_ptr becomes supported.
-   for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
-      delete *it;
-   }
 }
 
 
@@ -74,11 +69,7 @@ void runner::load_registered_test_cases() {
       pli = pli->pliNext
    ) {
       // Instantiate the test case.
-      auto ptc(pli->pfnFactory(this));
-      // TODO: currently abc::*vector containers don’t support move-only types; change to use
-      // std::unique_ptr when that becomes supported.
-      m_vptc.append(ptc.release());
-//    m_vptc.append(std::move(ptc));
+      m_vptc.append(pli->pfnFactory(this));
    }
 }
 
