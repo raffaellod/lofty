@@ -122,16 +122,19 @@ public:
    virtual void run() {
       ABC_TRACE_FN((this));
 
+      using testing::utility::make_container_data_ptr_tracker;
+
       dmvector<int> v1;
-      auto cdpt1(testing::utility::make_container_data_ptr_tracker(v1));
+      auto cdpt1(make_container_data_ptr_tracker(v1));
       // Note: the embedded item array size will probably be > 2.
       smvector<int, 2> v2;
-      auto cdpt2(testing::utility::make_container_data_ptr_tracker(v2));
+      auto cdpt2(make_container_data_ptr_tracker(v2));
       // Note: the embedded item array size will probably be > 10.
       smvector<int, 10> v3;
-      auto cdpt3(testing::utility::make_container_data_ptr_tracker(v3));
+      auto cdpt3(make_container_data_ptr_tracker(v3));
 
-      // Add one element to each vector.
+      // Add one element to each vector, so they all allocate a new item array or begin using their
+      // own embedded one.
 
       // Should allocate a new item array.
       v1.append(10);
@@ -144,12 +147,14 @@ public:
       ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
       ABC_TESTING_ASSERT_EQUAL(v2.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
+      int const * const p2Static(v2.data());
 
       // Should begin using the embedded item array.
       v3.append(30);
       ABC_TESTING_ASSERT_TRUE(cdpt3.changed());
       ABC_TESTING_ASSERT_EQUAL(v3.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
+      int const * const p3Static(v3.data());
 
       // Add more elements to each vector.
 
@@ -201,6 +206,7 @@ public:
 
       // The embedded item array has room for this, so no reallocation is needed.
       v3.append(31);
+      ABC_TESTING_ASSERT_EQUAL(v3.data(), p3Static);
       ABC_TESTING_ASSERT_FALSE(cdpt3.changed());
       ABC_TESTING_ASSERT_EQUAL(v3.size(), 2u);
       ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
@@ -225,6 +231,7 @@ public:
 
       // Should return to using the embedded item array, copying v3’s items over.
       v2 = v3;
+      ABC_TESTING_ASSERT_EQUAL(v2.data(), p2Static);
       ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
       ABC_TESTING_ASSERT_EQUAL(v2.size(), 2u);
       ABC_TESTING_ASSERT_EQUAL(v2[0], 30);
@@ -271,61 +278,6 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v3[16], 12);
       ABC_TESTING_ASSERT_EQUAL(v3[17], 13);
    }
-
-#if 0
-      // Check that returning a vector with a dynamically allocated descriptor does not cause a new
-      // descriptor to be allocated, nor copies the items.
-      {
-         dmvector<test_with_ptr> v(move_constr_test(&pi));
-         if (v[0].get_ptr() != pi) {
-            return 100;
-         }
-         if (test_with_ptr::get_count() != 1) {
-            return 110 + test_with_ptr::get_count();
-         }
-         // Also check that add(T &&) doesn’t make extra copies.
-         v.append(test_with_ptr());
-         if (test_with_ptr::get_count() != 2) {
-            return 120 + test_with_ptr::get_count();
-         }
-      }
-
-      // Check that returning a vector with a dynamically allocated descriptor into a vector with a
-      // statically allocated descriptor causes the items to be moved to the static descriptor.
-      {
-         smvector<test_with_ptr, 2> v(move_constr_test(&pi));
-         if (v[0].get_ptr() != pi) {
-            return 130;
-         }
-         if (test_with_ptr::get_count() != 3) {
-            return 140 + test_with_ptr::get_count();
-         }
-      }
-
-      return 0;
-   }
-
-
-   /** Creates a local vector<test_with_ptr> that’s modified in place, and adds to it a temporary
-   item (which should cause no item copies to be made) whose internal pointer is stored in *ppi; the
-   vector is then returned (which, again, should cause no item copies to be made).
-
-   TODO: comment signature.
-   */
-   dmvector<test_with_ptr> move_constr_test(int const ** ppi) {
-      // vector::vector();
-      dmvector<test_with_ptr> v;
-      // test_with_ptr::test_with_ptr();
-      // vector::add(T && t);
-      v.append(test_with_ptr());
-      // vector::operator[]();
-      // test_with_ptr::get_ptr();
-      *ppi = v[0].get_ptr();
-      // vector::vector(vector && v);
-      return std::move(v);
-      // vector::~vector();
-   }
-#endif
 };
 
 } //namespace test
@@ -333,4 +285,86 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::vector_move
+
+
+namespace abc {
+
+namespace test {
+
+class vector_move :
+   public testing::test_case {
+
+   typedef testing::utility::instances_counter instances_counter;
+
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*vector classes - item and item array movement"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      // This will move the item array from the returned vector to v1, so no item copies or moves
+      // will occur other than the ones in return_dmvector().
+      dmvector<instances_counter> v1(return_dmvector());
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+      instances_counter::reset_counts();
+
+      // This should create a new copy, with no intermediate moves because all passages are by
+      // reference or pointer.
+      v1.append(v1[0]);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
+      instances_counter::reset_counts();
+
+      smvector<instances_counter, 9> v2;
+      // This will move the individual items from the returned vector to v2’s static item array.
+      // Can’t just construct v2 with return_dmvector() because v2 would just use that item array
+      // instead of its own embedded one, resulting in no additional moves other than the one in
+      // return_dmvector().
+      v2 += return_dmvector();
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+      instances_counter::reset_counts();
+   }
+
+
+   /** Instantiates and returns a dynamic vector. The vector will contain one item, added in a way
+   that should cause only one new instance of instances_counter to be created, one moved and none
+   copied. Additional copies/moved may occur upon return.
+
+   return
+      Newly-instantiated dynamic vector.
+   */
+   dmvector<instances_counter> return_dmvector() {
+      ABC_TRACE_FN((this));
+
+      dmvector<instances_counter> v;
+      // New instance, immediately moved.
+      v.append(instances_counter());
+      // This will move the item array or the items in it, depending on the destination type
+      // (static or dynamic item array).
+      return std::move(v);
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_move)
 
