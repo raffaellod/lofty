@@ -533,6 +533,35 @@ public:
    }
 
 
+   /** Returns true if the string starts with a specified prefix.
+
+   s
+      String that *this should start with.
+   ach
+      String literal that *this should start with.
+   psz
+      NUL-terminated string that *this should start with.
+   return
+      true if *this starts with the specified affix, or false otherwise.
+   */
+   bool starts_with(istr const & s) const {
+      size_t cch(s.size());
+      return size() >= cch && TTraits::str_cmp(data(), cch, s.data(), cch) == 0;
+   }
+   template <size_t t_cch>
+   bool starts_with(C const (& ach)[t_cch]) const {
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
+      size_t cch(t_cch - 1 /*NUL*/);
+      return size() >= cch && TTraits::str_cmp(data(), cch, ach, cch);
+   }
+   // This overload needs to be template, or it will take precedence over the one above.
+   template <typename>
+   bool starts_with(C const * psz) const {
+      size_t cch(TTraits::str_len(psz));
+      return size() >= cch && TTraits::str_cmp(data(), cch, psz, cch);
+   }
+
+
    /** Returns a portion of the string.
 
    ichFirst
