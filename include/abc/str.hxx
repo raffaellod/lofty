@@ -500,6 +500,38 @@ public:
    }
 
 
+   /** Returns true if the string ends with a specified suffix.
+
+   s
+      String that *this should end with.
+   ach
+      String literal that *this should end with.
+   psz
+      NUL-terminated string that *this should end with.
+   return
+      true if *this ends with the specified suffix, or false otherwise.
+   */
+   bool ends_with(istr const & s) const {
+      size_t cchEnd(s.size());
+      intptr_t cchRest(intptr_t(size()) - cchEnd);
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, s.data(), cchEnd) == 0;
+   }
+   template <size_t t_cch>
+   bool ends_with(C const (& ach)[t_cch]) const {
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
+      size_t cchEnd(t_cch - 1 /*NUL*/);
+      intptr_t cchRest(intptr_t(size()) - cchEnd);
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, ach, cchEnd);
+   }
+   // This overload needs to be template, or it will take precedence over the one above.
+   template <typename>
+   bool ends_with(C const * psz) const {
+      size_t cchEnd(TTraits::str_len(psz));
+      intptr_t cchRest(intptr_t(size()) - cchEnd);
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, psz, cchEnd);
+   }
+
+
    /** Work around the protected inheritance, forcing the raw access to be explicit.
 
    return
@@ -542,23 +574,23 @@ public:
    psz
       NUL-terminated string that *this should start with.
    return
-      true if *this starts with the specified affix, or false otherwise.
+      true if *this starts with the specified suffix, or false otherwise.
    */
    bool starts_with(istr const & s) const {
-      size_t cch(s.size());
-      return size() >= cch && TTraits::str_cmp(data(), cch, s.data(), cch) == 0;
+      size_t cchStart(s.size());
+      return size() >= cchStart && TTraits::str_cmp(data(), cchStart, s.data(), cchStart) == 0;
    }
    template <size_t t_cch>
    bool starts_with(C const (& ach)[t_cch]) const {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      size_t cch(t_cch - 1 /*NUL*/);
-      return size() >= cch && TTraits::str_cmp(data(), cch, ach, cch);
+      size_t cchStart(t_cch - 1 /*NUL*/);
+      return size() >= cchStart && TTraits::str_cmp(data(), cchStart, ach, cchStart);
    }
    // This overload needs to be template, or it will take precedence over the one above.
    template <typename>
    bool starts_with(C const * psz) const {
-      size_t cch(TTraits::str_len(psz));
-      return size() >= cch && TTraits::str_cmp(data(), cch, psz, cch);
+      size_t cchStart(TTraits::str_len(psz));
+      return size() >= cchStart && TTraits::str_cmp(data(), cchStart, psz, cchStart);
    }
 
 
