@@ -303,9 +303,7 @@ public:
       return m_s;
    }
 #elif ABC_HOST_API_WIN32
-   istr os_str() const {
-      return std::move(absolute().m_s);
-   }
+   istr os_str() const;
 #else
    #error TODO-PORT: HOST_API
 #endif
