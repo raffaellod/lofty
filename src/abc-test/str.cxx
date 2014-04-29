@@ -416,6 +416,24 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àß")), s8.cbegin() + 0);
       ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àŒ")), s8.cbegin() + 6);
       ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àü")), s8.cend());
+
+      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("")));
+      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("à")));
+      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("àß")));
+      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("ß")));
+      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("ßç")));
+      ABC_TESTING_ASSERT_TRUE(s8.starts_with(s8));
+      ABC_TESTING_ASSERT_FALSE(s8.starts_with(s8 + U8SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("-") + s8));
+
+      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("")));
+      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("Œ")));
+      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("àŒ")));
+      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("à")));
+      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("çà")));
+      ABC_TESTING_ASSERT_TRUE(s8.ends_with(s8));
+      ABC_TESTING_ASSERT_FALSE(s8.ends_with(s8 + U8SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("-") + s8));
    }
 };
 
@@ -463,6 +481,24 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àß")), s16.cbegin() + 0);
       ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àŒ")), s16.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àü")), s16.cend());
+
+      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("")));
+      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("à")));
+      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("àß")));
+      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("ß")));
+      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("ßç")));
+      ABC_TESTING_ASSERT_TRUE(s16.starts_with(s16));
+      ABC_TESTING_ASSERT_FALSE(s16.starts_with(s16 + U16SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("-") + s16));
+
+      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("")));
+      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("Œ")));
+      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("àŒ")));
+      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("à")));
+      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("çà")));
+      ABC_TESTING_ASSERT_TRUE(s16.ends_with(s16));
+      ABC_TESTING_ASSERT_FALSE(s16.ends_with(s16 + U16SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("-") + s16));
    }
 };
 
@@ -510,6 +546,24 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àß")), s32.cbegin() + 0);
       ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àŒ")), s32.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àü")), s32.cend());
+
+      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("")));
+      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("à")));
+      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("àß")));
+      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("ß")));
+      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("ßç")));
+      ABC_TESTING_ASSERT_TRUE(s32.starts_with(s32));
+      ABC_TESTING_ASSERT_FALSE(s32.starts_with(s32 + U32SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("-") + s32));
+
+      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("")));
+      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("Œ")));
+      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("àŒ")));
+      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("à")));
+      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("çà")));
+      ABC_TESTING_ASSERT_TRUE(s32.ends_with(s32));
+      ABC_TESTING_ASSERT_FALSE(s32.ends_with(s32 + U32SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("-") + s32));
    }
 };
 
