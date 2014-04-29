@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/core.hxx>
 #include <abc/file_path.hxx>
 #include <abc/trace.hxx>
+#include <abc/vector.hxx>
 #if ABC_HOST_API_POSIX
    #include <errno.h> // errno E*
    #include <sys/stat.h> // S_*, stat()
@@ -93,6 +94,9 @@ char_t const file_path::smc_aszRoot[] =
 #else
    #error TODO-PORT: HOST_API
 #endif
+#if ABC_HOST_API_WIN32
+char_t const file_path::smc_aszUNCRoot[] = SL("\\\\?\\UNC\\");
+#endif
 
 
 
@@ -100,21 +104,50 @@ file_path & file_path::operator/=(istr const & s) {
    ABC_TRACE_FN((this, s));
 
    // Only the root already ends in a separator; everything else needs one.
-   m_s = normalize((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator[0]) + s);
+   m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator[0]) + s);
    return *this;
 }
 
 
-dmstr file_path::base_name() const {
+file_path file_path::absolute() const {
    ABC_TRACE_FN((this));
 
-   // An empty path has no base name.
-   if (!m_s || is_root()) {
-      return m_s;
+   file_path fpAbsolute;
+   if (is_absolute()) {
+      fpAbsolute = *this;
+   } else {
+#if ABC_HOST_API_POSIX
+      // Prepend the current directory to make the path absolute, then proceed to normalize.
+      fpAbsolute = current_dir() / *this;
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+      file_path fpCurrentDir(current_dir());
+      // Under Win32, a path can be absolute but lack a volume designator. In this case, get the
+      // current volume and make the path relative to that.
+      // Check if the path begins with a single backslash, i.e. it’s absolute relatively to a volume
+      // designator. There’s no need to check that it does not begin with two backslashes, because
+      // the \\?\ prefix is already checked for by is_absolute() (above) and UNC paths are always
+      // (in abc::file_path) prefixed by \\?\ too.
+      if (m_s.size() >= 1 && m_s[0] == CL('\\')) {
+         fpAbsolute = fpCurrentDir.m_s.substr(
+            0, ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/ + 2 /*"X:"*/
+         ) + m_s;
+      } else {
+         // Prepend the current directory to make the path absolute, then proceed to normalize.
+         fpAbsolute = fpCurrentDir / *this;
+      }
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error TODO-PORT: HOST_API
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    }
-   dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-   ABC_ASSERT(it != m_s.cend(), SL("root case already considered, so should not find ‘/’ at [0]"));
-   return m_s.substr(it + 1 /*smc_aszSeparator*/);
+   // Make sure the path is normalized.
+   return fpAbsolute.normalize();
+}
+
+
+file_path file_path::base_name() const {
+   ABC_TRACE_FN((this));
+
+   return m_s.substr(base_name_start(m_s));
 }
 
 
@@ -160,32 +193,6 @@ dmstr file_path::base_name() const {
 }
 
 
-/*static*/ bool file_path::is_absolute(istr const & s) {
-   ABC_TRACE_FN((s));
-
-#if ABC_HOST_API_POSIX
-   return s.size() >= 1 /*"/"*/ && s[0] == CL('/');
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   size_t cch(s.size());
-   char_t const * pch(s.data());
-   // Win32 namespace root: best case.
-   if (
-      cch >= 4 /*"\\?\"*/ &&
-      pch[0] == CL('\\') && pch[1] == CL('\\') && pch[2] == CL('?') && pch[3] == CL('\\')
-   ) {
-      return true;
-   }
-   // DOS-style root, starting with a volume designator.
-   if (cch >= 2 /*"X:"*/ && pch[1] == CL(':')) {
-      return true;
-   }
-   return false;
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-}
-
-
 bool file_path::is_dir() const {
    ABC_TRACE_FN((this));
 
@@ -199,47 +206,23 @@ bool file_path::is_dir() const {
 }
 
 
-bool file_path::is_root() const {
-   ABC_TRACE_FN((this));
-
-#if ABC_HOST_API_POSIX
-   return m_s.size() == 1 /*"/"*/;
-#elif ABC_HOST_API_WIN32
-   return m_s.size() == 7 /*"\\?\C:\"*/;
-#else
-   #error TODO-PORT: HOST_API
-#endif
-}
-
-
 file_path file_path::parent_dir() const {
    ABC_TRACE_FN((this));
 
-   // An empty path has no parent directory.
-   if (!m_s || is_root()) {
-      // The root is its own parent.
-      return file_path(m_s);
+   auto itBegin(m_s.cbegin()), itLastSep(base_name_start(m_s));
+   if (itLastSep == itBegin) {
+      // This path only contains a base name, so there’s no parent directory part.
+      return file_path();
    }
-   dmstr::const_iterator it(m_s.find_last(char32_t(smc_aszSeparator[0])));
-#if ABC_HOST_API_POSIX
-   if (it == m_s.cbegin() + 0 /*"/"*/) {
-      // The parent is the root, so keep the slash or we’ll end up with an empty string.
-      ++it;
+   // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
+   // separator; advance the iterator instead.
+   if (itLastSep - itBegin < ptrdiff_t(get_root_length(m_s, true))) {
+      ++itLastSep;
    }
-#elif ABC_HOST_API_WIN32
-   if (it == m_s.cbegin() + 6 /*"\\?\C:\"*/) {
-      // The parent is a volume root, so keep the slash or we’ll end up with a volume designator.
-      ++it;
-   }
-#else
-   #error TODO-PORT: HOST_API
-#endif
-   return m_s.substr(0, it - m_s.cbegin());
+   return m_s.substr(itBegin, itLastSep);
 }
 
 
-// In spite of the fact it’s a one-liner, this can’t be in the header file because the size of
-// smc_aszRoot is only known here.
 /*static*/ file_path file_path::root() {
    ABC_TRACE_FN(());
 
@@ -247,119 +230,250 @@ file_path file_path::parent_dir() const {
 }
 
 
+/*static*/ dmstr::const_iterator file_path::base_name_start(dmstr const & s) {
+   ABC_TRACE_FN((s));
+
+   auto itBaseNameStart(s.find_last(char32_t(smc_aszSeparator[0])));
+   if (itBaseNameStart == s.cend()) {
+      itBaseNameStart = s.cbegin();
+   }
+#if ABC_HOST_API_WIN32
+   // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
+   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+
+   size_t cch(s.size());
+   if (cch > sc_ichVolumeColon) {
+      auto itVolumeColon(s.cbegin() + sc_ichVolumeColon);
+      // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
+      // reconsider the character after the colon as the start of the base name.
+      if (*itVolumeColon == CL(':') && itBaseNameStart <= itVolumeColon) {
+         itBaseNameStart = itVolumeColon + 1 /*“:”*/;
+      }
+   }
+#endif
+   return itBaseNameStart;
+}
+
+
+/*static*/ size_t file_path::get_root_length(dmstr const & s, bool bIncludeNonRoot) {
+   ABC_TRACE_FN((s, bIncludeNonRoot));
+
+   static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+
+#if ABC_HOST_API_POSIX
+   if (s.starts_with(smc_aszRoot)) {
+      // Return the index of “a” in “/a”.
+      return sc_cchRoot;
+   }
+#elif ABC_HOST_API_WIN32
+   static size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
+   static size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
+   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+   static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+
+   size_t cch(s.size());
+   char_t const * pch(s.data());
+   if (s.starts_with(smc_aszRoot)) {
+      if (s.starts_with(smc_aszUNCRoot)) {
+         // Return the index of “a” in “\\?\UNC\a”.
+         return sc_cchUNCRoot;
+      }
+      ABC_ASSERT(
+         cch < sc_cchVolumeRoot ||
+         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z'),
+         pch[sc_cchVolumeRoot - 2] != CL(':') || pch[sc_cchVolumeRoot - 1] != CL('\\'),
+         SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
+            SL("abc::file_path::validate_and_adjust() needs to be fixed")
+      );
+      // Return the index of “a” in “\\?\X:\a”.
+      return sc_cchRoot;
+   }
+   if (bIncludeNonAbsolute) {
+      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
+         // Return the index of “a” in “X:a”.
+         return sc_ichVolumeColon + 1 /*“:”*/;
+      }
+      if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
+         // Return the index of “a” in “\a”.
+         return sc_ichLeadingSep + 1 /*“\”*/;
+      }
+   }
+#else
+   #error TODO-PORT: HOST_API
+#endif
+   return 0;
+}
+
+
+/*static*/ bool file_path::is_absolute(istr const & s) {
+   ABC_TRACE_FN((s));
+
+   return s.starts_with(smc_aszRoot);
+}
+
+
 /*static*/ dmstr file_path::normalize(dmstr s) {
    ABC_TRACE_FN((s));
 
-   size_t cch(s.size());
-   // An empty string is okay.
-   if (!cch) {
-      return std::move(s);
-   }
-   // If it’s a relative path, make it absolute.
-   if (!is_absolute(s)) {
-      dmstr sAbs(std::move(current_dir().m_s));
-      sAbs += smc_aszSeparator[0];
-      sAbs += s;
-      s = std::move(sAbs);
-      cch = s.size();
-   }
-   // Check for the correct root format, and save the index of its separator.
-   char_t const * pch0(s.data());
-   char_t const * pchRootSep(pch0);
-#if ABC_HOST_API_POSIX
-   // Nothing else to do.
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   if (pch0[0] != CL('\\')) {
-      // The path is not in “\\?\X:\path” format; make it so.
-      s = smc_aszRoot + s;
-      cch += ABC_COUNTOF(smc_aszRoot);
-   }
-   // Check the root format.
-   if (
-      cch < 7 /*"\\?\X:\"*/ ||
-      pch0[0] != CL('\\') || pch0[1] != CL('\\') || pch0[2] != CL('?' ) ||
-      pch0[3] != CL('\\') || pch0[5] != CL(':' ) || pch0[6] != CL('\\')
-   ) {
-      throw_os_error(ERROR_BAD_PATHNAME);
-   }
-   {
-      // Check and normalize the volume designator.
-      char_t ch(pch0[4]);
-      if (ch >= CL('a') && ch <= CL('z')) {
-         ch -= CL('a') - CL('A');
-         s[4] = ch;
-      } else if (ch < CL('A') || ch > CL('Z')) {
-         throw_os_error(ERROR_INVALID_DRIVE);
-      }
-   }
-   // Point to the last of the separators checked for above.
-   pchRootSep += 6;
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   // Collapse sequences of separators, normalize separators, and interpret . and .. components.
+   auto itBegin(s.begin()), itEnd(s.end());
+   auto itRootEnd(itBegin + ptrdiff_t(get_root_length(s, true)));
 
-   // Skip any character up to the root separator; the separator itself is included to activare the
-   // logic that parses dots and slashes.
-   char_t * pchDst(const_cast<char_t *>(pchRootSep));
-   bool bFoundSep(false);
-   size_t cDots(0);
-   for (char_t const * pchSrc(pchRootSep), * pchMax(pch0 + cch); pchSrc < pchMax; ++pchSrc) {
-      char_t ch(*pchSrc);
-      if (ch == CL('.') && cDots < 2) {
-         // Count for “.” and “..”.
+   // Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
+   // separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back
+   // to the character following the last (“.”) or second-last (“..”) separator encountered, or
+   // itRootEnd if no previous separators are available:
+   // •  Upon encountering the second “/” in “a/./”, roll back to index 2;
+   // •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
+   // •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
+   smvector<dmstr::iterator, 5> vitSeps;
+   intptr_t cDots(0);
+   auto itDst(itRootEnd);
+   for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
+      char_t ch(*itSrc);
+      if (ch == CL('.')) {
          ++cDots;
-      } else if (ch == CL('\\') || ch == CL('/')) {
-         if (!bFoundSep) {
-            // No preceding separators: track this as the first one.
-            bFoundSep = true;
-         } else if (!cDots) {
-            // No dots between this separator and the previous one: skip this repetition.
-            continue;
-         } else {
-            // We found “/./” or “/../”: discard the first separator and the dots.
-            pchDst -= cDots /*"." or ".."*/ + 1 /*'/'*/;
-            // If we found “/../”, go back two separators, and discard anything in between if the
-            // previous separator is not the root separator (in which case that’d be enough).
-            if (cDots > 1 && pchDst > pchRootSep) {
-               // Find the previous separator, skipping the one we just got back to.
-               dmstr::const_iterator itOneUp(s.find_last(
-                  char32_t(smc_aszSeparator[0]),
-                  dmstr::const_iterator(pchDst - 1 /*'/'*/)
-               ));
-               // Resume writing from the separator we just found.
-               pchDst = const_cast<char_t *>(itOneUp.base());
-            }
-         }
-         // Overwrite with the correct path separator.
-         ch = smc_aszSeparator[0];
-         cDots = 0;
       } else {
-         bFoundSep = false;
+         if (ch == smc_aszSeparator[0]) {
+            if (cDots > 0 && cDots <= 2) {
+               // We found “./” or “../”: go back by as many separators as the count of dots.
+               intptr_t iPrevSep(intptr_t(vitSeps.size()) - cDots);
+               if (iPrevSep >= 0) {
+                  itDst = vitSeps[iPrevSep] + 1 /*“/”*/;
+                  // Remove the previous separators we used (cDots - 1).
+                  vitSeps.remove_at(iPrevSep + 1, cDots - 1);
+               } else {
+                  // We don’t have enough separators in vitSeps; resume from the end of the root or
+                  // the start of the path.
+                  itDst = itRootEnd;
+                  vitSeps.clear();
+               }
+               // Resume from the next character, which will be written to *itDst.
+               cDots = 0;
+               continue;
+            }
+            // Remember this separator.
+            vitSeps.append(itSrc);
+         }
          cDots = 0;
       }
-      *pchDst++ = ch;
+      // If the characer needs to be moved, move it.
+      if (itSrc != itDst) {
+         *itDst = ch;
+      }
+      ++itDst;
    }
-   // If the last characters written were “.” or “..”, undo writing them.
-   pchDst -= cDots;
-   // If we found “/../”, go back two separators and discard anything in between if the previous
-   // separator is not the root separator (in which case that’d be enough).
-   if (cDots > 1 && pchDst > pchRootSep) {
-      // Find the previous separator, skipping the one we just got back to.
-      dmstr::const_iterator itOneUp(
-         s.find_last(char32_t(smc_aszSeparator[0]), dmstr::const_iterator(pchDst - 1 /*'/'*/))
-      );
-      // Resume writing from the separator we just found.
-      pchDst = const_cast<char_t *>(itOneUp.base());
-   }
-   // Also undo writing a trailing non-root separator.
-   char_t * pchLast(pchDst - 1);
-   if (pchLast > pchRootSep && *pchLast == smc_aszSeparator[0]) {
-      pchDst = pchLast;
+   if (cDots) {
+      // We ended on “.” or “..”, go back by as many separators as the count of dots.
+      intptr_t iPrevSep(intptr_t(vitSeps.size()) - cDots);
+      if (iPrevSep >= 0) {
+         // Place itDst on the separator, so we don’t end up with a traling separator.
+         itDst = vitSeps[iPrevSep];
+      } else {
+         // We don’t have enough separators in vitSeps; resume from the end of the root or
+         // the start of the path.
+         itDst = itRootEnd;
+      }
+   } else if (itDst > itRootEnd && *(itDst - 1) == smc_aszSeparator[0]) {
+      // The last character written was a separator; rewind by 1 to avoid a trailing separator.
+      --itDst;
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size(size_t(pchDst - s.data()));
+   s.set_size(size_t(itDst - itBegin));
+   return std::move(s);
+}
+
+
+/*static*/ dmstr file_path::validate_and_adjust(dmstr s) {
+   ABC_TRACE_FN((s));
+
+   auto itBegin(s.begin()), itEnd(s.end());
+
+#if ABC_HOST_API_WIN32
+   // Simplify the logic below by normalizing all slashes to backslashes.
+   // TODO: change to use mstr::replace() when that becomes available.
+   for (auto it(itBegin); it != itEnd; ++it) {
+      if (*it == CL('/')) {
+         *it = CL('\\');
+      }
+   }
+#endif //if ABC_HOST_API_WIN32
+
+   // Save an iterator to the first non-prefix character.
+   auto itFirstNonPrefix(itBegin);
+#if ABC_HOST_API_WIN32
+   bool bIsAbsolute(is_absolute(s));
+   if (!bIsAbsolute) {
+      // abc::file_path::is_absolute() is very strict and does not return true for DOS-style or UNC
+      // paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
+      // “\\server\share”, so we have to detect them here and prefix them with the Win32 File
+      // Namespace prefix.
+
+      bool bUpdateIterators(false);
+      if (s.starts_with(SL("\\\\"))) {
+         // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
+         s = smc_aszUNCRoot + s.substring(2 /*“\\”*/);
+         bIsAbsolute = true;
+         bUpdateIterators = true;
+      } else {
+         size_t cch(s.size());
+         if (cch >= 2 && s[1] == CL(':')) {
+            char_t chVolume(s[0]);
+            // If the path is in the form “x:”, normalize the volume designator to uppercase.
+            if (chVolume >= CL('a') && chVolume <= CL('z')) {
+               chVolume -= CL('a') - CL('A');
+               s[0] = chVolume;
+            } else if (chVolume < CL('A') || chVolume > CL('Z')) {
+               // Avoid keeping a path that can’t be valid.
+               throw_os_error(ERROR_INVALID_DRIVE);
+            }
+            if (cch >= 3 /*“X:\”*/ && s[2] == CL('\\')) {
+               // This is a DOS-style absolute path; prepend to it the Win32 File Namespace prefix.
+               s = smc_aszRoot + s;
+               bIsAbsolute = true;
+               bUpdateIterators = true;
+            }
+         }
+      }
+      if (bUpdateIterators) {
+         itFirstNonPrefix = itBegin = s.begin();
+         itEnd = s.end();
+      }
+   }
+   if (bIsAbsolute) {
+      // Skip the Win32 File Namespace, since we don’t want its double-backslashes to be collapsed
+      // into one.
+      itFirstNonPrefix += ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
+   }
+#endif //if ABC_HOST_API_WIN32
+
+   // Collapse sequences of one or more path separators with a single separator.
+   auto itDst(itFirstNonPrefix);
+   bool bPrevIsSeparator(false);
+   for (auto itSrc(itFirstNonPrefix); itSrc != itEnd; ++itSrc) {
+      auto ch(*itSrc);
+      bool bCurrIsSeparator(ch == smc_aszSeparator[0]);
+      if (bCurrIsSeparator && bPrevIsSeparator) {
+         // Collapse consecutive separators by advancing itSrc (as part of the for loop) without
+         // advancing itDst.
+         continue;
+      }
+      // Remember whether this character is a separator.
+      bPrevIsSeparator = bCurrIsSeparator;
+      // If the characer needs to be moved, move it.
+      if (itDst != itSrc) {
+         *itDst = ch;
+      }
+      ++itDst;
+   }
+   // If the last character written is a separator and it wouldn’t leave an empty string (other than
+   // any prefix), move itDst back.
+   if (bPrevIsSeparator && itDst > itFirstNonPrefix) {
+      --itDst;
+   }
+
+   // Adjust the length based on the position of the last character written.
+   s.set_size(size_t(itDst - itBegin));
    return std::move(s);
 }
 

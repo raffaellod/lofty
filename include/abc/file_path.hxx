@@ -37,15 +37,16 @@ namespace abc {
 
 /** DOC:7101 abc::file_path
 
-An abc::file_path instance is always either an empty path string ("") or a normalized, absolute
-path. File paths are always stored in absolute notation, prepending the current directory on
-assignment if necessary.
+An abc::file_path instance is always either an empty path string ("") or a path that is not
+necessarily normalized or absolute, but has no incorrect or redundant path separators; e.g. an
+abc::file_path instance will never contain “/a//b///c”, and under Win32 it will never be “C:/a” or
+“a\\\b/c”.
 
-Under Win32, all DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 namespace, which
-means they all start with “\\?\” (automatically prepended, forming e.g. “\\?\C:\My\File”). This
-prefix is also considered the root, although trying to do anything with it other than concatenating
-more path components will most likely result in exceptions being thrown. Nonetheless, this
-convention allows to have a single root in Win32 just like under POSIX.
+Under Win32, all absolute DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 File
+Namespace, which means they all start with “\\?\”, forming e.g. “\\?\C:\My\File”. This prefix is
+also considered the root, although trying to do anything with it other than concatenating more path
+components will most likely result in exceptions being thrown. Nonetheless, this convention allows
+to have a single root under Win32 just like under POSIX.
 
 Reference for Python’s approach: <http://docs.python.org/3/library/os.path.html>
 Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247.aspx>
@@ -85,10 +86,10 @@ public:
       m_s(std::move(fp.m_s)) {
    }
    file_path(istr const & s) :
-      m_s(normalize(s)) {
+      m_s(validate_and_adjust(s)) {
    }
    file_path(mstr && s) :
-      m_s(normalize(std::move(s))) {
+      m_s(validate_and_adjust(std::move(s))) {
    }
 
 
@@ -110,11 +111,11 @@ public:
       return *this;
    }
    file_path & operator=(istr const & s) {
-      m_s = normalize(s);
+      m_s = validate_and_adjust(s);
       return *this;
    }
    file_path & operator=(mstr && s) {
-      m_s = normalize(std::move(s));
+      m_s = validate_and_adjust(std::move(s));
       return *this;
    }
 
@@ -147,7 +148,7 @@ public:
       *this.
    */
    file_path & operator+=(istr const & s) {
-      m_s = normalize(m_s + s);
+      m_s = validate_and_adjust(m_s + s);
       return *this;
    }
 
@@ -187,12 +188,23 @@ public:
    }
 
 
-   /** Returns the last component in the path.
+   /** Returns the absolute and normalized version of the path. If the path is not already absolute,
+   it will be assumed to be relative to abc::file_path::current_dir(). Under Win32 there’s a
+   current directory for each volume, so the base directory will be different depending on whether
+   the path includes a volume designator and on which volume it identifies.
+
+   return
+      Absolute, normalized path.
+   */
+   file_path absolute() const;
+
+
+   /** Returns the base name of (last component in) the path.
 
    return
       Last component in the path.
    */
-   dmstr base_name() const;
+   file_path base_name() const;
 
 
    /** Support for relational operators.
@@ -237,14 +249,15 @@ public:
 #endif
 
 
-   /** Returns true if the specified string represents an absolute path.
+   /** Returns true if the path is in absolute form. Under Win32, this means that the path is
+   prefixed with “\\?\”, e.g. “\\?\C:\my\path”.
 
-   s
-      Path to analyze.
    return
-      true if s represents an absolute path, or false otherwise.
+      true if the path is absolute, or false otherwise.
    */
-   static bool is_absolute(istr const & s);
+   bool is_absolute() const {
+      return is_absolute(m_s);
+   }
 
 
    /** Returns true if the path represents a directory.
@@ -255,12 +268,25 @@ public:
    bool is_dir() const;
 
 
-   /** Returns true if this->parent_dir() == *this.
+   /** Returns true if the path is absolute and this->parent_dir() == *this.
 
    return
       true if the path represents a root directory, of false otherwise.
    */
-   bool is_root() const;
+   bool is_root() const {
+      return get_root_length(m_s, false) == m_s.size();
+   }
+
+
+   /** Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
+   resulting replacements may lead to a different path if the original path includes symbolic links.
+
+   return
+      Normalized path.
+   */
+   file_path normalize() const {
+      return file_path(normalize(m_s));
+   }
 
 
    /** Returns the directory containing the path.
@@ -271,7 +297,7 @@ public:
    file_path parent_dir() const;
 
 
-   /** Returns the root (POSIX) or the namespace root (Windows).
+   /** Returns the root (POSIX) or the Win32 File Namespace root (Win32).
 
    return
       Root directory.
@@ -301,17 +327,75 @@ public:
 
 private:
 
-   /** Normalizes (and validates) a path:
-   •  Converts every mixed slash sequence to a single separator;
-   •  Interprets . and .. special components;
-   •  Removes any trailing separators.
+   /** Locates the first character of the final component in s, e.g. “a” in “a” (all), “a” in “/a”,
+   “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a” “X:b\a”
+   (Win32).
 
    s
-      Path to normalize.
+      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
+   return
+      Iterator pointing to the first character of the final component in s, or the beginning of s if
+      s does not contain a root component/prefix.
+   */
+   static dmstr::const_iterator base_name_start(dmstr const & s);
+
+
+   /** Returns the length of the root part of the specified path or, in other words, the index of
+   the first character in the path that is not part of the root, e.g. “a” in “/a” (POSIX),
+   “\\?\UNC\a”, “\\?\X:\a”, “\a”, “X:a” (Win32); the last two only if bIncludeNonAbsolute because
+   they represent relative paths in Win32: “\a” is relative to the current directory’s volume
+   designator, “X:a” is relative to the current directory for volume designator X.
+
+   s
+      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
+   bIncludeNonRoot
+      If true, non-absolute prefixes such as “\” and ”X:” (Win32) will be considered root prefixes;
+      if false, they won’t.
+   return
+      Length of the root part in s, or 0 if s does not start with a root part.
+   */
+   static size_t get_root_length(dmstr const & s, bool bIncludeNonAbsolute);
+
+
+   /** Returns true if the specified string represents an absolute path. Under Win32, this means
+   that the path needs to be prefixed with “\\?\”, e.g. “\\?\C:\my\path”; a path starting with a
+   volume designator (e.g. “C:\my\path”) is not considered absolute, as far as abc::file_path is
+   concerned (and it will never be stored as-is in m_s either).
+
+   s
+      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
+   return
+      true if s represents an absolute path, or false otherwise.
+   */
+   static bool is_absolute(istr const & s);
+
+
+   /** Returns a normalized version of the specified path by interpreting sequences such as “.” and
+   “..”. The resulting replacements may lead to a different path if the original path includes
+   symbolic links. The provided path must comply with the rules set for abc::file_path’s internal
+   representation.
+
+   s
+      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
    return
       Normalized path.
    */
    static dmstr normalize(dmstr s);
+
+
+   /** Validates and adjusts a path to make it suitable as abc::file_path’s internal representation:
+   •  Collapses sequences of consecutive path separators into a single separator;
+   •  Removes any trailing separators;
+   •  (Win32 only) Replaces forward slashes with backslashes;
+   •  (Win32 only) Prefixes absolute paths (e.g. “C:\my\path”) with the Win32 File Namespace prefix
+      (e.g. “\\?\C:\my\path”).
+
+   s
+      Path to parse.
+   return
+      Path suitable for abc::file_path’s internal representation.
+   */
+   static dmstr validate_and_adjust(dmstr s);
 
 
 private:
@@ -319,9 +403,21 @@ private:
    /** Full file path, always in normalized form. */
    dmstr m_s;
    /** Platform-specific path component separator. */
-   static char_t const smc_aszSeparator[1 + 1 /*NUL*/];
+   static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
    /** Platform-specific root path. */
-   static char_t const smc_aszRoot[];
+   static char_t const smc_aszRoot[
+#if ABC_HOST_API_POSIX
+      1 /*"/"*/ + 1 /*NUL*/
+#elif ABC_HOST_API_WIN32
+      4 /*"\\?\"*/ + 1 /*NUL*/
+#else
+   #error TODO-PORT: HOST_API
+#endif
+   ];
+#if ABC_HOST_API_WIN32
+   /** Root for UNC paths in the Win32 File Namespace. */
+   static char_t const smc_aszUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
+#endif
 };
 
 } //namespace abc
