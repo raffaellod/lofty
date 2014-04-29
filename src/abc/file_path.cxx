@@ -49,7 +49,7 @@ public:
       Path to get statistics for.
    */
    file_stat(file_path const & fp) {
-      if (::stat(fp.data(), this)) {
+      if (::stat(fp.os_str().data(), this)) {
          throw_os_error();
       }
    }
@@ -204,6 +204,15 @@ bool file_path::is_dir() const {
    #error TODO-PORT: HOST_API
 #endif
 }
+
+
+#if ABC_HOST_API_WIN32
+istr file_path::os_str() const {
+   ABC_TRACE_FN((this));
+
+   return std::move(absolute().m_s);
+}
+#endif //if ABC_HOST_API_WIN32
 
 
 file_path file_path::parent_dir() const {

@@ -48,8 +48,10 @@ also considered the root, although trying to do anything with it other than conc
 components will most likely result in exceptions being thrown. Nonetheless, this convention allows
 to have a single root under Win32 just like under POSIX.
 
-Reference for Python’s approach: <http://docs.python.org/3/library/os.path.html>
-Reference for Win32: <http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247.aspx>
+Reference for Python’s approach: “os.path — Common pathname manipulations” <http://docs.python.org/
+3/library/os.path.html>
+Reference for Win32: “Naming Files, Paths, and Namespaces” <http://msdn.microsoft.com/en-us/library/
+windows/desktop/aa365247.aspx>
 */
 
 // Enumerates directory entries.
@@ -230,16 +232,6 @@ public:
    static file_path current_dir();
 
 
-   /** Returns a read-only pointer to the path string. See dmstr::data().
-
-   return
-      Pointer to the path string’s character buffer.
-   */
-   char_t const * data() const {
-      return m_s.data();
-   }
-
-
 #if 0
    /** Returns an iterator over entries in the path matching the specified pattern.
 
@@ -287,6 +279,36 @@ public:
    file_path normalize() const {
       return file_path(normalize(m_s));
    }
+
+
+   /** Returns a string representation of the path suitable to use with the OS’s file API.
+
+   Under Win32, this returns the absolute (and normalized) version of the path, in order to overcome
+   both the MAX_PATH limitation by using the Win32 File Namespace prefix, as well as parsing the
+   path in a way that Windows won’t do for Win32 File Namespace-prefixed paths, as documented in
+   “Naming Files, Paths, and Namespaces” <http://msdn.microsoft.com/en-us/library/windows/desktop/
+   aa365247.aspx>:
+
+      “[The Win32 File Namespace prefix and its UNC sub-namespace] indicate that the path should be
+      passed to the system with minimal modification, which means that you cannot use forward
+      slashes to represent path separators, or a period to represent the current directory, or
+      double dots to represent the parent directory.”
+
+   return
+      String representation of the path suitable for use with the OS’s file API.
+   */
+#if ABC_HOST_API_POSIX
+   // Under POSIX we don’t need an intermediate string, so the return type can be istr const &.
+   istr const & os_str() const {
+      return m_s;
+   }
+#elif ABC_HOST_API_WIN32
+   istr os_str() const {
+      return std::move(absolute().m_s);
+   }
+#else
+   #error TODO-PORT: HOST_API
+#endif
 
 
    /** Returns the directory containing the path.
