@@ -479,6 +479,8 @@ file_path file_path::parent_dir() const {
 
 
 to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_range()*/) {
+   ABC_TRACE_FN((this, crFormat));
+
    auto it(crFormat.cbegin());
 
    // TODO: parse the format string.
@@ -493,6 +495,8 @@ to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_r
 
 
 void to_str_backend<file_path>::write(file_path const & fp, ostream * posOut) {
+   ABC_TRACE_FN((this, fp, posOut));
+
    // TODO: apply format options.
    posOut->write(static_cast<istr const &>(fp));
 }
