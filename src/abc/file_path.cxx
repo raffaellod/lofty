@@ -120,20 +120,30 @@ file_path file_path::absolute() const {
       // Prepend the current directory to make the path absolute, then proceed to normalize.
       fpAbsolute = current_dir() / *this;
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      file_path fpCurrentDir(current_dir());
-      // Under Win32, a path can be absolute but lack a volume designator. In this case, get the
-      // current volume and make the path relative to that.
-      // Check if the path begins with a single backslash, i.e. it’s absolute relatively to a volume
-      // designator. There’s no need to check that it does not begin with two backslashes, because
-      // the \\?\ prefix is already checked for by is_absolute() (above) and UNC paths are always
-      // (in abc::file_path) prefixed by \\?\ too.
-      if (m_s.size() >= 1 && m_s[0] == CL('\\')) {
-         fpAbsolute = fpCurrentDir.m_s.substr(
+      static size_t const sc_ichVolume(0 /*“X” in “X:”*/);
+      static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+      static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+
+      // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
+      // and be relative to the current directory in that volume. Either way, these two formats
+      // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
+      size_t cch(s.size());
+      char_t const * pch(s.data());
+      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
+         // The path is in the form “X:a”: get the current directory for that volume and prepend it
+         // to the path to make it absolute.
+         fpAbsolute = current_dir_for_volume(pch[sc_ichVolume]) /
+                      m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
+      } else if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
+         // The path is in the form “\a”: make it absolute by prepending to it the volume designator
+         // of the current directory.
+         fpAbsolute = current_dir().m_s.substr(
             0, ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/ + 2 /*"X:"*/
          ) + m_s;
       } else {
-         // Prepend the current directory to make the path absolute, then proceed to normalize.
-         fpAbsolute = fpCurrentDir / *this;
+         // None of the above patterns applies: prepend the current directory to make the path
+         // absolute.
+         fpAbsolute = current_dir() / *this;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: HOST_API
@@ -191,6 +201,38 @@ file_path file_path::base_name() const {
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    return std::move(s);
 }
+
+
+#if ABC_HOST_API_WIN32
+
+/*static*/ file_path file_path::current_dir_for_volume(char_t chVolume) {
+   ABC_TRACE_FN((chVolume));
+
+   // Create a dummy path for ::GetFullPathName() to expand.
+   char_t achDummyPath[4] = { chVolume, CL(':'), CL('a'), CL('\0') };
+   dmstr s;
+   size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   s.grow_for([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
+      if (c_cchRoot >= cchMax) {
+         // If the buffer is not large enough to hold the root prefix, request a larger one.
+         return cchMax;
+      }
+      DWORD cch(::GetFullPathName(
+         achDummyPath, DWORD(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
+      ));
+      if (!cch) {
+         throw_os_error();
+      }
+      return cch + c_cchRoot;
+   });
+   // Now that the current directory has been retrieved, prepend the root prefix.
+   memory::copy(s.data(), smc_aszRoot, c_cchRoot);
+   // Remove the last character, the “a” from achDummyPath.
+   s.set_size(s.size() - 1 /*“a”*/);
+   return std::move(s);
+}
+
+#endif //if ABC_HOST_API_WIN32
 
 
 bool file_path::is_dir() const {

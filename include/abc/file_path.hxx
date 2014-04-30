@@ -232,6 +232,20 @@ public:
    static file_path current_dir();
 
 
+#if ABC_HOST_API_WIN32
+
+   /** Returns the current directory for the specified volume.
+
+   chVolume
+      Volume designator.
+   return
+      Current directory in chVolume.
+   */
+   static file_path current_dir_for_volume(char_t chVolume);
+
+#endif //if ABC_HOST_API_WIN32
+
+
 #if 0
    /** Returns an iterator over entries in the path matching the specified pattern.
 
@@ -300,11 +314,11 @@ public:
    istr const & os_str() const {
       return m_s;
    }
-#elif ABC_HOST_API_WIN32
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    istr os_str() const;
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: HOST_API
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
    /** Returns the directory containing the path.
