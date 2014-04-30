@@ -524,7 +524,7 @@ public:
       m_pchBegin(ach),
       m_pchEnd(ach + t_cch - 1 /*NUL*/) {
       // Cannot assert in this header file.
-      //ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0');
+      //ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
    }
    char_range_(C const * pchBegin, size_t cch) :
       m_pchBegin(pchBegin),
