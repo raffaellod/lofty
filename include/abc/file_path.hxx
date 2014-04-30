@@ -48,6 +48,12 @@ also considered the root, although trying to do anything with it other than conc
 components will most likely result in exceptions being thrown. Nonetheless, this convention allows
 to have a single root under Win32 just like under POSIX.
 
+abc::file_path instances can be used with the OS’s file API by using abc::file_path::os_str(), which
+will return a string suitable for such use. Under Win32, this will make the path absolute in order
+to be able to use the Win32 File Namespace, which has advantages and drawbacks; os_str() mitigates
+the drawbacks, allowing to overcome limitations in the Win32 file API. See abc::file_path::os_str()
+for more information.
+
 Reference for Python’s approach: “os.path — Common pathname manipulations” <http://docs.python.org/
 3/library/os.path.html>
 Reference for Win32: “Naming Files, Paths, and Namespaces” <http://msdn.microsoft.com/en-us/library/
