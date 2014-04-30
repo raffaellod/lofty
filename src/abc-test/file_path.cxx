@@ -35,7 +35,144 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path - normalization"));
+      return istr(SL("abc::file_path - normalization of relative and absolute paths"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      // Note that under Win32, paths that start with “/” are still relative to the current volume;
+      // nonetheless, the assertions should still be valid.
+
+      istr sSep(file_path::separator());
+#define norm_path(s)   istr(file_path(SL(s)).normalize())
+#define format_seps(s) istr(SL(s)).format(sSep)
+
+      // Empty path.
+      ABC_TESTING_ASSERT_EQUAL(norm_path(""),          format_seps("")            );
+      // Separator only.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/"),         format_seps("{0}")         );
+
+      // One component, no separators.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("."),         format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".."),        format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("..."),       format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a"),         format_seps("a")           );
+      // One component, leading separator.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/."),        format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.."),       format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/..."),      format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a"),        format_seps("{0}a")        );
+      // One component, trailing separator.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./"),        format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../"),       format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../"),      format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/"),        format_seps("a")           );
+      // One component, leading and trailing separators.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./"),       format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../"),      format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../"),     format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/"),       format_seps("{0}a")        );
+
+      // Two components, no separators.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./."),       format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./.."),      format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./..."),     format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./a"),       format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../."),      format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../.."),     format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../..."),    format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../a"),      format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../."),     format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../.."),    format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../..."),   format_seps("...{0}...")   );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../a"),     format_seps("...{0}a")     );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/."),       format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/.."),      format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/..."),     format_seps("a{0}...")     );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/a"),       format_seps("a{0}a")       );
+      // Two components, leading separator.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./."),      format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./.."),     format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./..."),    format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./a"),      format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../."),     format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../.."),    format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../..."),   format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../a"),     format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../."),    format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../.."),   format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../..."),  format_seps("{0}...{0}..."));
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../a"),    format_seps("{0}...{0}a")  );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/."),      format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/.."),     format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/..."),    format_seps("{0}a{0}...")  );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/a"),      format_seps("{0}a{0}a")    );
+      // Two components, trailing separator.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("././"),      format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./../"),     format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./.../"),    format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("./a/"),      format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".././"),     format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../../"),    format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../.../"),   format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("../a/"),     format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("..././"),    format_seps("...")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../../"),   format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../.../"),  format_seps("...{0}...")   );
+      ABC_TESTING_ASSERT_EQUAL(norm_path(".../a/"),    format_seps("...{0}a")     );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/./"),      format_seps("a")           );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/../"),     format_seps("")            );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/.../"),    format_seps("a{0}...")     );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("a/a/"),      format_seps("a{0}a")       );
+      // Two components, leading and trailing separators.
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/././"),     format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./../"),    format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./.../"),   format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/./a/"),     format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.././"),    format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../../"),   format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../.../"),  format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/../a/"),    format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/..././"),   format_seps("{0}...")      );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../../"),  format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../.../"), format_seps("{0}...{0}..."));
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/.../a/"),   format_seps("{0}...{0}a")  );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/./"),     format_seps("{0}a")        );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/../"),    format_seps("{0}")         );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/.../"),   format_seps("{0}a{0}...")  );
+      ABC_TESTING_ASSERT_EQUAL(norm_path("/a/a/"),     format_seps("{0}a{0}a")    );
+
+#undef format_seps
+#undef norm_path
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::file_path_normalization_joined
+
+namespace abc {
+
+namespace test {
+
+class file_path_normalization_joined :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::file_path - normalization of joined paths"));
    }
 
 
@@ -84,7 +221,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization_joined)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
