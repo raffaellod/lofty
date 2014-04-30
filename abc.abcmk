@@ -78,15 +78,6 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
          <expected-output path="src/abc-test-file_iostream/utf32le.txt"/>
       </unittest>
-
-      <unittest name="0080-map">
-         <source path="src/unittest/0080-map.cxx"/>
-      </unittest>
-
-      <unittest name="0280-file_istream">
-         <script path="src/unittest/0280-file_istream.py"/>
-         <source path="src/unittest/0280-file_istream.cxx"/>
-      </unittest>
    </dynlib>
 
    <dynlib name="abc-testing">
