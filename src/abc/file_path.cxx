@@ -147,7 +147,7 @@ file_path file_path::absolute() const {
 file_path file_path::base_name() const {
    ABC_TRACE_FN((this));
 
-   return m_s.substr(base_name_start(m_s));
+   return m_s.substr(base_name_start());
 }
 
 
@@ -206,124 +206,10 @@ bool file_path::is_dir() const {
 }
 
 
-#if ABC_HOST_API_WIN32
-istr file_path::os_str() const {
+file_path file_path::normalize() const {
    ABC_TRACE_FN((this));
 
-   return std::move(absolute().m_s);
-}
-#endif //if ABC_HOST_API_WIN32
-
-
-file_path file_path::parent_dir() const {
-   ABC_TRACE_FN((this));
-
-   auto itBegin(m_s.cbegin()), itLastSep(base_name_start(m_s));
-   if (itLastSep == itBegin) {
-      // This path only contains a base name, so there’s no parent directory part.
-      return file_path();
-   }
-   // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
-   // separator; advance the iterator instead.
-   if (itLastSep - itBegin < ptrdiff_t(get_root_length(m_s, true))) {
-      ++itLastSep;
-   }
-   return m_s.substr(itBegin, itLastSep);
-}
-
-
-/*static*/ file_path file_path::root() {
-   ABC_TRACE_FN(());
-
-   return dmstr(smc_aszRoot);
-}
-
-
-/*static*/ dmstr::const_iterator file_path::base_name_start(dmstr const & s) {
-   ABC_TRACE_FN((s));
-
-   auto itBaseNameStart(s.find_last(char32_t(smc_aszSeparator[0])));
-   if (itBaseNameStart == s.cend()) {
-      itBaseNameStart = s.cbegin();
-   }
-#if ABC_HOST_API_WIN32
-   // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
-   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-
-   size_t cch(s.size());
-   if (cch > sc_ichVolumeColon) {
-      auto itVolumeColon(s.cbegin() + sc_ichVolumeColon);
-      // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
-      // reconsider the character after the colon as the start of the base name.
-      if (*itVolumeColon == CL(':') && itBaseNameStart <= itVolumeColon) {
-         itBaseNameStart = itVolumeColon + 1 /*“:”*/;
-      }
-   }
-#endif
-   return itBaseNameStart;
-}
-
-
-/*static*/ size_t file_path::get_root_length(dmstr const & s, bool bIncludeNonRoot) {
-   ABC_TRACE_FN((s, bIncludeNonRoot));
-
-   static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-
-#if ABC_HOST_API_POSIX
-   if (s.starts_with(smc_aszRoot)) {
-      // Return the index of “a” in “/a”.
-      return sc_cchRoot;
-   }
-#elif ABC_HOST_API_WIN32
-   static size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
-   static size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
-   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-   static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
-
-   size_t cch(s.size());
-   char_t const * pch(s.data());
-   if (s.starts_with(smc_aszRoot)) {
-      if (s.starts_with(smc_aszUNCRoot)) {
-         // Return the index of “a” in “\\?\UNC\a”.
-         return sc_cchUNCRoot;
-      }
-      ABC_ASSERT(
-         cch < sc_cchVolumeRoot ||
-         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z'),
-         pch[sc_cchVolumeRoot - 2] != CL(':') || pch[sc_cchVolumeRoot - 1] != CL('\\'),
-         SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
-            SL("abc::file_path::validate_and_adjust() needs to be fixed")
-      );
-      // Return the index of “a” in “\\?\X:\a”.
-      return sc_cchRoot;
-   }
-   if (bIncludeNonAbsolute) {
-      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
-         // Return the index of “a” in “X:a”.
-         return sc_ichVolumeColon + 1 /*“:”*/;
-      }
-      if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
-         // Return the index of “a” in “\a”.
-         return sc_ichLeadingSep + 1 /*“\”*/;
-      }
-   }
-#else
-   #error TODO-PORT: HOST_API
-#endif
-   return 0;
-}
-
-
-/*static*/ bool file_path::is_absolute(istr const & s) {
-   ABC_TRACE_FN((s));
-
-   return s.starts_with(smc_aszRoot);
-}
-
-
-/*static*/ dmstr file_path::normalize(dmstr s) {
-   ABC_TRACE_FN((s));
-
+   dmstr s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
    auto itRootEnd(itBegin + ptrdiff_t(get_root_length(s, true)));
 
@@ -390,6 +276,121 @@ file_path file_path::parent_dir() const {
    // Adjust the length based on the position of the last character written.
    s.set_size(size_t(itDst - itBegin));
    return std::move(s);
+}
+
+
+#if ABC_HOST_API_WIN32
+istr file_path::os_str() const {
+   ABC_TRACE_FN((this));
+
+   return std::move(absolute().m_s);
+}
+#endif //if ABC_HOST_API_WIN32
+
+
+file_path file_path::parent_dir() const {
+   ABC_TRACE_FN((this));
+
+   auto itBegin(m_s.cbegin()), itLastSep(base_name_start());
+   if (itLastSep == itBegin) {
+      // This path only contains a base name, so there’s no parent directory part.
+      return file_path();
+   }
+   // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
+   // separator; advance the iterator instead.
+   if (itLastSep - itBegin < ptrdiff_t(get_root_length(m_s, true))) {
+      ++itLastSep;
+   }
+   return m_s.substr(itBegin, itLastSep);
+}
+
+
+/*static*/ file_path file_path::root() {
+   ABC_TRACE_FN(());
+
+   return dmstr(smc_aszRoot);
+}
+
+
+dmstr::const_iterator file_path::base_name_start() const {
+   ABC_TRACE_FN((this));
+
+   auto itBaseNameStart(m_s.find_last(char32_t(smc_aszSeparator[0])));
+   if (itBaseNameStart == m_s.cend()) {
+      itBaseNameStart = m_s.cbegin();
+   }
+#if ABC_HOST_API_WIN32
+   // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
+   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+
+   size_t cch(s.size());
+   if (cch > sc_ichVolumeColon) {
+      auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
+      // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
+      // reconsider the character after the colon as the start of the base name.
+      if (*itVolumeColon == CL(':') && itBaseNameStart <= itVolumeColon) {
+         itBaseNameStart = itVolumeColon + 1 /*“:”*/;
+      }
+   }
+#endif
+   return itBaseNameStart;
+}
+
+
+/*static*/ size_t file_path::get_root_length(dmstr const & s, bool bIncludeNonRoot) {
+   ABC_TRACE_FN((s, bIncludeNonRoot));
+
+   static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+
+#if ABC_HOST_API_POSIX
+   if (s.starts_with(smc_aszRoot)) {
+      // Return the index of “a” in “/a”.
+      return sc_cchRoot;
+   }
+#elif ABC_HOST_API_WIN32
+   static size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
+   static size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
+   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+   static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+
+   size_t cch(s.size());
+   char_t const * pch(s.data());
+   if (s.starts_with(smc_aszRoot)) {
+      if (s.starts_with(smc_aszUNCRoot)) {
+         // Return the index of “a” in “\\?\UNC\a”.
+         return sc_cchUNCRoot;
+      }
+      ABC_ASSERT(
+         cch < sc_cchVolumeRoot ||
+         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z'),
+         pch[sc_cchVolumeRoot - 2] != CL(':') || pch[sc_cchVolumeRoot - 1] != CL('\\'),
+         SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
+            SL("abc::file_path::validate_and_adjust() needs to be fixed")
+      );
+      // Return the index of “a” in “\\?\X:\a”.
+      return sc_cchRoot;
+   }
+   if (bIncludeNonAbsolute) {
+      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
+         // Return the index of “a” in “X:a”.
+         return sc_ichVolumeColon + 1 /*“:”*/;
+      }
+      if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
+         // Return the index of “a” in “\a”.
+         return sc_ichLeadingSep + 1 /*“\”*/;
+      }
+   }
+#else
+   #error TODO-PORT: HOST_API
+#endif
+   return 0;
+}
+
+
+/*static*/ bool file_path::is_absolute(istr const & s) {
+   ABC_TRACE_FN((s));
+
+   return s.starts_with(smc_aszRoot);
 }
 
 

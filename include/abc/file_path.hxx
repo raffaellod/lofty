@@ -276,9 +276,7 @@ public:
    return
       Normalized path.
    */
-   file_path normalize() const {
-      return file_path(normalize(m_s));
-   }
+   file_path normalize() const;
 
 
    /** Returns a string representation of the path suitable to use with the OS’s file API.
@@ -347,17 +345,15 @@ public:
 
 private:
 
-   /** Locates the first character of the final component in s, e.g. “a” in “a” (all), “a” in “/a”,
-   “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a” “X:b\a”
-   (Win32).
+   /** Locates the first character of the final component in the path, e.g. “a” in “a” (all), “a” in
+   “/a”, “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a”
+   “X:b\a” (Win32).
 
-   s
-      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
    return
-      Iterator pointing to the first character of the final component in s, or the beginning of s if
-      s does not contain a root component/prefix.
+      Iterator pointing to the first character of the final component in m_s, or the beginning of
+      m_s if the path does not contain a root component/prefix.
    */
-   static dmstr::const_iterator base_name_start(dmstr const & s);
+   dmstr::const_iterator base_name_start() const;
 
 
    /** Returns the length of the root part of the specified path or, in other words, the index of
@@ -388,19 +384,6 @@ private:
       true if s represents an absolute path, or false otherwise.
    */
    static bool is_absolute(istr const & s);
-
-
-   /** Returns a normalized version of the specified path by interpreting sequences such as “.” and
-   “..”. The resulting replacements may lead to a different path if the original path includes
-   symbolic links. The provided path must comply with the rules set for abc::file_path’s internal
-   representation.
-
-   s
-      Path to parse. Must comply with the rules set for abc::file_path’s internal representation.
-   return
-      Normalized path.
-   */
-   static dmstr normalize(dmstr s);
 
 
    /** Validates and adjusts a path to make it suitable as abc::file_path’s internal representation:
