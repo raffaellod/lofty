@@ -371,7 +371,7 @@ file_path file_path::parent_dir() const {
       }
       ++itDst;
    }
-   if (cDots) {
+   if (cDots > 0 && cDots <= 2) {
       // We ended on “.” or “..”, go back by as many separators as the count of dots.
       intptr_t iPrevSep(intptr_t(vitSeps.size()) - cDots);
       if (iPrevSep >= 0) {
@@ -408,9 +408,11 @@ file_path file_path::parent_dir() const {
    }
 #endif //if ABC_HOST_API_WIN32
 
-   // Save an iterator to the first non-prefix character.
-   auto itFirstNonPrefix(itBegin);
-#if ABC_HOST_API_WIN32
+   // Save an iterator to the end of the root prefix.
+   auto itRootEnd(itBegin);
+#if ABC_HOST_API_POSIX
+   itRootEnd += ptrdiff_t(get_root_length(s, true));
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    bool bIsAbsolute(is_absolute(s));
    if (!bIsAbsolute) {
       // abc::file_path::is_absolute() is very strict and does not return true for DOS-style or UNC
@@ -445,21 +447,23 @@ file_path file_path::parent_dir() const {
          }
       }
       if (bUpdateIterators) {
-         itFirstNonPrefix = itBegin = s.begin();
+         itRootEnd = itBegin = s.begin();
          itEnd = s.end();
       }
    }
    if (bIsAbsolute) {
       // Skip the Win32 File Namespace, since we don’t want its double-backslashes to be collapsed
       // into one.
-      itFirstNonPrefix += ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
+      itRootEnd += ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
    }
-#endif //if ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error TODO-PORT: HOST_API
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
    // Collapse sequences of one or more path separators with a single separator.
-   auto itDst(itFirstNonPrefix);
+   auto itDst(itRootEnd);
    bool bPrevIsSeparator(false);
-   for (auto itSrc(itFirstNonPrefix); itSrc != itEnd; ++itSrc) {
+   for (auto itSrc(itRootEnd); itSrc != itEnd; ++itSrc) {
       auto ch(*itSrc);
       bool bCurrIsSeparator(ch == smc_aszSeparator[0]);
       if (bCurrIsSeparator && bPrevIsSeparator) {
@@ -477,7 +481,7 @@ file_path file_path::parent_dir() const {
    }
    // If the last character written is a separator and it wouldn’t leave an empty string (other than
    // any prefix), move itDst back.
-   if (bPrevIsSeparator && itDst > itFirstNonPrefix) {
+   if (bPrevIsSeparator && itDst > itRootEnd) {
       --itDst;
    }
 
