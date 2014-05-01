@@ -604,7 +604,7 @@ public:
       of the string.
    */
    dmstr substr(ptrdiff_t ichFirst) const {
-      return substr(ichFirst, size());
+      return substr(ichFirst, ptrdiff_t(size()));
    }
    dmstr substr(ptrdiff_t ichFirst, ptrdiff_t cch) const {
       adjust_range(&ichFirst, &cch);

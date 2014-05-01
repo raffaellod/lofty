@@ -67,7 +67,7 @@ return
    true if the path has all the file attributes in fi, or false otherwise.
 */
 static bool file_attrs(file_path const & fp, DWORD fi) {
-   DWORD fiAttrs(::GetFileAttributes(fp.data()));
+   DWORD fiAttrs(::GetFileAttributes(fp.os_str().data()));
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
    }
@@ -127,9 +127,9 @@ file_path file_path::absolute() const {
       // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
       // and be relative to the current directory in that volume. Either way, these two formats
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
-      size_t cch(s.size());
-      char_t const * pch(s.data());
-      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
+      size_t cch(m_s.size());
+      char_t const * pch(m_s.data());
+      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':')) {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
          fpAbsolute = current_dir_for_volume(pch[sc_ichVolume]) /
@@ -212,7 +212,7 @@ file_path file_path::base_name() const {
    char_t achDummyPath[4] = { chVolume, CL(':'), CL('a'), CL('\0') };
    dmstr s;
    size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-   s.grow_for([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
+   s.grow_for([c_cchRoot, &achDummyPath] (char_t * pch, size_t cchMax) -> size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -333,7 +333,8 @@ istr file_path::os_str() const {
 file_path file_path::parent_dir() const {
    ABC_TRACE_FN((this));
 
-   auto itBegin(m_s.cbegin()), itLastSep(base_name_start());
+   auto itBegin(m_s.cbegin());
+   auto itLastSep(base_name_start());
    if (itLastSep == itBegin) {
       // This path only contains a base name, so there’s no parent directory part.
       return file_path();
@@ -365,7 +366,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
    static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
 
-   size_t cch(s.size());
+   size_t cch(m_s.size());
    if (cch > sc_ichVolumeColon) {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
       // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
@@ -404,7 +405,7 @@ dmstr::const_iterator file_path::base_name_start() const {
       }
       ABC_ASSERT(
          cch < sc_cchVolumeRoot ||
-         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z'),
+         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z') ||
          pch[sc_cchVolumeRoot - 2] != CL(':') || pch[sc_cchVolumeRoot - 1] != CL('\\'),
          SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
             SL("abc::file_path::validate_and_adjust() needs to be fixed")
@@ -412,8 +413,8 @@ dmstr::const_iterator file_path::base_name_start() const {
       // Return the index of “a” in “\\?\X:\a”.
       return sc_cchRoot;
    }
-   if (bIncludeNonAbsolute) {
-      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':') {
+   if (bIncludeNonRoot) {
+      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':')) {
          // Return the index of “a” in “X:a”.
          return sc_ichVolumeColon + 1 /*“:”*/;
       }
@@ -466,7 +467,7 @@ dmstr::const_iterator file_path::base_name_start() const {
       bool bUpdateIterators(false);
       if (s.starts_with(SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
-         s = smc_aszUNCRoot + s.substring(2 /*“\\”*/);
+         s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
          bIsAbsolute = true;
          bUpdateIterators = true;
       } else {
