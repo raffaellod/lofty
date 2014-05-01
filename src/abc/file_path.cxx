@@ -404,9 +404,9 @@ dmstr::const_iterator file_path::base_name_start() const {
          return sc_cchUNCRoot;
       }
       ABC_ASSERT(
-         cch < sc_cchVolumeRoot ||
-         pch[sc_cchVolumeRoot - 3] < CL('A') || pch[sc_cchVolumeRoot - 3] > CL('Z') ||
-         pch[sc_cchVolumeRoot - 2] != CL(':') || pch[sc_cchVolumeRoot - 1] != CL('\\'),
+         cch >= sc_cchVolumeRoot &&
+         pch[sc_cchVolumeRoot - 3] >= CL('A') && pch[sc_cchVolumeRoot - 3] <= CL('Z') &&
+         pch[sc_cchVolumeRoot - 2] == CL(':') && pch[sc_cchVolumeRoot - 1] == CL('\\'),
          SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
             SL("abc::file_path::validate_and_adjust() needs to be fixed")
       );
