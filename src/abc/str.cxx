@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -91,14 +91,16 @@ size_t _raw_str::hash(size_t cbItem) const {
 void _raw_str::set_size(size_t cbItem, size_t cch) {
    ABC_TRACE_FN((this, cbItem, cch));
 
-   if (cch > capacity()) {
-      // Enlarge and NUL-terminate the item array.
-      set_capacity(cbItem, cch, true);
-   } else {
-      // NUL-terminate the item array.
-      terminate(cbItem, static_cast<int8_t *>(m_p) + cbItem * cch);
+   if (cch != size()) {
+      if (cch > capacity()) {
+         // Enlarge and NUL-terminate the item array.
+         set_capacity(cbItem, cch, true);
+      } else {
+         // NUL-terminate the item array.
+         terminate(cbItem, static_cast<int8_t *>(m_p) + cbItem * cch);
+      }
+      m_ci = cch + 1 /*NUL*/;
    }
-   m_ci = cch + 1 /*NUL*/;
 }
 
 } //namespace abc
