@@ -63,6 +63,8 @@ namespace abc {
 
 // Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
 // <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
+//
+// The primes are calculated by src/fnv_hash_basis.py.
 size_t _raw_str::hash(size_t cbItem) const {
    ABC_TRACE_FN((this, cbItem));
 
