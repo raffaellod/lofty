@@ -440,36 +440,23 @@ dmstr::const_iterator file_path::base_name_start() const {
 /*static*/ dmstr file_path::validate_and_adjust(dmstr s) {
    ABC_TRACE_FN((s));
 
-   auto itBegin(s.begin()), itEnd(s.end());
-
 #if ABC_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
    // TODO: change to use mstr::replace() when that becomes available.
-   for (auto it(itBegin); it != itEnd; ++it) {
+   for (auto it(s.begin()); it != s.end(); ++it) {
       if (*it == CL('/')) {
          *it = CL('\\');
       }
    }
-#endif //if ABC_HOST_API_WIN32
-
-   // Save an iterator to the end of the root prefix.
-   auto itRootEnd(itBegin);
-#if ABC_HOST_API_POSIX
-   itRootEnd += ptrdiff_t(get_root_length(s, true));
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   bool bIsAbsolute(is_absolute(s));
-   if (!bIsAbsolute) {
+   if (!is_absolute(s)) {
       // abc::file_path::is_absolute() is very strict and does not return true for DOS-style or UNC
       // paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
       // “\\server\share”, so we have to detect them here and prefix them with the Win32 File
       // Namespace prefix.
 
-      bool bUpdateIterators(false);
       if (s.starts_with(SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
          s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
-         bIsAbsolute = true;
-         bUpdateIterators = true;
       } else {
          size_t cch(s.size());
          if (cch >= 2 && s[1] == CL(':')) {
@@ -485,24 +472,15 @@ dmstr::const_iterator file_path::base_name_start() const {
             if (cch >= 3 /*“X:\”*/ && s[2] == CL('\\')) {
                // This is a DOS-style absolute path; prepend to it the Win32 File Namespace prefix.
                s = smc_aszRoot + s;
-               bIsAbsolute = true;
-               bUpdateIterators = true;
             }
          }
       }
-      if (bUpdateIterators) {
-         itRootEnd = itBegin = s.begin();
-         itEnd = s.end();
-      }
    }
-   if (bIsAbsolute) {
-      // Skip the Win32 File Namespace, since we don’t want its double-backslashes to be collapsed
-      // into one.
-      itRootEnd += ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
-   }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_WIN32
+
+   auto itBegin(s.begin()), itEnd(s.end());
+   // Save an iterator to the end of the root prefix.
+   auto itRootEnd(itBegin + ptrdiff_t(get_root_length(s, true)));
 
    // Collapse sequences of one or more path separators with a single separator.
    auto itDst(itRootEnd);
