@@ -449,15 +449,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4),
-      m_t5(t5),
-      m_t6(t6),
-      m_t7(t7),
-      m_t8(t8),
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7), m_t8(t8),
       m_t9(t9) {
    }
 
@@ -468,16 +460,10 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
-            pos->write(m_t5);
-            pos->write(m_t6);
-            pos->write(m_t7);
-            pos->write(m_t8);
-            pos->write(m_t9);
+            pos->print(
+               SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
+               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8, m_t9
+            );
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -515,15 +501,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8
    ) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4),
-      m_t5(t5),
-      m_t6(t6),
-      m_t7(t7),
-      m_t8(t8) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7), m_t8(t8) {
    }
 
 
@@ -533,15 +511,10 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
-            pos->write(m_t5);
-            pos->write(m_t6);
-            pos->write(m_t7);
-            pos->write(m_t8);
+            pos->print(
+               SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
+               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8
+            );
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -578,14 +551,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7
    ) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4),
-      m_t5(t5),
-      m_t6(t6),
-      m_t7(t7) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7) {
    }
 
 
@@ -595,14 +561,10 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
-            pos->write(m_t5);
-            pos->write(m_t6);
-            pos->write(m_t7);
+            pos->print(
+               SL("{}, {}, {}, {}, {}, {}, {}, {}"),
+               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7
+            );
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -635,13 +597,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6
    ) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4),
-      m_t5(t5),
-      m_t6(t6) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6) {
    }
 
 
@@ -651,13 +607,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
-            pos->write(m_t5);
-            pos->write(m_t6);
+            pos->print(SL("{}, {}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -688,12 +638,7 @@ public:
    _scope_trace(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
    ) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4),
-      m_t5(t5) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5) {
    }
 
 
@@ -703,12 +648,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
-            pos->write(m_t5);
+            pos->print(SL("{}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -736,11 +676,7 @@ public:
    /** Constructor.
    */
    _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3),
-      m_t4(t4) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4) {
    }
 
 
@@ -750,11 +686,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
-            pos->write(m_t4);
+            pos->print(SL("{}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -781,10 +713,7 @@ public:
    /** Constructor.
    */
    _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2),
-      m_t3(t3) {
+      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3) {
    }
 
 
@@ -794,10 +723,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
-            pos->write(m_t3);
+            pos->print(SL("{}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -823,9 +749,7 @@ public:
    /** Constructor.
    */
    _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2) :
-      m_t0(t0),
-      m_t1(t1),
-      m_t2(t2) {
+      m_t0(t0), m_t1(t1), m_t2(t2) {
    }
 
 
@@ -835,9 +759,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
-            pos->write(m_t2);
+            pos->print(SL("{}, {}, {}"), m_t0, m_t1, m_t2);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -862,8 +784,7 @@ public:
    /** Constructor.
    */
    _scope_trace(T0 const & t0, T1 const & t1) :
-      m_t0(t0),
-      m_t1(t1) {
+      m_t0(t0), m_t1(t1) {
    }
 
 
@@ -873,8 +794,7 @@ public:
       try {
          ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
-            pos->write(m_t0);
-            pos->write(m_t1);
+            pos->print(SL("{}, {}"), m_t0, m_t1);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
