@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -129,6 +129,77 @@ struct deleter {
    */
    void operator()(T * pt) const {
       free(pt);
+   }
+};
+
+} //namespace memory
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory::conditional_deleter
+
+
+namespace abc {
+
+namespace memory {
+
+/** Deleter that deletes an object if and only if a condition is true.
+*/
+template <typename T>
+class conditional_deleter {
+public:
+
+   /** Constructor.
+
+   bDelete
+      If true, the deleter will delete objects when invoked; if false, it will do nothing.
+   */
+   conditional_deleter(bool bDelete) :
+      m_bDelete(bDelete) {
+   }
+
+
+   /** Deletes the specified object.
+
+   pt
+      Pointer to the object to delete.
+   */
+   void operator()(T * pt) const {
+      if (m_bDelete) {
+         delete pt;
+      }
+   }
+
+
+protected:
+
+   bool m_bDelete;
+};
+
+// Specialization for arrays.
+template <typename T>
+class conditional_deleter<T[]> :
+   public conditional_deleter<T> {
+public:
+
+   /** See conditional_deleter<T>::conditional_deleter().
+   */
+   conditional_deleter(bool bDelete) :
+      conditional_deleter<T>(bDelete) {
+   }
+
+
+   /** Deletes the specified array. See also conditional_deleter<T>::operator()().
+
+   pt
+      Pointer to the array to delete.
+   */
+   void operator()(T * pt) const {
+      if (this->m_bDelete) {
+         delete [] pt;
+      }
    }
 };
 
