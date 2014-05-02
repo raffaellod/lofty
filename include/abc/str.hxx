@@ -284,6 +284,9 @@ public:
    typedef C char_t;
    /** String traits. */
    typedef TTraits traits;
+   /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
+   an abc::*str instance. */
+   typedef std::unique_ptr<C const [], memory::conditional_deleter<C const []>> c_str_pointer;
    /** See _iterable_vector::const_iterator. */
    typedef typename itvec::const_iterator const_iterator;
 
@@ -320,6 +323,23 @@ public:
    */
    explicit_operator_bool() const {
       return size() > 0;
+   }
+
+
+   /** Returns a pointer to a NUL-terminated version of the string.
+
+   If the string already includes a NUL terminator, the returned pointer will refer to the same
+   character array, and it will not own it; if the string does not include a NUL terminator, the
+   returned pointer will own a NUL-terminated copy of *this.
+
+   The returned pointer should be thought of as having a very short lifetime, and it should never be
+   stored of manipulated.
+
+   return
+      NUL-terminated version of the string.
+   */
+   c_str_pointer c_str() const {
+      return c_str_pointer(data(), memory::conditional_deleter<C const []>(false));
    }
 
 

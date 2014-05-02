@@ -49,7 +49,7 @@ public:
       Path to get statistics for.
    */
    file_stat(file_path const & fp) {
-      if (::stat(fp.os_str().data(), this)) {
+      if (::stat(fp.os_str().c_str().get(), this)) {
          throw_os_error();
       }
    }
@@ -67,7 +67,7 @@ return
    true if the path has all the file attributes in fi, or false otherwise.
 */
 static bool file_attrs(file_path const & fp, DWORD fi) {
-   DWORD fiAttrs(::GetFileAttributes(fp.os_str().data()));
+   DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str().get()));
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
    }

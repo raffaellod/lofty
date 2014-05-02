@@ -191,7 +191,7 @@ void file::flush() {
    if (!fid.bBuffered) {
       fi |= O_DIRECT;
    }
-   fid.fd = ::open(fp.os_str().data(), fi, 0666);
+   fid.fd = ::open(fp.os_str().c_str().get(), fi, 0666);
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
    fid.bAppend = false;
@@ -227,7 +227,9 @@ void file::flush() {
    } else if (fiAccess & GENERIC_READ) {
       fi |= FILE_FLAG_SEQUENTIAL_SCAN;
    }
-   fid.fd = ::CreateFile(fp.os_str().data(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
+   fid.fd = ::CreateFile(
+      fp.os_str().c_str().get(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr
+   );
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else

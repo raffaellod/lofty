@@ -42,7 +42,7 @@ dynamic_module::dynamic_module(dynamic_module && dm) :
 }
 dynamic_module::dynamic_module(file_path const & fp, bool bInit) :
    m_hdynmod(::LoadLibraryEx(
-      fp.os_str().data(), nullptr, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE)
+      fp.os_str().c_str().get(), nullptr, DWORD(bInit ? 0 : LOAD_LIBRARY_AS_DATAFILE)
    )),
    m_bOwn(true) {
    ABC_TRACE_FN((this, /*fp, */bInit));
@@ -146,7 +146,7 @@ namespace abc {
 
 code_module::code_module(file_path const & fp) :
 #if ABC_HOST_API_POSIX
-   m_hdynmod(::dlopen(fp.os_str().data(), RTLD_LAZY)) {
+   m_hdynmod(::dlopen(fp.os_str().c_str().get(), RTLD_LAZY)) {
    ABC_TRACE_FN((this/*, fp*/));
 
    if (!m_hdynmod) {
@@ -185,7 +185,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
    void * pfn;
 #if ABC_HOST_API_POSIX
    ::dlerror();
-   pfn = ::dlsym(m_hdynmod, sSymbol.data());
+   pfn = ::dlsym(m_hdynmod, sSymbol.c_str().get());
    if (char * pszError = ::dlerror()) {
       // TODO: we have a description, but no error code.
       ABC_UNUSED_ARG(pszError);
@@ -193,7 +193,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
       throw 123;
    }
 #elif ABC_HOST_API_WIN32
-   // TODO: FIXME: translate sSymbol.data() from istr to istr8.
+   // TODO: FIXME: translate sSymbol.c_str().get() from istr to istr8.
    pfn = ::GetProcAddress(m_hdynmod, nullptr);
    if (!pfn) {
       throw_os_error();
