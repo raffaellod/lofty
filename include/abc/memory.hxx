@@ -228,33 +228,6 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::noop_deleter
-
-
-namespace abc {
-
-namespace memory {
-
-/** No-op deleter. It assumes the memory doesn’t need to be released.
-*/
-template <typename T>
-struct noop_deleter {
-
-   /** Deallocates the specified memory block.
-
-   TODO: comment signature.
-   */
-   void operator()(T * pt) const {
-      ABC_UNUSED_ARG(pt);
-   }
-};
-
-} //namespace memory
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals - management
 
 
