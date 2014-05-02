@@ -1358,9 +1358,7 @@ class smstr :
 private:
 
    /** Actual static item array size. */
-   static size_t const smc_cchFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(
-      t_cchStatic + 1 /*NUL*/
-   );
+   static size_t const smc_cchFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_cchStatic);
 
 
 public:
