@@ -102,12 +102,12 @@ public:
 
       // Only the trailing NUL character should be accessible.
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
-      ABC_TESTING_ASSERT_THROWS(index_error, s[1]);
+      ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
 
       s += SL("a");
       // true: operator+= must have created an item array (there was none).
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
       ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));

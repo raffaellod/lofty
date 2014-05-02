@@ -95,13 +95,10 @@ void _raw_str::set_size(size_t cbItem, size_t cch) {
 
    if (cch != size()) {
       if (cch > capacity()) {
-         // Enlarge and NUL-terminate the item array.
+         // Enlarge the item array.
          set_capacity(cbItem, cch, true);
-      } else {
-         // NUL-terminate the item array.
-         terminate(cbItem, static_cast<int8_t *>(m_p) + cbItem * cch);
       }
-      m_ci = cch + 1 /*NUL*/;
+      m_ci = cch;
    }
 }
 

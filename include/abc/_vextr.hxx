@@ -67,26 +67,23 @@ Underlying data storage:
    ┌───┬───┬───────┐
    │ p │ 1 │ 0|f|f │
    └───┴───┴───────┘
-     │                 ┌────┐
-     ╰────────────────▶│ \0 │               Read-only memory (NUL)
-                       └────┘
+     │
+     ╰────────────────▶ nullptr             No item array
 
 2. smstr<5>()
    ┌───┬───┬───────╥───┬─────────┐
    │ p │ 1 │ 0|f|t ║ 4 │ - - - - │          Static (can be stack-allocated) fixed-size buffer
    └───┴───┴───────╨───┴─────────┘
-     │                 ┌────┐
-     └────────────────▶│ \0 │               Read-only memory (NUL)
-                       └────┘
+     │
+     └────────────────▶ nullptr             No item array
 
-3. istr("abc"):
+3. istr("abc")
    ┌───┬───┬───────┐
    │ p │ 4 │ 0|f|f │
    └───┴───┴───────┘
      │                 ┌──────────┐
      └────────────────▶│ a b c \0 │         Read-only memory
                        └──────────┘
-
 4. dmstr("abc")
    ┌───┬───┬───────┐
    │ p │ 4 │ 8|t|f │
@@ -94,15 +91,21 @@ Underlying data storage:
      │                 ┌──────────────────┐
      └────────────────▶│ a b c \0 - - - - │ Dynamically-allocated variable-size buffer
                        └──────────────────┘
+5. smstr<3>()
+   ┌───┬───┬───────╥───┬──────────┐
+   │ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │         Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴───────╨───┴──────────┘
+     │
+     └────────────────▶ nullptr             No item array
 
-5. smstr<3>("abc")
+5. smstr<3>() += "abc"
    ┌───┬───┬───────╥───┬──────────┐
    │ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │         Static (can be stack-allocated) fixed-size buffer
    └───┴───┴───────╨───┴──────────┘
      │                 ▲
      └─────────────────┘
 
-6. smstr<2>("abc"):
+6. smstr<2>() += "abc"
    ┌───┬───┬───────╥───┬───────┐
    │ p │ 4 │ 8|t|t ║ 3 │ - - - │            Static (can be stack-allocated) fixed-size buffer
    └───┴───┴───────╨───┴───────┘
@@ -565,12 +568,9 @@ protected:
          New item count, or -1 to use ciDelta instead.
       ciDelta
          Item count change; can be positive or negative.
-      bNulT
-         true if the item array is NUL-terminated, or false otherwise.
       */
       transaction(
-         size_t cbItem,
-         _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0, bool bNulT = false
+         size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0
       );
 
 
@@ -587,13 +587,8 @@ protected:
       released if necessary; it’s up to the client to destruct any items in it. If this method is
       not called before the transaction is destructed, it’s up to the client to also ensure that any
       and all objects constructed in the work array have been properly destructed.
-
-      cbItem
-         Size of a single array item, in bytes.
-      bNulT
-         true if the item array is NUL-terminated, or false otherwise.
       */
-      void commit(size_t cbItem = 0, bool bNulT = false);
+      void commit();
 
 
       /** Returns the work item array.
@@ -621,6 +616,8 @@ protected:
 
    private:
 
+      /** See _raw_vextr_impl_base::m_rvpd. */
+      _raw_vextr_packed_data m_rvpd;
       /** Subject of the transaction. */
       _raw_vextr_impl_base * m_prvib;
       /** Pointer to the item array to which clients must write. This may or may not be the same as
@@ -629,8 +626,6 @@ protected:
       void * m_p;
       /** Number of currently used items in m_p. */
       size_t m_ci;
-      /** See _raw_vextr_impl_base::m_rvpd. */
-      _raw_vextr_packed_data m_rvpd;
       /** true if m_p has been dynamically allocated for the transaction and needs to be freed in
       the destructor, either because the transaction didn’t get committed, or because it did and the
       item array is now owned by m_prvib. */
@@ -654,16 +649,11 @@ public:
 
    /** Returns the count of item slots in the current item array.
 
-   bNulT
-      If true, this vextr is intended to be NUL-terminated, and the returned count will not include
-      the trailing NUL terminator; in other words, the capacity will be underreported to reserve
-      space for the NUL terminator.
    return
       Count of slots in the item array.
    */
-   size_t capacity(bool bNulT = false) const {
-      size_t ciMax(m_rvpd.get_ciMax());
-      return ciMax - (ciMax > 0 && bNulT ? 1 /*NUL*/ : 0);
+   size_t capacity() const {
+      return m_rvpd.get_ciMax();
    }
 
 
@@ -684,38 +674,34 @@ public:
 
    /** See buffered_vector::size() and _raw_str::size().
 
-   bNulT
-      true if the item array is NUL-terminated, or false otherwise.
    return
       Count of items in the item array.
    */
-   size_t size(bool bNulT = false) const {
-      return m_ci - (bNulT ? 1 /*NUL*/ : 0);
+   size_t size() const {
+      return m_ci;
    }
 
 
 protected:
 
    /** Constructor. The overload with ciStaticMax constructs the object as empty, setting m_p to
-   nullptr or an empty string; the overload with pConstSrc constructs the object assigning an item
-   array.
+   nullptr; the overload with pConstSrc constructs the object assigning an item array.
 
    ciStaticMax
       Count of slots in the static item array, or 0 if no static item array is present.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    pConstSrc
       Pointer to an array that will be adopted by the vextr as read-only.
    ciSrc
       Count of items in the array pointed to by pConstSrc.
+   bNulT
+      true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   _raw_vextr_impl_base(size_t ciStaticMax, bool bNulT = false);
+   _raw_vextr_impl_base(size_t ciStaticMax);
    _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
       m_p(const_cast<void *>(pConstSrc)),
       m_ci(ciSrc),
       // ciMax = 0 means that the item array is read-only.
       m_rvpd(0, bNulT, false, false) {
-      ABC_ASSERT(pConstSrc, SL("cannot adopt nullptr as item array"));
    }
 
 
@@ -724,7 +710,7 @@ protected:
 
    TODO: comment signature.
    */
-   size_t adjust_index(ptrdiff_t i, bool bNulT = false) const;
+   size_t adjust_index(ptrdiff_t i) const;
 
 
    /** Adjusts a 0-based index and count in the array. iFirst is treated like adjust_index() does;
@@ -733,19 +719,15 @@ protected:
 
    TODO: comment signature.
    */
-   void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci, bool bNulT = false) const;
+   void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const;
 
 
-   /** Resets the contents of the object to an empty item array: a single NUL character in case of
-   a string, or nullptr for everything else.
-
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
+   /** Resets the contents of the object to nullptr.
    */
-   void assign_empty(bool bNulT = false) {
-      m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr;
-      m_ci = bNulT ? 1u /*NUL*/ : 0;
-      m_rvpd.set(0, bNulT, false);
+   void assign_empty() {
+      m_p = nullptr;
+      m_ci = 0;
+      m_rvpd.set(0, false, false);
    }
 
 
@@ -1081,8 +1063,8 @@ private:
 
 namespace abc {
 
-/** Template-independent implementation of a vector for trivial contained types. The entire class is
-NUL-termination-aware; this is the most derived common base class of both vector and str_.
+/** Template-independent implementation of a vector for trivial contained types. This is the most
+derived common base class of both vector and str_.
 */
 class ABCAPI _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
@@ -1096,12 +1078,10 @@ public:
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void append(size_t cbItem, void const * pAdd, size_t ciAdd, bool bNulT = false) {
+   void append(size_t cbItem, void const * pAdd, size_t ciAdd) {
       if (ciAdd) {
-         _insert_or_remove(cbItem, size(bNulT), pAdd, ciAdd, 0, bNulT);
+         _insert_or_remove(cbItem, size(), pAdd, ciAdd, 0);
       }
    }
 
@@ -1119,12 +1099,8 @@ public:
       Pointer to the second source array.
    ci2
       Count of items in the second source array.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void assign_concat(
-      size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2, bool bNulT = false
-   );
+   void assign_concat(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2);
 
 
    /** Copies the contents of the source array to *this.
@@ -1135,16 +1111,14 @@ public:
       Pointer to the source array.
    ci
       Count of items in the source array.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void assign_copy(size_t cbItem, void const * p, size_t ci, bool bNulT = false) {
+   void assign_copy(size_t cbItem, void const * p, size_t ci) {
       if (p == m_p) {
          return;
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(cbItem, nullptr, 0, p, ci, bNulT);
+      assign_concat(cbItem, nullptr, 0, p, ci);
    }
 
 
@@ -1154,17 +1128,15 @@ public:
 
    rtvi
       Source vextr.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void assign_move(_raw_trivial_vextr_impl && rtvi, bool bNulT = false) {
+   void assign_move(_raw_trivial_vextr_impl && rtvi) {
       if (rtvi.m_p == m_p) {
          return;
       }
       // Share the item array.
       _assign_share(rtvi);
       // And now empty the source.
-      rtvi.assign_empty(bNulT);
+      rtvi.assign_empty();
    }
 
 
@@ -1175,12 +1147,8 @@ public:
       Size of a single array item, in bytes.
    rtvi
       Source vextr.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void assign_move_dynamic_or_move_items(
-      size_t cbItem, _raw_trivial_vextr_impl && rtvi, bool bNulT = false
-   );
+   void assign_move_dynamic_or_move_items(size_t cbItem, _raw_trivial_vextr_impl && rtvi);
 
 
    /** Shares the source’s item array if read-only, else copies it to *this.
@@ -1189,12 +1157,8 @@ public:
       Size of a single array item, in bytes.
    rtvi
       Source vextr.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void assign_share_ro_or_copy(
-      size_t cbItem, _raw_trivial_vextr_impl const & rtvi, bool bNulT = false
-   ) {
+   void assign_share_ro_or_copy(size_t cbItem, _raw_trivial_vextr_impl const & rtvi) {
       if (rtvi.m_p == m_p) {
          return;
       }
@@ -1202,7 +1166,7 @@ public:
          _assign_share(rtvi);
       } else {
          // Non-read-only, cannot share.
-         assign_copy(cbItem, rtvi.m_p, rtvi.size(bNulT), bNulT);
+         assign_copy(cbItem, rtvi.m_p, rtvi.size());
       }
    }
 
@@ -1218,15 +1182,11 @@ public:
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void insert(
-      size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bNulT = false
-   ) {
+   void insert(size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd) {
       if (ciAdd) {
-         size_t iRealOffset(adjust_index(iOffset, bNulT));
-         _insert_or_remove(cbItem, iRealOffset, pAdd, ciAdd, 0, bNulT);
+         size_t iRealOffset(adjust_index(iOffset));
+         _insert_or_remove(cbItem, iRealOffset, pAdd, ciAdd, 0);
       }
    }
 
@@ -1240,20 +1200,18 @@ public:
       index from the end of the vextr.
    ciRemove
       Count of items to remove.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove, bool bNulT = false) {
-      adjust_range(&iOffset, &ciRemove, bNulT);
+   void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove) {
+      adjust_range(&iOffset, &ciRemove);
       if (ciRemove) {
-         _insert_or_remove(cbItem, size_t(iOffset), nullptr, 0, size_t(ciRemove), bNulT);
+         _insert_or_remove(cbItem, size_t(iOffset), nullptr, 0, size_t(ciRemove));
       }
    }
 
 
-   /** Ensures that the item array has at least ciMin of actual item space (excluding the trailing
-   NUL character, in case of NUL-terminated item array). If this causes *this to switch to using a
-   different item array, any data in the current one will be lost unless bPreserve == true.
+   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any data in the current one will be lost unless bPreserve
+   == true.
 
    cbItem
       Size of a single array item, in bytes.
@@ -1262,18 +1220,16 @@ public:
    bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
-   void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve, bool bNulT = false);
+   void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve);
 
 
 protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_trivial_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
-      _raw_vextr_impl_base(ciStaticMax, bNulT) {
+   _raw_trivial_vextr_impl(size_t ciStaticMax) :
+      _raw_vextr_impl_base(ciStaticMax) {
    }
    _raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
       _raw_vextr_impl_base(pConstSrc, ciSrc, bNulT) {
@@ -1303,12 +1259,9 @@ private:
       Count of items to add.
    ciAdd
       Count of items to remove.
-   bNulT
-      true if the item array is a NUL-terminated string, or false otherwise.
    */
    void _insert_or_remove(
-      size_t cbItem,
-      size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove, bool bNulT = false
+      size_t cbItem, size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
    );
 };
 

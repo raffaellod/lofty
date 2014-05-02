@@ -229,7 +229,7 @@ public:
          // Non-obvious division by zero that can’t be detected at compile time: sEmpty always has
          // a NUL terminator at its end, so use that as a zero divider.
          istr sEmpty;
-         int iZero(sEmpty[0]), iOne(1);
+         int iZero(int(sEmpty.size())), iOne(1);
          ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
          // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
          istr(SL("{}")).format(iOne);

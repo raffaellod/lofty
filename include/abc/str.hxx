@@ -127,7 +127,7 @@ public:
    TODO: comment signature.
    */
    size_t capacity() const {
-      return _raw_trivial_vextr_impl::capacity(true);
+      return _raw_trivial_vextr_impl::capacity();
    }
 
 
@@ -137,7 +137,7 @@ public:
    TODO: comment signature.
    */
    size_t size() const {
-      return _raw_trivial_vextr_impl::size(true);
+      return _raw_trivial_vextr_impl::size();
    }
 
 
@@ -153,7 +153,7 @@ public:
    TODO: comment signature.
    */
    void set_capacity(size_t cbItem, size_t cchMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(cbItem, cchMin, bPreserve, true);
+      _raw_trivial_vextr_impl::set_capacity(cbItem, cchMin, bPreserve);
    }
 
 
@@ -171,10 +171,10 @@ protected:
    TODO: comment signature.
    */
    _raw_str(size_t cchStaticMax) :
-      _raw_trivial_vextr_impl(cchStaticMax, true) {
+      _raw_trivial_vextr_impl(cchStaticMax) {
    }
    _raw_str(void const * pConstSrc, size_t cchSrc) :
-      _raw_trivial_vextr_impl(pConstSrc, cchSrc + 1 /*NUL*/, true) {
+      _raw_trivial_vextr_impl(pConstSrc, cchSrc, true) {
    }
 
 
@@ -183,7 +183,7 @@ protected:
    TODO: comment signature.
    */
    size_t adjust_index(ptrdiff_t i) const {
-      return _raw_trivial_vextr_impl::adjust_index(i, true);
+      return _raw_trivial_vextr_impl::adjust_index(i);
    }
 
 
@@ -192,7 +192,7 @@ protected:
    TODO: comment signature.
    */
    void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const {
-      _raw_trivial_vextr_impl::adjust_range(piFirst, pci, true);
+      _raw_trivial_vextr_impl::adjust_range(piFirst, pci);
    }
 
 
@@ -201,14 +201,14 @@ protected:
    TODO: comment signature.
    */
    void assign_copy(size_t cbItem, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::assign_copy(cbItem, p, ci, true);
+      _raw_trivial_vextr_impl::assign_copy(cbItem, p, ci);
    }
 
 
    /** TODO: comment.
    */
    void assign_concat(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2) {
-      _raw_trivial_vextr_impl::assign_concat(cbItem, p1, ci1, p2, ci2, true);
+      _raw_trivial_vextr_impl::assign_concat(cbItem, p1, ci1, p2, ci2);
    }
 
 
@@ -217,7 +217,7 @@ protected:
    TODO: comment signature.
    */
    void assign_move(_raw_str && rs) {
-      _raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(rs), true);
+      _raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(rs));
    }
 
 
@@ -227,7 +227,7 @@ protected:
    */
    void assign_move_dynamic_or_move_items(size_t cbItem, _raw_str && rs) {
       _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-         cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs), true
+         cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs)
       );
    }
 
@@ -237,7 +237,7 @@ protected:
    TODO: comment signature.
    */
    void assign_share_ro_or_copy(size_t cbItem, _raw_str const & rs) {
-      _raw_trivial_vextr_impl::assign_share_ro_or_copy(cbItem, rs, true);
+      _raw_trivial_vextr_impl::assign_share_ro_or_copy(cbItem, rs);
    }
 };
 
@@ -335,11 +335,28 @@ public:
    The returned pointer should be thought of as having a very short lifetime, and it should never be
    stored of manipulated.
 
+   TODO: un-inline/de-template and provide non-immutable version mstr::to_c_str().
+
    return
       NUL-terminated version of the string.
    */
    c_str_pointer c_str() const {
-      return c_str_pointer(data(), memory::conditional_deleter<C const []>(false));
+      if (m_rvpd.get_bNulT()) {
+         // The string already includes a NUL terminator, so we can simply return the same array.
+         return c_str_pointer(data(), memory::conditional_deleter<C const []>(false));
+      }
+      if (size_t cch = size()) {
+         // The string is not empty but lacks a NUL terminator: create a temporary copy that
+         // includes a NUL, and return it.
+         c_str_pointer pch(c_str_pointer(data(), memory::conditional_deleter<C const []>(true)));
+         memory::copy(const_cast<C *>(pch.get()), data(), cch);
+         terminate(sizeof(C), const_cast<C *>(pch.get()) + cch);
+         return std::move(pch);
+      }
+      // The string is empty, so a static NUL character will suffice.
+      return c_str_pointer(
+         reinterpret_cast<C const *>(&smc_chNUL), memory::conditional_deleter<C const []>(false)
+      );
    }
 
 
@@ -1007,7 +1024,7 @@ public:
    TODO: comment signature.
    */
    void append(C const * pchAdd, size_t cchAdd) {
-      _raw_str::append(sizeof(C), pchAdd, cchAdd, true);
+      _raw_str::append(sizeof(C), pchAdd, cchAdd);
    }
 
 
@@ -1047,7 +1064,7 @@ public:
       size_t cchRet, cchMax(rvib::smc_cMinSlots * rvib::smc_iGrowthRate);
       do {
          cchMax *= rvib::smc_iGrowthRate;
-         set_capacity(cchMax - 1 /*NUL*/, false);
+         set_capacity(cchMax, false);
          cchRet = fnRead(data(), cchMax);
       } while (cchRet >= cchMax);
       // Finalize the length.
