@@ -121,8 +121,7 @@ class ABCAPI _raw_str :
    public _raw_trivial_vextr_impl {
 public:
 
-   /** Returns the current size of the str buffer, in characters, minus room for the trailing NUL
-   terminator.
+   /** Returns the current size of the str buffer, in characters.
 
    TODO: comment signature.
    */
@@ -131,8 +130,7 @@ public:
    }
 
 
-   /** Returns the current length of the string, in characters, excluding the trailing NUL
-   terminator.
+   /** Returns the current length of the string, in characters.
 
    TODO: comment signature.
    */
@@ -256,12 +254,11 @@ class istr_;
 template <typename C, class TTraits = text::utf_traits<C>>
 class dmstr_;
 
-/** Base class for strings. It behaves like a vector with a last NUL element hidden from clients; an
-empty string always has an accessible trailing NUL character.
+/** Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
+trailing NUL character.
 
-Methods that take an array of characters whose length is obtained by its size instead of e.g.
-strlen(), will discard the last element, asserting that it’s the NUL terminator. See [DOC:4019
-abc::*str_ and abc::*vector design] for implementation details for this and all the *str_ classes.
+See [DOC:4019 abc::*str_ and abc::*vector design] for implementation details for this and all the
+abc::*str_ classes.
 */
 template <typename C, class TTraits>
 class str_base_ :
@@ -516,8 +513,7 @@ public:
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
-   /** Returns the current size of the string buffer, in characters, minus room for the trailing NUL
-   terminator.
+   /** Returns the current size of the string buffer, in characters.
 
    return
       Size of the string buffer, in characters.
