@@ -106,7 +106,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::deleter
+// abc::memory::freeing_deleter
 
 
 namespace abc {
@@ -121,7 +121,7 @@ void free(T * pt);
 /** Deleter that deallocates memory using memory::free().
 */
 template <typename T>
-struct deleter {
+struct freeing_deleter {
 
    /** Deallocates the specified memory block.
 
@@ -135,10 +135,10 @@ struct deleter {
 
 // Specialization for arrays.
 template <typename T>
-struct deleter<T[]> :
-   public deleter<T> {
+struct freeing_deleter<T[]> :
+   public freeing_deleter<T> {
 
-   /** Deallocates the specified array. See also deleter<T>::operator()().
+   /** Deallocates the specified array. See also freeing_deleter<T>::operator()().
 
    pt
       Pointer to the array to deallocate.
@@ -235,13 +235,14 @@ namespace abc {
 
 namespace memory {
 
-/** Allows to use the keyword auto to declare std::unique_ptr objects that use memory::deleter.
+/** Allows to use the keyword auto to declare std::unique_ptr objects that use
+memory::freeing_deleter.
 
 TODO: comment signature.
 */
 template <typename T>
-inline std::unique_ptr<T, deleter<T>> make_unique_ptr(T * pt = nullptr) {
-   return std::unique_ptr<T, deleter<T>>(pt);
+inline std::unique_ptr<T, freeing_deleter<T>> make_unique_ptr(T * pt = nullptr) {
+   return std::unique_ptr<T, freeing_deleter<T>>(pt);
 }
 
 
@@ -278,12 +279,16 @@ specified number of bytes.
 TODO: comment signature.
 */
 template <typename T>
-inline std::unique_ptr<T, deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
-   return make_unique_ptr<T>(static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra)));
+inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
+   return std::unique_ptr<T, freeing_deleter<T>>(
+      static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra))
+   );
 }
 template <>
-inline std::unique_ptr<void, deleter<void>> alloc(size_t cb /*= 1*/, size_t cbExtra /*= 0*/) {
-   return make_unique_ptr<void>(_raw_alloc(cb + cbExtra));
+inline std::unique_ptr<void, freeing_deleter<void>> alloc(
+   size_t cb /*= 1*/, size_t cbExtra /*= 0*/
+) {
+   return std::unique_ptr<void, freeing_deleter<void>>(_raw_alloc(cb + cbExtra));
 }
 
 
@@ -311,13 +316,15 @@ inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
    return _raw_realloc(p, cb + cbExtra);
 }
 template <typename T>
-inline void realloc(std::unique_ptr<T, deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
+inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
    T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
    ppt->release();
    ppt->reset(pt);
 }
 template <>
-inline void realloc(std::unique_ptr<void, deleter<void>> * pp, size_t cb, size_t cbExtra /*= 0*/) {
+inline void realloc(
+   std::unique_ptr<void, freeing_deleter<void>> * pp, size_t cb, size_t cbExtra /*= 0*/
+) {
    void * p(_raw_realloc(pp->get(), cb + cbExtra));
    pp->release();
    pp->reset(p);
