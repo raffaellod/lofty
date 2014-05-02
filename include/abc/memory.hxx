@@ -161,10 +161,11 @@ namespace abc {
 
 namespace memory {
 
-/** Deleter that deletes an object if and only if a condition is true.
+/** Wrapper that invokes a deleter if and only if a set condition is true.
 */
-template <typename T>
-class conditional_deleter {
+template <typename T, typename TDeleter = std::default_delete<T>>
+class conditional_deleter :
+   public TDeleter {
 public:
 
    /** Constructor.
@@ -173,18 +174,19 @@ public:
       If true, the deleter will delete objects when invoked; if false, it will do nothing.
    */
    conditional_deleter(bool bDelete) :
+      TDeleter(),
       m_bDelete(bDelete) {
    }
 
 
-   /** Deletes the specified object.
+   /** Deletes the specified object if the condition set in the constructor was true.
 
    pt
       Pointer to the object to delete.
    */
    void operator()(T * pt) const {
       if (m_bDelete) {
-         delete pt;
+         TDeleter::operator()(pt);
       }
    }
 
@@ -195,26 +197,27 @@ protected:
 };
 
 // Specialization for arrays.
-template <typename T>
-class conditional_deleter<T[]> :
-   public conditional_deleter<T> {
+template <typename T, typename TDeleter>
+class conditional_deleter<T[], TDeleter> :
+   public conditional_deleter<T, TDeleter> {
 public:
 
    /** See conditional_deleter<T>::conditional_deleter().
    */
    conditional_deleter(bool bDelete) :
-      conditional_deleter<T>(bDelete) {
+      conditional_deleter<T, TDeleter>(bDelete) {
    }
 
 
-   /** Deletes the specified array. See also conditional_deleter<T>::operator()().
+   /** Deletes the specified array if the condition set in the constructor was true. See also
+   conditional_deleter<T, TDeleter>::operator()().
 
    pt
       Pointer to the array to delete.
    */
    void operator()(T * pt) const {
       if (this->m_bDelete) {
-         delete [] pt;
+         TDeleter::operator()(pt);
       }
    }
 };
