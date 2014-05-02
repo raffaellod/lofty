@@ -496,8 +496,8 @@ protected:
 namespace abc {
 
 /** Read-only character range. Automatically converted to/from abc::istr, and used when the latter
-is not yet defined (nor can it be, such as very early header files). Part of the implementation is
-in str.hxx/cxx.
+is not yet defined nor can it be, such as very early header files. Part of the implementation is in
+str.hxx/cxx.
 */
 template <typename C>
 class char_range_ :
