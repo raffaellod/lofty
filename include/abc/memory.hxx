@@ -235,17 +235,6 @@ namespace abc {
 
 namespace memory {
 
-/** Allows to use the keyword auto to declare std::unique_ptr objects that use
-memory::freeing_deleter.
-
-TODO: comment signature.
-*/
-template <typename T>
-inline std::unique_ptr<T, freeing_deleter<T>> make_unique_ptr(T * pt = nullptr) {
-   return std::unique_ptr<T, freeing_deleter<T>>(pt);
-}
-
-
 /** Requests the dynamic allocation of a memory block of the specified number of bytes.
 
 TODO: comment signature.
