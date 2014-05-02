@@ -63,55 +63,59 @@ used by both.
 
 Underlying data storage:
 
+   Note: the third field is of type _raw_vextr_packed_data and is represented here as the tuple
+   (capacity, array NUL-terminated?, array is dynamically-allocated?, statically array available?).
+
+
 1. istr() or dmstr()
-   ┌───┬───┬───────┐
-   │ p │ 1 │ 0|f|f │
-   └───┴───┴───────┘
+   ┌───┬───┬─────────┐
+   │ p │ 0 │ 0|f|f|f │
+   └───┴───┴─────────┘
      │
-     ╰────────────────▶ nullptr             No item array
+     ╰──────────────────▶ nullptr            No item array
 
 2. smstr<5>()
-   ┌───┬───┬───────╥───┬─────────┐
-   │ p │ 1 │ 0|f|t ║ 4 │ - - - - │          Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴───────╨───┴─────────┘
+   ┌───┬───┬─────────╥───┬───────────┐
+   │ p │ 0 │ 0|f|f|t ║ 5 │ - - - - - │       Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴─────────╨───┴───────────┘
      │
-     └────────────────▶ nullptr             No item array
+     └──────────────────▶ nullptr            No item array
 
 3. istr("abc")
-   ┌───┬───┬───────┐
-   │ p │ 4 │ 0|f|f │
-   └───┴───┴───────┘
-     │                 ┌──────────┐
-     └────────────────▶│ a b c \0 │         Read-only memory
-                       └──────────┘
+   ┌───┬───┬─────────┐
+   │ p │ 3 │ 0|t|f|f │
+   └───┴───┴─────────┘
+     │                   ┌──────────┐
+     └──────────────────▶│ a b c \0 │        Read-only memory
+                         └──────────┘
 4. dmstr("abc")
-   ┌───┬───┬───────┐
-   │ p │ 4 │ 8|t|f │
-   └───┴───┴───────┘
-     │                 ┌──────────────────┐
-     └────────────────▶│ a b c \0 - - - - │ Dynamically-allocated variable-size buffer
-                       └──────────────────┘
+   ┌───┬───┬─────────┐
+   │ p │ 3 │ 8|f|t|f │
+   └───┴───┴─────────┘
+     │                   ┌─────────────────┐
+     └──────────────────▶│ a b c - - - - - │ Dynamically-allocated variable-size buffer
+                         └─────────────────┘
 5. smstr<3>()
-   ┌───┬───┬───────╥───┬──────────┐
-   │ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │         Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴───────╨───┴──────────┘
+   ┌───┬───┬─────────╥───┬───────┐
+   │ p │ 0 │ 3|f|f|t ║ 3 │ - - - │           Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴─────────╨───┴───────┘
      │
-     └────────────────▶ nullptr             No item array
+     └──────────────────▶ nullptr            No item array
 
 5. smstr<3>() += "abc"
-   ┌───┬───┬───────╥───┬──────────┐
-   │ p │ 4 │ 4|f|t ║ 4 │ a b c \0 │         Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴───────╨───┴──────────┘
-     │                 ▲
-     └─────────────────┘
+   ┌───┬───┬─────────╥───┬───────┐
+   │ p │ 3 │ 3|f|f|t ║ 3 │ a b c │           Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴─────────╨───┴───────┘
+     │                   ▲
+     └───────────────────┘
 
 6. smstr<2>() += "abc"
-   ┌───┬───┬───────╥───┬───────┐
-   │ p │ 4 │ 8|t|t ║ 3 │ - - - │            Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴───────╨───┴───────┘
-     │                 ┌──────────────────┐
-     └────────────────▶│ a b c \0 - - - - │ Dynamically-allocated variable-size buffer
-                       └──────────────────┘
+   ┌───┬───┬─────────╥───┬─────┐
+   │ p │ 3 │ 8|f|t|t ║ 3 │ - - │             Static (can be stack-allocated) fixed-size buffer
+   └───┴───┴─────────╨───┴─────┘
+     │                   ┌─────────────────┐
+     └──────────────────▶│ a b c - - - - - │ Dynamically-allocated variable-size buffer
+                         └─────────────────┘
 
 
 String types:
