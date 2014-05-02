@@ -125,7 +125,23 @@ struct deleter {
 
    /** Deallocates the specified memory block.
 
-   TODO: comment signature.
+   pt
+      Pointer to the object to delete.
+   */
+   void operator()(T * pt) const {
+      free(pt);
+   }
+};
+
+// Specialization for arrays.
+template <typename T>
+struct deleter<T[]> :
+   public deleter<T> {
+
+   /** Deallocates the specified array. See also deleter<T>::operator()().
+
+   pt
+      Pointer to the array to deallocate.
    */
    void operator()(T * pt) const {
       free(pt);
