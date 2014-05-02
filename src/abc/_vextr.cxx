@@ -39,7 +39,7 @@ _raw_vextr_impl_base::transaction::transaction(
    m_prvib(prvib),
    // Calculate the new number of items, if expressed as a delta.
    m_ci(size_t(ciNew >= 0 ? ciNew + (bNulT ? 1 /*NUL*/ : 0) : ptrdiff_t(m_prvib->m_ci) + ciDelta)),
-   m_rvpd(0, false, false),
+   m_rvpd(0, bNulT, false, false),
    m_bFree(false) {
    ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta, bNulT));
 
@@ -99,7 +99,7 @@ _raw_vextr_impl_base::transaction::transaction(
          m_bFree = true;
       }
 
-      m_rvpd.set(ciMax, true);
+      m_rvpd.set(ciMax, bNulT, true);
    }
 }
 
@@ -130,7 +130,7 @@ void _raw_vextr_impl_base::transaction::commit(size_t cbItem /*= 0*/, bool bNulT
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax, bool bNulT /*= false*/) :
    m_p(bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr),
    m_ci(bNulT ? 1u /*NUL*/ : 0),
-   m_rvpd(0, false, ciStaticMax > 0) {
+   m_rvpd(0, bNulT, false, ciStaticMax > 0) {
    ABC_TRACE_FN((this, ciStaticMax, bNulT));
 
    if (ciStaticMax) {

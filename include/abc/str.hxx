@@ -174,7 +174,7 @@ protected:
       _raw_trivial_vextr_impl(cchStaticMax, true) {
    }
    _raw_str(void const * pConstSrc, size_t cchSrc) :
-      _raw_trivial_vextr_impl(pConstSrc, cchSrc + 1 /*NUL*/) {
+      _raw_trivial_vextr_impl(pConstSrc, cchSrc + 1 /*NUL*/, true) {
    }
 
 

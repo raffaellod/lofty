@@ -402,9 +402,12 @@ public:
    bHasStatic
       true if the parent object is followed by a static item array, or false otherwise.
    */
-   _raw_vextr_packed_data(size_t ciMax, bool bDynamic, bool bHasStatic) :
+   _raw_vextr_packed_data(size_t ciMax, bool bNulT, bool bDynamic, bool bHasStatic) :
       m_iPackedData(
-         ciMax | (bDynamic ? smc_bDynamicMask : 0) | (bHasStatic ? smc_bHasStaticMask : 0)
+         ciMax |
+         (bNulT ? smc_bNulTMask : 0) |
+         (bDynamic ? smc_bDynamicMask : 0) |
+         (bHasStatic ? smc_bHasStaticMask : 0)
       ) {
    }
 
@@ -427,13 +430,16 @@ public:
 
    ciMax
       Count of slots in the item array.
+   bNulT
+      true if the item array ends in a NUL terminator, or false otherwise.
    bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    return
       *this.
    */
-   _raw_vextr_packed_data & set(size_t ciMax, bool bDynamic) {
+   _raw_vextr_packed_data & set(size_t ciMax, bool bNulT, bool bDynamic) {
       m_iPackedData = ciMax
+                    | (bNulT ? smc_bNulTMask : 0)
                     | (bDynamic ? smc_bDynamicMask : 0)
                     | (m_iPackedData & smc_bHasStaticMask);
       return *this;
@@ -472,6 +478,17 @@ public:
    }
 
 
+   /** Returns true if the parent object’s m_p points to a NUL-terminated item array.
+
+   return
+      true if the item array ends in a NUL terminator, or false otherwise.
+   */
+// bool is_item_array_nul_terminated() const {
+   bool get_bNulT() const {
+      return (m_iPackedData & smc_bNulTMask) != 0;
+   }
+
+
    /** Assigns a new value to ciMax.
 
    ciMax
@@ -499,12 +516,14 @@ private:
    static size_t const smc_bHasStaticMask = 0x01;
    /** Mask to access bDynamic from m_iPackedData. */
    static size_t const smc_bDynamicMask = 0x02;
+   /** Mask to access bNulT from m_iPackedData. */
+   static size_t const smc_bNulTMask = 0x04;
 
 
 public:
 
    /** Mask to access ciMax from m_iPackedData. */
-   static size_t const smc_ciMaxMask = ~(smc_bDynamicMask | smc_bHasStaticMask);
+   static size_t const smc_ciMaxMask = ~(smc_bNulTMask | smc_bDynamicMask | smc_bHasStaticMask);
 };
 
 } //namespace abc
@@ -691,11 +710,11 @@ protected:
       Count of items in the array pointed to by pConstSrc.
    */
    _raw_vextr_impl_base(size_t ciStaticMax, bool bNulT = false);
-   _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc) :
+   _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
       m_p(const_cast<void *>(pConstSrc)),
       m_ci(ciSrc),
       // ciMax = 0 means that the item array is read-only.
-      m_rvpd(0, false, false) {
+      m_rvpd(0, bNulT, false, false) {
       ABC_ASSERT(pConstSrc, SL("cannot adopt nullptr as item array"));
    }
 
@@ -726,7 +745,7 @@ protected:
    void assign_empty(bool bNulT = false) {
       m_p = bNulT ? const_cast<char32_t *>(&smc_chNUL) : nullptr;
       m_ci = bNulT ? 1u /*NUL*/ : 0;
-      m_rvpd.set(0, false);
+      m_rvpd.set(0, bNulT, false);
    }
 
 
@@ -1025,8 +1044,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_complex_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
-      _raw_vextr_impl_base(ciStaticMax, bNulT) {
+   _raw_complex_vextr_impl(size_t ciStaticMax) :
+      _raw_vextr_impl_base(ciStaticMax) {
    }
    _raw_complex_vextr_impl(void const * pConstSrc, size_t ciSrc) :
       _raw_vextr_impl_base(pConstSrc, ciSrc) {
@@ -1256,8 +1275,8 @@ protected:
    _raw_trivial_vextr_impl(size_t ciStaticMax, bool bNulT = false) :
       _raw_vextr_impl_base(ciStaticMax, bNulT) {
    }
-   _raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc) :
-      _raw_vextr_impl_base(pConstSrc, ciSrc) {
+   _raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
+      _raw_vextr_impl_base(pConstSrc, ciSrc, bNulT) {
    }
 
 
