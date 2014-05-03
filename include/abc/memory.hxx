@@ -170,12 +170,19 @@ public:
 
    /** Constructor.
 
-   bDelete
+   bEnabled
       If true, the deleter will delete objects when invoked; if false, it will do nothing.
+   cd
+      Source deleter.
    */
-   conditional_deleter(bool bDelete) :
+   conditional_deleter(bool bEnabled) :
       TDeleter(),
-      m_bDelete(bDelete) {
+      m_bEnabled(bEnabled) {
+   }
+   template <typename T2, typename TDeleter2>
+   conditional_deleter(conditional_deleter<T2, TDeleter2> const & cd) :
+      TDeleter(static_cast<TDeleter2 const &>(cd)),
+      m_bEnabled(cd.enabled()) {
    }
 
 
@@ -185,15 +192,25 @@ public:
       Pointer to the object to delete.
    */
    void operator()(T * pt) const {
-      if (m_bDelete) {
+      if (m_bEnabled) {
          TDeleter::operator()(pt);
       }
    }
 
 
+   /** Returns true if the deleter is enabled.
+
+   return
+      true if the deleter is enable, or false otherwise.
+   */
+   bool enabled() const {
+      return m_bEnabled;
+   }
+
+
 protected:
 
-   bool m_bDelete;
+   bool m_bEnabled;
 };
 
 // Specialization for arrays.
@@ -204,8 +221,12 @@ public:
 
    /** See conditional_deleter<T>::conditional_deleter().
    */
-   conditional_deleter(bool bDelete) :
-      conditional_deleter<T, TDeleter>(bDelete) {
+   conditional_deleter(bool bEnabled) :
+      conditional_deleter<T, TDeleter>(bEnabled) {
+   }
+   template <typename T2, typename TDeleter2>
+   conditional_deleter(conditional_deleter<T2, TDeleter2> const & cd) :
+      conditional_deleter<T, TDeleter>(cd) {
    }
 
 
@@ -216,7 +237,7 @@ public:
       Pointer to the array to delete.
    */
    void operator()(T * pt) const {
-      if (this->m_bDelete) {
+      if (this->m_bEnabled) {
          TDeleter::operator()(pt);
       }
    }
