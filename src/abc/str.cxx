@@ -65,18 +65,26 @@ _raw_str::c_str_pointer _raw_str::c_str(size_t cbItem) const {
    void const * pData(data<void>());
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(pData, memory::conditional_deleter<void const>(false));
+      return c_str_pointer(
+         pData, memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(false)
+      );
    }
    if (size_t cb = cbItem * size()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that
       // includes a NUL, and return it.
-      c_str_pointer psz(c_str_pointer(pData, memory::conditional_deleter<void const>(true)));
+      c_str_pointer psz(c_str_pointer(
+         memory::_raw_alloc(cb + cbItem /*NUL*/),
+         memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(true)
+      ));
       memory::copy(const_cast<void *>(psz.get()), pData, cb);
       terminate(cbItem, static_cast<int8_t *>(const_cast<void *>(psz.get())) + cb);
       return std::move(psz);
    }
    // The string is empty, so a static NUL character will suffice.
-   return c_str_pointer(&smc_chNUL, memory::conditional_deleter<void const>(false));
+   return c_str_pointer(
+      &smc_chNUL,
+      memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(false)
+   );
 }
 
 

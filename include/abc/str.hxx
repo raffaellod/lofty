@@ -123,7 +123,10 @@ public:
 
    /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
    an abc::*str instance. */
-   typedef std::unique_ptr<void const, memory::conditional_deleter<void const>> c_str_pointer;
+   typedef std::unique_ptr<
+      void const,
+      memory::conditional_deleter<void const, memory::freeing_deleter<void const>>
+   > c_str_pointer;
 
 
 public:
@@ -300,7 +303,10 @@ public:
    typedef TTraits traits;
    /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
    an abc::*str instance. */
-   typedef std::unique_ptr<C const [], memory::conditional_deleter<C const []>> c_str_pointer;
+   typedef std::unique_ptr<
+      C const [],
+      memory::conditional_deleter<C const [], memory::freeing_deleter<C const []>>
+   > c_str_pointer;
    /** See _iterable_vector::const_iterator. */
    typedef typename itvec::const_iterator const_iterator;
 
@@ -358,7 +364,9 @@ public:
       auto psz(_raw_str::c_str(sizeof(C)));
       return c_str_pointer(
          static_cast<C const *>(psz.release()),
-         memory::conditional_deleter<C const []>(psz.get_deleter().enabled())
+         memory::conditional_deleter<C const [], memory::freeing_deleter<C const []>>(
+            psz.get_deleter().enabled()
+         )
       );
    }
 
