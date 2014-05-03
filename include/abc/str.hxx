@@ -363,6 +363,16 @@ public:
    }
 
 
+   /** Returns the current size of the string buffer, in characters.
+
+   return
+      Size of the string buffer, in characters.
+   */
+   size_t capacity() const {
+      return _raw_str::capacity();
+   }
+
+
    /** Support for relational operators.
 
    s
@@ -389,6 +399,48 @@ public:
    template <typename>
    int compare_to(C const * psz) const {
       return TTraits::str_cmp(data(), size(), psz, TTraits::str_len(psz));
+   }
+
+
+   /** Returns a read-only pointer to the character array.
+
+   return
+      Pointer to the character array.
+   */
+   C const * data() const {
+      return _raw_str::data<C>();
+   }
+
+
+   /** Returns true if the string ends with a specified suffix.
+
+   s
+      String that *this should end with.
+   ach
+      String literal that *this should end with.
+   psz
+      NUL-terminated string that *this should end with.
+   return
+      true if *this ends with the specified suffix, or false otherwise.
+   */
+   bool ends_with(istr const & s) const {
+      size_t cchEnd(s.size());
+      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, s.data(), cchEnd) == 0;
+   }
+   template <size_t t_cch>
+   bool ends_with(C const (& ach)[t_cch]) const {
+      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
+      size_t cchEnd(t_cch - 1 /*NUL*/);
+      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, ach, cchEnd) == 0;
+   }
+   // This overload needs to be template, or it will take precedence over the one above.
+   template <typename>
+   bool ends_with(C const * psz) const {
+      size_t cchEnd(TTraits::str_len(psz));
+      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
+      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, psz, cchEnd) == 0;
    }
 
 
@@ -517,58 +569,6 @@ public:
    ) const;
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
-
-   /** Returns the current size of the string buffer, in characters.
-
-   return
-      Size of the string buffer, in characters.
-   */
-   size_t capacity() const {
-      return _raw_str::capacity();
-   }
-
-
-   /** Returns a read-only pointer to the character array.
-
-   return
-      Pointer to the character array.
-   */
-   C const * data() const {
-      return _raw_str::data<C>();
-   }
-
-
-   /** Returns true if the string ends with a specified suffix.
-
-   s
-      String that *this should end with.
-   ach
-      String literal that *this should end with.
-   psz
-      NUL-terminated string that *this should end with.
-   return
-      true if *this ends with the specified suffix, or false otherwise.
-   */
-   bool ends_with(istr const & s) const {
-      size_t cchEnd(s.size());
-      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, s.data(), cchEnd) == 0;
-   }
-   template <size_t t_cch>
-   bool ends_with(C const (& ach)[t_cch]) const {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      size_t cchEnd(t_cch - 1 /*NUL*/);
-      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, ach, cchEnd) == 0;
-   }
-   // This overload needs to be template, or it will take precedence over the one above.
-   template <typename>
-   bool ends_with(C const * psz) const {
-      size_t cchEnd(TTraits::str_len(psz));
-      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-      return cchRest >= 0 && TTraits::str_cmp(data() + cchRest, cchEnd, psz, cchEnd) == 0;
-   }
 
 
    /** Work around the protected inheritance, forcing the raw access to be explicit.
