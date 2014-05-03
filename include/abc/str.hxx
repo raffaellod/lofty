@@ -121,21 +121,29 @@ class ABCAPI _raw_str :
    public _raw_trivial_vextr_impl {
 public:
 
+   /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
+   an abc::*str instance. */
+   typedef std::unique_ptr<void const, memory::conditional_deleter<void const>> c_str_pointer;
+
+
+public:
+
+   /** Returns a pointer to a NUL-terminated version of the string. See abc::str_base_::c_str().
+
+   cbItem
+      Size of a single array item, in bytes.
+   return
+      NUL-terminated version of the string.
+   */
+   c_str_pointer c_str(size_t cbItem) const;
+
+
    /** Returns the current size of the str buffer, in characters.
 
    TODO: comment signature.
    */
    size_t capacity() const {
       return _raw_trivial_vextr_impl::capacity();
-   }
-
-
-   /** Returns the current length of the string, in characters.
-
-   TODO: comment signature.
-   */
-   size_t size() const {
-      return _raw_trivial_vextr_impl::size();
    }
 
 
@@ -160,6 +168,15 @@ public:
    TODO: comment signature.
    */
    void set_size(size_t cbItem, size_t cch);
+
+
+   /** Returns the current length of the string, in characters.
+
+   TODO: comment signature.
+   */
+   size_t size() const {
+      return _raw_trivial_vextr_impl::size();
+   }
 
 
 protected:
@@ -338,21 +355,10 @@ public:
       NUL-terminated version of the string.
    */
    c_str_pointer c_str() const {
-      if (m_rvpd.get_bNulT()) {
-         // The string already includes a NUL terminator, so we can simply return the same array.
-         return c_str_pointer(data(), memory::conditional_deleter<C const []>(false));
-      }
-      if (size_t cch = size()) {
-         // The string is not empty but lacks a NUL terminator: create a temporary copy that
-         // includes a NUL, and return it.
-         c_str_pointer pch(c_str_pointer(data(), memory::conditional_deleter<C const []>(true)));
-         memory::copy(const_cast<C *>(pch.get()), data(), cch);
-         terminate(sizeof(C), const_cast<C *>(pch.get()) + cch);
-         return std::move(pch);
-      }
-      // The string is empty, so a static NUL character will suffice.
+      auto pch(_raw_str::c_str(sizeof(C)));
       return c_str_pointer(
-         reinterpret_cast<C const *>(&smc_chNUL), memory::conditional_deleter<C const []>(false)
+         static_cast<C const *>(pch.release()),
+         memory::conditional_deleter<C const []>(pch.get_deleter().enabled())
       );
    }
 
