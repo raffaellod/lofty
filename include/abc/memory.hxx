@@ -115,7 +115,7 @@ namespace memory {
 
 // Forward declaration.
 template <typename T>
-void free(T * pt);
+void free(T const * pt);
 
 
 /** Deleter that deallocates memory using memory::free().
@@ -306,11 +306,12 @@ inline std::unique_ptr<void, freeing_deleter<void>> alloc(
 
 /** Releases a block of dynamically allocated memory.
 
-TODO: comment signature.
+pt
+   Pointer to the memory block to be released.
 */
 template <typename T>
-inline void free(T * pt) {
-   ::free(pt);
+inline void free(T const * pt) {
+   ::free(const_cast<T *>(pt));
 }
 
 
