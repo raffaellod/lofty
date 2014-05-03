@@ -143,8 +143,9 @@ struct freeing_deleter<T[]> :
    pt
       Pointer to the array to deallocate.
    */
-   void operator()(T * pt) const {
-      free(pt);
+   template <typename T2>
+   void operator()(T2 * pt) const {
+      freeing_deleter<T>::operator()(pt);
    }
 };
 
@@ -236,7 +237,8 @@ public:
    pt
       Pointer to the array to delete.
    */
-   void operator()(T * pt) const {
+   template <typename T2>
+   void operator()(T2 * pt) const {
       if (this->m_bEnabled) {
          TDeleter::operator()(pt);
       }
