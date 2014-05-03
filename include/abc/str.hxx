@@ -355,10 +355,10 @@ public:
       NUL-terminated version of the string.
    */
    c_str_pointer c_str() const {
-      auto pch(_raw_str::c_str(sizeof(C)));
+      auto psz(_raw_str::c_str(sizeof(C)));
       return c_str_pointer(
-         static_cast<C const *>(pch.release()),
-         memory::conditional_deleter<C const []>(pch.get_deleter().enabled())
+         static_cast<C const *>(psz.release()),
+         memory::conditional_deleter<C const []>(psz.get_deleter().enabled())
       );
    }
 

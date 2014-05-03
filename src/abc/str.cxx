@@ -70,10 +70,10 @@ _raw_str::c_str_pointer _raw_str::c_str(size_t cbItem) const {
    if (size_t cb = cbItem * size()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that
       // includes a NUL, and return it.
-      c_str_pointer pch(c_str_pointer(pData, memory::conditional_deleter<void const>(true)));
-      memory::copy(const_cast<void *>(pch.get()), pData, cb);
-      terminate(cbItem, static_cast<int8_t *>(const_cast<void *>(pch.get())) + cb);
-      return std::move(pch);
+      c_str_pointer psz(c_str_pointer(pData, memory::conditional_deleter<void const>(true)));
+      memory::copy(const_cast<void *>(psz.get()), pData, cb);
+      terminate(cbItem, static_cast<int8_t *>(const_cast<void *>(psz.get())) + cb);
+      return std::move(psz);
    }
    // The string is empty, so a static NUL character will suffice.
    return c_str_pointer(&smc_chNUL, memory::conditional_deleter<void const>(false));
