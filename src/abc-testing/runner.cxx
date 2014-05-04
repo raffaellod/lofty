@@ -122,11 +122,13 @@ void runner::run_test_case(test_case & tc) {
       m_pos->write(SL("test case execution interrupted\n"));
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(m_pos.get(), &x);
+      m_pos->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    } catch (...) {
       exception::write_with_scope_trace(m_pos.get());
+      m_pos->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    }
 
-   m_pos->print(SL("ABCMK-TEST-CASE-END\n"));
+   m_pos->write(SL("ABCMK-TEST-CASE-END\n"));
 }
 
 } //namespace testing
