@@ -205,6 +205,90 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_substr
+
+
+namespace abc {
+
+namespace test {
+
+class str_substr :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*str classes - substring extraction"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      istr sEmpty, sAB(SL("ab"));
+
+      // Substring of empty string.
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1,  1), SL(""));
+
+      // Substring of a 2-characer string.
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  2), SL("ab"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  2), SL("ab"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  2), SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  1), SL("a"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  2), SL("ab"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  2), SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  2), SL(""));
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::istr_c_str
 
 namespace abc {
