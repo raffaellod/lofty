@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #include <abc/iostream.hxx>
+#include <abc/math.hxx>
 #include <abc/trace.hxx>
 
 
@@ -255,7 +256,7 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
       while (iRest) {
          I iMod(iRest % iDivider);
          iRest /= iDivider;
-         *--pch = m_pchIntToStr[numeric::is_negative<I>(iMod) ? -iMod : iMod];
+         *--pch = m_pchIntToStr[math::abs(iMod)];
       }
    } else {
       // Base 2 ^ n: can use & and >>.
