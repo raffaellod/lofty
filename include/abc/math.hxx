@@ -70,7 +70,7 @@ return
    Absolute value of t.
 */
 template <typename T>
-inline /*constexpr*/ bool abs(T t) {
+inline /*constexpr*/ T abs(T t) {
    return _abs_helper<T>()(std::move(t));
 }
 
