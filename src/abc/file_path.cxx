@@ -303,10 +303,10 @@ file_path file_path::normalize() const {
    }
    if (cDots > 0 && cDots <= 2) {
       // We ended on “.” or “..”, go back by as many separators as the count of dots.
-      intptr_t iPrevSep(intptr_t(vitSeps.size()) - cDots);
-      if (iPrevSep >= 0) {
+      auto itPrevSep(vitSeps.cend() - cDots);
+      if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
          // Place itDst on the separator, so we don’t end up with a traling separator.
-         itDst = vitSeps[iPrevSep];
+         itDst = *itPrevSep;
       } else {
          // We don’t have enough separators in vitSeps; resume from the end of the root or
          // the start of the path.
