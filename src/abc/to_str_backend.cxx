@@ -91,7 +91,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    m_chPrefix1(CL('\0')) {
    ABC_TRACE_FN((this, cbInt, crFormat));
 
-   bool bPrefix(false), bDefaultNotation(true);
+   bool bPrefix(false);
    auto it(crFormat.cbegin());
    char_t ch;
    if (it == crFormat.cend()) {
@@ -137,10 +137,11 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
       } while (ch >= CL('0') && ch <= CL('9'));
    }
 
-   bDefaultNotation = false;
+   // We jump in this impossible if to set the default notation when we run out of characters in any
+   // of the above blocks. If we do get here without jumping, the last character retrieved and
+   // stored in is the requested notation.
+   if (false) {
 default_notation:
-   // If we skipped the assignment to false, we run out of characters, so default the notation.
-   if (bDefaultNotation) {
       ch = CL('d');
    }
 

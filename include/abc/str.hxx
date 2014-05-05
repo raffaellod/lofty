@@ -582,7 +582,7 @@ public:
       Substring of *this.
    */
    dmstr substr(intptr_t ichBegin) const {
-      return substr(ichBegin, size());
+      return substr(ichBegin, intptr_t(size()));
    }
    dmstr substr(intptr_t ichBegin, intptr_t ichEnd) const {
       auto range(this->adjust_and_validate_range(ichBegin, ichEnd));
