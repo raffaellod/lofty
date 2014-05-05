@@ -99,6 +99,220 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::vector_remove_trivial
+
+
+namespace abc {
+
+namespace test {
+
+class vector_remove_trivial :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*vector classes - removal of trivial elements"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      dmvector<int> v, v0, v2;
+      v2.append(1);
+      v2.append(2);
+      v = v0;
+
+
+      // Remove from empty vector by index.
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-1));
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(0));
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(1));
+
+      // Remove from empty vector by range.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -1));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 0));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 1));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -1));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 0));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 1));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -1));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 0));
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 1));
+
+
+      v = v2;
+
+      // Remove from 2-element vector by index.
+
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-3));
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(-2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(-1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
+      v = v2;
+
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(2));
+
+
+      // Remove from 2-element vector by range.
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
+      v = v2;
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -3));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 0));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 1));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_remove_trivial)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_memory_mgmt
 
 
