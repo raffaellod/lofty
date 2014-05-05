@@ -141,15 +141,6 @@ public:
    c_str_pointer c_str(size_t cbItem) const;
 
 
-   /** Returns the current size of the str buffer, in characters.
-
-   TODO: comment signature.
-   */
-   size_t capacity() const {
-      return _raw_trivial_vextr_impl::capacity();
-   }
-
-
    /** Computes the hash value of the string.
 
    TODO: comment signature.
@@ -157,29 +148,11 @@ public:
    size_t hash(size_t cbItem) const;
 
 
-   /** See _raw_trivial_vextr_impl::set_capacity().
-
-   TODO: comment signature.
-   */
-   void set_capacity(size_t cbItem, size_t cchMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(cbItem, cchMin, bPreserve);
-   }
-
-
    /** Changes the length of the string, without changing its capacity.
 
    TODO: comment signature.
    */
    void set_size(size_t cbItem, size_t cch);
-
-
-   /** Returns the current length of the string, in characters.
-
-   TODO: comment signature.
-   */
-   size_t size() const {
-      return _raw_trivial_vextr_impl::size();
-   }
 
 
 protected:
@@ -193,69 +166,6 @@ protected:
    }
    _raw_str(void const * pConstSrc, size_t cchSrc) :
       _raw_trivial_vextr_impl(pConstSrc, cchSrc, true) {
-   }
-
-
-   /** See _raw_trivial_vextr_impl::adjust_and_validate_index().
-
-   TODO: comment signature.
-   */
-   uintptr_t adjust_and_validate_index(intptr_t i) const {
-      return _raw_trivial_vextr_impl::adjust_and_validate_index(i);
-   }
-
-
-   /** See _raw_trivial_vextr_impl::adjust_and_validate_range().
-
-   TODO: comment signature.
-   */
-   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
-      return _raw_trivial_vextr_impl::adjust_and_validate_range(iBegin, iEnd);
-   }
-
-
-   /** See _raw_trivial_vextr_impl::assign_copy().
-
-   TODO: comment signature.
-   */
-   void assign_copy(size_t cbItem, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::assign_copy(cbItem, p, ci);
-   }
-
-
-   /** TODO: comment.
-   */
-   void assign_concat(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2) {
-      _raw_trivial_vextr_impl::assign_concat(cbItem, p1, ci1, p2, ci2);
-   }
-
-
-   /** See _raw_trivial_vextr_impl::assign_move().
-
-   TODO: comment signature.
-   */
-   void assign_move(_raw_str && rs) {
-      _raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(rs));
-   }
-
-
-   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
-
-   TODO: comment signature.
-   */
-   void assign_move_dynamic_or_move_items(size_t cbItem, _raw_str && rs) {
-      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-         cbItem, static_cast<_raw_trivial_vextr_impl &&>(rs)
-      );
-   }
-
-
-   /** See _raw_trivial_vextr_impl::assign_share_ro_or_copy().
-
-   TODO: comment signature.
-   */
-   void assign_share_ro_or_copy(size_t cbItem, _raw_str const & rs) {
-      _raw_trivial_vextr_impl::assign_share_ro_or_copy(cbItem, rs);
    }
 };
 
