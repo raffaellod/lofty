@@ -143,14 +143,20 @@ public:
 
    /** Computes the hash value of the string.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   return
+      Hash value of the string.
    */
    size_t hash(size_t cbItem) const;
 
 
    /** Changes the length of the string, without changing its capacity.
 
-   TODO: comment signature.
+   cbItem
+      Size of a single array item, in bytes.
+   cch
+      New length of the string.
    */
    void set_size(size_t cbItem, size_t cch);
 
@@ -159,13 +165,18 @@ protected:
 
    /** Constructor.
 
-   TODO: comment signature.
+   cchStaticMax
+      Count of slots in the static character array, or 0 if no static character array is present.
+   pchConstSrc
+      Pointer to a string that will be adopted by the _raw_str as read-only.
+   cchSrc
+      Count of characters in the string pointed to by pchConstSrc.
    */
    _raw_str(size_t cchStaticMax) :
       _raw_trivial_vextr_impl(cchStaticMax) {
    }
-   _raw_str(void const * pConstSrc, size_t cchSrc) :
-      _raw_trivial_vextr_impl(pConstSrc, cchSrc, true) {
+   _raw_str(void const * pchConstSrc, size_t cchSrc) :
+      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, true) {
    }
 };
 
@@ -264,13 +275,14 @@ public:
    The returned pointer should be thought of as having a very short lifetime, and it should never be
    stored of manipulated.
 
-   TODO: un-inline/de-template and provide non-immutable version mstr::to_c_str().
+   TODO: provide non-immutable version mstr::to_c_str().
 
    return
       NUL-terminated version of the string.
    */
    c_str_pointer c_str() const {
       auto psz(_raw_str::c_str(sizeof(C)));
+      // Unpack the std::unique_ptr<void const *, …> into an std::unique_ptr<C const *, …>.
       return c_str_pointer(
          static_cast<C const *>(psz.release()),
          memory::conditional_deleter<C const [], memory::freeing_deleter<C const []>>(
@@ -429,7 +441,10 @@ public:
 
    Implemented in str_iostream.hxx due to its dependency on str_iostream.
 
-   TODO: comment signature.
+   ts
+      Replacement values.
+   return
+      Resulting string.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -513,7 +528,8 @@ public:
 
    /** Returns the count of code points in the string.
 
-   TODO: comment signature.
+   return
+      Count of code points.
    */
    size_t size_cp() const {
       C const * pchBegin(data());
@@ -592,7 +608,12 @@ protected:
 
    /** Constructor.
 
-   TODO: comment signature.
+   cchStatic
+      Count of slots in the static character array, or 0 if no static character array is present.
+   pch
+      Pointer to a string that will be adopted by the str_base_ as read-only.
+   cch
+      Count of characters in the string pointed to by pch.
    */
    str_base_(size_t cchStatic) :
       _raw_str(cchStatic) {
@@ -826,7 +847,8 @@ public:
 
    /** Automatic conversion to char_range.
 
-   TODO: comment signature.
+   return
+      Contents of *this.
    */
    operator char_range_<C>() const {
       return char_range_<C>(str_base::cbegin().base(), str_base::cend().base());
@@ -1023,9 +1045,7 @@ public:
 
 protected:
 
-   /** Constructor.
-
-   TODO: comment signature.
+   /** Constructor. See str_base_::str_base_().
    */
    mstr_(size_t cchStatic) :
       str_base(cchStatic) {
