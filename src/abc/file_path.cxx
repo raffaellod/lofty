@@ -273,11 +273,13 @@ file_path file_path::normalize() const {
          if (ch == smc_aszSeparator[0]) {
             if (cDots > 0 && cDots <= 2) {
                // We found “./” or “../”: go back by as many separators as the count of dots.
-               intptr_t iPrevSep(intptr_t(vitSeps.size()) - cDots);
-               if (iPrevSep >= 0) {
-                  itDst = vitSeps[iPrevSep] + 1 /*“/”*/;
-                  // Remove the previous separators we used (cDots - 1).
-                  vitSeps.remove_at(iPrevSep + 1, cDots - 1);
+               auto itPrevSep(vitSeps.cend() - cDots);
+               if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
+                  itDst = *itPrevSep + 1 /*“/”*/;
+                  if (cDots > 1) {
+                     // We jumped back two separators; discard the one we jumped over (cend() - 1).
+                     vitSeps.remove_at(itPrevSep + 1);
+                  }
                } else {
                   // We don’t have enough separators in vitSeps; resume from the end of the root or
                   // the start of the path.

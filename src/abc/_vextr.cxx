@@ -136,48 +136,52 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax) :
 }
 
 
-size_t _raw_vextr_impl_base::adjust_index(ptrdiff_t i) const {
-   ptrdiff_t cMaxItems((ptrdiff_t(size())));
+uintptr_t _raw_vextr_impl_base::adjust_and_validate_index(intptr_t i) const {
+   ABC_TRACE_FN((this, i));
+
+   intptr_t ci((intptr_t(size())));
    if (i < 0) {
-      i += cMaxItems;
-      if (i < 0) {
-         i = 0;
-      }
-   } else if (i > cMaxItems) {
-      i = cMaxItems;
+      i += ci;
    }
-   return size_t(i);
-}
-
-
-void _raw_vextr_impl_base::adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const {
-   ptrdiff_t iFirst(*piFirst), ci(*pci), cMaxItems((ptrdiff_t(size())));
-   if (iFirst < 0) {
-      iFirst += cMaxItems;
-      if (iFirst < 0) {
-         iFirst = 0;
-      }
-   } else if (iFirst > cMaxItems) {
-      iFirst = cMaxItems;
-      ci = 0;
-   }
-   if (ci < 0) {
-      ci += cMaxItems - iFirst;
-      if (ci < 0) {
-         ci = 0;
-      }
-   } else if (iFirst + ci > cMaxItems) {
-      ci = cMaxItems - iFirst;
-   }
-   *piFirst = iFirst;
-   *pci = ci;
-}
-
-
-void _raw_vextr_impl_base::validate_index(intptr_t i) const {
-   if (i < 0 || i >= intptr_t(m_ci)) {
+   if (0 > i || i >= ci) {
       ABC_THROW(index_error, (i));
    }
+   return uintptr_t(i);
+}
+
+
+std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
+   intptr_t iBegin, intptr_t iEnd
+) const {
+   ABC_TRACE_FN((this, iBegin, iEnd));
+
+   intptr_t ci((intptr_t(size())));
+   if (iBegin < 0) {
+      iBegin += ci;
+      if (iBegin < 0) {
+         // If the start of the interval is still negative, clip it to 0.
+         iBegin = 0;
+      }
+   } else if (iBegin >= ci) {
+      // If the interval begins beyond the end of the item array, return an empty interval.
+      return std::pair<uintptr_t, uintptr_t>(0, 0);
+   }
+   if (iEnd < 0) {
+      iEnd += ci;
+      if (iEnd < 0) {
+         // If the end of the interval is still negative, clip it to 0.
+         iEnd = 0;
+      }
+   } else if (iEnd > ci) {
+      // If the end of the interval is beyond the end of the item array, clip it to the latter.
+      iEnd = ci;
+   }
+   // If the interval is empty, return [0, 0) .
+   if (iBegin >= iEnd) {
+      return std::pair<uintptr_t, uintptr_t>(0, 0);
+   }
+   // Return the constructed interval.
+   return std::pair<uintptr_t, uintptr_t>(uintptr_t(iBegin), uintptr_t(iEnd));
 }
 
 } //namespace abc
@@ -437,41 +441,6 @@ static void overlapping_move_constr(
 }
 
 
-void _raw_complex_vextr_impl::remove_at(
-   type_void_adapter const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove
-) {
-   ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
-
-   adjust_range(&iOffset, &ciRemove);
-   if (!ciRemove) {
-      return;
-   }
-   transaction trn(type.cb, this, -1, -ciRemove);
-   size_t cbOffset(type.cb * size_t(iOffset));
-   // Destruct the items to be removed.
-   type.destruct(data<int8_t>() + cbOffset, size_t(ciRemove));
-   // The items beyond the last removed must be either copied to the new item array at ciRemove
-   // offset, or shifted closer to the start.
-   if (size_t ciTail = size() - size_t(iOffset + ciRemove)) {
-      int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
-             * pbOrigTail(data<int8_t>() + cbOffset + type.cb * size_t(ciRemove));
-      if (trn.will_replace_item_array()) {
-         type.move_constr(pbWorkTail, pbOrigTail, ciTail);
-         type.destruct(pbOrigTail, ciTail);
-      } else {
-         overlapping_move_constr(type, pbWorkTail, pbOrigTail, ciTail);
-      }
-   }
-   // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
-   // in the switch.
-   if (iOffset && trn.will_replace_item_array()) {
-      type.move_constr(trn.work_array<void>(), m_p, size_t(iOffset));
-      type.destruct(m_p, size_t(iOffset));
-   }
-   trn.commit();
-}
-
-
 void _raw_complex_vextr_impl::_insert(
    type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
 ) {
@@ -512,6 +481,50 @@ void _raw_complex_vextr_impl::_insert(
       type.destruct(m_p, iOffset);
    }
    trn.commit();
+}
+
+
+void _raw_complex_vextr_impl::_remove(
+   type_void_adapter const & type, uintptr_t iOffset, size_t ciRemove
+) {
+   ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
+
+   transaction trn(type.cb, this, -1, -ptrdiff_t(ciRemove));
+   size_t cbOffset(type.cb * iOffset);
+   // Destruct the items to be removed.
+   type.destruct(data<int8_t>() + cbOffset, ciRemove);
+   // The items beyond the last removed must be either copied to the new item array at ciRemove
+   // offset, or shifted closer to the start.
+   if (size_t ciTail = size() - (iOffset + ciRemove)) {
+      int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
+             * pbOrigTail(data<int8_t>() + cbOffset + type.cb * ciRemove);
+      if (trn.will_replace_item_array()) {
+         type.move_constr(pbWorkTail, pbOrigTail, ciTail);
+         type.destruct(pbOrigTail, ciTail);
+      } else {
+         overlapping_move_constr(type, pbWorkTail, pbOrigTail, ciTail);
+      }
+   }
+   // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
+   // in the switch.
+   if (iOffset && trn.will_replace_item_array()) {
+      type.move_constr(trn.work_array<void>(), m_p, iOffset);
+      type.destruct(m_p, iOffset);
+   }
+   trn.commit();
+}
+
+
+void _raw_complex_vextr_impl::remove_range(
+   type_void_adapter const & type, intptr_t iBegin, intptr_t iEnd
+) {
+   ABC_TRACE_FN((this, /*type, */iBegin, iEnd));
+
+   auto range(adjust_and_validate_range(iBegin, iEnd));
+   size_t ciRemove(range.second - range.first);
+   if (ciRemove) {
+      _remove(type, range.first, ciRemove);
+   }
 }
 
 
@@ -604,7 +617,7 @@ void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi
 
 
 void _raw_trivial_vextr_impl::_insert_or_remove(
-   size_t cbItem, size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
+   size_t cbItem, uintptr_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
 ) {
    ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove));
 
@@ -630,6 +643,17 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    }
 
    trn.commit();
+}
+
+
+void _raw_trivial_vextr_impl::remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd) {
+   ABC_TRACE_FN((this, cbItem, iBegin, iEnd));
+
+   auto range(adjust_and_validate_range(iBegin, iEnd));
+   size_t ciRemove(range.second - range.first);
+   if (ciRemove) {
+      _insert_or_remove(cbItem, range.first, nullptr, 0, ciRemove);
+   }
 }
 
 

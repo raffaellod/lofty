@@ -709,21 +709,34 @@ protected:
    }
 
 
-   /** Adjusts a 0-based index in the array. If negative, it’s interpreted as a 1-based index from
-   the end.
+   /** Converts a possibly negative item index into a 0-based one, and throws an exception if the
+   result is out of bounds for the item array.
 
-   TODO: comment signature.
+   i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the item array by adding this->size() to it.
+   return
+      Adjusted index.
    */
-   size_t adjust_index(ptrdiff_t i) const;
+   uintptr_t adjust_and_validate_index(intptr_t i) const;
 
 
-   /** Adjusts a 0-based index and count in the array. iFirst is treated like adjust_index() does;
-   if the count of items is negative, it’s the count of elements to skip from the end of the item
-   array.
+   /** Converts a left-closed, right-open interval with possibly negative indices into one
+   consisting of two 0-based indices.
 
-   TODO: comment signature.
+   iBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      this->size() to it.
+   iEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [0, 0) if the indices represent an empty interval after being adjusted.
    */
-   void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const;
+   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const;
 
 
    /** Resets the contents of the object to nullptr.
@@ -785,14 +798,6 @@ protected:
             break;
       }
    }
-
-
-   /** Throws an exception if the specified index is out of bounds for the item array.
-
-   i
-      Index to validate.
-   */
-   void validate_index(intptr_t i) const;
 
 
 protected:
@@ -980,8 +985,8 @@ public:
    type
       Adapter for the items’ type.
    iOffset
-      Index at which the items should be inserted. If negative, it will be interpreted as an offset
-      from the end of the vextr.
+      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
+      allowed index values.
    pAdd
       Pointer to the first item to add.
    ciAdd
@@ -990,11 +995,23 @@ public:
       true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+      type_void_adapter const & type, intptr_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
    ) {
       if (ciAdd) {
-         _insert(type, adjust_index(iOffset), pAdd, ciAdd, bMove);
+         _insert(type, adjust_and_validate_index(iOffset), pAdd, ciAdd, bMove);
       }
+   }
+
+
+   /** Removes a single element from the vextr.
+
+   type
+      Adapter for the items’ type.
+   i
+      Index of the element. See abc::_vextr::adjust_and_validate_range() for allowed index values.
+   */
+   void remove_at(type_void_adapter const & type, intptr_t i) {
+      _remove(type, adjust_and_validate_index(i), 1);
    }
 
 
@@ -1002,13 +1019,14 @@ public:
 
    type
       Adapter for the items’ type.
-   iOffset
-      Index at which the items should be removed. If negative, it will be interpreted as an offset
-      from the end of the vextr.
-   ciRemove
-      Count of items to remove.
+   iBegin
+      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
+      index values.
+   iEnd
+      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
+      end index values.
    */
-   void remove_at(type_void_adapter const & type, ptrdiff_t iOffset, ptrdiff_t ciRemove);
+   void remove_range(type_void_adapter const & type, intptr_t iBegin, intptr_t iEnd);
 
 
    /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -1040,7 +1058,7 @@ protected:
 
 private:
 
-   /** Actual implementation of append() and insert(). Does not validate iOffset or ciAdd.
+   /** Implementation of append() and insert(). Does not validate iOffset or ciAdd.
 
    type
       Adapter for the items’ type.
@@ -1054,8 +1072,20 @@ private:
       true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void _insert(
-      type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+      type_void_adapter const & type, uintptr_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
    );
+
+
+   /** Implementation of remove_at() and remove_range(). Does not validate iOffset or ciRemove.
+
+   type
+      Adapter for the items’ type.
+   iOffset
+      Index at which the items should be removed.
+   ciRemove
+      Count of items to remove.
+   */
+   void _remove(type_void_adapter const & type, uintptr_t iOffset, size_t ciRemove);
 };
 
 } //namespace abc
@@ -1180,18 +1210,29 @@ public:
    cbItem
       Size of a single array item, in bytes.
    iOffset
-      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
-      index from the end of the vextr.
+      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
+      allowed index values.
    pAdd
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
    */
-   void insert(size_t cbItem, ptrdiff_t iOffset, void const * pAdd, size_t ciAdd) {
+   void insert(size_t cbItem, intptr_t iOffset, void const * pAdd, size_t ciAdd) {
       if (ciAdd) {
-         size_t iRealOffset(adjust_index(iOffset));
-         _insert_or_remove(cbItem, iRealOffset, pAdd, ciAdd, 0);
+         _insert_or_remove(cbItem, adjust_and_validate_index(iOffset), pAdd, ciAdd, 0);
       }
+   }
+
+
+   /** Removes a single element from the vextr.
+
+   cbItem
+      Size of a single array item, in bytes.
+   i
+      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
+   */
+   void remove_at(size_t cbItem, intptr_t i) {
+      _insert_or_remove(cbItem, adjust_and_validate_index(i), nullptr, 0, 1);
    }
 
 
@@ -1199,18 +1240,14 @@ public:
 
    cbItem
       Size of a single array item, in bytes.
-   iOffset
-      Index at which the items should be removed. If negative, it’s going to be interpreted as an
-      index from the end of the vextr.
-   ciRemove
-      Count of items to remove.
+   iBegin
+      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
+      index values.
+   iEnd
+      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
+      end index values.
    */
-   void remove_at(size_t cbItem, ptrdiff_t iOffset, ptrdiff_t ciRemove) {
-      adjust_range(&iOffset, &ciRemove);
-      if (ciRemove) {
-         _insert_or_remove(cbItem, size_t(iOffset), nullptr, 0, size_t(ciRemove));
-      }
-   }
+   void remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd);
 
 
    /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -1251,7 +1288,7 @@ private:
    void _assign_share(_raw_trivial_vextr_impl const & rtvi);
 
 
-   /** Actual implementation append(), insert() and remove_at().
+   /** Implementation of append(), insert(), remove_at() and remove_range().
 
    cbItem
       Size of a single array item, in bytes.
@@ -1261,11 +1298,11 @@ private:
       Pointer to the first item to add.
    ciAdd
       Count of items to add.
-   ciAdd
+   ciRemove
       Count of items to remove.
    */
    void _insert_or_remove(
-      size_t cbItem, size_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
+      size_t cbItem, uintptr_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
    );
 };
 

@@ -196,21 +196,21 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::adjust_index().
+   /** See _raw_trivial_vextr_impl::adjust_and_validate_index().
 
    TODO: comment signature.
    */
-   size_t adjust_index(ptrdiff_t i) const {
-      return _raw_trivial_vextr_impl::adjust_index(i);
+   uintptr_t adjust_and_validate_index(intptr_t i) const {
+      return _raw_trivial_vextr_impl::adjust_and_validate_index(i);
    }
 
 
-   /** See _raw_trivial_vextr_impl::adjust_range().
+   /** See _raw_trivial_vextr_impl::adjust_and_validate_range().
 
    TODO: comment signature.
    */
-   void adjust_range(ptrdiff_t * piFirst, ptrdiff_t * pci) const {
-      _raw_trivial_vextr_impl::adjust_range(piFirst, pci);
+   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
+      return _raw_trivial_vextr_impl::adjust_and_validate_range(iBegin, iEnd);
    }
 
 
@@ -326,13 +326,12 @@ public:
    /** Character access operator.
 
    i
-      Character index.
+      Character index. See abc::_vextr::adjust_and_validate_index() for allowed index values.
    return
       Character at index i.
    */
    C operator[](intptr_t i) const {
-      this->validate_index(i);
-      return data()[i];
+      return data()[this->adjust_and_validate_index(i)];
    }
 
 
@@ -643,22 +642,36 @@ public:
 
    /** Returns a portion of the string.
 
-   ichFirst
-      0-based index of the first character. If negative, it’s 1-based index from the end of the
-      string.
-   cch
-      Count of characters to return. If negative, it’s the count of characters to skip, from the end
-      of the string.
+   ichBegin
+      Index of the first character of the substring. See abc::_vextr::adjust_and_validate_range()
+      for allowed begin index values.
+   itBegin
+      Iterator to the first character of the substring.
+   ichEnd
+      Index of the last character of the substring, exclusive. See
+      abc::_vextr::adjust_and_validate_range() for allowed end index values.
+   itEnd
+      Iterator to past the end of the substring.
+   return
+      Substring of *this.
    */
-   dmstr substr(ptrdiff_t ichFirst) const {
-      return substr(ichFirst, ptrdiff_t(size()));
+   dmstr substr(intptr_t ichBegin) const {
+      return substr(ichBegin, size());
    }
-   dmstr substr(ptrdiff_t ichFirst, ptrdiff_t cch) const {
-      adjust_range(&ichFirst, &cch);
-      return dmstr(data() + ichFirst, size_t(cch));
+   dmstr substr(intptr_t ichBegin, intptr_t ichEnd) const {
+      auto range(this->adjust_and_validate_range(ichBegin, ichEnd));
+      return dmstr(data() + range.first, range.second - range.first);
    }
-   dmstr substr(const_iterator itFirst) const {
-      return substr(itFirst, itvec::cend());
+   dmstr substr(intptr_t ichBegin, const_iterator itEnd) const {
+      auto range(this->adjust_and_validate_range(ichBegin, itEnd - itvec::cbegin()));
+      return dmstr(data() + range.first, range.second - range.first);
+   }
+   dmstr substr(const_iterator itBegin) const {
+      return substr(itBegin, itvec::cend());
+   }
+   dmstr substr(const_iterator itBegin, intptr_t ichEnd) const {
+      auto range(this->adjust_and_validate_range(itBegin - itvec::cbegin(), ichEnd));
+      return dmstr(data() + range.first, range.second - range.first);
    }
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const {
       return dmstr(itBegin.base(), size_t(itEnd - itBegin));
@@ -1020,12 +1033,10 @@ public:
    /** See str_base_::operator[]().
    */
    C & operator[](intptr_t i) {
-      this->validate_index(i);
-      return data()[i];
+      return data()[this->adjust_and_validate_index(i)];
    }
    C operator[](intptr_t i) const {
-      this->validate_index(i);
-      return data()[i];
+      return str_base::operator[](i);
    }
 
 

@@ -123,14 +123,14 @@ public:
    /** Inserts elements at a specific position in the vector by moving them.
 
    iOffset
-      Index at which the elements should be inserted. If negative, it will be interpreted as an
-      offset from the end of the vector.
+      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
    pAdd
       Pointer to the first element to add.
    ciAdd
       Count of elements to add.
    */
-   void insert_move(ptrdiff_t iOffset, T * p, size_t ci) {
+   void insert_move(intptr_t iOffset, T * p, size_t ci) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -141,12 +141,23 @@ public:
 
    /** See _raw_complex_vextr_impl::remove_at().
    */
-   void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
+   void remove_at(intptr_t i) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::remove_at(type, iOffset, ciRemove);
+      _raw_complex_vextr_impl::remove_at(type, i);
+   }
+
+
+   /** See _raw_complex_vextr_impl::remove_range().
+   */
+   void remove_range(intptr_t iBegin, intptr_t iEnd) {
+      type_void_adapter type;
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::remove_range(type, iBegin, iEnd);
    }
 
 
@@ -232,14 +243,14 @@ public:
    /** Inserts elements at a specific position in the vector by copying them.
 
    iOffset
-      Index at which the elements should be inserted. If negative, it will be interpreted as an
-      offset from the end of the vector.
+      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
    pAdd
       Pointer to the first element to add.
    ciAdd
       Count of elements to add.
    */
-   void insert_copy(ptrdiff_t iOffset, T const * p, size_t ci) {
+   void insert_copy(intptr_t iOffset, T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
@@ -353,14 +364,14 @@ public:
    /** Inserts one or more elements.
 
    iOffset
-      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
-      index from the end of the vector.
+      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
+      allowed index values.
    p
       Pointer to the first element to add.
    ci
       Count of elements to add.
    */
-   void insert_copy(ptrdiff_t iOffset, void const * p, size_t ci) {
+   void insert_copy(intptr_t iOffset, void const * p, size_t ci) {
       _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
    }
 
@@ -369,22 +380,29 @@ public:
    types that’s the same as copying them.
 
    iOffset
-      Index at which the items should be inserted. If negative, it’s going to be interpreted as an
-      index from the end of the vector.
+      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
+      allowed index values.
    p
       Pointer to the first element to add.
    ci
       Count of elements to add.
    */
-   void insert_move(ptrdiff_t iOffset, void const * p, size_t ci) {
+   void insert_move(intptr_t iOffset, void const * p, size_t ci) {
       _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
    }
 
 
    /** See _raw_trivial_vextr_impl::remove_at().
    */
-   void remove_at(ptrdiff_t iOffset, ptrdiff_t ciRemove) {
-      _raw_trivial_vextr_impl::remove_at(sizeof(T), iOffset, ciRemove);
+   void remove_at(intptr_t i) {
+      _raw_trivial_vextr_impl::remove_at(sizeof(T), i);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::remove_range().
+   */
+   void remove_range(intptr_t iBegin, intptr_t iEnd) {
+      _raw_trivial_vextr_impl::remove_range(sizeof(T), iBegin, iEnd);
    }
 
 
@@ -458,12 +476,12 @@ public:
    /** Element access operator.
 
    i
-      Element index.
+      Element index. See abc::_vextr::adjust_and_validate_index() for allowed index values.
    return
       Element at index i.
    */
    T const & operator[](intptr_t i) const {
-      this->validate_index(i);
+      this->adjust_and_validate_index(i);
       return data()[i];
    }
 
@@ -520,9 +538,9 @@ public:
 
    TODO: comment signature.
    */
-   ptrdiff_t index_of(T const & t, ptrdiff_t iFirst = 0) const {
+   intptr_t index_of(T const & t, intptr_t iFirst = 0) const {
       T const * pt0(data()), * ptEnd(pt0 + size());
-      for (T const * pt(pt0 + this->adjust_index(iFirst)); pt < ptEnd; ++pt) {
+      for (T const * pt(pt0 + this->adjust_and_validate_index(iFirst)); pt < ptEnd; ++pt) {
          if (*pt == t) {
             return pt - pt0;
          }
@@ -536,12 +554,13 @@ public:
 
    TODO: comment signature.
    */
-   ptrdiff_t last_index_of(T const & t) const {
-      return last_index_of(t, ptrdiff_t(size()));
+   intptr_t last_index_of(T const & t) const {
+      return last_index_of(t, intptr_t(size()));
    }
-   ptrdiff_t last_index_of(T const & t, ptrdiff_t iFirst) const {
+   intptr_t last_index_of(T const & t, intptr_t iFirst) const {
+      auto range(this->adjust_and_validate_range(0, iFirst));
       T const * pt0(data());
-      for (T const * pt(pt0 + this->adjust_index(iFirst)); pt >= pt0; --pt) {
+      for (T const * pt(pt0 + range.second); pt >= pt0 + range.first; --pt) {
          if (*pt == t) {
             return pt - pt0;
          }
@@ -615,19 +634,19 @@ public:
 
    /** Returns a segment of the vector.
 
-   iFirst
-      0-based index of the first element. If negative, it’s 1-based index from the end of the
-      vector.
-   ci
-      Count of elements to return. If negative, it’s the count of elements to skip, from the end of
-      the vector.
+   iBegin
+      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
+      index values.
+   iEnd
+      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
+      end index values.
    */
-   dmvector<T, true> slice(ptrdiff_t iFirst) const {
-      return slice(iFirst, this->size());
+   dmvector<T, true> slice(intptr_t iBegin) const {
+      return slice(iBegin, this->size());
    }
-   dmvector<T, true> slice(ptrdiff_t iFirst, ptrdiff_t ci) const {
-      this->adjust_range(&iFirst, &ci);
-      return dmvector<T, true>(this->data() + iFirst, size_t(ci));
+   dmvector<T, true> slice(intptr_t iBegin, intptr_t iEnd) const {
+      auto range(this->adjust_and_validate_range(iBegin, iEnd));
+      return dmvector<T, true>(this->data() + range.first, range.second - range.first);
    }
 
 
@@ -749,10 +768,10 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      0-based index of the element. If negative, it’s 1-based index from the end of the vector.
+      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
    TODO: comment signature.
    */
-   void insert(ptrdiff_t i, typename std::remove_const<T>::type && t) {
+   void insert(intptr_t i, typename std::remove_const<T>::type && t) {
       this->insert_move(i, &t, 1);
    }
    void insert(const_iterator it, typename std::remove_const<T>::type && t) {
@@ -760,21 +779,48 @@ public:
    }
 
 
-   /** Removes elements from the vector.
+   /** Removes a single element from the vector.
 
    i
-      0-based index of the element to be removed. If negative, it’s 1-based index from the end of
-      the vector.
+      Index of the element to remove. See abc::_vextr::adjust_and_validate_index() for allowed index
+      values.
    it
-      Iterator positioned on the first element to remove.
-   ciRemove
-      Count of elements to remove.
+      Iterator to the element to remove.
    */
-   void remove_at(ptrdiff_t i, ptrdiff_t ciRemove = 1) {
-      vector_base<T, smc_bCopyConstructible>::remove_at(i, ciRemove);
+   void remove_at(intptr_t i) {
+      vector_base<T, smc_bCopyConstructible>::remove_at(i);
    }
-   void remove_at(const_iterator it, ptrdiff_t ciRemove = 1) {
-      vector_base<T, smc_bCopyConstructible>::remove_at(it - itvec::cbegin(), ciRemove);
+   void remove_at(const_iterator it) {
+      vector_base<T, smc_bCopyConstructible>::remove_at(it - itvec::cbegin());
+   }
+
+
+   /** Removes a range of elements from the vector.
+
+   iBegin
+      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
+      index values.
+   itBegin
+      Iterator to the first element to remove.
+   iEnd
+      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
+      end index values.
+   itEnd
+      Iterator to past the last element to remove.
+   */
+   void remove_range(intptr_t iBegin, intptr_t iEnd) {
+      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, iEnd);
+   }
+   void remove_range(intptr_t iBegin, const_iterator itEnd) {
+      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, itEnd - itvec::cbegin());
+   }
+   void remove_range(const_iterator itBegin, intptr_t iEnd) {
+      vector_base<T, smc_bCopyConstructible>::remove_range(itBegin - itvec::cbegin(), iEnd);
+   }
+   void remove_range(const_iterator itBegin, const_iterator itEnd) {
+      vector_base<T, smc_bCopyConstructible>::remove_range(
+         itBegin - itvec::cbegin(), itEnd - itvec::cbegin()
+      );
    }
 
 
@@ -887,16 +933,16 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      0-based index of the element. If negative, it’s 1-based index from the end of the vector.
+      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
    TODO: comment signature.
    */
-   void insert(ptrdiff_t i, T const & t) {
+   void insert(intptr_t i, T const & t) {
       this->insert_copy(i, &t, 1);
    }
-   void insert(ptrdiff_t i, typename std::remove_const<T>::type && t) {
+   void insert(intptr_t i, typename std::remove_const<T>::type && t) {
       this->insert_move(i, &t, 1);
    }
-   void insert(ptrdiff_t i, T const * pt, size_t ci) {
+   void insert(intptr_t i, T const * pt, size_t ci) {
       this->insert_copy(i, pt, ci);
    }
    void insert(const_iterator it, T const & t) {
