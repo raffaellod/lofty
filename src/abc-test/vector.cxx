@@ -168,7 +168,8 @@ public:
       v1.append(17);
       v1.append(18);
       v1.append(19);
-      ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
+      // Cannot ASSERT_TRUE on this change, because the item array may be resized in place.
+      cdpt1.changed();
       ABC_TESTING_ASSERT_EQUAL(v1.size(), 10u);
       ABC_TESTING_ASSERT_EQUAL(v1[0], 10);
       ABC_TESTING_ASSERT_EQUAL(v1[1], 11);
