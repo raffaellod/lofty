@@ -24,10 +24,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::stream_base
+// abc::io::stream_base
 
 
 namespace abc {
+
+namespace io {
 
 stream_base::stream_base() :
    m_enc(text::encoding::unknown),
@@ -48,26 +50,34 @@ stream_base::stream_base() :
    m_lterm = lterm;
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::istream
+// abc::io::istream
 
 
 namespace abc {
+
+namespace io {
 
 /*virtual*/ istream::~istream() {
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::ostream
+// abc::io::ostream
 
 
 namespace abc {
+
+namespace io {
 
 /*virtual*/ ostream::~ostream() {
 }
@@ -232,14 +242,18 @@ void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo)
    }
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::iostream
+// abc::io::iostream
 
 
 namespace abc {
+
+namespace io {
 
 iostream::iostream() :
    stream_base(),
@@ -250,6 +264,8 @@ iostream::iostream() :
 
 /*virtual*/ iostream::~iostream() {
 }
+
+} //namespace io
 
 } //namespace abc
 

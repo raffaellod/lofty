@@ -45,7 +45,9 @@ _str_to_str_backend::_str_to_str_backend(char_range const & crFormat) {
 }
 
 
-void _str_to_str_backend::write(void const * p, size_t cb, text::encoding enc, ostream * posOut) {
+void _str_to_str_backend::write(
+   void const * p, size_t cb, text::encoding enc, io::ostream * posOut
+) {
    ABC_TRACE_FN((this, p, cb, enc, posOut));
 
    // TODO: apply format options.

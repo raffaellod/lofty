@@ -77,7 +77,7 @@ public:
    posOut
       Pointer to the output stream that will be used to log the results of the tests.
    */
-   runner(std::shared_ptr<ostream> posOut);
+   runner(std::shared_ptr<io::ostream> posOut);
 
 
    /** Destructor.
@@ -142,7 +142,7 @@ private:
    /** Vector of loaded test test cases to be executed. */
    dmvector<std::unique_ptr<test_case>> m_vptc;
    /** Output stream. */
-   std::shared_ptr<ostream> m_pos;
+   std::shared_ptr<io::ostream> m_pos;
    /** Total count of failed assertions. */
    unsigned m_cFailedAssertions;
 };

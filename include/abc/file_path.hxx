@@ -483,7 +483,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(file_path const & fp, ostream * posOut);
+   void write(file_path const & fp, io::ostream * posOut);
 };
 
 } //namespace abc

@@ -42,7 +42,7 @@ namespace mock {
 /** Implementation of an read-only stream based on a string.
 */
 class ABCTESTINGAPI istream :
-   public virtual ::abc::istream {
+   public virtual ::abc::io::istream {
 };
 #endif
 
@@ -66,7 +66,7 @@ namespace mock {
 /** Implementation of an write-only stream based on a string.
 */
 class ABCTESTINGAPI ostream :
-   public virtual ::abc::ostream {
+   public virtual ::abc::io::ostream {
 public:
 
    /** Constructor.
@@ -91,7 +91,7 @@ public:
    }
 
 
-   /** See ostream::write_raw().
+   /** See io::ostream::write_raw().
    */
    virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
 

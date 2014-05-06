@@ -163,8 +163,12 @@ struct ABCAPI enum_member {
 
 namespace abc {
 
+namespace io {
+
 // Forward declaration from abc/iostream.hxx.
 class ostream;
+
+} //namespace io
 
 /** Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
@@ -188,7 +192,7 @@ protected:
    posOut
       Pointer to the output stream to write to.
    */
-   void write_impl(int i, enum_member const * pem, ostream * posOut);
+   void write_impl(int i, enum_member const * pem, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -346,7 +350,7 @@ public:
 
    /** See abc::_enum_to_str_backend_impl::write().
    */
-   void write(enum_impl<T> e, ostream * posOut) {
+   void write(enum_impl<T> e, io::ostream * posOut) {
       _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), posOut);
    }
 };

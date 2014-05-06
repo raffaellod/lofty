@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<str_ostream> _scope_trace_impl::sm_psosScopeTrace;
+/*tls*/ std::unique_ptr<io::str_ostream> _scope_trace_impl::sm_psosScopeTrace;
 /*tls*/ unsigned _scope_trace_impl::sm_cScopeTraceRefs(0);
 /*tls*/ unsigned _scope_trace_impl::sm_iStackDepth(0);
 /*tls*/ bool _scope_trace_impl::sm_bReentering(false);
@@ -47,7 +47,7 @@ _scope_trace_impl::~_scope_trace_impl() {
             sm_bReentering = true;
          }
          // Add this argument to the current trace.
-         ostream * pso(get_trace_stream());
+         io::ostream * pso(get_trace_stream());
          if (m_bScopeRenderingStarted) {
             pso->print(SL(" at {}\n"), m_srcloc);
          } else {
@@ -69,7 +69,7 @@ _scope_trace_impl::~_scope_trace_impl() {
 }
 
 
-ostream * _scope_trace_impl::scope_render_start_or_continue() {
+io::ostream * _scope_trace_impl::scope_render_start_or_continue() {
    // See similar condition in ~_scope_trace_impl().
    if (m_bScopeRenderingStarted || (!sm_bReentering && std::uncaught_exception())) {
       // See similar condition in ~_scope_trace_impl().
@@ -80,7 +80,7 @@ ostream * _scope_trace_impl::scope_render_start_or_continue() {
          sm_bReentering = true;
       }
       // Add this argument to the current trace.
-      ostream * pso(get_trace_stream());
+      io::ostream * pso(get_trace_stream());
       if (m_bScopeRenderingStarted) {
          pso->write(SL(", "));
       } else {

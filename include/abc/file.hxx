@@ -30,9 +30,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
+// abc::io globals
 
 namespace abc {
+
+namespace io {
 
 // Some C libraries (such as MS CRT) define these as macros.
 #ifdef stdin
@@ -71,16 +73,19 @@ ABC_ENUM(stdfile, \
    #error TODO-PORT: HOST_API
 #endif
 
+} //namespace io
+
 } //namespace abc
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::filedesc
+// abc::io::filedesc
 
 
 namespace abc {
+
+namespace io {
 
 /** Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
 doesn’t always own the wrapped filedesc_t (e.g. for standard files).
@@ -166,14 +171,18 @@ private:
    static filedesc_t const smc_fdNull;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file
+// abc::io::file
 
 
 namespace abc {
+
+namespace io {
 
 // Forward declaration. This is only defined in file.cxx, after the necessary header files have been
 // included.
@@ -369,14 +378,18 @@ protected:
    bool m_bBuffered:1;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::console_file
+// abc::io::console_file
 
 
 namespace abc {
+
+namespace io {
 
 /** Console/terminal pseudo-file.
 */
@@ -384,7 +397,7 @@ class ABCAPI console_file :
    public file {
 public:
 
-   /** Constructor. See abc::file::file().
+   /** Constructor. See abc::io::file::file().
    */
    console_file(_file_init_data * pfid);
 
@@ -394,26 +407,30 @@ public:
    // In Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /** See abc::file::read().
+   /** See abc::io::file::read().
    */
    virtual size_t read(void * p, size_t cbMax);
 
 
-   /** See abc::file::write().
+   /** See abc::io::file::write().
    */
    virtual size_t write(void const * p, size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::pipe_file
+// abc::io::pipe_file
 
 
 namespace abc {
+
+namespace io {
 
 /** Pipe file.
 */
@@ -421,19 +438,23 @@ class ABCAPI pipe_file :
    public file {
 public:
 
-   /** Constructor. See abc::file::file().
+   /** Constructor. See abc::io::file::file().
    */
    pipe_file(_file_init_data * pfid);
 };
+
+} //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::regular_file
+// abc::io::regular_file
 
 
 namespace abc {
+
+namespace io {
 
 /** File that behaves like a regular file on disk.
 */
@@ -441,24 +462,24 @@ class ABCAPI regular_file :
    public file {
 public:
 
-   /** Constructor. See abc::file::file().
+   /** Constructor. See abc::io::file::file().
    */
    regular_file(_file_init_data * pfid);
 
 
-   /** See abc::file::physical_alignment().
+   /** See abc::io::file::physical_alignment().
    */
    virtual unsigned physical_alignment() const;
 
 
-   /** See abc::file::size().
+   /** See abc::io::file::size().
    */
    virtual fileint_t size() const;
 
 
 #if ABC_HOST_API_WIN32
 
-   /** See abc::file::write(). This override is necessary to emulate O_APPEND in Win32.
+   /** See abc::io::file::write(). This override is necessary to emulate O_APPEND in Win32.
    */
    virtual size_t write(void const * p, size_t cb);
 
@@ -476,6 +497,8 @@ protected:
    bool m_bAppend:1;
 #endif
 };
+
+} //namespace io
 
 } //namespace abc
 

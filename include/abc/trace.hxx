@@ -148,9 +148,9 @@ public:
    /** Returns a stream to which the stack frame can be output. The stream is thread-local, which is
    why this can’t be just a static member variable.
    */
-   static str_ostream * get_trace_stream() {
+   static io::str_ostream * get_trace_stream() {
       if (!sm_psosScopeTrace) {
-         sm_psosScopeTrace.reset(new str_ostream());
+         sm_psosScopeTrace.reset(new io::str_ostream());
       }
       return sm_psosScopeTrace.get();
    }
@@ -265,7 +265,7 @@ public:
 protected:
 
    /** Starts or  to the trace stream the scope name. */
-   ostream * scope_render_start_or_continue();
+   io::ostream * scope_render_start_or_continue();
 
 
 private:
@@ -279,7 +279,7 @@ private:
    bool m_bScopeRenderingStarted;
 
    /** Stream that collects the rendered scope trace when an exception is thrown. */
-   static /*tls*/ std::unique_ptr<str_ostream> sm_psosScopeTrace;
+   static /*tls*/ std::unique_ptr<io::str_ostream> sm_psosScopeTrace;
    /** Number of the next stack frame to be added to the rendered trace. */
    static /*tls*/ unsigned sm_iStackDepth;
    /** Count of references to the current rendered trace. Managed by abc::exception. */
@@ -328,7 +328,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(base_scope_trace::scope_render_start_or_continue());
+         io::ostream * pos(base_scope_trace::scope_render_start_or_continue());
          if (pos) {
             pos->write(m_t0);
          }
@@ -415,7 +415,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(base_scope_trace::scope_render_start_or_continue());
+         io::ostream * pos(base_scope_trace::scope_render_start_or_continue());
          if (pos) {
             pos->write(m_t0);
          }
@@ -458,7 +458,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
@@ -509,7 +509,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
@@ -559,7 +559,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}"),
@@ -605,7 +605,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6);
          }
@@ -646,7 +646,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5);
          }
@@ -684,7 +684,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4);
          }
@@ -721,7 +721,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3);
          }
@@ -757,7 +757,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}, {}"), m_t0, m_t1, m_t2);
          }
@@ -792,7 +792,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->print(SL("{}, {}"), m_t0, m_t1);
          }
@@ -826,7 +826,7 @@ public:
    */
    ~_scope_trace() {
       try {
-         ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
+         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
          if (pos) {
             pos->write(m_t0);
          }

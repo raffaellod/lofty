@@ -35,7 +35,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::str_ostream - basic operations"));
+      return istr(SL("abc::io::str_ostream - basic operations"));
    }
 
 
@@ -44,7 +44,7 @@ public:
    virtual void run() {
       ABC_TRACE_FN((this));
 
-      str_ostream sos;
+      io::str_ostream sos;
 
 #ifdef U8SL
       ABC_TESTING_ASSERT_EQUAL(

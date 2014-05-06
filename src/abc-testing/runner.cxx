@@ -50,7 +50,7 @@ namespace abc {
 
 namespace testing {
 
-runner::runner(std::shared_ptr<ostream> posOut) :
+runner::runner(std::shared_ptr<io::ostream> posOut) :
    m_pos(std::move(posOut)),
    m_cFailedAssertions(0) {
 }

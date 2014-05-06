@@ -48,7 +48,7 @@ ABCAPI to_str_backend<bool>::to_str_backend(
 }
 
 
-ABCAPI void to_str_backend<bool>::write(bool b, ostream * posOut) {
+ABCAPI void to_str_backend<bool>::write(bool b, io::ostream * posOut) {
    ABC_TRACE_FN((this, b, posOut));
 
    // TODO: apply format options.
@@ -200,7 +200,7 @@ default_notation:
 
 
 ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
-   bool bNegative, ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
+   bool bNegative, io::ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
    ABC_TRACE_FN((this, bNegative, posOut, psBuf, itBufFirstUsed));
 
@@ -240,7 +240,7 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 
 
 template <typename I>
-inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_impl(I i, io::ostream * posOut) const {
    ABC_TRACE_FN((this, i, posOut));
 
    // Create a buffer of sufficient size for binary notation (the largest).
@@ -272,36 +272,36 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
+ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::ostream * posOut) const {
    write_impl(i, posOut);
 }
 

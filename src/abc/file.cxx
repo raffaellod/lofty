@@ -33,10 +33,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::filedesc
+// abc::io::filedesc
 
 
 namespace abc {
+
+namespace io {
 
 filedesc_t const filedesc::smc_fdNull =
 #if ABC_HOST_API_POSIX
@@ -87,14 +89,18 @@ filedesc & filedesc::operator=(filedesc && fd) {
    return *this;
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file
+// abc::io::file
 
 
 namespace abc {
+
+namespace io {
 
 // These should be members of file, but since the file_?stream counterparts couldn’t be members of
 // file_stream_base, they are here.
@@ -499,14 +505,18 @@ void file::flush() {
    }
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::console_file
+// abc::io::console_file
 
 
 namespace abc {
+
+namespace io {
 
 console_file::console_file(_file_init_data * pfid) :
    file(pfid) {
@@ -581,27 +591,35 @@ console_file::console_file(_file_init_data * pfid) :
 
 #endif //if ABC_HOST_API_WIN32
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::pipe_file
+// abc::io::pipe_file
 
 
 namespace abc {
+
+namespace io {
 
 pipe_file::pipe_file(_file_init_data * pfid) :
    file(pfid) {
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::regular_file
+// abc::io::regular_file
 
 
 namespace abc {
+
+namespace io {
 
 regular_file::regular_file(_file_init_data * pfid) :
    file(pfid) {
@@ -784,6 +802,8 @@ regular_file::regular_file(_file_init_data * pfid) :
 }
 
 #endif //if ABC_HOST_API_WIN32
+
+} //namespace io
 
 } //namespace abc
 

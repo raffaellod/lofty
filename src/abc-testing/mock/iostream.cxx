@@ -34,7 +34,7 @@ namespace testing {
 namespace mock {
 
 ostream::ostream() :
-   ::abc::ostream(),
+   ::abc::io::ostream(),
    m_cchUsed(0) {
 }
 

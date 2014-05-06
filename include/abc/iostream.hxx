@@ -30,10 +30,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::stream_base
+// abc::io::stream_base
 
 
 namespace abc {
+
+namespace io {
 
 /** Base for abstract data streams.
 */
@@ -97,14 +99,18 @@ protected:
    text::line_terminator m_lterm;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::istream
+// abc::io::istream
 
 
 namespace abc {
+
+namespace io {
 
 /** Read-only abstract stream.
 */
@@ -215,23 +221,27 @@ private:
    ) = 0;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::ostream
+// abc::io::ostream
 
 
 namespace abc {
 
-/** DOC:7103 abc::ostream::print()
+namespace io {
 
-Designed after Python’s str.format(), abc::ostream::print() allows to combine objects together as
-strings using a format string.
+/** DOC:7103 abc::io::ostream::print()
 
-The implementation of print() is entirely contained in abc::_ostream_print_helper, which accesses
-the individual arguments in a recursive way, from the most-derived class down to the base class,
-which also contains most of the implementation. Combined with the usage of [DOC:3984
+Designed after Python’s str.format(), abc::io::ostream::print() allows to combine objects together
+as strings using a format string.
+
+The implementation of print() is entirely contained in abc::io::_ostream_print_helper, which
+accesses the individual arguments in a recursive way, from the most-derived class down to the base
+class, which also contains most of the implementation. Combined with the usage of [DOC:3984
 abc::to_str() and abc::to_str_backend()], this enables a type-safe variadic alternative to C’s
 printf, and voids the requirement for explicit specification of the argumment types (such as %d,
 %s), much like Python’s str.format().
@@ -239,10 +249,10 @@ printf, and voids the requirement for explicit specification of the argumment ty
 Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it allows
 to print a variable by automatically deducing its type.
 
-The format string passed as first argument to abc::ostream::print() can contain “replacement fields”
-delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces is considered
-literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”, which allow to
-print “{” and “}” respectively.
+The format string passed as first argument to abc::io::ostream::print() can contain “replacement
+fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces is
+considered literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”,
+which allow to print “{” and “}” respectively.
 
 A replacement field can specify an argument index; if omitted, the argument used will be the one
 following the last used one, or the first if no arguments have been used up to that point. After the
@@ -393,16 +403,20 @@ public:
    ) = 0;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_ostream_print_helper
+// abc::io::_ostream_print_helper
 
 
 namespace abc {
 
-/** Template-free implementation of abc::_ostream_print_helper.
+namespace io {
+
+/** Template-free implementation of abc::io::_ostream_print_helper.
 */
 class ABCAPI _ostream_print_helper_impl {
 public:
@@ -484,7 +498,7 @@ private:
 };
 
 
-/** Helper for/implementation of abc::ostream::print().
+/** Helper for/implementation of abc::io::ostream::print().
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -907,14 +921,18 @@ inline ostream & ostream::print(
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::iostream
+// abc::io::iostream
 
 
 namespace abc {
+
+namespace io {
 
 /** Read/write abstract stream.
 */
@@ -932,6 +950,8 @@ public:
    */
    virtual ~iostream();
 };
+
+} //namespace io
 
 } //namespace abc
 

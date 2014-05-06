@@ -30,10 +30,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_stream_base
+// abc::io::file_stream_base
 
 
 namespace abc {
+
+namespace io {
 
 /** Base class for file-based data streams.
 */
@@ -70,16 +72,20 @@ protected:
    static size_t const smc_cbAlignedMax;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_istream
+// abc::io::file_istream
 
 
 namespace abc {
 
-/** DOC:0674 abc::file_istream buffering
+namespace io {
+
+/** DOC:0674 abc::io::file_istream buffering
 
 There are a few conditions in which file_istream will be forced to use a read buffer (m_pbReadBuf),
 instead of a memory map, for its read methods:
@@ -273,7 +279,7 @@ private:
 
 private:
 
-   /** Read buffer. Allocated only if necessary; see [DOC:0674 abc::file_istream buffering]. */
+   /** Read buffer. Allocated only if necessary; see [DOC:0674 abc::io::file_istream buffering]. */
    std::unique_ptr<int8_t[]> m_pbReadBuf;
    /** Offset of the first used byte in m_pbReadBuf. */
    size_t m_ibReadBufUsed;
@@ -289,14 +295,18 @@ private:
    bool m_bAtEof;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_ostream
+// abc::io::file_ostream
 
 
 namespace abc {
+
+namespace io {
 
 /** Implementation of an write-only stream based on a file.
 */
@@ -363,14 +373,18 @@ private:
    static size_t const smc_cbWriteBufMax;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_iostream
+// abc::io::file_iostream
 
 
 namespace abc {
+
+namespace io {
 
 /** Implementation of a read/write stream based on a file.
 */
@@ -391,6 +405,8 @@ public:
    */
    virtual ~file_iostream();
 };
+
+} //namespace io
 
 } //namespace abc
 

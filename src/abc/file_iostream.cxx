@@ -28,10 +28,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_stream_base
+// abc::io::file_stream_base
 
 
 namespace abc {
+
+namespace io {
 
 // These should be members of file_stream_base, but that’s not possible.
 static std::shared_ptr<file_ostream> * g_ppfosStdErr(nullptr);
@@ -77,14 +79,18 @@ file_stream_base::file_stream_base(
    }
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_istream
+// abc::io::file_istream
 
 
 namespace abc {
+
+namespace io {
 
 file_istream::file_istream(std::shared_ptr<file> pfile) :
    file_stream_base(std::move(pfile)),
@@ -309,7 +315,7 @@ int8_t * file_istream::_get_read_buffer() {
    ABC_TRACE_FN((this));
 
    if (!m_pbReadBuf) {
-      // Create the multipurpose read buffer. See [DOC:0674 abc::file_istream buffering].
+      // Create the multipurpose read buffer. See [DOC:0674 abc::io::file_istream buffering].
       m_pbReadBuf.reset(new int8_t[m_cbReadBufLead + m_cbReadBufBulk]);
       m_ibReadBufUsed = m_cbReadBufLead;
    }
@@ -433,14 +439,18 @@ void file_istream::_post_construct() {
    *pppfis = ppfis.release();
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_ostream
+// abc::io::file_ostream
 
 
 namespace abc {
+
+namespace io {
 
 size_t const file_ostream::smc_cbWriteBufMax = 4096;
 
@@ -563,14 +573,18 @@ file_ostream::file_ostream(file_path const & fp) :
    *pppfos = ppfos.release();
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_iostream
+// abc::io::file_iostream
 
 
 namespace abc {
+
+namespace io {
 
 file_iostream::file_iostream(std::shared_ptr<file> pfile) :
    file_stream_base(pfile),
@@ -586,6 +600,8 @@ file_iostream::file_iostream(file_path const & fp) :
 
 /*virtual*/ file_iostream::~file_iostream() {
 }
+
+} //namespace io
 
 } //namespace abc
 

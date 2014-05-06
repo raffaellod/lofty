@@ -105,8 +105,13 @@ protected:
 
 namespace abc {
 
+namespace io {
+
 // Forward declaration from abc/iostream.hxx.
 class ostream;
+
+} //namespace io
+
 // Forward declaration from abc/to_str_backend.hxx.
 template <typename T>
 class to_str_backend;
@@ -131,7 +136,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(source_location const & srcloc, ostream * posOut);
+   void write(source_location const & srcloc, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -373,11 +378,9 @@ msg
 #endif
 
 
-// Forward declaration from iostream.hxx.
-class ostream;
-// Methods here need to use ostream * instead of ostream &, because at this point ostream has only
-// been forward-declared above, but not defined yet (a pointer to a forward-declared type is legal,
-// but a reference to it is not).
+// Methods here need to use io::ostream * instead of io::ostream & because at this point io::ostream
+// has only been forward-declared above, but not defined yet (a pointer to a forward-declared type
+// is legal, but a reference to it is not).
 
 
 /** Base for all abc exceptions classes.
@@ -443,7 +446,7 @@ public:
       Caught exception.
    */
    static void write_with_scope_trace(
-      ostream * pos = nullptr, std::exception const * pstdx = nullptr
+      io::ostream * pos = nullptr, std::exception const * pstdx = nullptr
    );
 
 
@@ -454,7 +457,7 @@ protected:
    pos
       Pointer to a stream to write to.
    */
-   virtual void _print_extended_info(ostream * pos) const;
+   virtual void _print_extended_info(io::ostream * pos) const;
 
 
 public:
@@ -971,7 +974,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(ostream * pos) const;
+   virtual void _print_extended_info(io::ostream * pos) const;
 
 
 private:
@@ -1111,7 +1114,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(ostream * pos) const;
+   virtual void _print_extended_info(io::ostream * pos) const;
 
 
 private:
@@ -1393,7 +1396,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(ostream * pos) const;
+   virtual void _print_extended_info(io::ostream * pos) const;
 
 
 private:

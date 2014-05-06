@@ -81,7 +81,7 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(char_range const & crFormat
 }
 
 
-void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, ostream * posOut) {
+void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, io::ostream * posOut) {
    ABC_TRACE_FN((this, i, pem, posOut));
 
    enum_member const * petvp(enum_member::find_in_map(pem, i));

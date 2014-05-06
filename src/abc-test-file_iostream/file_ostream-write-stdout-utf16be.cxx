@@ -33,7 +33,7 @@ public:
       ABC_TRACE_FN((this/*, vsArgs*/));
       ABC_UNUSED_ARG(vsArgs);
 
-      auto pfosOut(file_ostream::stdout());
+      auto pfosOut(io::file_ostream::stdout());
       pfosOut->set_encoding(text::encoding::utf16be);
       pfosOut->write(SL("I/O test file encoded using "));
       pfosOut->write(SL("UTF-16BE"));

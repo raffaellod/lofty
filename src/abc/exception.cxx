@@ -1092,7 +1092,7 @@ ABCAPI to_str_backend<source_location>::to_str_backend(
 
 
 ABCAPI void to_str_backend<source_location>::write(
-   source_location const & srcloc, ostream * posOut
+   source_location const & srcloc, io::ostream * posOut
 ) {
    ABC_TRACE_FN((this, srcloc, posOut));
 
@@ -1176,10 +1176,10 @@ char const * exception::what() const {
 
 
 /*static*/ void exception::write_with_scope_trace(
-   ostream * pos /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
+   io::ostream * pos /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
    if (!pos) {
-      pos = file_ostream::stderr().get();
+      pos = io::file_ostream::stderr().get();
    }
    exception const * pabcx;
    if (pstdx) {
@@ -1214,7 +1214,7 @@ char const * exception::what() const {
 }
 
 
-void exception::_print_extended_info(ostream * pos) const {
+void exception::_print_extended_info(io::ostream * pos) const {
    // Nothing to print.
    ABC_UNUSED_ARG(pos);
 }
@@ -1524,7 +1524,7 @@ namespace abc {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
-         std::shared_ptr<file_ostream> pfosStdErr(file_ostream::stderr());
+         std::shared_ptr<io::file_ostream> pfosStdErr(io::file_ostream::stderr());
          pfosStdErr->print(
             SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
             crMsg, crExpr, srcloc, crFunction
@@ -1713,7 +1713,7 @@ void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
 }
 
 
-void index_error::_print_extended_info(ostream * pos) const {
+void index_error::_print_extended_info(io::ostream * pos) const {
    pos->print(SL("invalid index: {}\n"), m_iInvalid);
    lookup_error::_print_extended_info(pos);
 }
@@ -1852,7 +1852,7 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 }
 
 
-void memory_address_error::_print_extended_info(ostream * pos) const {
+void memory_address_error::_print_extended_info(io::ostream * pos) const {
    if (m_pInvalid != smc_achUnknownAddress) {
       pos->print(SL("invalid address: {}\n"), m_pInvalid);
    } else {
@@ -2048,7 +2048,7 @@ void syntax_error::init(
 }
 
 
-void syntax_error::_print_extended_info(ostream * pos) const {
+void syntax_error::_print_extended_info(io::ostream * pos) const {
    istr sFormat;
    if (m_crSource) {
       if (m_iChar) {

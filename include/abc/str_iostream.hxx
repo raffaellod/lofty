@@ -29,10 +29,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_istream
+// abc::io::str_istream
 
 
 namespace abc {
+
+namespace io {
 
 /** Implementation of an read-only stream based on a string.
 */
@@ -87,14 +89,18 @@ protected:
    size_t m_ibRead;
 };
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_ostream
+// abc::io::str_ostream
 
 
 namespace abc {
+
+namespace io {
 
 /** Implementation of an write-only stream based on a string.
 */
@@ -142,6 +148,9 @@ protected:
 };
 
 
+} //namespace io
+
+
 // Now these can be implemented.
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -149,7 +158,7 @@ protected:
 template <typename C, class TTraits>
 template <typename ... Ts>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(Ts const & ... ts) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), ts ...);
    return os.release_content();
 }
@@ -158,14 +167,14 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(Ts const & ... ts) const
 
 template <typename C, class TTraits>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format() const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this));
    return os.release_content();
 }
 template <typename C, class TTraits>
 template <typename T0>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(T0 const & t0) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0);
    return os.release_content();
 }
@@ -173,7 +182,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(T0 const & t0) const {
 template <typename C, class TTraits>
 template <typename T0, typename T1>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(T0 const & t0, T1 const & t1) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1);
    return os.release_content();
 }
@@ -182,7 +191,7 @@ template <typename T0, typename T1, typename T2>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2);
    return os.release_content();
 }
@@ -191,7 +200,7 @@ template <typename T0, typename T1, typename T2, typename T3>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3);
    return os.release_content();
 }
@@ -200,7 +209,7 @@ template <typename T0, typename T1, typename T2, typename T3, typename T4>
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4);
    return os.release_content();
 }
@@ -209,7 +218,7 @@ template <typename T0, typename T1, typename T2, typename T3, typename T4, typen
 inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5);
    return os.release_content();
 }
@@ -221,7 +230,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6);
    return os.release_content();
 }
@@ -234,7 +243,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7);
    return os.release_content();
 }
@@ -247,7 +256,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7, T8 const & t8
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7, t8);
    return os.release_content();
 }
@@ -260,7 +269,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) const {
-   str_ostream os;
+   io::str_ostream os;
    os.print(*static_cast<istr_<C, TTraits> const *>(this), t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
    return os.release_content();
 }
@@ -270,7 +279,7 @@ inline dmstr_<C, TTraits> str_base_<C, TTraits>::format(
 
 template <typename T>
 inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
-   str_ostream os;
+   io::str_ostream os;
    to_str_backend<T> tsb(sFormat);
    tsb.write(t, &os);
    return os.release_content();

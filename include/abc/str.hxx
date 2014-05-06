@@ -65,7 +65,7 @@ protected:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(void const * p, size_t cb, text::encoding enc, ostream * posOut);
+   void write(void const * p, size_t cb, text::encoding enc, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -99,7 +99,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(char_range_<C> const & cr, ostream * posOut) {
+   void write(char_range_<C> const & cr, io::ostream * posOut) {
       _str_to_str_backend::write(
          cr.cbegin().base(), sizeof(C) * cr.size(), text::utf_traits<C>::host_encoding, posOut
       );
@@ -437,9 +437,9 @@ public:
    }
 
 
-   /** Uses the current contents of the string to generate a new one using str_ostream::print().
+   /** Uses the current contents of the string to generate a new one using io::str_ostream::print().
 
-   Implemented in str_iostream.hxx due to its dependency on str_iostream.
+   Implemented in str_iostream.hxx due to its dependency on io::str_iostream.
 
    ts
       Replacement values.
@@ -722,7 +722,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(str_base_<C, TTraits> const & s, ostream * posOut) {
+   void write(str_base_<C, TTraits> const & s, io::ostream * posOut) {
       _str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
    }
 };

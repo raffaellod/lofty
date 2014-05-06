@@ -531,7 +531,7 @@ to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_r
 }
 
 
-void to_str_backend<file_path>::write(file_path const & fp, ostream * posOut) {
+void to_str_backend<file_path>::write(file_path const & fp, io::ostream * posOut) {
    ABC_TRACE_FN((this, fp, posOut));
 
    // TODO: apply format options.

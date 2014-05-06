@@ -38,7 +38,7 @@ ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
 
    ABC_UNUSED_ARG(vsArgs);
 
-   runner r(file_ostream::stderr());
+   runner r(io::file_ostream::stderr());
    r.load_registered_test_cases();
    r.run();
    bool bAllPassed(r.log_summary());

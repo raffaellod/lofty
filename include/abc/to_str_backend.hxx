@@ -42,8 +42,8 @@ conversions”); here are the main differences when compared to the STL function
 •  It accepts an additional argument, controlling how the conversion to string is to be done;
 
 •  Its default specialization relies on abc::to_str_backend(), which outputs its result to an
-   abc::ostream instance; this means that the complete specialization is shared with
-   abc::ostream::print() (see [DOC:7103 abc::ostream::print()]);
+   abc::io::ostream instance; this means that the complete specialization is shared with
+   abc::io::ostream::print() (see [DOC:7103 abc::ostream::print()]);
 
 •  Since the default implementation of abc::to_str() is a thin wrapper around abc::to_str_backend,
    implementors can provide a partial specialization for it (partial specializations of function are
@@ -69,7 +69,7 @@ The only fix for this is to provide an explicit specialization of abc::to_str_ba
 /** Returns the string representation of the specified value, optionally with a custom format.
 
 Cannot be implemented here because iostream.hxx (required for the core of the implementation,
-abc::str_ostream) depends on this file - circular dependency.
+abc::io::str_ostream) depends on this file - circular dependency.
 
 t
    Object to generate a string representation for.
@@ -115,7 +115,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(bool b, ostream * posOut);
+   void write(bool b, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -127,11 +127,9 @@ public:
 
 namespace abc {
 
-// Forward declaration from iostream.hxx.
-class ostream;
-// Methods here need to use ostream * instead of ostream &, because at this point ostream has only
-// been forward-declared above, but not defined yet (a pointer to a forward-declared type is legal,
-// but a reference to it is not).
+// Methods here need to use io::ostream * instead of io::ostream & because at this point io::ostream
+// has only been forward-declared above, but not defined yet (a pointer to a forward-declared type
+// is legal, but a reference to it is not).
 
 /** Base class for the specializations of to_str_backend for integer types.
 */
@@ -163,7 +161,7 @@ protected:
       character in *psBuf.
    */
    void add_prefixes_and_write(
-      bool bNegative, ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
+      bool bNegative, io::ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
    ) const;
 
 
@@ -175,42 +173,42 @@ protected:
       Pointer to the output stream to write to.
    */
    template <typename I>
-   void write_impl(I i, ostream * posOut) const;
+   void write_impl(I i, io::ostream * posOut) const;
 
 
    /** Converts a 64-bit signed integer to its string representation. See write_impl().
    */
-   void write_s64(int64_t i, ostream * posOut) const;
+   void write_s64(int64_t i, io::ostream * posOut) const;
 
 
    /** Converts a 64-bit unsigned integer to its string representation. See write_impl().
    */
-   void write_u64(uint64_t i, ostream * posOut) const;
+   void write_u64(uint64_t i, io::ostream * posOut) const;
 
 
    /** Converts a 32-bit signed integer to its string representation. See write_impl().
    */
-   void write_s32(int32_t i, ostream * posOut) const;
+   void write_s32(int32_t i, io::ostream * posOut) const;
 
 
    /** Converts a 32-bit unsigned integer to its string representation. See write_impl().
    */
-   void write_u32(uint32_t i, ostream * posOut) const;
+   void write_u32(uint32_t i, io::ostream * posOut) const;
 
 
    /** Converts a 16-bit signed integer to its string representation. See write_impl().
    */
-   void write_s16(int16_t i, ostream * posOut) const;
+   void write_s16(int16_t i, io::ostream * posOut) const;
 
 
    /** Converts a 16-bit unsigned integer to its string representation. See write_impl().
    */
-   void write_u16(uint16_t i, ostream * posOut) const;
+   void write_u16(uint16_t i, io::ostream * posOut) const;
 
 
    /** Converts an 8-bit signed integer to its string representation. See write_impl().
    */
-   void write_s8(int8_t i, ostream * posOut) const {
+   void write_s8(int8_t i, io::ostream * posOut) const {
       if (m_iBaseOrShift == 10) {
          write_s16(i, posOut);
       } else {
@@ -223,7 +221,7 @@ protected:
 
    /** Converts an 8-bit unsigned integer to its string representation. See write_impl().
    */
-   void write_u8(uint8_t i, ostream * posOut) const {
+   void write_u8(uint8_t i, io::ostream * posOut) const {
       write_u16(i, posOut);
    }
 
@@ -261,7 +259,7 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_s32(int32_t i, io::ostream * posOut) const {
    if (m_iBaseOrShift == 10) {
       write_s64(i, posOut);
    } else {
@@ -272,7 +270,7 @@ inline void _int_to_str_backend_base::write_s32(int32_t i, ostream * posOut) con
 }
 
 
-inline void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_u32(uint32_t i, io::ostream * posOut) const {
    write_u64(i, posOut);
 }
 
@@ -282,7 +280,7 @@ inline void _int_to_str_backend_base::write_u32(uint32_t i, ostream * posOut) co
 // On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 // turn defer to write_64*() (see above).
 
-inline void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_s16(int16_t i, io::ostream * posOut) const {
    if (m_iBaseOrShift == 10) {
       write_s32(i, posOut);
    } else {
@@ -293,7 +291,7 @@ inline void _int_to_str_backend_base::write_s16(int16_t i, ostream * posOut) con
 }
 
 
-inline void _int_to_str_backend_base::write_u16(uint16_t i, ostream * posOut) const {
+inline void _int_to_str_backend_base::write_u16(uint16_t i, io::ostream * posOut) const {
    write_u32(i, posOut);
 }
 
@@ -346,7 +344,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(I i, ostream * posOut) {
+   void write(I i, io::ostream * posOut) {
       if (sizeof(i) <= sizeof(int8_t)) {
          if (std::is_signed<I>::value) {
             write_s8(int8_t(i), posOut);
@@ -448,7 +446,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(void const volatile * p, ostream * posOut) {
+   void write(void const volatile * p, io::ostream * posOut) {
       to_str_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), posOut);
    }
 
@@ -510,7 +508,7 @@ namespace abc {
       posOut
          Pointer to the output stream to write to.
       */ \
-      void write(C ch, ostream * posOut) { \
+      void write(C ch, io::ostream * posOut) { \
          _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, posOut); \
       } \
    }; \
@@ -576,7 +574,7 @@ namespace abc {
       posOut
          Pointer to the output stream to write to.
       */ \
-      void write(C const (& ach)[t_cch], ostream * posOut) { \
+      void write(C const (& ach)[t_cch], io::ostream * posOut) { \
          ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated")); \
          _str_to_str_backend::write( \
             ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
@@ -627,7 +625,7 @@ namespace abc {
       posOut
          Pointer to the output stream to write to.
       */ \
-      void write(C const * psz, ostream * posOut) { \
+      void write(C const * psz, io::ostream * posOut) { \
          _str_to_str_backend::write( \
             psz, sizeof(C) * text::utf_traits<C>::str_len(psz), \
             text::utf_traits<C>::host_encoding, posOut \
@@ -670,7 +668,7 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(pointer_iterator<TCont, TVal> const & it, ostream * posOut) {
+   void write(pointer_iterator<TCont, TVal> const & it, io::ostream * posOut) {
       to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>::write(
          it.base(), posOut
       );

@@ -24,10 +24,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_istream
+// abc::io::str_istream
 
 
 namespace abc {
+
+namespace io {
 
 str_istream::str_istream(istr const & s) :
    istream(),
@@ -83,14 +85,18 @@ size_t str_istream::read_raw(
    ABC_UNUSED_ARG(pfnStrStr);
 }
 
+} //namespace io
+
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_ostream
+// abc::io::str_ostream
 
 
 namespace abc {
+
+namespace io {
 
 str_ostream::str_ostream() :
    ostream(),
@@ -145,6 +151,8 @@ str_ostream::str_type str_ostream::release_content() {
    // Ensure the string knows its own length and is NUL-terminated.
    m_sBuf.set_size(m_ibWrite / cbChar);
 }
+
+} //namespace io
 
 } //namespace abc
 
