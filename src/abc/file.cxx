@@ -33,6 +33,161 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io globals
+
+
+namespace abc {
+
+namespace io {
+
+struct _file_init_data {
+#if ABC_HOST_API_POSIX
+   /** Set by _construct_matching_file_type(). */
+   struct ::stat statFile;
+#endif
+   /** See file::m_fd. To be set before calling _construct_matching_file_type(). */
+   filedesc fd;
+   /** See file::m_bBuffered. To be set before calling _construct_matching_file_type(). */
+   bool bBuffered:1;
+#if ABC_HOST_API_WIN32
+   /** See regular_file::m_bAppend. To be set before calling _construct_matching_file_type(). */
+   bool bAppend:1;
+#endif
+};
+
+
+std::shared_ptr<file> _construct_matching_file_type(_file_init_data * pfid) {
+   ABC_TRACE_FN((pfid));
+
+#if ABC_HOST_API_POSIX
+   if (::fstat(pfid->fd.get(), &pfid->statFile)) {
+      throw_os_error();
+   }
+   if (S_ISREG(pfid->statFile.st_mode)) {
+      return std::make_shared<regular_file>(pfid);
+   }
+   if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
+      return std::make_shared<console_file>(pfid);
+   }
+   if (S_ISFIFO(pfid->statFile.st_mode) || S_ISSOCK(pfid->statFile.st_mode)) {
+      return std::make_shared<pipe_file>(pfid);
+   }
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   switch (::GetFileType(pfid->fd.get())) {
+      case FILE_TYPE_CHAR:
+         // Serial line or console.
+         // Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
+         // which could be a problem with stdout/stderr because we don’t ask for that permission for
+         // these handles; however, for consoles, “The handles returned by CreateFile,
+         // CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE
+         // access rights”, so we can trust this to succeed for console handles.
+         DWORD iConsoleMode;
+         if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
+            return std::make_shared<console_file>(pfid);
+         }
+         break;
+      case FILE_TYPE_DISK:
+         // Regular file.
+         return std::make_shared<regular_file>(pfid);
+      case FILE_TYPE_PIPE:
+         // Socket or pipe.
+         return std::make_shared<pipe_file>(pfid);
+      case FILE_TYPE_UNKNOWN:
+         // Unknown or error.
+         DWORD iErr(::GetLastError());
+         if (iErr != ERROR_SUCCESS) {
+            throw_os_error(iErr);
+         }
+         break;
+   }
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error TODO-PORT: HOST_API
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+
+   // If a file object was not returned in the code above, return a basic file.
+   return std::make_shared<file>(pfid);
+}
+
+
+std::shared_ptr<file> open(file_path const & fp, access_mode am, bool bBuffered /*= true*/) {
+   ABC_TRACE_FN((fp, am, bBuffered));
+
+   _file_init_data fid;
+   fid.bBuffered = bBuffered;
+#if ABC_HOST_API_POSIX
+   int fi;
+   switch (am.base()) {
+      default:
+      case access_mode::read:
+         fi = O_RDONLY;
+         break;
+      case access_mode::write:
+         fi = O_WRONLY | O_CREAT | O_TRUNC;
+         break;
+      case access_mode::read_write:
+         fi = O_RDWR | O_CREAT;
+         break;
+      case access_mode::append:
+         fi = O_APPEND;
+         break;
+   }
+   if (!fid.bBuffered) {
+      fi |= O_DIRECT;
+   }
+   fid.fd = ::open(fp.os_str().c_str().get(), fi, 0666);
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
+   fid.bAppend = false;
+   switch (am.base()) {
+      default:
+      case access_mode::read:
+         fiAccess = GENERIC_READ;
+         fiShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+         iAction = OPEN_EXISTING;
+         break;
+      case access_mode::write:
+         fiAccess = GENERIC_WRITE;
+         fiShareMode = FILE_SHARE_READ;
+         iAction = CREATE_ALWAYS;
+         break;
+      case access_mode::read_write:
+         fiAccess = GENERIC_READ | GENERIC_WRITE;
+         fiShareMode = FILE_SHARE_READ;
+         iAction = OPEN_ALWAYS;
+         break;
+      case access_mode::append:
+         // This combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for local
+         // files, write operations will not overwrite existing data”. Requiring fewer permissions,
+         // this also allows ::CreateFile() to succeed on files with stricter ACLs.
+         fiAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
+         fiShareMode = FILE_SHARE_READ;
+         iAction = OPEN_ALWAYS;
+         fid.bAppend = true;
+         break;
+   }
+   if (!fid.bBuffered) {
+      fi |= FILE_FLAG_NO_BUFFERING;
+   } else if (fiAccess & GENERIC_READ) {
+      fi |= FILE_FLAG_SEQUENTIAL_SCAN;
+   }
+   fid.fd = ::CreateFile(
+      fp.os_str().c_str().get(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr
+   );
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error TODO-PORT: HOST_API
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   if (!fid.fd) {
+      throw_os_error();
+   }
+   return _construct_matching_file_type(&fid);
+}
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::filedesc
 
 
@@ -109,22 +264,6 @@ static std::shared_ptr<file> * g_ppfileStdIn(nullptr);
 static std::shared_ptr<file> * g_ppfileStdOut(nullptr);
 
 
-struct _file_init_data {
-#if ABC_HOST_API_POSIX
-   /** Set by file::_construct_matching_type(). */
-   struct ::stat statFile;
-#endif
-   /** See file::m_fd. To be set before calling file::_construct_matching_type(). */
-   filedesc fd;
-   /** See file::m_bBuffered. To be set before calling file::_construct_matching_type(). */
-   bool bBuffered:1;
-#if ABC_HOST_API_WIN32
-   /** See regular_file::m_bAppend. To be set before calling file::_construct_matching_type(). */
-   bool bAppend:1;
-#endif
-};
-
-
 file::file(_file_init_data * pfid) :
    m_fd(std::move(pfid->fd)),
    m_bHasSize(false),
@@ -148,7 +287,7 @@ file::file(_file_init_data * pfid) :
    // opened in append mode.
    fid.bAppend = false;
 #endif
-   return _construct_matching_type(&fid);
+   return _construct_matching_file_type(&fid);
 }
 
 
@@ -167,82 +306,6 @@ void file::flush() {
 #else
    #error TODO-PORT: HOST_API
 #endif
-}
-
-
-/*static*/ std::shared_ptr<file> file::open(
-   file_path const & fp, access_mode fam, bool bBuffered /*= true*/
-) {
-   ABC_TRACE_FN((fp, fam, bBuffered));
-
-   _file_init_data fid;
-   fid.bBuffered = bBuffered;
-#if ABC_HOST_API_POSIX
-   int fi;
-   switch (fam.base()) {
-      default:
-      case access_mode::read:
-         fi = O_RDONLY;
-         break;
-      case access_mode::write:
-         fi = O_WRONLY | O_CREAT | O_TRUNC;
-         break;
-      case access_mode::read_write:
-         fi = O_RDWR | O_CREAT;
-         break;
-      case access_mode::append:
-         fi = O_APPEND;
-         break;
-   }
-   if (!fid.bBuffered) {
-      fi |= O_DIRECT;
-   }
-   fid.fd = ::open(fp.os_str().c_str().get(), fi, 0666);
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
-   fid.bAppend = false;
-   switch (fam.base()) {
-      default:
-      case access_mode::read:
-         fiAccess = GENERIC_READ;
-         fiShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
-         iAction = OPEN_EXISTING;
-         break;
-      case access_mode::write:
-         fiAccess = GENERIC_WRITE;
-         fiShareMode = FILE_SHARE_READ;
-         iAction = CREATE_ALWAYS;
-         break;
-      case access_mode::read_write:
-         fiAccess = GENERIC_READ | GENERIC_WRITE;
-         fiShareMode = FILE_SHARE_READ;
-         iAction = OPEN_ALWAYS;
-         break;
-      case access_mode::append:
-         // This combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for local
-         // files, write operations will not overwrite existing data”. Requiring fewer permissions,
-         // this also allows ::CreateFile() to succeed on files with stricter ACLs.
-         fiAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
-         fiShareMode = FILE_SHARE_READ;
-         iAction = OPEN_ALWAYS;
-         fid.bAppend = true;
-         break;
-   }
-   if (!fid.bBuffered) {
-      fi |= FILE_FLAG_NO_BUFFERING;
-   } else if (fiAccess & GENERIC_READ) {
-      fi |= FILE_FLAG_SEQUENTIAL_SCAN;
-   }
-   fid.fd = ::CreateFile(
-      fp.os_str().c_str().get(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr
-   );
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   if (!fid.fd) {
-      throw_os_error();
-   }
-   return _construct_matching_type(&fid);
 }
 
 
@@ -397,59 +460,6 @@ void file::flush() {
    } while (cb);
 
    return size_t(pb - static_cast<int8_t const *>(p));
-}
-
-
-/*static*/ std::shared_ptr<file> file::_construct_matching_type(_file_init_data * pfid) {
-   ABC_TRACE_FN((pfid));
-
-#if ABC_HOST_API_POSIX
-   if (::fstat(pfid->fd.get(), &pfid->statFile)) {
-      throw_os_error();
-   }
-   if (S_ISREG(pfid->statFile.st_mode)) {
-      return std::make_shared<regular_file>(pfid);
-   }
-   if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
-      return std::make_shared<console_file>(pfid);
-   }
-   if (S_ISFIFO(pfid->statFile.st_mode) || S_ISSOCK(pfid->statFile.st_mode)) {
-      return std::make_shared<pipe_file>(pfid);
-   }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   switch (::GetFileType(pfid->fd.get())) {
-      case FILE_TYPE_CHAR:
-         // Serial line or console.
-         // Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
-         // which could be a problem with stdout/stderr because we don’t ask for that permission for
-         // these handles; however, for consoles, “The handles returned by CreateFile,
-         // CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE
-         // access rights”, so we can trust this to succeed for console handles.
-         DWORD iConsoleMode;
-         if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
-            return std::make_shared<console_file>(pfid);
-         }
-         break;
-      case FILE_TYPE_DISK:
-         // Regular file.
-         return std::make_shared<regular_file>(pfid);
-      case FILE_TYPE_PIPE:
-         // Socket or pipe.
-         return std::make_shared<pipe_file>(pfid);
-      case FILE_TYPE_UNKNOWN:
-         // Unknown or error.
-         DWORD iErr(::GetLastError());
-         if (iErr != ERROR_SUCCESS) {
-            throw_os_error(iErr);
-         }
-         break;
-   }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-
-   // If a file object was not returned in the code above, return a basic file.
-   return std::make_shared<file>(pfid);
 }
 
 

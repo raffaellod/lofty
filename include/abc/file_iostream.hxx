@@ -48,7 +48,7 @@ public:
    TODO: comment signature.
    */
    explicit file_stream_base(std::shared_ptr<file> pfile);
-   file_stream_base(file_path const & fp, file::access_mode fam, bool bBuffered = true);
+   file_stream_base(file_path const & fp, access_mode am, bool bBuffered = true);
 
 
    /** Destructor.

@@ -50,10 +50,10 @@ file_stream_base::file_stream_base(std::shared_ptr<file> pfile) :
    m_pfile(std::move(pfile)) {
 }
 file_stream_base::file_stream_base(
-   file_path const & fp, file::access_mode fam, bool bBuffered /*= true*/
+   file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) :
    stream_base(),
-   m_pfile(file::open(fp, fam, bBuffered)) {
+   m_pfile(open(fp, am, bBuffered)) {
 }
 
 
@@ -98,7 +98,7 @@ file_istream::file_istream(std::shared_ptr<file> pfile) :
    _post_construct();
 }
 file_istream::file_istream(file_path const & fp) :
-   file_stream_base(fp, file::access_mode::read),
+   file_stream_base(fp, access_mode::read),
    istream() {
    _post_construct();
 }
@@ -460,7 +460,7 @@ file_ostream::file_ostream(std::shared_ptr<file> pfile) :
    ostream() {
 }
 file_ostream::file_ostream(file_path const & fp) :
-   file_stream_base(fp, file::access_mode::write),
+   file_stream_base(fp, access_mode::write),
    ostream() {
 }
 
@@ -592,7 +592,7 @@ file_iostream::file_iostream(std::shared_ptr<file> pfile) :
    file_ostream(pfile) {
 }
 file_iostream::file_iostream(file_path const & fp) :
-   file_stream_base(fp, file::access_mode::read_write),
+   file_stream_base(fp, access_mode::read_write),
    file_istream(m_pfile),
    file_ostream(m_pfile) {
 }

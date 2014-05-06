@@ -73,6 +73,51 @@ ABC_ENUM(stdfile, \
    #error TODO-PORT: HOST_API
 #endif
 
+/** File access modes.
+*/
+ABC_ENUM(access_mode, \
+   /** Read-only access. */ \
+   (read,       1), \
+   /** Write-only access. */ \
+   (write,      2), \
+   /** Read/write access. */ \
+   (read_write, 3), \
+   /** Append-only access. */ \
+   (append,     4) \
+);
+
+/** Data collected by open() used to construct a file instance. This is only defined in file.cxx,
+after the necessary header files have been included.
+*/
+struct _file_init_data;
+
+// Forward declaration.
+class file;
+
+/** Instantiates a file of the appropriate type for the descriptor in *pfid, returning a shared
+pointer to it.
+
+pfid
+   Data that will be passed to the constructor of the file object.
+return
+   Shared pointer to the newly created file object.
+*/
+std::shared_ptr<file> _construct_matching_file_type(_file_init_data * pfid);
+
+/** Opens a file, returning a new file object with the desired access to the specified file.
+
+fp
+   Path to the file.
+am
+   Desired access mode.
+bBuffered
+   If true, access to the file will be buffered by the OS, if false, access to the file will be
+   unbuffered.
+return
+   Pointer to a new file object for fp.
+*/
+std::shared_ptr<file> open(file_path const & fp, access_mode am, bool bBuffered = true);
+
 } //namespace io
 
 } //namespace abc
@@ -184,31 +229,10 @@ namespace abc {
 
 namespace io {
 
-// Forward declaration. This is only defined in file.cxx, after the necessary header files have been
-// included.
-struct _file_init_data;
-
-
 /** OS-native file (regular or pseudo).
 */
 class ABCAPI file :
    public noncopyable {
-public:
-
-   /** File access modes.
-   */
-   ABC_ENUM(access_mode, \
-      /** Read-only access. */ \
-      (read,       1), \
-      /** Write-only access. */ \
-      (write,      2), \
-      /** Read/write access. */ \
-      (read_write, 3), \
-      /** Append-only access. */ \
-      (append,     4) \
-   );
-
-
 public:
 
    /** Constructor.
@@ -257,21 +281,6 @@ public:
    bool is_buffered() const {
       return m_bBuffered;
    }
-
-
-   /** Opens a file, returning a new file object with the desired access to the specified file.
-
-   fp
-      Path to the file.
-   fam
-      Desired access mode.
-   bBuffered
-      If true, access to the file will be buffered by the OS, if false, access to the file will be
-      unbuffered.
-   return
-      Pointer to a new file object for fp.
-   */
-   static std::shared_ptr<file> open(file_path const & fp, access_mode fam, bool bBuffered = true);
 
 
    /** Returns the physical alignment for unbuffered/direct disk access.
@@ -340,17 +349,6 @@ public:
 
 
 private:
-
-   /** Instantiates a file of the appropriate type for the descriptor in *pfid, returning a shared
-   pointer to it.
-
-   pfid
-      Data that will be passed to the constructor of the file object.
-   return
-      Shared pointer to the newly created file object.
-   */
-   static std::shared_ptr<file> _construct_matching_type(_file_init_data * pfid);
-
 
    /** Initializes a standard file object.
 
