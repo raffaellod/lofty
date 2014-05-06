@@ -36,8 +36,8 @@ namespace abc {
 
 namespace math {
 
-/** Helper for abc::math::abs(). Necessary because function templatess cannot be partially
-specialized, but structs/classes can.
+/** Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
+but structs/classes can.
 */
 template <typename T, bool t_bIsSigned = std::is_signed<T>::value>
 struct _abs_helper;
