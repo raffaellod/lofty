@@ -200,15 +200,15 @@ default_notation:
 
 
 ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
-   bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
+   bool bNegative, ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
-   ABC_TRACE_FN((this, bNegative, posOut, psBuf/*, pchBufFirstUsed*/));
+   ABC_TRACE_FN((this, bNegative, posOut, psBuf, itBufFirstUsed));
 
-   char_t const * pchBufEnd(psBuf->cend().base());
-   char_t * pch(pchBufFirstUsed);
+   auto itEnd(psBuf->cend());
+   auto it(itBufFirstUsed);
    // Ensure that at least one digit is generated.
-   if (pch == pchBufEnd) {
-      *--pch = CL('0');
+   if (it == itEnd) {
+      *--it = CL('0');
    }
    // Determine the sign character: only if in decimal notation, and make it a minus sign if the
    // number is negative.
@@ -217,25 +217,25 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
    bool bSignLast(chSign && m_chPad == CL('0'));
    // Add the sign character if there’s no prefix and the padding is not zeroes.
    if (chSign && m_chPad != CL('0')) {
-      *--pch = chSign;
+      *--it = chSign;
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
-   char_t const * pchFirst(pchBufEnd - (m_cchWidth - (bSignLast ? 1 : 0)));
-   while (pch > pchFirst) {
-      *--pch = m_chPad;
+   auto itFirstDigit(itEnd - (m_cchWidth - (bSignLast ? 1 : 0)));
+   while (it > itFirstDigit) {
+      *--it = m_chPad;
    }
    // Add prefix or sign (if padding with zeroes), if any.
    if (m_chPrefix0) {
       if (m_chPrefix1) {
-         *--pch = m_chPrefix1;
+         *--it = m_chPrefix1;
       }
-      *--pch = m_chPrefix0;
+      *--it = m_chPrefix0;
    } else if (bSignLast) {
       // Add the sign character.
-      *--pch = chSign;
+      *--it = chSign;
    }
    // Write the constructed string.
-   posOut->write_raw(pch, sizeof(char_t) * size_t(pchBufEnd - pch), text::encoding::host);
+   posOut->write_raw(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
 }
 
 
@@ -246,7 +246,7 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
    sBuf.set_size(m_cchBuf);
-   char_t * pch(sBuf.end().base());
+   auto it(sBuf.end());
 
    // Generate the digits.
    I iRest(i);
@@ -256,19 +256,19 @@ inline void _int_to_str_backend_base::write_impl(I i, ostream * posOut) const {
       while (iRest) {
          I iMod(iRest % iDivider);
          iRest /= iDivider;
-         *--pch = m_pchIntToStr[math::abs(iMod)];
+         *--it = m_pchIntToStr[math::abs(iMod)];
       }
    } else {
       // Base 2 ^ n: can use & and >>.
       I iMask((I(1) << m_iBaseOrShift) - 1);
       while (iRest) {
-         *--pch = m_pchIntToStr[iRest & iMask];
+         *--it = m_pchIntToStr[iRest & iMask];
          iRest >>= m_iBaseOrShift;
       }
    }
 
    // Add prefix or sign, and write to the ostream.
-   add_prefixes_and_write(numeric::is_negative<I>(i), posOut, &sBuf, pch);
+   add_prefixes_and_write(numeric::is_negative<I>(i), posOut, &sBuf, it);
 }
 
 

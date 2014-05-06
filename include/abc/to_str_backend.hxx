@@ -158,12 +158,12 @@ protected:
       Pointer to the output stream to write to.
    psBuf
       Pointer to the string containing the characters to write.
-   pchBufFirstUsed
-      Pointer to the first used character in *psBuf; the last used character is always the last
+   itBufFirstUsed
+      Iterator to the first used character in *psBuf; the last used character is always the last
       character in *psBuf.
    */
    void add_prefixes_and_write(
-      bool bNegative, ostream * posOut, mstr * psBuf, char_t * pchBufFirstUsed
+      bool bNegative, ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
    ) const;
 
 
