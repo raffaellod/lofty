@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_FILE_HXX
-#define ABC_FILE_HXX
+#ifndef ABC_IO_BINARY_HXX
+#define ABC_IO_BINARY_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -773,5 +773,5 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_FILE_HXX
+#endif //ifndef ABC_IO_BINARY_HXX
 
