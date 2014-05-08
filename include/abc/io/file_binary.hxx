@@ -522,7 +522,7 @@ protected:
 
 #if 0
    /** Size of the file. */
-   fileint_t m_cb;
+   full_size_t m_cb;
    /** Physical alignment for unbuffered/direct disk access. */
    unsigned m_cbPhysAlign;
 #endif

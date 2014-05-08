@@ -818,7 +818,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 #if _WIN32_WINNT >= 0x0500
    static_assert(
       sizeof(m_cb) == sizeof(LARGE_INTEGER),
-      "fileint_t must be the same size as LARGE_INTEGER"
+      "full_size_t must be the same size as LARGE_INTEGER"
    );
    if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
       throw_os_error();
@@ -831,7 +831,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
          throw_os_error(iErr);
       }
    }
-   m_cb = (fileint_t(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
+   m_cb = (full_size_t(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
 #endif //if _WIN32_WINNT >= 0x0500 … else
    if (!m_bBuffered) {
       // Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
@@ -947,7 +947,7 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
       return
          true if the specified range could be locked, or false if the range has already been locked.
       */
-      bool lock(filedesc_t fd, offset_t ibOffset, fileint_t cb) {
+      bool lock(filedesc_t fd, offset_t ibOffset, full_size_t cb) {
          if (m_fd != INVALID_HANDLE_VALUE) {
             unlock();
          }

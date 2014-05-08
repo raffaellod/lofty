@@ -36,6 +36,14 @@ namespace abc {
 
 namespace io {
 
+/** Unsigned integer wide enough to express an I/O-related size. */
+#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+   typedef uint64_t full_size_t;
+#else
+   #error TODO-PORT: HOST_API
+#endif
+
+
 /** Integer wide enough to express an I/O-related offset. */
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef int64_t offset_t;
@@ -191,6 +199,32 @@ public:
       Current position.
    */
    virtual offset_t tell() const = 0;
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::sized_binary
+
+
+namespace abc {
+
+namespace io {
+
+/** Interface for binary I/O classes that access data with a known size.
+*/
+class ABCAPI sized_binary {
+public:
+
+   /** Returns the size of the data.
+
+   return
+      Data size, in bytes.
+   */
+   virtual full_size_t size() const = 0;
 };
 
 } //namespace io
