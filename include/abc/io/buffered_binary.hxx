@@ -40,7 +40,7 @@ namespace io {
 /** Provides buffering on top of a binary_reader instance.
 */
 class ABCAPI buffered_binary_reader :
-   public virtual binary_reader {
+   public binary_reader {
 public:
 
    /** See binary_reader::binary_reader().
@@ -80,7 +80,7 @@ namespace io {
 /** Provides buffering on top of a binary_writer instance.
 */
 class ABCAPI buffered_binary_writer :
-   public virtual binary_writer {
+   public binary_writer {
 public:
 
    /** See binary_writer::binary_writer().

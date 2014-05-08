@@ -289,7 +289,7 @@ namespace io {
 */
 class ABCAPI file_binary_reader :
    public virtual file_binary_base,
-   public virtual binary_reader {
+   public binary_reader {
 public:
 
    /** See file_binary_base::file_binary_base().
@@ -324,7 +324,7 @@ namespace io {
 */
 class ABCAPI file_binary_writer :
    public virtual file_binary_base,
-   public virtual binary_writer {
+   public binary_writer {
 public:
 
    /** See binary_writer::binary_writer().
