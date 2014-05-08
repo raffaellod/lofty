@@ -95,37 +95,6 @@ ABC_ENUM(stdfile, \
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary_base
-
-
-namespace abc {
-
-namespace io {
-
-/** Abstract base for binary (non-text) I/O classes.
-*/
-class ABCAPI binary_base :
-   public noncopyable {
-public:
-
-   /** Destructor.
-   */
-   virtual ~binary_base();
-
-
-protected:
-
-   /** Constructor.
-   */
-   binary_base();
-};
-
-} //namespace io
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary_reader
 
 
@@ -133,16 +102,10 @@ namespace abc {
 
 namespace io {
 
-/** Abstract binary (non-text) input.
+/** Interface for binary (non-text) input.
 */
-class ABCAPI binary_reader :
-   public virtual binary_base {
+class ABCAPI binary_reader {
 public:
-
-   /** Destructor.
-   */
-   virtual ~binary_reader();
-
 
    /** Reads at most cbMax bytes.
 
@@ -155,13 +118,6 @@ public:
       the data was reached.
    */
    virtual size_t read(void * p, size_t cbMax) = 0;
-
-
-protected:
-
-   /** See binary_base::binary_base().
-   */
-   binary_reader();
 };
 
 } //namespace io
@@ -177,16 +133,10 @@ namespace abc {
 
 namespace io {
 
-/** Abstract binary (non-text) output.
+/** Interface for binary (non-text) output.
 */
-class ABCAPI binary_writer :
-   public virtual binary_base {
+class ABCAPI binary_writer {
 public:
-
-   /** Destructor.
-   */
-   virtual ~binary_writer();
-
 
    /** Forces writing any data in the write buffer.
    */
@@ -203,13 +153,6 @@ public:
       Count of bytes written.
    */
    virtual size_t write(void const * p, size_t cb) = 0;
-
-
-protected:
-
-   /** See binary_base::binary_base().
-   */
-   binary_writer();
 };
 
 } //namespace io

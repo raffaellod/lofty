@@ -40,7 +40,6 @@ namespace abc {
 namespace io {
 
 buffered_binary_reader::buffered_binary_reader(std::shared_ptr<binary_reader> pbr) :
-   binary_reader(),
    m_pbr(std::move(pbr)) {
 }
 
@@ -69,7 +68,6 @@ namespace abc {
 namespace io {
 
 buffered_binary_writer::buffered_binary_writer(std::shared_ptr<binary_writer> pbw) :
-   binary_writer(),
    m_pbw(std::move(pbw)) {
 }
 

@@ -248,8 +248,7 @@ namespace io {
 
 /** Base for file binary I/O classes.
 */
-class ABCAPI file_binary_base :
-   public virtual binary_base {
+class ABCAPI file_binary_base {
 public:
 
    /** Destructor.
