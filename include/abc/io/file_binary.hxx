@@ -503,12 +503,18 @@ namespace io {
 /** Base for binary I/O classes for regular disk files.
 */
 class ABCAPI regular_file_binary_base :
-   public virtual file_binary_base {
+   public virtual file_binary_base,
+   public sized_binary {
 public:
 
    /** Destructor.
    */
    virtual ~regular_file_binary_base();
+
+
+   /** See sized_binary::size().
+   */
+   virtual full_size_t size() const;
 
 
 protected:
@@ -520,9 +526,9 @@ protected:
 
 protected:
 
-#if 0
    /** Size of the file. */
    full_size_t m_cb;
+#if 0
    /** Physical alignment for unbuffered/direct disk access. */
    unsigned m_cbPhysAlign;
 #endif

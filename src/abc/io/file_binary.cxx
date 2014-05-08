@@ -802,16 +802,15 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
    file_binary_base(pfid) {
    ABC_TRACE_FN((this, pfid));
 
-#if 0
-   m_bHasSize = true;
-
 #if ABC_HOST_API_POSIX
 
    m_cb = size_t(pfid->statFile.st_size);
+#if 0
    if (!m_bBuffered) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
       m_cbPhysAlign = unsigned(pfid->statFile.st_blksize);
    }
+#endif
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
@@ -833,21 +832,29 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
    }
    m_cb = (full_size_t(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
 #endif //if _WIN32_WINNT >= 0x0500 … else
+#if 0
    if (!m_bBuffered) {
       // Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
       // file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical
       // sector size.
       m_cbPhysAlign = 4096;
    }
+#endif
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-#endif
 }
 
 
 /*virtual*/ regular_file_binary_base::~regular_file_binary_base() {
+}
+
+
+/*virtual*/ full_size_t regular_file_binary_base::size() const {
+   ABC_TRACE_FN((this));
+
+   return m_cb;
 }
 
 } //namespace io
