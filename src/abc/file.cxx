@@ -40,9 +40,10 @@ namespace abc {
 
 namespace io {
 
-static std::shared_ptr<binary_writer> g_pbwStdErr(nullptr);
-static std::shared_ptr<binary_reader> g_pbrStdIn(nullptr);
-static std::shared_ptr<binary_writer> g_pbwStdOut(nullptr);
+static std::shared_ptr<binary_writer> g_pbwStdErr;
+static std::shared_ptr<binary_reader> g_pbrStdIn;
+static std::shared_ptr<binary_writer> g_pbwStdOut;
+
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
