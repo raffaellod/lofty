@@ -947,7 +947,7 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
       return
          true if the specified range could be locked, or false if the range has already been locked.
       */
-      bool lock(filedesc_t fd, fileint_t ibOffset, fileint_t cb) {
+      bool lock(filedesc_t fd, offset_t ibOffset, fileint_t cb) {
          if (m_fd != INVALID_HANDLE_VALUE) {
             unlock();
          }
@@ -1014,7 +1014,7 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
             }
          }
 #endif //if _WIN32_WINNT >= 0x0500 … else
-      } while (!flAppend.lock(m_fd.get(), fileint_t(ibEOF.QuadPart), cb));
+      } while (!flAppend.lock(m_fd.get(), offset_t(ibEOF.QuadPart), cb));
       // Now the write can occur; the lock will be released automatically at the end.
    }
 

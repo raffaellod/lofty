@@ -46,15 +46,6 @@ namespace io {
    #error TODO-PORT: HOST_API
 #endif
 
-/** Integer wide enough to express any valid file offset. */
-#if ABC_HOST_API_POSIX
-   typedef uint64_t fileint_t;
-#elif ABC_HOST_API_WIN32
-   typedef uint64_t fileint_t;
-#else
-   #error TODO-PORT: HOST_API
-#endif
-
 /** Data collected by open_binary() used to construct a file instance. This is only defined in
 file.cxx, after the necessary header files have been included.
 */
@@ -531,7 +522,7 @@ protected:
 protected:
 
 #if 0
-   /** Computed size of the file. */
+   /** Size of the file. */
    fileint_t m_cb;
    /** Physical alignment for unbuffered/direct disk access. */
    unsigned m_cbPhysAlign;

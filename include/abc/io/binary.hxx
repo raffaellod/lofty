@@ -36,6 +36,40 @@ namespace abc {
 
 namespace io {
 
+/** Integer wide enough to express an I/O-related offset. */
+#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+   typedef int64_t offset_t;
+#else
+   #error TODO-PORT: HOST_API
+#endif
+
+
+/** File access modes.
+*/
+ABC_ENUM(access_mode, \
+   /** Read-only access. */ \
+   (read,       1), \
+   /** Write-only access. */ \
+   (write,      2), \
+   /** Read/write access. */ \
+   (read_write, 3), \
+   /** Append-only access. */ \
+   (append,     4) \
+);
+
+
+/** Position indicators to which offsets may be relative.
+*/
+ABC_ENUM(seek_from, \
+   /** The offset is relative to the start of the data (absolute seek). */ \
+   (start,   0), \
+   /** The offset is relative to the current offset (incremental seek). */ \
+   (current, 1), \
+   /** The offset is relative to the end of the data and presumably negative. */ \
+   (end,     2) \
+);
+
+
 // Some C libraries (such as MS CRT) define these as macros.
 #ifdef stdin
    #undef stdin
@@ -52,20 +86,6 @@ ABC_ENUM(stdfile, \
    (stdout, 1), \
    /** Internal identifier for stderr. */ \
    (stderr, 2) \
-);
-
-
-/** File access modes.
-*/
-ABC_ENUM(access_mode, \
-   /** Read-only access. */ \
-   (read,       1), \
-   /** Write-only access. */ \
-   (write,      2), \
-   /** Read/write access. */ \
-   (read_write, 3), \
-   /** Append-only access. */ \
-   (append,     4) \
 );
 
 } //namespace io
@@ -190,6 +210,44 @@ protected:
    /** See binary_base::binary_base().
    */
    binary_writer();
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::seekable_binary
+
+
+namespace abc {
+
+namespace io {
+
+/** Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
+*/
+class ABCAPI seekable_binary {
+public:
+
+   /** Changes the current read/write position.
+
+   iOffset
+      New position, relative to sfWhence.
+   sfWhence
+      Indicates what position iOffset is relative to.
+   return
+      Resulting position.
+   */
+   virtual offset_t seek(offset_t iOffset, seek_from sfWhence) = 0;
+
+
+   /** Returns the current read/write position.
+
+   return
+      Current position.
+   */
+   virtual offset_t tell() const = 0;
 };
 
 } //namespace io
