@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#include <abc/io/binary_file.hxx>
+#include <abc/io/file_binary.hxx>
 #include <abc/numeric.hxx>
 #include <abc/trace.hxx>
 #include <algorithm>
