@@ -40,24 +40,22 @@ namespace abc {
 
 namespace io {
 
-static std::shared_ptr<binary_writer> g_pbwStdErr;
-static std::shared_ptr<binary_reader> g_pbrStdIn;
-static std::shared_ptr<binary_writer> g_pbwStdOut;
+static std::shared_ptr<file_binary_writer> g_pfbwStdErr;
+static std::shared_ptr<file_binary_reader> g_pfbrStdIn;
+static std::shared_ptr<file_binary_writer> g_pfbwStdOut;
 
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
-   /** Set by _construct_binary_base_specialization(). */
+   /** Set by _construct_binary(). */
    struct ::stat statFile;
 #endif
-   /** See file_binary_base::m_fd. To be set before calling
-   _construct_binary_base_specialization(). */
+   /** See file_binary_base::m_fd. To be set before calling _construct_binary(). */
    filedesc fd;
    /** Determines what type of I/O object will be instantiated. To be set before calling
-   _construct_binary_base_specialization(). */
+   _construct_binary(). */
    access_mode am;
-   /** See file_binary_base::m_bBuffered. To be set before calling
-   _construct_binary_base_specialization(). */
+   /** See file_binary_base::m_bBuffered. To be set before calling _construct_binary(). */
    bool bBuffered:1;
 };
 
@@ -70,7 +68,7 @@ pfid
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<binary_base> _construct_binary_base_specialization(_file_init_data * pfid) {
+static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfid) {
    ABC_TRACE_FN((pfid));
 
 #if ABC_HOST_API_POSIX
@@ -214,7 +212,7 @@ am
 return
    Pointer to a binary I/O object controlling fd.
 */
-static std::shared_ptr<binary_base> _attach_binary(filedesc && fd, access_mode am) {
+static std::shared_ptr<file_binary_base> _attach_binary(filedesc && fd, access_mode am) {
    ABC_TRACE_FN((/*fd*/));
 
    _file_init_data fid;
@@ -223,11 +221,11 @@ static std::shared_ptr<binary_base> _attach_binary(filedesc && fd, access_mode a
    // Since this method is supposed to be used only for standard descriptors, assume that OS
    // buffering is on.
    fid.bBuffered = true;
-   return _construct_binary_base_specialization(&fid);
+   return _construct_binary(&fid);
 }
 
 
-std::shared_ptr<binary_writer> const & binary_stderr() {
+std::shared_ptr<file_binary_writer> binary_stderr() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -243,8 +241,8 @@ std::shared_ptr<binary_writer> const & binary_stderr() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pbwStdErr) {
-      g_pbwStdErr = std::dynamic_pointer_cast<binary_writer>(_attach_binary(filedesc(
+   if (!g_pfbwStdErr) {
+      g_pfbwStdErr = std::dynamic_pointer_cast<file_binary_writer>(_attach_binary(filedesc(
 #if ABC_HOST_API_POSIX
          STDERR_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -255,11 +253,11 @@ std::shared_ptr<binary_writer> const & binary_stderr() {
          false
       ), access_mode::write));
    }
-   return g_pbwStdErr;
+   return g_pfbwStdErr;
 }
 
 
-std::shared_ptr<binary_reader> const & binary_stdin() {
+std::shared_ptr<file_binary_reader> binary_stdin() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -275,8 +273,8 @@ std::shared_ptr<binary_reader> const & binary_stdin() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pbrStdIn) {
-      g_pbrStdIn = std::dynamic_pointer_cast<binary_reader>(_attach_binary(filedesc(
+   if (!g_pfbrStdIn) {
+      g_pfbrStdIn = std::dynamic_pointer_cast<file_binary_reader>(_attach_binary(filedesc(
 #if ABC_HOST_API_POSIX
          STDIN_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -287,11 +285,11 @@ std::shared_ptr<binary_reader> const & binary_stdin() {
          false
       ), access_mode::read));
    }
-   return g_pbrStdIn;
+   return g_pfbrStdIn;
 }
 
 
-std::shared_ptr<binary_writer> const & binary_stdout() {
+std::shared_ptr<file_binary_writer> binary_stdout() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -307,8 +305,8 @@ std::shared_ptr<binary_writer> const & binary_stdout() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pbwStdOut) {
-      g_pbwStdOut = std::dynamic_pointer_cast<binary_writer>(_attach_binary(filedesc(
+   if (!g_pfbwStdOut) {
+      g_pfbwStdOut = std::dynamic_pointer_cast<file_binary_writer>(_attach_binary(filedesc(
 #if ABC_HOST_API_POSIX
          STDOUT_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -319,11 +317,11 @@ std::shared_ptr<binary_writer> const & binary_stdout() {
          false
       ), access_mode::write));
    }
-   return g_pbwStdOut;
+   return g_pfbwStdOut;
 }
 
 
-std::shared_ptr<binary_base> open_binary(
+std::shared_ptr<file_binary_base> open_binary(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) {
    ABC_TRACE_FN((fp, am, bBuffered));
@@ -394,7 +392,7 @@ std::shared_ptr<binary_base> open_binary(
    }
    fid.am = am;
    fid.bBuffered = bBuffered;
-   return _construct_binary_base_specialization(&fid);
+   return _construct_binary(&fid);
 }
 
 } //namespace io

@@ -60,13 +60,18 @@ file.cxx, after the necessary header files have been included.
 */
 struct _file_init_data;
 
+// Forward declarations.
+class file_binary_base;
+class file_binary_reader;
+class file_binary_writer;
+
 
 /** Returns the binary writer associated to the standard error output file (stderr).
 
 return
    Standard error file.
 */
-ABCAPI std::shared_ptr<binary_writer> const & binary_stderr();
+ABCAPI std::shared_ptr<file_binary_writer> binary_stderr();
 
 
 /** Returns the binary reader associated to the standard input file (stdin).
@@ -74,7 +79,7 @@ ABCAPI std::shared_ptr<binary_writer> const & binary_stderr();
 return
    Standard input file.
 */
-ABCAPI std::shared_ptr<binary_reader> const & binary_stdin();
+ABCAPI std::shared_ptr<file_binary_reader> binary_stdin();
 
 
 /** Returns the binary writer associated to the standard output file (stdout).
@@ -82,7 +87,7 @@ ABCAPI std::shared_ptr<binary_reader> const & binary_stdin();
 return
    Standard output file.
 */
-ABCAPI std::shared_ptr<binary_writer> const & binary_stdout();
+ABCAPI std::shared_ptr<file_binary_writer> binary_stdout();
 
 
 /** Opens a file for binary access.
@@ -97,7 +102,7 @@ bBuffered
 return
    Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<binary_base> open_binary(
+std::shared_ptr<file_binary_base> open_binary(
    file_path const & fp, access_mode am, bool bBuffered = true
 );
 
@@ -112,10 +117,12 @@ bBuffered
 return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<binary_reader> open_binary_reader(
+inline std::shared_ptr<file_binary_reader> open_binary_reader(
    file_path const & fp, bool bBuffered = true
 ) {
-   return std::dynamic_pointer_cast<binary_reader>(open_binary(fp, access_mode::read, bBuffered));
+   return std::dynamic_pointer_cast<file_binary_reader>(open_binary(
+      fp, access_mode::read, bBuffered
+   ));
 }
 
 
@@ -129,10 +136,12 @@ bBuffered
 return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<binary_writer> open_binary_writer(
+inline std::shared_ptr<file_binary_writer> open_binary_writer(
    file_path const & fp, bool bBuffered = true
 ) {
-   return std::dynamic_pointer_cast<binary_writer>(open_binary(fp, access_mode::write, bBuffered));
+   return std::dynamic_pointer_cast<file_binary_writer>(open_binary(
+      fp, access_mode::write, bBuffered
+   ));
 }
 
 } //namespace io
