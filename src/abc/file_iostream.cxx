@@ -132,13 +132,13 @@ file_istream::file_istream(file_path const & fp) :
       if (!m_cbReadBufUsed) {
          m_bAtEof = true;
       }
-      size_t cbBom;
-      m_enc = text::guess_encoding(
-         pRawReadBuf,
-         m_cbReadBufUsed,
-         /*pbr->has_size() ? size_t(std::min<largeint_t>(pbr->size(), smc_cbAlignedMax)) :*/ 0,
-         &cbBom
-      );
+      size_t cbFile, cbBom;
+      if (sized_binary const * psb = dynamic_cast<sized_binary *>(m_pfile.get())) {
+         cbFile = size_t(std::min<full_size_t>(psb->size(), smc_cbAlignedMax));
+      } else {
+         cbFile = 0;
+      }
+      m_enc = text::guess_encoding(pRawReadBuf, m_cbReadBufUsed, cbFile, &cbBom);
       if (cbBom) {
          // A BOM was read: discard it.
          m_ibReadBufUsed += cbBom;
