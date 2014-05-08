@@ -86,25 +86,42 @@ ABC_ENUM(access_mode, \
    (append,     4) \
 );
 
-/** Data collected by open() used to construct a file instance. This is only defined in file.cxx,
-after the necessary header files have been included.
+/** Data collected by open_binary() used to construct a file instance. This is only defined in
+file.cxx, after the necessary header files have been included.
 */
 struct _file_init_data;
 
-// Forward declaration.
-class file;
+// Forward declarations.
+class binary_base;
+class binary_reader;
+class binary_writer;
 
-/** Instantiates a file of the appropriate type for the descriptor in *pfid, returning a shared
-pointer to it.
 
-pfid
-   Data that will be passed to the constructor of the file object.
+/** Returns the binary writer associated to the standard error output file (stderr).
+
 return
-   Shared pointer to the newly created file object.
+   Standard error file.
 */
-std::shared_ptr<file> _construct_matching_file_type(_file_init_data * pfid);
+ABCAPI std::shared_ptr<binary_writer> const & binary_stderr();
 
-/** Opens a file, returning a new file object with the desired access to the specified file.
+
+/** Returns the binary reader associated to the standard input file (stdin).
+
+return
+   Standard input file.
+*/
+ABCAPI std::shared_ptr<binary_reader> const & binary_stdin();
+
+
+/** Returns the binary writer associated to the standard output file (stdout).
+
+return
+   Standard output file.
+*/
+ABCAPI std::shared_ptr<binary_writer> const & binary_stdout();
+
+
+/** Opens a file for binary access.
 
 fp
    Path to the file.
@@ -114,14 +131,173 @@ bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
    unbuffered.
 return
-   Pointer to a new file object for fp.
+   Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<file> open(file_path const & fp, access_mode am, bool bBuffered = true);
+std::shared_ptr<binary_base> open_binary(
+   file_path const & fp, access_mode am, bool bBuffered = true
+);
+
+
+/** Opens a file for binary reading.
+
+fp
+   Path to the file.
+bBuffered
+   If true, access to the file will be buffered by the OS, if false, access to the file will be
+   unbuffered.
+return
+   Pointer to a binary reader for the file.
+*/
+inline std::shared_ptr<binary_reader> open_binary_reader(
+   file_path const & fp, bool bBuffered = true
+) {
+   return std::dynamic_pointer_cast<binary_reader>(open_binary(fp, access_mode::read, bBuffered));
+}
+
+
+/** Opens a file for binary writing.
+
+fp
+   Path to the file.
+bBuffered
+   If true, access to the file will be buffered by the OS, if false, access to the file will be
+   unbuffered.
+return
+   Pointer to a binary writer for the file.
+*/
+inline std::shared_ptr<binary_writer> open_binary_writer(
+   file_path const & fp, bool bBuffered = true
+) {
+   return std::dynamic_pointer_cast<binary_writer>(open_binary(fp, access_mode::write, bBuffered));
+}
 
 } //namespace io
 
 } //namespace abc
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary_base
+
+
+namespace abc {
+
+namespace io {
+
+/** Abstract base for binary (non-text) I/O classes.
+*/
+class ABCAPI binary_base :
+   public noncopyable {
+public:
+
+   /** Destructor.
+   */
+   virtual ~binary_base();
+
+
+protected:
+
+   /** Constructor.
+   */
+   binary_base();
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary_reader
+
+
+namespace abc {
+
+namespace io {
+
+/** Abstract binary (non-text) input.
+*/
+class ABCAPI binary_reader :
+   public virtual binary_base {
+public:
+
+   /** Destructor.
+   */
+   virtual ~binary_reader();
+
+
+   /** Reads at most cbMax bytes.
+
+   p
+      Address of the destination buffer.
+   cbMax
+      Size of the destination buffer, in bytes.
+   return
+      Count of bytes read. For non-zero values of cb, a return value of 0 indicates that the end of
+      the data was reached.
+   */
+   virtual size_t read(void * p, size_t cbMax) = 0;
+
+
+protected:
+
+   /** See binary_base::binary_base().
+   */
+   binary_reader();
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary_writer
+
+
+namespace abc {
+
+namespace io {
+
+/** Abstract binary (non-text) output.
+*/
+class ABCAPI binary_writer :
+   public virtual binary_base {
+public:
+
+   /** Destructor.
+   */
+   virtual ~binary_writer();
+
+
+   /** Forces writing any data in the write buffer.
+   */
+   virtual void flush() = 0;
+
+
+   /** Writes an array of bytes.
+
+   p
+      Address of the source buffer.
+   cb
+      Size of the source buffer, in bytes.
+   return
+      Count of bytes written.
+   */
+   virtual size_t write(void const * p, size_t cb) = 0;
+
+
+protected:
+
+   /** See binary_base::binary_base().
+   */
+   binary_writer();
+};
+
+} //namespace io
+
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,158 +398,38 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file
+// abc::io::file_binary_base
 
 
 namespace abc {
 
 namespace io {
 
-/** OS-native file (regular or pseudo).
+/** Base for file binary I/O classes.
 */
-class ABCAPI file :
-   public noncopyable {
+class ABCAPI file_binary_base :
+   public virtual binary_base {
 public:
+
+   /** Destructor.
+   */
+   virtual ~file_binary_base();
+
+
+protected:
 
    /** Constructor.
 
    pfid
-      Data used to initialize the object, as set by open() and other methods.
+      Data used to initialize the object, as set by abc::io::open_binary() and other functions.
    */
-   file(_file_init_data * pfid);
-
-
-   /** Destructor.
-   */
-   virtual ~file();
-
-
-   /** Returns new file object controlling the specified file descriptor.
-
-   fd
-      File descriptor to take ownership of.
-   return
-      Pointer to a new file controlling fd.
-   */
-   static std::shared_ptr<file> attach(filedesc && fd);
-
-
-   /** Writes to the file any data being buffered.
-   */
-   void flush();
-
-
-   /** Returns true if the file has a defined size, which is stored in m_cb.
-
-   return
-      true if the file has a size, or false otherwise.
-   */
-   bool has_size() const {
-      return m_bHasSize;
-   }
-
-
-   /** Returns true if the OS is buffering reads/writes to m_fd.
-
-   return
-      true if the file is buffered by the OS, or false otherwise.
-   */
-   bool is_buffered() const {
-      return m_bBuffered;
-   }
-
-
-   /** Returns the physical alignment for unbuffered/direct disk access.
-
-   return
-      Alignment boundary, in bytes.
-   */
-   virtual unsigned physical_alignment() const;
-
-
-   /** Reads at most cbMax bytes from the file.
-
-   p
-      Address of the destination buffer.
-   cbMax
-      Size of the destination buffer, in bytes.
-   return
-      Count of bytes read. For non-zero values of cb, a return value of 0 indicates that the end of
-      the file was reached.
-   */
-   virtual size_t read(void * p, size_t cbMax);
-
-
-   /** Returns the computed size of the file if applicable, or 0 otherwise.
-
-   return
-      Size of the file, in bytes, or 0 if not applicable.
-   */
-   virtual fileint_t size() const;
-
-
-   /** Returns the file associated to the standard error output (stderr).
-
-   return
-      Standard error file.
-   */
-   static std::shared_ptr<file> const & stderr();
-
-
-   /** Returns the file associated to the standard input (stdin).
-
-   return
-      Standard input file.
-   */
-   static std::shared_ptr<file> const & stdin();
-
-
-   /** Returns the file associated to the standard output (stdout).
-
-   return
-      Standard output file.
-   */
-   static std::shared_ptr<file> const & stdout();
-
-
-   /** Writes an array of bytes to the file.
-
-   p
-      Address of the source buffer.
-   cb
-      Size of the source buffer, in bytes.
-   return
-      Count of bytes written.
-   */
-   virtual size_t write(void const * p, size_t cb);
-
-
-private:
-
-   /** Initializes a standard file object.
-
-   fd
-      Standard file descriptor to create a file object for.
-   pppf
-      Second-level pointer to a shared pointer; the shared pointer will be dynamically allocated,
-      and the file object it will point to will also be dynamically allocated.
-   */
-   static void _construct_std_file(filedesc_t fd, std::shared_ptr<file> ** pppf);
-
-
-   /** Releases any objects constructed by _construct_std_file().
-   */
-   static void ABC_STL_CALLCONV _release_std_files();
+   file_binary_base(_file_init_data * pfid);
 
 
 protected:
 
    /** Descriptor of the underlying file. */
    filedesc m_fd;
-   /** If true, the file has a defined size, otherwise size() will always return 0. */
-   bool m_bHasSize:1;
-   /** If true, the OS will buffer reads/writes to m_fd. */
-   bool m_bBuffered:1;
 };
 
 } //namespace io
@@ -382,35 +438,151 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::console_file
+// abc::io::file_binary_reader
 
 
 namespace abc {
 
 namespace io {
 
-/** Console/terminal pseudo-file.
+/** Binary file input.
 */
-class ABCAPI console_file :
-   public file {
+class ABCAPI file_binary_reader :
+   public virtual file_binary_base,
+   public virtual binary_reader {
 public:
 
-   /** Constructor. See abc::io::file::file().
+   /** See file_binary_base::file_binary_base().
    */
-   console_file(_file_init_data * pfid);
+   file_binary_reader(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~file_binary_reader();
+
+
+   /** See binary_reader::read().
+   */
+   virtual size_t read(void * p, size_t cbMax);
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::file_binary_writer
+
+
+namespace abc {
+
+namespace io {
+
+/** Binary file output.
+*/
+class ABCAPI file_binary_writer :
+   public virtual file_binary_base,
+   public virtual binary_writer {
+public:
+
+   /** See binary_writer::binary_writer().
+   */
+   file_binary_writer(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~file_binary_writer();
+
+
+   /** See binary_writer::flush().
+   */
+   virtual void flush();
+
+
+   /** See binary_writer::write().
+   */
+   virtual size_t write(void const * p, size_t cb);
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::console_binary_reader
+
+
+namespace abc {
+
+namespace io {
+
+/** Console/terminal input pseudo-file.
+*/
+class ABCAPI console_binary_reader :
+   public virtual file_binary_reader {
+public:
+
+   /** See file_binary_reader::file_binary_reader().
+   */
+   console_binary_reader(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~console_binary_reader();
 
 
 #if ABC_HOST_API_WIN32
 
-   // In Win32, console files must use a dedicated API in order to support the native character
+   // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /** See abc::io::file::read().
+   /** See file_binary_reader::read().
    */
    virtual size_t read(void * p, size_t cbMax);
 
+#endif //if ABC_HOST_API_WIN32
+};
 
-   /** See abc::io::file::write().
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::console_binary_writer
+
+
+namespace abc {
+
+namespace io {
+
+/** Console/terminal output pseudo-file.
+*/
+class ABCAPI console_binary_writer :
+   public virtual file_binary_writer {
+public:
+
+   /** See file_binary_writer::file_binary_writer().
+   */
+   console_binary_writer(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~console_binary_writer();
+
+
+#if ABC_HOST_API_WIN32
+
+   // Under Win32, console files must use a dedicated API in order to support the native character
+   // type.
+
+   /** See file_binary_writer::write().
    */
    virtual size_t write(void const * p, size_t cb);
 
@@ -423,22 +595,27 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::pipe_file
+// abc::io::pipe_binary_reader
 
 
 namespace abc {
 
 namespace io {
 
-/** Pipe file.
+/** Binary reader for the output end of a pipe.
 */
-class ABCAPI pipe_file :
-   public file {
+class ABCAPI pipe_binary_reader :
+   public virtual file_binary_reader {
 public:
 
-   /** Constructor. See abc::io::file::file().
+   /** See file_binary_reader::file_binary_reader().
    */
-   pipe_file(_file_init_data * pfid);
+   pipe_binary_reader(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~pipe_binary_reader();
 };
 
 } //namespace io
@@ -447,37 +624,133 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file
+// abc::io::pipe_binary_writer
 
 
 namespace abc {
 
 namespace io {
 
-/** File that behaves like a regular file on disk.
+/** Binary writer for the input end of a pipe.
 */
-class ABCAPI regular_file :
-   public file {
+class ABCAPI pipe_binary_writer :
+   public virtual file_binary_writer {
 public:
 
-   /** Constructor. See abc::io::file::file().
+   /** See file_binary_writer::file_binary_writer().
    */
-   regular_file(_file_init_data * pfid);
+   pipe_binary_writer(_file_init_data * pfid);
 
 
-   /** See abc::io::file::physical_alignment().
+   /** Destructor.
    */
-   virtual unsigned physical_alignment() const;
+   virtual ~pipe_binary_writer();
+};
+
+} //namespace io
+
+} //namespace abc
 
 
-   /** See abc::io::file::size().
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::regular_file_binary_base
+
+
+namespace abc {
+
+namespace io {
+
+/** Base for binary I/O classes for regular disk files.
+*/
+class ABCAPI regular_file_binary_base :
+   public virtual file_binary_base {
+public:
+
+   /** Destructor.
    */
-   virtual fileint_t size() const;
+   virtual ~regular_file_binary_base();
+
+
+protected:
+
+   /** See file_binary_base::file_binary_base().
+   */
+   regular_file_binary_base(_file_init_data * pfid);
+
+
+protected:
+
+#if 0
+   /** Computed size of the file. */
+   fileint_t m_cb;
+   /** Physical alignment for unbuffered/direct disk access. */
+   unsigned m_cbPhysAlign;
+#endif
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::regular_file_binary_reader
+
+
+namespace abc {
+
+namespace io {
+
+/** Binary reader for regular disk files.
+*/
+class ABCAPI regular_file_binary_reader :
+   public virtual regular_file_binary_base,
+   public virtual file_binary_reader {
+public:
+
+   /** See regular_file_binary_base().
+   */
+   regular_file_binary_reader(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~regular_file_binary_reader();
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::regular_file_binary_writer
+
+
+namespace abc {
+
+namespace io {
+
+/** Binary writer for regular disk files.
+*/
+class ABCAPI regular_file_binary_writer :
+   public virtual regular_file_binary_base,
+   public virtual file_binary_writer {
+public:
+
+   /** See regular_file_binary_base().
+   */
+   regular_file_binary_writer(_file_init_data * pfid);
+
+
+   /** Destructor.
+   */
+   virtual ~regular_file_binary_writer();
 
 
 #if ABC_HOST_API_WIN32
 
-   /** See abc::io::file::write(). This override is necessary to emulate O_APPEND in Win32.
+   /** See file_binary_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    */
    virtual size_t write(void const * p, size_t cb);
 
@@ -486,10 +759,6 @@ public:
 
 protected:
 
-   /** Computed size of the file. */
-   fileint_t m_cb;
-   /** Physical alignment for unbuffered/direct disk access. */
-   unsigned m_cbPhysAlign;
 #if ABC_HOST_API_WIN32
    /** If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it. */
    bool m_bAppend:1;

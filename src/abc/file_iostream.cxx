@@ -45,7 +45,7 @@ size_t const file_stream_base::smc_cbAlignedMax =
 
 
 
-file_stream_base::file_stream_base(std::shared_ptr<file> pfile) :
+file_stream_base::file_stream_base(std::shared_ptr<binary_base> pfile) :
    stream_base(),
    m_pfile(std::move(pfile)) {
 }
@@ -53,7 +53,7 @@ file_stream_base::file_stream_base(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) :
    stream_base(),
-   m_pfile(open(fp, am, bBuffered)) {
+   m_pfile(open_binary(fp, am, bBuffered)) {
 }
 
 
@@ -92,7 +92,7 @@ namespace abc {
 
 namespace io {
 
-file_istream::file_istream(std::shared_ptr<file> pfile) :
+file_istream::file_istream(std::shared_ptr<binary_reader> pfile) :
    file_stream_base(std::move(pfile)),
    istream() {
    _post_construct();
@@ -118,6 +118,8 @@ file_istream::file_istream(file_path const & fp) :
 ) {
    ABC_TRACE_FN((this, p, cbMax, enc));
 
+   auto pbr(std::dynamic_pointer_cast<binary_reader>(m_pfile));
+
    if (m_enc == text::encoding::unknown) {
       // If the encoding is still undefined, try to guess it now. To have a big enough buffer, we’ll
       // just use the regular read buffer instead of the (possibly too small) provided p.
@@ -125,9 +127,7 @@ file_istream::file_istream(file_path const & fp) :
       ABC_ASSERT(
          !m_cbReadBufUsed, SL("nobody set m_enc yet, so the read buffer must have never been used")
       );
-      m_cbReadBufUsed = m_pfile->read(
-         pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
-      );
+      m_cbReadBufUsed = pbr->read(pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed);
       if (!m_cbReadBufUsed) {
          m_bAtEof = true;
       }
@@ -135,7 +135,7 @@ file_istream::file_istream(file_path const & fp) :
       m_enc = text::guess_encoding(
          pRawReadBuf,
          m_cbReadBufUsed,
-         m_pfile->has_size() ? size_t(std::min<fileint_t>(m_pfile->size(), smc_cbAlignedMax)) : 0,
+         /*pbr->has_size() ? size_t(std::min<fileint_t>(pbr->size(), smc_cbAlignedMax)) :*/ 0,
          &cbBom
       );
       if (cbBom) {
@@ -162,7 +162,7 @@ file_istream::file_istream(file_path const & fp) :
       }
       // Check if we need more bytes than that.
       if (cbMax) {
-         size_t cbRead(m_pfile->read(pb, cbMax));
+         size_t cbRead(pbr->read(pb, cbMax));
          if (!cbRead) {
             m_bAtEof = true;
          }
@@ -182,7 +182,7 @@ file_istream::file_istream(file_path const & fp) :
             break;
          }
          // Make sure that the beginning of the free portion of the read buffer is exactly in its
-         // middle, so that we can provide m_pfile->read() an aligned buffer.
+         // middle, so that we can provide pbr->read() an aligned buffer.
          if (m_ibReadBufUsed + m_cbReadBufUsed != m_cbReadBufLead) {
             if (m_cbReadBufUsed /*&& m_cbReadBufLead >= m_cbReadBufUsed*/) {
                memory::move(
@@ -195,7 +195,7 @@ file_istream::file_istream(file_path const & fp) :
             pbRawReadBuf = pbReadBuf + m_ibReadBufUsed;
          }
          // Read as many bytes as possible into the second half of the double-size buffer.
-         size_t cbRead(m_pfile->read(
+         size_t cbRead(pbr->read(
             pbRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
          ));
          if (!cbRead) {
@@ -205,10 +205,9 @@ file_istream::file_istream(file_path const & fp) :
       }
       cbTotalRead = cbMax - cbAvail;
    }
-   // If we got to EOF but managed to read something first, it must be because we called
-   // m_pfile->read() once more than we should have. For now, just put it off; the next 0-length
-   // read by m_pfile->read() will re-set it, and since that time we’ll actually have read 0 bytes,
-   // it will stay.
+   // If we got to EOF but managed to read something first, it must be because we called pbr->read()
+   // once more than we should have. For now, just put it off; the next 0-length read by pbr->read()
+   // will re-set it, and since that time we’ll actually have read 0 bytes, it will stay.
    if (cbTotalRead && m_bAtEof) {
       m_bAtEof = false;
    }
@@ -220,7 +219,7 @@ file_istream::file_istream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfisStdIn) {
-      _construct_std_file_istream(file::stdin(), &g_ppfisStdIn);
+      _construct_std_file_istream(binary_stdin(), &g_ppfisStdIn);
    }
    return *g_ppfisStdIn;
 }
@@ -405,7 +404,7 @@ void file_istream::_post_construct() {
    // If no specific size is imposed by unbuffered access, pick a good enough size; also impose a
    // big enough number in case the physical align is too small.
    m_cbReadBufBulk = std::max<size_t>(
-      m_pfile->is_buffered() ? 0 : m_pfile->physical_alignment(), 4096
+      /*m_pfile->is_buffered() ?*/ 0 /*: m_pfile->physical_alignment()*/, 4096
    );
    // The read buffer is created on demand.
    m_ibReadBufUsed = 0;
@@ -417,7 +416,7 @@ void file_istream::_post_construct() {
 
 
 /*static*/ void file_istream::_construct_std_file_istream(
-   std::shared_ptr<file> const & pfile, std::shared_ptr<file_istream> ** pppfis
+   std::shared_ptr<binary_reader> const & pfile, std::shared_ptr<file_istream> ** pppfis
 ) {
    ABC_TRACE_FN((/*pfile, */pppfis));
 
@@ -455,7 +454,7 @@ namespace io {
 size_t const file_ostream::smc_cbWriteBufMax = 4096;
 
 
-file_ostream::file_ostream(std::shared_ptr<file> pfile) :
+file_ostream::file_ostream(std::shared_ptr<binary_writer> pfile) :
    file_stream_base(std::move(pfile)),
    ostream() {
 }
@@ -470,7 +469,10 @@ file_ostream::file_ostream(file_path const & fp) :
 
 
 /*virtual*/ void file_ostream::flush() {
-   m_pfile->flush();
+   ABC_TRACE_FN(());
+
+   auto pbw(std::dynamic_pointer_cast<binary_writer>(m_pfile));
+   pbw->flush();
 }
 
 
@@ -478,7 +480,7 @@ file_ostream::file_ostream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfosStdErr) {
-      _construct_std_file_ostream(file::stderr(), &g_ppfosStdErr);
+      _construct_std_file_ostream(binary_stderr(), &g_ppfosStdErr);
 
 #if ABC_HOST_API_WIN32
       // TODO: document this behavior and the related enviroment variable.
@@ -512,7 +514,7 @@ file_ostream::file_ostream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfosStdOut) {
-      _construct_std_file_ostream(file::stdout(), &g_ppfosStdOut);
+      _construct_std_file_ostream(binary_stdout(), &g_ppfosStdOut);
    }
    return *g_ppfosStdOut;
 }
@@ -523,6 +525,7 @@ file_ostream::file_ostream(file_path const & fp) :
 ) {
    ABC_TRACE_FN((this, p, cb, enc));
 
+   auto pbw(std::dynamic_pointer_cast<binary_writer>(m_pfile));
    if (enc == text::encoding::unknown) {
       // Treat unknown as identity.
       enc = text::encoding::identity;
@@ -533,7 +536,7 @@ file_ostream::file_ostream(file_path const & fp) :
    }
    if (enc == m_enc || enc == text::encoding::identity) {
       // Optimal case: no transcoding necessary.
-      m_pfile->write(p, cb);
+      pbw->write(p, cb);
    } else {
       // Make sure we have a trancoding buffer.
       if (!m_pbWriteBuf) {
@@ -544,14 +547,14 @@ file_ostream::file_ostream(file_path const & fp) :
          size_t cbBuf(smc_cbWriteBufMax);
          // Fill as much of the buffer as possible, and write that to the file.
          cbBuf = text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBuf, &cbBuf);
-         m_pfile->write(m_pbWriteBuf.get(), cbBuf);
+         pbw->write(m_pbWriteBuf.get(), cbBuf);
       }
    }
 }
 
 
 /*static*/ void file_ostream::_construct_std_file_ostream(
-   std::shared_ptr<file> const & pfile, std::shared_ptr<file_ostream> ** pppfos
+   std::shared_ptr<binary_writer> const & pfile, std::shared_ptr<file_ostream> ** pppfos
 ) {
    ABC_TRACE_FN((/*pfile, */pppfos));
 
@@ -586,15 +589,15 @@ namespace abc {
 
 namespace io {
 
-file_iostream::file_iostream(std::shared_ptr<file> pfile) :
+file_iostream::file_iostream(std::shared_ptr<binary_base> pfile) :
    file_stream_base(pfile),
-   file_istream(pfile),
-   file_ostream(pfile) {
+   file_istream(std::dynamic_pointer_cast<binary_reader>(pfile)),
+   file_ostream(std::dynamic_pointer_cast<binary_writer>(pfile)) {
 }
 file_iostream::file_iostream(file_path const & fp) :
    file_stream_base(fp, access_mode::read_write),
-   file_istream(m_pfile),
-   file_ostream(m_pfile) {
+   file_istream(std::dynamic_pointer_cast<binary_reader>(m_pfile)),
+   file_ostream(std::dynamic_pointer_cast<binary_writer>(m_pfile)) {
 }
 
 

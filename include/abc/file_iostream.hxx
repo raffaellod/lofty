@@ -47,7 +47,7 @@ public:
 
    TODO: comment signature.
    */
-   explicit file_stream_base(std::shared_ptr<file> pfile);
+   explicit file_stream_base(std::shared_ptr<binary_base> pfile);
    file_stream_base(file_path const & fp, access_mode am, bool bBuffered = true);
 
 
@@ -66,7 +66,7 @@ protected:
 protected:
 
    /** Underlying file. */
-   std::shared_ptr<file> m_pfile;
+   std::shared_ptr<binary_base> m_pfile;
    /** Maximum size_t value rounded so that will not cause immediate rejection of UTF-16 and UTF-32
    by text::guess_encoding() due to not being an integer multiple of the character size. */
    static size_t const smc_cbAlignedMax;
@@ -212,7 +212,7 @@ public:
 
    TODO: comment signature.
    */
-   explicit file_istream(std::shared_ptr<file> pfile);
+   explicit file_istream(std::shared_ptr<binary_reader> pfile);
    explicit file_istream(file_path const & fp);
 
 
@@ -261,7 +261,7 @@ private:
    TODO: comment signature.
    */
    static void _construct_std_file_istream(
-      std::shared_ptr<file> const & pfile, std::shared_ptr<file_istream> ** pppfis
+      std::shared_ptr<binary_reader> const & pfile, std::shared_ptr<file_istream> ** pppfis
    );
 
 
@@ -319,7 +319,7 @@ public:
 
    TODO: comment signature.
    */
-   explicit file_ostream(std::shared_ptr<file> pfile);
+   explicit file_ostream(std::shared_ptr<binary_writer> pfile);
    explicit file_ostream(file_path const & fp);
 
 
@@ -361,7 +361,7 @@ private:
    TODO: comment signature.
    */
    static void _construct_std_file_ostream(
-      std::shared_ptr<file> const & pfile, std::shared_ptr<file_ostream> ** pppfos
+      std::shared_ptr<binary_writer> const & pfile, std::shared_ptr<file_ostream> ** pppfos
    );
 
 
@@ -397,7 +397,7 @@ public:
 
    TODO: comment signature.
    */
-   explicit file_iostream(std::shared_ptr<file> pfile);
+   explicit file_iostream(std::shared_ptr<binary_base> pfile);
    explicit file_iostream(file_path const & fp);
 
 
