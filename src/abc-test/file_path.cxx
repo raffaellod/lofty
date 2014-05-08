@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/testing/test_case.hxx>
+#include <abc/file_path.hxx>
 #include <abc/trace.hxx>
 
 
