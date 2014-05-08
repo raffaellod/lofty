@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_MEMORY_HXX
-#define ABC_MEMORY_HXX
+#ifndef _ABC_MEMORY_HXX
+#define _ABC_MEMORY_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -483,5 +483,5 @@ inline T * set(T * ptDst, T const & tValue, size_t c) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifdef ABC_MEMORY_HXX
+#endif //ifdef _ABC_MEMORY_HXX
 

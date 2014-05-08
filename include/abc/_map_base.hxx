@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC__MAP_BASE_HXX
-#define ABC__MAP_BASE_HXX
+#ifndef _ABC__MAP_BASE_HXX
+#define _ABC__MAP_BASE_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -816,5 +816,5 @@ struct _raw_trivial_map_impl :
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC__MAP_BASE_HXX
+#endif //ifndef _ABC__MAP_BASE_HXX
 

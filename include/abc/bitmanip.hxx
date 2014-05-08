@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_BITMANIP_HXX
-#define ABC_BITMANIP_HXX
+#ifndef _ABC_BITMANIP_HXX
+#define _ABC_BITMANIP_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -133,5 +133,5 @@ inline /*constexpr*/ I rotate_r(I i, unsigned c) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_BITMANIP_HXX
+#endif //ifndef _ABC_BITMANIP_HXX
 

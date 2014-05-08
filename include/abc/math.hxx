@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_MATH_HXX
-#define ABC_MATH_HXX
+#ifndef _ABC_MATH_HXX
+#define _ABC_MATH_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -83,5 +83,5 @@ inline /*constexpr*/ T abs(T t) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_MATH_HXX
+#endif //ifndef _ABC_MATH_HXX
 

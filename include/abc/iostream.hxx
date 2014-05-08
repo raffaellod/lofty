@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_IOSTREAM_HXX
-#define ABC_IOSTREAM_HXX
+#ifndef _ABC_IOSTREAM_HXX
+#define _ABC_IOSTREAM_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -959,5 +959,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_IOSTREAM_HXX
+#endif //ifndef _ABC_IOSTREAM_HXX
 

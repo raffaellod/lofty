@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_UTF_TRAITS_HXX
-#define ABC_UTF_TRAITS_HXX
+#ifndef _ABC_UTF_TRAITS_HXX
+#define _ABC_UTF_TRAITS_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -484,5 +484,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_UTF_TRAITS_HXX
+#endif //ifndef _ABC_UTF_TRAITS_HXX
 

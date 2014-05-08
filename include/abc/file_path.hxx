@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_FILE_PATH_HXX
-#define ABC_FILE_PATH_HXX
+#ifndef _ABC_FILE_PATH_HXX
+#define _ABC_FILE_PATH_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -646,5 +646,5 @@ inline _file_path_iterator file_path::find(istr const & sPattern) const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_FILE_PATH_HXX
+#endif //ifndef _ABC_FILE_PATH_HXX
 

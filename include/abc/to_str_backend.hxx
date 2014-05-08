@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TO_STRING_BACKEND_HXX
-#define ABC_TO_STRING_BACKEND_HXX
+#ifndef _ABC_TO_STRING_BACKEND_HXX
+#define _ABC_TO_STRING_BACKEND_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -681,5 +681,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TO_STRING_BACKEND_HXX
+#endif //ifndef _ABC_TO_STRING_BACKEND_HXX
 

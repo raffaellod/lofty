@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_STRING_IOSTREAM_HXX
-#define ABC_STRING_IOSTREAM_HXX
+#ifndef _ABC_STRING_IOSTREAM_HXX
+#define _ABC_STRING_IOSTREAM_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -291,5 +291,5 @@ inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_STRING_IOSTREAM_HXX
+#endif //ifndef _ABC_STRING_IOSTREAM_HXX
 

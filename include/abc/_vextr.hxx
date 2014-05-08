@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC__VEXTR_HXX
-#define ABC__VEXTR_HXX
+#ifndef _ABC__VEXTR_HXX
+#define _ABC__VEXTR_HXX
 
 #include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -1428,5 +1428,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC__VEXTR_HXX
+#endif //ifndef _ABC__VEXTR_HXX
 
