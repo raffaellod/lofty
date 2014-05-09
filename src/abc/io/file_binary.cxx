@@ -1086,25 +1086,10 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
       // retry from the seek.
       // TODO: guarantee of termination? Maybe the foreign locker won’t release the lock, ever. This
       // is too easy to fool.
-      LARGE_INTEGER ibEOF;
+      offset_t ibEOF;
       do {
-         // TODO: this should really be moved to a file::seek() method.
-#if _WIN32_WINNT >= 0x0500
-         LARGE_INTEGER ibZero;
-         ibZero.QuadPart = 0;
-         if (!::SetFilePointerEx(m_fd.get(), ibZero, &ibEOF, FILE_END)) {
-            throw_os_error();
-         }
-#else //if _WIN32_WINNT >= 0x0500
-         ibEOF.LowPart = ::SetFilePointer(m_fd.get(), 0, &ibEOF.HighPart, FILE_END);
-         if (ibEOF.LowPart == INVALID_SET_FILE_POINTER) {
-            DWORD iErr(::GetLastError());
-            if (iErr != ERROR_SUCCESS) {
-               throw_os_error(iErr);
-            }
-         }
-#endif //if _WIN32_WINNT >= 0x0500 … else
-      } while (!flAppend.lock(m_fd.get(), offset_t(ibEOF.QuadPart), cb));
+         ibEOF = seek(0, seek_from::end);
+      } while (!flAppend.lock(m_fd.get(), ibEOF, cb));
       // Now the write can occur; the lock will be released automatically at the end.
    }
 
