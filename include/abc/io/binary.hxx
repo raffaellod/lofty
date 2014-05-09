@@ -190,7 +190,7 @@ public:
    return
       Resulting position.
    */
-   virtual offset_t seek(offset_t iOffset, seek_from sfWhence) = 0;
+   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) = 0;
 
 
    /** Returns the current read/write position.

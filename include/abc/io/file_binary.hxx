@@ -504,6 +504,7 @@ namespace io {
 */
 class ABCAPI regular_file_binary_base :
    public virtual file_binary_base,
+   public seekable_binary,
    public sized_binary {
 public:
 
@@ -512,9 +513,19 @@ public:
    virtual ~regular_file_binary_base();
 
 
+   /** See seekable_binary::seek().
+   */
+   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence);
+
+
    /** See sized_binary::size().
    */
    virtual full_size_t size() const;
+
+
+   /** See seekable_binary::tell().
+   */
+   virtual offset_t tell() const;
 
 
 protected:

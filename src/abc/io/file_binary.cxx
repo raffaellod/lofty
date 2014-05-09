@@ -817,7 +817,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 #if _WIN32_WINNT >= 0x0500
    static_assert(
       sizeof(m_cb) == sizeof(LARGE_INTEGER),
-      "full_size_t must be the same size as LARGE_INTEGER"
+      "abc::io::full_size_t must be the same size as LARGE_INTEGER"
    );
    if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
       throw_os_error();
@@ -851,10 +851,93 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 }
 
 
+/*virtual*/ offset_t regular_file_binary_base::seek(offset_t ibOffset, seek_from sfWhence) {
+   ABC_TRACE_FN((this, ibOffset, sfWhence));
+
+#if ABC_HOST_API_POSIX
+
+   int iWhence;
+   switch (sfWhence.base()) {
+      // default is here just to silence compiler warnings.
+      default:
+      case seek_from::start:
+         iWhence = SEEK_SET;
+         break;
+      case seek_from::current:
+         iWhence = SEEK_CUR;
+         break;
+      case seek_from::end:
+         iWhence = SEEK_END;
+         break;
+   }
+   offset_t ibNewOffset(::lseek(m_fd.get(), ibOffset, iWhence));
+   if (ibNewOffset == -1) {
+      throw_os_error();
+   }
+   return ibNewOffset;
+
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+
+   static_assert(
+      sizeof(iOffset) == sizeof(LARGE_INTEGER),
+      "abc::io::offset_t must be the same size as LARGE_INTEGER"
+   );
+   int iWhence;
+   switch (sfWhence.base()) {
+      // default is here just to silence compiler warnings.
+      default:
+      case seek_from::start:
+         iWhence = FILE_BEGIN;
+         break;
+      case seek_from::current:
+         iWhence = FILE_CURRENT;
+         break;
+      case seek_from::end:
+         iWhence = FILE_END;
+         break;
+   }
+   LARGE_INTEGER ibNewOffset;
+   ibNewOffset.QuadPart = ibOffset;
+#if _WIN32_WINNT >= 0x0500
+   if (!::SetFilePointerEx(m_fd.get(), ibNewOffset, &ibNewOffset, iWhence)) {
+      throw_os_error();
+   }
+#else //if _WIN32_WINNT >= 0x0500
+   ibNewOffset.LowPart = ::SetFilePointer(
+      m_fd.get(), ibNewOffset.LowPart, &ibNewOffset.HighPart, iWhence
+   );
+   if (ibNewOffset.LowPart == INVALID_SET_FILE_POINTER) {
+      DWORD iErr(::GetLastError());
+      if (iErr != ERROR_SUCCESS) {
+         throw_os_error(iErr);
+      }
+   }
+#endif //if _WIN32_WINNT >= 0x0500 … else
+   return ibNewOffset.QuadPart;
+
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error TODO-PORT: HOST_API
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+}
+
+
 /*virtual*/ full_size_t regular_file_binary_base::size() const {
    ABC_TRACE_FN((this));
 
    return m_cb;
+}
+
+
+/*virtual*/ offset_t regular_file_binary_base::tell() const {
+   ABC_TRACE_FN((this));
+
+#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+   // Seeking 0 bytes from the current position won’t change the internal status of the file
+   // descriptor, so casting the const-ness away is not semantically wrong.
+   return const_cast<regular_file_binary_base *>(this)->seek(0, seek_from::current);
+#else
+   #error TODO-PORT: HOST_API
+#endif
 }
 
 } //namespace io
