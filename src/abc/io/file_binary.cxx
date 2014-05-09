@@ -19,15 +19,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #include <abc/io/file_binary.hxx>
-#include <abc/numeric.hxx>
 #include <abc/trace.hxx>
-#include <algorithm>
 #if ABC_HOST_API_POSIX
    #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
-   #include <stdlib.h> // atexit()
    #include <fcntl.h> // O_*
    #include <sys/stat.h> // S_*, stat()
-// #include <sys/mman.h> // mmap(), munmap(), PROT_*, MAP_*
 #endif
 
 
