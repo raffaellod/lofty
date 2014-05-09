@@ -103,6 +103,29 @@ ABC_ENUM(stdfile, \
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary_base
+
+
+namespace abc {
+
+namespace io {
+
+/** Base interface for binary (non-text) I/O.
+*/
+class ABCAPI binary_base {
+private:
+
+   /** Needed to make the class polymorphic (have a vtable).
+   */
+   virtual void __dummy();
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary_reader
 
 
@@ -112,7 +135,8 @@ namespace io {
 
 /** Interface for binary (non-text) input.
 */
-class ABCAPI binary_reader {
+class ABCAPI binary_reader :
+   public binary_base {
 public:
 
    /** Reads at most cbMax bytes.
@@ -143,7 +167,8 @@ namespace io {
 
 /** Interface for binary (non-text) output.
 */
-class ABCAPI binary_writer {
+class ABCAPI binary_writer :
+   public binary_base {
 public:
 
    /** Forces writing any data in the write buffer.

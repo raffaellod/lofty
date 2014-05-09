@@ -31,6 +31,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/file_path.cxx"/>
       <source path="src/abc/enum.cxx"/>
       <source path="src/abc/exception.cxx"/>
+      <source path="src/abc/io/binary.cxx"/>
       <source path="src/abc/io/buffered_binary.cxx"/>
       <source path="src/abc/io/file_binary.cxx"/>
       <source path="src/abc/iostream.cxx"/>
