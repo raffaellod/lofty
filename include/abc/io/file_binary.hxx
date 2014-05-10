@@ -290,7 +290,7 @@ namespace io {
 */
 class ABCAPI file_binary_reader :
    public virtual file_binary_base,
-   public virtual binary_reader {
+   public binary_reader {
 public:
 
    /** See file_binary_base::file_binary_base().
@@ -325,7 +325,7 @@ namespace io {
 */
 class ABCAPI file_binary_writer :
    public virtual file_binary_base,
-   public virtual binary_writer {
+   public binary_writer {
 public:
 
    /** See binary_writer::binary_writer().
@@ -364,7 +364,7 @@ namespace io {
 /** Console/terminal input pseudo-file.
 */
 class ABCAPI console_binary_reader :
-   public virtual file_binary_reader {
+   public file_binary_reader {
 public:
 
    /** See file_binary_reader::file_binary_reader().
@@ -405,7 +405,7 @@ namespace io {
 /** Console/terminal output pseudo-file.
 */
 class ABCAPI console_binary_writer :
-   public virtual file_binary_writer {
+   public file_binary_writer {
 public:
 
    /** See file_binary_writer::file_binary_writer().
@@ -446,7 +446,7 @@ namespace io {
 /** Binary reader for the output end of a pipe.
 */
 class ABCAPI pipe_binary_reader :
-   public virtual file_binary_reader {
+   public file_binary_reader {
 public:
 
    /** See file_binary_reader::file_binary_reader().
@@ -475,7 +475,7 @@ namespace io {
 /** Binary writer for the input end of a pipe.
 */
 class ABCAPI pipe_binary_writer :
-   public virtual file_binary_writer {
+   public file_binary_writer {
 public:
 
    /** See file_binary_writer::file_binary_writer().
@@ -563,7 +563,7 @@ namespace io {
 */
 class ABCAPI regular_file_binary_reader :
    public virtual regular_file_binary_base,
-   public virtual file_binary_reader {
+   public file_binary_reader {
 public:
 
    /** See regular_file_binary_base().
@@ -593,7 +593,7 @@ namespace io {
 */
 class ABCAPI regular_file_binary_writer :
    public virtual regular_file_binary_base,
-   public virtual file_binary_writer {
+   public file_binary_writer {
 public:
 
    /** See regular_file_binary_base().

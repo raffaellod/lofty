@@ -111,7 +111,7 @@ namespace io {
 */
 class ABCAPI default_buffered_binary_reader :
    public virtual buffered_binary_base,
-   public virtual binary_reader {
+   public binary_reader {
 public:
 
    /** See binary_reader::binary_reader().
@@ -157,7 +157,7 @@ namespace io {
 */
 class ABCAPI default_buffered_binary_writer :
    public virtual buffered_binary_base,
-   public virtual binary_writer {
+   public binary_writer {
 public:
 
    /** See binary_writer::binary_writer().
