@@ -30,7 +30,53 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_reader
+// abc::io globals
+
+namespace abc {
+
+namespace io {
+
+/** Creates and returns a buffered wrapper for the specified binary I/O object.
+
+pbb
+   Pointer to a binary I/O object.
+return
+   Pointer to a buffered wrapper for *pbb.
+*/
+std::shared_ptr<binary_base> buffer_binary(std::shared_ptr<binary_base> pbb);
+
+
+/** Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
+
+pbr
+   Pointer to an unbuffered binary reader.
+return
+   Pointer to a buffered wrapper for *pbr.
+*/
+inline std::shared_ptr<binary_reader> buffer_binary_reader(std::shared_ptr<binary_reader> pbr) {
+   return std::dynamic_pointer_cast<binary_reader>(buffer_binary(std::move(pbr)));
+}
+
+
+/** Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
+
+pbw
+   Pointer to an unbuffered binary writer.
+return
+   Pointer to a buffered wrapper for *pbw.
+*/
+inline std::shared_ptr<binary_writer> buffer_binary_writer(std::shared_ptr<binary_writer> pbw) {
+   return std::dynamic_pointer_cast<binary_writer>(buffer_binary(std::move(pbw)));
+}
+
+} //namespace io
+
+} //namespace abc
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::default_buffered_binary_reader
 
 
 namespace abc {
@@ -39,18 +85,18 @@ namespace io {
 
 /** Provides buffering on top of a binary_reader instance.
 */
-class ABCAPI buffered_binary_reader :
+class ABCAPI default_buffered_binary_reader :
    public binary_reader {
 public:
 
    /** See binary_reader::binary_reader().
    */
-   buffered_binary_reader(std::shared_ptr<binary_reader> pbr);
+   default_buffered_binary_reader(std::shared_ptr<binary_reader> pbr);
 
 
    /** Destructor.
    */
-   virtual ~buffered_binary_reader();
+   virtual ~default_buffered_binary_reader();
 
 
    /** See binary_reader::read().
@@ -70,7 +116,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_writer
+// abc::io::default_buffered_binary_writer
 
 
 namespace abc {
@@ -79,18 +125,18 @@ namespace io {
 
 /** Provides buffering on top of a binary_writer instance.
 */
-class ABCAPI buffered_binary_writer :
+class ABCAPI default_buffered_binary_writer :
    public binary_writer {
 public:
 
    /** See binary_writer::binary_writer().
    */
-   buffered_binary_writer(std::shared_ptr<binary_writer> pbw);
+   default_buffered_binary_writer(std::shared_ptr<binary_writer> pbw);
 
 
    /** Destructor.
    */
-   virtual ~buffered_binary_writer();
+   virtual ~default_buffered_binary_writer();
 
 
    /** See binary_writer::flush().

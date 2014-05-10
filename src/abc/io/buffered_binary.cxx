@@ -32,23 +32,49 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_reader
+// abc::io globals
 
 
 namespace abc {
 
 namespace io {
 
-buffered_binary_reader::buffered_binary_reader(std::shared_ptr<binary_reader> pbr) :
+std::shared_ptr<binary_base> buffer_binary(std::shared_ptr<binary_base> pbb) {
+   ABC_TRACE_FN((/*pbb*/));
+
+   if (std::shared_ptr<binary_reader> pbr = std::dynamic_pointer_cast<binary_reader>(pbb)) {
+      return std::make_shared<default_buffered_binary_reader>(std::move(pbr));
+   }
+   if (std::shared_ptr<binary_writer> pbw = std::dynamic_pointer_cast<binary_writer>(pbb)) {
+      return std::make_shared<default_buffered_binary_writer>(std::move(pbw));
+   }
+   // TODO: use a better exception class.
+   ABC_THROW(argument_error, ());
+}
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::default_buffered_binary_reader
+
+
+namespace abc {
+
+namespace io {
+
+default_buffered_binary_reader::default_buffered_binary_reader(std::shared_ptr<binary_reader> pbr) :
    m_pbr(std::move(pbr)) {
 }
 
 
-/*virtual*/ buffered_binary_reader::~buffered_binary_reader() {
+/*virtual*/ default_buffered_binary_reader::~default_buffered_binary_reader() {
 }
 
 
-/*virtual*/ size_t buffered_binary_reader::read(void * p, size_t cbMax) {
+/*virtual*/ size_t default_buffered_binary_reader::read(void * p, size_t cbMax) {
    ABC_TRACE_FN((this, p, cbMax));
 
    return m_pbr->read(p, cbMax);
@@ -60,30 +86,30 @@ buffered_binary_reader::buffered_binary_reader(std::shared_ptr<binary_reader> pb
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_writer
+// abc::io::default_buffered_binary_writer
 
 
 namespace abc {
 
 namespace io {
 
-buffered_binary_writer::buffered_binary_writer(std::shared_ptr<binary_writer> pbw) :
+default_buffered_binary_writer::default_buffered_binary_writer(std::shared_ptr<binary_writer> pbw) :
    m_pbw(std::move(pbw)) {
 }
 
 
-/*virtual*/ buffered_binary_writer::~buffered_binary_writer() {
+/*virtual*/ default_buffered_binary_writer::~default_buffered_binary_writer() {
 }
 
 
-/*virtual*/ void buffered_binary_writer::flush() {
+/*virtual*/ void default_buffered_binary_writer::flush() {
    ABC_TRACE_FN((this));
 
    m_pbw->flush();
 }
 
 
-/*virtual*/ size_t buffered_binary_writer::write(void const * p, size_t cb) {
+/*virtual*/ size_t default_buffered_binary_writer::write(void const * p, size_t cb) {
    ABC_TRACE_FN((this, p, cb));
 
    return m_pbw->write(p, cb);
