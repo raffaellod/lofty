@@ -136,7 +136,7 @@ namespace io {
 /** Interface for binary (non-text) input.
 */
 class ABCAPI binary_reader :
-   public binary_base {
+   public virtual binary_base {
 public:
 
    /** Reads at most cbMax bytes.
@@ -168,7 +168,7 @@ namespace io {
 /** Interface for binary (non-text) output.
 */
 class ABCAPI binary_writer :
-   public binary_base {
+   public virtual binary_base {
 public:
 
    /** Forces writing any data in the write buffer.

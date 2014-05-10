@@ -42,10 +42,12 @@ namespace io {
 std::shared_ptr<binary_base> buffer_binary(std::shared_ptr<binary_base> pbb) {
    ABC_TRACE_FN((/*pbb*/));
 
-   if (std::shared_ptr<binary_reader> pbr = std::dynamic_pointer_cast<binary_reader>(pbb)) {
+   auto pbr(std::dynamic_pointer_cast<binary_reader>(pbb));
+   auto pbw(std::dynamic_pointer_cast<binary_writer>(pbb));
+   if (pbr) {
       return std::make_shared<default_buffered_binary_reader>(std::move(pbr));
    }
-   if (std::shared_ptr<binary_writer> pbw = std::dynamic_pointer_cast<binary_writer>(pbb)) {
+   if (pbw) {
       return std::make_shared<default_buffered_binary_writer>(std::move(pbw));
    }
    // TODO: use a better exception class.
@@ -80,6 +82,13 @@ default_buffered_binary_reader::default_buffered_binary_reader(std::shared_ptr<b
    return m_pbr->read(p, cbMax);
 }
 
+
+/*virtual*/ std::shared_ptr<binary_base> default_buffered_binary_reader::unbuffered() const {
+   ABC_TRACE_FN((this));
+
+   return std::dynamic_pointer_cast<binary_base>(m_pbr);
+}
+
 } //namespace io
 
 } //namespace abc
@@ -106,6 +115,13 @@ default_buffered_binary_writer::default_buffered_binary_writer(std::shared_ptr<b
    ABC_TRACE_FN((this));
 
    m_pbw->flush();
+}
+
+
+/*virtual*/ std::shared_ptr<binary_base> default_buffered_binary_writer::unbuffered() const {
+   ABC_TRACE_FN((this));
+
+   return std::dynamic_pointer_cast<binary_base>(m_pbw);
 }
 
 

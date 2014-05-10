@@ -76,6 +76,30 @@ inline std::shared_ptr<binary_writer> buffer_binary_writer(std::shared_ptr<binar
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::buffered_binary_base
+
+
+namespace abc {
+
+namespace io {
+
+/** Interface for buffering objects that wrap binary_* instances.
+*/
+class ABCAPI buffered_binary_base :
+   public virtual binary_base {
+public:
+
+   /** Returns a pointer to the wrapper unbuffered binary I/O object.
+   */
+   virtual std::shared_ptr<binary_base> unbuffered() const = 0;
+};
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::default_buffered_binary_reader
 
 
@@ -86,7 +110,8 @@ namespace io {
 /** Provides buffering on top of a binary_reader instance.
 */
 class ABCAPI default_buffered_binary_reader :
-   public binary_reader {
+   public virtual buffered_binary_base,
+   public virtual binary_reader {
 public:
 
    /** See binary_reader::binary_reader().
@@ -102,6 +127,11 @@ public:
    /** See binary_reader::read().
    */
    virtual size_t read(void * p, size_t cbMax);
+
+
+   /** See buffered_binary_base::unbuffered().
+   */
+   virtual std::shared_ptr<binary_base> unbuffered() const;
 
 
 protected:
@@ -126,7 +156,8 @@ namespace io {
 /** Provides buffering on top of a binary_writer instance.
 */
 class ABCAPI default_buffered_binary_writer :
-   public binary_writer {
+   public virtual buffered_binary_base,
+   public virtual binary_writer {
 public:
 
    /** See binary_writer::binary_writer().
@@ -142,6 +173,11 @@ public:
    /** See binary_writer::flush().
    */
    virtual void flush();
+
+
+   /** See buffered_binary_base::unbuffered().
+   */
+   virtual std::shared_ptr<binary_base> unbuffered() const;
 
 
    /** See binary_writer::write().
