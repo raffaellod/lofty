@@ -193,38 +193,6 @@ namespace abc {
       to_str_backend(char_range const & crFormat = char_range()) : \
          to_str_backend<C const [t_cch]>(crFormat) { \
       } \
-   }; \
-   \
-   /** Pointer to NUL-terminated string.
-   */ \
-   template <> \
-   class to_str_backend<C const *> : \
-      public _str_to_str_backend { \
-   public: \
-   \
-      /** Constructor.
-
-      crFormat
-         Formatting options.
-      */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         _str_to_str_backend(crFormat) { \
-      } \
-   \
-   \
-      /** Writes a NUL-terminated string, applying the formatting options.
-
-      psz
-         Pointer to the string to write.
-      posOut
-         Pointer to the output stream to write to.
-      */ \
-      void write(C const * psz, io::ostream * posOut) { \
-         _str_to_str_backend::write( \
-            psz, sizeof(C) * text::utf_traits<C>::str_len(psz), \
-            text::utf_traits<C>::host_encoding, posOut \
-         ); \
-      } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
 // Specialization for wchar_t, if it’s what char16_t or char32_t map to.
