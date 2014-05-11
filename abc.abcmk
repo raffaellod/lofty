@@ -39,7 +39,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/module.cxx"/>
       <source path="src/abc/str.cxx"/>
       <source path="src/abc/str_iostream.cxx"/>
-      <source path="src/abc/to_str_backend.cxx"/>
+      <source path="src/abc/to_str.cxx"/>
       <source path="src/abc/text.cxx" />
       <source path="src/abc/trace.cxx"/>
       <source path="src/abc/utf_traits.cxx"/>
@@ -54,7 +54,7 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/ostream-print.cxx"/>
          <source path="src/abc-test/str.cxx"/>
          <source path="src/abc-test/str_ostream.cxx"/>
-         <source path="src/abc-test/to_str_backend.cxx"/>
+         <source path="src/abc-test/to_str.cxx"/>
          <source path="src/abc-test/vector.cxx"/>
          <dynlib name="abc-testing"/>
       </unittest>
