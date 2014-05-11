@@ -292,8 +292,9 @@ TODO: comment signature.
 */
 template <typename T>
 inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
+   typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
    return std::unique_ptr<T, freeing_deleter<T>>(
-      static_cast<T *>(_raw_alloc(sizeof(T) * c + cbExtra))
+      static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
 template <>
