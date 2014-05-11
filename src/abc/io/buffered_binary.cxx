@@ -72,21 +72,19 @@ namespace io {
 
    size_t cbReadTotal(0);
    while (cbMax > 0) {
-      int8_t const * pbReadBuf;
-      size_t cbRead;
       // Attempt to read at least the count of bytes requested by the caller.
-      std::tie(pbReadBuf, cbRead) = peek<int8_t>(cbMax);
-      if (!cbRead) {
+      auto pairRead(peek<int8_t>(cbMax));
+      if (!pairRead.second) {
          // No more data available.
          break;
       }
       // Copy whatever was read into the caller-supplied buffer.
-      memory::copy<void>(p, pbReadBuf, cbRead);
-      cbReadTotal += cbRead;
+      memory::copy<void>(p, pairRead.first, pairRead.second);
+      cbReadTotal += pairRead.second;
       // Advance the pointer and decrease the count of bytes to read, so that the next call will
       // attempt to fill in the remaining buffer space.
-      p = static_cast<int8_t *>(p) + cbRead;
-      cbMax -= cbRead;
+      p = static_cast<int8_t *>(p) + pairRead.second;
+      cbMax -= pairRead.second;
    }
    return cbReadTotal;
 }

@@ -134,7 +134,7 @@ public:
       true if the length of the path string is greater than 0, or false otherwise.
    */
    explicit_operator_bool() const {
-      return m_s.operator bool();
+      return bool(m_s);
    }
 
 
