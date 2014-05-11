@@ -52,8 +52,7 @@ _scope_trace_impl::~_scope_trace_impl() {
          } else {
             // First argument for the current function, so print the function name as well.
             pso->print(
-               SL("#{} {} at {}\n"),
-               ++sm_iStackDepth, m_pszFunction, m_srcloc
+               SL("#{} {} at {}\n"), ++sm_iStackDepth, istr(unsafe, m_pszFunction), m_srcloc
             );
          }
       } catch (...) {
@@ -85,7 +84,7 @@ io::ostream * _scope_trace_impl::scope_render_start_or_continue() {
       } else {
          // First argument for the current function, so print the function name as well.
          m_bScopeRenderingStarted = true;
-         pso->print(SL("#{} {} with args: "), ++sm_iStackDepth, m_pszFunction);
+         pso->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
       }
       // Return the stream, so the caller can print its m_t0.
       return pso;

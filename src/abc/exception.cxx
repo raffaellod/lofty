@@ -1096,7 +1096,7 @@ ABCAPI void to_str_backend<source_location>::write(
    ABC_TRACE_FN((this, srcloc, posOut));
 
    // TODO: apply format options.
-   posOut->write(srcloc.file_path());
+   posOut->write(istr(unsafe, srcloc.file_path()));
    posOut->write(SL(":"));
    posOut->write(srcloc.line_number());
 }
@@ -1183,7 +1183,7 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have a std::exception: print its what() and check if it’s also a abc::exception.
-      pos->print(SL("Unhandled exception: {}\n"), pstdx->what());
+      pos->print(SL("Unhandled exception: {}\n"), istr(unsafe, pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
       // abc::exception, the class has a custom implementation, probably to print something useful.
@@ -1206,7 +1206,7 @@ char const * exception::what() const {
    pos->write(SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      pos->print(SL("#0 {} at {}\n"), pabcx->m_pszSourceFunction, pabcx->m_srcloc);
+      pos->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
    }
    // Print the stack trace collected via ABC_TRACE_FN().
    pos->write(_scope_trace_impl::get_trace_stream()->release_content());
