@@ -146,8 +146,8 @@ public:
    cbMax
       Size of the destination buffer, in bytes.
    return
-      Count of bytes read. For non-zero values of cb, a return value of 0 indicates that the end of
-      the data was reached.
+      Count of bytes read. For non-zero values of cbMax, a return value of 0 indicates that the end
+      of the data was reached.
    */
    virtual size_t read(void * p, size_t cbMax) = 0;
 };

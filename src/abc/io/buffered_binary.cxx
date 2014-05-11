@@ -39,7 +39,7 @@ namespace abc {
 
 namespace io {
 
-std::shared_ptr<binary_base> buffer_binary(std::shared_ptr<binary_base> pbb) {
+std::shared_ptr<buffered_binary_base> buffer_binary(std::shared_ptr<binary_base> pbb) {
    ABC_TRACE_FN((/*pbb*/));
 
    auto pbr(std::dynamic_pointer_cast<binary_reader>(pbb));
@@ -52,6 +52,43 @@ std::shared_ptr<binary_base> buffer_binary(std::shared_ptr<binary_base> pbb) {
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
+}
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::buffered_binary_reader
+
+
+namespace abc {
+
+namespace io {
+
+/*virtual*/ size_t buffered_binary_reader::read(void * p, size_t cbMax) {
+   ABC_TRACE_FN((this, p, cbMax));
+
+   size_t cbReadTotal(0);
+   while (cbMax > 0) {
+      int8_t const * pbReadBuf;
+      size_t cbRead;
+      // Attempt to read at least the count of bytes requested by the caller.
+      std::tie(pbReadBuf, cbRead) = peek<int8_t>(cbMax);
+      if (!cbRead) {
+         // No more data available.
+         break;
+      }
+      // Copy whatever was read into the caller-supplied buffer.
+      memory::copy<void>(p, pbReadBuf, cbRead);
+      cbReadTotal += cbRead;
+      // Advance the pointer and decrease the count of bytes to read, so that the next call will
+      // attempt to fill in the remaining bytes
+      p = static_cast<int8_t *>(p) + cbRead;
+      cbMax -= cbRead;
+   }
+   return cbReadTotal;
 }
 
 } //namespace io
@@ -76,10 +113,18 @@ default_buffered_binary_reader::default_buffered_binary_reader(std::shared_ptr<b
 }
 
 
-/*virtual*/ size_t default_buffered_binary_reader::read(void * p, size_t cbMax) {
-   ABC_TRACE_FN((this, p, cbMax));
+/*virtual*/ void default_buffered_binary_reader::consume(size_t cb) {
+   ABC_TRACE_FN((this, cb));
 
-   return m_pbr->read(p, cbMax);
+   // TODO: implement this.
+}
+
+
+/*virtual*/ std::pair<void const *, size_t> default_buffered_binary_reader::_peek_void(size_t cb) {
+   ABC_TRACE_FN((this, cb));
+
+   // TODO: implement this.
+   return std::make_pair(nullptr, 0);
 }
 
 
