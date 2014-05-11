@@ -84,7 +84,7 @@ namespace io {
       memory::copy<void>(p, pbReadBuf, cbRead);
       cbReadTotal += cbRead;
       // Advance the pointer and decrease the count of bytes to read, so that the next call will
-      // attempt to fill in the remaining bytes
+      // attempt to fill in the remaining buffer space.
       p = static_cast<int8_t *>(p) + cbRead;
       cbMax -= cbRead;
    }
@@ -140,7 +140,11 @@ default_buffered_binary_reader::default_buffered_binary_reader(std::shared_ptr<b
          // shift it backwards to offset 0, and we’ll use the resulting free space (m_ibReadBufUsed
          // bytes); otherwise just enlarge the buffer.
          if (m_ibReadBufUsed > 0) {
-            memory::move(m_pbReadBuf.get(), m_pbReadBuf.get() + m_ibReadBufUsed, m_cbReadBufUsed);
+            if (m_cbReadBufUsed) {
+               memory::move(
+                  m_pbReadBuf.get(), m_pbReadBuf.get() + m_ibReadBufUsed, m_cbReadBufUsed
+               );
+            }
             m_ibReadBufUsed = 0;
          } else {
             size_t cbReadBufNew(m_cbReadBuf + smc_cbReadBufDefault);
