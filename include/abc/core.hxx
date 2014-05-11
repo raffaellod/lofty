@@ -626,11 +626,11 @@ unsafe_t const unsafe;
 #include <abc/memory-after-exception.hxx>
 #include <abc/enum.hxx>
 #include <abc/str.hxx>
-#include <abc/to_str_backend.hxx>
-#include <abc/enum-after-to_str_backend.hxx>
-#include <abc/exception-after-to_str_backend.hxx>
-#include <abc/str-after-to_str_backend.hxx>
-#include <abc/pointer_iterator-after-to_str_backend.hxx>
+#include <abc/to_str.hxx>
+#include <abc/enum-after-to_str.hxx>
+#include <abc/exception-after-to_str.hxx>
+#include <abc/str-after-to_str.hxx>
+#include <abc/pointer_iterator-after-to_str.hxx>
 #include <abc/str_iostream.hxx>
 #include <abc/str-after-str_iostream.hxx>
 #include <abc/to_str-after-str_iostream.hxx>
