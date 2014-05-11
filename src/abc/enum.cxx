@@ -84,7 +84,7 @@ void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, io::o
 
    enum_member const * petvp(enum_member::find_in_map(pem, i));
    // TODO: apply format options.
-   posOut->write(petvp->pszName);
+   posOut->write(istr(petvp->pszName));
 }
 
 } //namespace abc
