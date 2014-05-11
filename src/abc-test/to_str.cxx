@@ -176,4 +176,59 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::to_str_pointers
+
+namespace abc {
+
+namespace test {
+
+class to_str_pointers :
+   public to_str_test_case_base {
+public:
+
+   /** See to_str_test_case_base::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::to_str - pointers"));
+   }
+
+
+   /** See to_str_test_case_base::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      uintptr_t iBad(0xbad);
+
+      // Test void pointer.
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(reinterpret_cast<void *>(iBad), SL("")), SL("0xbad")
+      );
+
+      // Test void const volatile pointer.
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(reinterpret_cast<void const volatile *>(iBad), SL("")), SL("0xbad")
+      );
+
+      // Test function pointer.
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(reinterpret_cast<void (*)(int)>(iBad), SL("")), SL("0xbad")
+      );
+
+      // Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
+      // by abc::to_str().
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(reinterpret_cast<char_t const *>(iBad), SL("")), SL("0xbad")
+      );
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_pointers)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
