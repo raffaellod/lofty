@@ -631,6 +631,9 @@ unsafe_t const unsafe;
 #include <abc/exception-after-to_str_backend.hxx>
 #include <abc/str-after-to_str_backend.hxx>
 #include <abc/pointer_iterator-after-to_str_backend.hxx>
+#include <abc/str_iostream.hxx>
+#include <abc/str-after-str_iostream.hxx>
+#include <abc/to_str-after-str_iostream.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
