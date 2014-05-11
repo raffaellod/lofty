@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/io/binary.hxx>
+#include <abc/memory.hxx>
 
 
 
@@ -243,13 +244,16 @@ protected:
    /** Wrapped binary reader. */
    std::shared_ptr<binary_reader> m_pbr;
    /** Read buffer. */
-   std::unique_ptr<int8_t[]> m_pbReadBuf;
+   std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbReadBuf;
    /** Size of m_pbReadBuf. */
    size_t m_cbReadBuf;
    /** Offset of the first used byte in m_pbReadBuf. */
    size_t m_ibReadBufUsed;
    /** Number of bytes used in m_pbReadBuf. */
    size_t m_cbReadBufUsed;
+   /** Default/increment size of m_pbReadBuf. */
+   // TODO: tune this value.
+   static size_t const smc_cbReadBufDefault = 0x1000;
 };
 
 } //namespace io
