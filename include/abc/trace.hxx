@@ -17,12 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_TRACE_HXX
-#define _ABC_TRACE_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
 
 
@@ -944,7 +940,4 @@ inline _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _scope_trace_impl::m
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_TRACE_HXX
 

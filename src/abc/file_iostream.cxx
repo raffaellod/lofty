@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/core.hxx>
 #include <abc/file_iostream.hxx>
 #include <abc/io/file_binary.hxx>
-#include <abc/trace.hxx>
 #include <algorithm>
 #if ABC_HOST_API_POSIX
    #include <stdlib.h> // atexit()

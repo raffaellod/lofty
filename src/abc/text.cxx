@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/byteorder.hxx>
 #include <abc/text.hxx>
 #include <abc/utf_traits.hxx>
-#include <abc/trace.hxx>
 
 
 

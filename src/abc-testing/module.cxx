@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/testing/module.hxx>
 #include <abc/testing/runner.hxx>
 #include <abc/file_iostream.hxx>
-#include <abc/trace.hxx>
 
 
 

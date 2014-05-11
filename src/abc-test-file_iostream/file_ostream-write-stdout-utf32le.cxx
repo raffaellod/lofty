@@ -19,8 +19,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/module.hxx>
 #include <abc/file_iostream.hxx>
-#include <abc/trace.hxx>
-#include <stdio.h>
 using namespace abc;
 
 

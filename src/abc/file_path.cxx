@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #include <abc/file_path.hxx>
-#include <abc/trace.hxx>
 #include <abc/vector.hxx>
 #if ABC_HOST_API_POSIX
    #include <errno.h> // errno E*

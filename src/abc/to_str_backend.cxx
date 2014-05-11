@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #include <abc/core.hxx>
 #include <abc/iostream.hxx>
 #include <abc/math.hxx>
-#include <abc/trace.hxx>
 
 
 
