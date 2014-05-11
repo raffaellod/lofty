@@ -305,8 +305,24 @@ public:
 
 protected:
 
+   /** Flushes the internal write buffer.
+   */
+   void flush_buffer();
+
+
+protected:
+
    /** Wrapped binary writer. */
    std::shared_ptr<binary_writer> m_pbw;
+   /** Write buffer. */
+   std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbWriteBuf;
+   /** Size of m_pbWriteBuf. */
+   size_t m_cbWriteBuf;
+   /** Number of bytes used in m_pbWriteBuf. */
+   size_t m_cbWriteBufUsed;
+   /** Default/increment size of m_pbWriteBuf. */
+   // TODO: tune this value.
+   static size_t const smc_cbWriteBufDefault = 0x1000;
 };
 
 } //namespace io

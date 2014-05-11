@@ -188,7 +188,10 @@ namespace abc {
 namespace io {
 
 default_buffered_binary_writer::default_buffered_binary_writer(std::shared_ptr<binary_writer> pbw) :
-   m_pbw(std::move(pbw)) {
+   m_pbw(std::move(pbw)),
+   m_pbWriteBuf(memory::alloc<int8_t[]>(smc_cbWriteBufDefault)),
+   m_cbWriteBuf(smc_cbWriteBufDefault),
+   m_cbWriteBufUsed(0) {
 }
 
 
@@ -199,7 +202,20 @@ default_buffered_binary_writer::default_buffered_binary_writer(std::shared_ptr<b
 /*virtual*/ void default_buffered_binary_writer::flush() {
    ABC_TRACE_FN((this));
 
+   // Flush both the write buffer and any lower-level buffers.
+   flush_buffer();
    m_pbw->flush();
+}
+
+
+void default_buffered_binary_writer::flush_buffer() {
+   ABC_TRACE_FN((this));
+
+   if (m_cbWriteBufUsed) {
+      size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
+      ABC_ASSERT(cbWritten == m_cbWriteBufUsed, SL("the entire buffer must have been written"));
+      m_cbWriteBufUsed = 0;
+   }
 }
 
 
@@ -213,7 +229,22 @@ default_buffered_binary_writer::default_buffered_binary_writer(std::shared_ptr<b
 /*virtual*/ size_t default_buffered_binary_writer::write(void const * p, size_t cb) {
    ABC_TRACE_FN((this, p, cb));
 
-   return m_pbw->write(p, cb);
+   size_t cbWrittenTotal(0);
+   while (cb) {
+      // Copy the largest possible chunk of *p into the write buffer.
+      size_t cbCopy(std::min(m_cbWriteBuf - m_cbWriteBufUsed, cb));
+      memory::copy<void>(m_pbWriteBuf.get() + m_cbWriteBufUsed, p, cbCopy);
+      // Update the amount of write buffer space used. If this makes the buffer full, flush it.
+      m_cbWriteBufUsed += cbCopy;
+      if (m_cbWriteBufUsed == m_cbWriteBuf) {
+         flush_buffer();
+      }
+      // Advance the pointer and decrease the count of bytes to write, so that the next call will
+      // attempt to write the remaining data.
+      p = static_cast<int8_t const *>(p) + cbCopy;
+      cb -= cbCopy;
+   }
+   return cbWrittenTotal;
 }
 
 } //namespace io
