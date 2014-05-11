@@ -17,21 +17,14 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_ENUM_HXX
-#define _ABC_ENUM_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
-
-#include <abc/char.hxx>
-#include <abc/cppmacros.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc golbals
+// abc globals
 
 
 namespace abc {
@@ -49,7 +42,7 @@ from C++11 “enum class” enumerations:
    this will not confuse developers, since the constants will need to be qualified with the
    enumeration type name);
 •  Conversion from/to string: instances of an ABC enumeration class can be serialized and
-   deserialized as strings with no additional code.
+   de-serialized as strings with no additional code.
 
 The ABC_ENUM() macro declares an enumeration class containing the members provided as a list.
 
@@ -152,47 +145,6 @@ struct ABCAPI enum_member {
    */
    static enum_member const * find_in_map(enum_member const * pem, int i);
    static enum_member const * find_in_map(enum_member const * pem, char_t const * psz);
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_enum_to_str_backend_impl
-
-
-namespace abc {
-
-namespace io {
-
-// Forward declaration from abc/iostream.hxx.
-class ostream;
-
-} //namespace io
-
-/** Implementation of the specializations of to_str_backend for enum_impl specializations.
-*/
-class ABCAPI _enum_to_str_backend_impl {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   _enum_to_str_backend_impl(char_range const & crFormat);
-
-
-protected:
-
-   /** Writes an enumeration value, applying the formatting options.
-
-   e
-      Enumeration value to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write_impl(int i, enum_member const * pem, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -328,38 +280,5 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
 
-namespace abc {
-
-// Forward declaration from abc/to_str_backend.hxx.
-template <typename T>
-class to_str_backend;
-
-
-// Specialization of to_str_backend.
-template <class T>
-class to_str_backend<enum_impl<T>> :
-   public _enum_to_str_backend_impl {
-public:
-
-   /** Constructor. See abc::_enum_to_str_backend_impl::_enum_to_str_backend_impl().
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _enum_to_str_backend_impl(crFormat) {
-   }
-
-
-   /** See abc::_enum_to_str_backend_impl::write().
-   */
-   void write(enum_impl<T> e, io::ostream * posOut) {
-      _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), posOut);
-   }
-};
-
-} //namespace abc
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_ENUM_HXX
 

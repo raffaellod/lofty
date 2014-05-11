@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -17,25 +17,41 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/core.hxx>
-#include <abc/cppmacros.hxx>
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
+#endif
 
-ABCMK_CMP_BEGIN
 
 
-// FIXME: ABC_CPP_LIST_COUNT() returns 1 instead of 0.
-ABC_CPP_LIST_COUNT(a)
-ABC_CPP_LIST_COUNT((a, 1))
-ABC_CPP_LIST_COUNT(abc, cde)
-ABC_CPP_LIST_COUNT((a, 1), (b, 2), (c, 3), (d, 4))
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory globals - management
 
-#define SCALAR_WALKER(x) x
-ABC_CPP_LIST_WALK(SCALAR_WALKER, a)
-ABC_CPP_LIST_WALK(SCALAR_WALKER, a, b, c, d)
 
-#define TUPLE_WALKER(x, y) x = y,
-ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1))
-ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1), (b, 2), (c, 3), (d, 4))
+namespace abc {
 
-ABCMK_CMP_END
+namespace memory {
+
+inline void * _raw_alloc(size_t cb) {
+   void * p(::malloc(cb));
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
+}
+
+
+inline void * _raw_realloc(void * p, size_t cb) {
+   p = ::realloc(p, cb);
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
+}
+
+} //namespace memory
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 

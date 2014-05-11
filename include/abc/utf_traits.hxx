@@ -156,7 +156,7 @@ public:
 
    /** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
    matches are found. For the non-char32_t needle overload, the needle is a pointer because a code
-   point   can require more than one non-UTF-32 character to be encoded.
+   point can require more than one non-UTF-32 character to be encoded.
 
    UTF validity: necessary.
 

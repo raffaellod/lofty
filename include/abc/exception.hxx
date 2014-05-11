@@ -17,15 +17,10 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_EXCEPTION_HXX
-#define _ABC_EXCEPTION_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
 
-#include <abc/char.hxx>
 #include <exception>
 
 
@@ -94,49 +89,6 @@ protected:
    char_t const * m_pszFilePath;
    /** Line number in m_pszFilePath. */
    uint16_t m_iLine;
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::source_location
-
-
-namespace abc {
-
-namespace io {
-
-// Forward declaration from abc/iostream.hxx.
-class ostream;
-
-} //namespace io
-
-// Forward declaration from abc/to_str_backend.hxx.
-template <typename T>
-class to_str_backend;
-
-
-template <>
-class ABCAPI to_str_backend<source_location> {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   to_str_backend(char_range const & crFormat = char_range());
-
-
-   /** Writes a source location, applying the formatting options.
-
-   srcloc
-      Source location to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(source_location const & srcloc, io::ostream * posOut);
 };
 
 } //namespace abc
@@ -377,10 +329,15 @@ msg
       extern char _static_assert_failed[(expr) ? 1 : -1]
 #endif
 
+namespace io {
 
+// Forward declaration.
+class ostream;
 // Methods here need to use io::ostream * instead of io::ostream & because at this point io::ostream
 // has only been forward-declared above, but not defined yet (a pointer to a forward-declared type
 // is legal, but a reference to it is not).
+
+}
 
 
 /** Base for all abc exceptions classes.
@@ -1415,7 +1372,4 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_EXCEPTION_HXX
 

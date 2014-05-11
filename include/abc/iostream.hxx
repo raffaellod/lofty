@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/io/binary.hxx>
-#include <abc/to_str_backend.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/numeric.hxx>
-#include <abc/memory.hxx>
 #include <abc/type_void_adapter.hxx>
 
 

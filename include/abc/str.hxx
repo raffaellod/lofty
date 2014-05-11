@@ -17,96 +17,14 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_STRING_HXX
-#define _ABC_STRING_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
 
 #include <abc/_vextr.hxx>
 #include <abc/utf_traits.hxx>
 #include <functional>
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend
-
-
-namespace abc {
-
-/** Base class for the specializations of to_str_backend for string types. Not using templates, so
-the implementation can be in a cxx file. This is used by string literal types as well (see
-to_str_backend.hxx).
-*/
-class ABCAPI _str_to_str_backend {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   _str_to_str_backend(char_range const & crFormat);
-
-
-protected:
-
-   /** Writes a string, applying the formatting options.
-
-   p
-      Pointer to the string to write.
-   cb
-      Size of the string pointed to by p, in bytes.
-   enc
-      Text encoding of the string pointed to by p.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(void const * p, size_t cb, text::encoding enc, io::ostream * posOut);
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::char_range_
-
-
-namespace abc {
-
-template <typename C>
-class to_str_backend<char_range_<C>> :
-   public _str_to_str_backend {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _str_to_str_backend(crFormat) {
-   }
-
-
-   /** Writes a character range, applying the formatting options.
-
-   cr
-      Range of characters to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(char_range_<C> const & cr, io::ostream * posOut) {
-      _str_to_str_backend::write(
-         cr.cbegin().base(), sizeof(C) * cr.size(), text::utf_traits<C>::host_encoding, posOut
-      );
-   }
-};
-
-} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,39 +615,6 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
 
-namespace abc {
-
-// Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<str_base_<C, TTraits>> :
-   public _str_to_str_backend {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _str_to_str_backend(crFormat) {
-   }
-
-
-   /** Writes a string, applying the formatting options.
-
-   s
-      String to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(str_base_<C, TTraits> const & s, io::ostream * posOut) {
-      _str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
-   }
-};
-
-} //namespace abc
-
-
 namespace std {
 
 // Specialization of std::hash.
@@ -859,20 +744,6 @@ typedef istr_<char_t> istr;
 typedef istr_<char8_t> istr8;
 typedef istr_<char16_t> istr16;
 typedef istr_<char32_t> istr32;
-
-
-// Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<istr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
-public:
-
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
-   }
-};
 
 } //namespace abc
 
@@ -1059,20 +930,6 @@ typedef mstr_<char_t> mstr;
 typedef mstr_<char8_t> mstr8;
 typedef mstr_<char16_t> mstr16;
 typedef mstr_<char32_t> mstr32;
-
-
-// Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<mstr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
-public:
-
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
-   }
-};
 
 } //namespace abc
 
@@ -1263,24 +1120,6 @@ inline abc::dmstr_<C, TTraits> operator+(abc::dmstr_<C, TTraits> && s, C const (
 }
 
 
-namespace abc {
-
-// Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<dmstr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
-public:
-
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
-   }
-};
-
-} //namespace abc
-
-
 namespace std {
 
 // Specialization of std::hash.
@@ -1423,20 +1262,6 @@ typedef dmstr_<char8_t> dmstr8;
 typedef dmstr_<char16_t> dmstr16;
 typedef dmstr_<char32_t> dmstr32;
 
-
-// Specialization of to_str_backend.
-template <size_t t_cchStatic, typename C, class TTraits>
-class to_str_backend<smstr<t_cchStatic, C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
-public:
-
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
-   }
-};
-
 } //namespace abc
 
 
@@ -1452,7 +1277,4 @@ struct hash<abc::smstr<t_cchStatic, C, TTraits>> :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_STRING_HXX
 

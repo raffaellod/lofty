@@ -17,16 +17,37 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_MEMORY_HXX
-#define _ABC_MEMORY_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
 
-#include <abc/exception.hxx>
+#if ABC_HOST_MSC
 
+   // Silence warnings from system header files.
+   #pragma warning(push)
+
+   // “'function': exception specification does not match previous declaration”
+   #pragma warning(disable: 4986)
+
+#endif //if ABC_HOST_MSC
+
+#include <memory>
+
+#if ABC_HOST_MSC
+   #pragma warning(pop)
+#endif //if ABC_HOST_MSC
+
+#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+
+   namespace std {
+
+   // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
+   template <typename T, typename TDeleter>
+   struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+
+   } //namespace abc
+
+#endif
 
 #if ABC_HOST_API_POSIX
 
@@ -260,28 +281,20 @@ namespace memory {
 
 /** Requests the dynamic allocation of a memory block of the specified number of bytes.
 
+Implemented in abc/memory-after-exception.hxx.
+
 TODO: comment signature.
 */
-inline void * _raw_alloc(size_t cb) {
-   void * p(::malloc(cb));
-   if (!p) {
-      ABC_THROW(memory_allocation_error, ());
-   }
-   return p;
-}
+void * _raw_alloc(size_t cb);
 
 
 /** Resizes a dynamically allocated memory block.
 
+Implemented in abc/memory-after-exception.hxx.
+
 TODO: comment signature.
 */
-inline void * _raw_realloc(void * p, size_t cb) {
-   p = ::realloc(p, cb);
-   if (!p) {
-      ABC_THROW(memory_allocation_error, ());
-   }
-   return p;
-}
+void * _raw_realloc(void * p, size_t cb);
 
 
 /** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
@@ -483,7 +496,4 @@ inline T * set(T * ptDst, T const & tValue, size_t c) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifdef _ABC_MEMORY_HXX
 

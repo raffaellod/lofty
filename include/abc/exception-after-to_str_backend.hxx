@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -17,25 +17,42 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abc/core.hxx>
-#include <abc/cppmacros.hxx>
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
+#endif
 
-ABCMK_CMP_BEGIN
 
 
-// FIXME: ABC_CPP_LIST_COUNT() returns 1 instead of 0.
-ABC_CPP_LIST_COUNT(a)
-ABC_CPP_LIST_COUNT((a, 1))
-ABC_CPP_LIST_COUNT(abc, cde)
-ABC_CPP_LIST_COUNT((a, 1), (b, 2), (c, 3), (d, 4))
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for abc::source_location
 
-#define SCALAR_WALKER(x) x
-ABC_CPP_LIST_WALK(SCALAR_WALKER, a)
-ABC_CPP_LIST_WALK(SCALAR_WALKER, a, b, c, d)
 
-#define TUPLE_WALKER(x, y) x = y,
-ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1))
-ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1), (b, 2), (c, 3), (d, 4))
+namespace abc {
 
-ABCMK_CMP_END
+template <>
+class ABCAPI to_str_backend<source_location> {
+public:
+
+   /** Constructor.
+
+   crFormat
+      Formatting options.
+   */
+   to_str_backend(char_range const & crFormat = char_range());
+
+
+   /** Writes a source location, applying the formatting options.
+
+   srcloc
+      Source location to write.
+   posOut
+      Pointer to the output stream to write to.
+   */
+   void write(source_location const & srcloc, io::ostream * posOut);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -50,7 +50,8 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma warning(disable: 4062)
    // “conditional expression is constant”
    #pragma warning(disable: 4127)
-   // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients of class 'class1'”
+   // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
+   // of class 'class1'”
    #pragma warning(disable: 4251)
    // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
    #pragma warning(disable: 4290)
@@ -608,6 +609,28 @@ performing unsafe operations. Use as an extra first argument, similary to std::n
 unsafe_t const unsafe;
 
 } //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// #include other core header files that require a special order
+
+
+#include <abc/cppmacros.hxx>
+// Also pulls in <memory> with compiler-specific fixes.
+#include <abc/memory.hxx>
+// Also pulls in <iterator>.
+#include <abc/pointer_iterator.hxx>
+#include <abc/char.hxx>
+// Also pulls in <exception>.
+#include <abc/exception.hxx>
+#include <abc/memory-after-exception.hxx>
+#include <abc/enum.hxx>
+#include <abc/str.hxx>
+#include <abc/to_str_backend.hxx>
+#include <abc/enum-after-to_str_backend.hxx>
+#include <abc/exception-after-to_str_backend.hxx>
+#include <abc/str-after-to_str_backend.hxx>
+#include <abc/pointer_iterator-after-to_str_backend.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
