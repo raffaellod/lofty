@@ -312,17 +312,15 @@ ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::ostream * posOut
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend<void const volatile *>
+// abc::to_str_backend<void *>
 
 
 namespace abc {
 
-char_t const to_str_backend<void const volatile *>::smc_achFormat[] = SL("#x");
+char_t const to_str_backend<void *>::smc_achFormat[] = SL("#x");
 
 
-ABCAPI to_str_backend<void const volatile *>::to_str_backend(
-   char_range const & crFormat /*= char_range()*/
-) :
+ABCAPI to_str_backend<void *>::to_str_backend(char_range const & crFormat /*= char_range()*/) :
    to_str_backend<uintptr_t>(char_range(smc_achFormat)) {
    ABC_TRACE_FN((this, crFormat));
 

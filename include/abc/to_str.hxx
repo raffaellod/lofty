@@ -419,9 +419,9 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 
 namespace abc {
 
-// Specialization for void const volatile *.
+// Specialization for void * ‒ though in fact its write() method accepts any pointer type.
 template <>
-class ABCAPI to_str_backend<void const volatile *> :
+class ABCAPI to_str_backend<void *> :
    protected to_str_backend<uintptr_t> {
 public:
 
@@ -440,7 +440,8 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(void const volatile * p, io::ostream * posOut) {
+   template <typename TPtr>
+   void write(TPtr p, io::ostream * posOut) {
       to_str_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), posOut);
    }
 
@@ -455,7 +456,7 @@ protected:
 // Specialization for any pointer type.
 template <typename T>
 class to_str_backend<T *> :
-   public to_str_backend<void const volatile *> {
+   public to_str_backend<void *> {
 public:
 
    /** Constructor.
@@ -464,7 +465,7 @@ public:
       Formatting options.
    */
    to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<void const volatile *>(crFormat) {
+      to_str_backend<void *>(crFormat) {
    }
 };
 

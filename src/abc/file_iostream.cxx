@@ -325,7 +325,7 @@ int8_t * file_istream::_get_read_buffer() {
 /*virtual*/ void file_istream::_read_line(
    _raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-   ABC_TRACE_FN((this, /*prs, */enc, cchCodePointMax/*, pfnStrStr*/));
+   ABC_TRACE_FN((this, prs, enc, cchCodePointMax, pfnStrStr));
 
    size_t cbChar(text::get_encoding_size(enc));
    ABC_ASSERT(cbChar > 0, SL("invalid encoding caused text::get_encoding_size() to return 0"));

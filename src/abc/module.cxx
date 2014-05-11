@@ -120,7 +120,7 @@ resource_module::~resource_module() {
 
 
 size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const {
-   ABC_TRACE_FN((this, id, /*psz, */cchMax));
+   ABC_TRACE_FN((this, id, psz, cchMax));
 
 #if ABC_HOST_API_POSIX
    ABC_UNUSED_ARG(id);
