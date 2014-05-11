@@ -330,7 +330,8 @@ inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
 }
 template <typename T>
 inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
-   T * pt(static_cast<T *>(_raw_realloc(ppt->get(), sizeof(T) * c + cbExtra)));
+   typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
+   TElt * pt(static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra)));
    ppt->release();
    ppt->reset(pt);
 }
