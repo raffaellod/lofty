@@ -34,8 +34,7 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 /** Base class for the specializations of to_str_backend for string types. Not using templates, so
-the implementation can be in a cxx file. This is used by string literal types as well (see
-to_str_backend.hxx).
+the implementation can be in a cxx file. This is used by string literal types as well (see below).
 */
 class ABCAPI _str_to_str_backend {
 public:
@@ -121,13 +120,18 @@ namespace abc {
          to_str_backend<C>(crFormat) { \
       } \
    };
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char8_t)
-#if ABC_CXX_CHAR16 > 0
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
+// Specialization for wchar_t, if it’s what char16_t or char32_t map to.
+#if ABC_CXX_CHAR16 == 1 || ABC_CXX_CHAR32 == 1
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t)
+#endif
+// Specializations for char16/32_t, if they’re native types.
+#if ABC_CXX_CHAR16 == 2
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
-#endif //if ABC_CXX_CHAR16 > 0
-#if ABC_CXX_CHAR32 > 0
+#endif
+#if ABC_CXX_CHAR32 == 2
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
-#endif //if ABC_CXX_CHAR32 > 0
+#endif
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 } //namespace abc
@@ -222,9 +226,18 @@ namespace abc {
          ); \
       } \
    };
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char8_t)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
+// Specialization for wchar_t, if it’s what char16_t or char32_t map to.
+#if ABC_CXX_CHAR16 == 1 || ABC_CXX_CHAR32 == 1
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t)
+#endif
+// Specializations for char16/32_t, if they’re native types.
+#if ABC_CXX_CHAR16 == 2
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
+#endif
+#if ABC_CXX_CHAR32 == 2
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
+#endif
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 } //namespace abc
