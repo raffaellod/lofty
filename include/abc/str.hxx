@@ -51,12 +51,12 @@ protected:
 
    /** Shortcut for the base class providing iterator-based types and methods. */
    typedef _iterable_vector<str_base, char_t> itvec;
+   /** String traits. */
+   typedef text::utf_traits<char_t> traits;
 
 
 public:
 
-   /** String traits. */
-   typedef text::utf_traits<char_t> traits;
    /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
    an abc::*str instance. */
    typedef std::unique_ptr<
