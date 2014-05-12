@@ -127,8 +127,8 @@ TODO: make ABC installable.
 
 This is the most basic program with ABC:
 
+   #include <abc/core.hxx>
    #include <abc/module.hxx>
-   #include <abc/trace.hxx>
    using namespace abc;
 
    class my_app_module :
