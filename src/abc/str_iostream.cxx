@@ -95,7 +95,7 @@ namespace io {
 str_ostream::str_ostream() :
    ostream(),
    m_ibWrite(0) {
-   m_enc = str_type::traits::host_encoding;
+   m_enc = text::encoding::host;
 }
 
 

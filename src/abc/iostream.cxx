@@ -235,7 +235,7 @@ void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo)
       m_pos->write_raw(
          m_itFormatToWriteBegin.base(),
          sizeof(char_t) * size_t(itUpTo - m_itFormatToWriteBegin),
-         text::utf_traits<>::host_encoding
+         text::encoding::host
       );
       m_itFormatToWriteBegin = itUpTo;
    }
