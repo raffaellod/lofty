@@ -272,11 +272,9 @@ private:
    void _post_construct();
 
 
-   /** See istream::_read_line().
+   /** See istream::read_line().
    */
-   virtual void _read_line(
-      mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
-   );
+   virtual istream & read_line(mstr * ps);
 
 
 private:

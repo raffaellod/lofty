@@ -322,16 +322,8 @@ int8_t * file_istream::_get_read_buffer() {
 }
 
 
-/*virtual*/ void file_istream::_read_line(
-   mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
-) {
-   ABC_TRACE_FN((this, ps, enc, cchCodePointMax, pfnStrStr));
-
-   size_t cbChar(text::get_encoding_size(enc));
-   ABC_ASSERT(cbChar > 0, SL("invalid encoding caused text::get_encoding_size() to return 0"));
-   // Little hack to obtain an index in range 0 to 2 (1 → 0, 2 → 1, 4 → 2), for use as bit shift
-   // count.
-   size_t cbCharLog2((0x2010u >> (cbChar - 1) * 4) & 0xf);
+/*virtual*/ istream & file_istream::read_line(mstr * ps) {
+   ABC_TRACE_FN((this, ps));
 
    // Initial buffer total and used size, in characters.
    // TODO: set cchMax to the current capacity of the string. Don’t forget to make sure it’s
@@ -340,7 +332,7 @@ int8_t * file_istream::_get_read_buffer() {
    for (;;) {
       size_t cchAvail(cchMax - cchFilled);
       // Ensure we can fit an (even invalidly encoded) code point in the string buffer.
-      if (cchAvail < cchCodePointMax) {
+      if (cchAvail < text::utf_traits<>::max_codepoint_length) {
          // Need to enlarge the string buffer.
          cchMax += m_cchBufferStep;
          ps->set_capacity(cchMax, false);
@@ -348,48 +340,58 @@ int8_t * file_istream::_get_read_buffer() {
       }
 
       // Read as many characters as possible, appending to the current end of the string.
-      int8_t * pbLastEnd(reinterpret_cast<int8_t *>(ps->data()) + (cchFilled << cbCharLog2));
-      size_t cbRead(read_raw(pbLastEnd, cchAvail << cbCharLog2, enc));
+      char_t * pchLastEnd(ps->data() + cchFilled);
+      size_t cbRead(read_raw(pchLastEnd, sizeof(char_t) * cchAvail, text::encoding::host));
       if (!cbRead) {
          break;
       }
+      size_t cchRead(cbRead / sizeof(char_t));
 
       // Now we need to search for the line terminator. Since line terminators can be more than one
       // character long, back up one character first (if we have at least one), to avoid missing the
       // line terminator due to searching for it one character beyond its start.
-      int8_t const * pbBeforeLastEnd(pbLastEnd - (cchFilled ? cbChar : 0));
-      size_t cchBeforeLastEnd((cchFilled ? 1 : 0) + (cbRead >> cbCharLog2));
+      char_t const * pchBeforeLastEnd(pchLastEnd - (cchFilled ? 1 : 0));
+      size_t cchBeforeLastEnd((cchFilled ? 1 : 0) + cchRead);
       // If the line terminator isn’t known yet, try to detect it now.
       if (m_lterm == text::line_terminator::unknown) {
-         m_lterm = text::guess_line_terminator(pbBeforeLastEnd, cchBeforeLastEnd, enc);
+         m_lterm = text::guess_line_terminator(
+            pchBeforeLastEnd, cchBeforeLastEnd, text::encoding::host
+         );
       }
       // If no line terminator was detected, it must be because no known one was there, so avoid
       // scanning for it, and just keep on reading more bytes.
       if (m_lterm != text::line_terminator::unknown) {
-         // Obtain the line terminator for the requested encoding…
-         size_t cbLTerm;
-         void const * pLTerm(get_line_terminator_bytes(enc, m_lterm, &cbLTerm));
+         // Obtain the line terminator for the string encoding…
+         size_t cchLTerm;
+         char_t const * pchLTerm(static_cast<char_t const *>(
+            get_line_terminator_bytes(text::encoding::host, m_lterm, &cchLTerm)
+         ));
+         cchLTerm /= sizeof(char_t);
          // …and search for it.
-         int8_t const * pbLineEnd(static_cast<int8_t const *>(pfnStrStr(
-            pbBeforeLastEnd, pbBeforeLastEnd + cchBeforeLastEnd,
-            pLTerm, static_cast<int8_t const *>(pLTerm) + (cbLTerm >> cbCharLog2)
-         )));
+         char_t const * pchLineEnd(text::utf_traits<>::str_str(
+            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd, pchLTerm, pchLTerm + cchLTerm
+         ));
          // Check if a match was found (remember, this is *not* C strstr(): it returns the end if no
          // matches are found).
-         if (pbLineEnd != pbBeforeLastEnd + cchBeforeLastEnd) {
+         if (pchLineEnd != pchBeforeLastEnd + cchBeforeLastEnd) {
             // Move back to the read buffer any read bytes beyond the line terminator.
-            size_t ibLineEnd(size_t(pbLineEnd - pbLastEnd));
-            unread_raw(pbLineEnd + cbLTerm, cbRead - ibLineEnd - cbLTerm, enc);
+            size_t ichLineEnd(size_t(pchLineEnd - pchLastEnd));
+            unread_raw(
+               pchLineEnd + cchLTerm,
+               cbRead - sizeof(char_t) * (ichLineEnd + cchLTerm),
+               text::encoding::host
+            );
             // We’re actually only filling up the characters up to the line end.
-            cchFilled += ibLineEnd >> cbCharLog2;
+            cchFilled += ichLineEnd;
             break;
          }
       }
 
       // Add the characters read as part of the line.
-      cchFilled += cbRead >> cbCharLog2;
+      cchFilled += cchRead;
    }
    ps->set_size(cchFilled);
+   return *this;
 }
 
 

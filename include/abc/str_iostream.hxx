@@ -53,6 +53,11 @@ public:
    virtual ~str_istream();
 
 
+   /** See istream::read_line().
+   */
+   virtual istream & read_line(mstr * ps);
+
+
    /** See istream::read_raw().
    */
    virtual size_t read_raw(
@@ -64,15 +69,6 @@ public:
    */
    virtual void unread_raw(
       void const * p, size_t cb, text::encoding enc = text::encoding::identity
-   );
-
-
-protected:
-
-   /** See istream::_read_line().
-   */
-   virtual void _read_line(
-      mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
    );
 
 

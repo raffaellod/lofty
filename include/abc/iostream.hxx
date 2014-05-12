@@ -153,19 +153,10 @@ public:
 
    ps
       Pointer to the string that will receive the line read.
-   enc
-      Encoding used by the string pointed to by prs. If not the same as stream’s encoding, a
-      conversion will be performed.
    return
       *this.
    */
-   istream & read_line(mstr * ps, text::encoding enc = mstr::traits::host_encoding) {
-      _read_line(
-         ps, enc, mstr::traits::max_codepoint_length,
-         reinterpret_cast<text::str_str_fn>(mstr::traits::str_str)
-      );
-      return *this;
-   }
+   istream & read_line(mstr * ps);
 
 
    /** Reads at most cbMax bytes from the stream into the specified buffer.
@@ -195,27 +186,6 @@ public:
    */
    virtual void unread_raw(
       void const * p, size_t cb, text::encoding enc = text::encoding::identity
-   ) = 0;
-
-
-private:
-
-   /** Implementation of read_line(): reads a whole line in the provided string, discarding the line
-   terminator read (if any) and appending a NUL character.
-
-   ps
-      Pointer to the string that will receive the line read.
-   enc
-      Encoding used by the string pointed to by prs. If not the same as stream’s encoding, a
-      conversion will be performed.
-   cchCodePointMax
-      Maximum size, in *prs characters, of a single Unicode code point. Used to calculate buffer
-      sizes.
-   pfnStrStr
-      Pointer to a substring-search function suitable for the character type of *prs.
-   */
-   virtual void _read_line(
-      mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
    ) = 0;
 };
 
