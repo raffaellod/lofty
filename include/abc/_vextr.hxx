@@ -30,9 +30,9 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 
-/** DOC:4019 abc::*str_ and abc::*vector design
+/** DOC:4019 abc::*str and abc::*vector design
 
-*str_ and *vector are implemented using the same base set of classes:
+*str and *vector are implemented using the same base set of classes:
 
 •  _raw_vextr_impl_base, core functionality for a vector of items: a little code and all member
    variables; this is then extended by three implementation classes:
@@ -48,7 +48,7 @@ You should have received a copy of the GNU General Public License along with ABC
       string-like vector:
 
       •  _raw_str, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
-         provides means for clients of str_ to avoid having to be templates themselves, by giving
+         provides means for clients of str to avoid having to be templates themselves, by giving
          access to type-deleted (void *) methods.
 
 A vector/string using a static item array is nearly as fast as the C-style direct manipulation of an
@@ -1097,7 +1097,7 @@ private:
 namespace abc {
 
 /** Template-independent implementation of a vector for trivial contained types. This is the most
-derived common base class of both vector and str_.
+derived common base class of both vector and str.
 */
 class ABCAPI _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
@@ -1156,8 +1156,8 @@ public:
 
 
    /** Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   read-only or dynamic item array; see [DOC:4019 abc::*str_ and abc::*vector design] to see how
-   str_ and vector ensure this.
+   read-only or dynamic item array; see [DOC:4019 abc::*str and abc::*vector design] to see how str
+   and vector ensure this.
 
    rtvi
       Source vextr.
@@ -1341,7 +1341,7 @@ public:
    TODO: comment signature.
    */
    iterator begin() {
-      // const_cast is required because base_str_::data() returns const only.
+      // const_cast is required because str_base::data() returns const only.
       return iterator(const_cast<TVal *>(static_cast<TCont *>(this)->data()));
    }
    const_iterator begin() const {

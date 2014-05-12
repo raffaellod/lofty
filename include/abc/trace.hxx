@@ -846,6 +846,7 @@ class _scope_trace<> :
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
+
 // Now these can be implemented.
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES

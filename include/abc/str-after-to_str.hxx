@@ -250,14 +250,14 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::str_base_
+// abc::to_str_backend - specialization for abc::str_base
 
 
 namespace abc {
 
 // Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<str_base_<C, TTraits>> :
+template <>
+class to_str_backend<str_base> :
    public _str_to_str_backend {
 public:
 
@@ -278,8 +278,8 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(str_base_<C, TTraits> const & s, io::ostream * posOut) {
-      _str_to_str_backend::write(s.data(), sizeof(C) * s.size(), TTraits::host_encoding, posOut);
+   void write(str_base const & s, io::ostream * posOut) {
+      _str_to_str_backend::write(s.data(), sizeof(char_t) * s.size(), text::encoding::host, posOut);
    }
 };
 
@@ -287,21 +287,21 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::istr_
+// abc::to_str_backend - specialization for abc::istr
 
 
 namespace abc {
 
 // Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<istr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
+template <>
+class to_str_backend<istr> :
+   public to_str_backend<str_base> {
 public:
 
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
+   /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
    to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
+      to_str_backend<str_base>(crFormat) {
    }
 };
 
@@ -309,21 +309,21 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::mstr_
+// abc::to_str_backend - specialization for abc::mstr
 
 
 namespace abc {
 
 // Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<mstr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
+template <>
+class to_str_backend<mstr> :
+   public to_str_backend<str_base> {
 public:
 
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
+   /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
    to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
+      to_str_backend<str_base>(crFormat) {
    }
 };
 
@@ -331,21 +331,21 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::dmstr_
+// abc::to_str_backend - specialization for abc::dmstr
 
 
 namespace abc {
 
 // Specialization of to_str_backend.
-template <typename C, class TTraits>
-class to_str_backend<dmstr_<C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
+template <>
+class to_str_backend<dmstr> :
+   public to_str_backend<str_base> {
 public:
 
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
+   /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
    to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
+      to_str_backend<str_base>(crFormat) {
    }
 };
 
@@ -359,15 +359,15 @@ public:
 namespace abc {
 
 // Specialization of to_str_backend.
-template <size_t t_cchStatic, typename C, class TTraits>
-class to_str_backend<smstr<t_cchStatic, C, TTraits>> :
-   public to_str_backend<str_base_<C, TTraits>> {
+template <size_t t_cchStatic>
+class to_str_backend<smstr<t_cchStatic>> :
+   public to_str_backend<str_base> {
 public:
 
-   /** Constructor. See to_str_backend<str_base_<C, TTraits>>::to_str_backend().
+   /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
    to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base_<C, TTraits>>(crFormat) {
+      to_str_backend<str_base>(crFormat) {
    }
 };
 

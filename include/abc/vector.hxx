@@ -442,7 +442,7 @@ class dmvector;
 
 /** Base class for vectors.
 
-See [DOC:4019 abc::*str_ and abc::*vector design] for implementation details for this and all the
+See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
 *vector classes.
 */
 template <typename T, bool t_bCopyConstructible>

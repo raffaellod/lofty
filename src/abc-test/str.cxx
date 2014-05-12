@@ -415,22 +415,20 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str8_substr_ascii
-
-#ifdef U8SL
+// abc::test::str_substr_ascii
 
 namespace abc {
 
 namespace test {
 
-class str8_substr_ascii :
+class str_substr_ascii :
    public testing::test_case {
 public:
 
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-8 strings"));
+      return istr(SL("abc::*str classes - ASCII character and substring search"));
    }
 
 
@@ -446,20 +444,20 @@ public:
       // •  first and last characters match 'a', but other inner ones do too;
       // •  would match “abcd” were it not for the last character;
       // •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-      istr8 const s8(U8SL("acabaabca"));
-      istr8::const_iterator it;
+      istr const s(SL("acabaabca"));
+      istr::const_iterator it;
 
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U32CL('b')), s8.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("ab")), s8.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("abca")), s8.cbegin() + 5);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("abcd")), s8.cend());
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("abaabc")), s8.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("abaabcd")), s8.cend());
-      ABC_TESTING_ASSERT_EQUAL(s8.find_last(U32CL('b')), s8.cend() - 3);
+      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('b')), s.cbegin() + 3);
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("ab")), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abca")), s.cbegin() + 5);
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abcd")), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabc")), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabcd")), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(U32CL('b')), s.cend() - 3);
 #if 0
-      ABC_TESTING_ASSERT_EQUAL(s8.find_last(U8SL("ab")), s8.cend() - 4);
-      ABC_TESTING_ASSERT_EQUAL(s8.find_last(U8SL("ac")), s8.cend() - 9);
-      ABC_TESTING_ASSERT_EQUAL(s8.find_last(U8SL("ca")), s8.cend() - 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ab")), s.cend() - 4);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ac")), s.cend() - 9);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ca")), s.cend() - 2);
 #endif
    }
 };
@@ -468,139 +466,17 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str8_substr_ascii)
-
-#endif //ifdef U8SL
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ascii)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str16_substr_ascii
-
-#ifdef U16SL
+// abc::test::str_substr_nonascii
 
 namespace abc {
 
 namespace test {
 
-class str16_substr_ascii :
-   public testing::test_case {
-public:
-
-   /** See abc::testing::test_case::title().
-   */
-   virtual istr title() {
-      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-16 strings"));
-   }
-
-
-   /** See abc::testing::test_case::run().
-   */
-   virtual void run() {
-      ABC_TRACE_FN((this));
-
-      // ASCII character and substring search.
-      // The string “acabaabca” has the following properties:
-      // •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
-      //    “aba” instead), to catch incorrect skip-last comparisons;
-      // •  first and last characters match 'a', but other inner ones do too;
-      // •  would match “abcd” were it not for the last character;
-      // •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-      istr16 const s16(U16SL("acabaabca"));
-      istr16::const_iterator it;
-
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U32CL('b')), s16.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("ab")), s16.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("abca")), s16.cbegin() + 5);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("abcd")), s16.cend());
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("abaabc")), s16.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("abaabcd")), s16.cend());
-      ABC_TESTING_ASSERT_EQUAL(s16.find_last(U32CL('b')), s16.cend() - 3);
-#if 0
-      ABC_TESTING_ASSERT_EQUAL(s16.find_last(U16SL("ab")), s16.cend() - 4);
-      ABC_TESTING_ASSERT_EQUAL(s16.find_last(U16SL("ac")), s16.cend() - 9);
-      ABC_TESTING_ASSERT_EQUAL(s16.find_last(U16SL("ca")), s16.cend() - 2);
-#endif
-   }
-};
-
-} //namespace test
-
-} //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str16_substr_ascii)
-
-#endif //ifdef U16SL
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str32_substr_ascii
-
-#ifdef U32SL
-
-namespace abc {
-
-namespace test {
-
-class str32_substr_ascii :
-   public testing::test_case {
-public:
-
-   /** See abc::testing::test_case::title().
-   */
-   virtual istr title() {
-      return istr(SL("abc::*str classes - ASCII character and substring search - UTF-32 strings"));
-   }
-
-
-   /** See abc::testing::test_case::run().
-   */
-   virtual void run() {
-      ABC_TRACE_FN((this));
-
-      // ASCII character and substring search.
-      // The string “acabaabca” has the following properties:
-      // •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
-      //    “aba” instead), to catch incorrect skip-last comparisons;
-      // •  first and last characters match 'a', but other inner ones do too;
-      // •  would match “abcd” were it not for the last character;
-      // •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-      istr32 const s32(U32SL("acabaabca"));
-      istr32::const_iterator it;
-
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32CL('b')), s32.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("ab")), s32.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("abca")), s32.cbegin() + 5);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("abcd")), s32.cend());
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("abaabc")), s32.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("abaabcd")), s32.cend());
-      ABC_TESTING_ASSERT_EQUAL(s32.find_last(U32CL('b')), s32.cend() - 3);
-#if 0
-      ABC_TESTING_ASSERT_EQUAL(s32.find_last(U32SL("ab")), s32.cend() - 4);
-      ABC_TESTING_ASSERT_EQUAL(s32.find_last(U32SL("ac")), s32.cend() - 9);
-      ABC_TESTING_ASSERT_EQUAL(s32.find_last(U32SL("ca")), s32.cend() - 2);
-#endif
-   }
-};
-
-} //namespace test
-
-} //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str32_substr_ascii)
-
-#endif //ifdef U32SL
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str8_substr_nonascii
-
-#ifdef U8SL
-
-namespace abc {
-
-namespace test {
-
-class str8_substr_nonascii :
+class str_substr_nonascii :
    public testing::test_case {
 public:
 
@@ -608,7 +484,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes - non-ASCII character and substring search - UTF-8 strings")
+         SL("abc::*str classes - non-ASCII character and substring search")
       );
    }
 
@@ -619,31 +495,31 @@ public:
       ABC_TRACE_FN((this));
 
       // Non-ASCII character and substring search.
-      istr8 const s8(U8SL("àßçàŒ"));
-      istr8::const_iterator it;
+      istr const s(SL("àßçàŒ"));
+      istr::const_iterator it;
 
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U32CL('ß')), s8.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àß")), s8.cbegin() + 0);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àŒ")), s8.cbegin() + 6);
-      ABC_TESTING_ASSERT_EQUAL(s8.find(U8SL("àü")), s8.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + ptrdiff_t(istr(SL("à")).size()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àß")), s.cbegin());
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + ptrdiff_t(istr(SL("àßç")).size()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àü")), s.cend());
 
-      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("")));
-      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("à")));
-      ABC_TESTING_ASSERT_TRUE(s8.starts_with(U8SL("àß")));
-      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("ß")));
-      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("ßç")));
-      ABC_TESTING_ASSERT_TRUE(s8.starts_with(s8));
-      ABC_TESTING_ASSERT_FALSE(s8.starts_with(s8 + U8SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s8.starts_with(U8SL("-") + s8));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("")));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("à")));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("àß")));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("ß")));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("ßç")));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(s));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(s + SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("-") + s));
 
-      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("")));
-      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("Œ")));
-      ABC_TESTING_ASSERT_TRUE(s8.ends_with(U8SL("àŒ")));
-      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("à")));
-      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("çà")));
-      ABC_TESTING_ASSERT_TRUE(s8.ends_with(s8));
-      ABC_TESTING_ASSERT_FALSE(s8.ends_with(s8 + U8SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s8.ends_with(U8SL("-") + s8));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("")));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("Œ")));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("àŒ")));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("à")));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("çà")));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(s + SL("-")));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("-") + s));
    }
 };
 
@@ -651,139 +527,7 @@ public:
 
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str8_substr_nonascii)
-
-#endif //ifdef U8SL
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str16_substr_nonascii
-
-#ifdef U16SL
-
-namespace abc {
-
-namespace test {
-
-class str16_substr_nonascii :
-   public testing::test_case {
-public:
-
-   /** See abc::testing::test_case::title().
-   */
-   virtual istr title() {
-      return istr(
-         SL("abc::*str classes - non-ASCII character and substring search - UTF-16 strings")
-      );
-   }
-
-
-   /** See abc::testing::test_case::run().
-   */
-   virtual void run() {
-      ABC_TRACE_FN((this));
-
-      // Non-ASCII character and substring search.
-      istr16 const s16(U16SL("àßçàŒ"));
-      istr16::const_iterator it;
-
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U32CL('ß')), s16.cbegin() + 1);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àß")), s16.cbegin() + 0);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àŒ")), s16.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s16.find(U16SL("àü")), s16.cend());
-
-      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("")));
-      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("à")));
-      ABC_TESTING_ASSERT_TRUE(s16.starts_with(U16SL("àß")));
-      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("ß")));
-      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("ßç")));
-      ABC_TESTING_ASSERT_TRUE(s16.starts_with(s16));
-      ABC_TESTING_ASSERT_FALSE(s16.starts_with(s16 + U16SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s16.starts_with(U16SL("-") + s16));
-
-      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("")));
-      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("Œ")));
-      ABC_TESTING_ASSERT_TRUE(s16.ends_with(U16SL("àŒ")));
-      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("à")));
-      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("çà")));
-      ABC_TESTING_ASSERT_TRUE(s16.ends_with(s16));
-      ABC_TESTING_ASSERT_FALSE(s16.ends_with(s16 + U16SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s16.ends_with(U16SL("-") + s16));
-   }
-};
-
-} //namespace test
-
-} //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str16_substr_nonascii)
-
-#endif //ifdef U16SL
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str32_substr_nonascii
-
-#ifdef U32SL
-
-namespace abc {
-
-namespace test {
-
-class str32_substr_nonascii :
-   public testing::test_case {
-public:
-
-   /** See abc::testing::test_case::title().
-   */
-   virtual istr title() {
-      return istr(
-         SL("abc::*str classes - non-ASCII character and substring search - UTF-32 strings")
-      );
-   }
-
-
-   /** See abc::testing::test_case::run().
-   */
-   virtual void run() {
-      ABC_TRACE_FN((this));
-
-      // Non-ASCII character and substring search.
-      istr32 const s32(U32SL("àßçàŒ"));
-      istr32::const_iterator it;
-
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32CL('ß')), s32.cbegin() + 1);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àß")), s32.cbegin() + 0);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àŒ")), s32.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s32.find(U32SL("àü")), s32.cend());
-
-      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("")));
-      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("à")));
-      ABC_TESTING_ASSERT_TRUE(s32.starts_with(U32SL("àß")));
-      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("ß")));
-      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("ßç")));
-      ABC_TESTING_ASSERT_TRUE(s32.starts_with(s32));
-      ABC_TESTING_ASSERT_FALSE(s32.starts_with(s32 + U32SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s32.starts_with(U32SL("-") + s32));
-
-      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("")));
-      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("Œ")));
-      ABC_TESTING_ASSERT_TRUE(s32.ends_with(U32SL("àŒ")));
-      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("à")));
-      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("çà")));
-      ABC_TESTING_ASSERT_TRUE(s32.ends_with(s32));
-      ABC_TESTING_ASSERT_FALSE(s32.ends_with(s32 + U32SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s32.ends_with(U32SL("-") + s32));
-   }
-};
-
-} //namespace test
-
-} //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str32_substr_nonascii)
-
-#endif //ifdef U32SL
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_nonascii)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
