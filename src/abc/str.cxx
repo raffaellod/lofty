@@ -56,46 +56,50 @@ void _str_to_str_backend::write(
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_str
+// abc::str_base
 
 
 namespace abc {
 
-_raw_str::c_str_pointer _raw_str::c_str(size_t cbItem) const {
-   void const * pData(data<void>());
+str_base::c_str_pointer str_base::c_str() const {
+   char_t const * pchData(data());
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(
-         pData, memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(false)
-      );
+      return c_str_pointer(pchData, c_str_pointer::deleter_type(false));
    }
-   if (size_t cb = cbItem * size()) {
-      // The string is not empty but lacks a NUL terminator: create a temporary copy that
-      // includes a NUL, and return it.
-      c_str_pointer psz(c_str_pointer(
-         memory::_raw_alloc(cb + cbItem /*NUL*/),
-         memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(true)
-      ));
-      memory::copy(const_cast<void *>(psz.get()), pData, cb);
-      terminate(cbItem, static_cast<int8_t *>(const_cast<void *>(psz.get())) + cb);
+   if (size_t cch = size()) {
+      // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
+      // NUL, and return it.
+      c_str_pointer psz(
+         memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(),
+         c_str_pointer::deleter_type(true)
+      );
+      memory::copy(const_cast<char_t *>(psz.get()), pchData, cch);
+      terminate(sizeof(char_t), const_cast<char_t *>(psz.get()) + cch);
       return std::move(psz);
    }
    // The string is empty, so a static NUL character will suffice.
    return c_str_pointer(
-      &smc_chNUL,
-      memory::conditional_deleter<void const, memory::freeing_deleter<void const>>(false)
+      reinterpret_cast<char_t const *>(&smc_chNUL), c_str_pointer::deleter_type(false)
    );
 }
 
+} //namespace abc
+
+
+namespace std {
 
 // Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
 // <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 //
 // The primes are calculated by src/fnv_hash_basis.py.
-size_t _raw_str::hash(size_t cbItem) const {
-   ABC_TRACE_FN((this, cbItem));
+size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
+   ABC_TRACE_FN((this, s));
 
-   // The checks below are based on the assumption that sizeof(size_t) == ABC_HOST_WORD_SIZE.
+   static_assert(
+      sizeof(size_t) * 8 == ABC_HOST_WORD_SIZE,
+      "unexpected sizeof(size_t) will break FNV prime/basis selection"
+   );
 #if ABC_HOST_WORD_SIZE == 16
    size_t const c_iFNVPrime(0x1135);
    size_t const c_iFNVBasis(16635u);
@@ -107,23 +111,29 @@ size_t _raw_str::hash(size_t cbItem) const {
    size_t const c_iFNVBasis(14695981039346656037u);
 #endif
    size_t iHash(c_iFNVBasis);
-   int8_t const * pbBegin(static_cast<int8_t const *>(m_p)),
-                * pbEnd(pbBegin + cbItem * size());
-   for (int8_t const * pb(pbBegin); pb < pbEnd; ++pb) {
-      iHash ^= size_t(*pb);
+   for (auto it(s.cbegin()), itEnd(s.cend()); it != itEnd; ++it) {
+      iHash ^= size_t(*it);
       iHash *= c_iFNVPrime;
    }
    return iHash;
 }
 
+} //namespace std
 
-void _raw_str::set_size(size_t cbItem, size_t cch) {
-   ABC_TRACE_FN((this, cbItem, cch));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::mstr
+
+
+namespace abc {
+
+void mstr::set_size(size_t cch) {
+   ABC_TRACE_FN((this, cch));
 
    if (cch != size()) {
       if (cch > capacity()) {
          // Enlarge the item array.
-         set_capacity(cbItem, cch, true);
+         set_capacity(cch, true);
       }
       m_ci = cch;
    }

@@ -75,9 +75,9 @@ size_t str_istream::read_raw(
 
 
 /*virtual*/ void str_istream::_read_line(
-   _raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+   mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-   ABC_UNUSED_ARG(prs);
+   ABC_UNUSED_ARG(ps);
    ABC_UNUSED_ARG(enc);
    ABC_UNUSED_ARG(cchCodePointMax);
    ABC_UNUSED_ARG(pfnStrStr);

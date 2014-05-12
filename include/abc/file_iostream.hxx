@@ -275,7 +275,7 @@ private:
    /** See istream::_read_line().
    */
    virtual void _read_line(
-      _raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+      mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
    );
 
 

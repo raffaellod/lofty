@@ -47,9 +47,7 @@ You should have received a copy of the GNU General Public License along with ABC
       supports the presence of a last element of value 0, opening up for the implementation of a
       string-like vector:
 
-      •  _raw_str, implementation of a string: mostly based on _raw_trivial_vector_impl, it also
-         provides means for clients of str to avoid having to be templates themselves, by giving
-         access to type-deleted (void *) methods.
+      •  str_base, implementation of a string: mostly based on _raw_trivial_vector_impl.
 
 A vector/string using a static item array is nearly as fast as the C-style direct manipulation of an
 array, only wasting a very small amount of space, and providing the ability to switch to a
@@ -675,7 +673,7 @@ public:
    }
 
 
-   /** See buffered_vector::size() and _raw_str::size().
+   /** See buffered_vector::size() and str_base::size().
 
    return
       Count of items in the item array.

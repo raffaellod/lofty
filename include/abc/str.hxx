@@ -28,80 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_str
-
-
-namespace abc {
-
-/** Template-independent methods of str.
-*/
-class ABCAPI _raw_str :
-   public _raw_trivial_vextr_impl {
-public:
-
-   /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
-   an abc::*str instance. */
-   typedef std::unique_ptr<
-      void const,
-      memory::conditional_deleter<void const, memory::freeing_deleter<void const>>
-   > c_str_pointer;
-
-
-public:
-
-   /** Returns a pointer to a NUL-terminated version of the string. See abc::str_base::c_str().
-
-   cbItem
-      Size of a single array item, in bytes.
-   return
-      NUL-terminated version of the string.
-   */
-   c_str_pointer c_str(size_t cbItem) const;
-
-
-   /** Computes the hash value of the string.
-
-   cbItem
-      Size of a single array item, in bytes.
-   return
-      Hash value of the string.
-   */
-   size_t hash(size_t cbItem) const;
-
-
-   /** Changes the length of the string, without changing its capacity.
-
-   cbItem
-      Size of a single array item, in bytes.
-   cch
-      New length of the string.
-   */
-   void set_size(size_t cbItem, size_t cch);
-
-
-protected:
-
-   /** Constructor.
-
-   cchStaticMax
-      Count of slots in the static character array, or 0 if no static character array is present.
-   pchConstSrc
-      Pointer to a string that will be adopted by the _raw_str as read-only.
-   cchSrc
-      Count of characters in the string pointed to by pchConstSrc.
-   */
-   _raw_str(size_t cchStaticMax) :
-      _raw_trivial_vextr_impl(cchStaticMax) {
-   }
-   _raw_str(void const * pchConstSrc, size_t cchSrc) :
-      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, true) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::str_base
 
 
@@ -117,8 +43,8 @@ trailing NUL character.
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
 abc::*str classes.
 */
-class str_base :
-   protected _raw_str,
+class ABCAPI str_base :
+   protected _raw_trivial_vextr_impl,
    public _iterable_vector<str_base, char_t>,
    public support_explicit_operator_bool<str_base> {
 protected:
@@ -187,16 +113,7 @@ public:
    return
       NUL-terminated version of the string.
    */
-   c_str_pointer c_str() const {
-      auto psz(_raw_str::c_str(sizeof(char_t)));
-      // Unpack the std::unique_ptr<void const *, …> into an std::unique_ptr<char_t const *, …>.
-      return c_str_pointer(
-         static_cast<char_t const *>(psz.release()),
-         memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>(
-            psz.get_deleter().enabled()
-         )
-      );
-   }
+   c_str_pointer c_str() const;
 
 
    /** Returns the current size of the string buffer, in characters.
@@ -205,7 +122,7 @@ public:
       Size of the string buffer, in characters.
    */
    size_t capacity() const {
-      return _raw_str::capacity();
+      return _raw_trivial_vextr_impl::capacity();
    }
 
 
@@ -242,7 +159,7 @@ public:
       Pointer to the character array.
    */
    char_t const * data() const {
-      return _raw_str::data<char_t>();
+      return _raw_trivial_vextr_impl::data<char_t>();
    }
 
 
@@ -393,26 +310,13 @@ public:
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
-   /** Work around the protected inheritance, forcing the raw access to be explicit.
-
-   return
-      Reference to *this as a _raw_str instance.
-   */
-   _raw_str & raw() {
-      return *this;
-   }
-   _raw_str const & raw() const {
-      return *this;
-   }
-
-
    /** Returns the count of characters in the string.
 
    return
       Count of characters.
    */
    size_t size() const {
-      return _raw_str::size();
+      return _raw_trivial_vextr_impl::size();
    }
 
 
@@ -480,64 +384,66 @@ protected:
 
    /** Constructor.
 
-   cchStatic
+   cchStaticMax
       Count of slots in the static character array, or 0 if no static character array is present.
-   pch
+   pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
-   cch
-      Count of characters in the string pointed to by pch.
+   cchSrc
+      Count of characters in the string pointed to by pchConstSrc.
    */
-   str_base(size_t cchStatic) :
-      _raw_str(cchStatic) {
+   str_base(size_t cchStaticMax) :
+      _raw_trivial_vextr_impl(cchStaticMax) {
    }
-   str_base(char_t const * pch, size_t cch) :
-      _raw_str(pch, cch) {
+   str_base(char_t const * pchConstSrc, size_t cchSrc) :
+      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, true) {
    }
 
 
-   /** See _raw_str::assign_copy().
+   /** See _raw_trivial_vextr_impl::assign_copy().
 
    TODO: comment signature.
    */
    void assign_copy(char_t const * pch, size_t cch) {
-      _raw_str::assign_copy(sizeof(char_t), pch, cch);
+      _raw_trivial_vextr_impl::assign_copy(sizeof(char_t), pch, cch);
    }
 
 
    /** TODO: comment.
    */
    void assign_concat(char_t const * pch1, size_t cch1, char_t const * pch2, size_t cch2) {
-      _raw_str::assign_concat(sizeof(char_t), pch1, cch1, pch2, cch2);
+      _raw_trivial_vextr_impl::assign_concat(sizeof(char_t), pch1, cch1, pch2, cch2);
    }
 
 
-   /** See _raw_str::assign_move().
+   /** See _raw_trivial_vextr_impl::assign_move().
 
    s
       Source string.
    */
    void assign_move(str_base && s) {
-      _raw_str::assign_move(static_cast<_raw_str &&>(s));
+      _raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(s));
    }
 
 
-   /** See _raw_str::assign_move_dynamic_or_move_items().
+   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
    s
       Source string.
    */
    void assign_move_dynamic_or_move_items(str_base && s) {
-      _raw_str::assign_move_dynamic_or_move_items(sizeof(char_t), static_cast<_raw_str &&>(s));
+      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
+         sizeof(char_t), static_cast<_raw_trivial_vextr_impl &&>(s)
+      );
    }
 
 
-   /** See _raw_str::assign_share_ro_or_copy().
+   /** See _raw_trivial_vextr_impl::assign_share_ro_or_copy().
 
    s
       Source string.
    */
    void assign_share_ro_or_copy(str_base const & s) {
-      _raw_str::assign_share_ro_or_copy(sizeof(char_t), s);
+      _raw_trivial_vextr_impl::assign_share_ro_or_copy(sizeof(char_t), s);
    }
 };
 
@@ -570,11 +476,9 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::str_base> {
+struct ABCAPI hash<abc::str_base> {
 
-   size_t operator()(abc::str_base const & s) const {
-      return s.raw().hash(sizeof(abc::char_t));
-   }
+   size_t operator()(abc::str_base const & s) const;
 };
 
 } //namespace std
@@ -810,7 +714,7 @@ public:
    TODO: comment signature.
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
-      _raw_str::append(sizeof(char_t), pchAdd, cchAdd);
+      _raw_trivial_vextr_impl::append(sizeof(char_t), pchAdd, cchAdd);
    }
 
 
@@ -819,10 +723,10 @@ public:
    TODO: comment signature.
    */
    char_t * data() {
-      return _raw_str::data<char_t>();
+      return _raw_trivial_vextr_impl::data<char_t>();
    }
    char_t const * data() const {
-      return _raw_str::data<char_t>();
+      return _raw_trivial_vextr_impl::data<char_t>();
    }
 
 
@@ -858,22 +762,21 @@ public:
    }
 
 
-   /** See _raw_str::set_capacity().
+   /** See _raw_trivial_vextr_impl::set_capacity().
 
    TODO: comment signature.
    */
    void set_capacity(size_t cchMin, bool bPreserve) {
-      _raw_str::set_capacity(sizeof(char_t), cchMin, bPreserve);
+      _raw_trivial_vextr_impl::set_capacity(sizeof(char_t), cchMin, bPreserve);
    }
 
 
-   /** See _raw_str::set_size().
+   /** Changes the length of the string, without changing its capacity.
 
-   TODO: comment signature.
+   cch
+      New length of the string.
    */
-   void set_size(size_t cch) {
-      _raw_str::set_size(sizeof(char_t), cch);
-   }
+   void set_size(size_t cch);
 
 
 protected:

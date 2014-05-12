@@ -161,8 +161,7 @@ public:
    */
    istream & read_line(mstr * ps, text::encoding enc = mstr::traits::host_encoding) {
       _read_line(
-         &ps->raw(), enc,
-         mstr::traits::max_codepoint_length,
+         ps, enc, mstr::traits::max_codepoint_length,
          reinterpret_cast<text::str_str_fn>(mstr::traits::str_str)
       );
       return *this;
@@ -204,7 +203,7 @@ private:
    /** Implementation of read_line(): reads a whole line in the provided string, discarding the line
    terminator read (if any) and appending a NUL character.
 
-   prs
+   ps
       Pointer to the string that will receive the line read.
    enc
       Encoding used by the string pointed to by prs. If not the same as stream’s encoding, a
@@ -216,7 +215,7 @@ private:
       Pointer to a substring-search function suitable for the character type of *prs.
    */
    virtual void _read_line(
-      _raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+      mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
    ) = 0;
 };
 

@@ -323,9 +323,9 @@ int8_t * file_istream::_get_read_buffer() {
 
 
 /*virtual*/ void file_istream::_read_line(
-   _raw_str * prs, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
+   mstr * ps, text::encoding enc, unsigned cchCodePointMax, text::str_str_fn pfnStrStr
 ) {
-   ABC_TRACE_FN((this, prs, enc, cchCodePointMax, pfnStrStr));
+   ABC_TRACE_FN((this, ps, enc, cchCodePointMax, pfnStrStr));
 
    size_t cbChar(text::get_encoding_size(enc));
    ABC_ASSERT(cbChar > 0, SL("invalid encoding caused text::get_encoding_size() to return 0"));
@@ -343,12 +343,12 @@ int8_t * file_istream::_get_read_buffer() {
       if (cchAvail < cchCodePointMax) {
          // Need to enlarge the string buffer.
          cchMax += m_cchBufferStep;
-         prs->set_capacity(cbChar, cchMax, false);
+         ps->set_capacity(cchMax, false);
          cchAvail = cchMax - cchFilled;
       }
 
       // Read as many characters as possible, appending to the current end of the string.
-      int8_t * pbLastEnd(prs->data<int8_t>() + (cchFilled << cbCharLog2));
+      int8_t * pbLastEnd(reinterpret_cast<int8_t *>(ps->data()) + (cchFilled << cbCharLog2));
       size_t cbRead(read_raw(pbLastEnd, cchAvail << cbCharLog2, enc));
       if (!cbRead) {
          break;
@@ -389,7 +389,7 @@ int8_t * file_istream::_get_read_buffer() {
       // Add the characters read as part of the line.
       cchFilled += cbRead >> cbCharLog2;
    }
-   prs->set_size(cbChar, cchFilled);
+   ps->set_size(cchFilled);
 }
 
 
