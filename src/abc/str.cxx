@@ -62,6 +62,8 @@ void _str_to_str_backend::write(
 namespace abc {
 
 str_base::c_str_pointer str_base::c_str() const {
+   ABC_TRACE_FN((this));
+
    char_t const * pchData(data());
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
