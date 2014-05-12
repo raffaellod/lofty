@@ -571,8 +571,8 @@ public:
    return
       Contents of *this.
    */
-   operator char_range_<char_t>() const {
-      return char_range_<char_t>(str_base::cbegin().base(), str_base::cend().base());
+   operator char_range() const {
+      return char_range(str_base::cbegin().base(), str_base::cend().base());
    }
 };
 

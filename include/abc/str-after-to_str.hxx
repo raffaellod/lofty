@@ -212,13 +212,13 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::char_range_
+// abc::to_str_backend - specialization for abc::char_range
 
 
 namespace abc {
 
-template <typename C>
-class to_str_backend<char_range_<C>> :
+template <>
+class to_str_backend<char_range> :
    public _str_to_str_backend {
 public:
 
@@ -239,9 +239,9 @@ public:
    posOut
       Pointer to the output stream to write to.
    */
-   void write(char_range_<C> const & cr, io::ostream * posOut) {
+   void write(char_range const & cr, io::ostream * posOut) {
       _str_to_str_backend::write(
-         cr.cbegin().base(), sizeof(C) * cr.size(), text::utf_traits<C>::host_encoding, posOut
+         cr.cbegin().base(), sizeof(char_t) * cr.size(), text::encoding::host, posOut
       );
    }
 };

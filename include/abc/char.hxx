@@ -249,7 +249,7 @@ return
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::char_range_
+// abc::char_range
 
 
 namespace abc {
@@ -258,9 +258,8 @@ namespace abc {
 is not yet defined nor can it be, such as very early header files. Part of the implementation is in
 str.hxx/cxx.
 */
-template <typename C>
-class char_range_ :
-   public support_explicit_operator_bool<char_range_<C>> {
+class char_range :
+   public support_explicit_operator_bool<char_range> {
 public:
 
    /** Constructor.
@@ -274,22 +273,22 @@ public:
    cch
       Count of characters in *pchBegin.
    */
-   char_range_() :
+   char_range() :
       m_pchBegin(nullptr),
       m_pchEnd(nullptr) {
    }
    template <size_t t_cch>
-   char_range_(C const (& ach)[t_cch]) :
+   char_range(char_t const (& ach)[t_cch]) :
       m_pchBegin(ach),
       m_pchEnd(ach + t_cch - 1 /*NUL*/) {
       // Cannot assert in this header file.
       //ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
    }
-   char_range_(C const * pchBegin, size_t cch) :
+   char_range(char_t const * pchBegin, size_t cch) :
       m_pchBegin(pchBegin),
       m_pchEnd(pchBegin + cch) {
    }
-   char_range_(C const * pchBegin, C const * pchEnd) :
+   char_range(char_t const * pchBegin, char_t const * pchEnd) :
       m_pchBegin(pchBegin),
       m_pchEnd(pchEnd) {
    }
@@ -317,12 +316,12 @@ public:
 
 public:
 
-   typedef C value_type;
-   typedef C const * const_pointer;
-   typedef C const & const_reference;
+   typedef char_t value_type;
+   typedef char_t const * const_pointer;
+   typedef char_t const & const_reference;
    typedef size_t size_type;
    typedef ptrdiff_t difference_type;
-   typedef pointer_iterator<char_range_, C const> const_iterator;
+   typedef pointer_iterator<char_range, char_t const> const_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
@@ -344,7 +343,7 @@ public:
       Iterator.
    */
    const_reverse_iterator crbegin() const {
-      return const_reverse_iterator(m_pchEnd);
+      return const_reverse_iterator(cend());
    }
 
 
@@ -364,22 +363,17 @@ public:
       Iterator.
    */
    const_reverse_iterator crend() const {
-      return const_reverse_iterator(m_pchBegin);
+      return const_reverse_iterator(cbegin());
    }
 
 
 private:
 
    /** Pointer to the first character. */
-   C const * m_pchBegin;
+   char_t const * m_pchBegin;
    /** Pointer after the last character. */
-   C const * m_pchEnd;
+   char_t const * m_pchEnd;
 };
-
-typedef char_range_<char_t> char_range;
-typedef char_range_<char8_t> char8_range;
-typedef char_range_<char16_t> char16_range;
-typedef char_range_<char32_t> char32_range;
 
 } //namespace abc
 
