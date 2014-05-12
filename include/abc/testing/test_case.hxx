@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TESTING_TEST_CASE_HXX
-#define ABC_TESTING_TEST_CASE_HXX
+#ifndef _ABC_TESTING_TEST_CASE_HXX
+#define _ABC_TESTING_TEST_CASE_HXX
 
 #include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -541,5 +541,5 @@ cls
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TESTING_TEST_CASE_HXX
+#endif //ifndef _ABC_TESTING_TEST_CASE_HXX
 

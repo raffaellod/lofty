@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef ABC_TESTING_UTILITY_HXX
-#define ABC_TESTING_UTILITY_HXX
+#ifndef _ABC_TESTING_UTILITY_HXX
+#define _ABC_TESTING_UTILITY_HXX
 
 #include <abc/testing/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -283,5 +283,5 @@ bool operator==(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef ABC_TESTING_UTILITY_HXX
+#endif //ifndef _ABC_TESTING_UTILITY_HXX
 
