@@ -85,7 +85,7 @@ public:
       Character at index i.
    */
    char_t operator[](intptr_t i) const {
-      return data()[this->adjust_and_validate_index(i)];
+      return data()[adjust_and_validate_index(i)];
    }
 
 
@@ -199,10 +199,9 @@ public:
       String to search for.
    itWhence
       Iterator to the first character whence the search should start. When not specified, it
-      defaults to this->cbegin().
+      defaults to cbegin().
    return
-      Iterator to the first occurrence of the character/string, or this->cend() when no matches are
-      found.
+      Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find(char32_t chNeedle) const {
       return find(chNeedle, itvec::cbegin());
@@ -226,10 +225,9 @@ public:
       String to search for.
    itWhence
       Iterator to the last character whence the search should start. When not specified, it
-      defaults to this->cend().
+      defaults to cend().
    return
-      Iterator to the first occurrence of the character/string, or this->cend() when no matches are
-      found.
+      Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find_last(char32_t chNeedle) const {
       return find_last(chNeedle, itvec::cend());
@@ -509,12 +507,12 @@ public:
    }
    istr(istr const & s) :
       str_base(0) {
-      this->assign_share_ro_or_copy(s);
+      assign_share_ro_or_copy(s);
    }
    istr(istr && s) :
       str_base(0) {
       // Non-const, so it can’t be anything but a real istr, so it owns its item array.
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
    istr(mstr && s);
@@ -526,7 +524,7 @@ public:
    }
    istr(char_t const * psz, size_t cch) :
       str_base(0) {
-      this->assign_copy(psz, cch);
+      assign_copy(psz, cch);
    }
    istr(unsafe_t, char_t const * psz) :
       str_base(psz, traits::str_len(psz)) {
@@ -546,12 +544,12 @@ public:
       *this.
    */
    istr & operator=(istr const & s) {
-      this->assign_share_ro_or_copy(s);
+      assign_share_ro_or_copy(s);
       return *this;
    }
    istr & operator=(istr && s) {
       // Non-const, so it can’t be anything but a real istr, so it owns its item array.
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
@@ -658,23 +656,23 @@ public:
       *this.
    */
    mstr & operator=(mstr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    mstr & operator=(istr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
    mstr & operator=(istr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    mstr & operator=(dmstr && s);
    template <size_t t_cch>
    mstr & operator=(char_t const (& ach)[t_cch]) {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      this->assign_copy(ach, t_cch - 1 /*NUL*/);
+      assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
 
@@ -702,7 +700,7 @@ public:
    /** See str_base::operator[]().
    */
    char_t & operator[](intptr_t i) {
-      return data()[this->adjust_and_validate_index(i)];
+      return data()[adjust_and_validate_index(i)];
    }
    char_t operator[](intptr_t i) const {
       return str_base::operator[](i);
@@ -796,12 +794,12 @@ protected:
 
 inline istr::istr(mstr && s) :
    str_base(0) {
-   this->assign_move_dynamic_or_move_items(std::move(s));
+   assign_move_dynamic_or_move_items(std::move(s));
 }
 
 
 inline istr & istr::operator=(mstr && s) {
-   this->assign_move_dynamic_or_move_items(std::move(s));
+   assign_move_dynamic_or_move_items(std::move(s));
    return *this;
 }
 
@@ -839,43 +837,43 @@ public:
    }
    dmstr(dmstr const & s) :
       mstr(0) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
    }
    dmstr(dmstr && s) :
       mstr(0) {
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
    }
    dmstr(istr const & s) :
       mstr(0) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(istr && s) :
       mstr(0) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
    }
    dmstr(mstr const & s) :
       mstr(0) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(mstr && s) :
       mstr(0) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
    }
    template <size_t t_cch>
    explicit dmstr(char_t const (& ach)[t_cch]) :
       mstr(0) {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      this->assign_copy(ach, t_cch - 1 /*NUL*/);
+      assign_copy(ach, t_cch - 1 /*NUL*/);
    }
    dmstr(char_t const * pch, size_t cch) :
       mstr(0) {
-      this->assign_copy(pch, cch);
+      assign_copy(pch, cch);
    }
    dmstr(char_t const * pch1, size_t cch1, char_t const * pch2, size_t cch2) :
       mstr(0) {
-      this->assign_concat(pch1, cch1, pch2, cch2);
+      assign_concat(pch1, cch1, pch2, cch2);
    }
 
 
@@ -889,35 +887,35 @@ public:
       *this.
    */
    dmstr & operator=(dmstr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    dmstr & operator=(dmstr && s) {
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
       return *this;
    }
    dmstr & operator=(istr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr & operator=(istr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    dmstr & operator=(mstr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr & operator=(mstr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    template <size_t t_cch>
    dmstr & operator=(char_t const (& ach)[t_cch]) {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      this->assign_copy(ach, t_cch - 1 /*NUL*/);
+      assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
 
@@ -941,18 +939,18 @@ inline dmstr str_base::substr(intptr_t ichBegin) const {
    return substr(ichBegin, intptr_t(size()));
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
-   auto range(this->adjust_and_validate_range(ichBegin, ichEnd));
+   auto range(adjust_and_validate_range(ichBegin, ichEnd));
    return dmstr(data() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
-   auto range(this->adjust_and_validate_range(ichBegin, itEnd - itvec::cbegin()));
+   auto range(adjust_and_validate_range(ichBegin, itEnd - itvec::cbegin()));
    return dmstr(data() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, itvec::cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
-   auto range(this->adjust_and_validate_range(itBegin - itvec::cbegin(), ichEnd));
+   auto range(adjust_and_validate_range(itBegin - itvec::cbegin(), ichEnd));
    return dmstr(data() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
@@ -962,18 +960,18 @@ inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) cons
 
 inline istr::istr(dmstr && s) :
    str_base(0) {
-   this->assign_move(std::move(s));
+   assign_move(std::move(s));
 }
 
 
 inline istr & istr::operator=(dmstr && s) {
-   this->assign_move(std::move(s));
+   assign_move(std::move(s));
    return *this;
 }
 
 
 inline mstr & mstr::operator=(dmstr && s) {
-   this->assign_move(std::move(s));
+   assign_move(std::move(s));
    return *this;
 }
 
@@ -1057,38 +1055,38 @@ public:
    }
    smstr(smstr const & s) :
       mstr(smc_cchFixed) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
       mstr(smc_cchFixed) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
       mstr(smc_cchFixed) {
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
    }
    template <size_t t_cch>
    explicit smstr(char_t const (& ach)[t_cch]) :
       mstr(smc_cchFixed) {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      this->assign_copy(ach, t_cch - 1 /*NUL*/);
+      assign_copy(ach, t_cch - 1 /*NUL*/);
    }
 
 
@@ -1102,38 +1100,38 @@ public:
       *this.
    */
    smstr & operator=(smstr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr & operator=(smstr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    smstr & operator=(istr const & s) {
-      this->assign_copy(s.data(), s.size());
+      assign_copy(s.data(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr & operator=(istr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr & operator=(mstr && s) {
-      this->assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
    smstr & operator=(dmstr && s) {
-      this->assign_move(std::move(s));
+      assign_move(std::move(s));
       return *this;
    }
    template <size_t t_cch>
    smstr & operator=(char_t const (& ach)[t_cch]) {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      this->assign_copy(ach, t_cch - 1 /*NUL*/);
+      assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
 
