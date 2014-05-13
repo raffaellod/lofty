@@ -81,7 +81,7 @@ name
       static ::abc::enum_member const * _get_map() { \
          static ::abc::enum_member const sc_map[] = { \
             ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
-            { nullptr, __default } \
+            { nullptr, 0, __default } \
          }; \
          return sc_map; \
       } \
@@ -108,7 +108,7 @@ value
    Value of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
-            { SL(ABC_CPP_TOSTRING(name)), value },
+            { SL(ABC_CPP_TOSTRING(name)), ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, value },
 
 } //namespace abc
 
@@ -126,6 +126,8 @@ struct ABCAPI enum_member {
 
    /** Name. */
    char_t const * pszName;
+   /** Length of *pszName, in characters. */
+   unsigned short cchName;
    /** Value. */
    int iValue;
 
@@ -136,15 +138,15 @@ struct ABCAPI enum_member {
    pem
       Pointer to the first item in the enumeration members array; the last item in the array has a
       nullptr name string pointer.
-   i
+   iValue
       Value of the constant to search for.
-   psz
+   sName
       Name of the constant to search for.
    return
       Pointer to the matching name/value pair.
    */
-   static enum_member const * find_in_map(enum_member const * pem, int i);
-   static enum_member const * find_in_map(enum_member const * pem, char_t const * psz);
+   static enum_member const * find_in_map(enum_member const * pem, int iValue);
+   static enum_member const * find_in_map(enum_member const * pem, istr const & sName);
 };
 
 } //namespace abc
@@ -170,12 +172,12 @@ public:
 
    e
       Source value.
-   i
+   iValue
       Integer value to be converted to enum_type. If i has a value not in enum_type, an exception
       will be thrown.
-   psz
-      String to be converted to enum_type. If *psz does not match exactly the name of one of the
-      members of enum_type, an exception will be thrown.
+   sName
+      String to be converted to enum_type. If this does not match exactly the name of one of the
+      members of enum_type, an exception of type abc::domain_error will be thrown.
    */
    enum_impl() :
       m_e(T::__default) {
@@ -187,13 +189,12 @@ public:
       m_e(e.m_e) {
    }
    // Conversion from integer.
-   explicit enum_impl(int i) :
-      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), i)->iValue)) {
+   explicit enum_impl(int iValue) :
+      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
    }
    // Conversion from string.
-   // TODO: change to accept abc::char_range, so we get automatic conversion from abc::*str.
-   explicit enum_impl(char_t const * psz) :
-      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), psz)->iValue)) {
+   explicit enum_impl(istr const & sName) :
+      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
    }
 
 

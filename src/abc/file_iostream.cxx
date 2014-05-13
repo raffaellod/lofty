@@ -499,7 +499,7 @@ file_ostream::file_ostream(file_path const & fp) :
          return ::GetEnvironmentVariable(SL("ABC_STDERR_ENCODING"), pch, DWORD(cchMax));
       });
       try {
-         text::encoding enc(sEnc.data());
+         text::encoding enc(sEnc);
          // If we’re still here, the encoding is valid; assign it to the stderr stream.
          (*g_ppfosStdErr)->set_encoding(enc);
       } catch (domain_error const &) {

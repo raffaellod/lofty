@@ -29,11 +29,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-/*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int i) {
-   ABC_TRACE_FN((pem, i));
+/*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int iValue) {
+   ABC_TRACE_FN((pem, iValue));
 
    for (; pem->pszName; ++pem) {
-      if (i == pem->iValue) {
+      if (iValue == pem->iValue) {
          return pem;
       }
    }
@@ -41,12 +41,12 @@ namespace abc {
    ABC_THROW(domain_error, ());
 }
 /*static*/ enum_member const * enum_member::find_in_map(
-   enum_member const * pem, char_t const * psz
+   enum_member const * pem, istr const & sName
 ) {
-   ABC_TRACE_FN((pem, psz));
+   ABC_TRACE_FN((pem, sName));
 
    for (; pem->pszName; ++pem) {
-      if (text::utf_traits<>::str_cmp(psz, pem->pszName) == 0) {
+      if (sName == istr(unsafe, pem->pszName, pem->cchName)) {
          return pem;
       }
    }
