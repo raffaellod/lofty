@@ -29,19 +29,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-ABCAPI to_str_backend<bool>::to_str_backend(
-   char_range const & crFormat /*= char_range()*/
-) {
-   ABC_TRACE_FN((this, crFormat));
+ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
+   ABC_TRACE_FN((this, sFormat));
 
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
 
    // TODO: parse the format string.
 
    // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
+   if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
       ));
    }
 }
@@ -78,7 +76,7 @@ char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
 
 
 ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
-   unsigned cbInt, char_range const & crFormat
+   unsigned cbInt, istr const & sFormat
 ) :
    m_pchIntToStr(smc_achIntToStrL),
    m_iBaseOrShift(10),
@@ -89,12 +87,12 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    m_chSign(CL('\0')),
    m_chPrefix0(CL('\0')),
    m_chPrefix1(CL('\0')) {
-   ABC_TRACE_FN((this, cbInt, crFormat));
+   ABC_TRACE_FN((this, cbInt, sFormat));
 
    bool bPrefix(false);
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
    char_t ch;
-   if (it == crFormat.cend()) {
+   if (it == sFormat.cend()) {
       goto default_notation;
    }
    ch = *it++;
@@ -102,7 +100,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    if (ch == CL('+') || ch == CL(' ')) {
       // Force this character to be displayed for non-negative numbers.
       m_chSign = ch;
-      if (it == crFormat.cend()) {
+      if (it == sFormat.cend()) {
          goto default_notation;
       }
       ch = *it++;
@@ -110,7 +108,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    // Prefix with 0b, 0B, 0, 0x or 0X.
    if (ch == CL('#')) {
       bPrefix = true;
-      if (it == crFormat.cend()) {
+      if (it == sFormat.cend()) {
          goto default_notation;
       }
       ch = *it++;
@@ -118,7 +116,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    // Pad with zeroes instead of spaces.
    if (ch == CL('0')) {
       m_chPad = CL('0');
-      if (it == crFormat.cend()) {
+      if (it == sFormat.cend()) {
          goto default_notation;
       }
       ch = *it++;
@@ -130,7 +128,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
       m_cchWidth = 0;
       do {
          m_cchWidth = m_cchWidth * 10 + unsigned(ch) - CL('0');
-         if (it == crFormat.cend()) {
+         if (it == sFormat.cend()) {
             goto default_notation;
          }
          ch = *it++;
@@ -183,13 +181,13 @@ default_notation:
                cchByte = 3;
                break;
          }
-         if (it == crFormat.cend()) {
+         if (it == sFormat.cend()) {
             break;
          }
          // If we still have any characters, they are garbage (fall through).
       default:
          ABC_THROW(syntax_error, (
-            SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+            SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
          ));
    }
 
@@ -320,18 +318,18 @@ namespace abc {
 char_t const to_str_backend<void *>::smc_achFormat[] = SL("#x");
 
 
-ABCAPI to_str_backend<void *>::to_str_backend(char_range const & crFormat /*= char_range()*/) :
-   to_str_backend<uintptr_t>(char_range(smc_achFormat)) {
-   ABC_TRACE_FN((this, crFormat));
+ABCAPI to_str_backend<void *>::to_str_backend(istr const & sFormat /*= istr()*/) :
+   to_str_backend<uintptr_t>(smc_achFormat) {
+   ABC_TRACE_FN((this, sFormat));
 
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
 
    // TODO: parse the format string.
 
    // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
+   if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
       ));
    }
 }

@@ -36,10 +36,10 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   _enum_to_str_backend_impl(char_range const & crFormat);
+   _enum_to_str_backend_impl(istr const & sFormat);
 
 
 protected:
@@ -71,8 +71,8 @@ public:
 
    /** Constructor. See abc::_enum_to_str_backend_impl::_enum_to_str_backend_impl().
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _enum_to_str_backend_impl(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      _enum_to_str_backend_impl(sFormat) {
    }
 
 

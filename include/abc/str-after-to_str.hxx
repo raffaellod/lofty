@@ -41,10 +41,10 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   _str_to_str_backend(char_range const & crFormat);
+   _str_to_str_backend(istr const & sFormat);
 
 
 protected:
@@ -82,11 +82,11 @@ namespace abc {
    \
       /** Constructor.
 
-      crFormat
+      sFormat
          Formatting options.
       */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         _str_to_str_backend(crFormat) { \
+      to_str_backend(istr const & sFormat = istr()) : \
+         _str_to_str_backend(sFormat) { \
       } \
    \
    \
@@ -113,11 +113,11 @@ namespace abc {
    \
       /** Constructor.
 
-      crFormat
+      sFormat
          Formatting options.
       */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         to_str_backend<C>(crFormat) { \
+      to_str_backend(istr const & sFormat = istr()) : \
+         to_str_backend<C>(sFormat) { \
       } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
@@ -153,11 +153,11 @@ namespace abc {
    \
       /** Constructor.
 
-      crFormat
+      sFormat
          Formatting options.
       */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         _str_to_str_backend(crFormat) { \
+      to_str_backend(istr const & sFormat = istr()) : \
+         _str_to_str_backend(sFormat) { \
       } \
    \
    \
@@ -187,11 +187,11 @@ namespace abc {
    \
       /** Constructor.
 
-      crFormat
+      sFormat
          Formatting options.
       */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         to_str_backend<C const [t_cch]>(crFormat) { \
+      to_str_backend(istr const & sFormat = istr()) : \
+         to_str_backend<C const [t_cch]>(sFormat) { \
       } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
@@ -212,44 +212,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::char_range
-
-
-namespace abc {
-
-template <>
-class to_str_backend<char_range> :
-   public _str_to_str_backend {
-public:
-
-   /** Constructor.
-
-   crFormat
-      Formatting options.
-   */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _str_to_str_backend(crFormat) {
-   }
-
-
-   /** Writes a character range, applying the formatting options.
-
-   cr
-      Range of characters to write.
-   posOut
-      Pointer to the output stream to write to.
-   */
-   void write(char_range const & cr, io::ostream * posOut) {
-      _str_to_str_backend::write(
-         cr.cbegin().base(), sizeof(char_t) * cr.size(), text::encoding::host, posOut
-      );
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend - specialization for abc::str_base
 
 
@@ -263,11 +225,11 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      _str_to_str_backend(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      _str_to_str_backend(sFormat) {
    }
 
 
@@ -300,8 +262,8 @@ public:
 
    /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<str_base>(sFormat) {
    }
 };
 
@@ -322,8 +284,8 @@ public:
 
    /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<str_base>(sFormat) {
    }
 };
 
@@ -344,8 +306,8 @@ public:
 
    /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<str_base>(sFormat) {
    }
 };
 
@@ -366,8 +328,8 @@ public:
 
    /** Constructor. See to_str_backend<str_base>::to_str_backend().
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<str_base>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<str_base>(sFormat) {
    }
 };
 

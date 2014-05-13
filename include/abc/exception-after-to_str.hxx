@@ -35,10 +35,10 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range());
+   to_str_backend(istr const & sFormat = istr());
 
 
    /** Writes a source location, applying the formatting options.

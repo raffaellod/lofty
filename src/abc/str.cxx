@@ -27,17 +27,17 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-_str_to_str_backend::_str_to_str_backend(char_range const & crFormat) {
-   ABC_TRACE_FN((this, crFormat));
+_str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
+   ABC_TRACE_FN((this, sFormat));
 
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
 
    // TODO: parse the format string.
 
    // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
+   if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cend())
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cend())
       ));
    }
 }

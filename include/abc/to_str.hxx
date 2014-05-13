@@ -44,10 +44,10 @@ conversions”); here are the main differences when compared to the STL function
    still not allowed in C++11), allowing to share parts of the implementation among convertible
    classes.
 
-The format specification is provided to a to_str_backend specialization by passing it a
-abc::char_range, so a caller can specify a non-NUL-terminated substring of a larger string without
-the need for temporary strings. Once a to_str_backend instance has been constructed, it must be able
-to sequentially process an infinite number of conversions, i.e. instances of a to_str_backend
+The format specification is provided to a to_str_backend specialization by passing it a abc::istr
+const &, so a caller can specify a non-NUL-terminated substring of a larger string without the need
+for temporary strings. Once a to_str_backend instance has been constructed, it must be able to
+sequentially process an infinite number of conversions, i.e. instances of a to_str_backend
 specialization must be reusable.
 
 The interpretation of the format specification is up to the specialization of abc::to_str_backend.
@@ -96,10 +96,10 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range());
+   to_str_backend(istr const & sFormat = istr());
 
 
    /** Converts a boolean value to its string representation.
@@ -134,10 +134,10 @@ public:
 
    cbInt
       Size of the integer type.
-   crFormat
+   sFormat
       Formatting options.
    */
-   _int_to_str_backend_base(unsigned cbInt, char_range const & crFormat);
+   _int_to_str_backend_base(unsigned cbInt, istr const & sFormat);
 
 
 protected:
@@ -309,11 +309,11 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   _int_to_str_backend(char_range const & crFormat) :
-      _int_to_str_backend_base(sizeof(I), crFormat) {
+   _int_to_str_backend(istr const & sFormat) :
+      _int_to_str_backend_base(sizeof(I), sFormat) {
    }
 
 
@@ -391,11 +391,11 @@ namespace abc {
    \
       /** Constructor.
 
-      crFormat
+      sFormat
          Formatting options.
       */ \
-      to_str_backend(char_range const & crFormat = char_range()) : \
-         _int_to_str_backend<I>(crFormat) { \
+      to_str_backend(istr const & sFormat = istr()) : \
+         _int_to_str_backend<I>(sFormat) { \
       } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(  signed char)
@@ -427,10 +427,10 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range());
+   to_str_backend(istr const & sFormat = istr());
 
 
    /** Converts a pointer to a string representation.
@@ -461,11 +461,11 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<void *>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<void *>(sFormat) {
    }
 };
 

@@ -489,6 +489,7 @@ expr
       static_cast<void>(0)
 #endif
 
+class istr;
 
 /** An assertion failed.
 */
@@ -499,8 +500,7 @@ public:
    /** Throws an exception of type ab::assertion_error due to an expression failing validation.
    */
    static ABC_FUNC_NORETURN void _assertion_failed(
-      source_location const & srcloc, char_range const & crFunction, char_range const & crExpr,
-      char_range const & crMsg
+      source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
    );
 
 
@@ -1288,84 +1288,6 @@ public:
    /** See abc::environment_error::init().
    */
    void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::syntax_error
-
-
-namespace abc {
-
-/** The syntax for the specified expression is invalid.
-*/
-class ABCAPI syntax_error :
-   public virtual generic_error {
-public:
-
-   /** Constructor.
-   */
-   syntax_error();
-   syntax_error(syntax_error const & x);
-
-
-   /** Assignment operator. See abc::generic_error::operator=().
-   */
-   syntax_error & operator=(syntax_error const & x);
-
-
-   /** See abc::generic_error::init().
-
-   All arguments are optional, and can be specified leaving defaulted gaps in between; the resulting
-   exception message will not contain omitted arguments.
-
-   The order of line and character is inverted, so that this single overload can be used to
-   differentiate between cases in which pszSource is the single line containing the failing
-   expression (the thrower would not pass iLine) and cases where pszSource is the source file
-   containing the error (the thrower would pass the non-zero line number).
-
-   Examples:
-
-      syntax_error(SL("expression cannot be empty"))
-      syntax_error(SL("unmatched '{'"), sExpr, iChar)
-      syntax_error(SL("expected expression"), char_range(), iChar, iLine)
-      syntax_error(SL("unexpected end of file"), fpSource, iChar, iLine)
-
-   crDescription
-      Description of the syntax error.
-   crSource
-      Source of the syntax error (whole or individual line).
-   iChar
-      Character at which the error is located.
-   iLine
-      Line where the error is located.
-   */
-   void init(
-      char_range const & crDescription = char_range(),
-      char_range const & crSource = char_range(), unsigned iChar = 0, unsigned iLine = 0,
-      errint_t err = 0
-   );
-
-
-protected:
-
-   /** See exception::_print_extended_info().
-   */
-   virtual void _print_extended_info(io::ostream * pos) const;
-
-
-private:
-
-   /** Description of the syntax error. */
-   char_range m_crDescription;
-   /** Source of the syntax error (whole or individual line). */
-   char_range m_crSource;
-   /** Character at which the error is located. */
-   unsigned m_iChar;
-   /** Line where the error is located. */
-   unsigned m_iLine;
 };
 
 } //namespace abc

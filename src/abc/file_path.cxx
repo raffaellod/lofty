@@ -514,17 +514,17 @@ dmstr::const_iterator file_path::base_name_start() const {
 }
 
 
-to_str_backend<file_path>::to_str_backend(char_range const & crFormat /*= char_range()*/) {
-   ABC_TRACE_FN((this, crFormat));
+to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
+   ABC_TRACE_FN((this, sFormat));
 
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
 
    // TODO: parse the format string.
 
    // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
+   if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
       ));
    }
 }

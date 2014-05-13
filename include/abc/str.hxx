@@ -562,16 +562,6 @@ public:
       ::new(this) istr(ach);
       return *this;
    }
-
-
-   /** Automatic conversion to char_range.
-
-   return
-      Contents of *this.
-   */
-   operator char_range() const {
-      return char_range(str_base::cbegin().base(), str_base::cend().base());
-   }
 };
 
 

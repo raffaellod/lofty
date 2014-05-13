@@ -548,8 +548,9 @@ protected:
    */
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
-         to_str_backend<T0> tsb(char_range(
-            osph_base::m_pchReplFormatSpecBegin, osph_base::m_pchReplFormatSpecEnd
+         to_str_backend<T0> tsb(istr(
+            unsafe, osph_base::m_pchReplFormatSpecBegin,
+            size_t(osph_base::m_pchReplFormatSpecEnd - osph_base::m_pchReplFormatSpecBegin)
          ));
          tsb.write(m_t0, osph_base::m_pos);
       } else {
@@ -720,8 +721,9 @@ protected:
    */
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
-         to_str_backend<T0> tsb(char_range(
-            osph_base::m_pchReplFormatSpecBegin, osph_base::m_pchReplFormatSpecEnd
+         to_str_backend<T0> tsb(istr(
+            unsafe, osph_base::m_pchReplFormatSpecBegin,
+            size_t(osph_base::m_pchReplFormatSpecEnd - osph_base::m_pchReplFormatSpecBegin)
          ));
          tsb.write(m_t0, osph_base::m_pos);
       } else {

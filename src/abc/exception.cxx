@@ -1072,19 +1072,17 @@ ABCAPI void throw_os_error(errint_t err) {
 
 namespace abc {
 
-ABCAPI to_str_backend<source_location>::to_str_backend(
-   char_range const & crFormat /*= char_range()*/
-) {
-   ABC_TRACE_FN((this, crFormat));
+ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= istr()*/) {
+   ABC_TRACE_FN((this, sFormat));
 
-   auto it(crFormat.cbegin());
+   auto it(sFormat.cbegin());
 
    // TODO: parse the format string.
 
    // If we still have any characters, they are garbage.
-   if (it != crFormat.cend()) {
+   if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), crFormat, unsigned(it - crFormat.cbegin())
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
       ));
    }
 }
@@ -1517,8 +1515,7 @@ namespace abc {
 
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_location const & srcloc, char_range const & crFunction, char_range const & crExpr,
-   char_range const & crMsg
+   source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
@@ -1526,7 +1523,7 @@ namespace abc {
          std::shared_ptr<io::file_ostream> pfosStdErr(io::file_ostream::stderr());
          pfosStdErr->print(
             SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
-            crMsg, crExpr, srcloc, crFunction
+            sMsg, sExpr, srcloc, sFunction
          );
       } catch (...) {
          sm_bReentering = false;
@@ -2015,8 +2012,8 @@ syntax_error::syntax_error() :
 }
 syntax_error::syntax_error(syntax_error const & x) :
    generic_error(x),
-   m_crDescription(x.m_crDescription),
-   m_crSource(x.m_crSource),
+   m_sDescription(x.m_sDescription),
+   m_sSource(x.m_sSource),
    m_iChar(x.m_iChar),
    m_iLine(x.m_iLine) {
 }
@@ -2026,8 +2023,8 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
    ABC_TRACE_FN((this/*, x*/));
 
    generic_error::operator=(x);
-   m_crDescription = x.m_crDescription;
-   m_crSource = x.m_crSource;
+   m_sDescription = x.m_sDescription;
+   m_sSource = x.m_sSource;
    m_iChar = x.m_iChar;
    m_iLine = x.m_iLine;
    return *this;
@@ -2035,13 +2032,12 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
 
 
 void syntax_error::init(
-   char_range const & crDescription /*= char_range()*/, 
-   char_range const & crSource /*= char_range()*/, unsigned iChar /*= 0*/, unsigned iLine /*= 0*/,
-   errint_t err /*= 0*/
+   istr const & sDescription /*= istr()*/, istr const & sSource /*= istr()*/,
+   unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
 ) {
    generic_error::init(err ? err : os_error_mapping<syntax_error>::mapped_error);
-   m_crDescription = crDescription;
-   m_crSource = crSource;
+   m_sDescription = sDescription;
+   m_sSource = sSource;
    m_iChar = iChar;
    m_iLine = iLine;
 }
@@ -2049,7 +2045,7 @@ void syntax_error::init(
 
 void syntax_error::_print_extended_info(io::ostream * pos) const {
    istr sFormat;
-   if (m_crSource) {
+   if (m_sSource) {
       if (m_iChar) {
          if (m_iLine) {
             sFormat = SL("{0} in {1}:{2}:{3}\n");
@@ -2079,7 +2075,7 @@ void syntax_error::_print_extended_info(io::ostream * pos) const {
       }
    }
 
-   pos->print(sFormat, m_crDescription, m_crSource, m_iLine, m_iChar);
+   pos->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
    generic_error::_print_extended_info(pos);
 }
 

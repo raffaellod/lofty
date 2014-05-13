@@ -36,11 +36,11 @@ public:
 
    /** Constructor.
 
-   crFormat
+   sFormat
       Formatting options.
    */
-   to_str_backend(char_range const & crFormat = char_range()) :
-      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>(crFormat) {
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>(sFormat) {
    }
 
 
