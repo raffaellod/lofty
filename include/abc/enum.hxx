@@ -81,7 +81,7 @@ name
       static ::abc::enum_member const * _get_map() { \
          static ::abc::enum_member const sc_map[] = { \
             ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
-            { nullptr, 0, __default } \
+            { nullptr, 0, 0 } \
          }; \
          return sc_map; \
       } \
