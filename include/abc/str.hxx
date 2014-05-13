@@ -64,7 +64,7 @@ public:
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
    > c_str_pointer;
    /** See _iterable_vector::const_iterator. */
-   typedef typename itvec::const_iterator const_iterator;
+   typedef itvec::const_iterator const_iterator;
 
 
 public:
