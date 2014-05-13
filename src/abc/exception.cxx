@@ -1180,7 +1180,7 @@ char const * exception::what() const {
    }
    exception const * pabcx;
    if (pstdx) {
-      // We have a std::exception: print its what() and check if it’s also a abc::exception.
+      // We have an std::exception: print its what() and check if it’s also an abc::exception.
       pos->print(SL("Unhandled exception:\n"), c_str_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
@@ -1367,11 +1367,11 @@ exception::async_handler_manager::~async_handler_manager() {
 
 // These should be member variables of exception::async_handler_manager.
 
-/** Signals that we can translate into C++ exceptions. */
+/** Structured Exception translator on program startup. */
 static ::_se_translator_function g_sefDefault;
 
 
-/** Translates POSIX signals into C++ exceptions, whenever possible.
+/** Translates Win32 Structured Exceptions into C++ exceptions, whenever possible.
 */
 static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
    ABC_TRACE_FN((iCode, pxpInfo));

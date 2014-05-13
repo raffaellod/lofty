@@ -41,7 +41,7 @@ stack unwinding, in which case it will dump its contents into a thread-local sta
 outermost catch block (main-level) will output the generated stack trace, if available, using
 abc::exception::write_with_scope_trace().
 
-When a abc::exception is thrown (it becomes “in-flight”), it will request that the stack trace
+When an abc::exception is thrown (it becomes “in-flight”), it will request that the stack trace
 buffer be cleared and it will count itself a a reference to the new trace; when copied, the number
 of references will increase if the source was in-flight, in which case the copy will also consider
 itself in-flight; when an exception is destroyed, it will release a reference to the stack trace

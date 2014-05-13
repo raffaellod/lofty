@@ -548,7 +548,7 @@ private:
 
 } //namespace abc
 
-/** Defines the static members of a abc::module_impl specialization.
+/** Defines the static members of an abc::module_impl specialization.
 */
 #define ABC_DEFINE_MODULE_IMPL_SPEC_STATICS(cls) \
    template <> \

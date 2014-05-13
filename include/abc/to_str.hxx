@@ -44,7 +44,7 @@ conversions”); here are the main differences when compared to the STL function
    still not allowed in C++11), allowing to share parts of the implementation among convertible
    classes.
 
-The format specification is provided to a to_str_backend specialization by passing it a abc::istr
+The format specification is provided to a to_str_backend specialization by passing it an abc::istr
 const &, so a caller can specify a non-NUL-terminated substring of a larger string without the need
 for temporary strings. Once a to_str_backend instance has been constructed, it must be able to
 sequentially process an infinite number of conversions, i.e. instances of a to_str_backend

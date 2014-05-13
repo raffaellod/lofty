@@ -268,7 +268,7 @@ since this file is included in virtually every file whereas trace.hxx is not.
 #endif
 
 
-/** Combines a std::exception-derived class with a abc::exception-derived class, to form objects
+/** Combines a std::exception-derived class with an abc::exception-derived class, to form objects
 that can be caught from code written for either framework.
 */
 template <class TAbc, class TStd = typename TAbc::related_std>
