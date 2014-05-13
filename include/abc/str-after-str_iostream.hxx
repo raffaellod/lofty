@@ -39,7 +39,7 @@ inline dmstr str_base::format(Ts const & ... ts) const {
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-inline dmstr str::format() const {
+inline dmstr str_base::format() const {
    io::str_ostream os;
    os.print(*static_cast<istr const *>(this));
    return os.release_content();
