@@ -1181,7 +1181,7 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have a std::exception: print its what() and check if it’s also a abc::exception.
-      pos->print(SL("Unhandled exception: {}\n"), istr(unsafe, pstdx->what()));
+      pos->print(SL("Unhandled exception:\n"), c_str_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
       // abc::exception, the class has a custom implementation, probably to print something useful.
