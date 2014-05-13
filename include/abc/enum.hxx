@@ -178,7 +178,7 @@ public:
       members of enum_type, an exception will be thrown.
    */
    enum_impl() :
-      m_e(enum_type::__default) {
+      m_e(T::__default) {
    }
    enum_impl(enum_type e) :
       m_e(e) {
