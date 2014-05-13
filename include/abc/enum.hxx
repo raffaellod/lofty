@@ -108,7 +108,7 @@ value
    Value of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
-            { SL(ABC_CPP_TOSTRING(name)), ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, value },
+            { SL(ABC_CPP_TOSTRING(name)), ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, name },
 
 } //namespace abc
 
