@@ -76,7 +76,7 @@ namespace abc {
    /** Character literal. \
    */ \
    template <> \
-   class to_str_backend<C> : \
+   class ABCAPI to_str_backend<C> : \
       public _str_to_str_backend { \
    public: \
    \
@@ -107,7 +107,7 @@ namespace abc {
    TODO: remove the need for this.
    */ \
    template <> \
-   class to_str_backend<C const> : \
+   class ABCAPI to_str_backend<C const> : \
       public to_str_backend<C> { \
    public: \
    \
@@ -219,7 +219,7 @@ namespace abc {
 
 // Specialization of to_str_backend.
 template <>
-class to_str_backend<str_base> :
+class ABCAPI to_str_backend<str_base> :
    public _str_to_str_backend {
 public:
 
@@ -256,7 +256,7 @@ namespace abc {
 
 // Specialization of to_str_backend.
 template <>
-class to_str_backend<istr> :
+class ABCAPI to_str_backend<istr> :
    public to_str_backend<str_base> {
 public:
 
@@ -278,7 +278,7 @@ namespace abc {
 
 // Specialization of to_str_backend.
 template <>
-class to_str_backend<mstr> :
+class ABCAPI to_str_backend<mstr> :
    public to_str_backend<str_base> {
 public:
 
@@ -300,7 +300,7 @@ namespace abc {
 
 // Specialization of to_str_backend.
 template <>
-class to_str_backend<dmstr> :
+class ABCAPI to_str_backend<dmstr> :
    public to_str_backend<str_base> {
 public:
 
