@@ -62,9 +62,6 @@ The only fix for this is to provide an explicit specialization of abc::to_str_ba
 
 /** Returns the string representation of the specified value, optionally with a custom format.
 
-Cannot be implemented here because iostream.hxx (required for the core of the implementation,
-abc::io::str_ostream) depends on this file - circular dependency.
-
 t
    Object to generate a string representation for.
 sFormat
@@ -158,10 +155,6 @@ public:
 
 
 namespace abc {
-
-// Methods here need to use io::ostream * instead of io::ostream & because at this point io::ostream
-// has only been forward-declared above, but not defined yet (a pointer to a forward-declared type
-// is legal, but a reference to it is not).
 
 /** Base class for the specializations of to_str_backend for integer types.
 */
