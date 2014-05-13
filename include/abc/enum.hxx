@@ -227,14 +227,10 @@ public:
 
    /** Returns the name of the current enumerated value.
 
-   TODO: change to return abc::char_range, so we get automatic conversion to abc::istr const.
-
    return
       Name of the current value.
    */
-   char_t const * name() const {
-      return _member()->pszName;
-   }
+   istr name() const;
 
 
 protected:
