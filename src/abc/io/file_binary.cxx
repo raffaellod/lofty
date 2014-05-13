@@ -877,7 +877,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
       sizeof(ibOffset) == sizeof(LARGE_INTEGER),
       "abc::io::offset_t must be the same size as LARGE_INTEGER"
    );
-   int iWhence;
+   DWORD iWhence;
    switch (sfWhence.base()) {
       // default is here just to silence compiler warnings.
       default:
