@@ -212,6 +212,45 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend - specialization for c_str_to_str_adapter
+
+
+namespace abc {
+
+template <>
+class ABCAPI to_str_backend<c_str_to_str_adapter> :
+   public _str_to_str_backend {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _str_to_str_backend(sFormat) {
+   }
+
+
+   /** Writes a C-style NUL-terminated string, applying the formatting options.
+
+   cs
+      C string to write.
+   posOut
+      Pointer to the output stream to write to.
+   */
+   void write(c_str_to_str_adapter const & cs, io::ostream * posOut) {
+      // TODO: FIXME: for MSC16, char * is not UTF-8.
+      _str_to_str_backend::write(
+         cs.m_psz, sizeof(char) * text::utf8_traits::str_len(cs.m_psz), text::encoding::utf8, posOut
+      );
+   }
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend - specialization for abc::str_base
 
 

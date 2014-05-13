@@ -85,6 +85,44 @@ class to_str_backend;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::c_str_to_str_adapter
+
+
+namespace abc {
+
+/** Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
+for compatibility with STL methods such as std::exception::what(). Without this, C strings are
+printed only as pointers, which is often undesirable.
+
+Instances of this class don’t own the memory object they point to.
+*/
+class c_str_to_str_adapter :
+   public noncopyable {
+
+   friend class to_str_backend<c_str_to_str_adapter>;
+
+public:
+
+   /** Constructor.
+
+   psz
+      C-style NUL-terminated string.
+   */
+   c_str_to_str_adapter(char const * psz) :
+      m_psz(psz) {
+   }
+
+
+private:
+
+   /** Wrapped C-style string. */
+   char const * m_psz;
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend - specialization for bool
 
 
