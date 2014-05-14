@@ -127,17 +127,54 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::freeing_deleter
+// abc::memory globals - manual memory management
 
 
 namespace abc {
 
 namespace memory {
 
-// Forward declaration.
-template <typename T>
-void free(T const * pt);
+/** Requests the dynamic allocation of a memory block of the specified number of bytes.
 
+cb
+   Count of bytes to allocate.
+return
+   Pointer to the allocated memory block.
+*/
+ABCAPI void * _raw_alloc(size_t cb);
+
+
+/** Releases a block of dynamically allocated memory.
+
+p
+   Pointer to the memory block to be released.
+*/
+ABCAPI void _raw_free(void const * p);
+
+
+/** Resizes a dynamically allocated memory block.
+
+p
+   Pointer to the memory block to resize.
+cb
+   Count of bytes to resize *p to.
+return
+   Pointer to the resized memory block. May or may not be the same as p.
+*/
+ABCAPI void * _raw_realloc(void * p, size_t cb);
+
+} //namespace memory
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory::freeing_deleter
+
+
+namespace abc {
+
+namespace memory {
 
 /** Deleter that deallocates memory using memory::free().
 */
@@ -150,7 +187,7 @@ struct freeing_deleter {
       Pointer to the object to delete.
    */
    void operator()(T * pt) const {
-      free(pt);
+      _raw_free(pt);
    }
 };
 
@@ -272,34 +309,12 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals - management
+// abc::memory globals - smart pointer-based memory management
 
 
 namespace abc {
 
 namespace memory {
-
-/** Requests the dynamic allocation of a memory block of the specified number of bytes.
-
-cb
-   Count of bytes to allocate.
-return
-   Pointer to the allocated memory block.
-*/
-void * _raw_alloc(size_t cb);
-
-
-/** Resizes a dynamically allocated memory block.
-
-p
-   Pointer to the memory block to resize.
-cb
-   Count of bytes to resize *p to.
-return
-   Pointer to the resized memory block. May or may not be the same as p.
-*/
-void * _raw_realloc(void * p, size_t cb);
-
 
 /** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
 plus additional cbExtra bytes.
@@ -318,17 +333,6 @@ inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra
    return std::unique_ptr<T, freeing_deleter<T>>(
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
-}
-
-
-/** Releases a block of dynamically allocated memory.
-
-pt
-   Pointer to the memory block to be released.
-*/
-template <typename T>
-inline void free(T const * pt) {
-   ::free(const_cast<T *>(pt));
 }
 
 

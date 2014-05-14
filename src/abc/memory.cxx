@@ -46,19 +46,57 @@ void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_ST
 
 
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
-   abc::memory::free(p);
+   abc::memory::_raw_free(p);
 }
 void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
-   abc::memory::free(p);
+   abc::memory::_raw_free(p);
 }
 void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-   abc::memory::free(p);
+   ::free(p);
 }
 void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-   abc::memory::free(p);
+   ::free(p);
 }
-
 
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory globals - management
+
+
+namespace abc {
+
+namespace memory {
+
+void * _raw_alloc(size_t cb) {
+   void * p(::malloc(cb));
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
+}
+
+
+void _raw_free(void const * p) {
+   ::free(const_cast<void *>(p));
+}
+
+
+void * _raw_realloc(void * p, size_t cb) {
+   p = ::realloc(p, cb);
+   if (!p) {
+      ABC_THROW(memory_allocation_error, ());
+   }
+   return p;
+}
+
+} //namespace memory
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+

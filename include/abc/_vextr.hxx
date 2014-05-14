@@ -579,7 +579,7 @@ protected:
       */
       ~transaction() {
          if (m_bFree) {
-            memory::free(m_p);
+            memory::_raw_free(m_p);
          }
       }
 
@@ -643,7 +643,7 @@ public:
    */
    ~_raw_vextr_impl_base() {
       if (m_rvpd.get_bDynamic()) {
-         memory::free(m_p);
+         memory::_raw_free(m_p);
       }
    }
 

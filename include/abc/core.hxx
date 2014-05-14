@@ -623,7 +623,6 @@ unsafe_t const unsafe;
 #include <abc/char.hxx>
 // Also pulls in <exception>.
 #include <abc/exception.hxx>
-#include <abc/memory-after-exception.hxx>
 #include <abc/enum.hxx>
 #include <abc/str.hxx>
 #include <abc/enum-after-str.hxx>
