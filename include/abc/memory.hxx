@@ -51,15 +51,12 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #if ABC_HOST_API_POSIX
 
-   #include <stdlib.h> // free() malloc() realloc()
    #include <memory.h> // memcpy() memmove() memset()
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
    // Clean up pollution caused by previous headers.
    extern "C" {
-
-   // Rtl*Memory*
 
    #undef RtlZeroMemory
    WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, size_t cb);
