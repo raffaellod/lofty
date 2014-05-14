@@ -179,7 +179,7 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
          break;
    }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
    // If a file object was not returned in the code above, return a generic file.
@@ -243,7 +243,7 @@ std::shared_ptr<file_binary_writer> binary_stderr() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_ERROR_HANDLE),
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
          false
       ), access_mode::write));
@@ -275,7 +275,7 @@ std::shared_ptr<file_binary_reader> binary_stdin() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_INPUT_HANDLE),
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
          false
       ), access_mode::read));
@@ -307,7 +307,7 @@ std::shared_ptr<file_binary_writer> binary_stdout() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_OUTPUT_HANDLE),
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
          false
       ), access_mode::write));
@@ -380,7 +380,7 @@ std::shared_ptr<file_binary_base> open_binary(
       fp.os_str().c_str().get(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr
    );
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    if (!fid.fd) {
       throw_os_error();
@@ -409,7 +409,7 @@ filedesc_t const filedesc::smc_fdNull =
 #elif ABC_HOST_API_WIN32
    INVALID_HANDLE_VALUE;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 
@@ -428,7 +428,7 @@ filedesc::~filedesc() {
 #elif ABC_HOST_API_WIN32
       ::CloseHandle(m_fd);
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    }
 }
@@ -531,7 +531,7 @@ file_binary_reader::file_binary_reader(_file_init_data * pfid) :
          throw_os_error(iErr);
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were read; prepare for the next attempt.
       pb += cbLastRead;
@@ -576,7 +576,7 @@ file_binary_writer::file_binary_writer(_file_init_data * pfid) :
       throw_os_error();
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -610,7 +610,7 @@ file_binary_writer::file_binary_writer(_file_init_data * pfid) :
          throw_os_error();
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were written; prepare for the next attempt.
       pb += cbLastWritten;
@@ -837,7 +837,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 #endif
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
@@ -911,7 +911,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
    return ibNewOffset.QuadPart;
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
@@ -931,7 +931,7 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
    // descriptor, so casting the const-ness away is not semantically wrong.
    return const_cast<regular_file_binary_base *>(this)->seek(0, seek_from::current);
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 

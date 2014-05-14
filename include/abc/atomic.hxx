@@ -47,7 +47,7 @@ namespace atomic {
    // Win32 uses long to mean 32 bits, always.
    typedef long int_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 #if ABC_HOST_API_POSIX
@@ -84,7 +84,7 @@ I add(I volatile * piDst, I iAddend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -126,7 +126,7 @@ I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -157,7 +157,7 @@ inline I decrement(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -188,7 +188,7 @@ inline I increment(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -226,7 +226,7 @@ I subtract(I volatile * piDst, I iSubtrahend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 

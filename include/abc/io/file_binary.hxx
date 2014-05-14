@@ -43,7 +43,7 @@ namespace io {
 #elif ABC_HOST_API_WIN32
    typedef HANDLE filedesc_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 /** Data collected by open_binary() used to construct a file instance. This is only defined in

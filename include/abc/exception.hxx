@@ -543,7 +543,7 @@ namespace abc {
 #elif ABC_HOST_API_WIN32
    typedef DWORD errint_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 

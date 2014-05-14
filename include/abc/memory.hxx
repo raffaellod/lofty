@@ -386,7 +386,7 @@ inline void * clear(void * pDst, size_t cb /*= 1*/) {
 #elif ABC_HOST_API_WIN32
    ::RtlZeroMemory(pDst, cb);
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    return pDst;
 }
@@ -437,7 +437,7 @@ inline void * copy(void * pDst, void const * pSrc, size_t cb) {
 #elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(pDst, pSrc, cb);
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    return pDst;
 }
@@ -459,7 +459,7 @@ inline void * move(void * pDst, void const * pSrc, size_t cb) {
 #elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(pDst, pSrc, cb);
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    return pDst;
 }

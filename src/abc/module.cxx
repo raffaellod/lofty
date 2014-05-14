@@ -100,7 +100,7 @@ resource_module::resource_module(file_path const & fp)
 #elif ABC_HOST_API_WIN32
    : dynamic_module(fp, false) {
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 resource_module::resource_module(resource_module && rm)
@@ -110,7 +110,7 @@ resource_module::resource_module(resource_module && rm)
 #elif ABC_HOST_API_WIN32
    : dynamic_module(std::move(rm)) {
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -130,7 +130,7 @@ size_t resource_module::load_string(short id, char_t * psz, size_t cchMax) const
 #elif ABC_HOST_API_WIN32
    return size_t(::LoadString(m_hdynmod, WORD(id), psz, int(cchMax)));
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -154,7 +154,7 @@ code_module::code_module(file_path const & fp) :
 #elif ABC_HOST_API_WIN32
    dynamic_module(fp, true) {
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 code_module::code_module(code_module && cm) :
@@ -164,7 +164,7 @@ code_module::code_module(code_module && cm) :
 #elif ABC_HOST_API_WIN32
    dynamic_module(std::move(cm)) {
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 
@@ -198,7 +198,7 @@ void * code_module::_get_symbol(istr const & sSymbol) {
       throw_os_error();
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    return pfn;
 }
@@ -226,7 +226,7 @@ module_impl_base::module_impl_base() :
    resource_module(sm_hinst),
    m_cRefs(0) {
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 }
 

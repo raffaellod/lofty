@@ -42,7 +42,7 @@ namespace abc {
 #elif ABC_HOST_API_WIN32
    typedef DWORD tid_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 /** Process ID type. */
@@ -51,7 +51,7 @@ namespace abc {
 #elif ABC_HOST_API_WIN32
    typedef DWORD pid_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 /** Native OS dynamic library/module handle. */
@@ -60,7 +60,7 @@ namespace abc {
 #elif ABC_HOST_API_WIN32
    typedef HINSTANCE hdynmod_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 } //namespace abc
@@ -230,7 +230,7 @@ public:
 #elif ABC_HOST_API_WIN32
       dynamic_module::operator=(std::move(rm));
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
       return *this;
    }
@@ -266,7 +266,7 @@ protected:
       dynamic_module(hdynmod) {
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 };
 
@@ -319,7 +319,7 @@ public:
 #elif ABC_HOST_API_WIN32
       dynamic_module::operator=(std::move(cm));
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
       return *this;
    }
@@ -363,7 +363,7 @@ protected:
       dynamic_module(hdynmod) {
    }
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 

@@ -38,7 +38,7 @@ namespace io {
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef uint64_t full_size_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 
@@ -46,7 +46,7 @@ namespace io {
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef int64_t offset_t;
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
 
 

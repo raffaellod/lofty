@@ -321,7 +321,7 @@ public:
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    istr os_str() const;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
@@ -432,7 +432,7 @@ private:
 #elif ABC_HOST_API_WIN32
       4 /*"\\?\"*/ + 1 /*NUL*/
 #else
-   #error TODO-PORT: HOST_API
+   #error HOST_API
 #endif
    ];
 #if ABC_HOST_API_WIN32
