@@ -78,7 +78,7 @@ namespace io {
          break;
       }
       // Copy whatever was read into the caller-supplied buffer.
-      memory::copy<void>(p, pairRead.first, pairRead.second);
+      memory::copy(static_cast<int8_t *>(p), pairRead.first, pairRead.second);
       cbReadTotal += pairRead.second;
       // Advance the pointer and decrease the count of bytes to read, so that the next call will
       // attempt to fill in the remaining buffer space.
@@ -230,7 +230,7 @@ void default_buffered_binary_writer::flush_buffer() {
    while (cb) {
       // Copy the largest possible chunk of *p into the write buffer.
       size_t cbCopy(std::min(m_cbWriteBuf - m_cbWriteBufUsed, cb));
-      memory::copy<void>(m_pbWriteBuf.get() + m_cbWriteBufUsed, p, cbCopy);
+      memory::copy(m_pbWriteBuf.get() + m_cbWriteBufUsed, static_cast<int8_t const *>(p), cbCopy);
       // Update the amount of write buffer space used. If this makes the buffer full, flush it.
       m_cbWriteBufUsed += cbCopy;
       if (m_cbWriteBufUsed == m_cbWriteBuf) {

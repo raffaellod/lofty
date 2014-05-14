@@ -44,7 +44,9 @@ ostream::ostream() :
    ABC_TRACE_FN((this, p, cb, enc));
 
    ABC_UNUSED_ARG(enc);
-   memory::copy<void>(m_achBuf + m_cchUsed, p, cb);
+   memory::copy(
+      reinterpret_cast<int8_t *>(m_achBuf + m_cchUsed), static_cast<int8_t const *>(p), cb
+   );
    m_cchUsed += cb / sizeof(m_achBuf[0]);
 }
 

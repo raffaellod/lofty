@@ -302,7 +302,7 @@ void * _raw_realloc(void * p, size_t cb);
 
 
 /** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
-plus an additional cbExtra bytes.
+plus additional cbExtra bytes.
 
 c
    Count of items to allocate memory for.
@@ -319,12 +319,6 @@ inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
-template <>
-inline std::unique_ptr<void, freeing_deleter<void>> alloc(
-   size_t cb /*= 1*/, size_t cbExtra /*= 0*/
-) {
-   return std::unique_ptr<void, freeing_deleter<void>>(_raw_alloc(cb + cbExtra));
-}
 
 
 /** Releases a block of dynamically allocated memory.
@@ -338,10 +332,9 @@ inline void free(T const * pt) {
 }
 
 
-/** Changes the size of a block of dynamically allocated memory.
+/** Changes the size of a block of dynamically allocated memory, updating the pointer referencing
+it in case a new memory block is needed.
 
-pt
-   Pointer to the memory block to resize.
 ppt
    Pointer to a smart pointer to the memory block to resize.
 c
@@ -350,27 +343,11 @@ cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
 template <typename T>
-inline T * realloc(T * pt, size_t c, size_t cbExtra = 0) {
-   return static_cast<T *>(_raw_realloc(pt, sizeof(T) * c + cbExtra));
-}
-template <>
-inline void * realloc(void * p, size_t cb, size_t cbExtra /*= 0*/) {
-   return _raw_realloc(p, cb + cbExtra);
-}
-template <typename T>
 inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
    typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
    TElt * pt(static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra)));
    ppt->release();
    ppt->reset(pt);
-}
-template <>
-inline void realloc(
-   std::unique_ptr<void, freeing_deleter<void>> * pp, size_t cb, size_t cbExtra /*= 0*/
-) {
-   void * p(_raw_realloc(pp->get(), cb + cbExtra));
-   pp->release();
-   pp->reset(p);
 }
 
 } //namespace memory
@@ -386,7 +363,7 @@ namespace abc {
 
 namespace memory {
 
-/** Sets to the value 0 every item in an array.
+/** Sets to the value 0 every item in the specified memory block.
 
 ptDst
    Pointer to the target memory block.
@@ -397,23 +374,18 @@ return
 */
 template <typename T>
 inline T * clear(T * ptDst, size_t c = 1) {
-   return static_cast<T *>(clear<void>(ptDst, sizeof(T) * c));
-}
-template <>
-inline void * clear(void * pDst, size_t cb /*= 1*/) {
 #if ABC_HOST_API_POSIX
-   ::memset(pDst, 0, cb);
+   ::memset(ptDst, 0, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
-   ::RtlZeroMemory(pDst, cb);
+   ::RtlZeroMemory(ptDst, sizeof(T) * c);
 #else
    #error HOST_API
 #endif
-   return pDst;
+   return ptDst;
 }
 
 
-/** Copies memory, by number of items. With specialization that ignores pointer types (void), and
-copies the specified number of bytes.
+/** Copies memory, by number of items.
 
 ptDst
    Pointer to the destination memory.
@@ -442,36 +414,25 @@ inline T * copy(T * ptDst, T const * ptSrc) {
          *reinterpret_cast<int64_t *>(ptDst) = *reinterpret_cast<int64_t const *>(ptSrc);
          break;
       default:
-         copy<void>(ptDst, ptSrc, sizeof(T));
+         copy<T>(ptDst, ptSrc, 1);
          break;
    }
-   return static_cast<T *>(ptDst);
-}
-// Nobody should want to use this, but it’s here for consistency.
-template <>
-inline void * copy(void * pDst, void const * pSrc) {
-   *reinterpret_cast<int8_t *>(pDst) = *reinterpret_cast<int8_t const *>(pSrc);
-   return pDst;
+   return ptDst;
 }
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
-   return static_cast<T *>(copy<void>(ptDst, ptSrc, sizeof(T) * c));
-}
-template <>
-inline void * copy(void * pDst, void const * pSrc, size_t cb) {
 #if ABC_HOST_API_POSIX
-   ::memcpy(pDst, pSrc, cb);
+   ::memcpy(ptDst, ptSrc, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
-   ::RtlMoveMemory(pDst, pSrc, cb);
+   ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
    #error HOST_API
 #endif
-   return pDst;
+   return ptDst;
 }
 
 
-/** Copies possibly overlapping memory, by number of items. With specialization that ignores pointer
-types (void), and copies the specified number of bytes.
+/** Copies possibly overlapping memory, by number of items.
 
 ptDst
    Pointer to the destination memory.
@@ -484,18 +445,14 @@ return
 */
 template <typename T>
 inline T * move(T * ptDst, T const * ptSrc, size_t c) {
-   return static_cast<T *>(move<void>(ptDst, ptSrc, sizeof(T) * c));
-}
-template <>
-inline void * move(void * pDst, void const * pSrc, size_t cb) {
 #if ABC_HOST_API_POSIX
-   ::memmove(pDst, pSrc, cb);
+   ::memmove(ptDst, ptSrc, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
-   ::RtlMoveMemory(pDst, pSrc, cb);
+   ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
    #error HOST_API
 #endif
-   return pDst;
+   return ptDst;
 }
 
 

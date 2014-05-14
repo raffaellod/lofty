@@ -127,7 +127,9 @@ str_ostream::str_type str_ostream::release_content() {
       // Optimal case: no transcoding necessary.
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_sBuf.set_capacity((m_ibWrite + cb) / cbChar, true);
-      memory::copy<void>(reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite, p, cb);
+      memory::copy(
+         reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite, static_cast<int8_t const *>(p), cb
+      );
       m_ibWrite += cb;
    } else {
       do {

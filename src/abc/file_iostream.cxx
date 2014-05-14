@@ -330,7 +330,7 @@ file_istream::file_istream(file_path const & fp) :
          ABC_THROW(buffer_error, ());
       }
       // Copy to the read buffer, before the current start.
-      memory::copy<void>(pbReadBuf + m_ibReadBufUsed - cb, p, cb);
+      memory::copy(pbReadBuf + m_ibReadBufUsed - cb, static_cast<int8_t const *>(p), cb);
       m_ibReadBufUsed -= cb;
       m_cbReadBufUsed += cb;
    } else {

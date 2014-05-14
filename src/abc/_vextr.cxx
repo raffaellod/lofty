@@ -569,12 +569,12 @@ void _raw_trivial_vextr_impl::assign_concat(
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (ci1) {
       size_t cbSrc(cbItem * ci1);
-      memory::copy<void>(pbWorkCopy, p1, cbSrc);
+      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1), cbSrc);
       pbWorkCopy += cbSrc;
    }
    if (ci2) {
       size_t cbSrc(cbItem * ci2);
-      memory::copy<void>(pbWorkCopy, p2, cbSrc);
+      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p2), cbSrc);
    }
 
    trn.commit();
@@ -634,11 +634,13 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    }
    if (ciAdd) {
       // Copy the new items over.
-      memory::copy<void>(trn.work_array<int8_t>() + cbOffset, pAdd, cbItem * ciAdd);
+      memory::copy(
+         trn.work_array<int8_t>() + cbOffset, static_cast<int8_t const *>(pAdd), cbItem * ciAdd
+      );
    }
    // Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
    if (cbOffset && trn.will_replace_item_array()) {
-      memory::copy(trn.work_array<void>(), m_p, cbOffset);
+      memory::copy(trn.work_array<int8_t>(), static_cast<int8_t const *>(m_p), cbOffset);
    }
 
    trn.commit();
@@ -663,7 +665,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPr
    transaction trn(cbItem, this, ptrdiff_t(ciMin), 0);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
-         memory::copy(trn.work_array<void>(), m_p, cbItem * ciOrig);
+         memory::copy(trn.work_array<int8_t>(), static_cast<int8_t const *>(m_p), cbItem * ciOrig);
       } else {
          // We’ll lose the item array when the transaction is commited.
          ciOrig = 0;
