@@ -281,27 +281,36 @@ namespace memory {
 
 /** Requests the dynamic allocation of a memory block of the specified number of bytes.
 
-Implemented in abc/memory-after-exception.hxx.
-
-TODO: comment signature.
+cb
+   Count of bytes to allocate.
+return
+   Pointer to the allocated memory block.
 */
 void * _raw_alloc(size_t cb);
 
 
 /** Resizes a dynamically allocated memory block.
 
-Implemented in abc/memory-after-exception.hxx.
-
-TODO: comment signature.
+p
+   Pointer to the memory block to resize.
+cb
+   Count of bytes to resize *p to.
+return
+   Pointer to the resized memory block. May or may not be the same as p.
 */
 void * _raw_realloc(void * p, size_t cb);
 
 
 /** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
-plus an additional cbExtra bytes. With specialization that ignores types (void) and allocates the
-specified number of bytes.
+plus an additional cbExtra bytes.
 
-TODO: comment signature.
+c
+   Count of items to allocate memory for.
+cbExtra
+   Count of bytes of additional storage to allocate at the end of the requested items.
+return
+   Pointer to the allocated memory block. The memory will be released with abc::memory::free() when
+   the pointer is destructed.
 */
 template <typename T>
 inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
@@ -329,10 +338,16 @@ inline void free(T const * pt) {
 }
 
 
-/** Changes the size of a block of dynamically allocated memory. Both overloads have a
-specialization that ignores pointer types (void), and allocates the specified number of bytes.
+/** Changes the size of a block of dynamically allocated memory.
 
-TODO: comment signature.
+pt
+   Pointer to the memory block to resize.
+ppt
+   Pointer to a smart pointer to the memory block to resize.
+c
+   Count of items to allocate memory for.
+cbExtra
+   Count of bytes of additional storage to allocate at the end of the requested items.
 */
 template <typename T>
 inline T * realloc(T * pt, size_t c, size_t cbExtra = 0) {
@@ -373,7 +388,12 @@ namespace memory {
 
 /** Sets to the value 0 every item in an array.
 
-TODO: comment signature.
+ptDst
+   Pointer to the target memory block.
+c
+   Count of items to clear.
+return
+   Same as ptDst.
 */
 template <typename T>
 inline T * clear(T * ptDst, size_t c = 1) {
@@ -395,7 +415,14 @@ inline void * clear(void * pDst, size_t cb /*= 1*/) {
 /** Copies memory, by number of items. With specialization that ignores pointer types (void), and
 copies the specified number of bytes.
 
-TODO: comment signature.
+ptDst
+   Pointer to the destination memory.
+ptSrc
+   Pointer to the source data.
+c
+   Count of items to copy.
+return
+   Same as ptDst.
 */
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc) {
@@ -446,7 +473,14 @@ inline void * copy(void * pDst, void const * pSrc, size_t cb) {
 /** Copies possibly overlapping memory, by number of items. With specialization that ignores pointer
 types (void), and copies the specified number of bytes.
 
-TODO: comment signature.
+ptDst
+   Pointer to the destination memory.
+ptSrc
+   Pointer to the source data.
+c
+   Count of items to move.
+return
+   Same as ptDst.
 */
 template <typename T>
 inline T * move(T * ptDst, T const * ptSrc, size_t c) {
@@ -467,7 +501,14 @@ inline void * move(void * pDst, void const * pSrc, size_t cb) {
 
 /** Copies a value over each item of a static array.
 
-TODO: comment signature.
+ptDst
+   Pointer to the destination memory.
+tValue
+   Source value to replicate over *ptDst.
+c
+   Count of copies of tValue to make.
+return
+   Same as ptDst.
 */
 template <typename T>
 inline T * set(T * ptDst, T const & tValue, size_t c) {
