@@ -332,12 +332,14 @@ protected:
       Pointer to a string that will be adopted by the str_base as read-only.
    cchSrc
       Count of characters in the string pointed to by pchConstSrc.
+   bNulT
+      true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
    str_base(size_t cchStaticMax) :
       _raw_trivial_vextr_impl(cchStaticMax) {
    }
-   str_base(char_t const * pchConstSrc, size_t cchSrc) :
-      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, true) {
+   str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
+      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, bNulT) {
    }
 
 
@@ -463,18 +465,17 @@ public:
    istr(dmstr && s);
    template <size_t t_cch>
    istr(char_t const (& ach)[t_cch]) :
-      str_base(ach, t_cch - 1 /*NUL*/) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
+      str_base(ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0') {
    }
    istr(char_t const * psz, size_t cch) :
       str_base(0) {
       assign_copy(psz, cch);
    }
    istr(unsafe_t, char_t const * psz) :
-      str_base(psz, traits::str_len(psz)) {
+      str_base(psz, traits::str_len(psz), true) {
    }
    istr(unsafe_t, char_t const * psz, size_t cch) :
-      str_base(psz, cch) {
+      str_base(psz, cch, false) {
    }
 
 
@@ -671,9 +672,6 @@ protected:
    */
    mstr(size_t cchStatic) :
       str_base(cchStatic) {
-   }
-   mstr(char_t const * pch, size_t cch) :
-      str_base(pch, cch) {
    }
 };
 
