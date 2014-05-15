@@ -126,6 +126,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 
 
 /*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
+
    size_t ccp(0);
    // Count a single code point for each leading byte, skipping over trailing bytes.
    for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
@@ -136,6 +138,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 
 
 /*static*/ unsigned utf8_traits::from_utf32(char32_t ch32, char8_t * pchDst) {
+   ABC_TRACE_FN((ch32, pchDst));
+
    char8_t const * pchDst0(pchDst);
    // Compute the length of this sequence.
    unsigned cbCont;
@@ -159,6 +163,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 
 
 /*static*/ bool utf8_traits::is_valid(char8_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    while (char8_t ch = *psz++) {
       // This should be a leading byte, and not the invalid 1111111x.
       if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
@@ -180,6 +186,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
    return true;
 }
 /*static*/ bool utf8_traits::is_valid(char8_t const * pch, size_t cch) {
+   ABC_TRACE_FN((pch, cch));
+
    while (cch--) {
       char8_t ch(*pch++);
       // This should be a leading byte, and not the invalid 1111111x.
@@ -209,6 +217,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ char8_t const * utf8_traits::str_chr(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    if (chNeedle <= 0x00007f) {
       // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
       char8_t ch8Needle(static_cast<char8_t>(chNeedle));
@@ -228,6 +238,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ char8_t const * utf8_traits::str_chr(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+
    char8_t chNeedleLead(*pchNeedle);
    for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
       char8_t ch(*pch);
@@ -256,6 +268,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ char8_t const * utf8_traits::str_chr_r(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    if (chNeedle <= 0x00007f) {
       // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
       char8_t ch8Needle(static_cast<char8_t>(chNeedle));
@@ -280,6 +294,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 // must have been the same, so only their absolute value matters; if they started a sequence, the
 // first byte of a longer encoding (greater code point value) if greater than that of a shorter one.
 /*static*/ int utf8_traits::str_cmp(char8_t const * psz1, char8_t const * psz2) {
+   ABC_TRACE_FN((psz1, psz2));
+
    // This loop ends when there is bias (which includes psz2 being finished while there are still
    // characters in psz1) or psz1 is over.
    char8_t ch1;
@@ -297,6 +313,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ int utf8_traits::str_cmp(
    char8_t const * pch1, size_t cch1, char8_t const * pch2, size_t cch2
 ) {
+   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+
    char8_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
    while (pch1 < pch1End && pch2 < pch2End) {
       char8_t ch1(*pch1++), ch2(*pch2++);
@@ -318,6 +336,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 
 
 /*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    char8_t const * pch(psz);
    while (*pch) {
       ++pch;
@@ -330,6 +350,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
    char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    if (!(pchNeedleEnd - pchNeedleBegin)) {
       // No needle, so just return the beginning of the haystack.
       return pchHaystackBegin;
@@ -406,6 +428,8 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
    char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    // TODO: implement this!
    return pchHaystackEnd;
 }
@@ -430,6 +454,8 @@ char16_t const utf16_traits::bom[] = {
 
 
 /*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
+
    size_t ccp(0);
    // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
    // they cannot occur before the 0xd800 that will cause them to be skipped.
@@ -441,6 +467,8 @@ char16_t const utf16_traits::bom[] = {
 
 
 /*static*/ unsigned utf16_traits::from_utf32(char32_t ch32, char16_t * pchDst) {
+   ABC_TRACE_FN((ch32, pchDst));
+
    if (ch32 <= 0x00ffff) {
       // The code point fits in a single UTF-16 character.
       pchDst[0] = char16_t(ch32);
@@ -456,6 +484,8 @@ char16_t const utf16_traits::bom[] = {
 
 
 /*static*/ bool utf16_traits::is_valid(char16_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    while (char16_t ch = *psz++) {
       switch (ch & 0xfc00) {
          case 0xd800: {
@@ -484,6 +514,8 @@ char16_t const utf16_traits::bom[] = {
    return true;
 }
 /*static*/ bool utf16_traits::is_valid(char16_t const * pch, size_t cch) {
+   ABC_TRACE_FN((pch, cch));
+
    while (cch--) {
       char16_t ch(*pch++);
       switch (ch & 0xfc00) {
@@ -517,6 +549,8 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ char16_t const * utf16_traits::str_chr(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    if (chNeedle <= 0x00ffff) {
       // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
       char16_t ch16Needle(static_cast<char16_t>(chNeedle));
@@ -536,6 +570,8 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ char16_t const * utf16_traits::str_chr(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+
    // In UTF-16, there’s always at most two characters per code point.
    char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a surrogate first half.
@@ -554,6 +590,8 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ char16_t const * utf16_traits::str_chr_r(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    if (chNeedle <= 0x00ffff) {
       // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
       char16_t ch16Needle(static_cast<char16_t>(chNeedle));
@@ -573,6 +611,8 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ char16_t const * utf16_traits::str_chr_r(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+
    // In UTF-16, there’s always at most two characters per code point.
    // Notice that this function is very much a mirrored version of str_chr(), so even the needle is
    // stored mirrored in chNeedle0/1: chNeedle1 is always used, and in case of a surrogate we use
@@ -591,6 +631,8 @@ char16_t const utf16_traits::bom[] = {
 
 
 /*static*/ int utf16_traits::str_cmp(char16_t const * psz1, char16_t const * psz2) {
+   ABC_TRACE_FN((psz1, psz2));
+
    char16_t ch1;
    do {
       ch1 = *psz1++;
@@ -618,6 +660,8 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ int utf16_traits::str_cmp(
    char16_t const * pch1, size_t cch1, char16_t const * pch2, size_t cch2
 ) {
+   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+
    char16_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
    while (pch1 < pch1End && pch2 < pch2End) {
       char16_t ch1(*pch1++), ch2(*pch2++);
@@ -651,6 +695,8 @@ char16_t const utf16_traits::bom[] = {
 
 
 /*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    char16_t const * pch(psz);
    while (*pch) {
       ++pch;
@@ -663,6 +709,8 @@ char16_t const utf16_traits::bom[] = {
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
    char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    // TODO: redo using lookup table.
    size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
    if (!cchNeedle) {
@@ -696,6 +744,8 @@ char16_t const utf16_traits::bom[] = {
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
    char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    // TODO: implement this!
    return pchHaystackEnd;
 }
@@ -720,6 +770,8 @@ char32_t const utf32_traits::bom[] = {
 
 
 /*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    while (char32_t ch = *psz++) {
       if (!is_valid(ch)) {
          return false;
@@ -728,6 +780,8 @@ char32_t const utf32_traits::bom[] = {
    return true;
 }
 /*static*/ bool utf32_traits::is_valid(char32_t const * pch, size_t cch) {
+   ABC_TRACE_FN((pch, cch));
+
    while (cch--) {
       if (!is_valid(*pch++)) {
          return false;
@@ -740,6 +794,8 @@ char32_t const utf32_traits::bom[] = {
 /*static*/ char32_t const * utf32_traits::str_chr(
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    for (char32_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
       if (*pch == chNeedle) {
          return pch;
@@ -752,6 +808,8 @@ char32_t const utf32_traits::bom[] = {
 /*static*/ char32_t const * utf32_traits::str_chr_r(
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+
    for (char32_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
       if (*--pch == chNeedle) {
          return pch;
@@ -762,6 +820,8 @@ char32_t const utf32_traits::bom[] = {
 
 
 /*static*/ int utf32_traits::str_cmp(char32_t const * psz1, char32_t const * psz2) {
+   ABC_TRACE_FN((psz1, psz2));
+
    // This loop ends when there is bias (which includes psz2 being finished while there are still
    // characters in psz1) or psz1 is over.
    char32_t ch1;
@@ -779,6 +839,8 @@ char32_t const utf32_traits::bom[] = {
 /*static*/ int utf32_traits::str_cmp(
    char32_t const * pch1, size_t cch1, char32_t const * pch2, size_t cch2
 ) {
+   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+
    char32_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
    while (pch1 < pch1End && pch2 < pch2End) {
       char32_t ch1(*pch1++), ch2(*pch2++);
@@ -800,6 +862,8 @@ char32_t const utf32_traits::bom[] = {
 
 
 /*static*/ size_t utf32_traits::str_len(char32_t const * psz) {
+   ABC_TRACE_FN((psz));
+
    char32_t const * pch(psz);
    while (*pch) {
       ++pch;
@@ -812,6 +876,8 @@ char32_t const utf32_traits::bom[] = {
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
    char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    // TODO: redo using lookup table.
    size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
    if (!cchNeedle) {
@@ -845,6 +911,8 @@ char32_t const utf32_traits::bom[] = {
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
    char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
 ) {
+   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+
    // TODO: implement this!
    return pchHaystackEnd;
 }

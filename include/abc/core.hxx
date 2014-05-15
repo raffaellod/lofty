@@ -682,6 +682,7 @@ class ostream;
 
 #include <abc/iostream.hxx>
 #include <abc/str_iostream.hxx>
+
 #include <abc/str-after-str_iostream.hxx>
 #include <abc/to_str-after-str_iostream.hxx>
 
