@@ -480,7 +480,7 @@ public:
    */
    T const & operator[](intptr_t i) const {
       this->adjust_and_validate_index(i);
-      return data()[i];
+      return *(this->cbegin() + i);
    }
 
 
@@ -490,7 +490,7 @@ public:
       true if the vector is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return size() > 0;
+      return this->cend() > this->cbegin();
    }
 
 
@@ -537,7 +537,7 @@ public:
    TODO: comment signature.
    */
    intptr_t index_of(T const & t, intptr_t iFirst = 0) const {
-      T const * pt0(data()), * ptEnd(pt0 + size());
+      T const * pt0(this->cbegin().base()), * ptEnd(this->cend().base());
       for (T const * pt(pt0 + this->adjust_and_validate_index(iFirst)); pt < ptEnd; ++pt) {
          if (*pt == t) {
             return pt - pt0;
@@ -557,7 +557,7 @@ public:
    }
    intptr_t last_index_of(T const & t, intptr_t iFirst) const {
       auto range(this->adjust_and_validate_range(0, iFirst));
-      T const * pt0(data());
+      T const * pt0(this->cbegin().base());
       for (T const * pt(pt0 + range.second); pt >= pt0 + range.first; --pt) {
          if (*pt == t) {
             return pt - pt0;
@@ -773,7 +773,7 @@ public:
       this->insert_move(i, &t, 1);
    }
    void insert(const_iterator it, typename std::remove_const<T>::type && t) {
-      this->insert_move(it - itvec::cbegin(), std::move(t), &t, 1);
+      this->insert_move(it - this->cbegin(), std::move(t), &t, 1);
    }
 
 
@@ -789,7 +789,7 @@ public:
       vector_base<T, smc_bCopyConstructible>::remove_at(i);
    }
    void remove_at(const_iterator it) {
-      vector_base<T, smc_bCopyConstructible>::remove_at(it - itvec::cbegin());
+      vector_base<T, smc_bCopyConstructible>::remove_at(it - this->cbegin());
    }
 
 
@@ -810,14 +810,14 @@ public:
       vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, iEnd);
    }
    void remove_range(intptr_t iBegin, const_iterator itEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, itEnd - itvec::cbegin());
+      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, itEnd - this->cbegin());
    }
    void remove_range(const_iterator itBegin, intptr_t iEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(itBegin - itvec::cbegin(), iEnd);
+      vector_base<T, smc_bCopyConstructible>::remove_range(itBegin - this->cbegin(), iEnd);
    }
    void remove_range(const_iterator itBegin, const_iterator itEnd) {
       vector_base<T, smc_bCopyConstructible>::remove_range(
-         itBegin - itvec::cbegin(), itEnd - itvec::cbegin()
+         itBegin - this->cbegin(), itEnd - this->cbegin()
       );
    }
 
@@ -944,13 +944,13 @@ public:
       this->insert_copy(i, pt, ci);
    }
    void insert(const_iterator it, T const & t) {
-      this->insert_copy(it - itvec::cbegin(), &t, 1);
+      this->insert_copy(it - this->cbegin(), &t, 1);
    }
    void insert(const_iterator it, typename std::remove_const<T>::type && t) {
-      this->insert_move(it - itvec::cbegin(), std::move(t), &t, 1);
+      this->insert_move(it - this->cbegin(), std::move(t), &t, 1);
    }
    void insert(const_iterator it, T const * pt, size_t ci) {
-      this->insert_copy(it - itvec::cbegin(), pt, ci);
+      this->insert_copy(it - this->cbegin(), pt, ci);
    }
 
 

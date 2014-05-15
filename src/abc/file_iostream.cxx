@@ -131,7 +131,7 @@ file_istream::file_istream(file_path const & fp) :
       }
 
       // Read as many characters as possible, appending to the current end of the string.
-      char_t * pchLastEnd(ps->data() + cchFilled);
+      char_t * pchLastEnd(ps->begin().base() + cchFilled);
       size_t cbRead(read_raw(pchLastEnd, sizeof(char_t) * cchAvail, text::encoding::host));
       if (!cbRead) {
          break;

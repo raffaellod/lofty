@@ -40,23 +40,20 @@ static void _build_failure_restart_table(
 ) {
    ABC_TRACE_FN((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
 
-   // TODO: FIXME: this should be set_size(), not set_capacity().
    pvcchFailNext->set_capacity(size_t(pchNeedleEnd - pchNeedleBegin), false);
-   size_t * pcchFailNext0(pvcchFailNext->data());
 
    // The earliest repetition of a non-first character can only occur on the fourth character, so
    // start by skipping two characters and storing two zeroes for them, then the first iteration
    // will also always store an additional zero and consume one more character.
    C const * pchNeedle(pchNeedleBegin + 2),
            * pchRestart(pchNeedleBegin);
-   size_t * pcchFailNext(pcchFailNext0 + 2);
-   pcchFailNext0[0] = 0;
-   pcchFailNext0[1] = 0;
+   pvcchFailNext->append(0);
+   pvcchFailNext->append(0);
    size_t ichRestart(0);
    while (pchNeedle < pchNeedleEnd) {
       // Store the current failure restart index, or 0 if the previous character was the third or
       // was not a match.
-      *pcchFailNext++ = ichRestart;
+      pvcchFailNext->append(ichRestart);
       if (*pchNeedle++ == *pchRestart) {
          // Another match: move the restart to the next character.
          ++ichRestart;
@@ -364,20 +361,19 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 
       This is an implementation of the Knuth-Morris-Pratt algorithm.
 
-      Examples of the contents of pcchFailNext after the block below for different needles:
+      Examples of the contents of vcchFailNext after the block below for different needles:
 
       ┌──────────────┬───┬─────┬─────┬───────┬───────┬───────────────┬─────────────┐
       │ Needle index │ 0 │ 0 1 │ 0 1 │ 0 1 2 │ 0 1 2 │ 0 1 2 3 4 5 6 │ 0 1 2 3 4 5 │
       ├──────────────┼───┼─────┼─────┼───────┼───────┼───────────────┼─────────────┤
       │ pchNeedle    │ A │ A A │ A B │ A A A │ A A B │ A B A A B A C │ A B A B C D │
-      │ pcchFailNext │ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
+      │ vcchFailNext │ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
       └──────────────┴───┴─────┴─────┴───────┴───────┴───────────────┴─────────────┘
       */
 
       // Build the failure restart table.
       smvector<size_t, 64> vcchFailNext;
       _build_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
-      size_t const * pcchFailNext(vcchFailNext.data());
 
       size_t iFailNext(0);
       while (pchHaystack < pchHaystackEnd) {
@@ -388,13 +384,13 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
                // haystack: we found the needle.
                return pchHaystack - iFailNext;
             }
-            // Move to the next character and advance the index in pcchFailNext.
+            // Move to the next character and advance the index in vcchFailNext.
             ++pchHaystack;
             ++iFailNext;
          } else if (iFailNext > 0) {
-            // The current character ends the match sequence; use pcchFailNext[iFailNext] to see how
+            // The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
             // much into the needle we can retry matching characters.
-            iFailNext = pcchFailNext[iFailNext];
+            iFailNext = vcchFailNext[intptr_t(iFailNext)];
             pchNeedle = pchNeedleBegin + iFailNext;
          } else {
             // Not a match, and no restart point: we’re out of options to match this character, so

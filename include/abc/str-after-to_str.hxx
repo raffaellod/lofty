@@ -276,7 +276,10 @@ public:
       Pointer to the output stream to write to.
    */
    void write(str_base const & s, io::ostream * posOut) {
-      _str_to_str_backend::write(s.data(), sizeof(char_t) * s.size(), text::encoding::host, posOut);
+      _str_to_str_backend::write(
+         s.cbegin().base(), size_t(s.cend().base() - s.cbegin().base()),
+         text::encoding::host, posOut
+      );
    }
 };
 

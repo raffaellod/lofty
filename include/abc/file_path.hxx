@@ -517,7 +517,7 @@ public:
    //
    _file_path_iterator(file_path const & pathDir, istr const & sPattern) :
       m_pathBaseDir(pathDir),
-      m_hSearch(find_first_file((m_pathBaseDir / sPattern).data(), &m_wfd)),
+      m_hSearch(find_first_file((m_pathBaseDir / sPattern).os_str().c_str().get(), &m_wfd)),
       m_bEOF(m_hSearch == INVALID_HANDLE_VALUE) {
       if (!m_bEOF) {
          m_pathCurr = next_file_path();
@@ -598,7 +598,7 @@ private:
       HANDLE h(::FindFirstFileW(pszPattern, pwfd));
       if (h == INVALID_HANDLE_VALUE) {
 
-         unsigned long iErr(::GetLastError());
+         DWORD iErr(::GetLastError());
          if (iErr != ERROR_FILE_NOT_FOUND) {
             throw_os_error(iErr);
          }

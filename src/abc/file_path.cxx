@@ -127,13 +127,12 @@ file_path file_path::absolute() const {
       // and be relative to the current directory in that volume. Either way, these two formats
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
       size_t cch(m_s.size());
-      char_t const * pch(m_s.data());
-      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':')) {
+      if (cch > sc_ichVolumeColon && m_s[sc_ichVolumeColon] == CL(':')) {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
-         fpAbsolute = current_dir_for_volume(pch[sc_ichVolume]) /
+         fpAbsolute = current_dir_for_volume(m_s[sc_ichVolume]) /
                       m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
-      } else if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
+      } else if (cch > sc_ichLeadingSep && m_s[sc_ichLeadingSep] == CL('\\')) {
          // The path is in the form “\a”: make it absolute by prepending to it the volume designator
          // of the current directory.
          fpAbsolute = current_dir().m_s.substr(
@@ -194,7 +193,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.data(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -225,7 +224,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.data(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
    // Remove the last character, the “a” from achDummyPath.
    s.set_size(s.size() - 1 /*“a”*/);
    return std::move(s);
@@ -398,16 +397,16 @@ dmstr::const_iterator file_path::base_name_start() const {
    static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
 
    size_t cch(s.size());
-   char_t const * pch(s.data());
    if (s.starts_with(smc_aszRoot)) {
       if (s.starts_with(smc_aszUNCRoot)) {
          // Return the index of “a” in “\\?\UNC\a”.
          return sc_cchUNCRoot;
       }
+      char_t ch;
       ABC_ASSERT(
          cch >= sc_cchVolumeRoot &&
-         pch[sc_cchVolumeRoot - 3] >= CL('A') && pch[sc_cchVolumeRoot - 3] <= CL('Z') &&
-         pch[sc_cchVolumeRoot - 2] == CL(':') && pch[sc_cchVolumeRoot - 1] == CL('\\'),
+         (ch = s[sc_cchVolumeRoot - 3], ch >= CL('A') && ch <= CL('Z')) &&
+         (s[sc_cchVolumeRoot - 2] == CL(':') && s[sc_cchVolumeRoot - 1] == CL('\\')),
          SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
             SL("abc::file_path::validate_and_adjust() needs to be fixed")
       );
@@ -415,11 +414,11 @@ dmstr::const_iterator file_path::base_name_start() const {
       return sc_cchRoot;
    }
    if (bIncludeNonRoot) {
-      if (cch > sc_ichVolumeColon && pch[sc_ichVolumeColon] == CL(':')) {
+      if (cch > sc_ichVolumeColon && s[sc_ichVolumeColon] == CL(':')) {
          // Return the index of “a” in “X:a”.
          return sc_ichVolumeColon + 1 /*“:”*/;
       }
-      if (cch > sc_ichLeadingSep && pch[sc_ichLeadingSep] == CL('\\')) {
+      if (cch > sc_ichLeadingSep && s[sc_ichLeadingSep] == CL('\\')) {
          // Return the index of “a” in “\a”.
          return sc_ichLeadingSep + 1 /*“\”*/;
       }

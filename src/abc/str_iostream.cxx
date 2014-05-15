@@ -128,7 +128,9 @@ str_ostream::str_type str_ostream::release_content() {
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_sBuf.set_capacity((m_ibWrite + cb) / cbChar, true);
       memory::copy(
-         reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite, static_cast<int8_t const *>(p), cb
+         reinterpret_cast<int8_t *>(m_sBuf.begin().base()) + m_ibWrite,
+         static_cast<int8_t const *>(p),
+         cb
       );
       m_ibWrite += cb;
    } else {
@@ -138,7 +140,7 @@ str_ostream::str_type str_ostream::release_content() {
          // Add cbChar - 1 to avoid rounding down and losing one character.
          m_sBuf.set_capacity((m_ibWrite + cbDstEst + cbChar - 1) / cbChar, true);
          // Get the resulting buffer and its actual size.
-         void * pBuf(reinterpret_cast<int8_t *>(m_sBuf.data()) + m_ibWrite);
+         void * pBuf(reinterpret_cast<int8_t *>(m_sBuf.begin().base()) + m_ibWrite);
          size_t cbBuf(cbChar * m_sBuf.capacity() - m_ibWrite);
          // Fill as much of the buffer as possible, and advance m_ibWrite accordingly.
          m_ibWrite += text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBuf, &cbBuf);

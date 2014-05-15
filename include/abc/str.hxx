@@ -91,7 +91,7 @@ public:
       true if the string is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return size() > 0;
+      return cend() > cbegin();
    }
 
 

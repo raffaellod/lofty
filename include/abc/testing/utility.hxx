@@ -36,7 +36,7 @@ namespace testing {
 
 namespace utility {
 
-/** Tracks changes in the data() member of a container.
+/** Tracks changes in the internal data pointer of a container.
 */
 template <class T>
 class container_data_ptr_tracker;
@@ -78,7 +78,7 @@ public:
    */
    container_data_ptr_tracker(T const & t) :
       m_t(t),
-      m_pti(t.data()) {
+      m_pti(t.cbegin().base()) {
    }
 
 
@@ -90,7 +90,7 @@ public:
    bool changed() {
       ABC_TRACE_FN((this));
 
-      typename T::const_pointer ptiNew(m_t.data());
+      typename T::const_pointer ptiNew(m_t.cbegin().base());
       // Check if the data pointer has changed.
       if (ptiNew != m_pti) {
          // Update the data pointer for the next call.
