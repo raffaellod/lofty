@@ -569,12 +569,6 @@ public:
       return *this;
    }
    mstr & operator=(dmstr && s);
-   template <size_t t_cch>
-   mstr & operator=(char_t const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      assign_copy(ach, t_cch - 1 /*NUL*/);
-      return *this;
-   }
 
 
    /** Concatenation-assignment operator.
@@ -583,12 +577,6 @@ public:
    */
    mstr & operator+=(char_t ch) {
       append(&ch, 1);
-      return *this;
-   }
-   template <size_t t_cch>
-   mstr & operator+=(char_t const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      append(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -761,12 +749,6 @@ public:
       mstr(0) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
-   template <size_t t_cch>
-   explicit dmstr(char_t const (& ach)[t_cch]) :
-      mstr(0) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      assign_copy(ach, t_cch - 1 /*NUL*/);
-   }
    dmstr(char_t const * pch, size_t cch) :
       mstr(0) {
       assign_copy(pch, cch);
@@ -810,12 +792,6 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr & operator=(mstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
-      return *this;
-   }
-   template <size_t t_cch>
-   dmstr & operator=(char_t const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
 
@@ -970,12 +946,6 @@ public:
       mstr(smc_cchFixed) {
       assign_move(std::move(s));
    }
-   template <size_t t_cch>
-   explicit smstr(char_t const (& ach)[t_cch]) :
-      mstr(smc_cchFixed) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      assign_copy(ach, t_cch - 1 /*NUL*/);
-   }
 
 
    /** Assignment operator.
@@ -1014,12 +984,6 @@ public:
    }
    smstr & operator=(dmstr && s) {
       assign_move(std::move(s));
-      return *this;
-   }
-   template <size_t t_cch>
-   smstr & operator=(char_t const (& ach)[t_cch]) {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      assign_copy(ach, t_cch - 1 /*NUL*/);
       return *this;
    }
 
