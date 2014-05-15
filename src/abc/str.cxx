@@ -86,6 +86,59 @@ str_base::c_str_pointer str_base::c_str() const {
    );
 }
 
+
+bool str_base::ends_with(istr const & s) const {
+   ABC_TRACE_FN((this, s));
+
+   size_t cchEnd(s.size());
+   auto itStart(cend() - intptr_t(cchEnd));
+   return itStart >= cbegin() && traits::str_cmp(
+      itStart.base(), cchEnd, s.cbegin().base(), cchEnd
+   ) == 0;
+}
+
+
+str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FN((this, chNeedle, itWhence));
+
+   auto itEnd(itvec::cend());
+   char_t const * pch(traits::str_chr(itWhence.base(), itEnd.base(), chNeedle));
+   return pch ? const_iterator(pch) : itEnd;
+}
+str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FN((this, sNeedle, itWhence));
+
+   auto itEnd(itvec::cend());
+   char_t const * pch(traits::str_str(
+      itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
+   ));
+   return pch ? const_iterator(pch) : itEnd;
+}
+
+
+str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FN((this, chNeedle, itWhence));
+
+   char_t const * pch(traits::str_chr_r(itvec::cbegin().base(), itWhence.base(), chNeedle));
+   return pch ? const_iterator(pch) : itvec::cend();
+}
+str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FN((this, sNeedle, itWhence));
+
+   char_t const * pch(traits::str_str_r(
+      itvec::cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
+   ));
+   return pch ? const_iterator(pch) : itvec::cend();
+}
+
+
+bool str_base::starts_with(istr const & s) const {
+   ABC_TRACE_FN((this, s));
+
+   size_t cchStart(s.size());
+   return size() >= cchStart && traits::str_cmp(data(), cchStart, s.data(), cchStart) == 0;
+}
+
 } //namespace abc
 
 

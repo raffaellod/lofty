@@ -140,12 +140,7 @@ public:
    template <size_t t_cch>
    int compare_to(char_t const (& ach)[t_cch]) const {
       ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      return traits::str_cmp(data(), size(), ach, t_cch - 1 /*NUL*/);
-   }
-   // This overload needs to be template, or it will take precedence over the one above.
-   template <typename>
-   int compare_to(char_t const * psz) const {
-      return traits::str_cmp(data(), size(), psz, traits::str_len(psz));
+      return traits::str_cmp(cbegin().base(), size(), ach, t_cch - 1 /*NUL*/);
    }
 
 
@@ -163,28 +158,10 @@ public:
 
    s
       String that *this should end with.
-   ach
-      String literal that *this should end with.
-   psz
-      NUL-terminated string that *this should end with.
    return
       true if *this ends with the specified suffix, or false otherwise.
    */
    bool ends_with(istr const & s) const;
-   template <size_t t_cch>
-   bool ends_with(char_t const (& ach)[t_cch]) const {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      size_t cchEnd(t_cch - 1 /*NUL*/);
-      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-      return cchRest >= 0 && traits::str_cmp(data() + cchRest, cchEnd, ach, cchEnd) == 0;
-   }
-   // This overload needs to be template, or it will take precedence over the one above.
-   template <typename>
-   bool ends_with(char_t const * psz) const {
-      size_t cchEnd(traits::str_len(psz));
-      intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-      return cchRest >= 0 && traits::str_cmp(data() + cchRest, cchEnd, psz, cchEnd) == 0;
-   }
 
 
    /** Searches for and returns the first occurrence of the specified character or substring.
@@ -202,11 +179,7 @@ public:
    const_iterator find(char32_t chNeedle) const {
       return find(chNeedle, itvec::cbegin());
    }
-   const_iterator find(char32_t chNeedle, const_iterator itWhence) const {
-      auto itEnd(itvec::cend());
-      char_t const * pch(traits::str_chr(itWhence.base(), itEnd.base(), chNeedle));
-      return pch ? const_iterator(pch) : itEnd;
-   }
+   const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find(istr const & sNeedle) const {
       return find(sNeedle, itvec::cbegin());
    }
@@ -228,10 +201,7 @@ public:
    const_iterator find_last(char32_t chNeedle) const {
       return find_last(chNeedle, itvec::cend());
    }
-   const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const {
-      char_t const * pch(traits::str_chr_r(itvec::cbegin().base(), itWhence.base(), chNeedle));
-      return pch ? const_iterator(pch) : itvec::cend();
-   }
+   const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find_last(istr const & sNeedle) const {
       return find_last(sNeedle, itvec::cend());
    }
@@ -320,8 +290,7 @@ public:
       Count of code points.
    */
    size_t size_cp() const {
-      char_t const * pchBegin(data());
-      return traits::cp_len(pchBegin, pchBegin + size());
+      return traits::cp_len(cbegin().base(), cend().base());
    }
 
 
@@ -329,26 +298,10 @@ public:
 
    s
       String that *this should start with.
-   ach
-      String literal that *this should start with.
-   psz
-      NUL-terminated string that *this should start with.
    return
       true if *this starts with the specified suffix, or false otherwise.
    */
    bool starts_with(istr const & s) const;
-   template <size_t t_cch>
-   bool starts_with(char_t const (& ach)[t_cch]) const {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      size_t cchStart(t_cch - 1 /*NUL*/);
-      return size() >= cchStart && traits::str_cmp(data(), cchStart, ach, cchStart) == 0;
-   }
-   // This overload needs to be template, or it will take precedence over the one above.
-   template <typename>
-   bool starts_with(char_t const * psz) const {
-      size_t cchStart(traits::str_len(psz));
-      return size() >= cchStart && traits::str_cmp(data(), cchStart, psz, cchStart) == 0;
-   }
 
 
    /** Returns a portion of the string.
@@ -569,41 +522,7 @@ inline str_base::operator istr const &() const {
 
 
 inline int str_base::compare_to(istr const & s) const {
-   return traits::str_cmp(data(), size(), s.data(), s.size());
-}
-
-
-inline bool str_base::ends_with(istr const & s) const {
-   size_t cchEnd(s.size());
-   intptr_t cchRest(intptr_t(size()) - intptr_t(cchEnd));
-   return cchRest >= 0 && traits::str_cmp(data() + cchRest, cchEnd, s.data(), cchEnd) == 0;
-}
-
-
-inline str_base::const_iterator str_base::find(
-   istr const & sNeedle, const_iterator itWhence
-) const {
-   auto itEnd(itvec::cend());
-   char_t const * pch(traits::str_str(
-      itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
-   ));
-   return pch ? const_iterator(pch) : itEnd;
-}
-
-
-inline str_base::const_iterator str_base::find_last(
-   istr const & sNeedle, const_iterator itWhence
-) const {
-   char_t const * pch(traits::str_str_r(
-      itvec::cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
-   ));
-   return pch ? const_iterator(pch) : itvec::cend();
-}
-
-
-inline bool str_base::starts_with(istr const & s) const {
-   size_t cchStart(s.size());
-   return size() >= cchStart && traits::str_cmp(data(), cchStart, s.data(), cchStart) == 0;
+   return traits::str_cmp(cbegin().base(), size(), s.cbegin().base(), s.size());
 }
 
 } //namespace abc
