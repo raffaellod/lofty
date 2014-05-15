@@ -518,7 +518,7 @@ inline str_base::operator istr const &() const {
 
 
 inline int str_base::compare_to(istr const & s) const {
-   return traits::str_cmp(cbegin().base(), size(), s.cbegin().base(), s.size());
+   return traits::str_cmp(cbegin().base(), cend().base(), s.cbegin().base(), s.cend().base());
 }
 
 } //namespace abc

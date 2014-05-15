@@ -214,17 +214,17 @@ public:
    UTF validity: necessary.
 
    psz1
-      Pointer to the first NUL-terminated string to be compared.
+      Pointer to the first NUL-terminated string to compare.
    psz2
-      Pointer to the second NUL-terminated string to be compared.
-   pch1
-      Pointer to the beginning of the first string to be compared.
-   cch1
-      Length of the string pointed to by pch1, in characters.
-   pch2
-      Pointer to the beginning of the second string to be compared.
-   cch2
-      Length of the string pointed to by pch2, in characters.
+      Pointer to the second NUL-terminated string to compare.
+   pch1Begin
+      Pointer to the first character of the first string to compare.
+   pch1End
+      Pointer to beyond the last character of the string to compare.
+   pch2Begin
+      Pointer to the first character of the second string to compare.
+   pch2End
+      Pointer to beyond the last character of the second string to compare.
    return
       Standard comparison result integer:
       •  > 0 if string 1 > string 2;
@@ -232,7 +232,10 @@ public:
       •  < 0 if string 1 < string 2.
    */
    static int str_cmp(char8_t const * psz1, char8_t const * psz2);
-   static int str_cmp(char8_t const * pch1, size_t cch1, char8_t const * pch2, size_t cch2);
+   static int str_cmp(
+      char8_t const * pch1Begin, char8_t const * pch1End,
+      char8_t const * pch2Begin, char8_t const * pch2End
+   );
 
 
    /** Returns the length, in UTF characters, of a NUL-terminated string.
@@ -354,7 +357,10 @@ public:
    /** See utf8_traits::str_cmp().
    */
    static int str_cmp(char16_t const * psz1, char16_t const * psz2);
-   static int str_cmp(char16_t const * pch1, size_t cch1, char16_t const * pch2, size_t cch2);
+   static int str_cmp(
+      char16_t const * pch1Begin, char16_t const * pch1End,
+      char16_t const * pch2Begin, char16_t const * pch2End
+   );
 
 
    /** See utf8_traits::str_len().
@@ -446,7 +452,10 @@ public:
    /** See utf8_traits::str_cmp().
    */
    static int str_cmp(char32_t const * psz1, char32_t const * psz2);
-   static int str_cmp(char32_t const * pch1, size_t cch1, char32_t const * pch2, size_t cch2);
+   static int str_cmp(
+      char32_t const * pch1Begin, char32_t const * pch1End,
+      char32_t const * pch2Begin, char32_t const * pch2End
+   );
 
 
    /** See utf8_traits::str_len().

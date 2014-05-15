@@ -311,11 +311,12 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
    return 0;
 }
 /*static*/ int utf8_traits::str_cmp(
-   char8_t const * pch1, size_t cch1, char8_t const * pch2, size_t cch2
+   char8_t const * pch1Begin, char8_t const * pch1End,
+   char8_t const * pch2Begin, char8_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
 
-   char8_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
+   char8_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
       char8_t ch1(*pch1++), ch2(*pch2++);
       if (ch1 > ch2) {
@@ -324,10 +325,10 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
          return -1;
       }
    }
-   // If we’re still here, the longest string wins.
-   if (cch1 > cch2) {
+   // If we’re still here, the string that didn’t run out of characters wins.
+   if (pch1 < pch1End) {
       return +1;
-   } else if (cch1 < cch2) {
+   } else if (pch2 < pch2End) {
       return -1;
    } else {
       return 0;
@@ -658,11 +659,12 @@ char16_t const utf16_traits::bom[] = {
    return 0;
 }
 /*static*/ int utf16_traits::str_cmp(
-   char16_t const * pch1, size_t cch1, char16_t const * pch2, size_t cch2
+   char16_t const * pch1Begin, char16_t const * pch1End,
+   char16_t const * pch2Begin, char16_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
 
-   char16_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
+   char16_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
       char16_t ch1(*pch1++), ch2(*pch2++);
       // Surrogates mess with the ability to just compare the absolute char16_t value.
@@ -683,10 +685,10 @@ char16_t const utf16_traits::bom[] = {
          return -1;
       }
    }
-   // If we’re still here, the longest string wins.
-   if (cch1 > cch2) {
+   // If we’re still here, the string that didn’t run out of characters wins.
+   if (pch1 < pch1End) {
       return +1;
-   } else if (cch1 < cch2) {
+   } else if (pch2 < pch2End) {
       return -1;
    } else {
       return 0;
@@ -837,11 +839,12 @@ char32_t const utf32_traits::bom[] = {
    return 0;
 }
 /*static*/ int utf32_traits::str_cmp(
-   char32_t const * pch1, size_t cch1, char32_t const * pch2, size_t cch2
+   char32_t const * pch1Begin, char32_t const * pch1End,
+   char32_t const * pch2Begin, char32_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1, cch1, pch2, cch2));
+   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
 
-   char32_t const * pch1End(pch1 + cch1), * pch2End(pch2 + cch2);
+   char32_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
       char32_t ch1(*pch1++), ch2(*pch2++);
       if (ch1 > ch2) {
@@ -850,10 +853,10 @@ char32_t const utf32_traits::bom[] = {
          return -1;
       }
    }
-   // If we’re still here, the longest string wins.
-   if (cch1 > cch2) {
+   // If we’re still here, the string that didn’t run out of characters wins.
+   if (pch1 < pch1End) {
       return +1;
-   } else if (cch1 < cch2) {
+   } else if (pch2 < pch2End) {
       return -1;
    } else {
       return 0;

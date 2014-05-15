@@ -89,10 +89,9 @@ str_base::c_str_pointer str_base::c_str() const {
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FN((this, s));
 
-   size_t cchEnd(s.size());
-   auto itStart(cend() - intptr_t(cchEnd));
+   auto itStart(cend() - intptr_t(s.size()));
    return itStart >= cbegin() && traits::str_cmp(
-      itStart.base(), cchEnd, s.cbegin().base(), cchEnd
+      itStart.base(), cend().base(), s.cbegin().base(), s.cend().base()
    ) == 0;
 }
 
@@ -134,9 +133,9 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
 bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FN((this, s));
 
-   size_t cchStart(s.size());
-   return size() >= cchStart && traits::str_cmp(
-      cbegin().base(), cchStart, s.cbegin().base(), cchStart
+   auto itEnd(cbegin() + intptr_t(s.size()));
+   return itEnd <= cend() && traits::str_cmp(
+      cbegin().base(), itEnd.base(), s.cbegin().base(), s.cend().base()
    ) == 0;
 }
 
