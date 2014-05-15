@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #endif
 
 #include <abc/bitmanip.hxx>
-#include <abc/type_void_adapter.hxx>
 
 
 

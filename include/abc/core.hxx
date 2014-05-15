@@ -616,25 +616,75 @@ unsafe_t const unsafe;
 
 
 #include <abc/cppmacros.hxx>
-// Also pulls in <memory> with compiler-specific fixes.
+
+#if ABC_HOST_MSC
+   // Silence warnings from system header files.
+   #pragma warning(push)
+   // “'function': exception specification does not match previous declaration”
+   #pragma warning(disable: 4986)
+#endif //if ABC_HOST_MSC
+#include <memory>
+#if ABC_HOST_MSC
+   #pragma warning(pop)
+#endif //if ABC_HOST_MSC
+#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+   namespace std {
+
+   // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
+   template <typename T, typename TDeleter>
+   struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+
+   } //namespace std
+#endif
 #include <abc/memory.hxx>
-// Also pulls in <iterator>.
-#include <abc/pointer_iterator.hxx>
+
 #include <abc/char.hxx>
-// Also pulls in <exception>.
+
+namespace abc {
+
+// Forward declaration.
+class istr;
+
+namespace io {
+
+// Forward declaration.
+class ostream;
+
+} //namespace io
+
+} //namespace abc
+
+#include <exception>
 #include <abc/exception.hxx>
+
 #include <abc/enum.hxx>
+
+#include <iterator>
+#include <abc/pointer_iterator.hxx>
+#include <abc/numeric.hxx>
+#include <abc/type_void_adapter.hxx>
+#include <abc/_vextr.hxx>
+#include <abc/byteorder.hxx>
+#include <abc/text.hxx>
+#include <abc/utf_traits.hxx>
+#include <functional>
 #include <abc/str.hxx>
+
 #include <abc/enum-after-str.hxx>
 #include <abc/exception-after-str.hxx>
+
 #include <abc/to_str.hxx>
+
 #include <abc/enum-after-to_str.hxx>
 #include <abc/exception-after-to_str.hxx>
 #include <abc/str-after-to_str.hxx>
 #include <abc/pointer_iterator-after-to_str.hxx>
+
+#include <abc/iostream.hxx>
 #include <abc/str_iostream.hxx>
 #include <abc/str-after-str_iostream.hxx>
 #include <abc/to_str-after-str_iostream.hxx>
+
 #include <abc/trace.hxx>
 
 

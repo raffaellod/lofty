@@ -21,8 +21,6 @@ You should have received a copy of the GNU General Public License along with ABC
    #error Please #include <abc/core.hxx> instead of this file
 #endif
 
-#include <iterator>
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

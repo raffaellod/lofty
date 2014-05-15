@@ -25,10 +25,8 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma once
 #endif
 
-#include <abc/iostream.hxx>
 #include <abc/io/file_binary.hxx>
 #include <abc/file_path.hxx>
-#include <abc/numeric.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

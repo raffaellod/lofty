@@ -21,8 +21,6 @@ You should have received a copy of the GNU General Public License along with ABC
    #error Please #include <abc/core.hxx> instead of this file
 #endif
 
-#include <exception>
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,17 +327,6 @@ msg
       extern char _static_assert_failed[(expr) ? 1 : -1]
 #endif
 
-namespace io {
-
-// Forward declaration.
-class ostream;
-// Methods here need to use io::ostream * instead of io::ostream & because at this point io::ostream
-// has only been forward-declared above, but not defined yet (a pointer to a forward-declared type
-// is legal, but a reference to it is not).
-
-}
-
-
 /** Base for all abc exceptions classes.
 */
 class ABCAPI exception {
@@ -489,7 +476,6 @@ expr
       static_cast<void>(0)
 #endif
 
-class istr;
 
 /** An assertion failed.
 */
