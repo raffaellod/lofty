@@ -64,7 +64,7 @@ namespace abc {
 str_base::c_str_pointer str_base::c_str() const {
    ABC_TRACE_FN((this));
 
-   char_t const * pchData(data());
+   char_t const * pchData(cbegin().base());
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_pointer(pchData, c_str_pointer::deleter_type(false));
@@ -136,7 +136,9 @@ bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FN((this, s));
 
    size_t cchStart(s.size());
-   return size() >= cchStart && traits::str_cmp(data(), cchStart, s.data(), cchStart) == 0;
+   return size() >= cchStart && traits::str_cmp(
+      cbegin().base(), cchStart, s.cbegin().base(), cchStart
+   ) == 0;
 }
 
 } //namespace abc

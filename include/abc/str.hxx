@@ -81,7 +81,7 @@ public:
       Character at index i.
    */
    char_t operator[](intptr_t i) const {
-      return data()[adjust_and_validate_index(i)];
+      return *(cbegin() + intptr_t(adjust_and_validate_index(i)));
    }
 
 
@@ -137,11 +137,6 @@ public:
       •  < 0 if *this < argument.
    */
    int compare_to(istr const & s) const;
-   template <size_t t_cch>
-   int compare_to(char_t const (& ach)[t_cch]) const {
-      ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-      return traits::str_cmp(cbegin().base(), size(), ach, t_cch - 1 /*NUL*/);
-   }
 
 
    /** Returns a read-only pointer to the character array.
@@ -561,11 +556,11 @@ public:
       *this.
    */
    mstr & operator=(mstr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    mstr & operator=(istr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
@@ -597,7 +592,7 @@ public:
       return *this;
    }
    mstr & operator+=(istr const & s) {
-      append(s.data(), s.size());
+      append(s.cbegin().base(), s.size());
       return *this;
    }
 
@@ -605,7 +600,7 @@ public:
    /** See str_base::operator[]().
    */
    char_t & operator[](intptr_t i) {
-      return data()[adjust_and_validate_index(i)];
+      return *(begin() + intptr_t(adjust_and_validate_index(i)));
    }
    char_t operator[](intptr_t i) const {
       return str_base::operator[](i);
@@ -658,7 +653,7 @@ public:
       do {
          cchMax *= rvib::smc_iGrowthRate;
          set_capacity(cchMax, false);
-         cchRet = fnRead(data(), cchMax);
+         cchRet = fnRead(begin().base(), cchMax);
       } while (cchRet >= cchMax);
       // Finalize the length.
       set_size(cchRet);
@@ -742,7 +737,7 @@ public:
    }
    dmstr(dmstr const & s) :
       mstr(0) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
    }
    dmstr(dmstr && s) :
       mstr(0) {
@@ -750,7 +745,7 @@ public:
    }
    dmstr(istr const & s) :
       mstr(0) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(istr && s) :
@@ -759,7 +754,7 @@ public:
    }
    dmstr(mstr const & s) :
       mstr(0) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(mstr && s) :
@@ -792,7 +787,7 @@ public:
       *this.
    */
    dmstr & operator=(dmstr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    dmstr & operator=(dmstr && s) {
@@ -800,7 +795,7 @@ public:
       return *this;
    }
    dmstr & operator=(istr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -809,7 +804,7 @@ public:
       return *this;
    }
    dmstr & operator=(mstr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -845,18 +840,18 @@ inline dmstr str_base::substr(intptr_t ichBegin) const {
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(adjust_and_validate_range(ichBegin, ichEnd));
-   return dmstr(data() + range.first, range.second - range.first);
+   return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
    auto range(adjust_and_validate_range(ichBegin, itEnd - itvec::cbegin()));
-   return dmstr(data() + range.first, range.second - range.first);
+   return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, itvec::cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
    auto range(adjust_and_validate_range(itBegin - itvec::cbegin(), ichEnd));
-   return dmstr(data() + range.first, range.second - range.first);
+   return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    return dmstr(itBegin.base(), size_t(itEnd - itBegin));
@@ -887,26 +882,15 @@ inline mstr & mstr::operator=(dmstr && s) {
 
 TODO: comment signature.
 */
-inline abc::dmstr operator+(abc::str_base const & s1, abc::str_base const & s2) {
-   return abc::dmstr(s1.data(), s1.size(), s2.data(), s2.size());
+inline abc::dmstr operator+(abc::istr const & s1, abc::istr const & s2) {
+   return abc::dmstr(s1.cbegin().base(), s1.size(), s2.cbegin().base(), s2.size());
 }
 // Overloads taking a character literal.
-inline abc::dmstr operator+(abc::str_base const & s, abc::char_t ch) {
-   return abc::dmstr(s.data(), s.size(), &ch, 1);
+inline abc::dmstr operator+(abc::istr const & s, abc::char_t ch) {
+   return abc::dmstr(s.cbegin().base(), s.size(), &ch, 1);
 }
-inline abc::dmstr operator+(abc::char_t ch, abc::str_base const & s) {
-   return abc::dmstr(&ch, 1, s.data(), s.size());
-}
-// Overloads taking a string literal.
-template <size_t t_cch>
-inline abc::dmstr operator+(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) {
-   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-   return abc::dmstr(s.data(), s.size(), ach, t_cch - 1 /*NUL*/);
-}
-template <size_t t_cch>
-inline abc::dmstr operator+(abc::char_t const (& ach)[t_cch], abc::str_base const & s) {
-   ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated"));
-   return abc::dmstr(ach, t_cch - 1 /*NUL*/, s.data(), s.size());
+inline abc::dmstr operator+(abc::char_t ch, abc::istr const & s) {
+   return abc::dmstr(&ch, 1, s.cbegin().base(), s.size());
 }
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
@@ -915,10 +899,9 @@ inline abc::dmstr operator+(abc::dmstr && s, abc::char_t ch) {
    s += ch;
    return std::move(s);
 }
-template <size_t t_cch>
-inline abc::dmstr operator+(abc::dmstr && s, abc::char_t const (& ach)[t_cch]) {
-   s += ach;
-   return std::move(s);
+inline abc::dmstr operator+(abc::dmstr && s1, abc::istr const & s2) {
+   s1 += s2;
+   return std::move(s1);
 }
 
 
@@ -960,7 +943,7 @@ public:
    }
    smstr(smstr const & s) :
       mstr(smc_cchFixed) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -970,7 +953,7 @@ public:
    }
    smstr(istr const & s) :
       mstr(smc_cchFixed) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
@@ -1005,7 +988,7 @@ public:
       *this.
    */
    smstr & operator=(smstr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -1015,7 +998,7 @@ public:
       return *this;
    }
    smstr & operator=(istr const & s) {
-      assign_copy(s.data(), s.size());
+      assign_copy(s.cbegin().base(), s.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
