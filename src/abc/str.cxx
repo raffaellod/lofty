@@ -64,10 +64,9 @@ namespace abc {
 str_base::c_str_pointer str_base::c_str() const {
    ABC_TRACE_FN((this));
 
-   char_t const * pchData(cbegin().base());
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(pchData, c_str_pointer::deleter_type(false));
+      return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
    }
    if (size_t cch = size()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
@@ -76,7 +75,7 @@ str_base::c_str_pointer str_base::c_str() const {
          memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(),
          c_str_pointer::deleter_type(true)
       );
-      memory::copy(const_cast<char_t *>(psz.get()), pchData, cch);
+      memory::copy(const_cast<char_t *>(psz.get()), cbegin().base(), cch);
       terminate(sizeof(char_t), const_cast<char_t *>(psz.get()) + cch);
       return std::move(psz);
    }
