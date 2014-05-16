@@ -181,13 +181,6 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 namespace abc {
 
-mstr & mstr::operator+=(char32_t ch) {
-   char_t ach[traits::max_codepoint_length];
-   append(ach, traits::from_utf32(ch, ach));
-   return *this;
-}
-
-
 void mstr::set_size(size_t cch) {
    ABC_TRACE_FN((this, cch));
 

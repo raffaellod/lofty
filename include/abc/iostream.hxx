@@ -443,6 +443,7 @@ protected:
 
    /** Target ostream. Needs to be a pointer because to_str_backend::write() requires a pointer. */
    ostream * m_pos;
+   // TODO: use iterators for the following two member variables.
    /** Start of the format specification of the current replacement. */
    char_t const * m_pchReplFormatSpecBegin;
    /** End of the format specification of the current replacement. */

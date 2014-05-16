@@ -576,7 +576,11 @@ public:
 
    TODO: comment signature.
    */
-   mstr & operator+=(char32_t ch);
+   mstr & operator+=(char32_t ch) {
+      char_t ach[traits::max_codepoint_length];
+      append(ach, traits::from_utf32(ch, ach));
+      return *this;
+   }
    mstr & operator+=(istr const & s) {
       append(s.cbegin().base(), s.size());
       return *this;
