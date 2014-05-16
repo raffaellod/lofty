@@ -596,22 +596,6 @@ protected:
 } //namespace abc
 
 
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   inline bool operator op(abc::generic_error const & ge1, abc::generic_error const & ge2) { \
-      return ge1.os_error() op ge2.os_error(); \
-   } \
-   inline bool operator op(abc::generic_error const & ge, abc::errint_t err) { \
-      return ge.os_error() op err; \
-   } \
-   inline bool operator op(abc::errint_t err, abc::generic_error const & ge) { \
-      return err op ge.os_error(); \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::os_error_mapping
 
