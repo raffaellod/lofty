@@ -204,24 +204,4 @@ void mstr::set_size(size_t cch) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::dmstr
-
-
-namespace abc {
-
-
-} //namespace abc
-
-
-abc::dmstr operator+(abc::istr const & s, char32_t ch) {
-   abc::char_t ach[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(s.cbegin().base(), s.size(), ach, abc::istr::traits::from_utf32(ch, ach));
-}
-abc::dmstr operator+(char32_t ch, abc::istr const & s) {
-   abc::char_t ach[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(ach, abc::istr::traits::from_utf32(ch, ach), s.cbegin().base(), s.size());
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 

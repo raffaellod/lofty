@@ -857,8 +857,14 @@ inline abc::dmstr operator+(abc::istr const & s1, abc::istr const & s2) {
    return abc::dmstr(s1.cbegin().base(), s1.size(), s2.cbegin().base(), s2.size());
 }
 // Overloads taking a character literal.
-abc::dmstr ABCAPI operator+(abc::istr const & s, char32_t ch);
-abc::dmstr ABCAPI operator+(char32_t ch, abc::istr const & s);
+inline abc::dmstr operator+(abc::istr const & s, char32_t ch) {
+   abc::char_t ach[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(s.cbegin().base(), s.size(), ach, abc::istr::traits::from_utf32(ch, ach));
+}
+inline abc::dmstr operator+(char32_t ch, abc::istr const & s) {
+   abc::char_t ach[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(ach, abc::istr::traits::from_utf32(ch, ach), s.cbegin().base(), s.size());
+}
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
 // TODO: verify that compilers actually select these overloads whenever possible.
