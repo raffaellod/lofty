@@ -181,6 +181,13 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 namespace abc {
 
+mstr & mstr::operator+=(char32_t ch) {
+   char_t ach[traits::max_codepoint_length];
+   append(ach, traits::from_utf32(ch, ach));
+   return *this;
+}
+
+
 void mstr::set_size(size_t cch) {
    ABC_TRACE_FN((this, cch));
 
@@ -193,7 +200,27 @@ void mstr::set_size(size_t cch) {
    }
 }
 
+} //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::dmstr
+
+
+namespace abc {
+
+
 } //namespace abc
+
+
+abc::dmstr operator+(abc::istr const & s, char32_t ch) {
+   abc::char_t ach[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(s.cbegin().base(), s.size(), ach, abc::istr::traits::from_utf32(ch, ach));
+}
+abc::dmstr operator+(char32_t ch, abc::istr const & s) {
+   abc::char_t ach[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(ach, abc::istr::traits::from_utf32(ch, ach), s.cbegin().base(), s.size());
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

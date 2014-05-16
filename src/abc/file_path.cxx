@@ -103,7 +103,7 @@ file_path & file_path::operator/=(istr const & s) {
    ABC_TRACE_FN((this, s));
 
    // Only the root already ends in a separator; everything else needs one.
-   m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator[0]) + s);
+   m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator) + s);
    return *this;
 }
 

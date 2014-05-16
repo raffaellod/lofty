@@ -47,8 +47,6 @@ protected:
 
    /** Shortcut for the base class providing iterator-based types and methods. */
    typedef _iterable_vector<str_base, char_t> itvec;
-   /** String traits. */
-   typedef text::utf_traits<char_t> traits;
 
 
 public:
@@ -61,6 +59,8 @@ public:
    > c_str_pointer;
    /** See _iterable_vector::const_iterator. */
    typedef itvec::const_iterator const_iterator;
+   /** String traits. */
+   typedef text::utf_traits<char_t> traits;
 
 
 public:
@@ -543,7 +543,7 @@ namespace abc {
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
 are automatically converted to this.
 */
-class mstr :
+class ABCAPI mstr :
    public str_base {
 public:
 
@@ -576,10 +576,7 @@ public:
 
    TODO: comment signature.
    */
-   mstr & operator+=(char_t ch) {
-      append(&ch, 1);
-      return *this;
-   }
+   mstr & operator+=(char32_t ch);
    mstr & operator+=(istr const & s) {
       append(s.cbegin().base(), s.size());
       return *this;
@@ -860,16 +857,12 @@ inline abc::dmstr operator+(abc::istr const & s1, abc::istr const & s2) {
    return abc::dmstr(s1.cbegin().base(), s1.size(), s2.cbegin().base(), s2.size());
 }
 // Overloads taking a character literal.
-inline abc::dmstr operator+(abc::istr const & s, abc::char_t ch) {
-   return abc::dmstr(s.cbegin().base(), s.size(), &ch, 1);
-}
-inline abc::dmstr operator+(abc::char_t ch, abc::istr const & s) {
-   return abc::dmstr(&ch, 1, s.cbegin().base(), s.size());
-}
+abc::dmstr ABCAPI operator+(abc::istr const & s, char32_t ch);
+abc::dmstr ABCAPI operator+(char32_t ch, abc::istr const & s);
 // Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
 // string.
 // TODO: verify that compilers actually select these overloads whenever possible.
-inline abc::dmstr operator+(abc::dmstr && s, abc::char_t ch) {
+inline abc::dmstr operator+(abc::dmstr && s, char32_t ch) {
    s += ch;
    return std::move(s);
 }
