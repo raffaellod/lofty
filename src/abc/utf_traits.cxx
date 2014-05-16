@@ -86,7 +86,7 @@ char8_t const utf8_traits::bom[] = { '\xef', '\xbb', '\xbf' };
 // Optimization 2: the maximum length is less than 0xf, so each value is encoded in a nibble instead
 // of a full byte.
 //
-// In the end, the lead byte is treated like this:
+// In the end, the leading byte is treated like this:
 //
 //    ┌─────────────┬──────────────┬────────┐
 //    │ 7 6 5 4 3 2 │       1      │    0   │
@@ -174,7 +174,7 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
       }
       // Ensure that the leading byte is really followed by cbCont trailing bytes.
       while (cbCont--) {
-         // This condition includes == NUL: the unexpcted end of the string is a failure.
+         // This condition includes == NUL: the unexpected end of the string is a failure.
          if ((*psz++ & 0xc0) != 0x80) {
             return false;
          }

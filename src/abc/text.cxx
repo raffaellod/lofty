@@ -446,7 +446,7 @@ ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, e
             // It’s one of the supported byte-oriented character sets.
             // A note on scanning an UTF-8 buffer: we want this to be tolerant to encoding errors,
             // so exploit the fact that no UTF-8 character can contain another, and just scan byte
-            // by byte, without performing any check on lead bytes.
+            // by byte, without performing any check on leading bytes.
             uint8_t chCr(0x0d), chLf(0x0a);
             for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf) {
                if (*pchBuf == chCr) {

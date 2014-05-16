@@ -113,6 +113,16 @@ typedef char char8_t;
 #endif
 
 
+/** Defines an 8-bit character literal.
+
+ch
+   Character literal.
+return
+   8-bit character literal.
+*/
+#define U8CL(ch) ::abc::char8_t(ch)
+
+
 /** Defines a UCS-16 character literal.
 
 ch
@@ -221,7 +231,7 @@ return
    UCS character literal.
 */
 #if ABC_HOST_UTF == 8
-   #define CL(ch) ch
+   #define CL(ch) U8CL(ch)
 #elif ABC_HOST_UTF == 16
    #define CL(ch) U16CL(ch)
 #elif ABC_HOST_UTF == 32
