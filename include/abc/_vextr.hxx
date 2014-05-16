@@ -768,28 +768,6 @@ protected:
    size_t static_capacity() const;
 
 
-   /** Puts a NUL terminator at the provided address.
-
-   cbItem
-      Size of a single array item, in bytes.
-   p
-      Pointer to the item to be overwritten with a NUL.
-   */
-   static void terminate(size_t cbItem, void * p) {
-      switch (cbItem) {
-         case sizeof(int8_t):
-            *static_cast<int8_t *>(p) = 0;
-            break;
-         case sizeof(int16_t):
-            *static_cast<int16_t *>(p) = 0;
-            break;
-         case sizeof(int32_t):
-            *static_cast<int32_t *>(p) = 0;
-            break;
-      }
-   }
-
-
 protected:
 
    /** Pointer to the item array. */

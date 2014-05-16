@@ -75,8 +75,9 @@ str_base::c_str_pointer str_base::c_str() const {
          memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(),
          c_str_pointer::deleter_type(true)
       );
-      memory::copy(const_cast<char_t *>(psz.get()), cbegin().base(), cch);
-      terminate(sizeof(char_t), const_cast<char_t *>(psz.get()) + cch);
+      char_t * pch(const_cast<char_t *>(psz.get()));
+      memory::copy(pch, cbegin().base(), cch);
+      memory::clear(pch + cch);
       return std::move(psz);
    }
    // The string is empty, so a static NUL character will suffice.
@@ -147,7 +148,7 @@ namespace std {
 // Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
 // <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 //
-// The primes are calculated by src/fnv_hash_basis.py.
+// The bases are calculated by src/fnv_hash_basis.py.
 size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
    ABC_TRACE_FN((this, s));
 
