@@ -67,8 +67,7 @@ str_base::c_str_pointer str_base::c_str() const {
    if (m_rvpd.get_bNulT()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
-   }
-   if (size_t cch = size()) {
+   } else if (size_t cch = size()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
       c_str_pointer psz(
@@ -79,11 +78,10 @@ str_base::c_str_pointer str_base::c_str() const {
       memory::copy(pch, cbegin().base(), cch);
       memory::clear(pch + cch);
       return std::move(psz);
+   } else {
+      // The string is empty, so a static NUL character will suffice.
+      return c_str_pointer(&smc_chNUL, c_str_pointer::deleter_type(false));
    }
-   // The string is empty, so a static NUL character will suffice.
-   return c_str_pointer(
-      reinterpret_cast<char_t const *>(&smc_chNUL), c_str_pointer::deleter_type(false)
-   );
 }
 
 
