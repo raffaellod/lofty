@@ -574,7 +574,12 @@ public:
 
    /** Concatenation-assignment operator.
 
-   TODO: comment signature.
+   ch
+      Character to append.
+   s
+      String to append.
+   return
+      *this.
    */
    mstr & operator+=(char32_t ch) {
       char_t ach[traits::max_codepoint_length];
@@ -599,7 +604,10 @@ public:
 
    /** Same as operator+=(), but for multi-argument overloads.
 
-   TODO: comment signature.
+   pchAdd
+      Pointer to an characters to append.
+   cchAdd
+      Count of characters in *pchAdd.
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
       _raw_trivial_vextr_impl::append(sizeof(char_t), pchAdd, cchAdd);
@@ -652,7 +660,11 @@ public:
 
    /** See _raw_trivial_vextr_impl::set_capacity().
 
-   TODO: comment signature.
+   cchMin
+      Minimum count of characters requested.
+   bPreserve
+      If true, the previous contents of the string will be preserved even if the reallocation
+      causes the string to switch to a different character array.
    */
    void set_capacity(size_t cchMin, bool bPreserve) {
       _raw_trivial_vextr_impl::set_capacity(sizeof(char_t), cchMin, bPreserve);
