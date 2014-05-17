@@ -196,6 +196,7 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
       if (cch < cbCont) {
          return false;
       }
+      cch -= cbCont;
       // Detect an overlong due to unused bits in the leading byte.
       if (!get_leading_cp_bits(ch, cbCont)) {
          return false;
