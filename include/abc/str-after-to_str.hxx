@@ -277,7 +277,7 @@ public:
    */
    void write(str_base const & s, io::ostream * posOut) {
       _str_to_str_backend::write(
-         s.cbegin().base(), size_t(s.cend().base() - s.cbegin().base()),
+         s.cbegin().base(), sizeof(char_t) * (s.cend().base() - s.cbegin().base()),
          text::encoding::host, posOut
       );
    }
