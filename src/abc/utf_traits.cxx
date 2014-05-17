@@ -120,6 +120,19 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
    0,       2,       3,       4,       5,       6
 };
 
+uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
+   // Leading byte = 110zzzzz, first continuation byte must have at least one K=1 in ccKyyyyy.
+   0x20,
+   // Leading byte = 1110zzzz, first continuation byte must have at least one K=1 in ccKKyyyy.
+   0x30,
+   // Leading byte = 11110zzz, first continuation byte must have at least one K=1 in ccKKKyyy.
+   0x38,
+   // Leading byte = 111110zz, first continuation byte must have at least one K=1 in ccKKKKyy.
+   0x3c,
+   // Leading byte = 1111110z, first continuation byte must have at least one K=1 in ccKKKKKy.
+   0x3e
+};
+
 
 
 /*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
@@ -162,53 +175,79 @@ uint8_t const utf8_traits::smc_acbitShiftMask[] = {
 /*static*/ bool utf8_traits::is_valid(char8_t const * psz) {
    ABC_TRACE_FN((psz));
 
+   unsigned cbCont(0);
+   bool bCheckFirstContByteForOverlongs;
    while (char8_t ch = *psz++) {
-      // This should be a leading byte, and not the invalid 1111111x.
-      if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
-         return false;
-      }
-      unsigned cbCont(leading_to_cont_length(ch));
-      // Detect an overlong due to unused bits in the leading byte.
-      if (!get_leading_cp_bits(ch, cbCont)) {
-         return false;
-      }
-      // Ensure that the leading byte is really followed by cbCont trailing bytes.
-      while (cbCont--) {
-         // This condition includes == NUL: the unexpected end of the string is a failure.
-         if ((*psz++ & 0xc0) != 0x80) {
+      if (cbCont) {
+         // Ensure that the leading byte is really followed by cbCont trailing bytes.
+         if ((ch & 0xc0) != 0x80) {
             return false;
          }
+         --cbCont;
+         if (bCheckFirstContByteForOverlongs) {
+            // Detect an overlong due to unused bits in the leading and first continuation bytes.
+            // See smc_aiOverlongDetectionMasks for more information on how this check works.
+            if (!(ch & smc_aiOverlongDetectionMasks[cbCont])) {
+               return false;
+            }
+            bCheckFirstContByteForOverlongs = false;
+         }
+      } else {
+         // This should be a leading byte, and not the invalid 1111111x.
+         if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
+            return false;
+         }
+         // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
+         // been encoded as 01yyyyyy.
+         if (ch == char8_t(0xc1)) {
+            return false;
+         }
+         cbCont = leading_to_cont_length(ch);
+         // If no code point bits are used (1) in the leading byte, enable overlong detection for
+         // the first continuation byte.
+         bCheckFirstContByteForOverlongs = get_leading_cp_bits(ch, cbCont) == 0;
       }
    }
-   return true;
+   return cbCont == 0;
 }
-/*static*/ bool utf8_traits::is_valid(char8_t const * pch, size_t cch) {
-   ABC_TRACE_FN((pch, cch));
+/*static*/ bool utf8_traits::is_valid(char8_t const * pchBegin, char8_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
 
-   while (cch--) {
-      char8_t ch(*pch++);
-      // This should be a leading byte, and not the invalid 1111111x.
-      if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
-         return false;
-      }
-      unsigned cbCont(leading_to_cont_length(ch));
-      // Ensure that the string has at least cbCont more bytes.
-      if (cch < cbCont) {
-         return false;
-      }
-      cch -= cbCont;
-      // Detect an overlong due to unused bits in the leading byte.
-      if (!get_leading_cp_bits(ch, cbCont)) {
-         return false;
-      }
-      // Ensure that the leading byte is really followed by cbCont trailing bytes.
-      while (cbCont--) {
-         if ((*pch++ & 0xc0) != 0x80) {
+   unsigned cbCont(0);
+   bool bCheckFirstContByteForOverlongs;
+   for (char8_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      char8_t ch(*pch);
+      if (cbCont) {
+         // Ensure that the leading byte is really followed by cbCont trailing bytes.
+         if ((ch & 0xc0) != 0x80) {
             return false;
          }
+         --cbCont;
+         if (bCheckFirstContByteForOverlongs) {
+            // Detect an overlong due to unused bits in the leading and first continuation bytes.
+            // See smc_aiOverlongDetectionMasks for more information on how this check works.
+            if (!(ch & smc_aiOverlongDetectionMasks[cbCont])) {
+               return false;
+            }
+            bCheckFirstContByteForOverlongs = false;
+         }
+      } else {
+         // This should be a leading byte, and not the invalid 1111111x.
+         if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
+            return false;
+         }
+         // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
+         // been encoded as 01yyyyyy.
+         if (ch == char8_t(0xc1)) {
+            return false;
+         }
+         cbCont = leading_to_cont_length(ch);
+         // If no code point bits are used (1) in the leading byte, enable overlong detection for
+         // the first continuation byte.
+         bCheckFirstContByteForOverlongs = get_leading_cp_bits(ch, cbCont) == 0;
       }
    }
-   return true;
+   return cbCont == 0;
 }
 
 
@@ -484,63 +523,51 @@ char16_t const utf16_traits::bom[] = {
 /*static*/ bool utf16_traits::is_valid(char16_t const * psz) {
    ABC_TRACE_FN((psz));
 
+   bool bExpectTailSurrogate(false);
    while (char16_t ch = *psz++) {
-      switch (ch & 0xfc00) {
-         case 0xd800: {
-            char32_t ch32(char32_t(ch & 0x03ff) << 10);
-            // Surrogate first half; expect at least one more characer.
-            ch = *psz++;
-            if (!ch) {
-               return false;
-            }
-            // The next character must be a surrogate second half.
-            if ((ch & 0xfc00) != 0xdc00) {
-               return false;
-            }
-            // The resulting character must be valid UTF-32.
-            ch32 = (ch32 | (ch & 0x03ff)) + 0x10000;
-            if (utf32_traits::is_valid(ch32)) {
-               break;
-            }
-            // Fall through.
-         }
-         case 0xdc00:
-            // Invalid second half of a surrogate pair.
+      // Select lead and tail surrogates (11011xyy yyyyyyyy).
+      bool bSurrogate((ch & 0xf800) == 0xd800);
+      if (bSurrogate) {
+         // Extract the x (see above) using 00000100 00000000 as mask.
+         bool bTailSurrogate((ch & 0x0400) != 0);
+         // If this is a head surrogate and we were expecting a tail, or this is a tail surrogate
+         // but we’re not in a surrogate, this character is invalid.
+         if (bTailSurrogate != bExpectTailSurrogate) {
             return false;
+         }
+         bExpectTailSurrogate = !bTailSurrogate;
+      } else if (bExpectTailSurrogate) {
+         // We were expecting a tail surrogate, but this is not a surrogate at all.
+         return false;
       }
    }
-   return true;
+   // Cannot end in the middle of a surrogate.
+   return !bExpectTailSurrogate;
 }
-/*static*/ bool utf16_traits::is_valid(char16_t const * pch, size_t cch) {
-   ABC_TRACE_FN((pch, cch));
+/*static*/ bool utf16_traits::is_valid(char16_t const * pchBegin, char16_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
 
-   while (cch--) {
-      char16_t ch(*pch++);
-      switch (ch & 0xfc00) {
-         case 0xd800: {
-            // Surrogate first half; expect at least one more characer.
-            if (!cch--) {
-               return false;
-            }
-            char32_t ch32(char32_t(ch & 0x03ff) << 10);
-            ch = *pch++;
-            // The next character must be a surrogate second half.
-            if ((ch & 0xfc00) != 0xdc00) {
-               return false;
-            }
-            // The resulting character must be valid UTF-32.
-            ch32 = (ch32 | (ch & 0x03ff)) + 0x10000;
-            if (utf32_traits::is_valid(ch32)) {
-               break;
-            }
-            // Fall through.
-         }
-         case 0xdc00:
-            // Invalid second half of a surrogate pair.
+   bool bExpectTailSurrogate(false);
+   for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      char16_t ch(*pch);
+      // Select lead and tail surrogates (11011xyy yyyyyyyy).
+      bool bSurrogate((ch & 0xf800) == 0xd800);
+      if (bSurrogate) {
+         // Extract the x (see above) using 00000100 00000000 as mask.
+         bool bTailSurrogate((ch & 0x0400) != 0);
+         // If this is a head surrogate and we were expecting a tail, or this is a tail surrogate
+         // but we’re not in a surrogate, this character is invalid.
+         if (bTailSurrogate != bExpectTailSurrogate) {
             return false;
+         }
+         bExpectTailSurrogate = !bTailSurrogate;
+      } else if (bExpectTailSurrogate) {
+         // We were expecting a tail surrogate, but this is not a surrogate at all.
+         return false;
       }
    }
-   return true;
+   // Cannot end in the middle of a surrogate.
+   return !bExpectTailSurrogate;
 }
 
 
@@ -778,11 +805,11 @@ char32_t const utf32_traits::bom[] = {
    }
    return true;
 }
-/*static*/ bool utf32_traits::is_valid(char32_t const * pch, size_t cch) {
-   ABC_TRACE_FN((pch, cch));
+/*static*/ bool utf32_traits::is_valid(char32_t const * pchBegin, char32_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
 
-   while (cch--) {
-      if (!is_valid(*pch++)) {
+   for (char32_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      if (!is_valid(*pch)) {
          return false;
       }
    }

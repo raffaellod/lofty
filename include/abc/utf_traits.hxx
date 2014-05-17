@@ -104,16 +104,16 @@ public:
    UTF validity: checked.
 
    psz
-      Pointer to the NUL-terminated character array to be checked.
-   pch
-      Pointer to the character array to be checked.
-   cch
-      Size of the array pointed to by pch, in characters.
+      Pointer to the NUL-terminated character array to validate.
+   pchBegin
+      Pointer to the first character of the string to validate.
+   pchEnd
+      Pointer to beyond the last character of the string to validate.
    return
       true if the string is valid UTF, or false otherwise.
    */
    static bool is_valid(char8_t const * psz);
-   static bool is_valid(char8_t const * pch, size_t cch);
+   static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
    /** Returns the bits in a leading byte that are part of the encoded code point. Notice that the
@@ -301,6 +301,14 @@ private:
    /** Shift counts for the mask 0x7f to be applied to each leading byte to get the bits actually
    part of the code point; indexed by the number of bytes in the sequence. */
    static uint8_t const smc_acbitShiftMask[];
+   /** Bitmasks to be applied to the first trailing byte to check if a code point is using an
+   overlong encoding. For example, even though 11100000 10100000 10000000 has all zeroes in the code
+   point part of the lead byte (mask 1110xxxx), it cannot be encoded with fewer bytes because the
+   second byte uses 6 bits and the 2-byte-long sequence lead byte only has 5 code point bits (mask
+   110xxxxx); in this case the mask 00100000, applied to the second byte (10100000) allows to find
+   out if a code point could have been encoded with fewer characters.
+   The first element (index 0) is for 1-byte continuations. */
+   static uint8_t const smc_aiOverlongDetectionMasks[];
 };
 
 // Specialization for UTF-16.
@@ -331,7 +339,7 @@ public:
    /** See utf8_traits::is_valid().
    */
    static bool is_valid(char16_t const * psz);
-   static bool is_valid(char16_t const * pch, size_t cch);
+   static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
    /** See utf8_traits::str_chr().
@@ -420,7 +428,7 @@ public:
       return ch < 0x00dc80 || (ch > 0x00dcff && ch <= 0x10ffff);
    }
    static bool is_valid(char32_t const * psz);
-   static bool is_valid(char32_t const * pch, size_t cch);
+   static bool is_valid(char32_t const * pchBegin, char32_t const * pchEnd);
 
 
    /** See utf8_traits::str_chr().

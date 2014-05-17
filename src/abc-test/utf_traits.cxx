@@ -24,17 +24,17 @@ You should have received a copy of the GNU General Public License along with ABC
 // Helpers
 
 
-/** Generates an UTF-8 character literal followed by a comma.
+/** Generates a UTF-8 character literal followed by a comma.
 */
 #define _ABC_CHAR8_COMMA(ch) char8_t(ch),
 
 
-/** Generates an UTF-16 character literal followed by a comma.
+/** Generates a UTF-16 character literal followed by a comma.
 */
 #define _ABC_CHAR16_COMMA(ch) char16_t(ch),
 
 
-/** Generates an UTF-32 character literal followed by a comma.
+/** Generates a UTF-32 character literal followed by a comma.
 */
 #define _ABC_CHAR32_COMMA(ch) char32_t(ch),
 
@@ -97,15 +97,15 @@ public:
 
       // Valid single character.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_nult(
-         0x01, 0x00
+         0x24, 0x00
       );
       // Increasing run lengths.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_nult(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
+         0x24, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x00
       );
       // Decreasing run lengths.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_nult(
-         0xf1, 0x81, 0x81, 0x81, 0xe1, 0x81, 0x81, 0xc1, 0x81, 0x01, 0x00
+         0xf0, 0xa4, 0xad, 0xa2, 0xe2, 0x82, 0xac, 0xc2, 0xa2, 0x24, 0x00
       );
 
       // Invalid single character.
@@ -114,15 +114,11 @@ public:
       );
       // Invalid single character in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
-      );
-      // Invalid single character in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
+         0x81, 0x24, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x00
       );
       // Invalid single character at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x81, 0x00
+         0x24, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x81, 0x00
       );
 
       // Invalid single overlong.
@@ -131,15 +127,11 @@ public:
       );
       // Invalid single overlong in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0xc0, 0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
-      );
-      // Invalid single overlong in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xc0, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
+         0xc0, 0x81, 0x24, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x00
       );
       // Invalid single overlong at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0xc0, 0x81, 0x00
+         0x24, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0xc0, 0x81, 0x00
       );
 
       // Technically possible, but not valid UTF-8.
@@ -156,11 +148,11 @@ public:
       // byte of some UTF-8 sequence.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0xfe, 0x00,
-         0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00
+         0x24, 0x24, 0x24, 0x24, 0x24, 0x24, 0x00
       );
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0xff, 0x00,
-         0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00
+         0x24, 0x24, 0x24, 0x24, 0x24, 0x24, 0x00
       );
    }
 };
@@ -193,7 +185,7 @@ namespace test {
       }; \
       this->ABC_CPP_CAT(assert_, b)( \
          ABC_SOURCE_LOCATION(), \
-         text::utf8_traits::is_valid(ach, ABC_COUNTOF(ach) - 6), \
+         text::utf8_traits::is_valid(ach, ach + ABC_COUNTOF(ach) - 6), \
          SL("text::utf8_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
       ); \
    } while (false)
@@ -227,11 +219,11 @@ public:
       );
       // Increasing run lengths.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_cch(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81
+         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
       );
       // Decreasing run lengths.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_cch(
-         0xf1, 0x81, 0x81, 0x81, 0xe1, 0x81, 0x81, 0xc1, 0x81, 0x01
+         0xf0, 0xa4, 0xad, 0xa2, 0xe2, 0x82, 0xac, 0xc2, 0xa2, 0x01
       );
 
       // Invalid single character.
@@ -240,15 +232,11 @@ public:
       );
       // Invalid single character in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81
-      );
-      // Invalid single character in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81
+         0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
       );
       // Invalid single character at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x81
+         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x81
       );
 
       // Invalid single overlong.
@@ -257,15 +245,11 @@ public:
       );
       // Invalid single overlong in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0xc0, 0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81
-      );
-      // Invalid single overlong in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xc0, 0x81, 0xf1, 0x81, 0x81, 0x81
+         0xc0, 0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
       );
       // Invalid single overlong at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
-         0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0xc0, 0x81
+         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0xc0, 0x81
       );
 
       // Technically possible, but not valid UTF-8.
@@ -356,8 +340,6 @@ public:
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0xd834, 0x0000);
       // Invalid lead surrogate in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0xd834, 0x0079, 0x007a, 0x0000);
-      // Invalid lead surrogate in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0x0079, 0xd834, 0x007a, 0x0000);
       // Invalid lead surrogate at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0x0079, 0x007a, 0xd834, 0x0000);
    }
@@ -388,7 +370,7 @@ namespace test {
       }; \
       this->ABC_CPP_CAT(assert_, b)( \
          ABC_SOURCE_LOCATION(), \
-         text::utf16_traits::is_valid(ach, ABC_COUNTOF(ach) - 2), \
+         text::utf16_traits::is_valid(ach, ach + ABC_COUNTOF(ach) - 2), \
          SL("text::utf16_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
       ); \
    } while (false)
@@ -427,8 +409,6 @@ public:
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0xd834);
       // Invalid lead surrogate in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0xd834, 0x0079, 0x007a);
-      // Invalid lead surrogate in the middle of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0x0079, 0xd834, 0x007a);
       // Invalid lead surrogate at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0x0079, 0x007a, 0xd834);
    }
