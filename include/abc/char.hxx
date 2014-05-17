@@ -49,6 +49,19 @@ You should have received a copy of the GNU General Public License along with ABC
 */
 #define ABC_CXX_CHAR32 0
 
+// Only support Unicode Windows programs.
+// TODO: support non-Unicode Windows programs (Win9x and Win16). In a very, very distant future!
+#ifndef UNICODE
+   #define UNICODE
+#endif
+
+// Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
+#if defined(UNICODE) && !defined(_UNICODE)
+   #define _UNICODE
+#elif !defined(UNICODE) && defined(_UNICODE)
+   #undef _UNICODE
+#endif
+
 #if ABC_HOST_GCC >= 40400
    // char16_t is a native type, different than uint16_t.
    #undef ABC_CXX_CHAR16

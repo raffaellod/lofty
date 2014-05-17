@@ -76,21 +76,7 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma warning(disable: 4711)
    // “'struct' : 'n' bytes padding added after data member 'member'”
    #pragma warning(disable: 4820)
-
-   // Silence warnings from system header files.
-   #pragma warning(push)
-
-   // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
-   #pragma warning(disable: 4668)
 #endif //if ABC_HOST_MSC
-
-#include <limits.h> // CHAR_BIT *_MAX *_MIN
-#include <stdint.h> // *int*_t __WORDSIZE (if supported)
-#include <stddef.h> // size_t
-
-#if ABC_HOST_MSC
-   #pragma warning(pop)
-#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +108,34 @@ You should have received a copy of the GNU General Public License along with ABC
    #define ABC_HOST_API_POSIX 1
 #endif
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// #include core and system header files that require a special order
+
+
+#include <abc/cppmacros.hxx>
+
+#if ABC_HOST_MSC
+   // Prevent MSC16’s yvals.h from typedef’ing char16_t as unsigned short.
+   #define char16_t _ABC_MSC16_char16_t
+   #include <yvals.h>
+   #undef char16_t
+
+   // Silence warnings from system header files.
+   #pragma warning(push)
+   // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+   #pragma warning(disable: 4668)
+#endif //if ABC_HOST_MSC
+#include <stdint.h> // *int*_t __WORDSIZE (if supported)
+#if ABC_HOST_MSC
+   #pragma warning(pop)
+#endif
+
+#include <abc/char.hxx>
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals - ABC_HOST_WORD_SIZE
 
 /** Machine word size for this microarchitecture. */
 #if ABC_HOST_API_WIN64
@@ -162,19 +176,6 @@ You should have received a copy of the GNU General Public License along with ABC
    // The first NT-only version of Windows is 5.0 (Windows 2000; Windows Me is 4.9).
    #if !defined(_WIN32_WINNT) && WINVER >= 0x0500
       #define _WIN32_WINNT WINVER
-   #endif
-
-   // Only support Unicode Windows programs.
-   // TODO: support non-Unicode Windows programs (Win9x and Win16). In a very, very distant future!
-   #ifndef UNICODE
-      #define UNICODE
-   #endif
-
-   // Make sure UNICODE and _UNICODE are coherent; UNICODE wins.
-   #if defined(UNICODE) && !defined(_UNICODE)
-      #define _UNICODE
-   #elif !defined(UNICODE) && defined(_UNICODE)
-      #undef _UNICODE
    #endif
 
    #if ABC_HOST_MSC
@@ -615,7 +616,17 @@ unsafe_t const unsafe;
 // #include other core header files that require a special order
 
 
-#include <abc/cppmacros.hxx>
+#if ABC_HOST_MSC
+   // Silence warnings from system header files.
+   #pragma warning(push)
+   // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+   #pragma warning(disable: 4668)
+#endif //if ABC_HOST_MSC
+#include <limits.h> // CHAR_BIT *_MAX *_MIN
+#include <stddef.h> // size_t
+#if ABC_HOST_MSC
+   #pragma warning(pop)
+#endif
 
 #if ABC_HOST_MSC
    // Silence warnings from system header files.
@@ -637,8 +648,6 @@ unsafe_t const unsafe;
    } //namespace std
 #endif
 #include <abc/memory.hxx>
-
-#include <abc/char.hxx>
 
 namespace abc {
 
