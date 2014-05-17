@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
 
-namespace abc {
 
 /** Indicates the level of UTF-8 string literals support:
 •  2 - The UTF-8 string literal prefix (u8) is supported;
@@ -120,7 +119,7 @@ ch
 return
    8-bit character literal.
 */
-#define U8CL(ch) ::abc::char8_t(ch)
+#define U8CL(ch) ch
 
 
 /** Defines a UCS-16 character literal.
@@ -213,6 +212,8 @@ return
    #define ABC_HOST_UTF 8
 #endif
 
+namespace abc {
+
 /** Default UTF character type for the host. */
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
@@ -221,6 +222,8 @@ return
 #elif ABC_HOST_UTF == 32
    typedef char32_t char_t;
 #endif
+
+} //namespace abc
 
 
 /** Defines a character literal of the default host character literal type.
@@ -253,8 +256,6 @@ return
 #elif ABC_HOST_UTF == 32
    #define SL(s) U32SL(s)
 #endif
-
-} //namespace abc
 
 
 
