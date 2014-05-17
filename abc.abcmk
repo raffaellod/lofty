@@ -55,6 +55,7 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/str.cxx"/>
          <source path="src/abc-test/str_ostream.cxx"/>
          <source path="src/abc-test/to_str.cxx"/>
+         <source path="src/abc-test/utf_traits.cxx"/>
          <source path="src/abc-test/vector.cxx"/>
          <dynlib name="abc-testing"/>
       </unittest>
