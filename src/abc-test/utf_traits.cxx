@@ -26,8 +26,26 @@ You should have received a copy of the GNU General Public License along with ABC
 
 /** Generates an UTF-8 character literal followed by a comma.
 */
-#define _ABC_U8CL_COMMA(ch) U8CL(ch),
+#define _ABC_CHAR8_COMMA(ch) char8_t(ch),
 
+
+/** Generates an UTF-16 character literal followed by a comma.
+*/
+#define _ABC_CHAR16_COMMA(ch) char16_t(ch),
+
+
+/** Generates an UTF-32 character literal followed by a comma.
+*/
+#define _ABC_CHAR32_COMMA(ch) char32_t(ch),
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::utf8_traits_validity_nult
+
+namespace abc {
+
+namespace test {
 
 #define ABC_TESTING_ASSERT_text_utf8_traits_is_valid_nult(b, ...) \
    do { \
@@ -35,11 +53,12 @@ You should have received a copy of the GNU General Public License along with ABC
       make is_valid() fail if they’re accessed, which would mean that is_valid() erroneously skipped
       past the first NUL terminator.
       Why six? Because that’s the longest, albeit invalid, encoding possible in UTF-8, so even the
-      longest (wrong) jump will still land in one of these characters. */ \
+      longest (wrong) jump will still land on one of these characters. */ \
       \
       static char8_t const psz[] = { \
-         ABC_CPP_LIST_WALK(_ABC_U8CL_COMMA, __VA_ARGS__) \
-         U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0x00) \
+         ABC_CPP_LIST_WALK(_ABC_CHAR8_COMMA, __VA_ARGS__) \
+         char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff), \
+         char8_t(0x00) \
       }; \
       this->ABC_CPP_CAT(assert_, b)( \
          ABC_SOURCE_LOCATION(), \
@@ -54,40 +73,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #define ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(...) \
    ABC_TESTING_ASSERT_text_utf8_traits_is_valid_nult(false, __VA_ARGS__)
 
-
-#define ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(b, ...) \
-   do { \
-      /* Append to the strings 6 nasty 0xff character, which will make is_valid() fail if they’re
-      accessed. We don’t include them in the count of characters to validate, but an off-by-one (or
-      more) error will incorrectly access them, causing is_valid() to fail.
-      Why six? Because that’s the longest, albeit invalid, encoding possible in UTF-8, so even the
-      longest (wrong) jump will still land in one of these characters. */ \
-      \
-      static char8_t const ach[] = { \
-         ABC_CPP_LIST_WALK(_ABC_U8CL_COMMA, __VA_ARGS__) \
-         U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff), U8CL(0xff) \
-      }; \
-      this->ABC_CPP_CAT(assert_, b)( \
-         ABC_SOURCE_LOCATION(), \
-         text::utf8_traits::is_valid(ach, ABC_COUNTOF(ach) - 6), \
-         SL("text::utf8_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
-      ); \
-   } while (false)
-
-#define ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_cch(...) \
-   ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(true, __VA_ARGS__)
-
-#define ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(...) \
-   ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(false, __VA_ARGS__)
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::utf8_traits_validity_nult
-
-namespace abc {
-
-namespace test {
 
 class utf8_traits_validity_nult :
    public testing::test_case {
@@ -144,15 +129,15 @@ public:
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0xc0, 0x81, 0x00
       );
-      // Invalid single character in the beginning of a valid string.
+      // Invalid single overlong in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0xc0, 0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
       );
-      // Invalid single character in the middle of a valid string.
+      // Invalid single overlong in the middle of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xc0, 0x81, 0xf1, 0x81, 0x81, 0x81, 0x00
       );
-      // Invalid single character at the end of a valid string.
+      // Invalid single overlong at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_nult(
          0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0xc0, 0x81, 0x00
       );
@@ -193,6 +178,32 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_nult)
 namespace abc {
 
 namespace test {
+
+#define ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(b, ...) \
+   do { \
+      /* Append to the strings 6 nasty 0xff character, which will make is_valid() fail if they’re
+      accessed. We don’t include them in the count of characters to validate, but an off-by-one (or
+      more) error will incorrectly access them, causing is_valid() to fail.
+      Why six? Because that’s the longest, albeit invalid, encoding possible in UTF-8, so even the
+      longest (wrong) jump will still land on one of these characters. */ \
+      \
+      static char8_t const ach[] = { \
+         ABC_CPP_LIST_WALK(_ABC_CHAR8_COMMA, __VA_ARGS__) \
+         char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff), char8_t(0xff) \
+      }; \
+      this->ABC_CPP_CAT(assert_, b)( \
+         ABC_SOURCE_LOCATION(), \
+         text::utf8_traits::is_valid(ach, ABC_COUNTOF(ach) - 6), \
+         SL("text::utf8_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
+      ); \
+   } while (false)
+
+#define ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_cch(...) \
+   ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(true, __VA_ARGS__)
+
+#define ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(...) \
+   ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(false, __VA_ARGS__)
+
 
 class utf8_traits_validity_cch :
    public testing::test_case {
@@ -244,15 +255,15 @@ public:
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
          0xc0, 0x81
       );
-      // Invalid single character in the beginning of a valid string.
+      // Invalid single overlong in the beginning of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
          0xc0, 0x81, 0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81
       );
-      // Invalid single character in the middle of a valid string.
+      // Invalid single overlong in the middle of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
          0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xc0, 0x81, 0xf1, 0x81, 0x81, 0x81
       );
-      // Invalid single character at the end of a valid string.
+      // Invalid single overlong at the end of a valid string.
       ABC_TESTING_ASSERT_FALSE_text_utf8_traits_is_valid_cch(
          0x01, 0xc1, 0x81, 0xe1, 0x81, 0x81, 0xf1, 0x81, 0x81, 0x81, 0xc0, 0x81
       );
@@ -285,6 +296,149 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_cch)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::utf16_traits_validity_nult
+
+namespace abc {
+
+namespace test {
+
+#define ABC_TESTING_ASSERT_text_utf16_traits_is_valid_nult(b, ...) \
+   do { \
+      /* Append to the string a second NUL terminator preceded by 2 invalid lead surrogates, which
+      will make is_valid() fail if they’re accessed, which would mean that is_valid() erroneously
+      skipped past the first NUL terminator. */ \
+      \
+      static char16_t const psz[] = { \
+         ABC_CPP_LIST_WALK(_ABC_CHAR16_COMMA, __VA_ARGS__) \
+         char16_t(0xd834), char16_t(0xd834), char16_t(0x00) \
+      }; \
+      this->ABC_CPP_CAT(assert_, b)( \
+         ABC_SOURCE_LOCATION(), \
+         text::utf16_traits::is_valid(psz), \
+         SL("text::utf16_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
+      ); \
+   } while (false)
+
+#define ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_nult(...) \
+   ABC_TESTING_ASSERT_text_utf16_traits_is_valid_nult(true, __VA_ARGS__)
+
+#define ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(...) \
+   ABC_TESTING_ASSERT_text_utf16_traits_is_valid_nult(false, __VA_ARGS__)
+
+
+class utf16_traits_validity_nult :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::text::utf16_traits - validity of NUL-terminated strings"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      // Valid single character.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_nult(0x007a, 0x0000);
+      // Valid single character and surrogate pair.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_nult(0x007a, 0xd834, 0xdd1e, 0x0000);
+      // Valid surrogate pair and single character.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_nult(0xd834, 0xdd1e, 0x007a, 0x0000);
+
+      // Invalid lead surrogate.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0xd834, 0x0000);
+      // Invalid lead surrogate in the beginning of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0xd834, 0x0079, 0x007a, 0x0000);
+      // Invalid lead surrogate in the middle of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0x0079, 0xd834, 0x007a, 0x0000);
+      // Invalid lead surrogate at the end of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_nult(0x0079, 0x007a, 0xd834, 0x0000);
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf16_traits_validity_nult)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::utf16_traits_validity_cch
+
+namespace abc {
+
+namespace test {
+
+#define ABC_TESTING_ASSERT_text_utf16_traits_is_valid_cch(b, ...) \
+   do { \
+      /* Append to the string a second NUL terminator preceded by 2 invalid lead surrogates, which
+      will make is_valid() fail if they’re accessed, which would mean that is_valid() erroneously
+      skipped past the first NUL terminator. */ \
+      \
+      static char16_t const ach[] = { \
+         ABC_CPP_LIST_WALK(_ABC_CHAR16_COMMA, __VA_ARGS__) char16_t(0xd834), char16_t(0xd834) \
+      }; \
+      this->ABC_CPP_CAT(assert_, b)( \
+         ABC_SOURCE_LOCATION(), \
+         text::utf16_traits::is_valid(ach, ABC_COUNTOF(ach) - 2), \
+         SL("text::utf16_traits::is_valid(") SL(# __VA_ARGS__) SL(")") \
+      ); \
+   } while (false)
+
+#define ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_cch(...) \
+   ABC_TESTING_ASSERT_text_utf16_traits_is_valid_cch(true, __VA_ARGS__)
+
+#define ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(...) \
+   ABC_TESTING_ASSERT_text_utf16_traits_is_valid_cch(false, __VA_ARGS__)
+
+
+class utf16_traits_validity_cch :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::text::utf16_traits - validity of counted strings"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      // Valid single character.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_cch(0x007a);
+      // Valid single character and surrogate pair.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_cch(0x007a, 0xd834, 0xdd1e);
+      // Valid surrogate pair and single character.
+      ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_cch(0xd834, 0xdd1e, 0x007a);
+
+      // Invalid lead surrogate.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0xd834);
+      // Invalid lead surrogate in the beginning of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0xd834, 0x0079, 0x007a);
+      // Invalid lead surrogate in the middle of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0x0079, 0xd834, 0x007a);
+      // Invalid lead surrogate at the end of a valid string.
+      ABC_TESTING_ASSERT_FALSE_text_utf16_traits_is_valid_cch(0x0079, 0x007a, 0xd834);
+   }
+};
+
+} //namespace test
+
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf16_traits_validity_cch)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
