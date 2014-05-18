@@ -525,19 +525,19 @@ char16_t const utf16_traits::bom[] = {
 
    bool bExpectTailSurrogate(false);
    while (char16_t ch = *psz++) {
-      // Select lead and tail surrogates (11011xyy yyyyyyyy).
+      // Select lead and trail surrogates (11011xyy yyyyyyyy).
       bool bSurrogate((ch & 0xf800) == 0xd800);
       if (bSurrogate) {
          // Extract the x (see above) using 00000100 00000000 as mask.
          bool bTailSurrogate((ch & 0x0400) != 0);
-         // If this is a head surrogate and we were expecting a tail, or this is a tail surrogate
+         // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
          if (bTailSurrogate != bExpectTailSurrogate) {
             return false;
          }
          bExpectTailSurrogate = !bTailSurrogate;
       } else if (bExpectTailSurrogate) {
-         // We were expecting a tail surrogate, but this is not a surrogate at all.
+         // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
       }
    }
@@ -550,19 +550,19 @@ char16_t const utf16_traits::bom[] = {
    bool bExpectTailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       char16_t ch(*pch);
-      // Select lead and tail surrogates (11011xyy yyyyyyyy).
+      // Select lead and trail surrogates (11011xyy yyyyyyyy).
       bool bSurrogate((ch & 0xf800) == 0xd800);
       if (bSurrogate) {
          // Extract the x (see above) using 00000100 00000000 as mask.
          bool bTailSurrogate((ch & 0x0400) != 0);
-         // If this is a head surrogate and we were expecting a tail, or this is a tail surrogate
+         // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
          if (bTailSurrogate != bExpectTailSurrogate) {
             return false;
          }
          bExpectTailSurrogate = !bTailSurrogate;
       } else if (bExpectTailSurrogate) {
-         // We were expecting a tail surrogate, but this is not a surrogate at all.
+         // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
       }
    }
@@ -599,7 +599,7 @@ char16_t const utf16_traits::bom[] = {
 
    // In UTF-16, there’s always at most two characters per code point.
    char16_t chNeedle0(pchNeedle[0]);
-   // We only have a second character if the first is a surrogate first half.
+   // We only have a second character if the first is a lead surrogate.
    char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : U16CL('\0'));
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
@@ -665,8 +665,8 @@ char16_t const utf16_traits::bom[] = {
       // Surrogates prevent us from just comparing the absolute char16_t values.
       bool bSurr1((ch1 & 0xf800) == 0xd800), bSurr2((ch2 & 0xf800) == 0xd800);
       if (bSurr1 == bSurr2) {
-         // The characters are both regular or surrogates. Since a difference in surrogate firsts
-         // generates bias, we only get to compare seconds if the firsts were equal.
+         // The characters are both regular or surrogates. Since a difference in lead surrogate
+         // generates bias, we only get to compare trails if the leads were equal.
          if (ch1 > ch2) {
             return +1;
          } else if (ch1 < ch2) {
@@ -694,8 +694,8 @@ char16_t const utf16_traits::bom[] = {
       // Surrogates mess with the ability to just compare the absolute char16_t value.
       bool bSurr1((ch1 & 0xf800) == 0xd800), bSurr2((ch2 & 0xf800) == 0xd800);
       if (bSurr1 == bSurr2) {
-         // The characters are both regular or surrogates. Since a difference in surrogate firsts
-         // generates bias, we only get to compare seconds if the firsts were equal.
+         // The characters are both regular or surrogates. Since a difference in lead surrogate
+         // generates bias, we only get to compare trails if the leads were equal.
          if (ch1 > ch2) {
             return +1;
          } else if (ch1 < ch2) {

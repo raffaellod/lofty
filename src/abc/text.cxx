@@ -309,15 +309,15 @@ ABCAPI encoding guess_encoding(
       }
 
       if (fess & (ESS_UTF16LE | ESS_UTF16BE)) {
-         // Check for UTF-16 validity. The only check possible is proper ordering of surrogate
-         // pairs; everything else is allowed.
+         // Check for UTF-16 validity. The only check possible is proper ordering of surrogates;
+         // everything else is allowed.
          for (unsigned ess(ESS_UTF16LE); ess <= ESS_UTF16BE; ess <<= 2) {
             // This will go ahead with the check if ib is indexing the most significant byte, i.e.
             // odd for LE and even for BE.
             if ((fess & ess) && ((ib & sizeof(char16_t)) != 0) == (ess != ESS_UTF16LE)) {
                switch (b & 0xfc) {
                   case 0xd8: {
-                     // There must be a surrogate second after 1 byte, and there have to be enough
+                     // There must be a trail surrogate after 1 byte, and there have to be enough
                      // bytes in the source; skip the check if the buffer doesn’t include that byte.
                      size_t ibNext(ib + sizeof(char16_t));
                      if (
@@ -329,7 +329,7 @@ ABCAPI encoding guess_encoding(
                      break;
                   }
                   case 0xdc: {
-                     // Assume there was a surrogate first 2 bytes before.
+                     // Assume there was a lead surrogate 2 bytes before.
                      size_t ibPrev(ib - sizeof(char16_t));
                      // ibPrev < ib checks for underflow of ibPrev.
                      if (ibPrev < ib && (pbBuf[ibPrev] & 0xfc) != 0xd8) {
@@ -605,7 +605,7 @@ ABCAPI size_t transcode(
             }
             switch (ch16Src & 0xfc00) {
                case 0xd800:
-                  // Surrogate first half.
+                  // Lead surrogate.
                   ch32 = char32_t(ch16Src & 0x03ff) << 10;
                   if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                      goto break_for;
@@ -615,7 +615,7 @@ ABCAPI size_t transcode(
                   if (encSrc != encoding::utf16_host) {
                      ch16Src = byteorder::swap(ch16Src);
                   }
-                  // This character must be a surrogate second half.
+                  // This character must be a trail surrogate.
                   if ((ch16Src & 0xfc00) == 0xdc00) {
                      ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
                      if (utf32_traits::is_valid(ch32)) {
@@ -623,9 +623,9 @@ ABCAPI size_t transcode(
                      }
                      // Replace this invalid code point (fall through).
                   }
-                  // Replace this invalid single surrogate (fall through).
+                  // Replace this invalid half surrogate (fall through).
                case 0xdc00:
-                  // Replace this invalid second half of a surrogate pair.
+                  // Replace this invalid trail surrogate.
                   ch16Src = replacement_char;
                   break;
                default:
