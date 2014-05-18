@@ -71,12 +71,9 @@ size_t str_istream::read_raw(
 }
 
 
-/*virtual*/ void str_istream::unread_raw(
-   void const * p, size_t cb, text::encoding enc
-) {
+/*virtual*/ void str_istream::unread_raw(void const * p, size_t cb) {
    ABC_UNUSED_ARG(p);
    ABC_UNUSED_ARG(cb);
-   ABC_UNUSED_ARG(enc);
 }
 
 } //namespace io

@@ -174,13 +174,8 @@ public:
       Pointer to the buffer to unread (write back to the read buffer).
    cb
       Size of the buffer pointed to by p, in bytes.
-   enc
-      Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
-      conversion will be performed.
    */
-   virtual void unread_raw(
-      void const * p, size_t cb, text::encoding enc = text::encoding::identity
-   ) = 0;
+   virtual void unread_raw(void const * p, size_t cb) = 0;
 };
 
 } //namespace io

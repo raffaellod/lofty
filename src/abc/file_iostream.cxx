@@ -176,9 +176,7 @@ file_istream::file_istream(file_path const & fp) :
             // Move back to the read buffer any read bytes beyond the line terminator.
             size_t ichLineEnd(size_t(pchLineEnd - pchPrevReadEnd)), cchLineEnd(sLTerm.size());
             unread_raw(
-               pchLineEnd + cchLineEnd,
-               cbRead - sizeof(char_t) * (ichLineEnd + cchLineEnd),
-               text::encoding::host
+               pchLineEnd + cchLineEnd, cbRead - sizeof(char_t) * (ichLineEnd + cchLineEnd)
             );
             // We’re actually only filling up the characters up to the line end.
             cchFilled += ichLineEnd;
@@ -306,88 +304,35 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*virtual*/ void file_istream::unread_raw(void const * p, size_t cb, text::encoding enc) {
-   ABC_TRACE_FN((this, p, cb, enc));
+/*virtual*/ void file_istream::unread_raw(void const * p, size_t cb) {
+   ABC_TRACE_FN((this, p, cb));
 
-   if (enc == text::encoding::unknown) {
-      // Treat unknown as identity.
-      enc = text::encoding::identity;
-   }
    ABC_ASSERT(
       m_enc != text::encoding::unknown,
       SL("m_enc must have been set by a previous call to read_raw()")
    );
    int8_t * pbReadBuf(_get_read_buffer());
-   if (enc == m_enc || enc == text::encoding::identity) {
-      // Optimal case: no transcoding necessary.
-      if (!m_cbReadBufUsed) {
-         // No buffer space in use, so align this write to the middle of the buffer, or as close to
-         // it as possible.
-         m_ibReadBufUsed = size_t(std::max<ptrdiff_t>(
-            ptrdiff_t(m_cbReadBufLead) - ptrdiff_t(cb), 0
-         ));
-      } else if (cb > m_ibReadBufUsed) {
-         // Trying to unread more bytes than can fit in the gap before the currently used portion of
-         // the read buffer: move the used portion first.
-         size_t ibNew(m_cbReadBufLead + m_cbReadBufBulk - m_cbReadBufUsed);
-         memory::move(pbReadBuf + ibNew, pbReadBuf + m_ibReadBufUsed, m_cbReadBufUsed);
-         m_ibReadBufUsed = ibNew;
-      }
-      if (cb > m_ibReadBufUsed) {
-         // Can’t unread more bytes than the read buffer can take.
-         ABC_THROW(buffer_error, ());
-      }
-      // Copy to the read buffer, before the current start.
-      memory::copy(pbReadBuf + m_ibReadBufUsed - cb, static_cast<int8_t const *>(p), cb);
-      m_ibReadBufUsed -= cb;
-      m_cbReadBufUsed += cb;
-   } else {
-      // Transcoding necessary. This is really non-optimal, since we probably already transcoded
-      // these bytes once, and now have to transcode them back, and probably we’ll need to transcode
-      // them once more on the next call to read*().
-      // Since it’s impossible to know beforehand how many bytes will be necessary, use the read
-      // buffer as a temporary destination for transcoding; if there aren’t enough bytes before the
-      // used part, move it and retry, throwing in case of a second failure (the bytes to unread
-      // were simply too many). After all this, if necessary, move the transcoded bytes to precede
-      // and join the used part of the buffer.
-      void * pBufOffset(pbReadBuf);
-      size_t cbXcodeMax;
-      if (m_cbReadBufUsed) {
-         cbXcodeMax = m_ibReadBufUsed;
-      } else {
-         cbXcodeMax = m_cbReadBufLead + m_cbReadBufBulk;
-      }
-      size_t cbXcodeAvail(cbXcodeMax);
-      text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBufOffset, &cbXcodeAvail);
-      if (cb) {
-         // Still some bytes to transcode: see if there’s an used part of the buffer that can be
-         // moved to make more room.
-         if (m_cbReadBufUsed) {
-            size_t ibNew(m_cbReadBufLead + m_cbReadBufBulk - m_cbReadBufUsed);
-            memory::move(pbReadBuf + ibNew, pbReadBuf + m_ibReadBufUsed, m_cbReadBufUsed);
-            // Add the gained bytes to these available for transcoding.
-            cbXcodeAvail += ibNew - cbXcodeMax;
-            cbXcodeMax = ibNew;
-            m_ibReadBufUsed = ibNew;
-            // Try again.
-            text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBufOffset, &cbXcodeAvail);
-         }
-         if (cb) {
-            // The read buffer has no more room available.
-            ABC_THROW(buffer_error, ());
-         }
-      }
-      // All bytes in the source buffer were transcoded; now make sure that they immediately precede
-      // the used part of the read buffer, and update the read buffer usage data.
-      size_t cbXcoded(cbXcodeMax - cbXcodeAvail);
-      if (m_cbReadBufUsed && cbXcoded != m_ibReadBufUsed) {
-         memory::move(pbReadBuf + m_ibReadBufUsed - cbXcoded, pbReadBuf, cbXcoded);
-         m_ibReadBufUsed -= cbXcoded;
-      } else {
-         m_ibReadBufUsed = 0;
-      }
-      m_cbReadBufUsed += cbXcoded;
+   if (!m_cbReadBufUsed) {
+      // No buffer space in use, so align this write to the middle of the buffer, or as close to
+      // it as possible.
+      m_ibReadBufUsed = size_t(std::max<ptrdiff_t>(
+         ptrdiff_t(m_cbReadBufLead) - ptrdiff_t(cb), 0
+      ));
+   } else if (cb > m_ibReadBufUsed) {
+      // Trying to unread more bytes than can fit in the gap before the currently used portion of
+      // the read buffer: move the used portion first.
+      size_t ibNew(m_cbReadBufLead + m_cbReadBufBulk - m_cbReadBufUsed);
+      memory::move(pbReadBuf + ibNew, pbReadBuf + m_ibReadBufUsed, m_cbReadBufUsed);
+      m_ibReadBufUsed = ibNew;
    }
+   if (cb > m_ibReadBufUsed) {
+      // Can’t unread more bytes than the read buffer can take.
+      ABC_THROW(buffer_error, ());
+   }
+   // Copy to the read buffer, before the current start.
+   memory::copy(pbReadBuf + m_ibReadBufUsed - cb, static_cast<int8_t const *>(p), cb);
+   m_ibReadBufUsed -= cb;
+   m_cbReadBufUsed += cb;
 }
 
 

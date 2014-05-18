@@ -66,9 +66,7 @@ public:
 
    /** See istream::unread_raw().
    */
-   virtual void unread_raw(
-      void const * p, size_t cb, text::encoding enc = text::encoding::identity
-   );
+   virtual void unread_raw(void const * p, size_t cb);
 
 
 protected:
