@@ -146,7 +146,7 @@ file_istream::file_istream(file_path const & fp) :
       // If the line terminator isn’t known yet, try to detect it now.
       if (m_lterm == text::line_terminator::unknown) {
          m_lterm = text::guess_line_terminator(
-            pchBeforeLastEnd, cchBeforeLastEnd, text::encoding::host
+            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd
          );
       }
       // If no line terminator was detected, it must be because no known one was there, so avoid

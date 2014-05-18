@@ -179,20 +179,16 @@ ABCAPI encoding guess_encoding(
 );
 
 
-/** Tries to guess the line terminators employed by a sequence of bytes, interpreted according to a
-specified encoding. The second argument is really character count, it’s not a typo; the size of each
-character is inferred via enc.
+/** Tries to guess the line terminators employed in a string.
 
-pBuf
-   Pointer to a character string the line terminator sequence of which needs to be determined.
-cchBuf
-   Size of the string pointed to by pBuf, in characters.
-enc
-   Encoding of the string pointed to by pBuf.
+pchBegin
+   Pointer to the first character of the string to scan for a line terminator sequence.
+pchEnd
+   Pointer to beyond the last character of the string.
 return
-   Detected line terminator sequence of the string pointed to by pBuf.
+   Detected line terminator sequence.
 */
-ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc);
+ABCAPI line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
 
 
 /** Converts from one character encoding to another. All pointed-by variables are updated to discard

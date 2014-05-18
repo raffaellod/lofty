@@ -353,120 +353,26 @@ ABCAPI encoding guess_encoding(
 }
 
 
-ABCAPI line_terminator guess_line_terminator(void const * pBuf, size_t cchBuf, encoding enc) {
-   ABC_TRACE_FN((pBuf, cchBuf, enc));
+ABCAPI line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
+   ABC_TRACE_FN((pchBegin, pchEnd));
 
-   size_t cbChar(get_encoding_size(enc));
-   // Reject non-charset encodings, because we can’t determine what value CR or LF should have.
-   if (!cbChar) {
-      ABC_THROW(argument_error, ());
-   }
-
-   line_terminator lterm(line_terminator::unknown);
-   void const * pBufMax(static_cast<int8_t const *>(pBuf) + cbChar * cchBuf);
-   switch (cbChar) {
-      case sizeof(char8_t): {
-         uint8_t const * pchBuf(static_cast<uint8_t const *>(pBuf));
-         if (enc == encoding::ebcdic) {
-            // Special case for EBCDIC.
-            uint8_t chNel(0x15);
-            for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf) {
-               if (*pchBuf == chNel) {
-                  lterm = line_terminator::nel;
-                  break;
-               }
-            }
+   for (char_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      char_t ch(*pch);
+      if (ch == CL('\r')) {
+         // CR can be followed by a LF to form the sequence CRLF, so check the following character
+         // (if we have one). If we found a CR as the very last character in the buffer, we can’t
+         // check the following one; at this point, we have to guess, so we’ll consider CRLF more
+         // likely than CR.
+         if (++pch < pchEnd && *pch != CL('\n')) {
+            return line_terminator::cr;
          } else {
-            // It’s one of the supported byte-oriented character sets.
-            // A note on scanning an UTF-8 buffer: we want this to be tolerant to encoding errors,
-            // so exploit the fact that no UTF-8 character can contain another, and just scan byte
-            // by byte, without performing any check on leading bytes.
-            uint8_t chCr(0x0d), chLf(0x0a);
-            for (; pchBuf < static_cast<uint8_t const *>(pBufMax); ++pchBuf) {
-               if (*pchBuf == chCr) {
-                  // CR can be followed by a LF to form the sequence CRLF, so check the following
-                  // character (if we have one). If we found a CR as the very last character in the
-                  // buffer, we can’t check the following one; at this point, we have to guess, so
-                  // we’ll consider CRLF more likely than CR.
-                  if (++pchBuf < pBufMax && *pchBuf != chLf) {
-                     lterm = line_terminator::cr;
-                  } else {
-                     lterm = line_terminator::cr_lf;
-                  }
-                  break;
-               } else if (*pchBuf == chLf) {
-                  lterm = line_terminator::lf;
-                  break;
-               }
-            }
+            return line_terminator::cr_lf;
          }
-         break;
-      }
-
-      case sizeof(char16_t): {
-         if (enc != encoding::utf16le && enc != encoding::utf16be) {
-            ABC_THROW(argument_error, ());
-         }
-         uint16_t chCr(uint16_t(enc == encoding::utf16le
-            ? ABC_BYTEORDER_HOSTTOLE16(0x000d) : ABC_BYTEORDER_HOSTTOBE16(0x000d)
-         ));
-         uint16_t chLf(uint16_t(enc == encoding::utf16le
-            ? ABC_BYTEORDER_HOSTTOLE16(0x000au) : ABC_BYTEORDER_HOSTTOBE16(0x000du)
-         ));
-         for (
-            uint16_t const * pchBuf(static_cast<uint16_t const *>(pBuf));
-            pchBuf < static_cast<uint16_t const *>(pBufMax);
-            ++pchBuf
-         ) {
-            if (*pchBuf == chCr) {
-               // See comments in the sizeof(char8_t) case.
-               if (pchBuf < pBufMax && *(pchBuf + 1) != chLf) {
-                  lterm = line_terminator::cr;
-               } else {
-                  lterm = line_terminator::cr_lf;
-               }
-               break;
-            } else if (*pchBuf == chLf) {
-               lterm = line_terminator::lf;
-               break;
-            }
-         }
-         break;
-      }
-
-      case sizeof(char32_t): {
-         if (enc != encoding::utf32le && enc != encoding::utf32be) {
-            ABC_THROW(argument_error, ());
-         }
-         uint32_t chCr(enc == encoding::utf32le
-            ? ABC_BYTEORDER_HOSTTOLE32(0x00000d) : ABC_BYTEORDER_HOSTTOBE32(0x00000d)
-         );
-         uint32_t chLf(enc == encoding::utf32le
-            ? ABC_BYTEORDER_HOSTTOLE32(0x00000a) : ABC_BYTEORDER_HOSTTOBE32(0x00000d)
-         );
-         for (
-            uint32_t const * pchBuf(static_cast<uint32_t const *>(pBuf));
-            pchBuf < static_cast<uint32_t const *>(pBufMax);
-            ++pchBuf
-         ) {
-            if (*pchBuf == chCr) {
-               // See comments in the sizeof(char8_t) case.
-               if (++pchBuf < pBufMax && *pchBuf != chLf) {
-                  lterm = line_terminator::cr;
-               } else {
-                  lterm = line_terminator::cr_lf;
-               }
-               break;
-            } else if (*pchBuf == chLf) {
-               lterm = line_terminator::lf;
-               break;
-            }
-         }
-         break;
+      } else if (ch == CL('\n')) {
+         return line_terminator::lf;
       }
    }
-
-   return lterm;
+   return line_terminator::unknown;
 }
 
 
