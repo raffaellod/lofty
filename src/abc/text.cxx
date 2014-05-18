@@ -34,13 +34,13 @@ ABCAPI size_t estimate_transcoded_size(
    ABC_TRACE_FN((encSrc, pSrc, cbSrc, encDst));
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
-   struct enc_cb_map_t {
+   struct enc_cb_t {
       uint8_t enc;
       uint8_t cb;
    };
 
    // Average size, in bytes, of 10 characters in each supported encoding.
-   static enc_cb_map_t const sc_aecmAvg10Chars[] = {
+   static enc_cb_t const sc_aecAvg10Chars[] = {
       { encoding::utf8,         15 }, // Some languages require 3 bytes per character.
       { encoding::utf16le,      20 }, // Consider surrogates extremely unlikely, as they are.
       { encoding::utf16be,      20 }, // Same as encoding::utf16le.
@@ -63,13 +63,14 @@ ABCAPI size_t estimate_transcoded_size(
 
    size_t cbSrcAvg, cbDstAvg;
    // Estimate the number of code points in the source.
-   for (size_t i(0); i < ABC_COUNTOF(sc_aecmAvg10Chars); ++i) {
-      encoding::enum_type enc(encoding::enum_type(sc_aecmAvg10Chars[i].enc));
+   // TODO: improve search algorithm, or maybe use a real map.
+   for (size_t i(0); i < ABC_COUNTOF(sc_aecAvg10Chars); ++i) {
+      encoding::enum_type enc(encoding::enum_type(sc_aecAvg10Chars[i].enc));
       if (encSrc == enc) {
-         cbSrcAvg = sc_aecmAvg10Chars[i].cb;
+         cbSrcAvg = sc_aecAvg10Chars[i].cb;
       }
       if (encDst == enc) {
-         cbDstAvg = sc_aecmAvg10Chars[i].cb;
+         cbDstAvg = sc_aecAvg10Chars[i].cb;
       }
    }
    // If we were using floating-point math, this would be the return statement’s expression:
@@ -90,20 +91,32 @@ ABCAPI size_t estimate_transcoded_size(
 
 
 ABCAPI size_t get_encoding_size(encoding enc) {
-   // Character size, in bytes, for each recognized encoding.
-   static uint8_t const sc_acbEncChar[] = {
-      0, // encoding::unknown
-      0, // encoding::identity
-      1, // encoding::utf8
-      2, // encoding::utf16le
-      2, // encoding::utf16be
-      4, // encoding::utf32le
-      4, // encoding::utf32be
-      1, // encoding::iso_8859_1
-      1, // encoding::windows_1252
-      1, // encoding::ebcdic
+   ABC_TRACE_FN((enc));
+
+   // Little helper to map abc::text::encoding values with byte sizes (see below).
+   struct enc_cb_t {
+      uint8_t enc;
+      uint8_t cb;
    };
-   return sc_acbEncChar[enc.base()];
+
+   // Character size, in bytes, for each recognized encoding.
+   static enc_cb_t const sc_aecEncChar[] = {
+      { encoding::utf8,         1 },
+      { encoding::utf16le,      2 },
+      { encoding::utf16be,      2 },
+      { encoding::utf32le,      4 },
+      { encoding::utf32be,      4 },
+      { encoding::iso_8859_1,   1 },
+      { encoding::windows_1252, 1 },
+      { encoding::ebcdic,       1 },
+   };
+   // TODO: improve search algorithm, or maybe use a real map.
+   for (size_t i(0); i < ABC_COUNTOF(sc_aecEncChar); ++i) {
+      if (enc == encoding::enum_type(sc_aecEncChar[i].enc)) {
+         return sc_aecEncChar[i].cb;
+      }
+   }
+   return 0;
 }
 
 
