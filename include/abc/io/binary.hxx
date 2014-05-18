@@ -25,92 +25,23 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma once
 #endif
 
+#include <abc/io.hxx>
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io globals
+// abc::io::binary::base
+
 
 namespace abc {
 
 namespace io {
 
-/** Unsigned integer wide enough to express an I/O-related size. */
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   typedef uint64_t full_size_t;
-#else
-   #error HOST_API
-#endif
-
-
-/** Integer wide enough to express an I/O-related offset. */
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   typedef int64_t offset_t;
-#else
-   #error HOST_API
-#endif
-
-
-/** File access modes.
-*/
-ABC_ENUM(access_mode, \
-   /** Read-only access. */ \
-   (read,       1), \
-   /** Write-only access. */ \
-   (write,      2), \
-   /** Read/write access. */ \
-   (read_write, 3), \
-   /** Append-only access. */ \
-   (append,     4) \
-);
-
-
-/** Position indicators to which offsets may be relative.
-*/
-ABC_ENUM(seek_from, \
-   /** The offset is relative to the start of the data (absolute seek). */ \
-   (start,   0), \
-   /** The offset is relative to the current offset (incremental seek). */ \
-   (current, 1), \
-   /** The offset is relative to the end of the data and presumably negative. */ \
-   (end,     2) \
-);
-
-
-// Some C libraries (such as MS CRT) define these as macros.
-#ifdef stdin
-   #undef stdin
-   #undef stdout
-   #undef stderr
-#endif
-
-/** List of standard (OS-provided) files.
-*/
-ABC_ENUM(stdfile, \
-   /** Internal identifier for stdin. */ \
-   (stdin,  0), \
-   /** Internal identifier for stdout. */ \
-   (stdout, 1), \
-   /** Internal identifier for stderr. */ \
-   (stderr, 2) \
-);
-
-} //namespace io
-
-} //namespace abc
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary_base
-
-
-namespace abc {
-
-namespace io {
+namespace binary {
 
 /** Base interface for binary (non-text) I/O.
 */
-class ABCAPI binary_base {
+class ABCAPI base {
 private:
 
    /** Needed to make the class polymorphic (have a vtable).
@@ -118,23 +49,27 @@ private:
    virtual void __dummy();
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary_reader
+// abc::io::binary::reader
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Interface for binary (non-text) input.
 */
-class ABCAPI binary_reader :
-   public virtual binary_base {
+class ABCAPI reader :
+   public virtual base {
 public:
 
    /** Reads at most cbMax bytes.
@@ -150,23 +85,27 @@ public:
    virtual size_t read(void * p, size_t cbMax) = 0;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary_writer
+// abc::io::binary::writer
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Interface for binary (non-text) output.
 */
-class ABCAPI binary_writer :
-   public virtual binary_base {
+class ABCAPI writer :
+   public virtual base {
 public:
 
    /** Forces writing any data in the write buffer.
@@ -186,22 +125,26 @@ public:
    virtual size_t write(void const * p, size_t cb) = 0;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::seekable_binary
+// abc::io::binary::seekable
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 */
-class ABCAPI seekable_binary {
+class ABCAPI seekable {
 public:
 
    /** Changes the current read/write position.
@@ -224,22 +167,26 @@ public:
    virtual offset_t tell() const = 0;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::sized_binary
+// abc::io::binary::sized
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Interface for binary I/O classes that access data with a known size.
 */
-class ABCAPI sized_binary {
+class ABCAPI sized {
 public:
 
    /** Returns the size of the data.
@@ -249,6 +196,8 @@ public:
    */
    virtual full_size_t size() const = 0;
 };
+
+} //namespace binary
 
 } //namespace io
 

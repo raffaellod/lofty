@@ -46,15 +46,18 @@ namespace io {
    #error HOST_API
 #endif
 
-/** Data collected by open_binary() used to construct a file instance. This is only defined in
-file.cxx, after the necessary header files have been included.
+
+namespace binary {
+
+/** Data collected by open() used to construct a file instance. This is only defined in file.cxx,
+after the necessary header files have been included.
 */
 struct _file_init_data;
 
 // Forward declarations.
-class file_binary_base;
-class file_binary_reader;
-class file_binary_writer;
+class file_base;
+class file_reader;
+class file_writer;
 
 
 /** Returns the binary writer associated to the standard error output file (stderr).
@@ -62,7 +65,7 @@ class file_binary_writer;
 return
    Standard error file.
 */
-ABCAPI std::shared_ptr<file_binary_writer> binary_stderr();
+ABCAPI std::shared_ptr<file_writer> stderr();
 
 
 /** Returns the binary reader associated to the standard input file (stdin).
@@ -70,7 +73,7 @@ ABCAPI std::shared_ptr<file_binary_writer> binary_stderr();
 return
    Standard input file.
 */
-ABCAPI std::shared_ptr<file_binary_reader> binary_stdin();
+ABCAPI std::shared_ptr<file_reader> stdin();
 
 
 /** Returns the binary writer associated to the standard output file (stdout).
@@ -78,7 +81,7 @@ ABCAPI std::shared_ptr<file_binary_reader> binary_stdin();
 return
    Standard output file.
 */
-ABCAPI std::shared_ptr<file_binary_writer> binary_stdout();
+ABCAPI std::shared_ptr<file_writer> stdout();
 
 
 /** Opens a file for binary access.
@@ -93,9 +96,7 @@ bBuffered
 return
    Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<file_binary_base> open_binary(
-   file_path const & fp, access_mode am, bool bBuffered = true
-);
+std::shared_ptr<file_base> open(file_path const & fp, access_mode am, bool bBuffered = true);
 
 
 /** Opens a file for binary reading.
@@ -108,12 +109,8 @@ bBuffered
 return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<file_binary_reader> open_binary_reader(
-   file_path const & fp, bool bBuffered = true
-) {
-   return std::dynamic_pointer_cast<file_binary_reader>(open_binary(
-      fp, access_mode::read, bBuffered
-   ));
+inline std::shared_ptr<file_reader> open_reader(file_path const & fp, bool bBuffered = true) {
+   return std::dynamic_pointer_cast<file_reader>(open(fp, access_mode::read, bBuffered));
 }
 
 
@@ -127,13 +124,11 @@ bBuffered
 return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<file_binary_writer> open_binary_writer(
-   file_path const & fp, bool bBuffered = true
-) {
-   return std::dynamic_pointer_cast<file_binary_writer>(open_binary(
-      fp, access_mode::write, bBuffered
-   ));
+inline std::shared_ptr<file_writer> open_writer(file_path const & fp, bool bBuffered = true) {
+   return std::dynamic_pointer_cast<file_writer>(open(fp, access_mode::write, bBuffered));
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -239,22 +234,24 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_base
+// abc::io::binary::file_base
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Base for file binary I/O classes.
 */
-class ABCAPI file_binary_base :
-   public virtual binary_base {
+class ABCAPI file_base :
+   public virtual base {
 public:
 
    /** Destructor.
    */
-   virtual ~file_binary_base();
+   virtual ~file_base();
 
 
 protected:
@@ -262,9 +259,9 @@ protected:
    /** Constructor.
 
    pfid
-      Data used to initialize the object, as set by abc::io::open_binary() and other functions.
+      Data used to initialize the object, as set by abc::io::open() and other functions.
    */
-   file_binary_base(_file_init_data * pfid);
+   file_base(_file_init_data * pfid);
 
 
 protected:
@@ -273,80 +270,90 @@ protected:
    filedesc m_fd;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_reader
+// abc::io::binary::file_reader
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Binary file input.
 */
-class ABCAPI file_binary_reader :
-   public virtual file_binary_base,
-   public binary_reader {
+class ABCAPI file_reader :
+   public virtual file_base,
+   public reader {
 public:
 
-   /** See file_binary_base::file_binary_base().
+   /** See file_base::file_base().
    */
-   file_binary_reader(_file_init_data * pfid);
+   file_reader(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~file_binary_reader();
+   virtual ~file_reader();
 
 
-   /** See binary_reader::read().
+   /** See reader::read().
    */
    virtual size_t read(void * p, size_t cbMax);
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_writer
+// abc::io::binary::file_writer
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Binary file output.
 */
-class ABCAPI file_binary_writer :
-   public virtual file_binary_base,
-   public binary_writer {
+class ABCAPI file_writer :
+   public virtual file_base,
+   public writer {
 public:
 
-   /** See binary_writer::binary_writer().
+   /** See writer::writer().
    */
-   file_binary_writer(_file_init_data * pfid);
+   file_writer(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~file_binary_writer();
+   virtual ~file_writer();
 
 
-   /** See binary_writer::flush().
+   /** See writer::flush().
    */
    virtual void flush();
 
 
-   /** See binary_writer::write().
+   /** See writer::write().
    */
    virtual size_t write(void const * p, size_t cb);
 };
+
+} //namespace binary
 
 } //namespace io
 
@@ -354,27 +361,29 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::console_binary_reader
+// abc::io::binary::console_reader
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Console/terminal input pseudo-file.
 */
-class ABCAPI console_binary_reader :
-   public file_binary_reader {
+class ABCAPI console_reader :
+   public file_reader {
 public:
 
-   /** See file_binary_reader::file_binary_reader().
+   /** See file_reader::file_reader().
    */
-   console_binary_reader(_file_init_data * pfid);
+   console_reader(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~console_binary_reader();
+   virtual ~console_reader();
 
 
 #if ABC_HOST_API_WIN32
@@ -382,40 +391,44 @@ public:
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /** See file_binary_reader::read().
+   /** See file_reader::read().
    */
    virtual size_t read(void * p, size_t cbMax);
 
 #endif //if ABC_HOST_API_WIN32
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::console_binary_writer
+// abc::io::binary::console_writer
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Console/terminal output pseudo-file.
 */
-class ABCAPI console_binary_writer :
-   public file_binary_writer {
+class ABCAPI console_writer :
+   public file_writer {
 public:
 
-   /** See file_binary_writer::file_binary_writer().
+   /** See file_writer::file_writer().
    */
-   console_binary_writer(_file_init_data * pfid);
+   console_writer(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~console_binary_writer();
+   virtual ~console_writer();
 
 
 #if ABC_HOST_API_WIN32
@@ -423,41 +436,47 @@ public:
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /** See file_binary_writer::write().
+   /** See file_writer::write().
    */
    virtual size_t write(void const * p, size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::pipe_binary_reader
+// abc::io::binary::pipe_reader
 
 
 namespace abc {
 
 namespace io {
+
+namespace binary {
 
 /** Binary reader for the output end of a pipe.
 */
-class ABCAPI pipe_binary_reader :
-   public file_binary_reader {
+class ABCAPI pipe_reader :
+   public file_reader {
 public:
 
-   /** See file_binary_reader::file_binary_reader().
+   /** See file_reader::file_reader().
    */
-   pipe_binary_reader(_file_init_data * pfid);
+   pipe_reader(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~pipe_binary_reader();
+   virtual ~pipe_reader();
 };
+
+} //namespace binary
 
 } //namespace io
 
@@ -465,28 +484,32 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::pipe_binary_writer
+// abc::io::binary::pipe_writer
 
 
 namespace abc {
 
 namespace io {
+
+namespace binary {
 
 /** Binary writer for the input end of a pipe.
 */
-class ABCAPI pipe_binary_writer :
-   public file_binary_writer {
+class ABCAPI pipe_writer :
+   public file_writer {
 public:
 
-   /** See file_binary_writer::file_binary_writer().
+   /** See file_writer::file_writer().
    */
-   pipe_binary_writer(_file_init_data * pfid);
+   pipe_writer(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~pipe_binary_writer();
+   virtual ~pipe_writer();
 };
+
+} //namespace binary
 
 } //namespace io
 
@@ -494,46 +517,48 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_base
+// abc::io::binary::regular_file_base
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Base for binary I/O classes for regular disk files.
 */
-class ABCAPI regular_file_binary_base :
-   public virtual file_binary_base,
-   public seekable_binary,
-   public sized_binary {
+class ABCAPI regular_file_base :
+   public virtual file_base,
+   public seekable,
+   public sized {
 public:
 
    /** Destructor.
    */
-   virtual ~regular_file_binary_base();
+   virtual ~regular_file_base();
 
 
-   /** See seekable_binary::seek().
+   /** See seekable::seek().
    */
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence);
 
 
-   /** See sized_binary::size().
+   /** See sized::size().
    */
    virtual full_size_t size() const;
 
 
-   /** See seekable_binary::tell().
+   /** See seekable::tell().
    */
    virtual offset_t tell() const;
 
 
 protected:
 
-   /** See file_binary_base::file_binary_base().
+   /** See file_base::file_base().
    */
-   regular_file_binary_base(_file_init_data * pfid);
+   regular_file_base(_file_init_data * pfid);
 
 
 protected:
@@ -546,35 +571,41 @@ protected:
 #endif
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_reader
+// abc::io::binary::regular_file_reader
 
 
 namespace abc {
 
 namespace io {
+
+namespace binary {
 
 /** Binary reader for regular disk files.
 */
-class ABCAPI regular_file_binary_reader :
-   public virtual regular_file_binary_base,
-   public file_binary_reader {
+class ABCAPI regular_file_reader :
+   public virtual regular_file_base,
+   public file_reader {
 public:
 
-   /** See regular_file_binary_base().
+   /** See regular_file_base().
    */
-   regular_file_binary_reader(_file_init_data * pfid);
+   regular_file_reader(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~regular_file_binary_reader();
+   virtual ~regular_file_reader();
 };
+
+} //namespace binary
 
 } //namespace io
 
@@ -582,33 +613,35 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_writer
+// abc::io::regular_file_writer
 
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 /** Binary writer for regular disk files.
 */
-class ABCAPI regular_file_binary_writer :
-   public virtual regular_file_binary_base,
-   public file_binary_writer {
+class ABCAPI regular_file_writer :
+   public virtual regular_file_base,
+   public file_writer {
 public:
 
-   /** See regular_file_binary_base().
+   /** See regular_file_base().
    */
-   regular_file_binary_writer(_file_init_data * pfid);
+   regular_file_writer(_file_init_data * pfid);
 
 
    /** Destructor.
    */
-   virtual ~regular_file_binary_writer();
+   virtual ~regular_file_writer();
 
 
 #if ABC_HOST_API_WIN32
 
-   /** See file_binary_writer::write(). This override is necessary to emulate O_APPEND under Win32.
+   /** See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    */
    virtual size_t write(void const * p, size_t cb);
 
@@ -622,6 +655,8 @@ protected:
    bool m_bAppend:1;
 #endif
 };
+
+} //namespace binary
 
 } //namespace io
 

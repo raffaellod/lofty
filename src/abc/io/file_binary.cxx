@@ -35,27 +35,29 @@ namespace abc {
 
 namespace io {
 
-static std::shared_ptr<file_binary_writer> g_pfbwStdErr;
-static std::shared_ptr<file_binary_reader> g_pfbrStdIn;
-static std::shared_ptr<file_binary_writer> g_pfbwStdOut;
+namespace binary {
+
+static std::shared_ptr<file_writer> g_pbfwStdErr;
+static std::shared_ptr<file_reader> g_pbfrStdIn;
+static std::shared_ptr<file_writer> g_pbfwStdOut;
 
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
-   /** Set by _construct_binary(). */
+   /** Set by _construct(). */
    struct ::stat statFile;
 #endif
-   /** See file_binary_base::m_fd. To be set before calling _construct_binary(). */
+   /** See file_base::m_fd. To be set before calling _construct(). */
    filedesc fd;
    /** Determines what type of I/O object will be instantiated. To be set before calling
-   _construct_binary(). */
+   _construct(). */
    access_mode am;
-   /** See file_binary_base::m_bBuffered. To be set before calling _construct_binary(). */
+   /** See file_base::m_bBuffered. To be set before calling _construct(). */
    bool bBuffered:1;
 };
 
 
-/** Instantiates a binary_base specialization appropriate for the descriptor in *pfid, returning a
+/** Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
 
 pfid
@@ -63,7 +65,7 @@ pfid
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfid) {
+static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
    ABC_TRACE_FN((pfid));
 
 #if ABC_HOST_API_POSIX
@@ -73,23 +75,23 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
    if (S_ISREG(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<regular_file_binary_reader>(pfid);
+            return std::make_shared<regular_file_reader>(pfid);
          case access_mode::write:
          case access_mode::append:
-            return std::make_shared<regular_file_binary_writer>(pfid);
+            return std::make_shared<regular_file_writer>(pfid);
          case access_mode::read_write:
          // default is here just to silence compiler warnings.
          default:
-            // TODO: regular_file_binary_random
+            // TODO: regular_file_random
             break;
       }
    }
    if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<console_binary_reader>(pfid);
+            return std::make_shared<console_reader>(pfid);
          case access_mode::write:
-            return std::make_shared<console_binary_writer>(pfid);
+            return std::make_shared<console_writer>(pfid);
          case access_mode::append:
          case access_mode::read_write:
          // default is here just to silence compiler warnings.
@@ -101,9 +103,9 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
    if (S_ISFIFO(pfid->statFile.st_mode) || S_ISSOCK(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<pipe_binary_reader>(pfid);
+            return std::make_shared<pipe_reader>(pfid);
          case access_mode::write:
-            return std::make_shared<pipe_binary_writer>(pfid);
+            return std::make_shared<pipe_writer>(pfid);
          case access_mode::append:
          case access_mode::read_write:
          // default is here just to silence compiler warnings.
@@ -125,9 +127,9 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
                case access_mode::read:
-                  return std::make_shared<console_binary_reader>(pfid);
+                  return std::make_shared<console_reader>(pfid);
                case access_mode::write:
-                  return std::make_shared<console_binary_writer>(pfid);
+                  return std::make_shared<console_writer>(pfid);
                case access_mode::append:
                case access_mode::read_write:
                // default is here just to silence compiler warnings.
@@ -142,14 +144,14 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
          // Regular file.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return std::make_shared<regular_file_binary_reader>(pfid);
+               return std::make_shared<regular_file_reader>(pfid);
             case access_mode::write:
             case access_mode::append:
-               return std::make_shared<regular_file_binary_writer>(pfid);
+               return std::make_shared<regular_file_writer>(pfid);
             case access_mode::read_write:
             // default is here just to silence compiler warnings.
             default:
-               // TODO: regular_file_binary_random
+               // TODO: regular_file_random
                break;
          }
          break;
@@ -158,9 +160,9 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
          // Socket or pipe.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return std::make_shared<pipe_binary_reader>(pfid);
+               return std::make_shared<pipe_reader>(pfid);
             case access_mode::write:
-               return std::make_shared<pipe_binary_writer>(pfid);
+               return std::make_shared<pipe_writer>(pfid);
             case access_mode::append:
             case access_mode::read_write:
             // default is here just to silence compiler warnings.
@@ -185,9 +187,9 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
    // If a file object was not returned in the code above, return a generic file.
    switch (pfid->am.base()) {
       case access_mode::read:
-         return std::make_shared<file_binary_reader>(pfid);
+         return std::make_shared<file_reader>(pfid);
       case access_mode::write:
-         return std::make_shared<file_binary_writer>(pfid);
+         return std::make_shared<file_writer>(pfid);
       case access_mode::append:
       case access_mode::read_write:
       // default is here just to silence compiler warnings.
@@ -198,7 +200,7 @@ static std::shared_ptr<file_binary_base> _construct_binary(_file_init_data * pfi
 }
 
 
-/** Returns new binary I/O object controlling the specified file descriptor.
+/** Returns a new binary I/O object controlling the specified file descriptor.
 
 fd
    File descriptor to take ownership of.
@@ -207,7 +209,7 @@ am
 return
    Pointer to a binary I/O object controlling fd.
 */
-static std::shared_ptr<file_binary_base> _attach_binary(filedesc && fd, access_mode am) {
+static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FN((/*fd*/));
 
    _file_init_data fid;
@@ -216,11 +218,11 @@ static std::shared_ptr<file_binary_base> _attach_binary(filedesc && fd, access_m
    // Since this method is supposed to be used only for standard descriptors, assume that OS
    // buffering is on.
    fid.bBuffered = true;
-   return _construct_binary(&fid);
+   return _construct(&fid);
 }
 
 
-std::shared_ptr<file_binary_writer> binary_stderr() {
+std::shared_ptr<file_writer> stderr() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -236,8 +238,8 @@ std::shared_ptr<file_binary_writer> binary_stderr() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pfbwStdErr) {
-      g_pfbwStdErr = std::dynamic_pointer_cast<file_binary_writer>(_attach_binary(filedesc(
+   if (!g_pbfwStdErr) {
+      g_pbfwStdErr = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
          STDERR_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -248,11 +250,11 @@ std::shared_ptr<file_binary_writer> binary_stderr() {
          false
       ), access_mode::write));
    }
-   return g_pfbwStdErr;
+   return g_pbfwStdErr;
 }
 
 
-std::shared_ptr<file_binary_reader> binary_stdin() {
+std::shared_ptr<file_reader> stdin() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -268,8 +270,8 @@ std::shared_ptr<file_binary_reader> binary_stdin() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pfbrStdIn) {
-      g_pfbrStdIn = std::dynamic_pointer_cast<file_binary_reader>(_attach_binary(filedesc(
+   if (!g_pbfrStdIn) {
+      g_pbfrStdIn = std::dynamic_pointer_cast<file_reader>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
          STDIN_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -280,11 +282,11 @@ std::shared_ptr<file_binary_reader> binary_stdin() {
          false
       ), access_mode::read));
    }
-   return g_pfbrStdIn;
+   return g_pbfrStdIn;
 }
 
 
-std::shared_ptr<file_binary_writer> binary_stdout() {
+std::shared_ptr<file_writer> stdout() {
    ABC_TRACE_FN(());
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
@@ -300,8 +302,8 @@ std::shared_ptr<file_binary_writer> binary_stdout() {
    // writing to it.
 
    // TODO: mutex!
-   if (!g_pfbwStdOut) {
-      g_pfbwStdOut = std::dynamic_pointer_cast<file_binary_writer>(_attach_binary(filedesc(
+   if (!g_pbfwStdOut) {
+      g_pbfwStdOut = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
          STDOUT_FILENO,
 #elif ABC_HOST_API_WIN32
@@ -312,11 +314,11 @@ std::shared_ptr<file_binary_writer> binary_stdout() {
          false
       ), access_mode::write));
    }
-   return g_pfbwStdOut;
+   return g_pbfwStdOut;
 }
 
 
-std::shared_ptr<file_binary_base> open_binary(
+std::shared_ptr<file_base> open(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) {
    ABC_TRACE_FN((fp, am, bBuffered));
@@ -387,8 +389,10 @@ std::shared_ptr<file_binary_base> open_binary(
    }
    fid.am = am;
    fid.bBuffered = bBuffered;
-   return _construct_binary(&fid);
+   return _construct(&fid);
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -458,20 +462,24 @@ filedesc & filedesc::operator=(filedesc && fd) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_base
+// abc::io::binary::file_base
 
 
 namespace abc {
 
 namespace io {
 
-file_binary_base::file_binary_base(_file_init_data * pfid) :
+namespace binary {
+
+file_base::file_base(_file_init_data * pfid) :
    m_fd(std::move(pfid->fd)) {
 }
 
 
-/*virtual*/ file_binary_base::~file_binary_base() {
+/*virtual*/ file_base::~file_base() {
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -479,23 +487,25 @@ file_binary_base::file_binary_base(_file_init_data * pfid) :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_reader
+// abc::io::binary::file_reader
 
 
 namespace abc {
 
 namespace io {
 
-file_binary_reader::file_binary_reader(_file_init_data * pfid) :
-   file_binary_base(pfid) {
+namespace binary {
+
+file_reader::file_reader(_file_init_data * pfid) :
+   file_base(pfid) {
 }
 
 
-/*virtual*/ file_binary_reader::~file_binary_reader() {
+/*virtual*/ file_reader::~file_reader() {
 }
 
 
-/*virtual*/ size_t file_binary_reader::read(void * p, size_t cbMax) {
+/*virtual*/ size_t file_reader::read(void * p, size_t cbMax) {
    ABC_TRACE_FN((this, p, cbMax));
 
    int8_t * pb(static_cast<int8_t *>(p));
@@ -541,29 +551,33 @@ file_binary_reader::file_binary_reader(_file_init_data * pfid) :
    return size_t(pb - static_cast<int8_t *>(p));
 }
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::file_binary_writer
+// abc::io::binary::file_writer
 
 
 namespace abc {
 
 namespace io {
 
-file_binary_writer::file_binary_writer(_file_init_data * pfid) :
-   file_binary_base(pfid) {
+namespace binary {
+
+file_writer::file_writer(_file_init_data * pfid) :
+   file_base(pfid) {
 }
 
 
-/*virtual*/ file_binary_writer::~file_binary_writer() {
+/*virtual*/ file_writer::~file_writer() {
 }
 
 
-/*virtual*/ void file_binary_writer::flush() {
+/*virtual*/ void file_writer::flush() {
    ABC_TRACE_FN((this));
 
 #if ABC_HOST_API_POSIX
@@ -581,7 +595,7 @@ file_binary_writer::file_binary_writer(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ size_t file_binary_writer::write(void const * p, size_t cb) {
+/*virtual*/ size_t file_writer::write(void const * p, size_t cb) {
    ABC_TRACE_FN((this, p, cb));
 
    int8_t const * pb(static_cast<int8_t const *>(p));
@@ -620,32 +634,36 @@ file_binary_writer::file_binary_writer(_file_init_data * pfid) :
    return size_t(pb - static_cast<int8_t const *>(p));
 }
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::console_binary_reader
+// abc::io::binary::console_reader
 
 
 namespace abc {
 
 namespace io {
 
-console_binary_reader::console_binary_reader(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   file_binary_reader(pfid) {
+namespace binary {
+
+console_reader::console_reader(_file_init_data * pfid) :
+   file_base(pfid),
+   file_reader(pfid) {
 }
 
 
-/*virtual*/ console_binary_reader::~console_binary_reader() {
+/*virtual*/ console_reader::~console_reader() {
 }
 
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t console_binary_reader::read(void * p, size_t cbMax) {
+/*virtual*/ size_t console_reader::read(void * p, size_t cbMax) {
    ABC_TRACE_FN((this, p, cbMax));
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
@@ -679,32 +697,36 @@ console_binary_reader::console_binary_reader(_file_init_data * pfid) :
 
 #endif //if ABC_HOST_API_WIN32
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::console_binary_writer
+// abc::io::binary::console_writer
 
 
 namespace abc {
 
 namespace io {
 
-console_binary_writer::console_binary_writer(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   file_binary_writer(pfid) {
+namespace binary {
+
+console_writer::console_writer(_file_init_data * pfid) :
+   file_base(pfid),
+   file_writer(pfid) {
 }
 
 
-/*virtual*/ console_binary_writer::~console_binary_writer() {
+/*virtual*/ console_writer::~console_writer() {
 }
 
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t console_binary_writer::write(void const * p, size_t cb) {
+/*virtual*/ size_t console_writer::write(void const * p, size_t cb) {
    ABC_TRACE_FN((this, p, cb));
 
    // TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
@@ -736,27 +758,7 @@ console_binary_writer::console_binary_writer(_file_init_data * pfid) :
 
 #endif //if ABC_HOST_API_WIN32
 
-} //namespace io
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::pipe_binary_reader
-
-
-namespace abc {
-
-namespace io {
-
-pipe_binary_reader::pipe_binary_reader(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   file_binary_reader(pfid) {
-}
-
-
-/*virtual*/ pipe_binary_reader::~pipe_binary_reader() {
-}
+} //namespace binary
 
 } //namespace io
 
@@ -764,21 +766,25 @@ pipe_binary_reader::pipe_binary_reader(_file_init_data * pfid) :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::pipe_binary_writer
+// abc::io::binary::pipe_reader
 
 
 namespace abc {
 
 namespace io {
 
-pipe_binary_writer::pipe_binary_writer(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   file_binary_writer(pfid) {
+namespace binary {
+
+pipe_reader::pipe_reader(_file_init_data * pfid) :
+   file_base(pfid),
+   file_reader(pfid) {
 }
 
 
-/*virtual*/ pipe_binary_writer::~pipe_binary_writer() {
+/*virtual*/ pipe_reader::~pipe_reader() {
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -786,15 +792,43 @@ pipe_binary_writer::pipe_binary_writer(_file_init_data * pfid) :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_base
+// abc::io::binary::pipe_writer
 
 
 namespace abc {
 
 namespace io {
 
-regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
-   file_binary_base(pfid) {
+namespace binary {
+
+pipe_writer::pipe_writer(_file_init_data * pfid) :
+   file_base(pfid),
+   file_writer(pfid) {
+}
+
+
+/*virtual*/ pipe_writer::~pipe_writer() {
+}
+
+} //namespace binary
+
+} //namespace io
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::regular_file_base
+
+
+namespace abc {
+
+namespace io {
+
+namespace binary {
+
+regular_file_base::regular_file_base(_file_init_data * pfid) :
+   file_base(pfid) {
    ABC_TRACE_FN((this, pfid));
 
 #if ABC_HOST_API_POSIX
@@ -842,11 +876,11 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ regular_file_binary_base::~regular_file_binary_base() {
+/*virtual*/ regular_file_base::~regular_file_base() {
 }
 
 
-/*virtual*/ offset_t regular_file_binary_base::seek(offset_t ibOffset, seek_from sfWhence) {
+/*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) {
    ABC_TRACE_FN((this, ibOffset, sfWhence));
 
 #if ABC_HOST_API_POSIX
@@ -916,48 +950,54 @@ regular_file_binary_base::regular_file_binary_base(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ full_size_t regular_file_binary_base::size() const {
+/*virtual*/ full_size_t regular_file_base::size() const {
    ABC_TRACE_FN((this));
 
    return m_cb;
 }
 
 
-/*virtual*/ offset_t regular_file_binary_base::tell() const {
+/*virtual*/ offset_t regular_file_base::tell() const {
    ABC_TRACE_FN((this));
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    // Seeking 0 bytes from the current position won’t change the internal status of the file
    // descriptor, so casting the const-ness away is not semantically wrong.
-   return const_cast<regular_file_binary_base *>(this)->seek(0, seek_from::current);
+   return const_cast<regular_file_base *>(this)->seek(0, seek_from::current);
 #else
    #error HOST_API
 #endif
 }
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_reader
+// abc::io::binary::regular_file_reader
 
 
 namespace abc {
 
 namespace io {
 
-regular_file_binary_reader::regular_file_binary_reader(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   regular_file_binary_base(pfid),
-   file_binary_reader(pfid) {
+namespace binary {
+
+regular_file_reader::regular_file_reader(_file_init_data * pfid) :
+   file_base(pfid),
+   regular_file_base(pfid),
+   file_reader(pfid) {
    ABC_TRACE_FN((this, pfid));
 }
 
 
-/*virtual*/ regular_file_binary_reader::~regular_file_binary_reader() {
+/*virtual*/ regular_file_reader::~regular_file_reader() {
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -965,17 +1005,19 @@ regular_file_binary_reader::regular_file_binary_reader(_file_init_data * pfid) :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_binary_writer
+// abc::io::binary::regular_file_writer
 
 
 namespace abc {
 
 namespace io {
 
-regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
-   file_binary_base(pfid),
-   regular_file_binary_base(pfid),
-   file_binary_writer(pfid) {
+namespace binary {
+
+regular_file_writer::regular_file_writer(_file_init_data * pfid) :
+   file_base(pfid),
+   regular_file_base(pfid),
+   file_writer(pfid) {
    ABC_TRACE_FN((this, pfid));
 
 #if ABC_HOST_API_WIN32
@@ -984,13 +1026,13 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ regular_file_binary_writer::~regular_file_binary_writer() {
+/*virtual*/ regular_file_writer::~regular_file_writer() {
 }
 
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t regular_file_binary_writer::write(void const * p, size_t cb) {
+/*virtual*/ size_t regular_file_writer::write(void const * p, size_t cb) {
    ABC_TRACE_FN((this, p, cb));
 
    // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
@@ -1088,10 +1130,12 @@ regular_file_binary_writer::regular_file_binary_writer(_file_init_data * pfid) :
       // Now the write can occur; the lock will be released automatically at the end.
    }
 
-   return file_binary_writer::write(p, cb);
+   return file_writer::write(p, cb);
 }
 
 #endif //if ABC_HOST_API_WIN32
+
+} //namespace binary
 
 } //namespace io
 

@@ -30,16 +30,18 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io globals
+// abc::io::binary globals
 
 namespace abc {
 
 namespace io {
 
+namespace binary {
+
 // Forward declarations.
-class buffered_binary_base;
-class buffered_binary_reader;
-class buffered_binary_writer;
+class buffered_base;
+class buffered_reader;
+class buffered_writer;
 
 
 /** Creates and returns a buffered wrapper for the specified binary I/O object.
@@ -49,7 +51,7 @@ pbb
 return
    Pointer to a buffered wrapper for *pbb.
 */
-std::shared_ptr<buffered_binary_base> buffer_binary(std::shared_ptr<binary_base> pbb);
+std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 
 
 /** Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
@@ -59,10 +61,8 @@ pbr
 return
    Pointer to a buffered wrapper for *pbr.
 */
-inline std::shared_ptr<buffered_binary_reader> buffer_binary_reader(
-   std::shared_ptr<binary_reader> pbr
-) {
-   return std::dynamic_pointer_cast<buffered_binary_reader>(buffer_binary(std::move(pbr)));
+inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pbr) {
+   return std::dynamic_pointer_cast<buffered_reader>(buffer(std::move(pbr)));
 }
 
 
@@ -73,11 +73,11 @@ pbw
 return
    Pointer to a buffered wrapper for *pbw.
 */
-inline std::shared_ptr<buffered_binary_writer> buffer_binary_writer(
-   std::shared_ptr<binary_writer> pbw
-) {
-   return std::dynamic_pointer_cast<buffered_binary_writer>(buffer_binary(std::move(pbw)));
+inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pbw) {
+   return std::dynamic_pointer_cast<buffered_writer>(buffer(std::move(pbw)));
 }
+
+} //namespace binary
 
 } //namespace io
 
@@ -86,23 +86,27 @@ inline std::shared_ptr<buffered_binary_writer> buffer_binary_writer(
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_base
+// abc::io::binary::buffered_base
 
 
 namespace abc {
 
 namespace io {
 
-/** Interface for buffering objects that wrap binary_* instances.
+namespace binary {
+
+/** Interface for buffering objects that wrap binary::* instances.
 */
-class ABCAPI buffered_binary_base :
-   public virtual binary_base {
+class ABCAPI buffered_base :
+   public virtual base {
 public:
 
    /** Returns a pointer to the wrapper unbuffered binary I/O object.
    */
-   virtual std::shared_ptr<binary_base> unbuffered() const = 0;
+   virtual std::shared_ptr<base> unbuffered() const = 0;
 };
+
+} //namespace binary
 
 } //namespace io
 
@@ -110,18 +114,20 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_reader
+// abc::io::binary::buffered_reader
 
 
 namespace abc {
 
 namespace io {
 
-/** Interface for buffering objects that wrap binary_reader instance.
+namespace binary {
+
+/** Interface for buffering objects that wrap binary::reader instances.
 */
-class ABCAPI buffered_binary_reader :
-   public virtual buffered_binary_base,
-   public binary_reader {
+class ABCAPI buffered_reader :
+   public virtual buffered_base,
+   public reader {
 public:
 
    /** Marks the specified amount of bytes as read, so that they won’t be presented again on the
@@ -152,11 +158,12 @@ public:
    template <typename T>
    std::pair<T const *, size_t> peek(size_t cb = 1) {
       auto ret(_peek_void(cb));
+      // Repack the tuple, changing pointer type.
       return std::make_pair(static_cast<T const *>(ret.first), ret.second);
    }
 
 
-   /** See binary_reader::read(). Using peek()/consume() is preferred to calling this method,
+   /** See binary::reader::read(). Using peek()/consume() is preferred to calling this method,
    because it will spare the caller from allocating an intermediate buffer.
    */
    virtual size_t read(void * p, size_t cbMax);
@@ -169,43 +176,51 @@ protected:
    virtual std::pair<void const *, size_t> _peek_void(size_t cb) = 0;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::buffered_binary_writer
+// abc::io::binary::buffered_writer
 
 
 namespace abc {
 
 namespace io {
 
-/** Interface for buffering objects that wrap binary_writer instance.
+namespace binary {
+
+/** Interface for buffering objects that wrap binary::writer instances.
 */
-class ABCAPI buffered_binary_writer :
-   public virtual buffered_binary_base,
-   public binary_writer {
+class ABCAPI buffered_writer :
+   public virtual buffered_base,
+   public writer {
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::default_buffered_binary_reader
+// abc::io::binary::default_buffered_reader
 
 
 namespace abc {
 
 namespace io {
 
-/** Provides buffering on top of a binary_reader instance.
+namespace binary {
+
+/** Provides buffering on top of a binary::reader instance.
 */
-class ABCAPI default_buffered_binary_reader :
-   public buffered_binary_reader {
+class ABCAPI default_buffered_reader :
+   public buffered_reader {
 public:
 
    /** Constructor.
@@ -213,27 +228,27 @@ public:
    pbr
       Pointer to a buffered reader to wrap.
    */
-   default_buffered_binary_reader(std::shared_ptr<binary_reader> pbr);
+   default_buffered_reader(std::shared_ptr<reader> pbr);
 
 
    /** Destructor.
    */
-   virtual ~default_buffered_binary_reader();
+   virtual ~default_buffered_reader();
 
 
-   /** See buffered_binary_reader::consume().
+   /** See buffered_reader::consume().
    */
    virtual void consume(size_t cb);
 
 
-   /** See buffered_binary_reader::unbuffered().
+   /** See buffered_reader::unbuffered().
    */
-   virtual std::shared_ptr<binary_base> unbuffered() const;
+   virtual std::shared_ptr<base> unbuffered() const;
 
 
 protected:
 
-   /** See buffered_binary_reader::_peek_void().
+   /** See buffered_reader::_peek_void().
    */
    virtual std::pair<void const *, size_t> _peek_void(size_t cb);
 
@@ -241,7 +256,7 @@ protected:
 protected:
 
    /** Wrapped binary reader. */
-   std::shared_ptr<binary_reader> m_pbr;
+   std::shared_ptr<reader> m_pbr;
    /** Read buffer. */
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbReadBuf;
    /** Size of m_pbReadBuf. */
@@ -255,23 +270,27 @@ protected:
    static size_t const smc_cbReadBufDefault = 0x1000;
 };
 
+} //namespace binary
+
 } //namespace io
 
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::default_buffered_binary_writer
+// abc::io::binary::default_buffered_writer
 
 
 namespace abc {
 
 namespace io {
 
-/** Provides buffering on top of a binary_writer instance.
+namespace binary {
+
+/** Provides buffering on top of a binary::writer instance.
 */
-class ABCAPI default_buffered_binary_writer :
-   public buffered_binary_writer {
+class ABCAPI default_buffered_writer :
+   public buffered_writer {
 public:
 
    /** Constructor.
@@ -279,25 +298,25 @@ public:
    pbw
       Pointer to a buffered writer to wrap.
    */
-   default_buffered_binary_writer(std::shared_ptr<binary_writer> pbw);
+   default_buffered_writer(std::shared_ptr<writer> pbw);
 
 
    /** Destructor.
    */
-   virtual ~default_buffered_binary_writer();
+   virtual ~default_buffered_writer();
 
 
-   /** See buffered_binary_writer::flush().
+   /** See buffered_writer::flush().
    */
    virtual void flush();
 
 
-   /** See buffered_binary_writer::unbuffered().
+   /** See buffered_writer::unbuffered().
    */
-   virtual std::shared_ptr<binary_base> unbuffered() const;
+   virtual std::shared_ptr<base> unbuffered() const;
 
 
-   /** See buffered_binary_writer::write().
+   /** See buffered_writer::write().
    */
    virtual size_t write(void const * p, size_t cb);
 
@@ -312,7 +331,7 @@ protected:
 protected:
 
    /** Wrapped binary writer. */
-   std::shared_ptr<binary_writer> m_pbw;
+   std::shared_ptr<writer> m_pbw;
    /** Write buffer. */
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbWriteBuf;
    /** Size of m_pbWriteBuf. */
@@ -323,6 +342,8 @@ protected:
    // TODO: tune this value.
    static size_t const smc_cbWriteBufDefault = 0x1000;
 };
+
+} //namespace binary
 
 } //namespace io
 

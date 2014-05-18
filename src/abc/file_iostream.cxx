@@ -45,7 +45,7 @@ size_t const file_stream_base::smc_cbAlignedMax =
 
 
 
-file_stream_base::file_stream_base(std::shared_ptr<file_binary_base> pfile) :
+file_stream_base::file_stream_base(std::shared_ptr<binary::file_base> pfile) :
    stream_base(),
    m_pfile(std::move(pfile)) {
 }
@@ -53,7 +53,7 @@ file_stream_base::file_stream_base(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) :
    stream_base(),
-   m_pfile(open_binary(fp, am, bBuffered)) {
+   m_pfile(binary::open(fp, am, bBuffered)) {
 }
 
 
@@ -92,7 +92,7 @@ namespace abc {
 
 namespace io {
 
-file_istream::file_istream(std::shared_ptr<file_binary_reader> pfile) :
+file_istream::file_istream(std::shared_ptr<binary::file_reader> pfile) :
    file_stream_base(std::move(pfile)),
    istream() {
    _post_construct();
@@ -195,7 +195,7 @@ file_istream::file_istream(file_path const & fp) :
 /*virtual*/ size_t file_istream::read_raw(void * p, size_t cbMax) {
    ABC_TRACE_FN((this, p, cbMax));
 
-   auto pbr(std::dynamic_pointer_cast<file_binary_reader>(m_pfile));
+   auto pbr(std::dynamic_pointer_cast<binary::file_reader>(m_pfile));
 
    if (m_enc == text::encoding::unknown) {
       // If the encoding is still undefined, try to guess it now. To have a big enough buffer, we’ll
@@ -211,7 +211,7 @@ file_istream::file_istream(file_path const & fp) :
          m_bAtEof = true;
       }
       size_t cbFile, cbBom;
-      if (sized_binary const * psb = dynamic_cast<sized_binary *>(m_pfile.get())) {
+      if (binary::sized const * psb = dynamic_cast<binary::sized *>(m_pfile.get())) {
          cbFile = size_t(std::min<full_size_t>(psb->size(), smc_cbAlignedMax));
       } else {
          cbFile = 0;
@@ -300,7 +300,7 @@ file_istream::file_istream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfisStdIn) {
-      _construct_std_file_istream(binary_stdin(), &g_ppfisStdIn);
+      _construct_std_file_istream(binary::stdin(), &g_ppfisStdIn);
    }
    return *g_ppfisStdIn;
 }
@@ -373,7 +373,7 @@ void file_istream::_post_construct() {
 
 
 /*static*/ void file_istream::_construct_std_file_istream(
-   std::shared_ptr<file_binary_reader> const & pfile, std::shared_ptr<file_istream> ** pppfis
+   std::shared_ptr<binary::file_reader> const & pfile, std::shared_ptr<file_istream> ** pppfis
 ) {
    ABC_TRACE_FN((/*pfile, */pppfis));
 
@@ -411,7 +411,7 @@ namespace io {
 size_t const file_ostream::smc_cbWriteBufMax = 4096;
 
 
-file_ostream::file_ostream(std::shared_ptr<file_binary_writer> pfile) :
+file_ostream::file_ostream(std::shared_ptr<binary::file_writer> pfile) :
    file_stream_base(std::move(pfile)),
    ostream() {
 }
@@ -428,7 +428,7 @@ file_ostream::file_ostream(file_path const & fp) :
 /*virtual*/ void file_ostream::flush() {
    ABC_TRACE_FN(());
 
-   auto pbw(std::dynamic_pointer_cast<file_binary_writer>(m_pfile));
+   auto pbw(std::dynamic_pointer_cast<binary::file_writer>(m_pfile));
    pbw->flush();
 }
 
@@ -437,7 +437,7 @@ file_ostream::file_ostream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfosStdErr) {
-      _construct_std_file_ostream(binary_stderr(), &g_ppfosStdErr);
+      _construct_std_file_ostream(binary::stderr(), &g_ppfosStdErr);
 
 #if ABC_HOST_API_WIN32
       // TODO: document this behavior and the related enviroment variable.
@@ -471,7 +471,7 @@ file_ostream::file_ostream(file_path const & fp) :
    ABC_TRACE_FN(());
 
    if (!g_ppfosStdOut) {
-      _construct_std_file_ostream(binary_stdout(), &g_ppfosStdOut);
+      _construct_std_file_ostream(binary::stdout(), &g_ppfosStdOut);
    }
    return *g_ppfosStdOut;
 }
@@ -482,7 +482,7 @@ file_ostream::file_ostream(file_path const & fp) :
 
    ABC_ASSERT(enc != text::encoding::unknown, SL("cannot write data with unknown encoding"));
 
-   auto pbw(std::dynamic_pointer_cast<file_binary_writer>(m_pfile));
+   auto pbw(std::dynamic_pointer_cast<binary::file_writer>(m_pfile));
    if (m_enc == text::encoding::unknown) {
       // This is the first output, so it decides for the whole file.
       m_enc = enc;
@@ -507,7 +507,7 @@ file_ostream::file_ostream(file_path const & fp) :
 
 
 /*static*/ void file_ostream::_construct_std_file_ostream(
-   std::shared_ptr<file_binary_writer> const & pfile, std::shared_ptr<file_ostream> ** pppfos
+   std::shared_ptr<binary::file_writer> const & pfile, std::shared_ptr<file_ostream> ** pppfos
 ) {
    ABC_TRACE_FN((/*pfile, */pppfos));
 
@@ -542,15 +542,15 @@ namespace abc {
 
 namespace io {
 
-file_iostream::file_iostream(std::shared_ptr<file_binary_base> pfile) :
+file_iostream::file_iostream(std::shared_ptr<binary::file_base> pfile) :
    file_stream_base(pfile),
-   file_istream(std::dynamic_pointer_cast<file_binary_reader>(pfile)),
-   file_ostream(std::dynamic_pointer_cast<file_binary_writer>(pfile)) {
+   file_istream(std::dynamic_pointer_cast<binary::file_reader>(pfile)),
+   file_ostream(std::dynamic_pointer_cast<binary::file_writer>(pfile)) {
 }
 file_iostream::file_iostream(file_path const & fp) :
    file_stream_base(fp, access_mode::read_write),
-   file_istream(std::dynamic_pointer_cast<file_binary_reader>(m_pfile)),
-   file_ostream(std::dynamic_pointer_cast<file_binary_writer>(m_pfile)) {
+   file_istream(std::dynamic_pointer_cast<binary::file_reader>(m_pfile)),
+   file_ostream(std::dynamic_pointer_cast<binary::file_writer>(m_pfile)) {
 }
 
 

@@ -23,15 +23,19 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary_base
+// abc::io::binary::base
 
 
 namespace abc {
 
 namespace io {
 
-/*virtual*/ void binary_base::__dummy() {
+namespace binary {
+
+/*virtual*/ void base::__dummy() {
 }
+
+} //namespace binary
 
 } //namespace io
 
