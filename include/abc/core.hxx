@@ -72,6 +72,9 @@ You should have received a copy of the GNU General Public License along with ABC
    // “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
    // catch site”
    #pragma warning(disable: 4673)
+   // “potentially uninitialized local variable 'var' used” – would be useful, but it’s raised too
+   // easily by MSC16.
+   #pragma warning(disable: 4701)
    // “'function' : function not inlined”
    #pragma warning(disable: 4710)
    // “function 'function' selected for automatic inline expansion”
