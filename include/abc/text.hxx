@@ -103,26 +103,6 @@ here. */
 size_t const max_codepoint_length(6);
 
 
-/** Prototype of a void version of str_str().
-
-pchHaystackBegin
-   Pointer to the first character of the string to be searched.
-pchHaystackEnd
-   Pointer to beyond the last character of the string to be searched.
-pchNeedleBegin
-   Pointer to the first character of the string to search for.
-pchNeedleEnd
-   Pointer to beyond the last character of the string to search for.
-return
-   Pointer to the beginning of the first match, in the string to be searched, of the string to
-   search for, or nullptr if no matches are found.
-*/
-typedef void const * (* str_str_fn)(
-   void const * pchHaystackBegin, void const * pchHaystackEnd,
-   void const * pchNeedleBegin, void const * pchNeedleEnd
-);
-
-
 /** Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
 different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source size,
 although special cases such as surrogates might make the estimate too low.
