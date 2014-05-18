@@ -55,6 +55,8 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma warning(disable: 4251)
    // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
    #pragma warning(disable: 4290)
+   // “cast truncates constant value” – would be useful, but it’s raised too easily by MSC16.
+   #pragma warning(disable: 4310)
    // “'class' : default constructor could not be generated”
    #pragma warning(disable: 4510)
    // “'class' : assignment operator could not be generated”

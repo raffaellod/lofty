@@ -39,14 +39,6 @@ You should have received a copy of the GNU General Public License along with ABC
 #define _ABC_CHAR32_COMMA(ch) char32_t(ch),
 
 
-#if ABC_HOST_MSC
-   // Silence warnings from system header files.
-
-   // “cast truncates constant value”
-   #pragma warning(disable: 4310)
-#endif //if ABC_HOST_MSC
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::utf8_traits_validity_nult
