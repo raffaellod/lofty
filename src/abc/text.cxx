@@ -51,10 +51,10 @@ ABCAPI size_t estimate_transcoded_size(
       { encoding::ebcdic,       10 }, // Exact constant.
    };
 
-   if (encSrc < encoding::_charsets_offset) {
+   if (encSrc == encoding::unknown) {
       ABC_THROW(argument_error, ());
    }
-   if (encDst < encoding::_charsets_offset) {
+   if (encDst == encoding::unknown) {
       ABC_THROW(argument_error, ());
    }
    // TODO: use this to give a more accurate estimate for UTF-8, by evaluating which language block
