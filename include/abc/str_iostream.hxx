@@ -59,9 +59,7 @@ public:
 
    /** See istream::read_raw().
    */
-   virtual size_t read_raw(
-      void * p, size_t cbMax, text::encoding enc = text::encoding::identity
-   );
+   virtual size_t read_raw(void * p, size_t cbMax);
 
 
    /** See istream::unread_raw().

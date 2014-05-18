@@ -159,13 +159,8 @@ public:
       Pointer to the buffer to read the data into.
    cbMax
       Capacity of the buffer pointed to by p, in bytes.
-   enc
-      Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
-      conversion will be performed.
    */
-   virtual size_t read_raw(
-      void * p, size_t cbMax, text::encoding enc = text::encoding::identity
-   ) = 0;
+   virtual size_t read_raw(void * p, size_t cbMax) = 0;
 
 
    /** Pretends to undo the reads of cbMax bytes, which must be provided in the specified buffer.

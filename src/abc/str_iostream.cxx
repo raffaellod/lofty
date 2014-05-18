@@ -61,12 +61,9 @@ str_istream::str_istream(dmstr && s) :
 }
 
 
-size_t str_istream::read_raw(
-   void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
-) {
+size_t str_istream::read_raw(void * p, size_t cbMax) {
    ABC_UNUSED_ARG(p);
    ABC_UNUSED_ARG(cbMax);
-   ABC_UNUSED_ARG(enc);
    return 0;
 }
 

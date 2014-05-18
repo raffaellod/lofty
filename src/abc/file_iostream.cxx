@@ -132,7 +132,7 @@ file_istream::file_istream(file_path const & fp) :
 
       // Read as many characters as possible, appending to the current end of the string.
       char_t * pchPrevReadEnd(ps->begin().base() + cchFilled);
-      size_t cbRead(read_raw(pchPrevReadEnd, sizeof(char_t) * cchAvail, text::encoding::host));
+      size_t cbRead(read_raw(pchPrevReadEnd, sizeof(char_t) * cchAvail));
       if (!cbRead) {
          break;
       }
@@ -192,10 +192,8 @@ file_istream::file_istream(file_path const & fp) :
 }
 
 
-/*virtual*/ size_t file_istream::read_raw(
-   void * p, size_t cbMax, text::encoding enc /*= text::encoding::identity*/
-) {
-   ABC_TRACE_FN((this, p, cbMax, enc));
+/*virtual*/ size_t file_istream::read_raw(void * p, size_t cbMax) {
+   ABC_TRACE_FN((this, p, cbMax));
 
    auto pbr(std::dynamic_pointer_cast<file_binary_reader>(m_pfile));
 
@@ -227,7 +225,7 @@ file_istream::file_istream(file_path const & fp) :
       }
    }
    size_t cbTotalRead;
-   if (enc == m_enc || enc == text::encoding::identity) {
+   if (m_enc == text::encoding::host) {
       // Optimal case: no transcoding necessary.
       int8_t * pb(static_cast<int8_t *>(p));
       // Check if there are available read bytes in the read buffer; if so, use them first.
@@ -255,7 +253,9 @@ file_istream::file_istream(file_path const & fp) :
          // Transcode the buffer, from the start of the bytes already in the read buffer. This also
          // allows to re-read bytes that have been unread.
          void const * pBufUsed(pbReadBuf + m_ibReadBufUsed);
-         text::transcode(std::nothrow, m_enc, &pBufUsed, &m_cbReadBufUsed, enc, &p, &cbAvail);
+         text::transcode(
+            std::nothrow, m_enc, &pBufUsed, &m_cbReadBufUsed, text::encoding::host, &p, &cbAvail
+         );
          m_ibReadBufUsed = size_t(static_cast<int8_t const *>(pBufUsed) - pbReadBuf);
          if (!cbAvail || m_bAtEof) {
             break;
