@@ -82,10 +82,6 @@ ABC_ENUM(line_terminator, \
 );
 
 
-/** This can be used by any char32_t-returning function that needs to return a value that’s
-obviously not a char32_t value. */
-char32_t const invalid_char(~char32_t(0));
-
 /** This must be used to replace any invalid char32_t value. */
 char32_t const replacement_char(0x00fffd);
 
