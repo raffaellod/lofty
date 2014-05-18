@@ -33,16 +33,22 @@ ABCAPI size_t estimate_transcoded_size(
 ) {
    ABC_TRACE_FN((encSrc, pSrc, cbSrc, encDst));
 
+   // Little helper to map abc::text::encoding values with byte sizes (see below).
+   struct enc_cb_map_t {
+      uint8_t enc;
+      uint8_t cb;
+   };
+
    // Average size, in bytes, of 10 characters in each supported encoding.
-   static uint8_t const sc_acbAvg10Chars[] = {
-      22, // encoding::utf8: take into account that some languages require 3 bytes per character.
-      20, // encoding::utf16le: consider surrogates extremely unlikely, as they are.
-      20, // encoding::utf16be: same as encoding::utf16le.
-      40, // encoding::utf32le: constant.
-      40, // encoding::utf32be: same as encoding::utf32le.
-      10, // encoding::iso_8859_1: constant.
-      10, // encoding::windows_1252: constant.
-      10, // encoding::ebcdic: constant.
+   static enc_cb_map_t const sc_aecmAvg10Chars[] = {
+      { encoding::utf8,         15 }, // Some languages require 3 bytes per character.
+      { encoding::utf16le,      20 }, // Consider surrogates extremely unlikely, as they are.
+      { encoding::utf16be,      20 }, // Same as encoding::utf16le.
+      { encoding::utf32le,      40 }, // Exact constant.
+      { encoding::utf32be,      40 }, // Same as encoding::utf32le.
+      { encoding::iso_8859_1,   10 }, // Exact constant.
+      { encoding::windows_1252, 10 }, // Exact constant.
+      { encoding::ebcdic,       10 }, // Exact constant.
    };
 
    if (encSrc < encoding::_charsets_offset) {
@@ -55,9 +61,17 @@ ABCAPI size_t estimate_transcoded_size(
    // seems to be dominant in the source.
    ABC_UNUSED_ARG(pSrc);
 
+   size_t cbSrcAvg, cbDstAvg;
    // Estimate the number of code points in the source.
-   size_t cbSrcAvg(sc_acbAvg10Chars[encSrc.base() - encoding::_charsets_offset]),
-          cbDstAvg(sc_acbAvg10Chars[encDst.base() - encoding::_charsets_offset]);
+   for (size_t i(0); i < ABC_COUNTOF(sc_aecmAvg10Chars); ++i) {
+      encoding::enum_type enc(encoding::enum_type(sc_aecmAvg10Chars[i].enc));
+      if (encSrc == enc) {
+         cbSrcAvg = sc_aecmAvg10Chars[i].cb;
+      }
+      if (encDst == enc) {
+         cbDstAvg = sc_aecmAvg10Chars[i].cb;
+      }
+   }
    // If we were using floating-point math, this would be the return statement’s expression:
    //    ceil(cbSrc / cbSrcAvg) * cbDstAvg
    // We need to emulate ceil() on integers with:

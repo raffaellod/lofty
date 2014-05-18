@@ -146,7 +146,7 @@ str_ostream::str_type str_ostream::release_content() {
          m_ibWrite += text::transcode(std::nothrow, enc, &p, &cb, m_enc, &pBuf, &cbBuf);
       } while (cb);
    }
-   // Ensure the string knows its own length and is NUL-terminated.
+   // Ensure the string knows its own length.
    m_sBuf.set_size(m_ibWrite / cbChar);
 }
 
