@@ -155,23 +155,6 @@ return
 ABCAPI size_t get_encoding_size(encoding enc);
 
 
-/** Returns a byte sequence representing a line terminator in the requested encoding.
-
-enc
-   Desired encoding.
-lterm
-   Desired line terminator sequence.
-pcb
-   Pointer to a variable that will receive the size, in bytes, of the line terminator sequence
-   string.
-return
-   Pointer to a non-NUL-terminated line terminator sequence.
-*/
-ABCAPI void const * get_line_terminator_bytes(
-   encoding enc, line_terminator lterm, size_t * pcb
-);
-
-
 /** Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
 total number of bytes in the source of which the buffer is the beginning.
 
