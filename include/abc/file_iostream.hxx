@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma once
 #endif
 
-#include <abc/io/file_binary.hxx>
+#include <abc/io/binary/file.hxx>
 #include <abc/file_path.hxx>
 
 

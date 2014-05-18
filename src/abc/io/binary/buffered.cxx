@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#include <abc/io/buffered_binary.hxx>
+#include <abc/io/binary/buffered.hxx>
 #include <algorithm>
 #if ABC_HOST_API_POSIX
    #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
