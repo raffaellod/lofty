@@ -222,8 +222,8 @@ file_istream::file_istream(file_path const & fp) :
          m_ibReadBufUsed += cbBom;
          m_cbReadBufUsed -= cbBom;
       } else if (m_enc == text::encoding::unknown) {
-         // Since no encoding was detected, we’ll just do nothing to transcode the input.
-         m_enc = text::encoding::identity;
+         // TODO: provide more information in the exception.
+         ABC_THROW(text::error, ());
       }
    }
    size_t cbTotalRead;
@@ -477,21 +477,17 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 
-/*virtual*/ void file_ostream::write_raw(
-   void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
-) {
+/*virtual*/ void file_ostream::write_raw(void const * p, size_t cb, text::encoding enc) {
    ABC_TRACE_FN((this, p, cb, enc));
 
+   ABC_ASSERT(enc != text::encoding::unknown, SL("cannot write data with unknown encoding"));
+
    auto pbw(std::dynamic_pointer_cast<file_binary_writer>(m_pfile));
-   if (enc == text::encoding::unknown) {
-      // Treat unknown as identity.
-      enc = text::encoding::identity;
-   }
    if (m_enc == text::encoding::unknown) {
       // This is the first output, so it decides for the whole file.
       m_enc = enc;
    }
-   if (enc == m_enc || enc == text::encoding::identity) {
+   if (enc == m_enc) {
       // Optimal case: no transcoding necessary.
       pbw->write(p, cb);
    } else {

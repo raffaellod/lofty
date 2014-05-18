@@ -38,12 +38,11 @@ ostream::ostream() :
 }
 
 
-/*virtual*/ void ostream::write_raw(
-   void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
-) {
+/*virtual*/ void ostream::write_raw(void const * p, size_t cb, text::encoding enc) {
    ABC_TRACE_FN((this, p, cb, enc));
 
-   ABC_UNUSED_ARG(enc);
+   ABC_ASSERT(enc != text::encoding::unknown, SL("cannot write data with unknown encoding"));
+
    memory::copy(
       reinterpret_cast<int8_t *>(m_achBuf + m_cchUsed), static_cast<int8_t const *>(p), cb
    );

@@ -103,21 +103,17 @@ str_ostream::str_type str_ostream::release_content() {
 }
 
 
-/*virtual*/ void str_ostream::write_raw(
-   void const * p, size_t cb, text::encoding enc /*= text::encoding::identity*/
-) {
+/*virtual*/ void str_ostream::write_raw(void const * p, size_t cb, text::encoding enc) {
    ABC_TRACE_FN((this, p, cb, enc));
 
    if (!cb) {
       // Nothing to do.
       return;
    }
-   if (enc == text::encoding::unknown) {
-      // Treat unknown as identity.
-      enc = text::encoding::identity;
-   }
+   ABC_ASSERT(enc != text::encoding::unknown, SL("cannot write data with unknown encoding"));
+
    size_t cbChar(sizeof(str_type::value_type));
-   if (enc == m_enc || enc == text::encoding::identity) {
+   if (enc == m_enc) {
       // Optimal case: no transcoding necessary.
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_sBuf.set_capacity((m_ibWrite + cb) / cbChar, true);

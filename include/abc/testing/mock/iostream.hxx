@@ -92,7 +92,7 @@ public:
 
    /** See io::ostream::write_raw().
    */
-   virtual void write_raw(void const * p, size_t cb, text::encoding enc = text::encoding::identity);
+   virtual void write_raw(void const * p, size_t cb, text::encoding enc);
 
 
 private:

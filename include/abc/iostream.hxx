@@ -350,9 +350,7 @@ public:
       Encoding used by the buffer pointed to by p; if not the same as the stream’s encoding, a
       conversion will be performed.
    */
-   virtual void write_raw(
-      void const * p, size_t cb, text::encoding enc = text::encoding::identity
-   ) = 0;
+   virtual void write_raw(void const * p, size_t cb, text::encoding enc) = 0;
 };
 
 } //namespace io
