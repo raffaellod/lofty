@@ -35,32 +35,32 @@ on this.
 */
 ABC_ENUM(encoding, \
    /** Unknown/undetermined encoding. */ \
-   (unknown,          0), \
+   (unknown,      0), \
    /** UTF-8 encoding. */ \
-   (utf8,             1), \
+   (utf8,         1), \
    /** UTF-16 Little Endian encoding. */ \
-   (utf16le,          2), \
+   (utf16le,      2), \
    /** UTF-16 Big Endian encoding. */ \
-   (utf16be,          3), \
+   (utf16be,      3), \
    /** UTF-32 Little Endian encoding. */ \
-   (utf32le,          4), \
+   (utf32le,      4), \
    /** UTF-32 Big Endian encoding. */ \
-   (utf32be,          5), \
+   (utf32be,      5), \
    /** ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (iso_8859_1,       6), \
+   (iso_8859_1,   6), \
    /** Windows-1252 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (windows_1252,     7), \
+   (windows_1252, 7), \
    /** EBCDIC encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (ebcdic,           8), \
+   (ebcdic,       8), \
    /** UTF-16 encoding (host endianness). */ \
-   (utf16_host,       (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
+   (utf16_host,   (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
    /** UTF-32 encoding (host endianness). */ \
-   (utf32_host,       (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)), \
+   (utf32_host,   (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)), \
    /** Default host encoding. */ \
-   (host,             (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
+   (host,         (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
 );
 
 
@@ -68,17 +68,17 @@ ABC_ENUM(encoding, \
 */
 ABC_ENUM(line_terminator, \
    /** Unknown/undetermined line terminator. */ \
-   (unknown,       0), \
+   (unknown, 0), \
    /** Old Mac style: Carriage Return, '\r'. */ \
-   (cr,            1), \
+   (cr,      1), \
    /** Unix/POSIX style: Line Feed, '\n'. */ \
-   (lf,            2), \
+   (lf,      2), \
    /** DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */ \
-   (cr_lf,         3), \
+   (cr_lf,   3), \
    /** EBCDIC style: Next Line, '\x15'. */ \
-   (nel,           4), \
+   (nel,     4), \
    /** Default host line terminator. */ \
-   (host,          (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
+   (host,    (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
 );
 
 
