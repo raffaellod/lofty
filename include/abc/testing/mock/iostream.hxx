@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef _ABC_TESTING_MOCK_IOSTREAM_HXX
 #define _ABC_TESTING_MOCK_IOSTREAM_HXX
 
-#include <abc/testing/core.hxx>
+#include <abc/core.hxx>
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
 #endif
@@ -39,7 +39,7 @@ namespace mock {
 /** Implementation of a read-only stream based on a string.
 */
 class ABCTESTINGAPI istream :
-   public virtual ::abc::io::istream {
+   public virtual io::istream {
 };
 #endif
 
@@ -59,7 +59,7 @@ namespace mock {
 /** Implementation of an write-only stream based on a string.
 */
 class ABCTESTINGAPI ostream :
-   public virtual ::abc::io::ostream {
+   public virtual io::ostream {
 public:
 
    /** Constructor.

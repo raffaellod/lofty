@@ -345,6 +345,14 @@ shared library (into another library/executable). */
    #define ABCAPI ABC_SYM_IMPORT
 #endif
 
+/** Declares a symbol to be publicly visible (from the ABC testing shared library) or imported from
+ABC’s testing shared library (into another library/executable). */
+#ifdef ABCMK_BUILD_ABC_TESTING
+   #define ABCTESTINGAPI ABC_SYM_EXPORT
+#else
+   #define ABCTESTINGAPI ABC_SYM_IMPORT
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - extended features that can take advantage of C++11 or fallback to still-functional
