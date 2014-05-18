@@ -69,8 +69,6 @@ ABC_ENUM(encoding, \
 ABC_ENUM(line_terminator, \
    /** Unknown/undetermined line terminator. */ \
    (unknown,       0), \
-   /** Offset of the first known line terminator. */ \
-   (_known_offset, 1), \
    /** Old Mac style: Carriage Return, '\r'. */ \
    (cr,            1), \
    /** Unix/POSIX style: Line Feed, '\n'. */ \
