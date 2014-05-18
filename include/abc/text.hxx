@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::text globals
 
 namespace abc {
-
 namespace text {
 
 /** Recognized text encodings. Little endians should be listed before big endians; some code relies
@@ -192,7 +191,6 @@ ABCAPI size_t transcode(
 );
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -201,7 +199,6 @@ ABCAPI size_t transcode(
 
 
 namespace abc {
-
 namespace text {
 
 /** A text encoding or decoding error occurred.
@@ -221,7 +218,6 @@ public:
 };
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -230,7 +226,6 @@ public:
 
 
 namespace abc {
-
 namespace text {
 
 /** A text decoding error occurred.
@@ -250,7 +245,6 @@ public:
 };
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -259,7 +253,6 @@ public:
 
 
 namespace abc {
-
 namespace text {
 
 /** A text encoding error occurred.
@@ -279,7 +272,6 @@ public:
 };
 
 } //namespace text
-
 } //namespace abc
 
 

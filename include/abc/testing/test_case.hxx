@@ -34,7 +34,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 /** Base class for test cases.
@@ -296,7 +295,6 @@ protected:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 
@@ -419,7 +417,6 @@ expr
 
 
 namespace abc {
-
 namespace testing {
 
 /** Maintains a list of abc::testing::test_case-derived classes that can be used by an
@@ -467,7 +464,6 @@ private:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 
@@ -476,7 +472,6 @@ private:
 
 
 namespace abc {
-
 namespace testing {
 
 /** Template version of abc::testing::test_case_factory_impl, able to instantiate classes derived
@@ -513,7 +508,6 @@ private:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 

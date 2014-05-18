@@ -27,18 +27,14 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /*virtual*/ void base::__dummy() {
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

@@ -27,9 +27,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
-
 namespace mock {
 
 ostream::ostream() :
@@ -50,9 +48,7 @@ ostream::ostream() :
 }
 
 } //namespace mock
-
 } //namespace testing
-
 } //namespace abc
 
 

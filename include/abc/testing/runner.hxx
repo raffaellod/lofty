@@ -34,7 +34,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 /** Thrown to indicate that a test assertion failed, and the execution of the test case must be
@@ -50,7 +49,6 @@ public:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 
@@ -59,7 +57,6 @@ public:
 
 
 namespace abc {
-
 namespace testing {
 
 // Forward declarations.
@@ -147,7 +144,6 @@ private:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 

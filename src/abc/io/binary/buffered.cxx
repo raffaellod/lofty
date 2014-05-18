@@ -34,9 +34,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
@@ -55,9 +53,7 @@ std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -66,9 +62,7 @@ std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /*virtual*/ size_t buffered_reader::read(void * p, size_t cbMax) {
@@ -94,9 +88,7 @@ namespace binary {
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -105,9 +97,7 @@ namespace binary {
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
@@ -181,9 +171,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -192,9 +180,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
@@ -258,9 +244,7 @@ void default_buffered_writer::flush_buffer() {
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

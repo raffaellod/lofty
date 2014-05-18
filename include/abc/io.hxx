@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::io globals
 
 namespace abc {
-
 namespace io {
 
 /** Unsigned integer wide enough to express an I/O-related size. */
@@ -95,7 +94,6 @@ ABC_ENUM(stdfile, \
 );
 
 } //namespace io
-
 } //namespace abc
 
 

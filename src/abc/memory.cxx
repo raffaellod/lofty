@@ -71,7 +71,6 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 namespace abc {
-
 namespace memory {
 
 void * _raw_alloc(size_t cb) {
@@ -97,7 +96,6 @@ void * _raw_realloc(void * p, size_t cb) {
 }
 
 } //namespace memory
-
 } //namespace abc
 
 

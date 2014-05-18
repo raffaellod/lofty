@@ -33,9 +33,7 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::io::binary globals
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 // Forward declarations.
@@ -78,9 +76,7 @@ inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pb
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -90,9 +86,7 @@ inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pb
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for buffering objects that wrap binary::* instances.
@@ -107,9 +101,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -118,9 +110,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for buffering objects that wrap binary::reader instances.
@@ -177,9 +167,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -188,9 +176,7 @@ protected:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for buffering objects that wrap binary::writer instances.
@@ -201,9 +187,7 @@ class ABCAPI buffered_writer :
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -212,9 +196,7 @@ class ABCAPI buffered_writer :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Provides buffering on top of a binary::reader instance.
@@ -271,9 +253,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -282,9 +262,7 @@ protected:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Provides buffering on top of a binary::writer instance.
@@ -344,9 +322,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

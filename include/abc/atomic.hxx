@@ -36,7 +36,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace atomic {
 
 /** Integer type of optimal size for atomic operations (usually the machine’s word size). */
@@ -231,7 +230,6 @@ I subtract(I volatile * piDst, I iSubtrahend) {
 }
 
 } //namespace atomic
-
 } //namespace abc
 
 

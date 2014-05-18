@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::math::abs()
 
 namespace abc {
-
 namespace math {
 
 /** Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
@@ -74,7 +73,6 @@ inline /*constexpr*/ T abs(T t) {
 
 
 } //namespace math
-
 } //namespace abc
 
 

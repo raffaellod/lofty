@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace bitmanip {
 
 ABCAPI uint8_t _raw_ceiling_to_pow2(uint8_t i) {
@@ -66,7 +65,6 @@ ABCAPI uint64_t _raw_ceiling_to_pow2(uint64_t i) {
 }
 
 } //namespace bitmanip
-
 } //namespace abc
 
 

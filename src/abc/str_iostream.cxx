@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 str_istream::str_istream(istr const & s) :
@@ -74,7 +73,6 @@ size_t str_istream::read_raw(void * p, size_t cbMax) {
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -83,7 +81,6 @@ size_t str_istream::read_raw(void * p, size_t cbMax) {
 
 
 namespace abc {
-
 namespace io {
 
 str_ostream::str_ostream() :
@@ -141,7 +138,6 @@ str_ostream::str_type str_ostream::release_content() {
 }
 
 } //namespace io
-
 } //namespace abc
 
 

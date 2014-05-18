@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 /** Base for abstract data streams.
@@ -93,7 +92,6 @@ protected:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -102,7 +100,6 @@ protected:
 
 
 namespace abc {
-
 namespace io {
 
 /** Read-only abstract stream.
@@ -174,7 +171,6 @@ public:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -183,7 +179,6 @@ public:
 
 
 namespace abc {
-
 namespace io {
 
 /** DOC:7103 abc::io::ostream::print()
@@ -354,7 +349,6 @@ public:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -363,7 +357,6 @@ public:
 
 
 namespace abc {
-
 namespace io {
 
 /** Template-free implementation of abc::io::_ostream_print_helper.
@@ -875,7 +868,6 @@ inline ostream & ostream::print(
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -884,7 +876,6 @@ inline ostream & ostream::print(
 
 
 namespace abc {
-
 namespace io {
 
 /** Read/write abstract stream.
@@ -905,7 +896,6 @@ public:
 };
 
 } //namespace io
-
 } //namespace abc
 
 

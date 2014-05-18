@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 /** Implementation of an read-only stream based on a string.
@@ -77,7 +76,6 @@ protected:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -86,7 +84,6 @@ protected:
 
 
 namespace abc {
-
 namespace io {
 
 /** Implementation of an write-only stream based on a string.
@@ -134,7 +131,6 @@ protected:
 
 
 } //namespace io
-
 } //namespace abc
 
 

@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 // These should be members of file_stream_base, but that’s not possible.
@@ -79,7 +78,6 @@ file_stream_base::file_stream_base(
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -88,7 +86,6 @@ file_stream_base::file_stream_base(
 
 
 namespace abc {
-
 namespace io {
 
 file_istream::file_istream(std::shared_ptr<binary::file_reader> pfile) :
@@ -395,7 +392,6 @@ void file_istream::_post_construct() {
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -404,7 +400,6 @@ void file_istream::_post_construct() {
 
 
 namespace abc {
-
 namespace io {
 
 size_t const file_ostream::smc_cbWriteBufMax = 4096;
@@ -529,7 +524,6 @@ file_ostream::file_ostream(file_path const & fp) :
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -538,7 +532,6 @@ file_ostream::file_ostream(file_path const & fp) :
 
 
 namespace abc {
-
 namespace io {
 
 file_iostream::file_iostream(std::shared_ptr<binary::file_base> pfile) :
@@ -557,7 +550,6 @@ file_iostream::file_iostream(file_path const & fp) :
 }
 
 } //namespace io
-
 } //namespace abc
 
 

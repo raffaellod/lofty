@@ -31,9 +31,7 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::testing::utility globals
 
 namespace abc {
-
 namespace testing {
-
 namespace utility {
 
 /** Tracks changes in the internal data pointer of a container.
@@ -52,9 +50,7 @@ template <class T>
 container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
 
 } //namespace utility
-
 } //namespace testing
-
 } //namespace abc
 
 
@@ -62,9 +58,7 @@ container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
 // abc::testing::utility::container_data_ptr_tracker
 
 namespace abc {
-
 namespace testing {
-
 namespace utility {
 
 template <class T>
@@ -118,9 +112,7 @@ inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t
 }
 
 } //namespace utility
-
 } //namespace testing
-
 } //namespace abc
 
 
@@ -128,9 +120,7 @@ inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t
 // abc::testing::utility::instances_counter
 
 namespace abc {
-
 namespace testing {
-
 namespace utility {
 
 /** This class is meant for use in containers to track when items are copied, when they’re moved,
@@ -251,9 +241,7 @@ size_t instances_counter::m_cNew = 0;
 int instances_counter::m_iNextUnique = 0;
 
 } //namespace utility
-
 } //namespace testing
-
 } //namespace abc
 
 

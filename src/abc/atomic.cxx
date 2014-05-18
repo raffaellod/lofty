@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace atomic {
 
 #if ABC_HOST_API_POSIX
@@ -35,7 +34,6 @@ pthread_mutex_t g_mtx(PTHREAD_MUTEX_INITIALIZER);
 #endif
 
 } //namespace atomic
-
 } //namespace abc
 
 

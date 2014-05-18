@@ -34,9 +34,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Base interface for binary (non-text) I/O.
@@ -50,9 +48,7 @@ private:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -61,9 +57,7 @@ private:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for binary (non-text) input.
@@ -86,9 +80,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -97,9 +89,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for binary (non-text) output.
@@ -126,9 +116,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -137,9 +125,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
@@ -168,9 +154,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -179,9 +163,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Interface for binary I/O classes that access data with a known size.
@@ -198,9 +180,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

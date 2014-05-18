@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 test_case::test_case() {
@@ -107,7 +106,6 @@ void test_case::assert_throws(
 }
 
 } //namespace testing
-
 } //namespace abc
 
 
@@ -116,7 +114,6 @@ void test_case::assert_throws(
 
 
 namespace abc {
-
 namespace testing {
 
 /*static*/ test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead(nullptr);
@@ -138,7 +135,6 @@ test_case_factory_impl::test_case_factory_impl(list_item * pli) {
 }
 
 } //namespace testing
-
 } //namespace abc
 
 

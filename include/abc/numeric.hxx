@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::numeric globals
 
 namespace abc {
-
 namespace numeric {
 
 /** Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
@@ -54,7 +53,6 @@ inline /*constexpr*/ bool is_negative(
 
 
 } //namespace numeric
-
 } //namespace abc
 
 
@@ -63,7 +61,6 @@ inline /*constexpr*/ bool is_negative(
 
 
 namespace abc {
-
 namespace numeric {
 
 /** Defines the minimum value for a numeric type.
@@ -151,7 +148,6 @@ template <>
 struct max<unsigned long long> : public std::integral_constant<unsigned long long, ULLONG_MAX> {};
 
 } //namespace numeric
-
 } //namespace abc
 
 

@@ -32,9 +32,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 static std::shared_ptr<file_writer> g_pbfwStdErr;
@@ -393,9 +391,7 @@ std::shared_ptr<file_base> open(
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -404,7 +400,6 @@ std::shared_ptr<file_base> open(
 
 
 namespace abc {
-
 namespace io {
 
 filedesc_t const filedesc::smc_fdNull =
@@ -457,7 +452,6 @@ filedesc & filedesc::operator=(filedesc && fd) {
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -466,9 +460,7 @@ filedesc & filedesc::operator=(filedesc && fd) {
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 file_base::file_base(_file_init_data * pfid) :
@@ -480,9 +472,7 @@ file_base::file_base(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -491,9 +481,7 @@ file_base::file_base(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 file_reader::file_reader(_file_init_data * pfid) :
@@ -552,9 +540,7 @@ file_reader::file_reader(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -563,9 +549,7 @@ file_reader::file_reader(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 file_writer::file_writer(_file_init_data * pfid) :
@@ -635,9 +619,7 @@ file_writer::file_writer(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -646,9 +628,7 @@ file_writer::file_writer(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 console_reader::console_reader(_file_init_data * pfid) :
@@ -698,9 +678,7 @@ console_reader::console_reader(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -709,9 +687,7 @@ console_reader::console_reader(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 console_writer::console_writer(_file_init_data * pfid) :
@@ -759,9 +735,7 @@ console_writer::console_writer(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -770,9 +744,7 @@ console_writer::console_writer(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 pipe_reader::pipe_reader(_file_init_data * pfid) :
@@ -785,9 +757,7 @@ pipe_reader::pipe_reader(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -796,9 +766,7 @@ pipe_reader::pipe_reader(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 pipe_writer::pipe_writer(_file_init_data * pfid) :
@@ -811,9 +779,7 @@ pipe_writer::pipe_writer(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -822,9 +788,7 @@ pipe_writer::pipe_writer(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 regular_file_base::regular_file_base(_file_init_data * pfid) :
@@ -970,9 +934,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -981,9 +943,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 regular_file_reader::regular_file_reader(_file_init_data * pfid) :
@@ -998,9 +958,7 @@ regular_file_reader::regular_file_reader(_file_init_data * pfid) :
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -1009,9 +967,7 @@ regular_file_reader::regular_file_reader(_file_init_data * pfid) :
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 regular_file_writer::regular_file_writer(_file_init_data * pfid) :
@@ -1136,9 +1092,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

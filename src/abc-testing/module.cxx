@@ -29,7 +29,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
@@ -46,7 +45,6 @@ ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
 }
 
 } //namespace testing
-
 } //namespace abc
 
 

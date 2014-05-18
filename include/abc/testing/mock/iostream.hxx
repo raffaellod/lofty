@@ -32,13 +32,11 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
-
 namespace mock {
 
 #if 0
-/** Implementation of an read-only stream based on a string.
+/** Implementation of a read-only stream based on a string.
 */
 class ABCTESTINGAPI istream :
    public virtual ::abc::io::istream {
@@ -46,9 +44,7 @@ class ABCTESTINGAPI istream :
 #endif
 
 } //namespace mock
-
 } //namespace testing
-
 } //namespace abc
 
 
@@ -57,9 +53,7 @@ class ABCTESTINGAPI istream :
 
 
 namespace abc {
-
 namespace testing {
-
 namespace mock {
 
 /** Implementation of an write-only stream based on a string.
@@ -105,9 +99,7 @@ private:
 };
 
 } //namespace mock
-
 } //namespace testing
-
 } //namespace abc
 
 

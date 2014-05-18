@@ -77,7 +77,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace byteorder {
 
 /** Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
@@ -169,7 +168,6 @@ inline I le_to_host(I i) {
 }
 
 } //namespace byteorder
-
 } //namespace abc
 
 

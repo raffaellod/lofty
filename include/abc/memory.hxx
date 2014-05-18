@@ -100,7 +100,6 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 namespace abc {
-
 namespace memory {
 
 /** Requests the dynamic allocation of a memory block of the specified number of bytes.
@@ -133,7 +132,6 @@ return
 ABCAPI void * _raw_realloc(void * p, size_t cb);
 
 } //namespace memory
-
 } //namespace abc
 
 
@@ -142,7 +140,6 @@ ABCAPI void * _raw_realloc(void * p, size_t cb);
 
 
 namespace abc {
-
 namespace memory {
 
 /** Deleter that deallocates memory using memory::free().
@@ -177,7 +174,6 @@ struct freeing_deleter<T[]> :
 };
 
 } //namespace memory
-
 } //namespace abc
 
 
@@ -186,7 +182,6 @@ struct freeing_deleter<T[]> :
 
 
 namespace abc {
-
 namespace memory {
 
 /** Wrapper that invokes a deleter if and only if a set condition is true.
@@ -273,7 +268,6 @@ public:
 };
 
 } //namespace memory
-
 } //namespace abc
 
 
@@ -282,7 +276,6 @@ public:
 
 
 namespace abc {
-
 namespace memory {
 
 /** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
@@ -324,7 +317,6 @@ inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size
 }
 
 } //namespace memory
-
 } //namespace abc
 
 
@@ -333,7 +325,6 @@ inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size
 
 
 namespace abc {
-
 namespace memory {
 
 /** Sets to the value 0 every item in the specified memory block.
@@ -462,7 +453,6 @@ inline T * set(T * ptDst, T const & tValue, size_t c) {
 }
 
 } //namespace memory
-
 } //namespace abc
 
 

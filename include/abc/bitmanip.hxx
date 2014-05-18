@@ -32,7 +32,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace bitmanip {
 
 /* Intrinsics in VS2010:
@@ -126,7 +125,6 @@ inline /*constexpr*/ I rotate_r(I i, unsigned c) {
 }
 
 } //namespace bitmanip
-
 } //namespace abc
 
 

@@ -25,7 +25,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::text globals
 
 namespace abc {
-
 namespace text {
 
 ABCAPI size_t estimate_transcoded_size(
@@ -600,7 +599,6 @@ break_for:
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -609,7 +607,6 @@ break_for:
 
 
 namespace abc {
-
 namespace text {
 
 error::error() :
@@ -623,7 +620,6 @@ void error::init(errint_t err /*= 0*/) {
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -632,7 +628,6 @@ void error::init(errint_t err /*= 0*/) {
 
 
 namespace abc {
-
 namespace text {
 
 decode_error::decode_error() :
@@ -646,7 +641,6 @@ void decode_error::init(errint_t err /*= 0*/) {
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -655,7 +649,6 @@ void decode_error::init(errint_t err /*= 0*/) {
 
 
 namespace abc {
-
 namespace text {
 
 encode_error::encode_error() :
@@ -669,7 +662,6 @@ void encode_error::init(errint_t err /*= 0*/) {
 }
 
 } //namespace text
-
 } //namespace abc
 
 

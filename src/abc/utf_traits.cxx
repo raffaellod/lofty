@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::text globals
 
 namespace abc {
-
 namespace text {
 
 /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
@@ -67,7 +66,6 @@ static void _build_failure_restart_table(
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -76,7 +74,6 @@ static void _build_failure_restart_table(
 
 
 namespace abc {
-
 namespace text {
 
 char8_t const utf8_traits::bom[] = { '\xef', '\xbb', '\xbf' };
@@ -472,7 +469,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -481,7 +477,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 namespace abc {
-
 namespace text {
 
 char16_t const utf16_traits::bom[] = {
@@ -777,7 +772,6 @@ char16_t const utf16_traits::bom[] = {
 }
 
 } //namespace text
-
 } //namespace abc
 
 
@@ -786,7 +780,6 @@ char16_t const utf16_traits::bom[] = {
 
 
 namespace abc {
-
 namespace text {
 
 char32_t const utf32_traits::bom[] = {
@@ -945,7 +938,6 @@ char32_t const utf32_traits::bom[] = {
 }
 
 } //namespace text
-
 } //namespace abc
 
 

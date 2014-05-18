@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 assertion_error::assertion_error() :
@@ -37,7 +36,6 @@ assertion_error::assertion_error() :
 }
 
 } //namespace testing
-
 } //namespace abc
 
 
@@ -46,7 +44,6 @@ assertion_error::assertion_error() :
 
 
 namespace abc {
-
 namespace testing {
 
 runner::runner(std::shared_ptr<io::ostream> posOut) :
@@ -131,7 +128,6 @@ void runner::run_test_case(test_case & tc) {
 }
 
 } //namespace testing
-
 } //namespace abc
 
 

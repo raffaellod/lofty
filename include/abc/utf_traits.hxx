@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace text {
 
 /** UTF character traits: constants and functions related to the UTF encoding based on the character
@@ -488,7 +487,6 @@ public:
 };
 
 } //namespace text
-
 } //namespace abc
 
 

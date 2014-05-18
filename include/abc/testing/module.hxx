@@ -34,7 +34,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace testing {
 
 /** Testing module. It interacts with registered abc::testing::test_case-derived classes,
@@ -50,7 +49,6 @@ public:
 };
 
 } //namespace testing
-
 } //namespace abc
 
 

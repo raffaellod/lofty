@@ -34,7 +34,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::io globals
 
 namespace abc {
-
 namespace io {
 
 /** Native OS file descriptor/handle. */
@@ -129,9 +128,7 @@ inline std::shared_ptr<file_writer> open_writer(file_path const & fp, bool bBuff
 }
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -141,7 +138,6 @@ inline std::shared_ptr<file_writer> open_writer(file_path const & fp, bool bBuff
 
 
 namespace abc {
-
 namespace io {
 
 /** Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
@@ -229,7 +225,6 @@ private:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -238,9 +233,7 @@ private:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Base for file binary I/O classes.
@@ -271,9 +264,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -282,9 +273,7 @@ protected:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary file input.
@@ -310,9 +299,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -321,9 +308,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary file output.
@@ -354,9 +339,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -365,9 +348,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Console/terminal input pseudo-file.
@@ -399,9 +380,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -410,9 +389,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Console/terminal output pseudo-file.
@@ -444,9 +421,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -455,9 +430,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary reader for the output end of a pipe.
@@ -477,9 +450,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -488,9 +459,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary writer for the input end of a pipe.
@@ -510,9 +479,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -521,9 +488,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Base for binary I/O classes for regular disk files.
@@ -572,9 +537,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -583,9 +546,7 @@ protected:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary reader for regular disk files.
@@ -606,9 +567,7 @@ public:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 
@@ -617,9 +576,7 @@ public:
 
 
 namespace abc {
-
 namespace io {
-
 namespace binary {
 
 /** Binary writer for regular disk files.
@@ -657,9 +614,7 @@ protected:
 };
 
 } //namespace binary
-
 } //namespace io
-
 } //namespace abc
 
 

@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 stream_base::stream_base() :
@@ -49,7 +48,6 @@ stream_base::stream_base() :
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -58,14 +56,12 @@ stream_base::stream_base() :
 
 
 namespace abc {
-
 namespace io {
 
 /*virtual*/ istream::~istream() {
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -74,7 +70,6 @@ namespace io {
 
 
 namespace abc {
-
 namespace io {
 
 /*virtual*/ ostream::~ostream() {
@@ -241,7 +236,6 @@ void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo)
 }
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -250,7 +244,6 @@ void _ostream_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo)
 
 
 namespace abc {
-
 namespace io {
 
 iostream::iostream() :
@@ -264,7 +257,6 @@ iostream::iostream() :
 }
 
 } //namespace io
-
 } //namespace abc
 
 

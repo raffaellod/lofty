@@ -665,7 +665,6 @@ namespace io {
 class ostream;
 
 } //namespace io
-
 } //namespace abc
 
 #include <exception>

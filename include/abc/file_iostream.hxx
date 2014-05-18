@@ -34,7 +34,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace io {
 
 /** Base class for file-based data streams.
@@ -73,7 +72,6 @@ protected:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -82,7 +80,6 @@ protected:
 
 
 namespace abc {
-
 namespace io {
 
 /** DOC:0674 abc::io::file_istream buffering
@@ -292,7 +289,6 @@ private:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -301,7 +297,6 @@ private:
 
 
 namespace abc {
-
 namespace io {
 
 /** Implementation of an write-only stream based on a file.
@@ -370,7 +365,6 @@ private:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
@@ -379,7 +373,6 @@ private:
 
 
 namespace abc {
-
 namespace io {
 
 /** Implementation of a read/write stream based on a file.
@@ -403,7 +396,6 @@ public:
 };
 
 } //namespace io
-
 } //namespace abc
 
 
