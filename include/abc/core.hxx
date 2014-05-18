@@ -85,7 +85,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - ABC_HOST_*
+// abc globals - ABC_HOST_API_*
 
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
