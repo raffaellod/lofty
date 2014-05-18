@@ -152,24 +152,35 @@ file_istream::file_istream(file_path const & fp) :
       // If no line terminator was detected, it must be because no known one was there, so avoid
       // scanning for it, and just keep on reading more bytes.
       if (m_lterm != text::line_terminator::unknown) {
-         // Obtain the line terminator for the string encoding…
-         size_t cchLTerm;
-         char_t const * pchLTerm(static_cast<char_t const *>(
-            get_line_terminator_bytes(text::encoding::host, m_lterm, &cchLTerm)
-         ));
-         cchLTerm /= sizeof(char_t);
+         // Pick the appropriate line terminator…
+         istr sLTerm;
+         switch (m_lterm.base()) {
+            case text::line_terminator::cr:
+               sLTerm = SL("\r");
+               break;
+            case text::line_terminator::lf:
+               sLTerm = SL("\n");
+               break;
+            case text::line_terminator::cr_lf:
+               sLTerm = SL("\r\n");
+               break;
+            // default is here just to silence compiler warnings.
+            default:
+               break;
+         }
          // …and search for it.
          char_t const * pchLineEnd(text::utf_traits<>::str_str(
-            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd, pchLTerm, pchLTerm + cchLTerm
+            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd,
+            sLTerm.cbegin().base(), sLTerm.cend().base()
          ));
          // Check if a match was found (remember, this is *not* C strstr(): it returns the end if no
          // matches are found).
          if (pchLineEnd != pchBeforeLastEnd + cchBeforeLastEnd) {
             // Move back to the read buffer any read bytes beyond the line terminator.
-            size_t ichLineEnd(size_t(pchLineEnd - pchLastEnd));
+            size_t ichLineEnd(size_t(pchLineEnd - pchLastEnd)), cchLineEnd(sLTerm.size());
             unread_raw(
-               pchLineEnd + cchLTerm,
-               cbRead - sizeof(char_t) * (ichLineEnd + cchLTerm),
+               pchLineEnd + cchLineEnd,
+               cbRead - sizeof(char_t) * (ichLineEnd + cchLineEnd),
                text::encoding::host
             );
             // We’re actually only filling up the characters up to the line end.
