@@ -92,8 +92,8 @@ At the moment, ABC lacks only offers very basic means for installation.
 
 ABC comes with a built-in cross-platform make utility, ABC Make (see also
 [DOC:6931 ABC Make]); the way it works is very similar to the common UNIX make
-utility, but ABC Make makefiles are written in an XML syntax inspired by
-MSBuild format.
+utility, but ABC Make makefiles are written in an XML syntax inspired by MSBuild
+format.
 
 TODO: document ABC Make makefile syntax and link to it from here.
 
@@ -147,8 +147,8 @@ This is the most basic program with ABC:
 
    ABC_MAIN_APP_MODULE(my_app_module)
 
-Once compiled, this will print out “Hello World” and terminate with exit code
-0. See [DOC:1063 Application modules] for more information on this basic code
+Once compiled, this will print out “Hello World” and terminate with exit code 0.
+See [DOC:1063 Application modules] for more information on this basic code
 setup.
 
 TODO: more examples, or more links to examples.
