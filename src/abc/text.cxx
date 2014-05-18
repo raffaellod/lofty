@@ -121,14 +121,17 @@ ABCAPI size_t get_encoding_size(encoding enc) {
 
 
 ABCAPI encoding guess_encoding(
-   void const * pBuf, size_t cbBuf, size_t cbSrcTotal /*= 0*/, size_t * pcbBom /*= nullptr*/
+   void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal /*= 0*/,
+   size_t * pcbBom /*= nullptr*/
 ) {
-   ABC_TRACE_FN((pBuf, cbBuf, cbSrcTotal, pcbBom));
+   ABC_TRACE_FN((pBufBegin, pBufEnd, cbSrcTotal, pcbBom));
 
-   uint8_t const * pbBuf(static_cast<uint8_t const *>(pBuf));
+   uint8_t const * pbBufBegin(static_cast<uint8_t const *>(pBufEnd));
+   uint8_t const * pbBufEnd(static_cast<uint8_t const *>(pBufEnd));
    // If the total size is not specified, assume that the buffer is the whole source.
-   if (!cbSrcTotal)
-      cbSrcTotal = cbBuf;
+   if (!cbSrcTotal) {
+      cbSrcTotal = size_t(pbBufEnd - pbBufBegin);
+   }
 
    // Statuses for the scanner. Each BOM status must be 1 bit to the right of its resulting
    // encoding; LE variants must be 2 bits to the right of their BE counterparts.
@@ -181,15 +184,15 @@ ABCAPI encoding guess_encoding(
       sc_abUtf32beBom[] = { 0x00, 0x00, 0xfe, 0xff };
    // Struct to uniformize scanning for BOMs.
    static struct bomscandata_t {
-      enc_scan_status ess;
       uint8_t const * pabBom;
-      size_t cbBom;
+      unsigned short ess;
+      uint8_t cbBom;
    } const sc_absd[] = {
-      { ESS_UTF8_BOM,    sc_abUtf8Bom,    sizeof(sc_abUtf8Bom   ) },
-      { ESS_UTF16LE_BOM, sc_abUtf16leBom, sizeof(sc_abUtf16leBom) },
-      { ESS_UTF16BE_BOM, sc_abUtf16beBom, sizeof(sc_abUtf16beBom) },
-      { ESS_UTF32LE_BOM, sc_abUtf32leBom, sizeof(sc_abUtf32leBom) },
-      { ESS_UTF32BE_BOM, sc_abUtf32beBom, sizeof(sc_abUtf32beBom) }
+      { sc_abUtf8Bom,    ESS_UTF8_BOM,    sizeof(sc_abUtf8Bom   ) },
+      { sc_abUtf16leBom, ESS_UTF16LE_BOM, sizeof(sc_abUtf16leBom) },
+      { sc_abUtf16beBom, ESS_UTF16BE_BOM, sizeof(sc_abUtf16beBom) },
+      { sc_abUtf32leBom, ESS_UTF32LE_BOM, sizeof(sc_abUtf32leBom) },
+      { sc_abUtf32beBom, ESS_UTF32BE_BOM, sizeof(sc_abUtf32beBom) }
    };
 
 
@@ -214,8 +217,9 @@ ABCAPI encoding guess_encoding(
    // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
    // exactly one guess.
    unsigned cbUtf8Cont(0);
-   for (size_t ib(0); ib < cbBuf; ++ib) {
-      uint8_t b(pbBuf[ib]);
+   size_t ib(0);
+   for (uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
+      uint8_t b(*pbBuf);
 
       if (fess & ESS_UTF8) {
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
@@ -251,22 +255,17 @@ ABCAPI encoding guess_encoding(
             if ((fess & ess) && ((ib & sizeof(char16_t)) != 0) == (ess != ESS_UTF16LE)) {
                switch (b & 0xfc) {
                   case 0xd8: {
-                     // There must be a trail surrogate after 1 byte, and there have to be enough
-                     // bytes in the source; skip the check if the buffer doesn’t include that byte.
-                     size_t ibNext(ib + sizeof(char16_t));
-                     if (
-                        (cbSrcTotal && ibNext >= cbSrcTotal) ||
-                        (ibNext < cbBuf && (pbBuf[ibNext] & 0xfc) != 0xdc)
-                     ) {
+                     // There must be a trail surrogate after 1 byte.
+                     uint8_t const * pbNext(pbBuf + sizeof(char16_t));
+                     if (pbNext >= pbBufEnd || (*pbNext & 0xfc) != 0xdc) {
                         fess &= ~ess;
                      }
                      break;
                   }
                   case 0xdc: {
                      // Assume there was a lead surrogate 2 bytes before.
-                     size_t ibPrev(ib - sizeof(char16_t));
-                     // ibPrev < ib checks for underflow of ibPrev.
-                     if (ibPrev < ib && (pbBuf[ibPrev] & 0xfc) != 0xd8) {
+                     uint8_t const * pbPrev(pbBuf - sizeof(char16_t));
+                     if (pbPrev < pbBufBegin || (*pbPrev & 0xfc) != 0xd8) {
                         fess &= ~ess;
                      }
                      break;
@@ -280,7 +279,7 @@ ABCAPI encoding guess_encoding(
          // Check for UTF-32 validity. Just ensure that each quadruplet of bytes defines a valid
          // UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
          // well as other restrictions.
-         uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf + ib - (sizeof(char32_t) - 1)));
+         uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
          if ((fess & ESS_UTF32LE) && !utf32_traits::is_valid(byteorder::le_to_host(ch))) {
             fess &= ~unsigned(ESS_UTF32LE);
          }
@@ -291,15 +290,15 @@ ABCAPI encoding guess_encoding(
 
       if (fess & ESS_ISO_8859_1) {
          // Check for ISO-8859-1 validity. This is more of a guess, since there’s a big many other
-         // encodings which could pass this check.
+         // encodings that would pass this check.
          if ((sc_abValidISO88591[b >> 3] & (1 << (b & 7))) == 0) {
             fess &= ~unsigned(ESS_ISO_8859_1);
          }
       }
 
       if (fess & ESS_WINDOWS_1252) {
-         // Check for Windows-1252 validity. Even more of a guess, since this considers valid more
-         // characters still.
+         // Check for Windows-1252 validity. Even more of a guess, since this considers valid even
+         // more characters.
          if ((sc_abValidWindows1252[b >> 3] & (1 << (b & 7))) == 0) {
             fess &= ~unsigned(ESS_WINDOWS_1252);
          }
@@ -315,7 +314,7 @@ ABCAPI encoding guess_encoding(
                if (b != sc_absd[iBsd].pabBom[ib]) {
                   // This byte doesn’t match: stop checking for this BOM.
                   fess &= ~essBom;
-               } else if (ib == sc_absd[iBsd].cbBom - 1) {
+               } else if (ib == sc_absd[iBsd].cbBom - 1u) {
                   // This was the last BOM byte, which means that the whole BOM was matched: stop
                   // checking for the BOM, and enable checking for the encoding itself.
                   fess &= ~essBom;

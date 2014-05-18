@@ -200,11 +200,13 @@ file_istream::file_istream(file_path const & fp) :
    if (m_enc == text::encoding::unknown) {
       // If the encoding is still undefined, try to guess it now. To have a big enough buffer, we’ll
       // just use the regular read buffer instead of the (possibly too small) provided p.
-      void * pRawReadBuf(_get_read_buffer() + m_ibReadBufUsed);
+      int8_t * pbRawReadBuf(_get_read_buffer() + m_ibReadBufUsed);
       ABC_ASSERT(
          !m_cbReadBufUsed, SL("nobody set m_enc yet, so the read buffer must have never been used")
       );
-      m_cbReadBufUsed = pbr->read(pRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed);
+      m_cbReadBufUsed = pbr->read(
+         pbRawReadBuf, m_cbReadBufLead + m_cbReadBufBulk - m_ibReadBufUsed
+      );
       if (!m_cbReadBufUsed) {
          m_bAtEof = true;
       }
@@ -214,7 +216,7 @@ file_istream::file_istream(file_path const & fp) :
       } else {
          cbFile = 0;
       }
-      m_enc = text::guess_encoding(pRawReadBuf, m_cbReadBufUsed, cbFile, &cbBom);
+      m_enc = text::guess_encoding(pbRawReadBuf, pbRawReadBuf + m_cbReadBufUsed, cbFile, &cbBom);
       if (cbBom) {
          // A BOM was read: discard it.
          m_ibReadBufUsed += cbBom;
