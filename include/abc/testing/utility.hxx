@@ -126,7 +126,7 @@ namespace utility {
 /** This class is meant for use in containers to track when items are copied, when they’re moved,
 and to check if individual instances have been copied instead of being moved.
 */
-class instances_counter {
+class ABCTESTINGAPI instances_counter {
 public:
 
    /** Constructor. The copying overload doesn’t really use their argument, because the only non-
@@ -233,12 +233,6 @@ private:
    /** Value of m_iUnique for the next instance. */
    static int m_iNextUnique;
 };
-
-
-size_t instances_counter::m_cCopies = 0;
-size_t instances_counter::m_cMoves = 0;
-size_t instances_counter::m_cNew = 0;
-int instances_counter::m_iNextUnique = 0;
 
 } //namespace utility
 } //namespace testing

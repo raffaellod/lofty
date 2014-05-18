@@ -89,6 +89,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc-testing/module.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
       <source path="src/abc-testing/test_case.cxx"/>
+      <source path="src/abc-testing/utility.cxx"/>
       <dynlib name="abc"/>
    </dynlib>
 </abcmk>
