@@ -131,8 +131,8 @@ file_istream::file_istream(file_path const & fp) :
       }
 
       // Read as many characters as possible, appending to the current end of the string.
-      char_t * pchLastEnd(ps->begin().base() + cchFilled);
-      size_t cbRead(read_raw(pchLastEnd, sizeof(char_t) * cchAvail, text::encoding::host));
+      char_t * pchPrevReadEnd(ps->begin().base() + cchFilled);
+      size_t cbRead(read_raw(pchPrevReadEnd, sizeof(char_t) * cchAvail, text::encoding::host));
       if (!cbRead) {
          break;
       }
@@ -141,13 +141,11 @@ file_istream::file_istream(file_path const & fp) :
       // Now we need to search for the line terminator. Since line terminators can be more than one
       // character long, back up one character first (if we have at least one), to avoid missing the
       // line terminator due to searching for it one character beyond its start.
-      char_t const * pchBeforeLastEnd(pchLastEnd - (cchFilled ? 1 : 0));
-      size_t cchBeforeLastEnd((cchFilled ? 1 : 0) + cchRead);
+      char_t const * pchBeforeLastEnd(pchPrevReadEnd - (cchFilled ? 1 : 0));
+      char_t const * pchReadEnd(pchPrevReadEnd + cchRead);
       // If the line terminator isn’t known yet, try to detect it now.
       if (m_lterm == text::line_terminator::unknown) {
-         m_lterm = text::guess_line_terminator(
-            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd
-         );
+         m_lterm = text::guess_line_terminator(pchBeforeLastEnd, pchReadEnd);
       }
       // If no line terminator was detected, it must be because no known one was there, so avoid
       // scanning for it, and just keep on reading more bytes.
@@ -170,14 +168,13 @@ file_istream::file_istream(file_path const & fp) :
          }
          // …and search for it.
          char_t const * pchLineEnd(text::utf_traits<>::str_str(
-            pchBeforeLastEnd, pchBeforeLastEnd + cchBeforeLastEnd,
-            sLTerm.cbegin().base(), sLTerm.cend().base()
+            pchBeforeLastEnd, pchReadEnd, sLTerm.cbegin().base(), sLTerm.cend().base()
          ));
          // Check if a match was found (remember, this is *not* C strstr(): it returns the end if no
          // matches are found).
-         if (pchLineEnd != pchBeforeLastEnd + cchBeforeLastEnd) {
+         if (pchLineEnd != pchReadEnd) {
             // Move back to the read buffer any read bytes beyond the line terminator.
-            size_t ichLineEnd(size_t(pchLineEnd - pchLastEnd)), cchLineEnd(sLTerm.size());
+            size_t ichLineEnd(size_t(pchLineEnd - pchPrevReadEnd)), cchLineEnd(sLTerm.size());
             unread_raw(
                pchLineEnd + cchLineEnd,
                cbRead - sizeof(char_t) * (ichLineEnd + cchLineEnd),
