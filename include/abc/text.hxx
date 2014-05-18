@@ -36,30 +36,25 @@ on this.
 ABC_ENUM(encoding, \
    /** Unknown/undetermined encoding. */ \
    (unknown,          0), \
-   /** Identity encoding: no transcoding is to occur. */ \
-   (identity,         1), \
-   /** Offset of the first charset encoding (as opposed to non-charsets, such as “unknown” and
-    * “identity”). */ \
-   (_charsets_offset, 2), \
    /** UTF-8 encoding. */ \
-   (utf8,             2), \
+   (utf8,             1), \
    /** UTF-16 Little Endian encoding. */ \
-   (utf16le,          3), \
+   (utf16le,          2), \
    /** UTF-16 Big Endian encoding. */ \
-   (utf16be,          4), \
+   (utf16be,          3), \
    /** UTF-32 Little Endian encoding. */ \
-   (utf32le,          5), \
+   (utf32le,          4), \
    /** UTF-32 Big Endian encoding. */ \
-   (utf32be,          6), \
+   (utf32be,          5), \
    /** ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (iso_8859_1,       7), \
+   (iso_8859_1,       6), \
    /** Windows-1252 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (windows_1252,     8), \
+   (windows_1252,     7), \
    /** EBCDIC encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
-   (ebcdic,           9), \
+   (ebcdic,           8), \
    /** UTF-16 encoding (host endianness). */ \
    (utf16_host,       (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
    /** UTF-32 encoding (host endianness). */ \
