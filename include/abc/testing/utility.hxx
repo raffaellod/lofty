@@ -169,6 +169,32 @@ public:
    }
 
 
+   /** Equality comparison operator. Should always return false, since no two simultaneously-living
+   instances should have the same unique value.
+
+   oc
+      Object to compare to *this.
+   return
+      true if *this has the same unique value as oc, or false otherwise.
+   */
+   bool operator==(instances_counter const & oc) const {
+      return m_iUnique == oc.m_iUnique;
+   }
+
+
+   /** Inequality comparison operator. Should always return true, since no two simultaneously-living
+   instances should have the same unique value.
+
+   oc
+      Object to compare to *this.
+   return
+      true if *this has a different unique value than oc, or false otherwise.
+   */
+   bool operator!=(instances_counter const & oc) const {
+      return !operator==(oc);
+   }
+
+
    /** Returns the count of instances created, excluding moved ones.
 
    return
@@ -237,29 +263,6 @@ private:
 } //namespace utility
 } //namespace testing
 } //namespace abc
-
-
-/** Equality comparison operator. Should always return false, since no two simultaneously-living
-instances should have the same unique value.
-
-oc1
-   First object to compare.
-oc2
-   Second object to compare.
-return
-   true if oc1 has the same unique value as oc2, or false otherwise.
-*/
-bool operator==(
-   abc::testing::utility::instances_counter const & oc1,
-   abc::testing::utility::instances_counter const & oc2
-);
-
-bool operator==(
-   abc::testing::utility::instances_counter const & oc1,
-   abc::testing::utility::instances_counter const & oc2
-) {
-   return oc1.unique() == oc2.unique();
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
