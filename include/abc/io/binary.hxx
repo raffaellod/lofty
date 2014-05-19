@@ -40,11 +40,11 @@ namespace binary {
 /** Base interface for binary (non-text) I/O.
 */
 class ABCAPI base {
-private:
+public:
 
-   /** Needed to make the class polymorphic (have a vtable).
+   /** Destructor. Also needed to make the class polymorphic (have a vtable).
    */
-   virtual void __dummy();
+   virtual ~base();
 };
 
 } //namespace binary

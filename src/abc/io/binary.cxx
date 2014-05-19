@@ -30,7 +30,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*virtual*/ void base::__dummy() {
+/*virtual*/ base::~base() {
 }
 
 } //namespace binary
