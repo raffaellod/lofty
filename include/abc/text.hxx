@@ -177,7 +177,8 @@ encDst
    Encoding of the string pointed to by *ppDst.
 ppDst
    Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
-   characters are stored in the buffer.
+   characters are stored in the buffer. If nullptr is passed no writes will be attempted, but all
+   the calculations of source/destination used bytes will still take place.
 pcbDstMax
    Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
    decremented by the number of characters stored in the buffer.

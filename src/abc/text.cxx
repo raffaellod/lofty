@@ -381,8 +381,11 @@ ABCAPI size_t transcode(
 ) {
    ABC_TRACE_FN((encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax));
 
+   // If ppDst is nullptr, we’ll only calculate how much of **ppSrc can be transcoded to fit into
+   // *pcbDstMax; otherwise we’ll also perform the actual transcoding.
+   bool bWriteDst(ppDst != nullptr);
    uint8_t const * pbSrc(static_cast<uint8_t const *>(*ppSrc));
-   uint8_t       * pbDst(static_cast<uint8_t       *>(*ppDst));
+   uint8_t       * pbDst(bWriteDst ? static_cast<uint8_t       *>(*ppDst) : nullptr);
    uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
    uint8_t const * pbDstEnd(pbDst + *pcbDstMax);
 
@@ -515,15 +518,19 @@ ABCAPI size_t transcode(
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
-            unsigned cbCont(cbSeq - 1);
-            // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont)
-            // make up what goes in the leading byte, which is combined with the proper sequence
-            // indicator.
-            *pbDst++ = uint8_t(
-               utf8_traits::cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont)
-            );
-            while (cbCont--) {
-               *pbDst++ = uint8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
+            if (bWriteDst) {
+               unsigned cbCont(cbSeq - 1);
+               // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont)
+               // make up what goes in the leading byte, which is combined with the proper sequence
+               // indicator.
+               *pbDst++ = uint8_t(
+                  utf8_traits::cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont)
+               );
+               while (cbCont--) {
+                  *pbDst++ = uint8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
+               }
+            } else {
+               pbDst += cbSeq;
             }
             break;
          }
@@ -534,26 +541,30 @@ ABCAPI size_t transcode(
             if (pbDst + sizeof(char16_t) + cbCont > pbDstEnd) {
                goto break_for;
             }
-            char16_t ch16Dst0, ch16Dst1;
-            if (cbCont) {
-               ch32 -= 0x10000;
-               ch16Dst0 = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
-               ch16Dst1 = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
-            } else {
-               ch16Dst0 = char16_t(ch32);
-            }
-            if (encDst != encoding::utf16_host) {
-               ch16Dst0 = byteorder::swap(ch16Dst0);
+            if (bWriteDst) {
+               char16_t ch16Dst0, ch16Dst1;
                if (cbCont) {
-                  ch16Dst1 = byteorder::swap(ch16Dst1);
+                  ch32 -= 0x10000;
+                  ch16Dst0 = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
+                  ch16Dst1 = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
+               } else {
+                  ch16Dst0 = char16_t(ch32);
                }
-            }
-            *reinterpret_cast<char16_t *>(pbDst) = ch16Dst0;
-            if (cbCont) {
+               if (encDst != encoding::utf16_host) {
+                  ch16Dst0 = byteorder::swap(ch16Dst0);
+                  if (cbCont) {
+                     ch16Dst1 = byteorder::swap(ch16Dst1);
+                  }
+               }
+               *reinterpret_cast<char16_t *>(pbDst) = ch16Dst0;
+               if (cbCont) {
+                  pbDst += sizeof(char16_t);
+                  *reinterpret_cast<char16_t *>(pbDst) = ch16Dst1;
+               }
                pbDst += sizeof(char16_t);
-               *reinterpret_cast<char16_t *>(pbDst) = ch16Dst1;
+            } else {
+               pbDst += sizeof(char16_t) * cbCont;
             }
-            pbDst += sizeof(char16_t);
             break;
          }
 
@@ -569,7 +580,9 @@ ABCAPI size_t transcode(
             if (pbDst + sizeof(char32_t) > pbDstEnd) {
                goto break_for;
             }
-            *reinterpret_cast<char32_t *>(pbDst) = ch32;
+            if (bWriteDst) {
+               *reinterpret_cast<char32_t *>(pbDst) = ch32;
+            }
             pbDst += sizeof(char32_t);
             break;
 
