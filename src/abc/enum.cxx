@@ -77,12 +77,14 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(istr const & sFormat) {
 }
 
 
-void _enum_to_str_backend_impl::write_impl(int i, enum_member const * pem, io::ostream * posOut) {
-   ABC_TRACE_FN((this, i, pem, posOut));
+void _enum_to_str_backend_impl::write_impl(
+   int i, enum_member const * pem, io::text::writer * ptwOut
+) {
+   ABC_TRACE_FN((this, i, pem, ptwOut));
 
    enum_member const * petvp(enum_member::find_in_map(pem, i));
    // TODO: apply format options.
-   posOut->write(istr(unsafe, petvp->pszName));
+   ptwOut->write(istr(unsafe, petvp->pszName));
 }
 
 } //namespace abc

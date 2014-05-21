@@ -48,12 +48,12 @@ public:
 
    psz
       Pointer to the string to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(pointer_iterator<TCont, TVal> const & it, io::ostream * posOut) {
+   void write(pointer_iterator<TCont, TVal> const & it, io::text::writer * ptwOut) {
       to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>::write(
-         it.base(), posOut
+         it.base(), ptwOut
       );
    }
 };

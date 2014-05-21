@@ -203,9 +203,7 @@ public:
    const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const;
 
 
-   /** Uses the current contents of the string to generate a new one using io::str_ostream::print().
-
-   Implemented in str_iostream.hxx due to its dependency on io::str_iostream.
+   /** Uses the current content of the string to generate a new one using io::text::writer::print().
 
    ts
       Replacement values.

@@ -46,8 +46,8 @@ assertion_error::assertion_error() :
 namespace abc {
 namespace testing {
 
-runner::runner(std::shared_ptr<io::ostream> posOut) :
-   m_pos(std::move(posOut)),
+runner::runner(std::shared_ptr<io::text::writer> ptwOut) :
+   m_ptw(std::move(ptwOut)),
    m_cFailedAssertions(0) {
 }
 
@@ -77,10 +77,10 @@ void runner::log_assertion(
    ABC_TRACE_FN((this, srcloc, sExpr, sOp, sExpected, sActual));
 
    if (bPass) {
-      m_pos->print(SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected);
+      m_ptw->print(SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected);
    } else {
       ++m_cFailedAssertions;
-      m_pos->print(
+      m_ptw->print(
          SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
             SL("  expected: {}{}\n")
             SL("  actual:   {}\n"),
@@ -109,22 +109,22 @@ void runner::run() {
 void runner::run_test_case(test_case & tc) {
    ABC_TRACE_FN((this/*, tc*/));
 
-   m_pos->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
+   m_ptw->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
 
    try {
       tc.run();
    } catch (assertion_error const &) {
       // This exception type is only used to interrupt abc::testing::test_case::run().
-      m_pos->write(SL("test case execution interrupted\n"));
+      m_ptw->write(SL("test case execution interrupted\n"));
    } catch (std::exception const & x) {
-      exception::write_with_scope_trace(m_pos.get(), &x);
-      m_pos->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      exception::write_with_scope_trace(m_ptw.get(), &x);
+      m_ptw->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    } catch (...) {
-      exception::write_with_scope_trace(m_pos.get());
-      m_pos->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      exception::write_with_scope_trace(m_ptw.get());
+      m_ptw->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    }
 
-   m_pos->write(SL("ABCMK-TEST-CASE-END\n"));
+   m_ptw->write(SL("ABCMK-TEST-CASE-END\n"));
 }
 
 } //namespace testing

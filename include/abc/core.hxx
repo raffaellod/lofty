@@ -668,10 +668,12 @@ namespace abc {
 class istr;
 
 namespace io {
+namespace text {
 
 // Forward declaration.
-class ostream;
+class writer;
 
+} //namespace text
 } //namespace io
 } //namespace abc
 
@@ -701,11 +703,13 @@ class ostream;
 #include <abc/str-after-to_str.hxx>
 #include <abc/pointer_iterator-after-to_str.hxx>
 
-#include <abc/iostream.hxx>
-#include <abc/str_iostream.hxx>
+#include <abc/io/binary.hxx>
+#include <abc/io/binary/buffered.hxx>
+#include <abc/io/text.hxx>
+#include <abc/io/text/str.hxx>
 
-#include <abc/str-after-str_iostream.hxx>
-#include <abc/to_str-after-str_iostream.hxx>
+#include <abc/str-after-str_writer.hxx>
+#include <abc/to_str-after-str_writer.hxx>
 
 #include <abc/trace.hxx>
 

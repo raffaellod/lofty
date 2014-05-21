@@ -18,9 +18,9 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
+#include <abc/io/text/file.hxx>
 #include <abc/testing/module.hxx>
 #include <abc/testing/runner.hxx>
-#include <abc/file_iostream.hxx>
 
 
 
@@ -36,7 +36,7 @@ ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
 
    ABC_UNUSED_ARG(vsArgs);
 
-   runner r(io::file_ostream::stderr());
+   runner r(io::text::stderr());
    r.load_registered_test_cases();
    r.run();
    bool bAllPassed(r.log_summary());

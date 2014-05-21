@@ -48,10 +48,10 @@ protected:
 
    e
       Enumeration value to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write_impl(int i, enum_member const * pem, io::ostream * posOut);
+   void write_impl(int i, enum_member const * pem, io::text::writer * ptwOut);
 };
 
 } //namespace abc
@@ -78,8 +78,8 @@ public:
 
    /** See abc::_enum_to_str_backend_impl::write().
    */
-   void write(enum_impl<T> e, io::ostream * posOut) {
-      _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), posOut);
+   void write(enum_impl<T> e, io::text::writer * ptwOut) {
+      _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
    }
 };
 

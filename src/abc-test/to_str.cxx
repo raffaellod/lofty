@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/testing/test_case.hxx>
-#include <abc/testing/mock/iostream.hxx>
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,32 +32,39 @@ class to_str_test_case_base :
    public testing::test_case {
 protected:
 
-   /** Same as abc::to_str(), except it uses an internal mocked stream for higher speed.
+   /** Constructor.
+   */
+   to_str_test_case_base() :
+      m_stw(&m_sWriterBuffer) {
+   }
+
+
+   /** Same as abc::to_str(), except it uses an writer with a static string for higher speed.
 
    t
       Value to output.
-   achFormatSpec
+   sFormatSpec
       Format specification for t.
    return
-      The resulting contents of the internal stream.
+      The resulting contents of the internal writer.
    */
-   template <typename T, size_t t_cchFormatSpec>
-   istr const get_to_str_output(
-      T const & t, char_t const (& achFormatSpec)[t_cchFormatSpec]
-   ) {
-      ABC_TRACE_FN((t, achFormatSpec));
+   template <typename T>
+   istr const & get_to_str_output(T const & t, istr const & sFormatSpec) {
+      ABC_TRACE_FN((t, sFormatSpec));
 
-      to_str_backend<T> tsb(achFormatSpec);
-      m_mos.reset();
-      tsb.write(t, &m_mos);
-      return m_mos.contents();
+      to_str_backend<T> tsb(sFormatSpec);
+      m_stw.clear();
+      tsb.write(t, &m_stw);
+      return m_stw.get_str();
    }
 
 
 protected:
 
-   /** Stream to convert to string into. */
-   testing::mock::ostream m_mos;
+   /** Buffer for m_tw, to avoid performance impacts from memory (re)allocation. */
+   smstr<128> m_sWriterBuffer;
+   /** Destination for to_str() writes. */
+   io::text::str_writer m_stw;
 };
 
 } //namespace test

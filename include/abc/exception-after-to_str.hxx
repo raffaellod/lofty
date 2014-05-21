@@ -45,10 +45,10 @@ public:
 
    srcloc
       Source location to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(source_location const & srcloc, io::ostream * posOut);
+   void write(source_location const & srcloc, io::text::writer * ptwOut);
 };
 
 } //namespace abc

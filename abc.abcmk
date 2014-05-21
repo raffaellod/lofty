@@ -27,18 +27,18 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/bitmanip.cxx"/>
       <source path="src/abc/byteorder.cxx"/>
       <source path="src/abc/core.cxx"/>
-      <source path="src/abc/file_iostream.cxx"/>
       <source path="src/abc/file_path.cxx"/>
       <source path="src/abc/enum.cxx"/>
       <source path="src/abc/exception.cxx"/>
       <source path="src/abc/io/binary.cxx"/>
       <source path="src/abc/io/binary/buffered.cxx"/>
       <source path="src/abc/io/binary/file.cxx"/>
-      <source path="src/abc/iostream.cxx"/>
+      <source path="src/abc/io/text.cxx"/>
+      <source path="src/abc/io/text/file.cxx"/>
+      <source path="src/abc/io/text/str.cxx"/>
       <source path="src/abc/memory.cxx"/>
       <source path="src/abc/module.cxx"/>
       <source path="src/abc/str.cxx"/>
-      <source path="src/abc/str_iostream.cxx"/>
       <source path="src/abc/to_str.cxx"/>
       <source path="src/abc/text.cxx" />
       <source path="src/abc/trace.cxx"/>
@@ -51,9 +51,8 @@ You should have received a copy of the GNU General Public License along with ABC
          <source path="src/abc-test/enum.cxx"/>
          <source path="src/abc-test/exception.cxx"/>
          <source path="src/abc-test/file_path.cxx"/>
-         <source path="src/abc-test/ostream-print.cxx"/>
+         <source path="src/abc-test/io-text-writer-print.cxx"/>
          <source path="src/abc-test/str.cxx"/>
-         <source path="src/abc-test/str_ostream.cxx"/>
          <source path="src/abc-test/to_str.cxx"/>
          <source path="src/abc-test/utf_traits.cxx"/>
          <source path="src/abc-test/vector.cxx"/>
@@ -67,25 +66,25 @@ You should have received a copy of the GNU General Public License along with ABC
          <expected-output path="src/abc-test-cppmacros/cppmacros.cxx.i"/>
       </unittest>
 
-      <unittest name="abc-test-file_ostream-write-stdout-utf8">
-         <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf8.cxx"/>
-         <expected-output path="src/abc-test-file_iostream/utf8.txt"/>
-      </unittest>
+      <!-- unittest name="abc-test-binbuf_writer-write-stdout-utf8">
+         <source path="src/abc-test-io-text/binbuf_writer-write-stdout-utf8.cxx"/>
+         <expected-output path="src/abc-test-io-text/utf8.txt"/>
+      </unittest -->
 
-      <unittest name="abc-test-file_ostream-write-stdout-utf16be">
-         <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf16be.cxx"/>
-         <expected-output path="src/abc-test-file_iostream/utf16be.txt"/>
-      </unittest>
+      <!-- unittest name="abc-test-binbuf_writer-write-stdout-utf16be">
+         <source path="src/abc-test-io-text/binbuf_writer-write-stdout-utf16be.cxx"/>
+         <expected-output path="src/abc-test-io-text/utf16be.txt"/>
+      </unittest -->
 
-      <unittest name="abc-test-file_ostream-write-stdout-utf32le">
-         <source path="src/abc-test-file_iostream/file_ostream-write-stdout-utf32le.cxx"/>
-         <expected-output path="src/abc-test-file_iostream/utf32le.txt"/>
-      </unittest>
+      <!-- unittest name="abc-test-binbuf_writer-write-stdout-utf32le">
+         <source path="src/abc-test-io-text/binbuf_writer-write-stdout-utf32le.cxx"/>
+         <expected-output path="src/abc-test-io-text/utf32le.txt"/>
+      </unittest -->
    </dynlib>
 
    <dynlib name="abc-testing">
       <!-- Testing-support library. -->
-      <source path="src/abc-testing/mock/iostream.cxx"/>
+      <!-- source path="src/abc-testing/mock/iostream.cxx"/ -->
       <source path="src/abc-testing/module.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
       <source path="src/abc-testing/test_case.cxx"/>

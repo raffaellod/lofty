@@ -44,12 +44,12 @@ _str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
 
 
 void _str_to_str_backend::write(
-   void const * p, size_t cb, text::encoding enc, io::ostream * posOut
+   void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FN((this, p, cb, enc, posOut));
+   ABC_TRACE_FN((this, p, cb, enc, ptwOut));
 
    // TODO: apply format options.
-   posOut->write_raw(p, cb, enc);
+   ptwOut->write_binary(p, cb, enc);
 }
 
 } //namespace abc

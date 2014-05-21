@@ -478,10 +478,10 @@ public:
 
    fp
       File path to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(file_path const & fp, io::ostream * posOut);
+   void write(file_path const & fp, io::text::writer * ptwOut);
 };
 
 } //namespace abc

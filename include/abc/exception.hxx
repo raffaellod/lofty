@@ -384,13 +384,13 @@ public:
    /** Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
 
-   pos
-      Stream to write to. If omitted, the stack trace will be written to stderr.
+   ptw
+      Pointer to the writer to output to. If omitted, the stack trace will be written to stderr.
    pstdx
       Caught exception.
    */
    static void write_with_scope_trace(
-      io::ostream * pos = nullptr, std::exception const * pstdx = nullptr
+      io::text::writer * ptw = nullptr, std::exception const * pstdx = nullptr
    );
 
 
@@ -398,10 +398,10 @@ protected:
 
    /** Prints extended information for the exception.
 
-   pos
-      Pointer to a stream to write to.
+   ptw
+      Pointer to the writer to output to.
    */
-   virtual void _print_extended_info(io::ostream * pos) const;
+   virtual void _print_extended_info(io::text::writer * ptw) const;
 
 
 public:
@@ -901,7 +901,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::ostream * pos) const;
+   virtual void _print_extended_info(io::text::writer * ptw) const;
 
 
 private:
@@ -1041,7 +1041,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::ostream * pos) const;
+   virtual void _print_extended_info(io::text::writer * ptw) const;
 
 
 private:

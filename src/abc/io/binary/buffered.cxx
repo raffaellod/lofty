@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc/core.hxx>
 #include <abc/io/binary/buffered.hxx>
+#include <abc/bitmanip.hxx>
 #include <algorithm>
 #if ABC_HOST_API_POSIX
    #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
@@ -69,22 +70,49 @@ namespace binary {
    ABC_TRACE_FN((this, p, cbMax));
 
    size_t cbReadTotal(0);
-   while (cbMax > 0) {
+   while (cbMax) {
       // Attempt to read at least the count of bytes requested by the caller.
-      auto pairRead(peek<int8_t>(cbMax));
-      if (!pairRead.second) {
+      int8_t const * pbBuf;
+      size_t cbBuf;
+      std::tie(pbBuf, cbBuf) = peek<int8_t>(cbMax);
+      if (!cbBuf) {
          // No more data available.
          break;
       }
       // Copy whatever was read into the caller-supplied buffer.
-      memory::copy(static_cast<int8_t *>(p), pairRead.first, pairRead.second);
-      cbReadTotal += pairRead.second;
+      memory::copy(static_cast<int8_t *>(p), pbBuf, cbBuf);
+      cbReadTotal += cbBuf;
       // Advance the pointer and decrease the count of bytes to read, so that the next call will
       // attempt to fill in the remaining buffer space.
-      p = static_cast<int8_t *>(p) + pairRead.second;
-      cbMax -= pairRead.second;
+      p = static_cast<int8_t *>(p) + cbBuf;
+      cbMax -= cbBuf;
    }
    return cbReadTotal;
+}
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::buffered_writer
+
+
+namespace abc {
+namespace io {
+namespace binary {
+
+/*virtual*/ size_t buffered_writer::write(void const * p, size_t cb) {
+   ABC_TRACE_FN((this, p, cb));
+
+   // Obtain a buffer large enough.
+   int8_t * pbBuf;
+   size_t cbBuf;
+   std::tie(pbBuf, cbBuf) = get_buffer<int8_t>(cb);
+   // Copy the source data into the buffer.
+   memory::copy(pbBuf, static_cast<int8_t const *>(p), cb);
+   return cb;
 }
 
 } //namespace binary
@@ -112,7 +140,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ void default_buffered_reader::consume(size_t cb) {
+/*virtual*/ void default_buffered_reader::consume_bytes(size_t cb) {
    ABC_TRACE_FN((this, cb));
 
    if (cb > m_cbReadBufUsed) {
@@ -126,7 +154,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ std::pair<void const *, size_t> default_buffered_reader::_peek_void(size_t cb) {
+/*virtual*/ std::pair<void const *, size_t> default_buffered_reader::peek_bytes(size_t cb) {
    ABC_TRACE_FN((this, cb));
 
    if (cb > m_cbReadBufUsed) {
@@ -185,13 +213,15 @@ namespace binary {
 
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    m_pbw(std::move(pbw)),
-   m_pbWriteBuf(memory::alloc<int8_t[]>(smc_cbWriteBufDefault)),
-   m_cbWriteBuf(smc_cbWriteBufDefault),
+   m_cbWriteBuf(0),
    m_cbWriteBufUsed(0) {
 }
 
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
+   ABC_TRACE_FN((this));
+
+   flush_buffer();
 }
 
 
@@ -201,6 +231,22 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    // Flush both the write buffer and any lower-level buffers.
    flush_buffer();
    m_pbw->flush();
+}
+
+
+/*virtual*/ void default_buffered_writer::commit_bytes(size_t cb) {
+   ABC_TRACE_FN((this, cb));
+
+   if (cb > m_cbWriteBuf - m_cbWriteBufUsed) {
+      // Can’t commit more bytes than are available in the write buffer.
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   // Increase the count of used bytes in the buffer. If that makes the buffer full, flush it.
+   m_cbWriteBufUsed += cb;
+   if (m_cbWriteBufUsed == m_cbWriteBuf) {
+      flush_buffer();
+   }
 }
 
 
@@ -215,32 +261,30 @@ void default_buffered_writer::flush_buffer() {
 }
 
 
+/*virtual*/ std::pair<void *, size_t> default_buffered_writer::get_buffer_bytes(size_t cb) {
+   ABC_TRACE_FN((this, cb));
+
+   size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
+   // If the requested buffer size is more that is currently available, flush the buffer.
+   if (cb > cbWriteBufAvail) {
+      flush_buffer();
+      // If the buffer is still too small, enlarge it.
+      if (cb > m_cbWriteBuf) {
+         size_t cbWriteBufNew(bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault));
+         memory::realloc(&m_pbWriteBuf, cbWriteBufNew);
+         m_cbWriteBuf = cbWriteBufNew;
+      }
+      cbWriteBufAvail = m_cbWriteBuf;
+   }
+   // Return the available portion of the buffer.
+   return std::pair<void *, size_t>(m_pbWriteBuf.get() + m_cbWriteBufUsed, cbWriteBufAvail);
+}
+
+
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::unbuffered() const {
    ABC_TRACE_FN((this));
 
    return std::dynamic_pointer_cast<base>(m_pbw);
-}
-
-
-/*virtual*/ size_t default_buffered_writer::write(void const * p, size_t cb) {
-   ABC_TRACE_FN((this, p, cb));
-
-   size_t cbWrittenTotal(0);
-   while (cb) {
-      // Copy the largest possible chunk of *p into the write buffer.
-      size_t cbCopy(std::min(m_cbWriteBuf - m_cbWriteBufUsed, cb));
-      memory::copy(m_pbWriteBuf.get() + m_cbWriteBufUsed, static_cast<int8_t const *>(p), cbCopy);
-      // Update the amount of write buffer space used. If this makes the buffer full, flush it.
-      m_cbWriteBufUsed += cbCopy;
-      if (m_cbWriteBufUsed == m_cbWriteBuf) {
-         flush_buffer();
-      }
-      // Advance the pointer and decrease the count of bytes to write, so that the next call will
-      // attempt to write the remaining data.
-      p = static_cast<int8_t const *>(p) + cbCopy;
-      cb -= cbCopy;
-   }
-   return cbWrittenTotal;
 }
 
 } //namespace binary

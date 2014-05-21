@@ -53,10 +53,10 @@ protected:
       Size of the string pointed to by p, in bytes.
    enc
       Text encoding of the string pointed to by p.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(void const * p, size_t cb, text::encoding enc, io::ostream * posOut);
+   void write(void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut);
 };
 
 } //namespace abc
@@ -90,11 +90,11 @@ namespace abc {
 
       ch
          Character to write.
-      posOut
-         Pointer to the output stream to write to.
+      ptwOut
+         Pointer to the writer to output to.
       */ \
-      void write(C ch, io::ostream * posOut) { \
-         _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, posOut); \
+      void write(C ch, io::text::writer * ptwOut) { \
+         _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, ptwOut); \
       } \
    }; \
    \
@@ -161,13 +161,13 @@ namespace abc {
 
       ach
          String to write.
-      posOut
-         Pointer to the output stream to write to.
+      ptwOut
+         Pointer to the writer to output to.
       */ \
-      void write(C const (& ach)[t_cch], io::ostream * posOut) { \
+      void write(C const (& ach)[t_cch], io::text::writer * ptwOut) { \
          ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated")); \
          _str_to_str_backend::write( \
-            ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, posOut \
+            ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, ptwOut \
          ); \
       } \
    }; \
@@ -232,13 +232,13 @@ public:
 
    cs
       C string to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(c_str_to_str_adapter const & cs, io::ostream * posOut) {
+   void write(c_str_to_str_adapter const & cs, io::text::writer * ptwOut) {
       // TODO: FIXME: for MSC16, char * is not UTF-8.
       _str_to_str_backend::write(
-         cs.m_psz, sizeof(char) * text::utf8_traits::str_len(cs.m_psz), text::encoding::utf8, posOut
+         cs.m_psz, sizeof(char) * text::utf8_traits::str_len(cs.m_psz), text::encoding::utf8, ptwOut
       );
    }
 };
@@ -272,13 +272,15 @@ public:
 
    s
       String to write.
-   posOut
-      Pointer to the output stream to write to.
+   ptwOut
+      Pointer to the writer to output to.
    */
-   void write(str_base const & s, io::ostream * posOut) {
+   void write(str_base const & s, io::text::writer * ptwOut) {
       _str_to_str_backend::write(
-         s.cbegin().base(), sizeof(char_t) * size_t(s.cend().base() - s.cbegin().base()),
-         text::encoding::host, posOut
+         s.cbegin().base(),
+         size_t(reinterpret_cast<int8_t const *>(s.cend().base()) -
+            reinterpret_cast<int8_t const *>(s.cbegin().base())),
+         text::encoding::host, ptwOut
       );
    }
 };

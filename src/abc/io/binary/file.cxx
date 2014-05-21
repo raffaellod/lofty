@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io globals
+// abc::io::binary globals
 
 
 namespace abc {

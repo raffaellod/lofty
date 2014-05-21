@@ -529,11 +529,11 @@ to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
 }
 
 
-void to_str_backend<file_path>::write(file_path const & fp, io::ostream * posOut) {
-   ABC_TRACE_FN((this, fp, posOut));
+void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * ptwOut) {
+   ABC_TRACE_FN((this, fp, ptwOut));
 
    // TODO: apply format options.
-   posOut->write(static_cast<istr const &>(fp));
+   ptwOut->write(static_cast<istr const &>(fp));
 }
 
 } //namespace abc

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/module.hxx>
-#include <abc/file_iostream.hxx>
+#include <abc/io/text/file.hxx>
 using namespace abc;
 
 
@@ -31,10 +31,10 @@ public:
       ABC_TRACE_FN((this/*, vsArgs*/));
       ABC_UNUSED_ARG(vsArgs);
 
-      auto pfosOut(io::file_ostream::stdout());
-      pfosOut->set_encoding(text::encoding::utf32le);
-      pfosOut->write(SL("I/O test file encoded using "));
-      pfosOut->write(SL("UTF-32LE"));
+      auto ptwOut(io::text::stdout());
+      ptwOut->set_encoding(text::encoding::utf32le);
+      ptwOut->write(SL("I/O test file encoded using "));
+      ptwOut->write(SL("UTF-32LE"));
 
       // Test result determined by ABC Make.
       return 0;

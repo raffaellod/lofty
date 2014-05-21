@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<io::str_ostream> _scope_trace_impl::sm_psosScopeTrace;
+/*tls*/ std::unique_ptr<io::text::str_writer> _scope_trace_impl::sm_ptswScopeTrace;
 /*tls*/ unsigned _scope_trace_impl::sm_cScopeTraceRefs(0);
 /*tls*/ unsigned _scope_trace_impl::sm_iStackDepth(0);
 /*tls*/ bool _scope_trace_impl::sm_bReentering(false);
@@ -46,12 +46,12 @@ _scope_trace_impl::~_scope_trace_impl() {
             sm_bReentering = true;
          }
          // Add this argument to the current trace.
-         io::ostream * pso(get_trace_stream());
+         io::text::writer * ptw(get_trace_writer());
          if (m_bScopeRenderingStarted) {
-            pso->print(SL(" at {}\n"), m_srcloc);
+            ptw->print(SL(" at {}\n"), m_srcloc);
          } else {
             // First argument for the current function, so print the function name as well.
-            pso->print(
+            ptw->print(
                SL("#{} {} at {}\n"), ++sm_iStackDepth, istr(unsafe, m_pszFunction), m_srcloc
             );
          }
@@ -67,7 +67,7 @@ _scope_trace_impl::~_scope_trace_impl() {
 }
 
 
-io::ostream * _scope_trace_impl::scope_render_start_or_continue() {
+io::text::writer * _scope_trace_impl::scope_render_start_or_continue() {
    // See similar condition in ~_scope_trace_impl().
    if (m_bScopeRenderingStarted || (!sm_bReentering && std::uncaught_exception())) {
       // See similar condition in ~_scope_trace_impl().
@@ -78,16 +78,16 @@ io::ostream * _scope_trace_impl::scope_render_start_or_continue() {
          sm_bReentering = true;
       }
       // Add this argument to the current trace.
-      io::ostream * pso(get_trace_stream());
+      io::text::writer * ptw(get_trace_writer());
       if (m_bScopeRenderingStarted) {
-         pso->write(SL(", "));
+         ptw->write(SL(", "));
       } else {
          // First argument for the current function, so print the function name as well.
          m_bScopeRenderingStarted = true;
-         pso->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
+         ptw->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
       }
-      // Return the stream, so the caller can print its m_t0.
-      return pso;
+      // Return the writer, so the caller can print its m_t0.
+      return ptw;
    }
    return nullptr;
 }

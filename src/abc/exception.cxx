@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#include <abc/file_iostream.hxx>
+#include <abc/io/text/file.hxx>
 #if ABC_HOST_API_LINUX
    #include <errno.h> // errno E*
    #include <signal.h> // sigaction sig*()
@@ -1089,14 +1089,14 @@ ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= 
 
 
 ABCAPI void to_str_backend<source_location>::write(
-   source_location const & srcloc, io::ostream * posOut
+   source_location const & srcloc, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FN((this, srcloc, posOut));
+   ABC_TRACE_FN((this, srcloc, ptwOut));
 
    // TODO: apply format options.
-   posOut->write(istr(unsafe, srcloc.file_path()));
-   posOut->write(SL(":"));
-   posOut->write(srcloc.line_number());
+   ptwOut->write(istr(unsafe, srcloc.file_path()));
+   ptwOut->write(SL(":"));
+   ptwOut->write(srcloc.line_number());
 }
 
 } //namespace abc
@@ -1120,7 +1120,7 @@ exception::exception(exception const & x) :
    m_bInFlight(x.m_bInFlight) {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
-      _scope_trace_impl::trace_stream_addref();
+      _scope_trace_impl::trace_writer_addref();
    }
 }
 
@@ -1128,7 +1128,7 @@ exception::exception(exception const & x) :
 /*virtual*/ exception::~exception() {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
-      _scope_trace_impl::trace_stream_release();
+      _scope_trace_impl::trace_writer_release();
    }
 }
 
@@ -1141,15 +1141,15 @@ exception & exception::operator=(exception const & x) {
    m_srcloc = x.m_srcloc;
    // Adopt the source’s in-flight status. See [DOC:8503 Stack tracing].
    // If the in-flight status is not changing, avoid the pointless (and dangerous, if done in this
-   // sequence - it could delete the trace stream if *this was the last reference to it)
+   // sequence - it could delete the trace writer if *this was the last reference to it)
    // release()/addref().
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
-         _scope_trace_impl::trace_stream_release();
+         _scope_trace_impl::trace_writer_release();
       }
       m_bInFlight = x.m_bInFlight;
       if (m_bInFlight) {
-         _scope_trace_impl::trace_stream_addref();
+         _scope_trace_impl::trace_writer_addref();
       }
    }
    return *this;
@@ -1159,10 +1159,10 @@ exception & exception::operator=(exception const & x) {
 void exception::_before_throw(source_location const & srcloc, char_t const * pszFunction) {
    m_pszSourceFunction = pszFunction;
    m_srcloc = srcloc;
-   // Clear any old trace stream buffer and create a new one with *this as its only reference. See
+   // Clear any old trace writer buffer and create a new one with *this as its only reference. See
    // [DOC:8503 Stack tracing].
-   _scope_trace_impl::trace_stream_reset();
-   _scope_trace_impl::trace_stream_addref();
+   _scope_trace_impl::trace_writer_clear();
+   _scope_trace_impl::trace_writer_addref();
    m_bInFlight = true;
 }
 
@@ -1173,22 +1173,22 @@ char const * exception::what() const {
 
 
 /*static*/ void exception::write_with_scope_trace(
-   io::ostream * pos /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
+   io::text::writer * ptw /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
-   if (!pos) {
-      pos = io::file_ostream::stderr().get();
+   if (!ptw) {
+      ptw = io::text::stderr().get();
    }
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      pos->print(SL("Unhandled exception:\n"), c_str_to_str_adapter(pstdx->what()));
+      ptw->print(SL("Unhandled exception:\n"), c_str_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
       // abc::exception, the class has a custom implementation, probably to print something useful.
       if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
          try {
-            pos->write(SL("Extended information:\n"));
-            pabcx->_print_extended_info(pos);
+            ptw->write(SL("Extended information:\n"));
+            pabcx->_print_extended_info(ptw);
          } catch (...) {
             // The exception is not rethrown, because we don’t want exception details to interfere
             // with the display of the (more important) exception information.
@@ -1198,22 +1198,22 @@ char const * exception::what() const {
    } else {
       // Some other type of exception; not much to say.
       pabcx = nullptr;
-      pos->write(SL("Unhandled exception: (unknown type)\n"));
+      ptw->write(SL("Unhandled exception: (unknown type)\n"));
    }
 
-   pos->write(SL("Stack trace (most recent call first):\n"));
+   ptw->write(SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      pos->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
+      ptw->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
    }
    // Print the stack trace collected via ABC_TRACE_FN().
-   pos->write(_scope_trace_impl::get_trace_stream()->release_content());
+   ptw->write(_scope_trace_impl::get_trace_writer()->release_content());
 }
 
 
-void exception::_print_extended_info(io::ostream * pos) const {
+void exception::_print_extended_info(io::text::writer * ptw) const {
    // Nothing to print.
-   ABC_UNUSED_ARG(pos);
+   ABC_UNUSED_ARG(ptw);
 }
 
 
@@ -1520,8 +1520,7 @@ namespace abc {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
-         std::shared_ptr<io::file_ostream> pfosStdErr(io::file_ostream::stderr());
-         pfosStdErr->print(
+         io::text::stderr()->print(
             SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
             sMsg, sExpr, srcloc, sFunction
          );
@@ -1709,9 +1708,9 @@ void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
 }
 
 
-void index_error::_print_extended_info(io::ostream * pos) const {
-   pos->print(SL("invalid index: {}\n"), m_iInvalid);
-   lookup_error::_print_extended_info(pos);
+void index_error::_print_extended_info(io::text::writer * ptw) const {
+   ptw->print(SL("invalid index: {}\n"), m_iInvalid);
+   lookup_error::_print_extended_info(ptw);
 }
 
 } //namespace abc
@@ -1848,13 +1847,13 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 }
 
 
-void memory_address_error::_print_extended_info(io::ostream * pos) const {
+void memory_address_error::_print_extended_info(io::text::writer * ptw) const {
    if (m_pInvalid != smc_achUnknownAddress) {
-      pos->print(SL("invalid address: {}\n"), m_pInvalid);
+      ptw->print(SL("invalid address: {}\n"), m_pInvalid);
    } else {
-      pos->write(smc_achUnknownAddress);
+      ptw->write(smc_achUnknownAddress);
    }
-   generic_error::_print_extended_info(pos);
+   generic_error::_print_extended_info(ptw);
 }
 
 } //namespace abc
@@ -2043,7 +2042,7 @@ void syntax_error::init(
 }
 
 
-void syntax_error::_print_extended_info(io::ostream * pos) const {
+void syntax_error::_print_extended_info(io::text::writer * ptw) const {
    istr sFormat;
    if (m_sSource) {
       if (m_iChar) {
@@ -2075,8 +2074,8 @@ void syntax_error::_print_extended_info(io::ostream * pos) const {
       }
    }
 
-   pos->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
-   generic_error::_print_extended_info(pos);
+   ptw->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
+   generic_error::_print_extended_info(ptw);
 }
 
 } //namespace abc

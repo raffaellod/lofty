@@ -49,7 +49,7 @@ pbb
 return
    Pointer to a buffered wrapper for *pbb.
 */
-std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
+ABCAPI std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 
 
 /** Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
@@ -123,10 +123,21 @@ public:
    /** Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
 
+   c
+      Count of elements to mark as read.
+   */
+   template <typename T>
+   void consume(size_t c) {
+      return consume_bytes(sizeof(T) * c);
+   }
+
+
+   /** Non-template implementation of consume(). See consume().
+
    cb
       Count of bytes to mark as read.
    */
-   virtual void consume(size_t cb) = 0;
+   virtual void consume_bytes(size_t cb) = 0;
 
 
    /** Returns a view of the internal read buffer, performing at most one read from the underlying
@@ -134,10 +145,11 @@ public:
 
    TODO: change to return a read-only, non-shareable ivector<T>.
 
-   cb
-      If greater than the size of the read buffer’s contents, an additional read from the
-      underlying binary reader will be made, adding to the contents of the read buffer; if the
-      internal buffer is not large enough to hold the cumulative data, it will be enlarged.
+   c
+      Count of items to peek. If greater than the size of the read buffer’s contents, an additional
+      read from the underlying binary reader will be made, adding to the contents of the read
+      buffer; if the internal buffer is not large enough to hold the cumulative data, it will be
+      enlarged.
    return
       Pair containing:
       •  A pointer to the portion of the internal buffer that holds the read data;
@@ -146,24 +158,26 @@ public:
          0 indicates that no more data is available (EOF).
    */
    template <typename T>
-   std::pair<T const *, size_t> peek(size_t cb = 1) {
-      auto ret(_peek_void(cb));
+   std::pair<T const *, size_t> peek(size_t c = 1) {
+      auto ret(peek_bytes(sizeof(T) * c));
       // Repack the tuple, changing pointer type.
       return std::make_pair(static_cast<T const *>(ret.first), ret.second);
    }
 
 
-   /** See binary::reader::read(). Using peek()/consume() is preferred to calling this method,
-   because it will spare the caller from allocating an intermediate buffer.
+   /** Non-template implementation of peek(). See peek().
+
+   cb
+      Count of bytes to peek.
+   */
+   virtual std::pair<void const *, size_t> peek_bytes(size_t cb) = 0;
+
+
+   /** See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
+   preferred to calling this method, because it will spare the caller from having to allocate an
+   intermediate buffer.
    */
    virtual size_t read(void * p, size_t cbMax);
-
-
-protected:
-
-   /** Non-template implementation of peek(). See peek().
-   */
-   virtual std::pair<void const *, size_t> _peek_void(size_t cb) = 0;
 };
 
 } //namespace binary
@@ -184,6 +198,57 @@ namespace binary {
 class ABCAPI buffered_writer :
    public virtual buffered_base,
    public writer {
+public:
+
+   /** Commits (writes) any pending buffer blocks returned by get_buffer().
+
+   c
+      Count of elements to commit.
+   */
+   template <typename T>
+   void commit(size_t c) {
+      commit_bytes(sizeof(T) * c);
+   }
+
+
+   /** Non-template, byte-oriented implementation of commit(). See commit().
+
+   cb
+      Count of bytes to commit.
+   */
+   virtual void commit_bytes(size_t cb) = 0;
+
+
+   /** Returns a buffer large enough to store up to c items.
+
+   c
+      Count of items to create buffer space for.
+   return
+      Pair containing:
+      •  A pointer to the portion of the internal buffer that the caller can write to;
+      •  Size of the portion of internal buffer, in bytes.
+   */
+   template <typename T>
+   std::pair<T *, size_t> get_buffer(size_t c) {
+      auto ret(get_buffer_bytes(sizeof(T) * c));
+      // Repack the tuple, changing pointer type.
+      return std::make_pair(static_cast<T *>(ret.first), ret.second);
+   }
+
+
+   /** Byte-oriented implementation of get_buffer(). See get_buffer().
+
+   cb
+      Count of bytes to create buffer space for.
+   */
+   virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb) = 0;
+
+
+   /** See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
+   is preferred to calling this method, because it will spare the caller from having to allocate an
+   intermediate buffer.
+   */
+   virtual size_t write(void const * p, size_t cb);
 };
 
 } //namespace binary
@@ -218,21 +283,19 @@ public:
    virtual ~default_buffered_reader();
 
 
-   /** See buffered_reader::consume().
+   /** See buffered_reader::consume_bytes().
    */
-   virtual void consume(size_t cb);
+   virtual void consume_bytes(size_t cb);
+
+
+   /** See buffered_reader::peek_bytes().
+   */
+   virtual std::pair<void const *, size_t> peek_bytes(size_t cb);
 
 
    /** See buffered_reader::unbuffered().
    */
    virtual std::shared_ptr<base> unbuffered() const;
-
-
-protected:
-
-   /** See buffered_reader::_peek_void().
-   */
-   virtual std::pair<void const *, size_t> _peek_void(size_t cb);
 
 
 protected:
@@ -284,19 +347,27 @@ public:
    virtual ~default_buffered_writer();
 
 
+   /** See buffered_writer::commit_bytes().
+   */
+   virtual void commit_bytes(size_t cb);
+
+
    /** See buffered_writer::flush().
    */
    virtual void flush();
 
 
+   /** See buffered_writer::get_buffer_bytes().
+
+   cb
+      Count of bytes to create buffer space for.
+   */
+   virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb);
+
+
    /** See buffered_writer::unbuffered().
    */
    virtual std::shared_ptr<base> unbuffered() const;
-
-
-   /** See buffered_writer::write().
-   */
-   virtual size_t write(void const * p, size_t cb);
 
 
 protected:

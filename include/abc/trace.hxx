@@ -138,14 +138,14 @@ public:
    ~_scope_trace_impl();
 
 
-   /** Returns a stream to which the stack frame can be output. The stream is thread-local, which is
+   /** Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
    */
-   static io::str_ostream * get_trace_stream() {
-      if (!sm_psosScopeTrace) {
-         sm_psosScopeTrace.reset(new io::str_ostream());
+   static io::text::str_writer * get_trace_writer() {
+      if (!sm_ptswScopeTrace) {
+         sm_ptswScopeTrace.reset(new io::text::str_writer());
       }
-      return sm_psosScopeTrace.get();
+      return sm_ptswScopeTrace.get();
    }
 
 
@@ -215,16 +215,16 @@ public:
 
    /** Erases any collected stack frames.
    */
-   static void trace_stream_addref() {
+   static void trace_writer_addref() {
       ++sm_cScopeTraceRefs;
    }
 
 
    /** Erases any collected stack frames.
    */
-   static void trace_stream_release() {
+   static void trace_writer_release() {
       if (sm_cScopeTraceRefs == 1) {
-         trace_stream_reset();
+         trace_writer_clear();
       } else if (sm_cScopeTraceRefs > 1) {
          --sm_cScopeTraceRefs;
       }
@@ -233,8 +233,8 @@ public:
 
    /** Erases any collected stack frames.
    */
-   static void trace_stream_reset() {
-      sm_psosScopeTrace.reset();
+   static void trace_writer_clear() {
+      sm_ptswScopeTrace.reset();
       sm_iStackDepth = 0;
       sm_cScopeTraceRefs = 0;
    }
@@ -257,8 +257,8 @@ public:
 
 protected:
 
-   /** Starts or  to the trace stream the scope name. */
-   io::ostream * scope_render_start_or_continue();
+   /** TODO: comment. */
+   io::text::writer * scope_render_start_or_continue();
 
 
 private:
@@ -271,8 +271,8 @@ private:
    rendered). */
    bool m_bScopeRenderingStarted;
 
-   /** Stream that collects the rendered scope trace when an exception is thrown. */
-   static /*tls*/ std::unique_ptr<io::str_ostream> sm_psosScopeTrace;
+   /** Writer that collects the rendered scope trace when an exception is thrown. */
+   static /*tls*/ std::unique_ptr<io::text::str_writer> sm_ptswScopeTrace;
    /** Number of the next stack frame to be added to the rendered trace. */
    static /*tls*/ unsigned sm_iStackDepth;
    /** Count of references to the current rendered trace. Managed by abc::exception. */
@@ -321,9 +321,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(base_scope_trace::scope_render_start_or_continue());
-         if (pos) {
-            pos->write(m_t0);
+         io::text::writer * ptw(base_scope_trace::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->write(m_t0);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -408,9 +408,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(base_scope_trace::scope_render_start_or_continue());
-         if (pos) {
-            pos->write(m_t0);
+         io::text::writer * ptw(base_scope_trace::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->write(m_t0);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -451,9 +451,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
                m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8, m_t9
             );
@@ -502,9 +502,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
                m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8
             );
@@ -552,9 +552,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(
                SL("{}, {}, {}, {}, {}, {}, {}, {}"),
                m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7
             );
@@ -598,9 +598,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -639,9 +639,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -677,9 +677,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -714,9 +714,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -750,9 +750,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}, {}"), m_t0, m_t1, m_t2);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}, {}"), m_t0, m_t1, m_t2);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -785,9 +785,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->print(SL("{}, {}"), m_t0, m_t1);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->print(SL("{}, {}"), m_t0, m_t1);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -819,9 +819,9 @@ public:
    */
    ~_scope_trace() {
       try {
-         io::ostream * pos(_scope_trace_impl::scope_render_start_or_continue());
-         if (pos) {
-            pos->write(m_t0);
+         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
+         if (ptw) {
+            ptw->write(m_t0);
          }
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.

@@ -30,10 +30,10 @@ namespace abc {
 
 template <typename T>
 inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
-   io::str_ostream os;
+   io::text::str_writer tsw;
    to_str_backend<T> tsb(sFormat);
-   tsb.write(t, &os);
-   return os.release_content();
+   tsb.write(t, &tsw);
+   return tsw.release_content();
 }
 
 } //namespace abc

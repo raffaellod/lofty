@@ -44,14 +44,14 @@ ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
 }
 
 
-ABCAPI void to_str_backend<bool>::write(bool b, io::ostream * posOut) {
-   ABC_TRACE_FN((this, b, posOut));
+ABCAPI void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
+   ABC_TRACE_FN((this, b, ptwOut));
 
    // TODO: apply format options.
    if (b) {
-      posOut->write(SL("true"));
+      ptwOut->write(SL("true"));
    } else {
-      posOut->write(SL("false"));
+      ptwOut->write(SL("false"));
    }
 }
 
@@ -196,9 +196,9 @@ default_notation:
 
 
 ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
-   bool bNegative, io::ostream * posOut, mstr * psBuf, mstr::iterator itBufFirstUsed
+   bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
-   ABC_TRACE_FN((this, bNegative, posOut, psBuf, itBufFirstUsed));
+   ABC_TRACE_FN((this, bNegative, ptwOut, psBuf, itBufFirstUsed));
 
    auto itEnd(psBuf->cend());
    auto it(itBufFirstUsed);
@@ -231,13 +231,13 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
       *--it = chSign;
    }
    // Write the constructed string.
-   posOut->write_raw(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
+   ptwOut->write_binary(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
 }
 
 
 template <typename I>
-inline void _int_to_str_backend_base::write_impl(I i, io::ostream * posOut) const {
-   ABC_TRACE_FN((this, i, posOut));
+inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
+   ABC_TRACE_FN((this, i, ptwOut));
 
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
@@ -263,42 +263,42 @@ inline void _int_to_str_backend_base::write_impl(I i, io::ostream * posOut) cons
       }
    }
 
-   // Add prefix or sign, and write to the ostream.
-   add_prefixes_and_write(numeric::is_negative<I>(i), posOut, &sBuf, it);
+   // Add prefix or sign, and output to the writer.
+   add_prefixes_and_write(numeric::is_negative<I>(i), ptwOut, &sBuf, it);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::ostream * posOut) const {
-   write_impl(i, posOut);
+ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * ptwOut) const {
+   write_impl(i, ptwOut);
 }
 
 #endif //if ABC_HOST_WORD_SIZE < 32
