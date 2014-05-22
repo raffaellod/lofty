@@ -84,7 +84,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
    <dynlib name="abc-testing">
       <!-- Testing-support library. -->
-      <!-- source path="src/abc-testing/mock/iostream.cxx"/ -->
       <source path="src/abc-testing/module.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
       <source path="src/abc-testing/test_case.cxx"/>
