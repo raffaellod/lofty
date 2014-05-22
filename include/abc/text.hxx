@@ -123,6 +123,16 @@ return
 ABCAPI size_t get_encoding_size(encoding enc);
 
 
+/** Returns a line terminator string corresponding to the specified line_terminator value.
+
+lterm
+   Desired line terminator.
+return
+   String with the requested line terminator sequence.
+*/
+ABCAPI istr get_line_terminator_str(line_terminator lterm);
+
+
 /** Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
 total number of bytes in the source of which the buffer is the beginning.
 

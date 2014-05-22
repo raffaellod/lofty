@@ -97,21 +97,7 @@ bool reader::read_line(mstr * ps) {
       }
 
       // Pick the appropriate line terminator string…
-      istr sLTerm;
-      switch (m_lterm.base()) {
-         case abc::text::line_terminator::cr:
-            sLTerm = SL("\r");
-            break;
-         case abc::text::line_terminator::lf:
-            sLTerm = SL("\n");
-            break;
-         case abc::text::line_terminator::cr_lf:
-            sLTerm = SL("\r\n");
-            break;
-         // default is here just to silence compiler warnings.
-         default:
-            break;
-      }
+      istr sLTerm(get_line_terminator_str(m_lterm));
       // …and search for it.
       char_t const * pchLineEnd(abc::text::utf_traits<>::str_str(
          pchBeforeLastReadBegin, pchEnd, sLTerm.cbegin().base(), sLTerm.cend().base()

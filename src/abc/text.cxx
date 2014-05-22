@@ -119,6 +119,23 @@ ABCAPI size_t get_encoding_size(encoding enc) {
 }
 
 
+ABCAPI istr get_line_terminator_str(line_terminator lterm) {
+   ABC_TRACE_FN((lterm));
+
+   switch (lterm.base()) {
+      case abc::text::line_terminator::cr:
+         return istr(SL("\r"));
+      case abc::text::line_terminator::lf:
+         return istr(SL("\n"));
+      case abc::text::line_terminator::cr_lf:
+         return istr(SL("\r\n"));
+      default:
+         // TODO: provide more information in the exception.
+         ABC_THROW(domain_error, ());
+   }
+}
+
+
 ABCAPI encoding guess_encoding(
    void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal /*= 0*/,
    size_t * pcbBom /*= nullptr*/
