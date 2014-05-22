@@ -17,15 +17,9 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_IO_BINARY_HXX
-#define _ABC_IO_BINARY_HXX
-
-#include <abc/core.hxx>
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
 #endif
-
-#include <abc/io.hxx>
 
 
 
@@ -185,7 +179,4 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_IO_BINARY_HXX
 

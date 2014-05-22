@@ -703,6 +703,7 @@ class writer;
 #include <abc/str-after-to_str.hxx>
 #include <abc/pointer_iterator-after-to_str.hxx>
 
+#include <abc/io.hxx>
 #include <abc/io/binary.hxx>
 #include <abc/io/binary/buffered.hxx>
 #include <abc/io/text.hxx>

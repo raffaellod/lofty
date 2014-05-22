@@ -20,12 +20,13 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef _ABC_IO_BINARY_FILE_HXX
 #define _ABC_IO_BINARY_FILE_HXX
 
-#include <abc/core.hxx>
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
+#endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
 #endif
 
-#include <abc/io/binary.hxx>
 #include <abc/file_path.hxx>
 
 

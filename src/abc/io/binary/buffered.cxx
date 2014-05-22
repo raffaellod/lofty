@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc/core.hxx>
-#include <abc/io/binary/buffered.hxx>
 #include <abc/bitmanip.hxx>
 #include <algorithm>
 #if ABC_HOST_API_POSIX
