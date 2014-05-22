@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_CORE_HXX
-   #error Please #include <abc/core.hxx> instead of this file
+#ifndef _ABC_HXX
+   #error Please #include <abc.hxx> instead of this file
 #endif
 
 #if ABC_HOST_API_POSIX

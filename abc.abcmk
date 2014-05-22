@@ -23,10 +23,10 @@ You should have received a copy of the GNU General Public License along with ABC
 
    <dynlib name="abc">
       <!-- Main ABC dynamic shared library. -->
+      <source path="src/abc/abc.cxx"/>
       <source path="src/abc/atomic.cxx"/>
       <source path="src/abc/bitmanip.cxx"/>
       <source path="src/abc/byteorder.cxx"/>
-      <source path="src/abc/core.cxx"/>
       <source path="src/abc/file_path.cxx"/>
       <source path="src/abc/enum.cxx"/>
       <source path="src/abc/exception.cxx"/>
@@ -39,8 +39,8 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/memory.cxx"/>
       <source path="src/abc/module.cxx"/>
       <source path="src/abc/str.cxx"/>
-      <source path="src/abc/to_str.cxx"/>
       <source path="src/abc/text.cxx" />
+      <source path="src/abc/to_str.cxx"/>
       <source path="src/abc/trace.cxx"/>
       <source path="src/abc/utf_traits.cxx"/>
       <source path="src/abc/_vextr.cxx"/>

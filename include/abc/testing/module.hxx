@@ -20,8 +20,8 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef _ABC_TESTING_MODULE_HXX
 #define _ABC_TESTING_MODULE_HXX
 
-#ifndef _ABC_CORE_HXX
-   #error Please #include <abc/core.hxx> instead of this file
+#ifndef _ABC_HXX
+   #error Please #include <abc.hxx> before this file
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once

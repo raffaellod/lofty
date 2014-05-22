@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_CORE_HXX
-#define _ABC_CORE_HXX
+#ifndef _ABC_HXX
+#define _ABC_HXX
 
 
 /** Version of GCC if building with it, or 0 otherwise. */
@@ -718,5 +718,5 @@ class writer;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef _ABC_CORE_HXX
+#endif //ifndef _ABC_HXX
 

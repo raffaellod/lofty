@@ -24,7 +24,7 @@ it terminates. See the source code for line-by-line comments.
 */
 
 // This should always be the first file included in any C++ source using Abc.
-#include <abc/core.hxx>
+#include <abc.hxx>
 // This needs to be included in the .cxx file that defines the application module class for the
 // program – see below.
 #include <abc/module.hxx>
