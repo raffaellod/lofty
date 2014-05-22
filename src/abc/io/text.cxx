@@ -137,6 +137,20 @@ writer::writer(abc::text::line_terminator lterm) :
 }
 
 
+void writer::write_line(istr const & s) {
+   ABC_TRACE_FN((this, s));
+
+   to_str_backend<istr> tsb;
+   tsb.write(s, this);
+   abc::text::line_terminator lterm(m_lterm);
+   // If at this point we still haven’t picked a line terminator, use the platform’s default.
+   if (lterm == abc::text::line_terminator::unknown) {
+      lterm = abc::text::line_terminator::host;
+   }
+   tsb.write(get_line_terminator_str(lterm), this);
+}
+
+
 _writer_print_helper_impl::_writer_print_helper_impl(writer * ptw, istr const & sFormat) :
    m_ptw(ptw),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.

@@ -297,6 +297,14 @@ public:
    virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc) = 0;
 
 
+   /** Writes a string followed by a new-line.
+
+   s
+      String to write.
+   */
+   void write_line(istr const & s);
+
+
 protected:
 
    /** See base::base().
