@@ -17,14 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_IO_HXX
-#define _ABC_IO_HXX
-
 #ifndef _ABC_HXX
-   #error Please #include <abc.hxx> before this file
-#endif
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+   #error Please #include <abc.hxx> instead of this file
 #endif
 
 
@@ -101,7 +95,4 @@ ABC_ENUM(stdfile, \
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#endif //ifndef _ABC_IO_HXX
 
