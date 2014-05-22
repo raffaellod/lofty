@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Application-Building Components (henceforth referred to as ABC).
@@ -20,7 +20,9 @@ You should have received a copy of the GNU General Public License along with ABC
 #ifndef _ABC__MAP_BASE_HXX
 #define _ABC__MAP_BASE_HXX
 
-#include <abc/core.hxx>
+#ifndef _ABC_CORE_HXX
+   #error Please #include <abc/core.hxx> instead of this file
+#endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
 #endif
