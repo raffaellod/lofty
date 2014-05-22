@@ -66,7 +66,7 @@ public:
       ABC_UNUSED_ARG(vsArgs);
 
       // Write “Hello World” into the stdout text writer object.
-      io::text::stdout()->write(SL("Hello World"));
+      io::text::stdout()->write_line(SL("Hello World"));
 
       // Make this program return 0 to the parent process.
       return 0;
