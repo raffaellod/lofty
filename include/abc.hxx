@@ -50,6 +50,8 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma warning(disable: 4062)
    // “conditional expression is constant”
    #pragma warning(disable: 4127)
+   // “'class' : inherits 'base::member' via dominance” – it points out the obvious and intended.
+   #pragma warning(disable: 4250)
    // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
    // of class 'class1'”
    #pragma warning(disable: 4251)
