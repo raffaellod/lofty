@@ -121,37 +121,22 @@ TODO: make ABC installable.
 6. Using ABC
 ------------
 
+For usage examples, please see the source files in the examples/ folder. Examples are built as part
+of ABC (see § 4. Building ABC), and the generated executables can be found in the bin/ output
+folder.
 
-6.1. “Hello world” using ABC
-----------------------------
+On some platforms (e.g. glibc/Linux), if ABC is not installed (see § 5. Installing ABC), example
+programs will fail to run due to being unable to load ABC shared libraries. This can be worked
+around by adding the output lib/ folder to the shared library search path, e.g. on glibc/Linux:
 
-This is the most basic program with ABC:
+   env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
-   #include <abc/core.hxx>
-   #include <abc/module.hxx>
-   using namespace abc;
+Other platforms (e.g. Windows) have the current directory added to the search path by default, and
+ABC Make exploits this by generating all shared library (DLL) outputs in the same folder as the
+executables, thus making directly running the program possible:
 
-   class my_app_module :
-      public app_module_impl<my_app_module> {
-   public:
+   bin\hello-world
 
-      int main(mvector<istr const> const & vsArgs) {
-         ABC_TRACE_FN((this/*, vsArgs*/));
-
-         auto pstdout(file_ostream::stdout());
-         pstdout->write(SL("Hello World\n"));
-
-         return 0;
-      }
-   };
-
-   ABC_MAIN_APP_MODULE(my_app_module)
-
-Once compiled, this will print out “Hello World” and terminate with exit code 0.
-See [DOC:1063 Application modules] for more information on this basic code
-setup.
-
-TODO: more examples, or more links to examples.
 
 
 

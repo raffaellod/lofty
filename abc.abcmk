@@ -90,5 +90,11 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc-testing/utility.cxx"/>
       <dynlib name="abc"/>
    </dynlib>
+
+   <exe name="hello-world">
+      <!-- “Hello World” example. -->
+      <source path="examples/hello-world.cxx"/>
+      <dynlib name="abc"/>
+   </exe>
 </abcmk>
 
