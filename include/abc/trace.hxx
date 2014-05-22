@@ -213,14 +213,15 @@ public:
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
-   /** Erases any collected stack frames.
+   /** Increments the reference count of the scope trace being generated.
    */
    static void trace_writer_addref() {
       ++sm_cScopeTraceRefs;
    }
 
 
-   /** Erases any collected stack frames.
+   /** Decrements the reference count of the scope trace being generated. If the reference count
+   reaches zero, trace_writer_clear() will be invoked.
    */
    static void trace_writer_release() {
       if (sm_cScopeTraceRefs == 1) {
@@ -257,7 +258,13 @@ public:
 
 protected:
 
-   /** TODO: comment. */
+   /** Begins a new frame in the current scope trace, or prepare for the next argument in the
+   current frame.
+
+   return
+      Pointer to the scope trace writer. The caller can use this to add the current value of a local
+      variable in the current frame.
+   */
    io::text::writer * scope_render_start_or_continue();
 
 
