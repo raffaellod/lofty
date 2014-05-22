@@ -29,7 +29,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 namespace abc {
-
 namespace test {
 
 class vector_basic :
@@ -92,7 +91,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
@@ -103,7 +101,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
 
 
 namespace abc {
-
 namespace test {
 
 class vector_remove_trivial :
@@ -306,7 +303,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_remove_trivial)
@@ -317,7 +313,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_remove_trivial)
 
 
 namespace abc {
-
 namespace test {
 
 class vector_memory_mgmt :
@@ -496,7 +491,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
@@ -507,7 +501,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
 
 
 namespace abc {
-
 namespace test {
 
 class vector_move :
@@ -578,7 +571,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_move)

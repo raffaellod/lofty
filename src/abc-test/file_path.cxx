@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::file_path_normalization
 
 namespace abc {
-
 namespace test {
 
 class file_path_normalization :
@@ -154,7 +153,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
@@ -164,7 +162,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
 // abc::test::file_path_normalization_joined
 
 namespace abc {
-
 namespace test {
 
 class file_path_normalization_joined :
@@ -220,7 +217,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization_joined)

@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::text_writer_print_no_replacements
 
 namespace abc {
-
 namespace test {
 
 class text_writer_print_no_replacements :
@@ -75,7 +74,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_no_replacements)
@@ -85,7 +83,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_no_replacements)
 // abc::test::text_writer_print_one_replacement
 
 namespace abc {
-
 namespace test {
 
 class text_writer_print_one_replacement :
@@ -140,7 +137,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_one_replacement)
@@ -150,7 +146,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_one_replacement)
 // abc::test::text_writer_print_two_replacements
 
 namespace abc {
-
 namespace test {
 
 class text_writer_print_two_replacements :
@@ -203,7 +198,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_two_replacements)

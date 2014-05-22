@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::exception_polymorphism
 
 namespace abc {
-
 namespace test {
 
 class exception_polymorphism :
@@ -141,7 +140,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
@@ -151,7 +149,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 // abc::test::exception_from_os_hard_error
 
 namespace abc {
-
 namespace test {
 
 class exception_from_os_hard_error :
@@ -239,7 +236,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_from_os_hard_error)

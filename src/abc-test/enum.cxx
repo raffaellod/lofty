@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::enum_basic
 
 namespace abc {
-
 namespace test {
 
 ABC_ENUM(test_enum, \
@@ -60,7 +59,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::enum_basic)

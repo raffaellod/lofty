@@ -46,7 +46,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::utf8_traits_validity_nult
 
 namespace abc {
-
 namespace test {
 
 #define ABC_TESTING_ASSERT_text_utf8_traits_is_valid_nult(b, ...) \
@@ -160,7 +159,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_nult)
@@ -170,7 +168,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_nult)
 // abc::test::utf8_traits_validity_cch
 
 namespace abc {
-
 namespace test {
 
 #define ABC_TESTING_ASSERT_text_utf8_traits_is_valid_cch(b, ...) \
@@ -278,7 +275,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_cch)
@@ -288,7 +284,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf8_traits_validity_cch)
 // abc::test::utf16_traits_validity_nult
 
 namespace abc {
-
 namespace test {
 
 #define ABC_TESTING_ASSERT_text_utf16_traits_is_valid_nult(b, ...) \
@@ -348,7 +343,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf16_traits_validity_nult)
@@ -358,7 +352,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf16_traits_validity_nult)
 // abc::test::utf16_traits_validity_cch
 
 namespace abc {
-
 namespace test {
 
 #define ABC_TESTING_ASSERT_text_utf16_traits_is_valid_cch(b, ...) \
@@ -417,7 +410,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::utf16_traits_validity_cch)

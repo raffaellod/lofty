@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::to_str_test_case_base
 
 namespace abc {
-
 namespace test {
 
 class to_str_test_case_base :
@@ -69,7 +68,6 @@ protected:
 };
 
 } //namespace test
-
 } //namespace abc
 
 
@@ -77,7 +75,6 @@ protected:
 // abc::test::to_str_int
 
 namespace abc {
-
 namespace test {
 
 class to_str_int :
@@ -122,7 +119,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int)
@@ -132,7 +128,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int)
 // abc::test::to_str_int8
 
 namespace abc {
-
 namespace test {
 
 class to_str_int8 :
@@ -177,7 +172,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
@@ -187,7 +181,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
 // abc::test::to_str_pointers
 
 namespace abc {
-
 namespace test {
 
 class to_str_pointers :
@@ -232,7 +225,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_pointers)

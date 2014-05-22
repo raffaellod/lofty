@@ -26,7 +26,6 @@ You should have received a copy of the GNU General Public License along with ABC
 // abc::test::str_test_case_base
 
 namespace abc {
-
 namespace test {
 
 class str_test_case_base :
@@ -71,7 +70,6 @@ private:
 };
 
 } //namespace test
-
 } //namespace abc
 
 
@@ -79,7 +77,6 @@ private:
 // abc::test::str_basic
 
 namespace abc {
-
 namespace test {
 
 class str_basic :
@@ -199,7 +196,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
@@ -210,7 +206,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 
 
 namespace abc {
-
 namespace test {
 
 class str_substr :
@@ -283,7 +278,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr)
@@ -293,7 +287,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr)
 // abc::test::istr_c_str
 
 namespace abc {
-
 namespace test {
 
 class istr_c_str :
@@ -342,7 +335,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::istr_c_str)
@@ -352,7 +344,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::istr_c_str)
 // abc::test::mstr_c_str
 
 namespace abc {
-
 namespace test {
 
 class mstr_c_str :
@@ -410,7 +401,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
@@ -420,7 +410,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 // abc::test::str_substr_ascii
 
 namespace abc {
-
 namespace test {
 
 class str_substr_ascii :
@@ -465,7 +454,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ascii)
@@ -475,7 +463,6 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ascii)
 // abc::test::str_substr_nonascii
 
 namespace abc {
-
 namespace test {
 
 class str_substr_nonascii :
@@ -526,7 +513,6 @@ public:
 };
 
 } //namespace test
-
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_nonascii)
