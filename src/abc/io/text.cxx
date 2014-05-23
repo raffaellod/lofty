@@ -97,7 +97,7 @@ bool reader::read_line(mstr * ps) {
       }
 
       // Pick the appropriate line terminator string…
-      istr sLTerm(get_line_terminator_str(m_lterm));
+      istr sLTerm(abc::text::get_line_terminator_str(m_lterm));
       // …and search for it.
       char_t const * pchLineEnd(abc::text::utf_traits<>::str_str(
          pchBeforeLastReadBegin, pchEnd, sLTerm.cbegin().base(), sLTerm.cend().base()
