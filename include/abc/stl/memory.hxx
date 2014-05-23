@@ -667,21 +667,17 @@ public:
 
    /** See exception::exception().
    */
-   bad_weak_ptr() {
-   }
+   bad_weak_ptr();
 
 
    /** Destructor.
    */
-   virtual ~bad_weak_ptr() {
-   }
+   virtual ~bad_weak_ptr();
 
 
    /** See exception::what().
    */
-   virtual char const * what() const {
-      return "std::bad_weak_ptr";
-   }
+   virtual char const * what() const;
 };
 
 } //namespace std
