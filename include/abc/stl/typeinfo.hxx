@@ -38,7 +38,7 @@ namespace std {
 /** Runtime type information (C++11 § 18.7.1 “Class type_info”).
 */
 class type_info :
-   public noncopyable {
+   public ::abc::noncopyable {
 public:
 
    /** Destructor.

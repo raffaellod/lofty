@@ -343,7 +343,7 @@ namespace std {
 */
 template <typename T, typename TDel = default_delete<T>>
 class unique_ptr :
-   public noncopyable {
+   public ::abc::noncopyable {
 public:
 
    /** Type of the element pointed to. */
@@ -500,7 +500,8 @@ protected:
 // Specialization for dynamically-allocated arrays (C++11 § 20.7.1.3 “unique_ptr for array objects
 // with a runtime length”).
 template <typename T, typename TDel>
-class unique_ptr<T[], TDel> : public noncopyable {
+class unique_ptr<T[], TDel> :
+   public ::abc::noncopyable {
 public:
 
    /** Type of the element pointed to. */
@@ -695,48 +696,30 @@ All strong references to this object collectively hold a weak reference to it; t
 conditions upon release of the last strong reference in absence of other weak references.
 */
 class _shared_refcount :
-   public noncopyable {
+   public ::abc::noncopyable {
 public:
 
    /** Constructor.
 
    TODO: comment signature.
    */
-   _shared_refcount(abc::atomic::int_t cStrongRefs, abc::atomic::int_t cWeakRefs) :
-      m_cStrongRefs(cStrongRefs),
-      m_cWeakRefs(cWeakRefs + (cStrongRefs > 0 ? 1 : 0)) {
-   }
+   _shared_refcount(::abc::atomic::int_t cStrongRefs, ::abc::atomic::int_t cWeakRefs);
 
 
    /** Destructor.
    */
-   virtual ~_shared_refcount() {
-      ABC_ASSERT(m_cStrongRefs == 0);
-      ABC_ASSERT(m_cWeakRefs == 0);
-   }
+   virtual ~_shared_refcount();
 
 
    /** Records the creation of a new strong reference to this.
    */
-   void add_strong_ref() {
-      // Increment the count of strong references if non-zero; it it’s zero, the owned object is
-      // gone.
-      abc::atomic::int_t cStrongRefsOld;
-      do {
-         cStrongRefsOld = m_cStrongRefs;
-         if (cStrongRefsOld <= 0) {
-            throw bad_weak_ptr();
-         }
-      } while (abc::atomic::compare_and_swap(
-         &m_cStrongRefs, cStrongRefsOld + 1, cStrongRefsOld
-      ) != cStrongRefsOld);
-   }
+   void add_strong_ref();
 
 
    /** Records the creation of a new weak reference to this.
    */
    void add_weak_ref() {
-      abc::atomic::increment(&m_cWeakRefs);
+      ::abc::atomic::increment(&m_cWeakRefs);
    }
 
 
@@ -744,16 +727,13 @@ public:
 
    TODO: comment signature.
    */
-   virtual void * get_deleter(type_info const & ti) const {
-      ABC_UNUSED_ARG(ti);
-      return nullptr;
-   }
+   virtual void * get_deleter(type_info const & ti) const;
 
 
    /** Records the release of a strong reference to this.
    */
    void release_strong() {
-      if (abc::atomic::decrement(&m_cStrongRefs) == 0) {
+      if (::abc::atomic::decrement(&m_cStrongRefs) == 0) {
          // All the strong references are gone: release the owned object and the weak link hold by
          // the strong references.
          delete_owned();
@@ -765,7 +745,7 @@ public:
    /** Records the release of a weak reference to this.
    */
    void release_weak() {
-      if (abc::atomic::decrement(&m_cWeakRefs) == 0) {
+      if (::abc::atomic::decrement(&m_cWeakRefs) == 0) {
          // All references are gone, including the one held by all the strong references together:
          // this object can go away as well.
          delete_this();
@@ -792,17 +772,15 @@ protected:
 
    /** Deletes *this.
    */
-   virtual void delete_this() {
-      delete this;
-   }
+   virtual void delete_this();
 
 
 protected:
 
    /** Number of shared_ptr references to this. */
-   abc::atomic::int_t volatile m_cStrongRefs;
+   ::abc::atomic::int_t volatile m_cStrongRefs;
    /** Number of weak_ptr references to this. */
-   abc::atomic::int_t volatile m_cWeakRefs;
+   ::abc::atomic::int_t volatile m_cWeakRefs;
 };
 
 } //namespace std
@@ -986,7 +964,7 @@ class weak_ptr;
 */
 template <typename T>
 class shared_ptr :
-   public abc::support_explicit_operator_bool<shared_ptr<T>> {
+   public ::abc::support_explicit_operator_bool<shared_ptr<T>> {
 public:
 
    /** Type of the element pointed to. */

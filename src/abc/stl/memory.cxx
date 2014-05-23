@@ -44,6 +44,53 @@ bad_weak_ptr::bad_weak_ptr() {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// std::_shared_refcount
+
+
+namespace std {
+
+_shared_refcount::_shared_refcount(
+   ::abc::atomic::int_t cStrongRefs, ::abc::atomic::int_t cWeakRefs
+) :
+   m_cStrongRefs(cStrongRefs),
+   m_cWeakRefs(cWeakRefs + (cStrongRefs > 0 ? 1 : 0)) {
+}
+
+
+/*virtual*/ _shared_refcount::~_shared_refcount() {
+   ABC_ASSERT(m_cStrongRefs == 0);
+   ABC_ASSERT(m_cWeakRefs == 0);
+}
+
+
+void _shared_refcount::add_strong_ref() {
+   // Increment the count of strong references if non-zero; it it’s zero, the owned object is gone.
+   ::abc::atomic::int_t cStrongRefsOld;
+   do {
+      cStrongRefsOld = m_cStrongRefs;
+      if (cStrongRefsOld <= 0) {
+         throw bad_weak_ptr();
+      }
+   } while (::abc::atomic::compare_and_swap(
+      &m_cStrongRefs, cStrongRefsOld + 1, cStrongRefsOld
+   ) != cStrongRefsOld);
+}
+
+
+/*virtual*/ void * _shared_refcount::get_deleter(type_info const & ti) const {
+   ABC_UNUSED_ARG(ti);
+   return nullptr;
+}
+
+
+/*virtual*/ void _shared_refcount::delete_this() {
+   delete this;
+}
+
+} //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifdef ABC_STLIMPL
