@@ -736,6 +736,146 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// std::ignore
+
+
+namespace std {
+
+/** Internal (implementation-defined) type of ignore. It supports construction and assignment from
+any type, and silently discards everything.
+*/
+class __ignore_t {
+public:
+
+   /** Constructor.
+   */
+   __ignore_t() {
+   }
+   __ignore_t(__ignore_t const &) {
+   }
+   template <typename T>
+   __ignore_t(T const &) {
+   }
+
+
+   /** Assignment operator.
+   */
+   __ignore_t & operator=(__ignore_t const &) {
+      return *this;
+   }
+   template <typename T>
+   __ignore_t & operator=(T const &) {
+      return *this;
+   }
+};
+
+
+/** Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
+“Tuples”).
+*/
+extern __ignore_t const ignore;
+
+} //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// std::tie
+
+
+namespace std {
+
+/** Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
+
+tpl
+   Tuple from which to extract an element.
+return
+   Reference to the tuple element.
+*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+template <typename ... Ts>
+inline /*constexpr*/ tuple<Ts & ...> tie(Ts ... & ts) {
+   return tuple<Ts & ...>(static_cast<_tuple_head<
+      t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
+   > &>(tpl).get();
+}
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+template <typename T0>
+inline /*constexpr*/ tuple<T0 &> tie(T0 & t0) {
+   return tuple<T0 &>(t0);
+}
+template <typename T0, typename T1>
+inline /*constexpr*/ tuple<T0 &, T1 &> tie(T0 & t0, T1 & t1) {
+   return tuple<T0 &, T1 &>(t0, t1);
+}
+template <typename T0, typename T1, typename T2>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &> tie(T0 & t0, T1 & t1, T2 & t2) {
+   return tuple<T0 &, T1 &, T2 &>(t0, t1, t2);
+}
+template <typename T0, typename T1, typename T2, typename T3>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &> tie(T0 & t0, T1 & t1, T2 & t2, T3 & t3) {
+   return tuple<T0 &, T1 &, T2 &, T3 &>(t0, t1, t2, t3);
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &>(t0, t1, t2, t3, t4);
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4, T5 & t5
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &>(t0, t1, t2, t3, t4, t5);
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4, T5 & t5, T6 & t6
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &>(t0, t1, t2, t3, t4, t5, t6);
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7
+>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4, T5 & t5, T6 & t6, T7 & t7
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &>(t0, t1, t2, t3, t4, t5, t6, t7);
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8
+>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4, T5 & t5, T6 & t6, T7 & t7, T8 & t8
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &>(
+      t0, t1, t2, t3, t4, t5, t6, t7, t8
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8, typename T9
+>
+inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &, T9 &> tie(
+   T0 & t0, T1 & t1, T2 & t2, T3 & t3, T4 & t4, T5 & t5, T6 & t6, T7 & t7, T8 & t8, T9 & t9
+) {
+   return tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &, T9 &>(
+      t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
+   );
+}
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+} //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifndef _ABC_STL_TUPLE_HXX
