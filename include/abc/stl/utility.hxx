@@ -57,21 +57,21 @@ return
 template <typename T>
 typename enable_if<!is_lvalue_reference<T>::value, T &&>::type forward(
    typename identity<T>::type && t
-) noexcept_true {
+) {
    return static_cast<T &&>(t);
 }
 // Forward l-values as l-values.
 template <typename T>
 typename enable_if<is_lvalue_reference<T>::value, T>::type forward(
    typename identity<T>::type t
-) noexcept_true {
+) {
    return t;
 }
 // Forward l-values as r-values.
 template <typename T>
 typename enable_if<!is_lvalue_reference<T>::value, T &&>::type forward(
    typename identity<T>::type & t
-) noexcept_true {
+) {
    return static_cast<T &&>(t);
 }
 #ifdef ABC_CXX_FUNCTION_DELETE
@@ -92,7 +92,7 @@ return
    R-value reference to t.
 */
 template <typename T>
-typename remove_reference<T>::type && move(T && t) noexcept_true {
+typename remove_reference<T>::type && move(T && t) {
    return static_cast<typename remove_reference<T>::type &&>(t);
 }
 
@@ -105,13 +105,13 @@ t2
    Second object.
 */
 template <typename T>
-void swap(T & t1, T & t2) noexcept_false {
+void swap(T & t1, T & t2) {
    T tt(move(t1));
    t1 = move(t2);
    t2 = move(tt);
 }
 template <typename T, size_t t_ci>
-void swap(T (& t1)[t_ci], T (& t2)[t_ci]) noexcept_false {
+void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
    T const * pt1Max(&t1 + t_ci);
    for (T * pt1(t1), * pt2(t2); pt1 < pt1Max; ++pt1, ++pt2) {
       swap(*pt1, *pt2);

@@ -52,32 +52,38 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   th
+      Source tuple head.
+   t
+      Source element.
    */
-   _tuple_head() noexcept_false :
+   _tuple_head() :
       T() {
    }
-   _tuple_head(_tuple_head const & th) noexcept_false :
+   _tuple_head(_tuple_head const & th) :
       T(static_cast<T const &>(th)) {
    }
-   _tuple_head(_tuple_head && th) noexcept_true :
+   _tuple_head(_tuple_head && th) :
       T(static_cast<T &&>(th)) {
    }
    template <typename Tr>
-   _tuple_head(Tr && t) noexcept_true :
+   _tuple_head(Tr && t) :
       T(forward<Tr>(t)) {
    }
 
 
    /** Assignment operator.
 
-   TODO: comment signature.
+   th
+      Source tuple head.
+   return
+      *this.
    */
-   _tuple_head & operator=(_tuple_head const & th) noexcept_false {
+   _tuple_head & operator=(_tuple_head const & th) {
       get() = th.get();
       return *this;
    }
-   _tuple_head & operator=(_tuple_head && th) noexcept_true {
+   _tuple_head & operator=(_tuple_head && th) {
       get() = move(th.get());
       return *this;
    }
@@ -85,12 +91,13 @@ public:
 
    /** Accessor to the wrapped object.
 
-   TODO: comment signature.
+   return
+      Reference to the wrapped element.
    */
-   T & get() noexcept_true {
+   T & get() {
       return *this;
    }
-   T const & get() const noexcept_true {
+   T const & get() const {
       return *this;
    }
 };
@@ -102,45 +109,52 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   th
+      Source tuple head.
+   t
+      Source element.
    */
-   _tuple_head() noexcept_false :
+   _tuple_head() :
       m_t() {
    }
-   _tuple_head(_tuple_head const & th) noexcept_false :
+   _tuple_head(_tuple_head const & th) :
       m_t(th.m_t) {
    }
-   _tuple_head(_tuple_head && th) noexcept_true :
+   _tuple_head(_tuple_head && th) :
       m_t(move(th.m_t)) {
    }
    template <typename Tr>
-   _tuple_head(Tr && t) noexcept_true :
+   _tuple_head(Tr && t) :
       m_t(forward<Tr>(t)) {
    }
 
 
    /** Assignment operator.
 
-   TODO: comment signature.
+   th
+      Source tuple head.
+   return
+      *this.
    */
-   _tuple_head & operator=(_tuple_head const & th) noexcept_false {
+   _tuple_head & operator=(_tuple_head const & th) {
       get() = th.get();
       return *this;
    }
-   _tuple_head & operator=(_tuple_head && th) noexcept_true {
+   _tuple_head & operator=(_tuple_head && th) {
       get() = move(th.get());
       return *this;
    }
 
 
-   /** Accessor to the wrapped object.
+   /** Accessor to the wrapped element.
 
-   TODO: comment signature.
+   return
+      Reference to the wrapped element.
    */
-   T & get() noexcept_true {
+   T & get() {
       return m_t;
    }
-   T const & get() const noexcept_true {
+   T const & get() const {
       return m_t;
    }
 
@@ -189,16 +203,16 @@ public:
    tt
       Source tuple tail.
    */
-   _tuple_tail() noexcept_false :
+   _tuple_tail() :
       _thead(), _ttail() {
    }
-   _tuple_tail(T0 thead, Ts ... ts) noexcept_false :
+   _tuple_tail(T0 thead, Ts ... ts) :
       _thead(move(thead)), _ttail(move(ts) ...) {
    }
-   _tuple_tail(_tuple_tail const & tt) noexcept_false :
+   _tuple_tail(_tuple_tail const & tt) :
       _thead(tt.get_thead()), _ttail(tt.get_ttail()) {
    }
-   _tuple_tail(_tuple_tail && tt) noexcept_true :
+   _tuple_tail(_tuple_tail && tt) :
       _thead(move(tt.get_thead())), _ttail(move(tt.get_ttail())) {
    }
 
@@ -210,12 +224,12 @@ public:
    return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const & tt) noexcept_false {
+   _tuple_tail & operator=(_tuple_tail const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
       return *this;
    }
-   _tuple_tail & operator=(_tuple_tail && tt) noexcept_true {
+   _tuple_tail & operator=(_tuple_tail && tt) {
       get_thead() = move(tt.get_thead());
       get_ttail() = move(tt.get_ttail());
       return *this;
@@ -227,10 +241,10 @@ public:
    return
       Reference to the embedded tuple head.
    */
-   _thead & get_thead() noexcept_true {
+   _thead & get_thead() {
       return *static_cast<_thead *>(this);
    }
-   _thead const & get_thead() const noexcept_true {
+   _thead const & get_thead() const {
       return *static_cast<_thead const *>(this);
    }
 
@@ -240,10 +254,10 @@ public:
    return
       Reference to the embedded tuple tail.
    */
-   _ttail & get_ttail() noexcept_true {
+   _ttail & get_ttail() {
       return *static_cast<_ttail *>(this);
    }
-   _ttail const & get_ttail() const noexcept_true {
+   _ttail const & get_ttail() const {
       return *static_cast<_ttail const *>(this);
    }
 };
@@ -272,20 +286,18 @@ public:
    t0...t9
       Source elements.
    */
-   _tuple_tail() noexcept_false :
+   _tuple_tail() :
       _thead(), _ttail() {
    }
-   _tuple_tail(_tuple_tail const & tt) noexcept_false :
+   _tuple_tail(_tuple_tail const & tt) :
       _thead(tt.get_thead()),
       _ttail(tt.get_ttail()) {
    }
-   _tuple_tail(_tuple_tail && tt) noexcept_true :
+   _tuple_tail(_tuple_tail && tt) :
       _thead(move(tt.get_thead())),
       _ttail(move(tt.get_ttail())) {
    }
-   _tuple_tail(
-      T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9
-   ) noexcept_false :
+   _tuple_tail(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) :
       _thead(move(t0)),
       _ttail(
          move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8), move(t9),
@@ -301,12 +313,12 @@ public:
    return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const & tt) noexcept_false {
+   _tuple_tail & operator=(_tuple_tail const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
       return *this;
    }
-   _tuple_tail & operator=(_tuple_tail && tt) noexcept_true {
+   _tuple_tail & operator=(_tuple_tail && tt) {
       get_thead() = move(tt.get_thead());
       get_ttail() = move(tt.get_ttail());
       return *this;
@@ -318,10 +330,10 @@ public:
    return
       Reference to the embedded tuple head.
    */
-   _thead & get_thead() noexcept_true {
+   _thead & get_thead() {
       return *static_cast<_thead *>(this);
    }
-   _thead const & get_thead() const noexcept_true {
+   _thead const & get_thead() const {
       return *static_cast<_thead const *>(this);
    }
 
@@ -331,10 +343,10 @@ public:
    return
       Reference to the embedded tuple tail.
    */
-   _ttail & get_ttail() noexcept_true {
+   _ttail & get_ttail() {
       return *static_cast<_ttail *>(this);
    }
-   _ttail const & get_ttail() const noexcept_true {
+   _ttail const & get_ttail() const {
       return *static_cast<_ttail const *>(this);
    }
 };
@@ -352,15 +364,15 @@ public:
    tt
       Source tuple tail.
    */
-   _tuple_tail() noexcept_true {
+   _tuple_tail() {
    }
-   _tuple_tail(_tuple_tail const & tt) noexcept_true {
+   _tuple_tail(_tuple_tail const & tt) {
    }
    _tuple_tail(
       _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
       _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
       _tuple_void const &, _tuple_void const &
-   ) noexcept_true {
+   ) {
    }
 
 
@@ -369,7 +381,7 @@ public:
    return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const &) noexcept_true {
+   _tuple_tail & operator=(_tuple_tail const &) {
       return *this;
    }
 };
@@ -404,16 +416,16 @@ public:
    tpl
       Source tuple.
    */
-   tuple() noexcept_false :
+   tuple() :
       _timpl() {
    }
-   explicit tuple(Ts ... ts) noexcept_false :
+   explicit tuple(Ts ... ts) :
       _timpl(move(ts) ...) {
    }
-   tuple(tuple const & tpl) noexcept_false :
+   tuple(tuple const & tpl) :
       _timpl(static_cast<_timpl const &>(tpl)) {
    }
-   tuple(tuple && tpl) noexcept_true :
+   tuple(tuple && tpl) :
       _timpl(static_cast<_timpl &&>(tpl)) {
    }
 
@@ -425,11 +437,11 @@ public:
    return
       *this.
    */
-   tuple & operator=(tuple const & tpl) noexcept_false {
+   tuple & operator=(tuple const & tpl) {
       _timpl::operator=(static_cast<_timpl const &>(tpl));
       return *this;
    }
-   tuple & operator=(tuple && tpl) noexcept_true {
+   tuple & operator=(tuple && tpl) {
       _timpl::operator=(static_cast<_timpl &&>(tpl));
       return *this;
    }
@@ -457,86 +469,86 @@ public:
    tpl
       Source tuple.
    */
-   tuple() noexcept_true :
+   tuple() :
       _timpl(
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 1.
-   explicit tuple(T0 t0) noexcept_false :
+   explicit tuple(T0 t0) :
       _timpl(
          move(t0), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 2.
-   tuple(T0 t0, T1 t1) noexcept_false :
+   tuple(T0 t0, T1 t1) :
       _timpl(
          move(t0), move(t1), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 3.
-   tuple(T0 t0, T1 t1, T2 t2) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2) :
       _timpl(
          move(t0), move(t1), move(t2), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 4.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 5.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 6.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 7.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), _tuple_void(),
          _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 8.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7),
          _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 9.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8),
          _tuple_void()
       ) {
    }
    // Overload for tuple of 10.
-   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) noexcept_false :
+   tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) :
       _timpl(
          move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8),
          move(t9)
       ) {
    }
-   tuple(tuple const & tpl) noexcept_false :
+   tuple(tuple const & tpl) :
       _timpl(static_cast<_timpl const &>(tpl)) {
    }
-   tuple(tuple && tpl) noexcept_true :
+   tuple(tuple && tpl) :
       _timpl(static_cast<_timpl &&>(tpl)) {
    }
 
@@ -548,11 +560,11 @@ public:
    return
       *this.
    */
-   tuple & operator=(tuple const & tpl) noexcept_false {
+   tuple & operator=(tuple const & tpl) {
       _timpl::operator=(static_cast<_timpl const &>(tpl));
       return *this;
    }
-   tuple & operator=(tuple && tpl) noexcept_true {
+   tuple & operator=(tuple && tpl) {
       _timpl::operator=(static_cast<_timpl &&>(tpl));
       return *this;
    }
@@ -651,12 +663,12 @@ struct _tuple_get_helper;
    \
       inline static T ## i & get( \
          tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl \
-      ) noexcept_true { \
+      ) { \
          return static_cast<_tuple_head<i, T ## i> &>(tpl).get(); \
       } \
       inline static T ## i const & get( \
          tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl \
-      ) noexcept_true { \
+      ) { \
          return static_cast<_tuple_head<i, T ## i> const &>(tpl).get(); \
       } \
    };
@@ -685,15 +697,13 @@ return
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <size_t t_i, typename ... Ts>
-inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) noexcept_true {
+inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > &>(tpl).get();
 }
 template <size_t t_i, typename ... Ts>
-inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(
-   tuple<Ts ...> const & tpl
-) noexcept_true {
+inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...> const & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > const &>(tpl).get();
@@ -707,7 +717,7 @@ template <
 >
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl
-) noexcept_true {
+) {
    return _tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 template <
@@ -716,7 +726,7 @@ template <
 >
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type const & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl
-) noexcept_true {
+) {
    return _tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 
