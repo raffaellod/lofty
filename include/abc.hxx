@@ -653,8 +653,10 @@ unsafe_t const unsafe;
 #endif
 
 #ifdef ABC_STLIMPL
+   #include <abc/stl/tuple.hxx>
    #include <abc/stl/memory.hxx>
 #else //ifdef ABC_STLIMPL
+   #include <tuple>
    #if ABC_HOST_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
