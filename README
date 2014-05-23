@@ -125,16 +125,17 @@ For usage examples, please see the source files in the examples/ folder. Example
 of ABC (see § 4. Building ABC), and the generated executables can be found in the bin/ output
 folder.
 
-On some platforms (e.g. glibc/Linux), if ABC is not installed (see § 5. Installing ABC), example
-programs will fail to run due to being unable to load ABC shared libraries. This can be worked
-around by adding the output lib/ folder to the shared library search path, e.g. on glibc/Linux:
+If ABC is not installed (see § 5. Installing ABC), example programs will fail to run due to being
+unable to load ABC shared libraries. This can be worked around by adding the output lib/ folder to
+the shared library search path.
+
+On glibc/Linux:
 
    env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
-Other platforms (e.g. Windows) have the current directory added to the search path by default, and
-ABC Make exploits this by generating all shared library (DLL) outputs in the same folder as the
-executables, thus making directly running the program possible:
+On Windows:
 
+   set PATH=%PATH%;%CD%\lib
    bin\hello-world
 
 
