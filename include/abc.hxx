@@ -391,9 +391,13 @@ private:
 
 } //namespace abc
 
-#include <type_traits>
+#ifdef ABC_STLIMPL
+   #include <abc/stl/type_traits.hxx>
+#else
+   #include <type_traits>
+#endif
 
-#if ABC_HOST_MSC && ABC_HOST_MSC < 1800
+#if ABC_HOST_MSC && ABC_HOST_MSC < 1800 && !defined(ABC_STLIMPL)
 
 namespace std {
 
@@ -424,7 +428,7 @@ struct is_copy_constructible<T, typename enable_if<
 
 } //namespace std
 
-#endif //if ABC_HOST_MSC < 1800
+#endif //if ABC_HOST_MSC && ABC_HOST_MSC < 1800 && !defined(ABC_STLIMPL)
 
 
 /** Declares an explicit conversion operator to bool.
@@ -566,9 +570,12 @@ old_throw_decl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals - other
 
+
+#ifndef ABC_STLIMPL
+
 namespace std {
 
-/** Type whose alignment requirement is at least as large as that of every scalar type (see C++11 §
+/** Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
 18.2 “<cstddef>”).
 */
 union max_align_t {
@@ -578,6 +585,8 @@ union max_align_t {
 };
 
 } //namespace std
+
+#endif //ifndef ABC_STLIMPL
 
 
 /** Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
@@ -643,25 +652,29 @@ unsafe_t const unsafe;
    #pragma warning(pop)
 #endif
 
-#if ABC_HOST_MSC
-   // Silence warnings from system header files.
-   #pragma warning(push)
-   // “'function': exception specification does not match previous declaration”
-   #pragma warning(disable: 4986)
-#endif //if ABC_HOST_MSC
-#include <memory>
-#if ABC_HOST_MSC
-   #pragma warning(pop)
-#endif //if ABC_HOST_MSC
-#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-   namespace std {
+#ifdef ABC_STLIMPL
+   #include <abc/stl/memory.hxx>
+#else //ifdef ABC_STLIMPL
+   #if ABC_HOST_MSC
+      // Silence warnings from system header files.
+      #pragma warning(push)
+      // “'function': exception specification does not match previous declaration”
+      #pragma warning(disable: 4986)
+   #endif //if ABC_HOST_MSC
+   #include <memory>
+   #if ABC_HOST_MSC
+      #pragma warning(pop)
+   #endif //if ABC_HOST_MSC
+   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+      namespace std {
 
-   // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
-   template <typename T, typename TDeleter>
-   struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+      // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
+      template <typename T, typename TDeleter>
+      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
 
-   } //namespace std
-#endif
+      } //namespace std
+   #endif
+#endif //ifdef ABC_STLIMPL … else
 #include <abc/memory.hxx>
 
 namespace abc {
@@ -679,12 +692,20 @@ class writer;
 } //namespace io
 } //namespace abc
 
-#include <exception>
+#ifdef ABC_STLIMPL
+   #include <abc/stl/exception.hxx>
+#else
+   #include <exception>
+#endif
 #include <abc/exception.hxx>
 
 #include <abc/enum.hxx>
 
-#include <iterator>
+#ifdef ABC_STLIMPL
+   #include <abc/stl/iterator.hxx>
+#else
+   #include <iterator>
+#endif
 #include <abc/pointer_iterator.hxx>
 #include <abc/numeric.hxx>
 #include <abc/type_void_adapter.hxx>
@@ -692,7 +713,11 @@ class writer;
 #include <abc/byteorder.hxx>
 #include <abc/text.hxx>
 #include <abc/utf_traits.hxx>
-#include <functional>
+#ifdef ABC_STLIMPL
+   #include <abc/stl/functional.hxx>
+#else
+   #include <functional>
+#endif
 #include <abc/str.hxx>
 
 #include <abc/enum-after-str.hxx>
