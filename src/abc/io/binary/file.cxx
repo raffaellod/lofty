@@ -672,7 +672,7 @@ console_reader::console_reader(_file_init_data * pfid) :
       cchMax -= size_t(cchLastRead);
    } while (cchMax);
 
-   return size_t(pb - static_cast<int8_t *>(p)) * sizeof(char_t);
+   return size_t(pb - static_cast<int8_t *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -729,7 +729,7 @@ console_writer::console_writer(_file_init_data * pfid) :
       cch -= size_t(cchLastWritten);
    } while (cch);
 
-   return size_t(pb - static_cast<int8_t const *>(p)) * sizeof(char_t);
+   return size_t(pb - static_cast<int8_t const *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
