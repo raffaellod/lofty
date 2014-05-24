@@ -571,7 +571,6 @@ binbuf_writer::binbuf_writer(
    if (enc == m_enc) {
       // Optimal case: no transcoding necessary.
       memory::copy(pbBuf, static_cast<int8_t const *>(p), cb);
-      p = static_cast<int8_t const *>(p) + cbBuf;
       cbBuf = cb;
    } else {
       // Sub-optimal case: transcoding is needed.
