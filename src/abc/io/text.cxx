@@ -440,11 +440,11 @@ binbuf_reader::binbuf_reader(
    } else {
       // Sub-optimal case: transcoding is needed.
 
-      // Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid
-      // consuming (expensive: we’d need to calculate the buffer offset back from the string
-      // offset, and the only way to do so is to re-transcode the buffer capping the destination
-      // size – see below), only translate relatively small portions (of size sc_cbBufChunkMax)
-      // of the buffer at a time.
+      // Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid consuming
+      // (expensive: we’d need to calculate the buffer offset back from the string offset, and the
+      // only way to do so is to re-transcode the buffer capping the destination size – see below),
+      // only translate relatively small portions (of size sc_cbBufChunkMax) of the buffer at a
+      // time.
       // TODO: tune this value – too small causes more repeated function calls, too large causes
       // more work in abc::text::transcode().
       static size_t const sc_cbBufChunkMax(128);
