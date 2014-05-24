@@ -624,6 +624,27 @@ file_writer::file_writer(_file_init_data * pfid) :
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::console_file_base
+
+
+namespace abc {
+namespace io {
+namespace binary {
+
+console_file_base::console_file_base(_file_init_data * pfid) :
+   file_base(pfid) {
+}
+
+
+/*virtual*/ console_file_base::~console_file_base() {
+}
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_reader
 
 
@@ -633,6 +654,7 @@ namespace binary {
 
 console_reader::console_reader(_file_init_data * pfid) :
    file_base(pfid),
+   console_file_base(pfid),
    file_reader(pfid) {
 }
 
@@ -692,6 +714,7 @@ namespace binary {
 
 console_writer::console_writer(_file_init_data * pfid) :
    file_base(pfid),
+   console_file_base(pfid),
    file_writer(pfid) {
 }
 

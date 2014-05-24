@@ -345,6 +345,37 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::console_file_base
+
+
+namespace abc {
+namespace io {
+namespace binary {
+
+/** Base for console/terminal binary I/O classes.
+*/
+class ABCAPI console_file_base :
+   public virtual file_base {
+public:
+
+   /** Destructor.
+   */
+   virtual ~console_file_base();
+
+
+protected:
+
+   /** See file_base::file_base().
+   */
+   console_file_base(_file_init_data * pfid);
+};
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_reader
 
 
@@ -355,6 +386,7 @@ namespace binary {
 /** Console/terminal input pseudo-file.
 */
 class ABCAPI console_reader :
+   public virtual console_file_base,
    public file_reader {
 public:
 
@@ -396,6 +428,7 @@ namespace binary {
 /** Console/terminal output pseudo-file.
 */
 class ABCAPI console_writer :
+   public virtual console_file_base,
    public file_writer {
 public:
 
