@@ -79,6 +79,53 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 namespace byteorder {
 
+/** Implementation of swap(), specialized by size in bytes of the argument. See swap().
+*/
+template <size_t cb>
+struct _swap_impl;
+
+// Specialization for 1-byte integers.
+template <>
+struct _swap_impl<1> {
+   typedef uint8_t type;
+
+   type operator()(type i) {
+      // No byte swapping on a single byte.
+      return i;
+   }
+};
+
+// Specialization for 2-byte integers.
+template <>
+struct _swap_impl<2> {
+   typedef uint16_t type;
+
+   type operator()(type i) {
+      return bswap_16(i);
+   }
+};
+
+// Specialization for 4-byte integers.
+template <>
+struct _swap_impl<4> {
+   typedef uint32_t type;
+
+   type operator()(type i) {
+      return bswap_32(i);
+   }
+};
+
+// Specialization for 8-byte integers.
+template <>
+struct _swap_impl<8> {
+   typedef uint64_t type;
+
+   type operator()(type i) {
+      return bswap_64(i);
+   }
+};
+
+
 /** Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
 
@@ -89,14 +136,8 @@ return
 */
 template <typename I>
 inline I swap(I i) {
-   switch (sizeof(I)) {
-      case sizeof(uint16_t):
-         return I(bswap_16(uint16_t(i)));
-      case sizeof(uint32_t):
-         return I(bswap_32(uint32_t(i)));
-      case sizeof(uint64_t):
-         return I(bswap_64(uint64_t(i)));
-   }
+   typedef _swap_impl<sizeof(I)> swap_impl;
+   return I(swap_impl()(typename swap_impl::type(i)));
 }
 
 
