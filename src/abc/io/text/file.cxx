@@ -96,28 +96,36 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
 ) {
    ABC_TRACE_FN((/*pbb, */pszEnvVarName));
 
+   abc::text::encoding enc;
+   if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
+      // Console files can only perform I/O in the host platform’s encoding, so force the correct
+      // encoding here.
+      enc = abc::text::encoding::host;
+   } else {
+      // In all other cases, allow selecting the encoding via environment variable.
 #if ABC_HOST_API_POSIX
-   istr sEnc;
-   if (char_t const * pszEnvVarValue = ::getenv(pszEnvVarName)) {
-      sEnc = istr(unsafe, pszEnvVarValue);
-   }
+      istr sEnc;
+      if (char_t const * pszEnvVarValue = ::getenv(pszEnvVarName)) {
+         sEnc = istr(unsafe, pszEnvVarValue);
+      }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   smstr<64> sEnc;
-   sEnc.grow_for([pszEnvVarName] (char_t * pch, size_t cchMax) -> size_t {
-      // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
-      // enough, or the required size (length including NUL) otherwise.
-      return ::GetEnvironmentVariable(pszEnvVarName, pch, DWORD(cchMax));
-   });
+      smstr<64> sEnc;
+      sEnc.grow_for([pszEnvVarName] (char_t * pch, size_t cchMax) -> size_t {
+         // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
+         // enough, or the required size (length including NUL) otherwise.
+         return ::GetEnvironmentVariable(pszEnvVarName, pch, DWORD(cchMax));
+      });
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   abc::text::encoding enc(abc::text::encoding::unknown);
-   if (sEnc) {
-      try {
-         enc = abc::text::encoding(sEnc);
-      } catch (domain_error const &) {
-         // Ignore this invalid encoding setting, and default to auto-detection.
-         // TODO: display a warning about ABC_STDERR_ENCODING being ignored.
+      enc = abc::text::encoding::unknown;
+      if (sEnc) {
+         try {
+            enc = abc::text::encoding(sEnc);
+         } catch (domain_error const &) {
+            // Ignore this invalid encoding setting, and default to auto-detection.
+            // TODO: display a warning about ABC_STDERR_ENCODING being ignored.
+         }
       }
    }
    return _construct(std::move(pbb), enc, abc::text::line_terminator::unknown);
