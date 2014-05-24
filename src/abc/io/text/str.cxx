@@ -170,7 +170,7 @@ dmstr str_writer::release_content() {
          // Fill as much of the buffer as possible, and advance m_ichOffset accordingly.
          m_ichOffset += abc::text::transcode(
             std::nothrow, enc, &p, &cb, abc::text::encoding::host, &pBuf, &cbBuf
-         );
+         ) / sizeof(char_t);
       } while (cb);
    }
    // Truncate the string.
