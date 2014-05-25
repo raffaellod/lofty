@@ -93,8 +93,7 @@ printed only as pointers, which is often undesirable.
 
 Instances of this class don’t own the memory object they point to.
 */
-class c_str_to_str_adapter :
-   public noncopyable {
+class c_str_to_str_adapter {
 
    friend class to_str_backend<c_str_to_str_adapter>;
 
