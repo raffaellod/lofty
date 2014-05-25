@@ -38,7 +38,7 @@ namespace io {
 namespace binary {
 
 std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
-   ABC_TRACE_FN((/*pbb*/));
+   ABC_TRACE_FN((pbb));
 
    auto pbr(std::dynamic_pointer_cast<reader>(pbb));
    auto pbw(std::dynamic_pointer_cast<writer>(pbb));

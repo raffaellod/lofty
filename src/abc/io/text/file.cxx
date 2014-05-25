@@ -48,7 +48,7 @@ return
 static std::shared_ptr<binbuf_base> _construct(
    std::shared_ptr<binary::base> pbb, abc::text::encoding enc, abc::text::line_terminator lterm
 ) {
-   ABC_TRACE_FN((/*pbb, */enc, lterm));
+   ABC_TRACE_FN((pbb, enc, lterm));
 
    // Choose what type of text I/O object to create based on what type of binary I/O object we got.
 
@@ -94,7 +94,7 @@ return
 static std::shared_ptr<binbuf_base> _construct_stdio(
    std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
 ) {
-   ABC_TRACE_FN((/*pbb, */pszEnvVarName));
+   ABC_TRACE_FN((pbb, pszEnvVarName));
 
    abc::text::encoding enc;
    if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
