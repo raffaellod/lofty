@@ -19,19 +19,19 @@ You should have received a copy of the GNU General Public License along with ABC
 
 #include <abc.hxx>
 #include <abc/io/text/file.hxx>
-#include <abc/testing/module.hxx>
+#include <abc/testing/app.hxx>
 #include <abc/testing/runner.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::app_module
+// abc::testing::app
 
 
 namespace abc {
 namespace testing {
 
-/*virtual*/ int app_module::main(mvector<istr const> const & vsArgs) {
+/*virtual*/ int app::main(mvector<istr const> const & vsArgs) {
    ABC_TRACE_FN((this/*, vsArgs*/));
 
    ABC_UNUSED_ARG(vsArgs);

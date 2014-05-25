@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_MODULE_HXX
-#define _ABC_MODULE_HXX
+#ifndef _ABC_APP_HXX
+#define _ABC_APP_HXX
 
 #ifndef _ABC_HXX
    #error Please #include <abc.hxx> before this file
@@ -32,38 +32,38 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::app_module
+// abc::app
 
 
-/** DOC:1063 Application modules
+/** DOC:1063 Application startup and abc::app
 
-Programs using ABC declare their main() function by deriving a class from abc::app_module,
-overriding its main() method, and declaring that the derived class contains the program’s entry
-point using ABC_MAIN_APP_MODULE().
+Programs using ABC declare their main() function by deriving a class from abc::app, overriding its
+main() method, and declaring that the derived class contains the program’s entry point using
+ABC_APP_CLASS().
 
-The ABC_MAIN_APP_MODULE() macro defines the actual entry point of the program, using whatever
+The ABC_APP_CLASS() macro defines the actual entry point of the program, using whatever
 protocol is supported by the host (e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows GUI). This
-is a very thin wrapper around a static method of abc::app_module which takes care of setting up the
+is a very thin wrapper around a static method of abc::app which takes care of setting up the
 outermost try/catch block to intercept uncaught exceptions (see [DOC:8503 Stack tracing]), as well
-as instantiating the application-defined abc::app_module-derived class, invoking its main() method
-and returning.
+as instantiating the application-defined abc::app-derived class, invoking its main() method and
+returning.
 */
 
 namespace abc {
 
-/** Abstract application module.
+/** Abstract application.
 */
-class ABCAPI app_module {
+class ABCAPI app {
 public:
 
    /** Constructor.
    */
-   app_module();
+   app();
 
 
    /** Destructor.
    */
-   virtual ~app_module();
+   virtual ~app();
 
 
    /** C-style entry point for executables.
@@ -75,18 +75,18 @@ public:
    return
       Return code of the program.
    */
-   template <class T>
+   template <class TApp>
    static int entry_point_main(int cArgs, char_t ** ppszArgs) {
       // Establish this as early as possible.
       exception::async_handler_manager eahm;
       try {
-         // Create and initialize the module.
-         T t;
+         // Create and initialize the app.
+         TApp app;
          // Use a smvector to avoid dynamic allocation for just a few arguments.
          smvector<istr const, 8> vsArgs;
-         t._build_args(cArgs, ppszArgs, &vsArgs);
+         app._build_args(cArgs, ppszArgs, &vsArgs);
          // Invoke the program-defined main().
-         return t.main(vsArgs);
+         return app.main(vsArgs);
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
          return 123;
@@ -106,19 +106,19 @@ public:
    iShowCmd
       Indication on how the application’s main window should be displayed; one of SW_* flags.
    */
-   template <class T>
+   template <class TApp>
    static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
       ABC_UNUSED_ARG(iShowCmd);
 
       // Establish this as early as possible.
       exception::async_handler_manager eahm;
       try {
-         // Create and initialize the module.
-         T t;
+         // Create and initialize the app.
+         TApp app;
          smvector<istr const, 8> vsArgs;
-//       t._build_args(&vsArgs);
+//       app._build_args(&vsArgs);
          // Invoke the program-defined main().
-         return t.main(vsArgs);
+         return app.main(vsArgs);
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
          return 123;
@@ -161,37 +161,37 @@ protected:
 
 protected:
 
-   /** Pointer to the one and only instance of the application-defined module class. */
-   static app_module * sm_pappmod;
+   /** Pointer to the one and only instance of the application-defined app class. */
+   static app * sm_papp;
 };
 
 } //namespace abc
 
 
-/** Declares an abc::app_module-derived class as being the main module class for the application.
+/** Declares an abc::app-derived class as being the app class for the application.
 
 cls
-   Main abc::app_module-derived class.
+   Main abc::app-derived class.
 */
 #if ABC_HOST_API_POSIX
-   #define ABC_MAIN_APP_MODULE(cls) \
+   #define ABC_APP_CLASS(cls) \
       extern "C" int main(int cArgs, char ** ppszArgs) { \
-         return ::abc::app_module::entry_point_main<cls>(cArgs, ppszArgs); \
+         return ::abc::app::entry_point_main<cls>(cArgs, ppszArgs); \
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
    #ifdef ABC_HOST_API_WIN32_GUI
-      #define ABC_MAIN_APP_MODULE(cls) \
+      #define ABC_APP_CLASS(cls) \
          extern "C" int WINAPI wWinMain( \
             HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
          ) { \
             ABC_UNUSED_ARG(pszCmdLine); \
-            return ::abc::app_module::entry_point_win_exe<cls>(hinst, iShowCmd); \
+            return ::abc::app::entry_point_win_exe<cls>(hinst, iShowCmd); \
          }
    #else
-      #define ABC_MAIN_APP_MODULE(cls) \
+      #define ABC_APP_CLASS(cls) \
          extern "C" int ABC_STL_CALLCONV wmain(int cArgs, wchar_t ** ppszArgs) { \
-            return ::abc::app_module::entry_point_main<cls>(cArgs, ppszArgs); \
+            return ::abc::app::entry_point_main<cls>(cArgs, ppszArgs); \
          }
    #endif
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -202,5 +202,5 @@ cls
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef _ABC_MODULE_HXX
+#endif //ifndef _ABC_APP_HXX
 

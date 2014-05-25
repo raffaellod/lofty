@@ -25,9 +25,9 @@ it terminates. See the source code for line-by-line comments.
 
 // This should always be the first file included in any C++ source using Abc.
 #include <abc.hxx>
-// This needs to be included in the .cxx file that defines the application module class for the
-// program – see below.
-#include <abc/module.hxx>
+// This needs to be included in the .cxx file that defines the application class for the program –
+// see below.
+#include <abc/app.hxx>
 // This provides abc::io::text::stdout() and stdin(), which allow basic text interactivity for the
 // program.
 #include <abc/io/text/file.hxx>
@@ -38,15 +38,15 @@ using namespace abc;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// example_app_module
+// example_app
 
 
-/** This is a basic application module class. The ABC_MAIN_APP_MODULE() statement (below) indicates
-that this class shall be instantiated as soon as the program is started, and its main() method
-should be invoked immediately afterwards; see [DOC:1063 Application modules].
+/** This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
+class shall be instantiated as soon as the program is started, and its main() method should be
+invoked immediately afterwards; see [DOC:1063 Application startup and abc::app].
 */
-class example_app_module :
-   public app_module {
+class example_app :
+   public app {
 public:
 
    /** This method is invoked when the program starts; returning from this method causes the end of
@@ -73,5 +73,5 @@ public:
    }
 };
 
-ABC_MAIN_APP_MODULE(example_app_module)
+ABC_APP_CLASS(example_app)
 

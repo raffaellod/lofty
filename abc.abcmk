@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
    <dynlib name="abc">
       <!-- Main ABC dynamic shared library. -->
       <source path="src/abc/abc.cxx"/>
+      <source path="src/abc/app.cxx"/>
       <source path="src/abc/atomic.cxx"/>
       <source path="src/abc/bitmanip.cxx"/>
       <source path="src/abc/byteorder.cxx"/>
@@ -37,7 +38,6 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/io/text/file.cxx"/>
       <source path="src/abc/io/text/str.cxx"/>
       <source path="src/abc/memory.cxx"/>
-      <source path="src/abc/module.cxx"/>
       <source path="src/abc/str.cxx"/>
       <source path="src/abc/text.cxx" />
       <source path="src/abc/to_str.cxx"/>
@@ -84,7 +84,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
    <dynlib name="abc-testing">
       <!-- Testing-support library. -->
-      <source path="src/abc-testing/module.cxx"/>
+      <source path="src/abc-testing/app.cxx"/>
       <source path="src/abc-testing/runner.cxx"/>
       <source path="src/abc-testing/test_case.cxx"/>
       <source path="src/abc-testing/utility.cxx"/>

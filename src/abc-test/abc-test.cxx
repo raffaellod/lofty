@@ -18,15 +18,15 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc.hxx>
-#include <abc/testing/module.hxx>
+#include <abc/testing/app.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::module
+// abc::testing::app
 
 
-ABC_MAIN_APP_MODULE(abc::testing::app_module)
+ABC_APP_CLASS(abc::testing::app)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

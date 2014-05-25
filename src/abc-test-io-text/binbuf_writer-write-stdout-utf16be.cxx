@@ -18,14 +18,14 @@ You should have received a copy of the GNU General Public License along with ABC
 --------------------------------------------------------------------------------------------------*/
 
 #include <abc.hxx>
-#include <abc/module.hxx>
+#include <abc/app.hxx>
 #include <abc/io/text/file.hxx>
 using namespace abc;
 
 
 
-class test_app_module :
-   public app_module {
+class test_app :
+   public app {
 public:
 
    virtual int main(mvector<istr const> const & vsArgs) {
@@ -43,5 +43,5 @@ public:
    }
 };
 
-ABC_MAIN_APP_MODULE(test_app_module)
+ABC_APP_CLASS(test_app)
 

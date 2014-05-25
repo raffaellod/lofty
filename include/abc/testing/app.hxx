@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with ABC
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABC_TESTING_MODULE_HXX
-#define _ABC_TESTING_MODULE_HXX
+#ifndef _ABC_TESTING_APP_HXX
+#define _ABC_TESTING_APP_HXX
 
 #ifndef _ABC_HXX
    #error Please #include <abc.hxx> before this file
@@ -27,25 +27,25 @@ You should have received a copy of the GNU General Public License along with ABC
    #pragma once
 #endif
 
-#include <abc/module.hxx>
+#include <abc/app.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::app_module
+// abc::testing::app
 
 
 namespace abc {
 namespace testing {
 
-/** Testing application module. It interacts with registered abc::testing::test_case-derived
-classes, allowing for the execution of test cases.
+/** Testing application. It interacts with registered abc::testing::test_case-derived classes,
+allowing for the execution of test cases.
 */
-class ABCTESTINGAPI app_module :
-   public abc::app_module {
+class ABCTESTINGAPI app :
+   public abc::app {
 public:
 
-   /** See abc::app_module::main().
+   /** See abc::app::main().
    */
    virtual int main(mvector<istr const> const & vsArgs);
 };
@@ -57,5 +57,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifndef _ABC_TESTING_MODULE_HXX
+#endif //ifndef _ABC_TESTING_APP_HXX
 
