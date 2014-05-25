@@ -700,9 +700,7 @@ class writer;
    #include <exception>
 #endif
 #include <abc/exception.hxx>
-
 #include <abc/enum.hxx>
-
 #ifdef ABC_STLIMPL
    #include <abc/stl/iterator.hxx>
 #else
@@ -721,15 +719,13 @@ class writer;
    #include <functional>
 #endif
 #include <abc/str.hxx>
-
 #include <abc/enum-after-str.hxx>
 #include <abc/exception-after-str.hxx>
-
 #include <abc/to_str.hxx>
-
 #include <abc/enum-after-to_str.hxx>
 #include <abc/exception-after-to_str.hxx>
 #include <abc/str-after-to_str.hxx>
+#include <abc/to_str-after-str-after-to_str.hxx>
 #include <abc/pointer_iterator-after-to_str.hxx>
 
 #include <abc/io.hxx>

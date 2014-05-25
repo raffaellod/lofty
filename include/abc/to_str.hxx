@@ -82,43 +82,6 @@ class to_str_backend;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::c_str_to_str_adapter
-
-
-namespace abc {
-
-/** Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
-for compatibility with STL methods such as std::exception::what(). Without this, C strings are
-printed only as pointers, which is often undesirable.
-
-Instances of this class don’t own the memory object they point to.
-*/
-class c_str_to_str_adapter {
-
-   friend class to_str_backend<c_str_to_str_adapter>;
-
-public:
-
-   /** Constructor.
-
-   psz
-      C-style NUL-terminated string.
-   */
-   c_str_to_str_adapter(char const * psz) :
-      m_psz(psz) {
-   }
-
-
-private:
-
-   /** Wrapped C-style string. */
-   char const * m_psz;
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend - specialization for bool
 
 
@@ -358,7 +321,7 @@ public:
       architecture’s word size;
    3. _int_to_str_backend_base::write_impl()
       Always inlined, but only used in functions defined in to_str_backend.cxx, so it only generates
-      as many copies as strictly necessary to have fastest performanced for any integer size.
+      as many copies as strictly necessary to have fastest performance for any integer size.
 
    The net result is that after all the inlining occurs, this will become a direct call to the
    fastest implementation for I of any given size.
@@ -439,65 +402,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long long)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specializations for pointer types
-
-
-namespace abc {
-
-// Specialization for void * ‒ though in fact its write() method accepts any pointer type.
-template <>
-class ABCAPI to_str_backend<void *> :
-   protected to_str_backend<uintptr_t> {
-public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr());
-
-
-   /** Converts a pointer to a string representation.
-
-   p
-      Pointer to write.
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   template <typename TPtr>
-   void write(TPtr p, io::text::writer * ptwOut) {
-      to_str_backend<uintptr_t>::write(reinterpret_cast<uintptr_t>(p), ptwOut);
-   }
-
-
-protected:
-
-   /** Format string used to display the address. */
-   static char_t const smc_achFormat[];
-};
-
-
-// Specialization for any pointer type.
-template <typename T>
-class to_str_backend<T *> :
-   public to_str_backend<void *> {
-public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<void *>(sFormat) {
-   }
-};
 
 } //namespace abc
 

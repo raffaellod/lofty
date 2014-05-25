@@ -309,16 +309,16 @@ ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * p
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend<void *>
+// abc::_ptr_to_str_backend
 
 
 namespace abc {
 
-char_t const to_str_backend<void *>::smc_achFormat[] = SL("#x");
+char_t const _ptr_to_str_backend::smc_achFormat[] = SL("#x");
 
 
-ABCAPI to_str_backend<void *>::to_str_backend(istr const & sFormat /*= istr()*/) :
-   to_str_backend<uintptr_t>(smc_achFormat) {
+ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
+   m_tsbInt(smc_achFormat) {
    ABC_TRACE_FN((this, sFormat));
 
    auto it(sFormat.cbegin());
@@ -330,6 +330,17 @@ ABCAPI to_str_backend<void *>::to_str_backend(istr const & sFormat /*= istr()*/)
       ABC_THROW(syntax_error, (
          SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
       ));
+   }
+}
+
+
+ABCAPI void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut) {
+   ABC_TRACE_FN((this, iPtr, ptwOut));
+
+   if (iPtr) {
+      m_tsbInt.write(iPtr, ptwOut);
+   } else {
+      m_tsbStr.write(istr(SL("nullptr")), ptwOut);
    }
 }
 
