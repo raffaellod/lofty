@@ -1233,6 +1233,17 @@ public:
    void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve);
 
 
+   /** Changes the count of elements in the vector. If the item array needs to be lengthened, the
+   added elements will be left uninitialized.
+
+   cbItem
+      Size of a single array item, in bytes.
+   ci
+      New count of items.
+   */
+   void set_size(size_t cbItem, size_t ci);
+
+
 protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().

@@ -675,6 +675,19 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPr
    m_ci = ciOrig;
 }
 
+
+void _raw_trivial_vextr_impl::set_size(size_t cbItem, size_t ci) {
+   ABC_TRACE_FN((this, cbItem, ci));
+
+   if (ci != size()) {
+      if (ci > capacity()) {
+         // Enlarge the item array.
+         set_capacity(cbItem, ci, true);
+      }
+      m_ci = ci;
+   }
+}
+
 } //namespace abc
 
 

@@ -176,25 +176,4 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::mstr
-
-
-namespace abc {
-
-void mstr::set_size(size_t cch) {
-   ABC_TRACE_FN((this, cch));
-
-   if (cch != size()) {
-      if (cch > capacity()) {
-         // Enlarge the item array.
-         set_capacity(cch, true);
-      }
-      m_ci = cch;
-   }
-}
-
-} //namespace std
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 

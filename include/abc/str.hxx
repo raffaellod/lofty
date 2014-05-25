@@ -669,12 +669,15 @@ public:
    }
 
 
-   /** Changes the length of the string, without changing its capacity.
+   /** Changes the length of the string. If the string needs to be lengthened, the added characters
+   will be left uninitialized.
 
    cch
       New length of the string.
    */
-   void set_size(size_t cch);
+   void set_size(size_t cch) {
+      _raw_trivial_vextr_impl::set_size(sizeof(char_t), cch);
+   }
 
 
 protected:
