@@ -236,4 +236,65 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_raw_pointers)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::to_str_smart_pointers
+
+namespace abc {
+namespace test {
+
+class to_str_smart_pointers :
+   public to_str_test_case_base {
+public:
+
+   /** See to_str_test_case_base::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::to_str - smart pointers"));
+   }
+
+
+   /** See to_str_test_case_base::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      int * pi(new int);
+      istr sPtr(to_str(pi));
+
+      {
+         std::unique_ptr<int> upi(pi);
+         // Test non-nullptr std::unique_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, SL("")), sPtr);
+
+         upi.release();
+         // Test nullptr std::unique_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, SL("")), SL("nullptr"));
+      }
+      {
+         std::shared_ptr<int> spi(pi);
+         // Test non-nullptr std::shared_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, SL("")), sPtr);
+         std::weak_ptr<int> wpi(spi);
+         // Test non-nullptr std::weak_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), sPtr);
+
+         spi.reset();
+         // Test nullptr std::shared_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, SL("")), SL("nullptr"));
+         // Test expired non-nullptr std::weak_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), SL("nullptr"));
+
+         wpi.reset();
+         // Test nullptr std::weak_ptr.
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), SL("nullptr"));
+      }
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_smart_pointers)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -174,6 +174,84 @@ public:
    }
 };
 
+// Specialization for std::unique_ptr.
+template <typename T, typename TDel>
+class to_str_backend<std::unique_ptr<T, TDel>> :
+   public _ptr_to_str_backend {
+public:
+
+   /** See _ptr_to_str_backend::_ptr_to_str_backend().
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _ptr_to_str_backend(sFormat) {
+   }
+
+
+   /** See _ptr_to_str_backend::write().
+   */
+   void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
+      _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
+   }
+};
+
+// Specialization for std::shared_ptr.
+// TODO: show reference count and other info.
+template <typename T>
+class to_str_backend<std::shared_ptr<T>> :
+   public _ptr_to_str_backend {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _ptr_to_str_backend(sFormat) {
+   }
+
+
+   /** Converts a pointer to a string representation.
+
+   p
+      Pointer to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
+      _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
+   }
+};
+
+// Specialization for std::weak_ptr.
+// TODO: show reference count and other info.
+template <typename T>
+class to_str_backend<std::weak_ptr<T>> :
+   public _ptr_to_str_backend {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _ptr_to_str_backend(sFormat) {
+   }
+
+
+   /** Converts a pointer to a string representation.
+
+   p
+      Pointer to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
+      _write_impl(reinterpret_cast<uintptr_t>(p.lock().get()), ptwOut);
+   }
+};
+
 } //namespace abc
 
 
