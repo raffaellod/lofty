@@ -178,19 +178,19 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_pointers
+// abc::test::to_str_raw_pointers
 
 namespace abc {
 namespace test {
 
-class to_str_pointers :
+class to_str_raw_pointers :
    public to_str_test_case_base {
 public:
 
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str - pointers"));
+      return istr(SL("abc::to_str - raw pointers"));
    }
 
 
@@ -200,6 +200,11 @@ public:
       ABC_TRACE_FN((this));
 
       uintptr_t iBad(0xbad);
+
+      // Test nullptr.
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(static_cast<void *>(nullptr), SL("")), SL("nullptr")
+      );
 
       // Test void pointer.
       ABC_TESTING_ASSERT_EQUAL(
@@ -227,7 +232,7 @@ public:
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_pointers)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_raw_pointers)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
