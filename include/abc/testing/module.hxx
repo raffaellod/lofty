@@ -38,16 +38,16 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 namespace testing {
 
-/** Testing module. It interacts with registered abc::testing::test_case-derived classes,
-allowing for the execution of test cases.
+/** Testing application module. It interacts with registered abc::testing::test_case-derived
+classes, allowing for the execution of test cases.
 */
-class app_module :
-   public app_module_impl<app_module> {
+class ABCTESTINGAPI app_module :
+   public abc::app_module {
 public:
 
-   /** See abc::module_impl::main().
+   /** See abc::app_module::main().
    */
-   ABCTESTINGAPI int main(mvector<istr const> const & vsArgs);
+   virtual int main(mvector<istr const> const & vsArgs);
 };
 
 } //namespace testing

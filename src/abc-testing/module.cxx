@@ -25,13 +25,13 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::module
+// abc::testing::app_module
 
 
 namespace abc {
 namespace testing {
 
-ABCTESTINGAPI int app_module::main(mvector<istr const> const & vsArgs) {
+/*virtual*/ int app_module::main(mvector<istr const> const & vsArgs) {
    ABC_TRACE_FN((this/*, vsArgs*/));
 
    ABC_UNUSED_ARG(vsArgs);

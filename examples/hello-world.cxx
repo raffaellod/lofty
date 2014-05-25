@@ -43,10 +43,10 @@ using namespace abc;
 
 /** This is a basic application module class. The ABC_MAIN_APP_MODULE() statement (below) indicates
 that this class shall be instantiated as soon as the program is started, and its main() method
-should be invoked immediately afterwards.
+should be invoked immediately afterwards; see [DOC:1063 Application modules].
 */
 class example_app_module :
-   public app_module_impl<example_app_module> {
+   public app_module {
 public:
 
    /** This method is invoked when the program starts; returning from this method causes the end of
@@ -59,7 +59,7 @@ public:
       return value, accessible in a shell/command prompt as $? (Linux/POSIX) or %ERRORLEVEL%
       (Win32).
    */
-   int main(mvector<istr const> const & vsArgs) {
+   virtual int main(mvector<istr const> const & vsArgs) {
       ABC_TRACE_FN((this/*, vsArgs*/));
 
       // This helps avoid compiler warnings for arguments/variables that are declared, but not used.

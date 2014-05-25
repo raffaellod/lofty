@@ -25,11 +25,12 @@ using namespace abc;
 
 
 class test_app_module :
-   public app_module_impl<test_app_module> {
+   public app_module {
 public:
 
-   int main(mvector<istr const> const & vsArgs) {
+   virtual int main(mvector<istr const> const & vsArgs) {
       ABC_TRACE_FN((this/*, vsArgs*/));
+
       ABC_UNUSED_ARG(vsArgs);
 
       auto ptwOut(io::text::stdout());
