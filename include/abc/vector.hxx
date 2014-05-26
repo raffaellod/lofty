@@ -116,20 +116,20 @@ public:
 
    /** Inserts elements at a specific position in the vector by moving them.
 
-   iOffset
+   i
       Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
       for allowed index values.
-   pAdd
+   p
       Pointer to the first element to add.
-   ciAdd
-      Count of elements to add.
+   ci
+      Count of elements in the array pointed to by pAdd.
    */
-   void insert_move(intptr_t iOffset, T * p, size_t ci) {
+   void insert_move(intptr_t i, T * p, size_t ci) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, iOffset, p, ci, true);
+      _raw_complex_vextr_impl::insert(type, i, p, ci, true);
    }
 
 
@@ -247,21 +247,21 @@ public:
 
    /** Inserts elements at a specific position in the vector by copying them.
 
-   iOffset
+   i
       Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
       for allowed index values.
-   pAdd
+   p
       Pointer to the first element to add.
-   ciAdd
-      Count of elements to add.
+   ci
+      Count of elements in the array pointed to by pAdd.
    */
-   void insert_copy(intptr_t iOffset, T const * p, size_t ci) {
+   void insert_copy(intptr_t i, T const * p, size_t ci) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, iOffset, p, ci, false);
+      _raw_complex_vextr_impl::insert(type, i, p, ci, false);
    }
 
 
@@ -368,32 +368,32 @@ public:
 
    /** Inserts one or more elements.
 
-   iOffset
-      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
-      allowed index values.
+   i
+      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
    p
       Pointer to the first element to add.
    ci
-      Count of elements to add.
+      Count of elements in the array pointed to by p.
    */
-   void insert_copy(intptr_t iOffset, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
+   void insert_copy(intptr_t i, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), i, p, ci);
    }
 
 
    /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial
    types that’s the same as copying them.
 
-   iOffset
-      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
-      allowed index values.
+   i
+      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
    p
       Pointer to the first element to add.
    ci
-      Count of elements to add.
+      Count of elements in the array pointed to by p.
    */
-   void insert_move(intptr_t iOffset, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), iOffset, p, ci);
+   void insert_move(intptr_t i, void const * p, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), i, p, ci);
    }
 
 
@@ -872,8 +872,12 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
-   TODO: comment signature.
+      Index at which the element should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
+   it
+      Iterator at which the element should be inserted.
+   t
+      Element to add.
    */
    void insert(intptr_t i, typename std::remove_const<T>::type && t) {
       this->insert_move(i, &t, 1);
@@ -1069,8 +1073,16 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
-   TODO: comment signature.
+      Index at which the element should be inserted. See abc::_vextr::adjust_and_validate_index()
+      for allowed index values.
+   it
+      Iterator at which the element should be inserted.
+   t
+      Element to add.
+   pt
+      Pointer to the first element to add.
+   ci
+      Count of elements in the array pointed to by pt.
    */
    void insert(intptr_t i, T const & t) {
       this->insert_copy(i, &t, 1);
