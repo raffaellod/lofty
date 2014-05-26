@@ -38,20 +38,21 @@ static void _build_failure_restart_table(
 ) {
    ABC_TRACE_FN((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
 
-   pvcchFailNext->set_capacity(size_t(pchNeedleEnd - pchNeedleBegin), false);
+   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
+   auto itNextFailNext(pvcchFailNext->begin());
 
    // The earliest repetition of a non-first character can only occur on the fourth character, so
    // start by skipping two characters and storing two zeroes for them, then the first iteration
    // will also always store an additional zero and consume one more character.
    C const * pchNeedle(pchNeedleBegin + 2),
            * pchRestart(pchNeedleBegin);
-   pvcchFailNext->append(0);
-   pvcchFailNext->append(0);
+   *itNextFailNext++ = 0;
+   *itNextFailNext++ = 0;
    size_t ichRestart(0);
    while (pchNeedle < pchNeedleEnd) {
       // Store the current failure restart index, or 0 if the previous character was the third or
       // was not a match.
-      pvcchFailNext->append(ichRestart);
+      *itNextFailNext++ = ichRestart;
       if (*pchNeedle++ == *pchRestart) {
          // Another match: move the restart to the next character.
          ++ichRestart;
