@@ -641,6 +641,21 @@ public:
    }
 
 
+   /** Returns a a pointer to the start of the item array.
+
+   return
+      Pointer to the first element.
+   */
+   template <typename T>
+   T * begin() {
+      return static_cast<T *>(m_p);
+   }
+   template <typename T>
+   T const * begin() const {
+      return static_cast<T const *>(m_p);
+   }
+
+
    /** Returns the count of item slots in the current item array.
 
    return
@@ -663,6 +678,21 @@ public:
    template <typename T>
    T const * data() const {
       return static_cast<T const *>(m_p);
+   }
+
+
+   /** Returns a a pointer to the end of the item array.
+
+   return
+      Pointer to beyond the last element.
+   */
+   template <typename T>
+   T * end() {
+      return static_cast<T *>(m_p) + m_ci;
+   }
+   template <typename T>
+   T const * end() const {
+      return static_cast<T const *>(m_p) + m_ci;
    }
 
 

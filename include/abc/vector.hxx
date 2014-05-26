@@ -466,21 +466,27 @@ class vector_base;
 template <typename T>
 class vector_base<T, false> :
    protected _raw_vector<T, std::is_copy_constructible<T>::value>,
-   public _iterable_vector<vector_base<T, std::is_copy_constructible<T>::value>, T>,
    public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
 
    /** true if T is copy constructible, or false otherwise. */
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
-   /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T, smc_bCopyConstructible>, T> itvec;
 
 
 public:
 
-   /** Element type. */
-   typedef T item_type;
-   /** See _iterable_vector::const_iterator. */
-   typedef typename itvec::const_iterator const_iterator;
+   typedef T value_type;
+   typedef T * pointer;
+   typedef T const * const_pointer;
+   typedef T & reference;
+   typedef T const & const_reference;
+   typedef size_t size_type;
+   typedef ptrdiff_t difference_type;
+   typedef pointer_iterator<vector_base<T, std::is_copy_constructible<T>::value>, T> iterator;
+   typedef pointer_iterator<
+      vector_base<T, std::is_copy_constructible<T>::value
+   >, T const> const_iterator;
+   typedef std::reverse_iterator<iterator> reverse_iterator;
+   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
 public:
@@ -519,11 +525,7 @@ public:
       if (size() != v.size()) {
          return false;
       }
-      for (
-         auto it1(itvec::cbegin()), it2(v.cbegin()), it1End(itvec::cend());
-         it1 != it1End;
-         ++it1, ++it2
-      ) {
+      for (auto it1(cbegin()), it2(v.cbegin()), it1End(cend()); it1 != it1End; ++it1, ++it2) {
          if (*it1 != *it2) {
             return false;
          }
@@ -536,11 +538,7 @@ public:
          return false;
       }
       T const * pt(at);
-      for (
-         auto it(itvec::cbegin()), itEnd(itvec::cend());
-         it != itEnd;
-         ++it, ++pt
-      ) {
+      for (auto it(cbegin()), itEnd(cend()); it != itEnd; ++it, ++pt) {
          if (*it != *pt) {
             return false;
          }
@@ -561,6 +559,16 @@ public:
    }
 
 
+   /** Returns a forward iterator set to the first element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator begin() const {
+      return const_iterator(_raw_vextr_impl_base::begin<T>());
+   }
+
+
    /** Returns the maximum number of elements the array can currently hold.
 
    return
@@ -568,6 +576,46 @@ public:
    */
    size_t capacity() const {
       return _raw_vector<T, smc_bCopyConstructible>::capacity();
+   }
+
+
+   /** Returns a const forward iterator set to the first element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator cbegin() const {
+      return const_iterator(_raw_vextr_impl_base::begin<T>());
+   }
+
+
+   /** Returns a const forward iterator set beyond the last element.
+
+   return
+      Forward iterator to beyond the last element.
+   */
+   const_iterator cend() const {
+      return const_iterator(_raw_vextr_impl_base::end<T>());
+   }
+
+
+   /** Returns a const reverse iterator set to the last element.
+
+   return
+      Reverse iterator to the last element.
+   */
+   const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+   }
+
+
+   /** Returns a const reverse iterator set to before the first element.
+
+   return
+      Reverse iterator to before the first element.
+   */
+   const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
    }
 
 
@@ -585,6 +633,16 @@ public:
       // For some reason, GCC doesn’t like this:
       //    return _raw_vector<T, smc_bCopyConstructible>::data<T>();
       return _raw_vextr_impl_base::data<T>();
+   }
+
+
+   /** Returns a forward iterator set beyond the last element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator end() const {
+      return const_iterator(_raw_vextr_impl_base::end<char_t>());
    }
 
 
@@ -631,6 +689,26 @@ public:
          }
       }
       return -1;
+   }
+
+
+   /** Returns a reverse iterator set to the last element.
+
+   return
+      Reverse iterator to the last element.
+   */
+   const_reverse_iterator rbegin() const {
+      return const_reverse_iterator(end());
+   }
+
+
+   /** Returns a reverse iterator set to before the first element.
+
+   return
+      Reverse iterator to before the first element.
+   */
+   const_reverse_iterator rend() const {
+      return const_reverse_iterator(begin());
    }
 
 
@@ -682,19 +760,6 @@ protected:
 template <typename T>
 class vector_base<T, true> :
    public vector_base<T, false> {
-
-   /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T, true>, T> itvec;
-
-
-public:
-
-   /** Element type. */
-   typedef T item_type;
-   /** See _iterable_vector::const_iterator. */
-   typedef typename itvec::const_iterator const_iterator;
-
-
 public:
 
    /** Returns a segment of the vector.
@@ -760,14 +825,20 @@ class mvector<T, false> :
 
    /** true if T is copy constructible, or false otherwise. */
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
-   /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T, smc_bCopyConstructible>, T> itvec;
+   /** Shortcut to access the base class. */
+   typedef vector_base<T, smc_bCopyConstructible> vector_base_;
 
 
 public:
 
-   /** See vector_base<T, smc_bCopyConstructible>::const_iterator. */
-   typedef typename itvec::const_iterator const_iterator;
+   /** See vector_base::iterator. */
+   typedef typename vector_base_::iterator iterator;
+   /** See vector_base::const_iterator. */
+   typedef typename vector_base_::const_iterator const_iterator;
+   /** See vector_base::reverse_iterator. */
+   typedef typename vector_base_::reverse_iterator reverse_iterator;
+   /** See vector_base::const_reverse_iterator. */
+   typedef typename vector_base_::const_reverse_iterator const_reverse_iterator;
 
 
 public:
@@ -802,10 +873,10 @@ public:
    /** See vector_base::operator[]().
    */
    T & operator[](intptr_t i) {
-      return const_cast<T &>(vector_base<T, smc_bCopyConstructible>::operator[](i));
+      return const_cast<T &>(vector_base_::operator[](i));
    }
    T const & operator[](intptr_t i) const {
-      return vector_base<T, smc_bCopyConstructible>::operator[](i);
+      return vector_base_::operator[](i);
    }
 
 
@@ -823,10 +894,30 @@ public:
    }
 
 
+   /** See vector_base::begin(). Here also available in non-const overload.
+   */
+   iterator begin() {
+      return iterator(_raw_vextr_impl_base::begin<T>());
+   }
+   const_iterator begin() const {
+      return vector_base_::begin();
+   }
+
+
    /** Removes all elements from the vector.
    */
    void clear() {
-      vector_base<T, smc_bCopyConstructible>::clear();
+      vector_base_::clear();
+   }
+
+
+   /** See vector_base::end(). Here also available in non-const overload.
+   */
+   iterator end() {
+      return iterator(_raw_vextr_impl_base::end<T>());
+   }
+   const_iterator end() const {
+      return vector_base_::end();
    }
 
 
@@ -844,6 +935,16 @@ public:
    }
 
 
+   /** See vector_base::rbegin(). Here also available in non-const overload.
+   */
+   reverse_iterator rbegin() {
+      return reverse_iterator(iterator(_raw_vextr_impl_base::end<T>()));
+   }
+   const_reverse_iterator rbegin() const {
+      return vector_base_::rbegin();
+   }
+
+
    /** Removes a single element from the vector.
 
    i
@@ -853,10 +954,20 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(intptr_t i) {
-      vector_base<T, smc_bCopyConstructible>::remove_at(i);
+      vector_base_::remove_at(i);
    }
    void remove_at(const_iterator it) {
-      vector_base<T, smc_bCopyConstructible>::remove_at(it - this->cbegin());
+      vector_base_::remove_at(it - this->cbegin());
+   }
+
+
+   /** See vector_base::rend(). Here also available in non-const overload.
+   */
+   reverse_iterator rend() {
+      return reverse_iterator(iterator(_raw_vextr_impl_base::begin<T>()));
+   }
+   const_reverse_iterator rend() const {
+      return vector_base_::rend();
    }
 
 
@@ -874,18 +985,16 @@ public:
       Iterator to past the last element to remove.
    */
    void remove_range(intptr_t iBegin, intptr_t iEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, iEnd);
+      vector_base_::remove_range(iBegin, iEnd);
    }
    void remove_range(intptr_t iBegin, const_iterator itEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(iBegin, itEnd - this->cbegin());
+      vector_base_::remove_range(iBegin, itEnd - this->cbegin());
    }
    void remove_range(const_iterator itBegin, intptr_t iEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(itBegin - this->cbegin(), iEnd);
+      vector_base_::remove_range(itBegin - this->cbegin(), iEnd);
    }
    void remove_range(const_iterator itBegin, const_iterator itEnd) {
-      vector_base<T, smc_bCopyConstructible>::remove_range(
-         itBegin - this->cbegin(), itEnd - this->cbegin()
-      );
+      vector_base_::remove_range(itBegin - this->cbegin(), itEnd - this->cbegin());
    }
 
 
@@ -900,7 +1009,7 @@ public:
       causes the vector to switch to a different item array.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
-      vector_base<T, smc_bCopyConstructible>::set_capacity(ciMin, bPreserve);
+      vector_base_::set_capacity(ciMin, bPreserve);
    }
 
 
@@ -913,7 +1022,7 @@ public:
       New vector size.
    */
    void set_size(size_t ci) {
-      vector_base<T, smc_bCopyConstructible>::set_size(ci);
+      vector_base_::set_size(ci);
    }
 
 
@@ -932,7 +1041,7 @@ protected:
       Count of slots in the static item array, or 0 if no static item array is present.
    */
    mvector(size_t ciStaticMax) :
-      vector_base<T, smc_bCopyConstructible>(ciStaticMax) {
+      vector_base_(ciStaticMax) {
    }
 };
 
@@ -940,15 +1049,16 @@ protected:
 template <typename T>
 class mvector<T, true> :
    public mvector<T, false> {
-
-   /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<vector_base<T, true>, T> itvec;
-
-
 public:
 
-   /** See vector_base<T, smc_bCopyConstructible>::const_iterator. */
-   typedef typename itvec::const_iterator const_iterator;
+   /** See vector_base::iterator. */
+   typedef typename mvector<T, false>::iterator iterator;
+   /** See vector_base::const_iterator. */
+   typedef typename mvector<T, false>::const_iterator const_iterator;
+   /** See vector_base::reverse_iterator. */
+   typedef typename mvector<T, false>::reverse_iterator reverse_iterator;
+   /** See vector_base::const_reverse_iterator. */
+   typedef typename mvector<T, false>::const_reverse_iterator const_reverse_iterator;
 
 
 public:

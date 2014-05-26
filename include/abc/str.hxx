@@ -41,12 +41,20 @@ abc::*str classes.
 */
 class ABCAPI str_base :
    protected _raw_trivial_vextr_impl,
-   public _iterable_vector<str_base, char_t>,
    public support_explicit_operator_bool<str_base> {
-protected:
+public:
 
-   /** Shortcut for the base class providing iterator-based types and methods. */
-   typedef _iterable_vector<str_base, char_t> itvec;
+   typedef char_t value_type;
+   typedef char_t * pointer;
+   typedef char_t const * const_pointer;
+   typedef char_t & reference;
+   typedef char_t const & const_reference;
+   typedef size_t size_type;
+   typedef ptrdiff_t difference_type;
+   typedef pointer_iterator<str_base, char_t> iterator;
+   typedef pointer_iterator<str_base, char_t const> const_iterator;
+   typedef std::reverse_iterator<iterator> reverse_iterator;
+   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
 public:
@@ -57,8 +65,6 @@ public:
       char_t const [],
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
    > c_str_pointer;
-   /** See _iterable_vector::const_iterator. */
-   typedef itvec::const_iterator const_iterator;
    /** String traits. */
    typedef text::utf_traits<char_t> traits;
 
@@ -91,7 +97,17 @@ public:
       true if the string is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return cend() > cbegin();
+      return _raw_vextr_impl_base::end<char_t>() > _raw_vextr_impl_base::begin<char_t>();
+   }
+
+
+   /** Returns a forward iterator set to the first element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator begin() const {
+      return const_iterator(_raw_vextr_impl_base::begin<char_t>());
    }
 
 
@@ -122,6 +138,26 @@ public:
    }
 
 
+   /** Returns a const forward iterator set to the first element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator cbegin() const {
+      return const_iterator(_raw_vextr_impl_base::begin<char_t>());
+   }
+
+
+   /** Returns a const forward iterator set beyond the last element.
+
+   return
+      Forward iterator to beyond the last element.
+   */
+   const_iterator cend() const {
+      return const_iterator(_raw_vextr_impl_base::end<char_t>());
+   }
+
+
    /** Support for relational operators.
 
    s
@@ -133,6 +169,26 @@ public:
       •  < 0 if *this < argument.
    */
    int compare_to(istr const & s) const;
+
+
+   /** Returns a const reverse iterator set to the last element.
+
+   return
+      Reverse iterator to the last element.
+   */
+   const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+   }
+
+
+   /** Returns a const reverse iterator set to before the first element.
+
+   return
+      Reverse iterator to before the first element.
+   */
+   const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
+   }
 
 
    /** Returns a read-only pointer to the character array.
@@ -159,6 +215,16 @@ public:
    dmvector<uint8_t> encode(text::encoding enc, bool bNulT) const;
 
 
+   /** Returns a forward iterator set beyond the last element.
+
+   return
+      Forward iterator to the first element.
+   */
+   const_iterator end() const {
+      return const_iterator(_raw_vextr_impl_base::end<char_t>());
+   }
+
+
    /** Returns true if the string ends with a specified suffix.
 
    s
@@ -182,11 +248,11 @@ public:
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find(char32_t chNeedle) const {
-      return find(chNeedle, itvec::cbegin());
+      return find(chNeedle, cbegin());
    }
    const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find(istr const & sNeedle) const {
-      return find(sNeedle, itvec::cbegin());
+      return find(sNeedle, cbegin());
    }
    const_iterator find(istr const & sNeedle, const_iterator itWhence) const;
 
@@ -204,11 +270,11 @@ public:
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find_last(char32_t chNeedle) const {
-      return find_last(chNeedle, itvec::cend());
+      return find_last(chNeedle, cend());
    }
    const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find_last(istr const & sNeedle) const {
-      return find_last(sNeedle, itvec::cend());
+      return find_last(sNeedle, cend());
    }
    const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const;
 
@@ -275,6 +341,26 @@ public:
    ) const;
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+
+   /** Returns a reverse iterator set to the last element.
+
+   return
+      Reverse iterator to the last element.
+   */
+   const_reverse_iterator rbegin() const {
+      return const_reverse_iterator(end());
+   }
+
+
+   /** Returns a reverse iterator set to before the first element.
+
+   return
+      Reverse iterator to before the first element.
+   */
+   const_reverse_iterator rend() const {
+      return const_reverse_iterator(begin());
+   }
 
 
    /** Returns the count of characters in the string.
@@ -620,6 +706,16 @@ public:
    }
 
 
+   /** See str_base::begin(). Here also available in non-const overload.
+   */
+   iterator begin() {
+      return iterator(_raw_vextr_impl_base::begin<char_t>());
+   }
+   const_iterator begin() const {
+      return str_base::begin();
+   }
+
+
    /** Returns a pointer to the character array.
 
    TODO: comment signature.
@@ -629,6 +725,16 @@ public:
    }
    char_t const * data() const {
       return _raw_trivial_vextr_impl::data<char_t>();
+   }
+
+
+   /** See str_base::end(). Here also available in non-const overload.
+   */
+   iterator end() {
+      return iterator(_raw_vextr_impl_base::end<char_t>());
+   }
+   const_iterator end() const {
+      return str_base::end();
    }
 
 
@@ -661,6 +767,26 @@ public:
       } while (cchRet >= cchMax);
       // Finalize the length.
       set_size(cchRet);
+   }
+
+
+   /** See str_base::rbegin(). Here also available in non-const overload.
+   */
+   reverse_iterator rbegin() {
+      return reverse_iterator(iterator(_raw_vextr_impl_base::end<char_t>()));
+   }
+   const_reverse_iterator rbegin() const {
+      return str_base::rbegin();
+   }
+
+
+   /** See str_base::rend(). Here also available in non-const overload.
+   */
+   reverse_iterator rend() {
+      return reverse_iterator(iterator(_raw_vextr_impl_base::begin<char_t>()));
+   }
+   const_reverse_iterator rend() const {
+      return str_base::rend();
    }
 
 
@@ -837,14 +963,14 @@ inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
-   auto range(adjust_and_validate_range(ichBegin, itEnd - itvec::cbegin()));
+   auto range(adjust_and_validate_range(ichBegin, itEnd - cbegin()));
    return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
-   return substr(itBegin, itvec::cend());
+   return substr(itBegin, cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
-   auto range(adjust_and_validate_range(itBegin - itvec::cbegin(), ichEnd));
+   auto range(adjust_and_validate_range(itBegin - cbegin(), ichEnd));
    return dmstr(cbegin().base() + range.first, range.second - range.first);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
