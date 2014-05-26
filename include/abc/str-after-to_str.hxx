@@ -213,7 +213,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <>
 class ABCAPI to_str_backend<str_base> :
    public _str_to_str_backend {
@@ -255,7 +254,6 @@ public:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <>
 class ABCAPI to_str_backend<istr> :
    public to_str_backend<str_base> {
@@ -277,7 +275,6 @@ public:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <>
 class ABCAPI to_str_backend<mstr> :
    public to_str_backend<str_base> {
@@ -299,7 +296,6 @@ public:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <>
 class ABCAPI to_str_backend<dmstr> :
    public to_str_backend<str_base> {
@@ -321,7 +317,6 @@ public:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <size_t t_cchStatic>
 class to_str_backend<smstr<t_cchStatic>> :
    public to_str_backend<str_base> {
