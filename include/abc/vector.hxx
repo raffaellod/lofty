@@ -508,6 +508,59 @@ public:
    }
 
 
+   /** Equality comparison operator.
+
+   v
+      Object to compare to *this.
+   return
+      true if *this has the same count and value of elements as v, or false otherwise.
+   */
+   bool operator==(vector_base const & v) const {
+      if (size() != v.size()) {
+         return false;
+      }
+      for (
+         auto it1(itvec::cbegin()), it2(v.cbegin()), it1End(itvec::cend());
+         it1 != it1End;
+         ++it1, ++it2
+      ) {
+         if (*it1 != *it2) {
+            return false;
+         }
+      }
+      return true;
+   }
+   template <size_t t_ci>
+   bool operator==(T const (& at)[t_ci]) const {
+      if (size() != t_ci) {
+         return false;
+      }
+      T const * pt(at);
+      for (
+         auto it(itvec::cbegin()), itEnd(itvec::cend());
+         it != itEnd;
+         ++it, ++pt
+      ) {
+         if (*it != *pt) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+
+   /** Inequality comparison operator.
+
+   v
+      Object to compare to *this.
+   return
+      true if *this has different count or value of elements as v, or false otherwise.
+   */
+   bool operator!=(vector_base const & v) const {
+      return !operator==(v);
+   }
+
+
    /** Returns the maximum number of elements the array can currently hold.
 
    return
