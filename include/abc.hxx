@@ -728,6 +728,7 @@ class writer;
 #include <abc/str-after-to_str.hxx>
 #include <abc/to_str-after-str-after-to_str.hxx>
 #include <abc/pointer_iterator-after-to_str.hxx>
+#include <abc/vector-after-to_str.hxx>
 
 #include <abc/io.hxx>
 #include <abc/io/binary.hxx>

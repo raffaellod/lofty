@@ -43,6 +43,7 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/to_str.cxx"/>
       <source path="src/abc/trace.cxx"/>
       <source path="src/abc/utf_traits.cxx"/>
+      <source path="src/abc/vector.cxx"/>
       <source path="src/abc/_vextr.cxx"/>
 
       <unittest name="abc-test">
