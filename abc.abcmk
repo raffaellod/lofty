@@ -38,6 +38,11 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="src/abc/io/text/file.cxx"/>
       <source path="src/abc/io/text/str.cxx"/>
       <source path="src/abc/memory.cxx"/>
+      <source path="src/abc/stl/exception.cxx"/>
+      <source path="src/abc/stl/memory.cxx"/>
+      <source path="src/abc/stl/new.cxx"/>
+      <source path="src/abc/stl/tuple.cxx"/>
+      <source path="src/abc/stl/typeinfo.cxx"/>
       <source path="src/abc/str.cxx"/>
       <source path="src/abc/text.cxx" />
       <source path="src/abc/to_str.cxx"/>
