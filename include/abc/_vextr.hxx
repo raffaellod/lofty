@@ -1331,7 +1331,8 @@ public:
 
    /** Returns a forward iterator set to the first element.
 
-   TODO: comment signature.
+   return
+      Forward iterator to the first element.
    */
    iterator begin() {
       // const_cast is required because str_base::data() returns const only.
@@ -1344,16 +1345,18 @@ public:
 
    /** Returns a const forward iterator set to the first element.
 
-   TODO: comment signature.
+   return
+      Forward iterator to the first element.
    */
    const_iterator cbegin() const {
       return const_iterator(static_cast<TCont const *>(this)->data());
    }
 
 
-   /** Returns a const reverse iterator set to the first element.
+   /** Returns a const reverse iterator set to the last element.
 
-   TODO: comment signature.
+   return
+      Reverse iterator to the last element.
    */
    const_reverse_iterator crbegin() const {
       return const_reverse_iterator(cbegin());
@@ -1362,16 +1365,18 @@ public:
 
    /** Returns a const forward iterator set beyond the last element.
 
-   TODO: comment signature.
+   return
+      Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
       return const_iterator(cbegin() + ptrdiff_t(static_cast<TCont const *>(this)->size()));
    }
 
 
-   /** Returns a const reverse iterator set beyond the last element.
+   /** Returns a const reverse iterator set to before the first element.
 
-   TODO: comment signature.
+   return
+      Reverse iterator to before the first element.
    */
    const_reverse_iterator crend() const {
       return const_reverse_iterator(cend());
@@ -1380,7 +1385,8 @@ public:
 
    /** Returns a forward iterator set beyond the last element.
 
-   TODO: comment signature.
+   return
+      Forward iterator to the first element.
    */
    iterator end() {
       return iterator(begin() + ptrdiff_t(static_cast<TCont *>(this)->size()));
@@ -1390,9 +1396,10 @@ public:
    }
 
 
-   /** Returns a reverse iterator set to the first element of the vector.
+   /** Returns a reverse iterator set to the last element.
 
-   TODO: comment signature.
+   return
+      Reverse iterator to the last element.
    */
    reverse_iterator rbegin() {
       return reverse_iterator(begin());
@@ -1402,9 +1409,10 @@ public:
    }
 
 
-   /** Returns a reverse iterator set beyond the last element.
+   /** Returns a reverse iterator set to before the first element.
 
-   TODO: comment signature.
+   return
+      Reverse iterator to before the first element.
    */
    reverse_iterator rend() {
       return reverse_iterator(end());
