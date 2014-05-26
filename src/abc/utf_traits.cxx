@@ -30,7 +30,12 @@ namespace text {
 /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
 [DOC:1502 KMP substring search] for how this is built and used.
 
-TODO: comment signature.
+pchNeedleBegin
+   Pointer to the beginning of the search string.
+pchNeedleEnd
+   Pointer beyond the end of the search string.
+pvcchFailNext
+   Pointer to a vector that will receive the failure restart indices.
 */
 template <typename C>
 static void _build_failure_restart_table(
@@ -129,7 +134,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    // Leading byte = 1111110z, first continuation byte must have at least one K=1 in ccKKKKKy.
    0x3e
 };
-
 
 
 /*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
@@ -479,10 +483,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 namespace abc {
 namespace text {
 
-char16_t const utf16_traits::bom[] = {
-   0xfeff
-};
-
+char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
@@ -782,10 +783,7 @@ char16_t const utf16_traits::bom[] = {
 namespace abc {
 namespace text {
 
-char32_t const utf32_traits::bom[] = {
-   0x00feff
-};
-
+char32_t const utf32_traits::bom[] = { 0x00feff };
 
 
 /*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
