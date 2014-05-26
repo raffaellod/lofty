@@ -85,6 +85,58 @@ str_base::c_str_pointer str_base::c_str() const {
 }
 
 
+dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
+   ABC_TRACE_FN((this, enc, bNulT));
+
+   dmvector<uint8_t> vb;
+   size_t cbChar, cbUsed, cbStr(size() * sizeof(char_t));
+   if (enc == abc::text::encoding::host) {
+      // Optimal case: no transcoding necessary.
+      cbChar = sizeof(char_t);
+      // Enlarge the string as necessary, then overwrite any character in the affected range.
+      vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
+      memory::copy(vb.begin().base(), reinterpret_cast<uint8_t const *>(cbegin().base()), cbStr);
+      cbUsed = cbStr;
+   } else {
+      cbChar = text::get_encoding_size(enc);
+      cbUsed = 0;
+      void const * pStr(cbegin().base());
+      // Calculate the additional size required.
+      size_t cbDstEst(abc::text::estimate_transcoded_size(
+         abc::text::encoding::host, pStr, cbStr, enc
+      ));
+      for (;;) {
+         vb.set_capacity(cbDstEst, true);
+         // Get the resulting buffer and its actual size.
+         void * pBuf(vb.begin().base() + cbUsed);
+         size_t cbBuf(vb.capacity() - cbUsed);
+         // Fill as much of the buffer as possible, and increment cbUsed accordingly.
+         cbUsed += abc::text::transcode(
+            std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbBuf
+         );
+         if (!cbStr) {
+            break;
+         }
+         // The buffer needs to be larger than estimated; let’s try in increments. Since we don’t
+         // want to repeat this many times, increment the previous estimate by 50%.
+         size_t cbDstNewEst(cbDstEst + (cbDstEst << 1));
+         // Detect overflow.
+         if (cbDstNewEst < cbDstEst) {
+            cbDstNewEst = numeric::max<size_t>::value;
+         }
+         cbDstEst = cbDstNewEst;
+      }
+   }
+   if (bNulT) {
+      memory::clear(vb.begin().base() + cbUsed, cbChar);
+      cbUsed += cbChar;
+   }
+   // Assign the vector its size, and return it.
+   vb.set_size(cbUsed);
+   return std::move(vb);
+}
+
+
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FN((this, s));
 

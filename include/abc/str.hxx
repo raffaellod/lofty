@@ -149,6 +149,20 @@ public:
    }
 
 
+   /** Returns the string, encoded as requested, into a byte vector.
+
+   enc
+      Requested encoding.
+   bNulT
+      If true, the resulting vector will contain an additional NUL terminator (using as many vector
+      elements as the destination encoding’s character size); if false, no NUL terminator will be
+      present.
+   return
+      Resulting byte vector.
+   */
+   dmvector<uint8_t> encode(text::encoding enc, bool bNulT) const;
+
+
    /** Returns true if the string ends with a specified suffix.
 
    s

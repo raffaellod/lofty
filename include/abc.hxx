@@ -710,6 +710,7 @@ class writer;
 #include <abc/numeric.hxx>
 #include <abc/type_void_adapter.hxx>
 #include <abc/_vextr.hxx>
+#include <abc/vector.hxx>
 #include <abc/byteorder.hxx>
 #include <abc/text.hxx>
 #include <abc/utf_traits.hxx>
