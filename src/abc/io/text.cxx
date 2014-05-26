@@ -393,11 +393,14 @@ binbuf_reader::binbuf_reader(
    // If the encoding is still undefined, try to guess it now.
    if (m_enc == abc::text::encoding::unknown) {
       size_t cbFile, cbBom;
-      /*if (binary::sized const * psb = dynamic_cast<binary::sized *>(m_pfile.get())) {
-         cbFile = size_t(std::min<full_size_t>(psb->size(), smc_cbAlignedMax));
-      } else {*/
+      if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
+         // This special value prevents guess_encoding() from dismissing char_16/32_t as impossible
+         // just because the need to clip cbFile to a size_t resulted in an odd count of bytes.
+         static size_t const sc_cbAlignedMax(numeric::max<size_t>::value & ~sizeof(char32_t));
+         cbFile = size_t(std::min(psb->size(), full_size_t(sc_cbAlignedMax)));
+      } else {
          cbFile = 0;
-      //}
+      }
       m_enc = abc::text::guess_encoding(pbBuf, pbBuf + cbBuf, cbFile, &cbBom);
       // Cannot continue if the encoding is still unknown.
       if (m_enc == abc::text::encoding::unknown) {
