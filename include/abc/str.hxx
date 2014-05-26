@@ -126,10 +126,6 @@ public:
 
    s
       String to compare to.
-   ach
-      String literal to compare to.
-   psz
-      Pointer to a NUL-terminated string to compare to.
    return
       Standard comparison result integer:
       •  > 0 if *this > argument;
@@ -563,8 +559,6 @@ public:
 
    s
       Source string.
-   ach
-      Source NUL-terminated string literal.
    return
       *this.
    */
@@ -789,8 +783,6 @@ public:
 
    s
       Source string.
-   ach
-      Source NUL-terminated string literal.
    return
       *this.
    */
@@ -980,8 +972,6 @@ public:
 
    s
       Source string.
-   ach
-      Source NUL-terminated string literal.
    return
       *this.
    */
