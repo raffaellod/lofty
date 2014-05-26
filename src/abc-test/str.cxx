@@ -202,6 +202,90 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_encode
+
+namespace abc {
+namespace test {
+
+class str_encode :
+   public testing::test_case {
+public:
+
+   /** See abc::testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(
+         SL("abc::*str classes - conversion to different encodings")
+      );
+   }
+
+
+   /** See abc::testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      smstr<32> s;
+      s += 0x000024;
+      s += 0x0000a2;
+      s += 0x0020ac;
+      s += 0x024b62;
+      dmvector<uint8_t> vb;
+
+      vb = s.encode(text::encoding::utf8, false);
+      ABC_TESTING_ASSERT_EQUAL(vb.size(), 10u);
+      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x24);
+      ABC_TESTING_ASSERT_EQUAL(vb[1], 0xc2);
+      ABC_TESTING_ASSERT_EQUAL(vb[2], 0xa2);
+      ABC_TESTING_ASSERT_EQUAL(vb[3], 0xe2);
+      ABC_TESTING_ASSERT_EQUAL(vb[4], 0x82);
+      ABC_TESTING_ASSERT_EQUAL(vb[5], 0xac);
+      ABC_TESTING_ASSERT_EQUAL(vb[6], 0xf0);
+      ABC_TESTING_ASSERT_EQUAL(vb[7], 0xa4);
+      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xad);
+      ABC_TESTING_ASSERT_EQUAL(vb[9], 0xa2);
+
+      vb = s.encode(text::encoding::utf16be, false);
+      ABC_TESTING_ASSERT_EQUAL(vb.size(), 10u);
+      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[1], 0x24);
+      ABC_TESTING_ASSERT_EQUAL(vb[2], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[3], 0xa2);
+      ABC_TESTING_ASSERT_EQUAL(vb[4], 0x20);
+      ABC_TESTING_ASSERT_EQUAL(vb[5], 0xac);
+      ABC_TESTING_ASSERT_EQUAL(vb[6], 0xd8);
+      ABC_TESTING_ASSERT_EQUAL(vb[7], 0x52);
+      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xdf);
+      ABC_TESTING_ASSERT_EQUAL(vb[9], 0x62);
+
+      vb = s.encode(text::encoding::utf32le, false);
+      ABC_TESTING_ASSERT_EQUAL(vb.size(), 16u);
+      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x24);
+      ABC_TESTING_ASSERT_EQUAL(vb[1], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[2], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[3], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[4], 0xa2);
+      ABC_TESTING_ASSERT_EQUAL(vb[5], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[6], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[7], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xac);
+      ABC_TESTING_ASSERT_EQUAL(vb[9], 0x20);
+      ABC_TESTING_ASSERT_EQUAL(vb[10], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[11], 0x00);
+      ABC_TESTING_ASSERT_EQUAL(vb[12], 0x62);
+      ABC_TESTING_ASSERT_EQUAL(vb[13], 0x4b);
+      ABC_TESTING_ASSERT_EQUAL(vb[14], 0x02);
+      ABC_TESTING_ASSERT_EQUAL(vb[15], 0x00);
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_encode)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr
 
 
