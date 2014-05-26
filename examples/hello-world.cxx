@@ -23,7 +23,7 @@ This is a basic usage example of ABC; all it does is display the canonical “He
 it terminates. See the source code for line-by-line comments.
 */
 
-// This should always be the first file included in any C++ source using Abc.
+// This should always be the first file included in any C++ source using ABC.
 #include <abc.hxx>
 // This needs to be included in the .cxx file that defines the application class for the program –
 // see below.
@@ -60,6 +60,8 @@ public:
       (Win32).
    */
    virtual int main(mvector<istr const> const & vsArgs) {
+      // This should be the first line of every function/method; it allows to inspect the values of
+      // the method’s arguments when an exception is raised during the execution of the method.
       ABC_TRACE_FN((this, vsArgs));
 
       // Write “Hello World” into the stdout text writer object.
