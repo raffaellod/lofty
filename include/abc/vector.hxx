@@ -620,23 +620,6 @@ public:
    }
 
 
-   /** Returns a pointer to the item array.
-
-   return
-      Pointer to the item array.
-   */
-   T * data() {
-      // For some reason, GCC doesn’t like this:
-      //    return _raw_vector<T, smc_bCopyConstructible>::data<T>();
-      return _raw_vextr_impl_base::data<T>();
-   }
-   T const * data() const {
-      // For some reason, GCC doesn’t like this:
-      //    return _raw_vector<T, smc_bCopyConstructible>::data<T>();
-      return _raw_vextr_impl_base::data<T>();
-   }
-
-
    /** Returns a forward iterator set beyond the last element.
 
    return
@@ -866,7 +849,7 @@ public:
       *this.
    */
    mvector & operator+=(mvector && v) {
-      this->append_move(v.data(), v.size());
+      this->append_move(v.begin().base(), v.size());
       return *this;
    }
 
@@ -1073,7 +1056,7 @@ public:
       *this.
    */
    mvector & operator=(mvector const & v) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
       return *this;
    }
    mvector & operator=(dmvector<T> && v) {
@@ -1090,11 +1073,11 @@ public:
       *this.
    */
    mvector & operator+=(mvector const & v) {
-      this->append_copy(v.data(), v.size());
+      this->append_copy(v.cbegin().base(), v.size());
       return *this;
    }
    mvector & operator+=(mvector && v) {
-      this->append_move(v.data(), v.size());
+      this->append_move(v.begin().base(), v.size());
       return *this;
    }
 
@@ -1199,7 +1182,7 @@ public:
    }
    dmvector(mvector<T, false> && v1, mvector<T, false> && v2) :
       mvector<T, false>(0) {
-      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
+      this->assign_concat_move(v1.begin().base(), v1.size(), v2.begin().base(), v2.size());
    }
 
 
@@ -1257,7 +1240,7 @@ public:
    }
    dmvector(dmvector const & v) :
       mvector<T, true>(0) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
    }
    dmvector(dmvector && v) :
       mvector<T, true>(0) {
@@ -1265,7 +1248,7 @@ public:
    }
    dmvector(mvector<T, true> const & v) :
       mvector<T, true>(0) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
    dmvector(mvector<T, true> && v) :
@@ -1274,19 +1257,21 @@ public:
    }
    dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), false);
+      this->assign_concat(
+         v1.cbegin().base(), v1.size(), false, v2.cbegin().base(), v2.size(), false
+      );
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.size(), true, v2.data(), v2.size(), false);
+      this->assign_concat(v1.begin().base(), v1.size(), true, v2.cbegin().base(), v2.size(), false);
    }
    dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.size(), false, v2.data(), v2.size(), true);
+      this->assign_concat(v1.cbegin().base(), v1.size(), false, v2.begin().base(), v2.size(), true);
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
+      this->assign_concat_move(v1.begin().base(), v1.size(), v2.begin().base(), v2.size());
    }
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
@@ -1312,7 +1297,7 @@ public:
       *this.
    */
    dmvector & operator=(dmvector const & v) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
       return *this;
    }
    dmvector & operator=(dmvector && v) {
@@ -1320,7 +1305,7 @@ public:
       return *this;
    }
    dmvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
@@ -1512,7 +1497,7 @@ public:
    }
    smvector(smvector const & v) :
       mvector<T, true>(smc_ciFixed) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -1532,7 +1517,7 @@ public:
    }
    smvector(mvector<T, true> const & v) :
       mvector<T, true>(smc_ciFixed) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
@@ -1564,7 +1549,7 @@ public:
       *this.
    */
    smvector & operator=(smvector const & v) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -1584,7 +1569,7 @@ public:
       return *this;
    }
    smvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.data(), v.size());
+      this->assign_copy(v.cbegin().base(), v.size());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
