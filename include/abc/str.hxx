@@ -97,7 +97,8 @@ public:
       true if the string is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return _raw_vextr_impl_base::end<char_t>() > _raw_vextr_impl_base::begin<char_t>();
+      // Use int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than check.
+      return _raw_vextr_impl_base::end<int8_t>() > _raw_vextr_impl_base::begin<int8_t>();
    }
 
 

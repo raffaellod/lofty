@@ -510,7 +510,8 @@ public:
       true if the vector is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return _raw_vextr_impl_base::end<T>() > _raw_vextr_impl_base::begin<T>();
+      // Use int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
+      return _raw_vextr_impl_base::end<int8_t>() > _raw_vextr_impl_base::begin<int8_t>();
    }
 
 
