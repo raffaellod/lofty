@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with ABC
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
+// abc::to_str()
 
 namespace abc {
 
@@ -72,13 +72,33 @@ return
 template <typename T>
 dmstr to_str(T const & t, istr const & sFormat = istr());
 
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend
+
+namespace abc {
+
 /** Generates a string suitable for display from an object. Once constructed with the desired format
 specification, an instance can convert to a string any number of T instances. */
 template <typename T>
 class to_str_backend;
 
-} //namespace abc
+// Partial specialization for const.
+template <typename T>
+class to_str_backend<T const> :
+   public to_str_backend<T> {
+public:
 
+   /** Constructor. See to_str_backend<T>::to_str_backend().
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      to_str_backend<T>(sFormat) {
+   }
+};
+
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

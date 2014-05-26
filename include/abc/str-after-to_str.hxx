@@ -96,25 +96,6 @@ namespace abc {
       void write(C ch, io::text::writer * ptwOut) { \
          _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, ptwOut); \
       } \
-   }; \
-   \
-   /** Const character literal. \
-
-   TODO: remove the need for this.
-   */ \
-   template <> \
-   class ABCAPI to_str_backend<C const> : \
-      public to_str_backend<C> { \
-   public: \
-   \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         to_str_backend<C>(sFormat) { \
-      } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
 // Specialization for wchar_t, if it’s what char16_t or char32_t map to.
@@ -143,7 +124,7 @@ namespace abc {
    /** String literal. \
    */ \
    template <size_t t_cch> \
-   class to_str_backend<C const [t_cch]> : \
+   class to_str_backend<C [t_cch]> : \
       public _str_to_str_backend { \
    public: \
    \
@@ -169,25 +150,6 @@ namespace abc {
          _str_to_str_backend::write( \
             ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, ptwOut \
          ); \
-      } \
-   }; \
-   \
-   /** Non-const string literal.
-
-   TODO: remove the need for this.
-   */ \
-   template <size_t t_cch> \
-   class to_str_backend<C [t_cch]> : \
-      public to_str_backend<C const [t_cch]> { \
-   public: \
-   \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         to_str_backend<C const [t_cch]>(sFormat) { \
       } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
