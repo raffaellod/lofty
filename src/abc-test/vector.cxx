@@ -77,10 +77,6 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v[1], 1);
       ABC_TESTING_ASSERT_EQUAL(v[2], 3);
 
-      ABC_TESTING_ASSERT_EQUAL(v.index_of(1), 1);
-
-      ABC_TESTING_ASSERT_EQUAL(v.last_index_of(1), 1);
-
       ABC_TESTING_ASSERT_EQUAL(std::find(v.cbegin(), v.cend(), 1), v.cbegin() + 1);
 
       v.remove_at(std::find(v.cbegin(), v.cend(), 1));

@@ -640,42 +640,6 @@ public:
    }
 
 
-   /** Looks for the specified value; returns the index of the first matching element, or -1 for no
-   matches.
-
-   TODO: comment signature.
-   */
-   intptr_t index_of(T const & t, intptr_t iFirst = 0) const {
-      T const * pt0(cbegin().base()), * ptEnd(cend().base());
-      for (T const * pt(pt0 + this->adjust_and_validate_index(iFirst)); pt < ptEnd; ++pt) {
-         if (*pt == t) {
-            return pt - pt0;
-         }
-      }
-      return -1;
-   }
-
-
-   /** Looks for the specified value; returns the index of the first matching element, or -1 for no
-   matches.
-
-   TODO: comment signature.
-   */
-   intptr_t last_index_of(T const & t) const {
-      return last_index_of(t, intptr_t(size()));
-   }
-   intptr_t last_index_of(T const & t, intptr_t iFirst) const {
-      auto range(this->adjust_and_validate_range(0, iFirst));
-      T const * pt0(cbegin().base());
-      for (T const * pt(pt0 + range.second); pt >= pt0 + range.first; --pt) {
-         if (*pt == t) {
-            return pt - pt0;
-         }
-      }
-      return -1;
-   }
-
-
    /** Returns a reverse iterator set to the last element.
 
    return
