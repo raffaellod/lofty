@@ -457,7 +457,7 @@ class dmvector;
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
 *vector classes.
 */
-template <typename T, bool t_bCopyConstructible>
+template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class vector_base;
 
 // Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
