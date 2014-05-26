@@ -875,16 +875,16 @@ public:
 
    type
       Adapter for the items’ type.
-   pAdd
+   p
       Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
+   ci
+      Count of items in the array pointed to by p.
    bMove
       true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
-   void append(type_void_adapter const & type, void const * pAdd, size_t ciAdd, bool bMove) {
-      if (ciAdd) {
-         _insert(type, size(), pAdd, ciAdd, bMove);
+   void append(type_void_adapter const & type, void const * p, size_t ci, bool bMove) {
+      if (ci) {
+         _insert(type, size(), p, ci, bMove);
       }
    }
 
@@ -972,18 +972,18 @@ public:
    iOffset
       Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
       allowed index values.
-   pAdd
+   p
       Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
+   ci
+      Count of items in the array pointed to by p.
    bMove
       true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, intptr_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+      type_void_adapter const & type, intptr_t iOffset, void const * p, size_t ci, bool bMove
    ) {
-      if (ciAdd) {
-         _insert(type, adjust_and_validate_index(iOffset), pAdd, ciAdd, bMove);
+      if (ci) {
+         _insert(type, adjust_and_validate_index(iOffset), p, ci, bMove);
       }
    }
 
@@ -1056,21 +1056,21 @@ protected:
 
 private:
 
-   /** Implementation of append() and insert(). Does not validate iOffset or ciAdd.
+   /** Implementation of append() and insert(). Does not validate iOffset or ci.
 
    type
       Adapter for the items’ type.
    iOffset
       Index at which the items should be inserted.
-   pAdd
+   p
       Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
+   ci
+      Count of items in the array pointed to by p.
    bMove
       true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
    */
    void _insert(
-      type_void_adapter const & type, uintptr_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+      type_void_adapter const & type, uintptr_t iOffset, void const * p, size_t ci, bool bMove
    );
 
 
@@ -1106,14 +1106,14 @@ public:
 
    cbItem
       Size of a single array item, in bytes.
-   pAdd
+   p
       Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
+   ci
+      Count of items in the array pointed to by p.
    */
-   void append(size_t cbItem, void const * pAdd, size_t ciAdd) {
-      if (ciAdd) {
-         _insert_or_remove(cbItem, size(), pAdd, ciAdd, 0);
+   void append(size_t cbItem, void const * p, size_t ci) {
+      if (ci) {
+         _insert_or_remove(cbItem, size(), p, ci, 0);
       }
    }
 
@@ -1210,14 +1210,14 @@ public:
    iOffset
       Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
       allowed index values.
-   pAdd
+   p
       Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
+   ci
+      Count of items in the array pointed to by p.
    */
-   void insert(size_t cbItem, intptr_t iOffset, void const * pAdd, size_t ciAdd) {
-      if (ciAdd) {
-         _insert_or_remove(cbItem, adjust_and_validate_index(iOffset), pAdd, ciAdd, 0);
+   void insert(size_t cbItem, intptr_t iOffset, void const * p, size_t ci) {
+      if (ci) {
+         _insert_or_remove(cbItem, adjust_and_validate_index(iOffset), p, ci, 0);
       }
    }
 

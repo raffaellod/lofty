@@ -440,11 +440,11 @@ static void overlapping_move_constr(
 
 
 void _raw_complex_vextr_impl::_insert(
-   type_void_adapter const & type, size_t iOffset, void const * pAdd, size_t ciAdd, bool bMove
+   type_void_adapter const & type, size_t iOffset, void const * p, size_t ci, bool bMove
 ) {
-   ABC_TRACE_FN((this, /*type, */iOffset, pAdd, ciAdd, bMove));
+   ABC_TRACE_FN((this, /*type, */iOffset, p, ci, bMove));
 
-   transaction trn(type.cb, this, -1, ptrdiff_t(ciAdd));
+   transaction trn(type.cb, this, -1, ptrdiff_t(ci));
    size_t ibOffset(type.cb * iOffset);
    int8_t * pbOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
@@ -452,21 +452,21 @@ void _raw_complex_vextr_impl::_insert(
    size_t ciTail(size() - iOffset);
    if (ciTail) {
       overlapping_move_constr(
-         type, pbOffset + type.cb * ciAdd, static_cast<int8_t *>(m_p) + ibOffset, ciTail
+         type, pbOffset + type.cb * ci, static_cast<int8_t *>(m_p) + ibOffset, ciTail
       );
    }
    // Copy/move the new items over.
    if (bMove) {
       // No point in using try/catch here; we just assume that a move constructor won’t throw.
-      type.move_constr(pbOffset, const_cast<void *>(pAdd), ciAdd);
+      type.move_constr(pbOffset, const_cast<void *>(p), ci);
    } else {
       try {
-         type.copy_constr(pbOffset, pAdd, ciAdd);
+         type.copy_constr(pbOffset, p, ci);
       } catch (...) {
          // Undo the overlapping_move_constr() above.
          if (ciTail) {
             overlapping_move_constr(
-               type, static_cast<int8_t *>(m_p) + ibOffset, pbOffset + type.cb * ciAdd, ciTail
+               type, static_cast<int8_t *>(m_p) + ibOffset, pbOffset + type.cb * ci, ciTail
             );
          }
          throw;
