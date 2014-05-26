@@ -504,6 +504,8 @@ private:
       true if the parent object is followed by a static item array.
    bool bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
+   bool bNulT
+      true if the item array is NUL-terminated.
    size_t ciMax;
       Size of the item array.
    */
