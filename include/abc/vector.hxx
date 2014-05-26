@@ -500,7 +500,7 @@ public:
    */
    T const & operator[](intptr_t i) const {
       this->adjust_and_validate_index(i);
-      return *(this->cbegin() + i);
+      return *(cbegin() + i);
    }
 
 
@@ -510,7 +510,7 @@ public:
       true if the vector is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      return this->cend() > this->cbegin();
+      return _raw_vextr_impl_base::end<T>() > _raw_vextr_impl_base::begin<T>();
    }
 
 
@@ -662,7 +662,7 @@ public:
    TODO: comment signature.
    */
    intptr_t index_of(T const & t, intptr_t iFirst = 0) const {
-      T const * pt0(this->cbegin().base()), * ptEnd(this->cend().base());
+      T const * pt0(cbegin().base()), * ptEnd(cend().base());
       for (T const * pt(pt0 + this->adjust_and_validate_index(iFirst)); pt < ptEnd; ++pt) {
          if (*pt == t) {
             return pt - pt0;
@@ -682,7 +682,7 @@ public:
    }
    intptr_t last_index_of(T const & t, intptr_t iFirst) const {
       auto range(this->adjust_and_validate_range(0, iFirst));
-      T const * pt0(this->cbegin().base());
+      T const * pt0(cbegin().base());
       for (T const * pt(pt0 + range.second); pt >= pt0 + range.first; --pt) {
          if (*pt == t) {
             return pt - pt0;
@@ -776,7 +776,7 @@ public:
    }
    dmvector<T, true> slice(intptr_t iBegin, intptr_t iEnd) const {
       auto range(this->adjust_and_validate_range(iBegin, iEnd));
-      return dmvector<T, true>(this->data() + range.first, range.second - range.first);
+      return dmvector<T, true>(this->cbegin().base() + range.first, range.second - range.first);
    }
 
 
