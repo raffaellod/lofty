@@ -151,6 +151,22 @@ namespace abc {
             ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, ptwOut \
          ); \
       } \
+   }; \
+   \
+   /** MSC16 BUG: this partial specialization is necessary. */ \
+   template <size_t t_cch> \
+   class to_str_backend<C const [t_cch]> : \
+      public to_str_backend<C [t_cch]> { \
+   public: \
+   \
+      /** Constructor.
+
+      sFormat
+         Formatting options.
+      */ \
+      to_str_backend(istr const & sFormat = istr()) : \
+         to_str_backend<C [t_cch]>(sFormat) { \
+      } \
    };
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
 // Specialization for wchar_t, if it’s what char16_t or char32_t map to.
