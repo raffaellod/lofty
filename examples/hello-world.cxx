@@ -60,10 +60,7 @@ public:
       (Win32).
    */
    virtual int main(mvector<istr const> const & vsArgs) {
-      ABC_TRACE_FN((this/*, vsArgs*/));
-
-      // This helps avoid compiler warnings for arguments/variables that are declared, but not used.
-      ABC_UNUSED_ARG(vsArgs);
+      ABC_TRACE_FN((this, vsArgs));
 
       // Write “Hello World” into the stdout text writer object.
       io::text::stdout()->write_line(SL("Hello World"));

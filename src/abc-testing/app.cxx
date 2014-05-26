@@ -32,7 +32,7 @@ namespace abc {
 namespace testing {
 
 /*virtual*/ int app::main(mvector<istr const> const & vsArgs) {
-   ABC_TRACE_FN((this/*, vsArgs*/));
+   ABC_TRACE_FN((this, vsArgs));
 
    ABC_UNUSED_ARG(vsArgs);
 
