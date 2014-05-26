@@ -979,41 +979,50 @@ inline mstr & mstr::operator=(dmstr && s) {
 
 /** Concatenation operator.
 
-TODO: comment signature.
+sL
+   Left string operand.
+sR
+   Right string operand.
+chL
+   Left character operand.
+chR
+   Right character operand.
+return
+   Resulting string.
 */
-inline abc::dmstr operator+(abc::istr const & s1, abc::istr const & s2) {
-   return abc::dmstr(s1.cbegin().base(), s1.size(), s2.cbegin().base(), s2.size());
+inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
+   return abc::dmstr(sL.cbegin().base(), sL.size(), sR.cbegin().base(), sR.size());
 }
 // Overloads taking a character literal.
-inline abc::dmstr operator+(abc::istr const & s, char32_t ch) {
-   abc::char_t ach[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(s.cbegin().base(), s.size(), ach, abc::istr::traits::from_utf32(ch, ach));
+inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
+   abc::char_t achR[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(sL.cbegin().base(), sL.size(), achR, abc::istr::traits::from_utf32(chR, achR));
 }
-inline abc::dmstr operator+(char32_t ch, abc::istr const & s) {
-   abc::char_t ach[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(ach, abc::istr::traits::from_utf32(ch, ach), s.cbegin().base(), s.size());
+inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
+   abc::char_t achL[abc::istr::traits::max_codepoint_length];
+   return abc::dmstr(achL, abc::istr::traits::from_utf32(chL, achL), sR.cbegin().base(), sR.size());
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
 // string.
-inline abc::dmstr operator+(abc::istr && s, char32_t ch) {
-   abc::dmstr dms(std::move(s));
-   dms += ch;
-   return std::move(dms);
+inline abc::dmstr operator+(abc::istr && sL, char32_t chR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += chR;
+   return std::move(dmsL);
 }
-inline abc::dmstr operator+(abc::istr && s1, abc::istr const & s2) {
-   abc::dmstr dms1(std::move(s1));
-   dms1 += s2;
-   return std::move(dms1);
+inline abc::dmstr operator+(abc::istr && sL, abc::istr const & sR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += sR;
+   return std::move(dmsL);
 }
-inline abc::dmstr operator+(abc::mstr && s, char32_t ch) {
-   abc::dmstr dms(std::move(s));
-   dms += ch;
-   return std::move(dms);
+inline abc::dmstr operator+(abc::mstr && sL, char32_t chR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += chR;
+   return std::move(dmsL);
 }
-inline abc::dmstr operator+(abc::mstr && s1, abc::istr const & s2) {
-   abc::dmstr dms1(std::move(s1));
-   dms1 += s2;
-   return std::move(dms1);
+inline abc::dmstr operator+(abc::mstr && sL, abc::istr const & sR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += sR;
+   return std::move(dmsL);
 }
 
 
