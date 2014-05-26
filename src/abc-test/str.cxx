@@ -233,49 +233,58 @@ public:
       dmvector<uint8_t> vb;
 
       vb = s.encode(text::encoding::utf8, false);
-      ABC_TESTING_ASSERT_EQUAL(vb.size(), 10u);
-      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x24);
-      ABC_TESTING_ASSERT_EQUAL(vb[1], 0xc2);
-      ABC_TESTING_ASSERT_EQUAL(vb[2], 0xa2);
-      ABC_TESTING_ASSERT_EQUAL(vb[3], 0xe2);
-      ABC_TESTING_ASSERT_EQUAL(vb[4], 0x82);
-      ABC_TESTING_ASSERT_EQUAL(vb[5], 0xac);
-      ABC_TESTING_ASSERT_EQUAL(vb[6], 0xf0);
-      ABC_TESTING_ASSERT_EQUAL(vb[7], 0xa4);
-      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xad);
-      ABC_TESTING_ASSERT_EQUAL(vb[9], 0xa2);
+      {
+         smvector<uint8_t, 16> vbUtf8;
+         vbUtf8.append(0x24);
+         vbUtf8.append(0xc2);
+         vbUtf8.append(0xa2);
+         vbUtf8.append(0xe2);
+         vbUtf8.append(0x82);
+         vbUtf8.append(0xac);
+         vbUtf8.append(0xf0);
+         vbUtf8.append(0xa4);
+         vbUtf8.append(0xad);
+         vbUtf8.append(0xa2);
+         ABC_TESTING_ASSERT_EQUAL(vb, vbUtf8);
+      }
 
       vb = s.encode(text::encoding::utf16be, false);
-      ABC_TESTING_ASSERT_EQUAL(vb.size(), 10u);
-      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[1], 0x24);
-      ABC_TESTING_ASSERT_EQUAL(vb[2], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[3], 0xa2);
-      ABC_TESTING_ASSERT_EQUAL(vb[4], 0x20);
-      ABC_TESTING_ASSERT_EQUAL(vb[5], 0xac);
-      ABC_TESTING_ASSERT_EQUAL(vb[6], 0xd8);
-      ABC_TESTING_ASSERT_EQUAL(vb[7], 0x52);
-      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xdf);
-      ABC_TESTING_ASSERT_EQUAL(vb[9], 0x62);
+      {
+         smvector<uint8_t, 16> vbUtf16;
+         vbUtf16.append(0x00);
+         vbUtf16.append(0x24);
+         vbUtf16.append(0x00);
+         vbUtf16.append(0xa2);
+         vbUtf16.append(0x20);
+         vbUtf16.append(0xac);
+         vbUtf16.append(0xd8);
+         vbUtf16.append(0x52);
+         vbUtf16.append(0xdf);
+         vbUtf16.append(0x62);
+         ABC_TESTING_ASSERT_EQUAL(vb, vbUtf16);
+      }
 
       vb = s.encode(text::encoding::utf32le, false);
-      ABC_TESTING_ASSERT_EQUAL(vb.size(), 16u);
-      ABC_TESTING_ASSERT_EQUAL(vb[0], 0x24);
-      ABC_TESTING_ASSERT_EQUAL(vb[1], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[2], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[3], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[4], 0xa2);
-      ABC_TESTING_ASSERT_EQUAL(vb[5], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[6], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[7], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[8], 0xac);
-      ABC_TESTING_ASSERT_EQUAL(vb[9], 0x20);
-      ABC_TESTING_ASSERT_EQUAL(vb[10], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[11], 0x00);
-      ABC_TESTING_ASSERT_EQUAL(vb[12], 0x62);
-      ABC_TESTING_ASSERT_EQUAL(vb[13], 0x4b);
-      ABC_TESTING_ASSERT_EQUAL(vb[14], 0x02);
-      ABC_TESTING_ASSERT_EQUAL(vb[15], 0x00);
+      {
+         smvector<uint8_t, 16> vbUtf32;
+         vbUtf32.append(0x24);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0xa2);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0xac);
+         vbUtf32.append(0x20);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x00);
+         vbUtf32.append(0x62);
+         vbUtf32.append(0x4b);
+         vbUtf32.append(0x02);
+         vbUtf32.append(0x00);
+         ABC_TESTING_ASSERT_EQUAL(vb, vbUtf32);
+      }
    }
 };
 
