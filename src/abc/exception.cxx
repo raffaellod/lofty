@@ -1190,7 +1190,7 @@ char const * exception::what() const {
             ptw->write(SL("Extended information:\n"));
             pabcx->_print_extended_info(ptw);
          } catch (...) {
-            // The exception is not rethrown, because we don’t want exception details to interfere
+            // The exception is not rethrown because we don’t want exception details to interfere
             // with the display of the (more important) exception information.
             // FIXME: EXC-SWALLOW
          }

@@ -83,7 +83,7 @@ ABCAPI size_t estimate_transcoded_size(
       // No integer overflow.
       return (ccp + cbSrcAvg - 1) / cbSrcAvg;
    } else {
-      // Integer overflow occurred: evaluate the expression in the origianal order.
+      // Integer overflow occurred: evaluate the expression in the original order.
       return ((cbSrc + cbSrcAvg - 1) / cbSrcAvg) * cbDstAvg;
    }
 }
