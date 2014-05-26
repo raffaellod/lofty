@@ -172,6 +172,17 @@ public:
    }
 
 
+   /** See _raw_complex_vextr_impl::set_size().
+   */
+   void set_size(size_t ci) {
+      type_void_adapter type;
+      type.set_destr_fn<T>();
+      type.set_move_fn<T>();
+      type.set_size<T>();
+      _raw_complex_vextr_impl::set_size(type, ci);
+   }
+
+
 protected:
 
    /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
@@ -410,6 +421,13 @@ public:
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       _raw_trivial_vextr_impl::set_capacity(sizeof(T), ciMin, bPreserve);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::set_size().
+   */
+   void set_size(size_t ci) {
+      _raw_trivial_vextr_impl::set_size(sizeof(T), ci);
    }
 
 
@@ -836,6 +854,19 @@ public:
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       vector_base<T, smc_bCopyConstructible>::set_capacity(ciMin, bPreserve);
+   }
+
+
+   /** Changes the count of items in the vector. If the new item count is greater than the current
+   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
+   elements are properly constructed, or problems will arise when the destructor will attempt to
+   destruct these elements.
+
+   ci
+      New vector size.
+   */
+   void set_size(size_t ci) {
+      vector_base<T, smc_bCopyConstructible>::set_size(ci);
    }
 
 

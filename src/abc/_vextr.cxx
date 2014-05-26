@@ -550,6 +550,19 @@ void _raw_complex_vextr_impl::set_capacity(
    m_ci = ciOrig;
 }
 
+
+void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t ci) {
+   ABC_TRACE_FN((this, /*type, */ci));
+
+   if (ci != size()) {
+      if (ci > capacity()) {
+         // Enlarge the item array.
+         set_capacity(type, ci, true);
+      }
+      m_ci = ci;
+   }
+}
+
 } //namespace abc
 
 

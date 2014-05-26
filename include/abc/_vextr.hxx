@@ -1012,6 +1012,19 @@ public:
    void set_capacity(type_void_adapter const & type, size_t ciMin, bool bPreserve);
 
 
+   /** Changes the count of items in the vector. If the new item count is greater than the current
+   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
+   elements are properly constructed, or problems will arise when the destructor will attempt to
+   destruct these elements.
+
+   type
+      Adapter for the items’ type.
+   ci
+      New count of items.
+   */
+   void set_size(type_void_adapter const & type, size_t ci);
+
+
 protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
