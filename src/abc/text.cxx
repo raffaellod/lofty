@@ -115,7 +115,8 @@ ABCAPI size_t get_encoding_size(encoding enc) {
          return sc_aecEncChar[i].cb;
       }
    }
-   return 0;
+   // TODO: provide more information in the exception.
+   ABC_THROW(domain_error, ());
 }
 
 
