@@ -452,7 +452,7 @@ void _raw_complex_vextr_impl::_insert(
    size_t ciTail(size() - iOffset);
    if (ciTail) {
       overlapping_move_constr(
-         type, pbOffset + type.cb * ciAdd, data<int8_t>() + ibOffset, ciTail
+         type, pbOffset + type.cb * ciAdd, static_cast<int8_t *>(m_p) + ibOffset, ciTail
       );
    }
    // Copy/move the new items over.
@@ -466,7 +466,7 @@ void _raw_complex_vextr_impl::_insert(
          // Undo the overlapping_move_constr() above.
          if (ciTail) {
             overlapping_move_constr(
-               type, data<int8_t>() + ibOffset, pbOffset + type.cb * ciAdd, ciTail
+               type, static_cast<int8_t *>(m_p) + ibOffset, pbOffset + type.cb * ciAdd, ciTail
             );
          }
          throw;
@@ -490,12 +490,12 @@ void _raw_complex_vextr_impl::_remove(
    transaction trn(type.cb, this, -1, -ptrdiff_t(ciRemove));
    size_t cbOffset(type.cb * iOffset);
    // Destruct the items to be removed.
-   type.destruct(data<int8_t>() + cbOffset, ciRemove);
+   type.destruct(static_cast<int8_t *>(m_p) + cbOffset, ciRemove);
    // The items beyond the last removed must be either copied to the new item array at ciRemove
    // offset, or shifted closer to the start.
    if (size_t ciTail = size() - (iOffset + ciRemove)) {
       int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
-             * pbOrigTail(data<int8_t>() + cbOffset + type.cb * ciRemove);
+             * pbOrigTail(static_cast<int8_t *>(m_p) + cbOffset + type.cb * ciRemove);
       if (trn.will_replace_item_array()) {
          type.move_constr(pbWorkTail, pbOrigTail, ciTail);
          type.destruct(pbOrigTail, ciTail);
@@ -640,7 +640,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    if (size_t ciTail = size() - (iOffset + ciRemove)) {
       memory::move(
          trn.work_array<int8_t>() + cbOffset + cbItem * ciAdd,
-         data<int8_t>() + cbOffset + cbItem * ciRemove,
+         static_cast<int8_t const *>(m_p) + cbOffset + cbItem * ciRemove,
          cbItem * ciTail
       );
    }

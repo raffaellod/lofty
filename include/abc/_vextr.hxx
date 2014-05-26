@@ -666,21 +666,6 @@ public:
    }
 
 
-   /** Returns a pointer to the item array.
-
-   return
-      Pointer to the item array.
-   */
-   template <typename T>
-   T * data() {
-      return static_cast<T *>(m_p);
-   }
-   template <typename T>
-   T const * data() const {
-      return static_cast<T const *>(m_p);
-   }
-
-
    /** Returns a a pointer to the end of the item array.
 
    return
