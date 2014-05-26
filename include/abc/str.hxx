@@ -993,16 +993,28 @@ inline abc::dmstr operator+(char32_t ch, abc::istr const & s) {
    abc::char_t ach[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(ach, abc::istr::traits::from_utf32(ch, ach), s.cbegin().base(), s.size());
 }
-// Overloads taking a temporary dmstr as left operand; they can avoid creating an intermediate
+// Overloads taking a temporary string as left operand; they can avoid creating an intermediate
 // string.
 // TODO: verify that compilers actually select these overloads whenever possible.
-inline abc::dmstr operator+(abc::dmstr && s, char32_t ch) {
-   s += ch;
-   return std::move(s);
+inline abc::dmstr operator+(abc::istr && s, char32_t ch) {
+   abc::dmstr dms(std::move(s));
+   dms += ch;
+   return std::move(dms);
 }
-inline abc::dmstr operator+(abc::dmstr && s1, abc::istr const & s2) {
-   s1 += s2;
-   return std::move(s1);
+inline abc::dmstr operator+(abc::istr && s1, abc::istr const & s2) {
+   abc::dmstr dms1(std::move(s1));
+   dms1 += s2;
+   return std::move(dms1);
+}
+inline abc::dmstr operator+(abc::mstr && s, char32_t ch) {
+   abc::dmstr dms(std::move(s));
+   dms += ch;
+   return std::move(dms);
+}
+inline abc::dmstr operator+(abc::mstr && s1, abc::istr const & s2) {
+   abc::dmstr dms1(std::move(s1));
+   dms1 += s2;
+   return std::move(dms1);
 }
 
 
