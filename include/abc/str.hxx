@@ -995,7 +995,6 @@ inline abc::dmstr operator+(char32_t ch, abc::istr const & s) {
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
 // string.
-// TODO: verify that compilers actually select these overloads whenever possible.
 inline abc::dmstr operator+(abc::istr && s, char32_t ch) {
    abc::dmstr dms(std::move(s));
    dms += ch;

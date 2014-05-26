@@ -192,6 +192,22 @@ public:
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
       ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0c"));
       ABC_TESTING_ASSERT_EQUAL(SL("a\0b\0c"), s);
+
+      {
+         // Note: all string operations here must involve as few characters as possible to avoid
+         // triggering a reallocation, which would break these tests.
+
+         dmstr s1, s2(SL("a"));
+         char_t const * pchCheck(s2.cbegin().base());
+         // Verify that the compiler selects operator+(dmstr &&, …) when possible.
+         s1 = std::move(s2) + SL("b");
+         ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
+
+         istr s3(std::move(s1));
+         // Verify that the compiler selects operator+(istr &&, …) when possible.
+         s1 = std::move(s3) + SL("c");
+         ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
+      }
    }
 };
 
