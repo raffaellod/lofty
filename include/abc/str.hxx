@@ -192,16 +192,6 @@ public:
    }
 
 
-   /** Returns a read-only pointer to the character array.
-
-   return
-      Pointer to the character array.
-   */
-   char_t const * data() const {
-      return _raw_trivial_vextr_impl::data<char_t>();
-   }
-
-
    /** Returns the string, encoded as requested, into a byte vector.
 
    enc
@@ -714,18 +704,6 @@ public:
    }
    const_iterator begin() const {
       return str_base::begin();
-   }
-
-
-   /** Returns a pointer to the character array.
-
-   TODO: comment signature.
-   */
-   char_t * data() {
-      return _raw_trivial_vextr_impl::data<char_t>();
-   }
-   char_t const * data() const {
-      return _raw_trivial_vextr_impl::data<char_t>();
    }
 
 
