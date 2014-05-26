@@ -33,7 +33,7 @@ ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
@@ -47,7 +47,6 @@ ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
 ABCAPI void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
    ABC_TRACE_FN((this, b, ptwOut));
 
-   // TODO: apply format options.
    if (b) {
       ptwOut->write(SL("true"));
    } else {
@@ -323,7 +322,7 @@ ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {

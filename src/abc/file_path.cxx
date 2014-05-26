@@ -517,7 +517,7 @@ to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
@@ -531,7 +531,6 @@ to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
 void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * ptwOut) {
    ABC_TRACE_FN((this, fp, ptwOut));
 
-   // TODO: apply format options.
    ptwOut->write(static_cast<istr const &>(fp));
 }
 

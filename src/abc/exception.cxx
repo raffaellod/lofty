@@ -1077,7 +1077,7 @@ ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= 
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
@@ -1093,7 +1093,6 @@ ABCAPI void to_str_backend<source_location>::write(
 ) {
    ABC_TRACE_FN((this, srcloc, ptwOut));
 
-   // TODO: apply format options.
    ptwOut->write(istr(unsafe, srcloc.file_path()));
    ptwOut->write(SL(":"));
    ptwOut->write(srcloc.line_number());

@@ -66,7 +66,7 @@ _enum_to_str_backend_impl::_enum_to_str_backend_impl(istr const & sFormat) {
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
@@ -83,7 +83,6 @@ void _enum_to_str_backend_impl::write_impl(
    ABC_TRACE_FN((this, i, pem, ptwOut));
 
    enum_member const * petvp(enum_member::find_in_map(pem, i));
-   // TODO: apply format options.
    ptwOut->write(istr(unsafe, petvp->pszName));
 }
 

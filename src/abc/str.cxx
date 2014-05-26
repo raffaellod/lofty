@@ -32,7 +32,7 @@ _str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
 
    auto it(sFormat.cbegin());
 
-   // TODO: parse the format string.
+   // Add parsing of the format string here.
 
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
@@ -48,7 +48,6 @@ void _str_to_str_backend::write(
 ) {
    ABC_TRACE_FN((this, p, cb, enc, ptwOut));
 
-   // TODO: apply format options.
    ptwOut->write_binary(p, cb, enc);
 }
 
