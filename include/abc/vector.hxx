@@ -46,6 +46,7 @@ public:
    ~_raw_vector() {
       type_void_adapter type;
       type.set_destr_fn<T>();
+      type.set_size<T>();
       destruct_items(type);
    }
 
@@ -91,6 +92,7 @@ public:
    void assign_move(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
+      type.set_size<T>();
       _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
@@ -636,7 +638,7 @@ public:
       Count of elements.
    */
    size_t size() const {
-      return _raw_vector<T, smc_bCopyConstructible>::size();
+      return _raw_vector<T, smc_bCopyConstructible>::size(sizeof(T));
    }
 
 
@@ -677,6 +679,40 @@ protected:
    }
    vector_base(T const * pt, size_t ci) :
       _raw_vector<T, smc_bCopyConstructible>(pt, ci) {
+   }
+
+
+   /** See _raw_vector<T>::adjust_and_validate_index().
+
+   i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the item array by adding this->size() to it.
+   return
+      Adjusted index.
+   */
+   uintptr_t adjust_and_validate_index(intptr_t i) const {
+      return _raw_vector<T, smc_bCopyConstructible>::adjust_and_validate_index(sizeof(T), i);
+   }
+
+
+   /** See _raw_vector<T>::adjust_and_validate_range().
+
+   iBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      this->size() to it.
+   iEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [0, 0) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
+      return _raw_vector<T, smc_bCopyConstructible>::adjust_and_validate_range(
+         sizeof(T), iBegin, iEnd
+      );
    }
 
 

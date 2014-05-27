@@ -574,7 +574,7 @@ protected:
       */
       ~transaction() {
          if (m_bFree) {
-            memory::_raw_free(m_p);
+            memory::_raw_free(m_pBegin);
          }
       }
 
@@ -594,7 +594,7 @@ protected:
       */
       template <typename T>
       T * work_array() const {
-         return static_cast<T *>(m_p);
+         return static_cast<T *>(m_pBegin);
       }
 
 
@@ -606,7 +606,7 @@ protected:
          true if the pointer to the item array will be changed upon destruction, or false otherwise.
       */
       bool will_replace_item_array() const {
-         return m_p != m_prvib->m_p;
+         return m_pBegin != m_prvib->m_pBegin;
       }
 
 
@@ -617,14 +617,14 @@ protected:
       /** Subject of the transaction. */
       _raw_vextr_impl_base * m_prvib;
       /** Pointer to the item array to which clients must write. This may or may not be the same as
-      m_prvib->m_p, depending on whether we needed a new item array. This pointer will replace
-      m_prvib->m_p upon commit(). */
-      void * m_p;
-      /** Number of currently used items in m_p. */
-      size_t m_ci;
-      /** true if m_p has been dynamically allocated for the transaction and needs to be freed in
-      the destructor, either because the transaction didn’t get committed, or because it did and the
-      item array is now owned by m_prvib. */
+      m_prvib->m_pBegin, depending on whether we needed a new item array. This pointer will replace
+      m_prvib->m_pBegin upon commit(). */
+      void * m_pBegin;
+      /** Similar to m_pBegin, but for m_prvib->m_pEnd. */
+      void * m_pEnd;
+      /** true if m_pBegin has been dynamically allocated for the transaction and needs to be freed
+      in the destructor, either because the transaction didn’t get committed, or because it did and
+      the item array is now owned by m_prvib. */
       bool m_bFree;
    };
 
@@ -638,7 +638,7 @@ public:
    */
    ~_raw_vextr_impl_base() {
       if (m_rvpd.get_bDynamic()) {
-         memory::_raw_free(m_p);
+         memory::_raw_free(m_pBegin);
       }
    }
 
@@ -650,11 +650,11 @@ public:
    */
    template <typename T>
    T * begin() {
-      return static_cast<T *>(m_p);
+      return static_cast<T *>(m_pBegin);
    }
    template <typename T>
    T const * begin() const {
-      return static_cast<T const *>(m_p);
+      return static_cast<T const *>(m_pBegin);
    }
 
 
@@ -675,42 +675,47 @@ public:
    */
    template <typename T>
    T * end() {
-      return static_cast<T *>(m_p) + m_ci;
+      return static_cast<T *>(m_pEnd);
    }
    template <typename T>
    T const * end() const {
-      return static_cast<T const *>(m_p) + m_ci;
+      return static_cast<T const *>(m_pEnd);
    }
 
 
    /** See buffered_vector::size() and str_base::size().
 
+   cbItem
+      Size of a single array item, in bytes.
    return
       Count of items in the item array.
    */
-   size_t size() const {
-      return m_ci;
+   size_t size(size_t cbItem) const {
+      return size_t(end<int8_t>() - begin<int8_t>()) / cbItem;
    }
 
 
 protected:
 
-   /** Constructor. The overload with ciStaticMax constructs the object as empty, setting m_p to
-   nullptr; the overload with pConstSrc constructs the object assigning an item array.
+   /** Constructor. The overload with ciStaticMax constructs the object as empty, setting
+   m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
+   item array.
 
    ciStaticMax
       Count of slots in the static item array, or 0 if no static item array is present.
-   pConstSrc
-      Pointer to an array that will be adopted by the vextr as read-only.
-   ciSrc
-      Count of items in the array pointed to by pConstSrc.
+   pConstSrcBegin
+      Pointer to the start of an array that will be adopted by the vextr as read-only.
+   pConstSrcEnd
+      Pointer to the end of the array.
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
    _raw_vextr_impl_base(size_t ciStaticMax);
-   _raw_vextr_impl_base(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
-      m_p(const_cast<void *>(pConstSrc)),
-      m_ci(ciSrc),
+   _raw_vextr_impl_base(
+      void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
+   ) :
+      m_pBegin(const_cast<void *>(pConstSrcBegin)),
+      m_pEnd(const_cast<void *>(pConstSrcEnd)),
       // ciMax = 0 means that the item array is read-only.
       m_rvpd(0, bNulT, false, false) {
    }
@@ -719,18 +724,22 @@ protected:
    /** Converts a possibly negative item index into a 0-based one, and throws an exception if the
    result is out of bounds for the item array.
 
+   cbItem
+      Size of a single array item, in bytes.
    i
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
       1-based index from the end of the item array by adding this->size() to it.
    return
       Adjusted index.
    */
-   uintptr_t adjust_and_validate_index(intptr_t i) const;
+   uintptr_t adjust_and_validate_index(size_t cbItem, intptr_t i) const;
 
 
    /** Converts a left-closed, right-open interval with possibly negative indices into one
    consisting of two 0-based indices.
 
+   cbItem
+      Size of a single array item, in bytes.
    iBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
       if negative, it’s interpreted as a 1-based index from the end of the item array by adding
@@ -743,14 +752,15 @@ protected:
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [0, 0) if the indices represent an empty interval after being adjusted.
    */
-   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const;
+   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(
+      size_t cbItem, intptr_t iBegin, intptr_t iEnd
+   ) const;
 
 
    /** Resets the contents of the object to nullptr.
    */
    void assign_empty() {
-      m_p = nullptr;
-      m_ci = 0;
+      m_pBegin = m_pEnd = nullptr;
       m_rvpd.set(0, false, false);
    }
 
@@ -787,11 +797,11 @@ protected:
 
 protected:
 
-   /** Pointer to the item array. */
-   void * m_p;
-   /** Number of currently used items in m_p. */
-   size_t m_ci;
-   /** Size of the item array pointed to by m_p, and other bits. */
+   /** Pointer to the start of the item array. */
+   void * m_pBegin;
+   /** Pointer to the end of the item array. */
+   void * m_pEnd;
+   /** Size of the item array pointed to by m_pBegin, and other bits. */
    _raw_vextr_packed_data m_rvpd;
 
    /** NUL terminator of the largest character type. */
@@ -884,13 +894,13 @@ public:
    */
    void append(type_void_adapter const & type, void const * p, size_t ci, bool bMove) {
       if (ci) {
-         _insert(type, size(), p, ci, bMove);
+         _insert(type, size(type.cb), p, ci, bMove);
       }
    }
 
 
    /** Copies or moves the contents of the two sources to *this, according to the source type. If
-   bMove{1,2} == true, the source items will be moved by having their const-ness cast away - be
+   bMove{1,2} == true, the source items will be moved by having their const-ness cast away ‒ be
    careful.
 
    type
@@ -958,10 +968,10 @@ public:
       Count of items to destruct.
    */
    void destruct_items(type_void_adapter const & type) {
-      type.destruct(m_p, m_ci);
+      type.destruct(m_pBegin, size(type.cb));
    }
    void destruct_items(type_void_adapter const & type, size_t ci) {
-      type.destruct(m_p, ci);
+      type.destruct(m_pBegin, ci);
    }
 
 
@@ -983,7 +993,7 @@ public:
       type_void_adapter const & type, intptr_t iOffset, void const * p, size_t ci, bool bMove
    ) {
       if (ci) {
-         _insert(type, adjust_and_validate_index(iOffset), p, ci, bMove);
+         _insert(type, adjust_and_validate_index(type.cb, iOffset), p, ci, bMove);
       }
    }
 
@@ -996,7 +1006,7 @@ public:
       Index of the element. See abc::_vextr::adjust_and_validate_range() for allowed index values.
    */
    void remove_at(type_void_adapter const & type, intptr_t i) {
-      _remove(type, adjust_and_validate_index(i), 1);
+      _remove(type, adjust_and_validate_index(type.cb, i), 1);
    }
 
 
@@ -1049,8 +1059,8 @@ protected:
    _raw_complex_vextr_impl(size_t ciStaticMax) :
       _raw_vextr_impl_base(ciStaticMax) {
    }
-   _raw_complex_vextr_impl(void const * pConstSrc, size_t ciSrc) :
-      _raw_vextr_impl_base(pConstSrc, ciSrc) {
+   _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
+      _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
    }
 
 
@@ -1113,13 +1123,13 @@ public:
    */
    void append(size_t cbItem, void const * p, size_t ci) {
       if (ci) {
-         _insert_or_remove(cbItem, size(), p, ci, 0);
+         _insert_or_remove(cbItem, size(cbItem), p, ci, 0);
       }
    }
 
 
    /** Copies the contents of the two sources to *this. This method must never be called with p1 or
-   p2 == m_p.
+   p2 == m_pBegin.
 
    cbItem
       Size of a single array item, in bytes.
@@ -1145,7 +1155,7 @@ public:
       Count of items in the source array.
    */
    void assign_copy(size_t cbItem, void const * p, size_t ci) {
-      if (p == m_p) {
+      if (p == m_pBegin) {
          return;
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
@@ -1162,7 +1172,7 @@ public:
       Source vextr.
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi) {
-      if (rtvi.m_p == m_p) {
+      if (rtvi.m_pBegin == m_pBegin) {
          return;
       }
       // Share the item array.
@@ -1191,14 +1201,14 @@ public:
       Source vextr.
    */
    void assign_share_ro_or_copy(size_t cbItem, _raw_trivial_vextr_impl const & rtvi) {
-      if (rtvi.m_p == m_p) {
+      if (rtvi.m_pBegin == m_pBegin) {
          return;
       }
       if (rtvi.is_item_array_readonly()) {
          _assign_share(rtvi);
       } else {
          // Non-read-only, cannot share.
-         assign_copy(cbItem, rtvi.m_p, rtvi.size());
+         assign_copy(cbItem, rtvi.m_pBegin, rtvi.size(cbItem));
       }
    }
 
@@ -1217,7 +1227,7 @@ public:
    */
    void insert(size_t cbItem, intptr_t iOffset, void const * p, size_t ci) {
       if (ci) {
-         _insert_or_remove(cbItem, adjust_and_validate_index(iOffset), p, ci, 0);
+         _insert_or_remove(cbItem, adjust_and_validate_index(cbItem, iOffset), p, ci, 0);
       }
    }
 
@@ -1230,7 +1240,7 @@ public:
       Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
    */
    void remove_at(size_t cbItem, intptr_t i) {
-      _insert_or_remove(cbItem, adjust_and_validate_index(i), nullptr, 0, 1);
+      _insert_or_remove(cbItem, adjust_and_validate_index(cbItem, i), nullptr, 0, 1);
    }
 
 
@@ -1281,8 +1291,10 @@ protected:
    _raw_trivial_vextr_impl(size_t ciStaticMax) :
       _raw_vextr_impl_base(ciStaticMax) {
    }
-   _raw_trivial_vextr_impl(void const * pConstSrc, size_t ciSrc, bool bNulT = false) :
-      _raw_vextr_impl_base(pConstSrc, ciSrc, bNulT) {
+   _raw_trivial_vextr_impl(
+      void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
+   ) :
+      _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
    }
 
 

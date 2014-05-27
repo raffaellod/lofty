@@ -360,7 +360,7 @@ public:
       Count of characters.
    */
    size_t size() const {
-      return _raw_trivial_vextr_impl::size();
+      return _raw_trivial_vextr_impl::size(sizeof(char_t));
    }
 
 
@@ -424,7 +424,39 @@ protected:
       _raw_trivial_vextr_impl(cchStaticMax) {
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
-      _raw_trivial_vextr_impl(pchConstSrc, cchSrc, bNulT) {
+      _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
+   }
+
+
+   /** See _raw_trivial_vextr_impl::adjust_and_validate_index().
+
+   i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the item array by adding this->size() to it.
+   return
+      Adjusted index.
+   */
+   uintptr_t adjust_and_validate_index(intptr_t i) const {
+      return _raw_trivial_vextr_impl::adjust_and_validate_index(sizeof(char_t), i);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::adjust_and_validate_range().
+
+   iBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      this->size() to it.
+   iEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [0, 0) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
+      return _raw_trivial_vextr_impl::adjust_and_validate_range(sizeof(char_t), iBegin, iEnd);
    }
 
 
