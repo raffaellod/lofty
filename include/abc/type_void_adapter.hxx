@@ -83,14 +83,14 @@ public:
 
    /** Prototype of a function that moves items from one array to another.
 
-   pDst
-      Pointer to the destination array. The items are supposed to be uninitialized.
-   pSrc
-      Pointer to the source array.
-   ci
-      Count of items to move.
+   pDstBegin
+      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+   pSrcBegin
+      Pointer to the first item to move.
+   pSrcEnd
+      Pointer to beyond the last item to move.
    */
-   typedef void (* move_fn)(void * pDst, void * pSrc, size_t ci);
+   typedef void (* move_fn)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
 
 
 public:
@@ -233,16 +233,16 @@ private:
    /** Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   ptDst
-      Pointer to the destination array. The items are supposed to be uninitialized.
-   ptSrc
-      Pointer to the source array.
-   ci
-      Count of items to move.
+   ptDstBegin
+      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+   ptSrcBegin
+      Pointer to the first item to copy.
+   ptSrcEnd
+      Pointer to beyond the last item to copy.
    */
    template <typename T>
-   static void _typed_move_constr(T * ptDst, T * ptSrc, size_t ci) {
-      for (T * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+   static void _typed_move_constr(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
+      for (T * ptSrc(ptSrcBegin), * ptDst(ptDstBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
          ::new(ptDst) T(std::move(*ptSrc));
       }
    }

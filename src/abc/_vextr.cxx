@@ -205,14 +205,13 @@ void _raw_complex_vextr_impl::assign_copy(
 
    transaction trn(type.cb, this, ptrdiff_t(ci));
    size_t cbOrig(size(1));
-   size_t ciOrig(size(type.cb));
    // We’re going to overwrite the old item array, so move the items to a backup array, so we can
    // restore them in case of exceptions thrown while copy-constructing the new objects.
    std::unique_ptr<int8_t[]> pbBackup;
    if (ci) {
       if (cbOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
-         type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
+         type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
       }
       try {
@@ -220,7 +219,7 @@ void _raw_complex_vextr_impl::assign_copy(
       } catch (...) {
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
-            type.move_constr(m_pBegin, pbBackup.get(), ciOrig);
+            type.move_constr(m_pBegin, pbBackup.get(), pbBackup.get() + cbOrig);
             type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
          }
          throw;
@@ -255,13 +254,17 @@ void _raw_complex_vextr_impl::assign_concat(
       // restore them in case of exceptions thrown while constructing the new objects.
       if (ciOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
-         type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
+         type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
       }
       try {
          if (ci1) {
             if (bMove1) {
-               type.move_constr(pbWorkCopy, const_cast<void *>(p1), ci1);
+               type.move_constr(
+                  pbWorkCopy,
+                  const_cast<void *>(p1),
+                  static_cast<int8_t *>(const_cast<void *>(p1)) + type.cb * ci1
+               );
             } else {
                type.copy_constr(pbWorkCopy, p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
             }
@@ -269,7 +272,11 @@ void _raw_complex_vextr_impl::assign_concat(
          }
          if (ci2) {
             if (bMove2) {
-               type.move_constr(pbWorkCopy, const_cast<void *>(p2), ci2);
+               type.move_constr(
+                  pbWorkCopy,
+                  const_cast<void *>(p2),
+                  static_cast<int8_t *>(const_cast<void *>(p2)) + type.cb * ci2
+               );
             } else {
                type.copy_constr(pbWorkCopy, p2, static_cast<int8_t const *>(p2) + type.cb * ci2);
             }
@@ -282,13 +289,15 @@ void _raw_complex_vextr_impl::assign_concat(
                // If we moved them from p1, don’t forget to move them back. Of course this means
                // that we first have to destruct p1’s items and re-construct them.
                type.destruct(p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
-               type.move_constr(const_cast<void *>(p1), pbWorkCopyBegin, ci1);
+               type.move_constr(
+                  const_cast<void *>(p1), pbWorkCopyBegin, pbWorkCopyBegin + type.cb * ci1
+               );
             }
             type.destruct(pbWorkCopyBegin, pbWorkCopyBegin + type.cb * ci1);
          }
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
-            type.move_constr(m_pBegin, pbBackup.get(), ciOrig);
+            type.move_constr(m_pBegin, pbBackup.get(), pbBackup.get() + cbOrig);
             type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
          }
          throw;
@@ -348,7 +357,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
          }
          // Now that the current items have been destructed, move-construct the new items.
          if (ciSrc) {
-            type.move_constr(trn.work_array<void>(), rcvi.m_pBegin, ciSrc);
+            type.move_constr(trn.work_array<void>(), rcvi.m_pBegin, rcvi.m_pEnd);
          }
          trn.commit();
       }
@@ -386,26 +395,26 @@ static void overlapping_move_constr(
 
       int8_t * pbOverlapBegin(pbSrc);
       int8_t * pbOverlapEnd(pbDstEnd);
-      size_t ciBeforeOverlap(size_t(pbOverlapBegin - pbDst) / type.cb);
-      size_t ciOverlapping(size_t(pbOverlapEnd - pbOverlapBegin) / type.cb);
-      size_t ciAfterOverlap(size_t(pbSrcEnd - pbOverlapEnd) / type.cb);
+      size_t cbBeforeOverlap(size_t(pbOverlapBegin - pbDst));
+      size_t cbOverlapping(size_t(pbOverlapEnd - pbOverlapBegin));
+      size_t cbAfterOverlap(size_t(pbSrcEnd - pbOverlapEnd));
 
-      if (ciBeforeOverlap) {
+      if (cbBeforeOverlap) {
          // First, move-construct the items that don’t overlap.
-         type.move_constr(pbDst, pbSrc, ciBeforeOverlap);
+         type.move_constr(pbDst, pbSrc, pbSrc + cbBeforeOverlap);
       }
       // ┌─────────────────┐
       // │ a B C b c D e f │ (lowercase b and c indicate the moved-out items)
       // └─────────────────┘
-      if (ciOverlapping) {
+      if (cbOverlapping) {
          // Second, move-assign all the items in the overlapping area to shift them.
          type.destruct(pbOverlapBegin, pbOverlapEnd);
-         type.move_constr(pbOverlapBegin, pbOverlapEnd, ciOverlapping);
+         type.move_constr(pbOverlapBegin, pbOverlapEnd, pbOverlapEnd + cbOverlapping);
       }
       // ┌─────────────────┐
       // │ a B C D c d e f │
       // └─────────────────┘
-      if (ciAfterOverlap) {
+      if (cbAfterOverlap) {
          // Third, destruct the items that have no replacement and have just been moved out.
          type.destruct(pbOverlapEnd, pbSrcEnd);
       }
@@ -421,37 +430,38 @@ static void overlapping_move_constr(
 
       int8_t * pbOverlapBegin(pbDst);
       int8_t * pbOverlapEnd(pbSrcEnd);
-      size_t ciBeforeOverlap(size_t(pbOverlapBegin - pbSrc) / type.cb);
-      size_t ciOverlapping(size_t(pbOverlapEnd - pbOverlapBegin) / type.cb);
-      size_t ciAfterOverlap(size_t(pbDstEnd - pbOverlapEnd) / type.cb);
+      size_t cbBeforeOverlap(size_t(pbOverlapBegin - pbSrc));
+      size_t cbOverlapping(size_t(pbOverlapEnd - pbOverlapBegin));
+      size_t cbAfterOverlap(size_t(pbDstEnd - pbOverlapEnd));
 
-      if (ciAfterOverlap) {
+      if (cbAfterOverlap) {
          // First, move-construct the items on the right of the overlapping area.
-         type.move_constr(pbOverlapEnd, pbSrcEnd - (pbDstEnd - pbOverlapEnd), ciAfterOverlap);
+         type.move_constr(pbOverlapEnd, pbDstEnd, pbSrcEnd);
       }
       // ┌─────────────────┐
       // │ a B c d C D e f │ (lowercase c and d indicate the moved-out items)
       // └─────────────────┘
-      if (ciOverlapping) {
+      if (cbOverlapping) {
          // Second, move-assign backwards all the items in the overlapping area to shift them.
          int8_t * pbSrcItem(pbSrcEnd - (pbDstEnd - pbOverlapEnd));
          int8_t * pbDstItem(pbOverlapEnd);
          while (pbSrcItem > pbSrc) {
+            int8_t * pbSrcItemEnd(pbSrcItem), * pbDstItemEnd(pbDstItem);
             pbSrcItem -= type.cb;
             pbDstItem -= type.cb;
-            type.destruct(pbDstItem, pbDstItem + type.cb);
-            type.move_constr(pbDstItem, pbSrcItem, 1);
+            type.destruct(pbDstItem, pbDstItemEnd);
+            type.move_constr(pbDstItem, pbSrcItem, pbSrcItemEnd);
          }
       }
       // ┌─────────────────┐
       // │ a b c B C D e f │
       // └─────────────────┘
-      if (ciBeforeOverlap) {
+      if (cbBeforeOverlap) {
          // Third, destruct the items that have no replacement and have just been moved out.
          type.destruct(pbSrc, pbOverlapBegin);
       }
    } else {
-      type.move_constr(pbDst, pbSrc, ci);
+      type.move_constr(pbDst, pbSrc, pbSrc + type.cb * ci);
    }
 }
 
@@ -473,7 +483,11 @@ void _raw_complex_vextr_impl::_insert(
    // Copy/move the new items over.
    if (bMove) {
       // No point in using try/catch here; we just assume that a move constructor won’t throw.
-      type.move_constr(pbOffset, const_cast<void *>(p), ci);
+      type.move_constr(
+         pbOffset,
+         const_cast<void *>(p),
+         static_cast<int8_t *>(const_cast<void *>(p)) + type.cb * ci
+      );
    } else {
       try {
          type.copy_constr(pbOffset, p, static_cast<int8_t const *>(p) + type.cb * ci);
@@ -490,7 +504,7 @@ void _raw_complex_vextr_impl::_insert(
    // Also move to the new array the items before the insertion point, otherwise we’ll lose them in
    // the switch.
    if (iOffset && trn.will_replace_item_array()) {
-      type.move_constr(trn.work_array<void>(), m_pBegin, iOffset);
+      type.move_constr(trn.work_array<void>(), m_pBegin, begin<int8_t>() + ibOffset);
       type.destruct(m_pBegin, begin<int8_t>() + ibOffset);
    }
    trn.commit();
@@ -512,7 +526,7 @@ void _raw_complex_vextr_impl::_remove(
       int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
              * pbOrigTail(begin<int8_t>() + cbOffset + type.cb * ciRemove);
       if (trn.will_replace_item_array()) {
-         type.move_constr(pbWorkTail, pbOrigTail, ciTail);
+         type.move_constr(pbWorkTail, pbOrigTail, pbOrigTail + type.cb * ciTail);
          type.destruct(pbOrigTail, pbOrigTail + type.cb * ciTail);
       } else {
          overlapping_move_constr(type, pbWorkTail, pbOrigTail, ciTail);
@@ -521,7 +535,7 @@ void _raw_complex_vextr_impl::_remove(
    // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
    // in the switch.
    if (iOffset && trn.will_replace_item_array()) {
-      type.move_constr(trn.work_array<void>(), m_pBegin, iOffset);
+      type.move_constr(trn.work_array<void>(), m_pBegin, begin<int8_t>() + cbOffset);
       type.destruct(m_pBegin, begin<int8_t>() + cbOffset);
    }
    trn.commit();
@@ -552,7 +566,7 @@ void _raw_complex_vextr_impl::set_capacity(
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
       if (bPreserve) {
-         type.move_constr(trn.work_array<void>(), m_pBegin, ciOrig);
+         type.move_constr(trn.work_array<void>(), m_pBegin, m_pEnd);
       }
       destruct_items(type);
       if (!bPreserve) {
