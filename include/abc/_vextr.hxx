@@ -960,18 +960,13 @@ public:
    );
 
 
-   /** Destructs a range of items, or the whole item array. It does not deallocate the item array.
+   /** Destructs the item array. It does not deallocate the item array.
 
    type
       Adapter for the items’ type.
-   ci
-      Count of items to destruct.
    */
    void destruct_items(type_void_adapter const & type) {
-      type.destruct(m_pBegin, size(type.cb));
-   }
-   void destruct_items(type_void_adapter const & type, size_t ci) {
-      type.destruct(m_pBegin, ci);
+      type.destruct(m_pBegin, m_pEnd);
    }
 
 

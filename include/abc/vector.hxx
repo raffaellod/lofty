@@ -46,7 +46,6 @@ public:
    ~_raw_vector() {
       type_void_adapter type;
       type.set_destr_fn<T>();
-      type.set_size<T>();
       destruct_items(type);
    }
 
@@ -92,7 +91,6 @@ public:
    void assign_move(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 

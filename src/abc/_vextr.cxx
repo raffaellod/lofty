@@ -204,15 +204,16 @@ void _raw_complex_vextr_impl::assign_copy(
    ABC_TRACE_FN((this, /*type, */p, ci));
 
    transaction trn(type.cb, this, ptrdiff_t(ci));
+   size_t cbOrig(size(1));
    size_t ciOrig(size(type.cb));
    // We’re going to overwrite the old item array, so move the items to a backup array, so we can
    // restore them in case of exceptions thrown while copy-constructing the new objects.
    std::unique_ptr<int8_t[]> pbBackup;
    if (ci) {
-      if (ciOrig && !trn.will_replace_item_array()) {
-         pbBackup.reset(new int8_t[type.cb * ciOrig]);
+      if (cbOrig && !trn.will_replace_item_array()) {
+         pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
-         type.destruct(m_pBegin, ciOrig);
+         type.destruct(m_pBegin, m_pEnd);
       }
       try {
          type.copy_constr(trn.work_array<void>(), p, ci);
@@ -220,15 +221,19 @@ void _raw_complex_vextr_impl::assign_copy(
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
             type.move_constr(m_pBegin, pbBackup.get(), ciOrig);
-            type.destruct(pbBackup.get(), ciOrig);
+            type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
          }
          throw;
       }
    }
-   if (ciOrig) {
+   if (cbOrig) {
       // If we made a backup, it also means that now this is the only copy of the original items,
       // so we must use it to destruct them, instead of m_p.
-      type.destruct(pbBackup ? pbBackup.get() : m_pBegin, ciOrig);
+      if (pbBackup) {
+         type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
+      } else {
+         type.destruct(m_pBegin, m_pEnd);
+      }
    }
    trn.commit();
 }
@@ -241,6 +246,7 @@ void _raw_complex_vextr_impl::assign_concat(
    ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
 
    transaction trn(type.cb, this, ptrdiff_t(ci1 + ci2));
+   size_t cbOrig(size(1));
    size_t ciOrig(size(type.cb));
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -248,9 +254,9 @@ void _raw_complex_vextr_impl::assign_concat(
       // If we’re going to overwrite the old item array, move the items to a backup array, so we can
       // restore them in case of exceptions thrown while constructing the new objects.
       if (ciOrig && !trn.will_replace_item_array()) {
-         pbBackup.reset(new int8_t[type.cb * ciOrig]);
+         pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
-         type.destruct(m_pBegin, ciOrig);
+         type.destruct(m_pBegin, m_pEnd);
       }
       try {
          if (ci1) {
@@ -275,15 +281,15 @@ void _raw_complex_vextr_impl::assign_concat(
             if (bMove1) {
                // If we moved them from p1, don’t forget to move them back. Of course this means
                // that we first have to destruct p1’s items and re-construct them.
-               type.destruct(const_cast<void *>(p1), ci1);
+               type.destruct(p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
                type.move_constr(const_cast<void *>(p1), pbWorkCopyBegin, ci1);
             }
-            type.destruct(pbWorkCopyBegin, ci1);
+            type.destruct(pbWorkCopyBegin, pbWorkCopyBegin + type.cb * ci1);
          }
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
             type.move_constr(m_pBegin, pbBackup.get(), ciOrig);
-            type.destruct(pbBackup.get(), ciOrig);
+            type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
          }
          throw;
       }
@@ -291,7 +297,11 @@ void _raw_complex_vextr_impl::assign_concat(
    if (ciOrig) {
       // If we made a backup, it also means that now this is the only copy of the original items, so
       // we must use it to destruct them, instead of m_p.
-      type.destruct(pbBackup ? pbBackup.get() : m_pBegin, ciOrig);
+      if (pbBackup) {
+         type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
+      } else {
+         type.destruct(m_pBegin, m_pEnd);
+      }
    }
    trn.commit();
 }
@@ -334,7 +344,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (ciOrig) {
-            type.destruct(m_pBegin, ciOrig);
+            type.destruct(m_pBegin, m_pEnd);
          }
          // Now that the current items have been destructed, move-construct the new items.
          if (ciSrc) {
@@ -389,7 +399,7 @@ static void overlapping_move_constr(
       // └─────────────────┘
       if (ciOverlapping) {
          // Second, move-assign all the items in the overlapping area to shift them.
-         type.destruct(pbOverlapBegin, ciOverlapping);
+         type.destruct(pbOverlapBegin, pbOverlapEnd);
          type.move_constr(pbOverlapBegin, pbOverlapEnd, ciOverlapping);
       }
       // ┌─────────────────┐
@@ -397,7 +407,7 @@ static void overlapping_move_constr(
       // └─────────────────┘
       if (ciAfterOverlap) {
          // Third, destruct the items that have no replacement and have just been moved out.
-         type.destruct(pbOverlapEnd, ciAfterOverlap);
+         type.destruct(pbOverlapEnd, pbSrcEnd);
       }
    } else if (pbSrc < pbDst && pbDst < pbSrcEnd) {
       // ┌─────────────────┐
@@ -429,7 +439,7 @@ static void overlapping_move_constr(
          while (pbSrcItem > pbSrc) {
             pbSrcItem -= type.cb;
             pbDstItem -= type.cb;
-            type.destruct(pbDstItem, 1);
+            type.destruct(pbDstItem, pbDstItem + type.cb);
             type.move_constr(pbDstItem, pbSrcItem, 1);
          }
       }
@@ -438,7 +448,7 @@ static void overlapping_move_constr(
       // └─────────────────┘
       if (ciBeforeOverlap) {
          // Third, destruct the items that have no replacement and have just been moved out.
-         type.destruct(pbSrc, ciBeforeOverlap);
+         type.destruct(pbSrc, pbOverlapBegin);
       }
    } else {
       type.move_constr(pbDst, pbSrc, ci);
@@ -481,7 +491,7 @@ void _raw_complex_vextr_impl::_insert(
    // the switch.
    if (iOffset && trn.will_replace_item_array()) {
       type.move_constr(trn.work_array<void>(), m_pBegin, iOffset);
-      type.destruct(m_pBegin, iOffset);
+      type.destruct(m_pBegin, begin<int8_t>() + ibOffset);
    }
    trn.commit();
 }
@@ -495,7 +505,7 @@ void _raw_complex_vextr_impl::_remove(
    transaction trn(type.cb, this, -1, -ptrdiff_t(ciRemove));
    size_t cbOffset(type.cb * iOffset);
    // Destruct the items to be removed.
-   type.destruct(begin<int8_t>() + cbOffset, ciRemove);
+   type.destruct(begin<int8_t>() + cbOffset, begin<int8_t>() + cbOffset + type.cb * ciRemove);
    // The items beyond the last removed must be either copied to the new item array at ciRemove
    // offset, or shifted closer to the start.
    if (size_t ciTail = size(type.cb) - (iOffset + ciRemove)) {
@@ -503,7 +513,7 @@ void _raw_complex_vextr_impl::_remove(
              * pbOrigTail(begin<int8_t>() + cbOffset + type.cb * ciRemove);
       if (trn.will_replace_item_array()) {
          type.move_constr(pbWorkTail, pbOrigTail, ciTail);
-         type.destruct(pbOrigTail, ciTail);
+         type.destruct(pbOrigTail, pbOrigTail + type.cb * ciTail);
       } else {
          overlapping_move_constr(type, pbWorkTail, pbOrigTail, ciTail);
       }
@@ -512,7 +522,7 @@ void _raw_complex_vextr_impl::_remove(
    // in the switch.
    if (iOffset && trn.will_replace_item_array()) {
       type.move_constr(trn.work_array<void>(), m_pBegin, iOffset);
-      type.destruct(m_pBegin, iOffset);
+      type.destruct(m_pBegin, begin<int8_t>() + cbOffset);
    }
    trn.commit();
 }
@@ -544,7 +554,7 @@ void _raw_complex_vextr_impl::set_capacity(
       if (bPreserve) {
          type.move_constr(trn.work_array<void>(), m_pBegin, ciOrig);
       }
-      type.destruct(m_pBegin, ciOrig);
+      type.destruct(m_pBegin, m_pEnd);
       if (!bPreserve) {
          // We just destructed the items.
          ciOrig = 0;

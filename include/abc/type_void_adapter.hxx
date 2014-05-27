@@ -59,14 +59,14 @@ public:
    typedef void (* copy_fn)(void * pDst, void const * pSrc, size_t ci);
 
 
-   /** Prototype of a function that destructs items in an array.
+   /** Prototype of a function that destructs a range of items in an array.
 
-   p
-      Pointer to the array.
-   ci
-      Count of items to destruct.
+   pBegin
+      Pointer to the first item to destruct.
+   pEnd
+      Pointer to beyond the last item to destruct.
    */
-   typedef void (* destr_fn)(void * p, size_t ci);
+   typedef void (* destr_fn)(void const * pBegin, void const * pEnd);
 
 
    /** Prototype of a function that compares two values for equality.
@@ -197,16 +197,16 @@ private:
 
    /** Destructs a range of items in an array.
 
-   pt
-      Pointer to the array.
-   ci
-      Count of items to destruct.
+   ptBegin
+      Pointer to the first item to destruct.
+   ptEnd
+      Pointer to beyond the last item to destruct.
    */
    template <typename T>
-   static void _typed_destruct(T * pt, size_t ci) {
+   static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
       if (!std::has_trivial_destructor<T>::value) {
          // The destructor is not a no-op.
-         for (T * ptEnd(pt + ci); pt < ptEnd; ++pt) {
+         for (T const * pt(ptBegin); pt < ptEnd; ++pt) {
             pt->~T();
          }
       }
