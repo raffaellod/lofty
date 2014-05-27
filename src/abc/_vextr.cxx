@@ -213,7 +213,7 @@ void _raw_complex_vextr_impl::assign_copy(
       if (cbOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
-         type.destruct(m_pBegin, m_pEnd);
+         destruct_items(type);
       }
       try {
          type.copy_constr(trn.work_array<void>(), p, ci);
@@ -228,11 +228,11 @@ void _raw_complex_vextr_impl::assign_copy(
    }
    if (cbOrig) {
       // If we made a backup, it also means that now this is the only copy of the original items,
-      // so we must use it to destruct them, instead of m_p.
+      // so we must use it to destruct them, instead of m_pBegin/End.
       if (pbBackup) {
          type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
       } else {
-         type.destruct(m_pBegin, m_pEnd);
+         destruct_items(type);
       }
    }
    trn.commit();
@@ -256,7 +256,7 @@ void _raw_complex_vextr_impl::assign_concat(
       if (ciOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, ciOrig);
-         type.destruct(m_pBegin, m_pEnd);
+         destruct_items(type);
       }
       try {
          if (ci1) {
@@ -296,11 +296,11 @@ void _raw_complex_vextr_impl::assign_concat(
    }
    if (ciOrig) {
       // If we made a backup, it also means that now this is the only copy of the original items, so
-      // we must use it to destruct them, instead of m_p.
+      // we must use it to destruct them, instead of m_pBegin/End.
       if (pbBackup) {
          type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
       } else {
-         type.destruct(m_pBegin, m_pEnd);
+         destruct_items(type);
       }
    }
    trn.commit();
@@ -344,7 +344,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (ciOrig) {
-            type.destruct(m_pBegin, m_pEnd);
+            destruct_items(type);
          }
          // Now that the current items have been destructed, move-construct the new items.
          if (ciSrc) {
@@ -554,7 +554,7 @@ void _raw_complex_vextr_impl::set_capacity(
       if (bPreserve) {
          type.move_constr(trn.work_array<void>(), m_pBegin, ciOrig);
       }
-      type.destruct(m_pBegin, m_pEnd);
+      destruct_items(type);
       if (!bPreserve) {
          // We just destructed the items.
          ciOrig = 0;
