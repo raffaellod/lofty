@@ -49,14 +49,14 @@ public:
 
    /** Prototype of a function that copies items from one array to another.
 
-   pDst
-      Pointer to the destination array. The items are supposed to be uninitialized.
-   pSrc
-      Pointer to the source array.
-   ci
-      Count of items to copy.
+   pDstBegin
+      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+   pSrcBegin
+      Pointer to the first item to copy.
+   pSrcEnd
+      Pointer to beyond the last item to copy.
    */
-   typedef void (* copy_fn)(void * pDst, void const * pSrc, size_t ci);
+   typedef void (* copy_fn)(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd);
 
 
    /** Prototype of a function that destructs a range of items in an array.
@@ -154,42 +154,44 @@ private:
    /** Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   ptDst
-      Pointer to the destination array. The items are supposed to be uninitialized.
-   ptSrc
-      Pointer to the source array.
-   ci
-      Count of items to copy.
+   ptDstBegin
+      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+   ptSrcBegin
+      Pointer to the first item to copy.
+   ptSrcEnd
+      Pointer to beyond the last item to copy.
    */
    template <typename T>
-   static void _typed_copy_constr(T * ptDst, T const * ptSrc, size_t ci) {
+   static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
-         memory::copy(ptDst, ptSrc, ci);
-      } else if (
-#if ABC_HOST_GCC >= 40700
-         std::is_nothrow_copy_constructible<T>::value
-#else
-         std::has_nothrow_copy_constructor<T>::value
-#endif
-      ) {
-         // Not trivial, but it won’t throw either.
-         for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
-            ::new(ptDst) T(*ptSrc);
-         }
+         memory::copy(ptDstBegin, ptSrcBegin, size_t(ptSrcEnd - ptSrcBegin));
       } else {
-         // Exceptions can occur, so implement an all-or-nothing copy.
-         T const * ptDstBegin(ptDst);
-         try {
-            for (T const * ptSrcEnd(ptSrc + ci); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+         T * ptDst(ptDstBegin);
+         if (
+#if ABC_HOST_GCC >= 40700
+            std::is_nothrow_copy_constructible<T>::value
+#else
+            std::has_nothrow_copy_constructor<T>::value
+#endif
+         ) {
+            // Not trivial, but it won’t throw either.
+            for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
                ::new(ptDst) T(*ptSrc);
             }
-         } catch (...) {
-            // Undo (destruct) all the copies instantiated.
-            while (--ptSrc >= ptDstBegin) {
-               ptDst->~T();
+         } else {
+            // Exceptions can occur, so implement an all-or-nothing copy.
+            try {
+               for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+                  ::new(ptDst) T(*ptSrc);
+               }
+            } catch (...) {
+               // Undo (destruct) all the copies instantiated.
+               while (--ptDst >= ptDstBegin) {
+                  ptDst->~T();
+               }
+               throw;
             }
-            throw;
          }
       }
    }

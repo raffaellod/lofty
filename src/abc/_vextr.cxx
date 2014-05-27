@@ -216,7 +216,7 @@ void _raw_complex_vextr_impl::assign_copy(
          destruct_items(type);
       }
       try {
-         type.copy_constr(trn.work_array<void>(), p, ci);
+         type.copy_constr(trn.work_array<void>(), p, static_cast<int8_t const *>(p) + type.cb * ci);
       } catch (...) {
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
@@ -263,7 +263,7 @@ void _raw_complex_vextr_impl::assign_concat(
             if (bMove1) {
                type.move_constr(pbWorkCopy, const_cast<void *>(p1), ci1);
             } else {
-               type.copy_constr(pbWorkCopy, p1, ci1);
+               type.copy_constr(pbWorkCopy, p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
             }
             pbWorkCopy += type.cb * ci1;
          }
@@ -271,7 +271,7 @@ void _raw_complex_vextr_impl::assign_concat(
             if (bMove2) {
                type.move_constr(pbWorkCopy, const_cast<void *>(p2), ci2);
             } else {
-               type.copy_constr(pbWorkCopy, p2, ci2);
+               type.copy_constr(pbWorkCopy, p2, static_cast<int8_t const *>(p2) + type.cb * ci2);
             }
          }
       } catch (...) {
@@ -476,7 +476,7 @@ void _raw_complex_vextr_impl::_insert(
       type.move_constr(pbOffset, const_cast<void *>(p), ci);
    } else {
       try {
-         type.copy_constr(pbOffset, p, ci);
+         type.copy_constr(pbOffset, p, static_cast<int8_t const *>(p) + type.cb * ci);
       } catch (...) {
          // Undo the overlapping_move_constr() above.
          if (ciTail) {
