@@ -643,7 +643,7 @@ public:
    }
 
 
-   /** Returns a a pointer to the start of the item array.
+   /** Returns a pointer to the start of the item array.
 
    return
       Pointer to the first element.
@@ -668,7 +668,7 @@ public:
    }
 
 
-   /** Returns a a pointer to the end of the item array.
+   /** Returns a pointer to the end of the item array.
 
    return
       Pointer to beyond the last element.
@@ -683,15 +683,14 @@ public:
    }
 
 
-   /** See buffered_vector::size() and str_base::size().
+   /** Returns the count of items in the item array.
 
-   cbItem
-      Size of a single array item, in bytes.
    return
-      Count of items in the item array.
+      Size of the item array.
    */
-   size_t size(size_t cbItem) const {
-      return size_t(end<int8_t>() - begin<int8_t>()) / cbItem;
+   template <typename T>
+   size_t size() const {
+      return size_t(end<T>() - begin<T>());
    }
 
 
@@ -892,7 +891,7 @@ public:
    */
    void append(type_void_adapter const & type, void const * p, size_t ci, bool bMove) {
       if (ci) {
-         _insert(type, size(type.cb), p, ci, bMove);
+         _insert(type, size<int8_t>() / type.cb, p, ci, bMove);
       }
    }
 
@@ -1126,7 +1125,7 @@ public:
    */
    void append(size_t cbItem, void const * p, size_t ci) {
       if (ci) {
-         _insert_or_remove(cbItem, size(cbItem), p, ci, 0);
+         _insert_or_remove(cbItem, size<int8_t>() / cbItem, p, ci, 0);
       }
    }
 

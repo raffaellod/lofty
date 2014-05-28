@@ -360,7 +360,7 @@ public:
       Count of characters.
    */
    size_t size() const {
-      return _raw_trivial_vextr_impl::size(sizeof(char_t));
+      return _raw_trivial_vextr_impl::size<char_t>();
    }
 
 

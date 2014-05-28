@@ -628,7 +628,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(_raw_vextr_impl_base::end<char_t>());
+      return const_iterator(_raw_vextr_impl_base::end<T>());
    }
 
 
@@ -638,7 +638,7 @@ public:
       Count of elements.
    */
    size_t size() const {
-      return _raw_vector<T, smc_bCopyConstructible>::size(sizeof(T));
+      return _raw_vextr_impl_base::size<T>();
    }
 
 

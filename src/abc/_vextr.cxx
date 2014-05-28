@@ -40,7 +40,7 @@ _raw_vextr_impl_base::transaction::transaction(
    if (ciNew >= 0) {
       ci = size_t(ciNew);
    } else {
-      ci = size_t(ptrdiff_t(m_prvib->size(cbItem)) + ciDelta);
+      ci = size_t(ptrdiff_t(m_prvib->size<int8_t>() / cbItem) + ciDelta);
    }
    if (ci == 0) {
       // Empty string/array: no need to use an item array.
@@ -141,7 +141,7 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax) :
 uintptr_t _raw_vextr_impl_base::adjust_and_validate_index(size_t cbItem, intptr_t i) const {
    ABC_TRACE_FN((this, cbItem, i));
 
-   intptr_t ci((intptr_t(size(cbItem))));
+   intptr_t ci(intptr_t(size<int8_t>() / cbItem));
    if (i < 0) {
       i += ci;
    }
@@ -157,7 +157,7 @@ std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
 ) const {
    ABC_TRACE_FN((this, cbItem, iBegin, iEnd));
 
-   intptr_t ci((intptr_t(size(cbItem))));
+   intptr_t ci(intptr_t(size<int8_t>() / cbItem));
    if (iBegin < 0) {
       iBegin += ci;
       if (iBegin < 0) {
@@ -205,7 +205,7 @@ void _raw_complex_vextr_impl::assign_concat(
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
    transaction trn(type.cb, this, ptrdiff_t((cb1 + cb2) / type.cb));
-   size_t cbOrig(size(1));
+   size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1 || cb2) {
@@ -298,11 +298,11 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    } else {
       // Can’t move the item array, so move the items instead.
       {
-         size_t ciSrc(rcvi.size(type.cb)), ciOrig(size(type.cb));
+         size_t ciSrc(rcvi.size<int8_t>() / type.cb);
          transaction trn(type.cb, this, ptrdiff_t(ciSrc));
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
-         if (ciOrig) {
+         if (size<int8_t>()) {
             destruct_items(type);
          }
          // Now that the current items have been destructed, move-construct the new items.
@@ -426,7 +426,7 @@ void _raw_complex_vextr_impl::_insert(
    int8_t * pbOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
    // always be moved.
-   size_t ciTail(size(type.cb) - iOffset);
+   size_t ciTail(size<int8_t>() / type.cb - iOffset);
    if (ciTail) {
       overlapping_move_constr(type, pbOffset + type.cb * ci, begin<int8_t>() + ibOffset, ciTail);
    }
@@ -472,7 +472,7 @@ void _raw_complex_vextr_impl::_remove(
    type.destruct(begin<int8_t>() + cbOffset, begin<int8_t>() + cbOffset + type.cb * ciRemove);
    // The items beyond the last removed must be either copied to the new item array at ciRemove
    // offset, or shifted closer to the start.
-   if (size_t ciTail = size(type.cb) - (iOffset + ciRemove)) {
+   if (size_t ciTail = size<int8_t>() / type.cb - (iOffset + ciRemove)) {
       int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
              * pbOrigTail(begin<int8_t>() + cbOffset + type.cb * ciRemove);
       if (trn.will_replace_item_array()) {
@@ -510,7 +510,7 @@ void _raw_complex_vextr_impl::set_capacity(
 ) {
    ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
-   size_t ciOrig(size(type.cb));
+   size_t cbOrig(size<int8_t>());
    transaction trn(type.cb, this, ptrdiff_t(ciMin));
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
@@ -521,24 +521,25 @@ void _raw_complex_vextr_impl::set_capacity(
       destruct_items(type);
       if (!bPreserve) {
          // We just destructed the items.
-         ciOrig = 0;
+         cbOrig = 0;
       }
    }
    trn.commit();
    // The transaction changed the size to ciMin, which is incorrect.
-   m_pEnd = begin<int8_t>() + type.cb * ciOrig;
+   m_pEnd = begin<int8_t>() + cbOrig;
 }
 
 
 void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t ci) {
    ABC_TRACE_FN((this, /*type, */ci));
 
-   if (ci != size(type.cb)) {
+   size_t cb(type.cb * ci);
+   if (cb != size<int8_t>()) {
       if (ci > capacity()) {
          // Enlarge the item array.
          set_capacity(type, ci, true);
       }
-      m_pEnd = begin<int8_t>() + type.cb * ci;
+      m_pEnd = begin<int8_t>() + cb;
    }
 }
 
@@ -616,7 +617,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    size_t cbOffset(cbItem * iOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
    // last removed (when removing) must always be moved/copied.
-   if (size_t ciTail = size(cbItem) - (iOffset + ciRemove)) {
+   if (size_t ciTail = size<int8_t>() / cbItem - (iOffset + ciRemove)) {
       memory::move(
          trn.work_array<int8_t>() + cbOffset + cbItem * ciAdd,
          begin<int8_t>() + cbOffset + cbItem * ciRemove,
@@ -652,31 +653,32 @@ void _raw_trivial_vextr_impl::remove_range(size_t cbItem, intptr_t iBegin, intpt
 void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPreserve) {
    ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
 
-   size_t ciOrig(size(cbItem));
+   size_t cbOrig(size<int8_t>());
    transaction trn(cbItem, this, ptrdiff_t(ciMin), 0);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
-         memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbItem * ciOrig);
+         memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
       } else {
          // We’ll lose the item array when the transaction is commited.
-         ciOrig = 0;
+         cbOrig = 0;
       }
    }
    trn.commit();
    // The transaction changed the size to ciMin, which is incorrect.
-   m_pEnd = begin<int8_t>() + cbItem * ciOrig;
+   m_pEnd = begin<int8_t>() + cbOrig;
 }
 
 
 void _raw_trivial_vextr_impl::set_size(size_t cbItem, size_t ci) {
    ABC_TRACE_FN((this, cbItem, ci));
 
-   if (ci != size(cbItem)) {
+   size_t cb(cbItem * ci);
+   if (cb != size<int8_t>()) {
       if (ci > capacity()) {
          // Enlarge the item array.
          set_capacity(cbItem, ci, true);
       }
-      m_pEnd = begin<int8_t>() + cbItem * ci;
+      m_pEnd = begin<int8_t>() + cb;
    }
 }
 
