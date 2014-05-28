@@ -27,9 +27,6 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-char_t const _raw_vextr_impl_base::smc_chNUL(CL('\0'));
-
-
 _raw_vextr_impl_base::transaction::transaction(
    size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta /*= 0*/
 ) :

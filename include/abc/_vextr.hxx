@@ -804,8 +804,6 @@ protected:
    /** Size of the item array pointed to by m_pBegin, and other bits. */
    _raw_vextr_packed_data m_rvpd;
 
-   /** NUL terminator of the largest character type. */
-   static char_t const smc_chNUL;
    /** No less than this many items. Must be greater than, and not overlap any bits with,
    _raw_vextr_impl_base::smc_ciMaxMask. */
    static size_t const smc_cMinSlots = 8;

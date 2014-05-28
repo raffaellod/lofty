@@ -60,6 +60,9 @@ void _str_to_str_backend::write(
 
 namespace abc {
 
+char_t const str_base::smc_chNUL(CL('\0'));
+
+
 str_base::c_str_pointer str_base::c_str() const {
    ABC_TRACE_FN((this));
 

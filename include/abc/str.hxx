@@ -506,6 +506,12 @@ protected:
    void assign_share_ro_or_copy(str_base const & s) {
       _raw_trivial_vextr_impl::assign_share_ro_or_copy(sizeof(char_t), s);
    }
+
+
+protected:
+
+   /** Single NUL terminator. */
+   static char_t const smc_chNUL;
 };
 
 } //namespace abc
