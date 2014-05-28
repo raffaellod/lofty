@@ -237,60 +237,53 @@ void _raw_complex_vextr_impl::assign_copy(
 
 void _raw_complex_vextr_impl::assign_concat(
    type_void_adapter const & type,
-   void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
+   void const * p1Begin, void const * p1End, bool bMove1,
+   void const * p2Begin, void const * p2End, bool bMove2
 ) {
-   ABC_TRACE_FN((this, /*type, */p1, ci1, bMove1, p2, ci2, bMove2));
+   ABC_TRACE_FN((this, /*type, */p1Begin, p1End, bMove1, p2Begin, p2End, bMove2));
 
-   transaction trn(type.cb, this, ptrdiff_t(ci1 + ci2));
+   size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
+   size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
+   transaction trn(type.cb, this, ptrdiff_t((cb1 + cb2) / type.cb));
    size_t cbOrig(size(1));
-   size_t ciOrig(size(type.cb));
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
-   if (ci1 || ci2) {
+   if (cb1 || cb2) {
       // If we’re going to overwrite the old item array, move the items to a backup array, so we can
       // restore them in case of exceptions thrown while constructing the new objects.
-      if (ciOrig && !trn.will_replace_item_array()) {
+      if (cbOrig && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
       }
       try {
-         if (ci1) {
+         if (cb1) {
             if (bMove1) {
-               type.move_constr(
-                  pbWorkCopy,
-                  const_cast<void *>(p1),
-                  static_cast<int8_t *>(const_cast<void *>(p1)) + type.cb * ci1
-               );
+               type.move_constr(pbWorkCopy, const_cast<void *>(p1Begin), const_cast<void *>(p1End));
             } else {
-               type.copy_constr(pbWorkCopy, p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
+               type.copy_constr(pbWorkCopy, p1Begin, p1End);
             }
-            pbWorkCopy += type.cb * ci1;
+            pbWorkCopy += cb1;
          }
-         if (ci2) {
+         if (cb2) {
             if (bMove2) {
-               type.move_constr(
-                  pbWorkCopy,
-                  const_cast<void *>(p2),
-                  static_cast<int8_t *>(const_cast<void *>(p2)) + type.cb * ci2
-               );
+               type.move_constr(pbWorkCopy, const_cast<void *>(p2Begin), const_cast<void *>(p2End));
             } else {
-               type.copy_constr(pbWorkCopy, p2, static_cast<int8_t const *>(p2) + type.cb * ci2);
+               type.copy_constr(pbWorkCopy, p2Begin, p2End);
             }
          }
       } catch (...) {
          // If we already constructed the copies of p1, destruct them.
-         int8_t * pbWorkCopyBegin(trn.work_array<int8_t>());
-         if (pbWorkCopy > pbWorkCopyBegin) {
+         int8_t * pbWorkCopy1Begin(trn.work_array<int8_t>());
+         if (pbWorkCopy > pbWorkCopy1Begin) {
+            int8_t * pbWorkCopy1End(pbWorkCopy1Begin + cb1);
             if (bMove1) {
                // If we moved them from p1, don’t forget to move them back. Of course this means
                // that we first have to destruct p1’s items and re-construct them.
-               type.destruct(p1, static_cast<int8_t const *>(p1) + type.cb * ci1);
-               type.move_constr(
-                  const_cast<void *>(p1), pbWorkCopyBegin, pbWorkCopyBegin + type.cb * ci1
-               );
+               type.destruct(p1Begin, p1End);
+               type.move_constr(const_cast<void *>(p1Begin), pbWorkCopy1Begin, pbWorkCopy1End);
             }
-            type.destruct(pbWorkCopyBegin, pbWorkCopyBegin + type.cb * ci1);
+            type.destruct(pbWorkCopy1Begin, pbWorkCopy1End);
          }
          // If earlier we decided to make a backup, restore it now, then destruct it.
          if (pbBackup) {
@@ -300,7 +293,7 @@ void _raw_complex_vextr_impl::assign_concat(
          throw;
       }
    }
-   if (ciOrig) {
+   if (cbOrig) {
       // If we made a backup, it also means that now this is the only copy of the original items, so
       // we must use it to destruct them, instead of m_pBegin/End.
       if (pbBackup) {
@@ -599,20 +592,20 @@ void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t ci
 namespace abc {
 
 void _raw_trivial_vextr_impl::assign_concat(
-   size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2
+   size_t cbItem, void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
 ) {
-   ABC_TRACE_FN((this, cbItem, p1, ci1, p2, ci2));
+   ABC_TRACE_FN((this, cbItem, p1Begin, p1End, p2Begin, p2End));
 
-   transaction trn(cbItem, this, ptrdiff_t(ci1 + ci2), 0);
+   size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
+   size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
+   transaction trn(cbItem, this, ptrdiff_t((cb1 + cb2) / cbItem), 0);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
-   if (ci1) {
-      size_t cbSrc(cbItem * ci1);
-      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1), cbSrc);
-      pbWorkCopy += cbSrc;
+   if (cb1) {
+      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
+      pbWorkCopy += cb1;
    }
-   if (ci2) {
-      size_t cbSrc(cbItem * ci2);
-      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p2), cbSrc);
+   if (cb2) {
+      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p2Begin), cb2);
    }
 
    trn.commit();

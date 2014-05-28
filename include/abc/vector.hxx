@@ -68,21 +68,21 @@ public:
 
    /** Moves the contents of the two sources to *this.
 
-   p1
-      Pointer to the first source array.
-   ci1
-      Count of elements in the first source array.
-   p2
-      Pointer to the second source array.
-   ci2
-      Count of elements in the second source array.
+   p1Begin
+      Pointer to the start of the first source array.
+   p1End
+      Pointer to the end of the first source array.
+   p2Begin
+      Pointer to the start of the second source array.
+   p2End
+      Pointer to the end of the second source array.
    */
-   void assign_concat_move(T const * p1, size_t ci1, T const * p2, size_t ci2) {
+   void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, true, p2, ci2, true);
+      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, true, p2Begin, p2End, true);
    }
 
 
@@ -184,8 +184,8 @@ protected:
    _raw_vector(size_t ciStaticMax) :
       _raw_complex_vextr_impl(ciStaticMax) {
    }
-   _raw_vector(void const * pConstSrc, size_t ciSrc) :
-      _raw_complex_vextr_impl(pConstSrc, ciSrc) {
+   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      _raw_complex_vextr_impl(ptConstSrc, ciSrc) {
    }
 
 
@@ -193,7 +193,7 @@ private:
 
    // Hide these _raw_complex_vextr_impl methods to trigger errors as a debugging aid.
 
-   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
+   void assign_copy(type_void_adapter const & type, T const * pt, size_t ci);
 };
 
 // Partial specialization for copyable, non-trivial types.
@@ -234,14 +234,15 @@ public:
    /** See _raw_complex_vextr_impl::assign_concat().
    */
    void assign_concat(
-      T const * p1, size_t ci1, bool bMove1, T const * p2, size_t ci2, bool bMove2
+      T const * p1Begin, T const * p1End, bool bMove1,
+      T const * p2Begin, T const * p2End, bool bMove2
    ) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1, ci1, bMove1, p2, ci2, bMove2);
+      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, bMove1, p2Begin, p2End, bMove2);
    }
 
 
@@ -272,8 +273,8 @@ protected:
    _raw_vector(size_t ciStaticMax) :
       _raw_vector<T, false, false>(ciStaticMax) {
    }
-   _raw_vector(void const * pConstSrc, size_t ciSrc) :
-      _raw_vector<T, false, false>(pConstSrc, ciSrc) {
+   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      _raw_vector<T, false, false>(ptConstSrc, ciSrc) {
    }
 };
 
@@ -292,7 +293,7 @@ public:
    ci
       Count of elements to add.
    */
-   void append_copy(void const * p, size_t ci) {
+   void append_copy(T const * p, size_t ci) {
       _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
    }
 
@@ -305,14 +306,14 @@ public:
    ci
       Count of elements to add.
    */
-   void append_move(void * p, size_t ci) {
+   void append_move(T * p, size_t ci) {
       _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
    }
 
 
    /** See _raw_trivial_vextr_impl::assign_copy().
    */
-   void assign_copy(void const * p, size_t ci) {
+   void assign_copy(T const * p, size_t ci) {
       _raw_trivial_vextr_impl::assign_copy(sizeof(T), p, ci);
    }
 
@@ -320,27 +321,28 @@ public:
    /** See _raw_trivial_vextr_impl::assign_concat().
    */
    void assign_concat(
-      void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
+      T const * p1Begin, T const * p1End, bool bMove1,
+      T const * p2Begin, T const * p2End, bool bMove2
    ) {
       ABC_UNUSED_ARG(bMove1);
       ABC_UNUSED_ARG(bMove2);
-      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
+      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1Begin, p1End, p2Begin, p2End);
    }
 
 
    /** Moves the contents of the two sources to *this.
 
-   p1
-      Pointer to the first source array.
-   ci1
-      Count of elements in the first source array.
-   p2
-      Pointer to the second source array.
-   ci2
-      Count of elements in the second source array.
+   p1Begin
+      Pointer to the start of the first source array.
+   p1End
+      Pointer to the end of the first source array.
+   p2Begin
+      Pointer to the start of the second source array.
+   p2End
+      Pointer to the end of the second source array.
    */
-   void assign_concat_move(void const * p1, size_t ci1, void const * p2, size_t ci2) {
-      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1, ci1, p2, ci2);
+   void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
+      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1Begin, p1End, p2Begin, p2End);
    }
 
 
@@ -371,13 +373,13 @@ public:
    i
       Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
       for allowed index values.
-   p
+   pt
       Pointer to the first element to add.
    ci
       Count of elements in the array pointed to by p.
    */
-   void insert_copy(intptr_t i, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), i, p, ci);
+   void insert_copy(intptr_t i, T const * pt, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), i, pt, ci);
    }
 
 
@@ -387,13 +389,13 @@ public:
    i
       Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
       for allowed index values.
-   p
+   pt
       Pointer to the first element to add.
    ci
       Count of elements in the array pointed to by p.
    */
-   void insert_move(intptr_t i, void const * p, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), i, p, ci);
+   void insert_move(intptr_t i, T const * pt, size_t ci) {
+      _raw_trivial_vextr_impl::insert(sizeof(T), i, pt, ci);
    }
 
 
@@ -432,8 +434,8 @@ protected:
    _raw_vector(size_t ciStaticMax) :
       _raw_trivial_vextr_impl(ciStaticMax) {
    }
-   _raw_vector(void const * pConstSrc, size_t ciSrc) :
-      _raw_trivial_vextr_impl(pConstSrc, ciSrc) {
+   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      _raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
    }
 };
 
@@ -1236,14 +1238,14 @@ public:
       Pointer to an array whose elements should be copied.
    ci
       Count of items in the array pointed to by pt.
-   pt1
-      Pointer to an array whose elements should be copied.
-   ci1
-      Count of items in the array pointed to by pt1.
-   pt2
-      Pointer to an array whose elements should be copied.
-   ci2
-      Count of items in the array pointed to by pt2.
+   p1Begin
+      Pointer to the start of the first source array, whose elements should be copied.
+   p1End
+      Pointer to the end of the first source array.
+   p2Begin
+      Pointer to the start of the second source array, whose elements should be copied.
+   p2End
+      Pointer to the end of the second source array.
    */
    dmvector() :
       mvector<T, true>(0) {
@@ -1268,20 +1270,26 @@ public:
    dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
       this->assign_concat(
-         v1.cbegin().base(), v1.size(), false, v2.cbegin().base(), v2.size(), false
+         v1.cbegin().base(), v1.cend().base(), false, v2.cbegin().base(), v2.cend().base(), false
       );
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
-      this->assign_concat(v1.begin().base(), v1.size(), true, v2.cbegin().base(), v2.size(), false);
+      this->assign_concat(
+         v1.begin().base(), v1.end().base(), true, v2.cbegin().base(), v2.cend().base(), false
+      );
    }
    dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat(v1.cbegin().base(), v1.size(), false, v2.begin().base(), v2.size(), true);
+      this->assign_concat(
+         v1.cbegin().base(), v1.cend().base(), false, v2.begin().base(), v2.end().base(), true
+      );
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat_move(v1.begin().base(), v1.size(), v2.begin().base(), v2.size());
+      this->assign_concat_move(
+         v1.begin().base(), v1.end().base(), v2.begin().base(), v2.end().base()
+      );
    }
    template <size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
@@ -1292,9 +1300,9 @@ public:
       mvector<T, true>(0) {
       this->assign_copy(pt, ci);
    }
-   dmvector(T const * pt1, size_t ci1, T const * pt2, size_t ci2) :
+   dmvector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
       mvector<T, true>(0) {
-      this->assign_concat(pt1, ci1, false, pt2, ci2, false);
+      this->assign_concat(pt1Begin, pt1End, false, pt2Begin, pt2End, false);
    }
 
 

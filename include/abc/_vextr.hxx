@@ -903,22 +903,25 @@ public:
 
    type
       Adapter for the items’ type.
-   p1
-      Pointer to the first source array.
-   ci1
-      Count of items in the first source array.
+   p1Begin
+      Pointer to the start of the first source array.
+   p1End
+      Pointer to the end of the first source array.
    bMove1
-      true to move the items from p1 to the vextr’s item array, or false to copy them instead.
-   p2
-      Pointer to the second source array.
-   ci2
-      Count of items in the second source array.
+      true to move the items from the first source array to the vextr’s item array, or false to
+      copy them instead.
+   p2Begin
+      Pointer to the start of the second source array.
+   p2End
+      Pointer to the end of the second source array.
    bMove2
-      true to move the items from p1 to the vextr’s item array, or false to copy them instead.
+      true to move the items from the second source array to the vextr’s item array, or false to
+      copy them instead.
    */
    void assign_concat(
       type_void_adapter const & type,
-      void const * p1, size_t ci1, bool bMove1, void const * p2, size_t ci2, bool bMove2
+      void const * p1Begin, void const * p1End, bool bMove1,
+      void const * p2Begin, void const * p2End, bool bMove2
    );
 
 
@@ -1126,16 +1129,19 @@ public:
 
    cbItem
       Size of a single array item, in bytes.
-   p1
-      Pointer to the first source array.
-   ci1
-      Count of items in the first source array.
-   p2
-      Pointer to the second source array.
-   ci2
-      Count of items in the second source array.
+   p1Begin
+      Pointer to the start of the first source array.
+   p1End
+      Pointer to the end of the first source array.
+   p2Begin
+      Pointer to the start of the second source array.
+   p2End
+      Pointer to the end of the second source array.
    */
-   void assign_concat(size_t cbItem, void const * p1, size_t ci1, void const * p2, size_t ci2);
+   void assign_concat(
+      size_t cbItem,
+      void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
+   );
 
 
    /** Copies the contents of the source array to *this.
@@ -1153,7 +1159,7 @@ public:
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(cbItem, nullptr, 0, p, ci);
+      assign_concat(cbItem, nullptr, nullptr, p, static_cast<int8_t const *>(p) + cbItem * ci);
    }
 
 

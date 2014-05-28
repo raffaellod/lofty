@@ -471,8 +471,13 @@ protected:
 
    /** TODO: comment.
    */
-   void assign_concat(char_t const * pch1, size_t cch1, char_t const * pch2, size_t cch2) {
-      _raw_trivial_vextr_impl::assign_concat(sizeof(char_t), pch1, cch1, pch2, cch2);
+   void assign_concat(
+      char_t const * pch1Begin, char_t const * pch1End,
+      char_t const * pch2Begin, char_t const * pch2End
+   ) {
+      _raw_trivial_vextr_impl::assign_concat(
+         sizeof(char_t), pch1Begin, pch1End, pch2Begin, pch2End
+      );
    }
 
 
@@ -916,9 +921,12 @@ public:
       mstr(0) {
       assign_copy(pch, cch);
    }
-   dmstr(char_t const * pch1, size_t cch1, char_t const * pch2, size_t cch2) :
+   dmstr(
+      char_t const * pch1Begin, char_t const * pch1End,
+      char_t const * pch2Begin, char_t const * pch2End
+   ) :
       mstr(0) {
-      assign_concat(pch1, cch1, pch2, cch2);
+      assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
 
@@ -1029,16 +1037,20 @@ return
    Resulting string.
 */
 inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
-   return abc::dmstr(sL.cbegin().base(), sL.size(), sR.cbegin().base(), sR.size());
+   return abc::dmstr(sL.cbegin().base(), sL.cend().base(), sR.cbegin().base(), sR.cend().base());
 }
 // Overloads taking a character literal.
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(sL.cbegin().base(), sL.size(), achR, abc::istr::traits::from_utf32(chR, achR));
+   return abc::dmstr(
+      sL.cbegin().base(), sL.cend().base(), achR, achR + abc::istr::traits::from_utf32(chR, achR)
+   );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::istr::traits::max_codepoint_length];
-   return abc::dmstr(achL, abc::istr::traits::from_utf32(chL, achL), sR.cbegin().base(), sR.size());
+   return abc::dmstr(
+      achL, achL + abc::istr::traits::from_utf32(chL, achL), sR.cbegin().base(), sR.cend().base()
+   );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
 // string.
