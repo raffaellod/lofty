@@ -464,8 +464,8 @@ protected:
 
    TODO: comment signature.
    */
-   void assign_copy(char_t const * pch, size_t cch) {
-      _raw_trivial_vextr_impl::assign_copy(sizeof(char_t), pch, cch);
+   void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
+      _raw_trivial_vextr_impl::assign_copy(sizeof(char_t), pchBegin, pchEnd);
    }
 
 
@@ -595,9 +595,9 @@ public:
    istr(char_t const (& ach)[t_cch]) :
       str_base(ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0') {
    }
-   istr(char_t const * psz, size_t cch) :
+   istr(char_t const * pchBegin, char_t const * pchEnd) :
       str_base(0) {
-      assign_copy(psz, cch);
+      assign_copy(pchBegin, pchEnd);
    }
    istr(unsafe_t, char_t const * psz) :
       str_base(psz, traits::str_len(psz), true) {
@@ -683,11 +683,11 @@ public:
       *this.
    */
    mstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    mstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
@@ -893,7 +893,7 @@ public:
    }
    dmstr(dmstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
    }
    dmstr(dmstr && s) :
       mstr(0) {
@@ -901,7 +901,7 @@ public:
    }
    dmstr(istr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(istr && s) :
@@ -910,16 +910,16 @@ public:
    }
    dmstr(mstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(mstr && s) :
       mstr(0) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
-   dmstr(char_t const * pch, size_t cch) :
+   dmstr(char_t const * pchBegin, char_t const * pchEnd) :
       mstr(0) {
-      assign_copy(pch, cch);
+      assign_copy(pchBegin, pchEnd);
    }
    dmstr(
       char_t const * pch1Begin, char_t const * pch1End,
@@ -938,7 +938,7 @@ public:
       *this.
    */
    dmstr & operator=(dmstr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    dmstr & operator=(dmstr && s) {
@@ -946,7 +946,7 @@ public:
       return *this;
    }
    dmstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -955,7 +955,7 @@ public:
       return *this;
    }
    dmstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -985,21 +985,24 @@ inline dmstr str_base::substr(intptr_t ichBegin) const {
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(adjust_and_validate_range(ichBegin, ichEnd));
-   return dmstr(cbegin().base() + range.first, range.second - range.first);
+   char_t const * pchBegin(cbegin().base());
+   return dmstr(pchBegin + range.first, pchBegin + range.second);
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
    auto range(adjust_and_validate_range(ichBegin, itEnd - cbegin()));
-   return dmstr(cbegin().base() + range.first, range.second - range.first);
+   char_t const * pchBegin(cbegin().base());
+   return dmstr(pchBegin + range.first, pchBegin + range.second);
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
    auto range(adjust_and_validate_range(itBegin - cbegin(), ichEnd));
-   return dmstr(cbegin().base() + range.first, range.second - range.first);
+   char_t const * pchBegin(cbegin().base());
+   return dmstr(pchBegin + range.first, pchBegin + range.second);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
-   return dmstr(itBegin.base(), size_t(itEnd - itBegin));
+   return dmstr(itBegin.base(), itEnd.base());
 }
 
 
@@ -1114,7 +1117,7 @@ public:
    }
    smstr(smstr const & s) :
       mstr(smc_cchFixed) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -1124,7 +1127,7 @@ public:
    }
    smstr(istr const & s) :
       mstr(smc_cchFixed) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
@@ -1151,7 +1154,7 @@ public:
       *this.
    */
    smstr & operator=(smstr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -1161,7 +1164,7 @@ public:
       return *this;
    }
    smstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.size());
+      assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.

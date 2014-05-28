@@ -929,12 +929,19 @@ public:
 
    type
       Adapter for the items’ type.
-   p
-      Pointer to the source array.
-   ci
-      Count of items in the source array.
+   pBegin
+      Pointer to the start of the source array.
+   pEnd
+      Pointer to the end of the source array.
    */
-   void assign_copy(type_void_adapter const & type, void const * p, size_t ci);
+   void assign_copy(type_void_adapter const & type, void const * pBegin, void const * pEnd) {
+      if (pBegin == m_pBegin) {
+         return;
+      }
+      // assign_concat() is fast enough. Pass the source as the second argument pair, because its
+      // code path is faster.
+      assign_concat(type, nullptr, nullptr, false, pBegin, pEnd, false);
+   }
 
 
    /** Moves the contents of the source to *this, taking ownership of the whole item array (items
@@ -1148,18 +1155,18 @@ public:
 
    cbItem
       Size of a single array item, in bytes.
-   p
-      Pointer to the source array.
-   ci
-      Count of items in the source array.
+   pBegin
+      Pointer to the start of the source array.
+   pEnd
+      Pointer to the end of the source array.
    */
-   void assign_copy(size_t cbItem, void const * p, size_t ci) {
-      if (p == m_pBegin) {
+   void assign_copy(size_t cbItem, void const * pBegin, void const * pEnd) {
+      if (pBegin == m_pBegin) {
          return;
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(cbItem, nullptr, nullptr, p, static_cast<int8_t const *>(p) + cbItem * ci);
+      assign_concat(cbItem, nullptr, nullptr, pBegin, pEnd);
    }
 
 
@@ -1207,7 +1214,7 @@ public:
          _assign_share(rtvi);
       } else {
          // Non-read-only, cannot share.
-         assign_copy(cbItem, rtvi.m_pBegin, rtvi.size(cbItem));
+         assign_copy(cbItem, rtvi.m_pBegin, rtvi.m_pEnd);
       }
    }
 

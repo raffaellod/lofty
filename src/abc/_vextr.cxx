@@ -195,46 +195,6 @@ std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
 
 namespace abc {
 
-void _raw_complex_vextr_impl::assign_copy(
-   type_void_adapter const & type, void const * p, size_t ci
-) {
-   ABC_TRACE_FN((this, /*type, */p, ci));
-
-   transaction trn(type.cb, this, ptrdiff_t(ci));
-   size_t cbOrig(size(1));
-   // We’re going to overwrite the old item array, so move the items to a backup array, so we can
-   // restore them in case of exceptions thrown while copy-constructing the new objects.
-   std::unique_ptr<int8_t[]> pbBackup;
-   if (ci) {
-      if (cbOrig && !trn.will_replace_item_array()) {
-         pbBackup.reset(new int8_t[cbOrig]);
-         type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
-         destruct_items(type);
-      }
-      try {
-         type.copy_constr(trn.work_array<void>(), p, static_cast<int8_t const *>(p) + type.cb * ci);
-      } catch (...) {
-         // If earlier we decided to make a backup, restore it now, then destruct it.
-         if (pbBackup) {
-            type.move_constr(m_pBegin, pbBackup.get(), pbBackup.get() + cbOrig);
-            type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
-         }
-         throw;
-      }
-   }
-   if (cbOrig) {
-      // If we made a backup, it also means that now this is the only copy of the original items,
-      // so we must use it to destruct them, instead of m_pBegin/End.
-      if (pbBackup) {
-         type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
-      } else {
-         destruct_items(type);
-      }
-   }
-   trn.commit();
-}
-
-
 void _raw_complex_vextr_impl::assign_concat(
    type_void_adapter const & type,
    void const * p1Begin, void const * p1End, bool bMove1,
@@ -622,7 +582,7 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
       assign_move(std::move(rtvi));
    } else {
       // Can’t move, so copy instead.
-      assign_copy(cbItem, rtvi.m_pBegin, rtvi.size(cbItem));
+      assign_copy(cbItem, rtvi.m_pBegin, rtvi.m_pEnd);
       // And now empty the source.
       rtvi.assign_empty();
    }
