@@ -156,7 +156,7 @@ std::pair<void const *, void const *> _raw_vextr_impl_base::translate_byte_range
 ) const {
    ABC_TRACE_FN((this, ibBegin, ibEnd));
 
-   intptr_t cb(intptr_t(size<int8_t>()));
+   intptr_t cb((intptr_t(size<int8_t>())));
    if (ibBegin < 0) {
       ibBegin += cb;
       if (ibBegin < 0) {
