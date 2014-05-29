@@ -102,5 +102,11 @@ You should have received a copy of the GNU General Public License along with ABC
       <source path="examples/hello-world.cxx"/>
       <dynlib name="abc"/>
    </exe>
+
+   <exe name="exceptions">
+      <!-- Exceptions and stack traces example. -->
+      <source path="examples/exceptions.cxx"/>
+      <dynlib name="abc"/>
+   </exe>
 </abcmk>
 
