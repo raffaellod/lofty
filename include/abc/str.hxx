@@ -386,13 +386,13 @@ public:
    /** Returns a portion of the string.
 
    ichBegin
-      Index of the first character of the substring. See abc::_vextr::adjust_and_validate_range()
-      for allowed begin index values.
+      Index of the first character of the substring. See abc::str_base::translate_range() for
+      allowed begin index values.
    itBegin
       Iterator to the first character of the substring.
    ichEnd
-      Index of the last character of the substring, exclusive. See
-      abc::_vextr::adjust_and_validate_range() for allowed end index values.
+      Index of the last character of the substring, exclusive. See abc::str_base::translate_range()
+      for allowed end index values.
    itEnd
       Iterator to past the end of the substring.
    return
@@ -424,25 +424,6 @@ protected:
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
       _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
-   }
-
-
-   /** See _raw_trivial_vextr_impl::adjust_and_validate_range().
-
-   iBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
-   iEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
-   return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
-      interval [0, 0) if the indices represent an empty interval after being adjusted.
-   */
-   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
-      return _raw_trivial_vextr_impl::adjust_and_validate_range(sizeof(char_t), iBegin, iEnd);
    }
 
 
@@ -511,6 +492,33 @@ protected:
    char_t const * translate_index(intptr_t ich) const {
       return static_cast<char_t const *>(
          _raw_trivial_vextr_impl::translate_offset(ptrdiff_t(sizeof(char_t)) * ich)
+      );
+   }
+
+
+   /** Converts a left-closed, right-open interval with possibly negative character indices into one
+   consisting of two pointers into the item array.
+
+   ichBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
+      this->size() to it.
+   ichEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [0, 0) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<char_t const *, char_t const *> translate_range(
+      intptr_t ichBegin, intptr_t ichEnd
+   ) const {
+      auto range(_raw_trivial_vextr_impl::translate_byte_range(
+         ptrdiff_t(sizeof(char_t)) * ichBegin, ptrdiff_t(sizeof(char_t)) * ichEnd
+      ));
+      return std::make_pair(
+         static_cast<char_t const *>(range.first), static_cast<char_t const *>(range.second)
       );
    }
 
@@ -986,22 +994,19 @@ inline dmstr str_base::substr(intptr_t ichBegin) const {
    return substr(ichBegin, intptr_t(size()));
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
-   auto range(adjust_and_validate_range(ichBegin, ichEnd));
-   char_t const * pchBegin(cbegin().base());
-   return dmstr(pchBegin + range.first, pchBegin + range.second);
+   auto range(translate_range(ichBegin, ichEnd));
+   return dmstr(range.first, range.second);
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
-   auto range(adjust_and_validate_range(ichBegin, itEnd - cbegin()));
-   char_t const * pchBegin(cbegin().base());
-   return dmstr(pchBegin + range.first, pchBegin + range.second);
+   auto range(translate_range(ichBegin, itEnd - cbegin()));
+   return dmstr(range.first, range.second);
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
-   auto range(adjust_and_validate_range(itBegin - cbegin(), ichEnd));
-   char_t const * pchBegin(cbegin().base());
-   return dmstr(pchBegin + range.first, pchBegin + range.second);
+   auto range(translate_range(itBegin - cbegin(), ichEnd));
+   return dmstr(range.first, range.second);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    return dmstr(itBegin.base(), itEnd.base());

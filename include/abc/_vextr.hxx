@@ -720,28 +720,6 @@ protected:
    }
 
 
-   /** Converts a left-closed, right-open interval with possibly negative indices into one
-   consisting of two 0-based indices.
-
-   cbItem
-      Size of a single array item, in bytes.
-   iBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
-      this->size() to it.
-   iEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
-      adding this->size() to it.
-   return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
-      interval [0, 0) if the indices represent an empty interval after being adjusted.
-   */
-   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(
-      size_t cbItem, intptr_t iBegin, intptr_t iEnd
-   ) const;
-
-
    /** Resets the contents of the object to nullptr.
    */
    void assign_empty() {
@@ -790,6 +768,26 @@ protected:
       Pointer to the item.
    */
    void const * translate_offset(intptr_t ib) const;
+
+
+   /** Converts a left-closed, right-open interval with possibly negative byte offsets into one
+   consisting of two pointers into the item array.
+
+   ibBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based byte
+      offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
+      by adding this->size<int8_t>() to it.
+   ibEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based byte
+      offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
+      by adding this->size<int8_t>() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
+   */
+   std::pair<void const *, void const *> translate_byte_range(
+      intptr_t ibBegin, intptr_t ibEnd
+   ) const;
 
 
 protected:
@@ -1020,11 +1018,11 @@ public:
    type
       Adapter for the items’ type.
    iBegin
-      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
-      index values.
+      Index of the first element. See abc::_raw_vextr_impl_base::translate_byte_range() for allowed
+      begin index values.
    iEnd
-      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
-      end index values.
+      Index of the last element, exclusive. See abc::_raw_vextr_impl_base::translate_byte_range()
+      for allowed end index values.
    */
    void remove_range(type_void_adapter const & type, intptr_t iBegin, intptr_t iEnd);
 
@@ -1262,11 +1260,11 @@ public:
    cbItem
       Size of a single array item, in bytes.
    iBegin
-      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
-      index values.
+      Index of the first element. See abc::_raw_vextr_impl_base::translate_byte_range() for allowed
+      begin index values.
    iEnd
-      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
-      end index values.
+      Index of the last element, exclusive. See abc::_raw_vextr_impl_base::translate_byte_range()
+      for allowed end index values.
    */
    void remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd);
 

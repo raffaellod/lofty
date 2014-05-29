@@ -138,41 +138,6 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax) :
 }
 
 
-std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
-   size_t cbItem, intptr_t iBegin, intptr_t iEnd
-) const {
-   ABC_TRACE_FN((this, cbItem, iBegin, iEnd));
-
-   intptr_t ci(intptr_t(size<int8_t>() / cbItem));
-   if (iBegin < 0) {
-      iBegin += ci;
-      if (iBegin < 0) {
-         // If the start of the interval is still negative, clip it to 0.
-         iBegin = 0;
-      }
-   } else if (iBegin >= ci) {
-      // If the interval begins beyond the end of the item array, return an empty interval.
-      return std::pair<uintptr_t, uintptr_t>(0, 0);
-   }
-   if (iEnd < 0) {
-      iEnd += ci;
-      if (iEnd < 0) {
-         // If the end of the interval is still negative, clip it to 0.
-         iEnd = 0;
-      }
-   } else if (iEnd > ci) {
-      // If the end of the interval is beyond the end of the item array, clip it to the latter.
-      iEnd = ci;
-   }
-   // If the interval is empty, return [0, 0) .
-   if (iBegin >= iEnd) {
-      return std::pair<uintptr_t, uintptr_t>(0, 0);
-   }
-   // Return the constructed interval.
-   return std::pair<uintptr_t, uintptr_t>(uintptr_t(iBegin), uintptr_t(iEnd));
-}
-
-
 void const * _raw_vextr_impl_base::translate_offset(intptr_t ib) const {
    ABC_TRACE_FN((this, ib));
 
@@ -183,6 +148,38 @@ void const * _raw_vextr_impl_base::translate_offset(intptr_t ib) const {
    }
    // TODO: use the index, not the offset.
    ABC_THROW(index_error, (ib));
+}
+
+
+std::pair<void const *, void const *> _raw_vextr_impl_base::translate_byte_range(
+   intptr_t ibBegin, intptr_t ibEnd
+) const {
+   ABC_TRACE_FN((this, ibBegin, ibEnd));
+
+   intptr_t cb(intptr_t(size<int8_t>()));
+   if (ibBegin < 0) {
+      ibBegin += cb;
+      if (ibBegin < 0) {
+         // If the start of the interval is still negative, clip it to 0.
+         ibBegin = 0;
+      }
+   }
+   if (ibEnd < 0) {
+      ibEnd += cb;
+      if (ibEnd < 0) {
+         // If the end of the interval is still negative, clip it to 0.
+         ibEnd = 0;
+      }
+   } else if (ibEnd > cb) {
+      // If the end of the interval is beyond the end of the item array, clip it to the latter.
+      ibEnd = cb;
+   }
+   // If the interval is empty, return [0, 0) .
+   if (ibBegin >= ibEnd) {
+      return std::pair<void const *, void const *>(nullptr, nullptr);
+   }
+   // Return the constructed interval.
+   return std::pair<void const *, void const *>(begin<int8_t>() + ibBegin, begin<int8_t>() + ibEnd);
 }
 
 } //namespace abc
@@ -488,10 +485,15 @@ void _raw_complex_vextr_impl::remove_range(
 ) {
    ABC_TRACE_FN((this, /*type, */iBegin, iEnd));
 
-   auto range(adjust_and_validate_range(type.cb, iBegin, iEnd));
-   size_t ciRemove(range.second - range.first);
-   if (ciRemove) {
-      _remove(type, range.first, ciRemove);
+   auto range(translate_byte_range(ptrdiff_t(type.cb) * iBegin, ptrdiff_t(type.cb) * iEnd));
+   size_t cbRemove(size_t(
+      static_cast<int8_t const *>(range.second) - static_cast<int8_t const *>(range.first)
+   ));
+   if (cbRemove) {
+      _remove(
+         type, size_t(static_cast<int8_t const *>(range.first) - begin<int8_t>()) / type.cb,
+         cbRemove / type.cb
+      );
    }
 }
 
@@ -633,10 +635,15 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 void _raw_trivial_vextr_impl::remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd) {
    ABC_TRACE_FN((this, cbItem, iBegin, iEnd));
 
-   auto range(adjust_and_validate_range(cbItem, iBegin, iEnd));
-   size_t ciRemove(range.second - range.first);
-   if (ciRemove) {
-      _insert_or_remove(cbItem, range.first, nullptr, 0, ciRemove);
+   auto range(translate_byte_range(ptrdiff_t(cbItem) * iBegin, ptrdiff_t(cbItem) * iEnd));
+   size_t cbRemove(size_t(
+      static_cast<int8_t const *>(range.second) - static_cast<int8_t const *>(range.first)
+   ));
+   if (cbRemove) {
+      _insert_or_remove(
+         cbItem, size_t(static_cast<int8_t const *>(range.first) - begin<int8_t>()) / cbItem,
+         nullptr, 0, cbRemove / cbItem
+      );
    }
 }
 

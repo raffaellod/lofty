@@ -681,27 +681,6 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::adjust_and_validate_range().
-
-   iBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
-      this->size() to it.
-   iEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
-      adding this->size() to it.
-   return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
-      interval [0, 0) if the indices represent an empty interval after being adjusted.
-   */
-   std::pair<uintptr_t, uintptr_t> adjust_and_validate_range(intptr_t iBegin, intptr_t iEnd) const {
-      return _raw_vector<T, smc_bCopyConstructible>::adjust_and_validate_range(
-         sizeof(T), iBegin, iEnd
-      );
-   }
-
-
    /** See _raw_vector<T>::assign_move().
 
    v
@@ -740,6 +719,31 @@ protected:
          _raw_vector<T, smc_bCopyConstructible>::translate_offset(ptrdiff_t(sizeof(T)) * i)
       );
    }
+
+
+   /** Converts a left-closed, right-open interval with possibly negative element indices into one
+   consisting of two pointers into the item array.
+
+   iBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      this->size() to it.
+   iEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<T const *, T const *> translate_range(intptr_t iBegin, intptr_t iEnd) const {
+      auto range(_raw_trivial_vextr_impl::translate_byte_range(
+         ptrdiff_t(sizeof(T)) * iBegin, ptrdiff_t(sizeof(T)) * iEnd
+      ));
+      return std::make_pair(
+         static_cast<T const *>(range.first), static_cast<T const *>(range.second)
+      );
+   }
 };
 
 // Partial specialization for copyable types.
@@ -748,22 +752,21 @@ class vector_base<T, true> :
    public vector_base<T, false> {
 public:
 
-   /** Returns a segment of the vector.
+   /** Returns a slice of the vector.
 
    iBegin
-      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
-      index values.
+      Index of the first element. See abc::vector_base::translate_range() for allowed begin index
+      values.
    iEnd
-      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
-      end index values.
+      Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
+      index values.
    */
    dmvector<T, true> slice(intptr_t iBegin) const {
       return slice(iBegin, this->size());
    }
    dmvector<T, true> slice(intptr_t iBegin, intptr_t iEnd) const {
-      auto range(this->adjust_and_validate_range(iBegin, iEnd));
-      T const * ptBegin(this->cbegin().base());
-      return dmvector<T, true>(ptBegin + range.first, ptBegin + range.second);
+      auto range(this->translate_range(iBegin, iEnd));
+      return dmvector<T, true>(range.first, range.second);
    }
 
 
@@ -965,13 +968,13 @@ public:
    /** Removes a range of elements from the vector.
 
    iBegin
-      Index of the first element. See abc::_vextr::adjust_and_validate_range() for allowed begin
-      index values.
+      Index of the first element. See abc::vector_base::translate_range() for allowed begin index
+      values.
    itBegin
       Iterator to the first element to remove.
    iEnd
-      Index of the last element, exclusive. See abc::_vextr::adjust_and_validate_range() for allowed
-      end index values.
+      Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
+      index values.
    itEnd
       Iterator to past the last element to remove.
    */
