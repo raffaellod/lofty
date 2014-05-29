@@ -45,7 +45,7 @@ using namespace abc;
 class shall be instantiated as soon as the program is started, and its main() method should be
 invoked immediately afterwards; see [DOC:1063 Application startup and abc::app].
 */
-class example_app :
+class hello_world_app :
    public app {
 public:
 
@@ -72,5 +72,5 @@ public:
    }
 };
 
-ABC_APP_CLASS(example_app)
+ABC_APP_CLASS(hello_world_app)
 
