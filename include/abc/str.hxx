@@ -82,12 +82,11 @@ public:
    /** Character access operator.
 
    i
-      Character index. See abc::_vextr::adjust_and_validate_index() for allowed index values.
-   return
+      Character index. See abc::str_base::translate_index() for allowed index values.
       Character at index i.
    */
    char_t operator[](intptr_t i) const {
-      return *(cbegin() + intptr_t(adjust_and_validate_index(i)));
+      return *translate_index(i);
    }
 
 
@@ -428,28 +427,15 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::adjust_and_validate_index().
-
-   i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the item array by adding this->size() to it.
-   return
-      Adjusted index.
-   */
-   uintptr_t adjust_and_validate_index(intptr_t i) const {
-      return _raw_trivial_vextr_impl::adjust_and_validate_index(sizeof(char_t), i);
-   }
-
-
    /** See _raw_trivial_vextr_impl::adjust_and_validate_range().
 
    iBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
       this->size() to it.
    iEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
       adding this->size() to it.
    return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
@@ -510,6 +496,22 @@ protected:
    */
    void assign_share_ro_or_copy(str_base const & s) {
       _raw_trivial_vextr_impl::assign_share_ro_or_copy(sizeof(char_t), s);
+   }
+
+
+   /** Converts a possibly negative character index into a pointer into the character array,
+   throwing an exception if the result is out of bounds for the character array.
+
+   i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size() to it.
+   return
+      Pointer to the character.
+   */
+   char_t const * translate_index(intptr_t ich) const {
+      return static_cast<char_t const *>(
+         _raw_trivial_vextr_impl::translate_offset(ptrdiff_t(sizeof(char_t)) * ich)
+      );
    }
 
 
@@ -585,7 +587,7 @@ public:
    }
    istr(istr && s) :
       str_base(0) {
-      // Non-const, so it can’t be anything but a real istr, so it owns its item array.
+      // Non-const, so it can’t be anything but a real istr, so it owns its character array.
       assign_move(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
@@ -621,7 +623,7 @@ public:
       return *this;
    }
    istr & operator=(istr && s) {
-      // Non-const, so it can’t be anything but a real istr, so it owns its item array.
+      // Non-const, so it can’t be anything but a real istr, so it owns its character array.
       assign_move(std::move(s));
       return *this;
    }
@@ -721,7 +723,7 @@ public:
    /** See str_base::operator[]().
    */
    char_t & operator[](intptr_t i) {
-      return *(begin() + intptr_t(adjust_and_validate_index(i)));
+      return *const_cast<char_t *>(translate_index(i));
    }
    char_t operator[](intptr_t i) const {
       return str_base::operator[](i);
@@ -760,9 +762,9 @@ public:
    }
 
 
-   /** Grows the item array until the specified callback succeeds in filling it and returns a number
-   of needed characters that’s less than the size of the buffer. For example, for cchMax == 3 (NUL
-   terminator included), it must return <= 2 (NUL excluded).
+   /** Grows the character array until the specified callback succeeds in filling it and returns a
+   number of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
+   (NUL terminator included), it must return <= 2 (NUL excluded).
 
    This method is not transaction-safe; if an exception is thrown in the callback or elsewhere,
    *this will not be restored to its previous state.
@@ -1102,7 +1104,7 @@ class smstr :
    public mstr {
 private:
 
-   /** Actual static item array size. */
+   /** Actual static character array size. */
    static size_t const smc_cchFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_cchStatic);
 
 
@@ -1119,8 +1121,8 @@ public:
       mstr(smc_cchFixed) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
-   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   // If the source is using its static character array, it will be copied without allocating a
+   // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
       mstr(smc_cchFixed) {
       assign_move_dynamic_or_move_items(std::move(s));
@@ -1157,8 +1159,8 @@ public:
       assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
-   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   // If the source is using its static character array, it will be copied without allocating a
+   // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr & operator=(smstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;

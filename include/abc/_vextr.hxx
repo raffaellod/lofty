@@ -720,20 +720,6 @@ protected:
    }
 
 
-   /** Converts a possibly negative item index into a 0-based one, and throws an exception if the
-   result is out of bounds for the item array.
-
-   cbItem
-      Size of a single array item, in bytes.
-   i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the item array by adding this->size() to it.
-   return
-      Adjusted index.
-   */
-   uintptr_t adjust_and_validate_index(size_t cbItem, intptr_t i) const;
-
-
    /** Converts a left-closed, right-open interval with possibly negative indices into one
    consisting of two 0-based indices.
 
@@ -792,6 +778,18 @@ protected:
       Capacity of the static item array, or 0 if no static item array is present.
    */
    size_t static_capacity() const;
+
+
+   /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
+   exception if the result is out of bounds for the item array.
+
+   ib
+      If positive, this is interpreted as a 0-based byte offset; if negative, it’s interpreted as a
+      1-based byte offset from the end of the item array by adding this->size<int8_t>() to it.
+   return
+      Pointer to the item.
+   */
+   void const * translate_offset(intptr_t ib) const;
 
 
 protected:
@@ -982,8 +980,8 @@ public:
    type
       Adapter for the items’ type.
    iOffset
-      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
-      allowed index values.
+      Index at which the items should be inserted. See abc::_raw_vextr_impl_base::translate_offset()
+      for allowed index values.
    p
       Pointer to the first item to add.
    ci
@@ -995,7 +993,9 @@ public:
       type_void_adapter const & type, intptr_t iOffset, void const * p, size_t ci, bool bMove
    ) {
       if (ci) {
-         _insert(type, adjust_and_validate_index(type.cb, iOffset), p, ci, bMove);
+         _insert(type, uintptr_t(static_cast<int8_t const *>(
+            translate_offset(ptrdiff_t(type.cb) * iOffset)
+         ) - begin<int8_t>()) / type.cb, p, ci, bMove);
       }
    }
 
@@ -1005,10 +1005,13 @@ public:
    type
       Adapter for the items’ type.
    i
-      Index of the element. See abc::_vextr::adjust_and_validate_range() for allowed index values.
+      Index of the element. See abc::_raw_vextr_impl_base::translate_offset() for allowed index
+      values.
    */
    void remove_at(type_void_adapter const & type, intptr_t i) {
-      _remove(type, adjust_and_validate_index(type.cb, i), 1);
+      _remove(type, uintptr_t(static_cast<int8_t const *>(
+         translate_offset(ptrdiff_t(type.cb) * i)
+      ) - begin<int8_t>()) / type.cb, 1);
    }
 
 
@@ -1223,8 +1226,8 @@ public:
    cbItem
       Size of a single array item, in bytes.
    iOffset
-      Index at which the items should be inserted. See abc::_vextr::adjust_and_validate_index() for
-      allowed index values.
+      Index at which the items should be inserted. See abc::_raw_vextr_impl_base::translate_offset()
+      for allowed index values.
    p
       Pointer to the first item to add.
    ci
@@ -1232,7 +1235,9 @@ public:
    */
    void insert(size_t cbItem, intptr_t iOffset, void const * p, size_t ci) {
       if (ci) {
-         _insert_or_remove(cbItem, adjust_and_validate_index(cbItem, iOffset), p, ci, 0);
+         _insert_or_remove(cbItem, uintptr_t(static_cast<int8_t const *>(
+            translate_offset(ptrdiff_t(cbItem) * iOffset)
+         ) - begin<int8_t>()) / cbItem, p, ci, 0);
       }
    }
 
@@ -1242,10 +1247,13 @@ public:
    cbItem
       Size of a single array item, in bytes.
    i
-      Index of the element. See abc::_vextr::adjust_and_validate_index() for allowed index values.
+      Index of the element. See abc::_raw_vextr_impl_base::translate_offset() for allowed index
+      values.
    */
    void remove_at(size_t cbItem, intptr_t i) {
-      _insert_or_remove(cbItem, adjust_and_validate_index(cbItem, i), nullptr, 0, 1);
+      _insert_or_remove(cbItem, uintptr_t(static_cast<int8_t const *>(
+         translate_offset(ptrdiff_t(cbItem) * i)
+      ) - begin<int8_t>()) / cbItem, nullptr, 0, 1);
    }
 
 

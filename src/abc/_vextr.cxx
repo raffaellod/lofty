@@ -138,20 +138,6 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax) :
 }
 
 
-uintptr_t _raw_vextr_impl_base::adjust_and_validate_index(size_t cbItem, intptr_t i) const {
-   ABC_TRACE_FN((this, cbItem, i));
-
-   intptr_t ci(intptr_t(size<int8_t>() / cbItem));
-   if (i < 0) {
-      i += ci;
-   }
-   if (0 > i || i >= ci) {
-      ABC_THROW(index_error, (i));
-   }
-   return uintptr_t(i);
-}
-
-
 std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
    size_t cbItem, intptr_t iBegin, intptr_t iEnd
 ) const {
@@ -184,6 +170,19 @@ std::pair<uintptr_t, uintptr_t> _raw_vextr_impl_base::adjust_and_validate_range(
    }
    // Return the constructed interval.
    return std::pair<uintptr_t, uintptr_t>(uintptr_t(iBegin), uintptr_t(iEnd));
+}
+
+
+void const * _raw_vextr_impl_base::translate_offset(intptr_t ib) const {
+   ABC_TRACE_FN((this, ib));
+
+   int8_t const * pb(ib >= 0 ? begin<int8_t>() : end<int8_t>());
+   pb += ib;
+   if (begin<int8_t>() <= pb && pb < end<int8_t>()) {
+      return pb;
+   }
+   // TODO: use the index, not the offset.
+   ABC_THROW(index_error, (ib));
 }
 
 } //namespace abc

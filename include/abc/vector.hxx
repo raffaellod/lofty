@@ -117,8 +117,8 @@ public:
    /** Inserts elements at a specific position in the vector by moving them.
 
    i
-      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    p
       Pointer to the first element to add.
    ci
@@ -249,8 +249,8 @@ public:
    /** Inserts elements at a specific position in the vector by copying them.
 
    i
-      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    p
       Pointer to the first element to add.
    ci
@@ -371,8 +371,8 @@ public:
    /** Inserts one or more elements.
 
    i
-      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    pt
       Pointer to the first element to add.
    ci
@@ -387,8 +387,8 @@ public:
    types that’s the same as copying them.
 
    i
-      Index at which the elements should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    pt
       Pointer to the first element to add.
    ci
@@ -496,13 +496,12 @@ public:
    /** Element access operator.
 
    i
-      Element index. See abc::_vextr::adjust_and_validate_index() for allowed index values.
+      Element index. See abc::vector_base::translate_index() for allowed index values.
    return
       Element at index i.
    */
    T const & operator[](intptr_t i) const {
-      this->adjust_and_validate_index(i);
-      return *(cbegin() + i);
+      return *this->translate_index(i);
    }
 
 
@@ -682,19 +681,6 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::adjust_and_validate_index().
-
-   i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the item array by adding this->size() to it.
-   return
-      Adjusted index.
-   */
-   uintptr_t adjust_and_validate_index(intptr_t i) const {
-      return _raw_vector<T, smc_bCopyConstructible>::adjust_and_validate_index(sizeof(T), i);
-   }
-
-
    /** See _raw_vector<T>::adjust_and_validate_range().
 
    iBegin
@@ -736,6 +722,22 @@ protected:
    void assign_move_dynamic_or_move_items(vector_base && v) {
       _raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
          static_cast<_raw_vector<T, smc_bCopyConstructible> &&>(v)
+      );
+   }
+
+
+   /** Converts a possibly negative item index into a pointer into the item array, throwing an
+   exception if the result is out of bounds for the item array.
+
+   i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the item array by adding this->size() to it.
+   return
+      Pointer to the element.
+   */
+   T const * translate_index(intptr_t i) const {
+      return static_cast<T const *>(
+         _raw_vector<T, smc_bCopyConstructible>::translate_offset(ptrdiff_t(sizeof(T)) * i)
       );
    }
 };
@@ -909,8 +911,8 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      Index at which the element should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the element should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    it
       Iterator at which the element should be inserted.
    t
@@ -937,7 +939,7 @@ public:
    /** Removes a single element from the vector.
 
    i
-      Index of the element to remove. See abc::_vextr::adjust_and_validate_index() for allowed index
+      Index of the element to remove. See abc::vector_base::translate_index() for allowed index
       values.
    it
       Iterator to the element to remove.
@@ -1110,8 +1112,8 @@ public:
    /** Inserts elements at a specific position in the vector.
 
    i
-      Index at which the element should be inserted. See abc::_vextr::adjust_and_validate_index()
-      for allowed index values.
+      Index at which the element should be inserted. See abc::vector_base::translate_index() for
+      allowed index values.
    it
       Iterator at which the element should be inserted.
    t
