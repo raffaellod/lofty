@@ -741,12 +741,14 @@ public:
    /** Same as operator+=(), but for multi-argument overloads.
 
    pchAdd
-      Pointer to an characters to append.
+      Pointer to an array of characters to append.
    cchAdd
-      Count of characters in *pchAdd.
+      Count of characters in the array pointed to by pchAdd.
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
-      _raw_trivial_vextr_impl::append(sizeof(char_t), pchAdd, cchAdd);
+      _raw_trivial_vextr_impl::insert(
+         sizeof(char_t), _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd
+      );
    }
 
 

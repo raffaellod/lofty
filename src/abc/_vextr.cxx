@@ -401,100 +401,77 @@ static void overlapping_move_constr(
 }
 
 
-void _raw_complex_vextr_impl::_insert(
-   type_void_adapter const & type, size_t iOffset, void const * p, size_t ci, bool bMove
+void _raw_complex_vextr_impl::insert(
+   type_void_adapter const & type, uintptr_t ibOffset, void const * pInsert, size_t cbInsert,
+   bool bMove
 ) {
-   ABC_TRACE_FN((this, /*type, */iOffset, p, ci, bMove));
+   ABC_TRACE_FN((this, /*type, */ibOffset, pInsert, cbInsert, bMove));
 
-   transaction trn(type.cb, this, -1, ptrdiff_t(ci));
-   size_t ibOffset(type.cb * iOffset);
-   int8_t * pbOffset(trn.work_array<int8_t>() + ibOffset);
+   transaction trn(type.cb, this, -1, ptrdiff_t(cbInsert / type.cb));
+   int8_t * pbOffset(begin<int8_t>() + ibOffset);
+   void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
+   int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
+   int8_t * pbWorkInsertEnd(static_cast<int8_t *>(pbWorkInsertBegin) + cbInsert);
    // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
    // always be moved.
-   size_t ciTail(size<int8_t>() / type.cb - iOffset);
-   if (ciTail) {
-      overlapping_move_constr(
-         type, pbOffset + type.cb * ci, begin<int8_t>() + ibOffset, end<int8_t>()
-      );
+   size_t cbTail(size_t(end<int8_t>() - pbOffset));
+   if (cbTail) {
+      overlapping_move_constr(type, pbWorkInsertEnd, pbOffset, end<int8_t>());
    }
    // Copy/move the new items over.
    if (bMove) {
       // No point in using try/catch here; we just assume that a move constructor won’t throw.
       type.move_constr(
-         pbOffset,
-         const_cast<void *>(p),
-         static_cast<int8_t *>(const_cast<void *>(p)) + type.cb * ci
+         pbWorkInsertBegin, const_cast<void *>(pInsert), const_cast<void *>(pInsertEnd)
       );
    } else {
       try {
-         type.copy_constr(pbOffset, p, static_cast<int8_t const *>(p) + type.cb * ci);
+         type.copy_constr(pbWorkInsertBegin, pInsert, pInsertEnd);
       } catch (...) {
          // Undo the overlapping_move_constr() above.
-         if (ciTail) {
-            overlapping_move_constr(
-               type, begin<int8_t>() + ibOffset,
-               pbOffset + type.cb * ci, pbOffset + type.cb * (ci + ciTail)
-            );
+         if (cbTail) {
+            overlapping_move_constr(type, pbOffset, pbWorkInsertEnd, pbWorkInsertEnd + cbTail);
          }
          throw;
       }
    }
    // Also move to the new array the items before the insertion point, otherwise we’ll lose them in
    // the switch.
-   if (iOffset && trn.will_replace_item_array()) {
-      type.move_constr(trn.work_array<void>(), m_pBegin, begin<int8_t>() + ibOffset);
-      type.destruct(m_pBegin, begin<int8_t>() + ibOffset);
+   if (ibOffset && trn.will_replace_item_array()) {
+      type.move_constr(trn.work_array<void>(), m_pBegin, pbOffset);
+      type.destruct(m_pBegin, pbOffset);
    }
    trn.commit();
 }
 
 
-void _raw_complex_vextr_impl::_remove(
-   type_void_adapter const & type, uintptr_t iOffset, size_t ciRemove
+void _raw_complex_vextr_impl::remove(
+   type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove
 ) {
-   ABC_TRACE_FN((this, /*type, */iOffset, ciRemove));
+   ABC_TRACE_FN((this, /*type, */ibOffset, cbRemove));
 
-   transaction trn(type.cb, this, -1, -ptrdiff_t(ciRemove));
-   size_t cbOffset(type.cb * iOffset);
+   transaction trn(type.cb, this, -1, -ptrdiff_t(cbRemove / type.cb));
+   int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
+   int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
-   type.destruct(begin<int8_t>() + cbOffset, begin<int8_t>() + cbOffset + type.cb * ciRemove);
-   // The items beyond the last removed must be either copied to the new item array at ciRemove
-   // offset, or shifted closer to the start.
-   if (size_t ciTail = size<int8_t>() / type.cb - (iOffset + ciRemove)) {
-      int8_t * pbWorkTail(trn.work_array<int8_t>() + cbOffset),
-             * pbOrigTail(begin<int8_t>() + cbOffset + type.cb * ciRemove);
+   type.destruct(pbRemoveBegin, pbRemoveEnd);
+   // The items beyond the last removed must be either copied to the new item array at cbRemove
+   // offset, or shifted to pbRemoveBegin in the old item array.
+   if (pbRemoveEnd < m_pEnd) {
       if (trn.will_replace_item_array()) {
-         type.move_constr(pbWorkTail, pbOrigTail, pbOrigTail + type.cb * ciTail);
-         type.destruct(pbOrigTail, pbOrigTail + type.cb * ciTail);
+         type.move_constr(trn.work_array<int8_t>() + ibOffset, pbRemoveEnd, m_pEnd);
+         type.destruct(pbRemoveEnd, m_pEnd);
       } else {
-         overlapping_move_constr(type, pbWorkTail, pbOrigTail, pbOrigTail + type.cb * ciTail);
+         overlapping_move_constr(type, pbRemoveBegin, pbRemoveEnd, m_pEnd);
       }
    }
    // Also move to the new array the items before the first deleted one, otherwise we’ll lose them
    // in the switch.
-   if (iOffset && trn.will_replace_item_array()) {
-      type.move_constr(trn.work_array<void>(), m_pBegin, begin<int8_t>() + cbOffset);
-      type.destruct(m_pBegin, begin<int8_t>() + cbOffset);
+   if (ibOffset && trn.will_replace_item_array()) {
+      type.move_constr(trn.work_array<void>(), m_pBegin, pbRemoveBegin);
+      type.destruct(m_pBegin, pbRemoveBegin);
    }
    trn.commit();
-}
-
-
-void _raw_complex_vextr_impl::remove_range(
-   type_void_adapter const & type, intptr_t iBegin, intptr_t iEnd
-) {
-   ABC_TRACE_FN((this, /*type, */iBegin, iEnd));
-
-   auto range(translate_byte_range(ptrdiff_t(type.cb) * iBegin, ptrdiff_t(type.cb) * iEnd));
-   size_t cbRemove(size_t(
-      static_cast<int8_t const *>(range.second) - static_cast<int8_t const *>(range.first)
-   ));
-   if (cbRemove) {
-      _remove(
-         type, size_t(static_cast<int8_t const *>(range.first) - begin<int8_t>()) / type.cb,
-         cbRemove / type.cb
-      );
-   }
 }
 
 
@@ -601,50 +578,29 @@ void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi
 
 
 void _raw_trivial_vextr_impl::_insert_or_remove(
-   size_t cbItem, uintptr_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
+   size_t cbItem, uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
 ) {
-   ABC_TRACE_FN((this, cbItem, iOffset, pAdd, ciAdd, ciRemove));
+   ABC_TRACE_FN((this, cbItem, ibOffset, pAdd, cbAdd, cbRemove));
 
-   ABC_ASSERT(ciAdd || ciRemove, SL("must have items being added or removed"));
-   transaction trn(cbItem, this, -1, ptrdiff_t(ciAdd) - ptrdiff_t(ciRemove));
-   size_t cbOffset(cbItem * iOffset);
+   ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
+   transaction trn(cbItem, this, -1, (ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove)) / ptrdiff_t(cbItem));
+   int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
+   int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
    // last removed (when removing) must always be moved/copied.
-   if (size_t ciTail = size<int8_t>() / cbItem - (iOffset + ciRemove)) {
-      memory::move(
-         trn.work_array<int8_t>() + cbOffset + cbItem * ciAdd,
-         begin<int8_t>() + cbOffset + cbItem * ciRemove,
-         cbItem * ciTail
-      );
+   if (size_t cbTail = size_t(end<int8_t>() - pbRemoveEnd)) {
+      memory::move(pbWorkOffset + cbAdd, pbRemoveEnd, cbTail);
    }
-   if (ciAdd) {
+   if (cbAdd) {
       // Copy the new items over.
-      memory::copy(
-         trn.work_array<int8_t>() + cbOffset, static_cast<int8_t const *>(pAdd), cbItem * ciAdd
-      );
+      memory::copy(pbWorkOffset, static_cast<int8_t const *>(pAdd), cbAdd);
    }
    // Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
-   if (cbOffset && trn.will_replace_item_array()) {
-      memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOffset);
+   if (ibOffset && trn.will_replace_item_array()) {
+      memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), ibOffset);
    }
 
    trn.commit();
-}
-
-
-void _raw_trivial_vextr_impl::remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd) {
-   ABC_TRACE_FN((this, cbItem, iBegin, iEnd));
-
-   auto range(translate_byte_range(ptrdiff_t(cbItem) * iBegin, ptrdiff_t(cbItem) * iEnd));
-   size_t cbRemove(size_t(
-      static_cast<int8_t const *>(range.second) - static_cast<int8_t const *>(range.first)
-   ));
-   if (cbRemove) {
-      _insert_or_remove(
-         cbItem, size_t(static_cast<int8_t const *>(range.first) - begin<int8_t>()) / cbItem,
-         nullptr, 0, cbRemove / cbItem
-      );
-   }
 }
 
 

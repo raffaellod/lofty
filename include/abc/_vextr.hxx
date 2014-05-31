@@ -874,24 +874,6 @@ class ABCAPI _raw_complex_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
-   /** Appends one or more items.
-
-   type
-      Adapter for the items’ type.
-   p
-      Pointer to the first item to add.
-   ci
-      Count of items in the array pointed to by p.
-   bMove
-      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
-   */
-   void append(type_void_adapter const & type, void const * p, size_t ci, bool bMove) {
-      if (ci) {
-         _insert(type, size<int8_t>() / type.cb, p, ci, bMove);
-      }
-   }
-
-
    /** Copies or moves the contents of the two sources to *this, according to the source type. If
    bMove{1,2} == true, the source items will be moved by having their const-ness cast away ‒ be
    careful.
@@ -977,54 +959,31 @@ public:
 
    type
       Adapter for the items’ type.
-   iOffset
-      Index at which the items should be inserted. See abc::_raw_vextr_impl_base::translate_offset()
-      for allowed index values.
-   p
-      Pointer to the first item to add.
-   ci
-      Count of items in the array pointed to by p.
+   ibOffset
+      Byte index at which the items should be inserted.
+   pInsert
+      Pointer to the first item to insert.
+   cbInsert
+      Size of the array pointed to by pInsert, in bytes.
    bMove
-      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
+      true to move the items from pInsert to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, intptr_t iOffset, void const * p, size_t ci, bool bMove
-   ) {
-      if (ci) {
-         _insert(type, uintptr_t(static_cast<int8_t const *>(
-            translate_offset(ptrdiff_t(type.cb) * iOffset)
-         ) - begin<int8_t>()) / type.cb, p, ci, bMove);
-      }
-   }
+      type_void_adapter const & type, uintptr_t ibOffset, void const * pInsert, size_t cbInsert,
+      bool bMove
+   );
 
 
-   /** Removes a single element from the vextr.
+   /** Removes items from the vextr.
 
    type
       Adapter for the items’ type.
-   i
-      Index of the element. See abc::_raw_vextr_impl_base::translate_offset() for allowed index
-      values.
+   ibOffset
+      Byte index at which the items should be removed.
+   cbRemove
+      Size of the array slice to be removed, in bytes.
    */
-   void remove_at(type_void_adapter const & type, intptr_t i) {
-      _remove(type, uintptr_t(static_cast<int8_t const *>(
-         translate_offset(ptrdiff_t(type.cb) * i)
-      ) - begin<int8_t>()) / type.cb, 1);
-   }
-
-
-   /** Removes elements from the vextr.
-
-   type
-      Adapter for the items’ type.
-   iBegin
-      Index of the first element. See abc::_raw_vextr_impl_base::translate_byte_range() for allowed
-      begin index values.
-   iEnd
-      Index of the last element, exclusive. See abc::_raw_vextr_impl_base::translate_byte_range()
-      for allowed end index values.
-   */
-   void remove_range(type_void_adapter const & type, intptr_t iBegin, intptr_t iEnd);
+   void remove(type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove);
 
 
    /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -1065,38 +1024,6 @@ protected:
    _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
    }
-
-
-private:
-
-   /** Implementation of append() and insert(). Does not validate iOffset or ci.
-
-   type
-      Adapter for the items’ type.
-   iOffset
-      Index at which the items should be inserted.
-   p
-      Pointer to the first item to add.
-   ci
-      Count of items in the array pointed to by p.
-   bMove
-      true to move the items from pAdd to the vextr’s item array, or false to copy them instead.
-   */
-   void _insert(
-      type_void_adapter const & type, uintptr_t iOffset, void const * p, size_t ci, bool bMove
-   );
-
-
-   /** Implementation of remove_at() and remove_range(). Does not validate iOffset or ciRemove.
-
-   type
-      Adapter for the items’ type.
-   iOffset
-      Index at which the items should be removed.
-   ciRemove
-      Count of items to remove.
-   */
-   void _remove(type_void_adapter const & type, uintptr_t iOffset, size_t ciRemove);
 };
 
 } //namespace abc
@@ -1114,22 +1041,6 @@ derived common base class of both vector and str.
 class ABCAPI _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
 public:
-
-   /** Appends one or more items.
-
-   cbItem
-      Size of a single array item, in bytes.
-   p
-      Pointer to the first item to add.
-   ci
-      Count of items in the array pointed to by p.
-   */
-   void append(size_t cbItem, void const * p, size_t ci) {
-      if (ci) {
-         _insert_or_remove(cbItem, size<int8_t>() / cbItem, p, ci, 0);
-      }
-   }
-
 
    /** Copies the contents of the two sources to *this. This method must never be called with p1 or
    p2 == m_pBegin.
@@ -1223,50 +1134,34 @@ public:
 
    cbItem
       Size of a single array item, in bytes.
-   iOffset
-      Index at which the items should be inserted. See abc::_raw_vextr_impl_base::translate_offset()
-      for allowed index values.
-   p
-      Pointer to the first item to add.
-   ci
-      Count of items in the array pointed to by p.
+   ibOffset
+      Byte index at which the items should be inserted.
+   pInsert
+      Pointer to the first item to insert.
+   cbInsert
+      Size of the array pointed to by pInsert, in bytes.
    */
-   void insert(size_t cbItem, intptr_t iOffset, void const * p, size_t ci) {
-      if (ci) {
-         _insert_or_remove(cbItem, uintptr_t(static_cast<int8_t const *>(
-            translate_offset(ptrdiff_t(cbItem) * iOffset)
-         ) - begin<int8_t>()) / cbItem, p, ci, 0);
+   void insert(size_t cbItem, uintptr_t ibOffset, void const * pInsert, size_t cbInsert) {
+      if (cbInsert) {
+         _insert_or_remove(cbItem, ibOffset, pInsert, cbInsert, 0);
       }
    }
 
 
-   /** Removes a single element from the vextr.
+   /** Removes items from the vextr.
 
    cbItem
       Size of a single array item, in bytes.
-   i
-      Index of the element. See abc::_raw_vextr_impl_base::translate_offset() for allowed index
-      values.
+   ibOffset
+      Byte index at which the items should be removed.
+   cbRemove
+      Size of the array slice to be removed, in bytes.
    */
-   void remove_at(size_t cbItem, intptr_t i) {
-      _insert_or_remove(cbItem, uintptr_t(static_cast<int8_t const *>(
-         translate_offset(ptrdiff_t(cbItem) * i)
-      ) - begin<int8_t>()) / cbItem, nullptr, 0, 1);
+   void remove(size_t cbItem, uintptr_t ibOffset, size_t cbRemove) {
+      if (cbRemove) {
+         _insert_or_remove(cbItem, ibOffset, nullptr, 0, cbRemove);
+      }
    }
-
-
-   /** Removes elements from the vextr.
-
-   cbItem
-      Size of a single array item, in bytes.
-   iBegin
-      Index of the first element. See abc::_raw_vextr_impl_base::translate_byte_range() for allowed
-      begin index values.
-   iEnd
-      Index of the last element, exclusive. See abc::_raw_vextr_impl_base::translate_byte_range()
-      for allowed end index values.
-   */
-   void remove_range(size_t cbItem, intptr_t iBegin, intptr_t iEnd);
 
 
    /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -1320,21 +1215,21 @@ private:
    void _assign_share(_raw_trivial_vextr_impl const & rtvi);
 
 
-   /** Implementation of append(), insert(), remove_at() and remove_range().
+   /** Implementation of insert() and remove().
 
    cbItem
       Size of a single array item, in bytes.
-   iOffset
-      Index at which the items should be inserted.
-   pAdd
-      Pointer to the first item to add.
-   ciAdd
-      Count of items to add.
-   ciRemove
-      Count of items to remove.
+   ibOffset
+      Byte index at which the items should be inserted or removed.
+   pInsert
+      Pointer to the first item to insert.
+   cbInsert
+      Size of the array pointed to be pInsert, in bytes.
+   cbRemove
+      Size of the slice of item array to remove, in bytes.
    */
    void _insert_or_remove(
-      size_t cbItem, uintptr_t iOffset, void const * pAdd, size_t ciAdd, size_t ciRemove
+      size_t cbItem, uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
    );
 };
 

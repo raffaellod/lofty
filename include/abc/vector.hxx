@@ -50,22 +50,6 @@ public:
    }
 
 
-   /** Appends one or more elements by moving them to the end of the vector’s item array.
-
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements to add.
-   */
-   void append_move(T * p, size_t ci) {
-      type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
-      type.set_size<T>();
-      _raw_complex_vextr_impl::append(type, p, ci, true);
-   }
-
-
    /** Moves the contents of the two sources to *this.
 
    p1Begin
@@ -116,42 +100,43 @@ public:
 
    /** Inserts elements at a specific position in the vector by moving them.
 
-   i
-      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements in the array pointed to by pAdd.
+   ptOffset
+      Pointer to where the elements should be inserted.
+   ptInsert
+      Pointer to the first element to insert.
+   ciInsert
+      Count of elements in the array pointed to by ptInsert.
    */
-   void insert_move(intptr_t i, T * p, size_t ci) {
+   void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, i, p, ci, true);
+      _raw_complex_vextr_impl::insert(
+         type,
+         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         ptInsert, sizeof(T) * ciInsert, true
+      );
    }
 
 
-   /** See _raw_complex_vextr_impl::remove_at().
+   /** Removes a slice from the vector.
+
+   ptRemoveBegin
+      Pointer to the first element to remove.
+   ptRemoveEnd
+      Pointer to beyond the last element to remove.
    */
-   void remove_at(intptr_t i) {
+   void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::remove_at(type, i);
-   }
-
-
-   /** See _raw_complex_vextr_impl::remove_range().
-   */
-   void remove_range(intptr_t iBegin, intptr_t iEnd) {
-      type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
-      type.set_size<T>();
-      _raw_complex_vextr_impl::remove_range(type, iBegin, iEnd);
+      _raw_complex_vextr_impl::remove(type, size_t(
+         reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+      ), size_t(
+         reinterpret_cast<uintptr_t>(ptRemoveEnd) - reinterpret_cast<uintptr_t>(ptRemoveBegin)
+      ));
    }
 
 
@@ -202,23 +187,6 @@ class _raw_vector<T, true, false> :
    public _raw_vector<T, false, false> {
 public:
 
-   /** Appends one or more elements by copying them to the end of the vector’s item array.
-
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements to add.
-   */
-   void append_copy(T const * p, size_t ci) {
-      type_void_adapter type;
-      type.set_copy_fn<T>();
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
-      type.set_size<T>();
-      _raw_complex_vextr_impl::append(type, p, ci, false);
-   }
-
-
    /** See _raw_complex_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
@@ -248,21 +216,24 @@ public:
 
    /** Inserts elements at a specific position in the vector by copying them.
 
-   i
-      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements in the array pointed to by pAdd.
+   ptOffset
+      Pointer to where the elements should be inserted.
+   ptInsert
+      Pointer to the first element to insert.
+   ciInsert
+      Count of elements in the array pointed to by ptInsert.
    */
-   void insert_copy(intptr_t i, T const * p, size_t ci) {
+   void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(type, i, p, ci, false);
+      _raw_complex_vextr_impl::insert(
+         type,
+         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         ptInsert, sizeof(T) * ciInsert, false
+      );
    }
 
 
@@ -285,31 +256,6 @@ template <typename T>
 class _raw_vector<T, true, true> :
    public _raw_trivial_vextr_impl {
 public:
-
-   /** Appends one or more elements.
-
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements to add.
-   */
-   void append_copy(T const * p, size_t ci) {
-      _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
-   }
-
-
-   /** Appends one or more elements. Semantically this is supposed to move them, but for trivial
-   types that’s the same as copying them.
-
-   p
-      Pointer to the first element to add.
-   ci
-      Count of elements to add.
-   */
-   void append_move(T * p, size_t ci) {
-      _raw_trivial_vextr_impl::append(sizeof(T), p, ci);
-   }
-
 
    /** See _raw_trivial_vextr_impl::assign_copy().
    */
@@ -368,48 +314,56 @@ public:
    }
 
 
-   /** Inserts one or more elements.
+   /** Inserts elements at a specific position in the vector.
 
-   i
-      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
-   pt
-      Pointer to the first element to add.
-   ci
-      Count of elements in the array pointed to by p.
+   ptOffset
+      Pointer to where the elements should be inserted.
+   ptInsert
+      Pointer to the first element to insert.
+   ciInsert
+      Count of elements in the array pointed to by ptInsert.
    */
-   void insert_copy(intptr_t i, T const * pt, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), i, pt, ci);
+   void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
+      _raw_trivial_vextr_impl::insert(
+         sizeof(T),
+         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         ptInsert, sizeof(T) * ciInsert
+      );
    }
 
 
    /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial
    types that’s the same as copying them.
 
-   i
-      Index at which the elements should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
-   pt
-      Pointer to the first element to add.
-   ci
-      Count of elements in the array pointed to by p.
+   ptOffset
+      Pointer to where the elements should be inserted.
+   ptInsert
+      Pointer to the first element to insert.
+   ciInsert
+      Count of elements in the array pointed to by ptInsert.
    */
-   void insert_move(intptr_t i, T const * pt, size_t ci) {
-      _raw_trivial_vextr_impl::insert(sizeof(T), i, pt, ci);
+   void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
+      _raw_trivial_vextr_impl::insert(
+         sizeof(T),
+         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         ptInsert, sizeof(T) * ciInsert
+      );
    }
 
 
-   /** See _raw_trivial_vextr_impl::remove_at().
-   */
-   void remove_at(intptr_t i) {
-      _raw_trivial_vextr_impl::remove_at(sizeof(T), i);
-   }
+   /** Removes elements from the vector.
 
-
-   /** See _raw_trivial_vextr_impl::remove_range().
+   ptRemoveBegin
+      Pointer to the first element to remove.
+   ptRemoveEnd
+      Pointer to beyond the last element to remove.
    */
-   void remove_range(intptr_t iBegin, intptr_t iEnd) {
-      _raw_trivial_vextr_impl::remove_range(sizeof(T), iBegin, iEnd);
+   void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
+      _raw_trivial_vextr_impl::remove(sizeof(T), size_t(
+         reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+      ), size_t(
+         reinterpret_cast<uintptr_t>(ptRemoveEnd) - reinterpret_cast<uintptr_t>(ptRemoveBegin)
+      ));
    }
 
 
@@ -855,7 +809,7 @@ public:
       *this.
    */
    mvector & operator+=(mvector && v) {
-      this->append_move(v.begin().base(), v.size());
+      this->insert_move(this->cend(), v.begin().base(), v.size());
       return *this;
    }
 
@@ -873,14 +827,10 @@ public:
    /** Adds elements at the end of the vector.
 
    t
-      Element to copy (const &) or move (&&) to the end of the vector.
-   pt
-      Pointer to an array of elements to copy to the end of the vector.
-   ci
-      Count of elements in the array pointed to by pt.
+      Element to add.
    */
    void append(typename std::remove_const<T>::type && t) {
-      this->append_move(&t, 1);
+      insert(this->cend(), std::move(t));
    }
 
 
@@ -913,19 +863,19 @@ public:
 
    /** Inserts elements at a specific position in the vector.
 
-   i
+   iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
       allowed index values.
-   it
+   itOffset
       Iterator at which the element should be inserted.
    t
-      Element to add.
+      Element to insert.
    */
-   void insert(intptr_t i, typename std::remove_const<T>::type && t) {
-      this->insert_move(i, &t, 1);
+   void insert(intptr_t iOffset, typename std::remove_const<T>::type && t) {
+      this->insert_move(this->translate_index(iOffset), &t, 1);
    }
-   void insert(const_iterator it, typename std::remove_const<T>::type && t) {
-      this->insert_move(it - this->cbegin(), std::move(t), &t, 1);
+   void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
+      this->insert_move(itOffset.base(), &t, 1);
    }
 
 
@@ -948,10 +898,11 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(intptr_t i) {
-      vector_base_::remove_at(i);
+      T const * pt(this->translate_index(i));
+      vector_base_::remove(pt, pt + 1);
    }
    void remove_at(const_iterator it) {
-      vector_base_::remove_at(it - this->cbegin());
+      vector_base_::remove(it.base(), (it + 1).base());
    }
 
 
@@ -976,19 +927,22 @@ public:
       Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
       index values.
    itEnd
-      Iterator to past the last element to remove.
+      Iterator to beyond the last element to remove.
    */
    void remove_range(intptr_t iBegin, intptr_t iEnd) {
-      vector_base_::remove_range(iBegin, iEnd);
+      auto range(this->translate_range(iBegin, iEnd));
+      vector_base_::remove(range.first, range.second);
    }
    void remove_range(intptr_t iBegin, const_iterator itEnd) {
-      vector_base_::remove_range(iBegin, itEnd - this->cbegin());
+      auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
+      vector_base_::remove(range.first, range.second);
    }
    void remove_range(const_iterator itBegin, intptr_t iEnd) {
-      vector_base_::remove_range(itBegin - this->cbegin(), iEnd);
+      auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
+      vector_base_::remove(range.first, range.second);
    }
    void remove_range(const_iterator itBegin, const_iterator itEnd) {
-      vector_base_::remove_range(itBegin - this->cbegin(), itEnd - this->cbegin());
+      vector_base_::remove(itBegin.base(), itEnd.base());
    }
 
 
@@ -1083,11 +1037,11 @@ public:
       *this.
    */
    mvector & operator+=(mvector const & v) {
-      this->append_copy(v.cbegin().base(), v.size());
+      this->insert_copy(this->cend().base(), v.begin().base(), v.size());
       return *this;
    }
    mvector & operator+=(mvector && v) {
-      this->append_move(v.begin().base(), v.size());
+      this->insert_move(this->cend().base(), v.begin().base(), v.size());
       return *this;
    }
 
@@ -1102,47 +1056,47 @@ public:
       Count of elements in the array pointed to by pt.
    */
    void append(T const & t) {
-      this->append_copy(&t, 1);
+      this->insert_copy(this->cend().base(), &t, 1);
    }
    void append(typename std::remove_const<T>::type && t) {
-      this->append_move(&t, 1);
+      this->insert_move(this->cend().base(), &t, 1);
    }
    void append(T const * pt, size_t ci) {
-      this->append_copy(pt, ci);
+      this->insert_copy(this->cend().base(), pt, ci);
    }
 
 
    /** Inserts elements at a specific position in the vector.
 
-   i
+   iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
       allowed index values.
-   it
+   itOffset
       Iterator at which the element should be inserted.
    t
-      Element to add.
+      Element to insert.
    pt
-      Pointer to the first element to add.
+      Pointer to the first element to insert.
    ci
       Count of elements in the array pointed to by pt.
    */
-   void insert(intptr_t i, T const & t) {
-      this->insert_copy(i, &t, 1);
+   void insert(intptr_t iOffset, T const & t) {
+      this->insert_copy(this->translate_index(iOffset), &t, 1);
    }
-   void insert(intptr_t i, typename std::remove_const<T>::type && t) {
-      this->insert_move(i, &t, 1);
+   void insert(intptr_t iOffset, typename std::remove_const<T>::type && t) {
+      this->insert_move(this->translate_index(iOffset), &t, 1);
    }
-   void insert(intptr_t i, T const * pt, size_t ci) {
-      this->insert_copy(i, pt, ci);
+   void insert(intptr_t iOffset, T const * pt, size_t ci) {
+      this->insert_copy(this->translate_index(iOffset), pt, ci);
    }
-   void insert(const_iterator it, T const & t) {
-      this->insert_copy(it - this->cbegin(), &t, 1);
+   void insert(const_iterator itOffset, T const & t) {
+      this->insert_copy(itOffset.base(), &t, 1);
    }
-   void insert(const_iterator it, typename std::remove_const<T>::type && t) {
-      this->insert_move(it - this->cbegin(), std::move(t), &t, 1);
+   void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
+      this->insert_move(itOffset.base(), &t, 1);
    }
-   void insert(const_iterator it, T const * pt, size_t ci) {
-      this->insert_copy(it - this->cbegin(), pt, ci);
+   void insert(const_iterator itOffset, T const * pt, size_t ci) {
+      this->insert_copy(itOffset.base(), pt, ci);
    }
 
 
