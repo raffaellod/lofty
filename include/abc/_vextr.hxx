@@ -759,7 +759,7 @@ protected:
 
 
    /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
-   exception if the result is out of bounds for the item array.
+   index_error exception if the result is out of bounds for the item array.
 
    ib
       If positive, this is interpreted as a 0-based byte offset; if negative, it’s interpreted as a
@@ -791,8 +791,8 @@ protected:
 
 
    /** Validates that the specified pointer references an item within or at the end of the item
-   array. Similar to validate_pointer_noend(), but it accepts a pointer to the end of the item
-   array.
+   array, throwing an index_error exception if it doesn’t. Similar to validate_pointer_noend(), but
+   it accepts a pointer to the end of the item array.
 
    p
       Pointer to validate.
@@ -800,8 +800,9 @@ protected:
    void validate_pointer(void const * p) const;
 
 
-   /** Validates that the specified pointer references an item within the item array. Similar to
-   validate_pointer(), but it rejects a pointer to the end of the item array.
+   /** Validates that the specified pointer references an item within the item array, throwing an
+   index_error exception if it doesn’t. Similar to validate_pointer(), but it rejects a pointer to
+   the end of the item array.
 
    p
       Pointer to validate.
