@@ -790,6 +790,25 @@ protected:
    ) const;
 
 
+   /** Validates that the specified pointer references an item within or at the end of the item
+   array. Similar to validate_pointer_noend(), but it accepts a pointer to the end of the item
+   array.
+
+   p
+      Pointer to validate.
+   */
+   void validate_pointer(void const * p) const;
+
+
+   /** Validates that the specified pointer references an item within the item array. Similar to
+   validate_pointer(), but it rejects a pointer to the end of the item array.
+
+   p
+      Pointer to validate.
+   */
+   void validate_pointer_noend(void const * p) const;
+
+
 protected:
 
    /** Pointer to the start of the item array. */

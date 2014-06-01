@@ -875,6 +875,7 @@ public:
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
    void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
+      this->validate_pointer(itOffset.base());
       this->insert_move(itOffset.base(), &t, 1);
    }
 
@@ -899,10 +900,11 @@ public:
    */
    void remove_at(intptr_t i) {
       T const * pt(this->translate_index(i));
-      vector_base_::remove(pt, pt + 1);
+      this->remove(pt, pt + 1);
    }
    void remove_at(const_iterator it) {
-      vector_base_::remove(it.base(), (it + 1).base());
+      this->validate_pointer_noend(it.base());
+      this->remove(it.base(), (it + 1).base());
    }
 
 
@@ -931,18 +933,20 @@ public:
    */
    void remove_range(intptr_t iBegin, intptr_t iEnd) {
       auto range(this->translate_range(iBegin, iEnd));
-      vector_base_::remove(range.first, range.second);
+      this->remove(range.first, range.second);
    }
    void remove_range(intptr_t iBegin, const_iterator itEnd) {
       auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
-      vector_base_::remove(range.first, range.second);
+      this->remove(range.first, range.second);
    }
    void remove_range(const_iterator itBegin, intptr_t iEnd) {
       auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
-      vector_base_::remove(range.first, range.second);
+      this->remove(range.first, range.second);
    }
    void remove_range(const_iterator itBegin, const_iterator itEnd) {
-      vector_base_::remove(itBegin.base(), itEnd.base());
+      this->validate_pointer(itBegin.base());
+      this->validate_pointer(itEnd.base());
+      this->remove(itBegin.base(), itEnd.base());
    }
 
 
@@ -1090,12 +1094,15 @@ public:
       this->insert_copy(this->translate_index(iOffset), pt, ci);
    }
    void insert(const_iterator itOffset, T const & t) {
+      this->validate_pointer(itOffset.base());
       this->insert_copy(itOffset.base(), &t, 1);
    }
    void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
+      this->validate_pointer(itOffset.base());
       this->insert_move(itOffset.base(), &t, 1);
    }
    void insert(const_iterator itOffset, T const * pt, size_t ci) {
+      this->validate_pointer(itOffset.base());
       this->insert_copy(itOffset.base(), pt, ci);
    }
 

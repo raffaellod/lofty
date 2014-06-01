@@ -1011,6 +1011,8 @@ inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
    return dmstr(range.first, range.second);
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
+   validate_pointer(itBegin.base());
+   validate_pointer(itEnd.base());
    return dmstr(itBegin.base(), itEnd.base());
 }
 

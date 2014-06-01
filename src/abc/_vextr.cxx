@@ -182,6 +182,26 @@ std::pair<void const *, void const *> _raw_vextr_impl_base::translate_byte_range
    return std::pair<void const *, void const *>(begin<int8_t>() + ibBegin, begin<int8_t>() + ibEnd);
 }
 
+
+void _raw_vextr_impl_base::validate_pointer(void const * p) const {
+   ABC_TRACE_FN((this, p));
+
+   if (p < m_pBegin || p > m_pEnd) {
+      // TODO: use the index, not the offset.
+      ABC_THROW(index_error, (static_cast<int8_t const *>(p) - begin<int8_t>()));
+   }
+}
+
+
+void _raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
+   ABC_TRACE_FN((this, p));
+
+   if (p < m_pBegin || p >= m_pEnd) {
+      // TODO: use the index, not the offset.
+      ABC_THROW(index_error, (static_cast<int8_t const *>(p) - begin<int8_t>()));
+   }
+}
+
 } //namespace abc
 
 

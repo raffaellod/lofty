@@ -152,6 +152,7 @@ bool str_base::ends_with(istr const & s) const {
 str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FN((this, chNeedle, itWhence));
 
+   validate_pointer(itWhence.base());
    auto itEnd(cend());
    char_t const * pch(traits::str_chr(itWhence.base(), itEnd.base(), chNeedle));
    return pch ? const_iterator(pch) : itEnd;
@@ -159,6 +160,7 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FN((this, sNeedle, itWhence));
 
+   validate_pointer(itWhence.base());
    auto itEnd(cend());
    char_t const * pch(traits::str_str(
       itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
@@ -170,12 +172,14 @@ str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itW
 str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FN((this, chNeedle, itWhence));
 
+   validate_pointer(itWhence.base());
    char_t const * pch(traits::str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
    return pch ? const_iterator(pch) : cend();
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FN((this, sNeedle, itWhence));
 
+   validate_pointer(itWhence.base());
    char_t const * pch(traits::str_str_r(
       cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
    ));
