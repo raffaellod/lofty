@@ -77,9 +77,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v[1], 1);
       ABC_TESTING_ASSERT_EQUAL(v[2], 3);
 
-      ABC_TESTING_ASSERT_EQUAL(std::find(v.cbegin(), v.cend(), 1), v.cbegin() + 1);
-
-      v.remove_at(std::find(v.cbegin(), v.cend(), 1));
+      v.remove_at(1);
       ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
       ABC_TESTING_ASSERT_EQUAL(v[0], 2);
       ABC_TESTING_ASSERT_EQUAL(v[1], 3);
@@ -90,6 +88,52 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::vector_iterators
+
+
+namespace abc {
+namespace test {
+
+class vector_iterators :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*vector classes - operations with iterators"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FN((this));
+
+      dmvector<int> v;
+      v.append(1);
+      v.append(2);
+      v.append(3);
+
+      // Remove an element by iterator.
+      v.remove_at(std::find(v.cbegin(), v.cend(), 2));
+      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
+      ABC_TESTING_ASSERT_EQUAL(v[1], 3);
+
+      // Remove an element with an invalid iterator.
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.begin() - 1));
+      ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.end()));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_iterators)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
