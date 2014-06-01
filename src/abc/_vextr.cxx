@@ -540,9 +540,9 @@ void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t cb
 namespace abc {
 
 void _raw_trivial_vextr_impl::assign_concat(
-   size_t cbItem, void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
+   void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
 ) {
-   ABC_TRACE_FN((this, cbItem, p1Begin, p1End, p2Begin, p2End));
+   ABC_TRACE_FN((this, p1Begin, p1End, p2Begin, p2End));
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
@@ -560,9 +560,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 }
 
 
-void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-   size_t cbItem, _raw_trivial_vextr_impl && rtvi
-) {
+void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
@@ -570,7 +568,7 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
       assign_move(std::move(rtvi));
    } else {
       // Can’t move, so copy instead.
-      assign_copy(cbItem, rtvi.m_pBegin, rtvi.m_pEnd);
+      assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
       // And now empty the source.
       rtvi.assign_empty();
    }
@@ -595,9 +593,9 @@ void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi
 
 
 void _raw_trivial_vextr_impl::_insert_or_remove(
-   size_t cbItem, uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
+   uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
 ) {
-   ABC_TRACE_FN((this, cbItem, ibOffset, pAdd, cbAdd, cbRemove));
+   ABC_TRACE_FN((this, ibOffset, pAdd, cbAdd, cbRemove));
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
    transaction trn(this, -1, ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove));

@@ -65,7 +65,6 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, true, p2Begin, p2End, true);
    }
 
@@ -85,7 +84,6 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
    }
 
@@ -146,7 +144,6 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
    }
 
@@ -157,7 +154,6 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
    }
 
@@ -194,7 +190,6 @@ public:
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::assign_copy(type, ptBegin, ptEnd);
    }
 
@@ -209,7 +204,6 @@ public:
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      type.set_size<T>();
       _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, bMove1, p2Begin, p2End, bMove2);
    }
 
@@ -260,7 +254,7 @@ public:
    /** See _raw_trivial_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
-      _raw_trivial_vextr_impl::assign_copy(sizeof(T), ptBegin, ptEnd);
+      _raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
    }
 
 
@@ -272,7 +266,7 @@ public:
    ) {
       ABC_UNUSED_ARG(bMove1);
       ABC_UNUSED_ARG(bMove2);
-      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1Begin, p1End, p2Begin, p2End);
+      _raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
 
@@ -288,7 +282,7 @@ public:
       Pointer to the end of the second source array.
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
-      _raw_trivial_vextr_impl::assign_concat(sizeof(T), p1Begin, p1End, p2Begin, p2End);
+      _raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
 
@@ -325,7 +319,6 @@ public:
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
       _raw_trivial_vextr_impl::insert(
-         sizeof(T),
          size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
          ptInsert, sizeof(T) * ciInsert
       );
@@ -344,7 +337,6 @@ public:
    */
    void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
       _raw_trivial_vextr_impl::insert(
-         sizeof(T),
          size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
          ptInsert, sizeof(T) * ciInsert
       );
@@ -359,7 +351,7 @@ public:
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
-      _raw_trivial_vextr_impl::remove(sizeof(T), size_t(
+      _raw_trivial_vextr_impl::remove(size_t(
          reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
       ), size_t(
          reinterpret_cast<uintptr_t>(ptRemoveEnd) - reinterpret_cast<uintptr_t>(ptRemoveBegin)

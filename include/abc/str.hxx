@@ -432,7 +432,7 @@ protected:
    TODO: comment signature.
    */
    void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
-      _raw_trivial_vextr_impl::assign_copy(sizeof(char_t), pchBegin, pchEnd);
+      _raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
    }
 
 
@@ -442,9 +442,7 @@ protected:
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
    ) {
-      _raw_trivial_vextr_impl::assign_concat(
-         sizeof(char_t), pch1Begin, pch1End, pch2Begin, pch2End
-      );
+      _raw_trivial_vextr_impl::assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
 
@@ -465,7 +463,7 @@ protected:
    */
    void assign_move_dynamic_or_move_items(str_base && s) {
       _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-         sizeof(char_t), static_cast<_raw_trivial_vextr_impl &&>(s)
+         static_cast<_raw_trivial_vextr_impl &&>(s)
       );
    }
 
@@ -476,7 +474,7 @@ protected:
       Source string.
    */
    void assign_share_ro_or_copy(str_base const & s) {
-      _raw_trivial_vextr_impl::assign_share_ro_or_copy(sizeof(char_t), s);
+      _raw_trivial_vextr_impl::assign_share_ro_or_copy(s);
    }
 
 
@@ -747,7 +745,7 @@ public:
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
       _raw_trivial_vextr_impl::insert(
-         sizeof(char_t), _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd
+         _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd
       );
    }
 

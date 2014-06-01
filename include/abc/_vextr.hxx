@@ -1062,8 +1062,6 @@ public:
    /** Copies the contents of the two sources to *this. This method must never be called with p1 or
    p2 == m_pBegin.
 
-   cbItem
-      Size of a single array item, in bytes.
    p1Begin
       Pointer to the start of the first source array.
    p1End
@@ -1074,27 +1072,24 @@ public:
       Pointer to the end of the second source array.
    */
    void assign_concat(
-      size_t cbItem,
       void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
    );
 
 
    /** Copies the contents of the source array to *this.
 
-   cbItem
-      Size of a single array item, in bytes.
    pBegin
       Pointer to the start of the source array.
    pEnd
       Pointer to the end of the source array.
    */
-   void assign_copy(size_t cbItem, void const * pBegin, void const * pEnd) {
+   void assign_copy(void const * pBegin, void const * pEnd) {
       if (pBegin == m_pBegin) {
          return;
       }
       // assign_concat() is fast enough. Pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(cbItem, nullptr, nullptr, pBegin, pEnd);
+      assign_concat(nullptr, nullptr, pBegin, pEnd);
    }
 
 
@@ -1119,22 +1114,18 @@ public:
    /** Moves the source’s item array if dynamically-allocated, else copies its items (not move –
    items are trivial) to *this.
 
-   cbItem
-      Size of a single array item, in bytes.
    rtvi
       Source vextr.
    */
-   void assign_move_dynamic_or_move_items(size_t cbItem, _raw_trivial_vextr_impl && rtvi);
+   void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi);
 
 
    /** Shares the source’s item array if read-only, else copies it to *this.
 
-   cbItem
-      Size of a single array item, in bytes.
    rtvi
       Source vextr.
    */
-   void assign_share_ro_or_copy(size_t cbItem, _raw_trivial_vextr_impl const & rtvi) {
+   void assign_share_ro_or_copy(_raw_trivial_vextr_impl const & rtvi) {
       if (rtvi.m_pBegin == m_pBegin) {
          return;
       }
@@ -1142,15 +1133,13 @@ public:
          _assign_share(rtvi);
       } else {
          // Non-read-only, cannot share.
-         assign_copy(cbItem, rtvi.m_pBegin, rtvi.m_pEnd);
+         assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
       }
    }
 
 
    /** Inserts elements at a specific position in the vextr.
 
-   cbItem
-      Size of a single array item, in bytes.
    ibOffset
       Byte index at which the items should be inserted.
    pInsert
@@ -1158,25 +1147,23 @@ public:
    cbInsert
       Size of the array pointed to by pInsert, in bytes.
    */
-   void insert(size_t cbItem, uintptr_t ibOffset, void const * pInsert, size_t cbInsert) {
+   void insert(uintptr_t ibOffset, void const * pInsert, size_t cbInsert) {
       if (cbInsert) {
-         _insert_or_remove(cbItem, ibOffset, pInsert, cbInsert, 0);
+         _insert_or_remove(ibOffset, pInsert, cbInsert, 0);
       }
    }
 
 
    /** Removes items from the vextr.
 
-   cbItem
-      Size of a single array item, in bytes.
    ibOffset
       Byte index at which the items should be removed.
    cbRemove
       Size of the array slice to be removed, in bytes.
    */
-   void remove(size_t cbItem, uintptr_t ibOffset, size_t cbRemove) {
+   void remove(uintptr_t ibOffset, size_t cbRemove) {
       if (cbRemove) {
-         _insert_or_remove(cbItem, ibOffset, nullptr, 0, cbRemove);
+         _insert_or_remove(ibOffset, nullptr, 0, cbRemove);
       }
    }
 
@@ -1230,8 +1217,6 @@ private:
 
    /** Implementation of insert() and remove().
 
-   cbItem
-      Size of a single array item, in bytes.
    ibOffset
       Byte index at which the items should be inserted or removed.
    pInsert
@@ -1241,9 +1226,7 @@ private:
    cbRemove
       Size of the slice of item array to remove, in bytes.
    */
-   void _insert_or_remove(
-      size_t cbItem, uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
-   );
+   void _insert_or_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };
 
 } //namespace abc
