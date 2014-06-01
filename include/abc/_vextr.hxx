@@ -556,8 +556,6 @@ protected:
 
       /** Constructor.
 
-      cbItem
-         Size of a single array item, in bytes.
       prvib
          Subject of the transaction.
       cbNew
@@ -565,9 +563,7 @@ protected:
       cbDelta
          Item array size change, in bytes; can be positive or negative.
       */
-      transaction(
-         size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0
-      );
+      transaction(_raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0);
 
 
       /** Destructor.

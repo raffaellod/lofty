@@ -28,13 +28,13 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 _raw_vextr_impl_base::transaction::transaction(
-   size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t cbNew, ptrdiff_t cbDelta /*= 0*/
+   _raw_vextr_impl_base * prvib, ptrdiff_t cbNew, ptrdiff_t cbDelta /*= 0*/
 ) :
    m_rvpd(0, false, false, false),
    m_prvib(prvib),
    // Calculate the new number of items, if expressed as a delta.
    m_bFree(false) {
-   ABC_TRACE_FN((this, cbItem, prvib, cbNew, cbDelta));
+   ABC_TRACE_FN((this, prvib, cbNew, cbDelta));
 
    size_t cb;
    if (cbNew >= 0) {
@@ -218,7 +218,7 @@ void _raw_complex_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(type.cb, this, ptrdiff_t(cb1 + cb2));
+   transaction trn(this, ptrdiff_t(cb1 + cb2));
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -313,7 +313,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
       // Can’t move the item array, so move the items instead.
       {
          size_t cbSrc(rcvi.size<int8_t>());
-         transaction trn(type.cb, this, ptrdiff_t(cbSrc));
+         transaction trn(this, ptrdiff_t(cbSrc));
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (size<int8_t>()) {
@@ -425,7 +425,7 @@ void _raw_complex_vextr_impl::insert(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, pInsert, cbInsert, bMove));
 
-   transaction trn(type.cb, this, -1, ptrdiff_t(cbInsert));
+   transaction trn(this, -1, ptrdiff_t(cbInsert));
    int8_t * pbOffset(begin<int8_t>() + ibOffset);
    void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
    int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
@@ -468,7 +468,7 @@ void _raw_complex_vextr_impl::remove(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, cbRemove));
 
-   transaction trn(type.cb, this, -1, -ptrdiff_t(cbRemove));
+   transaction trn(this, -1, -ptrdiff_t(cbRemove));
    int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
    int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
@@ -499,7 +499,7 @@ void _raw_complex_vextr_impl::set_capacity(
    ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(type.cb, this, ptrdiff_t(type.cb * ciMin));
+   transaction trn(this, ptrdiff_t(type.cb * ciMin));
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -547,7 +547,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(cbItem, this, ptrdiff_t(cb1 + cb2), 0);
+   transaction trn(this, ptrdiff_t(cb1 + cb2), 0);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
       memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
@@ -601,7 +601,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    ABC_TRACE_FN((this, cbItem, ibOffset, pAdd, cbAdd, cbRemove));
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
-   transaction trn(cbItem, this, -1, ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove));
+   transaction trn(this, -1, ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove));
    int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
@@ -626,7 +626,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPr
    ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(cbItem, this, ptrdiff_t(cbItem * ciMin), 0);
+   transaction trn(this, ptrdiff_t(cbItem * ciMin), 0);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
