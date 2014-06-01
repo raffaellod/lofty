@@ -28,38 +28,38 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 _raw_vextr_impl_base::transaction::transaction(
-   size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta /*= 0*/
+   size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t cbNew, ptrdiff_t cbDelta /*= 0*/
 ) :
    m_rvpd(0, false, false, false),
    m_prvib(prvib),
    // Calculate the new number of items, if expressed as a delta.
    m_bFree(false) {
-   ABC_TRACE_FN((this, cbItem, prvib, ciNew, ciDelta));
+   ABC_TRACE_FN((this, cbItem, prvib, cbNew, cbDelta));
 
-   size_t ci;
-   if (ciNew >= 0) {
-      ci = size_t(ciNew);
+   size_t cb;
+   if (cbNew >= 0) {
+      cb = size_t(cbNew);
    } else {
-      ci = size_t(ptrdiff_t(m_prvib->size<int8_t>() / cbItem) + ciDelta);
+      cb = size_t(ptrdiff_t(m_prvib->size<int8_t>()) + cbDelta);
    }
-   if (ci == 0) {
+   if (cb == 0) {
       // Empty string/array: no need to use an item array.
       m_pBegin = m_pEnd = nullptr;
       // A read-only item array has no capacity. This was already set above.
-      // m_rvpd.set_ciMax(0);
+      // m_rvpd.set_cbMax(0);
       return;
    }
    // This will return nullptr if there’s no static item array.
    m_pBegin = m_prvib->static_array_ptr<void>();
    if (m_pBegin) {
-      size_t ciStaticMax(m_prvib->static_capacity());
-      if (ci <= ciStaticMax) {
+      size_t cbStaticMax(m_prvib->static_capacity());
+      if (cb <= cbStaticMax) {
          // The static item array is large enough.
-         m_rvpd.set_ciMax(ciStaticMax);
+         m_rvpd.set_cbMax(cbStaticMax);
          goto set_pEnd;
       }
    }
-   if (ci <= m_prvib->m_rvpd.get_ciMax()) {
+   if (cb <= m_prvib->m_rvpd.get_cbMax()) {
       // The current item array is large enough, no need to change anything.
       m_pBegin = m_prvib->m_pBegin;
       m_rvpd = m_prvib->m_rvpd;
@@ -68,40 +68,38 @@ _raw_vextr_impl_base::transaction::transaction(
 
       // Calculate the total allocation size.
       // TODO: better algorithm.
-      size_t ciMax(ci * _raw_vextr_impl_base::smc_iGrowthRate);
-      // Apply some constraints.
-      if (ciMax < _raw_vextr_impl_base::smc_cMinSlots) {
-         ciMax = _raw_vextr_impl_base::smc_cMinSlots;
+      size_t cbMax(cb * _raw_vextr_impl_base::smc_iGrowthRate);
+      // Check for overflow.
+      if (cbMax <= cb) {
+         // Theoretically, this could still result in cbMax < cb; in practice it doesn’t matter
+         // because the following memory allocation will fail for such sizes.
+         cbMax = _raw_vextr_packed_data::smc_cbMaxMask;
+      } else if (cbMax < _raw_vextr_impl_base::smc_cbMin) {
+         // Make sure we don’t allocate less than smc_cbMin bytes, so we won’t reallocate right on
+         // the next size change.
+         cbMax = _raw_vextr_impl_base::smc_cbMin;
       } else {
          // Ensure that the lower bits are clear by rounding up.
-         ciMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ciMax);
-      }
-      // Check for overflow.
-      // TODO: verify that the compiler doesn’t optimize this if away.
-      if (ciMax <= ci) {
-         // Theoretically, this could result in ciMax < ci; in practice it doesn’t matter because
-         // the following memory allocation will fail for such sizes.
-         ciMax = _raw_vextr_packed_data::smc_ciMaxMask;
+         cbMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbMax);
       }
 
-      size_t cb(cbItem * ciMax);
       if (m_prvib->m_rvpd.get_bDynamic()) {
          // Resize the current dynamically-allocated item array. Notice that the reallocation is
          // effective immediately, which means that m_prvib must be updated now – if no exceptions
          // are thrown, that is.
-         m_prvib->m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cb);
-         m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbItem * ci;
-         m_prvib->m_rvpd.set_ciMax(ciMax);
+         m_prvib->m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbMax);
+         m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cb;
+         m_prvib->m_rvpd.set_cbMax(cbMax);
          m_pBegin = m_prvib->m_pBegin;
       } else {
          // Allocate a new item array.
-         m_pBegin = memory::_raw_alloc(cb);
+         m_pBegin = memory::_raw_alloc(cbMax);
          m_bFree = true;
       }
-      m_rvpd.set(ciMax, false, true);
+      m_rvpd.set(cbMax, false, true);
    }
 set_pEnd:
-   m_pEnd = static_cast<int8_t *>(m_pBegin) + cbItem * ci;
+   m_pEnd = static_cast<int8_t *>(m_pBegin) + cb;
 }
 
 
@@ -122,18 +120,18 @@ void _raw_vextr_impl_base::transaction::commit() {
 }
 
 
-_raw_vextr_impl_base::_raw_vextr_impl_base(size_t ciStaticMax) :
+_raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticMax) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   m_rvpd(0, false, false, ciStaticMax > 0) {
-   ABC_TRACE_FN((this, ciStaticMax));
+   m_rvpd(0, false, false, cbStaticMax > 0) {
+   ABC_TRACE_FN((this, cbStaticMax));
 
-   if (ciStaticMax) {
-      // Assign ciStaticMax to the static item array that follows *this.
+   if (cbStaticMax) {
+      // Assign cbStaticMax to the static item array that follows *this.
       _raw_vextr_impl_base_with_static_item_array * prvibwsia(
          static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
       );
-      prvibwsia->m_ciStaticMax = ciStaticMax;
+      prvibwsia->m_cbStaticMax = cbStaticMax;
    }
 }
 
@@ -220,7 +218,7 @@ void _raw_complex_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(type.cb, this, ptrdiff_t((cb1 + cb2) / type.cb));
+   transaction trn(type.cb, this, ptrdiff_t(cb1 + cb2));
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -314,15 +312,15 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    } else {
       // Can’t move the item array, so move the items instead.
       {
-         size_t ciSrc(rcvi.size<int8_t>() / type.cb);
-         transaction trn(type.cb, this, ptrdiff_t(ciSrc));
+         size_t cbSrc(rcvi.size<int8_t>());
+         transaction trn(type.cb, this, ptrdiff_t(cbSrc));
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (size<int8_t>()) {
             destruct_items(type);
          }
          // Now that the current items have been destructed, move-construct the new items.
-         if (ciSrc) {
+         if (cbSrc) {
             type.move_constr(trn.work_array<void>(), rcvi.m_pBegin, rcvi.m_pEnd);
          }
          trn.commit();
@@ -427,7 +425,7 @@ void _raw_complex_vextr_impl::insert(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, pInsert, cbInsert, bMove));
 
-   transaction trn(type.cb, this, -1, ptrdiff_t(cbInsert / type.cb));
+   transaction trn(type.cb, this, -1, ptrdiff_t(cbInsert));
    int8_t * pbOffset(begin<int8_t>() + ibOffset);
    void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
    int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
@@ -470,7 +468,7 @@ void _raw_complex_vextr_impl::remove(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, cbRemove));
 
-   transaction trn(type.cb, this, -1, -ptrdiff_t(cbRemove / type.cb));
+   transaction trn(type.cb, this, -1, -ptrdiff_t(cbRemove));
    int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
    int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
@@ -501,7 +499,7 @@ void _raw_complex_vextr_impl::set_capacity(
    ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(type.cb, this, ptrdiff_t(ciMin));
+   transaction trn(type.cb, this, ptrdiff_t(type.cb * ciMin));
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -549,7 +547,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(cbItem, this, ptrdiff_t((cb1 + cb2) / cbItem), 0);
+   transaction trn(cbItem, this, ptrdiff_t(cb1 + cb2), 0);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
       memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
@@ -603,7 +601,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    ABC_TRACE_FN((this, cbItem, ibOffset, pAdd, cbAdd, cbRemove));
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
-   transaction trn(cbItem, this, -1, (ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove)) / ptrdiff_t(cbItem));
+   transaction trn(cbItem, this, -1, ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove));
    int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
@@ -628,7 +626,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPr
    ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(cbItem, this, ptrdiff_t(ciMin), 0);
+   transaction trn(cbItem, this, ptrdiff_t(cbItem * ciMin), 0);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);

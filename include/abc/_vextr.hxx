@@ -392,16 +392,16 @@ public:
 
    /** Constructor.
 
-   ciMax
-      Count of slots in the item array.
+   cbMax
+      Size of the item array, in bytes.
    bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    bHasStatic
       true if the parent object is followed by a static item array, or false otherwise.
    */
-   _raw_vextr_packed_data(size_t ciMax, bool bNulT, bool bDynamic, bool bHasStatic) :
+   _raw_vextr_packed_data(size_t cbMax, bool bNulT, bool bDynamic, bool bHasStatic) :
       m_iPackedData(
-         ciMax |
+         cbMax |
          (bNulT ? smc_bNulTMask : 0) |
          (bDynamic ? smc_bDynamicMask : 0) |
          (bHasStatic ? smc_bHasStaticMask : 0)
@@ -425,8 +425,8 @@ public:
 
    /** Assigns new values to all components except bHasStatic.
 
-   ciMax
-      Count of slots in the item array.
+   cbMax
+      Size of the item array, in bytes.
    bNulT
       true if the item array ends in a NUL terminator, or false otherwise.
    bDynamic
@@ -434,8 +434,8 @@ public:
    return
       *this.
    */
-   _raw_vextr_packed_data & set(size_t ciMax, bool bNulT, bool bDynamic) {
-      m_iPackedData = ciMax
+   _raw_vextr_packed_data & set(size_t cbMax, bool bNulT, bool bDynamic) {
+      m_iPackedData = cbMax
                     | (bNulT ? smc_bNulTMask : 0)
                     | (bDynamic ? smc_bDynamicMask : 0)
                     | (m_iPackedData & smc_bHasStaticMask);
@@ -443,13 +443,13 @@ public:
    }
 
 
-   /** Returns ciMax.
+   /** Returns cbMax.
 
    return
-      Count of slots in the item array.
+      Size of the item array, in bytes.
    */
-   size_t get_ciMax() const {
-      return m_iPackedData & smc_ciMaxMask;
+   size_t get_cbMax() const {
+      return m_iPackedData & smc_cbMaxMask;
    }
 
 
@@ -486,13 +486,13 @@ public:
    }
 
 
-   /** Assigns a new value to ciMax.
+   /** Assigns a new value to cbMax.
 
-   ciMax
-      Count of slots in the item array.
+   cbMax
+      Size of the item array, in bytes.
    */
-   void set_ciMax(size_t ciMax) {
-      m_iPackedData = (m_iPackedData & ~smc_ciMaxMask) | ciMax;
+   void set_cbMax(size_t cbMax) {
+      m_iPackedData = (m_iPackedData & ~smc_cbMaxMask) | cbMax;
    }
 
 
@@ -506,8 +506,8 @@ private:
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    bool bNulT
       true if the item array is NUL-terminated.
-   size_t ciMax;
-      Size of the item array.
+   size_t cbMax;
+      Size of the item array, in bytes.
    */
    size_t m_iPackedData;
 
@@ -521,8 +521,8 @@ private:
 
 public:
 
-   /** Mask to access ciMax from m_iPackedData. */
-   static size_t const smc_ciMaxMask = ~(smc_bNulTMask | smc_bDynamicMask | smc_bHasStaticMask);
+   /** Mask to access cbMax from m_iPackedData. */
+   static size_t const smc_cbMaxMask = ~(smc_bNulTMask | smc_bDynamicMask | smc_bHasStaticMask);
 };
 
 } //namespace abc
@@ -560,10 +560,10 @@ protected:
          Size of a single array item, in bytes.
       prvib
          Subject of the transaction.
-      ciNew
-         New item count, or -1 to use ciDelta instead.
-      ciDelta
-         Item count change; can be positive or negative.
+      cbNew
+         New item array size, in bytes, or -1 to use cbDelta instead.
+      cbDelta
+         Item array size change, in bytes; can be positive or negative.
       */
       transaction(
          size_t cbItem, _raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0
@@ -664,7 +664,7 @@ public:
       Count of slots in the item array.
    */
    size_t capacity() const {
-      return m_rvpd.get_ciMax();
+      return m_rvpd.get_cbMax();
    }
 
 
@@ -696,12 +696,12 @@ public:
 
 protected:
 
-   /** Constructor. The overload with ciStaticMax constructs the object as empty, setting
+   /** Constructor. The overload with cbStaticMax constructs the object as empty, setting
    m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
    item array.
 
-   ciStaticMax
-      Count of slots in the static item array, or 0 if no static item array is present.
+   cbStaticMax
+      Size of the static item array, in bytes, or 0 if no static item array is present.
    pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
    pConstSrcEnd
@@ -709,13 +709,13 @@ protected:
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   _raw_vextr_impl_base(size_t ciStaticMax);
+   _raw_vextr_impl_base(size_t cbStaticMax);
    _raw_vextr_impl_base(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
    ) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      // ciMax = 0 means that the item array is read-only.
+      // cbMax = 0 means that the item array is read-only.
       m_rvpd(0, bNulT, false, false) {
    }
 
@@ -735,7 +735,7 @@ protected:
    */
    bool is_item_array_readonly() const {
       // No capacity means read-only item array.
-      return m_rvpd.get_ciMax() == 0;
+      return m_rvpd.get_cbMax() == 0;
    }
 
 
@@ -753,7 +753,7 @@ protected:
    present.
 
    return
-      Capacity of the static item array, or 0 if no static item array is present.
+      Capacity of the static item array, in bytes, or 0 if no static item array is present.
    */
    size_t static_capacity() const;
 
@@ -819,9 +819,9 @@ protected:
    /** Size of the item array pointed to by m_pBegin, and other bits. */
    _raw_vextr_packed_data m_rvpd;
 
-   /** No less than this many items. Must be greater than, and not overlap any bits with,
-   _raw_vextr_impl_base::smc_ciMaxMask. */
-   static size_t const smc_cMinSlots = 8;
+   /** The item array size must be no less than this many bytes. Must be greater than, and not
+   overlap any bits with, _raw_vextr_impl_base::smc_cbMaxMask. */
+   static size_t const smc_cbMin = sizeof(intptr_t) * 8;
    /** Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
    static unsigned const smc_iGrowthRate = 2;
@@ -834,8 +834,8 @@ class _raw_vextr_impl_base_with_static_item_array :
    public _raw_vextr_impl_base {
 public:
 
-   /** Static size. */
-   size_t m_ciStaticMax;
+   /** Static size, in bytes. */
+   size_t m_cbStaticMax;
    /** First item of the static array. This can’t be a T[], because we don’t want its items to be
    constructed/destructed automatically, and because this class doesn’t know its size. */
    std::max_align_t m_tFirst;
@@ -843,16 +843,16 @@ public:
 
 
 /** Rounds up an array size to avoid interfering with the bits outside of
-_raw_vextr_packed_data::smc_ciMaxMask. Should be a constexpr function, but for now it’s just a
+_raw_vextr_packed_data::smc_cbMaxMask. Should be a constexpr function, but for now it’s just a
 macro.
 
-ci
-   Count of items.
+cb
+   Size of the items, in bytes.
 return
-   Rounded-up count of items.
+   Rounded-up size of the items.
 */
-#define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(ci) \
-   ((size_t(ci) + ~_raw_vextr_packed_data::smc_ciMaxMask) & _raw_vextr_packed_data::smc_ciMaxMask)
+#define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cb) \
+   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbMaxMask) & _raw_vextr_packed_data::smc_cbMaxMask)
 
 
 // Now these can be implemented.
@@ -876,7 +876,7 @@ inline size_t _raw_vextr_impl_base::static_capacity() const {
    _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
       static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
    );
-   return prvibwsia->m_ciStaticMax;
+   return prvibwsia->m_cbStaticMax;
 }
 
 } //namespace abc
@@ -1038,8 +1038,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_complex_vextr_impl(size_t ciStaticMax) :
-      _raw_vextr_impl_base(ciStaticMax) {
+   _raw_complex_vextr_impl(size_t cbStaticMax) :
+      _raw_vextr_impl_base(cbStaticMax) {
    }
    _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
@@ -1214,8 +1214,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_trivial_vextr_impl(size_t ciStaticMax) :
-      _raw_vextr_impl_base(ciStaticMax) {
+   _raw_trivial_vextr_impl(size_t cbStaticMax) :
+      _raw_vextr_impl_base(cbStaticMax) {
    }
    _raw_trivial_vextr_impl(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false

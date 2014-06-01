@@ -410,8 +410,8 @@ protected:
 
    /** Constructor.
 
-   cchStaticMax
-      Count of slots in the static character array, or 0 if no static character array is present.
+   cbStaticMax
+      Size of the static character array, in bytes, or 0 if no static character array is present.
    pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
    cchSrc
@@ -419,8 +419,8 @@ protected:
    bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str_base(size_t cchStaticMax) :
-      _raw_trivial_vextr_impl(cchStaticMax) {
+   str_base(size_t cbStaticMax) :
+      _raw_trivial_vextr_impl(cbStaticMax) {
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
       _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
@@ -793,7 +793,7 @@ public:
       // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
       // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly
       // the requested number of characters, eliminating the need to query back with capacity().
-      size_t cchRet, cchMax(rvib::smc_cMinSlots * rvib::smc_iGrowthRate);
+      size_t cchRet, cchMax(rvib::smc_cbMin * rvib::smc_iGrowthRate);
       do {
          cchMax *= rvib::smc_iGrowthRate;
          set_capacity(cchMax, false);
@@ -852,8 +852,8 @@ protected:
 
    /** Constructor. See str_base::str_base().
    */
-   mstr(size_t cchStatic) :
-      str_base(cchStatic) {
+   mstr(size_t cbStaticMax) :
+      str_base(cbStaticMax) {
    }
 };
 
@@ -1113,8 +1113,10 @@ class smstr :
    public mstr {
 private:
 
-   /** Actual static character array size. */
-   static size_t const smc_cchFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_cchStatic);
+   /** Actual static character array size, in bytes. */
+   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(char_t) * t_cchStatic
+   );
 
 
 public:
@@ -1124,35 +1126,35 @@ public:
    TODO: comment signature.
    */
    smstr() :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
    }
    smstr(smstr const & s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // If the source is using its static character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
-      mstr(smc_cchFixed) {
+      mstr(smc_cbFixed) {
       assign_move(std::move(s));
    }
 
@@ -1199,10 +1201,10 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
-   size_t m_ciStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
+   size_t m_cbStaticMax;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(char_t) * smc_cchFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };
 
 } //namespace abc

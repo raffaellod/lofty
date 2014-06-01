@@ -166,8 +166,8 @@ protected:
 
    /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
-   _raw_vector(size_t ciStaticMax) :
-      _raw_complex_vextr_impl(ciStaticMax) {
+   _raw_vector(size_t cbStaticMax) :
+      _raw_complex_vextr_impl(cbStaticMax) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_complex_vextr_impl(ptConstSrc, ciSrc) {
@@ -241,8 +241,8 @@ protected:
 
    /** Constructor. See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
-   _raw_vector(size_t ciStaticMax) :
-      _raw_vector<T, false, false>(ciStaticMax) {
+   _raw_vector(size_t cbStaticMax) :
+      _raw_vector<T, false, false>(cbStaticMax) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_vector<T, false, false>(ptConstSrc, ciSrc) {
@@ -385,8 +385,8 @@ protected:
 
    /** Constructor. See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
-   _raw_vector(size_t ciStaticMax) :
-      _raw_trivial_vextr_impl(ciStaticMax) {
+   _raw_vector(size_t cbStaticMax) :
+      _raw_trivial_vextr_impl(cbStaticMax) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
@@ -989,11 +989,11 @@ protected:
 
    /** Constructor. Constructs the object as empty, setting m_p to nullptr.
 
-   ciStatic
-      Count of slots in the static item array, or 0 if no static item array is present.
+   cbStaticMax
+      Size of the static item array, in bytes, or 0 if no static item array is present.
    */
-   mvector(size_t ciStaticMax) :
-      vector_base_(ciStaticMax) {
+   mvector(size_t cbStaticMax) :
+      vector_base_(cbStaticMax) {
    }
 };
 
@@ -1111,8 +1111,8 @@ protected:
 
    /** See mvector<T, false>::mvector().
    */
-   mvector(size_t ciStaticMax) :
-      mvector<T, false>(ciStaticMax) {
+   mvector(size_t cbStaticMax) :
+      mvector<T, false>(cbStaticMax) {
    }
 };
 
@@ -1364,8 +1364,10 @@ class smvector<T, t_ciStatic, false> :
    public mvector<T, false> {
 protected:
 
-   /** Actual static item array size. */
-   static size_t const smc_ciFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_ciStatic);
+   /** Actual static item array size, in bytes. */
+   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(T) * t_ciStatic
+   );
 
 
 public:
@@ -1376,12 +1378,12 @@ public:
       Source vector.
    */
    smvector() :
-      mvector<T, false>(smc_ciFixed) {
+      mvector<T, false>(smc_cbFixed) {
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, false>(smc_ciFixed) {
+      mvector<T, false>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -1391,17 +1393,17 @@ public:
    smvector(typename std::enable_if<
       (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, false> &&
    >::type v) :
-      mvector<T, false>(smc_ciFixed) {
+      mvector<T, false>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
    smvector(mvector<T, false> && v) :
-      mvector<T, false>(smc_ciFixed) {
+      mvector<T, false>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, false> && v) :
-      mvector<T, false>(smc_ciFixed) {
+      mvector<T, false>(smc_cbFixed) {
       this->assign_move(std::move(v));
    }
 
@@ -1446,10 +1448,10 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
-   size_t m_ciStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
+   size_t m_cbStaticMax;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(T) * smc_ciFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };
 
 // Partial specialization for copyable types.
@@ -1461,7 +1463,9 @@ class smvector<T, t_ciStatic, true> :
 protected:
 
    /** Actual static item array size. */
-   static size_t const smc_ciFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_COUNT(t_ciStatic);
+   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(T) * t_ciStatic
+   );
 
 
 public:
@@ -1478,16 +1482,16 @@ public:
       Count of items in the array pointed to by pt.
    */
    smvector() :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
    }
    smvector(smvector const & v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
@@ -1497,30 +1501,30 @@ public:
    smvector(typename std::enable_if<
       (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, true> &&
    >::type v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(mvector<T, true> const & v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
    // This also covers smvector of different static size > t_ciStatic.
    smvector(mvector<T, true> && v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, true> && v) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_move(std::move(v));
    }
    template <size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_copy(at, at + t_ci);
    }
    smvector(T const * ptBegin, T const * ptEnd) :
-      mvector<T, true>(smc_ciFixed) {
+      mvector<T, true>(smc_cbFixed) {
       this->assign_copy(ptBegin, ptEnd);
    }
 
@@ -1573,10 +1577,10 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_ciStaticMax. */
-   size_t m_ciStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
+   size_t m_cbStaticMax;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(sizeof(T) * smc_ciFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };
 
 } //namespace abc
