@@ -494,12 +494,12 @@ void _raw_complex_vextr_impl::remove(
 
 
 void _raw_complex_vextr_impl::set_capacity(
-   type_void_adapter const & type, size_t ciMin, bool bPreserve
+   type_void_adapter const & type, size_t cbMin, bool bPreserve
 ) {
-   ABC_TRACE_FN((this, /*type, */ciMin, bPreserve));
+   ABC_TRACE_FN((this, /*type, */cbMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, ptrdiff_t(type.cb * ciMin));
+   transaction trn(this, ptrdiff_t(cbMin));
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -518,14 +518,13 @@ void _raw_complex_vextr_impl::set_capacity(
 }
 
 
-void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t ci) {
-   ABC_TRACE_FN((this, /*type, */ci));
+void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t cb) {
+   ABC_TRACE_FN((this, /*type, */cb));
 
-   size_t cb(type.cb * ci);
    if (cb != size<int8_t>()) {
-      if (ci > capacity()) {
+      if (cb > capacity<int8_t>()) {
          // Enlarge the item array.
-         set_capacity(type, ci, true);
+         set_capacity(type, cb, true);
       }
       m_pEnd = begin<int8_t>() + cb;
    }
@@ -622,11 +621,11 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
 }
 
 
-void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPreserve) {
-   ABC_TRACE_FN((this, cbItem, ciMin, bPreserve));
+void _raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
+   ABC_TRACE_FN((this, cbMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, ptrdiff_t(cbItem * ciMin), 0);
+   transaction trn(this, ptrdiff_t(cbMin), 0);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
@@ -641,14 +640,13 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbItem, size_t ciMin, bool bPr
 }
 
 
-void _raw_trivial_vextr_impl::set_size(size_t cbItem, size_t ci) {
-   ABC_TRACE_FN((this, cbItem, ci));
+void _raw_trivial_vextr_impl::set_size(size_t cb) {
+   ABC_TRACE_FN((this, cb));
 
-   size_t cb(cbItem * ci);
    if (cb != size<int8_t>()) {
-      if (ci > capacity()) {
+      if (cb > capacity<int8_t>()) {
          // Enlarge the item array.
-         set_capacity(cbItem, ci, true);
+         set_capacity(cb, true);
       }
       m_pEnd = begin<int8_t>() + cb;
    }

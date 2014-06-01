@@ -657,10 +657,11 @@ public:
    /** Returns the count of item slots in the current item array.
 
    return
-      Count of slots in the item array.
+      Size of the item array.
    */
+   template <typename T>
    size_t capacity() const {
-      return m_rvpd.get_cbMax();
+      return m_rvpd.get_cbMax() / sizeof(T);
    }
 
 
@@ -1008,26 +1009,26 @@ public:
 
    type
       Adapter for the items’ type.
-   ciMin
-      Minimum count of items requested.
+   cbMin
+      Minimum size of items requested, in bytes.
    bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
-   void set_capacity(type_void_adapter const & type, size_t ciMin, bool bPreserve);
+   void set_capacity(type_void_adapter const & type, size_t cbMin, bool bPreserve);
 
 
-   /** Changes the count of items in the vector. If the new item count is greater than the current
+   /** Changes the count of items in the vextr. If the new item count is greater than the current
    one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
    elements are properly constructed, or problems will arise when the destructor will attempt to
    destruct these elements.
 
    type
       Adapter for the items’ type.
-   ci
-      New count of items.
+   cb
+      New size of the items, in bytes.
    */
-   void set_size(type_void_adapter const & type, size_t ci);
+   void set_size(type_void_adapter const & type, size_t cb);
 
 
 protected:
@@ -1180,30 +1181,26 @@ public:
    }
 
 
-   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   /** Ensures that the item array has at least cbMin of actual item space. If this causes *this to
    switch to using a different item array, any data in the current one will be lost unless bPreserve
    == true.
 
-   cbItem
-      Size of a single array item, in bytes.
-   ciMin
-      Minimum count of items requested.
+   cbMin
+      Minimum size of items requested, in bytes.
    bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
-   void set_capacity(size_t cbItem, size_t ciMin, bool bPreserve);
+   void set_capacity(size_t cbMin, bool bPreserve);
 
 
-   /** Changes the count of elements in the vector. If the item array needs to be lengthened, the
+   /** Changes the count of elements in the vextr. If the item array needs to be lengthened, the
    added elements will be left uninitialized.
 
-   cbItem
-      Size of a single array item, in bytes.
-   ci
-      New count of items.
+   cb
+      New size of the items, in bytes.
    */
-   void set_size(size_t cbItem, size_t ci);
+   void set_size(size_t cb);
 
 
 protected:

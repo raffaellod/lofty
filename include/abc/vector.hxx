@@ -140,25 +140,25 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::set_capacity().
+   /** TODO: comment.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::set_capacity(type, ciMin, bPreserve);
+      _raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
    }
 
 
-   /** See _raw_complex_vextr_impl::set_size().
+   /** TODO: comment.
    */
    void set_size(size_t ci) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::set_size(type, ci);
+      _raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
    }
 
 
@@ -367,17 +367,17 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::set_capacity().
+   /** TODO: comment.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(sizeof(T), ciMin, bPreserve);
+      _raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
    }
 
 
-   /** See _raw_trivial_vextr_impl::set_size().
+   /** TODO: comment.
    */
    void set_size(size_t ci) {
-      _raw_trivial_vextr_impl::set_size(sizeof(T), ci);
+      _raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
    }
 
 
@@ -531,7 +531,7 @@ public:
       Current size of the item array storage, in elements.
    */
    size_t capacity() const {
-      return _raw_vector<T, smc_bCopyConstructible>::capacity();
+      return _raw_vextr_impl_base::capacity<T>();
    }
 
 

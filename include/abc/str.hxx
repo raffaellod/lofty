@@ -128,13 +128,13 @@ public:
    c_str_pointer c_str() const;
 
 
-   /** Returns the current size of the string buffer, in characters.
+   /** Returns the maximum number of characters the string buffer can currently hold.
 
    return
       Size of the string buffer, in characters.
    */
    size_t capacity() const {
-      return _raw_trivial_vextr_impl::capacity();
+      return _raw_vextr_impl_base::capacity<char_t>();
    }
 
 
@@ -833,7 +833,7 @@ public:
       causes the string to switch to a different character array.
    */
    void set_capacity(size_t cchMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(sizeof(char_t), cchMin, bPreserve);
+      _raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
    }
 
 
@@ -844,7 +844,7 @@ public:
       New length of the string.
    */
    void set_size(size_t cch) {
-      _raw_trivial_vextr_impl::set_size(sizeof(char_t), cch);
+      _raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
    }
 
 
