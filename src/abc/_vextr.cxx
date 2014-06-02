@@ -28,78 +28,76 @@ You should have received a copy of the GNU General Public License along with ABC
 namespace abc {
 
 _raw_vextr_impl_base::transaction::transaction(
-   _raw_vextr_impl_base * prvib, ptrdiff_t cbNew, ptrdiff_t cbDelta /*= 0*/
+   _raw_vextr_impl_base * prvib, ptrdiff_t cbNew_, ptrdiff_t cbDelta /*= 0*/
 ) :
-   m_rvpd(0, false, false, false),
    m_prvib(prvib),
+   m_rvpd(m_prvib->m_rvpd),
    // Calculate the new number of items, if expressed as a delta.
    m_bFree(false) {
-   ABC_TRACE_FN((this, prvib, cbNew, cbDelta));
+   ABC_TRACE_FN((this, prvib, cbNew_, cbDelta));
 
-   size_t cb;
-   if (cbNew >= 0) {
-      cb = size_t(cbNew);
+   size_t cbNew;
+   if (cbNew_ >= 0) {
+      cbNew = size_t(cbNew_);
    } else {
-      cb = size_t(ptrdiff_t(m_prvib->size<int8_t>()) + cbDelta);
+      cbNew = size_t(ptrdiff_t(m_prvib->size<int8_t>()) + cbDelta);
    }
-   if (cb == 0) {
+   if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
       m_pBegin = m_pEnd = nullptr;
-      // A read-only item array has no capacity. This was already set above.
-      // m_rvpd.set_cbMax(0);
-      return;
-   }
-   // This will return nullptr if there’s no static item array.
-   m_pBegin = m_prvib->static_array_ptr<void>();
-   if (m_pBegin) {
-      size_t cbStaticMax(m_prvib->static_capacity());
-      if (cb <= cbStaticMax) {
-         // The static item array is large enough.
-         m_rvpd.set_cbMax(cbStaticMax);
-         goto set_pEnd;
-      }
-   }
-   if (cb <= m_prvib->m_rvpd.get_cbMax()) {
-      // The current item array is large enough, no need to change anything.
-      m_pBegin = m_prvib->m_pBegin;
-      m_rvpd = m_prvib->m_rvpd;
+      // A read-only item array has no capacity.
+      m_rvpd.set_capacity(0);
+      m_rvpd.set_dynamic(false);
    } else {
-      // The current item array (static or dynamic) is not large enough.
-
-      // Calculate the total allocation size.
-      // TODO: better algorithm.
-      size_t cbMax(cb * _raw_vextr_impl_base::smc_iGrowthRate);
-      // Check for overflow.
-      if (cbMax <= cb) {
-         // Theoretically, this could still result in cbMax < cb; in practice it doesn’t matter
-         // because the following memory allocation will fail for such sizes.
-         cbMax = _raw_vextr_packed_data::smc_cbMaxMask;
-      } else if (cbMax < _raw_vextr_impl_base::smc_cbMin) {
-         // Make sure we don’t allocate less than smc_cbMin bytes, so we won’t reallocate right on
-         // the next size change.
-         cbMax = _raw_vextr_impl_base::smc_cbMin;
-      } else {
-         // Ensure that the lower bits are clear by rounding up.
-         cbMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbMax);
-      }
-
-      if (m_prvib->m_rvpd.get_bDynamic()) {
-         // Resize the current dynamically-allocated item array. Notice that the reallocation is
-         // effective immediately, which means that m_prvib must be updated now – if no exceptions
-         // are thrown, that is.
-         m_prvib->m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbMax);
-         m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cb;
-         m_prvib->m_rvpd.set_cbMax(cbMax);
+      // This will return 0 if there’s no static item array.
+      size_t cbStaticMax(m_prvib->static_capacity());
+      if (cbNew <= cbStaticMax) {
+         // The static item array is large enough; switch to using it.
+         m_pBegin = m_prvib->static_array_ptr<void>();
+         m_rvpd.set_capacity(cbStaticMax);
+         m_rvpd.set_dynamic(false);
+      } else if (cbNew <= m_prvib->m_rvpd.capacity()) {
+         // The current item array is large enough, no need to change anything.
          m_pBegin = m_prvib->m_pBegin;
       } else {
-         // Allocate a new item array.
-         m_pBegin = memory::_raw_alloc(cbMax);
-         m_bFree = true;
+         // The current item array (static or dynamic) is not large enough.
+
+         // Calculate the total allocation size.
+         // TODO: better algorithm.
+         size_t cbMax(cbNew * _raw_vextr_impl_base::smc_iGrowthRate);
+         // Check for overflow.
+         if (cbMax <= cbNew) {
+            // Theoretically, this could still result in cbMax < cbNew; in practice it doesn’t
+            // matter because the following memory allocation will fail for such sizes.
+            cbMax = _raw_vextr_packed_data::smc_cbMaxMask;
+         } else if (cbMax < _raw_vextr_impl_base::smc_cbMin) {
+            // Make sure we don’t allocate less than smc_cbMin bytes, so we won’t reallocate right
+            // on the next size change.
+            cbMax = _raw_vextr_impl_base::smc_cbMin;
+         } else {
+            // Ensure that the lower bits are clear by rounding up.
+            cbMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbMax);
+         }
+
+         if (m_prvib->m_rvpd.dynamic()) {
+            // Resize the current dynamically-allocated item array. Notice that the reallocation is
+            // effective immediately, which means that m_prvib must be updated now – if no
+            // exceptions are thrown, that is.
+            m_prvib->m_pBegin = m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbMax);
+            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
+            m_prvib->m_rvpd.set_capacity(cbMax);
+         } else {
+            // Allocate a new item array.
+            m_pBegin = memory::_raw_alloc(cbMax);
+            m_rvpd.set_dynamic(true);
+            m_bFree = true;
+         }
+         m_rvpd.set_capacity(cbMax);
       }
-      m_rvpd.set(cbMax, false, true);
+      m_pEnd = static_cast<int8_t *>(m_pBegin) + cbNew;
    }
-set_pEnd:
-   m_pEnd = static_cast<int8_t *>(m_pBegin) + cb;
+   // Any change in size voids the NUL termination of the item array.
+   m_rvpd.set_nul_terminated(false);
 }
 
 
@@ -110,12 +108,12 @@ void _raw_vextr_impl_base::transaction::commit() {
    if (m_pBegin != m_prvib->m_pBegin) {
       m_prvib->~_raw_vextr_impl_base();
       m_prvib->m_pBegin = m_pBegin;
+      // This object no longer owns the temporary item array.
+      m_bFree = false;
    }
    // Update the target object.
    m_prvib->m_pEnd = m_pEnd;
    m_prvib->m_rvpd = m_rvpd;
-   // This object no longer owns the temporary item array.
-   m_bFree = false;
    // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
 
@@ -123,7 +121,7 @@ void _raw_vextr_impl_base::transaction::commit() {
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticMax) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   m_rvpd(0, false, false, cbStaticMax > 0) {
+   m_rvpd(cbStaticMax > 0, false) {
    ABC_TRACE_FN((this, cbStaticMax));
 
    if (cbStaticMax) {
@@ -288,7 +286,7 @@ void _raw_complex_vextr_impl::assign_move(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   ABC_ASSERT(rcvi.m_rvpd.get_bDynamic(), SL("cannot move a static item array"));
+   ABC_ASSERT(rcvi.m_rvpd.dynamic(), SL("cannot move a static item array"));
    // Discard the current contents.
    destruct_items(type);
    this->~_raw_complex_vextr_impl();
@@ -307,7 +305,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rcvi.m_rvpd.get_bDynamic()) {
+   if (rcvi.m_rvpd.dynamic()) {
       assign_move(type, std::move(rcvi));
    } else {
       // Can’t move the item array, so move the items instead.
@@ -564,7 +562,7 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vex
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rtvi.m_rvpd.get_bDynamic()) {
+   if (rtvi.m_rvpd.dynamic()) {
       assign_move(std::move(rtvi));
    } else {
       // Can’t move, so copy instead.
@@ -580,7 +578,7 @@ void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi
 
    ABC_ASSERT(rtvi.m_pBegin != m_pBegin, SL("cannot assign from self"));
    ABC_ASSERT(
-      rtvi.is_item_array_readonly() || rtvi.m_rvpd.get_bDynamic(),
+      rtvi.is_item_array_readonly() || rtvi.m_rvpd.dynamic(),
       SL("can only share read-only or dynamic item arrays (the latter only as part of a move)")
    );
    // Discard the current contents.

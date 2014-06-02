@@ -384,82 +384,40 @@ The resulting class hierarchy is therefore:
 
 namespace abc {
 
-// Note: getters and setters in this class don’t follow the regular naming convention used
-// everywhere else, to underline the fact this is just a group of member variables rather than a
-// regular class.
 class _raw_vextr_packed_data {
 public:
 
    /** Constructor.
 
-   cbMax
-      Size of the item array, in bytes.
-   bDynamic
-      true if the item array is allocated dynamically, or false otherwise (static or read-only).
    bHasStatic
       true if the parent object is followed by a static item array, or false otherwise.
+   bNulT
+      true if the item array ends in a NUL terminator, or false otherwise.
    */
-   _raw_vextr_packed_data(size_t cbMax, bool bNulT, bool bDynamic, bool bHasStatic) :
+   _raw_vextr_packed_data(bool bHasStatic, bool bNulT) :
       m_iPackedData(
-         cbMax |
-         (bNulT ? smc_bNulTMask : 0) |
-         (bDynamic ? smc_bDynamicMask : 0) |
-         (bHasStatic ? smc_bHasStaticMask : 0)
+         (bHasStatic ? smc_bHasStaticMask : 0) |
+         (bNulT ? smc_bNulTMask : 0)
       ) {
    }
 
 
-   /** Assignment operator. Updates all components except bHasStatic.
-
-   rvpd
-      Source data.
-   return
-      *this.
-   */
-   _raw_vextr_packed_data & operator=(_raw_vextr_packed_data const & rvpd) {
-      m_iPackedData = (rvpd.m_iPackedData & ~smc_bHasStaticMask)
-                    | (m_iPackedData & smc_bHasStaticMask);
-      return *this;
-   }
-
-
-   /** Assigns new values to all components except bHasStatic.
-
-   cbMax
-      Size of the item array, in bytes.
-   bNulT
-      true if the item array ends in a NUL terminator, or false otherwise.
-   bDynamic
-      true if the item array is allocated dynamically, or false otherwise (static or read-only).
-   return
-      *this.
-   */
-   _raw_vextr_packed_data & set(size_t cbMax, bool bNulT, bool bDynamic) {
-      m_iPackedData = cbMax
-                    | (bNulT ? smc_bNulTMask : 0)
-                    | (bDynamic ? smc_bDynamicMask : 0)
-                    | (m_iPackedData & smc_bHasStaticMask);
-      return *this;
-   }
-
-
-   /** Returns cbMax.
+   /** Returns the capacity of the current item array.
 
    return
       Size of the item array, in bytes.
    */
-   size_t get_cbMax() const {
+   size_t capacity() const {
       return m_iPackedData & smc_cbMaxMask;
    }
 
 
-   /** Returns true if the parent object’s m_p points to a dynamically-allocated item array.
+   /** Returns true if the parent object’s m_pBegin/End point to a dynamically-allocated item array.
 
    return
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    */
-// bool is_item_array_dynamic() const {
-   bool get_bDynamic() const {
+   bool dynamic() const {
       return (m_iPackedData & smc_bDynamicMask) != 0;
    }
 
@@ -469,30 +427,57 @@ public:
    return
       true if the object also has a static item array, or false otherwise.
    */
-// bool has_static_item_array() const {
-   bool get_bHasStatic() const {
+   bool has_static_item_array() const {
       return (m_iPackedData & smc_bHasStaticMask) != 0;
    }
 
 
-   /** Returns true if the parent object’s m_p points to a NUL-terminated item array.
+   /** Returns true if the parent object’s m_pBegin/End points to a NUL-terminated item array.
 
    return
       true if the item array ends in a NUL terminator, or false otherwise.
    */
-// bool is_item_array_nul_terminated() const {
-   bool get_bNulT() const {
+   bool nul_terminated() const {
       return (m_iPackedData & smc_bNulTMask) != 0;
    }
 
 
-   /** Assigns a new value to cbMax.
+   /** Assigns a recorded capacity for the item array.
 
    cbMax
       Size of the item array, in bytes.
    */
-   void set_cbMax(size_t cbMax) {
-      m_iPackedData = (m_iPackedData & ~smc_cbMaxMask) | cbMax;
+   void set_capacity(size_t cbMax) {
+      m_iPackedData &= ~smc_cbMaxMask;
+      m_iPackedData |= cbMax;
+   }
+
+
+   /** Sets the bit tracking whether the parent object’s m_pBegin/End point to a dynamically-
+   allocated item array.
+
+   bDynamic
+      true if the item array is allocated dynamically, or false otherwise (static or read-only).
+   */
+   void set_dynamic(bool bDynamic) {
+      m_iPackedData &= ~smc_bDynamicMask;
+      if (bDynamic) {
+         m_iPackedData |= smc_bDynamicMask;
+      }
+   }
+
+
+   /** Sets the bit tracking whether the parent object’s m_pBegin/End points to a NUL-terminated
+   item array.
+
+   bNulT
+      true if the item array ends in a NUL terminator, or false otherwise.
+   */
+   void set_nul_terminated(bool bNulT) {
+      m_iPackedData &= ~smc_bNulTMask;
+      if (bNulT) {
+         m_iPackedData |= smc_bNulTMask;
+      }
    }
 
 
@@ -608,13 +593,13 @@ protected:
 
    private:
 
-      /** See _raw_vextr_impl_base::m_rvpd. */
-      _raw_vextr_packed_data m_rvpd;
       /** Subject of the transaction. */
       _raw_vextr_impl_base * m_prvib;
-      /** Pointer to the item array to which clients must write. This may or may not be the same as
-      m_prvib->m_pBegin, depending on whether we needed a new item array. This pointer will replace
-      m_prvib->m_pBegin upon commit(). */
+      /** See _raw_vextr_impl_base::m_rvpd. */
+      _raw_vextr_packed_data m_rvpd;
+      /** Pointer to the item array to which clients should write. This may or may not be the same
+      as m_prvib->m_pBegin, depending on whether we needed a new item array. This pointer will
+      replace m_prvib->m_pBegin upon commit(). */
       void * m_pBegin;
       /** Similar to m_pBegin, but for m_prvib->m_pEnd. */
       void * m_pEnd;
@@ -633,7 +618,7 @@ public:
    /** Destructor.
    */
    ~_raw_vextr_impl_base() {
-      if (m_rvpd.get_bDynamic()) {
+      if (m_rvpd.dynamic()) {
          memory::_raw_free(m_pBegin);
       }
    }
@@ -661,7 +646,7 @@ public:
    */
    template <typename T>
    size_t capacity() const {
-      return m_rvpd.get_cbMax() / sizeof(T);
+      return m_rvpd.capacity() / sizeof(T);
    }
 
 
@@ -712,8 +697,8 @@ protected:
    ) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      // cbMax = 0 means that the item array is read-only.
-      m_rvpd(0, bNulT, false, false) {
+      // This will set m_rvpd.capacity() to 0, meaning that the item array is read-only.
+      m_rvpd(false, bNulT) {
    }
 
 
@@ -721,7 +706,9 @@ protected:
    */
    void assign_empty() {
       m_pBegin = m_pEnd = nullptr;
-      m_rvpd.set(0, false, false);
+      m_rvpd.set_capacity(0);
+      m_rvpd.set_dynamic(false);
+      m_rvpd.set_nul_terminated(false);
    }
 
 
@@ -732,7 +719,7 @@ protected:
    */
    bool is_item_array_readonly() const {
       // No capacity means read-only item array.
-      return m_rvpd.get_cbMax() == 0;
+      return m_rvpd.capacity() == 0;
    }
 
 
@@ -856,7 +843,7 @@ return
 
 template <typename T>
 inline T * _raw_vextr_impl_base::static_array_ptr() {
-   if (!m_rvpd.get_bHasStatic()) {
+   if (!m_rvpd.has_static_item_array()) {
       return nullptr;
    }
    _raw_vextr_impl_base_with_static_item_array * prvibwsia(
@@ -867,7 +854,7 @@ inline T * _raw_vextr_impl_base::static_array_ptr() {
 
 
 inline size_t _raw_vextr_impl_base::static_capacity() const {
-   if (!m_rvpd.get_bHasStatic()) {
+   if (!m_rvpd.has_static_item_array()) {
       return 0;
    }
    _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
