@@ -236,7 +236,7 @@ them implicitly (N2437). */
 /** If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
 #if ABC_HOST_GCC >= 40400
-   #define ABC_CXX_FUNCTION_DELETE
+   #define ABC_CXX_FUNC_DELETE
 #endif
 
 /** If defined, the compiler supports the noexcept exception specification. */
@@ -370,7 +370,7 @@ protected:
    noncopyable() {
    }
 
-#ifdef ABC_CXX_FUNCTION_DELETE
+#ifdef ABC_CXX_FUNC_DELETE
 
 protected:
 
@@ -378,7 +378,7 @@ protected:
 
    noncopyable & operator=(noncopyable const &) = delete;
 
-#else //ifdef ABC_CXX_FUNCTION_DELETE
+#else //ifdef ABC_CXX_FUNC_DELETE
 
 private:
 
@@ -386,7 +386,7 @@ private:
 
    noncopyable & operator=(noncopyable const &);
 
-#endif //ifdef ABC_CXX_FUNCTION_DELETE … else
+#endif //ifdef ABC_CXX_FUNC_DELETE … else
 };
 
 } //namespace abc
@@ -498,7 +498,7 @@ struct is_copy_constructible<T, typename enable_if<
 
    // Disable relational operators for support_explicit_operator_bool.
 
-   #ifdef ABC_CXX_FUNCTION_DELETE
+   #ifdef ABC_CXX_FUNC_DELETE
 
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
@@ -507,7 +507,7 @@ struct is_copy_constructible<T, typename enable_if<
             abc::support_explicit_operator_bool<T2> const & \
          ) = delete;
 
-   #else //ifdef ABC_CXX_FUNCTION_DELETE
+   #else //ifdef ABC_CXX_FUNC_DELETE
 
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
@@ -516,7 +516,7 @@ struct is_copy_constructible<T, typename enable_if<
             abc::support_explicit_operator_bool<T2> const & rhs \
          );
 
-   #endif //ifdef ABC_CXX_FUNCTION_DELETE … else
+   #endif //ifdef ABC_CXX_FUNC_DELETE … else
 
    ABC_RELOP_IMPL(==)
    ABC_RELOP_IMPL(!=)

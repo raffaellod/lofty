@@ -74,7 +74,7 @@ inline typename enable_if<!is_lvalue_reference<T>::value, T &&>::type forward(
 ) {
    return static_cast<T &&>(t);
 }
-#ifdef ABC_CXX_FUNCTION_DELETE
+#ifdef ABC_CXX_FUNC_DELETE
 // Prevent forwarding r-values as l-values.
 template <typename T>
 inline typename enable_if<is_lvalue_reference<T>::value, T>::type forward(
