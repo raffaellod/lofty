@@ -215,7 +215,7 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
       *--it = chSign;
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
-   auto itFirstDigit(itEnd - (m_cchWidth - (bSignLast ? 1 : 0)));
+   auto itFirstDigit(itEnd - ptrdiff_t(m_cchWidth - (bSignLast ? 1 : 0)));
    while (it > itFirstDigit) {
       *--it = m_chPad;
    }

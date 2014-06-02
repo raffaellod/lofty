@@ -164,13 +164,13 @@ void _writer_print_helper_impl::run() {
    // Since this specialization has no replacements, verify that the format string doesn’t specify
    // any either.
    if (write_format_up_to_next_repl()) {
-      ABC_THROW(index_error, (m_iSubstArg));
+      ABC_THROW(index_error, (intptr_t(m_iSubstArg)));
    }
 }
 
 
 void _writer_print_helper_impl::throw_index_error() {
-   ABC_THROW(index_error, (m_iSubstArg));
+   ABC_THROW(index_error, (intptr_t(m_iSubstArg)));
 }
 
 
