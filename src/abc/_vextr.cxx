@@ -27,21 +27,45 @@ You should have received a copy of the GNU General Public License along with ABC
 
 namespace abc {
 
-_raw_vextr_impl_base::transaction::transaction(
-   _raw_vextr_impl_base * prvib, ptrdiff_t cbNew_, ptrdiff_t cbDelta /*= 0*/
-) :
-   m_prvib(prvib),
-   m_rvpd(m_prvib->m_rvpd),
-   // Calculate the new number of items, if expressed as a delta.
-   m_bFree(false) {
-   ABC_TRACE_FN((this, prvib, cbNew_, cbDelta));
+_raw_vextr_impl_base::transaction::transaction(_raw_vextr_impl_base * prvib, size_t cbNew) :
+   m_rvpd(prvib->m_rvpd) {
+   ABC_TRACE_FN((this, prvib, cbNew));
 
-   size_t cbNew;
-   if (cbNew_ >= 0) {
-      cbNew = size_t(cbNew_);
-   } else {
-      cbNew = size_t(ptrdiff_t(m_prvib->size<int8_t>()) + cbDelta);
+   _construct(prvib, cbNew);
+}
+_raw_vextr_impl_base::transaction::transaction(
+   _raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove
+) :
+   m_rvpd(prvib->m_rvpd) {
+   ABC_TRACE_FN((this, prvib, cbAdd, cbRemove));
+
+   _construct(prvib, prvib->size<int8_t>() + cbAdd - cbRemove);
+}
+
+
+void _raw_vextr_impl_base::transaction::commit() {
+   ABC_TRACE_FN((this));
+
+   // If we are abandoning the old item array, proceed to destruct it if necessary.
+   if (m_pBegin != m_prvib->m_pBegin) {
+      m_prvib->~_raw_vextr_impl_base();
+      m_prvib->m_pBegin = m_pBegin;
+      // This object no longer owns the temporary item array.
+      m_bFree = false;
    }
+   // Update the target object.
+   m_prvib->m_pEnd = m_pEnd;
+   m_prvib->m_rvpd = m_rvpd;
+   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
+}
+
+
+void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
+   ABC_TRACE_FN((this, prvib, cbNew));
+
+   m_prvib = prvib;
+   m_bFree = false;
+
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
       m_pBegin = m_pEnd = nullptr;
@@ -98,23 +122,6 @@ _raw_vextr_impl_base::transaction::transaction(
    }
    // Any change in size voids the NUL termination of the item array.
    m_rvpd.set_nul_terminated(false);
-}
-
-
-void _raw_vextr_impl_base::transaction::commit() {
-   ABC_TRACE_FN((this));
-
-   // If we are abandoning the old item array, proceed to destruct it if necessary.
-   if (m_pBegin != m_prvib->m_pBegin) {
-      m_prvib->~_raw_vextr_impl_base();
-      m_prvib->m_pBegin = m_pBegin;
-      // This object no longer owns the temporary item array.
-      m_bFree = false;
-   }
-   // Update the target object.
-   m_prvib->m_pEnd = m_pEnd;
-   m_prvib->m_rvpd = m_rvpd;
-   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
 
 
@@ -216,7 +223,7 @@ void _raw_complex_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(this, ptrdiff_t(cb1 + cb2));
+   transaction trn(this, cb1 + cb2);
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -311,7 +318,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
       // Can’t move the item array, so move the items instead.
       {
          size_t cbSrc(rcvi.size<int8_t>());
-         transaction trn(this, ptrdiff_t(cbSrc));
+         transaction trn(this, cbSrc);
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (size<int8_t>()) {
@@ -423,7 +430,7 @@ void _raw_complex_vextr_impl::insert(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, pInsert, cbInsert, bMove));
 
-   transaction trn(this, -1, ptrdiff_t(cbInsert));
+   transaction trn(this, cbInsert, 0);
    int8_t * pbOffset(begin<int8_t>() + ibOffset);
    void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
    int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
@@ -466,7 +473,7 @@ void _raw_complex_vextr_impl::remove(
 ) {
    ABC_TRACE_FN((this, /*type, */ibOffset, cbRemove));
 
-   transaction trn(this, -1, -ptrdiff_t(cbRemove));
+   transaction trn(this, 0, cbRemove);
    int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
    int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
@@ -497,7 +504,7 @@ void _raw_complex_vextr_impl::set_capacity(
    ABC_TRACE_FN((this, /*type, */cbMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, ptrdiff_t(cbMin));
+   transaction trn(this, cbMin);
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -544,7 +551,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(this, ptrdiff_t(cb1 + cb2), 0);
+   transaction trn(this, cb1 + cb2);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
       memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
@@ -596,7 +603,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    ABC_TRACE_FN((this, ibOffset, pAdd, cbAdd, cbRemove));
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
-   transaction trn(this, -1, ptrdiff_t(cbAdd) - ptrdiff_t(cbRemove));
+   transaction trn(this, cbAdd, cbRemove);
    int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
@@ -621,7 +628,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
    ABC_TRACE_FN((this, cbMin, bPreserve));
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, ptrdiff_t(cbMin), 0);
+   transaction trn(this, cbMin);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);

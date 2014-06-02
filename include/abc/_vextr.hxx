@@ -544,11 +544,14 @@ protected:
       prvib
          Subject of the transaction.
       cbNew
-         New item array size, in bytes, or -1 to use cbDelta instead.
-      cbDelta
-         Item array size change, in bytes; can be positive or negative.
+         New item array size, in bytes.
+      cbAdd
+         Item array size increase, in bytes.
+      cbRemove
+         Item array size decrease, in bytes.
       */
-      transaction(_raw_vextr_impl_base * prvib, ptrdiff_t ciNew, ptrdiff_t ciDelta = 0);
+      transaction(_raw_vextr_impl_base * prvib, size_t cbNew);
+      transaction(_raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove);
 
 
       /** Destructor.
@@ -589,6 +592,18 @@ protected:
       bool will_replace_item_array() const {
          return m_pBegin != m_prvib->m_pBegin;
       }
+
+
+   private:
+
+      /** Completes construction of the object.
+
+      prvib
+         Subject of the transaction.
+      cbNew
+         New item array size, in bytes.
+      */
+      void _construct(_raw_vextr_impl_base * prvib, size_t cbNew);
 
 
    private:
