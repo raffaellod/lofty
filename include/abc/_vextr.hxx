@@ -332,7 +332,9 @@ private:
 public:
 
    /** Mask to access cbCapacity from m_iPackedData. */
-   static size_t const smc_cbCapacityMask = ~(smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask);
+   static size_t const smc_cbCapacityMask = ~(
+      smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask
+   );
 };
 
 } //namespace abc
@@ -645,7 +647,9 @@ protected:
 
    /** The item array size must be no less than this many bytes. Must be greater than, and not
    overlap any bits with, _raw_vextr_impl_base::smc_cbCapacityMask. */
-   static size_t const smc_cbMin = sizeof(intptr_t) * 8;
+   static size_t const smc_cbMin = sizeof(intptr_t) * (
+      ~_raw_vextr_packed_data::smc_cbCapacityMask + 1
+   );
    /** Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
    static unsigned const smc_iGrowthRate = 2;
