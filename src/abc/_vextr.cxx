@@ -94,10 +94,10 @@ void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib,
             // Theoretically, this could still result in cbNewCapacity < cbNew; in practice it
             // doesn’t matter because the following memory allocation will fail for such sizes.
             cbNewCapacity = _raw_vextr_packed_data::smc_cbCapacityMask;
-         } else if (cbNewCapacity < _raw_vextr_impl_base::smc_cbMin) {
-            // Make sure we don’t allocate less than smc_cbMin bytes, so we won’t reallocate right
-            // on the next size change.
-            cbNewCapacity = _raw_vextr_impl_base::smc_cbMin;
+         } else if (cbNewCapacity < _raw_vextr_impl_base::smc_cbCapacityMin) {
+            // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate
+            // right on the next size change.
+            cbNewCapacity = _raw_vextr_impl_base::smc_cbCapacityMin;
          } else {
             // Ensure that the lower bits are clear by rounding up.
             cbNewCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbNewCapacity);

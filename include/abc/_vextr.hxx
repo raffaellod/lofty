@@ -647,7 +647,7 @@ protected:
 
    /** The item array size must be no less than this many bytes. Must be greater than, and not
    overlap any bits with, _raw_vextr_impl_base::smc_cbCapacityMask. */
-   static size_t const smc_cbMin = sizeof(intptr_t) * (
+   static size_t const smc_cbCapacityMin = sizeof(intptr_t) * (
       ~_raw_vextr_packed_data::smc_cbCapacityMask + 1
    );
    /** Size multiplier. This should take into account that we want to reallocate as rarely as

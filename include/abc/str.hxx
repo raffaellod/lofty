@@ -791,7 +791,7 @@ public:
       // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
       // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly
       // the requested number of characters, eliminating the need to query back with capacity().
-      size_t cchRet, cchMax(rvib::smc_cbMin * rvib::smc_iGrowthRate);
+      size_t cchRet, cchMax(rvib::smc_cbCapacityMin * rvib::smc_iGrowthRate);
       do {
          cchMax *= rvib::smc_iGrowthRate;
          set_capacity(cchMax, false);
