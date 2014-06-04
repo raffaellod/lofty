@@ -310,10 +310,10 @@ private:
 
    /** Bit-field composed by the following components:
 
-   bool const bHasStatic
-      true if the parent object is followed by a static item array.
    bool bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
+   bool const bHasStatic
+      true if the parent object is followed by a static item array.
    bool bNulT
       true if the item array is NUL-terminated.
    size_t cbMax;
@@ -321,18 +321,18 @@ private:
    */
    size_t m_iPackedData;
 
-   /** Mask to access bHasStatic from m_iPackedData. */
-   static size_t const smc_bHasStaticMask = 0x01;
    /** Mask to access bDynamic from m_iPackedData. */
-   static size_t const smc_bDynamicMask = 0x02;
+   static size_t const smc_bDynamicMask = 0x04;
+   /** Mask to access bHasStatic from m_iPackedData. */
+   static size_t const smc_bHasStaticMask = 0x02;
    /** Mask to access bNulT from m_iPackedData. */
-   static size_t const smc_bNulTMask = 0x04;
+   static size_t const smc_bNulTMask = 0x01;
 
 
 public:
 
    /** Mask to access cbMax from m_iPackedData. */
-   static size_t const smc_cbMaxMask = ~(smc_bNulTMask | smc_bDynamicMask | smc_bHasStaticMask);
+   static size_t const smc_cbMaxMask = ~(smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask);
 };
 
 } //namespace abc
