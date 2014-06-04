@@ -410,7 +410,7 @@ protected:
 
    /** Constructor.
 
-   cbStaticMax
+   cbStaticCapacity
       Size of the static character array, in bytes, or 0 if no static character array is present.
    pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
@@ -419,8 +419,8 @@ protected:
    bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str_base(size_t cbStaticMax) :
-      _raw_trivial_vextr_impl(cbStaticMax) {
+   str_base(size_t cbStaticCapacity) :
+      _raw_trivial_vextr_impl(cbStaticCapacity) {
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
       _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
@@ -850,8 +850,8 @@ protected:
 
    /** Constructor. See str_base::str_base().
    */
-   mstr(size_t cbStaticMax) :
-      str_base(cbStaticMax) {
+   mstr(size_t cbStaticCapacity) :
+      str_base(cbStaticCapacity) {
    }
 };
 
@@ -1199,8 +1199,8 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
-   size_t m_cbStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
+   size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };

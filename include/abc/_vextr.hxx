@@ -518,11 +518,11 @@ public:
 
 protected:
 
-   /** Constructor. The overload with cbStaticMax constructs the object as empty, setting
+   /** Constructor. The overload with cbStaticCapacity constructs the object as empty, setting
    m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
    item array.
 
-   cbStaticMax
+   cbStaticCapacity
       Size of the static item array, in bytes, or 0 if no static item array is present.
    pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
@@ -531,7 +531,7 @@ protected:
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   _raw_vextr_impl_base(size_t cbStaticMax);
+   _raw_vextr_impl_base(size_t cbStaticCapacity);
    _raw_vextr_impl_base(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
    ) :
@@ -659,7 +659,7 @@ class _raw_vextr_impl_base_with_static_item_array :
 public:
 
    /** Static size, in bytes. */
-   size_t m_cbStaticMax;
+   size_t m_cbStaticCapacity;
    /** First item of the static array. This can’t be a T[], because we don’t want its items to be
    constructed/destructed automatically, and because this class doesn’t know its size. */
    std::max_align_t m_tFirst;
@@ -701,7 +701,7 @@ inline size_t _raw_vextr_impl_base::static_capacity() const {
    _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
       static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
    );
-   return prvibwsia->m_cbStaticMax;
+   return prvibwsia->m_cbStaticCapacity;
 }
 
 } //namespace abc
@@ -863,8 +863,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_complex_vextr_impl(size_t cbStaticMax) :
-      _raw_vextr_impl_base(cbStaticMax) {
+   _raw_complex_vextr_impl(size_t cbStaticCapacity) :
+      _raw_vextr_impl_base(cbStaticCapacity) {
    }
    _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
@@ -1022,8 +1022,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_trivial_vextr_impl(size_t cbStaticMax) :
-      _raw_vextr_impl_base(cbStaticMax) {
+   _raw_trivial_vextr_impl(size_t cbStaticCapacity) :
+      _raw_vextr_impl_base(cbStaticCapacity) {
    }
    _raw_trivial_vextr_impl(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false

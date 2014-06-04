@@ -74,11 +74,11 @@ void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib,
       m_rvpd.set_dynamic(false);
    } else {
       // This will return 0 if there’s no static item array.
-      size_t cbStaticMax(m_prvib->static_capacity());
-      if (cbNew <= cbStaticMax) {
+      size_t cbStaticCapacity(m_prvib->static_capacity());
+      if (cbNew <= cbStaticCapacity) {
          // The static item array is large enough; switch to using it.
          m_pBegin = m_prvib->static_array_ptr<void>();
-         m_rvpd.set_capacity(cbStaticMax);
+         m_rvpd.set_capacity(cbStaticCapacity);
          m_rvpd.set_dynamic(false);
       } else if (cbNew <= m_prvib->m_rvpd.capacity()) {
          // The current item array is large enough, no need to change anything.
@@ -125,18 +125,18 @@ void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib,
 }
 
 
-_raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticMax) :
+_raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   m_rvpd(cbStaticMax > 0, false) {
-   ABC_TRACE_FN((this, cbStaticMax));
+   m_rvpd(cbStaticCapacity > 0, false) {
+   ABC_TRACE_FN((this, cbStaticCapacity));
 
-   if (cbStaticMax) {
-      // Assign cbStaticMax to the static item array that follows *this.
+   if (cbStaticCapacity) {
+      // Assign cbStaticCapacity to the static item array that follows *this.
       _raw_vextr_impl_base_with_static_item_array * prvibwsia(
          static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
       );
-      prvibwsia->m_cbStaticMax = cbStaticMax;
+      prvibwsia->m_cbStaticCapacity = cbStaticCapacity;
    }
 }
 

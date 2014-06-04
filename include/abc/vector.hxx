@@ -162,8 +162,8 @@ protected:
 
    /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
-   _raw_vector(size_t cbStaticMax) :
-      _raw_complex_vextr_impl(cbStaticMax) {
+   _raw_vector(size_t cbStaticCapacity) :
+      _raw_complex_vextr_impl(cbStaticCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_complex_vextr_impl(ptConstSrc, ciSrc) {
@@ -235,8 +235,8 @@ protected:
 
    /** Constructor. See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
-   _raw_vector(size_t cbStaticMax) :
-      _raw_vector<T, false, false>(cbStaticMax) {
+   _raw_vector(size_t cbStaticCapacity) :
+      _raw_vector<T, false, false>(cbStaticCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_vector<T, false, false>(ptConstSrc, ciSrc) {
@@ -377,8 +377,8 @@ protected:
 
    /** Constructor. See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
-   _raw_vector(size_t cbStaticMax) :
-      _raw_trivial_vextr_impl(cbStaticMax) {
+   _raw_vector(size_t cbStaticCapacity) :
+      _raw_trivial_vextr_impl(cbStaticCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
@@ -981,11 +981,11 @@ protected:
 
    /** Constructor. Constructs the object as empty, setting m_p to nullptr.
 
-   cbStaticMax
+   cbStaticCapacity
       Size of the static item array, in bytes, or 0 if no static item array is present.
    */
-   mvector(size_t cbStaticMax) :
-      vector_base_(cbStaticMax) {
+   mvector(size_t cbStaticCapacity) :
+      vector_base_(cbStaticCapacity) {
    }
 };
 
@@ -1103,8 +1103,8 @@ protected:
 
    /** See mvector<T, false>::mvector().
    */
-   mvector(size_t cbStaticMax) :
-      mvector<T, false>(cbStaticMax) {
+   mvector(size_t cbStaticCapacity) :
+      mvector<T, false>(cbStaticCapacity) {
    }
 };
 
@@ -1440,8 +1440,8 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
-   size_t m_cbStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
+   size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };
@@ -1569,8 +1569,8 @@ private:
 
    // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
 
-   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticMax. */
-   size_t m_cbStaticMax;
+   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
+   size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
 };
