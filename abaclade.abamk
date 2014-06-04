@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- -*- coding: utf-8; mode: xml; tab-width: 3; indent-tabs-mode: nil -*-
+
+Copyright 2013, 2014
+Raffaello D. Di Napoli
+
+This file is part of Abaclade.
+
+Abaclade is free software: you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Abaclade. If not, see
+<http://www.gnu.org/licenses/>.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+<!-- Abaclade Make makefile for Abaclade itself. -->
+<abcmk>
+
+   <dynlib name="abaclade">
+      <!-- Main Abaclade dynamic shared library. -->
+      <source path="src/abaclade/abaclade.cxx"/>
+      <source path="src/abaclade/app.cxx"/>
+      <source path="src/abaclade/atomic.cxx"/>
+      <source path="src/abaclade/bitmanip.cxx"/>
+      <source path="src/abaclade/byteorder.cxx"/>
+      <source path="src/abaclade/file_path.cxx"/>
+      <source path="src/abaclade/enum.cxx"/>
+      <source path="src/abaclade/exception.cxx"/>
+      <source path="src/abaclade/io/binary.cxx"/>
+      <source path="src/abaclade/io/binary/buffered.cxx"/>
+      <source path="src/abaclade/io/binary/file.cxx"/>
+      <source path="src/abaclade/io/text.cxx"/>
+      <source path="src/abaclade/io/text/file.cxx"/>
+      <source path="src/abaclade/io/text/str.cxx"/>
+      <source path="src/abaclade/memory.cxx"/>
+      <source path="src/abaclade/stl/exception.cxx"/>
+      <source path="src/abaclade/stl/memory.cxx"/>
+      <source path="src/abaclade/stl/new.cxx"/>
+      <source path="src/abaclade/stl/tuple.cxx"/>
+      <source path="src/abaclade/stl/typeinfo.cxx"/>
+      <source path="src/abaclade/str.cxx"/>
+      <source path="src/abaclade/text.cxx" />
+      <source path="src/abaclade/to_str.cxx"/>
+      <source path="src/abaclade/trace.cxx"/>
+      <source path="src/abaclade/utf_traits.cxx"/>
+      <source path="src/abaclade/vector.cxx"/>
+      <source path="src/abaclade/_vextr.cxx"/>
+
+      <unittest name="abaclade-test">
+         <!-- Main unit test for Abaclade. -->
+         <source path="src/abaclade-test/abaclade-test.cxx"/>
+         <source path="src/abaclade-test/enum.cxx"/>
+         <source path="src/abaclade-test/exception.cxx"/>
+         <source path="src/abaclade-test/file_path.cxx"/>
+         <source path="src/abaclade-test/io-text-writer-print.cxx"/>
+         <source path="src/abaclade-test/str.cxx"/>
+         <source path="src/abaclade-test/to_str.cxx"/>
+         <source path="src/abaclade-test/utf_traits.cxx"/>
+         <source path="src/abaclade-test/vector.cxx"/>
+         <dynlib name="abaclade-testing"/>
+      </unittest>
+
+      <unittest name="abaclade-test-cppmacros">
+         <!-- Unit test for Abaclade’s preprocessor macros. -->
+         <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
+         <source tool="preproc" path="src/abaclade-test-cppmacros/cppmacros.cxx"/>
+         <expected-output path="src/abaclade-test-cppmacros/cppmacros.cxx.i"/>
+      </unittest>
+
+      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
+         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf8.cxx"/>
+         <expected-output path="src/abaclade-test-io-text/utf8.txt"/>
+      </unittest -->
+
+      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
+         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf16be.cxx"/>
+         <expected-output path="src/abaclade-test-io-text/utf16be.txt"/>
+      </unittest -->
+
+      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf32le">
+         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf32le.cxx"/>
+         <expected-output path="src/abaclade-test-io-text/utf32le.txt"/>
+      </unittest -->
+   </dynlib>
+
+   <dynlib name="abaclade-testing">
+      <!-- Testing support library. -->
+      <source path="src/abaclade-testing/app.cxx"/>
+      <source path="src/abaclade-testing/runner.cxx"/>
+      <source path="src/abaclade-testing/test_case.cxx"/>
+      <source path="src/abaclade-testing/utility.cxx"/>
+      <dynlib name="abaclade"/>
+   </dynlib>
+
+   <exe name="hello-world">
+      <!-- “Hello World” example. -->
+      <source path="examples/hello-world.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
+
+   <exe name="exceptions">
+      <!-- Exceptions and stack traces example. -->
+      <source path="examples/exceptions.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
+</abcmk>
+

@@ -1,10 +1,8 @@
-﻿Application-Building Components
-
-1. Introduction
+﻿1. Introduction
 ---------------
 
-Application-Building Components (ABC) is a framework for C++11 designed and
-written with these features in mind:
+Abaclade is a framework for C++11 designed and written with these features in
+mind:
 
 •  Full support for text-based and GUI applications, as well as service-oriented
    architectures;
@@ -14,16 +12,16 @@ written with these features in mind:
    arguments and locals) and a diverse and semantically-rich exception class
    hierarchy;
 •  Testing framework integrated in the library and in the included cross-
-   platform make utility (ABC Make);
+   platform make utility (Abamake);
 •  Modern I/O and IPC classes, inspired by Python’s library;
 •  Compiler-enforced type safety (no void pointers, no C-style variadic
    functions).
 
 
-2. Why ABC?
------------
+2. Why Abaclade?
+----------------
 
-Here’s what ABC has to offer, compared to other libraries/frameworks:
+Here’s what Abaclade has to offer, compared to other libraries/frameworks:
 •  Full support for stack dumps (like Python or Java);
 •  Programs don’t just crash - every error is an exception (including e.g.
    accessing a null pointer);
@@ -44,8 +42,8 @@ Here’s what ABC has to offer, compared to other libraries/frameworks:
 2.1. Some history
 -----------------
 
-ABC was started in the mid-2000s with a dual scope: on one hand explore if it
-was possible, (ab)using templates and other C++ features, to have automatic
+Abaclade was started in the mid-2000s with a dual scope: on one hand explore if
+it was possible, (ab)using templates and other C++ features, to have automatic
 error reporting similar to what higher-level languages such as Python and Java
 offer; on the other hand, a required target was to be able to write programs
 that would be light, fast, easy to write, and easy to read years later.
@@ -55,15 +53,15 @@ without using some sort of pre-preprocessor, so the project goals lead to
 several dead-ended projects.
 
 When C++11 finally reached the final draft status, it turned out that it allowed
-for most of the features that had originally been planned, so development of ABC
-as it is now was finally started.
+for most of the features that had originally been planned, so development of
+Abaclade as it is now was finally started.
 
 
 3. Compatibility
 ----------------
 
-ABC is in full development, so the compatibility can and will change over time
-(hopefully expanding).
+Abaclade is in full development, so the compatibility can and will change over
+time (hopefully expanding).
 
 Supported build systems:
 
@@ -81,53 +79,54 @@ Supported operating systems:
 •  Microsoft Windows - temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
-Additionally, ABC requires Python 3.2 or later to be installed on the host
+Additionally, Abaclade requires Python 3.2 or later to be installed on the host
 system.
 
 
-4. Building ABC
----------------
+4. Building Abaclade
+--------------------
 
-At the moment, ABC lacks only offers very basic means for installation.
+At the moment, Abaclade lacks only offers very basic means for installation.
 
-ABC comes with a built-in cross-platform make utility, ABC Make (see also
-[DOC:6931 ABC Make]); the way it works is very similar to the common UNIX make
-utility, but ABC Make makefiles are written in an XML syntax inspired by MSBuild
+Abaclade comes with a built-in cross-platform make utility, Abamake (see also
+[DOC:6931 Abamake]); the way it works is very similar to the common UNIX make
+utility, but Abamakefiles are written in an XML syntax inspired by MSBuild
 format.
 
-TODO: document ABC Make makefile syntax and link to it from here.
+TODO: document Abamakefile syntax and link to it from here.
 
-ABC Make is currently written in Python, so it can be run prior to building
-ABC.
+Abamake is currently written in Python, so it can be run prior to building
+Abaclade.
 
-To build ABC, run from its base directory:
+To build Abaclade, run Abamake from its base directory:
 
-   src/abc-make.py
+   src/abamake.py
 
 
 This will create outputs in the bin/ and lib/ folders.
 
-TODO: expand on ABC Make arguments.
+TODO: expand on Abamake arguments.
 
 
-5. Installing ABC
+5. Installing Abaclade
+----------------------
+
+At the moment, Abaclade lacks any means for installation.
+
+TODO: make Abaclade installable.
+
+
+6. Using Abaclade
 -----------------
 
-At the moment, ABC lacks any means for installation.
+For usage examples, please see the source files in the examples/ folder.
+Examples are built as part of Abaclade (see § 4. Building Abaclade), and the
+generated executables can be found in the bin/ output folder.
 
-TODO: make ABC installable.
-
-
-6. Using ABC
-------------
-
-For usage examples, please see the source files in the examples/ folder. Examples are built as part
-of ABC (see § 4. Building ABC), and the generated executables can be found in the bin/ output
-folder.
-
-If ABC is not installed (see § 5. Installing ABC), example programs will fail to run due to being
-unable to load ABC shared libraries. This can be worked around by adding the output lib/ folder to
-the shared library search path.
+If Abaclade is not installed (see § 5. Installing Abaclade), example programs
+will fail to run due to being unable to load Abaclade shared libraries. This can
+be worked around by adding the output lib/ folder to the shared library search
+path.
 
 On glibc/Linux:
 
@@ -145,17 +144,17 @@ On Windows:
 Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
-This file is part of Application-Building Components (henceforth referred to as
-ABC).
+This file is part of Abaclade.
 
-ABC is free software: you can redistribute it and/or modify it under the terms
-of the GNU General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version.
+Abaclade is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-ABC is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. See the GNU General Public License for more details.
+Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-ABC. If not, see <http://www.gnu.org/licenses/>.
+Abaclade. If not, see <http://www.gnu.org/licenses/>.
 
