@@ -233,7 +233,7 @@ public:
       Size of the item array, in bytes.
    */
    size_t capacity() const {
-      return m_iPackedData & smc_cbMaxMask;
+      return m_iPackedData & smc_cbCapacityMask;
    }
 
 
@@ -269,12 +269,12 @@ public:
 
    /** Assigns a recorded capacity for the item array.
 
-   cbMax
+   cbCapacity
       Size of the item array, in bytes.
    */
-   void set_capacity(size_t cbMax) {
-      m_iPackedData &= ~smc_cbMaxMask;
-      m_iPackedData |= cbMax;
+   void set_capacity(size_t cbCapacity) {
+      m_iPackedData &= ~smc_cbCapacityMask;
+      m_iPackedData |= cbCapacity;
    }
 
 
@@ -316,7 +316,7 @@ private:
       true if the parent object is followed by a static item array.
    bool bNulT
       true if the item array is NUL-terminated.
-   size_t cbMax;
+   size_t cbCapacity
       Size of the item array, in bytes.
    */
    size_t m_iPackedData;
@@ -331,8 +331,8 @@ private:
 
 public:
 
-   /** Mask to access cbMax from m_iPackedData. */
-   static size_t const smc_cbMaxMask = ~(smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask);
+   /** Mask to access cbCapacity from m_iPackedData. */
+   static size_t const smc_cbCapacityMask = ~(smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask);
 };
 
 } //namespace abc
@@ -644,7 +644,7 @@ protected:
    _raw_vextr_packed_data m_rvpd;
 
    /** The item array size must be no less than this many bytes. Must be greater than, and not
-   overlap any bits with, _raw_vextr_impl_base::smc_cbMaxMask. */
+   overlap any bits with, _raw_vextr_impl_base::smc_cbCapacityMask. */
    static size_t const smc_cbMin = sizeof(intptr_t) * 8;
    /** Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
@@ -667,7 +667,7 @@ public:
 
 
 /** Rounds up an array size to avoid interfering with the bits outside of
-_raw_vextr_packed_data::smc_cbMaxMask. Should be a constexpr function, but for now it’s just a
+_raw_vextr_packed_data::smc_cbCapacityMask. Should be a constexpr function, but for now it’s just a
 macro.
 
 cb
@@ -676,7 +676,8 @@ return
    Rounded-up size of the items.
 */
 #define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cb) \
-   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbMaxMask) & _raw_vextr_packed_data::smc_cbMaxMask)
+   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbCapacityMask) & \
+      _raw_vextr_packed_data::smc_cbCapacityMask)
 
 
 // Now these can be implemented.

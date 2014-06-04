@@ -88,35 +88,35 @@ void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib,
 
          // Calculate the total allocation size.
          // TODO: better algorithm.
-         size_t cbMax(cbNew * _raw_vextr_impl_base::smc_iGrowthRate);
+         size_t cbNewCapacity(cbNew * _raw_vextr_impl_base::smc_iGrowthRate);
          // Check for overflow.
-         if (cbMax <= cbNew) {
-            // Theoretically, this could still result in cbMax < cbNew; in practice it doesn’t
-            // matter because the following memory allocation will fail for such sizes.
-            cbMax = _raw_vextr_packed_data::smc_cbMaxMask;
-         } else if (cbMax < _raw_vextr_impl_base::smc_cbMin) {
+         if (cbNewCapacity <= cbNew) {
+            // Theoretically, this could still result in cbNewCapacity < cbNew; in practice it
+            // doesn’t matter because the following memory allocation will fail for such sizes.
+            cbNewCapacity = _raw_vextr_packed_data::smc_cbCapacityMask;
+         } else if (cbNewCapacity < _raw_vextr_impl_base::smc_cbMin) {
             // Make sure we don’t allocate less than smc_cbMin bytes, so we won’t reallocate right
             // on the next size change.
-            cbMax = _raw_vextr_impl_base::smc_cbMin;
+            cbNewCapacity = _raw_vextr_impl_base::smc_cbMin;
          } else {
             // Ensure that the lower bits are clear by rounding up.
-            cbMax = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbMax);
+            cbNewCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbNewCapacity);
          }
 
          if (m_prvib->m_rvpd.dynamic()) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
-            m_prvib->m_pBegin = m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbMax);
+            m_prvib->m_pBegin = m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbNewCapacity);
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
-            m_prvib->m_rvpd.set_capacity(cbMax);
+            m_prvib->m_rvpd.set_capacity(cbNewCapacity);
          } else {
             // Allocate a new item array.
-            m_pBegin = memory::_raw_alloc(cbMax);
+            m_pBegin = memory::_raw_alloc(cbNewCapacity);
             m_rvpd.set_dynamic(true);
             m_bFree = true;
          }
-         m_rvpd.set_capacity(cbMax);
+         m_rvpd.set_capacity(cbNewCapacity);
       }
       m_pEnd = static_cast<int8_t *>(m_pBegin) + cbNew;
    }
