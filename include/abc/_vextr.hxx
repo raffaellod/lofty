@@ -25,358 +25,183 @@ You should have received a copy of the GNU General Public License along with ABC
 
 /** DOC:4019 abc::*str and abc::*vector design
 
-*str and *vector are implemented using the same base set of classes:
+abc::*str and abc::*vectors are intelligent wrappers around C arrays; they are able to dynamically
+adjust the size of the underlying array, while also taking advantage of an optional fixed-size array
+embedded into the string/vector object.
 
-•  _raw_vextr_impl_base, core functionality for a vector of items: a little code and all member
-   variables; this is then extended by three implementation classes:
+Data-wise, the implementation stores two pointers, one to the first item and one to beyond the last
+item, instead of the more common start pointer/length pair of variables. This makes checking an
+iterator against the end of the array a matter of a simple load/compare in terms of machine level
+instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair.
 
-   •  _raw_complex_vextr_impl, implementation of a vector of objects of non-trivial class: this is
-      fully transactional and therefore exception-proof, but it's of course slower and uses more
-      memory even during simpler operations;
+While there are several implementations of these classes, they can all be grouped in two clades:
+immutable and mutable/modifiable. The firsts behave much like Python’s strings or tuples, in that
+they only expose observers; the seconds offer the entire range of modifiers as well, making them
+more like strings/vectors in most other languages, but at the cost of a restricted range of options
+for the allocation of their internal arrays.
 
-   •  _raw_trivial_vextr_impl, implementation of a vector of plain values (instances of trivial
+The implementation of strings and vectors revolves around two class hierarchies: the lower-level
+hierarchy creates a code path split between trivial (e.g. integral) types to exploit the inherent
+exception safety of these without breaking the transactional guarantee for complex types; the upper-
+level hierarchies hide parts of the lower-level classes’ interface so that transitions between their
+different possible semantic statuses (e.g. mutable/immutable) have to be validated via the C++ type
+system.
+
+For vectors, the leaf-most classes have two implementations: one for movable-only types, and one for
+copyable types.
+
+
+The lower-level hierarchy consists in these non-template classes:
+
+•  _raw_vextr_impl_base: core functionality for a vector of items: a little code and all member
+   variables.
+
+   •  _raw_complex_vextr_impl: implementation of a vector of objects of non-trivial class: this is
+      fully transactional and therefore exception-proof, but it’s of course slower and uses more
+      memory even during simpler operations.
+
+   •  _raw_trivial_vextr_impl: implementation of a vector of plain values (instances of trivial
       class or native type): this is a near-optimal solution, still exception-proof but also taking
-      advantage of the knowledge that no copy constructors need to be called; this class also
-      supports the presence of a last element of value 0, opening up for the implementation of a
-      string-like vector:
-
-      •  str_base, implementation of a string: mostly based on _raw_trivial_vector_impl.
-
-A vector/string using a static item array is nearly as fast as the C-style direct manipulation of an
-array, only wasting a very small amount of space, and providing the ability to switch to a
-dynamically-allocated item array on-the-fly in case the client needs to store in it more items than
-are available.
-
-Note: vextr is a silly portmanteau of vector and str(ing), because most of the above classes are
-used by both.
-
-
-Underlying data storage:
-
-   Note: the third field is of type _raw_vextr_packed_data and is represented here as the tuple
-   (capacity, array NUL-terminated?, array is dynamically-allocated?, statically array available?).
-
-
-1. istr() or dmstr()
-   ┌───┬───┬─────────┐
-   │ p │ 0 │ 0|f|f|f │
-   └───┴───┴─────────┘
-     │
-     ╰──────────────────▶ nullptr            No item array
-
-2. smstr<5>()
-   ┌───┬───┬─────────╥───┬───────────┐
-   │ p │ 0 │ 0|f|f|t ║ 5 │ - - - - - │       Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴─────────╨───┴───────────┘
-     │
-     └──────────────────▶ nullptr            No item array
-
-3. istr("abc")
-   ┌───┬───┬─────────┐
-   │ p │ 3 │ 0|t|f|f │
-   └───┴───┴─────────┘
-     │                   ┌──────────┐
-     └──────────────────▶│ a b c \0 │        Read-only memory
-                         └──────────┘
-4. dmstr("abc")
-   ┌───┬───┬─────────┐
-   │ p │ 3 │ 8|f|t|f │
-   └───┴───┴─────────┘
-     │                   ┌─────────────────┐
-     └──────────────────▶│ a b c - - - - - │ Dynamically-allocated variable-size buffer
-                         └─────────────────┘
-5. smstr<3>()
-   ┌───┬───┬─────────╥───┬───────┐
-   │ p │ 0 │ 3|f|f|t ║ 3 │ - - - │           Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴─────────╨───┴───────┘
-     │
-     └──────────────────▶ nullptr            No item array
-
-5. smstr<3>() += "abc"
-   ┌───┬───┬─────────╥───┬───────┐
-   │ p │ 3 │ 3|f|f|t ║ 3 │ a b c │           Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴─────────╨───┴───────┘
-     │                   ▲
-     └───────────────────┘
-
-6. smstr<2>() += "abc"
-   ┌───┬───┬─────────╥───┬─────┐
-   │ p │ 3 │ 8|f|t|t ║ 3 │ - - │             Static (can be stack-allocated) fixed-size buffer
-   └───┴───┴─────────╨───┴─────┘
-     │                   ┌─────────────────┐
-     └──────────────────▶│ a b c - - - - - │ Dynamically-allocated variable-size buffer
-                         └─────────────────┘
-
-
-String types:
-
-   istr (immutable string)
-      Item array can be read-only (and shared) or dynamic.
-   smstr (statically- or dynamically-allocated mutable string)
-      Item array cannot be read-only nor shared, but it can be static or dynamic.
-   dmstr (dynamically-allocated mutable string)
-      Item array cannot be read-only, nor shared, nor static - always dynamic and writable.
-
-
-Argument usage scenarios:
-
-   istr           g_is;
-   istr const     gc_is;
-   dmstr          g_dms;
-   dmstr const    gc_dms;
-   smstr<n>       g_sms;
-   smstr<n> const gc_sms;
-   mstr           g_ms;
-   mstr const     gc_ms;
-
-
-•  No need to modify:
-
-   void f1(istr const & isArg) {
-      // N/A - const.
-      isArg += "abc";
-
-      // Share a read-only item array, or copy it: istr::operator=(istr const &)
-      // Use assign_share_ro_or_copy().
-      g_is = isArg;
-
-      // TODO: validate these!
-      // 1. Copy-construct: istr::istr(istr const &)
-      //    Use assign_share_ro_or_copy(): will share a read-only item array, but will copy anything
-      //    else. It's a copy - it's expected to have a separate life.
-      // 2. Move-assign from the copy: istr::operator=(istr &&) (“nothrow”)
-      //    Use assign_move().
-      g_is = std::move(isArg);
-      // 3. Destruct the now-empty copy: istr::~istr()
-
-      // Copy the item array: mstr::operator=(istr const &)
-      // Use assign_copy().
-      g_ms = isArg;
-
-      // TODO: validate these!
-      // 1. Same as 1. above.
-      // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-      //    Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its
-      //    items.
-      g_ms = std::move(isArg);
-      // 3. Same as 3. above.
-
-      // Copy the item array: dmstr::operator=(istr const &)
-      // Use assign_copy().
-      g_dms = isArg;
-
-      // TODO: validate these!
-      // 1. Same as 1. above.
-      // 2. Move-assign from the copy: dmstr::operator=(istr &&) (can throw)
-      //    Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its
-      //    items.
-      g_dms = std::move(isArg);
-      // 3. Same as 3. above.
-
-      // Copy the item array: smstr<n>::operator=(istr const &)
-      // Use assign_copy().
-      g_sms = isArg;
-
-      // TODO: validate these!
-      // 1. Same as 1. above.
-      // 2. Move-assign from the copy: smstr<n>::operator=(istr &&) (can throw)
-      //    See considerations for 2. above.
-      g_sms = std::move(isArg);
-      // 3. Same as 3. above.
-   }
-
-   // 1. Construct a temporary object: istr::istr(char (& ach)[t_cch])
-   f1("abc");
-   // 2. Destruct the temporary object: istr::~istr()
-
-   // Pass by const &.
-   f1(g_is);
-   f1(gc_is);
-
-   // Invoke mstr::operator istr const &() const. Given that it's a REFERENCE, it's fine if the
-   // source goes away and you get a crash: it's like freeing a pointer after passing it around.
-   f1(g_ms);
-   f1(gc_ms);
-
-   // Invoke dmstr::operator istr const &() const. See considerations above.
-   f1(g_dms);
-   f1(gc_dms);
-
-   // Invoke smstr<n>::operator istr const &() const. See considerations above.
-   f1(g_sms);
-   f1(gc_sms);
-
-
-•  Writable dynamic string:
-
-   void f2(dmstr * pdmsArg) {
-      // Modify the buffer, maybe changing it for size reasons.
-      *pdmsArg += "abc";
-
-      // Copy the item array: istr::operator=(dmstr const &)
-      // Use assign_copy(). Can never share, because dmstr never uses a read-only buffer.
-      g_is = *pdmsArg;
-
-      // Move the item array: istr::operator=(dmstr &&) (“nothrow”)
-      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-      g_is = std::move(*pdmsArg);
-
-      // Copy the item array: mstr::operator=(dmstr const &)
-      // Use assign_copy().
-      g_ms = *pdmsArg;
-
-      // Move the item array: mstr::operator=(dmstr &&) (“nothrow”)
-      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-      g_ms = std::move(*pdmsArg);
-
-      // Copy the item array: dmstr::operator=(dmstr const &)
-      // Use assign_copy().
-      g_dms = *pdmsArg;
-
-      // Move the item array: dmstr::operator=(dmstr &&) (“nothrow”)
-      // Use assign_move(). “nothrow” because mdstr cannot be a smstr<n> under covers.
-      g_dms = std::move(*pdmsArg);
-
-      // Copy the item array: smstr<n>::operator=(dmstr const &)
-      // Use assign_copy().
-      g_sms = *pdmsArg;
-
-      // Move the item array: smstr<n>::operator=(dmstr &&) (“nothrow”)
-      // Use assign_move(). “nothrow” because dmstr cannot be a smstr<n> under covers.
-      g_sms = std::move(*pdmsArg);
-   }
-
-   // N/A - no such conversion.
-   f2("abc");
-   f2(&g_is);
-   f2(&gc_is);
-
-   // N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
-   // above cannot be guaranteed.
-   f2(&g_ms);
-   f2(&gc_ms);
-
-   // Pass by &.
-   f2(&g_dms);
-
-   // N/A - const.
-   f2(&gc_dms);
-
-   // N/A - no such conversion. This must be the case, otherwise the “nothrow” conditions described
-   // above cannot be guaranteed.
-   f2(&g_sms);
-   f2(&gc_sms);
-
-
-•  Writable (static or dynamic) string:
-
-   void f3(mstr * pmsArg) {
-      // Modify the buffer, maybe changing it for size reasons.
-      *pmsArg += "abc";
-
-      // Copy the item array: istr::operator=(mstr const &)
-      // Use assign_copy(): can never share, because mstr never uses a read-only buffer.
-      g_is = *pmsArg;
-
-      // Move the item array: istr::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_move_items(). can throw because mstr can be a smstr<n> under the
-      // covers!
-      g_is = std::move(*pmsArg);
-
-      // Copy the item array: mstr::operator=(mstr const &)
-      // Use assign_copy().
-      g_ms = *pmsArg;
-
-      // Move the item array: mstr::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_move_items(). See considerations above.
-      // WARNING - this class has a throwing move constructor/assignment operator!
-      g_ms = std::move(*pmsArg);
-
-      // Copy the item array: dmstr::operator=(mstr const &)
-      // Use assign_copy().
-      g_dms = *pmsArg;
-
-      // Move the item array: dmstr::operator=(mstr &&) (“nothrow”)
-      // Use assign_move(). Can throw because mstr can be a smstr<n> under covers!
-      g_dms = std::move(*pmsArg);
-
-      // Copy the item array: smstr<n>::operator=(mstr const &)
-      // Use assign_copy().
-      g_sms = *pmsArg;
-
-      // Move the item array: smstr<n>::operator=(mstr &&) (can throw)
-      // Use assign_move_dynamic_or_move_items(): will move a dynamic item array or move its items.
-      // else (like assign_copy()).
-      g_sms = std::move(*pmsArg);
-   }
-
-   // N/A - no such conversion.
-   f3("abc");
-   f3(&g_is);
-   f3(&gc_is);
-
-   // Pass by &.
-   f3(&g_ms);
-
-   // N/A - const.
-   f3(&gc_ms);
-
-   // Down-cast to mstr &.
-   f3(&g_dms);
-
-   // N/A - const.
-   f3(&gc_dms);
-
-   // Down-cast to mstr &.
-   f3(&g_sms);
-
-   // N/A - const.
-   f3(&gc_sms);
-
-
-From the above, it emerges that:
-
-•  mstr and smstr<n> cannot publicly derive from istr or dmstr, because that would enable automatic
-   down-cast to i/dmstr &, which would then expose to the i/dmstr move constructor/assignment
-   operator being invoked to move a static item array, which is wrong, or (if attempting to work
-   around the move) would result in the static item array being copied, which would violate the
-   “nothrow” requirement for the move constructor/assignment operator.
-
-•  dmstr can publicly derive from mstr, with mstr being a base class for both dmstr and smstr<n>.
-
-•  The only differences between istr and istr const & are:
-   1. istr const & can be using a static item array (because it can be a smstr<n>), while any other
-      istr will always use a const/read-only item array or a dynamic one;
-   2. other string types can only be automatically converted to istr const &.
-
-•  The difference between istr and mstr (and therefore dmstr/smstr<n>) is that the former can be
-   constructed from a static string without copying it, but only offers read-only methods and
-   operators; the latter offers the whole range of features one would expect, but will create a new
-   item array upon construction or assignment (or use the embedded static one, in case of smstr<n>).
-
-•  mstr cannot have a “nothrow” move constructor or assignment operator from itself, because the
-   underlying objects might have static item arrays of different sizes. This isn't a huge deal-
-   breaker because of the intended limited usage for mstr and smstr<n>.
-
-The resulting class hierarchy is therefore:
-
-   str_base (near-complete implementation of istr)
-      istr
-      mstr (near-complete implementation of dmstr/smstr<n>)
-         dmstr
-         smstr<n>
-
-             ┌─────────────────────────────────────────────────────────┐
-             │                     Functional need                     │
-┌────────────┼──────────────┬─────────────────┬──────────┬─────────────┤
-│            │ Local/member │ Method/function │ Writable │  Constant   │
-│ Class      │ variable     │ argument        │          │ (read-only) │
-├────────────┼──────────────┼─────────────────┼──────────┼─────────────┤
-│ istr const │       x      │    x (const &)  │          │      x      │
-│ mstr       │              │      x (*)      │     x    │             │
-│ dmstr      │       x      │                 │     x    │             │
-│ smstr      │       x      │                 │     x    │             │
-└────────────┴──────────────┴─────────────────┴──────────┴─────────────┘
+      advantage of the knowledge that no copy constructors need to be called.
+
+Making these classes non-template allows avoiding template bloat, possibly at the expense of some
+execution speed.
+
+Note: vextr is a portmanteau of vector and str(ing), because most of the above classes are used by
+both.
+
+For vectors, the two leaf classes above are wrapped by an additional template layer,
+abc::_raw_vector, that eliminates any differences between the two interfaces caused by the need for
+abc::_raw_trivial_vextr_impl to also double as implementation of the string classes. The complete
+lower-level class hierarchy is therefore:
+
+•  _raw_vextr_impl_base
+
+   •  _raw_complex_vextr_impl / _raw_trivial_vextr_impl
+
+      •  _raw_vector: consolidates the trivial and complex interfaces into a single one by having
+         two distinct specializations (trivial/non-trivial).
+
+         •  vector_base: base for the upper-level vector class hierarchy.
+
+      •  str_base: always derives from _raw_trivial_vextr_impl, it’s the base for the upper-level
+         string class hierarchy.
+
+
+The upper-level class hierarchies consist in these classes:
+
+•  vector_base/str_base
+
+   •  ivector (TODO: if the need arises)/istr: immutable (assign-only) vector/string; uses a read-
+      only (possibly shared) or dynamically-allocated item array, and as a consequence does not
+      offer any modifier methods or operators beyond operator==(). Only class in its hierarchy that
+      can be constructed from a C++ literal without creating a copy of the constructor argument.
+
+   •  mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable, statically- or
+      dynamically-allocated item array (never read-only nor shared), and provides an abstraction for
+      its derived classes.
+
+      •  dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated item array.
+
+      •  smvector/smstr: mutable vector/string that can use an internal statically-allocated item
+         array and will switch to a dynamically-allocated one only if necessary. Nearly as fast as
+         the C-style direct manipulation of an array, only wasting a very small amount of space, and
+         providing the ability to switch to a dynamically-allocated item array on-the-fly in case
+         the client needs to store in it more items than are available.
+
+The upper-level class hierarchy is arranged so that the compiler will prevent implicit cast of mstr
+or smstr to istr &/dmstr &; allowing this would allow the istr/dmstr move constructor/assignment
+operator to be invoked to transfer ownership of a static item array, which is wrong, or (if falling
+back to copying the static item array into a new dynamic one) would result in memory allocation and
+items being copied, which would violate the “nothrow” requirement for the move constructor/
+assignment operator.
+
+All string (TODO: and vector) types can be implicitly cast as istr const &; this makes istr const &
+the lowest common denominator for string exchange, much like str is in Python. Because of this, an
+istr const & can be using a static item array (because it can be a smstr), while any other istr will
+always use a const/read-only item array or a dynamic one.
+
+mvector/mstr cannot have a “nothrow” move constructor or assignment operator from itself, because
+the two underlying objects might have static item arrays of different sizes. This isn’t a huge deal-
+breaker because of the intended limited usage for mstr and smstr, but it’s something to watch out
+for, and it means that mstr should not be used in container classes.
+
+This table illustrates the best type of string to use for each use scenario:
+
+   ┌────────────────────────────────────────────────────────────────────────┬──────────────────────┐
+   │ Functional need                                                        │ Suggested type       │
+   ├────────────────────────────────────────────────────────────────────────┼──────────────────────┤
+   │ Local/member constant                                                  │ istr const           │
+   │ Local/member immutable variable (can be assigned to, but not modified) │ istr                 │
+   │ Local/member variable                                                  │ smstr<expected size> │
+   │ Function argument (input-only)                                         │ istr const &         │
+   │ Function argument (output-only)                                        │ mstr *               │
+   │ Function argument (non-const input)                                    │ mstr &               │
+   │ Function return value (from string literal)                            │ istr                 │
+   │ Function return value (read-only reference to non-local variable)      │ istr const &         │
+   │ Function return value (from local temporary string)                    │ dmstr                │
+   │ Function return value (reference to non-local variable)                │ mstr &               │
+   │ Value in container classes                                             │ any except mstr      │
+   │ Key in hash-based container classes                                    │ istr const           │
+   └────────────────────────────────────────────────────────────────────────┴──────────────────────┘
+
+
+Last but not least, let’s look at the underlying data storage in some of the possible semantic
+statuses.
+
+Key:
+
+   ┌──────────────┬──────────┬──────────────────┬───────────────┬────────────────┬─────────────────┐
+   │ Pointer to   │ Pointer  │ Capacity of item │ T if item     │ E is vextr has │ D if item array │
+   │ beginning of │ to end   │ array, or 0 if   │ array is NUL- │ embedded       │ is dynamically- │
+   │ array        │ of array │ it’s read-only   │ terminated    │ static array   │ allocated       │
+   └──────────────┴──────────┴──────────────────┴───────────────┴────────────────┴─────────────────┘
+
+   Additionally, an embedded item array can follow, prefixed by its length (here in items, but in
+   the implementation it’s actually a byte count).
+
+
+1. istr() or dmstr(): no item array.
+   ┌─────────┬─────────┬───┬───┬───┬───┐
+   │ nullptr │ nullptr │ 0 │ - │ - │ - │
+   └─────────┴─────────┴───┴───┴───┴───┘
+
+2. smstr<5>(): has a static embedded fixed-size buffer, but does not use it yet.
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬───────────┐
+   │ nullptr │ nullptr │ 0 │ - │ E │ - ║ 5 │ - - - - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴───────────┘
+
+3. istr("abc"): points to read-only memory, which also has a NUL terminator.
+   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌──────────┐
+   │ 0xptr   │ 0xptr   │ 0 │ T │ - │ - │                │ a b c \0 │
+   └─────────┴─────────┴───┴───┴───┴───┘                └──────────┘
+     │         │                                        ▲       ▲
+     │         └────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────┘
+
+4. dmstr("abc"): points to a dynamically-allocated copy of the source string literal.
+   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌─────────────────┐
+   │ 0xptr   │ 0xptr   │ 8 │ - │ - │ D │                │ a b c - - - - - │
+   └─────────┴─────────┴───┴───┴───┴───┘                └─────────────────┘
+     │         │                                        ▲       ▲
+     │         └────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────┘
+
+5. smstr<4> s4("abc"): copies the source string literal to the embedded array, and points to it.
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
+   │ 0xptr   │ 0xptr   │ 4 │ - │ E │ - ║ 4 │ a b c - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
+     │         │                           ▲       ▲
+     │         └───────────────────────────│───────┘
+     └─────────────────────────────────────┘
+
+7. s4 += "abc": switches to a dynamically-allocated buffer because the embedded one is too small.
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌─────────────────┐
+   │ 0xptr   │ 0xptr   │ 8 │ - │ E │ D ║ 4 │ - - - - │  │ a b c - - - - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └─────────────────┘
+     │         │                                        ▲       ▲
+     │         └────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────┘
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
