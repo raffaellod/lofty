@@ -253,27 +253,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 /*static*/ char8_t const * utf8_traits::str_chr(
-   char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= 0x00007f) {
-      // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
-      char8_t ch8Needle(static_cast<char8_t>(chNeedle));
-      for (char8_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-         if (*pch == ch8Needle) {
-            return pch;
-         }
-      }
-      return pchHaystackEnd;
-   } else {
-      // The needle is two or more UTF-8 characters, so take the slower approach.
-      char8_t achNeedle[max_codepoint_length];
-      from_utf32(chNeedle, achNeedle);
-      return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
-   }
-}
-/*static*/ char8_t const * utf8_traits::str_chr(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
@@ -568,27 +547,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ char16_t const * utf16_traits::str_chr(
-   char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= 0x00ffff) {
-      // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
-      char16_t ch16Needle(static_cast<char16_t>(chNeedle));
-      for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-         if (*pch == ch16Needle) {
-            return pch;
-         }
-      }
-      return pchHaystackEnd;
-   } else {
-      // The needle is two UTF-16 characters, so take the slower approach.
-      char16_t achNeedle[max_codepoint_length];
-      from_utf32(chNeedle, achNeedle);
-      return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
-   }
-}
-/*static*/ char16_t const * utf16_traits::str_chr(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
@@ -805,20 +763,6 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
       }
    }
    return true;
-}
-
-
-/*static*/ char32_t const * utf32_traits::str_chr(
-   char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   for (char32_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-      if (*pch == chNeedle) {
-         return pch;
-      }
-   }
-   return pchHaystackEnd;
 }
 
 
