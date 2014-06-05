@@ -1106,14 +1106,14 @@ namespace abc {
 /** mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size.
 */
-template <size_t t_cchStatic>
+template <size_t t_cchStaticCapacity>
 class smstr :
    public mstr {
 private:
 
    /** Actual static character array size, in bytes. */
-   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
-      sizeof(char_t) * t_cchStatic
+   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(char_t) * t_cchStaticCapacity
    );
 
 
@@ -1124,35 +1124,35 @@ public:
    TODO: comment signature.
    */
    smstr() :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
    }
    smstr(smstr const & s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // If the source is using its static character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
-      mstr(smc_cbFixed) {
+      mstr(smc_cbStaticCapacity) {
       assign_move(std::move(s));
    }
 
@@ -1202,7 +1202,7 @@ private:
    /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
    size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
 };
 
 } //namespace abc
@@ -1211,8 +1211,8 @@ private:
 namespace std {
 
 // Specialization of std::hash.
-template <size_t t_cchStatic>
-struct hash<abc::smstr<t_cchStatic>> : public hash<abc::str_base> {};
+template <size_t t_cchStaticCapacity>
+struct hash<abc::smstr<t_cchStaticCapacity>> : public hash<abc::str_base> {};
 
 } //namespace std
 

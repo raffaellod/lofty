@@ -1346,19 +1346,20 @@ namespace abc {
 most likely to be shorter than a known small size.
 */
 template <
-   typename T, size_t t_ciStatic, bool t_bCopyConstructible = std::is_copy_constructible<T>::value
+   typename T, size_t t_ciStaticCapacity,
+   bool t_bCopyConstructible = std::is_copy_constructible<T>::value
 >
 class smvector;
 
 // Partial specialization for non-copyable types.
-template <typename T, size_t t_ciStatic>
-class smvector<T, t_ciStatic, false> :
+template <typename T, size_t t_ciStaticCapacity>
+class smvector<T, t_ciStaticCapacity, false> :
    public mvector<T, false> {
 protected:
 
    /** Actual static item array size, in bytes. */
-   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
-      sizeof(T) * t_ciStatic
+   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(T) * t_ciStaticCapacity
    );
 
 
@@ -1370,32 +1371,32 @@ public:
       Source vector.
    */
    smvector() :
-      mvector<T, false>(smc_cbFixed) {
+      mvector<T, false>(smc_cbStaticCapacity) {
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, false>(smc_cbFixed) {
+      mvector<T, false>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStatic2>
+   template <size_t t_ciStaticCapacity2>
    smvector(typename std::enable_if<
-      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, false> &&
+      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, false> &&
    >::type v) :
-      mvector<T, false>(smc_cbFixed) {
+      mvector<T, false>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStatic.
+   // This also covers smvector of different static size > t_ciStaticCapacity.
    smvector(mvector<T, false> && v) :
-      mvector<T, false>(smc_cbFixed) {
+      mvector<T, false>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, false> && v) :
-      mvector<T, false>(smc_cbFixed) {
+      mvector<T, false>(smc_cbStaticCapacity) {
       this->assign_move(std::move(v));
    }
 
@@ -1417,15 +1418,15 @@ public:
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStatic2>
+   template <size_t t_ciStaticCapacity2>
    smvector & operator=(typename std::enable_if<
-      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, false> &&
+      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, false> &&
    >::type v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStatic.
+   // This also covers smvector of different static size > t_ciStaticCapacity.
    smvector & operator=(mvector<T, false> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1443,20 +1444,20 @@ private:
    /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
    size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
 };
 
 // Partial specialization for copyable types.
 template <
-   typename T, size_t t_ciStatic
+   typename T, size_t t_ciStaticCapacity
 >
-class smvector<T, t_ciStatic, true> :
+class smvector<T, t_ciStaticCapacity, true> :
    public mvector<T, true> {
 protected:
 
    /** Actual static item array size. */
-   static size_t const smc_cbFixed = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
-      sizeof(T) * t_ciStatic
+   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
+      sizeof(T) * t_ciStaticCapacity
    );
 
 
@@ -1474,49 +1475,49 @@ public:
       Count of items in the array pointed to by pt.
    */
    smvector() :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
    }
    smvector(smvector const & v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStatic2>
+   template <size_t t_ciStaticCapacity2>
    smvector(typename std::enable_if<
-      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, true> &&
+      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, true> &&
    >::type v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(mvector<T, true> const & v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStatic.
+   // This also covers smvector of different static size > t_ciStaticCapacity.
    smvector(mvector<T, true> && v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, true> && v) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_move(std::move(v));
    }
    template <size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_copy(at, at + t_ci);
    }
    smvector(T const * ptBegin, T const * ptEnd) :
-      mvector<T, true>(smc_cbFixed) {
+      mvector<T, true>(smc_cbStaticCapacity) {
       this->assign_copy(ptBegin, ptEnd);
    }
 
@@ -1542,9 +1543,9 @@ public:
    // If the source is using its static item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStatic2>
+   template <size_t t_ciStaticCapacity2>
    smvector & operator=(typename std::enable_if<
-      (t_ciStatic > t_ciStatic2), smvector<T, t_ciStatic2, true> &&
+      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, true> &&
    >::type v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1554,7 +1555,7 @@ public:
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStatic.
+   // This also covers smvector of different static size > t_ciStaticCapacity.
    smvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1572,7 +1573,7 @@ private:
    /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
    size_t m_cbStaticCapacity;
    /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbFixed)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
 };
 
 } //namespace abc
