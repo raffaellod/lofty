@@ -64,7 +64,7 @@ return
    Shared pointer to the newly created object.
 */
 static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
-   ABC_TRACE_FN((pfid));
+   ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
    if (::fstat(pfid->fd.get(), &pfid->statFile)) {
@@ -208,7 +208,7 @@ return
    Pointer to a binary I/O object controlling fd.
 */
 static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
-   ABC_TRACE_FN((/*fd*/));
+   ABC_TRACE_FUNC(/*fd*/);
 
    _file_init_data fid;
    fid.fd = std::move(fd);
@@ -221,7 +221,7 @@ static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 
 
 std::shared_ptr<file_writer> stderr() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
    // needs to be handled here, with two options:
@@ -253,7 +253,7 @@ std::shared_ptr<file_writer> stderr() {
 
 
 std::shared_ptr<file_reader> stdin() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
    // needs to be handled here, with two options:
@@ -285,7 +285,7 @@ std::shared_ptr<file_reader> stdin() {
 
 
 std::shared_ptr<file_writer> stdout() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
    // needs to be handled here, with two options:
@@ -319,7 +319,7 @@ std::shared_ptr<file_writer> stdout() {
 std::shared_ptr<file_base> open(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
 ) {
-   ABC_TRACE_FN((fp, am, bBuffered));
+   ABC_TRACE_FUNC(fp, am, bBuffered);
 
    _file_init_data fid;
 #if ABC_HOST_API_POSIX
@@ -494,7 +494,7 @@ file_reader::file_reader(_file_init_data * pfid) :
 
 
 /*virtual*/ size_t file_reader::read(void * p, size_t cbMax) {
-   ABC_TRACE_FN((this, p, cbMax));
+   ABC_TRACE_FUNC(this, p, cbMax);
 
    int8_t * pb(static_cast<int8_t *>(p));
    // The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
@@ -562,7 +562,7 @@ file_writer::file_writer(_file_init_data * pfid) :
 
 
 /*virtual*/ void file_writer::flush() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
@@ -580,7 +580,7 @@ file_writer::file_writer(_file_init_data * pfid) :
 
 
 /*virtual*/ size_t file_writer::write(void const * p, size_t cb) {
-   ABC_TRACE_FN((this, p, cb));
+   ABC_TRACE_FUNC(this, p, cb);
 
    int8_t const * pb(static_cast<int8_t const *>(p));
 
@@ -666,7 +666,7 @@ console_reader::console_reader(_file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
 
 /*virtual*/ size_t console_reader::read(void * p, size_t cbMax) {
-   ABC_TRACE_FN((this, p, cbMax));
+   ABC_TRACE_FUNC(this, p, cbMax);
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
@@ -726,7 +726,7 @@ console_writer::console_writer(_file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
 
 /*virtual*/ size_t console_writer::write(void const * p, size_t cb) {
-   ABC_TRACE_FN((this, p, cb));
+   ABC_TRACE_FUNC(this, p, cb);
 
    // TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
 
@@ -816,7 +816,7 @@ namespace binary {
 
 regular_file_base::regular_file_base(_file_init_data * pfid) :
    file_base(pfid) {
-   ABC_TRACE_FN((this, pfid));
+   ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_POSIX
 
@@ -868,7 +868,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 
 
 /*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) {
-   ABC_TRACE_FN((this, ibOffset, sfWhence));
+   ABC_TRACE_FUNC(this, ibOffset, sfWhence);
 
 #if ABC_HOST_API_POSIX
 
@@ -938,14 +938,14 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 
 
 /*virtual*/ full_size_t regular_file_base::size() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_cb;
 }
 
 
 /*virtual*/ offset_t regular_file_base::tell() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    // Seeking 0 bytes from the current position won’t change the internal status of the file
@@ -973,7 +973,7 @@ regular_file_reader::regular_file_reader(_file_init_data * pfid) :
    file_base(pfid),
    regular_file_base(pfid),
    file_reader(pfid) {
-   ABC_TRACE_FN((this, pfid));
+   ABC_TRACE_FUNC(this, pfid);
 }
 
 
@@ -997,7 +997,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
    file_base(pfid),
    regular_file_base(pfid),
    file_writer(pfid) {
-   ABC_TRACE_FN((this, pfid));
+   ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_WIN32
    m_bAppend = (pfid->am == access_mode::append);
@@ -1012,7 +1012,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
 
 /*virtual*/ size_t regular_file_writer::write(void const * p, size_t cb) {
-   ABC_TRACE_FN((this, p, cb));
+   ABC_TRACE_FUNC(this, p, cb);
 
    // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
    // write-protect the bytes we’re going to add, and then release the write protection.

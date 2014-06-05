@@ -99,7 +99,7 @@ char_t const file_path::smc_aszUNCRoot[] = SL("\\\\?\\UNC\\");
 
 
 file_path & file_path::operator/=(istr const & s) {
-   ABC_TRACE_FN((this, s));
+   ABC_TRACE_FUNC(this, s);
 
    // Only the root already ends in a separator; everything else needs one.
    m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator) + s);
@@ -108,7 +108,7 @@ file_path & file_path::operator/=(istr const & s) {
 
 
 file_path file_path::absolute() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    file_path fpAbsolute;
    if (is_absolute()) {
@@ -152,14 +152,14 @@ file_path file_path::absolute() const {
 
 
 file_path file_path::base_name() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_s.substr(base_name_start());
 }
 
 
 /*static*/ file_path file_path::current_dir() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    dmstr s;
 #if ABC_HOST_API_POSIX
@@ -203,7 +203,7 @@ file_path file_path::base_name() const {
 #if ABC_HOST_API_WIN32
 
 /*static*/ file_path file_path::current_dir_for_volume(char_t chVolume) {
-   ABC_TRACE_FN((chVolume));
+   ABC_TRACE_FUNC(chVolume);
 
    // Create a dummy path for ::GetFullPathName() to expand.
    char_t achDummyPath[4] = { chVolume, CL(':'), CL('a'), CL('\0') };
@@ -233,7 +233,7 @@ file_path file_path::base_name() const {
 
 
 bool file_path::is_dir() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
    return S_ISDIR(file_stat(*this).st_mode);
@@ -246,7 +246,7 @@ bool file_path::is_dir() const {
 
 
 file_path file_path::normalize() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    dmstr s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
@@ -322,7 +322,7 @@ file_path file_path::normalize() const {
 
 #if ABC_HOST_API_WIN32
 istr file_path::os_str() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return std::move(absolute().m_s);
 }
@@ -330,7 +330,7 @@ istr file_path::os_str() const {
 
 
 file_path file_path::parent_dir() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    auto itBegin(m_s.cbegin());
    auto itLastSep(base_name_start());
@@ -348,14 +348,14 @@ file_path file_path::parent_dir() const {
 
 
 /*static*/ file_path file_path::root() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    return dmstr(smc_aszRoot);
 }
 
 
 dmstr::const_iterator file_path::base_name_start() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    auto itBaseNameStart(m_s.find_last(char32_t(smc_aszSeparator[0])));
    if (itBaseNameStart == m_s.cend()) {
@@ -380,7 +380,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 
 
 /*static*/ size_t file_path::get_root_length(dmstr const & s, bool bIncludeNonRoot) {
-   ABC_TRACE_FN((s, bIncludeNonRoot));
+   ABC_TRACE_FUNC(s, bIncludeNonRoot);
 
    static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
 
@@ -430,14 +430,14 @@ dmstr::const_iterator file_path::base_name_start() const {
 
 
 /*static*/ bool file_path::is_absolute(istr const & s) {
-   ABC_TRACE_FN((s));
+   ABC_TRACE_FUNC(s);
 
    return s.starts_with(smc_aszRoot);
 }
 
 
 /*static*/ dmstr file_path::validate_and_adjust(dmstr s) {
-   ABC_TRACE_FN((s));
+   ABC_TRACE_FUNC(s);
 
 #if ABC_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
@@ -513,7 +513,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 
 
 to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
-   ABC_TRACE_FN((this, sFormat));
+   ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
 
@@ -529,7 +529,7 @@ to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
 
 
 void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, fp, ptwOut));
+   ABC_TRACE_FUNC(this, fp, ptwOut);
 
    ptwOut->write(static_cast<istr const &>(fp));
 }

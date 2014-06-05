@@ -45,7 +45,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmvector<int> v;
 
@@ -111,7 +111,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmvector<int> v;
       v.append(1);
@@ -157,7 +157,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmvector<int> v, v0, v2;
       v2.append(1);
@@ -369,7 +369,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       using testing::utility::make_container_data_ptr_tracker;
 
@@ -560,7 +560,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // This will move the item array from the returned vector to v1, so no item copies or moves
       // will occur other than the ones in return_dmvector().
@@ -599,7 +599,7 @@ public:
       Newly-instantiated dynamic vector.
    */
    dmvector<instances_counter> return_dmvector() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmvector<instances_counter> v;
       // New instance, immediately moved.

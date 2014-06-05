@@ -41,7 +41,7 @@ template <typename C>
 static void _build_failure_restart_table(
    C const * pchNeedleBegin, C const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
 ) {
-   ABC_TRACE_FN((pchNeedleBegin, pchNeedleEnd, pvcchFailNext));
+   ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
 
    pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
    auto itNextFailNext(pvcchFailNext->begin());
@@ -137,7 +137,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 /*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    size_t ccp(0);
    // Count a single code point for each leading byte, skipping over trailing bytes.
@@ -149,7 +149,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 /*static*/ unsigned utf8_traits::from_utf32(char32_t ch32, char8_t * pchDst) {
-   ABC_TRACE_FN((ch32, pchDst));
+   ABC_TRACE_FUNC(ch32, pchDst);
 
    char8_t const * pchDst0(pchDst);
    // Compute the length of this sequence.
@@ -174,7 +174,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 /*static*/ bool utf8_traits::is_valid(char8_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    unsigned cbCont(0);
    bool bCheckFirstContByteForOverlongs;
@@ -212,7 +212,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    return cbCont == 0;
 }
 /*static*/ bool utf8_traits::is_valid(char8_t const * pchBegin, char8_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    unsigned cbCont(0);
    bool bCheckFirstContByteForOverlongs;
@@ -255,7 +255,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 /*static*/ char8_t const * utf8_traits::str_chr(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    if (chNeedle <= 0x00007f) {
       // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
@@ -276,7 +276,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 /*static*/ char8_t const * utf8_traits::str_chr(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
 
    char8_t chNeedleLead(*pchNeedle);
    for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
@@ -306,7 +306,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 /*static*/ char8_t const * utf8_traits::str_chr_r(
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    if (chNeedle <= 0x00007f) {
       // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
@@ -332,7 +332,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 // must have been the same, so only their absolute value matters; if they started a sequence, the
 // first byte of a longer encoding (greater code point value) if greater than that of a shorter one.
 /*static*/ int utf8_traits::str_cmp(char8_t const * psz1, char8_t const * psz2) {
-   ABC_TRACE_FN((psz1, psz2));
+   ABC_TRACE_FUNC(psz1, psz2);
 
    // This loop ends when there is bias (which includes psz2 being finished while there are still
    // characters in psz1) or psz1 is over.
@@ -352,7 +352,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    char8_t const * pch1Begin, char8_t const * pch1End,
    char8_t const * pch2Begin, char8_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
+   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
 
    char8_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
@@ -375,7 +375,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 
 /*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    char8_t const * pch(psz);
    while (*pch) {
@@ -389,7 +389,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
    char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    if (!(pchNeedleEnd - pchNeedleBegin)) {
       // No needle, so just return the beginning of the haystack.
@@ -466,7 +466,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
    char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    // TODO: implement this!
    return pchHaystackEnd;
@@ -487,7 +487,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    size_t ccp(0);
    // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
@@ -500,7 +500,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ unsigned utf16_traits::from_utf32(char32_t ch32, char16_t * pchDst) {
-   ABC_TRACE_FN((ch32, pchDst));
+   ABC_TRACE_FUNC(ch32, pchDst);
 
    if (ch32 <= 0x00ffff) {
       // The code point fits in a single UTF-16 character.
@@ -517,7 +517,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ bool utf16_traits::is_valid(char16_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    bool bExpectTailSurrogate(false);
    while (char16_t ch = *psz++) {
@@ -541,7 +541,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    return !bExpectTailSurrogate;
 }
 /*static*/ bool utf16_traits::is_valid(char16_t const * pchBegin, char16_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    bool bExpectTailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
@@ -570,7 +570,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 /*static*/ char16_t const * utf16_traits::str_chr(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    if (chNeedle <= 0x00ffff) {
       // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
@@ -591,7 +591,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 /*static*/ char16_t const * utf16_traits::str_chr(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
 
    // In UTF-16, there’s always at most two characters per code point.
    char16_t chNeedle0(pchNeedle[0]);
@@ -611,7 +611,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 /*static*/ char16_t const * utf16_traits::str_chr_r(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    if (chNeedle <= 0x00ffff) {
       // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
@@ -632,7 +632,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 /*static*/ char16_t const * utf16_traits::str_chr_r(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
 
    // In UTF-16, there’s always at most two characters per code point.
    // Notice that this function is very much a mirrored version of str_chr(), so even the needle is
@@ -652,7 +652,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ int utf16_traits::str_cmp(char16_t const * psz1, char16_t const * psz2) {
-   ABC_TRACE_FN((psz1, psz2));
+   ABC_TRACE_FUNC(psz1, psz2);
 
    char16_t ch1;
    do {
@@ -682,7 +682,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    char16_t const * pch1Begin, char16_t const * pch1End,
    char16_t const * pch2Begin, char16_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
+   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
 
    char16_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
@@ -717,7 +717,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    char16_t const * pch(psz);
    while (*pch) {
@@ -731,7 +731,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
    char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    // TODO: redo using lookup table.
    size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
@@ -766,7 +766,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
    char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    // TODO: implement this!
    return pchHaystackEnd;
@@ -787,7 +787,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 
 
 /*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    while (char32_t ch = *psz++) {
       if (!is_valid(ch)) {
@@ -797,7 +797,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
    return true;
 }
 /*static*/ bool utf32_traits::is_valid(char32_t const * pchBegin, char32_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    for (char32_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       if (!is_valid(*pch)) {
@@ -811,7 +811,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 /*static*/ char32_t const * utf32_traits::str_chr(
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    for (char32_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
       if (*pch == chNeedle) {
@@ -825,7 +825,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 /*static*/ char32_t const * utf32_traits::str_chr_r(
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, chNeedle));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
    for (char32_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
       if (*--pch == chNeedle) {
@@ -837,7 +837,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 
 
 /*static*/ int utf32_traits::str_cmp(char32_t const * psz1, char32_t const * psz2) {
-   ABC_TRACE_FN((psz1, psz2));
+   ABC_TRACE_FUNC(psz1, psz2);
 
    // This loop ends when there is bias (which includes psz2 being finished while there are still
    // characters in psz1) or psz1 is over.
@@ -857,7 +857,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
    char32_t const * pch1Begin, char32_t const * pch1End,
    char32_t const * pch2Begin, char32_t const * pch2End
 ) {
-   ABC_TRACE_FN((pch1Begin, pch1End, pch2Begin, pch2End));
+   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
 
    char32_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
@@ -880,7 +880,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 
 
 /*static*/ size_t utf32_traits::str_len(char32_t const * psz) {
-   ABC_TRACE_FN((psz));
+   ABC_TRACE_FUNC(psz);
 
    char32_t const * pch(psz);
    while (*pch) {
@@ -894,7 +894,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
    char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    // TODO: redo using lookup table.
    size_t cchNeedle(size_t(pchNeedleEnd - pchNeedleBegin));
@@ -929,7 +929,7 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
    char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
    char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
 ) {
-   ABC_TRACE_FN((pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd));
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
    // TODO: implement this!
    return pchHaystackEnd;

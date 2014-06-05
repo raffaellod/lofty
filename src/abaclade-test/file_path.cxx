@@ -43,7 +43,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Note that under Win32, paths that start with “/” are still relative to the current volume;
       // nonetheless, the assertions should still be valid.
@@ -178,7 +178,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       file_path fp(file_path::current_dir());
 

@@ -31,10 +31,10 @@ namespace abc {
 /** DOC:8503 Stack tracing
 
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
-ABC_TRACE_FN((arg1, arg2, …)) in order to have its name show up in a post-exception stack trace.
+ABC_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.
 
-ABC_TRACE_FN() initializes a local variable of type abc::_scope_trace which will store references to
-every provided argument.
+ABC_TRACE_FUNC() initializes a local variable of type abc::_scope_trace which will store references
+to every provided argument.
 
 abc::_scope_trace::~_scope_trace() detects if the object is being destroyed due to an exceptional
 stack unwinding, in which case it will dump its contents into a thread-local stack trace buffer. The
@@ -85,13 +85,13 @@ Currently unsupported:
 
 /** Provides stack frame logging for the function in which it’s used.
 */
-#define ABC_TRACE_FN(args) \
-   _ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(_scope_trace_), args)
+#define ABC_TRACE_FUNC(...) \
+   _ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(_scope_trace_), __VA_ARGS__)
 
-/** Implementation of ABC_TRACE_FN() and similar macros.
+/** Implementation of ABC_TRACE_FUNC() and similar macros.
 */
-#define _ABC_TRACE_SCOPE_IMPL(var, args) \
-   auto var(::abc::_scope_trace_impl::make args ); \
+#define _ABC_TRACE_SCOPE_IMPL(var, ...) \
+   auto var(::abc::_scope_trace_impl::make(__VA_ARGS__)); \
    var._set_context(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC)
 
 
@@ -243,7 +243,7 @@ public:
 
    /** Assigns a context to the scope trace. These cannot be merged with the constructor because we
    want the constructor to be invoked with all the arguments as a single parenthesis-delimited
-   tuple. See the implementation of ABC_TRACE_FN() if this isn’t clear enough.
+   tuple. See the implementation of ABC_TRACE_FUNC() if this isn’t clear enough.
 
    srcloc
       Source location.

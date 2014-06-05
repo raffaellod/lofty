@@ -45,7 +45,7 @@ str_base::str_base(abc::text::line_terminator lterm /*= abc::text::line_terminat
 
 
 /*virtual*/ abc::text::line_terminator str_base::line_terminator() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_lterm;
 }
@@ -95,7 +95,7 @@ str_reader::str_reader(
 /*virtual*/ bool str_reader::read_while(mstr * ps, std::function<
    char_t const * (char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd)
 > fnGetConsumeEnd) {
-   ABC_TRACE_FN((this, ps/*, fnGetConsumeEnd*/));
+   ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 
    ABC_UNUSED_ARG(fnGetConsumeEnd);
    // TODO: implement this.
@@ -127,7 +127,7 @@ str_writer::str_writer(
 
 
 void str_writer::clear() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    m_psWriteBuf->set_size(0);
    m_ichOffset = 0;
@@ -135,7 +135,7 @@ void str_writer::clear() {
 
 
 dmstr str_writer::release_content() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    m_ichOffset = 0;
    return std::move(*m_psWriteBuf);
@@ -143,7 +143,7 @@ dmstr str_writer::release_content() {
 
 
 /*virtual*/ void str_writer::write_binary(void const * p, size_t cb, abc::text::encoding enc) {
-   ABC_TRACE_FN((this, p, cb, enc));
+   ABC_TRACE_FUNC(this, p, cb, enc);
 
    if (!cb) {
       // Nothing to do.

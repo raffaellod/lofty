@@ -84,7 +84,7 @@ public:
       true if the data pointer has changed, or false otherwise.
    */
    bool changed() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       typename T::const_pointer ptiNew(m_t.cbegin().base());
       // Check if the data pointer has changed.

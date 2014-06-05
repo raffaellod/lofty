@@ -46,7 +46,7 @@ app::app() {
 
 
 /*static*/ void app::_build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet) {
-   ABC_TRACE_FN((cArgs, ppszArgs, pvsRet));
+   ABC_TRACE_FUNC(cArgs, ppszArgs, pvsRet);
 
    pvsRet->set_capacity(size_t(cArgs), false);
    // Make each string not allocate a new character array.
@@ -56,7 +56,7 @@ app::app() {
 }
 #if ABC_HOST_API_WIN32
 /*static*/ void app::_build_args(mvector<istr const> * pvsRet) {
-   ABC_TRACE_FN((pvsRet));
+   ABC_TRACE_FUNC(pvsRet);
 
    // TODO: call ::GetCommandLine() and parse its result.
 }

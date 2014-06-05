@@ -50,7 +50,7 @@ protected:
    */
    template <typename T>
    istr const & get_to_str_output(T const & t, istr const & sFormatSpec) {
-      ABC_TRACE_FN((t, sFormatSpec));
+      ABC_TRACE_FUNC(t, sFormatSpec);
 
       to_str_backend<T> tsb(sFormatSpec);
       m_stw.clear();
@@ -91,7 +91,7 @@ public:
    /** See to_str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Test zero, decimal base.
       ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL("")), SL("0"));
@@ -144,7 +144,7 @@ public:
    /** See to_str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Test zero, hexadecimal base.
       ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL("x")), SL("0"));
@@ -197,7 +197,7 @@ public:
    /** See to_str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       uintptr_t iBad(0xbad);
 
@@ -255,7 +255,7 @@ public:
    /** See to_str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       int * pi(new int);
       istr sPtr(to_str(pi));

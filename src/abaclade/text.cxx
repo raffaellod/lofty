@@ -30,7 +30,7 @@ namespace text {
 ABCAPI size_t estimate_transcoded_size(
    encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 ) {
-   ABC_TRACE_FN((encSrc, pSrc, cbSrc, encDst));
+   ABC_TRACE_FUNC(encSrc, pSrc, cbSrc, encDst);
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
    struct enc_cb_t {
@@ -90,7 +90,7 @@ ABCAPI size_t estimate_transcoded_size(
 
 
 ABCAPI size_t get_encoding_size(encoding enc) {
-   ABC_TRACE_FN((enc));
+   ABC_TRACE_FUNC(enc);
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
    struct enc_cb_t {
@@ -121,7 +121,7 @@ ABCAPI size_t get_encoding_size(encoding enc) {
 
 
 ABCAPI istr get_line_terminator_str(line_terminator lterm) {
-   ABC_TRACE_FN((lterm));
+   ABC_TRACE_FUNC(lterm);
 
    switch (lterm.base()) {
       case abc::text::line_terminator::cr:
@@ -141,7 +141,7 @@ ABCAPI encoding guess_encoding(
    void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal /*= 0*/,
    size_t * pcbBom /*= nullptr*/
 ) {
-   ABC_TRACE_FN((pBufBegin, pBufEnd, cbSrcTotal, pcbBom));
+   ABC_TRACE_FUNC(pBufBegin, pBufEnd, cbSrcTotal, pcbBom);
 
    uint8_t const * pbBufBegin(static_cast<uint8_t const *>(pBufEnd));
    uint8_t const * pbBufEnd(static_cast<uint8_t const *>(pBufEnd));
@@ -370,7 +370,7 @@ ABCAPI encoding guess_encoding(
 
 
 ABCAPI line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
-   ABC_TRACE_FN((pchBegin, pchEnd));
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    for (char_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       char_t ch(*pch);
@@ -397,7 +397,7 @@ ABCAPI size_t transcode(
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
    encoding encDst, void       ** ppDst, size_t * pcbDstMax
 ) {
-   ABC_TRACE_FN((encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax));
+   ABC_TRACE_FUNC(encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
    // If ppDst is nullptr, we’ll only calculate how much of **ppSrc can be transcoded to fit into
    // *pcbDstMax; otherwise we’ll also perform the actual transcoding.

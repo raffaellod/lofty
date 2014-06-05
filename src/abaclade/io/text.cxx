@@ -58,7 +58,7 @@ reader::reader(abc::text::line_terminator lterm) :
 
 
 void reader::read_all(mstr * ps) {
-   ABC_TRACE_FN((this, ps));
+   ABC_TRACE_FUNC(this, ps);
 
    read_while(ps, [] (
       char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
@@ -73,13 +73,13 @@ void reader::read_all(mstr * ps) {
 
 
 bool reader::read_line(mstr * ps) {
-   ABC_TRACE_FN((this, ps));
+   ABC_TRACE_FUNC(this, ps);
 
    size_t cchLTerm(0);
    bool bEOF(read_while(ps, [this, &cchLTerm] (
       char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
    ) -> char_t const * {
-      ABC_TRACE_FN((this, pchBegin, pchLastReadBegin, pchEnd));
+      ABC_TRACE_FUNC(this, pchBegin, pchLastReadBegin, pchEnd);
 
       // Since line terminators can be more than one character long, back up one character first (if
       // we have at least one), to avoid missing the line terminator due to searching for it one
@@ -138,7 +138,7 @@ writer::writer(abc::text::line_terminator lterm) :
 
 
 void writer::write_line(istr const & s) {
-   ABC_TRACE_FN((this, s));
+   ABC_TRACE_FUNC(this, s);
 
    to_str_backend<istr> tsb;
    tsb.write(s, this);
@@ -175,7 +175,7 @@ void _writer_print_helper_impl::throw_index_error() {
 
 
 bool _writer_print_helper_impl::write_format_up_to_next_repl() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    // Search for the next replacement, if any.
    istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
@@ -294,7 +294,7 @@ void _writer_print_helper_impl::throw_syntax_error(
 
 
 void _writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
-   ABC_TRACE_FN((this, itUpTo));
+   ABC_TRACE_FUNC(this, itUpTo);
 
    if (itUpTo > m_itFormatToWriteBegin) {
       m_ptw->write_binary(m_itFormatToWriteBegin.base(), size_t(
@@ -329,7 +329,7 @@ binbuf_base::binbuf_base(abc::text::encoding enc, abc::text::line_terminator lte
 
 
 /*virtual*/ abc::text::encoding binbuf_base::encoding() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_enc;
 }
@@ -364,7 +364,7 @@ binbuf_reader::binbuf_reader(
 
 
 /*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::buffered_base() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_pbbr;
 }
@@ -373,7 +373,7 @@ binbuf_reader::binbuf_reader(
 /*virtual*/ bool binbuf_reader::read_while(mstr * ps, std::function<
    char_t const * (char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd)
 > fnGetConsumeEnd) {
-   ABC_TRACE_FN((this, ps/*, fnGetConsumeEnd*/));
+   ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 
    // Start with trying to read enough bytes to have the certainty we can decode even the longest
    // code point.
@@ -543,14 +543,14 @@ binbuf_writer::binbuf_writer(
 
 
 /*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::buffered_base() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_pbbw;
 }
 
 
 /*virtual*/ void binbuf_writer::write_binary(void const * p, size_t cb, abc::text::encoding enc) {
-   ABC_TRACE_FN((this, p, cb, enc));
+   ABC_TRACE_FUNC(this, p, cb, enc);
 
    ABC_ASSERT(enc != abc::text::encoding::unknown, SL("cannot write data with unknown encoding"));
 

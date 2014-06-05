@@ -38,7 +38,7 @@ namespace io {
 namespace binary {
 
 std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
-   ABC_TRACE_FN((pbb));
+   ABC_TRACE_FUNC(pbb);
 
    auto pbr(std::dynamic_pointer_cast<reader>(pbb));
    auto pbw(std::dynamic_pointer_cast<writer>(pbb));
@@ -66,7 +66,7 @@ namespace io {
 namespace binary {
 
 /*virtual*/ size_t buffered_reader::read(void * p, size_t cbMax) {
-   ABC_TRACE_FN((this, p, cbMax));
+   ABC_TRACE_FUNC(this, p, cbMax);
 
    size_t cbReadTotal(0);
    while (cbMax) {
@@ -103,7 +103,7 @@ namespace io {
 namespace binary {
 
 /*virtual*/ size_t buffered_writer::write(void const * p, size_t cb) {
-   ABC_TRACE_FN((this, p, cb));
+   ABC_TRACE_FUNC(this, p, cb);
 
    // Obtain a buffer large enough.
    int8_t * pbBuf;
@@ -140,7 +140,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 
 /*virtual*/ void default_buffered_reader::consume_bytes(size_t cb) {
-   ABC_TRACE_FN((this, cb));
+   ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
       // Can’t consume more bytes than are available in the read buffer.
@@ -154,7 +154,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 
 /*virtual*/ std::pair<void const *, size_t> default_buffered_reader::peek_bytes(size_t cb) {
-   ABC_TRACE_FN((this, cb));
+   ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
@@ -192,7 +192,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 
 /*virtual*/ std::shared_ptr<base> default_buffered_reader::unbuffered() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return std::dynamic_pointer_cast<base>(m_pbr);
 }
@@ -218,14 +218,14 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    flush_buffer();
 }
 
 
 /*virtual*/ void default_buffered_writer::flush() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    // Flush both the write buffer and any lower-level buffers.
    flush_buffer();
@@ -234,7 +234,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 
 
 /*virtual*/ void default_buffered_writer::commit_bytes(size_t cb) {
-   ABC_TRACE_FN((this, cb));
+   ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbWriteBuf - m_cbWriteBufUsed) {
       // Can’t commit more bytes than are available in the write buffer.
@@ -250,7 +250,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 
 
 void default_buffered_writer::flush_buffer() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    if (m_cbWriteBufUsed) {
       size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
@@ -261,7 +261,7 @@ void default_buffered_writer::flush_buffer() {
 
 
 /*virtual*/ std::pair<void *, size_t> default_buffered_writer::get_buffer_bytes(size_t cb) {
-   ABC_TRACE_FN((this, cb));
+   ABC_TRACE_FUNC(this, cb);
 
    size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
    // If the requested buffer size is more that is currently available, flush the buffer.
@@ -281,7 +281,7 @@ void default_buffered_writer::flush_buffer() {
 
 
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::unbuffered() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return std::dynamic_pointer_cast<base>(m_pbw);
 }

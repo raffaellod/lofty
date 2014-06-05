@@ -49,7 +49,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       test_enum e(test_enum::value2);
 

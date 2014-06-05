@@ -29,7 +29,7 @@ class test_app :
 public:
 
    virtual int main(mvector<istr const> const & vsArgs) {
-      ABC_TRACE_FN((this, vsArgs));
+      ABC_TRACE_FUNC(this, vsArgs);
 
       ABC_UNUSED_ARG(vsArgs);
 

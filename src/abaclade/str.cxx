@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 _str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
-   ABC_TRACE_FN((this, sFormat));
+   ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
 
@@ -46,7 +46,7 @@ _str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
 void _str_to_str_backend::write(
    void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FN((this, p, cb, enc, ptwOut));
+   ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
 
    ptwOut->write_binary(p, cb, enc);
 }
@@ -64,7 +64,7 @@ char_t const str_base::smc_chNUL(CL('\0'));
 
 
 str_base::c_str_pointer str_base::c_str() const {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    if (m_rvpd.nul_terminated()) {
       // The string already includes a NUL terminator, so we can simply return the same array.
@@ -88,7 +88,7 @@ str_base::c_str_pointer str_base::c_str() const {
 
 
 dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
-   ABC_TRACE_FN((this, enc, bNulT));
+   ABC_TRACE_FUNC(this, enc, bNulT);
 
    dmvector<uint8_t> vb;
    size_t cbChar, cbUsed, cbStr(size() * sizeof(char_t));
@@ -140,7 +140,7 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
 
 
 bool str_base::ends_with(istr const & s) const {
-   ABC_TRACE_FN((this, s));
+   ABC_TRACE_FUNC(this, s);
 
    auto itStart(cend() - intptr_t(s.size()));
    return itStart >= cbegin() && traits::str_cmp(
@@ -150,7 +150,7 @@ bool str_base::ends_with(istr const & s) const {
 
 
 str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
-   ABC_TRACE_FN((this, chNeedle, itWhence));
+   ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    auto itEnd(cend());
@@ -158,7 +158,7 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
    return pch ? const_iterator(pch) : itEnd;
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
-   ABC_TRACE_FN((this, sNeedle, itWhence));
+   ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    auto itEnd(cend());
@@ -170,14 +170,14 @@ str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itW
 
 
 str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator itWhence) const {
-   ABC_TRACE_FN((this, chNeedle, itWhence));
+   ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    char_t const * pch(traits::str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
    return pch ? const_iterator(pch) : cend();
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
-   ABC_TRACE_FN((this, sNeedle, itWhence));
+   ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    char_t const * pch(traits::str_str_r(
@@ -188,7 +188,7 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
 
 
 bool str_base::starts_with(istr const & s) const {
-   ABC_TRACE_FN((this, s));
+   ABC_TRACE_FUNC(this, s);
 
    auto itEnd(cbegin() + intptr_t(s.size()));
    return itEnd <= cend() && traits::str_cmp(
@@ -206,7 +206,7 @@ namespace std {
 //
 // The bases are calculated by src/fnv_hash_basis.py.
 size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
-   ABC_TRACE_FN((this, s));
+   ABC_TRACE_FUNC(this, s);
 
    static_assert(
       sizeof(size_t) * 8 == ABC_HOST_WORD_SIZE,

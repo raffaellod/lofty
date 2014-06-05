@@ -38,7 +38,7 @@ protected:
       String to initialize with.
    */
    void init_str_ptr(istr const & s) {
-      ABC_TRACE_FN((this, s));
+      ABC_TRACE_FUNC(this, s);
 
       m_psCheck = &s;
       m_pchCheck = s.cbegin().base();
@@ -51,7 +51,7 @@ protected:
       true if the string’s character array pointer has changed, or false otherwise.
    */
    bool str_ptr_changed() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Update the item array pointer for the next call.
       char_t const * pchCheckOld(m_pchCheck);
@@ -93,7 +93,7 @@ public:
    /** See str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmstr s;
       init_str_ptr(s);
@@ -239,7 +239,7 @@ public:
    /** See abc::testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       smstr<32> s;
       s += 0x000024;
@@ -331,7 +331,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       istr sEmpty, sAB(SL("ab"));
 
@@ -412,7 +412,7 @@ public:
    /** See str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       istr s;
       auto psz(s.c_str());
@@ -469,7 +469,7 @@ public:
    /** See str_test_case_base::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       dmstr s;
       auto psz(s.c_str());
@@ -535,7 +535,7 @@ public:
    /** See abc::testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // ASCII character and substring search.
       // The string “acabaabca” has the following properties:
@@ -590,7 +590,7 @@ public:
    /** See abc::testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Non-ASCII character and substring search.
       istr const s(SL("àßçàŒ"));

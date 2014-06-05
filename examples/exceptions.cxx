@@ -49,7 +49,7 @@ public:
       Return value of this program.
    */
    virtual int main(mvector<istr const> const & vsArgs) {
-      ABC_TRACE_FN((this, vsArgs));
+      ABC_TRACE_FUNC(this, vsArgs);
 
       istr s(SL("Test String"));
 
@@ -80,7 +80,7 @@ public:
 
 
    void first_function(istr const & s, mvector<int> const & vi) const {
-      ABC_TRACE_FN((this, s, vi));
+      ABC_TRACE_FUNC(this, s, vi);
 
       io::text::stdout()->write_line(SL("Before calling is_zero()"));
       // Passing a null pointer!
@@ -90,7 +90,7 @@ public:
 
 
    void is_zero(numbers_enum ne, bool * pbRet) const {
-      ABC_TRACE_FN((this, ne, pbRet));
+      ABC_TRACE_FUNC(this, ne, pbRet);
 
       *pbRet = (ne == numbers_enum::zero);
    }

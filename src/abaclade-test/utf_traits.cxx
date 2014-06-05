@@ -89,7 +89,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Strings here have a second NUL terminator preceded by 6 nasty 0xff character, which will
       // make is_valid() fail if they’re accessed, which would mean that is_valid() erroneously
@@ -210,7 +210,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Valid single character.
       ABC_TESTING_ASSERT_TRUE_text_utf8_traits_is_valid_cch(
@@ -324,7 +324,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Valid single character.
       ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_nult(0x007a, 0x0000);
@@ -391,7 +391,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       // Valid single character.
       ABC_TESTING_ASSERT_TRUE_text_utf16_traits_is_valid_cch(0x007a);

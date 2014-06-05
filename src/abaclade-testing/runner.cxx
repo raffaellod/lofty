@@ -57,7 +57,7 @@ runner::~runner() {
 
 
 void runner::load_registered_test_cases() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    for (
       test_case_factory_impl::list_item * pli(test_case_factory_impl::get_factory_list_head());
@@ -74,7 +74,7 @@ void runner::log_assertion(
    source_location const & srcloc, bool bPass,
    istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual /*= istr()*/
 ) {
-   ABC_TRACE_FN((this, srcloc, sExpr, sOp, sExpected, sActual));
+   ABC_TRACE_FUNC(this, srcloc, sExpr, sOp, sExpected, sActual);
 
    if (bPass) {
       m_ptw->print(SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected);
@@ -91,14 +91,14 @@ void runner::log_assertion(
 
 
 bool runner::log_summary() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    return m_cFailedAssertions == 0;
 }
 
 
 void runner::run() {
-   ABC_TRACE_FN((this));
+   ABC_TRACE_FUNC(this);
 
    for (auto it(m_vptc.begin()); it != m_vptc.end(); ++it) {
       run_test_case(**it);
@@ -107,7 +107,7 @@ void runner::run() {
 
 
 void runner::run_test_case(test_case & tc) {
-   ABC_TRACE_FN((this/*, tc*/));
+   ABC_TRACE_FUNC(this/*, tc*/);
 
    m_ptw->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
 

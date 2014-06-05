@@ -48,7 +48,7 @@ return
 static std::shared_ptr<binbuf_base> _construct(
    std::shared_ptr<binary::base> pbb, abc::text::encoding enc, abc::text::line_terminator lterm
 ) {
-   ABC_TRACE_FN((pbb, enc, lterm));
+   ABC_TRACE_FUNC(pbb, enc, lterm);
 
    // Choose what type of text I/O object to create based on what type of binary I/O object we got.
 
@@ -94,7 +94,7 @@ return
 static std::shared_ptr<binbuf_base> _construct_stdio(
    std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
 ) {
-   ABC_TRACE_FN((pbb, pszEnvVarName));
+   ABC_TRACE_FUNC(pbb, pszEnvVarName);
 
    abc::text::encoding enc;
    if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
@@ -133,7 +133,7 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
 
 
 std::shared_ptr<binbuf_writer> stderr() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: mutex!
    if (!g_ptwStdErr) {
@@ -146,7 +146,7 @@ std::shared_ptr<binbuf_writer> stderr() {
 
 
 std::shared_ptr<binbuf_reader> stdin() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: mutex!
    if (!g_ptrStdIn) {
@@ -159,7 +159,7 @@ std::shared_ptr<binbuf_reader> stdin() {
 
 
 std::shared_ptr<binbuf_writer> stdout() {
-   ABC_TRACE_FN(());
+   ABC_TRACE_FUNC();
 
    // TODO: mutex!
    if (!g_ptwStdOut) {
@@ -175,7 +175,7 @@ std::shared_ptr<binbuf_base> open(
    file_path const & fp, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/,
    abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
 ) {
-   ABC_TRACE_FN((fp, am, enc, lterm));
+   ABC_TRACE_FUNC(fp, am, enc, lterm);
 
    return _construct(binary::open(fp, am), enc, lterm);
 }

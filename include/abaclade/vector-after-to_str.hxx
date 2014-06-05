@@ -119,7 +119,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(vector_base<T> const & v, io::text::writer * ptwOut) {
-//    ABC_TRACE_FN((this, v, ptwOut));
+//    ABC_TRACE_FUNC(this, v, ptwOut);
 
       _write_start(ptwOut);
       auto it(v.cbegin()), itEnd(v.cend());

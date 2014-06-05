@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
-   ABC_TRACE_FN((this, sFormat));
+   ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
 
@@ -45,7 +45,7 @@ ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
 
 
 ABCAPI void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, b, ptwOut));
+   ABC_TRACE_FUNC(this, b, ptwOut);
 
    if (b) {
       ptwOut->write(SL("true"));
@@ -85,7 +85,7 @@ ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
    m_chSign(CL('\0')),
    m_chPrefix0(CL('\0')),
    m_chPrefix1(CL('\0')) {
-   ABC_TRACE_FN((this, cbInt, sFormat));
+   ABC_TRACE_FUNC(this, cbInt, sFormat);
 
    bool bPrefix(false);
    auto it(sFormat.cbegin());
@@ -197,7 +197,7 @@ default_notation:
 ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
    bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
-   ABC_TRACE_FN((this, bNegative, ptwOut, psBuf, itBufFirstUsed));
+   ABC_TRACE_FUNC(this, bNegative, ptwOut, psBuf, itBufFirstUsed);
 
    auto itEnd(psBuf->cend());
    auto it(itBufFirstUsed);
@@ -236,7 +236,7 @@ ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
 
 template <typename I>
 inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
-   ABC_TRACE_FN((this, i, ptwOut));
+   ABC_TRACE_FUNC(this, i, ptwOut);
 
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
@@ -318,7 +318,7 @@ char_t const _ptr_to_str_backend::smc_achFormat[] = SL("#x");
 
 ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
    m_tsbInt(smc_achFormat) {
-   ABC_TRACE_FN((this, sFormat));
+   ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
 
@@ -334,7 +334,7 @@ ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
 
 
 ABCAPI void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, iPtr, ptwOut));
+   ABC_TRACE_FUNC(this, iPtr, ptwOut);
 
    if (iPtr) {
       m_tsbInt.write(iPtr, ptwOut);

@@ -91,7 +91,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       ABC_TESTING_ASSERT_THROWS(exception, throw_exception());
       ABC_TESTING_ASSERT_THROWS(generic_error, throw_generic_error());
@@ -105,35 +105,35 @@ public:
 
 
    void throw_exception() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       ABC_THROW(exception, ());
    }
 
 
    void throw_generic_error() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       ABC_THROW(generic_error, ());
    }
 
 
    void throw_derived1_error() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       ABC_THROW(derived1_error, ());
    }
 
 
    void throw_derived2_error() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       ABC_THROW(derived2_error, ());
    }
 
 
    void throw_derived3_error(int i) {
-      ABC_TRACE_FN((this, i));
+      ABC_TRACE_FUNC(this, i);
 
       ABC_THROW(derived3_error, ());
    }
@@ -165,7 +165,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       {
          int * p(nullptr);

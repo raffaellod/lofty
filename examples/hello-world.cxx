@@ -62,7 +62,7 @@ public:
    virtual int main(mvector<istr const> const & vsArgs) {
       // This should be the first line of every function/method; it allows to inspect the values of
       // the method’s arguments when an exception is raised during the execution of the method.
-      ABC_TRACE_FN((this, vsArgs));
+      ABC_TRACE_FUNC(this, vsArgs);
 
       // Write “Hello World” into the stdout text writer object.
       io::text::stdout()->write_line(SL("Hello World"));

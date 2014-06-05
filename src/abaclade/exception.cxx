@@ -1073,7 +1073,7 @@ ABCAPI void throw_os_error(errint_t err) {
 namespace abc {
 
 ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= istr()*/) {
-   ABC_TRACE_FN((this, sFormat));
+   ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
 
@@ -1091,7 +1091,7 @@ ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= 
 ABCAPI void to_str_backend<source_location>::write(
    source_location const & srcloc, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FN((this, srcloc, ptwOut));
+   ABC_TRACE_FUNC(this, srcloc, ptwOut);
 
    ptwOut->write(istr(unsafe, srcloc.file_path()));
    ptwOut->write(SL(":"));
@@ -1133,7 +1133,7 @@ exception::exception(exception const & x) :
 
 
 exception & exception::operator=(exception const & x) {
-   ABC_TRACE_FN((this/*, x*/));
+   ABC_TRACE_FUNC(this/*, x*/);
 
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
@@ -1205,7 +1205,7 @@ char const * exception::what() const {
       // Frame 0 is the location of the ABC_THROW() statement.
       ptw->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
    }
-   // Print the stack trace collected via ABC_TRACE_FN().
+   // Print the stack trace collected via ABC_TRACE_FUNC().
    ptw->write(_scope_trace_impl::get_trace_writer()->release_content());
 }
 
@@ -1251,7 +1251,7 @@ static struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 /** Translates POSIX signals into C++ exceptions, whenever possible.
 */
 static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
-   ABC_TRACE_FN((iSignal, psi, pctx));
+   ABC_TRACE_FUNC(iSignal, psi, pctx);
 
    // Don’t let external programs mess with us: if the source is not the kernel, ignore the error.
    // POSIX.1-2008 states that:
@@ -1373,7 +1373,7 @@ static ::_se_translator_function g_sefDefault;
 /** Translates Win32 Structured Exceptions into C++ exceptions, whenever possible.
 */
 static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
-   ABC_TRACE_FN((iCode, pxpInfo));
+   ABC_TRACE_FUNC(iCode, pxpInfo);
 
    switch (iCode) {
       case EXCEPTION_ACCESS_VIOLATION: { // Attempt to read from or write to an inaccessible
@@ -1627,7 +1627,7 @@ generic_error::generic_error(generic_error const & x) :
 
 
 generic_error & generic_error::operator=(generic_error const & x) {
-   ABC_TRACE_FN((this/*, x*/));
+   ABC_TRACE_FUNC(this/*, x*/);
 
    exception::operator=(x);
    m_err = x.m_err;
@@ -1693,7 +1693,7 @@ index_error::index_error(index_error const & x) :
 
 
 index_error & index_error::operator=(index_error const & x) {
-   ABC_TRACE_FN((this/*, x*/));
+   ABC_TRACE_FUNC(this/*, x*/);
 
    lookup_error::operator=(x);
    m_iInvalid = x.m_iInvalid;
@@ -1832,7 +1832,7 @@ memory_address_error::memory_address_error(memory_address_error const & x) :
 
 
 memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
-   ABC_TRACE_FN((this/*, x*/));
+   ABC_TRACE_FUNC(this/*, x*/);
 
    generic_error::operator=(x);
    m_pInvalid = x.m_pInvalid;
@@ -2018,7 +2018,7 @@ syntax_error::syntax_error(syntax_error const & x) :
 
 
 syntax_error & syntax_error::operator=(syntax_error const & x) {
-   ABC_TRACE_FN((this/*, x*/));
+   ABC_TRACE_FUNC(this/*, x*/);
 
    generic_error::operator=(x);
    m_sDescription = x.m_sDescription;

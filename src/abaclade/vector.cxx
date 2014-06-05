@@ -38,21 +38,21 @@ _vector_to_str_backend::~_vector_to_str_backend() {
 
 
 void _vector_to_str_backend::_write_end(io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, ptwOut));
+   ABC_TRACE_FUNC(this, ptwOut);
 
    m_tsbStr.write(istr(SL("}")), ptwOut);
 }
 
 
 void _vector_to_str_backend::_write_separator(io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, ptwOut));
+   ABC_TRACE_FUNC(this, ptwOut);
 
    m_tsbStr.write(m_sSeparator, ptwOut);
 }
 
 
 void _vector_to_str_backend::_write_start(io::text::writer * ptwOut) {
-   ABC_TRACE_FN((this, ptwOut));
+   ABC_TRACE_FUNC(this, ptwOut);
 
    m_tsbStr.write(istr(SL("{")), ptwOut);
 }

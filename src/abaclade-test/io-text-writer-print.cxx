@@ -42,7 +42,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
       io::text::str_writer stw(&sWriterBuffer);
@@ -99,7 +99,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
       io::text::str_writer stw(&sWriterBuffer);
@@ -162,7 +162,7 @@ public:
    /** See testing::test_case::run().
    */
    virtual void run() {
-      ABC_TRACE_FN((this));
+      ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
       io::text::str_writer stw(&sWriterBuffer);
