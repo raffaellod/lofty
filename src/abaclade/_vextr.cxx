@@ -87,22 +87,9 @@ void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib,
          // The current item array (static or dynamic) is not large enough.
 
          // Calculate the total allocation size.
-         // TODO: better algorithm.
-         size_t cbNewCapacity(cbNew * _raw_vextr_impl_base::smc_iGrowthRate);
-         // Check for overflow.
-         if (cbNewCapacity <= cbNew) {
-            // Theoretically, this could still result in cbNewCapacity < cbNew; in practice it
-            // doesn’t matter because the following memory allocation will fail for such sizes.
-            cbNewCapacity = _raw_vextr_packed_data::smc_cbCapacityMask;
-         } else if (cbNewCapacity < _raw_vextr_impl_base::smc_cbCapacityMin) {
-            // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate
-            // right on the next size change.
-            cbNewCapacity = _raw_vextr_impl_base::smc_cbCapacityMin;
-         } else {
-            // Ensure that the lower bits are clear by rounding up.
-            cbNewCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbNewCapacity);
-         }
-
+         size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
+            m_prvib->size<int8_t>(), cbNew
+         ));
          if (m_prvib->m_rvpd.dynamic()) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
@@ -138,6 +125,40 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
       );
       prvibwsia->m_cbStaticCapacity = cbStaticCapacity;
    }
+}
+
+
+/*static*/ size_t _raw_vextr_impl_base::calculate_increased_capacity(size_t cbOld, size_t cbNew) {
+   ABC_TRACE_FN((cbOld, cbNew));
+
+   size_t cbNewCapacity;
+   // Avoid a multiplication by 0.
+   if (cbOld) {
+      cbNewCapacity = cbOld * smc_iGrowthRate;
+      // Check for overflow.
+      if (cbNewCapacity <= cbOld) {
+         // If size_t overflowed, the memory allocation cannot possibly succeed; just return a very
+         // large number instead.
+         return _raw_vextr_packed_data::smc_cbCapacityMask;
+      }
+   } else {
+      cbNewCapacity = smc_cbCapacityMin;
+   }
+
+   if (cbNewCapacity < cbNew) {
+      // The new size exceeds the hard-coded growth rate, so just use the new size as the capacity;
+      // this may be slightly increased in the adjustment that follows.
+      cbNewCapacity = cbNew;
+   }
+   if (cbNewCapacity < smc_cbCapacityMin) {
+      // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate right
+      // on the next size change.
+      cbNewCapacity = smc_cbCapacityMin;
+   } else {
+      // Ensure that the lower bits are clear by rounding up.
+      cbNewCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbNewCapacity);
+   }
+   return cbNewCapacity;
 }
 
 

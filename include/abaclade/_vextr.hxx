@@ -554,6 +554,19 @@ protected:
    }
 
 
+   /** Calculates the new capacity for the item array for growing from cbOld to cbNew bytes while
+   attempting to reduce future allocations for subsequent size increases.
+
+   cbOld
+      Previous (current) item array size, in bytes.
+   cbNew
+      New (future) item array size, in bytes.
+   return
+      New item array capacity, in bytes.
+   */
+   static size_t calculate_increased_capacity(size_t cbOld, size_t cbNew);
+
+
    /** Returns true if m_p points to a read-only item array.
 
    return
