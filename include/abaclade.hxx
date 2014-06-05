@@ -341,7 +341,7 @@ reached. */
 
 /** Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
 Abaclade’s shared library (into another library/executable). */
-#ifdef ABCMK_BUILD_ABC
+#ifdef ABAMAKE_BUILD_ABACLADE
    #define ABCAPI ABC_SYM_EXPORT
 #else
    #define ABCAPI ABC_SYM_IMPORT
@@ -349,7 +349,7 @@ Abaclade’s shared library (into another library/executable). */
 
 /** Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
 from Abaclade’s testing shared library (into another library/executable). */
-#ifdef ABCMK_BUILD_ABC_TESTING
+#ifdef ABAMAKE_BUILD_ABACLADE_TESTING
    #define ABCTESTINGAPI ABC_SYM_EXPORT
 #else
    #define ABCTESTINGAPI ABC_SYM_IMPORT
