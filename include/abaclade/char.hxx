@@ -227,13 +227,12 @@ return
 
 namespace abc {
 
-/** Default UTF character type for the host. */
+/** Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
+characters types. */
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
 #elif ABC_HOST_UTF == 16
    typedef char16_t char_t;
-#elif ABC_HOST_UTF == 32
-   typedef char32_t char_t;
 #endif
 
 } //namespace abc
@@ -250,8 +249,6 @@ return
    #define CL(ch) U8CL(ch)
 #elif ABC_HOST_UTF == 16
    #define CL(ch) U16CL(ch)
-#elif ABC_HOST_UTF == 32
-   #define CL(ch) U32CL(ch)
 #endif
 
 
@@ -266,8 +263,6 @@ return
    #define SL(s) U8SL(s)
 #elif ABC_HOST_UTF == 16
    #define SL(s) U16SL(s)
-#elif ABC_HOST_UTF == 32
-   #define SL(s) U32SL(s)
 #endif
 
 
