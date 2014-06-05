@@ -128,7 +128,7 @@ namespace utility {
 /** This class is meant for use in containers to track when items are copied, when they’re moved,
 and to check if individual instances have been copied instead of being moved.
 */
-class ABCTESTINGAPI instances_counter {
+class ABACLADE_TESTING_SYM instances_counter {
 public:
 
    /** Constructor. The copying overload doesn’t really use their argument, because the only non-

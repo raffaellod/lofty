@@ -34,10 +34,10 @@ namespace abc {
 
 #if ABC_HOST_API_POSIX
 
-ABCAPI void throw_os_error() {
+ABACLADE_SYM void throw_os_error() {
    throw_os_error(errno);
 }
-ABCAPI void throw_os_error(errint_t err) {
+ABACLADE_SYM void throw_os_error(errint_t err) {
    ABC_ASSERT(err != 0, SL("cannot throw an exception for a success"));
    switch (err) {
       case E2BIG: // Argument list too long (POSIX.1-2001)
@@ -227,10 +227,10 @@ ABCAPI void throw_os_error(errint_t err) {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-ABCAPI void throw_os_error() {
+ABACLADE_SYM void throw_os_error() {
    throw_os_error(::GetLastError());
 }
-ABCAPI void throw_os_error(errint_t err) {
+ABACLADE_SYM void throw_os_error(errint_t err) {
    ABC_ASSERT(err != ERROR_SUCCESS, SL("cannot throw an exception for a success"));
    switch (err) {
       // TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
@@ -1072,7 +1072,7 @@ ABCAPI void throw_os_error(errint_t err) {
 
 namespace abc {
 
-ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= istr()*/) {
+ABACLADE_SYM to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= istr()*/) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -1088,7 +1088,7 @@ ABCAPI to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= 
 }
 
 
-ABCAPI void to_str_backend<source_location>::write(
+ABACLADE_SYM void to_str_backend<source_location>::write(
    source_location const & srcloc, io::text::writer * ptwOut
 ) {
    ABC_TRACE_FUNC(this, srcloc, ptwOut);

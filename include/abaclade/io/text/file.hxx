@@ -43,7 +43,7 @@ namespace text {
 return
    Standard error file.
 */
-ABCAPI std::shared_ptr<binbuf_writer> stderr();
+ABACLADE_SYM std::shared_ptr<binbuf_writer> stderr();
 
 
 /** Returns the text reader associated to the standard input file (stdin).
@@ -51,7 +51,7 @@ ABCAPI std::shared_ptr<binbuf_writer> stderr();
 return
    Standard input file.
 */
-ABCAPI std::shared_ptr<binbuf_reader> stdin();
+ABACLADE_SYM std::shared_ptr<binbuf_reader> stdin();
 
 
 /** Returns the text writer associated to the standard output file (stdout).
@@ -59,7 +59,7 @@ ABCAPI std::shared_ptr<binbuf_reader> stdin();
 return
    Standard output file.
 */
-ABCAPI std::shared_ptr<binbuf_writer> stdout();
+ABACLADE_SYM std::shared_ptr<binbuf_writer> stdout();
 
 
 /** Opens a file for text-mode access.
@@ -71,7 +71,7 @@ am
 return
    Pointer to a text I/O object for the file.
 */
-ABCAPI std::shared_ptr<binbuf_base> open(
+ABACLADE_SYM std::shared_ptr<binbuf_base> open(
    file_path const & fp, access_mode am,
    abc::text::encoding enc = abc::text::encoding::unknown,
    abc::text::line_terminator lterm = abc::text::line_terminator::unknown

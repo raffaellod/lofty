@@ -39,7 +39,7 @@ namespace testing {
 /** Thrown to indicate that a test assertion failed, and the execution of the test case must be
 halted.
 */
-class ABCTESTINGAPI assertion_error :
+class ABACLADE_TESTING_SYM assertion_error :
    public virtual exception {
 public:
 
@@ -65,7 +65,7 @@ class test_case;
 
 /** Executes test cases.
 */
-class ABCTESTINGAPI runner {
+class ABACLADE_TESTING_SYM runner {
 public:
 
    /** Constructor.

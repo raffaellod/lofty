@@ -108,7 +108,7 @@ public:
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<bool> {
+class ABACLADE_SYM to_str_backend<bool> {
 public:
 
    /** Constructor.
@@ -140,7 +140,7 @@ namespace abc {
 
 /** Base class for the specializations of to_str_backend for integer types.
 */
-class ABCAPI _int_to_str_backend_base {
+class ABACLADE_SYM _int_to_str_backend_base {
 public:
 
    /** Constructor.

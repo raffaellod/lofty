@@ -33,7 +33,7 @@ namespace text {
 
 /** Base interface for text (character-based) I/O.
 */
-class ABCAPI base {
+class ABACLADE_SYM base {
 public:
 
    /** Destructor.
@@ -89,7 +89,7 @@ namespace text {
 
 /** Interface for text (character-based) input.
 */
-class ABCAPI reader :
+class ABACLADE_SYM reader :
    public virtual base {
 public:
 
@@ -202,7 +202,7 @@ syntax>
 
 /** Interface for binary (non-text) output.
 */
-class ABCAPI writer :
+class ABACLADE_SYM writer :
    public virtual base {
 public:
 
@@ -328,7 +328,7 @@ namespace text {
 
 /** Template-free implementation of abc::io::text::_writer_print_helper.
 */
-class ABCAPI _writer_print_helper_impl {
+class ABACLADE_SYM _writer_print_helper_impl {
 public:
 
    /** Constructor.
@@ -836,7 +836,7 @@ namespace text {
 
 /** Base for text I/O classes built on top of a binary::buffered_base instance.
 */
-class ABCAPI binbuf_base :
+class ABACLADE_SYM binbuf_base :
    public virtual base {
 public:
 
@@ -889,7 +889,7 @@ namespace text {
 
 /** Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
 */
-class ABCAPI binbuf_reader :
+class ABACLADE_SYM binbuf_reader :
    public virtual binbuf_base,
    public virtual reader {
 public:
@@ -950,7 +950,7 @@ namespace text {
 
 /** Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
 */
-class ABCAPI binbuf_writer :
+class ABACLADE_SYM binbuf_writer :
    public virtual binbuf_base,
    public virtual writer {
 public:

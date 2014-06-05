@@ -342,17 +342,17 @@ reached. */
 /** Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
 Abaclade’s shared library (into another library/executable). */
 #ifdef ABAMAKE_BUILD_ABACLADE
-   #define ABCAPI ABC_SYM_EXPORT
+   #define ABACLADE_SYM ABC_SYM_EXPORT
 #else
-   #define ABCAPI ABC_SYM_IMPORT
+   #define ABACLADE_SYM ABC_SYM_IMPORT
 #endif
 
 /** Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
 from Abaclade’s testing shared library (into another library/executable). */
 #ifdef ABAMAKE_BUILD_ABACLADE_TESTING
-   #define ABCTESTINGAPI ABC_SYM_EXPORT
+   #define ABACLADE_TESTING_SYM ABC_SYM_EXPORT
 #else
-   #define ABCTESTINGAPI ABC_SYM_IMPORT
+   #define ABACLADE_TESTING_SYM ABC_SYM_IMPORT
 #endif
 
 
@@ -364,7 +364,7 @@ namespace abc {
 
 /** A class derived from this one is not copyable.
 */
-class ABCAPI noncopyable {
+class ABACLADE_SYM noncopyable {
 protected:
 
    noncopyable() {
@@ -468,7 +468,7 @@ struct is_copy_constructible<T, typename enable_if<
 
       /** A pointer to this method is used as a boolean true by support_explicit_operator_bool.
       */
-      ABCAPI void bool_true() const;
+      ABACLADE_SYM void bool_true() const;
    };
 
 

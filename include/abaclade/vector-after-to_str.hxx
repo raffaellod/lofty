@@ -32,7 +32,7 @@ namespace abc {
 /** Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file.
 */
-class ABCAPI _vector_to_str_backend {
+class ABACLADE_SYM _vector_to_str_backend {
 public:
 
    /** Constructor.

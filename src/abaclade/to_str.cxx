@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
+ABACLADE_SYM to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -44,7 +44,7 @@ ABCAPI to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
 }
 
 
-ABCAPI void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
+ABACLADE_SYM void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, b, ptwOut);
 
    if (b) {
@@ -73,7 +73,7 @@ char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
 };
 
 
-ABCAPI _int_to_str_backend_base::_int_to_str_backend_base(
+ABACLADE_SYM _int_to_str_backend_base::_int_to_str_backend_base(
    unsigned cbInt, istr const & sFormat
 ) :
    m_pchIntToStr(smc_achIntToStrL),
@@ -194,7 +194,7 @@ default_notation:
 }
 
 
-ABCAPI void _int_to_str_backend_base::add_prefixes_and_write(
+ABACLADE_SYM void _int_to_str_backend_base::add_prefixes_and_write(
    bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
    ABC_TRACE_FUNC(this, bNegative, ptwOut, psBuf, itBufFirstUsed);
@@ -267,36 +267,36 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_s64(int64_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_s64(int64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u64(uint64_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_u64(uint64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-ABCAPI void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-ABCAPI void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-ABCAPI void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * ptwOut) const {
+ABACLADE_SYM void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
@@ -316,7 +316,7 @@ namespace abc {
 char_t const _ptr_to_str_backend::smc_achFormat[] = SL("#x");
 
 
-ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
+ABACLADE_SYM _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
    m_tsbInt(smc_achFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
@@ -333,7 +333,7 @@ ABCAPI _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
 }
 
 
-ABCAPI void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut) {
+ABACLADE_SYM void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, iPtr, ptwOut);
 
    if (iPtr) {

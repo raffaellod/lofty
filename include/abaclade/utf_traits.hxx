@@ -42,7 +42,7 @@ typedef utf_traits<char32_t> utf32_traits;
 
 // Specialization for UTF-8.
 template <>
-struct ABCAPI utf_traits<char8_t> {
+struct ABACLADE_SYM utf_traits<char8_t> {
 public:
 
    /** Encoded form of the BOM. */
@@ -312,7 +312,7 @@ private:
 
 // Specialization for UTF-16.
 template <>
-struct ABCAPI utf_traits<char16_t> {
+struct ABACLADE_SYM utf_traits<char16_t> {
 public:
 
    /** See utf8_traits::bom. */
@@ -393,7 +393,7 @@ public:
 
 // Specialization for UTF-32.
 template <>
-struct ABCAPI utf_traits<char32_t> {
+struct ABACLADE_SYM utf_traits<char32_t> {
 public:
 
    /** See utf8_traits::bom. */

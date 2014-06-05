@@ -40,7 +40,7 @@ namespace testing {
 
 /** Base class for test cases.
 */
-class ABCTESTINGAPI test_case {
+class ABACLADE_TESTING_SYM test_case {
 public:
 
    /** Constructor.
@@ -424,7 +424,7 @@ namespace testing {
 /** Maintains a list of abc::testing::test_case-derived classes that can be used by an
 abc::testing::runner instance to instantiate and execute each test case.
 */
-class ABCTESTINGAPI test_case_factory_impl {
+class ABACLADE_TESTING_SYM test_case_factory_impl {
 public:
 
    /** Factory function, returning an abc::testing::test_case instance. */

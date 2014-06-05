@@ -43,7 +43,7 @@ pbb
 return
    Pointer to a buffered wrapper for *pbb.
 */
-ABCAPI std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
+ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 
 
 /** Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
@@ -85,7 +85,7 @@ namespace binary {
 
 /** Interface for buffering objects that wrap binary::* instances.
 */
-class ABCAPI buffered_base :
+class ABACLADE_SYM buffered_base :
    public virtual base {
 public:
 
@@ -109,7 +109,7 @@ namespace binary {
 
 /** Interface for buffering objects that wrap binary::reader instances.
 */
-class ABCAPI buffered_reader :
+class ABACLADE_SYM buffered_reader :
    public virtual buffered_base,
    public reader {
 public:
@@ -189,7 +189,7 @@ namespace binary {
 
 /** Interface for buffering objects that wrap binary::writer instances.
 */
-class ABCAPI buffered_writer :
+class ABACLADE_SYM buffered_writer :
    public virtual buffered_base,
    public writer {
 public:
@@ -260,7 +260,7 @@ namespace binary {
 
 /** Provides buffering on top of a binary::reader instance.
 */
-class ABCAPI default_buffered_reader :
+class ABACLADE_SYM default_buffered_reader :
    public buffered_reader {
 public:
 
@@ -324,7 +324,7 @@ namespace binary {
 
 /** Provides buffering on top of a binary::writer instance.
 */
-class ABCAPI default_buffered_writer :
+class ABACLADE_SYM default_buffered_writer :
    public buffered_writer {
 public:
 

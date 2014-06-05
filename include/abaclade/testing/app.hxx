@@ -41,7 +41,7 @@ namespace testing {
 /** Testing application. It interacts with registered abc::testing::test_case-derived classes,
 allowing for the execution of test cases.
 */
-class ABCTESTINGAPI app :
+class ABACLADE_TESTING_SYM app :
    public abc::app {
 public:
 

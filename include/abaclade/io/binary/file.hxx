@@ -65,7 +65,7 @@ class file_writer;
 return
    Standard error file.
 */
-ABCAPI std::shared_ptr<file_writer> stderr();
+ABACLADE_SYM std::shared_ptr<file_writer> stderr();
 
 
 /** Returns the binary reader associated to the standard input file (stdin).
@@ -73,7 +73,7 @@ ABCAPI std::shared_ptr<file_writer> stderr();
 return
    Standard input file.
 */
-ABCAPI std::shared_ptr<file_reader> stdin();
+ABACLADE_SYM std::shared_ptr<file_reader> stdin();
 
 
 /** Returns the binary writer associated to the standard output file (stdout).
@@ -81,7 +81,7 @@ ABCAPI std::shared_ptr<file_reader> stdin();
 return
    Standard output file.
 */
-ABCAPI std::shared_ptr<file_writer> stdout();
+ABACLADE_SYM std::shared_ptr<file_writer> stdout();
 
 
 /** Opens a file for binary access.
@@ -144,7 +144,7 @@ namespace io {
 /** Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
 doesn’t always own the wrapped filedesc_t (e.g. for standard files).
 */
-class ABCAPI filedesc :
+class ABACLADE_SYM filedesc :
    public support_explicit_operator_bool<filedesc>,
    public noncopyable {
 public:
@@ -239,7 +239,7 @@ namespace binary {
 
 /** Base for file binary I/O classes.
 */
-class ABCAPI file_base :
+class ABACLADE_SYM file_base :
    public virtual base {
 public:
 
@@ -279,7 +279,7 @@ namespace binary {
 
 /** Binary file input.
 */
-class ABCAPI file_reader :
+class ABACLADE_SYM file_reader :
    public virtual file_base,
    public reader {
 public:
@@ -314,7 +314,7 @@ namespace binary {
 
 /** Binary file output.
 */
-class ABCAPI file_writer :
+class ABACLADE_SYM file_writer :
    public virtual file_base,
    public writer {
 public:
@@ -354,7 +354,7 @@ namespace binary {
 
 /** Base for console/terminal binary I/O classes.
 */
-class ABCAPI console_file_base :
+class ABACLADE_SYM console_file_base :
    public virtual file_base {
 public:
 
@@ -385,7 +385,7 @@ namespace binary {
 
 /** Console/terminal input pseudo-file.
 */
-class ABCAPI console_reader :
+class ABACLADE_SYM console_reader :
    public virtual console_file_base,
    public file_reader {
 public:
@@ -427,7 +427,7 @@ namespace binary {
 
 /** Console/terminal output pseudo-file.
 */
-class ABCAPI console_writer :
+class ABACLADE_SYM console_writer :
    public virtual console_file_base,
    public file_writer {
 public:
@@ -469,7 +469,7 @@ namespace binary {
 
 /** Binary reader for the output end of a pipe.
 */
-class ABCAPI pipe_reader :
+class ABACLADE_SYM pipe_reader :
    public file_reader {
 public:
 
@@ -498,7 +498,7 @@ namespace binary {
 
 /** Binary writer for the input end of a pipe.
 */
-class ABCAPI pipe_writer :
+class ABACLADE_SYM pipe_writer :
    public file_writer {
 public:
 
@@ -527,7 +527,7 @@ namespace binary {
 
 /** Base for binary I/O classes for regular disk files.
 */
-class ABCAPI regular_file_base :
+class ABACLADE_SYM regular_file_base :
    public virtual file_base,
    public seekable,
    public sized {
@@ -585,7 +585,7 @@ namespace binary {
 
 /** Binary reader for regular disk files.
 */
-class ABCAPI regular_file_reader :
+class ABACLADE_SYM regular_file_reader :
    public virtual regular_file_base,
    public file_reader {
 public:
@@ -615,7 +615,7 @@ namespace binary {
 
 /** Binary writer for regular disk files.
 */
-class ABCAPI regular_file_writer :
+class ABACLADE_SYM regular_file_writer :
    public virtual regular_file_base,
    public file_writer {
 public:

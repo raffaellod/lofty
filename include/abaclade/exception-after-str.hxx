@@ -31,7 +31,7 @@ namespace abc {
 
 /** The syntax for the specified expression is invalid.
 */
-class ABCAPI syntax_error :
+class ABACLADE_SYM syntax_error :
    public virtual generic_error {
 public:
 

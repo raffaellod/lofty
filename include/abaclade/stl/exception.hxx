@@ -37,7 +37,7 @@ namespace std {
 
 /** Base class for standard exceptions (18.8.1).
 */
-class ABCAPI exception {
+class ABACLADE_SYM exception {
 public:
 
    /** Constructor.

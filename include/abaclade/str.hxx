@@ -39,7 +39,7 @@ trailing NUL character.
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
 abc::*str classes.
 */
-class ABCAPI str_base :
+class ABACLADE_SYM str_base :
    protected _raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str_base> {
 public:
@@ -556,7 +556,7 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct ABCAPI hash<abc::str_base> {
+struct ABACLADE_SYM hash<abc::str_base> {
 
    size_t operator()(abc::str_base const & s) const;
 };
@@ -679,7 +679,7 @@ namespace abc {
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
 are automatically converted to this.
 */
-class ABCAPI mstr :
+class ABACLADE_SYM mstr :
    public str_base {
 public:
 

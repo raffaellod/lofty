@@ -67,7 +67,7 @@ class _file_path_iterator;
 
 /** Filesystem path.
 */
-class ABCAPI file_path :
+class ABACLADE_SYM file_path :
    public support_explicit_operator_bool<file_path> {
 
 #if 0
@@ -464,7 +464,7 @@ namespace abc {
 
 // Specialization of to_str_backend.
 template <>
-class ABCAPI to_str_backend<file_path> :
+class ABACLADE_SYM to_str_backend<file_path> :
    public to_str_backend<istr> {
 public:
 

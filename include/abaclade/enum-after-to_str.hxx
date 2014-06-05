@@ -31,7 +31,7 @@ namespace abc {
 
 /** Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
-class ABCAPI _enum_to_str_backend_impl {
+class ABACLADE_SYM _enum_to_str_backend_impl {
 public:
 
    /** Constructor.

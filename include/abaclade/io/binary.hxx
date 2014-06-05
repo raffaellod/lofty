@@ -33,7 +33,7 @@ namespace binary {
 
 /** Base interface for binary (non-text) I/O.
 */
-class ABCAPI base {
+class ABACLADE_SYM base {
 public:
 
    /** Destructor. Also needed to make the class polymorphic (have a vtable).
@@ -56,7 +56,7 @@ namespace binary {
 
 /** Interface for binary (non-text) input.
 */
-class ABCAPI reader :
+class ABACLADE_SYM reader :
    public virtual base {
 public:
 
@@ -88,7 +88,7 @@ namespace binary {
 
 /** Interface for binary (non-text) output.
 */
-class ABCAPI writer :
+class ABACLADE_SYM writer :
    public virtual base {
 public:
 
@@ -124,7 +124,7 @@ namespace binary {
 
 /** Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 */
-class ABCAPI seekable {
+class ABACLADE_SYM seekable {
 public:
 
    /** Changes the current read/write position.
@@ -162,7 +162,7 @@ namespace binary {
 
 /** Interface for binary I/O classes that access data with a known size.
 */
-class ABCAPI sized {
+class ABACLADE_SYM sized {
 public:
 
    /** Returns the size of the data.

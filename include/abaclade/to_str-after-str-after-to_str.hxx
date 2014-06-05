@@ -67,7 +67,7 @@ protected:
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<c_str_to_str_adapter> :
+class ABACLADE_SYM to_str_backend<c_str_to_str_adapter> :
    public _str_to_str_backend {
 public:
 
@@ -107,7 +107,7 @@ namespace abc {
 
 /** Base class for the specializations of to_str_backend for integer types.
 */
-class ABCAPI _ptr_to_str_backend {
+class ABACLADE_SYM _ptr_to_str_backend {
 public:
 
    /** Constructor.

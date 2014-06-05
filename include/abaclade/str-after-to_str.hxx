@@ -32,7 +32,7 @@ namespace abc {
 /** Base class for the specializations of to_str_backend for string types. Not using templates, so
 the implementation can be in a cxx file. This is used by string literal types as well (see below).
 */
-class ABCAPI _str_to_str_backend {
+class ABACLADE_SYM _str_to_str_backend {
 public:
 
    /** Constructor.
@@ -72,7 +72,7 @@ namespace abc {
    /** Character literal. \
    */ \
    template <> \
-   class ABCAPI to_str_backend<C> : \
+   class ABACLADE_SYM to_str_backend<C> : \
       public _str_to_str_backend { \
    public: \
    \
@@ -192,7 +192,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<str_base> :
+class ABACLADE_SYM to_str_backend<str_base> :
    public _str_to_str_backend {
 public:
 
@@ -233,7 +233,7 @@ public:
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<istr> :
+class ABACLADE_SYM to_str_backend<istr> :
    public to_str_backend<str_base> {
 public:
 
@@ -254,7 +254,7 @@ public:
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<mstr> :
+class ABACLADE_SYM to_str_backend<mstr> :
    public to_str_backend<str_base> {
 public:
 
@@ -275,7 +275,7 @@ public:
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<dmstr> :
+class ABACLADE_SYM to_str_backend<dmstr> :
    public to_str_backend<str_base> {
 public:
 

@@ -94,7 +94,7 @@ namespace std {
 
 /** Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
 */
-class ABCAPI bad_cast :
+class ABACLADE_SYM bad_cast :
    public exception {
 public:
 
@@ -124,7 +124,7 @@ namespace std {
 
 /** Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
 */
-class ABCAPI bad_typeid :
+class ABACLADE_SYM bad_typeid :
    public exception {
 public:
 

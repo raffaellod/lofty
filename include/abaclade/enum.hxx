@@ -122,7 +122,7 @@ namespace abc {
 
 /** Enumeration member (name/value pair).
 */
-struct ABCAPI enum_member {
+struct ABACLADE_SYM enum_member {
 
    /** Name. */
    char_t const * pszName;

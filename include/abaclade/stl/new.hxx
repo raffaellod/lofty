@@ -56,7 +56,7 @@ namespace std {
 
 /** Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
 */
-class ABCAPI bad_alloc :
+class ABACLADE_SYM bad_alloc :
    public exception {
 public:
 

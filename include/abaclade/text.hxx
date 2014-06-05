@@ -106,7 +106,7 @@ encDst
 return
    Estimated size necessary for the destination string, in bytes.
 */
-ABCAPI size_t estimate_transcoded_size(
+ABACLADE_SYM size_t estimate_transcoded_size(
    encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
 );
 
@@ -120,7 +120,7 @@ return
    Size of a character (not a code point, which can require more than one character) for the
    specified encoding, in bytes.
 */
-ABCAPI size_t get_encoding_size(encoding enc);
+ABACLADE_SYM size_t get_encoding_size(encoding enc);
 
 
 /** Returns a line terminator string corresponding to the specified line_terminator value.
@@ -130,7 +130,7 @@ lterm
 return
    String with the requested line terminator sequence.
 */
-ABCAPI istr get_line_terminator_str(line_terminator lterm);
+ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm);
 
 
 /** Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
@@ -153,7 +153,7 @@ pcbBom
 return
    Detected encoding of the string pointed to by pBuf.
 */
-ABCAPI encoding guess_encoding(
+ABACLADE_SYM encoding guess_encoding(
    void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal = 0, size_t * pcbBom = nullptr
 );
 
@@ -167,7 +167,7 @@ pchEnd
 return
    Detected line terminator sequence.
 */
-ABCAPI line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
+ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
 
 
 /** Converts from one character encoding to another. All pointed-by variables are updated to discard
@@ -195,7 +195,7 @@ pcbDstMax
 return
    Count of bytes that were written to **ppDst.
 */
-ABCAPI size_t transcode(
+ABACLADE_SYM size_t transcode(
    std::nothrow_t const &,
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
    encoding encDst, void       ** ppDst, size_t * pcbDstMax
@@ -214,7 +214,7 @@ namespace text {
 
 /** A text encoding or decoding error occurred.
 */
-class ABCAPI error :
+class ABACLADE_SYM error :
    public virtual generic_error {
 public:
 
@@ -241,7 +241,7 @@ namespace text {
 
 /** A text decoding error occurred.
 */
-class ABCAPI decode_error :
+class ABACLADE_SYM decode_error :
    public virtual error {
 public:
 
@@ -268,7 +268,7 @@ namespace text {
 
 /** A text encoding error occurred.
 */
-class ABCAPI encode_error :
+class ABACLADE_SYM encode_error :
    public virtual error {
 public:
 

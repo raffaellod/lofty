@@ -349,7 +349,7 @@ namespace abc {
 /** Template-independent members of _raw_*_vextr_impl that are identical for trivial and non-trivial
 types.
 */
-class ABCAPI _raw_vextr_impl_base {
+class ABACLADE_SYM _raw_vextr_impl_base {
 protected:
 
    /** Allows to get a temporary item array from a pool of options, then work with it, and upon
@@ -362,7 +362,7 @@ protected:
    For size increases, the reallocation (if any) is performed in the constructor; for decreases,
    it’s performed in commit().
    */
-   class ABCAPI transaction :
+   class ABACLADE_SYM transaction :
       public noncopyable {
    public:
 
@@ -732,7 +732,7 @@ namespace abc {
 
 /** Template-independent implementation of a vector for non-trivial contained types.
 */
-class ABCAPI _raw_complex_vextr_impl :
+class ABACLADE_SYM _raw_complex_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
@@ -900,7 +900,7 @@ namespace abc {
 /** Template-independent implementation of a vector for trivial contained types. This is the most
 derived common base class of both vector and str.
 */
-class ABCAPI _raw_trivial_vextr_impl :
+class ABACLADE_SYM _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 

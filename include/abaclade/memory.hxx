@@ -109,7 +109,7 @@ cb
 return
    Pointer to the allocated memory block.
 */
-ABCAPI void * _raw_alloc(size_t cb);
+ABACLADE_SYM void * _raw_alloc(size_t cb);
 
 
 /** Releases a block of dynamically allocated memory.
@@ -117,7 +117,7 @@ ABCAPI void * _raw_alloc(size_t cb);
 p
    Pointer to the memory block to be released.
 */
-ABCAPI void _raw_free(void const * p);
+ABACLADE_SYM void _raw_free(void const * p);
 
 
 /** Resizes a dynamically allocated memory block.
@@ -129,7 +129,7 @@ cb
 return
    Pointer to the resized memory block. May or may not be the same as p.
 */
-ABCAPI void * _raw_realloc(void * p, size_t cb);
+ABACLADE_SYM void * _raw_realloc(void * p, size_t cb);
 
 } //namespace memory
 } //namespace abc

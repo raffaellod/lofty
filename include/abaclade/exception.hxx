@@ -329,7 +329,7 @@ msg
 
 /** Base for all abc exceptions classes.
 */
-class ABCAPI exception {
+class ABACLADE_SYM exception {
 public:
 
    /** Related STL exception class. */
@@ -415,7 +415,7 @@ public:
    Note: this class uses global or thread-local variables (OS-dependent) for all its member
    variables, since their types cannot be specified without #including a lot of files into this one.
    */
-   class ABCAPI async_handler_manager {
+   class ABACLADE_SYM async_handler_manager {
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
    public:
 
@@ -479,7 +479,7 @@ expr
 
 /** An assertion failed.
 */
-class ABCAPI assertion_error :
+class ABACLADE_SYM assertion_error :
    public exception {
 public:
 
@@ -509,7 +509,7 @@ namespace abc {
 
 /** The user hit an interrupt key (usually Ctrl-C or Del).
 */
-class ABCAPI user_interrupt :
+class ABACLADE_SYM user_interrupt :
    public exception {
 public:
 };
@@ -540,15 +540,15 @@ namespace abc {
 err
    OS-defined error number.
 */
-ABCAPI ABC_FUNC_NORETURN void throw_os_error();
-ABCAPI ABC_FUNC_NORETURN void throw_os_error(errint_t err);
+ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error();
+ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error(errint_t err);
 
 #endif
 
 
 /** Base for all error-related exceptions classes.
 */
-class ABCAPI generic_error :
+class ABACLADE_SYM generic_error :
    public exception {
 public:
 
@@ -634,7 +634,7 @@ namespace abc {
 
 /** A function/method received an argument that had an inappropriate value.
 */
-class ABCAPI argument_error :
+class ABACLADE_SYM argument_error :
    public virtual generic_error {
 public:
 
@@ -661,7 +661,7 @@ namespace abc {
 
 /** Base for arithmetic errors.
 */
-class ABCAPI arithmetic_error :
+class ABACLADE_SYM arithmetic_error :
    public virtual generic_error {
 public:
 
@@ -686,7 +686,7 @@ namespace abc {
 
 /** A buffer operation could not be performed.
 */
-class ABCAPI buffer_error :
+class ABACLADE_SYM buffer_error :
    public virtual generic_error {
 public:
 
@@ -711,7 +711,7 @@ namespace abc {
 
 /** The divisor of a division or modulo operation was zero.
 */
-class ABCAPI division_by_zero_error :
+class ABACLADE_SYM division_by_zero_error :
    public virtual arithmetic_error {
 public:
 
@@ -734,7 +734,7 @@ public:
 
 namespace abc {
 
-class ABCAPI domain_error :
+class ABACLADE_SYM domain_error :
    public virtual generic_error {
 public:
 
@@ -759,7 +759,7 @@ namespace abc {
 
 /** Base for errors that occur in the outer system.
 */
-class ABCAPI environment_error :
+class ABACLADE_SYM environment_error :
    public virtual generic_error {
 public:
 
@@ -784,7 +784,7 @@ namespace abc {
 
 /** A file could not be found.
 */
-class ABCAPI file_not_found_error :
+class ABACLADE_SYM file_not_found_error :
    public virtual environment_error {
 public:
 
@@ -809,7 +809,7 @@ namespace abc {
 
 /** A floating point operation failed.
 */
-class ABCAPI floating_point_error :
+class ABACLADE_SYM floating_point_error :
    public virtual arithmetic_error {
 public:
 
@@ -834,7 +834,7 @@ namespace abc {
 
 /** Base for errors due to an invalid key or index being used on a mapping or sequence.
 */
-class ABCAPI lookup_error :
+class ABACLADE_SYM lookup_error :
    public virtual generic_error {
 public:
 
@@ -859,7 +859,7 @@ namespace abc {
 
 /** Sequence subscript out of range.
 */
-class ABCAPI index_error :
+class ABACLADE_SYM index_error :
    public virtual lookup_error {
 public:
 
@@ -921,7 +921,7 @@ namespace abc {
 
 /** Mapping (dictionary) key not found in the set of existing keys.
 */
-class ABCAPI key_error :
+class ABACLADE_SYM key_error :
    public virtual lookup_error {
 public:
 
@@ -946,7 +946,7 @@ namespace abc {
 
 /** The specified file path is not a valid path.
 */
-class ABCAPI invalid_path_error :
+class ABACLADE_SYM invalid_path_error :
    public virtual generic_error {
 public:
 
@@ -971,7 +971,7 @@ namespace abc {
 
 /** An I/O operation failed for an I/O-related reason.
 */
-class ABCAPI io_error :
+class ABACLADE_SYM io_error :
    public virtual environment_error {
 public:
 
@@ -996,7 +996,7 @@ namespace abc {
 
 /** An attempt was made to access an invalid memory location.
 */
-class ABCAPI memory_address_error :
+class ABACLADE_SYM memory_address_error :
    public virtual generic_error {
 public:
 
@@ -1063,7 +1063,7 @@ namespace abc {
 
 /** An invalid memory access (e.g. misaligned pointer) was detected.
 */
-class ABCAPI memory_access_error :
+class ABACLADE_SYM memory_access_error :
    public virtual memory_address_error {
 public:
 
@@ -1088,7 +1088,7 @@ namespace abc {
 
 /** A memory allocation request could not be satisfied.
 */
-class ABCAPI memory_allocation_error :
+class ABACLADE_SYM memory_allocation_error :
    public virtual generic_error {
 public:
 
@@ -1117,7 +1117,7 @@ namespace abc {
 
 /** A network-related error occurred.
 */
-class ABCAPI network_error :
+class ABACLADE_SYM network_error :
    public virtual environment_error {
 public:
 
@@ -1142,7 +1142,7 @@ namespace abc {
 
 /** An I/O operation failed for a network-related reason.
 */
-class ABCAPI network_io_error :
+class ABACLADE_SYM network_io_error :
    public virtual io_error,
    public virtual network_error {
 public:
@@ -1169,7 +1169,7 @@ namespace abc {
 /** Method not implemented for this class. Usually thrown when a class is not able to provide a full
 implementation of an interface; in practice, this should be avoided.
 */
-class ABCAPI not_implemented_error :
+class ABACLADE_SYM not_implemented_error :
    public virtual generic_error {
 public:
 
@@ -1194,7 +1194,7 @@ namespace abc {
 
 /** An attempt was made to access the memory location 0 (nullptr).
 */
-class ABCAPI null_pointer_error :
+class ABACLADE_SYM null_pointer_error :
    public virtual memory_address_error {
 public:
 
@@ -1221,7 +1221,7 @@ namespace abc {
 standardization of floating point exception handling in C, most floating point operations are also
 not checked.
 */
-class ABCAPI overflow_error :
+class ABACLADE_SYM overflow_error :
    public virtual arithmetic_error {
 public:
 
@@ -1246,7 +1246,7 @@ namespace abc {
 
 /** An operation failed to prevent a security hazard.
 */
-class ABCAPI security_error :
+class ABACLADE_SYM security_error :
    public virtual environment_error {
 public:
 

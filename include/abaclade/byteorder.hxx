@@ -70,9 +70,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <byteswap.h> // bswap_*()
    #define ABC_HAVE_BSWAP
 #else
-   ABCAPI uint16_t bswap_16(uint16_t i);
-   ABCAPI uint32_t bswap_32(uint32_t i);
-   ABCAPI uint64_t bswap_64(uint64_t i);
+   ABACLADE_SYM uint16_t bswap_16(uint16_t i);
+   ABACLADE_SYM uint32_t bswap_32(uint32_t i);
+   ABACLADE_SYM uint64_t bswap_64(uint64_t i);
 #endif
 
 

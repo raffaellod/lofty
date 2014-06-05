@@ -51,10 +51,10 @@ namespace bitmanip {
 /** Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
 abc::bitmanip::ceiling_to_pow2().
 */
-ABCAPI uint8_t _raw_ceiling_to_pow2(uint8_t i);
-ABCAPI uint16_t _raw_ceiling_to_pow2(uint16_t i);
-ABCAPI uint32_t _raw_ceiling_to_pow2(uint32_t i);
-ABCAPI uint64_t _raw_ceiling_to_pow2(uint64_t i);
+ABACLADE_SYM uint8_t _raw_ceiling_to_pow2(uint8_t i);
+ABACLADE_SYM uint16_t _raw_ceiling_to_pow2(uint16_t i);
+ABACLADE_SYM uint32_t _raw_ceiling_to_pow2(uint32_t i);
+ABACLADE_SYM uint64_t _raw_ceiling_to_pow2(uint64_t i);
 
 
 /** Returns the argument rounded up to the closest power of 2.

@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 template <>
-class ABCAPI to_str_backend<source_location> {
+class ABACLADE_SYM to_str_backend<source_location> {
 public:
 
    /** Constructor.

@@ -122,7 +122,7 @@ class _scope_trace;
 
 namespace abc {
 
-class ABCAPI _scope_trace_impl {
+class ABACLADE_SYM _scope_trace_impl {
 public:
 
    /** Constructor.

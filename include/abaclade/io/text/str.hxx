@@ -33,7 +33,7 @@ namespace text {
 
 /** Implementation of text (character-based) I/O from/to a string.
 */
-class ABCAPI str_base :
+class ABACLADE_SYM str_base :
    public virtual base {
 public:
 
@@ -83,7 +83,7 @@ namespace text {
 
 /** Implementation of text (character-based) input from a string.
 */
-class ABCAPI str_reader :
+class ABACLADE_SYM str_reader :
    public virtual str_base,
    public virtual reader {
 public:
@@ -137,7 +137,7 @@ namespace text {
 
 /** Implementation of text (character-based) output into a string.
 */
-class ABCAPI str_writer :
+class ABACLADE_SYM str_writer :
    public virtual str_base,
    public virtual writer {
 public:

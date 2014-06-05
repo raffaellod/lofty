@@ -51,7 +51,7 @@ namespace abc {
 
 /** Abstract application.
 */
-class ABCAPI app {
+class ABACLADE_SYM app {
 public:
 
    /** Constructor.
