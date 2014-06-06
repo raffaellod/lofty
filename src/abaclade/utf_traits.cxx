@@ -282,33 +282,16 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-// Note for all overloads: not only sequences don’t matter when scanning for the first differing
-// bytes, but once a pair of differing bytes is found, if they are part of a sequence, its start
-// must have been the same, so only their absolute value matters; if they started a sequence, the
-// first byte of a longer encoding (greater code point value) if greater than that of a shorter one.
-/*static*/ int utf8_traits::str_cmp(char8_t const * psz1, char8_t const * psz2) {
-   ABC_TRACE_FUNC(psz1, psz2);
-
-   // This loop ends when there is bias (which includes psz2 being finished while there are still
-   // characters in psz1) or psz1 is over.
-   char8_t ch1;
-   do {
-      ch1 = *psz1++;
-      char8_t ch2(*psz2++);
-      if (ch1 > ch2) {
-         return +1;
-      } else if (ch1 < ch2) {
-         return -1;
-      }
-   } while (ch1);
-   return 0;
-}
 /*static*/ int utf8_traits::str_cmp(
    char8_t const * pch1Begin, char8_t const * pch1End,
    char8_t const * pch2Begin, char8_t const * pch2End
 ) {
    ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
 
+   // Note: not only don’t sequences matter when scanning for the first differing bytes, but once a
+   // pair of differing bytes is found, if they are part of a sequence, its start must have been the
+   // same, so only their absolute value matters; if they started a sequence, the first byte of a
+   // longer encoding (greater code point value) if greater than that of a shorter one.
    char8_t const * pch1(pch1Begin), * pch2(pch2Begin);
    while (pch1 < pch1End && pch2 < pch2End) {
       char8_t ch1(*pch1++), ch2(*pch2++);
@@ -564,33 +547,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 }
 
 
-/*static*/ int utf16_traits::str_cmp(char16_t const * psz1, char16_t const * psz2) {
-   ABC_TRACE_FUNC(psz1, psz2);
-
-   char16_t ch1;
-   do {
-      ch1 = *psz1++;
-      char16_t ch2(*psz2++);
-      // Surrogates prevent us from just comparing the absolute char16_t values.
-      bool bSurr1((ch1 & 0xf800) == 0xd800), bSurr2((ch2 & 0xf800) == 0xd800);
-      if (bSurr1 == bSurr2) {
-         // The characters are both regular or surrogates. Since a difference in lead surrogate
-         // generates bias, we only get to compare trails if the leads were equal.
-         if (ch1 > ch2) {
-            return +1;
-         } else if (ch1 < ch2) {
-            return -1;
-         }
-      } else if (bSurr1) {
-         // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
-         return +1;
-      } else /*if (bSurr2)*/ {
-         // If ch2 is a surrogate and ch1 is not, ch1 < ch2.
-         return -1;
-      }
-   } while (ch1);
-   return 0;
-}
 /*static*/ int utf16_traits::str_cmp(
    char16_t const * pch1Begin, char16_t const * pch1End,
    char16_t const * pch2Begin, char16_t const * pch2End
@@ -721,23 +677,6 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
 }
 
 
-/*static*/ int utf32_traits::str_cmp(char32_t const * psz1, char32_t const * psz2) {
-   ABC_TRACE_FUNC(psz1, psz2);
-
-   // This loop ends when there is bias (which includes psz2 being finished while there are still
-   // characters in psz1) or psz1 is over.
-   char32_t ch1;
-   do {
-      ch1 = *psz1++;
-      char32_t ch2(*psz2++);
-      if (ch1 > ch2) {
-         return +1;
-      } else if (ch1 < ch2) {
-         return -1;
-      }
-   } while (ch1);
-   return 0;
-}
 /*static*/ int utf32_traits::str_cmp(
    char32_t const * pch1Begin, char32_t const * pch1End,
    char32_t const * pch2Begin, char32_t const * pch2End

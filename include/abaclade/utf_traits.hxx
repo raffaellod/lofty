@@ -202,10 +202,6 @@ public:
 
    UTF validity: necessary.
 
-   psz1
-      Pointer to the first NUL-terminated string to compare.
-   psz2
-      Pointer to the second NUL-terminated string to compare.
    pch1Begin
       Pointer to the first character of the first string to compare.
    pch1End
@@ -220,7 +216,6 @@ public:
       •    0 if string 1 == string 2;
       •  < 0 if string 1 < string 2.
    */
-   static int str_cmp(char8_t const * psz1, char8_t const * psz2);
    static int str_cmp(
       char8_t const * pch1Begin, char8_t const * pch1End,
       char8_t const * pch2Begin, char8_t const * pch2End
@@ -347,7 +342,6 @@ public:
 
    /** See utf8_traits::str_cmp().
    */
-   static int str_cmp(char16_t const * psz1, char16_t const * psz2);
    static int str_cmp(
       char16_t const * pch1Begin, char16_t const * pch1End,
       char16_t const * pch2Begin, char16_t const * pch2End
@@ -422,7 +416,6 @@ public:
 
    /** See utf8_traits::str_cmp().
    */
-   static int str_cmp(char32_t const * psz1, char32_t const * psz2);
    static int str_cmp(
       char32_t const * pch1Begin, char32_t const * pch1End,
       char32_t const * pch2Begin, char32_t const * pch2End
