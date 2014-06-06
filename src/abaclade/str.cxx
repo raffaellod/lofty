@@ -186,7 +186,21 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(traits::str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
+   char_t const * pch;
+   char_t const * pchBegin(cbegin().base());
+   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
+      // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
+      for (pch = itWhence.base(); pch > pchBegin; ) {
+         if (*--pch == static_cast<char_t>(chNeedle)) {
+            break;
+         }
+      }
+   } else {
+      // The needle is two UTF-16 characters, so take the slower approach.
+      char_t achNeedle[traits::max_codepoint_length];
+      traits::from_utf32(chNeedle, achNeedle);
+      pch = traits::str_chr_r(cbegin().base(), itWhence.base(), achNeedle);
+   }
    return pch ? const_iterator(pch) : cend();
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {

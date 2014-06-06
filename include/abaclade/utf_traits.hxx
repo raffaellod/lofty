@@ -170,8 +170,8 @@ public:
 
 
    /** Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
-   no matches are found. For the char32_t needle overload, the needle is a pointer because a code
-   point can require more than one non-UTF-32 character to be encoded.
+   no matches are found. The needle is a pointer because a code point can require more than one non-
+   UTF-32 character to be encoded.
 
    UTF validity: necessary.
 
@@ -179,8 +179,6 @@ public:
       Pointer to the first character of the string to be searched.
    pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   chNeedle
-      Code point to search for.
    pchNeedle
       Pointer to the encoded code point (UTF character sequence) to search for; its length is
       deduced automatically.
@@ -188,9 +186,6 @@ public:
       Pointer to the beginning of the last match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
-   static char8_t const * str_chr_r(
-      char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
-   );
    static char8_t const * str_chr_r(
       char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
    ) {
@@ -346,9 +341,6 @@ public:
    /** See utf8_traits::str_chr_r().
    */
    static char16_t const * str_chr_r(
-      char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
-   );
-   static char16_t const * str_chr_r(
       char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
    );
 
@@ -425,17 +417,7 @@ public:
    // str_chr() is not supported for UTF-32 since it’s only used by abc::*str.
 
 
-   /** See utf8_traits::str_chr_r().
-   */
-   static char32_t const * str_chr_r(
-      char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
-   );
-   static char32_t const * str_chr_r(
-      char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t const * pchNeedle
-   ) {
-      // In UTF-32, there’s always only one character per code point.
-      return str_chr_r(pchHaystackBegin, pchHaystackEnd, *pchNeedle);
-   }
+   // str_chr_r() is not supported for UTF-32 since it’s only used by abc::*str.
 
 
    /** See utf8_traits::str_cmp().

@@ -282,30 +282,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-/*static*/ char8_t const * utf8_traits::str_chr_r(
-   char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= 0x00007f) {
-      // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
-      char8_t ch8Needle(static_cast<char8_t>(chNeedle));
-      for (char8_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-         if (*--pch == ch8Needle) {
-            return pch;
-         }
-      }
-      return pchHaystackBegin;
-   } else {
-      // The needle is two or more UTF-8 characters; this means that we can’t do the fast backwards
-      // scan above, so just do a regular substring reverse search.
-      char8_t achNeedle[max_codepoint_length];
-      unsigned cchSeq(from_utf32(chNeedle, achNeedle));
-      return str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
-   }
-}
-
-
 // Note for all overloads: not only sequences don’t matter when scanning for the first differing
 // bytes, but once a pair of differing bytes is found, if they are part of a sequence, its start
 // must have been the same, so only their absolute value matters; if they started a sequence, the
@@ -567,27 +543,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 
 /*static*/ char16_t const * utf16_traits::str_chr_r(
-   char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= 0x00ffff) {
-      // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
-      char16_t ch16Needle(static_cast<char16_t>(chNeedle));
-      for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-         if (*--pch == ch16Needle) {
-            return pch;
-         }
-      }
-      return pchHaystackBegin;
-   } else {
-      // The needle is two UTF-16 characters, so take the slower approach.
-      char16_t achNeedle[max_codepoint_length];
-      from_utf32(chNeedle, achNeedle);
-      return str_chr_r(pchHaystackBegin, pchHaystackEnd, achNeedle);
-   }
-}
-/*static*/ char16_t const * utf16_traits::str_chr_r(
    char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
@@ -763,20 +718,6 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
       }
    }
    return true;
-}
-
-
-/*static*/ char32_t const * utf32_traits::str_chr_r(
-   char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   for (char32_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-      if (*--pch == chNeedle) {
-         return pch;
-      }
-   }
-   return pchHaystackBegin;
 }
 
 
