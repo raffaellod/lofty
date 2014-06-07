@@ -38,7 +38,7 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
       _raw_vextr_impl_base_with_static_item_array * prvibwsia(
          static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
       );
-      prvibwsia->m_cbStaticCapacity = cbStaticCapacity;
+      prvibwsia->m_cbCapacity = cbStaticCapacity;
    }
 }
 
@@ -192,18 +192,16 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
       m_rvibWork.m_pBegin = m_rvibWork.m_pEnd = nullptr;
-      // A read-only item array has no capacity.
-      m_rvibWork.m_rvpd.set_capacity(0);
       m_rvibWork.m_rvpd.set_dynamic(false);
+      m_rvibWork.m_rvpd.set_real_item_array(false);
    } else {
       // This will return 0 if there’s no static item array.
       size_t cbStaticCapacity(m_prvib->static_capacity());
       if (cbNew <= cbStaticCapacity) {
          // The static item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = m_prvib->static_array_ptr<void>();
-         m_rvibWork.m_rvpd.set_capacity(cbStaticCapacity);
          m_rvibWork.m_rvpd.set_dynamic(false);
-      } else if (cbNew <= m_prvib->m_rvpd.capacity()) {
+      } else if (cbNew <= m_prvib->capacity<int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
       } else {
@@ -224,17 +222,17 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             pdia = static_cast<item_array *>(memory::_raw_realloc(pdia, cbNewItemArray));
             m_prvib->m_pBegin = pdia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
-            m_prvib->m_rvpd.set_capacity(cbNewCapacity);
          } else {
             // Allocate a new item array.
             pdia = static_cast<item_array *>(memory::_raw_alloc(cbNewItemArray));
             m_rvibWork.m_rvpd.set_dynamic(true);
             m_bFree = true;
          }
+         pdia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = pdia->m_at;
-         m_rvibWork.m_rvpd.set_capacity(cbNewCapacity);
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
+      m_rvibWork.m_rvpd.set_real_item_array(true);
    }
    // Any change in size voids the NUL termination of the item array.
    m_rvibWork.m_rvpd.set_nul_terminated(false);
@@ -620,7 +618,7 @@ void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi
 
    ABC_ASSERT(rtvi.m_pBegin != m_pBegin, SL("cannot assign from self"));
    ABC_ASSERT(
-      rtvi.is_item_array_readonly() || rtvi.m_rvpd.dynamic(),
+      !rtvi.m_rvpd.real_item_array() || rtvi.m_rvpd.dynamic(),
       SL("can only share read-only or dynamic item arrays (the latter only as part of a move)")
    );
    // Discard the current contents.

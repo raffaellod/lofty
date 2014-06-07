@@ -238,16 +238,6 @@ public:
    }
 
 
-   /** Returns the capacity of the current item array.
-
-   return
-      Size of the item array, in bytes.
-   */
-   size_t capacity() const {
-      return m_iPackedData & smc_cbCapacityMask;
-   }
-
-
    /** Returns true if the parent object’s m_pBegin/End point to a dynamically-allocated item array.
 
    return
@@ -278,14 +268,10 @@ public:
    }
 
 
-   /** Assigns a recorded capacity for the item array.
-
-   cbCapacity
-      Size of the item array, in bytes.
+   /** TODO: comment.
    */
-   void set_capacity(size_t cbCapacity) {
-      m_iPackedData &= ~smc_cbCapacityMask;
-      m_iPackedData |= cbCapacity;
+   bool real_item_array() const {
+      return (m_iPackedData & smc_bRealItemArrayMask) != 0;
    }
 
 
@@ -317,10 +303,22 @@ public:
    }
 
 
+   /** TODO: comment.
+   */
+   void set_real_item_array(bool bRealItemArray) {
+      m_iPackedData &= ~smc_bRealItemArrayMask;
+      if (bRealItemArray) {
+         m_iPackedData |= smc_bRealItemArrayMask;
+      }
+   }
+
+
 private:
 
    /** Bit-field composed by the following components:
 
+   bool bRealItemArray
+      true if the item array is read-only.
    bool bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    bool const bHasStatic
@@ -332,6 +330,8 @@ private:
    */
    size_t m_iPackedData;
 
+   /** Mask to access bRealItemArray from m_iPackedData. */
+   static size_t const smc_bRealItemArrayMask = 0x08;
    /** Mask to access bDynamic from m_iPackedData. */
    static size_t const smc_bDynamicMask = 0x04;
    /** Mask to access bHasStatic from m_iPackedData. */
@@ -344,7 +344,7 @@ public:
 
    /** Mask to access cbCapacity from m_iPackedData. */
    static size_t const smc_cbCapacityMask = ~(
-      smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask
+      smc_bRealItemArrayMask | smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask
    );
 };
 
@@ -381,8 +381,8 @@ public:
    static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(
       sizeof(T) * t_ciStaticCapacity
    );
-   /** Static size, in bytes. */
-   size_t m_cbStaticCapacity;
+   /** Capacity of m_at, in bytes. */
+   size_t m_cbCapacity;
    /** First item of the static array. This can’t be a T[], because we don’t want its items to be
    constructed/destructed automatically, and because this class doesn’t know its size. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
@@ -447,7 +447,7 @@ public:
    */
    template <typename T>
    size_t capacity() const {
-      return m_rvpd.capacity() / sizeof(T);
+      return m_rvpd.real_item_array() ? item_array()->m_cbCapacity / sizeof(T) : 0;
    }
 
 
@@ -520,9 +520,9 @@ protected:
    */
    void assign_empty() {
       m_pBegin = m_pEnd = nullptr;
-      m_rvpd.set_capacity(0);
       m_rvpd.set_dynamic(false);
       m_rvpd.set_nul_terminated(false);
+      m_rvpd.set_real_item_array(false);
    }
 
 
@@ -539,17 +539,6 @@ protected:
    static size_t calculate_increased_capacity(size_t cbOld, size_t cbNew);
 
 
-   /** Returns true if m_p points to a read-only item array.
-
-   return
-      true if m_p points to a read-only item array, or false otherwise.
-   */
-   bool is_item_array_readonly() const {
-      // No capacity means read-only item array.
-      return m_rvpd.capacity() == 0;
-   }
-
-
    /** Returns a pointer to the current item array structure.
 
    return
@@ -560,6 +549,9 @@ protected:
       return reinterpret_cast<dummy_item_array *>(begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
          &reinterpret_cast<dummy_item_array *>(0)->m_at[0]
       ));
+   }
+   dummy_item_array const * item_array() const {
+      return const_cast<_raw_vextr_impl_base *>(this)->item_array();
    }
 
 
@@ -683,7 +675,7 @@ inline size_t _raw_vextr_impl_base::static_capacity() const {
    _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
       static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
    );
-   return prvibwsia->m_cbStaticCapacity;
+   return prvibwsia->m_cbCapacity;
 }
 
 } //namespace abc
@@ -1042,7 +1034,7 @@ public:
       if (rtvi.m_pBegin == m_pBegin) {
          return;
       }
-      if (rtvi.is_item_array_readonly()) {
+      if (m_rvpd.real_item_array()) {
          _assign_share(rtvi);
       } else {
          // Non-read-only, cannot share.
