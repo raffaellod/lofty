@@ -785,9 +785,9 @@ private:
    _raw_vextr_impl_base m_rvibWork;
    /** Subject of the transaction. */
    _raw_vextr_impl_base * m_prvib;
-   /** true if m_pBegin has been dynamically allocated for the transaction and needs to be freed in
-   the destructor, either because the transaction didn’t get committed, or because it did and the
-   item array is now owned by m_prvib. */
+   /** true if m_rvibWork references an item array that has been dynamically allocated for the
+   transaction and needs to be freed in the destructor. This can be the case because the transaction
+   didn’t get committed, or because it did and m_rvibWork’s item array is now owned by m_prvib. */
    bool m_bFree;
 };
 
