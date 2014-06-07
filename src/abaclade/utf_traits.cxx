@@ -252,36 +252,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-/*static*/ char8_t const * utf8_traits::str_chr(
-   char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
-
-   char8_t chNeedleLead(*pchNeedle);
-   for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
-      char8_t ch(*pch);
-      unsigned cbCont(leading_to_cont_length(ch));
-      // Make the next iteration resume from the next code point.
-      pchNext = pch + 1 /*ch*/ + cbCont;
-      if (ch == chNeedleLead) {
-         if (cbCont) {
-            // The leading bytes match; check if the trailing ones do as well.
-            char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
-            while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
-               ;
-            }
-            if (pchCont < pchNext) {
-               continue;
-            }
-            // The leading and trailing bytes of pch and pchNeedle match: we found the needle.
-         }
-         return pch;
-      }
-   }
-   return pchHaystackEnd;
-}
-
-
 /*static*/ int utf8_traits::str_cmp(
    char8_t const * pch1Begin, char8_t const * pch1End,
    char8_t const * pch2Begin, char8_t const * pch2End
@@ -502,48 +472,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    }
    // Cannot end in the middle of a surrogate.
    return !bExpectTailSurrogate;
-}
-
-
-/*static*/ char16_t const * utf16_traits::str_chr(
-   char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
-
-   // In UTF-16, there’s always at most two characters per code point.
-   char16_t chNeedle0(pchNeedle[0]);
-   // We only have a second character if the first is a lead surrogate.
-   char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : U16CL('\0'));
-   // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
-   // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
-   for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-      if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
-         return pch;
-      }
-   }
-   return pchHaystackEnd;
-}
-
-
-/*static*/ char16_t const * utf16_traits::str_chr_r(
-   char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
-
-   // In UTF-16, there’s always at most two characters per code point.
-   // Notice that this function is very much a mirrored version of str_chr(), so even the needle is
-   // stored mirrored in chNeedle0/1: chNeedle1 is always used, and in case of a surrogate we use
-   // chNeedle0 as well.
-   char16_t chNeedle0((pchNeedle[0] & 0xfc00) == 0xd800 ? pchNeedle[0] : U16CL('\0'));
-   char16_t chNeedle1(pchNeedle[chNeedle0 ? 1 : 0]);
-   // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
-   // pch[0] == chNeedle1 and chNeedle0 != NUL then pch[-1] must be accessible.
-   for (char16_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-      if (*--pch == chNeedle1 && (!chNeedle0 || *(pch - 1) == chNeedle0)) {
-         return pch;
-      }
-   }
-   return pchHaystackBegin;
 }
 
 

@@ -153,22 +153,9 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch;
-   char_t const * pchEnd(cend().base());
-   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
-      // The needle can be encoded as a single UTF-8 character, so this faster search can be used.
-      for (pch = itWhence.base(); pch < pchEnd; ++pch) {
-         if (*pch == static_cast<char_t>(chNeedle)) {
-            break;
-         }
-      }
-   } else {
-      // The needle is two or more UTF-8 characters, so take the slower approach.
-      char_t achNeedle[traits::max_codepoint_length];
-      traits::from_utf32(chNeedle, achNeedle);
-      pch = traits::str_chr(itWhence.base(), pchEnd, achNeedle);
-   }
-   return pch ? const_iterator(pch) : cend();
+   auto itEnd(cend());
+   char_t const * pch(str_chr(itWhence.base(), itEnd.base(), chNeedle));
+   return pch ? const_iterator(pch) : itEnd;
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
@@ -186,21 +173,7 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch;
-   char_t const * pchBegin(cbegin().base());
-   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
-      // The needle can be encoded as a single UTF-16 character, so this faster search can be used.
-      for (pch = itWhence.base(); pch > pchBegin; ) {
-         if (*--pch == static_cast<char_t>(chNeedle)) {
-            break;
-         }
-      }
-   } else {
-      // The needle is two UTF-16 characters, so take the slower approach.
-      char_t achNeedle[traits::max_codepoint_length];
-      traits::from_utf32(chNeedle, achNeedle);
-      pch = traits::str_chr_r(cbegin().base(), itWhence.base(), achNeedle);
-   }
+   char_t const * pch(str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
    return pch ? const_iterator(pch) : cend();
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
@@ -221,6 +194,94 @@ bool str_base::starts_with(istr const & s) const {
    return itEnd <= cend() && traits::str_cmp(
       cbegin().base(), itEnd.base(), s.cbegin().base(), s.cend().base()
    ) == 0;
+}
+
+
+/*static*/ char_t const * str_base::str_chr(
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+) {
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+
+   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
+      // The needle can be encoded as a single character, so this faster search can be used.
+      for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+         if (*pch == static_cast<char_t>(chNeedle)) {
+            return pch;
+         }
+      }
+      return pchHaystackEnd;
+   } else {
+      // The needle is two or more characters, so take the slower approach.
+      char_t achNeedle[traits::max_codepoint_length];
+      traits::from_utf32(chNeedle, achNeedle);
+      return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
+   }
+}
+/*static*/ char_t const * str_base::str_chr(
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const* pchNeedle
+) {
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
+
+#if ABC_HOST_UTF == 8
+   char8_t chNeedleLead(*pchNeedle);
+   for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
+      char8_t ch(*pch);
+      unsigned cbCont(traits::leading_to_cont_length(ch));
+      // Make the next iteration resume from the next code point.
+      pchNext = pch + 1 /*ch*/ + cbCont;
+      if (ch == chNeedleLead) {
+         if (cbCont) {
+            // The leading bytes match; check if the trailing ones do as well.
+            char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
+            while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
+               ;
+            }
+            if (pchCont < pchNext) {
+               continue;
+            }
+            // The leading and trailing bytes of pch and achNeedle match: we found the needle.
+         }
+         return pch;
+      }
+   }
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+   // In UTF-16, there’s always at most two characters per code point.
+   char16_t chNeedle0(achNeedle[0]);
+   // We only have a second character if the first is a lead surrogate. Using NUL as a special value
+   // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
+   char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? achNeedle[1] : U16CL('\0'));
+   // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
+   // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
+   for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+      if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
+         return pch;
+      }
+   }
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
+   return pchHaystackEnd;
+}
+
+
+/*static*/ char_t const * str_base::str_chr_r(
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+) {
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+
+   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
+      // The needle can be encoded as a single character, so this faster search can be used.
+      for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+         if (*--pch == static_cast<char_t>(chNeedle)) {
+            return pch;
+         }
+      }
+      return pchHaystackBegin;
+   } else {
+      // The needle is two or more characters; this means that we can’t do the fast backwards scan
+      // above, so just do a regular substring reverse search.
+      char_t achNeedle[traits::max_codepoint_length];
+      unsigned cchSeq(traits::from_utf32(chNeedle, achNeedle));
+      return traits::str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
+   }
 }
 
 } //namespace abc

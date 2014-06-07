@@ -147,57 +147,6 @@ public:
    }
 
 
-   /** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
-   matches are found. The needle is a pointer because a code point can require more than one non-
-   UTF-32 character to be encoded.
-
-   UTF validity: necessary.
-
-   pchHaystackBegin
-      Pointer to the first character of the string to be searched.
-   pchHaystackEnd
-      Pointer to beyond the last character of the string to be searched.
-   pchNeedle
-      Pointer to the encoded code point (UTF character sequence) to search for; its length is
-      deduced automatically.
-   return
-      Pointer to the beginning of the first match, in the string to be searched, of the code point
-      to search for, or nullptr if no matches are found.
-   */
-   static char8_t const * str_chr(
-      char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
-   );
-
-
-   /** Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
-   no matches are found. The needle is a pointer because a code point can require more than one non-
-   UTF-32 character to be encoded.
-
-   UTF validity: necessary.
-
-   pchHaystackBegin
-      Pointer to the first character of the string to be searched.
-   pchHaystackEnd
-      Pointer to beyond the last character of the string to be searched.
-   pchNeedle
-      Pointer to the encoded code point (UTF character sequence) to search for; its length is
-      deduced automatically.
-   return
-      Pointer to the beginning of the last match, in the string to be searched, of the code point
-      to search for, or nullptr if no matches are found.
-   */
-   static char8_t const * str_chr_r(
-      char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd, char8_t const * pchNeedle
-   ) {
-      // We can’t do the fast forward scan that str_chr can do because the UTF-8 characters are in
-      // the reverse order, so just do a regular substring search.
-      return str_str_r(
-         pchHaystackBegin, pchHaystackEnd,
-         pchNeedle, pchNeedle + 1 + leading_to_cont_length(*pchNeedle)
-      );
-   }
-
-
    /** Compares two UTF strings.
 
    UTF validity: necessary.
@@ -326,20 +275,6 @@ public:
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
-   /** See utf8_traits::str_chr().
-   */
-   static char16_t const * str_chr(
-      char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
-   );
-
-
-   /** See utf8_traits::str_chr_r().
-   */
-   static char16_t const * str_chr_r(
-      char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd, char16_t const * pchNeedle
-   );
-
-
    /** See utf8_traits::str_cmp().
    */
    static int str_cmp(
@@ -406,12 +341,6 @@ public:
    }
    static bool is_valid(char32_t const * psz);
    static bool is_valid(char32_t const * pchBegin, char32_t const * pchEnd);
-
-
-   // str_chr() is not supported for UTF-32 since it’s only used by abc::*str.
-
-
-   // str_chr_r() is not supported for UTF-32 since it’s only used by abc::*str.
 
 
    /** See utf8_traits::str_cmp().

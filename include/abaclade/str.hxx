@@ -523,6 +523,54 @@ protected:
 
 protected:
 
+   // Lower-level helpers used internally by several methods.
+
+
+   /** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
+   matches are found. For the non-char32_t needle overload, the needle is a pointer because a code
+   point can require more than one non-UTF-32 character to be encoded.
+
+   pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   chNeedle
+      Code point to search for.
+   pchNeedle
+      Pointer to the encoded code point (UTF character sequence) to search for; its length is
+      deduced automatically.
+   return
+      Pointer to the beginning of the first match, in the string to be searched, of the code point
+      to search for, or nullptr if no matches are found.
+   */
+   static char_t const * str_chr(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+   );
+   static char_t const * str_chr(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const * pchNeedle
+   );
+
+
+   /** Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
+   no matches are found.
+
+   pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   chNeedle
+      Code point to search for.
+   return
+      Pointer to the beginning of the last match, in the string to be searched, of the code point
+      to search for, or nullptr if no matches are found.
+   */
+   static char_t const * str_chr_r(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+   );
+
+
+protected:
+
    /** Single NUL terminator. */
    static char_t const smc_chNUL;
 };
