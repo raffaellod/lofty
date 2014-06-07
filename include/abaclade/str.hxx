@@ -707,7 +707,18 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   s
+      Source string.
+   ach
+      Source NUL-terminated string literal.
+   pchBegin
+      Pointer to the beginning of the source stirng.
+   pchEnd
+      Pointer to beyond the end of the source stirng.
+   psz
+      Pointer to the source NUL-terminated string literal.
+   cch
+      Count of characters in the array pointed to be psz.
    */
    istr() :
       str_base(0) {
@@ -909,7 +920,16 @@ public:
    compiler inlines this method, it will most likely blend its code with the (also inlined) lambda,
    probably resulting in some optimizations that would be otherwise missed.
 
-   TODO: comment signature.
+   fnRead
+      Callback that is invoked to fill up the string buffer.
+      pch
+         Pointer to the beginning of the buffer to be filled up by the callback.
+      cchMax
+         Size of the buffer pointed to by pch.
+      return
+         Count of characters written to the buffer pointed to by pch. If less than cchMax, this will
+         be the final count of characters of *this; otherwise, fnRead will be called once more with
+         a larger cchMax after the string buffer has been enlarged.
    */
    void grow_for(std::function<size_t (char_t * pch, size_t cchMax)> fnRead) {
       typedef _raw_vextr_impl_base rvib;
@@ -1021,7 +1041,22 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   s
+      Source string.
+   ach
+      Source NUL-terminated string literal.
+   pchBegin
+      Pointer to the beginning of the source stirng.
+   pchEnd
+      Pointer to beyond the end of the source stirng.
+   pch1Begin
+      Pointer to the beginning of the left source stirng to concatenate.
+   pch1End
+      Pointer to beyond the end of the left source stirng.
+   pch2Begin
+      Pointer to the beginning of the right source stirng to concatenate.
+   pch2End
+      Pointer to beyond the end of the right source stirng.
    */
    dmstr() :
       mstr(0) {
@@ -1258,7 +1293,10 @@ public:
 
    /** Constructor.
 
-   TODO: comment signature.
+   s
+      Source string.
+   ach
+      Source NUL-terminated string literal.
    */
    smstr() :
       mstr(smc_cbStaticCapacity) {
