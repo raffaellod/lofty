@@ -156,7 +156,7 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
       cbNewCapacity = smc_cbCapacityMin;
    } else {
       // Ensure that the lower bits are clear by rounding up.
-      cbNewCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cbNewCapacity);
+      cbNewCapacity = _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(cbNewCapacity);
    }
    return cbNewCapacity;
 }

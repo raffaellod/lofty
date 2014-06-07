@@ -351,6 +351,46 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_raw_vextr_item_array
+
+
+namespace abc {
+
+/** Rounds up an array size to avoid interfering with the bits outside of
+_raw_vextr_packed_data::smc_cbCapacityMask. Should be a constexpr function, but for now it’s just a
+macro.
+
+cb
+   Size of the items, in bytes.
+return
+   Rounded-up size of the items.
+*/
+#define _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(cb) \
+   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbCapacityMask) & \
+      _raw_vextr_packed_data::smc_cbCapacityMask)
+
+
+/** Used to find out what the offset are for an embedded static item array.
+*/
+template <typename T, size_t t_ciStaticCapacity>
+class _raw_vextr_item_array {
+public:
+
+   /** Actual static item array size. */
+   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(
+      sizeof(T) * t_ciStaticCapacity
+   );
+   /** Static size, in bytes. */
+   size_t m_cbStaticCapacity;
+   /** First item of the static array. This can’t be a T[], because we don’t want its items to be
+   constructed/destructed automatically, and because this class doesn’t know its size. */
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_vextr_impl_base
 
 
@@ -679,32 +719,12 @@ protected:
 };
 
 
-/** Used to find out what the offset are for an embedded static item array.
+/** Used to find out what the offsets are for an embedded static item array.
 */
 class _raw_vextr_impl_base_with_static_item_array :
-   public _raw_vextr_impl_base {
-public:
-
-   /** Static size, in bytes. */
-   size_t m_cbStaticCapacity;
-   /** First item of the static array. This can’t be a T[], because we don’t want its items to be
-   constructed/destructed automatically, and because this class doesn’t know its size. */
-   std::max_align_t m_tFirst;
+   public _raw_vextr_impl_base,
+   public _raw_vextr_item_array<int8_t, 1> {
 };
-
-
-/** Rounds up an array size to avoid interfering with the bits outside of
-_raw_vextr_packed_data::smc_cbCapacityMask. Should be a constexpr function, but for now it’s just a
-macro.
-
-cb
-   Size of the items, in bytes.
-return
-   Rounded-up size of the items.
-*/
-#define _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(cb) \
-   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbCapacityMask) & \
-      _raw_vextr_packed_data::smc_cbCapacityMask)
 
 
 // Now these can be implemented.
@@ -717,7 +737,7 @@ inline T * _raw_vextr_impl_base::static_array_ptr() {
    _raw_vextr_impl_base_with_static_item_array * prvibwsia(
       static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
    );
-   return reinterpret_cast<T *>(&prvibwsia->m_tFirst);
+   return reinterpret_cast<T *>(prvibwsia->m_at);
 }
 
 

@@ -1280,15 +1280,8 @@ likely to be shorter than a known small size.
 */
 template <size_t t_cchStaticCapacity>
 class smstr :
-   public mstr {
-private:
-
-   /** Actual static character array size, in bytes. */
-   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_IMPL_BASE__ADJUST_ITEM_ARRAY_SIZE(
-      sizeof(char_t) * t_cchStaticCapacity
-   );
-
-
+   public mstr,
+   private _raw_vextr_item_array<char_t, t_cchStaticCapacity> {
 public:
 
    /** Constructor.
@@ -1299,40 +1292,40 @@ public:
       Source NUL-terminated string literal.
    */
    smstr() :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
    }
    smstr(smstr const & s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // If the source is using its static character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_move(std::move(s));
    }
    template <size_t t_cch>
    smstr(char_t const (& ach)[t_cch]) :
-      mstr(smc_cbStaticCapacity) {
+      mstr(this->smc_cbStaticCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
    }
 
@@ -1380,16 +1373,6 @@ public:
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
    }
-
-
-private:
-
-   // This section must match exactly _raw_vextr_impl_base_with_static_item_array.
-
-   /** See _raw_vextr_impl_base_with_static_item_array::m_cbStaticCapacity. */
-   size_t m_cbStaticCapacity;
-   /** See _raw_vextr_impl_base_with_static_item_array::m_at. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
 };
 
 } //namespace abc
