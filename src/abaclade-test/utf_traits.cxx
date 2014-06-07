@@ -82,7 +82,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::text::utf8_traits - validity of NUL-terminated strings"));
+      return istr(SL("abc::text::utf8_traits – validity of NUL-terminated strings"));
    }
 
 
@@ -203,7 +203,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::text::utf8_traits - validity of counted strings"));
+      return istr(SL("abc::text::utf8_traits – validity of counted strings"));
    }
 
 
@@ -317,7 +317,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::text::utf16_traits - validity of NUL-terminated strings"));
+      return istr(SL("abc::text::utf16_traits – validity of NUL-terminated strings"));
    }
 
 
@@ -384,7 +384,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::text::utf16_traits - validity of counted strings"));
+      return istr(SL("abc::text::utf16_traits – validity of counted strings"));
    }
 
 

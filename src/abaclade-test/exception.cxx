@@ -84,7 +84,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::exception - polymorphism"));
+      return istr(SL("abc::exception – polymorphism"));
    }
 
 
@@ -158,7 +158,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::exception - conversion of hard OS errors into C++ exceptions"));
+      return istr(SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
    }
 
 

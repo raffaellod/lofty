@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for bool
+// abc::to_str_backend – specialization for bool
 
 
 namespace abc {
@@ -122,7 +122,7 @@ ABACLADE_SYM _int_to_str_backend_base::_int_to_str_backend_base(
    // “Width” - minimum number of digits.
    if (ch >= CL('1') && ch <= CL('9')) {
       // Undo the default; the following loop will yield at least 1 anyway (because we don’t get
-      // here for a 0 - see if above).
+      // here for a 0 – see if above).
       m_cchWidth = 0;
       do {
          m_cchWidth = m_cchWidth * 10 + unsigned(ch) - CL('0');

@@ -84,7 +84,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str - int"));
+      return istr(SL("abc::to_str – int"));
    }
 
 
@@ -137,7 +137,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str - int8_t"));
+      return istr(SL("abc::to_str – int8_t"));
    }
 
 
@@ -190,7 +190,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str - raw pointers"));
+      return istr(SL("abc::to_str – raw pointers"));
    }
 
 
@@ -248,7 +248,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str - smart pointers"));
+      return istr(SL("abc::to_str – smart pointers"));
    }
 
 

@@ -63,7 +63,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for character literal types
+// abc::to_str_backend – specialization for character literal types
 
 
 namespace abc {
@@ -115,7 +115,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for string literal types
+// abc::to_str_backend – specialization for string literal types
 
 
 namespace abc {
@@ -186,7 +186,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::str_base
+// abc::to_str_backend – specialization for abc::str_base
 
 
 namespace abc {
@@ -227,7 +227,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::istr
+// abc::to_str_backend – specialization for abc::istr
 
 
 namespace abc {
@@ -248,7 +248,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::mstr
+// abc::to_str_backend – specialization for abc::mstr
 
 
 namespace abc {
@@ -269,7 +269,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::dmstr
+// abc::to_str_backend – specialization for abc::dmstr
 
 
 namespace abc {
@@ -290,7 +290,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::smstr
+// abc::to_str_backend – specialization for abc::smstr
 
 
 namespace abc {

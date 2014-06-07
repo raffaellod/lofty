@@ -87,7 +87,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - ABC_HOST_API_*
+// abc globals – ABC_HOST_API_*
 
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
@@ -142,7 +142,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - ABC_HOST_WORD_SIZE
+// abc globals – ABC_HOST_WORD_SIZE
 
 /** Machine word size for this microarchitecture. */
 #if ABC_HOST_API_WIN64
@@ -157,7 +157,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - platform-dependent fixes
+// abc globals – platform-dependent fixes
 
 #if ABC_HOST_API_POSIX
 
@@ -220,7 +220,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - C++11 compiler support
+// abc globals – C++11 compiler support
 
 // Ensure RTTI support is enabled for MSC.
 #if ABC_HOST_MSC && !defined(_CPPRTTI)
@@ -268,7 +268,7 @@ constructor (N2346). */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - non-standard, but commonly available, extensions
+// abc globals – non-standard, but commonly available, extensions
 
 /** Calling convention for Abaclade functions/methods. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
@@ -357,7 +357,7 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - extended features that can take advantage of C++11 or fallback to still-functional
+// abc globals – extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives
 
 namespace abc {
@@ -568,7 +568,7 @@ old_throw_decl
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals - other
+// abc globals – other
 
 
 #ifndef ABC_STLIMPL

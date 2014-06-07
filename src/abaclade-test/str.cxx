@@ -86,7 +86,7 @@ public:
    /** See str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes - basic operations"));
+      return istr(SL("abc::*str classes – basic operations"));
    }
 
 
@@ -231,7 +231,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes - conversion to different encodings")
+         SL("abc::*str classes – conversion to different encodings")
       );
    }
 
@@ -324,7 +324,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes - substring extraction"));
+      return istr(SL("abc::*str classes – substring extraction"));
    }
 
 
@@ -405,7 +405,7 @@ public:
    /** See str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::istr - C string extraction"));
+      return istr(SL("abc::istr – C string extraction"));
    }
 
 
@@ -462,7 +462,7 @@ public:
    /** See str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::mstr - C string extraction"));
+      return istr(SL("abc::mstr – C string extraction"));
    }
 
 
@@ -528,7 +528,7 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes - ASCII character and substring search"));
+      return istr(SL("abc::*str classes – ASCII character and substring search"));
    }
 
 
@@ -582,7 +582,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes - non-ASCII character and substring search")
+         SL("abc::*str classes – non-ASCII character and substring search")
       );
    }
 

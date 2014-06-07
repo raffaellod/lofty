@@ -89,7 +89,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::vector_base
+// abc::to_str_backend – specialization for abc::vector_base
 
 
 namespace abc {
@@ -144,7 +144,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::mvector
+// abc::to_str_backend – specialization for abc::mvector
 
 
 namespace abc {
@@ -165,7 +165,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::dmvector
+// abc::to_str_backend – specialization for abc::dmvector
 
 
 namespace abc {
@@ -186,7 +186,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::smvector
+// abc::to_str_backend – specialization for abc::smvector
 
 
 namespace abc {

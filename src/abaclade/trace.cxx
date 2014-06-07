@@ -73,7 +73,7 @@ io::text::writer * _scope_trace_impl::scope_render_start_or_continue() {
       // See similar condition in ~_scope_trace_impl().
       if (!m_bScopeRenderingStarted) {
          // Note: we don’t reset this variable in this method, but in ~_scope_trace_impl(), since
-         // that will always be called last in the destructor sequence - and it will always be
+         // that will always be called last in the destructor sequence – and it will always be
          // called.
          sm_bReentering = true;
       }

@@ -42,7 +42,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::enum-derived classes - basic operations"));
+      return istr(SL("abc::enum-derived classes – basic operations"));
    }
 
 

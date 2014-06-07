@@ -1067,7 +1067,7 @@ ABACLADE_SYM void throw_os_error(errint_t err) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::source_location
+// abc::to_str_backend – specialization for abc::source_location
 
 
 namespace abc {
@@ -1140,7 +1140,7 @@ exception & exception::operator=(exception const & x) {
    m_srcloc = x.m_srcloc;
    // Adopt the source’s in-flight status. See [DOC:8503 Stack tracing].
    // If the in-flight status is not changing, avoid the pointless (and dangerous, if done in this
-   // sequence - it could delete the trace writer if *this was the last reference to it)
+   // sequence – it could delete the trace writer if *this was the last reference to it)
    // release()/addref().
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
@@ -1264,7 +1264,7 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
    //    process, the value of si_code will always be less than or equal to zero. XSI applications
    //    should check whether si_code is SI_USER or SI_QUEUE in addition to checking whether it is
    //    less than or equal to zero.”
-   // So we do exactly that - except we skip checking for SI_USER and SI_QUEUE at this point because
+   // So we do exactly that – except we skip checking for SI_USER and SI_QUEUE at this point because
    // they don’t apply to many signals this handler takes care of.
    if (psi->si_code <= 0) {
       return;
@@ -1295,7 +1295,7 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 
          // There aren’t many codes here that are safe to handle; most of them indicate that there
          // is some major memory corruption going on, and in that case we really don’t want to keep
-         // on going - even the code to throw an exception could be compromised.
+         // on going – even the code to throw an exception could be compromised.
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
                ABC_THROW(abc::memory_access_error, (psi->si_addr));

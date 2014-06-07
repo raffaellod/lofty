@@ -158,7 +158,7 @@ As visible in the last two class data representations, objects can include multi
 of std::exception, which leads to ambiguity: for example, abc::io_error may be cast as both
 abc::exception → std:exception or as std::ios_base::failure → std::exception. While this does not
 trigger any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::io_error instance)
-will not be caught by a std::exception catch block, arguably due to said casting ambiguity - the
+will not be caught by a std::exception catch block, arguably due to said casting ambiguity – the
 MSVCRT might not know which of the two casts to favor.
 
 In the current implementation of the exception class hierarchy instead, the Abaclade and the STL

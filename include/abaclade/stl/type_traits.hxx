@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std globals - constants
+// std globals – constants
 
 namespace std {
 
@@ -50,7 +50,7 @@ typedef integral_constant<bool, false> false_type;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std globals - qualifier removal
+// std globals – qualifier removal
 
 
 namespace std {
@@ -79,7 +79,7 @@ struct remove_cv<T const volatile> {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std globals - type traits
+// std globals – type traits
 
 
 namespace std {
@@ -274,7 +274,7 @@ struct is_void : public _is_void_helper<typename remove_cv<T>::type> {};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std globals - type changers
+// std globals – type changers
 
 
 namespace std {
@@ -337,7 +337,7 @@ struct remove_reference<T &&> {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std globals - conditionals
+// std globals – conditionals
 
 
 namespace std {

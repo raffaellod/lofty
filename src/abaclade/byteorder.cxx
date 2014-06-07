@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - helpers for abc::byteorder globals
+// :: globals – helpers for abc::byteorder globals
 
 
 #ifndef ABC_HAVE_BSWAP

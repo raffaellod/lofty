@@ -23,7 +23,7 @@ mind:
 
 Here’s what Abaclade has to offer, compared to other libraries/frameworks:
 •  Full support for stack dumps (like Python or Java);
-•  Programs don’t just crash - every error is an exception (including e.g.
+•  Programs don’t just crash – every error is an exception (including e.g.
    accessing a null pointer);
 •  Rich exception class hierarchy, allowing for clean-looking error handling;
 •  C++-only (unlike, say, glib), so it was designed around features of the
@@ -67,16 +67,16 @@ Supported build systems:
 
 •  GNU toolchain
    •  GCC 4.3.0 to 4.7.x (4.8.x to be tested)
-   •  binutils (version to be determined - anything from 2010 on should work)
+   •  binutils (version to be determined – anything from 2010 on should work)
 
 •  Microsoft toolchain
    •  Visual C++ 10 (MSC 16 / Visual Studio 2010)
 
 Supported operating systems:
 
-•  GNU/Linux - specifically GCC/glibc/GNU/Linux, due to some necessary
+•  GNU/Linux – specifically GCC/glibc/GNU/Linux, due to some necessary
    exception handling-related features;
-•  Microsoft Windows - temporarily only via Visual C++ 10, which means only
+•  Microsoft Windows – temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
 Additionally, Abaclade requires Python 3.2 or later to be installed on the host

@@ -61,7 +61,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for c_str_to_str_adapter
+// abc::to_str_backend – specialization for c_str_to_str_adapter
 
 
 namespace abc {
@@ -144,7 +144,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specializations for pointer types
+// abc::to_str_backend – specializations for pointer types
 
 
 namespace abc {

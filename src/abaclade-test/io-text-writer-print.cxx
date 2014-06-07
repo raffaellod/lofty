@@ -35,7 +35,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::io::text::writer::print() - no replacements"));
+      return istr(SL("abc::io::text::writer::print() – no replacements"));
    }
 
 
@@ -92,7 +92,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::io::text_writer::print() - one replacement"));
+      return istr(SL("abc::io::text_writer::print() – one replacement"));
    }
 
 
@@ -155,7 +155,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::io::text_writer::print() - two replacements"));
+      return istr(SL("abc::io::text_writer::print() – two replacements"));
    }
 
 

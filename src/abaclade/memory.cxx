@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - standard new/delete operators
+// :: globals – standard new/delete operators
 
 
 #if ABC_HOST_MSC
@@ -67,7 +67,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals - management
+// abc::memory globals – management
 
 
 namespace abc {

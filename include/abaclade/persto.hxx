@@ -48,7 +48,7 @@ General design:
    smart pointer described above; this allows to have on-demand loading for persistable class
    hierarchies.
 
-•  The “unload” class method of a persistable class - TODO: when is this invoked?
+•  The “unload” class method of a persistable class – TODO: when is this invoked?
 
 •  When the reference count of a persistable shared smart pointer drops to zero, the “free” class
    method of the persistable class is invoked to discard the storage server’s data related to the
@@ -63,7 +63,7 @@ General design:
 
    •  Server read caching: TODO: while the server might not have a use for a read cache, it needs
       a special preload cache, discarded quickly if not used. The server probably also needs a row
-      metadata cache, to keep in-memory metadata for the most recently/often used rows - see below.
+      metadata cache, to keep in-memory metadata for the most recently/often used rows – see below.
 
    •  Server write caching: TODO: maybe writes should be grouped in batches, to reduce the number
       of waits for locks when a large number of rows is written at once?

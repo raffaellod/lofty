@@ -102,7 +102,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for bool
+// abc::to_str_backend – specialization for bool
 
 
 namespace abc {
@@ -391,7 +391,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for integer types
+// abc::to_str_backend – specialization for integer types
 
 
 namespace abc {

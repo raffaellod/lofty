@@ -58,7 +58,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::enum_impl
+// abc::to_str_backend – specialization for abc::enum_impl
 
 
 namespace abc {

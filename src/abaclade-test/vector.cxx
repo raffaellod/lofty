@@ -38,7 +38,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*vector classes - basic operations"));
+      return istr(SL("abc::*vector classes – basic operations"));
    }
 
 
@@ -104,7 +104,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*vector classes - operations with iterators"));
+      return istr(SL("abc::*vector classes – operations with iterators"));
    }
 
 
@@ -150,7 +150,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*vector classes - removal of trivial elements"));
+      return istr(SL("abc::*vector classes – removal of trivial elements"));
    }
 
 
@@ -362,7 +362,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*vector classes - memory management"));
+      return istr(SL("abc::*vector classes – memory management"));
    }
 
 
@@ -553,7 +553,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*vector classes - item and item array movement"));
+      return istr(SL("abc::*vector classes – item and item array movement"));
    }
 
 

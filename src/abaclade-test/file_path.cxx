@@ -36,7 +36,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path - normalization of relative and absolute paths"));
+      return istr(SL("abc::file_path – normalization of relative and absolute paths"));
    }
 
 
@@ -171,7 +171,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path - normalization of joined paths"));
+      return istr(SL("abc::file_path – normalization of joined paths"));
    }
 
 

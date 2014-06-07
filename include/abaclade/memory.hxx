@@ -70,7 +70,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - standard new/delete operators
+// :: globals – standard new/delete operators
 
 
 #if ABC_HOST_MSC
@@ -96,7 +96,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals - manual memory management
+// abc::memory globals – manual memory management
 
 
 namespace abc {
@@ -272,7 +272,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals - smart pointer-based memory management
+// abc::memory globals – smart pointer-based memory management
 
 
 namespace abc {
@@ -321,7 +321,7 @@ inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals - manipulation
+// abc::memory globals – manipulation
 
 
 namespace abc {

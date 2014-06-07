@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend - specialization for abc::source_location
+// abc::to_str_backend – specialization for abc::source_location
 
 
 namespace abc {

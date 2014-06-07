@@ -79,7 +79,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals - storage allocation and deallocation
+// :: globals – storage allocation and deallocation
 
 
 // Single-object new and delete (C++11 § 18.6.1.1 “Single-object forms”).
