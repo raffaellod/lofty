@@ -1052,6 +1052,11 @@ public:
       mstr(0) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
+   template <size_t t_cch>
+   dmstr(char_t const (& ach)[t_cch]) :
+      mstr(0) {
+      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   }
    dmstr(char_t const * pchBegin, char_t const * pchEnd) :
       mstr(0) {
       assign_copy(pchBegin, pchEnd);
@@ -1069,6 +1074,8 @@ public:
 
    s
       Source string.
+   ach
+      Source NUL-terminated string literal.
    return
       *this.
    */
@@ -1096,6 +1103,11 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr & operator=(mstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
+      return *this;
+   }
+   template <size_t t_cch>
+   dmstr & operator=(char_t const (& ach)[t_cch]) {
+      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
    }
 
@@ -1280,12 +1292,19 @@ public:
       mstr(smc_cbStaticCapacity) {
       assign_move(std::move(s));
    }
+   template <size_t t_cch>
+   smstr(char_t const (& ach)[t_cch]) :
+      mstr(smc_cbStaticCapacity) {
+      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   }
 
 
    /** Assignment operator.
 
    s
       Source string.
+   ach
+      Source NUL-terminated string literal.
    return
       *this.
    */
@@ -1316,6 +1335,11 @@ public:
    }
    smstr & operator=(dmstr && s) {
       assign_move(std::move(s));
+      return *this;
+   }
+   template <size_t t_cch>
+   smstr & operator=(char_t const (& ach)[t_cch]) {
+      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
    }
 
