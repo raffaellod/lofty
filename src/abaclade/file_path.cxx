@@ -379,7 +379,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 }
 
 
-/*static*/ size_t file_path::get_root_length(dmstr const & s, bool bIncludeNonRoot) {
+/*static*/ size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
 
    static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);

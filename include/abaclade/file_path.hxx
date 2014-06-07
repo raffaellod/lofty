@@ -93,10 +93,7 @@ public:
    file_path(file_path && fp) :
       m_s(std::move(fp.m_s)) {
    }
-   file_path(istr const & s) :
-      m_s(validate_and_adjust(s)) {
-   }
-   file_path(mstr && s) :
+   file_path(dmstr s) :
       m_s(validate_and_adjust(std::move(s))) {
    }
 
@@ -118,11 +115,7 @@ public:
       m_s = std::move(fp.m_s);
       return *this;
    }
-   file_path & operator=(istr const & s) {
-      m_s = validate_and_adjust(s);
-      return *this;
-   }
-   file_path & operator=(mstr && s) {
+   file_path & operator=(dmstr s) {
       m_s = validate_and_adjust(std::move(s));
       return *this;
    }
@@ -390,7 +383,7 @@ private:
    return
       Length of the root part in s, or 0 if s does not start with a root part.
    */
-   static size_t get_root_length(dmstr const & s, bool bIncludeNonAbsolute);
+   static size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
 
 
    /** Returns true if the specified string represents an absolute path. Under Win32, this means
