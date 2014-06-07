@@ -400,6 +400,13 @@ namespace abc {
 types.
 */
 class ABACLADE_SYM _raw_vextr_impl_base {
+public:
+
+   /** Dummy item array type used for the calculation of offsets that will then be applied to real
+   instantiations of the item array template. */
+   typedef _raw_vextr_item_array<int8_t, 1> dummy_item_array;
+
+
 protected:
 
    /** Allows to get a temporary item array from a pool of options, then work with it, and upon
@@ -628,6 +635,21 @@ protected:
    }
 
 
+   /** Returns a pointer to an item array structure from a pointer to its item array.
+
+   pBegin
+      Pointer to the first item in the item array.
+   */
+   static dummy_item_array const * item_array_from_begin(void const * pBegin) {
+      // Subtract from pBegin the offset of the item array.
+      return reinterpret_cast<dummy_item_array const *>(
+         static_cast<int8_t const *>(pBegin) - reinterpret_cast<ptrdiff_t>(
+            &reinterpret_cast<dummy_item_array *>(uintptr_t(256))->m_at[0]
+         )
+      );
+   }
+
+
    /** Returns a pointer to the static item array that follows this object, if present, or nullptr
    otherwise.
 
@@ -723,7 +745,7 @@ protected:
 */
 class _raw_vextr_impl_base_with_static_item_array :
    public _raw_vextr_impl_base,
-   public _raw_vextr_item_array<int8_t, 1> {
+   public _raw_vextr_impl_base::dummy_item_array {
 };
 
 
