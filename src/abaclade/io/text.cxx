@@ -61,13 +61,12 @@ void reader::read_all(mstr * ps) {
    ABC_TRACE_FUNC(this, ps);
 
    read_while(ps, [] (
-      char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
-   ) -> char_t const * {
-      ABC_UNUSED_ARG(pchBegin);
-      ABC_UNUSED_ARG(pchLastReadBegin);
+      istr const & sRead, istr::const_iterator itLastReadBegin
+   ) -> istr::const_iterator {
+      ABC_UNUSED_ARG(itLastReadBegin);
 
       // Unconditionally consume the entire string and ask for more characters.
-      return pchEnd;
+      return sRead.cend();
    });
 }
 
@@ -77,40 +76,40 @@ bool reader::read_line(mstr * ps) {
 
    size_t cchLTerm(0);
    bool bEOF(read_while(ps, [this, &cchLTerm] (
-      char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
-   ) -> char_t const * {
-      ABC_TRACE_FUNC(this, pchBegin, pchLastReadBegin, pchEnd);
+      istr const & sRead, istr::const_iterator itLastReadBegin
+   ) -> istr::const_iterator {
+      ABC_TRACE_FUNC(this, sRead, itLastReadBegin);
 
       // Since line terminators can be more than one character long, back up one character first (if
       // we have at least one), to avoid missing the line terminator due to searching for it one
       // character beyond its start.
-      char_t const * pchBeforeLastReadBegin(std::max(pchBegin, pchLastReadBegin - 1));
+      istr::const_iterator itBeforeLastReadBegin(std::max(sRead.cbegin(), itLastReadBegin - 1));
 
       // If the line terminator isn’t known yet, try to detect it now.
       if (m_lterm == abc::text::line_terminator::unknown) {
-         m_lterm = abc::text::guess_line_terminator(pchBeforeLastReadBegin, pchEnd);
+         m_lterm = abc::text::guess_line_terminator(
+            itBeforeLastReadBegin.base(), sRead.cend().base()
+         );
          // If no line terminator was detected, consume the entire string and ask for more
          // characters.
          if (m_lterm == abc::text::line_terminator::unknown) {
-            return pchEnd;
+            return sRead.cend();
          }
       }
 
       // Pick the appropriate line terminator string…
       istr sLTerm(abc::text::get_line_terminator_str(m_lterm));
       // …and search for it.
-      char_t const * pchLineEnd(abc::str_base::_str_str(
-         pchBeforeLastReadBegin, pchEnd, sLTerm.cbegin().base(), sLTerm.cend().base()
-      ));
+      auto itLineEnd(sRead.find(sLTerm, itBeforeLastReadBegin));
       // If the line terminator was not found, consume the entire string and ask for more
       // characters.
-      if (pchLineEnd == pchEnd) {
-         return pchEnd;
+      if (itLineEnd == sRead.cend()) {
+         return itLineEnd;
       }
       // Consume the string up to and including the line terminator; after read_while() we’ll strip
       // the line terminator (cchLTerm characters) from the string.
       cchLTerm = sLTerm.size();
-      return pchLineEnd + cchLTerm;
+      return itLineEnd + ptrdiff_t(cchLTerm);
    }));
    // Remove the line terminator from the end of the string.
    if (cchLTerm) {
@@ -371,7 +370,7 @@ binbuf_reader::binbuf_reader(
 
 
 /*virtual*/ bool binbuf_reader::read_while(mstr * ps, std::function<
-   char_t const * (char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd)
+   istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
 > fnGetConsumeEnd) {
    ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 
@@ -430,9 +429,9 @@ binbuf_reader::binbuf_reader(
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
-         char_t const * pchDstConsumeEnd(
-            fnGetConsumeEnd(pchDstBegin, pchDstOffset, pchDstOffset + cchBuf)
-         );
+         char_t const * pchDstConsumeEnd(fnGetConsumeEnd(
+            istr(unsafe, pchDstBegin, cchReadTotal + cchBuf), istr::const_iterator(pchDstOffset)
+         ).base());
          size_t cchConsumed(size_t(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
@@ -474,9 +473,10 @@ binbuf_reader::binbuf_reader(
          );
 
          // Determine how much of the string is to be consumed.
-         char_t const * pchDstConsumeEnd(
-            fnGetConsumeEnd(pchDstBegin, pchDstOffset, pchDstEnd)
-         );
+         char_t const * pchDstConsumeEnd(fnGetConsumeEnd(
+            istr(unsafe, pchDstBegin, size_t(pchDstEnd - pchDstBegin)),
+            istr::const_iterator(pchDstOffset)
+         ).base());
          // If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
          // destination size to the consumed range of characters; this will yield the count of bytes
          // to consume.

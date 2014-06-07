@@ -93,7 +93,7 @@ str_reader::str_reader(
 
 
 /*virtual*/ bool str_reader::read_while(mstr * ps, std::function<
-   char_t const * (char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd)
+   istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
 > fnGetConsumeEnd) {
    ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 

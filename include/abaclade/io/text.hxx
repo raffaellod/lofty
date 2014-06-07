@@ -119,23 +119,21 @@ public:
       Pointer to the string that will receive the read data.
    fnGetConsumeEnd
       Callback that is invoked after each internal read.
-      pchBegin
-         Pointer to the first character in the string.
-      pchLastReadBegin
-         Pointer to the start of the last read portion of the string. The callback can use this to
-         avoid re-scanning portions of the string that it has seen before.
-      pchEnd
-         Pointer to beyond the end of the string.
+      sRead
+         String containing every character read by this invocation of read_while() up to this point.
+      itLastReadBegin
+         Iterator to the start of the last read portion of sRead. The callback can use this to avoid
+         re-scanning portions of the string that it has seen before.
       return
-         Pointer to beyond the last character to be consumed, i.e. that the callback wants
+         Iterator to beyond the last character to be consumed, i.e. that the callback wants
          read_while() to include in the destination string (*ps).
    return
       true if a string could be read, or false if the end of the data was reached, in which case *ps
       is left in an undetermined state.
    */
-   virtual bool read_while(mstr * ps, std::function<char_t const * (
-      char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
-   )> fnGetConsumeEnd) = 0;
+   virtual bool read_while(mstr * ps, std::function<
+      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+   > fnGetConsumeEnd) = 0;
 
 
 protected:
@@ -924,9 +922,9 @@ public:
 
    /** See reader::read_while().
    */
-   virtual bool read_while(mstr * ps, std::function<char_t const * (
-      char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
-   )> fnGetConsumeEnd);
+   virtual bool read_while(mstr * ps, std::function<
+      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+   > fnGetConsumeEnd);
 
 
 protected:

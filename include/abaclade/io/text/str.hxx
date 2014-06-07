@@ -108,9 +108,9 @@ public:
 
    /** See reader::read_while().
    */
-   virtual bool read_while(mstr * ps, std::function<char_t const * (
-      char_t const * pchBegin, char_t const * pchLastReadBegin, char_t const * pchEnd
-   )> fnGetConsumeEnd);
+   virtual bool read_while(mstr * ps, std::function<
+      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+   > fnGetConsumeEnd);
 
 
 protected:
