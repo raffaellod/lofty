@@ -183,50 +183,6 @@ public:
    static size_t str_len(char8_t const * psz);
 
 
-   /** Returns the character index of the first occurrence of a string into another.
-
-   UTF validity: necessary.
-
-   pchHaystackBegin
-      Pointer to the first character of the string to be searched.
-   pchHaystackEnd
-      Pointer to beyond the last character of the string to be searched.
-   pchNeedleBegin
-      Pointer to the first character of the string to search for.
-   pchNeedleEnd
-      Pointer to beyond the last character of the string to search for.
-   return
-      Pointer to the beginning of the first match, in the string to be searched, of the string to
-      search for, or nullptr if no matches are found.
-   */
-   static char8_t const * str_str(
-      char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
-      char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
-   );
-
-
-   /** Returns the character index of the last occurrence of a string into another.
-
-   UTF validity: necessary.
-
-   pchHaystackBegin
-      Pointer to the first character of the string to be searched.
-   pchHaystackEnd
-      Pointer to beyond the last character of the string to be searched.
-   pchNeedleBegin
-      Pointer to the first character of the string to search for.
-   pchNeedleEnd
-      Pointer to beyond the last character of the string to search for.
-   return
-      Pointer to the beginning of the last match, in the string to be searched, of the string to
-      search for, or nullptr if no matches are found.
-   */
-   static char8_t const * str_str_r(
-      char8_t const * pchHaystackBegin, char8_t const * pchHaystackEnd,
-      char8_t const * pchNeedleBegin, char8_t const * pchNeedleEnd
-   );
-
-
 private:
 
    /** Maps each UTF-8 leading byte to the length of its continuation. */
@@ -286,22 +242,6 @@ public:
    /** See utf8_traits::str_len().
    */
    static size_t str_len(char16_t const * psz);
-
-
-   /** See utf8_traits::str_str().
-   */
-   static char16_t const * str_str(
-      char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
-      char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
-   );
-
-
-   /** See utf8_traits::str_str_r().
-   */
-   static char16_t const * str_str_r(
-      char16_t const * pchHaystackBegin, char16_t const * pchHaystackEnd,
-      char16_t const * pchNeedleBegin, char16_t const * pchNeedleEnd
-   );
 };
 
 // Specialization for UTF-32.
@@ -354,22 +294,6 @@ public:
    /** See utf8_traits::str_len().
    */
    static size_t str_len(char32_t const * psz);
-
-
-   /** See utf8_traits::str_str().
-   */
-   static char32_t const * str_str(
-      char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
-      char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
-   );
-
-
-   /** See utf8_traits::str_str_r().
-   */
-   static char32_t const * str_str_r(
-      char32_t const * pchHaystackBegin, char32_t const * pchHaystackEnd,
-      char32_t const * pchNeedleBegin, char32_t const * pchNeedleEnd
-   );
 };
 
 } //namespace text
