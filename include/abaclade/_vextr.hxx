@@ -128,22 +128,32 @@ for, and it means that mstr should not be used in container classes.
 
 This table illustrates the best type of string to use for each use scenario:
 
-   ┌────────────────────────────────────────────────────────────────────────┬──────────────────────┐
-   │ Functional need                                                        │ Suggested type       │
-   ├────────────────────────────────────────────────────────────────────────┼──────────────────────┤
-   │ Local/member constant                                                  │ istr const           │
-   │ Local/member immutable variable (can be assigned to, but not modified) │ istr                 │
-   │ Local/member variable                                                  │ smstr<expected size> │
-   │ Function argument (input-only)                                         │ istr const &         │
-   │ Function argument (output-only)                                        │ mstr *               │
-   │ Function argument (non-const input)                                    │ mstr &               │
-   │ Function return value (from string literal)                            │ istr                 │
-   │ Function return value (read-only reference to non-local variable)      │ istr const &         │
-   │ Function return value (from local temporary string)                    │ dmstr                │
-   │ Function return value (reference to non-local variable)                │ mstr &               │
-   │ Value in container classes                                             │ any except mstr      │
-   │ Key in hash-based container classes                                    │ istr const           │
-   └────────────────────────────────────────────────────────────────────────┴──────────────────────┘
+   ┌───────────────────────────────────────────────────────┬──────────────────────┐
+   │ Functional need                                       │ Suggested type       │
+   ├───────────────────────────────────────────────────────┼──────────────────────┤
+   │ Local/member constant                                 │ istr const           │
+   │                                                       │                      │
+   │ Local/member immutable variable                       │ istr                 │
+   │ (can be assigned to, but not modified)                │                      │
+   │                                                       │                      │
+   │ Local/member variable                                 │ smstr<expected size> │
+   │                                                       │                      │
+   │ Function argument                                     │                      │
+   │ •  Input-only, temporary usage                        │ istr const &         │
+   │ •  Input-only, to be moved to dmstr with longer scope │ dmstr                │
+   │ •  Output-only (value on input ignored)               │ mstr *               │
+   │ •  Non-const input                                    │ mstr &               │
+   │                                                       │                      │
+   │ Function return value                                 │                      │
+   │ •  From string literal                                │ istr                 │
+   │ •  Read-only reference to non-local variable          │ istr const &         │
+   │ •  From local temporary string                        │ dmstr                │
+   │ •  Reference to non-local variable                    │ mstr &               │
+   │                                                       │                      │
+   │ Value in container classes                            │ any except mstr      │
+   │                                                       │                      │
+   │ Key in hash-based container classes                   │ istr const           │
+   └───────────────────────────────────────────────────────┴──────────────────────┘
 
 
 Last but not least, let’s look at the underlying data storage in some of the possible semantic
