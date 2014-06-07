@@ -299,30 +299,26 @@ bool str_base::starts_with(istr const & s) const {
       // a pair of differing bytes is found, if they are part of a sequence, its start must have
       // been the same, so only their absolute value matters; if they started a sequence, the first
       // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+      // Surrogates mess with the ability to just compare the absolute char16_t value.
+      bool bIsSurrogate1((ch1 & 0xf800) == 0xd800), bIsSurrogate2((ch2 & 0xf800) == 0xd800);
+      if (bIsSurrogate1 != bIsSurrogate2) {
+         if (bIsSurrogate1) {
+            // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
+            return +1;
+         } else /*if (bIsSurrogate2)*/ {
+            // If ch2 is a surrogate and ch1 is not, ch1 < ch2.
+            return -1;
+         }
+      }
+      // The characters are both regular or surrogates. Since a difference in lead surrogate
+      // generates bias, we only get to compare trails if the leads were equal.
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
       if (ch1 > ch2) {
          return +1;
       } else if (ch1 < ch2) {
          return -1;
       }
-#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-      // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bSurr1((ch1 & 0xf800) == 0xd800), bSurr2((ch2 & 0xf800) == 0xd800);
-      if (bSurr1 == bSurr2) {
-         // The characters are both regular or surrogates. Since a difference in lead surrogate
-         // generates bias, we only get to compare trails if the leads were equal.
-         if (ch1 > ch2) {
-            return +1;
-         } else if (ch1 < ch2) {
-            return -1;
-         }
-      } else if (bSurr1) {
-         // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
-         return +1;
-      } else /*if (bSurr2)*/ {
-         // If ch2 is a surrogate and ch1 is not, ch1 < ch2.
-         return -1;
-      }
-#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
    }
    // If we’re still here, the string that didn’t run out of characters wins.
    if (pch1 < pch1End) {
