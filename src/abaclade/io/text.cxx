@@ -436,7 +436,7 @@ binbuf_reader::binbuf_reader(
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
 
-         // Read some more bytes; the rationale behind this count is explained above.
+         // Read some more bytes; see comment to this same line at the beginning of this method.
          std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
       }
    } else {
@@ -501,7 +501,7 @@ binbuf_reader::binbuf_reader(
          cchReadTotal += size_t(pchDstConsumeEnd - pchDstOffset);
          m_pbbr->consume_bytes(cbSrcConsumed);
 
-         // Read some more bytes; the rationale behind this count is explained above.
+         // Read some more bytes; see comment to this same line at the beginning of this method.
          std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
       }
    }
