@@ -420,7 +420,7 @@ public:
    */
    ~_raw_vextr_impl_base() {
       if (m_rvpd.dynamic()) {
-         memory::_raw_free(m_pBegin);
+         memory::_raw_free(item_array());
       }
    }
 
@@ -550,18 +550,16 @@ protected:
    }
 
 
-   /** Returns a pointer to an item array structure from a pointer to its item array.
+   /** Returns a pointer to the current item array structure.
 
-   pBegin
-      Pointer to the first item in the item array.
+   return
+      Pointer to the item array.
    */
-   static dummy_item_array const * item_array_from_begin(void const * pBegin) {
-      // Subtract from pBegin the offset of the item array.
-      return reinterpret_cast<dummy_item_array const *>(
-         static_cast<int8_t const *>(pBegin) - reinterpret_cast<ptrdiff_t>(
-            &reinterpret_cast<dummy_item_array *>(uintptr_t(256))->m_at[0]
-         )
-      );
+   dummy_item_array * item_array() {
+      // Subtract from m_pBegin the offset of the item array.
+      return reinterpret_cast<dummy_item_array *>(begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
+         &reinterpret_cast<dummy_item_array *>(0)->m_at[0]
+      ));
    }
 
 

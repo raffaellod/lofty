@@ -213,20 +213,25 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
             m_prvib->size<int8_t>(), cbNew
          ));
+         typedef _raw_vextr_impl_base::dummy_item_array item_array;
+         size_t cbNewItemArray(sizeof(item_array) - sizeof(item_array::m_at) + cbNewCapacity);
+         item_array * pdia;
          if (m_prvib->m_rvpd.dynamic()) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
-            m_prvib->m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbNewCapacity);
+            pdia = m_prvib->item_array();
+            pdia = static_cast<item_array *>(memory::_raw_realloc(pdia, cbNewItemArray));
+            m_prvib->m_pBegin = pdia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
             m_prvib->m_rvpd.set_capacity(cbNewCapacity);
-            m_rvibWork.m_pBegin = m_prvib->m_pBegin;
          } else {
             // Allocate a new item array.
-            m_rvibWork.m_pBegin = memory::_raw_alloc(cbNewCapacity);
+            pdia = static_cast<item_array *>(memory::_raw_alloc(cbNewItemArray));
             m_rvibWork.m_rvpd.set_dynamic(true);
             m_bFree = true;
          }
+         m_rvibWork.m_pBegin = pdia->m_at;
          m_rvibWork.m_rvpd.set_capacity(cbNewCapacity);
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
