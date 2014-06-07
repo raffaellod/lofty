@@ -154,7 +154,7 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
 
    validate_pointer(itWhence.base());
    auto itEnd(cend());
-   char_t const * pch(_str_chr(itWhence.base(), itEnd.base(), chNeedle));
+   char_t const * pch(str_chr(itWhence.base(), itEnd.base(), chNeedle));
    return pch ? const_iterator(pch) : itEnd;
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
@@ -162,7 +162,7 @@ str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itW
 
    validate_pointer(itWhence.base());
    auto itEnd(cend());
-   char_t const * pch(_str_str(
+   char_t const * pch(str_str(
       itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
    ));
    return pch ? const_iterator(pch) : itEnd;
@@ -173,14 +173,14 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(_str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
+   char_t const * pch(str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
    return pch ? const_iterator(pch) : cend();
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(_str_str_r(
+   char_t const * pch(str_str_r(
       cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
    ));
    return pch ? const_iterator(pch) : cend();
@@ -197,7 +197,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-/*static*/ char_t const * str_base::_str_chr(
+/*static*/ char_t const * str_base::str_chr(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
@@ -214,10 +214,10 @@ bool str_base::starts_with(istr const & s) const {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[traits::max_codepoint_length];
       traits::from_utf32(chNeedle, achNeedle);
-      return _str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
+      return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
-/*static*/ char_t const * str_base::_str_chr(
+/*static*/ char_t const * str_base::str_chr(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const* pchNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
@@ -262,7 +262,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-/*static*/ char_t const * str_base::_str_chr_r(
+/*static*/ char_t const * str_base::str_chr_r(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
@@ -280,12 +280,12 @@ bool str_base::starts_with(istr const & s) const {
       // above, so just do a regular substring reverse search.
       char_t achNeedle[traits::max_codepoint_length];
       unsigned cchSeq(traits::from_utf32(chNeedle, achNeedle));
-      return _str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
+      return str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
    }
 }
 
 
-/*static*/ void str_base::_str_str_build_failure_restart_table(
+/*static*/ void str_base::str_str_build_failure_restart_table(
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
@@ -318,7 +318,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-/*static*/ char_t const * str_base::_str_str(
+/*static*/ char_t const * str_base::str_str(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
 ) {
@@ -347,7 +347,7 @@ bool str_base::starts_with(istr const & s) const {
 
       // Build the failure restart table.
       smvector<size_t, 64> vcchFailNext;
-      _str_str_build_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
+      str_str_build_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
 
       size_t iFailNext(0);
       while (pchHaystack < pchHaystackEnd) {
@@ -395,7 +395,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-/*static*/ char_t const * str_base::_str_str_r(
+/*static*/ char_t const * str_base::str_str_r(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
 ) {

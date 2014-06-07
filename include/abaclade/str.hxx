@@ -521,7 +521,7 @@ protected:
    }
 
 
-public:
+protected:
 
    // Lower-level helpers used internally by several methods.
 
@@ -543,10 +543,10 @@ public:
       Pointer to the beginning of the first match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
-   static char_t const * _str_chr(
+   static char_t const * str_chr(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
-   static char_t const * _str_chr(
+   static char_t const * str_chr(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const * pchNeedle
    );
 
@@ -564,7 +564,7 @@ public:
       Pointer to the beginning of the last match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
-   static char_t const * _str_chr_r(
+   static char_t const * str_chr_r(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
 
@@ -583,7 +583,7 @@ public:
       Pointer to the beginning of the first match, in the string to be searched, of the string to
       search for, or nullptr if no matches are found.
    */
-   static char_t const * _str_str(
+   static char_t const * str_str(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
@@ -603,7 +603,7 @@ public:
       Pointer to the beginning of the last match, in the string to be searched, of the string to
       search for, or nullptr if no matches are found.
    */
-   static char_t const * _str_str_r(
+   static char_t const * str_str_r(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
@@ -619,7 +619,7 @@ public:
    pvcchFailNext
       Pointer to a vector that will receive the failure restart indices.
    */
-   static void _str_str_build_failure_restart_table(
+   static void str_str_build_failure_restart_table(
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
    );
 
