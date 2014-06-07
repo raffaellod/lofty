@@ -27,91 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-_raw_vextr_impl_base::transaction::transaction(_raw_vextr_impl_base * prvib, size_t cbNew) :
-   m_rvpd(prvib->m_rvpd) {
-   ABC_TRACE_FUNC(this, prvib, cbNew);
-
-   _construct(prvib, cbNew);
-}
-_raw_vextr_impl_base::transaction::transaction(
-   _raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove
-) :
-   m_rvpd(prvib->m_rvpd) {
-   ABC_TRACE_FUNC(this, prvib, cbAdd, cbRemove);
-
-   _construct(prvib, prvib->size<int8_t>() + cbAdd - cbRemove);
-}
-
-
-void _raw_vextr_impl_base::transaction::commit() {
-   ABC_TRACE_FUNC(this);
-
-   // If we are abandoning the old item array, proceed to destruct it if necessary.
-   if (m_pBegin != m_prvib->m_pBegin) {
-      m_prvib->~_raw_vextr_impl_base();
-      m_prvib->m_pBegin = m_pBegin;
-      // This object no longer owns the temporary item array.
-      m_bFree = false;
-   }
-   // Update the target object.
-   m_prvib->m_pEnd = m_pEnd;
-   m_prvib->m_rvpd = m_rvpd;
-   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
-}
-
-
-void _raw_vextr_impl_base::transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
-   ABC_TRACE_FUNC(this, prvib, cbNew);
-
-   m_prvib = prvib;
-   m_bFree = false;
-
-   if (cbNew == 0) {
-      // Empty string/array: no need to use an item array.
-      m_pBegin = m_pEnd = nullptr;
-      // A read-only item array has no capacity.
-      m_rvpd.set_capacity(0);
-      m_rvpd.set_dynamic(false);
-   } else {
-      // This will return 0 if there’s no static item array.
-      size_t cbStaticCapacity(m_prvib->static_capacity());
-      if (cbNew <= cbStaticCapacity) {
-         // The static item array is large enough; switch to using it.
-         m_pBegin = m_prvib->static_array_ptr<void>();
-         m_rvpd.set_capacity(cbStaticCapacity);
-         m_rvpd.set_dynamic(false);
-      } else if (cbNew <= m_prvib->m_rvpd.capacity()) {
-         // The current item array is large enough, no need to change anything.
-         m_pBegin = m_prvib->m_pBegin;
-      } else {
-         // The current item array (static or dynamic) is not large enough.
-
-         // Calculate the total allocation size.
-         size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
-            m_prvib->size<int8_t>(), cbNew
-         ));
-         if (m_prvib->m_rvpd.dynamic()) {
-            // Resize the current dynamically-allocated item array. Notice that the reallocation is
-            // effective immediately, which means that m_prvib must be updated now – if no
-            // exceptions are thrown, that is.
-            m_prvib->m_pBegin = m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbNewCapacity);
-            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
-            m_prvib->m_rvpd.set_capacity(cbNewCapacity);
-         } else {
-            // Allocate a new item array.
-            m_pBegin = memory::_raw_alloc(cbNewCapacity);
-            m_rvpd.set_dynamic(true);
-            m_bFree = true;
-         }
-         m_rvpd.set_capacity(cbNewCapacity);
-      }
-      m_pEnd = static_cast<int8_t *>(m_pBegin) + cbNew;
-   }
-   // Any change in size voids the NUL termination of the item array.
-   m_rvpd.set_nul_terminated(false);
-}
-
-
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
@@ -230,6 +145,100 @@ void _raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_raw_vextr_transaction
+
+
+namespace abc {
+
+_raw_vextr_transaction::_raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew) :
+   m_rvibWork(prvib->m_rvpd) {
+   ABC_TRACE_FUNC(this, prvib, cbNew);
+
+   _construct(prvib, cbNew);
+}
+_raw_vextr_transaction::_raw_vextr_transaction(
+   _raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove
+) :
+   m_rvibWork(prvib->m_rvpd) {
+   ABC_TRACE_FUNC(this, prvib, cbAdd, cbRemove);
+
+   _construct(prvib, prvib->size<int8_t>() + cbAdd - cbRemove);
+}
+
+
+void _raw_vextr_transaction::commit() {
+   ABC_TRACE_FUNC(this);
+
+   // If we are abandoning the old item array, proceed to destruct it if necessary.
+   if (m_rvibWork.m_pBegin != m_prvib->m_pBegin) {
+      m_prvib->~_raw_vextr_impl_base();
+      m_prvib->m_pBegin = m_rvibWork.m_pBegin;
+      // This object no longer owns the temporary item array.
+      m_bFree = false;
+   }
+   // Update the target object.
+   m_prvib->m_pEnd = m_rvibWork.m_pEnd;
+   m_prvib->m_rvpd = m_rvibWork.m_rvpd;
+   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
+}
+
+
+void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
+   ABC_TRACE_FUNC(this, prvib, cbNew);
+
+   m_prvib = prvib;
+   m_bFree = false;
+
+   if (cbNew == 0) {
+      // Empty string/array: no need to use an item array.
+      m_rvibWork.m_pBegin = m_rvibWork.m_pEnd = nullptr;
+      // A read-only item array has no capacity.
+      m_rvibWork.m_rvpd.set_capacity(0);
+      m_rvibWork.m_rvpd.set_dynamic(false);
+   } else {
+      // This will return 0 if there’s no static item array.
+      size_t cbStaticCapacity(m_prvib->static_capacity());
+      if (cbNew <= cbStaticCapacity) {
+         // The static item array is large enough; switch to using it.
+         m_rvibWork.m_pBegin = m_prvib->static_array_ptr<void>();
+         m_rvibWork.m_rvpd.set_capacity(cbStaticCapacity);
+         m_rvibWork.m_rvpd.set_dynamic(false);
+      } else if (cbNew <= m_prvib->m_rvpd.capacity()) {
+         // The current item array is large enough, no need to change anything.
+         m_rvibWork.m_pBegin = m_prvib->m_pBegin;
+      } else {
+         // The current item array (static or dynamic) is not large enough.
+
+         // Calculate the total allocation size.
+         size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
+            m_prvib->size<int8_t>(), cbNew
+         ));
+         if (m_prvib->m_rvpd.dynamic()) {
+            // Resize the current dynamically-allocated item array. Notice that the reallocation is
+            // effective immediately, which means that m_prvib must be updated now – if no
+            // exceptions are thrown, that is.
+            m_prvib->m_pBegin = memory::_raw_realloc(m_prvib->m_pBegin, cbNewCapacity);
+            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
+            m_prvib->m_rvpd.set_capacity(cbNewCapacity);
+            m_rvibWork.m_pBegin = m_prvib->m_pBegin;
+         } else {
+            // Allocate a new item array.
+            m_rvibWork.m_pBegin = memory::_raw_alloc(cbNewCapacity);
+            m_rvibWork.m_rvpd.set_dynamic(true);
+            m_bFree = true;
+         }
+         m_rvibWork.m_rvpd.set_capacity(cbNewCapacity);
+      }
+      m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
+   }
+   // Any change in size voids the NUL termination of the item array.
+   m_rvibWork.m_rvpd.set_nul_terminated(false);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_complex_vextr_impl
 
 
@@ -244,7 +253,7 @@ void _raw_complex_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(this, cb1 + cb2);
+   _raw_vextr_transaction trn(this, cb1 + cb2);
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -339,7 +348,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
       // Can’t move the item array, so move the items instead.
       {
          size_t cbSrc(rcvi.size<int8_t>());
-         transaction trn(this, cbSrc);
+         _raw_vextr_transaction trn(this, cbSrc);
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (size<int8_t>()) {
@@ -451,7 +460,7 @@ void _raw_complex_vextr_impl::insert(
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, pInsert, cbInsert, bMove);
 
-   transaction trn(this, cbInsert, 0);
+   _raw_vextr_transaction trn(this, cbInsert, 0);
    int8_t * pbOffset(begin<int8_t>() + ibOffset);
    void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
    int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
@@ -494,7 +503,7 @@ void _raw_complex_vextr_impl::remove(
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, cbRemove);
 
-   transaction trn(this, 0, cbRemove);
+   _raw_vextr_transaction trn(this, 0, cbRemove);
    int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
    int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
@@ -525,7 +534,7 @@ void _raw_complex_vextr_impl::set_capacity(
    ABC_TRACE_FUNC(this, /*type, */cbMin, bPreserve);
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, cbMin);
+   _raw_vextr_transaction trn(this, cbMin);
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -572,7 +581,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   transaction trn(this, cb1 + cb2);
+   _raw_vextr_transaction trn(this, cb1 + cb2);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
       memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
@@ -624,7 +633,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    ABC_TRACE_FUNC(this, ibOffset, pAdd, cbAdd, cbRemove);
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
-   transaction trn(this, cbAdd, cbRemove);
+   _raw_vextr_transaction trn(this, cbAdd, cbRemove);
    int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
@@ -649,7 +658,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
    ABC_TRACE_FUNC(this, cbMin, bPreserve);
 
    size_t cbOrig(size<int8_t>());
-   transaction trn(this, cbMin);
+   _raw_vextr_transaction trn(this, cbMin);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);

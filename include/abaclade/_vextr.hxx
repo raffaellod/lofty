@@ -217,6 +217,7 @@ Key:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_vextr_packed_data
 
+
 namespace abc {
 
 class _raw_vextr_packed_data {
@@ -400,116 +401,17 @@ namespace abc {
 types.
 */
 class ABACLADE_SYM _raw_vextr_impl_base {
+protected:
+
+   // Allow transactions to access this class’s protected members.
+   friend class _raw_vextr_transaction;
+
+
 public:
 
    /** Dummy item array type used for the calculation of offsets that will then be applied to real
    instantiations of the item array template. */
    typedef _raw_vextr_item_array<int8_t, 1> dummy_item_array;
-
-
-protected:
-
-   /** Allows to get a temporary item array from a pool of options, then work with it, and upon
-   destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base,
-   or properly discarded.
-
-   A transaction will not take care of copying the item array, if switching to a different item
-   array.
-
-   For size increases, the reallocation (if any) is performed in the constructor; for decreases,
-   it’s performed in commit().
-   */
-   class ABACLADE_SYM transaction :
-      public noncopyable {
-   public:
-
-      /** Constructor.
-
-      prvib
-         Subject of the transaction.
-      cbNew
-         New item array size, in bytes.
-      cbAdd
-         Item array size increase, in bytes.
-      cbRemove
-         Item array size decrease, in bytes.
-      */
-      transaction(_raw_vextr_impl_base * prvib, size_t cbNew);
-      transaction(_raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove);
-
-
-      /** Destructor.
-      */
-      ~transaction() {
-         if (m_bFree) {
-            memory::_raw_free(m_pBegin);
-         }
-      }
-
-
-      /** Commits the transaction; if the item array is to be replaced, the current one will be
-      released if necessary; it’s up to the client to destruct any items in it. If this method is
-      not called before the transaction is destructed, it’s up to the client to also ensure that any
-      and all objects constructed in the work array have been properly destructed.
-      */
-      void commit();
-
-
-      /** Returns the work item array.
-
-      return
-         Pointer to the working item array.
-      */
-      template <typename T>
-      T * work_array() const {
-         return static_cast<T *>(m_pBegin);
-      }
-
-
-      /** Returns true if the contents of the item array need to migrated due to the transaction
-      switching item arrays. If the array was/will be only resized, the return value is false,
-      because the reallocation did/will take care of moving the item array.
-
-      return
-         true if the pointer to the item array will be changed upon destruction, or false otherwise.
-      */
-      bool will_replace_item_array() const {
-         return m_pBegin != m_prvib->m_pBegin;
-      }
-
-
-   private:
-
-      /** Completes construction of the object.
-
-      prvib
-         Subject of the transaction.
-      cbNew
-         New item array size, in bytes.
-      */
-      void _construct(_raw_vextr_impl_base * prvib, size_t cbNew);
-
-
-   private:
-
-      /** Subject of the transaction. */
-      _raw_vextr_impl_base * m_prvib;
-      /** See _raw_vextr_impl_base::m_rvpd. */
-      _raw_vextr_packed_data m_rvpd;
-      /** Pointer to the item array to which clients should write. This may or may not be the same
-      as m_prvib->m_pBegin, depending on whether we needed a new item array. This pointer will
-      replace m_prvib->m_pBegin upon commit(). */
-      void * m_pBegin;
-      /** Similar to m_pBegin, but for m_prvib->m_pEnd. */
-      void * m_pEnd;
-      /** true if m_pBegin has been dynamically allocated for the transaction and needs to be freed
-      in the destructor, either because the transaction didn’t get committed, or because it did and
-      the item array is now owned by m_prvib. */
-      bool m_bFree;
-   };
-
-   // Allow transactions to access this class’s protected members.
-   friend class transaction;
 
 
 public:
@@ -572,6 +474,19 @@ public:
    template <typename T>
    size_t size() const {
       return size_t(end<T>() - begin<T>());
+   }
+
+
+private:
+
+   /** Internal constructor used by transaction. Note that this leaves the object in an inconsistent
+   and uninitialized state!
+
+   rvpd
+      Source packed data.
+   */
+   _raw_vextr_impl_base(_raw_vextr_packed_data const & rvpd) :
+      m_rvpd(rvpd) {
    }
 
 
@@ -772,6 +687,109 @@ inline size_t _raw_vextr_impl_base::static_capacity() const {
    );
    return prvibwsia->m_cbStaticCapacity;
 }
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_raw_vextr_transaction
+
+
+namespace abc {
+
+/** Allows to get a temporary item array from a pool of options, then work with it, and upon
+destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base, or
+properly discarded.
+
+A transaction will not take care of copying the item array, if switching to a different item array.
+
+For size increases, the reallocation (if any) is performed in the constructor; for decreases, it’s
+performed in commit().
+*/
+class ABACLADE_SYM _raw_vextr_transaction :
+   public noncopyable {
+public:
+
+   /** Constructor.
+
+   prvib
+      Subject of the transaction.
+   cbNew
+      New item array size, in bytes.
+   cbAdd
+      Item array size increase, in bytes.
+   cbRemove
+      Item array size decrease, in bytes.
+   */
+   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew);
+   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove);
+
+
+   /** Destructor.
+   */
+   ~_raw_vextr_transaction() {
+      // Only release m_rvpdWork’s item array on this condition. In all other cases, the memory it’s
+      // pointing to belongs to *m_prvib.
+      m_rvibWork.m_rvpd.set_dynamic(m_bFree);
+   }
+
+
+   /** Commits the transaction; if the item array is to be replaced, the current one will be 
+   released if necessary; it’s up to the client to destruct any items in it. If this method is not
+   called before the transaction is destructed, it’s up to the client to also ensure that any and
+   all objects constructed in the work array have been properly destructed.
+   */
+   void commit();
+
+
+   /** Returns the work item array.
+
+   return
+      Pointer to the working item array.
+   */
+   template <typename T>
+   T * work_array() const {
+      return static_cast<T *>(m_rvibWork.m_pBegin);
+   }
+
+
+   /** Returns true if the contents of the item array need to migrated due to the transaction
+   switching item arrays. If the array was/will be only resized, the return value is false, because
+   the reallocation did/will take care of moving the item array.
+
+   return
+      true if the pointer to the item array will be changed upon destruction, or false otherwise.
+   */
+   bool will_replace_item_array() const {
+      return m_rvibWork.m_pBegin != m_prvib->m_pBegin;
+   }
+
+
+private:
+
+   /** Completes construction of the object.
+
+   prvib
+      Subject of the transaction.
+   cbNew
+      New item array size, in bytes.
+   */
+   void _construct(_raw_vextr_impl_base * prvib, size_t cbNew);
+
+
+private:
+
+   /** Temporary vextr that contains the new values for each vextr member, ready to be applied to
+   *m_prvib when the transaction is committed. Its internal pointers may or may not be the same as
+   the ones in m_prvib depending on whether we needed a new item array. */
+   _raw_vextr_impl_base m_rvibWork;
+   /** Subject of the transaction. */
+   _raw_vextr_impl_base * m_prvib;
+   /** true if m_pBegin has been dynamically allocated for the transaction and needs to be freed in
+   the destructor, either because the transaction didn’t get committed, or because it did and the
+   item array is now owned by m_prvib. */
+   bool m_bFree;
+};
 
 } //namespace abc
 
