@@ -239,17 +239,17 @@ bool str_base::starts_with(istr const & s) const {
             if (pchCont < pchNext) {
                continue;
             }
-            // The leading and trailing bytes of pch and achNeedle match: we found the needle.
+            // The leading and trailing bytes of pch and pchNeedle match: we found the needle.
          }
          return pch;
       }
    }
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
    // In UTF-16, there’s always at most two characters per code point.
-   char16_t chNeedle0(achNeedle[0]);
+   char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a lead surrogate. Using NUL as a special value
    // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? achNeedle[1] : U16CL('\0'));
+   char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : U16CL('\0'));
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
    for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
