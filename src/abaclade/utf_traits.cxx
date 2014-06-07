@@ -199,36 +199,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-/*static*/ int utf8_traits::str_cmp(
-   char8_t const * pch1Begin, char8_t const * pch1End,
-   char8_t const * pch2Begin, char8_t const * pch2End
-) {
-   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
-
-   // Note: not only don’t sequences matter when scanning for the first differing bytes, but once a
-   // pair of differing bytes is found, if they are part of a sequence, its start must have been the
-   // same, so only their absolute value matters; if they started a sequence, the first byte of a
-   // longer encoding (greater code point value) if greater than that of a shorter one.
-   char8_t const * pch1(pch1Begin), * pch2(pch2Begin);
-   while (pch1 < pch1End && pch2 < pch2End) {
-      char8_t ch1(*pch1++), ch2(*pch2++);
-      if (ch1 > ch2) {
-         return +1;
-      } else if (ch1 < ch2) {
-         return -1;
-      }
-   }
-   // If we’re still here, the string that didn’t run out of characters wins.
-   if (pch1 < pch1End) {
-      return +1;
-   } else if (pch2 < pch2End) {
-      return -1;
-   } else {
-      return 0;
-   }
-}
-
-
 /*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
@@ -334,44 +304,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 }
 
 
-/*static*/ int utf16_traits::str_cmp(
-   char16_t const * pch1Begin, char16_t const * pch1End,
-   char16_t const * pch2Begin, char16_t const * pch2End
-) {
-   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
-
-   char16_t const * pch1(pch1Begin), * pch2(pch2Begin);
-   while (pch1 < pch1End && pch2 < pch2End) {
-      char16_t ch1(*pch1++), ch2(*pch2++);
-      // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bSurr1((ch1 & 0xf800) == 0xd800), bSurr2((ch2 & 0xf800) == 0xd800);
-      if (bSurr1 == bSurr2) {
-         // The characters are both regular or surrogates. Since a difference in lead surrogate
-         // generates bias, we only get to compare trails if the leads were equal.
-         if (ch1 > ch2) {
-            return +1;
-         } else if (ch1 < ch2) {
-            return -1;
-         }
-      } else if (bSurr1) {
-         // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
-         return +1;
-      } else /*if (bSurr2)*/ {
-         // If ch2 is a surrogate and ch1 is not, ch1 < ch2.
-         return -1;
-      }
-   }
-   // If we’re still here, the string that didn’t run out of characters wins.
-   if (pch1 < pch1End) {
-      return +1;
-   } else if (pch2 < pch2End) {
-      return -1;
-   } else {
-      return 0;
-   }
-}
-
-
 /*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
@@ -415,32 +347,6 @@ char32_t const utf32_traits::bom[] = { 0x00feff };
       }
    }
    return true;
-}
-
-
-/*static*/ int utf32_traits::str_cmp(
-   char32_t const * pch1Begin, char32_t const * pch1End,
-   char32_t const * pch2Begin, char32_t const * pch2End
-) {
-   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
-
-   char32_t const * pch1(pch1Begin), * pch2(pch2Begin);
-   while (pch1 < pch1End && pch2 < pch2End) {
-      char32_t ch1(*pch1++), ch2(*pch2++);
-      if (ch1 > ch2) {
-         return +1;
-      } else if (ch1 < ch2) {
-         return -1;
-      }
-   }
-   // If we’re still here, the string that didn’t run out of characters wins.
-   if (pch1 < pch1End) {
-      return +1;
-   } else if (pch2 < pch2End) {
-      return -1;
-   } else {
-      return 0;
-   }
 }
 
 

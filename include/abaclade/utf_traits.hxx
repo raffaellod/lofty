@@ -147,30 +147,6 @@ public:
    }
 
 
-   /** Compares two UTF strings.
-
-   UTF validity: necessary.
-
-   pch1Begin
-      Pointer to the first character of the first string to compare.
-   pch1End
-      Pointer to beyond the last character of the string to compare.
-   pch2Begin
-      Pointer to the first character of the second string to compare.
-   pch2End
-      Pointer to beyond the last character of the second string to compare.
-   return
-      Standard comparison result integer:
-      •  > 0 if string 1 > string 2;
-      •    0 if string 1 == string 2;
-      •  < 0 if string 1 < string 2.
-   */
-   static int str_cmp(
-      char8_t const * pch1Begin, char8_t const * pch1End,
-      char8_t const * pch2Begin, char8_t const * pch2End
-   );
-
-
    /** Returns the length, in UTF characters, of a NUL-terminated string.
 
    UTF validity: necessary.
@@ -231,14 +207,6 @@ public:
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
-   /** See utf8_traits::str_cmp().
-   */
-   static int str_cmp(
-      char16_t const * pch1Begin, char16_t const * pch1End,
-      char16_t const * pch2Begin, char16_t const * pch2End
-   );
-
-
    /** See utf8_traits::str_len().
    */
    static size_t str_len(char16_t const * psz);
@@ -281,14 +249,6 @@ public:
    }
    static bool is_valid(char32_t const * psz);
    static bool is_valid(char32_t const * pchBegin, char32_t const * pchEnd);
-
-
-   /** See utf8_traits::str_cmp().
-   */
-   static int str_cmp(
-      char32_t const * pch1Begin, char32_t const * pch1End,
-      char32_t const * pch2Begin, char32_t const * pch2End
-   );
 
 
    /** See utf8_traits::str_len().

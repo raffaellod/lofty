@@ -569,6 +569,28 @@ protected:
    );
 
 
+   /** Compares two UTF strings.
+
+   pch1Begin
+      Pointer to the first character of the first string to compare.
+   pch1End
+      Pointer to beyond the last character of the string to compare.
+   pch2Begin
+      Pointer to the first character of the second string to compare.
+   pch2End
+      Pointer to beyond the last character of the second string to compare.
+   return
+      Standard comparison result integer:
+      •  > 0 if string 1 > string 2;
+      •    0 if string 1 == string 2;
+      •  < 0 if string 1 < string 2.
+   */
+   static int str_cmp(
+      char_t const * pch1Begin, char_t const * pch1End,
+      char_t const * pch2Begin, char_t const * pch2End
+   );
+
+
    /** Returns the character index of the first occurrence of a string into another.
 
    pchHaystackBegin
@@ -757,7 +779,7 @@ inline str_base::operator istr const &() const {
 
 
 inline int str_base::compare_to(istr const & s) const {
-   return traits::str_cmp(cbegin().base(), cend().base(), s.cbegin().base(), s.cend().base());
+   return str_cmp(cbegin().base(), cend().base(), s.cbegin().base(), s.cend().base());
 }
 
 } //namespace abc
