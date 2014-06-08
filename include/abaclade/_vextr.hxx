@@ -555,22 +555,12 @@ protected:
 
 
    /** Returns a pointer to the embedded prefixed item array that follows this object, if present,
-   or nullptr otherwise.
+   or nullptr if no embedded item array is present.
 
    return
-      Pointer to the embedded item array, or nullptr if no embedded item array is present.
+      Pointer to the embedded item array, or nullptr otherwise.
    */
-   template <typename T>
-   T * embedded_array_ptr();
-
-
-   /** Returns the size of the array returned by embedded_array_ptr(), or 0 if no such array is
-   present.
-
-   return
-      Capacity of the embedded item array, in bytes, or 0 if no embedded item array is present.
-   */
-   size_t embedded_capacity() const;
+   _prefixed_item_array * embedded_prefixed_item_array();
 
 
    /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
@@ -650,28 +640,15 @@ class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
 };
 
 
-// Now these can be implemented.
+// Now this can be implemented.
 
-template <typename T>
-inline T * _raw_vextr_impl_base::embedded_array_ptr() {
-   if (!m_rvpd.has_embedded_item_array()) {
+inline _raw_vextr_impl_base::_prefixed_item_array *
+_raw_vextr_impl_base::embedded_prefixed_item_array() {
+   if (m_rvpd.has_embedded_item_array()) {
+      return static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this);
+   } else {
       return nullptr;
    }
-   _raw_vextr_impl_base_with_embedded_prefixed_item_array * prvibwpia(
-      static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this)
-   );
-   return reinterpret_cast<T *>(prvibwpia->m_at);
-}
-
-
-inline size_t _raw_vextr_impl_base::embedded_capacity() const {
-   if (!m_rvpd.has_embedded_item_array()) {
-      return 0;
-   }
-   _raw_vextr_impl_base_with_embedded_prefixed_item_array const * prvibwpia(
-      static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array const *>(this)
-   );
-   return prvibwpia->m_cbCapacity;
 }
 
 } //namespace abc

@@ -27,18 +27,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-_raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
+_raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbEmbeddedCapacity) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   m_rvpd(cbStaticCapacity > 0, false) {
-   ABC_TRACE_FUNC(this, cbStaticCapacity);
+   m_rvpd(cbEmbeddedCapacity > 0, false) {
+   ABC_TRACE_FUNC(this, cbEmbeddedCapacity);
 
-   if (cbStaticCapacity) {
-      // Assign cbStaticCapacity to the embedded item array that follows *this.
-      _raw_vextr_impl_base_with_embedded_prefixed_item_array * prvibwepia(
-         static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this)
-      );
-      prvibwepia->m_cbCapacity = cbStaticCapacity;
+   if (cbEmbeddedCapacity) {
+      // Assign cbEmbeddedCapacity to the embedded item array that follows *this.
+      embedded_prefixed_item_array()->m_cbCapacity = cbEmbeddedCapacity;
    }
 }
 
@@ -191,11 +188,10 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
       m_rvibWork.m_rvpd.set_dynamic(false);
       m_rvibWork.m_rvpd.set_prefixed_item_array(false);
    } else {
-      // This will return 0 if there’s no embedded item array.
-      size_t cbStaticCapacity(m_prvib->embedded_capacity());
-      if (cbNew <= cbStaticCapacity) {
+      auto ppiaEmbedded(m_prvib->embedded_prefixed_item_array());
+      if (ppiaEmbedded && cbNew <= ppiaEmbedded->m_cbCapacity) {
          // The embedded item array is large enough; switch to using it.
-         m_rvibWork.m_pBegin = m_prvib->embedded_array_ptr<void>();
+         m_rvibWork.m_pBegin = ppiaEmbedded->m_at;
          m_rvibWork.m_rvpd.set_dynamic(false);
          m_rvibWork.m_rvpd.set_prefixed_item_array(true);
       } else if (cbNew <= m_prvib->capacity<int8_t>()) {
