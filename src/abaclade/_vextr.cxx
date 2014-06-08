@@ -30,7 +30,7 @@ namespace abc {
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbEmbeddedCapacity) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   mc_bHasEmbedded(cbEmbeddedCapacity > 0),
+   mc_bHasEmbeddedPrefixedItemArray(cbEmbeddedCapacity > 0),
    m_bPrefixedItemArray(false),
    m_bDynamic(false),
    m_bNulT(false) {

@@ -345,7 +345,7 @@ private:
    Note that this doesn’t really initialize the object!
    */
    _raw_vextr_impl_base() :
-      mc_bHasEmbedded(false),
+      mc_bHasEmbeddedPrefixedItemArray(false),
       // This is needed to disable the destructor, so we won’t try to release an invalid pointer in
       // case anything goes wrong before the rest of the object is initialized.
       m_bDynamic(false) {
@@ -373,7 +373,7 @@ protected:
    ) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      mc_bHasEmbedded(false),
+      mc_bHasEmbeddedPrefixedItemArray(false),
       m_bPrefixedItemArray(false),
       m_bDynamic(false),
       m_bNulT(bNulT) {
@@ -447,7 +447,7 @@ protected:
       Pointer to the embedded item array, or nullptr otherwise.
    */
    _prefixed_item_array * embedded_prefixed_item_array() {
-      if (mc_bHasEmbedded) {
+      if (mc_bHasEmbeddedPrefixedItemArray) {
          // Allows to obtain the pointer to an embedded prefixed item array in non-template code
          // without resorting to manual pointer arithmetics.
          class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
@@ -520,8 +520,8 @@ protected:
    void * m_pBegin;
    /** Pointer to the end of the item array. */
    void * m_pEnd;
-   /** true if the parent object is followed by an embedded prefixed item array. */
-   bool const mc_bHasEmbedded:1;
+   /** true if *this includes an embedded prefixed item array. */
+   bool const mc_bHasEmbeddedPrefixedItemArray:1;
    /** true if the item array is part of a prefixed item array. */
    bool m_bPrefixedItemArray:1;
    /** true if the current item array is allocated dynamically, or false otherwise (embedded
