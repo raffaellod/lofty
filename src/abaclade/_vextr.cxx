@@ -210,7 +210,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          ));
          typedef _raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
          size_t cbNewItemArrayDesc(
-            sizeof(item_array_desc) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
+            sizeof(prefixed_item_array) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
          );
          prefixed_item_array * ppia;
          if (m_prvib->m_rvpd.dynamic()) {
@@ -218,7 +218,9 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
             ppia = m_prvib->prefixed_item_array();
-            ppia = static_cast<item_array_desc *>(memory::_raw_realloc(ppia, cbNewItemArrayDesc));
+            ppia = static_cast<prefixed_item_array *>(
+               memory::_raw_realloc(ppia, cbNewItemArrayDesc)
+            );
             m_prvib->m_pBegin = ppia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
          } else {
@@ -227,7 +229,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             m_rvibWork.m_rvpd.set_dynamic(true);
             m_bFree = true;
          }
-         piad->m_cbCapacity = cbNewCapacity;
+         ppia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = ppia->m_at;
          m_rvibWork.m_rvpd.set_prefixed_item_array(true);
       }

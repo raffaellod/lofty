@@ -165,11 +165,11 @@ statuses.
 
 Key:
 
-   ┌──────────────┬──────────┬──────────────────┬───────────────┬────────────────┬─────────────────┐
-   │ Pointer to   │ Pointer  │ Capacity of item │ T if item     │ E is vextr has │ D if item array │
-   │ beginning of │ to end   │ array, or 0 if   │ array is NUL- │ embedded       │ is dynamically- │
-   │ array        │ of array │ it’s read-only   │ terminated    │ static array   │ allocated       │
-   └──────────────┴──────────┴──────────────────┴───────────────┴────────────────┴─────────────────┘
+   ┌──────────────┬──────────┬───────────┬───────────────┬────────────────┬─────────────────┐
+   │ Pointer to   │ Pointer  │ P if item │ T if item     │ E is vextr has │ D if item array │
+   │ beginning of │ to end   │ array is  │ array is NUL- │ embedded       │ is dynamically- │
+   │ array        │ of array │ prefixed  │ terminated    │ static array   │ allocated       │
+   └──────────────┴──────────┴───────────┴───────────────┴────────────────┴─────────────────┘
 
    Additionally, an embedded item array can follow, prefixed by its length (here in items, but in
    the implementation it’s actually a byte count).
@@ -177,46 +177,48 @@ Key:
 
 1. istr() or dmstr(): no item array.
    ┌─────────┬─────────┬───┬───┬───┬───┐
-   │ nullptr │ nullptr │ 0 │ - │ - │ - │
+   │ nullptr │ nullptr │ - │ - │ - │ - │
    └─────────┴─────────┴───┴───┴───┴───┘
 
-2. smstr<5>(): has a static embedded fixed-size buffer, but does not use it yet.
-   ┌─────────┬─────────┬───┬───┬───┬───╥───┬───────────┐
-   │ nullptr │ nullptr │ 0 │ - │ E │ - ║ 5 │ - - - - - │
-   └─────────┴─────────┴───┴───┴───┴───╨───┴───────────┘
+2. smstr<4>(): has a static embedded fixed-size buffer, but does not use it yet.
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
+   │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
 
 3. istr("abc"): points to a non-prefixed item array in read-only memory, which also has a NUL
    terminator.
-   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌──────────┐
-   │ 0xptr   │ 0xptr   │ 0 │ T │ - │ - │                │ a b c \0 │
-   └─────────┴─────────┴───┴───┴───┴───┘                └──────────┘
-     │         │                                        ▲       ▲
-     │         └────────────────────────────────────────│───────┘
-     └──────────────────────────────────────────────────┘
+   ┌─────────┬─────────┬───┬───┬───┬───┐                    ┌──────────┐
+   │ 0xptr   │ 0xptr   │ - │ T │ - │ - │                    │ a b c \0 │
+   └─────────┴─────────┴───┴───┴───┴───┘                    └──────────┘
+     │         │                                            ▲       ▲
+     │         └────────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────────┘
 
-4. dmstr("abc"): points to a dynamically-allocated copy of the source string literal.
-   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌─────────────────┐
-   │ 0xptr   │ 0xptr   │ 8 │ - │ - │ D │                │ a b c - - - - - │
-   └─────────┴─────────┴───┴───┴───┴───┘                └─────────────────┘
-     │         │                                        ▲       ▲
-     │         └────────────────────────────────────────│───────┘
-     └──────────────────────────────────────────────────┘
+4. dmstr("abc"): points to a dynamically-allocated prefixed copy of the source string literal.
+   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c - - - - - │
+   └─────────┴─────────┴───┴───┴───┴───┘                └───┴─────────────────┘
+     │         │                                            ▲       ▲
+     │         └────────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────────┘
 
-5. smstr<4> s4("abc"): copies the source string literal to the embedded array, and points to it.
+5. smstr<4> s4("abc"): copies the source string literal to the embedded prefixed item array, and
+   points to it.
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
-   │ 0xptr   │ 0xptr   │ 4 │ - │ E │ - ║ 4 │ a b c - │
+   │ 0xptr   │ 0xptr   │ P │ - │ E │ - ║ 4 │ a b c - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
      │         │                           ▲       ▲
      │         └───────────────────────────│───────┘
      └─────────────────────────────────────┘
 
-7. s4 += "abc": switches to a dynamically-allocated buffer because the embedded one is too small.
-   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌─────────────────┐
-   │ 0xptr   │ 0xptr   │ 8 │ - │ E │ D ║ 4 │ - - - - │  │ a b c - - - - - │
-   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └─────────────────┘
-     │         │                                        ▲       ▲
-     │         └────────────────────────────────────────│───────┘
-     └──────────────────────────────────────────────────┘
+7. s4 += "abc": switches to a dynamically-allocated prefixed array because the embedded one is not
+   large enough.
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c - - - - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └───┴─────────────────┘
+     │         │                                            ▲       ▲
+     │         └────────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────────┘
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,8 +435,8 @@ public:
    */
    template <typename T>
    size_t capacity() const {
-      auto piad(prefixed_item_array());
-      return piad ? piad->m_cbCapacity / sizeof(T) : 0;
+      auto ppia(prefixed_item_array());
+      return ppia ? ppia->m_cbCapacity / sizeof(T) : 0;
    }
 
 
