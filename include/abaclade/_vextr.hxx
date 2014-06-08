@@ -404,11 +404,11 @@ protected:
    static size_t calculate_increased_capacity(size_t cbOld, size_t cbNew);
 
 
-   /** Returns a pointer to the current item array structure.
+   /** Returns a pointer to the current prefixed item array, or nullptr if the current item array is
+   not prefixed.
 
    return
-      Pointer to the item array, or nullptr if the current item array is not part of a prefixed item
-      array.
+      Pointer to the prefixed item array, or nullptr if not applicable.
    */
    _prefixed_item_array * prefixed_item_array() {
       if (m_bPrefixedItemArray) {
@@ -427,8 +427,7 @@ protected:
    }
 
 
-   /** Returns a pointer to the embedded prefixed item array that follows this object, if present,
-   or nullptr if not present.
+   /** Returns a pointer to the embedded prefixed item array that follows this object, if present.
 
    return
       Pointer to the embedded item array, or nullptr otherwise.
