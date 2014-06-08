@@ -47,31 +47,27 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
    ABC_TRACE_FUNC(cbOld, cbNew);
 
    size_t cbNewCapacity;
-   // Avoid a multiplication by 0.
+   // Avoid a pointless multiplication by 0.
    if (cbOld) {
       cbNewCapacity = cbOld * smc_iGrowthRate;
       // Check for overflow.
       if (cbNewCapacity <= cbOld) {
          // If size_t overflowed, the memory allocation cannot possibly succeed; just return a very
          // large number instead.
-         return _raw_vextr_packed_data::smc_cbCapacityMask;
+         return numeric::max<size_t>::value;
+      }
+      if (cbNewCapacity < smc_cbCapacityMin) {
+         // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate
+         // right on the next size change.
+         cbNewCapacity = smc_cbCapacityMin;
       }
    } else {
       cbNewCapacity = smc_cbCapacityMin;
    }
-
    if (cbNewCapacity < cbNew) {
-      // The new size exceeds the hard-coded growth rate, so just use the new size as the capacity;
-      // this may be slightly increased in the adjustment that follows.
+      // The item array is growing faster than our hard-coded growth rate, so just use the new size
+      // as the capacity.
       cbNewCapacity = cbNew;
-   }
-   if (cbNewCapacity < smc_cbCapacityMin) {
-      // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate right
-      // on the next size change.
-      cbNewCapacity = smc_cbCapacityMin;
-   } else {
-      // Ensure that the lower bits are clear by rounding up.
-      cbNewCapacity = _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(cbNewCapacity);
    }
    return cbNewCapacity;
 }

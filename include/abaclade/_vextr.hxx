@@ -338,14 +338,6 @@ private:
    static size_t const smc_bHasStaticMask = 0x02;
    /** Mask to access bNulT from m_iPackedData. */
    static size_t const smc_bNulTMask = 0x01;
-
-
-public:
-
-   /** Mask to access cbCapacity from m_iPackedData. */
-   static size_t const smc_cbCapacityMask = ~(
-      smc_bRealItemArrayMask | smc_bDynamicMask | smc_bHasStaticMask | smc_bNulTMask
-   );
 };
 
 } //namespace abc
@@ -357,34 +349,19 @@ public:
 
 namespace abc {
 
-/** Rounds up an array size to avoid interfering with the bits outside of
-_raw_vextr_packed_data::smc_cbCapacityMask. Should be a constexpr function, but for now it’s just a
-macro.
-
-cb
-   Size of the items, in bytes.
-return
-   Rounded-up size of the items.
-*/
-#define _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(cb) \
-   ((size_t(cb) + ~_raw_vextr_packed_data::smc_cbCapacityMask) & \
-      _raw_vextr_packed_data::smc_cbCapacityMask)
-
-
 /** Used to find out what the offset are for an embedded static item array.
 */
 template <typename T, size_t t_ciStaticCapacity>
 class _raw_vextr_item_array {
 public:
 
-   /** Actual static item array size. */
-   static size_t const smc_cbStaticCapacity = _ABC__RAW_VEXTR_ITEM_ARRAY__ADJUST_SIZE(
-      sizeof(T) * t_ciStaticCapacity
-   );
-   /** Capacity of m_at, in bytes. */
+   /** Static item array capacity, in bytes. */
+   static size_t const smc_cbStaticCapacity = sizeof(T) * t_ciStaticCapacity;
+   /** Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
+   so it can be greater than smc_cbStaticCapacity. */
    size_t m_cbCapacity;
-   /** First item of the static array. This can’t be a T[], because we don’t want its items to be
-   constructed/destructed automatically, and because this class doesn’t know its size. */
+   /** Static item array. This can’t be a T[], because we don’t want its items to be constructed/
+   destructed automatically, and because the count may be greater than what’s declared here. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
 };
 
@@ -635,11 +612,10 @@ protected:
    /** Size of the item array pointed to by m_pBegin, and other bits. */
    _raw_vextr_packed_data m_rvpd;
 
-   /** The item array size must be no less than this many bytes. Must be greater than, and not
-   overlap any bits with, _raw_vextr_impl_base::smc_cbCapacityMask. */
-   static size_t const smc_cbCapacityMin = sizeof(intptr_t) * (
-      ~_raw_vextr_packed_data::smc_cbCapacityMask + 1
-   );
+   /** The item array size must be no less than this many bytes. */
+   static size_t const smc_cbCapacityIncrement = sizeof(intptr_t) * 32;
+   /** The item array size must be no less than this many bytes. */
+   static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
    /** Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
    static unsigned const smc_iGrowthRate = 2;
