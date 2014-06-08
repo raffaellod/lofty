@@ -391,6 +391,20 @@ protected:
    }
 
 
+   /** Copies the data members of the source to *this.
+
+   rvib
+      Source vextr.
+   */
+   void assign_shallow(_raw_vextr_impl_base const & rvib) {
+      m_pBegin             = rvib.m_pBegin;
+      m_pEnd               = rvib.m_pEnd;
+      m_bPrefixedItemArray = rvib.m_bPrefixedItemArray;
+      m_bDynamic           = rvib.m_bDynamic;
+      m_bNulT              = rvib.m_bNulT;
+   }
+
+
    /** Calculates the new capacity for the item array for growing from cbOld to cbNew bytes while
    attempting to reduce future allocations for subsequent size increases.
 

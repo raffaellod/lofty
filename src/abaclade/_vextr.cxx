@@ -166,46 +166,39 @@ void _raw_vextr_transaction::commit() {
    // If we are abandoning the old item array, proceed to destruct it if necessary.
    if (m_rvibWork.m_pBegin != m_prvib->m_pBegin) {
       m_prvib->~_raw_vextr_impl_base();
-      m_prvib->m_pBegin = m_rvibWork.m_pBegin;
       // This object no longer owns the temporary item array.
       m_bFree = false;
    }
    // Update the target object.
-   m_prvib->m_pEnd               = m_rvibWork.m_pEnd;
-   m_prvib->m_bPrefixedItemArray = m_rvibWork.m_bPrefixedItemArray;
-   m_prvib->m_bDynamic           = m_rvibWork.m_bDynamic;
-   m_prvib->m_bNulT              = m_rvibWork.m_bNulT;
-   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
-
+   m_prvib->assign_shallow(m_rvibWork);
    // Disable m_rvibWork’s destructor, since we just transferred ownership of its item array.
    m_rvibWork.m_bDynamic = false;
+
+   // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
 
 
 void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
    ABC_TRACE_FUNC(this, prvib, cbNew);
 
-   // Any change in size voids the NUL termination of the item array.
-   m_rvibWork.m_bNulT = false;
    m_prvib = prvib;
    m_bFree = false;
 
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
-      m_rvibWork.m_pBegin = nullptr;
-      m_rvibWork.m_pEnd = nullptr;
-      m_rvibWork.m_bDynamic = false;
-      m_rvibWork.m_bPrefixedItemArray = false;
+      m_rvibWork.assign_empty();
    } else {
       // Since we never write to non-prefixed item arrays and we’re in a transaction to prepare to
       // write to one, it must be prefixed.
       m_rvibWork.m_bPrefixedItemArray = true;
+      // Any change in size voids the NUL termination of the item array.
+      m_rvibWork.m_bNulT = false;
+
       auto ppiaEmbedded(m_prvib->embedded_prefixed_item_array());
       if (ppiaEmbedded && cbNew <= ppiaEmbedded->m_cbCapacity) {
          // The embedded item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = ppiaEmbedded->m_at;
          m_rvibWork.m_bDynamic = false;
-         m_rvibWork.m_bPrefixedItemArray = true;
       } else if (cbNew <= m_prvib->capacity<int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
@@ -240,7 +233,6 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          }
          ppia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = ppia->m_at;
-         m_rvibWork.m_bPrefixedItemArray = true;
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
    }
@@ -339,11 +331,7 @@ void _raw_complex_vextr_impl::assign_move(
    destruct_items(type);
    this->~_raw_complex_vextr_impl();
    // Take over the item array.
-   m_pBegin             = rcvi.m_pBegin;
-   m_pEnd               = rcvi.m_pEnd;
-   m_bPrefixedItemArray = rcvi.m_bPrefixedItemArray;
-   m_bDynamic           = rcvi.m_bDynamic;
-   m_bNulT              = rcvi.m_bNulT;
+   assign_shallow(rcvi);
    // And now empty the source.
    rcvi.assign_empty();
 }
@@ -620,13 +608,8 @@ void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
    );
    // Discard the current contents.
    this->~_raw_trivial_vextr_impl();
-   // Take over the dynamic array.
-   m_pBegin             = rtvi.m_pBegin;
-   m_pEnd               = rtvi.m_pEnd;
-   m_bPrefixedItemArray = rtvi.m_bPrefixedItemArray;
-   m_bDynamic           = rtvi.m_bDynamic;
-   m_bNulT              = rtvi.m_bNulT;
-   // And now empty the source.
+   // Transfer ownership of the source prefixed item array.
+   assign_shallow(rtvi);
    rtvi.assign_empty();
 }
 
@@ -658,12 +641,8 @@ void _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(_raw_trivial_vextr_i
    } else {
       // Discard the current contents.
       this->~_raw_trivial_vextr_impl();
-      // Take over the dynamic array.
-      m_pBegin             = rtvi.m_pBegin;
-      m_pEnd               = rtvi.m_pEnd;
-      m_bPrefixedItemArray = rtvi.m_bPrefixedItemArray;
-      m_bDynamic           = rtvi.m_bDynamic;
-      m_bNulT              = rtvi.m_bNulT;
+      // Share the source non-prefixed item array.
+      assign_shallow(rtvi);
    }
 }
 
