@@ -1355,7 +1355,7 @@ class smvector;
 template <typename T, size_t t_ciStaticCapacity>
 class smvector<T, t_ciStaticCapacity, false> :
    public mvector<T, false>,
-   private _raw_vextr_item_array<T, t_ciStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<T, t_ciStaticCapacity> {
 public:
 
    /** Constructor. The individual items or the entire source item array will be moved to *this.
@@ -1434,7 +1434,7 @@ public:
 template <typename T, size_t t_ciStaticCapacity>
 class smvector<T, t_ciStaticCapacity, true> :
    public mvector<T, true>,
-   private _raw_vextr_item_array<T, t_ciStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<T, t_ciStaticCapacity> {
 public:
 
    /** Constructor. R-value-reference arguments will have their contents transferred to *this.

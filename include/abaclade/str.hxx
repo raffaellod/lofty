@@ -468,13 +468,13 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_share_ro_or_copy().
+   /** See _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
 
    s
       Source string.
    */
-   void assign_share_ro_or_copy(str_base const & s) {
-      _raw_trivial_vextr_impl::assign_share_ro_or_copy(s);
+   void assign_share_raw_or_copy_desc(str_base const & s) {
+      _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
    }
 
 
@@ -725,7 +725,7 @@ public:
    }
    istr(istr const & s) :
       str_base(0) {
-      assign_share_ro_or_copy(s);
+      assign_share_raw_or_copy_desc(s);
    }
    istr(istr && s) :
       str_base(0) {
@@ -761,7 +761,7 @@ public:
       *this.
    */
    istr & operator=(istr const & s) {
-      assign_share_ro_or_copy(s);
+      assign_share_raw_or_copy_desc(s);
       return *this;
    }
    istr & operator=(istr && s) {
@@ -1281,7 +1281,7 @@ likely to be shorter than a known small size.
 template <size_t t_cchStaticCapacity>
 class smstr :
    public mstr,
-   private _raw_vextr_item_array<char_t, t_cchStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<char_t, t_cchStaticCapacity> {
 public:
 
    /** Constructor.

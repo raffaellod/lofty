@@ -32,7 +32,11 @@ embedded into the string/vector object.
 Data-wise, the implementation stores two pointers, one to the first item and one to beyond the last
 item, instead of the more common start pointer/length pair of variables. This makes checking an
 iterator against the end of the array a matter of a simple load/compare in terms of machine level
-instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair.
+instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair. The
+item array pointed to by the begin/end pointers can be part of a prefixed item array
+(abc::_raw_vextr_prefixed_item_array), which includes information such as the total capacity of the
+item array, which is used to find out when the item array needs to be reallocated to make room for
+more items.
 
 While there are several implementations of these classes, they can all be grouped in two clades:
 immutable and mutable/modifiable. The firsts behave much like Python’s strings or tuples, in that
@@ -98,8 +102,8 @@ The upper-level class hierarchies consist in these classes:
       can be constructed from a C++ literal without creating a copy of the constructor argument.
 
    •  mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable, statically- or
-      dynamically-allocated item array (never read-only nor shared), and provides an abstraction for
-      its derived classes.
+      dynamically-allocated prefixed item array (never a non-prefixed, read-only item array), and
+      provides an abstraction for its derived classes.
 
       •  dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated item array.
 
@@ -119,7 +123,7 @@ assignment operator.
 All string (TODO: and vector) types can be implicitly cast as istr const &; this makes istr const &
 the lowest common denominator for string exchange, much like str is in Python. Because of this, an
 istr const & can be using a static item array (because it can be a smstr), while any other istr will
-always use a const/read-only item array or a dynamic one.
+always use either a read-only, non-prefixed item array or a dynamic prefixed item array.
 
 mvector/mstr cannot have a “nothrow” move constructor or assignment operator from itself, because
 the two underlying objects might have static item arrays of different sizes. This isn’t a huge deal-
@@ -181,7 +185,8 @@ Key:
    │ nullptr │ nullptr │ 0 │ - │ E │ - ║ 5 │ - - - - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴───────────┘
 
-3. istr("abc"): points to read-only memory, which also has a NUL terminator.
+3. istr("abc"): points to a non-prefixed item array in read-only memory, which also has a NUL
+   terminator.
    ┌─────────┬─────────┬───┬───┬───┬───┐                ┌──────────┐
    │ 0xptr   │ 0xptr   │ 0 │ T │ - │ - │                │ a b c \0 │
    └─────────┴─────────┴───┴───┴───┴───┘                └──────────┘
@@ -241,7 +246,8 @@ public:
    /** Returns true if the parent object’s m_pBegin/End point to a dynamically-allocated item array.
 
    return
-      true if the item array is allocated dynamically, or false otherwise (static or read-only).
+      true if the item array is allocated dynamically, or false otherwise (embedded prefixed item
+      array or non-prefixed item array).
    */
    bool dynamic() const {
       return (m_iPackedData & smc_bDynamicMask) != 0;
@@ -270,8 +276,8 @@ public:
 
    /** TODO: comment.
    */
-   bool real_item_array() const {
-      return (m_iPackedData & smc_bRealItemArrayMask) != 0;
+   bool prefixed_item_array() const {
+      return (m_iPackedData & smc_bPrefixedItemArrayMask) != 0;
    }
 
 
@@ -305,10 +311,10 @@ public:
 
    /** TODO: comment.
    */
-   void set_real_item_array(bool bRealItemArray) {
-      m_iPackedData &= ~smc_bRealItemArrayMask;
-      if (bRealItemArray) {
-         m_iPackedData |= smc_bRealItemArrayMask;
+   void set_prefixed_item_array(bool bPrefixedItemArray) {
+      m_iPackedData &= ~smc_bPrefixedItemArrayMask;
+      if (bPrefixedItemArray) {
+         m_iPackedData |= smc_bPrefixedItemArrayMask;
       }
    }
 
@@ -317,8 +323,8 @@ private:
 
    /** Bit-field composed by the following components:
 
-   bool bRealItemArray
-      true if the item array is read-only.
+   bool bPrefixedItemArray
+      true if the item array is part of a prefixed item array.
    bool bDynamic
       true if the item array is allocated dynamically, or false otherwise (static or read-only).
    bool const bHasStatic
@@ -330,8 +336,8 @@ private:
    */
    size_t m_iPackedData;
 
-   /** Mask to access bRealItemArray from m_iPackedData. */
-   static size_t const smc_bRealItemArrayMask = 0x08;
+   /** Mask to access bPrefixedItemArray from m_iPackedData. */
+   static size_t const smc_bPrefixedItemArrayMask = 0x08;
    /** Mask to access bDynamic from m_iPackedData. */
    static size_t const smc_bDynamicMask = 0x04;
    /** Mask to access bHasStatic from m_iPackedData. */
@@ -344,15 +350,18 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vextr_item_array
+// abc::_raw_vextr_prefixed_item_array
 
 
 namespace abc {
 
-/** Used to find out what the offset are for an embedded static item array.
+/** Stores an item array and its capacity. Used as a real template by the classes with static item
+array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vector design]), and used
+with template capacity == 1 for all non-template-driven manipulations in non-template code, which
+relies on m_cbCapacity instead.
 */
 template <typename T, size_t t_ciStaticCapacity>
-class _raw_vextr_item_array {
+class _raw_vextr_prefixed_item_array {
 public:
 
    /** Static item array capacity, in bytes. */
@@ -386,9 +395,9 @@ protected:
 
 public:
 
-   /** Dummy item array type used for the calculation of offsets that will then be applied to real
-   instantiations of the item array template. */
-   typedef _raw_vextr_item_array<int8_t, 1> dummy_item_array;
+   /** Non-template prefixed item array used for the calculation of offsets that will then be
+   applied to real instantiations of the prefixed item array template. */
+   typedef _raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
 
 
 public:
@@ -397,7 +406,7 @@ public:
    */
    ~_raw_vextr_impl_base() {
       if (m_rvpd.dynamic()) {
-         memory::_raw_free(item_array());
+         memory::_raw_free(prefixed_item_array());
       }
    }
 
@@ -424,7 +433,8 @@ public:
    */
    template <typename T>
    size_t capacity() const {
-      return m_rvpd.real_item_array() ? item_array()->m_cbCapacity / sizeof(T) : 0;
+      auto piad(prefixed_item_array());
+      return piad ? piad->m_cbCapacity / sizeof(T) : 0;
    }
 
 
@@ -488,7 +498,6 @@ protected:
    ) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      // This will set m_rvpd.capacity() to 0, meaning that the item array is read-only.
       m_rvpd(false, bNulT) {
    }
 
@@ -496,10 +505,11 @@ protected:
    /** Resets the contents of the object to nullptr.
    */
    void assign_empty() {
-      m_pBegin = m_pEnd = nullptr;
+      m_pBegin = nullptr;
+      m_pEnd = nullptr;
       m_rvpd.set_dynamic(false);
       m_rvpd.set_nul_terminated(false);
-      m_rvpd.set_real_item_array(false);
+      m_rvpd.set_prefixed_item_array(false);
    }
 
 
@@ -519,16 +529,23 @@ protected:
    /** Returns a pointer to the current item array structure.
 
    return
-      Pointer to the item array.
+      Pointer to the item array, or nullptr if the current item array is not part of a prefixed item
+      array.
    */
-   dummy_item_array * item_array() {
-      // Subtract from m_pBegin the offset of the item array.
-      return reinterpret_cast<dummy_item_array *>(begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
-         &reinterpret_cast<dummy_item_array *>(0)->m_at[0]
-      ));
+   _prefixed_item_array * prefixed_item_array() {
+      if (m_rvpd.prefixed_item_array()) {
+         // Subtract from m_pBegin the offset of the item array.
+         return reinterpret_cast<_prefixed_item_array *>(
+            begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
+               &reinterpret_cast<_prefixed_item_array *>(0)->m_at[0]
+            )
+         );
+      } else {
+         return nullptr;
+      }
    }
-   dummy_item_array const * item_array() const {
-      return const_cast<_raw_vextr_impl_base *>(this)->item_array();
+   _prefixed_item_array const * prefixed_item_array() const {
+      return const_cast<_raw_vextr_impl_base *>(this)->prefixed_item_array();
    }
 
 
@@ -613,8 +630,6 @@ protected:
    _raw_vextr_packed_data m_rvpd;
 
    /** The item array size must be no less than this many bytes. */
-   static size_t const smc_cbCapacityIncrement = sizeof(intptr_t) * 32;
-   /** The item array size must be no less than this many bytes. */
    static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
    /** Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
@@ -624,9 +639,9 @@ protected:
 
 /** Used to find out what the offsets are for an embedded static item array.
 */
-class _raw_vextr_impl_base_with_static_item_array :
+class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
    public _raw_vextr_impl_base,
-   public _raw_vextr_impl_base::dummy_item_array {
+   public _raw_vextr_impl_base::_prefixed_item_array {
 };
 
 
@@ -637,10 +652,10 @@ inline T * _raw_vextr_impl_base::static_array_ptr() {
    if (!m_rvpd.has_static_item_array()) {
       return nullptr;
    }
-   _raw_vextr_impl_base_with_static_item_array * prvibwsia(
-      static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
+   _raw_vextr_impl_base_with_embedded_prefixed_item_array * prvibwpia(
+      static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this)
    );
-   return reinterpret_cast<T *>(prvibwsia->m_at);
+   return reinterpret_cast<T *>(prvibwpia->m_at);
 }
 
 
@@ -648,10 +663,10 @@ inline size_t _raw_vextr_impl_base::static_capacity() const {
    if (!m_rvpd.has_static_item_array()) {
       return 0;
    }
-   _raw_vextr_impl_base_with_static_item_array const * prvibwsia(
-      static_cast<_raw_vextr_impl_base_with_static_item_array const *>(this)
+   _raw_vextr_impl_base_with_embedded_prefixed_item_array const * prvibwpia(
+      static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array const *>(this)
    );
-   return prvibwsia->m_cbCapacity;
+   return prvibwpia->m_cbCapacity;
 }
 
 } //namespace abc
@@ -694,7 +709,7 @@ public:
    /** Destructor.
    */
    ~_raw_vextr_transaction() {
-      // Only release m_rvpdWork’s item array on this condition. In all other cases, the memory it’s
+      // Only release m_rvibWork’s item array on this condition. In all other cases, the memory it’s
       // pointing to belongs to *m_prvib.
       m_rvibWork.m_rvpd.set_dynamic(m_bFree);
    }
@@ -975,21 +990,13 @@ public:
 
 
    /** Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   read-only or dynamic item array; see [DOC:4019 abc::*str and abc::*vector design] to see how str
-   and vector ensure this.
+   non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::*str and
+   abc::*vector design] to see how str and vector ensure this.
 
    rtvi
       Source vextr.
    */
-   void assign_move(_raw_trivial_vextr_impl && rtvi) {
-      if (rtvi.m_pBegin == m_pBegin) {
-         return;
-      }
-      // Share the item array.
-      _assign_share(rtvi);
-      // And now empty the source.
-      rtvi.assign_empty();
-   }
+   void assign_move(_raw_trivial_vextr_impl && rtvi);
 
 
    /** Moves the source’s item array if dynamically-allocated, else copies its items (not move –
@@ -1001,22 +1008,13 @@ public:
    void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi);
 
 
-   /** Shares the source’s item array if read-only, else copies it to *this.
+   /** Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
+   prefixed item array for *this.
 
    rtvi
       Source vextr.
    */
-   void assign_share_ro_or_copy(_raw_trivial_vextr_impl const & rtvi) {
-      if (rtvi.m_pBegin == m_pBegin) {
-         return;
-      }
-      if (m_rvpd.real_item_array()) {
-         _assign_share(rtvi);
-      } else {
-         // Non-read-only, cannot share.
-         assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
-      }
-   }
+   void assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi);
 
 
    /** Inserts elements at a specific position in the vextr.
@@ -1086,15 +1084,6 @@ protected:
 
 
 private:
-
-   /** Shares the source’s item array. It only allows sharing read-only or dynamically-allocated
-   item arrays (the latter only as part of moving them).
-
-   rtvi
-      Source vextr.
-   */
-   void _assign_share(_raw_trivial_vextr_impl const & rtvi);
-
 
    /** Implementation of insert() and remove().
 

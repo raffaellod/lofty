@@ -34,11 +34,11 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
    ABC_TRACE_FUNC(this, cbStaticCapacity);
 
    if (cbStaticCapacity) {
-      // Assign cbStaticCapacity to the static item array that follows *this.
-      _raw_vextr_impl_base_with_static_item_array * prvibwsia(
-         static_cast<_raw_vextr_impl_base_with_static_item_array *>(this)
+      // Assign cbStaticCapacity to the embedded item array that follows *this.
+      _raw_vextr_impl_base_with_embedded_prefixed_item_array * prvibwepia(
+         static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this)
       );
-      prvibwsia->m_cbCapacity = cbStaticCapacity;
+      prvibwepia->m_cbCapacity = cbStaticCapacity;
    }
 }
 
@@ -56,11 +56,6 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
          // large number instead.
          return numeric::max<size_t>::value;
       }
-      if (cbNewCapacity < smc_cbCapacityMin) {
-         // Make sure we don’t allocate less than smc_cbCapacityMin bytes, so we won’t reallocate
-         // right on the next size change.
-         cbNewCapacity = smc_cbCapacityMin;
-      }
    } else {
       cbNewCapacity = smc_cbCapacityMin;
    }
@@ -68,6 +63,11 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbStaticCapacity) :
       // The item array is growing faster than our hard-coded growth rate, so just use the new size
       // as the capacity.
       cbNewCapacity = cbNew;
+   }
+   if (cbNewCapacity - cbOld < smc_cbCapacityMin) {
+      // Make sure we don’t increase by less than smc_cbCapacityMin bytes, so we won’t reallocate
+      // right on the next size change.
+      cbNewCapacity = cbOld + smc_cbCapacityMin;
    }
    return cbNewCapacity;
 }
@@ -189,7 +189,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
       // Empty string/array: no need to use an item array.
       m_rvibWork.m_pBegin = m_rvibWork.m_pEnd = nullptr;
       m_rvibWork.m_rvpd.set_dynamic(false);
-      m_rvibWork.m_rvpd.set_real_item_array(false);
+      m_rvibWork.m_rvpd.set_prefixed_item_array(false);
    } else {
       // This will return 0 if there’s no static item array.
       size_t cbStaticCapacity(m_prvib->static_capacity());
@@ -197,6 +197,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          // The static item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = m_prvib->static_array_ptr<void>();
          m_rvibWork.m_rvpd.set_dynamic(false);
+         m_rvibWork.m_rvpd.set_prefixed_item_array(true);
       } else if (cbNew <= m_prvib->capacity<int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
@@ -207,28 +208,30 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
             m_prvib->size<int8_t>(), cbNew
          ));
-         typedef _raw_vextr_impl_base::dummy_item_array item_array;
-         size_t cbNewItemArray(sizeof(item_array) - sizeof(item_array::m_at) + cbNewCapacity);
-         item_array * pdia;
+         typedef _raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
+         size_t cbNewItemArrayDesc(
+            sizeof(item_array_desc) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
+         );
+         prefixed_item_array * ppia;
          if (m_prvib->m_rvpd.dynamic()) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
-            pdia = m_prvib->item_array();
-            pdia = static_cast<item_array *>(memory::_raw_realloc(pdia, cbNewItemArray));
-            m_prvib->m_pBegin = pdia->m_at;
+            ppia = m_prvib->prefixed_item_array();
+            ppia = static_cast<item_array_desc *>(memory::_raw_realloc(ppia, cbNewItemArrayDesc));
+            m_prvib->m_pBegin = ppia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
          } else {
             // Allocate a new item array.
-            pdia = static_cast<item_array *>(memory::_raw_alloc(cbNewItemArray));
+            ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
             m_rvibWork.m_rvpd.set_dynamic(true);
             m_bFree = true;
          }
-         pdia->m_cbCapacity = cbNewCapacity;
-         m_rvibWork.m_pBegin = pdia->m_at;
+         piad->m_cbCapacity = cbNewCapacity;
+         m_rvibWork.m_pBegin = ppia->m_at;
+         m_rvibWork.m_rvpd.set_prefixed_item_array(true);
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
-      m_rvibWork.m_rvpd.set_real_item_array(true);
    }
    // Any change in size voids the NUL termination of the item array.
    m_rvibWork.m_rvpd.set_nul_terminated(false);
@@ -594,6 +597,27 @@ void _raw_trivial_vextr_impl::assign_concat(
 }
 
 
+void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
+   // This also checks that the source pointer (&rtvi) is safe to dereference, so the following
+   // code can proceed safely.
+   if (rtvi.m_pBegin == m_pBegin) {
+      return;
+   }
+   ABC_ASSERT(
+      !rtvi.m_rvpd.prefixed_item_array() || rtvi.m_rvpd.dynamic(),
+      SL("cannot transfer ownership of a non-dynamic prefixed item array")
+   );
+   // Discard the current contents.
+   this->~_raw_trivial_vextr_impl();
+   // Take over the dynamic array.
+   m_pBegin = rtvi.m_pBegin;
+   m_pEnd = rtvi.m_pEnd;
+   m_rvpd = rtvi.m_rvpd;
+   // And now empty the source.
+   rtvi.assign_empty();
+}
+
+
 void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
    if (rtvi.m_pBegin == m_pBegin) {
       return;
@@ -609,20 +633,23 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vex
 }
 
 
-void _raw_trivial_vextr_impl::_assign_share(_raw_trivial_vextr_impl const & rtvi) {
-   ABC_TRACE_FUNC(this/*, rtvi*/);
-
-   ABC_ASSERT(rtvi.m_pBegin != m_pBegin, SL("cannot assign from self"));
-   ABC_ASSERT(
-      !rtvi.m_rvpd.real_item_array() || rtvi.m_rvpd.dynamic(),
-      SL("can only share read-only or dynamic item arrays (the latter only as part of a move)")
-   );
-   // Discard the current contents.
-   this->~_raw_trivial_vextr_impl();
-   // Take over the dynamic array.
-   m_pBegin = rtvi.m_pBegin;
-   m_pEnd = rtvi.m_pEnd;
-   m_rvpd = rtvi.m_rvpd;
+void _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi) {
+   // This also checks that the source pointer (&rtvi) is safe to dereference, so the following
+   // code can proceed safely.
+   if (rtvi.m_pBegin == m_pBegin) {
+      return;
+   }
+   if (rtvi.m_rvpd.prefixed_item_array()) {
+      // Cannot share a prefixed item array.
+      assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
+   } else {
+      // Discard the current contents.
+      this->~_raw_trivial_vextr_impl();
+      // Take over the dynamic array.
+      m_pBegin = rtvi.m_pBegin;
+      m_pEnd = rtvi.m_pEnd;
+      m_rvpd = rtvi.m_rvpd;
+   }
 }
 
 
