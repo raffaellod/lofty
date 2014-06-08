@@ -88,14 +88,6 @@ public:
    }
 
 
-   /** Removes all elements from the vector.
-   */
-   void clear() {
-      this->~_raw_vector();
-      assign_empty();
-   }
-
-
    /** Inserts elements at a specific position in the vector by moving them.
 
    ptOffset
@@ -297,14 +289,6 @@ public:
    */
    void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
-   }
-
-
-   /** Removes all elements from the vector.
-   */
-   void clear() {
-      this->~_raw_vector();
-      assign_empty();
    }
 
 
@@ -839,7 +823,8 @@ public:
    /** Removes all elements from the vector.
    */
    void clear() {
-      vector_base_::clear();
+      this->~vector_base_();
+      this->assign_empty();
    }
 
 
