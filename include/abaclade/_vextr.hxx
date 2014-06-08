@@ -101,34 +101,35 @@ The upper-level class hierarchies consist in these classes:
       offer any modifier methods or operators beyond operator==(). Only class in its hierarchy that
       can be constructed from a C++ literal without creating a copy of the constructor argument.
 
-   •  mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable, statically- or
+   •  mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable, embedded or
       dynamically-allocated prefixed item array (never a non-prefixed, read-only item array), and
       provides an abstraction for its derived classes.
 
       •  dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated item array.
 
-      •  smvector/smstr: mutable vector/string that can use an internal statically-allocated item
-         array and will switch to a dynamically-allocated one only if necessary. Nearly as fast as
-         the C-style direct manipulation of an array, only wasting a very small amount of space, and
+      •  smvector/smstr: mutable vector/string that can use an internal embedded prefixed item array
+         and will switch to a dynamically-allocated one only if necessary. Nearly as fast as the
+         C-style direct manipulation of an array, only wasting a very small amount of space, and
          providing the ability to switch to a dynamically-allocated item array on-the-fly in case
          the client needs to store in it more items than are available.
 
 The upper-level class hierarchy is arranged so that the compiler will prevent implicit cast of mstr
 or smstr to istr &/dmstr &; allowing this would allow the istr/dmstr move constructor/assignment
-operator to be invoked to transfer ownership of a static item array, which is wrong, or (if falling
-back to copying the static item array into a new dynamic one) would result in memory allocation and
-items being copied, which would violate the “nothrow” requirement for the move constructor/
-assignment operator.
+operator to be invoked to transfer ownership of an embedded prefixed item array, which is wrong, or
+(if falling back to copying the embedded item array into a new dynamically-allocated one) would
+result in memory allocation and items being copied, which would violate the “nothrow” requirement
+for the move constructor/assignment operator.
 
 All string (TODO: and vector) types can be implicitly cast as istr const &; this makes istr const &
 the lowest common denominator for string exchange, much like str is in Python. Because of this, an
-istr const & can be using a static item array (because it can be a smstr), while any other istr will
-always use either a read-only, non-prefixed item array or a dynamic prefixed item array.
+istr const & can be using an embedded prefixed item array (because it can be a smstr), while any
+other istr will always use either a read-only, non-prefixed item array or a dynamic prefixed item
+array.
 
 mvector/mstr cannot have a “nothrow” move constructor or assignment operator from itself, because
-the two underlying objects might have static item arrays of different sizes. This isn’t a huge deal-
-breaker because of the intended limited usage for mstr and smstr, but it’s something to watch out
-for, and it means that mstr should not be used in container classes.
+the two underlying objects might have embedded item arrays of different sizes. This isn’t a huge
+deal-breaker because of the intended limited usage for mstr and smstr, but it’s something to watch
+out for, and it means that mstr should not be used in container classes.
 
 This table illustrates the best type of string to use for each use scenario:
 
@@ -168,7 +169,7 @@ Key:
    ┌──────────────┬──────────┬───────────┬───────────────┬────────────────┬─────────────────┐
    │ Pointer to   │ Pointer  │ P if item │ T if item     │ E is vextr has │ D if item array │
    │ beginning of │ to end   │ array is  │ array is NUL- │ embedded       │ is dynamically- │
-   │ array        │ of array │ prefixed  │ terminated    │ static array   │ allocated       │
+   │ array        │ of array │ prefixed  │ terminated    │ prefixed array │ allocated       │
    └──────────────┴──────────┴───────────┴───────────────┴────────────────┴─────────────────┘
 
    Additionally, an embedded item array can follow, prefixed by its length (here in items, but in
@@ -180,7 +181,7 @@ Key:
    │ nullptr │ nullptr │ - │ - │ - │ - │
    └─────────┴─────────┴───┴───┴───┴───┘
 
-2. smstr<4>(): has a static embedded fixed-size buffer, but does not use it yet.
+2. smstr<4>(): has an embedded prefixed fixed-size array, but does not use it yet.
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
    │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
@@ -232,14 +233,14 @@ public:
 
    /** Constructor.
 
-   bHasStatic
-      true if the parent object is followed by a static item array, or false otherwise.
+   bHasEmbedded
+      true if the parent object is followed by an embedded prefixed item array, or false otherwise.
    bNulT
       true if the item array ends in a NUL terminator, or false otherwise.
    */
-   _raw_vextr_packed_data(bool bHasStatic, bool bNulT) :
+   _raw_vextr_packed_data(bool bHasEmbedded, bool bNulT) :
       m_iPackedData(
-         (bHasStatic ? smc_bHasStaticMask : 0) |
+         (bHasEmbedded ? smc_bHasEmbeddedMask : 0) |
          (bNulT ? smc_bNulTMask : 0)
       ) {
    }
@@ -256,13 +257,13 @@ public:
    }
 
 
-   /** Returns true if the parent object is followed by a static item array.
+   /** Returns true if the parent object is followed by an embedded prefixed item array.
 
    return
-      true if the object also has a static item array, or false otherwise.
+      true if the object also has an embedded item array, or false otherwise.
    */
-   bool has_static_item_array() const {
-      return (m_iPackedData & smc_bHasStaticMask) != 0;
+   bool has_embedded_item_array() const {
+      return (m_iPackedData & smc_bHasEmbeddedMask) != 0;
    }
 
 
@@ -287,7 +288,8 @@ public:
    allocated item array.
 
    bDynamic
-      true if the item array is allocated dynamically, or false otherwise (static or read-only).
+      true if the item array is allocated dynamically, or false otherwise (embedded prefixed or
+      read-only).
    */
    void set_dynamic(bool bDynamic) {
       m_iPackedData &= ~smc_bDynamicMask;
@@ -328,9 +330,10 @@ private:
    bool bPrefixedItemArray
       true if the item array is part of a prefixed item array.
    bool bDynamic
-      true if the item array is allocated dynamically, or false otherwise (static or read-only).
-   bool const bHasStatic
-      true if the parent object is followed by a static item array.
+      true if the item array is allocated dynamically, or false otherwise (embedded prefixed or
+      read-only).
+   bool const bHasEmbedded
+      true if the parent object is followed by an embedded prefixed item array.
    bool bNulT
       true if the item array is NUL-terminated.
    size_t cbCapacity
@@ -342,8 +345,8 @@ private:
    static size_t const smc_bPrefixedItemArrayMask = 0x08;
    /** Mask to access bDynamic from m_iPackedData. */
    static size_t const smc_bDynamicMask = 0x04;
-   /** Mask to access bHasStatic from m_iPackedData. */
-   static size_t const smc_bHasStaticMask = 0x02;
+   /** Mask to access bHasEmbedded from m_iPackedData. */
+   static size_t const smc_bHasEmbeddedMask = 0x02;
    /** Mask to access bNulT from m_iPackedData. */
    static size_t const smc_bNulTMask = 0x01;
 };
@@ -357,23 +360,23 @@ private:
 
 namespace abc {
 
-/** Stores an item array and its capacity. Used as a real template by the classes with static item
+/** Stores an item array and its capacity. Used as a real template by classes with embedded item
 array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vector design]), and used
-with template capacity == 1 for all non-template-driven manipulations in non-template code, which
-relies on m_cbCapacity instead.
+with template capacity == 1 for all non-template-driven manipulations in non-template code in the
+“lower-level” hierarchy, which relies on m_cbCapacity instead.
 */
-template <typename T, size_t t_ciStaticCapacity>
+template <typename T, size_t t_ciEmbeddedCapacity>
 class _raw_vextr_prefixed_item_array {
 public:
 
-   /** Static item array capacity, in bytes. */
-   static size_t const smc_cbStaticCapacity = sizeof(T) * t_ciStaticCapacity;
+   /** Embedded item array capacity, in bytes. */
+   static size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
    /** Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
-   so it can be greater than smc_cbStaticCapacity. */
+   so it can be greater than smc_cbEmbeddedCapacity. */
    size_t m_cbCapacity;
-   /** Static item array. This can’t be a T[], because we don’t want its items to be constructed/
+   /** Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
    destructed automatically, and because the count may be greater than what’s declared here. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbStaticCapacity)];
+   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
 } //namespace abc
@@ -481,12 +484,12 @@ private:
 
 protected:
 
-   /** Constructor. The overload with cbStaticCapacity constructs the object as empty, setting
+   /** Constructor. The overload with cbEmbeddedCapacity constructs the object as empty, setting
    m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
    item array.
 
-   cbStaticCapacity
-      Size of the static item array, in bytes, or 0 if no static item array is present.
+   cbEmbeddedCapacity
+      Size of the embedded prefixed item array, in bytes, or 0 if no embedded item array is present.
    pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
    pConstSrcEnd
@@ -494,7 +497,7 @@ protected:
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   _raw_vextr_impl_base(size_t cbStaticCapacity);
+   _raw_vextr_impl_base(size_t cbEmbeddedCapacity);
    _raw_vextr_impl_base(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
    ) :
@@ -551,23 +554,23 @@ protected:
    }
 
 
-   /** Returns a pointer to the static item array that follows this object, if present, or nullptr
-   otherwise.
+   /** Returns a pointer to the embedded prefixed item array that follows this object, if present,
+   or nullptr otherwise.
 
    return
-      Pointer to the static item array, or nullptr if no static item array is present.
+      Pointer to the embedded item array, or nullptr if no embedded item array is present.
    */
    template <typename T>
-   T * static_array_ptr();
+   T * embedded_array_ptr();
 
 
-   /** Returns the size of the array returned by static_array_ptr(), or 0 if no such array is
+   /** Returns the size of the array returned by embedded_array_ptr(), or 0 if no such array is
    present.
 
    return
-      Capacity of the static item array, in bytes, or 0 if no static item array is present.
+      Capacity of the embedded item array, in bytes, or 0 if no embedded item array is present.
    */
-   size_t static_capacity() const;
+   size_t embedded_capacity() const;
 
 
    /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
@@ -639,7 +642,7 @@ protected:
 };
 
 
-/** Used to find out what the offsets are for an embedded static item array.
+/** Used to manipulate an embedded prefixed item array in non-template code.
 */
 class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
    public _raw_vextr_impl_base,
@@ -650,8 +653,8 @@ class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
 // Now these can be implemented.
 
 template <typename T>
-inline T * _raw_vextr_impl_base::static_array_ptr() {
-   if (!m_rvpd.has_static_item_array()) {
+inline T * _raw_vextr_impl_base::embedded_array_ptr() {
+   if (!m_rvpd.has_embedded_item_array()) {
       return nullptr;
    }
    _raw_vextr_impl_base_with_embedded_prefixed_item_array * prvibwpia(
@@ -661,8 +664,8 @@ inline T * _raw_vextr_impl_base::static_array_ptr() {
 }
 
 
-inline size_t _raw_vextr_impl_base::static_capacity() const {
-   if (!m_rvpd.has_static_item_array()) {
+inline size_t _raw_vextr_impl_base::embedded_capacity() const {
+   if (!m_rvpd.has_embedded_item_array()) {
       return 0;
    }
    _raw_vextr_impl_base_with_embedded_prefixed_item_array const * prvibwpia(
@@ -933,8 +936,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_complex_vextr_impl(size_t cbStaticCapacity) :
-      _raw_vextr_impl_base(cbStaticCapacity) {
+   _raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
+      _raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
    _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
@@ -1075,8 +1078,8 @@ protected:
 
    /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
-   _raw_trivial_vextr_impl(size_t cbStaticCapacity) :
-      _raw_vextr_impl_base(cbStaticCapacity) {
+   _raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
+      _raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
    _raw_trivial_vextr_impl(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false

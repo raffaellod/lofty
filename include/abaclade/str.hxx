@@ -410,8 +410,8 @@ protected:
 
    /** Constructor.
 
-   cbStaticCapacity
-      Size of the static character array, in bytes, or 0 if no static character array is present.
+   cbEmbeddedCapacity
+      Size of the embedded character array, in bytes, or 0 if no embedded array is present.
    pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
    cchSrc
@@ -419,8 +419,8 @@ protected:
    bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str_base(size_t cbStaticCapacity) :
-      _raw_trivial_vextr_impl(cbStaticCapacity) {
+   str_base(size_t cbEmbeddedCapacity) :
+      _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
       _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
@@ -995,8 +995,8 @@ protected:
 
    /** Constructor. See str_base::str_base().
    */
-   mstr(size_t cbStaticCapacity) :
-      str_base(cbStaticCapacity) {
+   mstr(size_t cbEmbeddedCapacity) :
+      str_base(cbEmbeddedCapacity) {
    }
 };
 
@@ -1278,10 +1278,10 @@ namespace abc {
 /** mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size.
 */
-template <size_t t_cchStaticCapacity>
+template <size_t t_cchEmbeddedCapacity>
 class smstr :
    public mstr,
-   private _raw_vextr_prefixed_item_array<char_t, t_cchStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
 public:
 
    /** Constructor.
@@ -1292,40 +1292,40 @@ public:
       Source NUL-terminated string literal.
    */
    smstr() :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
    }
    smstr(smstr const & s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
-   // If the source is using its static character array, it will be copied without allocating a
+   // If the source is using its embedded character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_move(std::move(s));
    }
    template <size_t t_cch>
    smstr(char_t const (& ach)[t_cch]) :
-      mstr(this->smc_cbStaticCapacity) {
+      mstr(this->smc_cbEmbeddedCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
    }
 
@@ -1343,7 +1343,7 @@ public:
       assign_copy(s.cbegin().base(), s.cend().base());
       return *this;
    }
-   // If the source is using its static character array, it will be copied without allocating a
+   // If the source is using its embedded character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr & operator=(smstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
@@ -1381,8 +1381,8 @@ public:
 namespace std {
 
 // Specialization of std::hash.
-template <size_t t_cchStaticCapacity>
-struct hash<abc::smstr<t_cchStaticCapacity>> : public hash<abc::str_base> {};
+template <size_t t_cchEmbeddedCapacity>
+struct hash<abc::smstr<t_cchEmbeddedCapacity>> : public hash<abc::str_base> {};
 
 } //namespace std
 

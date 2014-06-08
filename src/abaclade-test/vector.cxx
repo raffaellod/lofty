@@ -462,7 +462,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
       ABC_TESTING_ASSERT_EQUAL(v3[1], 31);
 
-      // Check assignment from larger to smaller static vectors.
+      // Check assignment from larger to smaller embedded vectors.
 
       // Should keep the current item array, copying v2’s items over.
       v1 = v2;
@@ -579,7 +579,7 @@ public:
       instances_counter::reset_counts();
 
       smvector<instances_counter, 9> v2;
-      // This will move the individual items from the returned vector to v2’s static item array.
+      // This will move the individual items from the returned vector to v2’s embedded item array.
       // Can’t just construct v2 with return_dmvector() because v2 would just use that item array
       // instead of its own embedded one, resulting in no additional moves other than the one in
       // return_dmvector().
@@ -605,7 +605,7 @@ public:
       // New instance, immediately moved.
       v.append(instances_counter());
       // This will move the item array or the items in it, depending on the destination type
-      // (static or dynamic item array).
+      // (embedded or dynamic item array).
       return std::move(v);
    }
 };

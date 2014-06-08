@@ -191,18 +191,18 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
       m_rvibWork.m_rvpd.set_dynamic(false);
       m_rvibWork.m_rvpd.set_prefixed_item_array(false);
    } else {
-      // This will return 0 if there’s no static item array.
-      size_t cbStaticCapacity(m_prvib->static_capacity());
+      // This will return 0 if there’s no embedded item array.
+      size_t cbStaticCapacity(m_prvib->embedded_capacity());
       if (cbNew <= cbStaticCapacity) {
-         // The static item array is large enough; switch to using it.
-         m_rvibWork.m_pBegin = m_prvib->static_array_ptr<void>();
+         // The embedded item array is large enough; switch to using it.
+         m_rvibWork.m_pBegin = m_prvib->embedded_array_ptr<void>();
          m_rvibWork.m_rvpd.set_dynamic(false);
          m_rvibWork.m_rvpd.set_prefixed_item_array(true);
       } else if (cbNew <= m_prvib->capacity<int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
       } else {
-         // The current item array (static or dynamic) is not large enough.
+         // The current item array (embedded or dynamic) is not large enough.
 
          // Calculate the total allocation size.
          size_t cbNewCapacity(_raw_vextr_impl_base::calculate_increased_capacity(
@@ -327,7 +327,7 @@ void _raw_complex_vextr_impl::assign_move(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   ABC_ASSERT(rcvi.m_rvpd.dynamic(), SL("cannot move a static item array"));
+   ABC_ASSERT(rcvi.m_rvpd.dynamic(), SL("cannot move an embedded item array"));
    // Discard the current contents.
    destruct_items(type);
    this->~_raw_complex_vextr_impl();

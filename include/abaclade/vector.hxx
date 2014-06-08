@@ -162,8 +162,8 @@ protected:
 
    /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
-   _raw_vector(size_t cbStaticCapacity) :
-      _raw_complex_vextr_impl(cbStaticCapacity) {
+   _raw_vector(size_t cbEmbeddedCapacity) :
+      _raw_complex_vextr_impl(cbEmbeddedCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_complex_vextr_impl(ptConstSrc, ciSrc) {
@@ -235,8 +235,8 @@ protected:
 
    /** Constructor. See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
-   _raw_vector(size_t cbStaticCapacity) :
-      _raw_vector<T, false, false>(cbStaticCapacity) {
+   _raw_vector(size_t cbEmbeddedCapacity) :
+      _raw_vector<T, false, false>(cbEmbeddedCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_vector<T, false, false>(ptConstSrc, ciSrc) {
@@ -377,8 +377,8 @@ protected:
 
    /** Constructor. See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
-   _raw_vector(size_t cbStaticCapacity) :
-      _raw_trivial_vextr_impl(cbStaticCapacity) {
+   _raw_vector(size_t cbEmbeddedCapacity) :
+      _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
    _raw_vector(T const * ptConstSrc, size_t ciSrc) :
       _raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
@@ -609,18 +609,18 @@ public:
 
 protected:
 
-   /** Constructor. The overload with ciStatic constructs the object as empty, setting m_p to
+   /** Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
-   ciStatic
-      Count of slots in the static item array, or 0 if no static item array is present.
+   ciEmbedded
+      Count of slots in the embedded item array, or 0 if no embedded item array is present.
    pt
       Pointer to an array that will be adopted by the vector as read-only.
    ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(size_t ciStatic) :
-      _raw_vector<T, smc_bCopyConstructible>(ciStatic) {
+   vector_base(size_t ciEmbedded) :
+      _raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
    }
    vector_base(T const * pt, size_t ci) :
       _raw_vector<T, smc_bCopyConstructible>(pt, ci) {
@@ -718,18 +718,18 @@ public:
 
 protected:
 
-   /** Constructor. The overload with ciStatic constructs the object as empty, setting m_p to
+   /** Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
-   ciStatic
-      Count of slots in the static item array, or 0 if no static item array is present.
+   ciEmbedded
+      Count of slots in the embedded item array, or 0 if no embedded item array is present.
    pt
       Pointer to an array that will be adopted by the vector as read-only.
    ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(size_t ciStatic) :
-      vector_base<T, false>(ciStatic) {
+   vector_base(size_t ciEmbedded) :
+      vector_base<T, false>(ciEmbedded) {
    }
    vector_base(T const * pt, size_t ci) :
       vector_base<T, false>(pt, ci) {
@@ -981,11 +981,11 @@ protected:
 
    /** Constructor. Constructs the object as empty, setting m_p to nullptr.
 
-   cbStaticCapacity
-      Size of the static item array, in bytes, or 0 if no static item array is present.
+   cbEmbeddedCapacity
+      Size of the embedded item array, in bytes, or 0 if no embedded item array is present.
    */
-   mvector(size_t cbStaticCapacity) :
-      vector_base_(cbStaticCapacity) {
+   mvector(size_t cbEmbeddedCapacity) :
+      vector_base_(cbEmbeddedCapacity) {
    }
 };
 
@@ -1103,8 +1103,8 @@ protected:
 
    /** See mvector<T, false>::mvector().
    */
-   mvector(size_t cbStaticCapacity) :
-      mvector<T, false>(cbStaticCapacity) {
+   mvector(size_t cbEmbeddedCapacity) :
+      mvector<T, false>(cbEmbeddedCapacity) {
    }
 };
 
@@ -1346,16 +1346,16 @@ namespace abc {
 most likely to be shorter than a known small size.
 */
 template <
-   typename T, size_t t_ciStaticCapacity,
+   typename T, size_t t_ciEmbeddedCapacity,
    bool t_bCopyConstructible = std::is_copy_constructible<T>::value
 >
 class smvector;
 
 // Partial specialization for non-copyable types.
-template <typename T, size_t t_ciStaticCapacity>
-class smvector<T, t_ciStaticCapacity, false> :
+template <typename T, size_t t_ciEmbeddedCapacity>
+class smvector<T, t_ciEmbeddedCapacity, false> :
    public mvector<T, false>,
-   private _raw_vextr_prefixed_item_array<T, t_ciStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 public:
 
    /** Constructor. The individual items or the entire source item array will be moved to *this.
@@ -1364,32 +1364,32 @@ public:
       Source vector.
    */
    smvector() :
-      mvector<T, false>(this->smc_cbStaticCapacity) {
+      mvector<T, false>(this->smc_cbEmbeddedCapacity) {
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, false>(this->smc_cbStaticCapacity) {
+      mvector<T, false>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStaticCapacity2>
+   template <size_t t_ciEmbeddedCapacity2>
    smvector(typename std::enable_if<
-      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, false> &&
+      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
    >::type v) :
-      mvector<T, false>(this->smc_cbStaticCapacity) {
+      mvector<T, false>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStaticCapacity.
+   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
    smvector(mvector<T, false> && v) :
-      mvector<T, false>(this->smc_cbStaticCapacity) {
+      mvector<T, false>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, false> && v) :
-      mvector<T, false>(this->smc_cbStaticCapacity) {
+      mvector<T, false>(this->smc_cbEmbeddedCapacity) {
       this->assign_move(std::move(v));
    }
 
@@ -1402,24 +1402,24 @@ public:
    return
       *this.
    */
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector & operator=(smvector && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStaticCapacity2>
+   template <size_t t_ciEmbeddedCapacity2>
    smvector & operator=(typename std::enable_if<
-      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, false> &&
+      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
    >::type v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStaticCapacity.
+   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
    smvector & operator=(mvector<T, false> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1431,10 +1431,10 @@ public:
 };
 
 // Partial specialization for copyable types.
-template <typename T, size_t t_ciStaticCapacity>
-class smvector<T, t_ciStaticCapacity, true> :
+template <typename T, size_t t_ciEmbeddedCapacity>
+class smvector<T, t_ciEmbeddedCapacity, true> :
    public mvector<T, true>,
-   private _raw_vextr_prefixed_item_array<T, t_ciStaticCapacity> {
+   private _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 public:
 
    /** Constructor. R-value-reference arguments will have their contents transferred to *this.
@@ -1449,49 +1449,49 @@ public:
       Count of items in the array pointed to by pt.
    */
    smvector() :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
    }
    smvector(smvector const & v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector(smvector && v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStaticCapacity2>
+   template <size_t t_ciEmbeddedCapacity2>
    smvector(typename std::enable_if<
-      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, true> &&
+      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
    >::type v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(mvector<T, true> const & v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStaticCapacity.
+   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
    smvector(mvector<T, true> && v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
    smvector(dmvector<T, true> && v) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_move(std::move(v));
    }
    template <size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_copy(at, at + t_ci);
    }
    smvector(T const * ptBegin, T const * ptEnd) :
-      mvector<T, true>(this->smc_cbStaticCapacity) {
+      mvector<T, true>(this->smc_cbEmbeddedCapacity) {
       this->assign_copy(ptBegin, ptEnd);
    }
 
@@ -1508,18 +1508,18 @@ public:
       this->assign_copy(v.cbegin().base(), v.cend().base());
       return *this;
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smvector & operator=(smvector && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   // If the source is using its static item array, it will be copied without allocating a dynamic
+   // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciStaticCapacity2>
+   template <size_t t_ciEmbeddedCapacity2>
    smvector & operator=(typename std::enable_if<
-      (t_ciStaticCapacity > t_ciStaticCapacity2), smvector<T, t_ciStaticCapacity2, true> &&
+      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
    >::type v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1529,7 +1529,7 @@ public:
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different static size > t_ciStaticCapacity.
+   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
    smvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
