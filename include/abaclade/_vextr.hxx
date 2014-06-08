@@ -555,12 +555,25 @@ protected:
 
 
    /** Returns a pointer to the embedded prefixed item array that follows this object, if present,
-   or nullptr if no embedded item array is present.
+   or nullptr if not present.
 
    return
       Pointer to the embedded item array, or nullptr otherwise.
    */
-   _prefixed_item_array * embedded_prefixed_item_array();
+   _prefixed_item_array * embedded_prefixed_item_array() {
+      if (m_rvpd.has_embedded_item_array()) {
+         // Allows to obtain the pointer to an embedded prefixed item array in non-template code
+         // without resorting to manual pointer arithmetics.
+         class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
+            public _raw_vextr_impl_base,
+            public _raw_vextr_impl_base::_prefixed_item_array {
+         };
+
+         return static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this);
+      } else {
+         return nullptr;
+      }
+   }
 
 
    /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
@@ -630,26 +643,6 @@ protected:
    possible, so every time we do it it should be for a rather conspicuous growth. */
    static unsigned const smc_iGrowthRate = 2;
 };
-
-
-/** Used to manipulate an embedded prefixed item array in non-template code.
-*/
-class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
-   public _raw_vextr_impl_base,
-   public _raw_vextr_impl_base::_prefixed_item_array {
-};
-
-
-// Now this can be implemented.
-
-inline _raw_vextr_impl_base::_prefixed_item_array *
-_raw_vextr_impl_base::embedded_prefixed_item_array() {
-   if (m_rvpd.has_embedded_item_array()) {
-      return static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this);
-   } else {
-      return nullptr;
-   }
-}
 
 } //namespace abc
 
