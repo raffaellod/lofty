@@ -30,7 +30,10 @@ namespace abc {
 _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbEmbeddedCapacity) :
    m_pBegin(nullptr),
    m_pEnd(nullptr),
-   m_rvpd(cbEmbeddedCapacity > 0, false) {
+   mc_bHasEmbedded(cbEmbeddedCapacity > 0),
+   m_bPrefixedItemArray(false),
+   m_bDynamic(false),
+   m_bNulT(false) {
    ABC_TRACE_FUNC(this, cbEmbeddedCapacity);
 
    if (cbEmbeddedCapacity) {
@@ -143,16 +146,14 @@ void _raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 
 namespace abc {
 
-_raw_vextr_transaction::_raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew) :
-   m_rvibWork(prvib->m_rvpd) {
+_raw_vextr_transaction::_raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew) {
    ABC_TRACE_FUNC(this, prvib, cbNew);
 
    _construct(prvib, cbNew);
 }
 _raw_vextr_transaction::_raw_vextr_transaction(
    _raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove
-) :
-   m_rvibWork(prvib->m_rvpd) {
+) {
    ABC_TRACE_FUNC(this, prvib, cbAdd, cbRemove);
 
    _construct(prvib, prvib->size<int8_t>() + cbAdd - cbRemove);
@@ -170,33 +171,45 @@ void _raw_vextr_transaction::commit() {
       m_bFree = false;
    }
    // Update the target object.
-   m_prvib->m_pEnd = m_rvibWork.m_pEnd;
-   m_prvib->m_rvpd = m_rvibWork.m_rvpd;
+   m_prvib->m_pEnd               = m_rvibWork.m_pEnd;
+   m_prvib->m_bPrefixedItemArray = m_rvibWork.m_bPrefixedItemArray;
+   m_prvib->m_bDynamic           = m_rvibWork.m_bDynamic;
+   m_prvib->m_bNulT              = m_rvibWork.m_bNulT;
    // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
+
+   // Disable m_rvibWork’s destructor, since we just transferred ownership of its item array.
+   m_rvibWork.m_bDynamic = false;
 }
 
 
 void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
    ABC_TRACE_FUNC(this, prvib, cbNew);
 
+   // Any change in size voids the NUL termination of the item array.
+   m_rvibWork.m_bNulT = false;
    m_prvib = prvib;
    m_bFree = false;
 
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
-      m_rvibWork.m_pBegin = m_rvibWork.m_pEnd = nullptr;
-      m_rvibWork.m_rvpd.set_dynamic(false);
-      m_rvibWork.m_rvpd.set_prefixed_item_array(false);
+      m_rvibWork.m_pBegin = nullptr;
+      m_rvibWork.m_pEnd = nullptr;
+      m_rvibWork.m_bDynamic = false;
+      m_rvibWork.m_bPrefixedItemArray = false;
    } else {
+      // Since we never write to non-prefixed item arrays and we’re in a transaction to prepare to
+      // write to one, it must be prefixed.
+      m_rvibWork.m_bPrefixedItemArray = true;
       auto ppiaEmbedded(m_prvib->embedded_prefixed_item_array());
       if (ppiaEmbedded && cbNew <= ppiaEmbedded->m_cbCapacity) {
          // The embedded item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = ppiaEmbedded->m_at;
-         m_rvibWork.m_rvpd.set_dynamic(false);
-         m_rvibWork.m_rvpd.set_prefixed_item_array(true);
+         m_rvibWork.m_bDynamic = false;
+         m_rvibWork.m_bPrefixedItemArray = true;
       } else if (cbNew <= m_prvib->capacity<int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
+         m_rvibWork.m_bDynamic = m_prvib->m_bDynamic;
       } else {
          // The current item array (embedded or dynamic) is not large enough.
 
@@ -209,7 +222,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             sizeof(prefixed_item_array) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
          );
          prefixed_item_array * ppia;
-         if (m_prvib->m_rvpd.dynamic()) {
+         if (m_prvib->m_bDynamic) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
@@ -222,17 +235,15 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
          } else {
             // Allocate a new item array.
             ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
-            m_rvibWork.m_rvpd.set_dynamic(true);
+            m_rvibWork.m_bDynamic = true;
             m_bFree = true;
          }
          ppia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = ppia->m_at;
-         m_rvibWork.m_rvpd.set_prefixed_item_array(true);
+         m_rvibWork.m_bPrefixedItemArray = true;
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
    }
-   // Any change in size voids the NUL termination of the item array.
-   m_rvibWork.m_rvpd.set_nul_terminated(false);
 }
 
 } //namespace abc
@@ -323,14 +334,16 @@ void _raw_complex_vextr_impl::assign_move(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   ABC_ASSERT(rcvi.m_rvpd.dynamic(), SL("cannot move an embedded item array"));
+   ABC_ASSERT(rcvi.m_bDynamic, SL("cannot move an embedded item array"));
    // Discard the current contents.
    destruct_items(type);
    this->~_raw_complex_vextr_impl();
-   // Take over the dynamic array.
-   m_pBegin = rcvi.m_pBegin;
-   m_pEnd = rcvi.m_pEnd;
-   m_rvpd = rcvi.m_rvpd;
+   // Take over the item array.
+   m_pBegin             = rcvi.m_pBegin;
+   m_pEnd               = rcvi.m_pEnd;
+   m_bPrefixedItemArray = rcvi.m_bPrefixedItemArray;
+   m_bDynamic           = rcvi.m_bDynamic;
+   m_bNulT              = rcvi.m_bNulT;
    // And now empty the source.
    rcvi.assign_empty();
 }
@@ -342,7 +355,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rcvi.m_rvpd.dynamic()) {
+   if (rcvi.m_bDynamic) {
       assign_move(type, std::move(rcvi));
    } else {
       // Can’t move the item array, so move the items instead.
@@ -602,15 +615,17 @@ void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
       return;
    }
    ABC_ASSERT(
-      !rtvi.m_rvpd.prefixed_item_array() || rtvi.m_rvpd.dynamic(),
+      !rtvi.m_bPrefixedItemArray || rtvi.m_bDynamic,
       SL("cannot transfer ownership of a non-dynamic prefixed item array")
    );
    // Discard the current contents.
    this->~_raw_trivial_vextr_impl();
    // Take over the dynamic array.
-   m_pBegin = rtvi.m_pBegin;
-   m_pEnd = rtvi.m_pEnd;
-   m_rvpd = rtvi.m_rvpd;
+   m_pBegin             = rtvi.m_pBegin;
+   m_pEnd               = rtvi.m_pEnd;
+   m_bPrefixedItemArray = rtvi.m_bPrefixedItemArray;
+   m_bDynamic           = rtvi.m_bDynamic;
+   m_bNulT              = rtvi.m_bNulT;
    // And now empty the source.
    rtvi.assign_empty();
 }
@@ -620,7 +635,7 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vex
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rtvi.m_rvpd.dynamic()) {
+   if (rtvi.m_bDynamic) {
       assign_move(std::move(rtvi));
    } else {
       // Can’t move, so copy instead.
@@ -637,16 +652,18 @@ void _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(_raw_trivial_vextr_i
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rtvi.m_rvpd.prefixed_item_array()) {
+   if (rtvi.m_bPrefixedItemArray) {
       // Cannot share a prefixed item array.
       assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
    } else {
       // Discard the current contents.
       this->~_raw_trivial_vextr_impl();
       // Take over the dynamic array.
-      m_pBegin = rtvi.m_pBegin;
-      m_pEnd = rtvi.m_pEnd;
-      m_rvpd = rtvi.m_rvpd;
+      m_pBegin             = rtvi.m_pBegin;
+      m_pEnd               = rtvi.m_pEnd;
+      m_bPrefixedItemArray = rtvi.m_bPrefixedItemArray;
+      m_bDynamic           = rtvi.m_bDynamic;
+      m_bNulT              = rtvi.m_bNulT;
    }
 }
 

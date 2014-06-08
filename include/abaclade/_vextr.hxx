@@ -223,138 +223,6 @@ Key:
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vextr_packed_data
-
-
-namespace abc {
-
-class _raw_vextr_packed_data {
-public:
-
-   /** Constructor.
-
-   bHasEmbedded
-      true if the parent object is followed by an embedded prefixed item array, or false otherwise.
-   bNulT
-      true if the item array ends in a NUL terminator, or false otherwise.
-   */
-   _raw_vextr_packed_data(bool bHasEmbedded, bool bNulT) :
-      m_iPackedData(
-         (bHasEmbedded ? smc_bHasEmbeddedMask : 0) |
-         (bNulT ? smc_bNulTMask : 0)
-      ) {
-   }
-
-
-   /** Returns true if the parent object’s m_pBegin/End point to a dynamically-allocated item array.
-
-   return
-      true if the item array is allocated dynamically, or false otherwise (embedded prefixed item
-      array or non-prefixed item array).
-   */
-   bool dynamic() const {
-      return (m_iPackedData & smc_bDynamicMask) != 0;
-   }
-
-
-   /** Returns true if the parent object is followed by an embedded prefixed item array.
-
-   return
-      true if the object also has an embedded item array, or false otherwise.
-   */
-   bool has_embedded_item_array() const {
-      return (m_iPackedData & smc_bHasEmbeddedMask) != 0;
-   }
-
-
-   /** Returns true if the parent object’s m_pBegin/End points to a NUL-terminated item array.
-
-   return
-      true if the item array ends in a NUL terminator, or false otherwise.
-   */
-   bool nul_terminated() const {
-      return (m_iPackedData & smc_bNulTMask) != 0;
-   }
-
-
-   /** TODO: comment.
-   */
-   bool prefixed_item_array() const {
-      return (m_iPackedData & smc_bPrefixedItemArrayMask) != 0;
-   }
-
-
-   /** Sets the bit tracking whether the parent object’s m_pBegin/End point to a dynamically-
-   allocated item array.
-
-   bDynamic
-      true if the item array is allocated dynamically, or false otherwise (embedded prefixed or
-      read-only).
-   */
-   void set_dynamic(bool bDynamic) {
-      m_iPackedData &= ~smc_bDynamicMask;
-      if (bDynamic) {
-         m_iPackedData |= smc_bDynamicMask;
-      }
-   }
-
-
-   /** Sets the bit tracking whether the parent object’s m_pBegin/End points to a NUL-terminated
-   item array.
-
-   bNulT
-      true if the item array ends in a NUL terminator, or false otherwise.
-   */
-   void set_nul_terminated(bool bNulT) {
-      m_iPackedData &= ~smc_bNulTMask;
-      if (bNulT) {
-         m_iPackedData |= smc_bNulTMask;
-      }
-   }
-
-
-   /** TODO: comment.
-   */
-   void set_prefixed_item_array(bool bPrefixedItemArray) {
-      m_iPackedData &= ~smc_bPrefixedItemArrayMask;
-      if (bPrefixedItemArray) {
-         m_iPackedData |= smc_bPrefixedItemArrayMask;
-      }
-   }
-
-
-private:
-
-   /** Bit-field composed by the following components:
-
-   bool bPrefixedItemArray
-      true if the item array is part of a prefixed item array.
-   bool bDynamic
-      true if the item array is allocated dynamically, or false otherwise (embedded prefixed or
-      read-only).
-   bool const bHasEmbedded
-      true if the parent object is followed by an embedded prefixed item array.
-   bool bNulT
-      true if the item array is NUL-terminated.
-   size_t cbCapacity
-      Size of the item array, in bytes.
-   */
-   size_t m_iPackedData;
-
-   /** Mask to access bPrefixedItemArray from m_iPackedData. */
-   static size_t const smc_bPrefixedItemArrayMask = 0x08;
-   /** Mask to access bDynamic from m_iPackedData. */
-   static size_t const smc_bDynamicMask = 0x04;
-   /** Mask to access bHasEmbedded from m_iPackedData. */
-   static size_t const smc_bHasEmbeddedMask = 0x02;
-   /** Mask to access bNulT from m_iPackedData. */
-   static size_t const smc_bNulTMask = 0x01;
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_vextr_prefixed_item_array
 
 
@@ -410,7 +278,7 @@ public:
    /** Destructor.
    */
    ~_raw_vextr_impl_base() {
-      if (m_rvpd.dynamic()) {
+      if (m_bDynamic) {
          memory::_raw_free(prefixed_item_array());
       }
    }
@@ -471,14 +339,16 @@ public:
 
 private:
 
-   /** Internal constructor used by transaction. Note that this leaves the object in an inconsistent
-   and uninitialized state!
+   /** Internal constructor used by transaction. Access is private, but _raw_vextr_transaction can
+   use it.
 
-   rvpd
-      Source packed data.
+   Note that this doesn’t really initialize the object!
    */
-   _raw_vextr_impl_base(_raw_vextr_packed_data const & rvpd) :
-      m_rvpd(rvpd) {
+   _raw_vextr_impl_base() :
+      mc_bHasEmbedded(false),
+      // This is needed to disable the destructor, so we won’t try to release an invalid pointer in
+      // case anything goes wrong before the rest of the object is initialized.
+      m_bDynamic(false) {
    }
 
 
@@ -503,7 +373,10 @@ protected:
    ) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      m_rvpd(false, bNulT) {
+      mc_bHasEmbedded(false),
+      m_bPrefixedItemArray(false),
+      m_bDynamic(false),
+      m_bNulT(bNulT) {
    }
 
 
@@ -512,9 +385,9 @@ protected:
    void assign_empty() {
       m_pBegin = nullptr;
       m_pEnd = nullptr;
-      m_rvpd.set_dynamic(false);
-      m_rvpd.set_nul_terminated(false);
-      m_rvpd.set_prefixed_item_array(false);
+      m_bPrefixedItemArray = false;
+      m_bDynamic = false;
+      m_bNulT = false;
    }
 
 
@@ -538,7 +411,7 @@ protected:
       array.
    */
    _prefixed_item_array * prefixed_item_array() {
-      if (m_rvpd.prefixed_item_array()) {
+      if (m_bPrefixedItemArray) {
          // Subtract from m_pBegin the offset of the item array.
          return reinterpret_cast<_prefixed_item_array *>(
             begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
@@ -561,7 +434,7 @@ protected:
       Pointer to the embedded item array, or nullptr otherwise.
    */
    _prefixed_item_array * embedded_prefixed_item_array() {
-      if (m_rvpd.has_embedded_item_array()) {
+      if (mc_bHasEmbedded) {
          // Allows to obtain the pointer to an embedded prefixed item array in non-template code
          // without resorting to manual pointer arithmetics.
          class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
@@ -634,8 +507,15 @@ protected:
    void * m_pBegin;
    /** Pointer to the end of the item array. */
    void * m_pEnd;
-   /** Size of the item array pointed to by m_pBegin, and other bits. */
-   _raw_vextr_packed_data m_rvpd;
+   /** true if the parent object is followed by an embedded prefixed item array. */
+   bool const mc_bHasEmbedded:1;
+   /** true if the item array is part of a prefixed item array. */
+   bool m_bPrefixedItemArray:1;
+   /** true if the current item array is allocated dynamically, or false otherwise (embedded
+   prefixed or non-prefixed). */
+   bool m_bDynamic:1;
+   /** true if the item array is NUL-terminated. */
+   bool m_bNulT:1;
 
    /** The item array size must be no less than this many bytes. */
    static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
@@ -684,9 +564,6 @@ public:
    /** Destructor.
    */
    ~_raw_vextr_transaction() {
-      // Only release m_rvibWork’s item array on this condition. In all other cases, the memory it’s
-      // pointing to belongs to *m_prvib.
-      m_rvibWork.m_rvpd.set_dynamic(m_bFree);
    }
 
 

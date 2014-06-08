@@ -66,7 +66,7 @@ char_t const str_base::smc_chNUL(CL('\0'));
 str_base::c_str_pointer str_base::c_str() const {
    ABC_TRACE_FUNC(this);
 
-   if (m_rvpd.nul_terminated()) {
+   if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
    } else if (size_t cch = size()) {
