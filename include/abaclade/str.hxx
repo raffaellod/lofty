@@ -1282,6 +1282,9 @@ template <size_t t_cchEmbeddedCapacity>
 class smstr :
    public mstr,
    private _raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
+
+   using _raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+
 public:
 
    /** Constructor.
@@ -1292,40 +1295,40 @@ public:
       Source NUL-terminated string literal.
    */
    smstr() :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
    }
    smstr(smstr const & s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // If the source is using its embedded character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
    smstr(smstr && s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(istr const & s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_copy(s.cbegin().base(), s.cend().base());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    // This also covers smstr of different template arguments.
    smstr(mstr && s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
    smstr(dmstr && s) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_move(std::move(s));
    }
    template <size_t t_cch>
    smstr(char_t const (& ach)[t_cch]) :
-      mstr(this->smc_cbEmbeddedCapacity) {
+      mstr(smc_cbEmbeddedCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
    }
 
