@@ -562,32 +562,36 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      // This will move the item array from the returned vector to v1, so no item copies or moves
-      // will occur other than the ones in return_dmvector().
-      dmvector<instances_counter> v1(return_dmvector());
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
-      instances_counter::reset_counts();
+      {
+         // This will move the item array from the returned vector to v1, so no item copies or moves
+         // will occur other than the ones in return_dmvector().
+         dmvector<instances_counter> v(return_dmvector());
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+         instances_counter::reset_counts();
 
-      // This should create a new copy, with no intermediate moves because all passages are by
-      // reference or pointer.
-      v1.append(v1[0]);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
-      instances_counter::reset_counts();
+         // This should create a new copy, with no intermediate moves because all passages are by
+         // reference or pointer.
+         v.append(v[0]);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
+         instances_counter::reset_counts();
+      }
 
-      smvector<instances_counter, 9> v2;
-      // This will move the individual items from the returned vector to v2’s embedded item array.
-      // Can’t just construct v2 with return_dmvector() because v2 would just use that item array
-      // instead of its own embedded one, resulting in no additional moves other than the one in
-      // return_dmvector().
-      v2 += return_dmvector();
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
-      instances_counter::reset_counts();
+      {
+         smvector<instances_counter, 9> v;
+         // This will move the individual items from the returned vector to v2’s embedded item array.
+         // Can’t just construct v2 with return_dmvector() because v2 would just use that item array
+         // instead of its own embedded one, resulting in no additional moves other than the one in
+         // return_dmvector().
+         v += return_dmvector();
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
+         ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+         instances_counter::reset_counts();
+      }
    }
 
 
