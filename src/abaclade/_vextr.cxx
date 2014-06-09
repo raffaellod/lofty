@@ -340,6 +340,8 @@ void _raw_complex_vextr_impl::assign_move(
 void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
 ) {
+   ABC_TRACE_FUNC(this/*, type, rcvi*/);
+
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
@@ -384,6 +386,8 @@ pSrcEnd
 static void overlapping_move_constr(
    type_void_adapter const & type, void * pDstBegin, void * pSrcBegin, void * pSrcEnd
 ) {
+   ABC_TRACE_FUNC(/*type, */pDstBegin, pSrcBegin, pSrcEnd);
+
    if (pDstBegin == pSrcBegin) {
       return;
    }
@@ -597,6 +601,8 @@ void _raw_trivial_vextr_impl::assign_concat(
 
 
 void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
+   ABC_TRACE_FUNC(this/*, rtvi*/);
+
    // This also checks that the source pointer (&rtvi) is safe to dereference, so the following
    // code can proceed safely.
    if (rtvi.m_pBegin == m_pBegin) {
@@ -615,6 +621,8 @@ void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
 
 
 void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
+   ABC_TRACE_FUNC(this/*, rtvi*/);
+
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
@@ -630,6 +638,8 @@ void _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_raw_trivial_vex
 
 
 void _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi) {
+   ABC_TRACE_FUNC(this/*, rtvi*/);
+
    // This also checks that the source pointer (&rtvi) is safe to dereference, so the following
    // code can proceed safely.
    if (rtvi.m_pBegin == m_pBegin) {
