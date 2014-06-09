@@ -56,6 +56,62 @@ container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::testing::utility::class_with_internal_pointer
+
+namespace abc {
+namespace testing {
+namespace utility {
+
+/** Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
+*/
+class class_with_internal_pointer {
+public:
+
+   /** Constructor.
+
+   cwip
+      Source object.
+   */
+   class_with_internal_pointer() :
+      m_pi(&m_i),
+      m_i(0xcafe) {
+   }
+   class_with_internal_pointer(class_with_internal_pointer const & cwip) :
+      m_pi(&m_i),
+      m_i(cwip.m_i) {
+   }
+   class_with_internal_pointer(class_with_internal_pointer && cwip) :
+      m_pi(&m_i),
+      m_i(cwip.m_i) {
+   }
+
+
+   /** Validates that the object’s internal pointer has the expected value.
+
+   return
+      true if the internal pointer is valid, or false otherwise.
+   */
+   bool validate() {
+      ABC_TRACE_FUNC(this);
+
+      return m_i == 0xcafe && m_pi == &m_i;
+   }
+
+
+private:
+
+   /** Pointer to m_i. */
+   uint16_t * m_pi;
+   /** Data referenced by m_pi. */
+   uint16_t m_i;
+};
+
+} //namespace utility
+} //namespace testing
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility::container_data_ptr_tracker
 
 namespace abc {
