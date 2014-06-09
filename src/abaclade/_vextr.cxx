@@ -34,8 +34,6 @@ _raw_vextr_impl_base::_raw_vextr_impl_base(size_t cbEmbeddedCapacity) :
    m_bPrefixedItemArray(false),
    m_bDynamic(false),
    m_bNulT(false) {
-   ABC_TRACE_FUNC(this, cbEmbeddedCapacity);
-
    if (cbEmbeddedCapacity) {
       // Assign cbEmbeddedCapacity to the embedded item array that follows *this.
       embedded_prefixed_item_array()->m_cbCapacity = cbEmbeddedCapacity;
