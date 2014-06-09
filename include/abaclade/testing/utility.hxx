@@ -36,8 +36,7 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/** Tracks changes in the internal data pointer of a container.
-*/
+// Forward declaration.
 template <class T>
 class container_data_ptr_tracker;
 
@@ -63,6 +62,8 @@ namespace abc {
 namespace testing {
 namespace utility {
 
+/** Tracks changes in the internal data pointer of a container.
+*/
 template <class T>
 class container_data_ptr_tracker {
 public:
