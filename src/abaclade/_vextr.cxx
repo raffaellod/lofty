@@ -260,9 +260,9 @@ void _raw_complex_vextr_impl::assign_concat(
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1 || cb2) {
-      // If we’re going to overwrite the old item array, move the items to a backup array, so we can
-      // restore them in case of exceptions thrown while constructing the new objects.
-      if (cbOrig && !trn.will_replace_item_array()) {
+      // If we’re going to overwrite the old item array and we’re going to perform copies (exception
+      // hazard), move the items to a backup array so we can restore them in case of exceptions.
+      if (cbOrig && (!bMove1 || !bMove2) && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
