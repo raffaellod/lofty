@@ -693,7 +693,7 @@ public:
       if (pBegin == m_pBegin) {
          return;
       }
-      // assign_concat() is fast enough. Pass the source as the second argument pair, because its
+      // assign_concat() is fast enough; pass the source as the second argument pair, because its
       // code path is faster.
       assign_concat(type, nullptr, nullptr, false, pBegin, pEnd, false);
    }
