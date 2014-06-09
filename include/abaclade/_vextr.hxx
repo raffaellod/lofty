@@ -581,6 +581,9 @@ public:
    /** Destructor.
    */
    ~_raw_vextr_transaction() {
+      // Only allow m_rvibWork to release its item array if we allocated it for the transaction and
+      // commit() was never called.
+      m_rvibWork.m_bDynamic = m_bFree;
    }
 
 
@@ -635,6 +638,10 @@ private:
    _raw_vextr_impl_base m_rvibWork;
    /** Subject of the transaction. */
    _raw_vextr_impl_base * m_prvib;
+   /** true if m_rvibWork references an item array that has been dynamically allocated for the
+   transaction and needs to be freed in the destructor, which can happen when an exception occurs
+   before the transaction is committed. */
+   bool m_bFree;
 };
 
 } //namespace abc

@@ -167,14 +167,15 @@ _raw_vextr_transaction::_raw_vextr_transaction(
 void _raw_vextr_transaction::commit() {
    ABC_TRACE_FUNC(this);
 
+   bool bChangeItemArray(will_replace_item_array());
    // If we are abandoning the old item array, proceed to destruct it if necessary.
-   if (m_rvibWork.m_pBegin != m_prvib->m_pBegin) {
+   if (bChangeItemArray) {
       m_prvib->~_raw_vextr_impl_base();
+      // m_rvibWork no longer owns its item array.
+      m_bFree = false;
    }
    // Update the target object.
    m_prvib->assign_shallow(m_rvibWork);
-   // Disable m_rvibWork’s destructor, since we just transferred ownership of its item array.
-   m_rvibWork.m_bDynamic = false;
 
    // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
@@ -183,6 +184,7 @@ void _raw_vextr_transaction::commit() {
 void _raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
    ABC_TRACE_FUNC(this, bTrivial, cbNew);
 
+   m_bFree = false;
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
       m_rvibWork.assign_empty();
@@ -228,10 +230,11 @@ void _raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
             // Allocate a new item array. This is the only option for non-trivial types because they
             // must be moved using their move constructor.
             ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
-            m_rvibWork.m_bDynamic = true;
+            m_bFree = true;
          }
          ppia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = ppia->m_at;
+         m_rvibWork.m_bDynamic = true;
       }
       m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
    }
