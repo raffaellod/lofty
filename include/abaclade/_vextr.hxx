@@ -563,6 +563,8 @@ public:
 
    prvib
       Subject of the transaction.
+   bTrivial
+      If true, the items are of a trivial type; if false, they’re not.
    cbNew
       New item array size, in bytes.
    cbAdd
@@ -570,8 +572,10 @@ public:
    cbRemove
       Item array size decrease, in bytes.
    */
-   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew);
-   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove);
+   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
+   _raw_vextr_transaction(
+      _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove
+   );
 
 
    /** Destructor.
@@ -617,10 +621,12 @@ private:
 
    prvib
       Subject of the transaction.
+   bTrivial
+      If true, the items are of a trivial type; if false, they’re not.
    cbNew
       New item array size, in bytes.
    */
-   void _construct(_raw_vextr_impl_base * prvib, size_t cbNew);
+   void _construct(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
 
 
 private:

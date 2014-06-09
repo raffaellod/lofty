@@ -146,17 +146,19 @@ void _raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 
 namespace abc {
 
-_raw_vextr_transaction::_raw_vextr_transaction(_raw_vextr_impl_base * prvib, size_t cbNew) {
-   ABC_TRACE_FUNC(this, prvib, cbNew);
+_raw_vextr_transaction::_raw_vextr_transaction(
+   _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew
+) {
+   ABC_TRACE_FUNC(this, prvib, bTrivial, cbNew);
 
-   _construct(prvib, cbNew);
+   _construct(prvib, bTrivial, cbNew);
 }
 _raw_vextr_transaction::_raw_vextr_transaction(
-   _raw_vextr_impl_base * prvib, size_t cbAdd, size_t cbRemove
+   _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove
 ) {
-   ABC_TRACE_FUNC(this, prvib, cbAdd, cbRemove);
+   ABC_TRACE_FUNC(this, prvib, bTrivial, cbAdd, cbRemove);
 
-   _construct(prvib, prvib->size<int8_t>() + cbAdd - cbRemove);
+   _construct(prvib, bTrivial, prvib->size<int8_t>() + cbAdd - cbRemove);
 }
 
 
@@ -178,8 +180,8 @@ void _raw_vextr_transaction::commit() {
 }
 
 
-void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbNew) {
-   ABC_TRACE_FUNC(this, prvib, cbNew);
+void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew) {
+   ABC_TRACE_FUNC(this, prvib, bTrivial, cbNew);
 
    m_prvib = prvib;
    m_bFree = false;
@@ -215,7 +217,7 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             sizeof(prefixed_item_array) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
          );
          prefixed_item_array * ppia;
-         if (m_prvib->m_bDynamic) {
+         if (bTrivial && m_prvib->m_bDynamic) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
             // effective immediately, which means that m_prvib must be updated now – if no
             // exceptions are thrown, that is.
@@ -226,7 +228,8 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, size_t cbN
             m_prvib->m_pBegin = ppia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
          } else {
-            // Allocate a new item array.
+            // Allocate a new item array. This is the only option for non-trivial types because they
+            // must be moved using their move constructor.
             ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
             m_rvibWork.m_bDynamic = true;
             m_bFree = true;
@@ -256,7 +259,7 @@ void _raw_complex_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   _raw_vextr_transaction trn(this, cb1 + cb2);
+   _raw_vextr_transaction trn(this, false, cb1 + cb2);
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
@@ -351,7 +354,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
       // Can’t move the item array, so move the items instead.
       {
          size_t cbSrc(rcvi.size<int8_t>());
-         _raw_vextr_transaction trn(this, cbSrc);
+         _raw_vextr_transaction trn(this, false, cbSrc);
          // Assume that destructing the current items first and then moving in rcvi’s items is an
          // exception-safe approach.
          if (size<int8_t>()) {
@@ -465,7 +468,7 @@ void _raw_complex_vextr_impl::insert(
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, pInsert, cbInsert, bMove);
 
-   _raw_vextr_transaction trn(this, cbInsert, 0);
+   _raw_vextr_transaction trn(this, false, cbInsert, 0);
    int8_t * pbOffset(begin<int8_t>() + ibOffset);
    void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
    int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
@@ -508,7 +511,7 @@ void _raw_complex_vextr_impl::remove(
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, cbRemove);
 
-   _raw_vextr_transaction trn(this, 0, cbRemove);
+   _raw_vextr_transaction trn(this, false, 0, cbRemove);
    int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
    int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
@@ -539,7 +542,7 @@ void _raw_complex_vextr_impl::set_capacity(
    ABC_TRACE_FUNC(this, /*type, */cbMin, bPreserve);
 
    size_t cbOrig(size<int8_t>());
-   _raw_vextr_transaction trn(this, cbMin);
+   _raw_vextr_transaction trn(this, false, cbMin);
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -586,7 +589,7 @@ void _raw_trivial_vextr_impl::assign_concat(
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
-   _raw_vextr_transaction trn(this, cb1 + cb2);
+   _raw_vextr_transaction trn(this, true, cb1 + cb2);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
       memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
@@ -663,7 +666,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    ABC_TRACE_FUNC(this, ibOffset, pAdd, cbAdd, cbRemove);
 
    ABC_ASSERT(cbAdd || cbRemove, SL("must have items being added or removed"));
-   _raw_vextr_transaction trn(this, cbAdd, cbRemove);
+   _raw_vextr_transaction trn(this, true, cbAdd, cbRemove);
    int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
@@ -688,7 +691,7 @@ void _raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
    ABC_TRACE_FUNC(this, cbMin, bPreserve);
 
    size_t cbOrig(size<int8_t>());
-   _raw_vextr_transaction trn(this, cbMin);
+   _raw_vextr_transaction trn(this, true, cbMin);
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
