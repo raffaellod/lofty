@@ -823,7 +823,7 @@ public:
    /** Removes all elements from the vector.
    */
    void clear() {
-      this->~vector_base_();
+      static_cast<vector_base_ *>(this)->~vector_base_();
       this->assign_empty();
    }
 
