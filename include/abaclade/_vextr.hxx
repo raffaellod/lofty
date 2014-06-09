@@ -619,14 +619,12 @@ private:
 
    /** Completes construction of the object.
 
-   prvib
-      Subject of the transaction.
    bTrivial
       If true, the items are of a trivial type; if false, they’re not.
    cbNew
       New item array size, in bytes.
    */
-   void _construct(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
+   void _construct(bool bTrivial, size_t cbNew);
 
 
 private:
@@ -637,10 +635,6 @@ private:
    _raw_vextr_impl_base m_rvibWork;
    /** Subject of the transaction. */
    _raw_vextr_impl_base * m_prvib;
-   /** true if m_rvibWork references an item array that has been dynamically allocated for the
-   transaction and needs to be freed in the destructor. This can be the case because the transaction
-   didn’t get committed, or because it did and m_rvibWork’s item array is now owned by m_prvib. */
-   bool m_bFree;
 };
 
 } //namespace abc

@@ -148,17 +148,19 @@ namespace abc {
 
 _raw_vextr_transaction::_raw_vextr_transaction(
    _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew
-) {
+) :
+   m_prvib(prvib) {
    ABC_TRACE_FUNC(this, prvib, bTrivial, cbNew);
 
-   _construct(prvib, bTrivial, cbNew);
+   _construct(bTrivial, cbNew);
 }
 _raw_vextr_transaction::_raw_vextr_transaction(
    _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove
-) {
+) :
+   m_prvib(prvib) {
    ABC_TRACE_FUNC(this, prvib, bTrivial, cbAdd, cbRemove);
 
-   _construct(prvib, bTrivial, prvib->size<int8_t>() + cbAdd - cbRemove);
+   _construct(bTrivial, prvib->size<int8_t>() + cbAdd - cbRemove);
 }
 
 
@@ -168,8 +170,6 @@ void _raw_vextr_transaction::commit() {
    // If we are abandoning the old item array, proceed to destruct it if necessary.
    if (m_rvibWork.m_pBegin != m_prvib->m_pBegin) {
       m_prvib->~_raw_vextr_impl_base();
-      // This object no longer owns the temporary item array.
-      m_bFree = false;
    }
    // Update the target object.
    m_prvib->assign_shallow(m_rvibWork);
@@ -180,11 +180,8 @@ void _raw_vextr_transaction::commit() {
 }
 
 
-void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew) {
-   ABC_TRACE_FUNC(this, prvib, bTrivial, cbNew);
-
-   m_prvib = prvib;
-   m_bFree = false;
+void _raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
+   ABC_TRACE_FUNC(this, bTrivial, cbNew);
 
    if (cbNew == 0) {
       // Empty string/array: no need to use an item array.
@@ -232,7 +229,6 @@ void _raw_vextr_transaction::_construct(_raw_vextr_impl_base * prvib, bool bTriv
             // must be moved using their move constructor.
             ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
             m_rvibWork.m_bDynamic = true;
-            m_bFree = true;
          }
          ppia->m_cbCapacity = cbNewCapacity;
          m_rvibWork.m_pBegin = ppia->m_at;
@@ -309,8 +305,8 @@ void _raw_complex_vextr_impl::assign_concat(
       }
    }
    if (cbOrig) {
-      // If we made a backup, it also means that now this is the only copy of the original items, so
-      // we must use it to destruct them, instead of m_pBegin/End.
+      // If we made a backup, it also means that now that’s the only copy of the original items, so
+      // we must use it to destruct them, instead of destruct_items().
       if (pbBackup) {
          type.destruct(pbBackup.get(), pbBackup.get() + cbOrig);
       } else {
