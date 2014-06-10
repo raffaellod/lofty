@@ -232,11 +232,13 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      dmvector<int> v, v0, v2;
-      v2.append(1);
-      v2.append(2);
-      v = v0;
+      dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
+      vOne.append(1);
+      vTwo.append(2);
+      vOneTwo.append(1);
+      vOneTwo.append(2);
 
+      v = vZero;
 
       // Remove from empty vector by index.
       ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-1));
@@ -254,164 +256,68 @@ public:
       ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 0));
       ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 1));
 
-
-      v = v2;
+      v = vOneTwo;
 
       // Remove from 2-element vector by index.
-
       ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-3));
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(-2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(-1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_at(1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
-      v = v2;
-
+      ABC_TESTING_ASSERT_EQUAL((v.remove_at(-2), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_at(-1), v), vOne);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_at(0), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_at(1), v), vOne);
+      v = vOneTwo;
       ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(2));
 
-
       // Remove from 2-element vector by range.
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-3, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-2, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 2);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(v[0], 1);
-      v = v2;
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -3));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, -1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 0));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 1));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(2, 2));
-      ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 2), v), vZero);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 2), v), vZero);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 2), v), vOne);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 1), v), vTwo);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 2), v), vZero);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 2), v), vOne);
+      v = vOneTwo;
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -3), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -2), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 0), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 1), v), vOneTwo);
+      ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 2), v), vOneTwo);
    }
 };
 
