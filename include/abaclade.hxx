@@ -365,6 +365,7 @@ ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host 
 */
 namespace abc {
 namespace _std {
+using namespace ::std;
 } //namespace _std
 } //namespace abc
 
@@ -671,8 +672,10 @@ unsafe_t const unsafe;
    #pragma warning(pop)
 #endif
 
-#ifdef ABC_STLIMPL
+#if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
    #include <abaclade/stl/tuple.hxx>
+#endif
+#ifdef ABC_STLIMPL
    #include <abaclade/stl/memory.hxx>
 #else //ifdef ABC_STLIMPL
    #include <tuple>
