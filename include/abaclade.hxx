@@ -270,13 +270,6 @@ constructor (N2346). */
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – non-standard, but commonly available, extensions
 
-/** Calling convention for Abaclade functions/methods. */
-#if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
-   #define ABCFNCC __stdcall
-#else
-   #define ABCFNCC
-#endif
-
 /** Declares a function as using the same calling convention as the host C library/STL
 implementation. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
