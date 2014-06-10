@@ -429,7 +429,7 @@ protected:
          // Subtract from m_pBegin the offset of the item array.
          return reinterpret_cast<_prefixed_item_array *>(
             begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
-               &reinterpret_cast<_prefixed_item_array *>(0)->m_at[0]
+               reinterpret_cast<_prefixed_item_array *>(0)->m_at
             )
          );
       } else {

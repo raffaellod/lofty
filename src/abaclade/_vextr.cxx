@@ -210,9 +210,9 @@ void _raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
             m_prvib->size<int8_t>(), cbNew
          ));
          typedef _raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
-         size_t cbNewItemArrayDesc(
-            sizeof(prefixed_item_array) - sizeof(prefixed_item_array::m_at) + cbNewCapacity
-         );
+         size_t cbNewItemArrayDesc(reinterpret_cast<ptrdiff_t>(
+            reinterpret_cast<prefixed_item_array *>(0)->m_at
+         ) + cbNewCapacity);
          prefixed_item_array * ppia;
          if (bTrivial && m_prvib->m_bDynamic) {
             // Resize the current dynamically-allocated item array. Notice that the reallocation is
