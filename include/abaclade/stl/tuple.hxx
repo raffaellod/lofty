@@ -27,13 +27,36 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/stl/type_traits.hxx>
-#include <abaclade/stl/utility.hxx>
+#ifdef ABC_STLIMPL
+   #include <abaclade/stl/utility.hxx>
+#else
+   #include <utility>
+#endif
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::_tuple_head
+// abc::_std::_tuple_void
+
+
+#ifndef ABC_CXX_VARIADIC_TEMPLATES
+
+namespace abc {
+namespace _std {
+
+/** Null type, used to reduce the number of tuple items from the preset maximum.
+*/
+struct _tuple_void {
+};
+
+} //namespace _std
+} //namespace abc
+
+#endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_std::_tuple_head
 
 
 namespace abc {
@@ -171,7 +194,7 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::_tuple_tail
+// abc::_std::_tuple_tail
 
 
 namespace abc {
@@ -396,7 +419,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::tuple
+// abc::_std::tuple
 
 
 namespace abc {
@@ -582,7 +605,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::tuple_element
+// abc::_std::tuple_element
 
 
 namespace abc {
@@ -640,19 +663,13 @@ ABC_SPECIALIZE_tuple_element_FOR_INDEX(9)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::get (tuple)
+// abc::_std::get (tuple)
 
 
 namespace abc {
 namespace _std {
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
-
-/** Null type, used to reduce the number of tuple items from the preset maximum.
-*/
-struct _tuple_void {
-};
-
 
 /** Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
 make it work.
@@ -746,7 +763,7 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::ignore
+// abc::_std::ignore
 
 
 namespace abc {
@@ -771,11 +788,11 @@ public:
 
    /** Assignment operator.
    */
-   __ignore_t & operator=(__ignore_t const &) const {
+   __ignore_t const & operator=(__ignore_t const &) const {
       return *this;
    }
    template <typename T>
-   __ignore_t & operator=(T const &) const {
+   __ignore_t const & operator=(T const &) const {
       return *this;
    }
 };
@@ -791,7 +808,7 @@ extern __ignore_t const ignore;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::tie
+// abc::_std::tie
 
 
 namespace abc {

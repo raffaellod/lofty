@@ -18,24 +18,25 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#ifdef ABC_STLIMPL
+#ifdef _ABACLADE_STL_TUPLE_HXX
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::ignore
+// abc::_std::ignore
 
 
-namespace std {
+namespace abc {
+namespace _std {
 
 __ignore_t const ignore;
 
-} //namespace std
-
+} //namespace _std
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#endif //ifdef ABC_STLIMPL
+#endif //ifdef _ABACLADE_STL_TUPLE_HXX
 
