@@ -49,6 +49,22 @@ public:
 
       dmvector<int> v;
 
+      // Note: do not replace the item-by-item assertions with comparisons against manually-
+      // populated vectors as here we’re also guaranteeing that we can prepare a manually-populated
+      // vector. For example:
+      //
+      //    dmvector<int> v1, v2;
+      //    v1.append(1);
+      //    v1.append(2);
+      //    v2.append(1);
+      //    v2.append(1);
+      //    ABC_TESTING_ASSERT_EQUAL(v1, v2);
+      //
+      // The assertion above will succeed if any of these error conditions is true:
+      // •  dmvector<int>::operator==() always returns true;
+      // •  dmvector<int>::append() never appends any elements;
+      // •  dmvector<int>::append() always appends more elements than it should.
+
       ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
 
       v.append(1);
@@ -88,6 +104,63 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::vector_relops
+
+
+namespace abc {
+namespace test {
+
+class vector_relops :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*vector classes – relational operators"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+      dmvector<int> v1a, v1b, v2, v3;
+      v1a.append(1);
+      v1a.append(2);
+      v1b.append(1);
+      v1b.append(2);
+      v2.append(2);
+      v2.append(3);
+      v3.append(1);
+
+      ABC_TESTING_ASSERT_EQUAL(v1a, v1a);
+      ABC_TESTING_ASSERT_EQUAL(v1a, v1b);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v1a, v2);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v1a, v3);
+      ABC_TESTING_ASSERT_EQUAL(v1b, v1a);
+      ABC_TESTING_ASSERT_EQUAL(v1b, v1b);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v1b, v2);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v1b, v3);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v2, v1a);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v2, v1b);
+      ABC_TESTING_ASSERT_EQUAL(v2, v2);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v2, v3);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v3, v1a);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v3, v1b);
+      ABC_TESTING_ASSERT_NOT_EQUAL(v3, v2);
+      ABC_TESTING_ASSERT_EQUAL(v3, v3);
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_relops)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
