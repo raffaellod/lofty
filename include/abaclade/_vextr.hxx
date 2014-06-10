@@ -678,21 +678,17 @@ public:
       Pointer to the start of the first source array.
    p1End
       Pointer to the end of the first source array.
-   bMove1
-      true to move the items from the first source array to the vextr’s item array, or false to
-      copy them instead.
    p2Begin
       Pointer to the start of the second source array.
    p2End
       Pointer to the end of the second source array.
-   bMove2
-      true to move the items from the second source array to the vextr’s item array, or false to
-      copy them instead.
+   iMove
+      Pass 1 to move the items from the first source array to the vextr’s item array, 2 to move the
+      items from the second source array, or 3 to move both, or 0 to copy them all instead.
    */
    void assign_concat(
-      type_void_adapter const & type,
-      void const * p1Begin, void const * p1End, bool bMove1,
-      void const * p2Begin, void const * p2End, bool bMove2
+      type_void_adapter const & type, void const * p1Begin, void const * p1End,
+      void const * p2Begin, void const * p2End, uint8_t iMove
    );
 
 
@@ -711,7 +707,7 @@ public:
       }
       // assign_concat() is fast enough; pass the source as the second argument pair, because its
       // code path is faster.
-      assign_concat(type, nullptr, nullptr, false, pBegin, pEnd, false);
+      assign_concat(type, nullptr, nullptr, pBegin, pEnd, 0);
    }
 
 

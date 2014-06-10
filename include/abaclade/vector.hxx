@@ -65,7 +65,7 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, true, p2Begin, p2End, true);
+      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
    }
 
 
@@ -189,14 +189,13 @@ public:
    /** See _raw_complex_vextr_impl::assign_concat().
    */
    void assign_concat(
-      T const * p1Begin, T const * p1End, bool bMove1,
-      T const * p2Begin, T const * p2End, bool bMove2
+      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
    ) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, bMove1, p2Begin, p2End, bMove2);
+      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, iMove);
    }
 
 
@@ -253,11 +252,9 @@ public:
    /** See _raw_trivial_vextr_impl::assign_concat().
    */
    void assign_concat(
-      T const * p1Begin, T const * p1End, bool bMove1,
-      T const * p2Begin, T const * p2End, bool bMove2
+      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
    ) {
-      ABC_UNUSED_ARG(bMove1);
-      ABC_UNUSED_ARG(bMove2);
+      ABC_UNUSED_ARG(iMove);
       _raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
@@ -1214,19 +1211,19 @@ public:
    dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
       this->assign_concat(
-         v1.cbegin().base(), v1.cend().base(), false, v2.cbegin().base(), v2.cend().base(), false
+         v1.cbegin().base(), v1.cend().base(), v2.cbegin().base(), v2.cend().base(), 0
       );
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
       this->assign_concat(
-         v1.begin().base(), v1.end().base(), true, v2.cbegin().base(), v2.cend().base(), false
+         v1.begin().base(), v1.end().base(), v2.cbegin().base(), v2.cend().base(), 1
       );
    }
    dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
       this->assign_concat(
-         v1.cbegin().base(), v1.cend().base(), false, v2.begin().base(), v2.end().base(), true
+         v1.cbegin().base(), v1.cend().base(), v2.begin().base(), v2.end().base(), 2
       );
    }
    dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
@@ -1246,7 +1243,7 @@ public:
    }
    dmvector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
       mvector<T, true>(0) {
-      this->assign_concat(pt1Begin, pt1End, false, pt2Begin, pt2End, false);
+      this->assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
    }
 
 

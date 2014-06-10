@@ -248,11 +248,10 @@ void _raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
 namespace abc {
 
 void _raw_complex_vextr_impl::assign_concat(
-   type_void_adapter const & type,
-   void const * p1Begin, void const * p1End, bool bMove1,
-   void const * p2Begin, void const * p2End, bool bMove2
+   type_void_adapter const & type, void const * p1Begin, void const * p1End, void const * p2Begin,
+   void const * p2End, uint8_t iMove
 ) {
-   ABC_TRACE_FUNC(this, /*type, */p1Begin, p1End, bMove1, p2Begin, p2End, bMove2);
+   ABC_TRACE_FUNC(this, /*type, */p1Begin, p1End, p2Begin, p2End, iMove);
 
    size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
    size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
@@ -263,14 +262,14 @@ void _raw_complex_vextr_impl::assign_concat(
    if (cb1 || cb2) {
       // If we’re going to overwrite the old item array and we’re going to perform copies (exception
       // hazard), move the items to a backup array so we can restore them in case of exceptions.
-      if (cbOrig && (!bMove1 || !bMove2) && !trn.will_replace_item_array()) {
+      if (cbOrig && iMove != 1 + 2 && !trn.will_replace_item_array()) {
          pbBackup.reset(new int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
       }
       try {
          if (cb1) {
-            if (bMove1) {
+            if (iMove & 1) {
                type.move_constr(pbWorkCopy, const_cast<void *>(p1Begin), const_cast<void *>(p1End));
             } else {
                type.copy_constr(pbWorkCopy, p1Begin, p1End);
@@ -278,7 +277,7 @@ void _raw_complex_vextr_impl::assign_concat(
             pbWorkCopy += cb1;
          }
          if (cb2) {
-            if (bMove2) {
+            if (iMove & 2) {
                type.move_constr(pbWorkCopy, const_cast<void *>(p2Begin), const_cast<void *>(p2End));
             } else {
                type.copy_constr(pbWorkCopy, p2Begin, p2End);
@@ -289,7 +288,7 @@ void _raw_complex_vextr_impl::assign_concat(
          int8_t * pbWorkCopy1Begin(trn.work_array<int8_t>());
          if (pbWorkCopy > pbWorkCopy1Begin) {
             int8_t * pbWorkCopy1End(pbWorkCopy1Begin + cb1);
-            if (bMove1) {
+            if (iMove & 1) {
                // If we moved them from p1, don’t forget to move them back. Of course this means
                // that we first have to destruct p1’s items and re-construct them.
                type.destruct(p1Begin, p1End);
@@ -350,7 +349,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    } else {
       // Can’t move the item array, so move the items instead. assign_concat() is fast enough; pass
       // the source as the second argument pair, because its code path is faster.
-      assign_concat(type, nullptr, nullptr, false, rcvi.m_pBegin, rcvi.m_pEnd, true);
+      assign_concat(type, nullptr, nullptr, rcvi.m_pBegin, rcvi.m_pEnd, 2);
       // And now empty the source.
       rcvi.destruct_items(type);
       rcvi.assign_empty();
