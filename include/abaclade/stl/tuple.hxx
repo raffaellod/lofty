@@ -760,11 +760,11 @@ public:
 
    /** Assignment operator.
    */
-   __ignore_t & operator=(__ignore_t const &) {
+   __ignore_t & operator=(__ignore_t const &) const {
       return *this;
    }
    template <typename T>
-   __ignore_t & operator=(T const &) {
+   __ignore_t & operator=(T const &) const {
       return *this;
    }
 };
