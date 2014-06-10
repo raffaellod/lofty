@@ -360,6 +360,25 @@ from Abaclade’s testing shared library (into another library/executable). */
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives
 
+/** abc::_std contains STL implementation bits from ABC_STLIMPL that we may want to use when
+ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host STL implementations.
+*/
+namespace abc {
+namespace _std {
+} //namespace _std
+} //namespace abc
+
+
+#ifdef ABC_STLIMPL
+
+// In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
+namespace std {
+using namespace ::abc::_std;
+} //namespace std
+
+#endif
+
+
 namespace abc {
 
 /** A class derived from this one is not copyable.
