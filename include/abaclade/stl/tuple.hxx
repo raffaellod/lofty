@@ -395,7 +395,7 @@ public:
    */
    _tuple_tail() {
    }
-   _tuple_tail(_tuple_tail const & tt) {
+   _tuple_tail(_tuple_tail const &) {
    }
    _tuple_tail(
       _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
