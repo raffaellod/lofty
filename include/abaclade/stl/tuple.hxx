@@ -204,6 +204,9 @@ namespace _std {
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
+template <size_t t_i, typename ... Ts>
+class _tuple_tail;
+
 // Base case for the template recursion.
 template <size_t t_i>
 class _tuple_tail<t_i> {
@@ -814,20 +817,19 @@ extern __ignore_t const ignore;
 namespace abc {
 namespace _std {
 
-/** Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
+/** Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation
+functions”).
 
-tpl
-   Tuple from which to extract an element.
+ts
+   Variables to unpack to.
 return
-   Reference to the tuple element.
+   Tuple containing references to each argument.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename ... Ts>
-inline /*constexpr*/ tuple<Ts & ...> tie(Ts ... & ts) {
-   return tuple<Ts & ...>(static_cast<_tuple_head<
-      t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
-   > &>(tpl).get();
+inline /*constexpr*/ tuple<Ts & ...> tie(Ts & ... ts) {
+   return tuple<Ts & ...>(ts ...);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
