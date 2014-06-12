@@ -49,7 +49,7 @@ protected:
       The resulting contents of the internal writer.
    */
    template <typename T>
-   istr const & get_to_str_output(T const & t, istr const & sFormatSpec) {
+   istr const & get_to_str_output(T const & t, istr const & sFormatSpec = istr()) {
       ABC_TRACE_FUNC(t, sFormatSpec);
 
       to_str_backend<T> tsb(sFormatSpec);
@@ -294,6 +294,48 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_smart_pointers)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::to_str_tuples
+
+namespace abc {
+namespace test {
+
+class to_str_tuples :
+   public to_str_test_case_base {
+public:
+
+   /** See to_str_test_case_base::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::to_str – STL tuple types"));
+   }
+
+
+   /** See to_str_test_case_base::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+      using ::std::tuple;
+#else
+      using ::abc::_std::tuple;
+#endif
+
+      // Test {std,abc::_std}::tuple.
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<>()), SL("()"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int>(1)), SL("(1)"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int, int>(1, 2)), SL("(1, 2)"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<istr, int>(SL("abc"), 42)), SL("(abc, 42)"));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_tuples)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
