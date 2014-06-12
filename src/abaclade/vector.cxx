@@ -28,33 +28,11 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 _vector_to_str_backend::_vector_to_str_backend(istr const & sFormat) :
-   m_sSeparator(SL(", ")) {
-   ABC_UNUSED_ARG(sFormat);
+   _sequence_to_str_backend(sFormat, istr(SL("{")), istr(SL("}"))) {
 }
 
 
 _vector_to_str_backend::~_vector_to_str_backend() {
-}
-
-
-void _vector_to_str_backend::_write_end(io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, ptwOut);
-
-   m_tsbStr.write(istr(SL("}")), ptwOut);
-}
-
-
-void _vector_to_str_backend::_write_separator(io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, ptwOut);
-
-   m_tsbStr.write(m_sSeparator, ptwOut);
-}
-
-
-void _vector_to_str_backend::_write_start(io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, ptwOut);
-
-   m_tsbStr.write(istr(SL("{")), ptwOut);
 }
 
 } //namespace abc
