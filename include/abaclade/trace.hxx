@@ -124,6 +124,9 @@ class _scope_trace;
 
 namespace abc {
 
+/** Largest part of the implementation of _scope_trace_impl. Helps avoid code bloat by being non-
+template, using callbacks to display template-dependent variables.
+*/
 class ABACLADE_SYM _scope_trace_impl {
 public:
 
