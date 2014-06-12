@@ -104,9 +104,11 @@ class _scope_trace;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   typename T0 = void, typename T1 = void, typename T2 = void, typename T3 = void,
-   typename T4 = void, typename T5 = void, typename T6 = void, typename T7 = void,
-   typename T8 = void, typename T9 = void
+   typename T0 = _std::_tuple_void, typename T1 = _std::_tuple_void,
+   typename T2 = _std::_tuple_void, typename T3 = _std::_tuple_void,
+   typename T4 = _std::_tuple_void, typename T5 = _std::_tuple_void,
+   typename T6 = _std::_tuple_void, typename T7 = _std::_tuple_void,
+   typename T8 = _std::_tuple_void, typename T9 = _std::_tuple_void
 >
 class _scope_trace;
 
@@ -122,21 +124,11 @@ class _scope_trace;
 
 namespace abc {
 
+/** Largest part of the implementation of _scope_trace_impl. Helps avoid code bloat by being non-
+template, using callbacks to display template-dependent variables.
+*/
 class ABACLADE_SYM _scope_trace_impl {
 public:
-
-   /** Constructor.
-   */
-   _scope_trace_impl() :
-      m_bScopeRenderingStarted(false) {
-   }
-
-
-   /** Destructor. It also completes the trace (started by a _scope_trace specialization) for this
-   scope.
-   */
-   ~_scope_trace_impl();
-
 
    /** Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
@@ -258,14 +250,14 @@ public:
 
 protected:
 
-   /** Begins a new frame in the current scope trace, or prepare for the next argument in the
-   current frame.
+   /** Adds a scope in the current scope trace if an in-flight exception is detected.
 
-   return
-      Pointer to the scope trace writer. The caller can use this to add the current value of a local
-      variable in the current frame.
+   fnWriteVars
+      Callback that is invoked to write the current value of local variables in the scope.
+      ptw
+         Pointer to the scope trace writer.
    */
-   io::text::writer * scope_render_start_or_continue();
+   void trace_scope(std::function<void (io::text::writer * ptw)> fnWriteVars);
 
 
 private:
@@ -274,9 +266,6 @@ private:
    char_t const * m_pszFunction;
    /** Source location. */
    source_location m_srcloc;
-   /** If true, rendering of this scope trace has started (the function/scope name has been
-   rendered). */
-   bool m_bScopeRenderingStarted;
 
    /** Writer that collects the rendered scope trace when an exception is thrown. */
    static /*tls*/ std::unique_ptr<io::text::str_writer> sm_ptswScopeTrace;
@@ -284,9 +273,9 @@ private:
    static /*tls*/ unsigned sm_iStackDepth;
    /** Count of references to the current rendered trace. Managed by abc::exception. */
    static /*tls*/ unsigned sm_cScopeTraceRefs;
-   /** true if the destructor (the only method that actually may do anything at all) is being run.
-   If this is true, another call to the destructor should not try to do anything, otherwise we’ll
-   get stuck in an infinite recursion. */
+   /** true if trace_scope() (the only method that actually may do anything at all) is being run.
+   If this is true, another call to it should not try to do anything, otherwise we may get stuck in
+   an infinite recursion. */
    static /*tls*/ bool sm_bReentering;
 };
 
@@ -301,554 +290,246 @@ namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-// Base specialization.
-template <>
-class _scope_trace<> :
-   public _scope_trace_impl {
-};
+template <typename ... Ts>
+class _scope_trace :
+   public _scope_trace_impl,
+   protected std::tuple<Ts const & ...> {
 
-// Recursive specialization.
-template <typename T0, typename ... Ts>
-class _scope_trace<T0, Ts ...> :
-   public _scope_trace<Ts ...> {
-
-   typedef _scope_trace<Ts ...> base_scope_trace;
+   /** Tuple type used to store the trace variables. */
+   typedef std::tuple<Ts const & ...> _tuple_base;
+   /** Count of trace variables. */
+   static size_t const smc_cTs = std::tuple_size<_tuple_base>::value;
 
 public:
 
    /** Constructor.
    */
-   _scope_trace(T0 const & t0, Ts const & ... ts) :
-      base_scope_trace(ts ...),
-      m_t0(t0) {
+   _scope_trace(Ts const & ... ts) :
+      _tuple_base(ts ...) {
    }
 
 
    /** Destructor.
    */
    ~_scope_trace() {
-      try {
-         io::text::writer * ptw(base_scope_trace::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->write(m_t0);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
+         print<>(ptw);
+      });
    }
 
 
-private:
+protected:
 
-   /** Nth argument. */
-   T0 const & m_t0;
+   /** Prints the scope trace to the specified text writer.
+
+   ptw
+      Pointer to the writer to output to.
+   */
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 0, io::text::writer *>::type ptw) {
+      ABC_UNUSED_ARG(ptw);
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 1, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}"), std::get<0>(*this));
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 2, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}, {}"), std::get<0>(*this), std::get<1>(*this));
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 3, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}, {}, {}"), std::get<0>(*this), std::get<1>(*this), std::get<2>(*this));
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 4, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 5, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 6, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this), std::get<5>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 7, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 8, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 9, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this),
+         std::get<8>(*this)
+      );
+   }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 10, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
+         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
+         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this),
+         std::get<8>(*this), std::get<9>(*this)
+      );
+   }
 };
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-#if 0
-
-// Recursive implementation.
 template <
-   typename T0 /*= void*/, typename T1 /*= void*/, typename T2 /*= void*/, typename T3 /*= void*/,
-   typename T4 /*= void*/, typename T5 /*= void*/, typename T6 /*= void*/, typename T7 /*= void*/,
-   typename T8 /*= void*/, typename T9 /*= void*/
+   typename T0 /*= _std::_tuple_void*/, typename T1 /*= _std::_tuple_void*/,
+   typename T2 /*= _std::_tuple_void*/, typename T3 /*= _std::_tuple_void*/,
+   typename T4 /*= _std::_tuple_void*/, typename T5 /*= _std::_tuple_void*/,
+   typename T6 /*= _std::_tuple_void*/, typename T7 /*= _std::_tuple_void*/,
+   typename T8 /*= _std::_tuple_void*/, typename T9 /*= _std::_tuple_void*/
 >
 class _scope_trace :
-   public _scope_trace<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+   public _scope_trace_impl,
+   protected _std::tuple<
+      T0 const &, T1 const &, T2 const &, T3 const &, T4 const &, T5 const &, T6 const &,
+      T7 const &, T8 const &, T9 const &
+   > {
 
-   typedef _scope_trace<T1, T2, T3, T4, T5, T6, T7, T8, T9> base_scope_trace;
+   /** Tuple type used to store the trace variables. */
+   typedef _std::tuple<
+      T0 const &, T1 const &, T2 const &, T3 const &, T4 const &, T5 const &, T6 const &,
+      T7 const &, T8 const &, T9 const &
+   > _tuple_base;
+   /** Count of trace variables. */
+   static size_t const smc_cTs = _std::tuple_size<_std::tuple<
+      T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+   >>::value;
 
 public:
 
    /** Constructor.
-   */
-   template <typename U0>
-   _scope_trace(typename std::enable_if<!std::is_void<U0>::value, U0 const &>::type t0) :
-      base_scope_trace(),
-      m_t0(t0) {
-   }
-   _scope_trace(
-      typename std::enable_if<!std::is_void<T1>::value, T0 const &>::type t0,
-      T1 const & t1
-   ) :
-      base_scope_trace(t1),
-      m_t0(t0) {
-   }
-   _scope_trace(
-      typename std::enable_if<!std::is_void<T2>::value, T0 const &>::type t0,
-      T1 const & t1, T2 const & t2
-   ) :
-      base_scope_trace(t1, t2),
-      m_t0(t0) {
-   }
-   _scope_trace(
-      typename std::enable_if<!std::is_void<T3>::value, T0 const &>::type t0,
-      T1 const & t1, T2 const & t2, T3 const & t3
-   ) :
-      base_scope_trace(t1, t2, t3),
-      m_t0(t0) {
-   }
-   _scope_trace(
-      typename std::enable_if<!std::is_void<T4>::value, T0 const &>::type t0,
-      T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
-   ) :
-      base_scope_trace(t1, t2, t3, t4),
-      m_t0(t0) {
-   }
-   template <
-      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
-      typename U7, typename U8, typename U9
-   >
-   _scope_trace(
-      typename std::enable_if<!std::is_void<U9>::value, U0 const &>::type t0,
-      U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5, U6 const & t6,
-      U7 const & t7, U8 const & t8, U9 const & t9
-   ) :
-      base_scope_trace(t1, t2, t3, t4, t5, t6, t7, t8, t9),
-      m_t0(t0) {
-   }
 
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(base_scope_trace::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->write(m_t0);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
-   }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-};
-
-#else
-
-template <
-   typename T0 /*= void*/, typename T1 /*= void*/, typename T2 /*= void*/, typename T3 /*= void*/,
-   typename T4 /*= void*/, typename T5 /*= void*/, typename T6 /*= void*/, typename T7 /*= void*/,
-   typename T8 /*= void*/, typename T9 /*= void*/
->
-class _scope_trace :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
+   t0...t9
+      Variables to trace.
    */
    _scope_trace(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7), m_t8(t8),
-      m_t9(t9) {
+      _tuple_base(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }
 
 
    /** Destructor.
    */
    ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(
-               SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
-               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8, m_t9
-            );
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
+         print<>(ptw);
+      });
    }
 
 
-private:
+protected:
 
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-   T5 const & m_t5;
-   T6 const & m_t6;
-   T7 const & m_t7;
-   T8 const & m_t8;
-   T9 const & m_t9;
-};
+   /** Prints the scope trace to the specified text writer.
 
-template <
-   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
-   typename T7, typename T8
->
-class _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
+   ptw
+      Pointer to the writer to output to.
    */
-   _scope_trace(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8
-   ) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7), m_t8(t8) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 0, io::text::writer *>::type ptw) {
+      ABC_UNUSED_ARG(ptw);
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(
-               SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
-               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7, m_t8
-            );
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 1, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}"), _std::get<0>(*this));
    }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-   T5 const & m_t5;
-   T6 const & m_t6;
-   T7 const & m_t7;
-   T8 const & m_t8;
-};
-
-template <
-   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
-   typename T7
->
-class _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7
-   ) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6), m_t7(t7) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 2, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}, {}"), _std::get<0>(*this), _std::get<1>(*this));
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(
-               SL("{}, {}, {}, {}, {}, {}, {}, {}"),
-               m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6, m_t7
-            );
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 3, io::text::writer *>::type ptw) {
+      ptw->print(SL("{}, {}, {}"), _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this));
    }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-   T5 const & m_t5;
-   T6 const & m_t6;
-   T7 const & m_t7;
-};
-
-template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-class _scope_trace<T0, T1, T2, T3, T4, T5, T6> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6
-   ) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5), m_t6(t6) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 4, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this)
+      );
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5, m_t6);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 5, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this)
+      );
    }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-   T5 const & m_t5;
-   T6 const & m_t6;
-};
-
-template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-class _scope_trace<T0, T1, T2, T3, T4, T5> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
-   ) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4), m_t5(t5) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 6, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this), _std::get<5>(*this)
+      );
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4, m_t5);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 7, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this)
+      );
    }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-   T5 const & m_t5;
-};
-
-template <typename T0, typename T1, typename T2, typename T3, typename T4>
-class _scope_trace<T0, T1, T2, T3, T4> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3), m_t4(t4) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 8, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this)
+      );
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3, m_t4);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 9, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this),
+         _std::get<8>(*this)
+      );
    }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-   T4 const & m_t4;
-};
-
-template <typename T0, typename T1, typename T2, typename T3>
-class _scope_trace<T0, T1, T2, T3> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) :
-      m_t0(t0), m_t1(t1), m_t2(t2), m_t3(t3) {
+   template <size_t t_cTs = smc_cTs>
+   void print(typename std::enable_if<t_cTs == 10, io::text::writer *>::type ptw) {
+      ptw->print(
+         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
+         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
+         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this),
+         _std::get<8>(*this), _std::get<9>(*this)
+      );
    }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}, {}, {}"), m_t0, m_t1, m_t2, m_t3);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
-   }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-   T3 const & m_t3;
-};
-
-template <typename T0, typename T1, typename T2>
-class _scope_trace<T0, T1, T2> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(T0 const & t0, T1 const & t1, T2 const & t2) :
-      m_t0(t0), m_t1(t1), m_t2(t2) {
-   }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}, {}"), m_t0, m_t1, m_t2);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
-   }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-   T2 const & m_t2;
-};
-
-template <typename T0, typename T1>
-class _scope_trace<T0, T1> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(T0 const & t0, T1 const & t1) :
-      m_t0(t0), m_t1(t1) {
-   }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->print(SL("{}, {}"), m_t0, m_t1);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
-   }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-   T1 const & m_t1;
-};
-
-template <typename T0>
-class _scope_trace<T0> :
-   public _scope_trace_impl {
-public:
-
-   /** Constructor.
-   */
-   _scope_trace(T0 const & t0) :
-      m_t0(t0) {
-   }
-
-
-   /** Destructor.
-   */
-   ~_scope_trace() {
-      try {
-         io::text::writer * ptw(_scope_trace_impl::scope_render_start_or_continue());
-         if (ptw) {
-            ptw->write(m_t0);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
-   }
-
-
-private:
-
-   /** Nth argument. */
-   T0 const & m_t0;
-};
-
-#endif
-
-// Base specialization.
-template <>
-class _scope_trace<> :
-   public _scope_trace_impl {
 };
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -865,75 +546,104 @@ inline _scope_trace<Ts ...> _scope_trace_impl::make(Ts const & ... ts) {
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-inline _scope_trace<> _scope_trace_impl::make() {
-   return _scope_trace<>();
+inline /*static*/ _scope_trace<> _scope_trace_impl::make() {
+   return _scope_trace<>(
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <typename T0>
-inline _scope_trace<T0> _scope_trace_impl::make(T0 const & t0) {
-   return _scope_trace<T0>(t0);
+inline /*static*/ _scope_trace<T0> _scope_trace_impl::make(T0 const & t0) {
+   return _scope_trace<T0>(
+      t0, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void()
+   );
 }
 template <typename T0, typename T1>
-inline _scope_trace<T0, T1> _scope_trace_impl::make(T0 const & t0, T1 const & t1) {
-   return _scope_trace<T0, T1>(t0, t1);
+inline /*static*/ _scope_trace<T0, T1> _scope_trace_impl::make(T0 const & t0, T1 const & t1) {
+   return _scope_trace<T0, T1>(
+      t0, t1, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <typename T0, typename T1, typename T2>
-inline _scope_trace<T0, T1, T2> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2
 ) {
-   return _scope_trace<T0, T1, T2>(t0, t1, t2);
+   return _scope_trace<T0, T1, T2>(
+      t0, t1, t2, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <typename T0, typename T1, typename T2, typename T3>
-inline _scope_trace<T0, T1, T2, T3> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
 ) {
-   return _scope_trace<T0, T1, T2, T3>(t0, t1, t2, t3);
+   return _scope_trace<T0, T1, T2, T3>(
+      t0, t1, t2, t3, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
-inline _scope_trace<T0, T1, T2, T3, T4> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
 ) {
-   return _scope_trace<T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
+   return _scope_trace<T0, T1, T2, T3, T4>(
+      t0, t1, t2, t3, t4, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-inline _scope_trace<T0, T1, T2, T3, T4, T5> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
 ) {
-   return _scope_trace<T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
+   return _scope_trace<T0, T1, T2, T3, T4, T5>(
+      t0, t1, t2, t3, t4, t5, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void()
+   );
 }
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
 >
-inline _scope_trace<T0, T1, T2, T3, T4, T5, T6> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6
 ) {
-   return _scope_trace<T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6>(
+      t0, t1, t2, t3, t4, t5, t6, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7
 >
-inline _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7
 ) {
-   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7>(
+      t0, t1, t2, t3, t4, t5, t6, t7, _std::_tuple_void(), _std::_tuple_void()
+   );
 }
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8
 >
-inline _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7, T8 const & t8
 ) {
-   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
+      t0, t1, t2, t3, t4, t5, t6, t7, t8, _std::_tuple_void()
+   );
 }
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8, typename T9
 >
-inline _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _scope_trace_impl::make(
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _scope_trace_impl::make(
    T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
    T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) {

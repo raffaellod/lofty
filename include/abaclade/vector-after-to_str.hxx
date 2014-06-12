@@ -32,7 +32,8 @@ namespace abc {
 /** Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file.
 */
-class ABACLADE_SYM _vector_to_str_backend {
+class ABACLADE_SYM _vector_to_str_backend :
+   public _sequence_to_str_backend {
 public:
 
    /** Constructor.
@@ -50,39 +51,9 @@ public:
 
 protected:
 
-   /** Writes a list end delimiter (typically a closed brace).
-
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   void _write_end(io::text::writer * ptwOut);
-
-
-   /** Writes an element separator (typically a comma).
-
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   void _write_separator(io::text::writer * ptwOut);
-
-
-   /** Writes a list start delimiter (typically an open brace).
-
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   void _write_start(io::text::writer * ptwOut);
-
-
-protected:
-
    /** Formatting options to be applied to the individual elements, obtained from the constructor
    argument sFormat. */
    istr m_sEltFormat;
-   /** Separator to be output between elements. */
-   istr m_sSeparator;
-   /** Backend for strings. */
-   to_str_backend<istr> m_tsbStr;
 };
 
 } //namespace abc

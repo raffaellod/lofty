@@ -358,7 +358,6 @@ ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host 
 */
 namespace abc {
 namespace _std {
-using namespace ::std;
 } //namespace _std
 } //namespace abc
 

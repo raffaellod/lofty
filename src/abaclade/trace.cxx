@@ -34,62 +34,21 @@ namespace abc {
 /*tls*/ bool _scope_trace_impl::sm_bReentering(false);
 
 
-_scope_trace_impl::~_scope_trace_impl() {
-   // If the rendering has already started, override sm_bReentering, because the most-derived class
-   // must’ve been the one to set sm_bReentering (otherwise m_bScopeRenderingStarted wouldn’t be
-   // set), so this trace must be completed.
-   if (m_bScopeRenderingStarted || (!sm_bReentering && std::uncaught_exception())) {
+void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptw)> fnWriteVars) {
+   if (!sm_bReentering && std::uncaught_exception()) {
+      sm_bReentering = true;
       try {
-         // First, prevent infinite recursions in case of exceptions occuring during the execution
-         // of this method.
-         if (!m_bScopeRenderingStarted) {
-            sm_bReentering = true;
-         }
-         // Add this argument to the current trace.
          io::text::writer * ptw(get_trace_writer());
-         if (m_bScopeRenderingStarted) {
-            ptw->print(SL(" at {}\n"), m_srcloc);
-         } else {
-            // First argument for the current function, so print the function name as well.
-            ptw->print(
-               SL("#{} {} at {}\n"), ++sm_iStackDepth, istr(unsafe, m_pszFunction), m_srcloc
-            );
-         }
+         ptw->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
+         // Allow the caller to write any scope variables.
+         fnWriteVars(ptw);
+         ptw->print(SL(" at {}\n"), m_srcloc);
       } catch (...) {
-         // The exception is not rethrown, because we don’t want a trace to interfere with the
-         // program flow.
+         // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
       }
-      // If we’re here, it’s this object that set this to true (see first comment above), so reset
-      // it now.
       sm_bReentering = false;
    }
-}
-
-
-io::text::writer * _scope_trace_impl::scope_render_start_or_continue() {
-   // See similar condition in ~_scope_trace_impl().
-   if (m_bScopeRenderingStarted || (!sm_bReentering && std::uncaught_exception())) {
-      // See similar condition in ~_scope_trace_impl().
-      if (!m_bScopeRenderingStarted) {
-         // Note: we don’t reset this variable in this method, but in ~_scope_trace_impl(), since
-         // that will always be called last in the destructor sequence – and it will always be
-         // called.
-         sm_bReentering = true;
-      }
-      // Add this argument to the current trace.
-      io::text::writer * ptw(get_trace_writer());
-      if (m_bScopeRenderingStarted) {
-         ptw->write(SL(", "));
-      } else {
-         // First argument for the current function, so print the function name as well.
-         m_bScopeRenderingStarted = true;
-         ptw->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
-      }
-      // Return the writer, so the caller can print its m_t0.
-      return ptw;
-   }
-   return nullptr;
 }
 
 } //namespace abc

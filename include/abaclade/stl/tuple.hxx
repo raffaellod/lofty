@@ -65,7 +65,7 @@ namespace _std {
 /** Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough.
 */
-template <size_t t_i, typename T, bool t_bEmpty = is_empty<T>::value>
+template <size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
 class _tuple_head;
 
 // Specialization for empty types: enable EBO.
@@ -92,7 +92,7 @@ public:
    }
    template <typename Tr>
    _tuple_head(Tr && t) :
-      T(forward<Tr>(t)) {
+      T(std::forward<Tr>(t)) {
    }
 
 
@@ -108,7 +108,7 @@ public:
       return *this;
    }
    _tuple_head & operator=(_tuple_head && th) {
-      get() = move(th.get());
+      get() = std::move(th.get());
       return *this;
    }
 
@@ -145,11 +145,11 @@ public:
       m_t(th.m_t) {
    }
    _tuple_head(_tuple_head && th) :
-      m_t(move(th.m_t)) {
+      m_t(std::move(th.m_t)) {
    }
    template <typename Tr>
    _tuple_head(Tr && t) :
-      m_t(forward<Tr>(t)) {
+      m_t(std::forward<Tr>(t)) {
    }
 
 
@@ -165,7 +165,7 @@ public:
       return *this;
    }
    _tuple_head & operator=(_tuple_head && th) {
-      get() = move(th.get());
+      get() = std::move(th.get());
       return *this;
    }
 
@@ -236,13 +236,13 @@ public:
       _thead(), _ttail() {
    }
    _tuple_tail(T0 thead, Ts ... ts) :
-      _thead(move(thead)), _ttail(move(ts) ...) {
+      _thead(std::move(thead)), _ttail(std::move(ts) ...) {
    }
    _tuple_tail(_tuple_tail const & tt) :
       _thead(tt.get_thead()), _ttail(tt.get_ttail()) {
    }
    _tuple_tail(_tuple_tail && tt) :
-      _thead(move(tt.get_thead())), _ttail(move(tt.get_ttail())) {
+      _thead(std::move(tt.get_thead())), _ttail(std::move(tt.get_ttail())) {
    }
 
 
@@ -259,8 +259,8 @@ public:
       return *this;
    }
    _tuple_tail & operator=(_tuple_tail && tt) {
-      get_thead() = move(tt.get_thead());
-      get_ttail() = move(tt.get_ttail());
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
       return *this;
    }
 
@@ -323,14 +323,14 @@ public:
       _ttail(tt.get_ttail()) {
    }
    _tuple_tail(_tuple_tail && tt) :
-      _thead(move(tt.get_thead())),
-      _ttail(move(tt.get_ttail())) {
+      _thead(std::move(tt.get_thead())),
+      _ttail(std::move(tt.get_ttail())) {
    }
    _tuple_tail(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) :
-      _thead(move(t0)),
+      _thead(std::move(t0)),
       _ttail(
-         move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8), move(t9),
-         _tuple_void()
+         std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5), std::move(t6),
+         std::move(t7), std::move(t8), std::move(t9), _tuple_void()
       ) {
    }
 
@@ -348,8 +348,8 @@ public:
       return *this;
    }
    _tuple_tail & operator=(_tuple_tail && tt) {
-      get_thead() = move(tt.get_thead());
-      get_ttail() = move(tt.get_ttail());
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
       return *this;
    }
 
@@ -395,7 +395,7 @@ public:
    */
    _tuple_tail() {
    }
-   _tuple_tail(_tuple_tail const & tt) {
+   _tuple_tail(_tuple_tail const &) {
    }
    _tuple_tail(
       _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
@@ -451,7 +451,7 @@ public:
       _timpl() {
    }
    explicit tuple(Ts ... ts) :
-      _timpl(move(ts) ...) {
+      _timpl(std::move(ts) ...) {
    }
    tuple(tuple const & tpl) :
       _timpl(static_cast<_timpl const &>(tpl)) {
@@ -509,71 +509,71 @@ public:
    // Overload for tuple of 1.
    explicit tuple(T0 t0) :
       _timpl(
-         move(t0), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
+         std::move(t0), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 2.
    tuple(T0 t0, T1 t1) :
       _timpl(
-         move(t0), move(t1), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
+         std::move(t0), std::move(t1), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
          _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 3.
    tuple(T0 t0, T1 t1, T2 t2) :
       _timpl(
-         move(t0), move(t1), move(t2), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), _tuple_void(), _tuple_void(), _tuple_void(),
+         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 4.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), _tuple_void(), _tuple_void(),
+         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 5.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), _tuple_void(),
+         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 6.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5),
+         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 7.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), _tuple_void(),
-         _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5),
+         std::move(t6), _tuple_void(), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 8.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7),
-         _tuple_void(), _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5),
+         std::move(t6), std::move(t7), _tuple_void(), _tuple_void()
       ) {
    }
    // Overload for tuple of 9.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8),
-         _tuple_void()
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5),
+         std::move(t6), std::move(t7), std::move(t8), _tuple_void()
       ) {
    }
    // Overload for tuple of 10.
    tuple(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) :
       _timpl(
-         move(t0), move(t1), move(t2), move(t3), move(t4), move(t5), move(t6), move(t7), move(t8),
-         move(t9)
+         std::move(t0), std::move(t1), std::move(t2), std::move(t3), std::move(t4), std::move(t5),
+         std::move(t6), std::move(t7), std::move(t8), std::move(t9)
       ) {
    }
    tuple(tuple const & tpl) :

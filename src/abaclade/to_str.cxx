@@ -347,4 +347,26 @@ ABACLADE_SYM void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::wri
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_sequence_to_str_backend
+
+
+namespace abc {
+
+_sequence_to_str_backend::_sequence_to_str_backend(
+   istr const & sFormat, istr const & sStart, istr const & sEnd
+) :
+   m_sSeparator(SL(", ")),
+   m_sStart(sStart),
+   m_sEnd(sEnd) {
+   ABC_UNUSED_ARG(sFormat);
+}
+
+
+_sequence_to_str_backend::~_sequence_to_str_backend() {
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
