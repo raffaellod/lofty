@@ -127,19 +127,6 @@ namespace abc {
 class ABACLADE_SYM _scope_trace_impl {
 public:
 
-   /** Constructor.
-   */
-   _scope_trace_impl() :
-      m_bScopeRenderingStarted(false) {
-   }
-
-
-   /** Destructor. It also completes the trace (started by a _scope_trace specialization) for this
-   scope.
-   */
-   ~_scope_trace_impl();
-
-
    /** Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
    */
@@ -260,14 +247,14 @@ public:
 
 protected:
 
-   /** Begins a new frame in the current scope trace, or prepare for the next argument in the
-   current frame.
+   /** Adds a scope in the current scope trace if an in-flight exception is detected.
 
-   return
-      Pointer to the scope trace writer. The caller can use this to add the current value of a local
-      variable in the current frame.
+   fnWriteVars
+      Callback that is invoked to write the current value of local variables in the scope.
+      ptw
+         Pointer to the scope trace writer.
    */
-   io::text::writer * scope_render_start_or_continue();
+   void trace_scope(std::function<void (io::text::writer * ptw)> fnWriteVars);
 
 
 private:
@@ -276,9 +263,6 @@ private:
    char_t const * m_pszFunction;
    /** Source location. */
    source_location m_srcloc;
-   /** If true, rendering of this scope trace has started (the function/scope name has been
-   rendered). */
-   bool m_bScopeRenderingStarted;
 
    /** Writer that collects the rendered scope trace when an exception is thrown. */
    static /*tls*/ std::unique_ptr<io::text::str_writer> sm_ptswScopeTrace;
@@ -325,15 +309,9 @@ public:
    /** Destructor.
    */
    ~_scope_trace() {
-      try {
-         // If this returns a valid pointer, a trace is being generated.
-         if (io::text::writer * ptw = _scope_trace_impl::scope_render_start_or_continue()) {
-            print<>(ptw);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
+         print<>(ptw);
+      });
    }
 
 
@@ -463,15 +441,9 @@ public:
    /** Destructor.
    */
    ~_scope_trace() {
-      try {
-         // If this returns a valid pointer, a trace is being generated.
-         if (io::text::writer * ptw = _scope_trace_impl::scope_render_start_or_continue()) {
-            print<>(ptw);
-         }
-      } catch (...) {
-         // Don’t allow a trace to interfere with the program flow.
-         // FIXME: EXC-SWALLOW
-      }
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
+         print<>(ptw);
+      });
    }
 
 
