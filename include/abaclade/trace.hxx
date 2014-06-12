@@ -104,8 +104,11 @@ class _scope_trace;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
-   typename T7, typename T8, typename T9
+   typename T0 = _std::_tuple_void, typename T1 = _std::_tuple_void,
+   typename T2 = _std::_tuple_void, typename T3 = _std::_tuple_void,
+   typename T4 = _std::_tuple_void, typename T5 = _std::_tuple_void,
+   typename T6 = _std::_tuple_void, typename T7 = _std::_tuple_void,
+   typename T8 = _std::_tuple_void, typename T9 = _std::_tuple_void
 >
 class _scope_trace;
 
@@ -158,19 +161,55 @@ public:
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
+   static _scope_trace<> make();
+   template <typename T0>
+   static _scope_trace<T0> make(T0 const & t0);
+   template <typename T0, typename T1>
+   static _scope_trace<T0, T1> make(T0 const & t0, T1 const & t1);
+   template <typename T0, typename T1, typename T2>
+   static _scope_trace<T0, T1, T2> make(T0 const & t0, T1 const & t1, T2 const & t2);
+   template <typename T0, typename T1, typename T2, typename T3>
+   static _scope_trace<T0, T1, T2, T3> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+   );
+   template <typename T0, typename T1, typename T2, typename T3, typename T4>
+   static _scope_trace<T0, T1, T2, T3, T4> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+   );
+   template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+   static _scope_trace<T0, T1, T2, T3, T4, T5> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
+   );
    template <
-      typename T0 = _std::_tuple_void, typename T1 = _std::_tuple_void,
-      typename T2 = _std::_tuple_void, typename T3 = _std::_tuple_void,
-      typename T4 = _std::_tuple_void, typename T5 = _std::_tuple_void,
-      typename T6 = _std::_tuple_void, typename T7 = _std::_tuple_void,
-      typename T8 = _std::_tuple_void, typename T9 = _std::_tuple_void
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+   >
+   static _scope_trace<T0, T1, T2, T3, T4, T5, T6> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+      T6 const & t6
+   );
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+      typename T7
+   >
+   static _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+      T6 const & t6, T7 const & t7
+   );
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+      typename T7, typename T8
+   >
+   static _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8> make(
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+      T6 const & t6, T7 const & t7, T8 const & t8
+   );
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+      typename T7, typename T8, typename T9
    >
    static _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> make(
-      T0 const & t0 = _std::_tuple_void(), T1 const & t1 = _std::_tuple_void(),
-      T2 const & t2 = _std::_tuple_void(), T3 const & t3 = _std::_tuple_void(),
-      T4 const & t4 = _std::_tuple_void(), T5 const & t5 = _std::_tuple_void(),
-      T6 const & t6 = _std::_tuple_void(), T7 const & t7 = _std::_tuple_void(),
-      T8 const & t8 = _std::_tuple_void(), T9 const & t9 = _std::_tuple_void()
+      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+      T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    );
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -383,8 +422,11 @@ protected:
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
-   typename T7, typename T8, typename T9
+   typename T0 /*= _std::_tuple_void*/, typename T1 /*= _std::_tuple_void*/,
+   typename T2 /*= _std::_tuple_void*/, typename T3 /*= _std::_tuple_void*/,
+   typename T4 /*= _std::_tuple_void*/, typename T5 /*= _std::_tuple_void*/,
+   typename T6 /*= _std::_tuple_void*/, typename T7 /*= _std::_tuple_void*/,
+   typename T8 /*= _std::_tuple_void*/, typename T9 /*= _std::_tuple_void*/
 >
 class _scope_trace :
    public _scope_trace_impl,
@@ -529,16 +571,106 @@ inline _scope_trace<Ts ...> _scope_trace_impl::make(Ts const & ... ts) {
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
+inline /*static*/ _scope_trace<> _scope_trace_impl::make() {
+   return _scope_trace<>(
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <typename T0>
+inline /*static*/ _scope_trace<T0> _scope_trace_impl::make(T0 const & t0) {
+   return _scope_trace<T0>(
+      t0, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void()
+   );
+}
+template <typename T0, typename T1>
+inline /*static*/ _scope_trace<T0, T1> _scope_trace_impl::make(T0 const & t0, T1 const & t1) {
+   return _scope_trace<T0, T1>(
+      t0, t1, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <typename T0, typename T1, typename T2>
+inline /*static*/ _scope_trace<T0, T1, T2> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2
+) {
+   return _scope_trace<T0, T1, T2>(
+      t0, t1, t2, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <typename T0, typename T1, typename T2, typename T3>
+inline /*static*/ _scope_trace<T0, T1, T2, T3> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+) {
+   return _scope_trace<T0, T1, T2, T3>(
+      t0, t1, t2, t3, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4>
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+) {
+   return _scope_trace<T0, T1, T2, T3, T4>(
+      t0, t1, t2, t3, t4, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
+) {
+   return _scope_trace<T0, T1, T2, T3, T4, T5>(
+      t0, t1, t2, t3, t4, t5, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void(),
+      _std::_tuple_void()
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+>
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+   T6 const & t6
+) {
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6>(
+      t0, t1, t2, t3, t4, t5, t6, _std::_tuple_void(), _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7
+>
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+   T6 const & t6, T7 const & t7
+) {
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7>(
+      t0, t1, t2, t3, t4, t5, t6, t7, _std::_tuple_void(), _std::_tuple_void()
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8
+>
+inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8> _scope_trace_impl::make(
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+   T6 const & t6, T7 const & t7, T8 const & t8
+) {
+   return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
+      t0, t1, t2, t3, t4, t5, t6, t7, t8, _std::_tuple_void()
+   );
+}
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8, typename T9
 >
 inline /*static*/ _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _scope_trace_impl::make(
-   T0 const & t0 /*= _std::_tuple_void()*/, T1 const & t1 /*= _std::_tuple_void()*/,
-   T2 const & t2 /*= _std::_tuple_void()*/, T3 const & t3 /*= _std::_tuple_void()*/,
-   T4 const & t4 /*= _std::_tuple_void()*/, T5 const & t5 /*= _std::_tuple_void()*/,
-   T6 const & t6 /*= _std::_tuple_void()*/, T7 const & t7 /*= _std::_tuple_void()*/,
-   T8 const & t8 /*= _std::_tuple_void()*/, T9 const & t9 /*= _std::_tuple_void()*/
+   T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
+   T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) {
    return _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
       t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
