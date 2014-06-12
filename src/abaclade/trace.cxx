@@ -43,13 +43,11 @@ void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptw)>
          // Allow the caller to write any scope variables.
          fnWriteVars(ptw);
          ptw->print(SL(" at {}\n"), m_srcloc);
-
-         sm_bReentering = false;
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
-         sm_bReentering = false;
       }
+      sm_bReentering = false;
    }
 }
 

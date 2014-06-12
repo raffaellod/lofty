@@ -270,9 +270,9 @@ private:
    static /*tls*/ unsigned sm_iStackDepth;
    /** Count of references to the current rendered trace. Managed by abc::exception. */
    static /*tls*/ unsigned sm_cScopeTraceRefs;
-   /** true if the destructor (the only method that actually may do anything at all) is being run.
-   If this is true, another call to the destructor should not try to do anything, otherwise we’ll
-   get stuck in an infinite recursion. */
+   /** true if trace_scope() (the only method that actually may do anything at all) is being run.
+   If this is true, another call to it should not try to do anything, otherwise we may get stuck in
+   an infinite recursion. */
    static /*tls*/ bool sm_bReentering;
 };
 
