@@ -256,4 +256,286 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_sequence_to_str_backend
+
+
+namespace abc {
+
+/** Base class for the specializations of to_str_backend for sequence types. Not using templates, so
+the implementation can be in a cxx file.
+*/
+class ABACLADE_SYM _sequence_to_str_backend {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   sStart
+      Sequence start delimiter.
+   sEnd
+      Sequence end delimiter.
+   */
+   _sequence_to_str_backend(istr const & sFormat, istr const & sStart, istr const & sEnd);
+
+
+   /** Destructor.
+   */
+   ~_sequence_to_str_backend();
+
+
+   /** Writes the sequence end delimiter.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void _write_end(io::text::writer * ptwOut) {
+      m_tsbStr.write(m_sEnd, ptwOut);
+   }
+
+
+   /** Writes an element separator (typically a comma).
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void _write_separator(io::text::writer * ptwOut) {
+      m_tsbStr.write(m_sSeparator, ptwOut);
+   }
+
+
+   /** Writes the sequence start delimiter.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void _write_start(io::text::writer * ptwOut) {
+      m_tsbStr.write(m_sStart, ptwOut);
+   }
+
+
+protected:
+
+   /** Separator to be output between elements. */
+   istr m_sSeparator;
+   /** Sequence start delimiter. */
+   istr m_sStart;
+   /** Sequence end delimiter. */
+   istr m_sEnd;
+   /** Backend for strings. */
+   to_str_backend<istr> m_tsbStr;
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for std::tuple or abc::_std::tuple
+
+
+namespace abc {
+
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+/** Helper to write a single element out of a tuple, recursing to print any remaining ones.
+*/
+template <class TTuple, typename ... Ts>
+class _tuple_to_str_backend_element_writer;
+
+// Base case for the template recursion.
+template <class TTuple>
+class _tuple_to_str_backend_element_writer<TTuple> {
+public:
+
+   /** Writes the current element to the specified text writer, then recurses to write the rest.
+
+   tpl
+      Tuple from which to extract the element to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+      ABC_UNUSED_ARG(tpl);
+      ABC_UNUSED_ARG(ptwOut);
+   }
+};
+
+// Template recursion step.
+template <class TTuple, typename T0, typename ... Ts>
+class _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
+   public _tuple_to_str_backend_element_writer<TTuple, Ts ...> {
+public:
+
+   /** See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
+   */
+   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
+
+
+protected:
+
+   /** Backend for the current element type. */
+   to_str_backend<T0> m_tsbt0;
+};
+
+
+template <typename ... Ts>
+class to_str_backend<std::tuple<Ts ...>> :
+   public _sequence_to_str_backend,
+   public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _sequence_to_str_backend(sFormat, istr(SL("(")), istr(SL(")"))) {
+   }
+
+
+   /** Converts a tuple into its string representation.
+
+   tpl
+      Tuple to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(std::tuple<Ts ...> const & tpl, io::text::writer * ptwOut) {
+      _write_start(ptwOut);
+      this->_write_elements(tpl, ptwOut);
+      _write_end(ptwOut);
+   }
+};
+
+
+// Now this can be implemented.
+
+template <class TTuple, typename T0, typename ... Ts>
+inline void _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
+   TTuple const & tpl, io::text::writer * ptwOut
+) {
+   m_tsbt0.write(std::get<std::tuple_size<TTuple>::value - (sizeof ...(Ts) + 1)>(tpl), ptwOut);
+   // If there are any remaining elements, write a separator and recurse to write the rest.
+   if (sizeof ...(Ts)) {
+      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
+      _tuple_to_str_backend_element_writer<TTuple, Ts ...>::_write_elements(tpl, ptwOut);
+   }
+}
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+/** Helper to write the elements of a tuple.
+*/
+// Template recursion step.
+template <
+   class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   typename T6, typename T7, typename T8, typename T9
+>
+class _tuple_to_str_backend_element_writer :
+   public _tuple_to_str_backend_element_writer<
+      TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+   > {
+public:
+
+   /** See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
+   */
+   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
+
+
+protected:
+
+   /** Backend for the current element type. */
+   to_str_backend<T0> m_tsbt0;
+};
+
+// Base case for the template recursion.
+template <class TTuple>
+class _tuple_to_str_backend_element_writer<
+   TTuple, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
+   _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
+   _std::_tuple_void
+> {
+public:
+
+   /** Writes the current element to the specified text writer, then recurses to write the rest.
+
+   tpl
+      Tuple from which to extract the element to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+      ABC_UNUSED_ARG(tpl);
+      ABC_UNUSED_ARG(ptwOut);
+   }
+};
+
+
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8, typename T9
+>
+class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
+   public _sequence_to_str_backend,
+   public _tuple_to_str_backend_element_writer<
+      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+   > {
+public:
+
+   /** Constructor.
+
+   sFormat
+      Formatting options.
+   */
+   to_str_backend(istr const & sFormat = istr()) :
+      _sequence_to_str_backend(sFormat, istr(SL("(")), istr(SL(")"))) {
+   }
+
+
+   /** Converts a tuple into its string representation.
+
+   tpl
+      Tuple to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(
+      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl, io::text::writer * ptwOut
+   ) {
+      _write_start(ptwOut);
+      this->_write_elements(tpl, ptwOut);
+      _write_end(ptwOut);
+   }
+};
+
+
+// Now this can be implemented.
+
+template <
+   class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   typename T6, typename T7, typename T8, typename T9
+>
+inline void _tuple_to_str_backend_element_writer<
+   TTuple, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+>::_write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+   static size_t const sc_cTs(
+      _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
+   );
+   m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (sc_cTs + 1)>(tpl), ptwOut);
+   // If there are any remaining elements, write a separator and recurse to write the rest.
+   if (sc_cTs) {
+      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
+      _tuple_to_str_backend_element_writer<
+         TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+      >::_write_elements(tpl, ptwOut);
+   }
+}
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
