@@ -52,12 +52,12 @@
      id="namedview787"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="669.5"
+     inkscape:cx="671.5"
      inkscape:cy="80"
      inkscape:window-x="0"
      inkscape:window-y="30"
      inkscape:window-maximized="1"
-     inkscape:current-layer="gBackgroundAreasText"
+     inkscape:current-layer="svg2"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -220,16 +220,16 @@
 <text
        xml:space="preserve"
        x="196"
-       y="152"
+       y="154"
        id="text8576"><tspan
          id="tspan8580"
          sodipodi:role="line"
          x="196"
-         y="152">abc_throw of</tspan><tspan
+         y="154">ABC_THROW of</tspan><tspan
          id="tspan8584"
          sodipodi:role="line"
          x="196"
-         y="163.25">abc::exception?</tspan></text>
+         y="165.25">abc::exception?</tspan></text>
 <text
        id="text8586"
        y="155"
