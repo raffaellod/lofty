@@ -33,12 +33,12 @@ template <>
 class ABACLADE_SYM to_str_backend<source_location> {
 public:
 
-   /** Constructor.
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   to_str_backend(istr const & sFormat = istr());
+   void set_format(istr const & sFormat);
 
 
    /** Writes a source location, applying the formatting options.

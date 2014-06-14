@@ -1072,7 +1072,7 @@ ABACLADE_SYM void throw_os_error(errint_t err) {
 
 namespace abc {
 
-ABACLADE_SYM to_str_backend<source_location>::to_str_backend(istr const & sFormat /*= istr()*/) {
+ABACLADE_SYM void to_str_backend<source_location>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

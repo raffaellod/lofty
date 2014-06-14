@@ -71,16 +71,6 @@ class ABACLADE_SYM to_str_backend<c_str_to_str_adapter> :
    public _str_to_str_backend {
 public:
 
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _str_to_str_backend(sFormat) {
-   }
-
-
    /** Writes a C-style NUL-terminated string, applying the formatting options.
 
    cs
@@ -111,11 +101,16 @@ class ABACLADE_SYM _ptr_to_str_backend {
 public:
 
    /** Constructor.
+   */
+   _ptr_to_str_backend();
+
+
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   _ptr_to_str_backend(istr const & sFormat);
+   void set_format(istr const & sFormat);
 
 
 protected:
@@ -155,13 +150,6 @@ class to_str_backend<T *> :
    public _ptr_to_str_backend {
 public:
 
-   /** See _ptr_to_str_backend::_ptr_to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _ptr_to_str_backend(sFormat) {
-   }
-
-
    /** Converts a pointer to a string representation.
 
    p
@@ -180,13 +168,6 @@ class to_str_backend<std::unique_ptr<T, TDel>> :
    public _ptr_to_str_backend {
 public:
 
-   /** See _ptr_to_str_backend::_ptr_to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _ptr_to_str_backend(sFormat) {
-   }
-
-
    /** See _ptr_to_str_backend::write().
    */
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
@@ -200,16 +181,6 @@ template <typename T>
 class to_str_backend<std::shared_ptr<T>> :
    public _ptr_to_str_backend {
 public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _ptr_to_str_backend(sFormat) {
-   }
-
 
    /** Converts a pointer to a string representation.
 
@@ -229,16 +200,6 @@ template <typename T>
 class to_str_backend<std::weak_ptr<T>> :
    public _ptr_to_str_backend {
 public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _ptr_to_str_backend(sFormat) {
-   }
-
 
    /** Converts a pointer to a string representation.
 
@@ -269,19 +230,25 @@ public:
 
    /** Constructor.
 
-   sFormat
-      Formatting options.
    sStart
       Sequence start delimiter.
    sEnd
       Sequence end delimiter.
    */
-   _sequence_to_str_backend(istr const & sFormat, istr const & sStart, istr const & sEnd);
+   _sequence_to_str_backend(istr const & sStart, istr const & sEnd);
 
 
    /** Destructor.
    */
    ~_sequence_to_str_backend();
+
+
+   /** Changes the output format.
+
+   sFormat
+      Formatting options.
+   */
+   void set_format(istr const & sFormat);
 
 
    /** Writes the sequence end delimiter.
@@ -385,12 +352,9 @@ class to_str_backend<std::tuple<Ts ...>> :
 public:
 
    /** Constructor.
-
-   sFormat
-      Formatting options.
    */
-   to_str_backend(istr const & sFormat = istr()) :
-      _sequence_to_str_backend(sFormat, istr(SL("(")), istr(SL(")"))) {
+   to_str_backend() :
+      _sequence_to_str_backend(istr(SL("(")), istr(SL(")"))) {
    }
 
 
@@ -486,12 +450,9 @@ class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
 public:
 
    /** Constructor.
-
-   sFormat
-      Formatting options.
    */
-   to_str_backend(istr const & sFormat = istr()) :
-      _sequence_to_str_backend(sFormat, istr(SL("(")), istr(SL(")"))) {
+   to_str_backend() :
+      _sequence_to_str_backend(istr(SL("(")), istr(SL(")"))) {
    }
 
 

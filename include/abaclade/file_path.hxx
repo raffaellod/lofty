@@ -453,35 +453,6 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
 
-namespace abc {
-
-// Specialization of to_str_backend.
-template <>
-class ABACLADE_SYM to_str_backend<file_path> :
-   public to_str_backend<istr> {
-public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr());
-
-
-   /** Writes a string, applying the formatting options.
-
-   fp
-      File path to write.
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   void write(file_path const & fp, io::text::writer * ptwOut);
-};
-
-} //namespace abc
-
-
 namespace std {
 
 // Specialization of std::hash.
@@ -496,6 +467,38 @@ struct hash<abc::file_path>  {
 };
 
 } //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::file_path
+
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<file_path> :
+   public to_str_backend<istr> {
+public:
+
+   /** Changes the output format.
+
+   sFormat
+      Formatting options.
+   */
+   void set_format(istr const & sFormat);
+
+
+   /** Writes a string, applying the formatting options.
+
+   fp
+      File path to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(file_path const & fp, io::text::writer * ptwOut);
+};
+
+} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

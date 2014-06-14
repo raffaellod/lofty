@@ -35,12 +35,12 @@ the implementation can be in a cxx file. This is used by string literal types as
 class ABACLADE_SYM _str_to_str_backend {
 public:
 
-   /** Constructor.
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   _str_to_str_backend(istr const & sFormat);
+   void set_format(istr const & sFormat);
 
 
 protected:
@@ -75,16 +75,6 @@ namespace abc {
    class ABACLADE_SYM to_str_backend<C> : \
       public _str_to_str_backend { \
    public: \
-   \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         _str_to_str_backend(sFormat) { \
-      } \
-   \
    \
       /** Writes a character, applying the formatting options.
 
@@ -128,16 +118,6 @@ namespace abc {
       public _str_to_str_backend { \
    public: \
    \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         _str_to_str_backend(sFormat) { \
-      } \
-   \
-   \
       /** Writes a string, applying the formatting options.
 
       ach
@@ -155,19 +135,7 @@ namespace abc {
    \
    /** MSC16 BUG: this partial specialization is necessary. */ \
    template <size_t t_cch> \
-   class to_str_backend<C const [t_cch]> : \
-      public to_str_backend<C [t_cch]> { \
-   public: \
-   \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         to_str_backend<C [t_cch]>(sFormat) { \
-      } \
-   };
+   class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
 // Specialization for wchar_t, if it’s what char16_t or char32_t map to.
 #if ABC_CXX_CHAR16 == 1 || ABC_CXX_CHAR32 == 1
@@ -196,16 +164,6 @@ class ABACLADE_SYM to_str_backend<str_base> :
    public _str_to_str_backend {
 public:
 
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _str_to_str_backend(sFormat) {
-   }
-
-
    /** Writes a string, applying the formatting options.
 
    s
@@ -227,85 +185,22 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::istr
+// abc::to_str_backend – specialization for abc::*str
 
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<istr> :
-   public to_str_backend<str_base> {
-public:
-
-   /** Constructor. See to_str_backend<str_base>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<str_base>(sFormat) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::mstr
-
-
-namespace abc {
+class ABACLADE_SYM to_str_backend<istr> : public to_str_backend<str_base> {};
 
 template <>
-class ABACLADE_SYM to_str_backend<mstr> :
-   public to_str_backend<str_base> {
-public:
-
-   /** Constructor. See to_str_backend<str_base>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<str_base>(sFormat) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::dmstr
-
-
-namespace abc {
+class ABACLADE_SYM to_str_backend<mstr> : public to_str_backend<str_base> {};
 
 template <>
-class ABACLADE_SYM to_str_backend<dmstr> :
-   public to_str_backend<str_base> {
-public:
-
-   /** Constructor. See to_str_backend<str_base>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<str_base>(sFormat) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::smstr
-
-
-namespace abc {
+class ABACLADE_SYM to_str_backend<dmstr> : public to_str_backend<str_base> {};
 
 template <size_t t_cchStatic>
-class to_str_backend<smstr<t_cchStatic>> :
-   public to_str_backend<str_base> {
-public:
-
-   /** Constructor. See to_str_backend<str_base>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<str_base>(sFormat) {
-   }
-};
+class to_str_backend<smstr<t_cchStatic>> : public to_str_backend<str_base> {};
 
 } //namespace abc
 

@@ -52,8 +52,9 @@ protected:
    istr const & get_to_str_output(T const & t, istr const & sFormatSpec = istr()) {
       ABC_TRACE_FUNC(t, sFormatSpec);
 
-      to_str_backend<T> tsb(sFormatSpec);
       m_stw.clear();
+      to_str_backend<T> tsb;
+      tsb.set_format(sFormatSpec);
       tsb.write(t, &m_stw);
       return m_stw.get_str();
    }

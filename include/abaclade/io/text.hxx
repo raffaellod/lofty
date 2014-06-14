@@ -490,7 +490,8 @@ protected:
    */
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
-         to_str_backend<T0> tsb(istr(
+         to_str_backend<T0> tsb;
+         tsb.set_format(istr(
             unsafe, wph_base::m_pchReplFormatSpecBegin,
             size_t(wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin)
          ));

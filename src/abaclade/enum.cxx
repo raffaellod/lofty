@@ -61,7 +61,7 @@ namespace abc {
 
 namespace abc {
 
-_enum_to_str_backend_impl::_enum_to_str_backend_impl(istr const & sFormat) {
+void _enum_to_str_backend_impl::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

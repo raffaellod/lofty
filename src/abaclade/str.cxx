@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-_str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
+void _str_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

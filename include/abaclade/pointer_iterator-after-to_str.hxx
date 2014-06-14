@@ -31,18 +31,8 @@ namespace abc {
 
 template <typename TCont, typename TVal>
 class to_str_backend<pointer_iterator<TCont, TVal>> :
-   protected to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
+   public to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
 public:
-
-   /** Constructor.
-
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>(sFormat) {
-   }
-
 
    /** Writes a NUL-terminated string, applying the formatting options.
 

@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-ABACLADE_SYM to_str_backend<bool>::to_str_backend(istr const & sFormat /*= istr()*/) {
+ABACLADE_SYM void to_str_backend<bool>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -73,19 +73,25 @@ char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
 };
 
 
-ABACLADE_SYM _int_to_str_backend_base::_int_to_str_backend_base(
-   unsigned cbInt, istr const & sFormat
-) :
+ABACLADE_SYM _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    m_pchIntToStr(smc_achIntToStrL),
-   m_iBaseOrShift(10),
    // Default to generating at least a single zero.
    m_cchWidth(1),
+   m_cchBuf(1 /*possible sign*/ + 3 /*max base10 characters per byte*/ * cbInt),
+   mc_cbInt(uint8_t(cbInt)),
+   // Default to decimal notation.
+   m_iBaseOrShift(10),
+   // Default padding is with spaces (and won’t be applied by default).
    m_chPad(CL(' ')),
    // A sign will only be displayed if the number is negative and no prefix is applied.
    m_chSign(CL('\0')),
    m_chPrefix0(CL('\0')),
    m_chPrefix1(CL('\0')) {
-   ABC_TRACE_FUNC(this, cbInt, sFormat);
+}
+
+
+ABACLADE_SYM void _int_to_str_backend_base::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
 
    bool bPrefix(false);
    auto it(sFormat.cbegin());
@@ -190,7 +196,7 @@ default_notation:
    }
 
    // Now we know enough to calculate the required buffer size.
-   m_cchBuf = 2 /*prefix or sign*/ + std::max(m_cchWidth, cchByte * cbInt);
+   m_cchBuf = 2 /*prefix or sign*/ + std::max(m_cchWidth, cchByte * mc_cbInt);
 }
 
 
@@ -316,8 +322,14 @@ namespace abc {
 char_t const _ptr_to_str_backend::smc_achFormat[] = SL("#x");
 
 
-ABACLADE_SYM _ptr_to_str_backend::_ptr_to_str_backend(istr const & sFormat) :
-   m_tsbInt(smc_achFormat) {
+ABACLADE_SYM _ptr_to_str_backend::_ptr_to_str_backend() {
+   ABC_TRACE_FUNC(this);
+
+   m_tsbInt.set_format(smc_achFormat);
+}
+
+
+ABACLADE_SYM void _ptr_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -352,17 +364,32 @@ ABACLADE_SYM void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::wri
 
 namespace abc {
 
-_sequence_to_str_backend::_sequence_to_str_backend(
-   istr const & sFormat, istr const & sStart, istr const & sEnd
+ABACLADE_SYM _sequence_to_str_backend::_sequence_to_str_backend(
+   istr const & sStart, istr const & sEnd
 ) :
    m_sSeparator(SL(", ")),
    m_sStart(sStart),
    m_sEnd(sEnd) {
-   ABC_UNUSED_ARG(sFormat);
 }
 
 
-_sequence_to_str_backend::~_sequence_to_str_backend() {
+ABACLADE_SYM void _sequence_to_str_backend::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+      ));
+   }
+}
+
+
+ABACLADE_SYM _sequence_to_str_backend::~_sequence_to_str_backend() {
 }
 
 } //namespace abc

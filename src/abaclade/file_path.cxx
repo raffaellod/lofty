@@ -511,8 +511,16 @@ dmstr::const_iterator file_path::base_name_start() const {
    return std::move(s);
 }
 
+} //namespace abc
 
-to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::file_path
+
+
+namespace abc {
+
+void to_str_backend<file_path>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

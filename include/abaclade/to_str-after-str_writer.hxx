@@ -32,7 +32,8 @@ namespace abc {
 template <typename T>
 inline dmstr to_str(T const & t, istr const & sFormat /*= istr()*/) {
    io::text::str_writer tsw;
-   to_str_backend<T> tsb(sFormat);
+   to_str_backend<T> tsb;
+   tsb.set_format(sFormat);
    tsb.write(t, &tsw);
    return tsw.release_content();
 }
