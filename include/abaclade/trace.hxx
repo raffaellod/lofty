@@ -254,10 +254,18 @@ protected:
 
    fnWriteVars
       Callback that is invoked to write the current value of local variables in the scope.
-      ptw
-         Pointer to the scope trace writer.
+      ptwOut
+         Pointer to the writer to output to.
    */
-   void trace_scope(std::function<void (io::text::writer * ptw)> fnWriteVars);
+   void trace_scope(std::function<void (io::text::writer * ptwOut)> fnWriteVars);
+
+
+   /** Writes an argument separator.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write_separator(io::text::writer * ptwOut);
 
 
 private:
@@ -290,15 +298,50 @@ namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
+/** Helper to write a single variable out of a _scope_trace, recursing to print any remaining ones.
+*/
+template <class TScopeTrace, typename ... Ts>
+class _scope_trace_vars_impl;
+
+// Base case for the template recursion.
+template <class TScopeTrace>
+class _scope_trace_vars_impl<TScopeTrace> :
+   public _scope_trace_impl {
+protected:
+
+   /** Writes the current variable to the specified text writer, then recurses to write the rest.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write_vars(io::text::writer * ptwOut) {
+      ABC_UNUSED_ARG(ptwOut);
+   }
+};
+
+// Template recursion step.
+template <class TScopeTrace, typename T0, typename ... Ts>
+class _scope_trace_vars_impl<TScopeTrace, T0, Ts ...> :
+   public _scope_trace_vars_impl<TScopeTrace, Ts ...> {
+protected:
+
+   /** See _scope_trace_vars_impl<TScopeTrace>::write_vars().
+   */
+   void write_vars(io::text::writer * ptwOut);
+};
+
+
 template <typename ... Ts>
 class _scope_trace :
-   public _scope_trace_impl,
-   protected std::tuple<Ts const & ...> {
+   public _scope_trace_vars_impl<_scope_trace<Ts ...>, Ts ...>,
+   public std::tuple<Ts const & ...> {
+public:
 
    /** Tuple type used to store the trace variables. */
    typedef std::tuple<Ts const & ...> _tuple_base;
    /** Count of trace variables. */
-   static size_t const smc_cTs = std::tuple_size<_tuple_base>::value;
+   static size_t const smc_cTs = sizeof ...(Ts);
+
 
 public:
 
@@ -312,95 +355,71 @@ public:
    /** Destructor.
    */
    ~_scope_trace() {
-      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
-         print<>(ptw);
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptwOut) -> void {
+         this->write_vars(ptwOut);
       });
-   }
-
-
-protected:
-
-   /** Prints the scope trace to the specified text writer.
-
-   ptw
-      Pointer to the writer to output to.
-   */
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 0, io::text::writer *>::type ptw) {
-      ABC_UNUSED_ARG(ptw);
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 1, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}"), std::get<0>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 2, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}, {}"), std::get<0>(*this), std::get<1>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 3, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}, {}, {}"), std::get<0>(*this), std::get<1>(*this), std::get<2>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 4, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 5, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 6, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this), std::get<5>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 7, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 8, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 9, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this),
-         std::get<8>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 10, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
-         std::get<0>(*this), std::get<1>(*this), std::get<2>(*this), std::get<3>(*this),
-         std::get<4>(*this), std::get<5>(*this), std::get<6>(*this), std::get<7>(*this),
-         std::get<8>(*this), std::get<9>(*this)
-      );
    }
 };
 
+
+// Now this can be implemented.
+
+template <class TScopeTrace, typename T0, typename ... Ts>
+inline void _scope_trace_vars_impl<TScopeTrace, T0, Ts ...>::write_vars(
+   io::text::writer * ptwOut
+) {
+   // Write the current (T0) tuple element. *this is part of a _scope_trace, which in turn contains
+   // a tuple, so a single static_cast gives access to the tuple.
+   ptwOut->write(std::get<
+      TScopeTrace::smc_cTs - (1 /*T0*/ + sizeof ...(Ts))
+   >(*static_cast<TScopeTrace *>(this)));
+   // If there are any remaining variables, write a separator and recurse to write the rest.
+   if (sizeof ...(Ts)) {
+      this->write_separator(ptwOut);
+      _scope_trace_vars_impl<TScopeTrace, Ts ...>::write_vars(ptwOut);
+   }
+}
+
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+/** Helper to write a single variable out of a _scope_trace, recursing to print any remaining ones.
+*/
+// Template recursion step.
+template <
+   class TScopeTrace, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   typename T6, typename T7, typename T8, typename T9
+>
+class _scope_trace_vars_impl :
+   public _scope_trace_vars_impl<
+      TScopeTrace, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+   > {
+public:
+
+   /** See _scope_trace_vars_impl<TTuple>::write_vars().
+   */
+   void write_vars(io::text::writer * ptwOut);
+};
+
+// Base case for the template recursion.
+template <class TScopeTrace>
+class _scope_trace_vars_impl<
+   TScopeTrace, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
+   _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
+   _std::_tuple_void
+> :
+   public _scope_trace_impl {
+public:
+
+   /** Writes the current element to the specified text writer, then recurses to write them.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write_vars(io::text::writer * ptwOut) {
+      ABC_UNUSED_ARG(ptwOut);
+   }
+};
+
 
 template <
    typename T0 /*= _std::_tuple_void*/, typename T1 /*= _std::_tuple_void*/,
@@ -410,11 +429,14 @@ template <
    typename T8 /*= _std::_tuple_void*/, typename T9 /*= _std::_tuple_void*/
 >
 class _scope_trace :
-   public _scope_trace_impl,
-   protected _std::tuple<
+   public _scope_trace_vars_impl<
+      _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+   >,
+   public _std::tuple<
       T0 const &, T1 const &, T2 const &, T3 const &, T4 const &, T5 const &, T6 const &,
       T7 const &, T8 const &, T9 const &
    > {
+public:
 
    /** Tuple type used to store the trace variables. */
    typedef _std::tuple<
@@ -425,6 +447,7 @@ class _scope_trace :
    static size_t const smc_cTs = _std::tuple_size<_std::tuple<
       T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    >>::value;
+
 
 public:
 
@@ -444,93 +467,38 @@ public:
    /** Destructor.
    */
    ~_scope_trace() {
-      _scope_trace_impl::trace_scope([this] (io::text::writer * ptw) -> void {
-         print<>(ptw);
+      _scope_trace_impl::trace_scope([this] (io::text::writer * ptwOut) -> void {
+         this->write_vars(ptwOut);
       });
    }
-
-
-protected:
-
-   /** Prints the scope trace to the specified text writer.
-
-   ptw
-      Pointer to the writer to output to.
-   */
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 0, io::text::writer *>::type ptw) {
-      ABC_UNUSED_ARG(ptw);
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 1, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}"), _std::get<0>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 2, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}, {}"), _std::get<0>(*this), _std::get<1>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 3, io::text::writer *>::type ptw) {
-      ptw->print(SL("{}, {}, {}"), _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this));
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 4, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 5, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 6, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this), _std::get<5>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 7, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 8, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 9, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this),
-         _std::get<8>(*this)
-      );
-   }
-   template <size_t t_cTs = smc_cTs>
-   void print(typename std::enable_if<t_cTs == 10, io::text::writer *>::type ptw) {
-      ptw->print(
-         SL("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}"),
-         _std::get<0>(*this), _std::get<1>(*this), _std::get<2>(*this), _std::get<3>(*this),
-         _std::get<4>(*this), _std::get<5>(*this), _std::get<6>(*this), _std::get<7>(*this),
-         _std::get<8>(*this), _std::get<9>(*this)
-      );
-   }
 };
+
+
+// Now this can be implemented.
+
+template <
+   class TScopeTrace, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   typename T6, typename T7, typename T8, typename T9
+>
+inline void _scope_trace_vars_impl<
+   TScopeTrace, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+>::write_vars(io::text::writer * ptwOut) {
+   static size_t const sc_cTs(
+      _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
+   );
+   // Write the current (T0) tuple element. *this is part of a _scope_trace, which in turn contains
+   // a tuple, so a single static_cast gives access to the tuple.
+   ptwOut->write(_std::get<
+      TScopeTrace::smc_cTs - (1 /*T0*/ + sc_cTs)
+   >(*static_cast<TScopeTrace *>(this)));
+   // If there are any remaining elements, write a separator and recurse to write them.
+   if (sc_cTs) {
+      this->write_separator(ptwOut);
+      _scope_trace_vars_impl<
+         TScopeTrace, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+      >::write_vars(ptwOut);
+   }
+}
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 

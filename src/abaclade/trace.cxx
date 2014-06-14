@@ -51,6 +51,11 @@ void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptw)>
    }
 }
 
+
+void _scope_trace_impl::write_separator(io::text::writer * ptwOut) {
+   ptwOut->write(istr(SL(", ")));
+}
+
 } //namespace abc
 
 
