@@ -415,7 +415,9 @@ template <class TTuple, typename T0, typename ... Ts>
 inline void _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
    TTuple const & tpl, io::text::writer * ptwOut
 ) {
-   m_tsbt0.write(std::get<std::tuple_size<TTuple>::value - (sizeof ...(Ts) + 1)>(tpl), ptwOut);
+   m_tsbt0.write(std::get<
+      std::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))
+   >(tpl), ptwOut);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sizeof ...(Ts)) {
       static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
@@ -522,7 +524,7 @@ inline void _tuple_to_str_backend_element_writer<
    static size_t const sc_cTs(
       _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
    );
-   m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (sc_cTs + 1)>(tpl), ptwOut);
+   m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (1 /*T0*/ + sc_cTs)>(tpl), ptwOut);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sc_cTs) {
       static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
