@@ -334,7 +334,12 @@ protected:
 template <typename ... Ts>
 class _scope_trace :
    public _scope_trace_vars_impl<_scope_trace<Ts ...>, Ts ...>,
-   public std::tuple<Ts const & ...> {
+   public std::tuple<Ts const & ...>,
+   public noncopyable {
+
+   typedef _scope_trace_vars_impl<_scope_trace<Ts ...>, Ts ...> scope_trace_vars_impl;
+
+
 public:
 
    /** Tuple type used to store the trace variables. */
@@ -349,6 +354,10 @@ public:
    */
    _scope_trace(Ts const & ... ts) :
       _tuple_base(ts ...) {
+   }
+   _scope_trace(_scope_trace && st) :
+      scope_trace_vars_impl(static_cast<scope_trace_vars_impl &&>(st)),
+      _tuple_base(static_cast<_tuple_base &&>(st)) {
    }
 
 
@@ -393,7 +402,7 @@ class _scope_trace_vars_impl :
    public _scope_trace_vars_impl<
       TScopeTrace, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
    > {
-public:
+protected:
 
    /** See _scope_trace_vars_impl<TTuple>::write_vars().
    */
@@ -408,7 +417,7 @@ class _scope_trace_vars_impl<
    _std::_tuple_void
 > :
    public _scope_trace_impl {
-public:
+protected:
 
    /** Writes the current element to the specified text writer, then recurses to write them.
 
@@ -435,7 +444,14 @@ class _scope_trace :
    public _std::tuple<
       T0 const &, T1 const &, T2 const &, T3 const &, T4 const &, T5 const &, T6 const &,
       T7 const &, T8 const &, T9 const &
-   > {
+   >,
+   public noncopyable {
+
+   typedef _scope_trace_vars_impl<
+      _scope_trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+   > scope_trace_vars_impl;
+
+
 public:
 
    /** Tuple type used to store the trace variables. */
@@ -461,6 +477,10 @@ public:
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) :
       _tuple_base(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
+   }
+   _scope_trace(_scope_trace && st) :
+      scope_trace_vars_impl(static_cast<scope_trace_vars_impl &&>(st)),
+      _tuple_base(static_cast<_tuple_base &&>(st)) {
    }
 
 
