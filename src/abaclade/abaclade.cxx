@@ -29,7 +29,7 @@ namespace abc {
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
-ABACLADE_SYM void _explob_helper::bool_true() const {
+void _explob_helper::bool_true() const {
 }
 
 #endif

@@ -27,9 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-ABACLADE_SYM size_t estimate_transcoded_size(
-   encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
-) {
+size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst) {
    ABC_TRACE_FUNC(encSrc, pSrc, cbSrc, encDst);
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
@@ -89,7 +87,7 @@ ABACLADE_SYM size_t estimate_transcoded_size(
 }
 
 
-ABACLADE_SYM size_t get_encoding_size(encoding enc) {
+size_t get_encoding_size(encoding enc) {
    ABC_TRACE_FUNC(enc);
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
@@ -120,7 +118,7 @@ ABACLADE_SYM size_t get_encoding_size(encoding enc) {
 }
 
 
-ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm) {
+istr get_line_terminator_str(line_terminator lterm) {
    ABC_TRACE_FUNC(lterm);
 
    switch (lterm.base()) {
@@ -137,7 +135,7 @@ ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm) {
 }
 
 
-ABACLADE_SYM encoding guess_encoding(
+encoding guess_encoding(
    void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal /*= 0*/,
    size_t * pcbBom /*= nullptr*/
 ) {
@@ -369,7 +367,7 @@ ABACLADE_SYM encoding guess_encoding(
 }
 
 
-ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
+line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    for (char_t const * pch(pchBegin); pch < pchEnd; ++pch) {
@@ -392,7 +390,7 @@ ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char
 }
 
 
-ABACLADE_SYM size_t transcode(
+size_t transcode(
    std::nothrow_t const &,
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
    encoding encDst, void       ** ppDst, size_t * pcbDstMax
