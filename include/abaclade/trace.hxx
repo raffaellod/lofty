@@ -371,7 +371,7 @@ public:
 };
 
 
-// Now this can be implemented.
+// Now these can be implemented.
 
 template <class TScopeTrace, typename T0, typename ... Ts>
 inline void _scope_trace_vars_impl<TScopeTrace, T0, Ts ...>::write_vars(
@@ -387,6 +387,12 @@ inline void _scope_trace_vars_impl<TScopeTrace, T0, Ts ...>::write_vars(
       this->write_separator(ptwOut);
       _scope_trace_vars_impl<TScopeTrace, Ts ...>::write_vars(ptwOut);
    }
+}
+
+
+template <typename ... Ts>
+inline _scope_trace<Ts ...> _scope_trace_impl::make(Ts const & ... ts) {
+   return _scope_trace<Ts ...>(ts ...);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -494,7 +500,7 @@ public:
 };
 
 
-// Now this can be implemented.
+// Now these can be implemented.
 
 template <
    class TScopeTrace, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -520,19 +526,6 @@ inline void _scope_trace_vars_impl<
    }
 }
 
-#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
-
-// Now these can be implemented.
-
-#ifdef ABC_CXX_VARIADIC_TEMPLATES
-
-template <typename ... Ts>
-inline _scope_trace<Ts ...> _scope_trace_impl::make(Ts const & ... ts) {
-   return _scope_trace<Ts ...>(ts ...);
-}
-
-#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 inline /*static*/ _scope_trace<> _scope_trace_impl::make() {
    return _scope_trace<>(
