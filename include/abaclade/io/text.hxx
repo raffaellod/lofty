@@ -326,7 +326,8 @@ namespace text {
 
 /** Template-free implementation of abc::io::text::_writer_print_helper.
 */
-class ABACLADE_SYM _writer_print_helper_impl {
+class ABACLADE_SYM _writer_print_helper_impl :
+   public noncopyable {
 public:
 
    /** Constructor.
