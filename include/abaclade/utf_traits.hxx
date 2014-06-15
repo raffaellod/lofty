@@ -224,39 +224,11 @@ std::char_traits.
 struct ABACLADE_SYM utf32_traits {
 public:
 
-   /** See utf8_traits::max_codepoint_length. */
-   static unsigned const max_codepoint_length = 1;
-
-
-public:
-
-   /** See utf8_traits::cp_len(). Trivial for UTF-32, since it’s always 1 character per code point.
-   */
-   static /*constexpr*/ size_t cp_len(char32_t const * pchBegin, char32_t const * pchEnd) {
-      return size_t(pchEnd - pchBegin);
-   }
-
-
-   /** See utf8_traits::from_utf32().
-   */
-   static unsigned from_utf32(char32_t ch32, char32_t * pchDst) {
-      *pchDst = ch32;
-      return 1;
-   }
-
-
    /** See utf8_traits::is_valid(). With overload for single characters.
    */
    static /*constexpr*/ bool is_valid(char32_t ch) {
       return ch < 0x00dc80 || (ch > 0x00dcff && ch <= 0x10ffff);
    }
-   static bool is_valid(char32_t const * psz);
-   static bool is_valid(char32_t const * pchBegin, char32_t const * pchEnd);
-
-
-   /** See utf8_traits::str_len().
-   */
-   static size_t str_len(char32_t const * psz);
 };
 
 } //namespace text

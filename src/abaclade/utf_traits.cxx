@@ -314,47 +314,4 @@ namespace text {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf32_traits
-
-
-namespace abc {
-namespace text {
-
-/*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   while (char32_t ch = *psz++) {
-      if (!is_valid(ch)) {
-         return false;
-      }
-   }
-   return true;
-}
-/*static*/ bool utf32_traits::is_valid(char32_t const * pchBegin, char32_t const * pchEnd) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   for (char32_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      if (!is_valid(*pch)) {
-         return false;
-      }
-   }
-   return true;
-}
-
-
-/*static*/ size_t utf32_traits::str_len(char32_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   char32_t const * pch(psz);
-   while (*pch) {
-      ++pch;
-   }
-   return size_t(pch - psz);
-}
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
