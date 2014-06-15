@@ -332,39 +332,6 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-/*static*/ void str_base::str_str_build_failure_restart_table(
-   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
-) {
-   ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
-
-   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
-   auto itNextFailNext(pvcchFailNext->begin());
-
-   // The earliest repetition of a non-first character can only occur on the fourth character, so
-   // start by skipping two characters and storing two zeroes for them, then the first iteration
-   // will also always store an additional zero and consume one more character.
-   char_t const * pchNeedle(pchNeedleBegin + 2);
-   char_t const * pchRestart(pchNeedleBegin);
-   *itNextFailNext++ = 0;
-   *itNextFailNext++ = 0;
-   size_t ichRestart(0);
-   while (pchNeedle < pchNeedleEnd) {
-      // Store the current failure restart index, or 0 if the previous character was the third or
-      // was not a match.
-      *itNextFailNext++ = ichRestart;
-      if (*pchNeedle++ == *pchRestart) {
-         // Another match: move the restart to the next character.
-         ++ichRestart;
-         ++pchRestart;
-      } else if (ichRestart > 0) {
-         // End of a match: restart self-matching from index 0.
-         ichRestart = 0;
-         pchRestart = pchNeedleBegin;
-      }
-   }
-}
-
-
 /*static*/ char_t const * str_base::str_str(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
@@ -439,6 +406,39 @@ bool str_base::starts_with(istr const & s) const {
       }
    }
    return pchHaystackEnd;
+}
+
+
+/*static*/ void str_base::str_str_build_failure_restart_table(
+   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+) {
+   ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
+
+   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
+   auto itNextFailNext(pvcchFailNext->begin());
+
+   // The earliest repetition of a non-first character can only occur on the fourth character, so
+   // start by skipping two characters and storing two zeroes for them, then the first iteration
+   // will also always store an additional zero and consume one more character.
+   char_t const * pchNeedle(pchNeedleBegin + 2);
+   char_t const * pchRestart(pchNeedleBegin);
+   *itNextFailNext++ = 0;
+   *itNextFailNext++ = 0;
+   size_t ichRestart(0);
+   while (pchNeedle < pchNeedleEnd) {
+      // Store the current failure restart index, or 0 if the previous character was the third or
+      // was not a match.
+      *itNextFailNext++ = ichRestart;
+      if (*pchNeedle++ == *pchRestart) {
+         // Another match: move the restart to the next character.
+         ++ichRestart;
+         ++pchRestart;
+      } else if (ichRestart > 0) {
+         // End of a match: restart self-matching from index 0.
+         ichRestart = 0;
+         pchRestart = pchNeedleBegin;
+      }
+   }
 }
 
 

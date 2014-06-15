@@ -87,6 +87,7 @@ public:
 
    i
       Character index. See abc::str_base::translate_index() for allowed index values.
+   return
       Character at index i.
    */
    char_t operator[](intptr_t i) const {
@@ -625,6 +626,21 @@ protected:
    );
 
 
+   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
+   [DOC:1502 KMP substring search] for how this is built and used.
+
+   pchNeedleBegin
+      Pointer to the beginning of the search string.
+   pchNeedleEnd
+      Pointer beyond the end of the search string.
+   pvcchFailNext
+      Pointer to a vector that will receive the failure restart indices.
+   */
+   static void str_str_build_failure_restart_table(
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+   );
+
+
    /** Returns the character index of the last occurrence of a string into another.
 
    pchHaystackBegin
@@ -642,21 +658,6 @@ protected:
    static char_t const * str_str_r(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
-   );
-
-
-   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
-   [DOC:1502 KMP substring search] for how this is built and used.
-
-   pchNeedleBegin
-      Pointer to the beginning of the search string.
-   pchNeedleEnd
-      Pointer beyond the end of the search string.
-   pvcchFailNext
-      Pointer to a vector that will receive the failure restart indices.
-   */
-   static void str_str_build_failure_restart_table(
-      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
    );
 
 
