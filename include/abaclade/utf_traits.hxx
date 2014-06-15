@@ -56,20 +56,6 @@ public:
    }
 
 
-   /** Returns count of code points in a string.
-
-   UTF validity: necessary.
-
-   pchBegin
-      Pointer to the beginning of the string.
-   pchEnd
-      Pointer beyond the end of the string.
-   return
-      Count of code points included in the string.
-   */
-   static size_t cp_len(char8_t const * pchBegin, char8_t const * pchEnd);
-
-
    /** Converts a UTF-32 character in this UTF representation.
 
    UTF validity: necessary.
@@ -143,7 +129,21 @@ public:
    return
       Length of the string pointed to by psz, in characters.
    */
-   static size_t str_len(char8_t const * psz);
+   static size_t size_in_chars(char8_t const * psz);
+
+
+   /** Returns count of code points in a string.
+
+   UTF validity: necessary.
+
+   pchBegin
+      Pointer to the beginning of the string.
+   pchEnd
+      Pointer beyond the end of the string.
+   return
+      Count of code points included in the string.
+   */
+   static size_t size_in_codepoints(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
 private:
@@ -186,11 +186,6 @@ public:
 
 public:
 
-   /** See utf8_traits::cp_len().
-   */
-   static size_t cp_len(char16_t const * pchBegin, char16_t const * pchEnd);
-
-
    /** See utf8_traits::from_utf32().
    */
    static unsigned from_utf32(char32_t ch32, char16_t * pchDst);
@@ -202,9 +197,14 @@ public:
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
-   /** See utf8_traits::str_len().
+   /** See utf8_traits::size_in_chars().
    */
-   static size_t str_len(char16_t const * psz);
+   static size_t size_in_chars(char16_t const * psz);
+
+
+   /** See utf8_traits::size_in_codepoints().
+   */
+   static size_t size_in_codepoints(char16_t const * pchBegin, char16_t const * pchEnd);
 };
 
 } //namespace text

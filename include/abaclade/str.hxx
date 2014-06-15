@@ -372,8 +372,8 @@ public:
    return
       Count of code points.
    */
-   size_t size_cp() const {
-      return traits::cp_len(cbegin().base(), cend().base());
+   size_t size_in_codepoints() const {
+      return traits::size_in_codepoints(cbegin().base(), cend().base());
    }
 
 
@@ -748,7 +748,7 @@ public:
       assign_copy(pchBegin, pchEnd);
    }
    istr(unsafe_t, char_t const * psz) :
-      str_base(psz, traits::str_len(psz), true) {
+      str_base(psz, traits::size_in_chars(psz), true) {
    }
    istr(unsafe_t, char_t const * psz, size_t cch) :
       str_base(psz, cch, false) {

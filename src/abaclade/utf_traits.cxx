@@ -81,18 +81,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 };
 
 
-/*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   // Count a single code point for each leading byte, skipping over trailing bytes.
-   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
-      ++ccp;
-   }
-   return ccp;
-}
-
-
 /*static*/ unsigned utf8_traits::from_utf32(char32_t ch32, char8_t * pchDst) {
    ABC_TRACE_FUNC(ch32, pchDst);
 
@@ -197,7 +185,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-/*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
+/*static*/ size_t utf8_traits::size_in_chars(char8_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
    char8_t const * pch(psz);
@@ -205,6 +193,20 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
       ++pch;
    }
    return size_t(pch - psz);
+}
+
+
+/*static*/ size_t utf8_traits::size_in_codepoints(
+   char8_t const * pchBegin, char8_t const * pchEnd
+) {
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
+
+   size_t ccp(0);
+   // Count a single code point for each leading byte, skipping over trailing bytes.
+   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
+      ++ccp;
+   }
+   return ccp;
 }
 
 } //namespace text
@@ -217,19 +219,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 namespace abc {
 namespace text {
-
-/*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
-   // they cannot occur before the 0xd800 that will cause them to be skipped.
-   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
-      ++ccp;
-   }
-   return ccp;
-}
-
 
 /*static*/ unsigned utf16_traits::from_utf32(char32_t ch32, char16_t * pchDst) {
    ABC_TRACE_FUNC(ch32, pchDst);
@@ -299,7 +288,7 @@ namespace text {
 }
 
 
-/*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
+/*static*/ size_t utf16_traits::size_in_chars(char16_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
    char16_t const * pch(psz);
@@ -307,6 +296,21 @@ namespace text {
       ++pch;
    }
    return size_t(pch - psz);
+}
+
+
+/*static*/ size_t utf16_traits::size_in_codepoints(
+   char16_t const * pchBegin, char16_t const * pchEnd
+) {
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
+
+   size_t ccp(0);
+   // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
+   // they cannot occur before the 0xd800 that will cause them to be skipped.
+   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
+      ++ccp;
+   }
+   return ccp;
 }
 
 } //namespace text
