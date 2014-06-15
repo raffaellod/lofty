@@ -867,7 +867,7 @@ public:
    */
    mstr & operator+=(char32_t ch) {
       char_t ach[traits::max_codepoint_length];
-      append(ach, traits::from_utf32(ch, ach));
+      append(ach, size_t(traits::from_char32(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -1241,13 +1241,13 @@ inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      sL.cbegin().base(), sL.cend().base(), achR, achR + abc::istr::traits::from_utf32(chR, achR)
+      sL.cbegin().base(), sL.cend().base(), achR, abc::istr::traits::from_char32(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      achL, achL + abc::istr::traits::from_utf32(chL, achL), sR.cbegin().base(), sR.cend().base()
+      achL, abc::istr::traits::from_char32(chL, achL), sR.cbegin().base(), sR.cend().base()
    );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate

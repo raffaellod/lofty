@@ -81,28 +81,40 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 };
 
 
-/*static*/ unsigned utf8_traits::from_utf32(char32_t ch32, char8_t * pchDst) {
-   ABC_TRACE_FUNC(ch32, pchDst);
+/*static*/ char8_t * utf8_traits::from_char32(
+   char32_t ch32, char8_t * pchDstBegin, char8_t * pchDstEnd
+) {
+   ABC_TRACE_FUNC(ch32, pchDstBegin, pchDstEnd);
 
-   char8_t const * pchDst0(pchDst);
    // Compute the length of this sequence.
-   unsigned cbCont;
+   unsigned cbSeq;
    if (ch32 <= 0x00007f) {
-      cbCont = 0;
+      // Encode xxx xxxx as 0xxxxxxx.
+      cbSeq = 1;
    } else if (ch32 <= 0x0007ff) {
-      cbCont = 1;
+      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
+      cbSeq = 2;
    } else if (ch32 <= 0x00ffff) {
-      cbCont = 2;
-   } else {
-      cbCont = 3;
+      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 3;
+   } else /*if (ch32 <= 0x10ffff)*/ {
+      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 4;
    }
-   // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont) make up
-   // what goes in the leading byte.
-   *pchDst++ = cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont);
-   while (cbCont--) {
-      *pchDst++ = char8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
+   char8_t * pchDstCharEnd(pchDstBegin + cbSeq);
+   if (pchDstCharEnd > pchDstEnd) {
+      return nullptr;
    }
-   return unsigned(pchDst - pchDst0);
+   char8_t iSeqIndicator(cont_length_to_seq_indicator(--cbSeq));
+   char8_t * pchDst(pchDstCharEnd);
+   while (cbSeq--) {
+      // Each trailing byte uses 6 bits.
+      *--pchDst = char8_t(0x80 | (ch32 & 0x3f));
+      ch32 >>= 6;
+   }
+   // The remaining ch32 bits (after >> 6 * (cbSeq - 1)) make up what goes in the leading byte.
+   *--pchDst = iSeqIndicator | char8_t(ch32);
+   return pchDstCharEnd;
 }
 
 
@@ -220,20 +232,31 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 namespace abc {
 namespace text {
 
-/*static*/ unsigned utf16_traits::from_utf32(char32_t ch32, char16_t * pchDst) {
-   ABC_TRACE_FUNC(ch32, pchDst);
+/*static*/ char16_t * utf16_traits::from_char32(
+   char32_t ch32, char16_t * pchDstBegin, char16_t * pchDstEnd
+) {
+   ABC_TRACE_FUNC(ch32, pchDstBegin, pchDstEnd);
 
-   if (ch32 <= 0x00ffff) {
-      // The code point fits in a single UTF-16 character.
-      pchDst[0] = char16_t(ch32);
-      return 1;
-   } else {
+   char16_t * pchDstCharEnd;
+   bool bNeedSurrogate(ch32 > 0x00ffff);
+   if (bNeedSurrogate) {
       // The code point requires two UTF-16 characters: generate a surrogate pair.
-      ch32 -= 0x10000;
-      pchDst[0] = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
-      pchDst[1] = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
-      return 2;
+      pchDstCharEnd = pchDstBegin + 2;
+   } else {
+      // The code point fits in a single UTF-16 character.
+      pchDstCharEnd = pchDstBegin + 1;
    }
+   if (pchDstCharEnd > pchDstEnd) {
+      return nullptr;
+   }
+   if (bNeedSurrogate) {
+      ch32 -= 0x10000;
+      pchDstBegin[0] = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
+      pchDstBegin[1] = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
+   } else {
+      pchDstBegin[0] = char16_t(ch32);
+   }
+   return pchDstCharEnd;
 }
 
 

@@ -213,7 +213,7 @@ bool str_base::starts_with(istr const & s) const {
    } else {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[traits::max_codepoint_length];
-      traits::from_utf32(chNeedle, achNeedle);
+      traits::from_char32(chNeedle, achNeedle);
       return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
@@ -279,8 +279,9 @@ bool str_base::starts_with(istr const & s) const {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
       char_t achNeedle[traits::max_codepoint_length];
-      unsigned cchSeq(traits::from_utf32(chNeedle, achNeedle));
-      return str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
+      return str_str_r(
+         pchHaystackBegin, pchHaystackEnd, achNeedle, traits::from_char32(chNeedle, achNeedle)
+      );
    }
 }
 
