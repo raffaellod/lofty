@@ -65,8 +65,12 @@ public:
       char_t const [],
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
    > c_str_pointer;
-   /** String traits. */
-   typedef text::utf_traits<char_t> traits;
+   /** String traits. Note that only UTF-8 and UTF-16 are supported as string encodings. */
+#if ABC_HOST_UTF == 8
+   typedef text::utf8_traits traits;
+#elif ABC_HOST_UTF == 16
+   typedef text::utf16_traits traits;
+#endif
 
 
 public:

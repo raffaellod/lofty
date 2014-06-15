@@ -24,25 +24,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf_traits
+// abc::text::utf8_traits
 
 
 namespace abc {
 namespace text {
 
-/** UTF character traits: constants and functions related to the UTF encoding based on the character
-type C. Note that this class is not modeled after std::char_traits.
+/** UTF-8 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
 */
-template <typename C = char_t>
-struct utf_traits;
-
-typedef utf_traits<char8_t > utf8_traits;
-typedef utf_traits<char16_t> utf16_traits;
-typedef utf_traits<char32_t> utf32_traits;
-
-// Specialization for UTF-8.
-template <>
-struct ABACLADE_SYM utf_traits<char8_t> {
+struct ABACLADE_SYM utf8_traits {
 public:
 
    /** Encoded form of the BOM. */
@@ -176,9 +167,21 @@ private:
    static uint8_t const smc_aiOverlongDetectionMasks[];
 };
 
-// Specialization for UTF-16.
-template <>
-struct ABACLADE_SYM utf_traits<char16_t> {
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::utf16_traits
+
+
+namespace abc {
+namespace text {
+
+/** UTF-16 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
+*/
+struct ABACLADE_SYM utf16_traits {
 public:
 
    /** See utf8_traits::bom. */
@@ -212,9 +215,21 @@ public:
    static size_t str_len(char16_t const * psz);
 };
 
-// Specialization for UTF-32.
-template <>
-struct ABACLADE_SYM utf_traits<char32_t> {
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::utf32_traits
+
+
+namespace abc {
+namespace text {
+
+/** UTF-32 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
+*/
+struct ABACLADE_SYM utf32_traits {
 public:
 
    /** See utf8_traits::bom. */
