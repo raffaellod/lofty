@@ -167,13 +167,13 @@ public:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<istr> : public to_str_backend<str_base> {};
+class to_str_backend<istr> : public to_str_backend<str_base> {};
 
 template <>
-class ABACLADE_SYM to_str_backend<mstr> : public to_str_backend<str_base> {};
+class to_str_backend<mstr> : public to_str_backend<str_base> {};
 
 template <>
-class ABACLADE_SYM to_str_backend<dmstr> : public to_str_backend<str_base> {};
+class to_str_backend<dmstr> : public to_str_backend<str_base> {};
 
 template <size_t t_cchStatic>
 class to_str_backend<smstr<t_cchStatic>> : public to_str_backend<str_base> {};
