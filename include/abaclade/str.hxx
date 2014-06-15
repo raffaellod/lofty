@@ -367,10 +367,20 @@ public:
    }
 
 
-   /** Returns the count of code points in the string.
+   /** Returns size of the string, in bytes.
 
    return
-      Count of code points.
+      Size of the string.
+   */
+   size_t size_in_bytes() const {
+      return _raw_trivial_vextr_impl::size<int8_t>();
+   }
+
+
+   /** Returns size of the string, in code points.
+
+   return
+      Size of the string.
    */
    size_t size_in_codepoints() const {
       return traits::size_in_codepoints(cbegin().base(), cend().base());
