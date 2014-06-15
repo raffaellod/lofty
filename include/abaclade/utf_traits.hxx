@@ -36,10 +36,6 @@ std::char_traits.
 struct ABACLADE_SYM utf8_traits {
 public:
 
-   /** Encoded form of the BOM. */
-   static char8_t const bom[];
-   /** Default encoding for this UTF encoding on this machine. */
-   static encoding::enum_type const host_encoding = encoding::utf8;
    /** Max length of a code point, in encoded characters. Technically, 6 is also possible for UTF-8,
    due to the way bits are encoded, but it’s illegal. */
    static unsigned const max_codepoint_length = 4;
@@ -184,10 +180,6 @@ std::char_traits.
 struct ABACLADE_SYM utf16_traits {
 public:
 
-   /** See utf8_traits::bom. */
-   static char16_t const bom[];
-   /** See utf8_traits::host_encoding. */
-   static encoding::enum_type const host_encoding = encoding::utf16_host;
    /** See utf8_traits::max_codepoint_length. */
    static unsigned const max_codepoint_length = 2;
 
@@ -232,10 +224,6 @@ std::char_traits.
 struct ABACLADE_SYM utf32_traits {
 public:
 
-   /** See utf8_traits::bom. */
-   static char32_t const bom[];
-   /** See utf8_traits::host_encoding. */
-   static encoding::enum_type const host_encoding = encoding::utf32_host;
    /** See utf8_traits::max_codepoint_length. */
    static unsigned const max_codepoint_length = 1;
 

@@ -28,8 +28,6 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-char8_t const utf8_traits::bom[] = { '\xef', '\xbb', '\xbf' };
-
 // Optimization 1: odd indices would have the same values as the preceding even ones, so the number
 // of elements can be cut in half.
 // Optimization 2: the maximum length is less than 0xf, so each value is encoded in a nibble instead
@@ -220,9 +218,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 namespace abc {
 namespace text {
 
-char16_t const utf16_traits::bom[] = { 0xfeff };
-
-
 /*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
@@ -324,9 +319,6 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 
 namespace abc {
 namespace text {
-
-char32_t const utf32_traits::bom[] = { 0x00feff };
-
 
 /*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
    ABC_TRACE_FUNC(psz);
