@@ -63,12 +63,12 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for character literal types
+// abc::to_str_backend – specialization for character and string literal types
 
 
 namespace abc {
 
-#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
+#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
    /** Character literal. \
    */ \
    template <> \
@@ -84,33 +84,10 @@ namespace abc {
          Pointer to the writer to output to.
       */ \
       void write(C ch, io::text::writer * ptwOut) { \
-         _str_to_str_backend::write(&ch, sizeof(C), text::utf_traits<C>::host_encoding, ptwOut); \
+         _str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
       } \
-   };
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
-// Specialization for wchar_t, if it’s what char16_t or char32_t map to.
-#if ABC_CXX_CHAR16 == 1 || ABC_CXX_CHAR32 == 1
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t)
-#endif
-// Specializations for char16/32_t, if they’re native types.
-#if ABC_CXX_CHAR16 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
-#endif
-#if ABC_CXX_CHAR32 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
-#endif
-#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for string literal types
-
-
-namespace abc {
-
-#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C) \
+   }; \
+   \
    /** String literal. \
    */ \
    template <size_t t_cch> \
@@ -127,26 +104,25 @@ namespace abc {
       */ \
       void write(C const (& ach)[t_cch], io::text::writer * ptwOut) { \
          ABC_ASSERT(ach[t_cch - 1 /*NUL*/] == '\0', SL("string literal must be NUL-terminated")); \
-         _str_to_str_backend::write( \
-            ach, sizeof(C) * (t_cch - 1 /*NUL*/), text::utf_traits<C>::host_encoding, ptwOut \
-         ); \
+         _str_to_str_backend::write(ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut); \
       } \
    }; \
    \
    /** MSC16 BUG: this partial specialization is necessary. */ \
    template <size_t t_cch> \
    class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char)
-// Specialization for wchar_t, if it’s what char16_t or char32_t map to.
-#if ABC_CXX_CHAR16 == 1 || ABC_CXX_CHAR32 == 1
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t)
-#endif
-// Specializations for char16/32_t, if they’re native types.
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char, text::encoding::utf8)
+// Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if
+// they’re native types.
 #if ABC_CXX_CHAR16 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t, text::encoding::utf16_host)
+#elif ABC_CXX_CHAR16 == 1
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf16_host)
 #endif
 #if ABC_CXX_CHAR32 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t)
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t, text::encoding::utf32_host)
+#elif ABC_CXX_CHAR32 == 1
+ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 #endif
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
