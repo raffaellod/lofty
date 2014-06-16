@@ -493,49 +493,6 @@ protected:
    }
 
 
-   /** Converts a possibly negative character index into a pointer into the character array,
-   throwing an exception if the result is out of bounds for the character array.
-
-   i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
-   return
-      Pointer to the character.
-   */
-   char_t const * translate_index(intptr_t ich) const {
-      return static_cast<char_t const *>(
-         _raw_trivial_vextr_impl::translate_offset(ptrdiff_t(sizeof(char_t)) * ich)
-      );
-   }
-
-
-   /** Converts a left-closed, right-open interval with possibly negative character indices into one
-   consisting of two pointers into the item array.
-
-   ichBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
-   ichEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
-   return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
-      interval [0, 0) if the indices represent an empty interval after being adjusted.
-   */
-   std::pair<char_t const *, char_t const *> translate_range(
-      intptr_t ichBegin, intptr_t ichEnd
-   ) const {
-      auto range(_raw_trivial_vextr_impl::translate_byte_range(
-         ptrdiff_t(sizeof(char_t)) * ichBegin, ptrdiff_t(sizeof(char_t)) * ichEnd
-      ));
-      return std::make_pair(
-         static_cast<char_t const *>(range.first), static_cast<char_t const *>(range.second)
-      );
-   }
-
-
 protected:
 
    // Lower-level helpers used internally by several methods.
@@ -659,6 +616,50 @@ protected:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
+
+
+   /** Converts a possibly negative character index into an iterator, throwing an exception if the
+   result is out of bounds for the character array.
+
+   ich
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size() to it.
+   return
+      Iterator to the character.
+   */
+   const_iterator translate_index(intptr_t ich) const;
+
+
+   /** Converts a possibly negative character index into an iterator.
+
+   ich
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size() to it.
+   return
+      A pair containing the resulting iterator and a flag that indicates whether the iterator was
+      clipped to end() (for non-negative ich) or begin() (for negative ich).
+   */
+   std::pair<const_iterator, bool> translate_index_nothrow(intptr_t ich) const;
+
+
+   /** Converts a left-closed, right-open interval with possibly negative character indices into one
+   consisting of two iterators.
+
+   ichBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
+      this->size() to it.
+   ichEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
+      adding this->size() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [end(), end()) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<const_iterator, const_iterator> translate_range(
+      intptr_t ichBegin, intptr_t ichEnd
+   ) const;
 
 
 protected:
@@ -874,16 +875,6 @@ public:
    mstr & operator+=(istr const & s) {
       append(s.cbegin().base(), s.size());
       return *this;
-   }
-
-
-   /** See str_base::operator[]().
-   */
-   char_t & operator[](intptr_t i) {
-      return *const_cast<char_t *>(translate_index(i));
-   }
-   char_t operator[](intptr_t i) const {
-      return str_base::operator[](i);
    }
 
 
@@ -1182,18 +1173,18 @@ inline dmstr str_base::substr(intptr_t ichBegin) const {
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
    auto range(translate_range(ichBegin, itEnd - cbegin()));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
    auto range(translate_range(itBegin - cbegin(), ichEnd));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    validate_pointer(itBegin.base());

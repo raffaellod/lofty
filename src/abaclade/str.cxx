@@ -452,6 +452,63 @@ bool str_base::starts_with(istr const & s) const {
    return pchHaystackEnd;
 }
 
+
+str_base::const_iterator str_base::translate_index(intptr_t ich) const {
+   auto ret(translate_index_nothrow(ich));
+   if (!ret.second) {
+      ABC_THROW(index_error, (ich));
+   }
+   return ret.first;
+}
+
+
+std::pair<str_base::const_iterator, bool> str_base::translate_index_nothrow(intptr_t ich) const {
+   ABC_TRACE_FUNC(this, ich);
+
+   const_iterator it, itLoopEnd;
+   int iDelta;
+   if (ich >= 0) {
+      // The character index is non-negative: assume it’s faster to reach the corresponding code
+      // point index by starting from the beginning.
+      it = begin();
+      itLoopEnd = end();
+      iDelta = 1;
+   } else {
+      // The character index is negative: assume it’s faster to reach the corresponding code point
+      // index by starting from the end.
+      it = end();
+      itLoopEnd = begin();
+      iDelta = -1;
+   }
+   while (ich && it != itLoopEnd) {
+      ich -= iDelta;
+      it += iDelta;
+   }
+   if (it == itLoopEnd) {
+      // The above loop did not exhaust ich, so ceil the returned iterator to itLoopEnd.
+      return std::pair<const_iterator, bool>(itLoopEnd, false);
+   } else {
+      // The above loop exhausted ich, so *it is the correct character.
+      return std::pair<const_iterator, bool>(it, true);
+   }
+}
+
+
+std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
+   intptr_t ichBegin, intptr_t ichEnd
+) const {
+   ABC_TRACE_FUNC(this, ichBegin, ichEnd);
+
+   auto itBegin(translate_index_nothrow(ichBegin).first);
+   auto itEnd(translate_index_nothrow(ichEnd).first);
+   // If the interval is empty, return [end(), end()) .
+   if (itBegin >= itEnd) {
+      return std::pair<const_iterator, const_iterator>(end(), end());
+   }
+   // Return the constructed interval.
+   return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
+}
+
 } //namespace abc
 
 
