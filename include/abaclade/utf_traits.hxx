@@ -56,28 +56,6 @@ public:
    }
 
 
-   /** Converts a UTF-32 character in this UTF representation.
-
-   UTF validity: necessary.
-
-   ch32
-      UTF-32 character to be transcoded.
-   pchDstBegin
-      Pointer to the start of the buffer to receive the transcoded version of ch32.
-   pchDstEnd
-      Pointer to beyond the end of the buffer.
-   achDst
-      Character array that will receive the transcoded version of ch32.
-   return
-      Pointer to the character beyond the last one used in *pchDst.
-   */
-   static char8_t * from_char32(char32_t ch32, char8_t * pchDstBegin, char8_t * pchDstEnd);
-   template <size_t t_cch>
-   static char8_t * from_char32(char32_t ch32, char8_t (& achDst)[t_cch]) {
-      return from_char32(ch32, achDst, achDst + t_cch);
-   }
-
-
    /** Checks if a string is valid UTF.
 
    UTF validity: checked.
@@ -192,15 +170,6 @@ public:
 
 
 public:
-
-   /** See utf8_traits::from_char32().
-   */
-   static char16_t * from_char32(char32_t ch32, char16_t * pchDstBegin, char16_t * pchDstEnd);
-   template <size_t t_cch>
-   static char16_t * from_char32(char32_t ch32, char16_t (& achDst)[t_cch]) {
-      return from_char32(ch32, achDst, achDst + t_cch);
-   }
-
 
    /** See utf8_traits::is_valid().
    */

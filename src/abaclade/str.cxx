@@ -87,6 +87,56 @@ str_base::c_str_pointer str_base::c_str() const {
 }
 
 
+/*static*/ char_t * str_base::codepoint_to_chars(
+   char32_t cp, char_t (& achDst)[traits::max_codepoint_length]
+) {
+   ABC_TRACE_FUNC(cp, achDst);
+
+#if ABC_HOST_UTF == 8
+   // Compute the length of the UTF-8 sequence for this code point.
+   unsigned cbSeq;
+   if (cp <= 0x00007f) {
+      // Encode xxx xxxx as 0xxxxxxx.
+      cbSeq = 1;
+   } else if (cp <= 0x0007ff) {
+      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
+      cbSeq = 2;
+   } else if (cp <= 0x00ffff) {
+      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 3;
+   } else /*if (cp <= 0x10ffff)*/ {
+      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 4;
+   }
+   // Calculate where the sequence will end, and write each byte backwards from there.
+   char8_t * pchDstCharEnd(achDst + cbSeq);
+   --cbSeq;
+   char8_t iSeqIndicator(traits::cont_length_to_seq_indicator(cbSeq));
+   char8_t * pchDst(pchDstCharEnd);
+   while (cbSeq--) {
+      // Each trailing byte uses 6 bits.
+      *--pchDst = char8_t(0x80 | (cp & 0x3f));
+      cp >>= 6;
+   }
+   // The remaining cp bits (after >> 6 * (cbSeq - 1)) make up what goes in the leading byte.
+   *--pchDst = iSeqIndicator | char8_t(cp);
+   return pchDstCharEnd;
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+   char_t * pchDst(achDst);
+   if (cp > 0x00ffff) {
+      // The code point requires two UTF-16 characters: generate a surrogate pair.
+      cp -= 0x10000;
+      *pchDst++ = char16_t(0xd800 | ((cp & 0x0ffc00) >> 10));
+      *pchDst++ = char16_t(0xdc00 |  (cp & 0x0003ff)       );
+   } else {
+      // The code point fits in a single UTF-16 character.
+      *pchDst++ = char16_t(cp);
+   }
+   return pchDst;
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
+}
+
+
 dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
@@ -213,7 +263,7 @@ bool str_base::starts_with(istr const & s) const {
    } else {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[traits::max_codepoint_length];
-      traits::from_char32(chNeedle, achNeedle);
+      codepoint_to_chars(chNeedle, achNeedle);
       return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
@@ -280,7 +330,7 @@ bool str_base::starts_with(istr const & s) const {
       // above, so just do a regular substring reverse search.
       char_t achNeedle[traits::max_codepoint_length];
       return str_str_r(
-         pchHaystackBegin, pchHaystackEnd, achNeedle, traits::from_char32(chNeedle, achNeedle)
+         pchHaystackBegin, pchHaystackEnd, achNeedle, codepoint_to_chars(chNeedle, achNeedle)
       );
    }
 }

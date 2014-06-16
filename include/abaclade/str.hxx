@@ -163,6 +163,18 @@ public:
    }
 
 
+   /** Converts a code point (UTF-32 character) into a char_t array.
+
+   cp
+      Code point to be encoded.
+   achDst
+      Character array that will receive the encoded version of cp.
+   return
+      Pointer to the character beyond the last one used in achDst.
+   */
+   static char_t * codepoint_to_chars(char32_t cp, char_t (& achDst)[traits::max_codepoint_length]);
+
+
    /** Support for relational operators.
 
    s
@@ -869,7 +881,7 @@ public:
    */
    mstr & operator+=(char32_t ch) {
       char_t ach[traits::max_codepoint_length];
-      append(ach, size_t(traits::from_char32(ch, ach) - ach));
+      append(ach, size_t(codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -1233,13 +1245,13 @@ inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      sL.cbegin().base(), sL.cend().base(), achR, abc::istr::traits::from_char32(chR, achR)
+      sL.cbegin().base(), sL.cend().base(), achR, abc::istr::codepoint_to_chars(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      achL, abc::istr::traits::from_char32(chL, achL), sR.cbegin().base(), sR.cend().base()
+      achL, abc::istr::codepoint_to_chars(chL, achL), sR.cbegin().base(), sR.cend().base()
    );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
