@@ -51,8 +51,8 @@ public:
    typedef char_t const & const_reference;
    typedef size_t size_type;
    typedef ptrdiff_t difference_type;
-   typedef pointer_iterator<str_base, char_t> iterator;
-   typedef pointer_iterator<str_base, char_t const> const_iterator;
+   typedef codepoint_iterator<false> iterator;
+   typedef codepoint_iterator<true> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
