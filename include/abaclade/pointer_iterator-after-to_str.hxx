@@ -34,10 +34,10 @@ class to_str_backend<pointer_iterator<TCont, TVal>> :
    public to_str_backend<typename pointer_iterator<TCont, TVal>::pointer> {
 public:
 
-   /** Writes a NUL-terminated string, applying the formatting options.
+   /** Writes an iterator as a pointer, applying the formatting options.
 
-   psz
-      Pointer to the string to write.
+   it
+      Iterator to write.
    ptwOut
       Pointer to the writer to output to.
    */
