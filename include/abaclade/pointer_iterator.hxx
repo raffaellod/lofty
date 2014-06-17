@@ -139,8 +139,9 @@ public:
    pointer_iterator operator-(ptrdiff_t i) const {
       return pointer_iterator(m_ptval - i);
    }
-   ptrdiff_t operator-(pointer_iterator it) const {
-      return m_ptval - it.m_ptval;
+   template <typename TVal2>
+   ptrdiff_t operator-(pointer_iterator<TCont, TVal2> it) const {
+      return m_ptval - it.base();
    }
 
 
@@ -190,7 +191,7 @@ public:
 #define ABC_RELOP_IMPL(op) \
    template <typename TVal2> \
    bool operator op(pointer_iterator<TCont, TVal2> const & it) const { \
-      return base() op it.base(); \
+      return m_ptval op it.base(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
