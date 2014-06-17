@@ -31,7 +31,7 @@ namespace abc {
 
 template <typename TCont, typename TVal>
 class to_str_backend<pointer_iterator<TCont, TVal>> :
-   public to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
+   public to_str_backend<typename pointer_iterator<TCont, TVal>::pointer> {
 public:
 
    /** Writes a NUL-terminated string, applying the formatting options.
@@ -42,9 +42,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(pointer_iterator<TCont, TVal> const & it, io::text::writer * ptwOut) {
-      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>::write(
-         it.base(), ptwOut
-      );
+      to_str_backend<typename pointer_iterator<TCont, TVal>::pointer>::write(it.base(), ptwOut);
    }
 };
 

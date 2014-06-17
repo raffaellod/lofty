@@ -32,19 +32,8 @@ namespace abc {
 /** Iterator based on a plain pointer.
 */
 template <typename TCont, typename TVal>
-class pointer_iterator {
-public:
-
-   typedef std::random_access_iterator_tag iterator_category;
-   typedef TVal value_type;
-   typedef size_t size_type;
-   typedef ptrdiff_t difference_type;
-   typedef TVal * pointer;
-   typedef TVal const * const_pointer;
-   typedef TVal & reference;
-   typedef TVal const & const_reference;
-
-
+class pointer_iterator :
+   public std::iterator<std::random_access_iterator_tag, TVal> {
 public:
 
    /** Constructor.
@@ -89,7 +78,7 @@ public:
 
    /** Element access operator.
 
-   i   
+   i
       Index relative to *this.
    return
       Reference to the specified item.
