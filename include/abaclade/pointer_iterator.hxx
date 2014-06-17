@@ -49,10 +49,10 @@ public:
    explicit pointer_iterator(TVal * pt) :
       m_ptval(pt) {
    }
-   // This is really just to convert between const/non-const TVals.
+   // Allows to convert between non-const to const TVals.
    template <typename TVal2>
    pointer_iterator(pointer_iterator<TCont, TVal2> const & it) :
-      m_ptval(const_cast<TVal *>(it.base())) {
+      m_ptval(it.base()) {
    }
 
 
@@ -188,8 +188,9 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(pointer_iterator const & it) const { \
-      return m_ptval op it.m_ptval; \
+   template <typename TVal2> \
+   bool operator op(pointer_iterator<TCont, TVal2> const & it) const { \
+      return base() op it.base(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
