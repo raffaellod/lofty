@@ -126,12 +126,15 @@ public:
    }
 
 
-   /** Subtraction operator.
+   /** Subtraction/difference operator.
 
    i
       Count of positions by which to rewind the iterator.
+   it
+      Iterator from which to calculate the distance.
    return
-      Iterator that’s i items behind *this.
+      Iterator that’s i items behind *this (subtraction) or distance between *this and it
+      (difference).
    */
    pointer_iterator operator-(ptrdiff_t i) const {
       return pointer_iterator(m_ptval - i);
