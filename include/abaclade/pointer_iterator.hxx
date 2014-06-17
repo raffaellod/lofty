@@ -124,9 +124,6 @@ public:
    pointer_iterator operator+(ptrdiff_t i) const {
       return pointer_iterator(m_ptval + i);
    }
-   pointer_iterator operator+(pointer_iterator it) const {
-      return pointer_iterator(m_ptval + it.m_ptval);
-   }
 
 
    /** Subtraction operator.
