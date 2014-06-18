@@ -93,23 +93,13 @@ protected:
    }
 
 
-   /** Advances the iterator by the specified number of code points.
+   /** Advances or rewinds the iterator by the specified number of code points.
 
    i
       Count of code points to advance by.
    */
-   void add(ptrdiff_t i) {
+   void modify(ptrdiff_t i) {
       m_pch += i;
-   }
-
-
-   /** Rewinds the iterator by the specified number of code points.
-
-   i
-      Count of code points to rewind by.
-   */
-   void subtract(ptrdiff_t i) {
-      m_pch -= i;
    }
 
 
@@ -228,7 +218,7 @@ public:
       *this after it’s moved forward by i positions.
    */
    codepoint_iterator & operator+=(ptrdiff_t i) {
-      this->add(i);
+      this->modify(i);
       return *this;
    }
 
@@ -241,7 +231,7 @@ public:
       *this after it’s moved backwards by i positions.
    */
    codepoint_iterator & operator-=(ptrdiff_t i) {
-      this->subtract(i);
+      this->modify(-i);
       return *this;
    }
 
@@ -255,7 +245,7 @@ public:
    */
    codepoint_iterator operator+(ptrdiff_t i) const {
       codepoint_iterator it(*this);
-      it.add(i);
+      it.modify(i);
       return std::move(it);
    }
 
@@ -272,7 +262,7 @@ public:
    */
    codepoint_iterator operator-(ptrdiff_t i) const {
       codepoint_iterator it(*this);
-      it.subtract(i);
+      it.modify(-i);
       return std::move(it);
    }
    template <bool t_bConst2>
@@ -287,7 +277,7 @@ public:
       *this after it’s moved to the value following the one currently pointed to by.
    */
    codepoint_iterator & operator++() {
-      this->add(1);
+      this->modify(1);
       return *this;
    }
 
@@ -299,7 +289,7 @@ public:
    */
    codepoint_iterator operator++(int) {
       codepoint_iterator it(*this);
-      this->add(1);
+      this->modify(1);
       return std::move(it);
    }
 
@@ -310,7 +300,7 @@ public:
       *this after it’s moved to the value preceding the one currently pointed to by.
    */
    codepoint_iterator & operator--() {
-      this->subtract(1);
+      this->modify(-1);
       return *this;
    }
 
@@ -322,7 +312,7 @@ public:
    */
    codepoint_iterator operator--(int) {
       codepoint_iterator it(*this);
-      this->subtract(1);
+      this->modify(-1);
       return std::move(it);
    }
 
