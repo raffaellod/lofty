@@ -28,6 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const {
+   ABC_TRACE_FUNC(this, pch);
+
    if (m_pch >= pch) {
       return ptrdiff_t(istr::traits::size_in_codepoints(pch, m_pch));
    } else {
@@ -37,6 +39,8 @@ ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const 
 
 
 void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
+   ABC_TRACE_FUNC(this, i);
+
    char_t const * pch(m_pch);
    while (i) {
       if (i >= 0) {
