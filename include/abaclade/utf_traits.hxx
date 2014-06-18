@@ -97,11 +97,11 @@ public:
       Length of the sequence continuation, or 0 if the character is not a leading byte, i.e. it’s a
       code point encoded as a single byte or an invalid sequence.
    */
-   static /*constexpr*/ unsigned leading_to_cont_length(char8_t ch) {
+   static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
       unsigned i(static_cast<uint8_t>(ch));
       // See comments on smc_acbConts in utf_traits.cxx to understand this way of accessing it.
-      //             (smc_acbConts[byte index] >> [nibble index → 0 or 4]) & nibble mask
-      return unsigned(smc_acbConts[  i >> 2  ] >> (    (i & 2) << 1     )) & 0xfu;
+      //             (smc_acbCpSizesByLeadChar[byte idx] >> [nibble idx → 0 or 4]) & nibble mask
+      return unsigned(smc_acbCpSizesByLeadChar[ i >> 2 ] >> (  (i & 2) << 1     )) & 0xfu;
    }
 
 
@@ -133,8 +133,8 @@ public:
 
 private:
 
-   /** Maps each UTF-8 leading byte to the length of its continuation. */
-   static uint8_t const smc_acbConts[];
+   /** Maps each UTF-8 lead byte to the length of its entire encoded code point. */
+   static uint8_t const smc_acbCpSizesByLeadChar[];
    /** Shift counts for the mask 0x7f to be applied to each leading byte to get the bits actually
    part of the code point; indexed by the number of bytes in the sequence. */
    static uint8_t const smc_acbitShiftMask[];

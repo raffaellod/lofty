@@ -41,25 +41,25 @@ namespace text {
 //    │ byte  index │ nibble index │ unused │
 //    └─────────────┴──────────────┴────────┘
 //
-// See utf8_traits::leading_to_cont_length() for the actual code accessing this array.
-uint8_t const utf8_traits::smc_acbConts[] = {
+// See utf8_traits::lead_char_to_codepoint_size() for the actual code accessing this array.
+uint8_t const utf8_traits::smc_acbCpSizesByLeadChar[] = {
    // 0xxxxxxx
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
+   0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
    // 10xxxxxx – invalid (cannot be start of a sequence), so just skip it.
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
    // 110xxxxx
-   0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
+   0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
    // 1110xxxx
-   0x22, 0x22, 0x22, 0x22,
+   0x33, 0x33, 0x33, 0x33,
    // 11110xxx
-   0x33, 0x33,
+   0x44, 0x44,
    // These are either overlong (code points encoded using more bytes than necessary) or invalid
    // (the resulting symbol would be out of Unicode code point range).
    // 111110xx
-   0x44,
+   0x55,
    // 1111110x same as above, and 1111111x is invalid (not UTF-8), so just skip it.
-   0x05
+   0x16
 };
 
 uint8_t const utf8_traits::smc_acbitShiftMask[] = {
@@ -111,7 +111,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          if (ch == char8_t(0xc1)) {
             return false;
          }
-         cbCont = leading_to_cont_length(ch);
+         cbCont = lead_char_to_codepoint_size(ch) - 1;
          // If no code point bits are used (1) in the leading byte, enable overlong detection for
          // the first continuation byte.
          bCheckFirstContByteForOverlongs = get_leading_cp_bits(ch, cbCont) == 0;
@@ -150,7 +150,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          if (ch == char8_t(0xc1)) {
             return false;
          }
-         cbCont = leading_to_cont_length(ch);
+         cbCont = lead_char_to_codepoint_size(ch) - 1;
          // If no code point bits are used (1) in the leading byte, enable overlong detection for
          // the first continuation byte.
          bCheckFirstContByteForOverlongs = get_leading_cp_bits(ch, cbCont) == 0;
@@ -178,7 +178,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
    size_t ccp(0);
    // Count a single code point for each leading byte, skipping over trailing bytes.
-   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
+   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += lead_char_to_codepoint_size(*pch)) {
       ++ccp;
    }
    return ccp;

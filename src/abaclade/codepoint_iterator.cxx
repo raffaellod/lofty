@@ -46,7 +46,7 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
       if (i >= 0) {
          // Move forward.
 #if ABC_HOST_UTF == 8
-         pch += 1 + istr::traits::leading_to_cont_length(*pch);
+         pch += istr::traits::lead_char_to_codepoint_size(*pch);
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
          pch += 1 + ((*pch & 0xfc00) == 0xd800);
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16

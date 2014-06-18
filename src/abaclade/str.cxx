@@ -274,11 +274,11 @@ bool str_base::starts_with(istr const & s) const {
    char8_t chNeedleLead(*pchNeedle);
    for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
       char8_t ch(*pch);
-      unsigned cbCont(traits::leading_to_cont_length(ch));
+      unsigned cbCp(traits::lead_char_to_codepoint_size(ch));
       // Make the next iteration resume from the next code point.
-      pchNext = pch + 1 /*ch*/ + cbCont;
+      pchNext = pch + cbCp;
       if (ch == chNeedleLead) {
-         if (cbCont) {
+         if (--cbCp) {
             // The leading bytes match; check if the trailing ones do as well.
             char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
             while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {

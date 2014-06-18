@@ -251,10 +251,10 @@ encoding guess_encoding(
                // This byte should be a leading byte, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
-               cbUtf8Cont = utf8_traits::leading_to_cont_length(char8_t(b));
+               cbUtf8Cont = utf8_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
                if ((b & 0x80) && !cbUtf8Cont) {
-                  // By utf8_traits::leading_to_cont_length(), a non-ASCII byte that doesn’t have a
-                  // continuation is an invalid one.
+                  // By utf8_traits::lead_char_to_codepoint_size(), a non-ASCII byte that doesn’t
+                  // have a continuation is an invalid one.
                   fess &= ~unsigned(ESS_UTF8);
                }
             }
@@ -419,7 +419,7 @@ size_t transcode(
             char8_t ch8Src(char8_t(*pbSrc++));
             switch (ch8Src & 0xc0) {
                default: {
-                  unsigned cbCont(utf8_traits::leading_to_cont_length(ch8Src));
+                  unsigned cbCont(utf8_traits::lead_char_to_codepoint_size(ch8Src) - 1);
                   // Ensure that we still have enough characters.
                   if (pbSrc + cbCont > pbSrcEnd) {
                      goto break_for;
