@@ -108,12 +108,12 @@ bool reader::read_line(mstr * ps) {
       }
       // Consume the string up to and including the line terminator; after read_while() we’ll strip
       // the line terminator (cchLTerm characters) from the string.
-      cchLTerm = sLTerm.size();
+      cchLTerm = sLTerm.size_in_chars();
       return itLineEnd + ptrdiff_t(cchLTerm);
    }));
    // Remove the line terminator from the end of the string.
    if (cchLTerm) {
-      ps->set_size(ps->size() - cchLTerm);
+      ps->set_size_in_chars(ps->size_in_chars() - cchLTerm);
    }
    return bEOF;
 }
@@ -507,7 +507,7 @@ binbuf_reader::binbuf_reader(
    }
 
    // Truncate the string.
-   ps->set_size(cchReadTotal);
+   ps->set_size_in_chars(cchReadTotal);
    // If the loop terminated because it run out of data and read no data at all, we reached the end
    // of the data; otherwise, return true.
    return cbBuf || cchReadTotal;

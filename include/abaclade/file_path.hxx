@@ -279,7 +279,7 @@ public:
       true if the path represents a root directory, of false otherwise.
    */
    bool is_root() const {
-      return get_root_length(m_s, false) == m_s.size();
+      return get_root_length(m_s, false) == m_s.size_in_chars();
    }
 
 
@@ -351,8 +351,8 @@ public:
    return
       Count of characters.
    */
-   size_t size() const {
-      return m_s.size();
+   size_t size_in_codepoints() const {
+      return m_s.size_in_codepoints();
    }
 
 

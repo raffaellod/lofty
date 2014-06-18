@@ -370,16 +370,6 @@ public:
    }
 
 
-   /** Returns the count of characters in the string.
-
-   return
-      Count of characters.
-   */
-   size_t size() const {
-      return _raw_trivial_vextr_impl::size<char_t>();
-   }
-
-
    /** Returns size of the string, in bytes.
 
    return
@@ -387,6 +377,16 @@ public:
    */
    size_t size_in_bytes() const {
       return _raw_trivial_vextr_impl::size<int8_t>();
+   }
+
+
+   /** Returns size of the string, in characters.
+
+   return
+      Size of the string.
+   */
+   size_t size_in_chars() const {
+      return _raw_trivial_vextr_impl::size<char_t>();
    }
 
 
@@ -502,6 +502,26 @@ protected:
    */
    void assign_share_raw_or_copy_desc(str_base const & s) {
       _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
+   }
+
+
+   /** See _raw_trivial_vextr_impl::begin().
+   */
+   char_t * chars_begin() {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+   char_t const * chars_begin() const {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+
+
+   /** See _raw_trivial_vextr_impl::end().
+   */
+   char_t * chars_end() {
+      return _raw_trivial_vextr_impl::end<char_t>();
+   }
+   char_t const * chars_end() const {
+      return _raw_trivial_vextr_impl::end<char_t>();
    }
 
 
@@ -635,7 +655,7 @@ protected:
 
    ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
+      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
    return
       Iterator to the character.
    */
@@ -646,7 +666,7 @@ protected:
 
    ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
+      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
    return
       A pair containing the resulting iterator and a flag that indicates whether the iterator was
       clipped to end() (for non-negative ich) or begin() (for negative ich).
@@ -660,11 +680,11 @@ protected:
    ichBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
       if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
+      this->size_in_codepoints() to it.
    ichEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
       index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
+      adding this->size_in_codepoints() to it.
    return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [end(), end()) if the indices represent an empty interval after being adjusted.
@@ -885,7 +905,7 @@ public:
       return *this;
    }
    mstr & operator+=(istr const & s) {
-      append(s.cbegin().base(), s.size());
+      append(s.cbegin().base(), s.size_in_chars());
       return *this;
    }
 
@@ -961,7 +981,7 @@ public:
          cchRet = fnRead(begin().base(), cchMax);
       } while (cchRet >= cchMax);
       // Finalize the length.
-      set_size(cchRet);
+      set_size_in_chars(cchRet);
    }
 
 
@@ -1004,7 +1024,7 @@ public:
    cch
       New length of the string.
    */
-   void set_size(size_t cch) {
+   void set_size_in_chars(size_t cch) {
       _raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
    }
 
@@ -1181,7 +1201,7 @@ public:
 // Now these can be implemented.
 
 inline dmstr str_base::substr(intptr_t ichBegin) const {
-   return substr(ichBegin, intptr_t(size()));
+   return substr(ichBegin, intptr_t(size_in_chars()));
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));

@@ -129,7 +129,7 @@ str_writer::str_writer(
 void str_writer::clear() {
    ABC_TRACE_FUNC(this);
 
-   m_psWriteBuf->set_size(0);
+   m_psWriteBuf->set_size_in_chars(0);
    m_ichOffset = 0;
 }
 
@@ -174,7 +174,7 @@ dmstr str_writer::release_content() {
       } while (cb);
    }
    // Truncate the string.
-   m_psWriteBuf->set_size(m_ichOffset);
+   m_psWriteBuf->set_size_in_chars(m_ichOffset);
 }
 
 } //namespace text

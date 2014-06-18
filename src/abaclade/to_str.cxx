@@ -246,7 +246,7 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
 
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
-   sBuf.set_size(m_cchBuf);
+   sBuf.set_size_in_chars(m_cchBuf);
    auto it(sBuf.end());
 
    // Generate the digits.

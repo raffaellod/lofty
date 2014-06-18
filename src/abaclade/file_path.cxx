@@ -315,7 +315,7 @@ file_path file_path::normalize() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size(size_t(itDst - itBegin));
+   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 
@@ -507,7 +507,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size(size_t(itDst - itBegin));
+   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 

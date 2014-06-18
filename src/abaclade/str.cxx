@@ -69,7 +69,7 @@ str_base::c_str_pointer str_base::c_str() const {
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
-   } else if (size_t cch = size()) {
+   } else if (size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
       c_str_pointer psz(
@@ -141,7 +141,7 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
    dmvector<uint8_t> vb;
-   size_t cbChar, cbUsed, cbStr(size() * sizeof(char_t));
+   size_t cbChar, cbUsed, cbStr(size_in_bytes());
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
@@ -192,9 +192,9 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   auto itStart(cend() - intptr_t(s.size()));
-   return itStart >= cbegin() && str_cmp(
-      itStart.base(), cend().base(), s.cbegin().base(), s.cend().base()
+   char_t const * pchStart(chars_end() - s.size_in_chars());
+   return pchStart >= chars_begin() && str_cmp(
+      pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
 }
 
@@ -240,9 +240,9 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
 bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   auto itEnd(cbegin() + intptr_t(s.size()));
-   return itEnd <= cend() && str_cmp(
-      cbegin().base(), itEnd.base(), s.cbegin().base(), s.cend().base()
+   char_t const * pchEnd(chars_begin() + s.size_in_chars());
+   return pchEnd <= chars_end() && str_cmp(
+      chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
 }
 
