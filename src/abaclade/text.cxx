@@ -248,7 +248,7 @@ encoding guess_encoding(
             }
          } else {
             if ((b & 0xc0) == 0x80) {
-               // This byte should be a leading byte, but it’s not.
+               // This byte should be a lead byte, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
                cbUtf8Cont = utf8_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
@@ -425,7 +425,7 @@ size_t transcode(
                      goto break_for;
                   }
                   // Convert the first byte to an UTF-32 character.
-                  ch32 = utf8_traits::get_leading_cp_bits(ch8Src, cbCont);
+                  ch32 = utf8_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
                   // Shift in any continuation bytes.
                   for (; cbCont; --cbCont) {
                      ch8Src = char8_t(*pbSrc++);
@@ -537,7 +537,7 @@ size_t transcode(
             if (bWriteDst) {
                unsigned cbCont(cbSeq - 1);
                // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont)
-               // make up what goes in the leading byte, which is combined with the proper sequence
+               // make up what goes in the lead byte, which is combined with the proper sequence
                // indicator.
                *pbDst++ = uint8_t(
                   utf8_traits::cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont)

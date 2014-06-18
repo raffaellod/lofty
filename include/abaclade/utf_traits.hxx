@@ -73,8 +73,8 @@ public:
    static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
-   /** Returns the bits in a leading byte that are part of the encoded code point. Notice that the
-   bits will need to be shifted in the right position to form a valid UTF-32 character.
+   /** Returns the bits in a lead byte that are part of the encoded code point. Notice that the bits
+   will need to be shifted in the right position to form a valid UTF-32 character.
 
    ch
       First byte of an UTF-8 code point.
@@ -83,18 +83,17 @@ public:
    return
       Bits in ch that participate in the code point.
    */
-   static /*constexpr*/ char32_t get_leading_cp_bits(char8_t ch, unsigned cbCont) {
+   static /*constexpr*/ char32_t get_lead_char_codepoint_bits(char8_t ch, unsigned cbCont) {
       return char32_t(ch & (0x7f >> smc_acbitShiftMask[cbCont]));
    }
 
 
-   /** Returns the continuation length (run length - 1) of an UTF-8 sequence, given its leading
-   byte.
+   /** Returns the continuation length (run length - 1) of an UTF-8 sequence, given its lead byte.
 
    ch
       First byte of an UTF-8 code point.
    return
-      Length of the sequence continuation, or 0 if the character is not a leading byte, i.e. it’s a
+      Length of the sequence continuation, or 0 if the character is not a lead byte, i.e. it’s a
       code point encoded as a single byte or an invalid sequence.
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
@@ -135,8 +134,8 @@ private:
 
    /** Maps each UTF-8 lead byte to the length of its entire encoded code point. */
    static uint8_t const smc_acbCpSizesByLeadChar[];
-   /** Shift counts for the mask 0x7f to be applied to each leading byte to get the bits actually
-   part of the code point; indexed by the number of bytes in the sequence. */
+   /** Shift counts for the mask 0x7f to be applied to each lead byte to get the bits actually part
+   of the code point; indexed by the number of bytes in the sequence. */
    static uint8_t const smc_acbitShiftMask[];
    /** Bitmasks to be applied to the first trailing byte to check if a code point is using an
    overlong encoding. For example, even though 11100000 10100000 10000000 has all zeroes in the code

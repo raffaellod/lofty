@@ -118,7 +118,7 @@ str_base::c_str_pointer str_base::c_str() const {
       *--pchDst = char8_t(0x80 | (cp & 0x3f));
       cp >>= 6;
    }
-   // The remaining cp bits (after >> 6 * (cbSeq - 1)) make up what goes in the leading byte.
+   // The remaining code point bits (after >> 6 * (cbSeq - 1)) make up what goes in the lead byte.
    *--pchDst = iSeqIndicator | char8_t(cp);
    return pchDstCharEnd;
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
@@ -279,7 +279,7 @@ bool str_base::starts_with(istr const & s) const {
       pchNext = pch + cbCp;
       if (ch == chNeedleLead) {
          if (--cbCp) {
-            // The leading bytes match; check if the trailing ones do as well.
+            // The lead bytes match; check if the trailing ones do as well.
             char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
             while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
                ;
@@ -287,7 +287,7 @@ bool str_base::starts_with(istr const & s) const {
             if (pchCont < pchNext) {
                continue;
             }
-            // The leading and trailing bytes of pch and pchNeedle match: we found the needle.
+            // The lead and trailing bytes of pch and pchNeedle match: we found the needle.
          }
          return pch;
       }
