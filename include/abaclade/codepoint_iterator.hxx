@@ -59,16 +59,6 @@ public:
    }
 
 
-   /** Dereferencing member access operator.
-
-   return
-      Pointer to the current item.
-   */
-   character const * operator->() const {
-      return m_pch;
-   }
-
-
    /** Element access operator.
 
    i
@@ -161,13 +151,6 @@ public:
    */
    character & operator*() const {
       return const_cast<character &>(const_impl::operator*());
-   }
-
-
-   /** See const_impl::operator->().
-   */
-   character const * operator->() const {
-      return const_cast<character *>(const_impl::operator->());
    }
 
 
