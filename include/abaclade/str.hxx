@@ -416,7 +416,7 @@ public:
       Size of the string.
    */
    size_t size_in_codepoints() const {
-      return traits::size_in_codepoints(cbegin().base(), cend().base());
+      return traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
 
@@ -838,7 +838,7 @@ inline str_base::operator istr const &() const {
 
 
 inline int str_base::compare_to(istr const & s) const {
-   return str_cmp(cbegin().base(), cend().base(), s.cbegin().base(), s.cend().base());
+   return str_cmp(chars_begin(), chars_end(), s.chars_begin(), s.chars_end());
 }
 
 } //namespace abc
@@ -875,11 +875,11 @@ public:
       *this.
    */
    mstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    mstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
@@ -905,7 +905,7 @@ public:
       return *this;
    }
    mstr & operator+=(istr const & s) {
-      append(s.cbegin().base(), s.size_in_chars());
+      append(s.chars_begin(), s.size_in_chars());
       return *this;
    }
 
@@ -978,7 +978,7 @@ public:
       do {
          cchMax *= rvib::smc_iGrowthRate;
          set_capacity(cchMax, false);
-         cchRet = fnRead(begin().base(), cchMax);
+         cchRet = fnRead(chars_begin(), cchMax);
       } while (cchRet >= cchMax);
       // Finalize the length.
       set_size_in_chars(cchRet);
@@ -1107,7 +1107,7 @@ public:
    }
    dmstr(dmstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    dmstr(dmstr && s) :
       mstr(0) {
@@ -1115,7 +1115,7 @@ public:
    }
    dmstr(istr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(istr && s) :
@@ -1124,7 +1124,7 @@ public:
    }
    dmstr(mstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(mstr && s) :
@@ -1159,7 +1159,7 @@ public:
       *this.
    */
    dmstr & operator=(dmstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    dmstr & operator=(dmstr && s) {
@@ -1167,7 +1167,7 @@ public:
       return *this;
    }
    dmstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -1176,7 +1176,7 @@ public:
       return *this;
    }
    dmstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -1265,19 +1265,19 @@ return
    Resulting string.
 */
 inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
-   return abc::dmstr(sL.cbegin().base(), sL.cend().base(), sR.cbegin().base(), sR.cend().base());
+   return abc::dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
 // Overloads taking a character literal.
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      sL.cbegin().base(), sL.cend().base(), achR, abc::istr::codepoint_to_chars(chR, achR)
+      sL.chars_begin(), sL.chars_end(), achR, abc::istr::codepoint_to_chars(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      achL, abc::istr::codepoint_to_chars(chL, achL), sR.cbegin().base(), sR.cend().base()
+      achL, abc::istr::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
    );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
@@ -1343,7 +1343,7 @@ public:
    }
    smstr(smstr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // If the source is using its embedded character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -1353,7 +1353,7 @@ public:
    }
    smstr(istr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
@@ -1387,7 +1387,7 @@ public:
       *this.
    */
    smstr & operator=(smstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // If the source is using its embedded character array, it will be copied without allocating a
@@ -1397,7 +1397,7 @@ public:
       return *this;
    }
    smstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.

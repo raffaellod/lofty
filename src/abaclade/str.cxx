@@ -68,7 +68,7 @@ str_base::c_str_pointer str_base::c_str() const {
 
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
+      return c_str_pointer(chars_begin(), c_str_pointer::deleter_type(false));
    } else if (size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
@@ -77,7 +77,7 @@ str_base::c_str_pointer str_base::c_str() const {
          c_str_pointer::deleter_type(true)
       );
       char_t * pch(const_cast<char_t *>(psz.get()));
-      memory::copy(pch, cbegin().base(), cch);
+      memory::copy(pch, chars_begin(), cch);
       memory::clear(pch + cch);
       return std::move(psz);
    } else {
@@ -147,12 +147,12 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
       cbChar = sizeof(char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(vb.begin().base(), reinterpret_cast<uint8_t const *>(cbegin().base()), cbStr);
+      memory::copy(vb.begin().base(), _raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
       cbUsed = 0;
-      void const * pStr(cbegin().base());
+      void const * pStr(chars_begin());
       // Calculate the additional size required.
       size_t cbDstEst(abc::text::estimate_transcoded_size(
          abc::text::encoding::host, pStr, cbStr, enc
@@ -203,19 +203,17 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   auto itEnd(cend());
-   char_t const * pch(str_chr(itWhence.base(), itEnd.base(), chNeedle));
-   return pch ? const_iterator(pch) : itEnd;
+   char_t const * pchEnd(chars_end());
+   char_t const * pch(str_chr(itWhence.base(), pchEnd, chNeedle));
+   return const_iterator(pch ? pch : pchEnd);
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   auto itEnd(cend());
-   char_t const * pch(str_str(
-      itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
-   ));
-   return pch ? const_iterator(pch) : itEnd;
+   char_t const * pchEnd(chars_end());
+   char_t const * pch(str_str(itWhence.base(), pchEnd, sNeedle.chars_begin(), sNeedle.chars_end()));
+   return const_iterator(pch ? pch : pchEnd);
 }
 
 
@@ -223,17 +221,17 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
-   return pch ? const_iterator(pch) : cend();
+   char_t const * pch(str_chr_r(chars_begin(), itWhence.base(), chNeedle));
+   return const_iterator(pch ? pch : chars_end());
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    char_t const * pch(str_str_r(
-      cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
+      chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
    ));
-   return pch ? const_iterator(pch) : cend();
+   return const_iterator(pch ? pch : chars_end());
 }
 
 
