@@ -149,9 +149,9 @@ public:
    */
    void write(str_base const & s, io::text::writer * ptwOut) {
       _str_to_str_backend::write(
-         s.cbegin().base(),
-         size_t(reinterpret_cast<int8_t const *>(s.cend().base()) -
-            reinterpret_cast<int8_t const *>(s.cbegin().base())),
+         s.chars_begin(),
+         size_t(reinterpret_cast<int8_t const *>(s.chars_end()) -
+            reinterpret_cast<int8_t const *>(s.chars_begin())),
          text::encoding::host, ptwOut
       );
    }

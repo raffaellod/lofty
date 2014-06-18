@@ -192,7 +192,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -223,7 +223,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
    // Remove the last character, the “a” from achDummyPath.
    s.set_size(s.size() - 1 /*“a”*/);
    return std::move(s);
