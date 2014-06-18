@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2014
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -17,22 +17,34 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
+#ifndef _ABACLADE_HXX
+   #error Please #include <abaclade.hxx> instead of this file
+#endif
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_explob_helper
+// abc::to_str_backend – specialization for abc::codepoint_iterator
 
 
 namespace abc {
 
-#ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
+template <bool t_bConst>
+class to_str_backend<codepoint_iterator<t_bConst>> :
+   public to_str_backend<typename codepoint_iterator<t_bConst>::pointer> {
+public:
 
-void _explob_helper::bool_true() const {
-}
+   /** Writes an iterator as a pointer, applying the formatting options.
 
-#endif
+   it
+      Iterator to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(codepoint_iterator<t_bConst> const & it, io::text::writer * ptwOut) {
+      to_str_backend<typename codepoint_iterator<t_bConst>::pointer>::write(it.base(), ptwOut);
+   }
+};
 
 } //namespace abc
 

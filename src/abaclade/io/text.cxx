@@ -88,7 +88,7 @@ bool reader::read_line(mstr * ps) {
       // If the line terminator isn’t known yet, try to detect it now.
       if (m_lterm == abc::text::line_terminator::unknown) {
          m_lterm = abc::text::guess_line_terminator(
-            itBeforeLastReadBegin.base(), sRead.cend().base()
+            itBeforeLastReadBegin.base(), sRead.chars_end()
          );
          // If no line terminator was detected, consume the entire string and ask for more
          // characters.
@@ -108,12 +108,12 @@ bool reader::read_line(mstr * ps) {
       }
       // Consume the string up to and including the line terminator; after read_while() we’ll strip
       // the line terminator (cchLTerm characters) from the string.
-      cchLTerm = sLTerm.size();
+      cchLTerm = sLTerm.size_in_chars();
       return itLineEnd + ptrdiff_t(cchLTerm);
    }));
    // Remove the line terminator from the end of the string.
    if (cchLTerm) {
-      ps->set_size(ps->size() - cchLTerm);
+      ps->set_size_in_chars(ps->size_in_chars() - cchLTerm);
    }
    return bEOF;
 }
@@ -424,7 +424,7 @@ binbuf_reader::binbuf_reader(
          // Enlarge the destination string and append the read buffer contents to it.
          size_t cchBuf(cbBuf / sizeof(char_t));
          ps->set_capacity(cchReadTotal + cchBuf, true);
-         char_t * pchDstBegin(ps->begin().base());
+         char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
@@ -460,7 +460,7 @@ binbuf_reader::binbuf_reader(
          ) + sizeof(char_t) - 1) / sizeof(char_t));
          // Enlarge the destination string and get its begin/end pointers.
          ps->set_capacity(cchReadTotal + cchDstEst, true);
-         char_t * pchDstBegin(ps->begin().base());
+         char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
          char_t * pchDstEnd(pchDstOffset);
          // Transcode as much of the buffer chunk as possible, and advance pchDstEnd accordingly.
@@ -507,7 +507,7 @@ binbuf_reader::binbuf_reader(
    }
 
    // Truncate the string.
-   ps->set_size(cchReadTotal);
+   ps->set_size_in_chars(cchReadTotal);
    // If the loop terminated because it run out of data and read no data at all, we reached the end
    // of the data; otherwise, return true.
    return cbBuf || cchReadTotal;

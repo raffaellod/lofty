@@ -166,7 +166,7 @@ file_path file_path::base_name() const {
    s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
       if (::getcwd(pch, cchMax)) {
          // The length will be necessarily less than cchMax, so grow_for() will stop.
-         return text::utf_traits<>::str_len(pch);
+         return istr::traits::size_in_chars(pch);
       }
       if (errno != ERANGE) {
          throw_os_error(errno);
@@ -192,7 +192,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -223,7 +223,7 @@ file_path file_path::base_name() const {
       return cch + c_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.begin().base(), smc_aszRoot, c_cchRoot);
+   memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
    // Remove the last character, the “a” from achDummyPath.
    s.set_size(s.size() - 1 /*“a”*/);
    return std::move(s);
@@ -315,7 +315,7 @@ file_path file_path::normalize() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size(size_t(itDst - itBegin));
+   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 
@@ -507,12 +507,20 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size(size_t(itDst - itBegin));
+   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 
+} //namespace abc
 
-to_str_backend<file_path>::to_str_backend(istr const & sFormat /*= istr()*/) {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::file_path
+
+
+namespace abc {
+
+void to_str_backend<file_path>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

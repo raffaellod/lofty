@@ -24,31 +24,18 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf_traits
+// abc::text::utf8_traits
 
 
 namespace abc {
 namespace text {
 
-/** UTF character traits: constants and functions related to the UTF encoding based on the character
-type C. Note that this class is not modeled after std::char_traits.
+/** UTF-8 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
 */
-template <typename C = char_t>
-struct utf_traits;
-
-typedef utf_traits<char8_t > utf8_traits;
-typedef utf_traits<char16_t> utf16_traits;
-typedef utf_traits<char32_t> utf32_traits;
-
-// Specialization for UTF-8.
-template <>
-struct ABACLADE_SYM utf_traits<char8_t> {
+struct ABACLADE_SYM utf8_traits {
 public:
 
-   /** Encoded form of the BOM. */
-   static char8_t const bom[];
-   /** Default encoding for this UTF encoding on this machine. */
-   static encoding::enum_type const host_encoding = encoding::utf8;
    /** Max length of a code point, in encoded characters. Technically, 6 is also possible for UTF-8,
    due to the way bits are encoded, but it’s illegal. */
    static unsigned const max_codepoint_length = 4;
@@ -67,35 +54,6 @@ public:
       // 0x3f00 will produce 0x00 (when >> 0), 0xc0 (2), 0xe0 (3), 0xf0 (4).
       return char8_t(0x3f00 >> smc_acbitShiftMask[cbCont]);
    }
-
-
-   /** Returns count of code points in a string.
-
-   UTF validity: necessary.
-
-   pchBegin
-      Pointer to the beginning of the string.
-   pchEnd
-      Pointer beyond the end of the string.
-   return
-      Count of code points included in the string.
-   */
-   static size_t cp_len(char8_t const * pchBegin, char8_t const * pchEnd);
-
-
-   /** Converts a UTF-32 character in this UTF representation.
-
-   UTF validity: necessary.
-
-   ch32
-      UTF-32 character to be transcoded.
-   pchDst
-      Buffer to receive the transcoded version of ch32; *pchDst is assumed to be at least
-      max_codepoint_length characters.
-   return
-      Count of characters written to the buffer pointed to by pchDst.
-   */
-   static unsigned from_utf32(char32_t ch32, char8_t * pchDst);
 
 
    /** Checks if a string is valid UTF.
@@ -156,7 +114,21 @@ public:
    return
       Length of the string pointed to by psz, in characters.
    */
-   static size_t str_len(char8_t const * psz);
+   static size_t size_in_chars(char8_t const * psz);
+
+
+   /** Returns count of code points in a string.
+
+   UTF validity: necessary.
+
+   pchBegin
+      Pointer to the beginning of the string.
+   pchEnd
+      Pointer beyond the end of the string.
+   return
+      Count of code points included in the string.
+   */
+   static size_t size_in_codepoints(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
 private:
@@ -176,30 +148,28 @@ private:
    static uint8_t const smc_aiOverlongDetectionMasks[];
 };
 
-// Specialization for UTF-16.
-template <>
-struct ABACLADE_SYM utf_traits<char16_t> {
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::utf16_traits
+
+
+namespace abc {
+namespace text {
+
+/** UTF-16 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
+*/
+struct ABACLADE_SYM utf16_traits {
 public:
 
-   /** See utf8_traits::bom. */
-   static char16_t const bom[];
-   /** See utf8_traits::host_encoding. */
-   static encoding::enum_type const host_encoding = encoding::utf16_host;
    /** See utf8_traits::max_codepoint_length. */
    static unsigned const max_codepoint_length = 2;
 
 
 public:
-
-   /** See utf8_traits::cp_len().
-   */
-   static size_t cp_len(char16_t const * pchBegin, char16_t const * pchEnd);
-
-
-   /** See utf8_traits::from_utf32().
-   */
-   static unsigned from_utf32(char32_t ch32, char16_t * pchDst);
-
 
    /** See utf8_traits::is_valid().
    */
@@ -207,53 +177,38 @@ public:
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
-   /** See utf8_traits::str_len().
+   /** See utf8_traits::size_in_chars().
    */
-   static size_t str_len(char16_t const * psz);
+   static size_t size_in_chars(char16_t const * psz);
+
+
+   /** See utf8_traits::size_in_codepoints().
+   */
+   static size_t size_in_codepoints(char16_t const * pchBegin, char16_t const * pchEnd);
 };
 
-// Specialization for UTF-32.
-template <>
-struct ABACLADE_SYM utf_traits<char32_t> {
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::utf32_traits
+
+
+namespace abc {
+namespace text {
+
+/** UTF-32 character traits (constants and functions). Note that this class is not modeled after
+std::char_traits.
+*/
+struct ABACLADE_SYM utf32_traits {
 public:
-
-   /** See utf8_traits::bom. */
-   static char32_t const bom[];
-   /** See utf8_traits::host_encoding. */
-   static encoding::enum_type const host_encoding = encoding::utf32_host;
-   /** See utf8_traits::max_codepoint_length. */
-   static unsigned const max_codepoint_length = 1;
-
-
-public:
-
-   /** See utf8_traits::cp_len(). Trivial for UTF-32, since it’s always 1 character per code point.
-   */
-   static /*constexpr*/ size_t cp_len(char32_t const * pchBegin, char32_t const * pchEnd) {
-      return size_t(pchEnd - pchBegin);
-   }
-
-
-   /** See utf8_traits::from_utf32().
-   */
-   static unsigned from_utf32(char32_t ch32, char32_t * pchDst) {
-      *pchDst = ch32;
-      return 1;
-   }
-
 
    /** See utf8_traits::is_valid(). With overload for single characters.
    */
    static /*constexpr*/ bool is_valid(char32_t ch) {
       return ch < 0x00dc80 || (ch > 0x00dcff && ch <= 0x10ffff);
    }
-   static bool is_valid(char32_t const * psz);
-   static bool is_valid(char32_t const * pchBegin, char32_t const * pchEnd);
-
-
-   /** See utf8_traits::str_len().
-   */
-   static size_t str_len(char32_t const * psz);
 };
 
 } //namespace text

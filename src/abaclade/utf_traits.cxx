@@ -28,8 +28,6 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-char8_t const utf8_traits::bom[] = { '\xef', '\xbb', '\xbf' };
-
 // Optimization 1: odd indices would have the same values as the preceding even ones, so the number
 // of elements can be cut in half.
 // Optimization 2: the maximum length is less than 0xf, so each value is encoded in a nibble instead
@@ -81,43 +79,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    // Leading byte = 1111110z, first continuation byte must have at least one K=1 in ccKKKKKy.
    0x3e
 };
-
-
-/*static*/ size_t utf8_traits::cp_len(char8_t const * pchBegin, char8_t const * pchEnd) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   // Count a single code point for each leading byte, skipping over trailing bytes.
-   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
-      ++ccp;
-   }
-   return ccp;
-}
-
-
-/*static*/ unsigned utf8_traits::from_utf32(char32_t ch32, char8_t * pchDst) {
-   ABC_TRACE_FUNC(ch32, pchDst);
-
-   char8_t const * pchDst0(pchDst);
-   // Compute the length of this sequence.
-   unsigned cbCont;
-   if (ch32 <= 0x00007f) {
-      cbCont = 0;
-   } else if (ch32 <= 0x0007ff) {
-      cbCont = 1;
-   } else if (ch32 <= 0x00ffff) {
-      cbCont = 2;
-   } else {
-      cbCont = 3;
-   }
-   // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont) make up
-   // what goes in the leading byte.
-   *pchDst++ = cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont);
-   while (cbCont--) {
-      *pchDst++ = char8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
-   }
-   return unsigned(pchDst - pchDst0);
-}
 
 
 /*static*/ bool utf8_traits::is_valid(char8_t const * psz) {
@@ -199,7 +160,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 }
 
 
-/*static*/ size_t utf8_traits::str_len(char8_t const * psz) {
+/*static*/ size_t utf8_traits::size_in_chars(char8_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
    char8_t const * pch(psz);
@@ -207,6 +168,20 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
       ++pch;
    }
    return size_t(pch - psz);
+}
+
+
+/*static*/ size_t utf8_traits::size_in_codepoints(
+   char8_t const * pchBegin, char8_t const * pchEnd
+) {
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
+
+   size_t ccp(0);
+   // Count a single code point for each leading byte, skipping over trailing bytes.
+   for (char8_t const * pch(pchBegin); pch < pchEnd; pch += 1 + leading_to_cont_length(*pch)) {
+      ++ccp;
+   }
+   return ccp;
 }
 
 } //namespace text
@@ -219,39 +194,6 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
 
 namespace abc {
 namespace text {
-
-char16_t const utf16_traits::bom[] = { 0xfeff };
-
-
-/*static*/ size_t utf16_traits::cp_len(char16_t const * pchBegin, char16_t const * pchEnd) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
-   // they cannot occur before the 0xd800 that will cause them to be skipped.
-   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
-      ++ccp;
-   }
-   return ccp;
-}
-
-
-/*static*/ unsigned utf16_traits::from_utf32(char32_t ch32, char16_t * pchDst) {
-   ABC_TRACE_FUNC(ch32, pchDst);
-
-   if (ch32 <= 0x00ffff) {
-      // The code point fits in a single UTF-16 character.
-      pchDst[0] = char16_t(ch32);
-      return 1;
-   } else {
-      // The code point requires two UTF-16 characters: generate a surrogate pair.
-      ch32 -= 0x10000;
-      pchDst[0] = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
-      pchDst[1] = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
-      return 2;
-   }
-}
-
 
 /*static*/ bool utf16_traits::is_valid(char16_t const * psz) {
    ABC_TRACE_FUNC(psz);
@@ -304,7 +246,7 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
 }
 
 
-/*static*/ size_t utf16_traits::str_len(char16_t const * psz) {
+/*static*/ size_t utf16_traits::size_in_chars(char16_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
    char16_t const * pch(psz);
@@ -314,50 +256,19 @@ char16_t const utf16_traits::bom[] = { 0xfeff };
    return size_t(pch - psz);
 }
 
-} //namespace text
-} //namespace abc
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf32_traits
-
-
-namespace abc {
-namespace text {
-
-char32_t const utf32_traits::bom[] = { 0x00feff };
-
-
-/*static*/ bool utf32_traits::is_valid(char32_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   while (char32_t ch = *psz++) {
-      if (!is_valid(ch)) {
-         return false;
-      }
-   }
-   return true;
-}
-/*static*/ bool utf32_traits::is_valid(char32_t const * pchBegin, char32_t const * pchEnd) {
+/*static*/ size_t utf16_traits::size_in_codepoints(
+   char16_t const * pchBegin, char16_t const * pchEnd
+) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   for (char32_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      if (!is_valid(*pch)) {
-         return false;
-      }
+   size_t ccp(0);
+   // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
+   // they cannot occur before the 0xd800 that will cause them to be skipped.
+   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
+      ++ccp;
    }
-   return true;
-}
-
-
-/*static*/ size_t utf32_traits::str_len(char32_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   char32_t const * pch(psz);
-   while (*pch) {
-      ++pch;
-   }
-   return size_t(pch - psz);
+   return ccp;
 }
 
 } //namespace text

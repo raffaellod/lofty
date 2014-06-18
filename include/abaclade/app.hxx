@@ -51,7 +51,8 @@ namespace abc {
 
 /** Abstract application.
 */
-class ABACLADE_SYM app {
+class ABACLADE_SYM app :
+   public noncopyable {
 public:
 
    /** Constructor.

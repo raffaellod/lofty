@@ -415,7 +415,8 @@ public:
    Note: this class uses global or thread-local variables (OS-dependent) for all its member
    variables, since their types cannot be specified without #including a lot of files into this one.
    */
-   class ABACLADE_SYM async_handler_manager {
+   class ABACLADE_SYM async_handler_manager :
+      public noncopyable {
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
    public:
 

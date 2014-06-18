@@ -31,30 +31,18 @@ namespace abc {
 
 template <typename TCont, typename TVal>
 class to_str_backend<pointer_iterator<TCont, TVal>> :
-   protected to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer> {
+   public to_str_backend<typename pointer_iterator<TCont, TVal>::pointer> {
 public:
 
-   /** Constructor.
+   /** Writes an iterator as a pointer, applying the formatting options.
 
-   sFormat
-      Formatting options.
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>(sFormat) {
-   }
-
-
-   /** Writes a NUL-terminated string, applying the formatting options.
-
-   psz
-      Pointer to the string to write.
+   it
+      Iterator to write.
    ptwOut
       Pointer to the writer to output to.
    */
    void write(pointer_iterator<TCont, TVal> const & it, io::text::writer * ptwOut) {
-      to_str_backend<typename pointer_iterator<TCont, TVal>::const_pointer>::write(
-         it.base(), ptwOut
-      );
+      to_str_backend<typename pointer_iterator<TCont, TVal>::pointer>::write(it.base(), ptwOut);
    }
 };
 

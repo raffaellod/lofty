@@ -51,8 +51,8 @@ public:
    typedef char_t const & const_reference;
    typedef size_t size_type;
    typedef ptrdiff_t difference_type;
-   typedef pointer_iterator<str_base, char_t> iterator;
-   typedef pointer_iterator<str_base, char_t const> const_iterator;
+   typedef codepoint_iterator<false> iterator;
+   typedef codepoint_iterator<true> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -65,8 +65,12 @@ public:
       char_t const [],
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
    > c_str_pointer;
-   /** String traits. */
-   typedef text::utf_traits<char_t> traits;
+   /** String traits. Note that only UTF-8 and UTF-16 are supported as string encodings. */
+#if ABC_HOST_UTF == 8
+   typedef text::utf8_traits traits;
+#elif ABC_HOST_UTF == 16
+   typedef text::utf16_traits traits;
+#endif
 
 
 public:
@@ -83,6 +87,7 @@ public:
 
    i
       Character index. See abc::str_base::translate_index() for allowed index values.
+   return
       Character at index i.
    */
    char_t operator[](intptr_t i) const {
@@ -156,6 +161,38 @@ public:
    const_iterator cend() const {
       return const_iterator(_raw_vextr_impl_base::end<char_t>());
    }
+
+
+   /** See _raw_trivial_vextr_impl::begin().
+   */
+   char_t * chars_begin() {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+   char_t const * chars_begin() const {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+
+
+   /** See _raw_trivial_vextr_impl::end().
+   */
+   char_t * chars_end() {
+      return _raw_trivial_vextr_impl::end<char_t>();
+   }
+   char_t const * chars_end() const {
+      return _raw_trivial_vextr_impl::end<char_t>();
+   }
+
+
+   /** Converts a code point (UTF-32 character) into a char_t array.
+
+   cp
+      Code point to be encoded.
+   achDst
+      Character array that will receive the encoded version of cp.
+   return
+      Pointer to the character beyond the last one used in achDst.
+   */
+   static char_t * codepoint_to_chars(char32_t cp, char_t (& achDst)[traits::max_codepoint_length]);
 
 
    /** Support for relational operators.
@@ -353,23 +390,33 @@ public:
    }
 
 
-   /** Returns the count of characters in the string.
+   /** Returns size of the string, in bytes.
 
    return
-      Count of characters.
+      Size of the string.
    */
-   size_t size() const {
+   size_t size_in_bytes() const {
+      return _raw_trivial_vextr_impl::size<int8_t>();
+   }
+
+
+   /** Returns size of the string, in characters.
+
+   return
+      Size of the string.
+   */
+   size_t size_in_chars() const {
       return _raw_trivial_vextr_impl::size<char_t>();
    }
 
 
-   /** Returns the count of code points in the string.
+   /** Returns size of the string, in code points.
 
    return
-      Count of code points.
+      Size of the string.
    */
-   size_t size_cp() const {
-      return traits::cp_len(cbegin().base(), cend().base());
+   size_t size_in_codepoints() const {
+      return traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
 
@@ -478,49 +525,6 @@ protected:
    }
 
 
-   /** Converts a possibly negative character index into a pointer into the character array,
-   throwing an exception if the result is out of bounds for the character array.
-
-   i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
-   return
-      Pointer to the character.
-   */
-   char_t const * translate_index(intptr_t ich) const {
-      return static_cast<char_t const *>(
-         _raw_trivial_vextr_impl::translate_offset(ptrdiff_t(sizeof(char_t)) * ich)
-      );
-   }
-
-
-   /** Converts a left-closed, right-open interval with possibly negative character indices into one
-   consisting of two pointers into the item array.
-
-   ichBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
-   ichEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
-   return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
-      interval [0, 0) if the indices represent an empty interval after being adjusted.
-   */
-   std::pair<char_t const *, char_t const *> translate_range(
-      intptr_t ichBegin, intptr_t ichEnd
-   ) const {
-      auto range(_raw_trivial_vextr_impl::translate_byte_range(
-         ptrdiff_t(sizeof(char_t)) * ichBegin, ptrdiff_t(sizeof(char_t)) * ichEnd
-      ));
-      return std::make_pair(
-         static_cast<char_t const *>(range.first), static_cast<char_t const *>(range.second)
-      );
-   }
-
-
 protected:
 
    // Lower-level helpers used internally by several methods.
@@ -611,6 +615,21 @@ protected:
    );
 
 
+   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
+   [DOC:1502 KMP substring search] for how this is built and used.
+
+   pchNeedleBegin
+      Pointer to the beginning of the search string.
+   pchNeedleEnd
+      Pointer beyond the end of the search string.
+   pvcchFailNext
+      Pointer to a vector that will receive the failure restart indices.
+   */
+   static void str_str_build_failure_restart_table(
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+   );
+
+
    /** Returns the character index of the last occurrence of a string into another.
 
    pchHaystackBegin
@@ -631,19 +650,48 @@ protected:
    );
 
 
-   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
-   [DOC:1502 KMP substring search] for how this is built and used.
+   /** Converts a possibly negative character index into an iterator, throwing an exception if the
+   result is out of bounds for the character array.
 
-   pchNeedleBegin
-      Pointer to the beginning of the search string.
-   pchNeedleEnd
-      Pointer beyond the end of the search string.
-   pvcchFailNext
-      Pointer to a vector that will receive the failure restart indices.
+   ich
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
+   return
+      Iterator to the character.
    */
-   static void str_str_build_failure_restart_table(
-      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
-   );
+   const_iterator translate_index(intptr_t ich) const;
+
+
+   /** Converts a possibly negative character index into an iterator.
+
+   ich
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
+   return
+      A pair containing the resulting iterator and a flag that indicates whether the iterator was
+      clipped to end() (for non-negative ich) or begin() (for negative ich).
+   */
+   std::pair<const_iterator, bool> translate_index_nothrow(intptr_t ich) const;
+
+
+   /** Converts a left-closed, right-open interval with possibly negative character indices into one
+   consisting of two iterators.
+
+   ichBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
+      this->size_in_codepoints() to it.
+   ichEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
+      adding this->size_in_codepoints() to it.
+   return
+      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      interval [end(), end()) if the indices represent an empty interval after being adjusted.
+   */
+   std::pair<const_iterator, const_iterator> translate_range(
+      intptr_t ichBegin, intptr_t ichEnd
+   ) const;
 
 
 protected:
@@ -744,7 +792,7 @@ public:
       assign_copy(pchBegin, pchEnd);
    }
    istr(unsafe_t, char_t const * psz) :
-      str_base(psz, traits::str_len(psz), true) {
+      str_base(psz, traits::size_in_chars(psz), true) {
    }
    istr(unsafe_t, char_t const * psz, size_t cch) :
       str_base(psz, cch, false) {
@@ -790,7 +838,7 @@ inline str_base::operator istr const &() const {
 
 
 inline int str_base::compare_to(istr const & s) const {
-   return str_cmp(cbegin().base(), cend().base(), s.cbegin().base(), s.cend().base());
+   return str_cmp(chars_begin(), chars_end(), s.chars_begin(), s.chars_end());
 }
 
 } //namespace abc
@@ -827,11 +875,11 @@ public:
       *this.
    */
    mstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    mstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
@@ -853,22 +901,12 @@ public:
    */
    mstr & operator+=(char32_t ch) {
       char_t ach[traits::max_codepoint_length];
-      append(ach, traits::from_utf32(ch, ach));
+      append(ach, size_t(codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
-      append(s.cbegin().base(), s.size());
+      append(s.chars_begin(), s.size_in_chars());
       return *this;
-   }
-
-
-   /** See str_base::operator[]().
-   */
-   char_t & operator[](intptr_t i) {
-      return *const_cast<char_t *>(translate_index(i));
-   }
-   char_t operator[](intptr_t i) const {
-      return str_base::operator[](i);
    }
 
 
@@ -940,10 +978,10 @@ public:
       do {
          cchMax *= rvib::smc_iGrowthRate;
          set_capacity(cchMax, false);
-         cchRet = fnRead(begin().base(), cchMax);
+         cchRet = fnRead(chars_begin(), cchMax);
       } while (cchRet >= cchMax);
       // Finalize the length.
-      set_size(cchRet);
+      set_size_in_chars(cchRet);
    }
 
 
@@ -985,9 +1023,15 @@ public:
 
    cch
       New length of the string.
+   bClear
+      If true, the string will be cleared after being resized; if false, no characters will be
+      changed.
    */
-   void set_size(size_t cch) {
+   void set_size_in_chars(size_t cch, bool bClear = false) {
       _raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
+      if (bClear) {
+         memory::clear(chars_begin(), cch);
+      }
    }
 
 
@@ -1063,7 +1107,7 @@ public:
    }
    dmstr(dmstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    dmstr(dmstr && s) :
       mstr(0) {
@@ -1071,7 +1115,7 @@ public:
    }
    dmstr(istr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(istr && s) :
@@ -1080,7 +1124,7 @@ public:
    }
    dmstr(mstr const & s) :
       mstr(0) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
    dmstr(mstr && s) :
@@ -1115,7 +1159,7 @@ public:
       *this.
    */
    dmstr & operator=(dmstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    dmstr & operator=(dmstr && s) {
@@ -1123,7 +1167,7 @@ public:
       return *this;
    }
    dmstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -1132,7 +1176,7 @@ public:
       return *this;
    }
    dmstr & operator=(mstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
@@ -1163,22 +1207,22 @@ public:
 // Now these can be implemented.
 
 inline dmstr str_base::substr(intptr_t ichBegin) const {
-   return substr(ichBegin, intptr_t(size()));
+   return substr(ichBegin, intptr_t(size_in_chars()));
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
    auto range(translate_range(ichBegin, itEnd - cbegin()));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, cend());
 }
 inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
    auto range(translate_range(itBegin - cbegin(), ichEnd));
-   return dmstr(range.first, range.second);
+   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    validate_pointer(itBegin.base());
@@ -1221,19 +1265,19 @@ return
    Resulting string.
 */
 inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
-   return abc::dmstr(sL.cbegin().base(), sL.cend().base(), sR.cbegin().base(), sR.cend().base());
+   return abc::dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
 // Overloads taking a character literal.
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      sL.cbegin().base(), sL.cend().base(), achR, achR + abc::istr::traits::from_utf32(chR, achR)
+      sL.chars_begin(), sL.chars_end(), achR, abc::istr::codepoint_to_chars(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::istr::traits::max_codepoint_length];
    return abc::dmstr(
-      achL, achL + abc::istr::traits::from_utf32(chL, achL), sR.cbegin().base(), sR.cend().base()
+      achL, abc::istr::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
    );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
@@ -1299,7 +1343,7 @@ public:
    }
    smstr(smstr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // If the source is using its embedded character array, it will be copied without allocating a
    // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
@@ -1309,7 +1353,7 @@ public:
    }
    smstr(istr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
    smstr(istr && s) :
@@ -1343,7 +1387,7 @@ public:
       *this.
    */
    smstr & operator=(smstr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // If the source is using its embedded character array, it will be copied without allocating a
@@ -1353,7 +1397,7 @@ public:
       return *this;
    }
    smstr & operator=(istr const & s) {
-      assign_copy(s.cbegin().base(), s.cend().base());
+      assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
    // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.

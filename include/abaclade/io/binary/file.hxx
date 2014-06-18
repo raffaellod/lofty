@@ -240,7 +240,8 @@ namespace binary {
 /** Base for file binary I/O classes.
 */
 class ABACLADE_SYM file_base :
-   public virtual base {
+   public virtual base,
+   public noncopyable {
 public:
 
    /** Destructor.

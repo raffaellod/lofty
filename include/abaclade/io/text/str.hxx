@@ -34,7 +34,8 @@ namespace text {
 /** Implementation of text (character-based) I/O from/to a string.
 */
 class ABACLADE_SYM str_base :
-   public virtual base {
+   public virtual base,
+   public noncopyable {
 public:
 
    /** Destructor.

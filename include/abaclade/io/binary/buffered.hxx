@@ -261,7 +261,8 @@ namespace binary {
 /** Provides buffering on top of a binary::reader instance.
 */
 class ABACLADE_SYM default_buffered_reader :
-   public buffered_reader {
+   public buffered_reader,
+   public noncopyable {
 public:
 
    /** Constructor.
@@ -325,7 +326,8 @@ namespace binary {
 /** Provides buffering on top of a binary::writer instance.
 */
 class ABACLADE_SYM default_buffered_writer :
-   public buffered_writer {
+   public buffered_writer,
+   public noncopyable {
 public:
 
    /** Constructor.

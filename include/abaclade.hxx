@@ -733,6 +733,7 @@ class writer;
 #else
    #include <functional>
 #endif
+#include <abaclade/codepoint_iterator.hxx>
 #include <abaclade/str.hxx>
 #include <abaclade/enum-after-str.hxx>
 #include <abaclade/exception-after-str.hxx>
@@ -742,6 +743,7 @@ class writer;
 #include <abaclade/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/pointer_iterator-after-to_str.hxx>
+#include <abaclade/codepoint_iterator-after-to_str.hxx>
 #include <abaclade/vector-after-to_str.hxx>
 
 #include <abaclade/io.hxx>

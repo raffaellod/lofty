@@ -22,17 +22,48 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_vector_to_str_backend
+// abc::_codepoint_iterator_impl
 
 
 namespace abc {
 
-_vector_to_str_backend::_vector_to_str_backend() :
-   _sequence_to_str_backend(istr(SL("{")), istr(SL("}"))) {
+ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const {
+   if (m_pch >= pch) {
+      return ptrdiff_t(istr::traits::size_in_codepoints(pch, m_pch));
+   } else {
+      return -ptrdiff_t(istr::traits::size_in_codepoints(m_pch, pch));
+   }
 }
 
 
-_vector_to_str_backend::~_vector_to_str_backend() {
+void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
+   char_t const * pch(m_pch);
+   while (i) {
+      if (i >= 0) {
+         // Move forward.
+#if ABC_HOST_UTF == 8
+         pch += 1 + istr::traits::leading_to_cont_length(*pch);
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+         pch += 1 + ((*pch & 0xfc00) == 0xd800);
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
+         --i;
+      } else {
+         // Move backwards.
+#if ABC_HOST_UTF == 8
+         while ((*--pch & 0xc0) == 0x80) {
+            ;
+         }
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+         if ((*--pch & 0xfc00) == 0xdc00) {
+            // Tail surrogate.
+            --pch;
+         }
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
+         ++i;
+      }
+   }
+   // Update the iterator position.
+   m_pch = pch;
 }
 
 } //namespace abc

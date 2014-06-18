@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013
+Copyright 2010, 2011, 2012, 2013, 2014
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -29,14 +29,14 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace bitmanip {
 
-ABACLADE_SYM uint8_t _raw_ceiling_to_pow2(uint8_t i) {
+uint8_t _raw_ceiling_to_pow2(uint8_t i) {
    unsigned iPow2(unsigned(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
    return uint8_t(iPow2 + 1);
 }
-ABACLADE_SYM uint16_t _raw_ceiling_to_pow2(uint16_t i) {
+uint16_t _raw_ceiling_to_pow2(uint16_t i) {
    unsigned iPow2(unsigned(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
@@ -44,7 +44,7 @@ ABACLADE_SYM uint16_t _raw_ceiling_to_pow2(uint16_t i) {
    iPow2 |= iPow2 >> 8;
    return uint16_t(iPow2 + 1);
 }
-ABACLADE_SYM uint32_t _raw_ceiling_to_pow2(uint32_t i) {
+uint32_t _raw_ceiling_to_pow2(uint32_t i) {
    --i;
    i |= i >> 1;
    i |= i >> 2;
@@ -53,7 +53,7 @@ ABACLADE_SYM uint32_t _raw_ceiling_to_pow2(uint32_t i) {
    i |= i >> 16;
    return i + 1;
 }
-ABACLADE_SYM uint64_t _raw_ceiling_to_pow2(uint64_t i) {
+uint64_t _raw_ceiling_to_pow2(uint64_t i) {
    --i;
    i |= i >> 1;
    i |= i >> 2;

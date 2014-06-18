@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-_str_to_str_backend::_str_to_str_backend(istr const & sFormat) {
+void _str_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -68,8 +68,8 @@ str_base::c_str_pointer str_base::c_str() const {
 
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(cbegin().base(), c_str_pointer::deleter_type(false));
-   } else if (size_t cch = size()) {
+      return c_str_pointer(chars_begin(), c_str_pointer::deleter_type(false));
+   } else if (size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
       c_str_pointer psz(
@@ -77,7 +77,7 @@ str_base::c_str_pointer str_base::c_str() const {
          c_str_pointer::deleter_type(true)
       );
       char_t * pch(const_cast<char_t *>(psz.get()));
-      memory::copy(pch, cbegin().base(), cch);
+      memory::copy(pch, chars_begin(), cch);
       memory::clear(pch + cch);
       return std::move(psz);
    } else {
@@ -87,22 +87,72 @@ str_base::c_str_pointer str_base::c_str() const {
 }
 
 
+/*static*/ char_t * str_base::codepoint_to_chars(
+   char32_t cp, char_t (& achDst)[traits::max_codepoint_length]
+) {
+   ABC_TRACE_FUNC(cp, achDst);
+
+#if ABC_HOST_UTF == 8
+   // Compute the length of the UTF-8 sequence for this code point.
+   unsigned cbSeq;
+   if (cp <= 0x00007f) {
+      // Encode xxx xxxx as 0xxxxxxx.
+      cbSeq = 1;
+   } else if (cp <= 0x0007ff) {
+      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
+      cbSeq = 2;
+   } else if (cp <= 0x00ffff) {
+      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 3;
+   } else /*if (cp <= 0x10ffff)*/ {
+      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 4;
+   }
+   // Calculate where the sequence will end, and write each byte backwards from there.
+   char8_t * pchDstCharEnd(achDst + cbSeq);
+   --cbSeq;
+   char8_t iSeqIndicator(traits::cont_length_to_seq_indicator(cbSeq));
+   char8_t * pchDst(pchDstCharEnd);
+   while (cbSeq--) {
+      // Each trailing byte uses 6 bits.
+      *--pchDst = char8_t(0x80 | (cp & 0x3f));
+      cp >>= 6;
+   }
+   // The remaining cp bits (after >> 6 * (cbSeq - 1)) make up what goes in the leading byte.
+   *--pchDst = iSeqIndicator | char8_t(cp);
+   return pchDstCharEnd;
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+   char_t * pchDst(achDst);
+   if (cp > 0x00ffff) {
+      // The code point requires two UTF-16 characters: generate a surrogate pair.
+      cp -= 0x10000;
+      *pchDst++ = char16_t(0xd800 | ((cp & 0x0ffc00) >> 10));
+      *pchDst++ = char16_t(0xdc00 |  (cp & 0x0003ff)       );
+   } else {
+      // The code point fits in a single UTF-16 character.
+      *pchDst++ = char16_t(cp);
+   }
+   return pchDst;
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
+}
+
+
 dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
    dmvector<uint8_t> vb;
-   size_t cbChar, cbUsed, cbStr(size() * sizeof(char_t));
+   size_t cbChar, cbUsed, cbStr(size_in_bytes());
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(vb.begin().base(), reinterpret_cast<uint8_t const *>(cbegin().base()), cbStr);
+      memory::copy(vb.begin().base(), _raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
       cbUsed = 0;
-      void const * pStr(cbegin().base());
+      void const * pStr(chars_begin());
       // Calculate the additional size required.
       size_t cbDstEst(abc::text::estimate_transcoded_size(
          abc::text::encoding::host, pStr, cbStr, enc
@@ -142,9 +192,9 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   auto itStart(cend() - intptr_t(s.size()));
-   return itStart >= cbegin() && str_cmp(
-      itStart.base(), cend().base(), s.cbegin().base(), s.cend().base()
+   char_t const * pchStart(chars_end() - s.size_in_chars());
+   return pchStart >= chars_begin() && str_cmp(
+      pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
 }
 
@@ -153,19 +203,17 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   auto itEnd(cend());
-   char_t const * pch(str_chr(itWhence.base(), itEnd.base(), chNeedle));
-   return pch ? const_iterator(pch) : itEnd;
+   char_t const * pchEnd(chars_end());
+   char_t const * pch(str_chr(itWhence.base(), pchEnd, chNeedle));
+   return const_iterator(pch ? pch : pchEnd);
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   auto itEnd(cend());
-   char_t const * pch(str_str(
-      itWhence.base(), itEnd.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
-   ));
-   return pch ? const_iterator(pch) : itEnd;
+   char_t const * pchEnd(chars_end());
+   char_t const * pch(str_str(itWhence.base(), pchEnd, sNeedle.chars_begin(), sNeedle.chars_end()));
+   return const_iterator(pch ? pch : pchEnd);
 }
 
 
@@ -173,26 +221,26 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(str_chr_r(cbegin().base(), itWhence.base(), chNeedle));
-   return pch ? const_iterator(pch) : cend();
+   char_t const * pch(str_chr_r(chars_begin(), itWhence.base(), chNeedle));
+   return const_iterator(pch ? pch : chars_end());
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
    char_t const * pch(str_str_r(
-      cbegin().base(), itWhence.base(), sNeedle.cbegin().base(), sNeedle.cend().base()
+      chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
    ));
-   return pch ? const_iterator(pch) : cend();
+   return const_iterator(pch ? pch : chars_end());
 }
 
 
 bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   auto itEnd(cbegin() + intptr_t(s.size()));
-   return itEnd <= cend() && str_cmp(
-      cbegin().base(), itEnd.base(), s.cbegin().base(), s.cend().base()
+   char_t const * pchEnd(chars_begin() + s.size_in_chars());
+   return pchEnd <= chars_end() && str_cmp(
+      chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
 }
 
@@ -213,7 +261,7 @@ bool str_base::starts_with(istr const & s) const {
    } else {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[traits::max_codepoint_length];
-      traits::from_utf32(chNeedle, achNeedle);
+      codepoint_to_chars(chNeedle, achNeedle);
       return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
@@ -279,8 +327,9 @@ bool str_base::starts_with(istr const & s) const {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
       char_t achNeedle[traits::max_codepoint_length];
-      unsigned cchSeq(traits::from_utf32(chNeedle, achNeedle));
-      return str_str_r(pchHaystackBegin, pchHaystackEnd, achNeedle, achNeedle + cchSeq);
+      return str_str_r(
+         pchHaystackBegin, pchHaystackEnd, achNeedle, codepoint_to_chars(chNeedle, achNeedle)
+      );
    }
 }
 
@@ -327,39 +376,6 @@ bool str_base::starts_with(istr const & s) const {
       return -1;
    } else {
       return 0;
-   }
-}
-
-
-/*static*/ void str_base::str_str_build_failure_restart_table(
-   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
-) {
-   ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
-
-   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
-   auto itNextFailNext(pvcchFailNext->begin());
-
-   // The earliest repetition of a non-first character can only occur on the fourth character, so
-   // start by skipping two characters and storing two zeroes for them, then the first iteration
-   // will also always store an additional zero and consume one more character.
-   char_t const * pchNeedle(pchNeedleBegin + 2);
-   char_t const * pchRestart(pchNeedleBegin);
-   *itNextFailNext++ = 0;
-   *itNextFailNext++ = 0;
-   size_t ichRestart(0);
-   while (pchNeedle < pchNeedleEnd) {
-      // Store the current failure restart index, or 0 if the previous character was the third or
-      // was not a match.
-      *itNextFailNext++ = ichRestart;
-      if (*pchNeedle++ == *pchRestart) {
-         // Another match: move the restart to the next character.
-         ++ichRestart;
-         ++pchRestart;
-      } else if (ichRestart > 0) {
-         // End of a match: restart self-matching from index 0.
-         ichRestart = 0;
-         pchRestart = pchNeedleBegin;
-      }
    }
 }
 
@@ -441,6 +457,39 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
+/*static*/ void str_base::str_str_build_failure_restart_table(
+   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+) {
+   ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
+
+   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
+   auto itNextFailNext(pvcchFailNext->begin());
+
+   // The earliest repetition of a non-first character can only occur on the fourth character, so
+   // start by skipping two characters and storing two zeroes for them, then the first iteration
+   // will also always store an additional zero and consume one more character.
+   char_t const * pchNeedle(pchNeedleBegin + 2);
+   char_t const * pchRestart(pchNeedleBegin);
+   *itNextFailNext++ = 0;
+   *itNextFailNext++ = 0;
+   size_t ichRestart(0);
+   while (pchNeedle < pchNeedleEnd) {
+      // Store the current failure restart index, or 0 if the previous character was the third or
+      // was not a match.
+      *itNextFailNext++ = ichRestart;
+      if (*pchNeedle++ == *pchRestart) {
+         // Another match: move the restart to the next character.
+         ++ichRestart;
+         ++pchRestart;
+      } else if (ichRestart > 0) {
+         // End of a match: restart self-matching from index 0.
+         ichRestart = 0;
+         pchRestart = pchNeedleBegin;
+      }
+   }
+}
+
+
 /*static*/ char_t const * str_base::str_str_r(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
@@ -449,6 +498,63 @@ bool str_base::starts_with(istr const & s) const {
 
    // TODO: implement this!
    return pchHaystackEnd;
+}
+
+
+str_base::const_iterator str_base::translate_index(intptr_t ich) const {
+   auto ret(translate_index_nothrow(ich));
+   if (!ret.second) {
+      ABC_THROW(index_error, (ich));
+   }
+   return ret.first;
+}
+
+
+std::pair<str_base::const_iterator, bool> str_base::translate_index_nothrow(intptr_t ich) const {
+   ABC_TRACE_FUNC(this, ich);
+
+   const_iterator it, itLoopEnd;
+   int iDelta;
+   if (ich >= 0) {
+      // The character index is non-negative: assume it’s faster to reach the corresponding code
+      // point index by starting from the beginning.
+      it = begin();
+      itLoopEnd = end();
+      iDelta = 1;
+   } else {
+      // The character index is negative: assume it’s faster to reach the corresponding code point
+      // index by starting from the end.
+      it = end();
+      itLoopEnd = begin();
+      iDelta = -1;
+   }
+   while (ich && it != itLoopEnd) {
+      ich -= iDelta;
+      it += iDelta;
+   }
+   if (it == itLoopEnd) {
+      // The above loop did not exhaust ich, so ceil the returned iterator to itLoopEnd.
+      return std::pair<const_iterator, bool>(itLoopEnd, false);
+   } else {
+      // The above loop exhausted ich, so *it is the correct character.
+      return std::pair<const_iterator, bool>(it, true);
+   }
+}
+
+
+std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
+   intptr_t ichBegin, intptr_t ichEnd
+) const {
+   ABC_TRACE_FUNC(this, ichBegin, ichEnd);
+
+   auto itBegin(translate_index_nothrow(ichBegin).first);
+   auto itEnd(translate_index_nothrow(ichEnd).first);
+   // If the interval is empty, return [end(), end()) .
+   if (itBegin >= itEnd) {
+      return std::pair<const_iterator, const_iterator>(end(), end());
+   }
+   // Return the constructed interval.
+   return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
 }
 
 } //namespace abc

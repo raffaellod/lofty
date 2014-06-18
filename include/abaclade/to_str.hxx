@@ -87,16 +87,7 @@ class to_str_backend;
 
 // Partial specialization for const.
 template <typename T>
-class to_str_backend<T const> :
-   public to_str_backend<T> {
-public:
-
-   /** Constructor. See to_str_backend<T>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<T>(sFormat) {
-   }
-};
+class to_str_backend<T const> : public to_str_backend<T> {};
 
 } //namespace abc
 
@@ -111,12 +102,12 @@ template <>
 class ABACLADE_SYM to_str_backend<bool> {
 public:
 
-   /** Constructor.
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   to_str_backend(istr const & sFormat = istr());
+   void set_format(istr const & sFormat);
 
 
    /** Converts a boolean value to its string representation.
@@ -147,10 +138,16 @@ public:
 
    cbInt
       Size of the integer type.
+   */
+   _int_to_str_backend_base(unsigned cbInt);
+
+
+   /** Changes the output format.
+
    sFormat
       Formatting options.
    */
-   _int_to_str_backend_base(unsigned cbInt, istr const & sFormat);
+   void set_format(istr const & sFormat);
 
 
 protected:
@@ -237,13 +234,15 @@ protected:
 
    /** Pointer to either smc_achIntToStrL or smc_achIntToStrU. */
    char_t const * m_pchIntToStr;
-   /** 10 (for decimal notation) or log2(notation) (for power-of-two notations). */
-   unsigned m_iBaseOrShift;
    /** Minimum number of digits to be generated. Always >= 1, to ensure the generation of at least a
    single zero. */
    unsigned m_cchWidth;
    /** Required buffer size. */
    unsigned m_cchBuf;
+   /** Integer size, in bytes. */
+   uint8_t const mc_cbInt;
+   /** 10 (for decimal notation) or log2(notation) (for power-of-two notations). */
+   uint8_t m_iBaseOrShift;
    /** Character to be used to pad the digits to m_cchWidth length. */
    char_t m_chPad;
    /** Character to be used as sign in case the number is not negative; NUL if none. */
@@ -321,12 +320,9 @@ class _int_to_str_backend :
 public:
 
    /** Constructor.
-
-   sFormat
-      Formatting options.
    */
-   _int_to_str_backend(istr const & sFormat) :
-      _int_to_str_backend_base(sizeof(I), sFormat) {
+   _int_to_str_backend() :
+      _int_to_str_backend_base(sizeof(I)) {
    }
 
 
@@ -398,19 +394,7 @@ namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(I) \
    template <> \
-   class to_str_backend<I> : \
-      public _int_to_str_backend<I> { \
-   public: \
-   \
-      /** Constructor.
-
-      sFormat
-         Formatting options.
-      */ \
-      to_str_backend(istr const & sFormat = istr()) : \
-         _int_to_str_backend<I>(sFormat) { \
-      } \
-   };
+   class to_str_backend<I> : public _int_to_str_backend<I> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(  signed char)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned char)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         short)

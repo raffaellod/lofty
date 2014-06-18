@@ -106,35 +106,35 @@ public:
       // true: operator+= must have created an item array (there was none).
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
 
       s = s + CL('b') + s;
       // true: a new string is created by operator+, which replaces s by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("aba"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("ba"));
 
       s += CL('c');
       // false: there should’ve been enough space for 'c'.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bac"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
       ABC_TESTING_ASSERT_EQUAL(s[1], CL('a'));
@@ -142,7 +142,7 @@ public:
       s += s;
       // false: there should’ve been enough space for “baba”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
       ABC_TESTING_ASSERT_EQUAL(s[1], CL('a'));
@@ -152,14 +152,14 @@ public:
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
 
       s = dmstr(SL("ab")) + CL('c');
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
       ABC_TESTING_ASSERT_EQUAL(s[1], CL('b'));
@@ -168,7 +168,7 @@ public:
       s += CL('d');
       // false: there should’ve been enough space for “abcd”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
       ABC_TESTING_ASSERT_EQUAL(s[1], CL('b'));
@@ -179,7 +179,7 @@ public:
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
       // character array may or may not change depending on heap reallocation strategy.
       str_ptr_changed();
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 26u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 26u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
 
@@ -187,7 +187,7 @@ public:
       s += SL("\0c");
       // false: there should have been plenty of storage allocated.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size(), 5u);
+      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
       ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0c"));
@@ -419,7 +419,7 @@ public:
       // s has no character array, so it should have returned the static NUL character.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 0u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
 
       s = SL("");
@@ -428,7 +428,7 @@ public:
       // returned its own character array.
       ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 0u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
 
       s = SL("a");
@@ -437,7 +437,7 @@ public:
       // returned its own character array.
       ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 1u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 1u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
       ABC_TESTING_ASSERT_EQUAL(psz[1], CL('\0'));
    }
@@ -476,7 +476,7 @@ public:
       // s has no character array, so it should have returned the static NUL character.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 0u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
 
       s = SL("");
@@ -484,7 +484,7 @@ public:
       // s still has no character array, so it should have returned the static NUL character again.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 0u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
 
       s = SL("a");
@@ -493,7 +493,7 @@ public:
       // distinct character array.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 1u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 1u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
       ABC_TESTING_ASSERT_EQUAL(psz[1], CL('\0'));
 
@@ -502,7 +502,7 @@ public:
       // The character array should have grown, but still lack the trailing NUL.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::utf_traits<>::str_len(psz.get()), 2u);
+      ABC_TESTING_ASSERT_EQUAL(istr::traits::size_in_chars(psz.get()), 2u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
       ABC_TESTING_ASSERT_EQUAL(psz[1], CL('b'));
       ABC_TESTING_ASSERT_EQUAL(psz[2], CL('\0'));
@@ -596,9 +596,9 @@ public:
       istr const s(SL("àßçàŒ"));
       istr::const_iterator it;
 
-      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + ptrdiff_t(istr(SL("à")).size()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + 1);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àß")), s.cbegin());
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + ptrdiff_t(istr(SL("àßç")).size()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àü")), s.cend());
 
       ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("")));

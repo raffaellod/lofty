@@ -34,12 +34,12 @@ namespace abc {
 class ABACLADE_SYM _enum_to_str_backend_impl {
 public:
 
-   /** Constructor.
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   _enum_to_str_backend_impl(istr const & sFormat);
+   void set_format(istr const & sFormat);
 
 
 protected:
@@ -68,13 +68,6 @@ template <class T>
 class to_str_backend<enum_impl<T>> :
    public _enum_to_str_backend_impl {
 public:
-
-   /** Constructor. See abc::_enum_to_str_backend_impl::_enum_to_str_backend_impl().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      _enum_to_str_backend_impl(sFormat) {
-   }
-
 
    /** See abc::_enum_to_str_backend_impl::write().
    */

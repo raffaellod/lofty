@@ -32,19 +32,8 @@ namespace abc {
 /** Iterator based on a plain pointer.
 */
 template <typename TCont, typename TVal>
-class pointer_iterator {
-public:
-
-   typedef std::random_access_iterator_tag iterator_category;
-   typedef TVal value_type;
-   typedef size_t size_type;
-   typedef ptrdiff_t difference_type;
-   typedef TVal * pointer;
-   typedef TVal const * const_pointer;
-   typedef TVal & reference;
-   typedef TVal const & const_reference;
-
-
+class pointer_iterator :
+   public std::iterator<std::random_access_iterator_tag, TVal> {
 public:
 
    /** Constructor.
@@ -60,10 +49,10 @@ public:
    explicit pointer_iterator(TVal * pt) :
       m_ptval(pt) {
    }
-   // This is really just to convert between const/non-const TVals.
+   // Allows to convert between non-const to const TVals.
    template <typename TVal2>
    pointer_iterator(pointer_iterator<TCont, TVal2> const & it) :
-      m_ptval(const_cast<TVal *>(it.base())) {
+      m_ptval(it.base()) {
    }
 
 
@@ -89,7 +78,7 @@ public:
 
    /** Element access operator.
 
-   i   
+   i
       Index relative to *this.
    return
       Reference to the specified item.
@@ -135,23 +124,24 @@ public:
    pointer_iterator operator+(ptrdiff_t i) const {
       return pointer_iterator(m_ptval + i);
    }
-   pointer_iterator operator+(pointer_iterator it) const {
-      return pointer_iterator(m_ptval + it.m_ptval);
-   }
 
 
-   /** Subtraction operator.
+   /** Subtraction/difference operator.
 
    i
       Count of positions by which to rewind the iterator.
+   it
+      Iterator from which to calculate the distance.
    return
-      Iterator that’s i items behind *this.
+      Iterator that’s i items behind *this (subtraction) or distance between *this and it
+      (difference).
    */
    pointer_iterator operator-(ptrdiff_t i) const {
       return pointer_iterator(m_ptval - i);
    }
-   ptrdiff_t operator-(pointer_iterator it) const {
-      return m_ptval - it.m_ptval;
+   template <typename TVal2>
+   ptrdiff_t operator-(pointer_iterator<TCont, TVal2> it) const {
+      return m_ptval - it.base();
    }
 
 
@@ -199,8 +189,9 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(pointer_iterator const & it) const { \
-      return m_ptval op it.m_ptval; \
+   template <typename TVal2> \
+   bool operator op(pointer_iterator<TCont, TVal2> const & it) const { \
+      return m_ptval op it.base(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)

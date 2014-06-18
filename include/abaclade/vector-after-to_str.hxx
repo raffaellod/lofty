@@ -37,11 +37,8 @@ class ABACLADE_SYM _vector_to_str_backend :
 public:
 
    /** Constructor.
-
-   sFormat
-      Formatting options.
    */
-   _vector_to_str_backend(istr const & sFormat);
+   _vector_to_str_backend();
 
 
    /** Destructor.
@@ -71,14 +68,16 @@ class to_str_backend<vector_base<T>> :
    public _vector_to_str_backend {
 public:
 
-   /** Constructor.
+   /** Changes the output format.
 
    sFormat
       Formatting options.
    */
-   to_str_backend(istr const & sFormat = istr()) :
-      _vector_to_str_backend(sFormat),
-      m_tsbElt(m_sEltFormat) {
+   void set_format(istr const & sFormat) {
+//    ABC_TRACE_FUNC(this, sFormat);
+
+      _vector_to_str_backend::set_format(sFormat);
+      m_tsbElt.set_format(m_sEltFormat);
    }
 
 
@@ -115,64 +114,19 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::mvector
+// abc::to_str_backend – specialization for abc::*vector
 
 
 namespace abc {
 
 template <typename T>
-class to_str_backend<mvector<T>> :
-   public to_str_backend<vector_base<T>> {
-public:
-
-   /** Constructor. See to_str_backend<vector_base<T>>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<vector_base<T>>(sFormat) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::dmvector
-
-
-namespace abc {
+class to_str_backend<mvector<T>> : public to_str_backend<vector_base<T>> {};
 
 template <typename T>
-class to_str_backend<dmvector<T>> :
-   public to_str_backend<vector_base<T>> {
-public:
-
-   /** Constructor. See to_str_backend<vector_base<T>>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<vector_base<T>>(sFormat) {
-   }
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::smvector
-
-
-namespace abc {
+class to_str_backend<dmvector<T>> : public to_str_backend<vector_base<T>> {};
 
 template <typename T, size_t t_ciStatic>
-class to_str_backend<smvector<T, t_ciStatic>> :
-   public to_str_backend<vector_base<T>> {
-public:
-
-   /** Constructor. See to_str_backend<vector_base<T>>::to_str_backend().
-   */
-   to_str_backend(istr const & sFormat = istr()) :
-      to_str_backend<vector_base<T>>(sFormat) {
-   }
-};
+class to_str_backend<smvector<T, t_ciStatic>> : public to_str_backend<vector_base<T>> {};
 
 } //namespace abc
 
