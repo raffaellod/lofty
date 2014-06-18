@@ -79,8 +79,8 @@ Supported operating systems:
 •  Microsoft Windows – temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
-Additionally, Abaclade requires Python 3.2 or later to be installed on the host
-system.
+Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
+the host system.
 
 
 4. Building Abaclade
