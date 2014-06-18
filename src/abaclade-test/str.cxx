@@ -596,11 +596,9 @@ public:
       istr const s(SL("àßçàŒ"));
       istr::const_iterator it;
 
-      // TODO: FIXME: should be size_in_codepoints!
-      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + ptrdiff_t(istr(SL("à")).size_in_chars()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + 1);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àß")), s.cbegin());
-      // TODO: FIXME: should be size_in_codepoints!
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + ptrdiff_t(istr(SL("àßç")).size_in_chars()));
+      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àü")), s.cend());
 
       ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("")));

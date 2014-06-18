@@ -163,6 +163,26 @@ public:
    }
 
 
+   /** See _raw_trivial_vextr_impl::begin().
+   */
+   char_t * chars_begin() {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+   char_t const * chars_begin() const {
+      return _raw_trivial_vextr_impl::begin<char_t>();
+   }
+
+
+   /** See _raw_trivial_vextr_impl::end().
+   */
+   char_t * chars_end() {
+      return _raw_trivial_vextr_impl::end<char_t>();
+   }
+   char_t const * chars_end() const {
+      return _raw_trivial_vextr_impl::end<char_t>();
+   }
+
+
    /** Converts a code point (UTF-32 character) into a char_t array.
 
    cp
@@ -502,26 +522,6 @@ protected:
    */
    void assign_share_raw_or_copy_desc(str_base const & s) {
       _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
-   }
-
-
-   /** See _raw_trivial_vextr_impl::begin().
-   */
-   char_t * chars_begin() {
-      return _raw_trivial_vextr_impl::begin<char_t>();
-   }
-   char_t const * chars_begin() const {
-      return _raw_trivial_vextr_impl::begin<char_t>();
-   }
-
-
-   /** See _raw_trivial_vextr_impl::end().
-   */
-   char_t * chars_end() {
-      return _raw_trivial_vextr_impl::end<char_t>();
-   }
-   char_t const * chars_end() const {
-      return _raw_trivial_vextr_impl::end<char_t>();
    }
 
 
@@ -1023,9 +1023,15 @@ public:
 
    cch
       New length of the string.
+   bClear
+      If true, the string will be cleared after being resized; if false, no characters will be
+      changed.
    */
-   void set_size_in_chars(size_t cch) {
+   void set_size_in_chars(size_t cch, bool bClear = false) {
       _raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
+      if (bClear) {
+         memory::clear(chars_begin(), cch);
+      }
    }
 
 

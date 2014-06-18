@@ -38,7 +38,7 @@ class _codepoint_iterator_impl;
 
 // Const specialization.
 template <>
-class _codepoint_iterator_impl<true> {
+class ABACLADE_SYM _codepoint_iterator_impl<true> {
 public:
 
    /** Type of encoded character. */
@@ -93,16 +93,6 @@ protected:
    }
 
 
-   /** Advances or rewinds the iterator by the specified number of code points.
-
-   i
-      Count of code points to advance by.
-   */
-   void modify(ptrdiff_t i) {
-      m_pch += i;
-   }
-
-
    /** Computes the distance from another iterator/pointer.
 
    pch
@@ -110,9 +100,17 @@ protected:
    return
       Distance between *this and pch, in code points.
    */
-   ptrdiff_t distance(character const * pch) const {
-      return m_pch - pch;
-   }
+   ptrdiff_t distance(character const * pch) const;
+
+
+   /** Advances or rewinds the iterator by the specified number of code points. If the iterator is
+   moved outside of the interval [begin, end) of the string it refers to, the results are undefined
+   and most likely catastrophic.
+
+   i
+      Count of code points to move by.
+   */
+   void modify(ptrdiff_t i);
 
 
 protected:
