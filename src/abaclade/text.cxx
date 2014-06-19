@@ -240,19 +240,19 @@ encoding guess_encoding(
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
          // here.
          if (cbUtf8Cont) {
-            if ((b & 0xc0) != 0x80) {
+            if (utf8_traits::is_lead_character(char8_t(b))) {
                // This byte should be part of a sequence, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
                --cbUtf8Cont;
             }
          } else {
-            if ((b & 0xc0) == 0x80) {
+            if (!utf8_traits::is_lead_character(char8_t(b))) {
                // This byte should be a lead byte, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
                cbUtf8Cont = utf8_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
-               if ((b & 0x80) && !cbUtf8Cont) {
+               if ((b & 0x80) && cbUtf8Cont == 0) {
                   // By utf8_traits::lead_char_to_codepoint_size(), a non-ASCII byte that doesn’t
                   // have a continuation is an invalid one.
                   fess &= ~unsigned(ESS_UTF8);
@@ -417,35 +417,32 @@ size_t transcode(
                goto break_for;
             }
             char8_t ch8Src(char8_t(*pbSrc++));
-            switch (ch8Src & 0xc0) {
-               default: {
-                  unsigned cbCont(utf8_traits::lead_char_to_codepoint_size(ch8Src) - 1);
-                  // Ensure that we still have enough characters.
-                  if (pbSrc + cbCont > pbSrcEnd) {
-                     goto break_for;
-                  }
-                  // Convert the first byte to an UTF-32 character.
-                  ch32 = utf8_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
-                  // Shift in any continuation bytes.
-                  for (; cbCont; --cbCont) {
-                     ch8Src = char8_t(*pbSrc++);
-                     if ((ch8Src & 0xc0) != 0x80) {
-                        // The sequence ended prematurely, and this byte is not part of it.
-                        --pbSrc;
-                        break;
-                     }
-                     ch32 = (ch32 << 6) | (ch8Src & 0x3f);
-                  }
-                  if (!cbCont && utf32_traits::is_valid(ch32)) {
-                     // The whole sequence was read, and the result is valid UTF-32.
+            if (utf8_traits::is_lead_character(ch8Src)) {
+               unsigned cbCont(utf8_traits::lead_char_to_codepoint_size(ch8Src) - 1);
+               // Ensure that we still have enough characters.
+               if (pbSrc + cbCont > pbSrcEnd) {
+                  goto break_for;
+               }
+               // Convert the first byte to an UTF-32 character.
+               ch32 = utf8_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
+               // Shift in any continuation bytes.
+               for (; cbCont; --cbCont) {
+                  ch8Src = char8_t(*pbSrc++);
+                  if (utf8_traits::is_lead_character(ch8Src)) {
+                     // The sequence ended prematurely, and this byte is not part of it.
+                     --pbSrc;
                      break;
                   }
-                  // Replace this invalid code point (fall through).
+                  ch32 = (ch32 << 6) | (ch8Src & 0x3f);
                }
-               case 0x80:
-                  // Replace this invalid byte.
+               if (cbCont || !utf32_traits::is_valid(ch32)) {
+                  // Couldn’t read the whole code point or the result is not valid UTF-32: replace
+                  // this invalid code point.
                   ch32 = replacement_char;
-                  break;
+               }
+            } else {
+               // Replace this invalid byte.
+               ch32 = replacement_char;
             }
             break;
          }

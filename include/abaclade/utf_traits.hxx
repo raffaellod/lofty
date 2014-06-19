@@ -56,6 +56,18 @@ public:
    }
 
 
+   /** Returns true if the specified character is a lead character.
+
+   ch
+      UTF-8 character.
+   return
+      true if the specified character is a lead byte, or false otherwise.
+   */
+   static bool is_lead_character(char8_t ch) {
+      return (ch & 0xc0) != 0x80;
+   }
+
+
    /** Checks if a string is valid UTF.
 
    UTF validity: checked.

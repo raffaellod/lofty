@@ -54,7 +54,7 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
       } else {
          // Move backwards.
 #if ABC_HOST_UTF == 8
-         while ((*--pch & 0xc0) == 0x80) {
+         while (!istr::traits::is_lead_character(*--pch)) {
             ;
          }
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8

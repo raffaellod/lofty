@@ -89,7 +89,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    while (char8_t ch = *psz++) {
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if ((ch & 0xc0) != 0x80) {
+         if (is_lead_character(ch)) {
             return false;
          }
          --cbCont;
@@ -103,7 +103,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
+         if (!is_lead_character(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
@@ -128,7 +128,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
       char8_t ch(*pch);
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if ((ch & 0xc0) != 0x80) {
+         if (is_lead_character(ch)) {
             return false;
          }
          --cbCont;
@@ -142,7 +142,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if ((ch & 0xc0) == 0x80 || uint8_t(ch) >= 0xfe) {
+         if (!is_lead_character(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
