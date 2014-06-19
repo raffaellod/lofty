@@ -89,7 +89,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    while (char8_t ch = *psz++) {
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if (is_lead_character(ch)) {
+         if (is_lead_char(ch)) {
             return false;
          }
          --cbCont;
@@ -103,7 +103,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if (!is_lead_character(ch) || uint8_t(ch) >= 0xfe) {
+         if (!is_lead_char(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
@@ -128,7 +128,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
       char8_t ch(*pch);
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if (is_lead_character(ch)) {
+         if (is_lead_char(ch)) {
             return false;
          }
          --cbCont;
@@ -142,7 +142,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if (!is_lead_character(ch) || uint8_t(ch) >= 0xfe) {
+         if (!is_lead_char(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
@@ -200,17 +200,15 @@ namespace text {
 
    bool bExpectTailSurrogate(false);
    while (char16_t ch = *psz++) {
-      // Select lead and trail surrogates (11011xyy yyyyyyyy).
-      bool bSurrogate((ch & 0xf800) == 0xd800);
+      bool bSurrogate(is_surrogate(ch));
       if (bSurrogate) {
-         // Extract the x (see above) using 00000100 00000000 as mask.
-         bool bTailSurrogate((ch & 0x0400) != 0);
+         bool bTrailSurrogate(is_trail_surrogate(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
-         if (bTailSurrogate != bExpectTailSurrogate) {
+         if (bTrailSurrogate != bExpectTailSurrogate) {
             return false;
          }
-         bExpectTailSurrogate = !bTailSurrogate;
+         bExpectTailSurrogate = !bTrailSurrogate;
       } else if (bExpectTailSurrogate) {
          // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
@@ -225,17 +223,15 @@ namespace text {
    bool bExpectTailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       char16_t ch(*pch);
-      // Select lead and trail surrogates (11011xyy yyyyyyyy).
-      bool bSurrogate((ch & 0xf800) == 0xd800);
+      bool bSurrogate(is_surrogate(ch));
       if (bSurrogate) {
-         // Extract the x (see above) using 00000100 00000000 as mask.
-         bool bTailSurrogate((ch & 0x0400) != 0);
+         bool bTrailSurrogate(is_trail_surrogate(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
-         if (bTailSurrogate != bExpectTailSurrogate) {
+         if (bTrailSurrogate != bExpectTailSurrogate) {
             return false;
          }
-         bExpectTailSurrogate = !bTailSurrogate;
+         bExpectTailSurrogate = !bTrailSurrogate;
       } else if (bExpectTailSurrogate) {
          // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
@@ -263,9 +259,7 @@ namespace text {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    size_t ccp(0);
-   // The & 0xfc00 will cause 0xdc00 characters to be treated like single invalid characters, since
-   // they cannot occur before the 0xd800 that will cause them to be skipped.
-   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += 1 + ((*pch & 0xfc00) == 0xd800)) {
+   for (char16_t const * pch(pchBegin); pch < pchEnd; pch += lead_char_to_codepoint_size(*pch)) {
       ++ccp;
    }
    return ccp;

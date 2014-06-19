@@ -45,24 +45,13 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
    while (i) {
       if (i >= 0) {
          // Move forward.
-#if ABC_HOST_UTF == 8
          pch += istr::traits::lead_char_to_codepoint_size(*pch);
-#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-         pch += 1 + ((*pch & 0xfc00) == 0xd800);
-#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
          --i;
       } else {
          // Move backwards.
-#if ABC_HOST_UTF == 8
-         while (!istr::traits::is_lead_character(*--pch)) {
+         while (!istr::traits::is_lead_char(*--pch)) {
             ;
          }
-#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-         if ((*--pch & 0xfc00) == 0xdc00) {
-            // Tail surrogate.
-            --pch;
-         }
-#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
          ++i;
       }
    }

@@ -61,9 +61,9 @@ public:
    ch
       UTF-8 character.
    return
-      true if the specified character is a lead byte, or false otherwise.
+      true if ch is a lead byte, or false otherwise.
    */
-   static bool is_lead_character(char8_t ch) {
+   static /*constexpr*/ bool is_lead_char(char8_t ch) {
       return (ch & 0xc0) != 0x80;
    }
 
@@ -100,13 +100,13 @@ public:
    }
 
 
-   /** Returns the continuation length (run length - 1) of an UTF-8 sequence, given its lead byte.
+   /** Returns the run length of an UTF-8 sequence, given its lead byte.
 
    ch
       First byte of an UTF-8 code point.
    return
-      Length of the sequence continuation, or 0 if the character is not a lead byte, i.e. it’s a
-      code point encoded as a single byte or an invalid sequence.
+      Length of the code point sequence, or 1 if the character is not a lead byte, i.e. it’s a code
+      point encoded as a single byte or an invalid sequence.
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
       unsigned i(static_cast<uint8_t>(ch));
@@ -182,10 +182,49 @@ public:
 
 public:
 
+   /** See utf8_traits::is_lead_char(); the interpretation here is “character that is followed by
+   another character”.
+   */
+   static /*constexpr*/ bool is_lead_char(char16_t ch) {
+      return (ch & 0xfc00) == 0xd800;
+   }
+
+
+   /** Returns true if the specified character is a surrogate (lead or trail).
+
+   ch
+      UTF-16 character.
+   return
+      true if ch is a surrogate, or false otherwise.
+   */
+   static /*constexpr*/ bool is_surrogate(char16_t ch) {
+      return (ch & 0xf800) == 0xd800;
+   }
+
+
+   /** Returns true if the specified character is a surrogate trail.
+
+   ch
+      UTF-16 character.
+   return
+      true if ch is a surrogate trail, or false otherwise.
+   */
+   static /*constexpr*/ bool is_trail_surrogate(char16_t ch) {
+      return (ch & 0xfc00) == 0xdc00;
+   }
+
+
    /** See utf8_traits::is_valid().
    */
    static bool is_valid(char16_t const * psz);
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
+
+
+   /** See utf8_traits::lead_char_to_codepoint_size().
+   */
+   static /*constexpr*/ unsigned lead_char_to_codepoint_size(char16_t ch) {
+      return is_lead_char(ch) ? 2 : 1;
+   }
 
 
    /** See utf8_traits::size_in_chars().

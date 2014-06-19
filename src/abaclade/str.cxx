@@ -297,7 +297,7 @@ bool str_base::starts_with(istr const & s) const {
    char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a lead surrogate. Using NUL as a special value
    // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1((chNeedle0 & 0xfc00) == 0xd800 ? pchNeedle[1] : U16CL('\0'));
+   char16_t chNeedle1(traits::is_lead_char(chNeedle0) ? pchNeedle[1] : U16CL('\0'));
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
    for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
@@ -350,7 +350,7 @@ bool str_base::starts_with(istr const & s) const {
       // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
       // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bIsSurrogate1((ch1 & 0xf800) == 0xd800), bIsSurrogate2((ch2 & 0xf800) == 0xd800);
+      bool bIsSurrogate1(traits::is_surrogate(ch1)), bIsSurrogate2(traits::is_surrogate(ch2));
       if (bIsSurrogate1 != bIsSurrogate2) {
          if (bIsSurrogate1) {
             // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
