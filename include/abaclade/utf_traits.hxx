@@ -223,7 +223,7 @@ public:
    /** See utf8_traits::lead_char_to_codepoint_size().
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char16_t ch) {
-      return is_lead_char(ch) ? 2 : 1;
+      return is_lead_char(ch) ? 2u : 1u;
    }
 
 
