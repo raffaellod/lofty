@@ -460,7 +460,7 @@ dmstr::const_iterator file_path::base_name_start() const {
          s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
       } else {
          size_t cch(s.size_in_chars());
-         char_t const * pch(s.chars_begin());
+         char_t * pch(s.chars_begin());
          if (cch >= 2 && *(pch + 1) == CL(':')) {
             char_t chVolume(*pch);
             // If the path is in the form “x:”, normalize the volume designator to uppercase.
