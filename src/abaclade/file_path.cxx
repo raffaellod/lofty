@@ -125,13 +125,14 @@ file_path file_path::absolute() const {
       // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
       // and be relative to the current directory in that volume. Either way, these two formats
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
-      size_t cch(m_s.size());
-      if (cch > sc_ichVolumeColon && m_s[sc_ichVolumeColon] == CL(':')) {
+      size_t cch(m_s.size_in_chars());
+      char_t const * pch(m_s.chars_begin());
+      if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == CL(':')) {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
-         fpAbsolute = current_dir_for_volume(m_s[sc_ichVolume]) /
+         fpAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
                       m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
-      } else if (cch > sc_ichLeadingSep && m_s[sc_ichLeadingSep] == CL('\\')) {
+      } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == CL('\\')) {
          // The path is in the form “\a”: make it absolute by prepending to it the volume designator
          // of the current directory.
          fpAbsolute = current_dir().m_s.substr(
