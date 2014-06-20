@@ -240,14 +240,14 @@ encoding guess_encoding(
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
          // here.
          if (cbUtf8Cont) {
-            if (utf8_traits::is_lead_char(char8_t(b))) {
+            if (!utf8_traits::is_trail_char(char8_t(b))) {
                // This byte should be part of a sequence, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
                --cbUtf8Cont;
             }
          } else {
-            if (!utf8_traits::is_lead_char(char8_t(b))) {
+            if (utf8_traits::is_trail_char(char8_t(b))) {
                // This byte should be a lead byte, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
@@ -417,7 +417,7 @@ size_t transcode(
                goto break_for;
             }
             char8_t ch8Src(char8_t(*pbSrc++));
-            if (utf8_traits::is_lead_char(ch8Src)) {
+            if (!utf8_traits::is_trail_char(ch8Src)) {
                unsigned cbCont(utf8_traits::lead_char_to_codepoint_size(ch8Src) - 1);
                // Ensure that we still have enough characters.
                if (pbSrc + cbCont > pbSrcEnd) {
@@ -428,7 +428,7 @@ size_t transcode(
                // Shift in any continuation bytes.
                for (; cbCont; --cbCont) {
                   ch8Src = char8_t(*pbSrc++);
-                  if (utf8_traits::is_lead_char(ch8Src)) {
+                  if (!utf8_traits::is_trail_char(ch8Src)) {
                      // The sequence ended prematurely, and this byte is not part of it.
                      --pbSrc;
                      break;
@@ -458,7 +458,10 @@ size_t transcode(
                ch16Src = byteorder::swap(ch16Src);
             }
             if (utf16_traits::is_surrogate(ch16Src)) {
-               if (utf16_traits::is_lead_char(ch16Src)) {
+               if (utf16_traits::is_trail_char(ch16Src)) {
+                  // Replace this invalid trail surrogate.
+                  ch16Src = replacement_char;
+               } else {
                   // Lead surrogate.
                   ch32 = char32_t(ch16Src & 0x03ff) << 10;
                   if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
@@ -470,7 +473,7 @@ size_t transcode(
                      ch16Src = byteorder::swap(ch16Src);
                   }
                   // This character must be a trail surrogate.
-                  if (utf16_traits::is_trail_surrogate(ch16Src)) {
+                  if (utf16_traits::is_trail_char(ch16Src)) {
                      ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
                      if (!utf32_traits::is_valid(ch32)) {
                         // Replace this invalid code point.
@@ -480,9 +483,6 @@ size_t transcode(
                      // Replace this invalid half surrogate.
                      ch16Src = replacement_char;
                   }
-               } else {
-                  // Replace this invalid trail surrogate.
-                  ch16Src = replacement_char;
                }
             } else {
                ch32 = ch16Src;

@@ -49,7 +49,7 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
          --i;
       } else {
          // Move backwards.
-         while (!istr::traits::is_lead_char(*--pch)) {
+         while (istr::traits::is_trail_char(*--pch)) {
             ;
          }
          ++i;

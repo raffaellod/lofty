@@ -89,7 +89,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
    while (char8_t ch = *psz++) {
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if (is_lead_char(ch)) {
+         if (!is_trail_char(ch)) {
             return false;
          }
          --cbCont;
@@ -103,7 +103,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if (!is_lead_char(ch) || uint8_t(ch) >= 0xfe) {
+         if (is_trail_char(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
@@ -128,7 +128,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
       char8_t ch(*pch);
       if (cbCont) {
          // Ensure that the lead byte is really followed by cbCont trailing bytes.
-         if (is_lead_char(ch)) {
+         if (!is_trail_char(ch)) {
             return false;
          }
          --cbCont;
@@ -142,7 +142,7 @@ uint8_t const utf8_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if (!is_lead_char(ch) || uint8_t(ch) >= 0xfe) {
+         if (is_trail_char(ch) || uint8_t(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
@@ -202,7 +202,7 @@ namespace text {
    while (char16_t ch = *psz++) {
       bool bSurrogate(is_surrogate(ch));
       if (bSurrogate) {
-         bool bTrailSurrogate(is_trail_surrogate(ch));
+         bool bTrailSurrogate(is_trail_char(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
          if (bTrailSurrogate != bExpectTailSurrogate) {
@@ -225,7 +225,7 @@ namespace text {
       char16_t ch(*pch);
       bool bSurrogate(is_surrogate(ch));
       if (bSurrogate) {
-         bool bTrailSurrogate(is_trail_surrogate(ch));
+         bool bTrailSurrogate(is_trail_char(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
          if (bTrailSurrogate != bExpectTailSurrogate) {

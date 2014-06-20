@@ -56,15 +56,15 @@ public:
    }
 
 
-   /** Returns true if the specified character is a lead character.
+   /** Returns true if the specified character is a trail (non-lead) character.
 
    ch
       UTF-8 character.
    return
-      true if ch is a lead byte, or false otherwise.
+      true if ch is a trail character, or false if it’s a lead character.
    */
-   static /*constexpr*/ bool is_lead_char(char8_t ch) {
-      return (ch & 0xc0) != 0x80;
+   static /*constexpr*/ bool is_trail_char(char8_t ch) {
+      return (ch & 0xc0) == 0x80;
    }
 
 
@@ -182,10 +182,14 @@ public:
 
 public:
 
-   /** See utf8_traits::is_lead_char(); the interpretation here is “character that is followed by
-   another character”.
+   /** Returns true if the specified character is a surrogate lead.
+
+   ch
+      UTF-16 character.
+   return
+      true if ch is a lead surrogate, or false if it’s a trail surrogate.
    */
-   static /*constexpr*/ bool is_lead_char(char16_t ch) {
+   static /*constexpr*/ bool is_lead_surrogate(char16_t ch) {
       return (ch & 0xfc00) == 0xd800;
    }
 
@@ -202,14 +206,9 @@ public:
    }
 
 
-   /** Returns true if the specified character is a surrogate trail.
-
-   ch
-      UTF-16 character.
-   return
-      true if ch is a surrogate trail, or false otherwise.
+   /** See utf8_traits::is_trail_char().
    */
-   static /*constexpr*/ bool is_trail_surrogate(char16_t ch) {
+   static /*constexpr*/ bool is_trail_char(char16_t ch) {
       return (ch & 0xfc00) == 0xdc00;
    }
 
@@ -223,7 +222,7 @@ public:
    /** See utf8_traits::lead_char_to_codepoint_size().
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char16_t ch) {
-      return is_lead_char(ch) ? 2u : 1u;
+      return is_lead_surrogate(ch) ? 2u : 1u;
    }
 
 
