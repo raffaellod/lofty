@@ -409,12 +409,27 @@ private:
    #include <type_traits>
 #endif
 
-#if ABC_HOST_MSC && ABC_HOST_MSC < 1800 && !defined(ABC_STLIMPL)
+#if ((ABC_HOST_GCC && ABC_HOST_GCC < 40700) || (ABC_HOST_MSC && ABC_HOST_MSC < 1800)) \
+   && !defined(ABC_STLIMPL)
 
 namespace std {
 
+#if !ABC_HOST_GCC
+// GCC does have a definition of std::declval, but MSC does not.
 template <typename T>
-typename std::add_rvalue_reference<T>::type declval();
+typename add_rvalue_reference<T>::type declval();
+#endif
+#if ABC_HOST_GCC
+// On the other hand, GCC lacks a definition of std::add_reference.
+template <typename T>
+struct add_reference {
+   typedef T & type;
+};
+template <typename T>
+struct add_reference<T &> {
+   typedef T & type;
+};
+#endif
 
 template <typename T, typename = void>
 struct is_copy_constructible {
@@ -423,12 +438,12 @@ private:
    static int test(T &);
    static char test(...);
 
+   typedef typename add_reference<T>::type TRef;
+
 
 public:
 
-   static bool const value = (sizeof(
-      test(declval<typename add_reference<T>::type>())
-   ) == sizeof(int));
+   static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int));
 };
 
 template <typename T>
@@ -440,7 +455,8 @@ struct is_copy_constructible<T, typename enable_if<
 
 } //namespace std
 
-#endif //if ABC_HOST_MSC && ABC_HOST_MSC < 1800 && !defined(ABC_STLIMPL)
+#endif //if ((ABC_HOST_GCC && ABC_HOST_GCC < 40700) || (ABC_HOST_MSC && ABC_HOST_MSC < 1800)
+       //   && !defined(ABC_STLIMPL)
 
 
 /** Declares an explicit conversion operator to bool.
