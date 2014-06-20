@@ -435,11 +435,11 @@ public:
    ichBegin
       Index of the first character of the substring. See abc::str_base::translate_range() for
       allowed begin index values.
-   itBegin
-      Iterator to the first character of the substring.
    ichEnd
       Index of the last character of the substring, exclusive. See abc::str_base::translate_range()
       for allowed end index values.
+   itBegin
+      Iterator to the first character of the substring.
    itEnd
       Iterator to past the end of the substring.
    return
@@ -447,9 +447,7 @@ public:
    */
    dmstr substr(intptr_t ichBegin) const;
    dmstr substr(intptr_t ichBegin, intptr_t ichEnd) const;
-   dmstr substr(intptr_t ichBegin, const_iterator itEnd) const;
    dmstr substr(const_iterator itBegin) const;
-   dmstr substr(const_iterator itBegin, intptr_t ichEnd) const;
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
 
 
@@ -1213,16 +1211,8 @@ inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
    return dmstr(range.first.base(), range.second.base());
 }
-inline dmstr str_base::substr(intptr_t ichBegin, const_iterator itEnd) const {
-   auto range(translate_range(ichBegin, itEnd - cbegin()));
-   return dmstr(range.first.base(), range.second.base());
-}
 inline dmstr str_base::substr(const_iterator itBegin) const {
    return substr(itBegin, cend());
-}
-inline dmstr str_base::substr(const_iterator itBegin, intptr_t ichEnd) const {
-   auto range(translate_range(itBegin - cbegin(), ichEnd));
-   return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    validate_pointer(itBegin.base());
