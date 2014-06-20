@@ -88,7 +88,7 @@ str_base::c_str_pointer str_base::c_str() const {
 
 
 /*static*/ char_t * str_base::codepoint_to_chars(
-   char32_t cp, char_t (& achDst)[traits::max_codepoint_length]
+   char32_t cp, char_t (& achDst)[str_traits::max_codepoint_length]
 ) {
    ABC_TRACE_FUNC(cp, achDst);
 
@@ -111,7 +111,7 @@ str_base::c_str_pointer str_base::c_str() const {
    // Calculate where the sequence will end, and write each byte backwards from there.
    char8_t * pchDstCharEnd(achDst + cbSeq);
    --cbSeq;
-   char8_t iSeqIndicator(traits::cont_length_to_seq_indicator(cbSeq));
+   char8_t iSeqIndicator(char_traits::cont_length_to_seq_indicator(cbSeq));
    char8_t * pchDst(pchDstCharEnd);
    while (cbSeq--) {
       // Each trailing byte uses 6 bits.
@@ -260,7 +260,7 @@ bool str_base::starts_with(istr const & s) const {
       return pchHaystackEnd;
    } else {
       // The needle is two or more characters, so take the slower approach.
-      char_t achNeedle[traits::max_codepoint_length];
+      char_t achNeedle[str_traits::max_codepoint_length];
       codepoint_to_chars(chNeedle, achNeedle);
       return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
@@ -274,7 +274,7 @@ bool str_base::starts_with(istr const & s) const {
    char8_t chNeedleLead(*pchNeedle);
    for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
       char8_t ch(*pch);
-      unsigned cbCp(traits::lead_char_to_codepoint_size(ch));
+      unsigned cbCp(char_traits::lead_char_to_codepoint_size(ch));
       // Make the next iteration resume from the next code point.
       pchNext = pch + cbCp;
       if (ch == chNeedleLead) {
@@ -297,7 +297,7 @@ bool str_base::starts_with(istr const & s) const {
    char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a lead surrogate. Using NUL as a special value
    // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1(traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : U16CL('\0'));
+   char16_t chNeedle1(char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : U16CL('\0'));
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
    for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
@@ -326,7 +326,7 @@ bool str_base::starts_with(istr const & s) const {
    } else {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
-      char_t achNeedle[traits::max_codepoint_length];
+      char_t achNeedle[str_traits::max_codepoint_length];
       return str_str_r(
          pchHaystackBegin, pchHaystackEnd, achNeedle, codepoint_to_chars(chNeedle, achNeedle)
       );
@@ -350,7 +350,8 @@ bool str_base::starts_with(istr const & s) const {
       // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
       // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bIsSurrogate1(traits::is_surrogate(ch1)), bIsSurrogate2(traits::is_surrogate(ch2));
+      bool bIsSurrogate1(char_traits::is_surrogate(ch1));
+      bool bIsSurrogate2(char_traits::is_surrogate(ch2));
       if (bIsSurrogate1 != bIsSurrogate2) {
          if (bIsSurrogate1) {
             // If ch1 is a surrogate and ch2 is not, ch1 > ch2.

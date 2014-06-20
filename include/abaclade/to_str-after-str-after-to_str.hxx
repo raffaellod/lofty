@@ -81,8 +81,8 @@ public:
    void write(c_str_to_str_adapter const & cs, io::text::writer * ptwOut) {
       // TODO: FIXME: for MSC16, char * is not UTF-8.
       _str_to_str_backend::write(
-         cs.m_psz, sizeof(char) * text::utf8_traits::size_in_chars(cs.m_psz), text::encoding::utf8,
-         ptwOut
+         cs.m_psz, sizeof(char) * text::utf8_str_traits::size_in_chars(cs.m_psz),
+         text::encoding::utf8, ptwOut
       );
    }
 };

@@ -240,21 +240,21 @@ encoding guess_encoding(
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
          // here.
          if (cbUtf8Cont) {
-            if (!utf8_traits::is_trail_char(char8_t(b))) {
+            if (!utf8_char_traits::is_trail_char(char8_t(b))) {
                // This byte should be part of a sequence, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
                --cbUtf8Cont;
             }
          } else {
-            if (utf8_traits::is_trail_char(char8_t(b))) {
+            if (utf8_char_traits::is_trail_char(char8_t(b))) {
                // This byte should be a lead byte, but it’s not.
                fess &= ~unsigned(ESS_UTF8);
             } else {
-               cbUtf8Cont = utf8_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
+               cbUtf8Cont = utf8_char_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
                if ((b & 0x80) && cbUtf8Cont == 0) {
-                  // By utf8_traits::lead_char_to_codepoint_size(), a non-ASCII byte that doesn’t
-                  // have a continuation is an invalid one.
+                  // By utf8_char_traits::lead_char_to_codepoint_size(), a non-ASCII byte that
+                  // doesn’t have a continuation is an invalid one.
                   fess &= ~unsigned(ESS_UTF8);
                }
             }
@@ -417,18 +417,18 @@ size_t transcode(
                goto break_for;
             }
             char8_t ch8Src(char8_t(*pbSrc++));
-            if (!utf8_traits::is_trail_char(ch8Src)) {
-               unsigned cbCont(utf8_traits::lead_char_to_codepoint_size(ch8Src) - 1);
+            if (!utf8_char_traits::is_trail_char(ch8Src)) {
+               unsigned cbCont(utf8_char_traits::lead_char_to_codepoint_size(ch8Src) - 1);
                // Ensure that we still have enough characters.
                if (pbSrc + cbCont > pbSrcEnd) {
                   goto break_for;
                }
                // Convert the first byte to an UTF-32 character.
-               ch32 = utf8_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
+               ch32 = utf8_char_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
                // Shift in any continuation bytes.
                for (; cbCont; --cbCont) {
                   ch8Src = char8_t(*pbSrc++);
-                  if (!utf8_traits::is_trail_char(ch8Src)) {
+                  if (!utf8_char_traits::is_trail_char(ch8Src)) {
                      // The sequence ended prematurely, and this byte is not part of it.
                      --pbSrc;
                      break;
@@ -457,8 +457,8 @@ size_t transcode(
             if (encSrc != encoding::utf16_host) {
                ch16Src = byteorder::swap(ch16Src);
             }
-            if (utf16_traits::is_surrogate(ch16Src)) {
-               if (utf16_traits::is_trail_char(ch16Src)) {
+            if (utf16_char_traits::is_surrogate(ch16Src)) {
+               if (utf16_char_traits::is_trail_char(ch16Src)) {
                   // Replace this invalid trail surrogate.
                   ch16Src = replacement_char;
                } else {
@@ -473,7 +473,7 @@ size_t transcode(
                      ch16Src = byteorder::swap(ch16Src);
                   }
                   // This character must be a trail surrogate.
-                  if (utf16_traits::is_trail_char(ch16Src)) {
+                  if (utf16_char_traits::is_trail_char(ch16Src)) {
                      ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
                      if (!is_codepoint_valid(ch32)) {
                         // Replace this invalid code point.
@@ -538,7 +538,8 @@ size_t transcode(
                // make up what goes in the lead byte, which is combined with the proper sequence
                // indicator.
                *pbDst++ = uint8_t(
-                  utf8_traits::cont_length_to_seq_indicator(cbCont) | char8_t(ch32 >> 6 * cbCont)
+                  utf8_char_traits::cont_length_to_seq_indicator(cbCont) |
+                     char8_t(ch32 >> 6 * cbCont)
                );
                while (cbCont--) {
                   *pbDst++ = uint8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));

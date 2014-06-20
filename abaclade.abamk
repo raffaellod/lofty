@@ -45,8 +45,9 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/stl/typeinfo.cxx"/>
       <source path="src/abaclade/str.cxx"/>
       <source path="src/abaclade/text.cxx" />
+      <source path="src/abaclade/text/char_traits.cxx"/>
       <source path="src/abaclade/text/codepoint_iterator.cxx"/>
-      <source path="src/abaclade/text/utf_traits.cxx"/>
+      <source path="src/abaclade/text/str_traits.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/trace.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
@@ -61,7 +62,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/io-text-writer-print.cxx"/>
          <source path="src/abaclade-test/str.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>
-         <source path="src/abaclade-test/utf_traits.cxx"/>
+         <source path="src/abaclade-test/str_traits.cxx"/>
          <source path="src/abaclade-test/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
       </unittest>

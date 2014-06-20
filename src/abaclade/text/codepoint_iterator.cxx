@@ -32,9 +32,9 @@ ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const 
    ABC_TRACE_FUNC(this, pch);
 
    if (m_pch >= pch) {
-      return ptrdiff_t(istr::traits::size_in_codepoints(pch, m_pch));
+      return ptrdiff_t(istr::str_traits::size_in_codepoints(pch, m_pch));
    } else {
-      return -ptrdiff_t(istr::traits::size_in_codepoints(m_pch, pch));
+      return -ptrdiff_t(istr::str_traits::size_in_codepoints(m_pch, pch));
    }
 }
 
@@ -46,11 +46,11 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
    while (i) {
       if (i >= 0) {
          // Move forward.
-         pch += istr::traits::lead_char_to_codepoint_size(*pch);
+         pch += istr::char_traits::lead_char_to_codepoint_size(*pch);
          --i;
       } else {
          // Move backwards.
-         while (istr::traits::is_trail_char(*--pch)) {
+         while (istr::char_traits::is_trail_char(*--pch)) {
             ;
          }
          ++i;

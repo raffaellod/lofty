@@ -137,8 +137,8 @@ ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm);
 total number of bytes in the source of which the buffer is the beginning.
 
 While this function can check for validity of some encodings, it does not guarantee that, for
-example, for a return value of utf8_encoding utf8_traits::is_valid() will return true for the same
-buffer.
+example, for a return value of utf8_encoding utf8_str_traits::is_valid() will return true for the
+same buffer.
 TODO: why not guarantee validity? It would help weed out more encodings with fewer bytes.
 
 pchBegin

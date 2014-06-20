@@ -727,7 +727,8 @@ class writer;
 #include <abaclade/vector.hxx>
 #include <abaclade/byteorder.hxx>
 #include <abaclade/text.hxx>
-#include <abaclade/text/utf_traits.hxx>
+#include <abaclade/text/char_traits.hxx>
+#include <abaclade/text/str_traits.hxx>
 #include <abaclade/text/codepoint_iterator.hxx>
 #ifdef ABC_STLIMPL
    #include <abaclade/stl/functional.hxx>
