@@ -200,7 +200,7 @@ encoding guess_encoding(
    // Struct to uniformize scanning for BOMs.
    static struct bomscandata_t {
       uint8_t const * pabBom;
-      unsigned short ess;
+      uint16_t ess;
       uint8_t cbBom;
    } const sc_absd[] = {
       { sc_abUtf8Bom,    ESS_UTF8_BOM,    sizeof(sc_abUtf8Bom   ) },
@@ -232,7 +232,7 @@ encoding guess_encoding(
    // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
    // exactly one guess.
    unsigned cbUtf8Cont(0);
-   size_t ib(0);
+   uintptr_t ib(0);
    for (uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
       uint8_t b(*pbBuf);
 
@@ -323,7 +323,7 @@ encoding guess_encoding(
          // Lastly, check for one or more BOMs. This needs to be last, so if it enables other
          // checks, they don’t get performed on the last BOM byte it just analyzed, which would most
          // likely cause them to fail.
-         for (size_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
+         for (uintptr_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
             unsigned essBom(sc_absd[iBsd].ess);
             if (fess & essBom) {
                if (b != sc_absd[iBsd].pabBom[ib]) {
