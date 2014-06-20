@@ -17,35 +17,50 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_HXX
-   #error Please #include <abaclade.hxx> instead of this file
-#endif
+#include <abaclade.hxx>
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::codepoint_iterator
+// abc::text::_codepoint_iterator_impl
 
 
 namespace abc {
+namespace text {
 
-template <bool t_bConst>
-class to_str_backend<codepoint_iterator<t_bConst>> :
-   public to_str_backend<typename codepoint_iterator<t_bConst>::pointer> {
-public:
+ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const {
+   ABC_TRACE_FUNC(this, pch);
 
-   /** Writes an iterator as a pointer, applying the formatting options.
-
-   it
-      Iterator to write.
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   void write(codepoint_iterator<t_bConst> const & it, io::text::writer * ptwOut) {
-      to_str_backend<typename codepoint_iterator<t_bConst>::pointer>::write(it.base(), ptwOut);
+   if (m_pch >= pch) {
+      return ptrdiff_t(istr::traits::size_in_codepoints(pch, m_pch));
+   } else {
+      return -ptrdiff_t(istr::traits::size_in_codepoints(m_pch, pch));
    }
-};
+}
 
+
+void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
+   ABC_TRACE_FUNC(this, i);
+
+   char_t const * pch(m_pch);
+   while (i) {
+      if (i >= 0) {
+         // Move forward.
+         pch += istr::traits::lead_char_to_codepoint_size(*pch);
+         --i;
+      } else {
+         // Move backwards.
+         while (istr::traits::is_trail_char(*--pch)) {
+            ;
+         }
+         ++i;
+      }
+   }
+   // Update the iterator position.
+   m_pch = pch;
+}
+
+} //namespace text
 } //namespace abc
 
 

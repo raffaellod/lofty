@@ -727,13 +727,13 @@ class writer;
 #include <abaclade/vector.hxx>
 #include <abaclade/byteorder.hxx>
 #include <abaclade/text.hxx>
-#include <abaclade/utf_traits.hxx>
+#include <abaclade/text/utf_traits.hxx>
+#include <abaclade/text/codepoint_iterator.hxx>
 #ifdef ABC_STLIMPL
    #include <abaclade/stl/functional.hxx>
 #else
    #include <functional>
 #endif
-#include <abaclade/codepoint_iterator.hxx>
 #include <abaclade/str.hxx>
 #include <abaclade/enum-after-str.hxx>
 #include <abaclade/exception-after-str.hxx>
@@ -743,7 +743,7 @@ class writer;
 #include <abaclade/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/pointer_iterator-after-to_str.hxx>
-#include <abaclade/codepoint_iterator-after-to_str.hxx>
+#include <abaclade/text/codepoint_iterator-after-to_str.hxx>
 #include <abaclade/vector-after-to_str.hxx>
 
 #include <abaclade/io.hxx>
