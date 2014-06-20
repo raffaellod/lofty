@@ -36,8 +36,8 @@ std::char_traits.
 struct ABACLADE_SYM utf8_traits {
 public:
 
-   /** Max length of a code point, in encoded characters. Technically, 6 is also possible for UTF-8,
-   due to the way bits are encoded, but it’s illegal. */
+   /** Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
+   to the way bits are encoded, but it’s illegal. */
    static unsigned const max_codepoint_length = 4;
 
 
@@ -69,8 +69,6 @@ public:
 
 
    /** Checks if a string is valid UTF.
-
-   UTF validity: checked.
 
    psz
       Pointer to the NUL-terminated character array to validate.
@@ -118,8 +116,6 @@ public:
 
    /** Returns the length, in UTF characters, of a NUL-terminated string.
 
-   UTF validity: necessary.
-
    psz
       Pointer to the NUL-terminated string of which to calculate the length.
    return
@@ -129,8 +125,6 @@ public:
 
 
    /** Returns count of code points in a string.
-
-   UTF validity: necessary.
 
    pchBegin
       Pointer to the beginning of the string.
@@ -176,7 +170,7 @@ std::char_traits.
 struct ABACLADE_SYM utf16_traits {
 public:
 
-   /** See utf8_traits::max_codepoint_length. */
+   /** Max length of a code point, in UTF-16 characters. */
    static unsigned const max_codepoint_length = 2;
 
 
