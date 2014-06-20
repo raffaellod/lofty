@@ -198,29 +198,29 @@ namespace text {
 /*static*/ bool utf16_traits::is_valid(char16_t const * psz) {
    ABC_TRACE_FUNC(psz);
 
-   bool bExpectTailSurrogate(false);
+   bool bExpectTrailSurrogate(false);
    while (char16_t ch = *psz++) {
       bool bSurrogate(is_surrogate(ch));
       if (bSurrogate) {
          bool bTrailSurrogate(is_trail_char(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
-         if (bTrailSurrogate != bExpectTailSurrogate) {
+         if (bTrailSurrogate != bExpectTrailSurrogate) {
             return false;
          }
-         bExpectTailSurrogate = !bTrailSurrogate;
-      } else if (bExpectTailSurrogate) {
+         bExpectTrailSurrogate = !bTrailSurrogate;
+      } else if (bExpectTrailSurrogate) {
          // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
       }
    }
    // Cannot end in the middle of a surrogate.
-   return !bExpectTailSurrogate;
+   return !bExpectTrailSurrogate;
 }
 /*static*/ bool utf16_traits::is_valid(char16_t const * pchBegin, char16_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   bool bExpectTailSurrogate(false);
+   bool bExpectTrailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       char16_t ch(*pch);
       bool bSurrogate(is_surrogate(ch));
@@ -228,17 +228,17 @@ namespace text {
          bool bTrailSurrogate(is_trail_char(ch));
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
-         if (bTrailSurrogate != bExpectTailSurrogate) {
+         if (bTrailSurrogate != bExpectTrailSurrogate) {
             return false;
          }
-         bExpectTailSurrogate = !bTrailSurrogate;
-      } else if (bExpectTailSurrogate) {
+         bExpectTrailSurrogate = !bTrailSurrogate;
+      } else if (bExpectTrailSurrogate) {
          // We were expecting a trail surrogate, but this is not a surrogate at all.
          return false;
       }
    }
    // Cannot end in the middle of a surrogate.
-   return !bExpectTailSurrogate;
+   return !bExpectTrailSurrogate;
 }
 
 
