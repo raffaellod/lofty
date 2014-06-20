@@ -295,10 +295,10 @@ encoding guess_encoding(
          // UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
          // well as other restrictions.
          uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
-         if ((fess & ESS_UTF32LE) && !utf32_traits::is_valid(byteorder::le_to_host(ch))) {
+         if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byteorder::le_to_host(ch))) {
             fess &= ~unsigned(ESS_UTF32LE);
          }
-         if ((fess & ESS_UTF32BE) && !utf32_traits::is_valid(byteorder::be_to_host(ch))) {
+         if ((fess & ESS_UTF32BE) && !is_codepoint_valid(byteorder::be_to_host(ch))) {
             fess &= ~unsigned(ESS_UTF32BE);
          }
       }
@@ -435,7 +435,7 @@ size_t transcode(
                   }
                   ch32 = (ch32 << 6) | (ch8Src & 0x3f);
                }
-               if (cbCont || !utf32_traits::is_valid(ch32)) {
+               if (cbCont || !is_codepoint_valid(ch32)) {
                   // Couldn’t read the whole code point or the result is not valid UTF-32: replace
                   // this invalid code point.
                   ch32 = replacement_char;
@@ -475,7 +475,7 @@ size_t transcode(
                   // This character must be a trail surrogate.
                   if (utf16_traits::is_trail_char(ch16Src)) {
                      ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
-                     if (!utf32_traits::is_valid(ch32)) {
+                     if (!is_codepoint_valid(ch32)) {
                         // Replace this invalid code point.
                         ch16Src = replacement_char;
                      }

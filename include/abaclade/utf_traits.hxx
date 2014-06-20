@@ -241,28 +241,4 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf32_traits
-
-
-namespace abc {
-namespace text {
-
-/** UTF-32 character traits (constants and functions). Note that this class is not modeled after
-std::char_traits.
-*/
-struct ABACLADE_SYM utf32_traits {
-public:
-
-   /** See utf8_traits::is_valid(). With overload for single characters.
-   */
-   static /*constexpr*/ bool is_valid(char32_t ch) {
-      return ch < 0x00dc80 || (ch > 0x00dcff && ch <= 0x10ffff);
-   }
-};
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -170,6 +170,20 @@ return
 ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
 
 
+/** Checks if a UTF-32 character is a valid Unicode code point, which means that its ordinal value
+must be included in the interval [0, U+10FFFF] (see Unicode Standard 6.2 § 2.4 “Code Points and
+Characters”).
+
+ch
+   UTF-32 character to validate.
+return
+   true if the character is a valid code point, or false otherwise.
+*/
+inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
+   return ch <= 0x10ffff;
+}
+
+
 /** Converts from one character encoding to another. All pointed-by variables are updated to discard
 the bytes used in the conversion; the number of bytes written is returned.
 
