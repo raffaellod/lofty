@@ -1212,7 +1212,8 @@ inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    return dmstr(range.first.base(), range.second.base());
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
-   return substr(itBegin, cend());
+   validate_pointer(itBegin.base());
+   return dmstr(itBegin.base(), chars_end());
 }
 inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
    validate_pointer(itBegin.base());
