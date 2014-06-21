@@ -140,6 +140,21 @@ class ABACLADE_SYM host_str_traits :
 #endif
 public:
 
+   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
+   [DOC:1502 KMP substring search] for how this is built and used.
+
+   pchNeedleBegin
+      Pointer to the beginning of the search string.
+   pchNeedleEnd
+      Pointer beyond the end of the search string.
+   pvcchFailNext
+      Pointer to a vector that will receive the failure restart indices.
+   */
+   static void _build_find_failure_restart_table(
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+   );
+
+
    /** Compares two strings.
 
    pch1Begin
@@ -159,6 +174,26 @@ public:
    static int compare(
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
+   );
+
+
+   /** Returns the character index of the first occurrence of a string into another.
+
+   pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   pchNeedleBegin
+      Pointer to the first character of the string to search for.
+   pchNeedleEnd
+      Pointer to beyond the last character of the string to search for.
+   return
+      Pointer to the beginning of the first match, in the string to be searched, of the string to
+      search for, or nullptr if no matches are found.
+   */
+   static char_t const * find_substr(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
 };
 
