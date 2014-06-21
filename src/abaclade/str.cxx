@@ -60,7 +60,7 @@ void _str_to_str_backend::write(
 
 namespace abc {
 
-char_t const str_base::smc_chNUL(CL('\0'));
+char_t const str_base::smc_chNul(CL('\0'));
 
 
 str_base::c_str_pointer str_base::c_str() const {
@@ -82,7 +82,7 @@ str_base::c_str_pointer str_base::c_str() const {
       return std::move(psz);
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return c_str_pointer(&smc_chNUL, c_str_pointer::deleter_type(false));
+      return c_str_pointer(&smc_chNul, c_str_pointer::deleter_type(false));
    }
 }
 

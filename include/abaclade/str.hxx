@@ -539,7 +539,7 @@ protected:
 protected:
 
    /** Single NUL terminator. */
-   static char_t const smc_chNUL;
+   static char_t const smc_chNul;
 };
 
 } //namespace abc
