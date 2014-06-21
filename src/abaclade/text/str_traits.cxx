@@ -298,8 +298,8 @@ namespace text {
       // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
       // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bIsSurrogate1(text::host_char_traits::is_surrogate(ch1));
-      bool bIsSurrogate2(text::host_char_traits::is_surrogate(ch2));
+      bool bIsSurrogate1(host_char_traits::is_surrogate(ch1));
+      bool bIsSurrogate2(host_char_traits::is_surrogate(ch2));
       if (bIsSurrogate1 != bIsSurrogate2) {
          if (bIsSurrogate1) {
             // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
@@ -334,7 +334,7 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
+   if (chNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
       for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
          if (*pch == static_cast<char_t>(chNeedle)) {
@@ -344,8 +344,8 @@ namespace text {
       return pchHaystackEnd;
    } else {
       // The needle is two or more characters, so take the slower approach.
-      char_t achNeedle[text::host_char_traits::max_codepoint_length];
-      text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle);
+      char_t achNeedle[host_char_traits::max_codepoint_length];
+      host_char_traits::codepoint_to_chars(chNeedle, achNeedle);
       return find_char(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
@@ -358,7 +358,7 @@ namespace text {
    char8_t chNeedleLead(*pchNeedle);
    for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
       char8_t ch(*pch);
-      unsigned cbCp(text::host_char_traits::lead_char_to_codepoint_size(ch));
+      unsigned cbCp(host_char_traits::lead_char_to_codepoint_size(ch));
       // Make the next iteration resume from the next code point.
       pchNext = pch + cbCp;
       if (ch == chNeedleLead) {
@@ -381,9 +381,7 @@ namespace text {
    char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a lead surrogate. Using NUL as a special value
    // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1(
-      text::host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : U16CL('\0')
-   );
+   char16_t chNeedle1(host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : U16CL('\0'));
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
    for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
@@ -401,7 +399,7 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
+   if (chNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
       for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
          if (*--pch == static_cast<char_t>(chNeedle)) {
@@ -412,10 +410,10 @@ namespace text {
    } else {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
-      char_t achNeedle[text::host_char_traits::max_codepoint_length];
-      return text::host_str_traits::find_substr_last(
+      char_t achNeedle[host_char_traits::max_codepoint_length];
+      return find_substr_last(
          pchHaystackBegin, pchHaystackEnd,
-         achNeedle, text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
+         achNeedle, host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
       );
    }
 }
@@ -427,7 +425,7 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
 
-   if (!(pchNeedleEnd - pchNeedleBegin)) {
+   if (pchNeedleBegin == pchNeedleEnd) {
       // No needle, so just return the beginning of the haystack.
       return pchHaystackBegin;
    }
