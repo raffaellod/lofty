@@ -79,11 +79,9 @@ public:
       Pointer to the writer to output to.
    */
    void write(c_str_to_str_adapter const & cs, io::text::writer * ptwOut) {
-      // TODO: FIXME: for MSC16, char * is not UTF-8.
-      _str_to_str_backend::write(
-         cs.m_psz, sizeof(char) * text::utf8_str_traits::size_in_chars(cs.m_psz),
-         text::encoding::utf8, ptwOut
-      );
+      size_t cch(text::utf8_str_traits::size_in_chars(cs.m_psz));
+      text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
+      _str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
    }
 };
 
