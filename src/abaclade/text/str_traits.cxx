@@ -405,6 +405,17 @@ namespace text {
    return pchHaystackEnd;
 }
 
+
+/*static*/ char_t const * host_str_traits::find_substr_last(
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
+   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
+) {
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
+
+   // TODO: implement this!
+   return pchHaystackEnd;
+}
+
 } //namespace text
 } //namespace abc
 

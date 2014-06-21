@@ -180,7 +180,7 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(str_str_r(
+   char_t const * pch(text::host_str_traits::find_substr_last(
       chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
    ));
    return const_iterator(pch ? pch : chars_end());
@@ -281,22 +281,11 @@ bool str_base::starts_with(istr const & s) const {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
       char_t achNeedle[text::host_char_traits::max_codepoint_length];
-      return str_str_r(
+      return text::host_str_traits::find_substr_last(
          pchHaystackBegin, pchHaystackEnd,
          achNeedle, text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
       );
    }
-}
-
-
-/*static*/ char_t const * str_base::str_str_r(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
-   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedleBegin, pchNeedleEnd);
-
-   // TODO: implement this!
-   return pchHaystackEnd;
 }
 
 

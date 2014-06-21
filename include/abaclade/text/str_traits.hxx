@@ -195,6 +195,26 @@ public:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
+
+
+   /** Returns the character index of the last occurrence of a string into another.
+
+   pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   pchNeedleBegin
+      Pointer to the first character of the string to search for.
+   pchNeedleEnd
+      Pointer to beyond the last character of the string to search for.
+   return
+      Pointer to the beginning of the last match, in the string to be searched, of the string to
+      search for, or nullptr if no matches are found.
+   */
+   static char_t const * find_substr_last(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
+   );
 };
 
 } //namespace text
