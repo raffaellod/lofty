@@ -72,7 +72,7 @@ namespace abc {
    /** Character literal. \
    */ \
    template <> \
-   class ABACLADE_SYM to_str_backend<C> : \
+   class to_str_backend<C> : \
       public _str_to_str_backend { \
    public: \
    \
