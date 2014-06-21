@@ -135,24 +135,6 @@ uint8_t const utf8_str_traits::smc_aiOverlongDetectionMasks[] = {
    return size_t(pch - psz);
 }
 
-
-/*static*/ size_t utf8_str_traits::size_in_codepoints(
-   char8_t const * pchBegin, char8_t const * pchEnd
-) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   // Count a single code point for each lead byte, skipping over trailing bytes.
-   for (
-      char8_t const * pch(pchBegin);
-      pch < pchEnd;
-      pch += utf8_char_traits::lead_char_to_codepoint_size(*pch)
-   ) {
-      ++ccp;
-   }
-   return ccp;
-}
-
 } //namespace text
 } //namespace abc
 
@@ -219,23 +201,6 @@ namespace text {
       ++pch;
    }
    return size_t(pch - psz);
-}
-
-
-/*static*/ size_t utf16_str_traits::size_in_codepoints(
-   char16_t const * pchBegin, char16_t const * pchEnd
-) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd);
-
-   size_t ccp(0);
-   for (
-      char16_t const * pch(pchBegin);
-      pch < pchEnd;
-      pch += utf16_char_traits::lead_char_to_codepoint_size(*pch)
-   ) {
-      ++ccp;
-   }
-   return ccp;
 }
 
 } //namespace text
@@ -504,6 +469,23 @@ namespace text {
 
    // TODO: implement this!
    return pchHaystackEnd;
+}
+
+
+/*static*/ size_t host_str_traits::size_in_codepoints(
+   char_t const * pchBegin, char_t const * pchEnd
+) {
+   ABC_TRACE_FUNC(pchBegin, pchEnd);
+
+   size_t ccp(0);
+   for (
+      char_t const * pch(pchBegin);
+      pch < pchEnd;
+      pch += host_char_traits::lead_char_to_codepoint_size(*pch)
+   ) {
+      ++ccp;
+   }
+   return ccp;
 }
 
 } //namespace text

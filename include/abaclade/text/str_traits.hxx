@@ -61,18 +61,6 @@ public:
    static size_t size_in_chars(char8_t const * psz);
 
 
-   /** Returns count of code points in a string.
-
-   pchBegin
-      Pointer to the beginning of the string.
-   pchEnd
-      Pointer beyond the end of the string.
-   return
-      Count of code points included in the string.
-   */
-   static size_t size_in_codepoints(char8_t const * pchBegin, char8_t const * pchEnd);
-
-
 private:
 
    /** Bitmasks to be applied to the first trailing byte to check if a code point is using an
@@ -111,11 +99,6 @@ public:
    /** See utf8_str_traits::size_in_chars().
    */
    static size_t size_in_chars(char16_t const * psz);
-
-
-   /** See utf8_str_traits::size_in_codepoints().
-   */
-   static size_t size_in_codepoints(char16_t const * pchBegin, char16_t const * pchEnd);
 };
 
 } //namespace text
@@ -258,6 +241,18 @@ public:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
+
+
+   /** Returns count of code points in a string.
+
+   pchBegin
+      Pointer to the beginning of the string.
+   pchEnd
+      Pointer beyond the end of the string.
+   return
+      Count of code points included in the string.
+   */
+   static size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
 };
 
 } //namespace text
