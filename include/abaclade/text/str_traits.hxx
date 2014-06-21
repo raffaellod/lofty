@@ -30,10 +30,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-/** UTF-8 character traits (constants and functions). Note that this class is not modeled after
+/** UTF-8 string traits (constants and functions). Note that this class is not modeled after
 std::char_traits.
 */
-struct ABACLADE_SYM utf8_str_traits {
+class ABACLADE_SYM utf8_str_traits {
 public:
 
    /** Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
@@ -103,10 +103,10 @@ private:
 namespace abc {
 namespace text {
 
-/** UTF-16 character traits (constants and functions). Note that this class is not modeled after
+/** UTF-16 string traits (constants and functions). Note that this class is not modeled after
 std::char_traits.
 */
-struct ABACLADE_SYM utf16_str_traits {
+class ABACLADE_SYM utf16_str_traits {
 public:
 
    /** Max length of a code point, in UTF-16 characters. */
@@ -129,6 +129,27 @@ public:
    /** See utf8_str_traits::size_in_codepoints().
    */
    static size_t size_in_codepoints(char16_t const * pchBegin, char16_t const * pchEnd);
+};
+
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::host_str_traits
+
+
+namespace abc {
+namespace text {
+
+/** String traits for host string types (including abc::*str). Alias for either utf8_str_traits or
+utf16_str_traits. */
+class ABACLADE_SYM host_str_traits :
+#if ABC_HOST_UTF == 8
+   public utf8_str_traits {
+#elif ABC_HOST_UTF == 16
+   public utf16_str_traits {
+#endif
 };
 
 } //namespace text

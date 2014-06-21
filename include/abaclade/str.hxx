@@ -71,12 +71,6 @@ public:
 #elif ABC_HOST_UTF == 16
    typedef text::utf16_char_traits char_traits;
 #endif
-   /** String traits. Note that only UTF-8 and UTF-16 are supported as string encodings. */
-#if ABC_HOST_UTF == 8
-   typedef text::utf8_str_traits str_traits;
-#elif ABC_HOST_UTF == 16
-   typedef text::utf16_str_traits str_traits;
-#endif
 
 
 public:
@@ -199,7 +193,7 @@ public:
       Pointer to the character beyond the last one used in achDst.
    */
    static char_t * codepoint_to_chars(
-      char32_t cp, char_t (& achDst)[str_traits::max_codepoint_length]
+      char32_t cp, char_t (& achDst)[text::host_str_traits::max_codepoint_length]
    );
 
 
@@ -424,7 +418,7 @@ public:
       Size of the string.
    */
    size_t size_in_codepoints() const {
-      return str_traits::size_in_codepoints(chars_begin(), chars_end());
+      return text::host_str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
 
@@ -798,7 +792,7 @@ public:
       assign_copy(pchBegin, pchEnd);
    }
    istr(unsafe_t, char_t const * psz) :
-      str_base(psz, str_traits::size_in_chars(psz), true) {
+      str_base(psz, text::host_str_traits::size_in_chars(psz), true) {
    }
    istr(unsafe_t, char_t const * psz, size_t cch) :
       str_base(psz, cch, false) {
@@ -906,7 +900,7 @@ public:
       *this.
    */
    mstr & operator+=(char32_t ch) {
-      char_t ach[str_traits::max_codepoint_length];
+      char_t ach[text::host_str_traits::max_codepoint_length];
       append(ach, size_t(codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
@@ -1268,13 +1262,13 @@ inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
 }
 // Overloads taking a character literal.
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
-   abc::char_t achR[abc::istr::str_traits::max_codepoint_length];
+   abc::char_t achR[abc::text::host_str_traits::max_codepoint_length];
    return abc::dmstr(
       sL.chars_begin(), sL.chars_end(), achR, abc::istr::codepoint_to_chars(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
-   abc::char_t achL[abc::istr::str_traits::max_codepoint_length];
+   abc::char_t achL[abc::text::host_str_traits::max_codepoint_length];
    return abc::dmstr(
       achL, abc::istr::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
    );

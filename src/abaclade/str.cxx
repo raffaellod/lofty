@@ -88,7 +88,7 @@ str_base::c_str_pointer str_base::c_str() const {
 
 
 /*static*/ char_t * str_base::codepoint_to_chars(
-   char32_t cp, char_t (& achDst)[str_traits::max_codepoint_length]
+   char32_t cp, char_t (& achDst)[text::host_str_traits::max_codepoint_length]
 ) {
    ABC_TRACE_FUNC(cp, achDst);
 
@@ -260,7 +260,7 @@ bool str_base::starts_with(istr const & s) const {
       return pchHaystackEnd;
    } else {
       // The needle is two or more characters, so take the slower approach.
-      char_t achNeedle[str_traits::max_codepoint_length];
+      char_t achNeedle[text::host_str_traits::max_codepoint_length];
       codepoint_to_chars(chNeedle, achNeedle);
       return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
@@ -326,7 +326,7 @@ bool str_base::starts_with(istr const & s) const {
    } else {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.
-      char_t achNeedle[str_traits::max_codepoint_length];
+      char_t achNeedle[text::host_str_traits::max_codepoint_length];
       return str_str_r(
          pchHaystackBegin, pchHaystackEnd, achNeedle, codepoint_to_chars(chNeedle, achNeedle)
       );
