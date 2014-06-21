@@ -492,11 +492,6 @@ protected:
    }
 
 
-protected:
-
-   // Lower-level helpers used internally by several methods.
-
-
    /** Converts a possibly negative character index into an iterator, throwing an exception if the
    result is out of bounds for the character array.
 
