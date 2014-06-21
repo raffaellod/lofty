@@ -142,8 +142,9 @@ public:
 namespace abc {
 namespace text {
 
-/** String traits for host string types (including abc::*str). Alias for either utf8_str_traits or
-utf16_str_traits. */
+/** String traits for host string types (including abc::*str). Derives from either utf8_str_traits
+or utf16_str_traits.
+*/
 class ABACLADE_SYM host_str_traits :
 #if ABC_HOST_UTF == 8
    public utf8_str_traits {

@@ -161,4 +161,26 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::host_char_traits
+
+
+namespace abc {
+namespace text {
+
+/** String traits for the host character type, abc::char_t. Derives from either utf8_char_traits or
+utf16_char_traits.
+*/
+class ABACLADE_SYM host_char_traits :
+#if ABC_HOST_UTF == 8
+   public utf8_char_traits {
+#elif ABC_HOST_UTF == 16
+   public utf16_char_traits {
+#endif
+};
+
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 

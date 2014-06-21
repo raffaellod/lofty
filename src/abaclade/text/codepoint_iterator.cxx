@@ -46,11 +46,11 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
    while (i) {
       if (i >= 0) {
          // Move forward.
-         pch += istr::char_traits::lead_char_to_codepoint_size(*pch);
+         pch += host_char_traits::lead_char_to_codepoint_size(*pch);
          --i;
       } else {
          // Move backwards.
-         while (istr::char_traits::is_trail_char(*--pch)) {
+         while (host_char_traits::is_trail_char(*--pch)) {
             ;
          }
          ++i;
