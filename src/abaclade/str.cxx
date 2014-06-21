@@ -200,7 +200,7 @@ bool str_base::starts_with(istr const & s) const {
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
+   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
       for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
          if (*pch == static_cast<char_t>(chNeedle)) {
@@ -267,7 +267,7 @@ bool str_base::starts_with(istr const & s) const {
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-   if (chNeedle <= char32_t(numeric::max<char_t>::value)) {
+   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
       for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
          if (*--pch == static_cast<char_t>(chNeedle)) {

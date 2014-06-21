@@ -39,6 +39,8 @@ public:
    /** Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
    to the way bits are encoded, but it’s illegal. */
    static unsigned const max_codepoint_length = 4;
+   /** Highest code point that can be encoded in a single UTF-8 character. */
+   static char32_t const max_single_char_codepoint = 0x7f;
 
 
 public:
@@ -139,6 +141,8 @@ public:
 
    /** Max length of a code point, in UTF-16 characters. */
    static unsigned const max_codepoint_length = 2;
+   /** Highest code point that can be encoded in a single UTF-16 character. */
+   static char32_t const max_single_char_codepoint = 0xffff;
 
 
 public:
