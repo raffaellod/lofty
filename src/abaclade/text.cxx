@@ -449,43 +449,49 @@ size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
+            // Note: this decoder could be changed to accept a single lead or trail surrogate; this
+            // however opens up for the possibility of not knowing, should we encounter a lead
+            // surrogate at the end of the buffer, whether we should consume it, or leave it alone
+            // and ask the caller to try again with more characters. By using the lead surrogate as
+            // a lone character, we may be corrupting the source by decoding lead and trail
+            // surrogates as separate characters should they be split in two separate reads; on the
+            // other hand, by refusing to decode a lead surrogate at the end of the buffer, we’d
+            // potentially cause the caller to enter an endless loop, as it may not be able to ever
+            // provide the trail surrogate we ask for.
+
             if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                goto break_for;
             }
-            char16_t ch16Src(*reinterpret_cast<char16_t const *>(pbSrc));
+            char16_t ch16Src0(*reinterpret_cast<char16_t const *>(pbSrc));
             pbSrc += sizeof(char16_t);
             if (encSrc != encoding::utf16_host) {
-               ch16Src = byteorder::swap(ch16Src);
+               ch16Src0 = byteorder::swap(ch16Src0);
             }
-            if (utf16_char_traits::is_surrogate(ch16Src)) {
-               if (utf16_char_traits::is_trail_char(ch16Src)) {
-                  // Replace this invalid trail surrogate.
-                  ch16Src = replacement_char;
-               } else {
-                  // Lead surrogate.
-                  ch32 = char32_t(ch16Src & 0x03ff) << 10;
-                  if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
-                     goto break_for;
-                  }
-                  ch16Src = *reinterpret_cast<char16_t const *>(pbSrc);
+            if (!utf16_char_traits::is_surrogate(ch16Src0)) {
+               ch32 = ch16Src0;
+            } else if (utf16_char_traits::is_lead_surrogate(ch16Src0)) {
+               // Expect to be able to read a second character, the trail surrogate.
+               if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
+                  goto break_for;
+               }
+               char16_t ch16Src1(*reinterpret_cast<char16_t const *>(pbSrc));
+               if (encSrc != encoding::utf16_host) {
+                  ch16Src1 = byteorder::swap(ch16Src1);
+               }
+               if (utf16_char_traits::is_trail_char(ch16Src1)) {
                   pbSrc += sizeof(char16_t);
-                  if (encSrc != encoding::utf16_host) {
-                     ch16Src = byteorder::swap(ch16Src);
+                  ch32 = ((char32_t(ch16Src0 & 0x03ff) << 10) | (ch16Src1 & 0x03ff)) + 0x10000;
+                  if (!is_codepoint_valid(ch32)) {
+                     // Replace this invalid code point.
+                     ch32 = replacement_char;
                   }
-                  // This character must be a trail surrogate.
-                  if (utf16_char_traits::is_trail_char(ch16Src)) {
-                     ch32 = (ch32 | (ch16Src & 0x03ff)) + 0x10000;
-                     if (!is_codepoint_valid(ch32)) {
-                        // Replace this invalid code point.
-                        ch16Src = replacement_char;
-                     }
-                  } else {
-                     // Replace this invalid half surrogate.
-                     ch16Src = replacement_char;
-                  }
+               } else {
+                  // ch16Src0 is an invalid lone lead surrogate.
+                  ch32 = replacement_char;
                }
             } else {
-               ch32 = ch16Src;
+               // ch16Src0 is an invalid lone trail surrogate.
+               ch32 = replacement_char;
             }
             break;
          }
