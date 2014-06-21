@@ -503,7 +503,11 @@ size_t transcode(
             break;
 
          case encoding::iso_8859_1:
-            // TODO: ISO-8859-1 support.
+            if (pbSrc + 1 > pbSrcEnd) {
+               goto break_for;
+            }
+            ch32 = *pbSrc;
+            ++pbSrc;
             break;
 
          case encoding::windows_1252:
@@ -596,7 +600,17 @@ size_t transcode(
             break;
 
          case encoding::iso_8859_1:
-            // TODO: ISO-8859-1 support.
+            if (pbDst + 1 > pbDstEnd) {
+               goto break_for;
+            }
+            if (bWriteDst) {
+               // Replace characters that cannot be encoded by ISO-8859-1 with question marks.
+               if (ch32 > 0x0000ff) {
+                  ch32 = 0x00003f;
+               }
+               *pbDst = uint8_t(ch32);
+            }
+            ++pbDst;
             break;
 
          case encoding::windows_1252:
