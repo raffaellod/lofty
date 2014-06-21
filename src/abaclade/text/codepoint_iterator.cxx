@@ -31,10 +31,12 @@ namespace text {
 ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
-   if (m_pch >= pch) {
+   if (m_pch > pch) {
       return ptrdiff_t(host_str_traits::size_in_codepoints(pch, m_pch));
-   } else {
+   } else if (m_pch < pch) {
       return -ptrdiff_t(host_str_traits::size_in_codepoints(m_pch, pch));
+   } else {
+      return 0;
    }
 }
 
@@ -43,17 +45,16 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
    ABC_TRACE_FUNC(this, i);
 
    char_t const * pch(m_pch);
-   while (i) {
-      if (i >= 0) {
-         // Move forward.
-         pch += host_char_traits::lead_char_to_codepoint_size(*pch);
-         --i;
-      } else {
-         // Move backwards.
-         while (host_char_traits::is_trail_char(*--pch)) {
-            ;
-         }
-         ++i;
+   // If i is positive, move forward.
+   for (; i > 0; --i) {
+      // Find the next code point start, skipping any trail characters.
+      pch += host_char_traits::lead_char_to_codepoint_size(*pch);
+   }
+   // If i is negative, move backwards.
+   for (; i < 0; ++i) {
+      // Moving to the previous code point requires finding the previous non-trail character.
+      while (host_char_traits::is_trail_char(*--pch)) {
+         ;
       }
    }
    // Update the iterator position.
