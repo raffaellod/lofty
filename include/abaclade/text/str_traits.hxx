@@ -36,13 +36,6 @@ std::char_traits.
 class ABACLADE_SYM utf8_str_traits {
 public:
 
-   /** Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
-   to the way bits are encoded, but it’s illegal. */
-   static unsigned const max_codepoint_length = 4;
-
-
-public:
-
    /** Checks if a string is valid UTF.
 
    psz
@@ -107,12 +100,6 @@ namespace text {
 std::char_traits.
 */
 class ABACLADE_SYM utf16_str_traits {
-public:
-
-   /** Max length of a code point, in UTF-16 characters. */
-   static unsigned const max_codepoint_length = 2;
-
-
 public:
 
    /** See utf8_str_traits::is_valid().

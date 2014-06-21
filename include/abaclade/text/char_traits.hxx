@@ -33,8 +33,27 @@ namespace text {
 /** UTF-8 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits.
 */
-struct ABACLADE_SYM utf8_char_traits {
+class ABACLADE_SYM utf8_char_traits {
 public:
+
+   /** Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
+   to the way bits are encoded, but it’s illegal. */
+   static unsigned const max_codepoint_length = 4;
+
+
+public:
+
+   /** Converts a code point (UTF-32 character) into a char8_t array.
+
+   cp
+      Code point to be encoded.
+   pchDstBegin
+      Start of the character array that will receive the encoded version of cp.
+   return
+      Pointer to the character beyond the last one used in *pchDstBegin.
+   */
+   static char8_t * codepoint_to_chars(char32_t cp, char8_t * pchDstBegin);
+
 
    /** Returns the sequence indicator bit mask suitable to precede a continuation of cbCont bytes.
 
@@ -115,8 +134,26 @@ namespace text {
 /** UTF-16 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits.
 */
-struct utf16_char_traits {
+class utf16_char_traits {
 public:
+
+   /** Max length of a code point, in UTF-16 characters. */
+   static unsigned const max_codepoint_length = 2;
+
+
+public:
+
+   /** Converts a code point (UTF-32 character) into a char16_t array.
+
+   cp
+      Code point to be encoded.
+   pchDstBegin
+      Start of the character array that will receive the encoded version of cp.
+   return
+      Pointer to the character beyond the last one used in *pchDstBegin.
+   */
+   static char16_t * codepoint_to_chars(char32_t cp, char16_t * pchDstBegin);
+
 
    /** Returns true if the specified character is a surrogate lead.
 
@@ -176,6 +213,27 @@ class ABACLADE_SYM host_char_traits :
 #elif ABC_HOST_UTF == 16
    public utf16_char_traits {
 #endif
+
+#if ABC_HOST_UTF == 8
+   typedef utf8_char_traits traits_base;
+#elif ABC_HOST_UTF == 16
+   typedef utf16_char_traits traits_base;
+#endif
+
+public:
+
+   /** Converts a code point (UTF-32 character) into a char_t array.
+
+   cp
+      Code point to be encoded.
+   achDst
+      Character array that will receive the encoded version of cp.
+   return
+      Pointer to the character beyond the last one used in achDst.
+   */
+   static char_t * codepoint_to_chars(char32_t cp, char_t (& achDst)[max_codepoint_length]) {
+      return traits_base::codepoint_to_chars(cp, achDst);
+   }
 };
 
 } //namespace text

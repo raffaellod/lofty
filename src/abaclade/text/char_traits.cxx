@@ -67,6 +67,68 @@ uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
    0,       2,       3,       4,       5,       6
 };
 
+
+
+/*static*/ char8_t * utf8_char_traits::codepoint_to_chars(char32_t cp, char8_t * pchDstBegin) {
+   ABC_TRACE_FUNC(cp, pchDstBegin);
+
+   // Compute the length of the UTF-8 sequence for this code point.
+   unsigned cbSeq;
+   if (cp <= 0x00007f) {
+      // Encode xxx xxxx as 0xxxxxxx.
+      cbSeq = 1;
+   } else if (cp <= 0x0007ff) {
+      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
+      cbSeq = 2;
+   } else if (cp <= 0x00ffff) {
+      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 3;
+   } else /*if (cp <= 0x10ffff)*/ {
+      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
+      cbSeq = 4;
+   }
+   // Calculate where the sequence will end, and write each byte backwards from there.
+   char8_t * pchDstEnd(pchDstBegin + cbSeq);
+   --cbSeq;
+   char8_t iSeqIndicator(text::host_char_traits::cont_length_to_seq_indicator(cbSeq));
+   char8_t * pchDst(pchDstEnd);
+   while (cbSeq--) {
+      // Each trailing byte uses 6 bits.
+      *--pchDst = char8_t(0x80 | (cp & 0x3f));
+      cp >>= 6;
+   }
+   // The remaining code point bits (after >> 6 * (cbSeq - 1)) make up what goes in the lead byte.
+   *--pchDst = iSeqIndicator | char8_t(cp);
+   return pchDstEnd;
+}
+
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::utf16_char_traits
+
+
+namespace abc {
+namespace text {
+
+/*static*/ char16_t * utf16_char_traits::codepoint_to_chars(char32_t cp, char16_t * pchDstBegin) {
+   ABC_TRACE_FUNC(cp, pchDstBegin);
+
+   char16_t * pchDst(pchDstBegin);
+   if (cp > 0x00ffff) {
+      // The code point requires two UTF-16 characters: generate a surrogate pair.
+      cp -= 0x10000;
+      *pchDst++ = char16_t(0xd800 | ((cp & 0x0ffc00) >> 10));
+      *pchDst++ = char16_t(0xdc00 |  (cp & 0x0003ff)       );
+   } else {
+      // The code point fits in a single UTF-16 character.
+      *pchDst++ = char16_t(cp);
+   }
+   return pchDst;
+}
+
 } //namespace text
 } //namespace abc
 

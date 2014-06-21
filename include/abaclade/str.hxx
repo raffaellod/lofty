@@ -177,20 +177,6 @@ public:
    }
 
 
-   /** Converts a code point (UTF-32 character) into a char_t array.
-
-   cp
-      Code point to be encoded.
-   achDst
-      Character array that will receive the encoded version of cp.
-   return
-      Pointer to the character beyond the last one used in achDst.
-   */
-   static char_t * codepoint_to_chars(
-      char32_t cp, char_t (& achDst)[text::host_str_traits::max_codepoint_length]
-   );
-
-
    /** Support for relational operators.
 
    s
@@ -894,8 +880,8 @@ public:
       *this.
    */
    mstr & operator+=(char32_t ch) {
-      char_t ach[text::host_str_traits::max_codepoint_length];
-      append(ach, size_t(codepoint_to_chars(ch, ach) - ach));
+      char_t ach[text::host_char_traits::max_codepoint_length];
+      append(ach, size_t(text::host_char_traits::codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -1256,15 +1242,17 @@ inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
 }
 // Overloads taking a character literal.
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
-   abc::char_t achR[abc::text::host_str_traits::max_codepoint_length];
+   abc::char_t achR[abc::text::host_char_traits::max_codepoint_length];
    return abc::dmstr(
-      sL.chars_begin(), sL.chars_end(), achR, abc::istr::codepoint_to_chars(chR, achR)
+      sL.chars_begin(), sL.chars_end(),
+      achR, abc::text::host_char_traits::codepoint_to_chars(chR, achR)
    );
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
-   abc::char_t achL[abc::text::host_str_traits::max_codepoint_length];
+   abc::char_t achL[abc::text::host_char_traits::max_codepoint_length];
    return abc::dmstr(
-      achL, abc::istr::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
+      achL, abc::text::host_char_traits::codepoint_to_chars(chL, achL),
+      sR.chars_begin(), sR.chars_end()
    );
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
