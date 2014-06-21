@@ -141,7 +141,7 @@ encoding guess_encoding(
 ) {
    ABC_TRACE_FUNC(pBufBegin, pBufEnd, cbSrcTotal, pcbBom);
 
-   uint8_t const * pbBufBegin(static_cast<uint8_t const *>(pBufEnd));
+   uint8_t const * pbBufBegin(static_cast<uint8_t const *>(pBufBegin));
    uint8_t const * pbBufEnd(static_cast<uint8_t const *>(pBufEnd));
    // If the total size is not specified, assume that the buffer is the whole source.
    if (!cbSrcTotal) {
@@ -401,7 +401,7 @@ size_t transcode(
    // *pcbDstMax; otherwise we’ll also perform the actual transcoding.
    bool bWriteDst(ppDst != nullptr);
    uint8_t const * pbSrc(static_cast<uint8_t const *>(*ppSrc));
-   uint8_t       * pbDst(bWriteDst ? static_cast<uint8_t       *>(*ppDst) : nullptr);
+   uint8_t       * pbDst(bWriteDst ? static_cast<uint8_t *>(*ppDst) : nullptr);
    uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
    uint8_t const * pbDstEnd(pbDst + *pcbDstMax);
 
