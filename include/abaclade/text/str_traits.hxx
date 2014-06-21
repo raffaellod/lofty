@@ -138,6 +138,28 @@ class ABACLADE_SYM host_str_traits :
 #elif ABC_HOST_UTF == 16
    public utf16_str_traits {
 #endif
+public:
+
+   /** Compares two strings.
+
+   pch1Begin
+      Pointer to the first character of the first string to compare.
+   pch1End
+      Pointer to beyond the last character of the string to compare.
+   pch2Begin
+      Pointer to the first character of the second string to compare.
+   pch2End
+      Pointer to beyond the last character of the second string to compare.
+   return
+      Standard comparison result integer:
+      •  > 0 if string 1 > string 2;
+      •    0 if string 1 == string 2;
+      •  < 0 if string 1 < string 2.
+   */
+   static int compare(
+      char_t const * pch1Begin, char_t const * pch1End,
+      char_t const * pch2Begin, char_t const * pch2End
+   );
 };
 
 } //namespace text

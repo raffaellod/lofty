@@ -143,7 +143,7 @@ bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchStart(chars_end() - s.size_in_chars());
-   return pchStart >= chars_begin() && str_cmp(
+   return pchStart >= chars_begin() && text::host_str_traits::compare(
       pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
 }
@@ -189,7 +189,7 @@ bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchEnd(chars_begin() + s.size_in_chars());
-   return pchEnd <= chars_end() && str_cmp(
+   return pchEnd <= chars_end() && text::host_str_traits::compare(
       chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
 }
@@ -283,53 +283,6 @@ bool str_base::starts_with(istr const & s) const {
          pchHaystackBegin, pchHaystackEnd,
          achNeedle, text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
       );
-   }
-}
-
-
-/*static*/ int str_base::str_cmp(
-   char_t const * pch1Begin, char_t const * pch1End,
-   char_t const * pch2Begin, char_t const * pch2End
-) {
-   ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
-
-   char_t const * pch1(pch1Begin), * pch2(pch2Begin);
-   while (pch1 < pch1End && pch2 < pch2End) {
-      char_t ch1(*pch1++), ch2(*pch2++);
-#if ABC_HOST_UTF == 8
-      // Note: not only don’t sequences matter when scanning for the first differing bytes, but once
-      // a pair of differing bytes is found, if they are part of a sequence, its start must have
-      // been the same, so only their absolute value matters; if they started a sequence, the first
-      // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
-#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-      // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bIsSurrogate1(text::host_char_traits::is_surrogate(ch1));
-      bool bIsSurrogate2(text::host_char_traits::is_surrogate(ch2));
-      if (bIsSurrogate1 != bIsSurrogate2) {
-         if (bIsSurrogate1) {
-            // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
-            return +1;
-         } else /*if (bIsSurrogate2)*/ {
-            // If ch2 is a surrogate and ch1 is not, ch1 < ch2.
-            return -1;
-         }
-      }
-      // The characters are both regular or surrogates. Since a difference in lead surrogate
-      // generates bias, we only get to compare trails if the leads were equal.
-#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
-      if (ch1 > ch2) {
-         return +1;
-      } else if (ch1 < ch2) {
-         return -1;
-      }
-   }
-   // If we’re still here, the string that didn’t run out of characters wins.
-   if (pch1 < pch1End) {
-      return +1;
-   } else if (pch2 < pch2End) {
-      return -1;
-   } else {
-      return 0;
    }
 }
 

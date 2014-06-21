@@ -208,21 +208,6 @@ public:
    file_path base_name() const;
 
 
-   /** Support for relational operators.
-
-   s
-      String to compare to.
-   return
-      Standard comparison result integer:
-      •  > 0 if *this > s;
-      •    0 if *this == s;
-      •  < 0 if *this < s.
-   */
-   int compare_to(istr const & s) const {
-      return m_s.compare_to(s);
-   }
-
-
    /** Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
 
    return
@@ -442,7 +427,7 @@ private:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    inline bool operator op(abc::file_path const & fp1, abc::file_path const & fp2) { \
-      return fp1.compare_to(fp2) op 0; \
+      return static_cast<abc::istr const &>(fp1) op static_cast<abc::istr const &>(fp2); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)

@@ -177,19 +177,6 @@ public:
    }
 
 
-   /** Support for relational operators.
-
-   s
-      String to compare to.
-   return
-      Standard comparison result integer:
-      •  > 0 if *this > argument;
-      •    0 if *this == argument;
-      •  < 0 if *this < argument.
-   */
-   int compare_to(istr const & s) const;
-
-
    /** Returns a const reverse iterator set to the last element.
 
    return
@@ -553,28 +540,6 @@ protected:
    );
 
 
-   /** Compares two UTF strings.
-
-   pch1Begin
-      Pointer to the first character of the first string to compare.
-   pch1End
-      Pointer to beyond the last character of the string to compare.
-   pch2Begin
-      Pointer to the first character of the second string to compare.
-   pch2End
-      Pointer to beyond the last character of the second string to compare.
-   return
-      Standard comparison result integer:
-      •  > 0 if string 1 > string 2;
-      •    0 if string 1 == string 2;
-      •  < 0 if string 1 < string 2.
-   */
-   static int str_cmp(
-      char_t const * pch1Begin, char_t const * pch1End,
-      char_t const * pch2Begin, char_t const * pch2End
-   );
-
-
    /** Returns the character index of the first occurrence of a string into another.
 
    pchHaystackBegin
@@ -686,15 +651,23 @@ protected:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    inline bool operator op(abc::str_base const & s1, abc::str_base const & s2) { \
-      return s1.compare_to(static_cast<abc::istr const &>(s2)) op 0; \
+      return abc::text::host_str_traits::compare( \
+         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+      ) op 0; \
    } \
    template <size_t t_cch> \
    inline bool operator op(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) { \
-      return s.compare_to(ach) op 0; \
+      abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
+      return abc::text::host_str_traits::compare( \
+         s.chars_begin(), s.chars_end(), ach, pchEnd \
+      ) op 0; \
    } \
    template <size_t t_cch> \
    inline bool operator op(abc::char_t const (& ach)[t_cch], abc::str_base const & s) { \
-      return -s.compare_to(ach) op 0; \
+      abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
+      return abc::text::host_str_traits::compare( \
+         ach, pchEnd, s.chars_begin(), s.chars_end() \
+      ) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -814,11 +787,6 @@ public:
 
 inline str_base::operator istr const &() const {
    return *static_cast<istr const *>(this);
-}
-
-
-inline int str_base::compare_to(istr const & s) const {
-   return str_cmp(chars_begin(), chars_end(), s.chars_begin(), s.chars_end());
 }
 
 } //namespace abc
