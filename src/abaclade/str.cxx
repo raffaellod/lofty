@@ -154,7 +154,7 @@ str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhen
 
    validate_pointer(itWhence.base());
    char_t const * pchEnd(chars_end());
-   char_t const * pch(str_chr(itWhence.base(), pchEnd, chNeedle));
+   char_t const * pch(text::host_str_traits::find_char(itWhence.base(), pchEnd, chNeedle));
    return const_iterator(pch ? pch : pchEnd);
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
@@ -196,73 +196,6 @@ bool str_base::starts_with(istr const & s) const {
    return pchEnd <= chars_end() && text::host_str_traits::compare(
       chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
-}
-
-
-/*static*/ char_t const * str_base::str_chr(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
-      // The needle can be encoded as a single character, so this faster search can be used.
-      for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-         if (*pch == static_cast<char_t>(chNeedle)) {
-            return pch;
-         }
-      }
-      return pchHaystackEnd;
-   } else {
-      // The needle is two or more characters, so take the slower approach.
-      char_t achNeedle[text::host_char_traits::max_codepoint_length];
-      text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle);
-      return str_chr(pchHaystackBegin, pchHaystackEnd, achNeedle);
-   }
-}
-/*static*/ char_t const * str_base::str_chr(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const* pchNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
-
-#if ABC_HOST_UTF == 8
-   char8_t chNeedleLead(*pchNeedle);
-   for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
-      char8_t ch(*pch);
-      unsigned cbCp(text::host_char_traits::lead_char_to_codepoint_size(ch));
-      // Make the next iteration resume from the next code point.
-      pchNext = pch + cbCp;
-      if (ch == chNeedleLead) {
-         if (--cbCp) {
-            // The lead bytes match; check if the trailing ones do as well.
-            char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
-            while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
-               ;
-            }
-            if (pchCont < pchNext) {
-               continue;
-            }
-            // The lead and trailing bytes of pch and pchNeedle match: we found the needle.
-         }
-         return pch;
-      }
-   }
-#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-   // In UTF-16, there’s always at most two characters per code point.
-   char16_t chNeedle0(pchNeedle[0]);
-   // We only have a second character if the first is a lead surrogate. Using NUL as a special value
-   // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1(
-      text::host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : U16CL('\0')
-   );
-   // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
-   // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
-   for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-      if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
-         return pch;
-      }
-   }
-#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
-   return pchHaystackEnd;
 }
 
 
