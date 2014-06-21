@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::c_str_to_str_adapter
+// abc::char_ptr_to_str_adapter
 
 
 namespace abc {
@@ -35,9 +35,9 @@ printed only as pointers, which is often undesirable.
 
 Instances of this class don’t own the memory object they point to.
 */
-class c_str_to_str_adapter {
+class char_ptr_to_str_adapter {
 
-   friend class to_str_backend<c_str_to_str_adapter>;
+   friend class to_str_backend<char_ptr_to_str_adapter>;
 
 public:
 
@@ -46,7 +46,7 @@ public:
    psz
       C-style NUL-terminated string.
    */
-   c_str_to_str_adapter(char const * psz) :
+   char_ptr_to_str_adapter(char const * psz) :
       m_psz(psz) {
    }
 
@@ -61,13 +61,13 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for c_str_to_str_adapter
+// abc::to_str_backend – specialization for char_ptr_to_str_adapter
 
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<c_str_to_str_adapter> :
+class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> :
    public _str_to_str_backend {
 public:
 
@@ -78,11 +78,7 @@ public:
    ptwOut
       Pointer to the writer to output to.
    */
-   void write(c_str_to_str_adapter const & cs, io::text::writer * ptwOut) {
-      size_t cch(text::utf8_str_traits::size_in_chars(cs.m_psz));
-      text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
-      _str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
-   }
+   void write(char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut);
 };
 
 } //namespace abc
