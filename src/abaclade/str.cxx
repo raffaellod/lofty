@@ -173,7 +173,9 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   char_t const * pch(str_chr_r(chars_begin(), itWhence.base(), chNeedle));
+   char_t const * pch(text::host_str_traits::find_char_last(
+      chars_begin(), itWhence.base(), chNeedle
+   ));
    return const_iterator(pch ? pch : chars_end());
 }
 str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
@@ -261,31 +263,6 @@ bool str_base::starts_with(istr const & s) const {
    }
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
    return pchHaystackEnd;
-}
-
-
-/*static*/ char_t const * str_base::str_chr_r(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
-) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
-
-   if (chNeedle <= text::host_char_traits::max_single_char_codepoint) {
-      // The needle can be encoded as a single character, so this faster search can be used.
-      for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-         if (*--pch == static_cast<char_t>(chNeedle)) {
-            return pch;
-         }
-      }
-      return pchHaystackBegin;
-   } else {
-      // The needle is two or more characters; this means that we can’t do the fast backwards scan
-      // above, so just do a regular substring reverse search.
-      char_t achNeedle[text::host_char_traits::max_codepoint_length];
-      return text::host_str_traits::find_substr_last(
-         pchHaystackBegin, pchHaystackEnd,
-         achNeedle, text::host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
-      );
-   }
 }
 
 

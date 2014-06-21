@@ -522,24 +522,6 @@ protected:
    );
 
 
-   /** Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
-   no matches are found.
-
-   pchHaystackBegin
-      Pointer to the first character of the string to be searched.
-   pchHaystackEnd
-      Pointer to beyond the last character of the string to be searched.
-   chNeedle
-      Code point to search for.
-   return
-      Pointer to the beginning of the last match, in the string to be searched, of the code point
-      to search for, or nullptr if no matches are found.
-   */
-   static char_t const * str_chr_r(
-      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
-   );
-
-
    /** Converts a possibly negative character index into an iterator, throwing an exception if the
    result is out of bounds for the character array.
 
