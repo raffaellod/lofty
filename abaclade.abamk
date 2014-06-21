@@ -61,8 +61,8 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/file_path.cxx"/>
          <source path="src/abaclade-test/io-text-writer-print.cxx"/>
          <source path="src/abaclade-test/str.cxx"/>
+         <source path="src/abaclade-test/text-str_traits.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>
-         <source path="src/abaclade-test/str_traits.cxx"/>
          <source path="src/abaclade-test/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
       </unittest>
