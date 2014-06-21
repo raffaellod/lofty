@@ -533,17 +533,10 @@ size_t transcode(
                goto break_for;
             }
             if (bWriteDst) {
-               unsigned cbCont(cbSeq - 1);
-               // Since each trailing byte can take 6 bits, the remaining ones (after >> 6 * cbCont)
-               // make up what goes in the lead byte, which is combined with the proper sequence
-               // indicator.
-               *pbDst++ = uint8_t(
-                  utf8_char_traits::cont_length_to_seq_indicator(cbCont) |
-                     char8_t(ch32 >> 6 * cbCont)
-               );
-               while (cbCont--) {
-                  *pbDst++ = uint8_t(0x80 | ((ch32 >> 6 * cbCont) & 0x3f));
-               }
+               // We know that there’s enough room in *pbDst, so this is safe.
+               pbDst = reinterpret_cast<uint8_t *>(utf8_char_traits::codepoint_to_chars(
+                  ch32, reinterpret_cast<char8_t *>(pbDst)
+               ));
             } else {
                pbDst += cbSeq;
             }
@@ -552,13 +545,14 @@ size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
-            unsigned cbCont(unsigned(ch32 > 0x00ffff) << 1);
-            if (pbDst + sizeof(char16_t) + cbCont > pbDstEnd) {
+            bool bNeedSurrogate(ch32 > 0x00ffff);
+            unsigned cbSeq(sizeof(char16_t) + (bNeedSurrogate ? sizeof(char16_t) : 0));
+            if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
             if (bWriteDst) {
                char16_t ch16Dst0, ch16Dst1;
-               if (cbCont) {
+               if (bNeedSurrogate) {
                   ch32 -= 0x10000;
                   ch16Dst0 = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
                   ch16Dst1 = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
@@ -567,18 +561,18 @@ size_t transcode(
                }
                if (encDst != encoding::utf16_host) {
                   ch16Dst0 = byteorder::swap(ch16Dst0);
-                  if (cbCont) {
-                     ch16Dst1 = byteorder::swap(ch16Dst1);
-                  }
                }
                *reinterpret_cast<char16_t *>(pbDst) = ch16Dst0;
-               if (cbCont) {
-                  pbDst += sizeof(char16_t);
-                  *reinterpret_cast<char16_t *>(pbDst) = ch16Dst1;
-               }
                pbDst += sizeof(char16_t);
+               if (bNeedSurrogate) {
+                  if (encDst != encoding::utf16_host) {
+                     ch16Dst1 = byteorder::swap(ch16Dst1);
+                  }
+                  *reinterpret_cast<char16_t *>(pbDst) = ch16Dst1;
+                  pbDst += sizeof(char16_t);
+               }
             } else {
-               pbDst += sizeof(char16_t) * cbCont;
+               pbDst += cbSeq;
             }
             break;
          }
