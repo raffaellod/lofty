@@ -45,6 +45,16 @@ public:
 
 public:
 
+   /** Converts a char8_t array into a code point (UTF-32 character).
+
+   pchDstBegin
+      Start of the character array to decode.
+   return
+      Decoded code point.
+   */
+   static char32_t chars_to_codepoint(char8_t const * pchSrcBegin);
+
+
    /** Converts a code point (UTF-32 character) into a char8_t array.
 
    cp
@@ -146,6 +156,16 @@ public:
 
 
 public:
+
+   /** Converts a char16_t array into a code point (UTF-32 character).
+
+   pchDstBegin
+      Start of the character array to decode.
+   return
+      Decoded code point.
+   */
+   static char32_t chars_to_codepoint(char16_t const * pchSrcBegin);
+
 
    /** Converts a code point (UTF-32 character) into a char16_t array.
 
