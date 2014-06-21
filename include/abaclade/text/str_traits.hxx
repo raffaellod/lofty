@@ -38,8 +38,6 @@ public:
 
    /** Checks if a string is valid UTF.
 
-   psz
-      Pointer to the NUL-terminated character array to validate.
    pchBegin
       Pointer to the first character of the string to validate.
    pchEnd
@@ -47,7 +45,6 @@ public:
    return
       true if the string is valid UTF, or false otherwise.
    */
-   static bool is_valid(char8_t const * psz);
    static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
@@ -92,7 +89,6 @@ public:
 
    /** See utf8_str_traits::is_valid().
    */
-   static bool is_valid(char16_t const * psz);
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
 
 
