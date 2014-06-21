@@ -90,7 +90,7 @@ uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
    // Calculate where the sequence will end, and write each byte backwards from there.
    char8_t * pchDstEnd(pchDstBegin + cbSeq);
    --cbSeq;
-   char8_t iSeqIndicator(text::host_char_traits::cont_length_to_seq_indicator(cbSeq));
+   char8_t iSeqIndicator(cont_length_to_seq_indicator(cbSeq));
    char8_t * pchDst(pchDstEnd);
    while (cbSeq--) {
       // Each trailing byte uses 6 bits.
