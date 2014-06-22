@@ -56,16 +56,20 @@ public:
 
    /** Assignment operator.
 
-   cp
-      Source code point.
+   ch
+      Source character.
    cpp
       Source code point proxy to copy a code point from.
    return
       *this.
    */
-   _codepoint_proxy & operator=(char32_t cp) {
+   _codepoint_proxy & operator=(char_t ch) {
+      *m_pch = ch;
+      return *this;
+   }
+   _codepoint_proxy & operator=(char32_t ch) {
       // TODO: convert to char32_t for real.
-      *m_pch = char_t(cp);
+      *m_pch = char_t(ch);
       return *this;
    }
    _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {
