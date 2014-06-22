@@ -108,7 +108,7 @@ public:
       ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
 
       s = s + CL('b') + s;
       // true: a new string is created by operator+, which replaces s by operator=.
@@ -136,44 +136,44 @@ public:
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('b'));
+      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('a'));
 
       s += s;
       // false: there should’ve been enough space for “baba”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[3], CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('b'));
+      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('b'));
+      ABC_TESTING_ASSERT_EQUAL(s[3], U32CL('a'));
 
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
 
       s = dmstr(SL("ab")) + CL('c');
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], CL('c'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('b'));
+      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('c'));
 
       s += CL('d');
       // false: there should’ve been enough space for “abcd”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], CL('c'));
-      ABC_TESTING_ASSERT_EQUAL(s[3], CL('d'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('b'));
+      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('c'));
+      ABC_TESTING_ASSERT_EQUAL(s[3], U32CL('d'));
 
       s += SL("efghijklmnopqrstuvwxyz");
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the

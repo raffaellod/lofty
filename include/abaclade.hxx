@@ -709,15 +709,16 @@ unsafe_t const unsafe;
 #endif //ifdef ABC_STLIMPL … else
 #include <abaclade/memory.hxx>
 
+// Forward declarations.
+
 namespace abc {
 
-// Forward declaration.
+class str_base;
 class istr;
 
 namespace io {
 namespace text {
 
-// Forward declaration.
 class writer;
 
 } //namespace text

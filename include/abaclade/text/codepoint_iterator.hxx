@@ -24,6 +24,78 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::_codepoint_proxy
+
+
+namespace abc {
+namespace text {
+
+/** TODO: comment.
+*/
+class _codepoint_proxy {
+public:
+
+   /** Constructor.
+
+   pch
+      Pointer to the character(s) that this proxy will present as char32_t.
+   ps
+      Pointer to the string that contains *pch.
+   cpp
+      Code point proxy to replicate.
+   */
+   _codepoint_proxy(char_t * pch, str_base * ps) :
+      m_pch(pch),
+      m_ps(ps) {
+   }
+   _codepoint_proxy(_codepoint_proxy const & cpp) :
+      m_pch(cpp.m_pch),
+      m_ps(cpp.m_ps) {
+   }
+
+
+   /** Assignment operator.
+
+   cp
+      Source code point.
+   cpp
+      Source code point proxy to copy a code point from.
+   return
+      *this.
+   */
+   _codepoint_proxy & operator=(char32_t cp) {
+      // TODO: convert to char32_t for real.
+      *m_pch = char_t(cp);
+      return *this;
+   }
+   _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {
+      char32_t cp(cpp.operator char32_t());
+      return operator=(cp);
+   }
+
+
+   /** Implicit conversion to a code point.
+
+   return
+      Code point that the proxy is currently referencing.
+   */
+   operator char32_t() const {
+      // TODO: convert to char32_t for real.
+      return codepoint(*m_pch);
+   }
+
+
+protected:
+
+   char_t * m_pch;
+   str_base * m_ps;
+};
+
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_codepoint_iterator_impl
 
 
@@ -47,8 +119,9 @@ public:
    return
       Reference to the current item.
    */
-   char_t const & operator*() const {
-      return *m_pch;
+   char32_t operator*() const {
+      // TODO: convert to char32_t for real.
+      return codepoint(*m_pch);
    }
 
 
@@ -59,8 +132,9 @@ public:
    return
       Reference to the specified item.
    */
-   char_t const & operator[](ptrdiff_t i) const {
-      return m_pch[i];
+   char32_t operator[](ptrdiff_t i) const {
+      // TODO: convert to char32_t for real.
+      return codepoint(m_pch[i]);
    }
 
 
@@ -74,15 +148,28 @@ public:
    }
 
 
+   /** Returns the string that created this iterator.
+
+   return
+      Pointer to the value pointed to by this iterator.
+   */
+   str_base const * _str() const {
+      return m_ps;
+   }
+
+
 protected:
 
    /** Constructor.
 
    pch
       Pointer to set the iterator to.
+   ps
+      Pointer to the string that is creating the iterator.
    */
-   explicit _codepoint_iterator_impl(char_t const * pch) :
-      m_pch(pch) {
+   _codepoint_iterator_impl(char_t const * pch, str_base const * ps) :
+      m_pch(pch),
+      m_ps(ps) {
    }
 
 
@@ -109,6 +196,7 @@ protected:
 protected:
 
    char_t const * m_pch;
+   str_base const * m_ps;
 };
 
 // Non-const specialization.
@@ -122,22 +210,36 @@ public:
 
    /** See const_impl::operator*().
    */
-   char_t & operator*() const {
-      return const_cast<char_t &>(const_impl::operator*());
+   _codepoint_proxy operator*() {
+      return _codepoint_proxy(base(), _str());
+   }
+   char32_t operator*() const {
+      return const_impl::operator*();
    }
 
 
    /** See const_impl::operator[]().
    */
-   char_t const & operator[](ptrdiff_t i) const {
-      return const_cast<char_t &>(const_impl::operator[](i));
+   char_t & operator[](ptrdiff_t i) {
+      // TODO: change to return a proxy that allows assignments as char32_t.
+      return const_cast<char_t *>(m_pch)[i];
+   }
+   char32_t operator[](ptrdiff_t i) const {
+      return const_impl::operator[](i);
    }
 
 
    /** See const_impl::base().
    */
    char_t * base() const {
-      return const_cast<char_t *>(const_impl::base());
+      return const_cast<char_t *>(m_pch);
+   }
+
+
+   /** See const_impl::_str().
+   */
+   str_base * _str() const {
+      return const_cast<str_base *>(m_ps);
    }
 
 
@@ -145,8 +247,8 @@ protected:
 
    /** See const_impl::const_impl().
    */
-   explicit _codepoint_iterator_impl(char_t * pch) :
-      const_impl(pch) {
+   _codepoint_iterator_impl(char_t * pch, str_base * ps) :
+      const_impl(pch, ps) {
    }
 };
 
@@ -177,21 +279,24 @@ public:
 
    pch
       Pointer to set the iterator to.
+   ps
+      Pointer to the string that is creating the iterator.
    it
       Source iterator.
    */
    /*constexpr*/ codepoint_iterator() :
-      _codepoint_iterator_impl<t_bConst>(nullptr) {
+      _codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
    }
-   explicit codepoint_iterator(
-      typename std::conditional<t_bConst, char_t const, char_t>::type * pch
+   codepoint_iterator(
+      typename std::conditional<t_bConst, char_t const, char_t>::type * pch,
+      typename std::conditional<t_bConst, str_base const, str_base>::type * ps
    ) :
-      _codepoint_iterator_impl<t_bConst>(pch) {
+      _codepoint_iterator_impl<t_bConst>(pch, ps) {
    }
    // Allows to convert from non-const to const iterator types.
    template <bool t_bConst2>
    codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
-      _codepoint_iterator_impl<t_bConst>(it.base()) {
+      _codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {
    }
 
 

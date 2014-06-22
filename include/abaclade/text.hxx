@@ -91,6 +91,22 @@ here. */
 size_t const max_codepoint_length(6);
 
 
+/** Casts a single character into a code point.
+
+ch
+   Character.
+return
+   Equivalent code point.
+*/
+inline char32_t codepoint(char_t ch) {
+#if ABC_HOST_UTF == 8
+   return char32_t(uint8_t(ch));
+#elif ABC_HOST_UTF == 16
+   return char32_t(ch);
+#endif
+}
+
+
 /** Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
 different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source size,
 although special cases such as surrogates might make the estimate too low.

@@ -178,7 +178,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
 
    // Search for the next replacement, if any.
    istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
-   char_t ch;
+   char32_t ch;
    for (;;) {
       if (it >= itEnd) {
          // The format string is over; write any characters not yet written.
@@ -187,20 +187,20 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
          return false;
       }
       ch = *it++;
-      if (ch == CL('{') || ch == CL('}')) {
-         if (ch == CL('{')) {
+      if (ch == U32CL('{') || ch == U32CL('}')) {
+         if (ch == U32CL('{')) {
             // Mark the beginning of the replacement field.
             itReplFieldBegin = it - 1;
             if (it >= itEnd) {
                throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
             }
             ch = *it;
-            if (ch != CL('{')) {
+            if (ch != U32CL('{')) {
                // We found the beginning of a replacement field.
                break;
             }
-         } else if (ch == CL('}')) {
-            if (it >= itEnd || *it != CL('}')) {
+         } else if (ch == U32CL('}')) {
+            if (it >= itEnd || *it != U32CL('}')) {
                throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
             }
          }
@@ -213,13 +213,13 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check if we have an argument index.
-   if (ch >= CL('0') && ch <= CL('9')) {
+   if (ch >= U32CL('0') && ch <= U32CL('9')) {
       // Consume as many digits as there are, and convert them into the argument index.
       unsigned iArg(0);
       do {
          iArg *= 10;
-         iArg += unsigned(ch - CL('0'));
-      } while (++it < itEnd && (ch = *it, ch >= CL('0') && ch <= CL('9')));
+         iArg += unsigned(ch - U32CL('0'));
+      } while (++it < itEnd && (ch = *it, ch >= U32CL('0') && ch <= U32CL('9')));
       if (it >= itEnd) {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
@@ -231,16 +231,16 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check for a conversion specifier; defaults to string.
-   char_t chConversion(CL('s'));
-   if (ch == CL('!')) {
+   char32_t chConversion(U32CL('s'));
+   if (ch == U32CL('!')) {
       if (++it >= itEnd) {
          throw_syntax_error(SL("expected conversion specifier"), it);
       }
       ch = *it;
       switch (ch) {
-         case CL('s'):
-// TODO: case CL('r'):
-// TODO: case CL('a'):
+         case U32CL('s'):
+// TODO: case U32CL('r'):
+// TODO: case U32CL('a'):
             chConversion = ch;
             ABC_UNUSED_ARG(chConversion);
             break;
@@ -254,7 +254,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check for a format specification.
-   if (ch == CL(':')) {
+   if (ch == U32CL(':')) {
       if (++it >= itEnd) {
          throw_syntax_error(SL("expected format specification"), it);
       }
@@ -267,7 +267,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
       m_pchReplFormatSpecEnd = it.base();
    } else {
       // If there’s no format specification, it must be the end of the replacement field.
-      if (ch != CL('}')) {
+      if (ch != U32CL('}')) {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       // Set the format specification to nothing.
@@ -429,9 +429,13 @@ binbuf_reader::binbuf_reader(
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
-         char_t const * pchDstConsumeEnd(fnGetConsumeEnd(
-            istr(unsafe, pchDstBegin, cchReadTotal + cchBuf), istr::const_iterator(pchDstOffset)
-         ).base());
+         char_t const * pchDstConsumeEnd;
+         {
+            istr sConsumableBuf(unsafe, pchDstBegin, cchReadTotal + cchBuf);
+            pchDstConsumeEnd = fnGetConsumeEnd(
+               sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
+            ).base();
+         }
          size_t cchConsumed(size_t(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
@@ -473,10 +477,13 @@ binbuf_reader::binbuf_reader(
          );
 
          // Determine how much of the string is to be consumed.
-         char_t const * pchDstConsumeEnd(fnGetConsumeEnd(
-            istr(unsafe, pchDstBegin, size_t(pchDstEnd - pchDstBegin)),
-            istr::const_iterator(pchDstOffset)
-         ).base());
+         char_t const * pchDstConsumeEnd;
+         {
+            istr sConsumableBuf(unsafe, pchDstBegin, size_t(pchDstEnd - pchDstBegin));
+            pchDstConsumeEnd = fnGetConsumeEnd(
+               sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
+            ).base();
+         }
          // If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
          // destination size to the consumed range of characters; this will yield the count of bytes
          // to consume.

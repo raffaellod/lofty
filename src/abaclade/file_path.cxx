@@ -264,11 +264,11 @@ file_path file_path::normalize() const {
    intptr_t cDots(0);
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
-      char_t ch(*itSrc);
-      if (ch == CL('.')) {
+      char32_t ch(*itSrc);
+      if (ch == U32CL('.')) {
          ++cDots;
       } else {
-         if (ch == smc_aszSeparator[0]) {
+         if (ch == text::codepoint(smc_aszSeparator[0])) {
             if (cDots > 0 && cDots <= 2) {
                // We found “./” or “../”: go back by as many separators as the count of dots.
                auto itPrevSep(vitSeps.cend() - cDots);
@@ -310,7 +310,7 @@ file_path file_path::normalize() const {
          // the start of the path.
          itDst = itRootEnd;
       }
-   } else if (itDst > itRootEnd && *(itDst - 1) == smc_aszSeparator[0]) {
+   } else if (itDst > itRootEnd && *(itDst - 1) == text::codepoint(smc_aszSeparator[0])) {
       // The last character written was a separator; rewind by 1 to avoid a trailing separator.
       --itDst;
    }
@@ -358,7 +358,7 @@ file_path file_path::parent_dir() const {
 dmstr::const_iterator file_path::base_name_start() const {
    ABC_TRACE_FUNC(this);
 
-   auto itBaseNameStart(m_s.find_last(char32_t(smc_aszSeparator[0])));
+   auto itBaseNameStart(m_s.find_last(text::codepoint(smc_aszSeparator[0])));
    if (itBaseNameStart == m_s.cend()) {
       itBaseNameStart = m_s.cbegin();
    }
@@ -371,7 +371,7 @@ dmstr::const_iterator file_path::base_name_start() const {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
       // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
       // reconsider the character after the colon as the start of the base name.
-      if (*itVolumeColon == CL(':') && itBaseNameStart <= itVolumeColon) {
+      if (*itVolumeColon == U32CL(':') && itBaseNameStart <= itVolumeColon) {
          itBaseNameStart = itVolumeColon + 1 /*“:”*/;
       }
    }
@@ -445,8 +445,8 @@ dmstr::const_iterator file_path::base_name_start() const {
    // Simplify the logic below by normalizing all slashes to backslashes.
    // TODO: change to use mstr::replace() when that becomes available.
    for (auto it(s.begin()); it != s.end(); ++it) {
-      if (*it == CL('/')) {
-         *it = CL('\\');
+      if (*it == U32CL('/')) {
+         *it = U32CL('\\');
       }
    }
    if (!is_absolute(s)) {
@@ -489,7 +489,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    bool bPrevIsSeparator(false);
    for (auto itSrc(itRootEnd); itSrc != itEnd; ++itSrc) {
       auto ch(*itSrc);
-      bool bCurrIsSeparator(ch == smc_aszSeparator[0]);
+      bool bCurrIsSeparator(ch == text::codepoint(smc_aszSeparator[0]));
       if (bCurrIsSeparator && bPrevIsSeparator) {
          // Collapse consecutive separators by advancing itSrc (as part of the for loop) without
          // advancing itDst.

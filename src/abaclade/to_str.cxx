@@ -95,22 +95,22 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
 
    bool bPrefix(false);
    auto it(sFormat.cbegin());
-   char_t ch;
+   char32_t ch;
    if (it == sFormat.cend()) {
       goto default_notation;
    }
    ch = *it++;
    // Display a plus or a space in front of non-negative numbers.
-   if (ch == CL('+') || ch == CL(' ')) {
+   if (ch == U32CL('+') || ch == U32CL(' ')) {
       // Force this character to be displayed for non-negative numbers.
-      m_chSign = ch;
+      m_chSign = char_t(ch);
       if (it == sFormat.cend()) {
          goto default_notation;
       }
       ch = *it++;
    }
    // Prefix with 0b, 0B, 0, 0x or 0X.
-   if (ch == CL('#')) {
+   if (ch == U32CL('#')) {
       bPrefix = true;
       if (it == sFormat.cend()) {
          goto default_notation;
@@ -118,7 +118,7 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
       ch = *it++;
    }
    // Pad with zeroes instead of spaces.
-   if (ch == CL('0')) {
+   if (ch == U32CL('0')) {
       m_chPad = CL('0');
       if (it == sFormat.cend()) {
          goto default_notation;
@@ -126,17 +126,17 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
       ch = *it++;
    }
    // “Width” - minimum number of digits.
-   if (ch >= CL('1') && ch <= CL('9')) {
+   if (ch >= U32CL('1') && ch <= U32CL('9')) {
       // Undo the default; the following loop will yield at least 1 anyway (because we don’t get
       // here for a 0 – see if above).
       m_cchWidth = 0;
       do {
-         m_cchWidth = m_cchWidth * 10 + unsigned(ch) - CL('0');
+         m_cchWidth = m_cchWidth * 10 + unsigned(ch) - U32CL('0');
          if (it == sFormat.cend()) {
             goto default_notation;
          }
          ch = *it++;
-      } while (ch >= CL('0') && ch <= CL('9'));
+      } while (ch >= U32CL('0') && ch <= U32CL('9'));
    }
 
    // We jump in this impossible if to set the default notation when we run out of characters in any
@@ -144,43 +144,43 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
    // stored in is the requested notation.
    if (false) {
 default_notation:
-      ch = CL('d');
+      ch = U32CL('d');
    }
 
    // Determine which notation to use, which will also yield the approximate number of characters
    // per byte.
    unsigned cchByte;
    switch (ch) {
-      case CL('b'):
-      case CL('B'):
-      case CL('o'):
-      case CL('x'):
-      case CL('X'):
+      case U32CL('b'):
+      case U32CL('B'):
+      case U32CL('o'):
+      case U32CL('x'):
+      case U32CL('X'):
          if (bPrefix) {
             m_chPrefix0 = CL('0');
          }
          // Fall through.
-      case CL('d'):
+      case U32CL('d'):
          switch (ch) {
-            case CL('b'): // Binary notation, lowercase prefix.
-            case CL('B'): // Binary notation, uppercase prefix.
-               m_chPrefix1 = ch;
+            case U32CL('b'): // Binary notation, lowercase prefix.
+            case U32CL('B'): // Binary notation, uppercase prefix.
+               m_chPrefix1 = char_t(ch);
                m_iBaseOrShift = 1;
                cchByte = 8;
                break;
-            case CL('o'): // Octal notation.
+            case U32CL('o'): // Octal notation.
                m_iBaseOrShift = 3;
                cchByte = 3;
                break;
-            case CL('X'): // Hexadecimal notation, uppercase prefix and letters.
+            case U32CL('X'): // Hexadecimal notation, uppercase prefix and letters.
                m_pchIntToStr = smc_achIntToStrU;
                // Fall through.
-            case CL('x'): // Hexadecimal notation, lowercase prefix and letters.
-               m_chPrefix1 = ch;
+            case U32CL('x'): // Hexadecimal notation, lowercase prefix and letters.
+               m_chPrefix1 = char_t(ch);
                m_iBaseOrShift = 4;
                cchByte = 2;
                break;
-            case CL('d'): // Decimal notation.
+            case U32CL('d'): // Decimal notation.
                m_iBaseOrShift = 10;
                cchByte = 3;
                break;
@@ -209,7 +209,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    auto it(itBufFirstUsed);
    // Ensure that at least one digit is generated.
    if (it == itEnd) {
-      *--it = CL('0');
+      *--it = U32CL('0');
    }
    // Determine the sign character: only if in decimal notation, and make it a minus sign if the
    // number is negative.
@@ -218,22 +218,22 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    bool bSignLast(chSign && m_chPad == CL('0'));
    // Add the sign character if there’s no prefix and the padding is not zeroes.
    if (chSign && m_chPad != CL('0')) {
-      *--it = chSign;
+      *--it = text::codepoint(chSign);
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
    auto itFirstDigit(itEnd - ptrdiff_t(m_cchWidth - (bSignLast ? 1 : 0)));
    while (it > itFirstDigit) {
-      *--it = m_chPad;
+      *--it = text::codepoint(m_chPad);
    }
    // Add prefix or sign (if padding with zeroes), if any.
    if (m_chPrefix0) {
       if (m_chPrefix1) {
-         *--it = m_chPrefix1;
+         *--it = text::codepoint(m_chPrefix1);
       }
-      *--it = m_chPrefix0;
+      *--it = text::codepoint(m_chPrefix0);
    } else if (bSignLast) {
       // Add the sign character.
-      *--it = chSign;
+      *--it = text::codepoint(chSign);
    }
    // Write the constructed string.
    ptwOut->write_binary(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
@@ -259,13 +259,13 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
       while (iRest) {
          I iMod(iRest % iDivider);
          iRest /= iDivider;
-         *--it = m_pchIntToStr[math::abs(iMod)];
+         *--it = text::codepoint(m_pchIntToStr[math::abs(iMod)]);
       }
    } else {
       // Base 2 ^ n: can use & and >>.
       I iMask((I(1) << m_iBaseOrShift) - 1);
       while (iRest) {
-         *--it = m_pchIntToStr[iRest & iMask];
+         *--it = text::codepoint(m_pchIntToStr[iRest & iMask]);
          iRest >>= m_iBaseOrShift;
       }
    }

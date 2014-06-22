@@ -84,7 +84,8 @@ public:
    return
       Character at index i.
    */
-   char_t operator[](intptr_t i) const {
+   char32_t operator[](intptr_t i) const {
+      // TODO: convert to char32_t for real.
       return *translate_index(i);
    }
 
@@ -106,7 +107,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator begin() const {
-      return const_iterator(_raw_vextr_impl_base::begin<char_t>());
+      return const_iterator(chars_begin(), this);
    }
 
 
@@ -143,7 +144,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
-      return const_iterator(_raw_vextr_impl_base::begin<char_t>());
+      return const_iterator(chars_begin(), this);
    }
 
 
@@ -153,7 +154,7 @@ public:
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
-      return const_iterator(_raw_vextr_impl_base::end<char_t>());
+      return const_iterator(chars_end(), this);
    }
 
 
@@ -217,7 +218,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(_raw_vextr_impl_base::end<char_t>());
+      return const_iterator(chars_end(), this);
    }
 
 
@@ -772,7 +773,7 @@ public:
    /** See str_base::begin(). Here also available in non-const overload.
    */
    iterator begin() {
-      return iterator(_raw_vextr_impl_base::begin<char_t>());
+      return iterator(chars_begin(), this);
    }
    const_iterator begin() const {
       return str_base::begin();
@@ -782,7 +783,7 @@ public:
    /** See str_base::end(). Here also available in non-const overload.
    */
    iterator end() {
-      return iterator(_raw_vextr_impl_base::end<char_t>());
+      return iterator(chars_end(), this);
    }
    const_iterator end() const {
       return str_base::end();
@@ -833,7 +834,7 @@ public:
    /** See str_base::rbegin(). Here also available in non-const overload.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(iterator(_raw_vextr_impl_base::end<char_t>()));
+      return reverse_iterator(iterator(chars_end(), this));
    }
    const_reverse_iterator rbegin() const {
       return str_base::rbegin();
@@ -843,7 +844,7 @@ public:
    /** See str_base::rend(). Here also available in non-const overload.
    */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(_raw_vextr_impl_base::begin<char_t>()));
+      return reverse_iterator(iterator(chars_begin(), this));
    }
    const_reverse_iterator rend() const {
       return str_base::rend();
