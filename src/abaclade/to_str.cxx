@@ -218,22 +218,22 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    bool bSignLast(chSign && m_chPad == CL('0'));
    // Add the sign character if there’s no prefix and the padding is not zeroes.
    if (chSign && m_chPad != CL('0')) {
-      *--it = text::codepoint(chSign);
+      *--it = chSign;
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
    auto itFirstDigit(itEnd - ptrdiff_t(m_cchWidth - (bSignLast ? 1 : 0)));
    while (it > itFirstDigit) {
-      *--it = text::codepoint(m_chPad);
+      *--it = m_chPad;
    }
    // Add prefix or sign (if padding with zeroes), if any.
    if (m_chPrefix0) {
       if (m_chPrefix1) {
-         *--it = text::codepoint(m_chPrefix1);
+         *--it = m_chPrefix1;
       }
-      *--it = text::codepoint(m_chPrefix0);
+      *--it = m_chPrefix0;
    } else if (bSignLast) {
       // Add the sign character.
-      *--it = text::codepoint(chSign);
+      *--it = chSign;
    }
    // Write the constructed string.
    ptwOut->write_binary(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
@@ -259,13 +259,13 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
       while (iRest) {
          I iMod(iRest % iDivider);
          iRest /= iDivider;
-         *--it = text::codepoint(m_pchIntToStr[math::abs(iMod)]);
+         *--it = m_pchIntToStr[math::abs(iMod)];
       }
    } else {
       // Base 2 ^ n: can use & and >>.
       I iMask((I(1) << m_iBaseOrShift) - 1);
       while (iRest) {
-         *--it = text::codepoint(m_pchIntToStr[iRest & iMask]);
+         *--it = m_pchIntToStr[iRest & iMask];
          iRest >>= m_iBaseOrShift;
       }
    }

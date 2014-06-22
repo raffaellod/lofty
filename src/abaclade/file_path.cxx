@@ -358,7 +358,7 @@ file_path file_path::parent_dir() const {
 dmstr::const_iterator file_path::base_name_start() const {
    ABC_TRACE_FUNC(this);
 
-   auto itBaseNameStart(m_s.find_last(text::codepoint(smc_aszSeparator[0])));
+   auto itBaseNameStart(m_s.find_last(smc_aszSeparator[0]));
    if (itBaseNameStart == m_s.cend()) {
       itBaseNameStart = m_s.cbegin();
    }
