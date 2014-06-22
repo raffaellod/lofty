@@ -42,20 +42,12 @@ template <>
 class ABACLADE_SYM _codepoint_iterator_impl<true> {
 public:
 
-   /** Type of encoded character. */
-   typedef char_t const character;
-   /** Type of code point. */
-   typedef char_t const codepoint;
-
-
-public:
-
    /** Dereferencing operator.
 
    return
       Reference to the current item.
    */
-   character const & operator*() const {
+   char_t const & operator*() const {
       return *m_pch;
    }
 
@@ -67,7 +59,7 @@ public:
    return
       Reference to the specified item.
    */
-   character const & operator[](ptrdiff_t i) const {
+   char_t const & operator[](ptrdiff_t i) const {
       return m_pch[i];
    }
 
@@ -77,7 +69,7 @@ public:
    return
       Pointer to the value pointed to by this iterator.
    */
-   character const * base() const {
+   char_t const * base() const {
       return m_pch;
    }
 
@@ -89,7 +81,7 @@ protected:
    pch
       Pointer to set the iterator to.
    */
-   explicit _codepoint_iterator_impl(character const * pch) :
+   explicit _codepoint_iterator_impl(char_t const * pch) :
       m_pch(pch) {
    }
 
@@ -101,7 +93,7 @@ protected:
    return
       Distance between *this and pch, in code points.
    */
-   ptrdiff_t distance(character const * pch) const;
+   ptrdiff_t distance(char_t const * pch) const;
 
 
    /** Advances or rewinds the iterator by the specified number of code points. If the iterator is
@@ -116,7 +108,7 @@ protected:
 
 protected:
 
-   character const * m_pch;
+   char_t const * m_pch;
 };
 
 // Non-const specialization.
@@ -128,32 +120,24 @@ class _codepoint_iterator_impl<false> :
 
 public:
 
-   /** See const_impl::character. */
-   typedef char_t character;
-   /** See const_impl::codepoint. */
-   typedef char_t codepoint;
-
-
-public:
-
    /** See const_impl::operator*().
    */
-   character & operator*() const {
-      return const_cast<character &>(const_impl::operator*());
+   char_t & operator*() const {
+      return const_cast<char_t &>(const_impl::operator*());
    }
 
 
    /** See const_impl::operator[]().
    */
-   character const & operator[](ptrdiff_t i) const {
-      return const_cast<character &>(const_impl::operator[](i));
+   char_t const & operator[](ptrdiff_t i) const {
+      return const_cast<char_t &>(const_impl::operator[](i));
    }
 
 
    /** See const_impl::base().
    */
-   character * base() const {
-      return const_cast<character *>(const_impl::base());
+   char_t * base() const {
+      return const_cast<char_t *>(const_impl::base());
    }
 
 
@@ -161,7 +145,7 @@ protected:
 
    /** See const_impl::const_impl().
    */
-   explicit _codepoint_iterator_impl(character * pch) :
+   explicit _codepoint_iterator_impl(char_t * pch) :
       const_impl(pch) {
    }
 };
@@ -184,11 +168,9 @@ template <bool t_bConst>
 class codepoint_iterator :
    public _codepoint_iterator_impl<t_bConst>,
    public std::iterator<
-      std::random_access_iterator_tag, typename _codepoint_iterator_impl<t_bConst>::character
+      std::random_access_iterator_tag,
+      typename std::conditional<t_bConst, char_t const, char_t>::type
    > {
-
-   typedef _codepoint_iterator_impl<t_bConst> cpii;
-
 public:
 
    /** Constructor.
@@ -199,15 +181,17 @@ public:
       Source iterator.
    */
    /*constexpr*/ codepoint_iterator() :
-      cpii(nullptr) {
+      _codepoint_iterator_impl<t_bConst>(nullptr) {
    }
-   explicit codepoint_iterator(typename cpii::codepoint * pch) :
-      cpii(pch) {
+   explicit codepoint_iterator(
+      typename std::conditional<t_bConst, char_t const, char_t>::type * pch
+   ) :
+      _codepoint_iterator_impl<t_bConst>(pch) {
    }
-   // Allows to convert between non-const to const iterator types.
+   // Allows to convert from non-const to const iterator types.
    template <bool t_bConst2>
    codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
-      cpii(it.base()) {
+      _codepoint_iterator_impl<t_bConst>(it.base()) {
    }
 
 

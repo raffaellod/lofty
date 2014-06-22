@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-ptrdiff_t _codepoint_iterator_impl<true>::distance(character const * pch) const {
+ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
    if (m_pch > pch) {
