@@ -28,20 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
-   ABC_TRACE_FUNC(this, pch);
-
-   if (m_pch > pch) {
-      return ptrdiff_t(host_str_traits::size_in_codepoints(pch, m_pch));
-   } else if (m_pch < pch) {
-      return -ptrdiff_t(host_str_traits::size_in_codepoints(m_pch, pch));
-   } else {
-      return 0;
-   }
-}
-
-
-void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
+char_t const * _codepoint_iterator_impl<true>::advance(ptrdiff_t i) const {
    ABC_TRACE_FUNC(this, i);
 
    char_t const * pch(m_pch);
@@ -57,8 +44,21 @@ void _codepoint_iterator_impl<true>::modify(ptrdiff_t i) {
          ;
       }
    }
-   // Update the iterator position.
-   m_pch = pch;
+   // Return the resulting pointer.
+   return pch;
+}
+
+
+ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
+   ABC_TRACE_FUNC(this, pch);
+
+   if (m_pch > pch) {
+      return ptrdiff_t(host_str_traits::size_in_codepoints(pch, m_pch));
+   } else if (m_pch < pch) {
+      return -ptrdiff_t(host_str_traits::size_in_codepoints(m_pch, pch));
+   } else {
+      return 0;
+   }
 }
 
 } //namespace text
