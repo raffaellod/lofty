@@ -242,10 +242,10 @@ public:
       ABC_TRACE_FUNC(this);
 
       smstr<32> s;
-      s += 0x000024;
-      s += 0x0000a2;
-      s += 0x0020ac;
-      s += 0x024b62;
+      s += char32_t(0x000024);
+      s += char32_t(0x0000a2);
+      s += char32_t(0x0020ac);
+      s += char32_t(0x024b62);
       dmvector<uint8_t> vb;
 
       vb = s.encode(text::encoding::utf8, false);

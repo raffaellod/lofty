@@ -244,9 +244,13 @@ public:
    return
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
+   const_iterator find(char_t chNeedle) const {
+      return find(chNeedle, cbegin());
+   }
    const_iterator find(char32_t chNeedle) const {
       return find(chNeedle, cbegin());
    }
+   const_iterator find(char_t chNeedle, const_iterator itWhence) const;
    const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find(istr const & sNeedle) const {
       return find(sNeedle, cbegin());
@@ -266,9 +270,13 @@ public:
    return
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
+   const_iterator find_last(char_t chNeedle) const {
+      return find_last(chNeedle, cend());
+   }
    const_iterator find_last(char32_t chNeedle) const {
       return find_last(chNeedle, cend());
    }
+   const_iterator find_last(char_t chNeedle, const_iterator itWhence) const;
    const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
    const_iterator find_last(istr const & sNeedle) const {
       return find_last(sNeedle, cend());
@@ -745,6 +753,10 @@ public:
    return
       *this.
    */
+   mstr & operator+=(char_t ch) {
+      append(&ch, 1);
+      return *this;
+   }
    mstr & operator+=(char32_t ch) {
       char_t ach[text::host_char_traits::max_codepoint_length];
       append(ach, size_t(text::host_char_traits::codepoint_to_chars(ch, ach) - ach));
@@ -1107,12 +1119,18 @@ inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
    return abc::dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
 // Overloads taking a character literal.
+inline abc::dmstr operator+(abc::istr const & sL, abc::char_t chR) {
+   return abc::dmstr(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
+}
 inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
    abc::char_t achR[abc::text::host_char_traits::max_codepoint_length];
    return abc::dmstr(
       sL.chars_begin(), sL.chars_end(),
       achR, abc::text::host_char_traits::codepoint_to_chars(chR, achR)
    );
+}
+inline abc::dmstr operator+(abc::char_t chL, abc::istr const & sR) {
+   return abc::dmstr(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
 }
 inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
    abc::char_t achL[abc::text::host_char_traits::max_codepoint_length];
@@ -1123,6 +1141,11 @@ inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
 }
 // Overloads taking a temporary string as left operand; they can avoid creating an intermediate
 // string.
+inline abc::dmstr operator+(abc::istr && sL, abc::char_t chR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += chR;
+   return std::move(dmsL);
+}
 inline abc::dmstr operator+(abc::istr && sL, char32_t chR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += chR;
@@ -1131,6 +1154,11 @@ inline abc::dmstr operator+(abc::istr && sL, char32_t chR) {
 inline abc::dmstr operator+(abc::istr && sL, abc::istr const & sR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += sR;
+   return std::move(dmsL);
+}
+inline abc::dmstr operator+(abc::mstr && sL, abc::char_t chR) {
+   abc::dmstr dmsL(std::move(sL));
+   dmsL += chR;
    return std::move(dmsL);
 }
 inline abc::dmstr operator+(abc::mstr && sL, char32_t chR) {

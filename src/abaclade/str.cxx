@@ -149,6 +149,14 @@ bool str_base::ends_with(istr const & s) const {
 }
 
 
+str_base::const_iterator str_base::find(char_t chNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FUNC(this, chNeedle, itWhence);
+
+   validate_pointer(itWhence.base());
+   return const_iterator(
+      text::host_str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this
+   );
+}
 str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
@@ -167,6 +175,14 @@ str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itW
 }
 
 
+str_base::const_iterator str_base::find_last(char_t chNeedle, const_iterator itWhence) const {
+   ABC_TRACE_FUNC(this, chNeedle, itWhence);
+
+   validate_pointer(itWhence.base());
+   return const_iterator(text::host_str_traits::find_char_last(
+      chars_begin(), itWhence.base(), chNeedle
+   ), this);
+}
 str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 

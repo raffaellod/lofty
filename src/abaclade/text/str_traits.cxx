@@ -217,12 +217,7 @@ namespace text {
 
    if (chNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
-      for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
-         if (*pch == static_cast<char_t>(chNeedle)) {
-            return pch;
-         }
-      }
-      return pchHaystackEnd;
+      return find_char(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(chNeedle));
    } else {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[host_char_traits::max_codepoint_length];
@@ -282,12 +277,7 @@ namespace text {
 
    if (chNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
-      for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
-         if (*--pch == static_cast<char_t>(chNeedle)) {
-            return pch;
-         }
-      }
-      return pchHaystackBegin;
+      return find_char_last(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(chNeedle));
    } else {
       // The needle is two or more characters; this means that we can’t do the fast backwards scan
       // above, so just do a regular substring reverse search.

@@ -142,8 +142,8 @@ public:
 
 
    /** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
-   matches are found. For the non-char32_t needle overload, the needle is a pointer because a code
-   point can require more than one non-UTF-32 character to be encoded.
+   matches are found. The overload taking a char_t pointer allows to search for the encoded
+   representation of any code point.
 
    pchHaystackBegin
       Pointer to the first character of the string to be searched.
@@ -158,6 +158,18 @@ public:
       Pointer to the beginning of the first match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
+   static char_t const * find_char(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t chNeedle
+   ) {
+//      ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+
+      for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+         if (*pch == chNeedle) {
+            return pch;
+         }
+      }
+      return pchHaystackEnd;
+   }
    static char_t const * find_char(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
@@ -179,6 +191,18 @@ public:
       Pointer to the beginning of the last match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
+   static char_t const * find_char_last(
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t chNeedle
+   ) {
+//      ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+
+      for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+         if (*--pch == chNeedle) {
+            return pch;
+         }
+      }
+      return pchHaystackBegin;
+   }
    static char_t const * find_char_last(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
