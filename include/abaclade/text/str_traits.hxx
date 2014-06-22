@@ -48,16 +48,6 @@ public:
    static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
 
 
-   /** Returns the length, in UTF characters, of a NUL-terminated string.
-
-   psz
-      Pointer to the NUL-terminated string of which to calculate the length.
-   return
-      Length of the string pointed to by psz, in characters.
-   */
-   static size_t size_in_chars(char8_t const * psz);
-
-
 private:
 
    /** Bitmasks to be applied to the first trailing byte to check if a code point is using an
@@ -90,11 +80,6 @@ public:
    /** See utf8_str_traits::is_valid().
    */
    static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
-
-
-   /** See utf8_str_traits::size_in_chars().
-   */
-   static size_t size_in_chars(char16_t const * psz);
 };
 
 } //namespace text

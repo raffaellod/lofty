@@ -84,17 +84,6 @@ uint8_t const utf8_str_traits::smc_aiOverlongDetectionMasks[] = {
    return cbCont == 0;
 }
 
-
-/*static*/ size_t utf8_str_traits::size_in_chars(char8_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   char8_t const * pch(psz);
-   while (*pch) {
-      ++pch;
-   }
-   return size_t(pch - psz);
-}
-
 } //namespace text
 } //namespace abc
 
@@ -128,17 +117,6 @@ namespace text {
    }
    // Cannot end in the middle of a surrogate.
    return !bExpectTrailSurrogate;
-}
-
-
-/*static*/ size_t utf16_str_traits::size_in_chars(char16_t const * psz) {
-   ABC_TRACE_FUNC(psz);
-
-   char16_t const * pch(psz);
-   while (*pch) {
-      ++pch;
-   }
-   return size_t(pch - psz);
 }
 
 } //namespace text

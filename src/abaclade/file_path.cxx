@@ -167,7 +167,7 @@ file_path file_path::base_name() const {
    s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
       if (::getcwd(pch, cchMax)) {
          // The length will be necessarily less than cchMax, so grow_for() will stop.
-         return text::host_str_traits::size_in_chars(pch);
+         return text::size_in_chars(pch);
       }
       if (errno != ERANGE) {
          throw_os_error(errno);

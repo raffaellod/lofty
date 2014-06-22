@@ -324,7 +324,7 @@ namespace abc {
 void to_str_backend<char_ptr_to_str_adapter>::write(
    char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
 ) {
-   size_t cch(text::utf8_str_traits::size_in_chars(cs.m_psz));
+   size_t cch(text::size_in_chars(cs.m_psz));
    text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
    _str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
 }

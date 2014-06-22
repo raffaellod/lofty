@@ -642,7 +642,7 @@ public:
       assign_copy(pchBegin, pchEnd);
    }
    istr(unsafe_t, char_t const * psz) :
-      str_base(psz, text::host_str_traits::size_in_chars(psz), true) {
+      str_base(psz, text::size_in_chars(psz), true) {
    }
    istr(unsafe_t, char_t const * psz, size_t cch) :
       str_base(psz, cch, false) {

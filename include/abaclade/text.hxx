@@ -184,6 +184,25 @@ inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
 }
 
 
+/** Calculates the length of a NUL-terminated string, in characters.
+
+psz
+   Pointer to the NUL-terminated string of which to calculate the length.
+return
+   Length of the string pointed to by psz, in characters.
+*/
+template <typename C>
+inline size_t size_in_chars(C const * psz) {
+//   ABC_TRACE_FUNC(psz);
+
+   C const * pch(psz);
+   while (*pch) {
+      ++pch;
+   }
+   return size_t(pch - psz);
+}
+
+
 /** Converts from one character encoding to another. All pointed-by variables are updated to discard
 the bytes used in the conversion; the number of bytes written is returned.
 
