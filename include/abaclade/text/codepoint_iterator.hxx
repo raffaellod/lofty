@@ -157,7 +157,8 @@ public:
    /** Element access operator.
 
    i
-      Index relative to *this.
+      Index relative to *this. If the resulting index is outside of the string’s [begin, end) range,
+      an index_error exception will be thrown.
    return
       Reference to the specified item.
    */
@@ -329,7 +330,8 @@ public:
    /** Addition-assignment operator.
 
    i
-      Count of positions by which to advance the iterator.
+      Count of positions by which to advance the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
    return
       *this after it’s moved forward by i positions.
    */
@@ -342,7 +344,8 @@ public:
    /** Subtraction-assignment operator.
 
    i
-      Count of positions by which to rewind the iterator.
+      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
    return
       *this after it’s moved backwards by i positions.
    */
@@ -355,7 +358,8 @@ public:
    /** Addition operator.
 
    i
-      Count of positions by which to advance the iterator.
+      Count of positions by which to advance the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
    return
       Iterator that’s i items ahead of *this.
    */
@@ -367,7 +371,8 @@ public:
    /** Subtraction/difference operator.
 
    i
-      Count of positions by which to rewind the iterator.
+      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
    it
       Iterator from which to calculate the distance.
    return
@@ -383,7 +388,8 @@ public:
    }
 
 
-   /** Preincrement operator.
+   /** Preincrement operator. If the resulting iterator was already at the string’s end, an
+   iterator_error exception will be thrown.
 
    return
       *this after it’s moved to the value following the one currently pointed to by.
@@ -394,7 +400,8 @@ public:
    }
 
 
-   /** Postincrement operator.
+   /** Postincrement operator. If the resulting iterator was already at the string’s end, an
+   iterator_error exception will be thrown.
 
    return
       Iterator pointing to the value following the one pointed to by this iterator.
@@ -406,7 +413,8 @@ public:
    }
 
 
-   /** Predecrement operator.
+   /** Predecrement operator. If the resulting iterator was already at the string’s beginning, an
+   iterator_error exception will be thrown.
 
    return
       *this after it’s moved to the value preceding the one currently pointed to by.
@@ -417,7 +425,8 @@ public:
    }
 
 
-   /** Postdecrement operator.
+   /** Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
+   iterator_error exception will be thrown.
 
    return
       Iterator pointing to the value preceding the one pointed to by this iterator.
