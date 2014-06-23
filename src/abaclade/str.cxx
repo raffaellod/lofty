@@ -240,15 +240,6 @@ bool str_base::starts_with(istr const & s) const {
 
 
 str_base::const_iterator str_base::translate_index(intptr_t ich) const {
-   auto ret(translate_index_nothrow(ich));
-   if (!ret.second) {
-      ABC_THROW(index_error, (ich));
-   }
-   return ret.first;
-}
-
-
-std::pair<str_base::const_iterator, bool> str_base::translate_index_nothrow(intptr_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    const_iterator it, itLoopEnd;
@@ -270,13 +261,7 @@ std::pair<str_base::const_iterator, bool> str_base::translate_index_nothrow(intp
       ich -= iDelta;
       it += iDelta;
    }
-   if (it == itLoopEnd) {
-      // The above loop did not exhaust ich, so ceil the returned iterator to itLoopEnd.
-      return std::pair<const_iterator, bool>(itLoopEnd, false);
-   } else {
-      // The above loop exhausted ich, so *it is the correct character.
-      return std::pair<const_iterator, bool>(it, true);
-   }
+   return std::move(it);
 }
 
 
@@ -285,8 +270,8 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
 ) const {
    ABC_TRACE_FUNC(this, ichBegin, ichEnd);
 
-   auto itBegin(translate_index_nothrow(ichBegin).first);
-   auto itEnd(translate_index_nothrow(ichEnd).first);
+   auto itBegin(translate_index(ichBegin));
+   auto itEnd(translate_index(ichEnd));
    // If the interval is empty, return [end(), end()) .
    if (itBegin >= itEnd) {
       return std::pair<const_iterator, const_iterator>(end(), end());

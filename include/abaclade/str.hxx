@@ -530,28 +530,15 @@ protected:
    }
 
 
-   /** Converts a possibly negative character index into an iterator, throwing an exception if the
-   result is out of bounds for the character array.
-
-   ich
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
-   return
-      Iterator to the character.
-   */
-   const_iterator translate_index(intptr_t ich) const;
-
-
    /** Converts a possibly negative character index into an iterator.
 
    ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
       1-based index from the end of the character array by adding this->size_in_codepoints() to it.
    return
-      A pair containing the resulting iterator and a flag that indicates whether the iterator was
-      clipped to end() (for non-negative ich) or begin() (for negative ich).
+      Resulting iterator.
    */
-   std::pair<const_iterator, bool> translate_index_nothrow(intptr_t ich) const;
+   const_iterator translate_index(intptr_t ich) const;
 
 
    /** Converts a left-closed, right-open interval with possibly negative character indices into one
