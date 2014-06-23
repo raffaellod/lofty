@@ -80,7 +80,8 @@ public:
    /** Character access operator.
 
    i
-      Character index. See abc::str_base::translate_index() for allowed index values.
+      Character index. If outside of the [begin, end) range, an  index_error exception will be
+      thrown.
    return
       Character at index i.
    */
@@ -101,8 +102,8 @@ public:
 
 
    /** Advances or backs up a pointer by the specified number of code points, returning the
-   resulting pointer. If the pointer is moved outside of the buffer interval [begin, end), an
-   exception is thrown.
+   resulting pointer. If the pointer is moved outside of the buffer, an index_error or
+   iterator_error exception (depending on bIndex) is thrown.
 
    pch
       Initial pointer.
@@ -110,7 +111,7 @@ public:
       Count of code points to move from pch by.
    bIndex
       If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
-      false, only a movement to outside of [begin, end] will cause an iterator_error to be thrown.
+      false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
    return
       Resulting pointer.
    */
@@ -468,14 +469,26 @@ protected:
 
    /** See _raw_trivial_vextr_impl::assign_copy().
 
-   TODO: comment signature.
+   pchBegin
+      Pointer to the start of the source string.
+   pchEnd
+      Pointer to the end of the source string.
    */
    void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
       _raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
    }
 
 
-   /** TODO: comment.
+   /** See _raw_trivial_vextr_impl::assign_concat().
+
+   pch1Begin
+      Pointer to the start of the first source string.
+   pch1End
+      Pointer to the end of the first source string.
+   pch2Begin
+      Pointer to the start of the second source string.
+   pch2End
+      Pointer to the end of the second source string.
    */
    void assign_concat(
       char_t const * pch1Begin, char_t const * pch1End,
