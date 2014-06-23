@@ -24,6 +24,32 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for abc::text::_codepoint_proxy
+
+
+namespace abc {
+
+template <bool t_bConst>
+class to_str_backend<text::_codepoint_proxy<t_bConst>> :
+   public to_str_backend<char32_t> {
+public:
+
+   /** Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
+
+   cpp
+      Code point to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(text::_codepoint_proxy<t_bConst> const & cpp, io::text::writer * ptwOut) {
+      to_str_backend<char32_t>::write(cpp.operator char32_t(), ptwOut);
+   }
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::text::codepoint_iterator
 
 

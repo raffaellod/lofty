@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
+#ifndef _ABACLADE_HXX
+   #error Please #include <abaclade.hxx> instead of this file
+#endif
 
 
 
@@ -28,16 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
-   ABC_TRACE_FUNC(this, pch);
-
-   if (m_pch > pch) {
-      return ptrdiff_t(host_str_traits::size_in_codepoints(pch, m_pch));
-   } else if (m_pch < pch) {
-      return -ptrdiff_t(host_str_traits::size_in_codepoints(m_pch, pch));
-   } else {
-      return 0;
-   }
+inline char_t const * _codepoint_iterator_impl<true>::advance(ptrdiff_t i, bool bIndex) const {
+   return m_ps->_advance_char_ptr(m_pch, i, bIndex);
 }
 
 } //namespace text

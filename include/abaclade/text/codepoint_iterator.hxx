@@ -162,7 +162,7 @@ public:
       Reference to the specified item.
    */
    _codepoint_proxy<true> operator[](ptrdiff_t i) const {
-      return _codepoint_proxy<true>(advance(i), _str());
+      return _codepoint_proxy<true>(advance(i, true), _str());
    }
 
 
@@ -201,16 +201,9 @@ protected:
    }
 
 
-   /** Advances or rewinds by the specified number of code points, returning the resulting char_t
-   pointer. If the iterator is moved outside of the interval [begin, end) *m_ps, an exception is
-   thrown.
-
-   i
-      Count of code points to move by.
-   return
-      Resulting character pointer.
+   /** Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
    */
-   char_t const * advance(ptrdiff_t i) const;
+   char_t const * advance(ptrdiff_t i, bool bIndex) const;
 
 
    /** Computes the distance from another iterator/pointer.
@@ -248,10 +241,10 @@ public:
    /** See _codepoint_iterator_impl<true>::operator[]().
    */
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
-      return _codepoint_proxy<false>(advance(i), _str());
+      return _codepoint_proxy<false>(advance(i, true), _str());
    }
    _codepoint_proxy<true> operator[](ptrdiff_t i) const {
-      return _codepoint_proxy<true>(advance(i), _str());
+      return _codepoint_proxy<true>(advance(i, true), _str());
    }
 
 
@@ -271,19 +264,17 @@ public:
 
 protected:
 
-   /** See _codepoint_iterator_impl<true>::advance().
-   */
-   char_t * advance(ptrdiff_t i) const {
-      return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i));
-   }
-
-
-protected:
-
    /** See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
    */
    _codepoint_iterator_impl(char_t * pch, str_base * ps) :
       _codepoint_iterator_impl<true>(pch, ps) {
+   }
+
+
+   /** See _codepoint_iterator_impl<true>::advance().
+   */
+   char_t * advance(ptrdiff_t i, bool bIndex) const {
+      return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i, bIndex));
    }
 };
 
@@ -343,7 +334,7 @@ public:
       *this after it’s moved forward by i positions.
    */
    codepoint_iterator & operator+=(ptrdiff_t i) {
-      this->m_pch = this->advance(i);
+      this->m_pch = this->advance(i, false);
       return *this;
    }
 
@@ -356,7 +347,7 @@ public:
       *this after it’s moved backwards by i positions.
    */
    codepoint_iterator & operator-=(ptrdiff_t i) {
-      this->m_pch = this->advance(-i);
+      this->m_pch = this->advance(i, false);
       return *this;
    }
 
@@ -369,7 +360,7 @@ public:
       Iterator that’s i items ahead of *this.
    */
    codepoint_iterator operator+(ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(i), this->_str());
+      return codepoint_iterator(this->advance(i, false), this->_str());
    }
 
 
@@ -384,7 +375,7 @@ public:
       points (difference).
    */
    codepoint_iterator operator-(ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(-i), this->_str());
+      return codepoint_iterator(this->advance(-i, false), this->_str());
    }
    template <bool t_bConst2>
    ptrdiff_t operator-(codepoint_iterator<t_bConst2> it) const {
@@ -398,7 +389,7 @@ public:
       *this after it’s moved to the value following the one currently pointed to by.
    */
    codepoint_iterator & operator++() {
-      this->m_pch = this->advance(1);
+      this->m_pch = this->advance(1, false);
       return *this;
    }
 
@@ -410,7 +401,7 @@ public:
    */
    codepoint_iterator operator++(int) {
       auto pch(this->base());
-      this->m_pch = this->advance(1);
+      this->m_pch = this->advance(1, false);
       return codepoint_iterator(pch, this->_str());
    }
 
@@ -421,7 +412,7 @@ public:
       *this after it’s moved to the value preceding the one currently pointed to by.
    */
    codepoint_iterator & operator--() {
-      this->m_pch = this->advance(-1);
+      this->m_pch = this->advance(-1, false);
       return *this;
    }
 
@@ -433,7 +424,7 @@ public:
    */
    codepoint_iterator operator--(int) {
       auto pch(this->base());
-      this->m_pch = this->advance(-1);
+      this->m_pch = this->advance(-1, false);
       return codepoint_iterator(pch, this->_str());
    }
 

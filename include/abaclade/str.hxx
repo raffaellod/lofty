@@ -84,9 +84,8 @@ public:
    return
       Character at index i.
    */
-   char32_t operator[](intptr_t i) const {
-      // TODO: convert to char32_t for real.
-      return *translate_index(i);
+   text::_codepoint_proxy<true> operator[](intptr_t i) const {
+      return text::_codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
 
@@ -99,6 +98,23 @@ public:
       // Use int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than check.
       return _raw_vextr_impl_base::end<int8_t>() > _raw_vextr_impl_base::begin<int8_t>();
    }
+
+
+   /** Advances or backs up a pointer by the specified number of code points, returning the
+   resulting pointer. If the pointer is moved outside of the buffer interval [begin, end), an
+   exception is thrown.
+
+   pch
+      Initial pointer.
+   i
+      Count of code points to move from pch by.
+   bIndex
+      If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
+      false, only a movement to outside of [begin, end] will cause an iterator_error to be thrown.
+   return
+      Resulting pointer.
+   */
+   char_t const * _advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const;
 
 
    /** Returns a forward iterator set to the first element.

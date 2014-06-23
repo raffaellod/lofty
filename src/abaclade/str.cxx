@@ -63,6 +63,34 @@ namespace abc {
 char_t const str_base::smc_chNul(CL('\0'));
 
 
+char_t const * str_base::_advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const {
+   ABC_TRACE_FUNC(this, pch, i, bIndex);
+
+   char_t const * pchBegin(chars_begin()), * pchEnd(chars_end());
+   ptrdiff_t iOrig(i);
+
+   // If i is positive, move forward.
+   for (; i > 0 && pch < pchEnd; --i) {
+      // Find the next code point start, skipping any trail characters.
+      pch += text::host_char_traits::lead_char_to_codepoint_size(*pch);
+   }
+   // If i is negative, move backwards.
+   for (; i < 0 && pch > pchBegin; ++i) {
+      // Moving to the previous code point requires finding the previous non-trail character.
+      while (text::host_char_traits::is_trail_char(*--pch)) {
+         ;
+      }
+   }
+
+   if (i != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
+      // TODO: change to iterator_error(invalid iterator).
+      ABC_THROW(index_error, (iOrig));
+   }
+   // Return the resulting pointer.
+   return pch;
+}
+
+
 str_base::c_str_pointer str_base::c_str() const {
    ABC_TRACE_FUNC(this);
 

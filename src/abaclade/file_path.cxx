@@ -488,7 +488,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    auto itDst(itRootEnd);
    bool bPrevIsSeparator(false);
    for (auto itSrc(itRootEnd); itSrc != itEnd; ++itSrc) {
-      auto ch(*itSrc);
+      char32_t ch(*itSrc);
       bool bCurrIsSeparator(ch == text::codepoint(smc_aszSeparator[0]));
       if (bCurrIsSeparator && bPrevIsSeparator) {
          // Collapse consecutive separators by advancing itSrc (as part of the for loop) without

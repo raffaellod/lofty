@@ -68,7 +68,6 @@ uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
 };
 
 
-
 /*static*/ char32_t utf8_char_traits::chars_to_codepoint(char8_t const * pchSrcBegin) {
    ABC_TRACE_FUNC(pchSrcBegin);
 
