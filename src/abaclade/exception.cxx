@@ -1592,6 +1592,44 @@ void domain_error::init(errint_t err /*= 0*/) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::environment_error
+
+
+namespace abc {
+
+environment_error::environment_error() :
+   generic_error() {
+   m_pszWhat = "abc::environment_error";
+}
+
+
+void environment_error::init(errint_t err /*= 0*/) {
+   generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::file_not_found_error
+
+
+namespace abc {
+
+file_not_found_error::file_not_found_error() :
+   environment_error() {
+   m_pszWhat = "abc::file_not_found_error";
+}
+
+
+void file_not_found_error::init(errint_t err /*= 0*/) {
+   environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::floating_point_error
 
 
@@ -1638,44 +1676,6 @@ generic_error & generic_error::operator=(generic_error const & x) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::environment_error
-
-
-namespace abc {
-
-environment_error::environment_error() :
-   generic_error() {
-   m_pszWhat = "abc::environment_error";
-}
-
-
-void environment_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
-}
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_not_found_error
-
-
-namespace abc {
-
-file_not_found_error::file_not_found_error() :
-   environment_error() {
-   m_pszWhat = "abc::file_not_found_error";
-}
-
-
-void file_not_found_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
-}
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::index_error
 
 
@@ -1716,25 +1716,6 @@ void index_error::_print_extended_info(io::text::writer * ptw) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::key_error
-
-
-namespace abc {
-
-key_error::key_error() :
-   lookup_error() {
-   m_pszWhat = "abc::key_error";
-}
-
-
-void key_error::init(errint_t err /*= 0*/) {
-   lookup_error::init(err ? err : os_error_mapping<key_error>::mapped_error);
-}
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::invalid_path_error
 
 
@@ -1767,6 +1748,44 @@ io_error::io_error() :
 
 void io_error::init(errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<io_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::iterator_error
+
+
+namespace abc {
+
+iterator_error::iterator_error() :
+   generic_error() {
+   m_pszWhat = "abc::iterator_error";
+}
+
+
+void iterator_error::init(errint_t err /*= 0*/) {
+   generic_error::init(err ? err : os_error_mapping<iterator_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::key_error
+
+
+namespace abc {
+
+key_error::key_error() :
+   lookup_error() {
+   m_pszWhat = "abc::key_error";
+}
+
+
+void key_error::init(errint_t err /*= 0*/) {
+   lookup_error::init(err ? err : os_error_mapping<key_error>::mapped_error);
 }
 
 } //namespace abc
@@ -1974,6 +1993,54 @@ overflow_error::overflow_error() :
 
 void overflow_error::init(errint_t err /*= 0*/) {
    arithmetic_error::init(err ? err : os_error_mapping<overflow_error>::mapped_error);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::pointer_iterator_error
+
+
+namespace abc {
+
+pointer_iterator_error::pointer_iterator_error() :
+   iterator_error() {
+   m_pszWhat = "abc::pointer_iterator_error";
+}
+pointer_iterator_error::pointer_iterator_error(pointer_iterator_error const & x) :
+   generic_error(x),
+   iterator_error(x),
+   m_pContBegin(x.m_pContBegin),
+   m_pContEnd(x.m_pContEnd),
+   m_pInvalid(x.m_pInvalid) {
+}
+
+
+pointer_iterator_error & pointer_iterator_error::operator=(pointer_iterator_error const & x) {
+   ABC_TRACE_FUNC(this/*, x*/);
+
+   iterator_error::operator=(x);
+   m_pContBegin = x.m_pContBegin;
+   m_pContEnd = x.m_pContEnd;
+   m_pInvalid = x.m_pInvalid;
+   return *this;
+}
+
+
+void pointer_iterator_error::init(
+   void const * pContBegin, void const * pContEnd, void const * pInvalid, errint_t err /*= 0*/
+) {
+   iterator_error::init(err ? err : os_error_mapping<pointer_iterator_error>::mapped_error);
+   m_pContBegin = pContBegin;
+   m_pContEnd = pContEnd;
+   m_pInvalid = pInvalid;
+}
+
+
+void pointer_iterator_error::_print_extended_info(io::text::writer * ptw) const {
+   ptw->print(SL("invalid iterator: {}\n"), m_pInvalid);
+   iterator_error::_print_extended_info(ptw);
 }
 
 } //namespace abc

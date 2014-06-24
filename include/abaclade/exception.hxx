@@ -828,6 +828,31 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::iterator_error
+
+
+namespace abc {
+
+/** Invalid iterator operation, such as moving an iterator to outside the container’s range.
+*/
+class ABACLADE_SYM iterator_error :
+   public virtual generic_error {
+public:
+
+   /** Constructor.
+   */
+   iterator_error();
+
+
+   /** See abc::generic_error::init().
+   */
+   void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::lookup_error
 
 
@@ -1234,6 +1259,98 @@ public:
    /** See abc::arithmetic_error::init().
    */
    void init(errint_t err = 0);
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::pointer_iterator_error
+
+
+namespace abc {
+
+/** Invalid operation on a pointer-like iterator.
+*/
+class ABACLADE_SYM pointer_iterator_error :
+   public virtual iterator_error {
+public:
+
+   /** Constructor.
+
+   x
+      Source error.
+   */
+   pointer_iterator_error();
+   pointer_iterator_error(pointer_iterator_error const & x);
+
+
+   /** Assignment operator. See abc::iterator_error::operator=().
+   */
+   pointer_iterator_error & operator=(pointer_iterator_error const & x);
+
+
+   /** Returns the container’s begin iterator’s pointer.
+
+   return
+      Value of container.cbegin().base().
+   */
+   void const * container_begin_pointer() const {
+      return m_pContBegin;
+   }
+
+
+   /** Returns the container’s end iterator’s pointer.
+
+   return
+      Value of container.cend().base().
+   */
+   void const * container_end_pointer() const {
+      return m_pContBegin;
+   }
+
+
+   /** Returns the invalid iterator pointer value.
+
+   return
+      Pointer that was not valid in the context in which it was used.
+   */
+   void const * iterator_pointer() const {
+      return m_pInvalid;
+   }
+
+
+   /** See abc::iterator_error::init().
+
+   pContBegin
+      Value returned by the container’s cbegin().base().
+   pContEnd
+      Value returned by the container’s cend().base().
+   pInvalid
+      Pointer member of the iterator that caused the error.
+   err
+      OS-defined error number associated to the exception.
+   */
+   void init(
+      void const * pContBegin, void const * pContEnd, void const * pInvalid, errint_t err = 0
+   );
+
+
+protected:
+
+   /** See exception::_print_extended_info().
+   */
+   virtual void _print_extended_info(io::text::writer * ptw) const;
+
+
+private:
+
+   /** Value returned by the container’s cbegin().base(). */
+   void const * m_pContBegin;
+   /** Value returned by the container’s cend().base(). */
+   void const * m_pContEnd;
+   /** Pointer value of the iterator that caused the error. */
+   void const * m_pInvalid;
 };
 
 } //namespace abc

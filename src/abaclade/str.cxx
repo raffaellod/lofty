@@ -82,10 +82,16 @@ char_t const * str_base::_advance_char_ptr(char_t const * pch, ptrdiff_t i, bool
       }
    }
 
+   // Verify that the pointer is still within range: that’s not the case if we left either for loop
+   // before i reached 0, or if the pointer was invalid on entry (e.g. accessing istr()[0]).
    if (i != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
-      // TODO: change to iterator_error(invalid iterator).
-      ABC_THROW(index_error, (iOrig));
+      if (bIndex) {
+         ABC_THROW(index_error, (iOrig));
+      } else {
+         ABC_THROW(pointer_iterator_error, (pchBegin, pchEnd, pch));
+      }
    }
+
    // Return the resulting pointer.
    return pch;
 }
