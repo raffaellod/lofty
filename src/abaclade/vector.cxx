@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 _vector_to_str_backend::_vector_to_str_backend() :
-   _sequence_to_str_backend(istr(SL("{")), istr(SL("}"))) {
+   _sequence_to_str_backend(SL("{"), SL("}")) {
 }
 
 

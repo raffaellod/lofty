@@ -349,7 +349,7 @@ public:
    /** Constructor.
    */
    to_str_backend() :
-      _sequence_to_str_backend(istr(SL("(")), istr(SL(")"))) {
+      _sequence_to_str_backend(SL("("), SL(")")) {
    }
 
 
@@ -447,7 +447,7 @@ public:
    /** Constructor.
    */
    to_str_backend() :
-      _sequence_to_str_backend(istr(SL("(")), istr(SL(")"))) {
+      _sequence_to_str_backend(SL("("), SL(")")) {
    }
 
 
