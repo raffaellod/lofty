@@ -102,10 +102,24 @@ public:
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
       ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
 
+      // Should not allow to move an iterator to outside [begin, end].
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin());
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cend());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cbegin());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cend());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
+
       s += SL("a");
       // true: operator+= must have created an item array (there was none).
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
       ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
+      ABC_TESTING_ASSERT_THROWS(index_error, s[1]);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(++s.cbegin());
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(--s.cend());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
