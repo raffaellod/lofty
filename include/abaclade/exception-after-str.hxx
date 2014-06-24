@@ -82,7 +82,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::text::writer * ptw) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:

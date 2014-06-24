@@ -1172,22 +1172,22 @@ char const * exception::what() const {
 
 
 /*static*/ void exception::write_with_scope_trace(
-   io::text::writer * ptw /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
+   io::text::writer * ptwOut /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
-   if (!ptw) {
-      ptw = io::text::stderr().get();
+   if (!ptwOut) {
+      ptwOut = io::text::stderr().get();
    }
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptw->print(SL("Unhandled exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
+      ptwOut->print(SL("Unhandled exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
       // abc::exception, the class has a custom implementation, probably to print something useful.
       if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
          try {
-            ptw->write(SL("Extended information:\n"));
-            pabcx->_print_extended_info(ptw);
+            ptwOut->write(SL("Extended information:\n"));
+            pabcx->_print_extended_info(ptwOut);
          } catch (...) {
             // The exception is not rethrown because we don’t want exception details to interfere
             // with the display of the (more important) exception information.
@@ -1197,22 +1197,22 @@ char const * exception::what() const {
    } else {
       // Some other type of exception; not much to say.
       pabcx = nullptr;
-      ptw->write(SL("Unhandled exception: (unknown type)\n"));
+      ptwOut->write(SL("Unhandled exception: (unknown type)\n"));
    }
 
-   ptw->write(SL("Stack trace (most recent call first):\n"));
+   ptwOut->write(SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      ptw->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
+      ptwOut->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
    }
    // Print the stack trace collected via ABC_TRACE_FUNC().
-   ptw->write(_scope_trace_impl::get_trace_writer()->release_content());
+   ptwOut->write(_scope_trace_impl::get_trace_writer()->release_content());
 }
 
 
-void exception::_print_extended_info(io::text::writer * ptw) const {
+void exception::_print_extended_info(io::text::writer * ptwOut) const {
    // Nothing to print.
-   ABC_UNUSED_ARG(ptw);
+   ABC_UNUSED_ARG(ptwOut);
 }
 
 
@@ -1707,9 +1707,9 @@ void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
 }
 
 
-void index_error::_print_extended_info(io::text::writer * ptw) const {
-   ptw->print(SL("invalid index: {}\n"), m_iInvalid);
-   lookup_error::_print_extended_info(ptw);
+void index_error::_print_extended_info(io::text::writer * ptwOut) const {
+   ptwOut->print(SL("invalid index: {}\n"), m_iInvalid);
+   lookup_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc
@@ -1865,13 +1865,13 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 }
 
 
-void memory_address_error::_print_extended_info(io::text::writer * ptw) const {
+void memory_address_error::_print_extended_info(io::text::writer * ptwOut) const {
    if (m_pInvalid != smc_achUnknownAddress) {
-      ptw->print(SL("invalid address: {}\n"), m_pInvalid);
+      ptwOut->print(SL("invalid address: {}\n"), m_pInvalid);
    } else {
-      ptw->write(smc_achUnknownAddress);
+      ptwOut->write(smc_achUnknownAddress);
    }
-   generic_error::_print_extended_info(ptw);
+   generic_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc
@@ -2038,12 +2038,12 @@ void pointer_iterator_error::init(
 }
 
 
-void pointer_iterator_error::_print_extended_info(io::text::writer * ptw) const {
-   ptw->print(
+void pointer_iterator_error::_print_extended_info(io::text::writer * ptwOut) const {
+   ptwOut->print(
       SL("invalid iterator: {} (container begin/end range: [{}–{}])\n"),
       m_pInvalid, m_pContBegin, m_pContEnd
    );
-   iterator_error::_print_extended_info(ptw);
+   iterator_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc
@@ -2111,7 +2111,7 @@ void syntax_error::init(
 }
 
 
-void syntax_error::_print_extended_info(io::text::writer * ptw) const {
+void syntax_error::_print_extended_info(io::text::writer * ptwOut) const {
    istr sFormat;
    if (m_sSource) {
       if (m_iChar) {
@@ -2143,8 +2143,8 @@ void syntax_error::_print_extended_info(io::text::writer * ptw) const {
       }
    }
 
-   ptw->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
-   generic_error::_print_extended_info(ptw);
+   ptwOut->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
+   generic_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc

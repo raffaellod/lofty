@@ -34,15 +34,15 @@ namespace abc {
 /*tls*/ bool _scope_trace_impl::sm_bReentering(false);
 
 
-void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptw)> fnWriteVars) {
+void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptwOut)> fnWriteVars) {
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {
-         io::text::writer * ptw(get_trace_writer());
-         ptw->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
+         io::text::writer * ptwOut(get_trace_writer());
+         ptwOut->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
          // Allow the caller to write any scope variables.
-         fnWriteVars(ptw);
-         ptw->print(SL(" at {}\n"), m_srcloc);
+         fnWriteVars(ptwOut);
+         ptwOut->print(SL(" at {}\n"), m_srcloc);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW

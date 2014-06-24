@@ -138,7 +138,7 @@ private:
    /** Vector of loaded test test cases to be executed. */
    dmvector<std::unique_ptr<test_case>> m_vptc;
    /** Output writer. */
-   std::shared_ptr<io::text::writer> m_ptw;
+   std::shared_ptr<io::text::writer> m_ptwOut;
    /** Total count of failed assertions. */
    unsigned m_cFailedAssertions;
 };

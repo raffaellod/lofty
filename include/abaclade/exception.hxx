@@ -384,13 +384,13 @@ public:
    /** Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
 
-   ptw
+   ptwOut
       Pointer to the writer to output to. If omitted, the stack trace will be written to stderr.
    pstdx
       Caught exception.
    */
    static void write_with_scope_trace(
-      io::text::writer * ptw = nullptr, std::exception const * pstdx = nullptr
+      io::text::writer * ptwOut = nullptr, std::exception const * pstdx = nullptr
    );
 
 
@@ -398,10 +398,10 @@ protected:
 
    /** Prints extended information for the exception.
 
-   ptw
+   ptwOut
       Pointer to the writer to output to.
    */
-   virtual void _print_extended_info(io::text::writer * ptw) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 public:
@@ -927,7 +927,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::text::writer * ptw) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
@@ -1067,7 +1067,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::text::writer * ptw) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
@@ -1340,7 +1340,7 @@ protected:
 
    /** See exception::_print_extended_info().
    */
-   virtual void _print_extended_info(io::text::writer * ptw) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
