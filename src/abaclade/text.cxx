@@ -372,17 +372,17 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
 
    for (char_t const * pch(pchBegin); pch < pchEnd; ++pch) {
       char_t ch(*pch);
-      if (ch == CL('\r')) {
+      if (ch == '\r') {
          // CR can be followed by a LF to form the sequence CRLF, so check the following character
          // (if we have one). If we found a CR as the very last character in the buffer, we can’t
          // check the following one; at this point, we have to guess, so we’ll consider CRLF more
          // likely than CR.
-         if (++pch < pchEnd && *pch != CL('\n')) {
+         if (++pch < pchEnd && *pch != '\n') {
             return line_terminator::cr;
          } else {
             return line_terminator::cr_lf;
          }
-      } else if (ch == CL('\n')) {
+      } else if (ch == '\n') {
          return line_terminator::lf;
       }
    }

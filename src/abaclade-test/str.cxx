@@ -122,9 +122,9 @@ public:
       ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
 
-      s = s + CL('b') + s;
+      s = s + 'b' + s;
       // true: a new string is created by operator+, which replaces s by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
@@ -138,7 +138,7 @@ public:
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("ba"));
 
-      s += CL('c');
+      s += 'c';
       // false: there should’ve been enough space for 'c'.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
@@ -150,44 +150,44 @@ public:
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
+      ABC_TESTING_ASSERT_EQUAL(s[1], 'a');
 
       s += s;
       // false: there should’ve been enough space for “baba”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[3], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
+      ABC_TESTING_ASSERT_EQUAL(s[1], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[2], 'b');
+      ABC_TESTING_ASSERT_EQUAL(s[3], 'a');
 
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
 
-      s = dmstr(SL("ab")) + CL('c');
+      s = dmstr(SL("ab")) + 'c';
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('c'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[1], 'b');
+      ABC_TESTING_ASSERT_EQUAL(s[2], 'c');
 
-      s += CL('d');
+      s += 'd';
       // false: there should’ve been enough space for “abcd”.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], U32CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(s[1], U32CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(s[2], U32CL('c'));
-      ABC_TESTING_ASSERT_EQUAL(s[3], U32CL('d'));
+      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[1], 'b');
+      ABC_TESTING_ASSERT_EQUAL(s[2], 'c');
+      ABC_TESTING_ASSERT_EQUAL(s[3], 'd');
 
       s += SL("efghijklmnopqrstuvwxyz");
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
@@ -434,7 +434,7 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = SL("");
       psz = s.c_str();
@@ -443,7 +443,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = SL("a");
       psz = s.c_str();
@@ -452,8 +452,8 @@ public:
       ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 1u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(psz[1], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
    }
 };
 
@@ -491,7 +491,7 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = SL("");
       psz = s.c_str();
@@ -499,7 +499,7 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = SL("a");
       psz = s.c_str();
@@ -508,8 +508,8 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 1u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(psz[1], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
 
       s += SL("b");
       psz = s.c_str();
@@ -517,9 +517,9 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
       ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 2u);
-      ABC_TESTING_ASSERT_EQUAL(psz[0], CL('a'));
-      ABC_TESTING_ASSERT_EQUAL(psz[1], CL('b'));
-      ABC_TESTING_ASSERT_EQUAL(psz[2], CL('\0'));
+      ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(psz[1], 'b');
+      ABC_TESTING_ASSERT_EQUAL(psz[2], '\0');
    }
 };
 
@@ -561,13 +561,13 @@ public:
       istr const s(SL("acabaabca"));
       istr::const_iterator it;
 
-      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('b')), s.cbegin() + 3);
+      ABC_TESTING_ASSERT_EQUAL(s.find('b'), s.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("ab")), s.cbegin() + 2);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("abca")), s.cbegin() + 5);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("abcd")), s.cend());
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabc")), s.cbegin() + 2);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabcd")), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find_last(U32CL('b')), s.cend() - 3);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last('b'), s.cend() - 3);
 #if 0
       ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ab")), s.cend() - 4);
       ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ac")), s.cend() - 9);
@@ -610,7 +610,7 @@ public:
       istr const s(SL("àßçàŒ"));
       istr::const_iterator it;
 
-      ABC_TESTING_ASSERT_EQUAL(s.find(U32CL('ß')), s.cbegin() + 1);
+      ABC_TESTING_ASSERT_EQUAL(s.find(ABC_CHAR('ß')), s.cbegin() + 1);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àß")), s.cbegin());
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + 3);
       ABC_TESTING_ASSERT_EQUAL(s.find(SL("àü")), s.cend());

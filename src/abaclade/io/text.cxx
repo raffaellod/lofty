@@ -187,20 +187,20 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
          return false;
       }
       ch = *it++;
-      if (ch == U32CL('{') || ch == U32CL('}')) {
-         if (ch == U32CL('{')) {
+      if (ch == '{' || ch == '}') {
+         if (ch == '{') {
             // Mark the beginning of the replacement field.
             itReplFieldBegin = it - 1;
             if (it >= itEnd) {
                throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
             }
             ch = *it;
-            if (ch != U32CL('{')) {
+            if (ch != '{') {
                // We found the beginning of a replacement field.
                break;
             }
-         } else if (ch == U32CL('}')) {
-            if (it >= itEnd || *it != U32CL('}')) {
+         } else if (ch == '}') {
+            if (it >= itEnd || *it != '}') {
                throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
             }
          }
@@ -213,13 +213,13 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check if we have an argument index.
-   if (ch >= U32CL('0') && ch <= U32CL('9')) {
+   if (ch >= '0' && ch <= '9') {
       // Consume as many digits as there are, and convert them into the argument index.
       unsigned iArg(0);
       do {
          iArg *= 10;
-         iArg += unsigned(ch - U32CL('0'));
-      } while (++it < itEnd && (ch = *it, ch >= U32CL('0') && ch <= U32CL('9')));
+         iArg += static_cast<unsigned>(ch - '0');
+      } while (++it < itEnd && (ch = *it, ch >= '0' && ch <= '9'));
       if (it >= itEnd) {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
@@ -231,16 +231,16 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check for a conversion specifier; defaults to string.
-   char32_t chConversion(U32CL('s'));
-   if (ch == U32CL('!')) {
+   char32_t chConversion('s');
+   if (ch == '!') {
       if (++it >= itEnd) {
          throw_syntax_error(SL("expected conversion specifier"), it);
       }
       ch = *it;
       switch (ch) {
-         case U32CL('s'):
-// TODO: case U32CL('r'):
-// TODO: case U32CL('a'):
+         case 's':
+// TODO: case 'r':
+// TODO: case 'a':
             chConversion = ch;
             ABC_UNUSED_ARG(chConversion);
             break;
@@ -254,20 +254,20 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    }
 
    // Check for a format specification.
-   if (ch == U32CL(':')) {
+   if (ch == ':') {
       if (++it >= itEnd) {
          throw_syntax_error(SL("expected format specification"), it);
       }
       m_pchReplFormatSpecBegin = it.base();
       // Find the end of the replacement field.
-      it = m_sFormat.find(U32CL('}'), it);
+      it = m_sFormat.find('}', it);
       if (it == m_sFormat.cend()) {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       m_pchReplFormatSpecEnd = it.base();
    } else {
       // If there’s no format specification, it must be the end of the replacement field.
-      if (ch != U32CL('}')) {
+      if (ch != '}') {
          throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       // Set the format specification to nothing.

@@ -125,54 +125,6 @@ typedef char char8_t;
 #endif
 
 
-/** Defines an 8-bit character literal.
-
-ch
-   Character literal.
-return
-   8-bit character literal.
-*/
-#define U8CL(ch) ch
-
-
-/** Defines a UCS-16 character literal.
-
-ch
-   Character literal.
-return
-   UCS-16 character literal.
-*/
-#if ABC_CXX_CHAR16 == 2
-   #define U16CL(ch) u ## ch
-#elif ABC_CXX_CHAR16 == 1
-   #define U16CL(ch) L ## ch
-#elif ABC_CXX_CHAR16 == 0
-   // No native type for char16_t, but we can at least use 32-bit wchar_t to store any Unicode
-   // character correctly, and then truncate that to our typedef’ed char16_t.
-   // TODO: make the truncation explicit (compiler warning?).
-   #define U16CL(ch) ::char16_t(L ## ch)
-#endif
-
-
-/** Defines a UTF-32/UCS-32 character literal. Code points outside the Basic Multilingual Plane are
-not supported on all platforms.
-
-ch
-   Character literal.
-return
-   UTF-32/UCS-32 character literal.
-*/
-#if ABC_CXX_CHAR32 == 2
-   #define U32CL(ch) U ## ch
-#elif ABC_CXX_CHAR32 == 1
-   #define U32CL(ch) L ## ch
-#elif ABC_CXX_CHAR32 == 0
-   // No native type for char32_t, but we can at least use 16-bit wchar_t to store all Unicode BMP
-   // characters correctly, and then cast that to our typedef’ed char32_t.
-   #define U32CL(ch) ::char32_t(L ## ch)
-#endif
-
-
 /** Defines a UTF-8 string literal. On some platforms, this relies on the source files being encoded
 in UTF-8.
 
@@ -238,17 +190,24 @@ characters types. */
 } //namespace abc
 
 
-/** Defines a character literal of the default host character literal type.
+/** Use this to specify a non-ASCII character literal. When compiled, this will expand into a
+character literal of the widest type supported by the compiler, which is char32_t in the best case
+and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
+
+TODO: document Unicode support in Abaclade.
 
 ch
    Character literal.
 return
-   UCS character literal.
+   Unicode character literal.
 */
-#if ABC_HOST_UTF == 8
-   #define CL(ch) U8CL(ch)
-#elif ABC_HOST_UTF == 16
-   #define CL(ch) U16CL(ch)
+#if ABC_CXX_CHAR32 == 2
+   // Use U so that the resulting literal is of type char32_t, which cuts down the number of
+   // overloads we need.
+   #define ABC_CHAR(ch) U ## ch
+#else
+   // Everybody else can only use wchar_t has the largest character literal type, so here it goes.
+   #define ABC_CHAR(ch) L ## ch
 #endif
 
 

@@ -127,12 +127,12 @@ file_path file_path::absolute() const {
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
       size_t cch(m_s.size_in_chars());
       char_t const * pch(m_s.chars_begin());
-      if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == CL(':')) {
+      if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
          fpAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
                       m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
-      } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == CL('\\')) {
+      } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          // The path is in the form “\a”: make it absolute by prepending to it the volume designator
          // of the current directory.
          fpAbsolute = current_dir().m_s.substr(
@@ -207,7 +207,7 @@ file_path file_path::base_name() const {
    ABC_TRACE_FUNC(chVolume);
 
    // Create a dummy path for ::GetFullPathName() to expand.
-   char_t achDummyPath[4] = { chVolume, CL(':'), CL('a'), CL('\0') };
+   char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
    dmstr s;
    size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
    s.grow_for([c_cchRoot, &achDummyPath] (char_t * pch, size_t cchMax) -> size_t {
@@ -265,7 +265,7 @@ file_path file_path::normalize() const {
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
       char32_t ch(*itSrc);
-      if (ch == U32CL('.')) {
+      if (ch == '.') {
          ++cDots;
       } else {
          if (ch == text::codepoint(smc_aszSeparator[0])) {
@@ -310,7 +310,7 @@ file_path file_path::normalize() const {
          // the start of the path.
          itDst = itRootEnd;
       }
-   } else if (itDst > itRootEnd && *(itDst - 1) == text::codepoint(smc_aszSeparator[0])) {
+   } else if (itDst > itRootEnd && *(itDst - 1) == smc_aszSeparator[0]) {
       // The last character written was a separator; rewind by 1 to avoid a trailing separator.
       --itDst;
    }
@@ -371,7 +371,7 @@ dmstr::const_iterator file_path::base_name_start() const {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
       // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
       // reconsider the character after the colon as the start of the base name.
-      if (*itVolumeColon == U32CL(':') && itBaseNameStart <= itVolumeColon) {
+      if (*itVolumeColon == ':' && itBaseNameStart <= itVolumeColon) {
          itBaseNameStart = itVolumeColon + 1 /*“:”*/;
       }
    }
@@ -406,8 +406,8 @@ dmstr::const_iterator file_path::base_name_start() const {
       char_t ch;
       ABC_ASSERT(
          cch >= sc_cchVolumeRoot &&
-         (ch = *(pch + sc_cchVolumeRoot - 3), ch >= CL('A') && ch <= CL('Z')) &&
-         (*(pch + sc_cchVolumeRoot - 2) == CL(':') && *(pch + sc_cchVolumeRoot - 1) == CL('\\')),
+         (ch = *(pch + sc_cchVolumeRoot - 3), ch >= 'A' && ch <= 'Z') &&
+         (*(pch + sc_cchVolumeRoot - 2) == ':' && *(pch + sc_cchVolumeRoot - 1) == '\\'),
          SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
             SL("abc::file_path::validate_and_adjust() needs to be fixed")
       );
@@ -415,11 +415,11 @@ dmstr::const_iterator file_path::base_name_start() const {
       return sc_cchRoot;
    }
    if (bIncludeNonRoot) {
-      if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == CL(':')) {
+      if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          // Return the index of “a” in “X:a”.
          return sc_ichVolumeColon + 1 /*“:”*/;
       }
-      if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == CL('\\')) {
+      if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          // Return the index of “a” in “\a”.
          return sc_ichLeadingSep + 1 /*“\”*/;
       }
@@ -445,8 +445,8 @@ dmstr::const_iterator file_path::base_name_start() const {
    // Simplify the logic below by normalizing all slashes to backslashes.
    // TODO: change to use mstr::replace() when that becomes available.
    for (auto it(s.begin()); it != s.end(); ++it) {
-      if (*it == U32CL('/')) {
-         *it = U32CL('\\');
+      if (*it == '/') {
+         *it = '\\';
       }
    }
    if (!is_absolute(s)) {
@@ -461,17 +461,17 @@ dmstr::const_iterator file_path::base_name_start() const {
       } else {
          size_t cch(s.size_in_chars());
          char_t * pch(s.chars_begin());
-         if (cch >= 2 && *(pch + 1) == CL(':')) {
+         if (cch >= 2 && *(pch + 1) == ':') {
             char_t chVolume(*pch);
             // If the path is in the form “x:”, normalize the volume designator to uppercase.
-            if (chVolume >= CL('a') && chVolume <= CL('z')) {
-               chVolume -= CL('a') - CL('A');
+            if (chVolume >= 'a' && chVolume <= 'z') {
+               chVolume -= 'a' - 'A';
                *pch = chVolume;
-            } else if (chVolume < CL('A') || chVolume > CL('Z')) {
+            } else if (chVolume < 'A' || chVolume > 'Z') {
                // Avoid keeping a path that can’t be valid.
                throw_os_error(ERROR_INVALID_DRIVE);
             }
-            if (cch >= 3 /*“X:\”*/ && *(pch + 2) == CL('\\')) {
+            if (cch >= 3 /*“X:\”*/ && *(pch + 2) == '\\') {
                // This is a DOS-style absolute path; prepend to it the Win32 File Namespace prefix.
                s = smc_aszRoot + s;
             }

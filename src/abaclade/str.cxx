@@ -60,7 +60,7 @@ void _str_to_str_backend::write(
 
 namespace abc {
 
-char_t const str_base::smc_chNul(CL('\0'));
+char_t const str_base::smc_chNul('\0');
 
 
 char_t const * str_base::_advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const {
