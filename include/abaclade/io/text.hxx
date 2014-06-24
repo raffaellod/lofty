@@ -492,10 +492,9 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(
-            unsafe, wph_base::m_pchReplFormatSpecBegin,
-            size_t(wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin)
-         ));
+         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<size_t>(
+            wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
+         )));
          tsb.write(m_t0, wph_base::m_ptw);
       } else {
          // Recurse to the previous level.
@@ -666,10 +665,9 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(
-            unsafe, wph_base::m_pchReplFormatSpecBegin,
-            size_t(wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin)
-         ));
+         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<size_t>(
+            wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
+         )));
          tsb.write(m_t0, wph_base::m_ptw);
       } else {
          // Recurse to the previous level.

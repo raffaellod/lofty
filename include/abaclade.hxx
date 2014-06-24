@@ -649,7 +649,7 @@ return
    Multiple of sizeof(std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
-   ((size_t(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
+   ((static_cast<size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
 
 namespace abc {

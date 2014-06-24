@@ -333,7 +333,7 @@ public:
    */
    template <typename T>
    size_t size() const {
-      return size_t(end<T>() - begin<T>());
+      return static_cast<size_t>(end<T>() - begin<T>());
    }
 
 

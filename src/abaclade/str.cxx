@@ -314,7 +314,7 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 #endif
    size_t iHash(c_iFNVBasis);
    for (auto it(s.cbegin()), itEnd(s.cend()); it != itEnd; ++it) {
-      iHash ^= size_t(*it);
+      iHash ^= static_cast<size_t>(*it);
       iHash *= c_iFNVPrime;
    }
    return iHash;

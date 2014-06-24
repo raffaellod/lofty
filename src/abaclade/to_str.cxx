@@ -221,7 +221,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
       *--it = chSign;
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
-   auto itFirstDigit(itEnd - ptrdiff_t(m_cchWidth - (bSignLast ? 1 : 0)));
+   auto itFirstDigit(itEnd - static_cast<ptrdiff_t>(m_cchWidth - (bSignLast ? 1 : 0)));
    while (it > itFirstDigit) {
       *--it = m_chPad;
    }
@@ -236,7 +236,9 @@ void _int_to_str_backend_base::add_prefixes_and_write(
       *--it = chSign;
    }
    // Write the constructed string.
-   ptwOut->write_binary(it.base(), sizeof(char_t) * size_t(itEnd - it), text::encoding::host);
+   ptwOut->write_binary(
+      it.base(), sizeof(char_t) * static_cast<size_t>(itEnd - it), text::encoding::host
+   );
 }
 
 

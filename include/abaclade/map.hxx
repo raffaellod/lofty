@@ -465,7 +465,7 @@ class map :
    protected _embedded_map_desc<
       TKey, TVal, (t_ceStatic > _raw_map_desc::smc_ceMin
          ? t_ceStatic
-         : size_t(_raw_map_desc::smc_ceMin))
+         : static_cast<size_t>(_raw_map_desc::smc_ceMin))
    > {
 
    typedef map<TKey, TVal, 0> map0;
@@ -473,7 +473,7 @@ class map :
    typedef _embedded_map_desc<
       TKey, TVal, (t_ceStatic > _raw_map_desc::smc_ceMin
          ? t_ceStatic
-         : size_t(_raw_map_desc::smc_ceMin))
+         : static_cast<size_t>(_raw_map_desc::smc_ceMin))
    > embedded_map_desc;
 
 public:

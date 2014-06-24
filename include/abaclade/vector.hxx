@@ -104,7 +104,9 @@ public:
       type.set_size<T>();
       _raw_complex_vextr_impl::insert(
          type,
-         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
          ptInsert, sizeof(T) * ciInsert, true
       );
    }
@@ -122,11 +124,13 @@ public:
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::remove(type, size_t(
-         reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
-      ), size_t(
-         reinterpret_cast<uintptr_t>(ptRemoveEnd) - reinterpret_cast<uintptr_t>(ptRemoveBegin)
-      ));
+      _raw_complex_vextr_impl::remove(
+         type,
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
+         reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
+      );
    }
 
 
@@ -216,7 +220,9 @@ public:
       type.set_size<T>();
       _raw_complex_vextr_impl::insert(
          type,
-         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
          ptInsert, sizeof(T) * ciInsert, false
       );
    }
@@ -300,7 +306,9 @@ public:
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
       _raw_trivial_vextr_impl::insert(
-         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
          ptInsert, sizeof(T) * ciInsert
       );
    }
@@ -318,7 +326,9 @@ public:
    */
    void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
       _raw_trivial_vextr_impl::insert(
-         size_t(reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()),
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
          ptInsert, sizeof(T) * ciInsert
       );
    }
@@ -332,11 +342,12 @@ public:
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
-      _raw_trivial_vextr_impl::remove(size_t(
-         reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
-      ), size_t(
-         reinterpret_cast<uintptr_t>(ptRemoveEnd) - reinterpret_cast<uintptr_t>(ptRemoveBegin)
-      ));
+      _raw_trivial_vextr_impl::remove(
+         static_cast<size_t>(
+            reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+         ),
+         reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
+      );
    }
 
 
@@ -642,9 +653,9 @@ protected:
       Pointer to the element.
    */
    T const * translate_index(intptr_t i) const {
-      return static_cast<T const *>(
-         _raw_vector<T, smc_bCopyConstructible>::translate_offset(ptrdiff_t(sizeof(T)) * i)
-      );
+      return static_cast<T const *>(_raw_vector<T, smc_bCopyConstructible>::translate_offset(
+         static_cast<ptrdiff_t>(sizeof(T)) * i
+      ));
    }
 
 
@@ -665,7 +676,7 @@ protected:
    */
    std::pair<T const *, T const *> translate_range(intptr_t iBegin, intptr_t iEnd) const {
       auto range(_raw_trivial_vextr_impl::translate_byte_range(
-         ptrdiff_t(sizeof(T)) * iBegin, ptrdiff_t(sizeof(T)) * iEnd
+         static_cast<ptrdiff_t>(sizeof(T)) * iBegin, static_cast<ptrdiff_t>(sizeof(T)) * iEnd
       ));
       return std::make_pair(
          static_cast<T const *>(range.first), static_cast<T const *>(range.second)

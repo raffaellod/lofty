@@ -145,7 +145,7 @@ encoding guess_encoding(
    uint8_t const * pbBufEnd(static_cast<uint8_t const *>(pBufEnd));
    // If the total size is not specified, assume that the buffer is the whole source.
    if (!cbSrcTotal) {
-      cbSrcTotal = size_t(pbBufEnd - pbBufBegin);
+      cbSrcTotal = static_cast<size_t>(pbBufEnd - pbBufBegin);
    }
 
    // Statuses for the scanner. Each BOM status must be 1 bit to the right of its resulting
@@ -632,9 +632,9 @@ break_for:
    // Undo any incomplete or unused read.
    pbSrc = pbSrcLastUsed;
    // Update the variables pointed to by the arguments.
-   *pcbSrc -= size_t(pbSrc - static_cast<uint8_t const *>(*ppSrc));
+   *pcbSrc -= static_cast<size_t>(pbSrc - static_cast<uint8_t const *>(*ppSrc));
    *ppSrc = pbSrc;
-   size_t cbDstUsed(size_t(pbDst - static_cast<uint8_t *>(*ppDst)));
+   size_t cbDstUsed(static_cast<size_t>(pbDst - static_cast<uint8_t *>(*ppDst)));
    *pcbDstMax -= cbDstUsed;
    *ppDst = pbDst;
    return cbDstUsed;

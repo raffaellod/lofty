@@ -775,7 +775,7 @@ public:
    }
    mstr & operator+=(char32_t ch) {
       char_t ach[text::host_char_traits::max_codepoint_length];
-      append(ach, size_t(text::host_char_traits::codepoint_to_chars(ch, ach) - ach));
+      append(ach, static_cast<size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -1081,7 +1081,7 @@ public:
 // Now these can be implemented.
 
 inline dmstr str_base::substr(intptr_t ichBegin) const {
-   return substr(ichBegin, intptr_t(size_in_chars()));
+   return substr(ichBegin, static_cast<intptr_t>(size_in_chars()));
 }
 inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));

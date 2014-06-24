@@ -150,8 +150,7 @@ public:
    void write(str_base const & s, io::text::writer * ptwOut) {
       _str_to_str_backend::write(
          s.chars_begin(),
-         size_t(reinterpret_cast<int8_t const *>(s.chars_end()) -
-            reinterpret_cast<int8_t const *>(s.chars_begin())),
+         reinterpret_cast<size_t>(s.chars_end()) - reinterpret_cast<size_t>(s.chars_begin()),
          text::encoding::host, ptwOut
       );
    }

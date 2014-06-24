@@ -533,10 +533,10 @@ file_reader::file_reader(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were read; prepare for the next attempt.
       pb += cbLastRead;
-      cbMax -= size_t(cbLastRead);
+      cbMax -= static_cast<size_t>(cbLastRead);
    } while (cbMax);
 
-   return size_t(pb - static_cast<int8_t *>(p));
+   return static_cast<size_t>(pb - static_cast<int8_t *>(p));
 }
 
 } //namespace binary
@@ -612,10 +612,10 @@ file_writer::file_writer(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were written; prepare for the next attempt.
       pb += cbLastWritten;
-      cb -= size_t(cbLastWritten);
+      cb -= static_cast<size_t>(cbLastWritten);
    } while (cb);
 
-   return size_t(pb - static_cast<int8_t const *>(p));
+   return static_cast<size_t>(pb - static_cast<int8_t const *>(p));
 }
 
 } //namespace binary
@@ -691,10 +691,10 @@ console_reader::console_reader(_file_init_data * pfid) :
       }
       // Some bytes were read; prepare for the next attempt.
       pb += cchLastRead * sizeof(char_t);
-      cchMax -= size_t(cchLastRead);
+      cchMax -= static_cast<size_t>(cchLastRead);
    } while (cchMax);
 
-   return size_t(pb - static_cast<int8_t *>(p));
+   return static_cast<size_t>(pb - static_cast<int8_t *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -749,10 +749,10 @@ console_writer::console_writer(_file_init_data * pfid) :
       }
       // Some bytes were written; prepare for the next attempt.
       pb += cchLastWritten * sizeof(char_t);
-      cch -= size_t(cchLastWritten);
+      cch -= static_cast<size_t>(cchLastWritten);
    } while (cch);
 
-   return size_t(pb - static_cast<int8_t const *>(p));
+   return static_cast<size_t>(pb - static_cast<int8_t const *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -820,7 +820,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 
 #if ABC_HOST_API_POSIX
 
-   m_cb = size_t(pfid->statFile.st_size);
+   m_cb = static_cast<size_t>(pfid->statFile.st_size);
 #if 0
    if (!m_bBuffered) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.

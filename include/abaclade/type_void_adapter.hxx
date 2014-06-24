@@ -165,7 +165,7 @@ private:
    static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
-         memory::copy(ptDstBegin, ptSrcBegin, size_t(ptSrcEnd - ptSrcBegin));
+         memory::copy(ptDstBegin, ptSrcBegin, static_cast<size_t>(ptSrcEnd - ptSrcBegin));
       } else {
          T * ptDst(ptDstBegin);
          if (

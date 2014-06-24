@@ -251,7 +251,7 @@ file_path file_path::normalize() const {
 
    dmstr s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
-   auto itRootEnd(itBegin + ptrdiff_t(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<ptrdiff_t>(get_root_length(s, true)));
 
    // Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
    // separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back
@@ -316,7 +316,7 @@ file_path file_path::normalize() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(static_cast<size_t>(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 
@@ -341,7 +341,7 @@ file_path file_path::parent_dir() const {
    }
    // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
    // separator; advance the iterator instead.
-   if (itLastSep - itBegin < ptrdiff_t(get_root_length(m_s, true))) {
+   if (itLastSep - itBegin < static_cast<ptrdiff_t>(get_root_length(m_s, true))) {
       ++itLastSep;
    }
    return m_s.substr(itBegin, itLastSep);
@@ -482,7 +482,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 
    auto itBegin(s.begin()), itEnd(s.end());
    // Save an iterator to the end of the root prefix.
-   auto itRootEnd(itBegin + ptrdiff_t(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<ptrdiff_t>(get_root_length(s, true)));
 
    // Collapse sequences of one or more path separators with a single separator.
    auto itDst(itRootEnd);
@@ -510,7 +510,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(size_t(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(static_cast<size_t>(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 

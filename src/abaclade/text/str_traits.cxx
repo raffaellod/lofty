@@ -135,7 +135,7 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
 
-   pvcchFailNext->set_size(size_t(pchNeedleEnd - pchNeedleBegin));
+   pvcchFailNext->set_size(static_cast<size_t>(pchNeedleEnd - pchNeedleBegin));
    auto itNextFailNext(pvcchFailNext->begin());
 
    // The earliest repetition of a non-first character can only occur on the fourth character, so
@@ -336,7 +336,7 @@ namespace text {
          } else if (iFailNext > 0) {
             // The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
             // much into the needle we can retry matching characters.
-            iFailNext = vcchFailNext[intptr_t(iFailNext)];
+            iFailNext = vcchFailNext[static_cast<intptr_t>(iFailNext)];
             pchNeedle = pchNeedleBegin + iFailNext;
          } else {
             // Not a match, and no restart point: we’re out of options to match this character, so

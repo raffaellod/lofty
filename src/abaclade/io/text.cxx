@@ -109,7 +109,7 @@ bool reader::read_line(mstr * ps) {
       // Consume the string up to and including the line terminator; after read_while() we’ll strip
       // the line terminator (cchLTerm characters) from the string.
       cchLTerm = sLTerm.size_in_chars();
-      return itLineEnd + ptrdiff_t(cchLTerm);
+      return itLineEnd + static_cast<ptrdiff_t>(cchLTerm);
    }));
    // Remove the line terminator from the end of the string.
    if (cchLTerm) {
@@ -163,13 +163,13 @@ void _writer_print_helper_impl::run() {
    // Since this specialization has no replacements, verify that the format string doesn’t specify
    // any either.
    if (write_format_up_to_next_repl()) {
-      ABC_THROW(index_error, (intptr_t(m_iSubstArg)));
+      ABC_THROW(index_error, (static_cast<intptr_t>(m_iSubstArg)));
    }
 }
 
 
 void _writer_print_helper_impl::throw_index_error() {
-   ABC_THROW(index_error, (intptr_t(m_iSubstArg)));
+   ABC_THROW(index_error, (static_cast<intptr_t>(m_iSubstArg)));
 }
 
 
@@ -296,10 +296,12 @@ void _writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) 
    ABC_TRACE_FUNC(this, itUpTo);
 
    if (itUpTo > m_itFormatToWriteBegin) {
-      m_ptw->write_binary(m_itFormatToWriteBegin.base(), size_t(
-         reinterpret_cast<int8_t const *>(itUpTo.base()) -
-         reinterpret_cast<int8_t const *>(m_itFormatToWriteBegin.base())
-      ), abc::text::encoding::host);
+      m_ptw->write_binary(
+         m_itFormatToWriteBegin.base(),
+         reinterpret_cast<size_t>(itUpTo.base()) -
+            reinterpret_cast<size_t>(m_itFormatToWriteBegin.base()),
+         abc::text::encoding::host
+      );
       m_itFormatToWriteBegin = itUpTo;
    }
 }
@@ -396,7 +398,7 @@ binbuf_reader::binbuf_reader(
          // This special value prevents guess_encoding() from dismissing char_16/32_t as impossible
          // just because the need to clip cbFile to a size_t resulted in an odd count of bytes.
          static size_t const sc_cbAlignedMax(numeric::max<size_t>::value & ~sizeof(char32_t));
-         cbFile = size_t(std::min(psb->size(), full_size_t(sc_cbAlignedMax)));
+         cbFile = static_cast<size_t>(std::min(psb->size(), full_size_t(sc_cbAlignedMax)));
       } else {
          cbFile = 0;
       }
@@ -436,7 +438,7 @@ binbuf_reader::binbuf_reader(
                sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
             ).base();
          }
-         size_t cchConsumed(size_t(pchDstConsumeEnd - pchDstOffset));
+         size_t cchConsumed(static_cast<size_t>(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
 
@@ -479,7 +481,7 @@ binbuf_reader::binbuf_reader(
          // Determine how much of the string is to be consumed.
          char_t const * pchDstConsumeEnd;
          {
-            istr sConsumableBuf(unsafe, pchDstBegin, size_t(pchDstEnd - pchDstBegin));
+            istr sConsumableBuf(unsafe, pchDstBegin, static_cast<size_t>(pchDstEnd - pchDstBegin));
             pchDstConsumeEnd = fnGetConsumeEnd(
                sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
             ).base();
@@ -492,8 +494,8 @@ binbuf_reader::binbuf_reader(
             pbSrc = pbBuf;
             cbSrcConsumed = cbBuf;
             pchDstEnd = pchDstOffset;
-            cbDst = size_t(reinterpret_cast<int8_t const *>(pchDstConsumeEnd) -
-               reinterpret_cast<int8_t *>(pchDstOffset));
+            cbDst = reinterpret_cast<size_t>(pchDstConsumeEnd) -
+               reinterpret_cast<size_t>(pchDstOffset);
             abc::text::transcode(
                std::nothrow, m_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrcConsumed,
                abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
@@ -505,7 +507,7 @@ binbuf_reader::binbuf_reader(
          }
 
          // Consume as much of the buffer as fnGetConsumeEnd said.
-         cchReadTotal += size_t(pchDstConsumeEnd - pchDstOffset);
+         cchReadTotal += static_cast<size_t>(pchDstConsumeEnd - pchDstOffset);
          m_pbbr->consume_bytes(cbSrcConsumed);
 
          // Read some more bytes; see comment to this same line at the beginning of this method.

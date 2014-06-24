@@ -215,7 +215,7 @@ inline size_t size_in_chars(C const * psz) {
    while (*pch) {
       ++pch;
    }
-   return size_t(pch - psz);
+   return static_cast<size_t>(pch - psz);
 }
 
 

@@ -32,9 +32,9 @@ ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
    if (m_pch > pch) {
-      return ptrdiff_t(host_str_traits::size_in_codepoints(pch, m_pch));
+      return static_cast<ptrdiff_t>(host_str_traits::size_in_codepoints(pch, m_pch));
    } else if (m_pch < pch) {
-      return -ptrdiff_t(host_str_traits::size_in_codepoints(m_pch, pch));
+      return -static_cast<ptrdiff_t>(host_str_traits::size_in_codepoints(m_pch, pch));
    } else {
       return 0;
    }

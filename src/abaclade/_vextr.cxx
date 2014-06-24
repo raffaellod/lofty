@@ -89,7 +89,7 @@ std::pair<void const *, void const *> _raw_vextr_impl_base::translate_byte_range
 ) const {
    ABC_TRACE_FUNC(this, ibBegin, ibEnd);
 
-   intptr_t cb((intptr_t(size<int8_t>())));
+   intptr_t cb(static_cast<intptr_t>(size<int8_t>()));
    if (ibBegin < 0) {
       ibBegin += cb;
       if (ibBegin < 0) {
@@ -253,8 +253,8 @@ void _raw_complex_vextr_impl::assign_concat(
 ) {
    ABC_TRACE_FUNC(this, /*type, */p1Begin, p1End, p2Begin, p2End, iMove);
 
-   size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
-   size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
+   size_t cb1(reinterpret_cast<size_t>(p1End) - reinterpret_cast<size_t>(p1Begin));
+   size_t cb2(reinterpret_cast<size_t>(p2End) - reinterpret_cast<size_t>(p2Begin));
    _raw_vextr_transaction trn(this, false, cb1 + cb2);
    size_t cbOrig(size<int8_t>());
    std::unique_ptr<int8_t[]> pbBackup;
@@ -390,7 +390,7 @@ static void overlapping_move_constr(
       // └─────────────────┘
       //
       // Move the items from left to right (the block moves from right to left).
-      size_t cbBeforeOverlap(size_t(pbSrcBegin - pbDstBegin));
+      size_t cbBeforeOverlap(static_cast<size_t>(pbSrcBegin - pbDstBegin));
 
       // Move-construct the items that have an unused destination, then destruct them, so they can
       // be overwritten by the next move if necessary.
@@ -416,7 +416,7 @@ static void overlapping_move_constr(
       //
       // This situation is the mirror of the above, so the move must be done backwards, copying
       // right to left (the block moves from left to right).
-      size_t cbAfterOverlap(size_t(pbDstEnd - pbSrcEnd));
+      size_t cbAfterOverlap(static_cast<size_t>(pbDstEnd - pbSrcEnd));
 
       // Move-construct the items that have an unused destination, then destruct them, so they can
       // be overwritten by the next move if necessary.
@@ -459,7 +459,7 @@ void _raw_complex_vextr_impl::insert(
    int8_t * pbWorkInsertEnd(static_cast<int8_t *>(pbWorkInsertBegin) + cbInsert);
    // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
    // always be moved.
-   size_t cbTail(size_t(end<int8_t>() - pbOffset));
+   size_t cbTail(static_cast<size_t>(end<int8_t>() - pbOffset));
    if (cbTail) {
       overlapping_move_constr(type, pbWorkInsertEnd, pbOffset, end<int8_t>());
    }
@@ -571,8 +571,8 @@ void _raw_trivial_vextr_impl::assign_concat(
 ) {
    ABC_TRACE_FUNC(this, p1Begin, p1End, p2Begin, p2End);
 
-   size_t cb1(size_t(static_cast<int8_t const *>(p1End) - static_cast<int8_t const *>(p1Begin)));
-   size_t cb2(size_t(static_cast<int8_t const *>(p2End) - static_cast<int8_t const *>(p2Begin)));
+   size_t cb1(reinterpret_cast<size_t>(p1End) - reinterpret_cast<size_t>(p1Begin));
+   size_t cb2(reinterpret_cast<size_t>(p2End) - reinterpret_cast<size_t>(p2Begin));
    _raw_vextr_transaction trn(this, true, cb1 + cb2);
    int8_t * pbWorkCopy(trn.work_array<int8_t>());
    if (cb1) {
@@ -655,7 +655,7 @@ void _raw_trivial_vextr_impl::_insert_or_remove(
    int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
    // last removed (when removing) must always be moved/copied.
-   if (size_t cbTail = size_t(end<int8_t>() - pbRemoveEnd)) {
+   if (size_t cbTail = static_cast<size_t>(end<int8_t>() - pbRemoveEnd)) {
       memory::move(pbWorkOffset + cbAdd, pbRemoveEnd, cbTail);
    }
    if (cbAdd) {
