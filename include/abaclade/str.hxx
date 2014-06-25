@@ -941,6 +941,22 @@ protected:
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }
+
+
+   /** Inserts characters into the string at a specific character (not code point) offset.
+
+   ichOffset
+      Offset at which to insert the characters.
+   pchInsert
+      Pointer to an array of characters to append.
+   cchInsert
+      Count of characters in the array pointed to by pchAdd.
+   */
+   void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
+      _raw_trivial_vextr_impl::insert(
+         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert
+      );
+   }
 };
 
 
