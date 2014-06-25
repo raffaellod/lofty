@@ -884,6 +884,44 @@ public:
    }
 
 
+   /** Inserts characters into the string at a specific character (not code point) offset.
+
+   ichOffset
+      0-based offset at which to insert the characters.
+   ch
+      Character to insert.
+   s
+      String to insert.
+   pchInsert
+      Pointer to an array of characters to insert.
+   cchInsert
+      Count of characters in the array pointed to by pchInsert.
+   */
+   void insert(uintptr_t ichOffset, char_t ch) {
+      insert(ichOffset, &ch, 1);
+   }
+#if ABC_HOST_UTF > 8
+   void insert(uintptr_t ichOffset, char ch) {
+      insert(ichOffset, text::host_char(ch));
+   }
+#endif
+   void insert(uintptr_t ichOffset, char32_t ch) {
+      char_t ach[text::host_char_traits::max_codepoint_length];
+      insert(
+         ichOffset, ach,
+         static_cast<size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach)
+      );
+   }
+   void insert(uintptr_t ichOffset, istr const & s) {
+      insert(ichOffset, s.chars_begin(), s.size_in_chars());
+   }
+   void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
+      _raw_trivial_vextr_impl::insert(
+         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert
+      );
+   }
+
+
    /** See str_base::rbegin(). Here also available in non-const overload.
    */
    reverse_iterator rbegin() {
@@ -940,22 +978,6 @@ protected:
    */
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
-   }
-
-
-   /** Inserts characters into the string at a specific character (not code point) offset.
-
-   ichOffset
-      Offset at which to insert the characters.
-   pchInsert
-      Pointer to an array of characters to append.
-   cchInsert
-      Count of characters in the array pointed to by pchAdd.
-   */
-   void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
-      _raw_trivial_vextr_impl::insert(
-         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert
-      );
    }
 };
 
@@ -1206,48 +1228,84 @@ inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
       sR.chars_begin(), sR.chars_end()
    );
 }
-// Overloads taking a temporary string as left operand; they can avoid creating an intermediate
-// string.
+// Overloads taking a temporary string as left or right operand; they can avoid creating an
+// intermediate string.
 inline abc::dmstr operator+(abc::istr && sL, abc::char_t chR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(abc::char_t chL, abc::istr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, chL);
+   return std::move(dmsR);
+}*/
 #if ABC_HOST_UTF > 8
 inline abc::dmstr operator+(abc::istr && sL, char chR) {
    return operator+(std::move(sL), abc::text::host_char(chR));
 }
+/*inline abc::dmstr operator+(char chL, abc::istr && sR) {
+   return operator+(abc::text::host_char(chL), std::move(sR));
+}*/
 #endif
 inline abc::dmstr operator+(abc::istr && sL, char32_t chR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(char32_t chL, abc::istr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, chL);
+   return std::move(dmsR);
+}*/
 inline abc::dmstr operator+(abc::istr && sL, abc::istr const & sR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += sR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(abc::istr const & sL, abc::istr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, sL);
+   return std::move(dmsR);
+}*/
 inline abc::dmstr operator+(abc::mstr && sL, abc::char_t chR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(abc::char_t chL, abc::mstr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, chL);
+   return std::move(dmsR);
+}*/
 #if ABC_HOST_UTF > 8
 inline abc::dmstr operator+(abc::mstr && sL, char chR) {
    return operator+(std::move(sL), abc::text::host_char(chR));
 }
+/*inline abc::dmstr operator+(char chL, abc::mstr && sR) {
+   return operator+(abc::text::host_char(chL), std::move(sR));
+}*/
 #endif
 inline abc::dmstr operator+(abc::mstr && sL, char32_t chR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(char32_t chL, abc::mstr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, chL);
+   return std::move(dmsR);
+}*/
 inline abc::dmstr operator+(abc::mstr && sL, abc::istr const & sR) {
    abc::dmstr dmsL(std::move(sL));
    dmsL += sR;
    return std::move(dmsL);
 }
+/*inline abc::dmstr operator+(abc::istr const & sL, abc::mstr && sR) {
+   abc::dmstr dmsR(std::move(sR));
+   dmsR.insert(0, sL);
+   return std::move(dmsR);
+}*/
 
 
 namespace std {
