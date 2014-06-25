@@ -806,7 +806,7 @@ public:
 
 protected:
 
-   /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /** See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
       _raw_vextr_impl_base(cbEmbeddedCapacity) {
@@ -948,7 +948,7 @@ public:
 
 protected:
 
-   /** Constructor. See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /** See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
       _raw_vextr_impl_base(cbEmbeddedCapacity) {

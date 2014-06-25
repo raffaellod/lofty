@@ -936,7 +936,7 @@ public:
 
 protected:
 
-   /** Constructor. See str_base::str_base().
+   /** See str_base::str_base().
    */
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {

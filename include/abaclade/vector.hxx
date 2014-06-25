@@ -156,7 +156,7 @@ public:
 
 protected:
 
-   /** Constructor. See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
+   /** See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_complex_vextr_impl(cbEmbeddedCapacity) {
@@ -230,7 +230,7 @@ public:
 
 protected:
 
-   /** Constructor. See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
+   /** See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_vector<T, false, false>(cbEmbeddedCapacity) {
@@ -367,7 +367,7 @@ public:
 
 protected:
 
-   /** Constructor. See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
+   /** See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
