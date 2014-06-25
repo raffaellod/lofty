@@ -252,9 +252,11 @@ since this file is included in virtually every file whereas trace.hxx is not.
 
 /** Pretty-printed name of the current function. */
 #if ABC_HOST_GCC
-   // GCC BUG: chokes on SL(__PRETTY_FUNCTION__), claiming it expands to u8__PRETTY_FUNCTION__. This
-   // is inconsistent with the successful expansion of SL(__FILE__), but since it’s not really
-   // necessary, we just avoid using SL() here.
+   // With GCC we cannot use SL(__PRETTY_FUNCTION__) because apparently __PRETTY_FUNCTION__ is
+   // expanded by the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t
+   // know what scope even means; this causes SL(__PRETTY_FUNCTION__) to expand to
+   // u8__PRETTY_FUNCTION__. However, since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s
+   // not really necessary, so we just avoid using SL() here.
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
