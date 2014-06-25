@@ -287,7 +287,7 @@ public:
    /** Returns a pointer to the start of the item array.
 
    return
-      Pointer to the first element.
+      Pointer to the first item.
    */
    template <typename T>
    T * begin() {
@@ -314,7 +314,7 @@ public:
    /** Returns a pointer to the end of the item array.
 
    return
-      Pointer to beyond the last element.
+      Pointer to beyond the last item.
    */
    template <typename T>
    T * end() {
@@ -745,7 +745,7 @@ public:
    }
 
 
-   /** Inserts elements at a specific position in the vextr.
+   /** Inserts items at a specific position in the vextr.
 
    type
       Adapter for the items’ type.
@@ -771,7 +771,7 @@ public:
    ibOffset
       Byte index at which the items should be removed.
    cbRemove
-      Size of the array slice to be removed, in bytes.
+      Size of the array slice to remove, in bytes.
    */
    void remove(type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove);
 
@@ -792,9 +792,9 @@ public:
 
 
    /** Changes the count of items in the vextr. If the new item count is greater than the current
-   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
-   elements are properly constructed, or problems will arise when the destructor will attempt to
-   destruct these elements.
+   one, the added items will be left uninitialized; it’s up to the caller to make sure that these
+   items are properly constructed, or problems will arise when the destructor will attempt to
+   destruct these items.
 
    type
       Adapter for the items’ type.
@@ -894,34 +894,18 @@ public:
    void assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi);
 
 
-   /** Inserts elements at a specific position in the vextr.
+   /** Inserts or removes items at a specific position in the vextr.
 
    ibOffset
-      Byte index at which the items should be inserted.
+      Byte index at which the items should be inserted or removed.
    pInsert
       Pointer to the first item to insert.
    cbInsert
-      Size of the array pointed to by pInsert, in bytes.
-   */
-   void insert(uintptr_t ibOffset, void const * pInsert, size_t cbInsert) {
-      if (cbInsert) {
-         _insert_or_remove(ibOffset, pInsert, cbInsert, 0);
-      }
-   }
-
-
-   /** Removes items from the vextr.
-
-   ibOffset
-      Byte index at which the items should be removed.
+      Size of the array pointed to be pInsert, in bytes.
    cbRemove
-      Size of the array slice to be removed, in bytes.
+      Size of the slice of item array to remove, in bytes.
    */
-   void remove(uintptr_t ibOffset, size_t cbRemove) {
-      if (cbRemove) {
-         _insert_or_remove(ibOffset, nullptr, 0, cbRemove);
-      }
-   }
+   void insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 
 
    /** Ensures that the item array has at least cbMin of actual item space. If this causes *this to
@@ -937,8 +921,8 @@ public:
    void set_capacity(size_t cbMin, bool bPreserve);
 
 
-   /** Changes the count of elements in the vextr. If the item array needs to be lengthened, the
-   added elements will be left uninitialized.
+   /** Changes the count of items in the vextr. If the item array needs to be lengthened, the added
+   items will be left uninitialized.
 
    cb
       New size of the items, in bytes.
@@ -958,22 +942,6 @@ protected:
    ) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
    }
-
-
-private:
-
-   /** Implementation of insert() and remove().
-
-   ibOffset
-      Byte index at which the items should be inserted or removed.
-   pInsert
-      Pointer to the first item to insert.
-   cbInsert
-      Size of the array pointed to be pInsert, in bytes.
-   cbRemove
-      Size of the slice of item array to remove, in bytes.
-   */
-   void _insert_or_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };
 
 } //namespace abc

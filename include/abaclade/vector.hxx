@@ -305,11 +305,11 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
-      _raw_trivial_vextr_impl::insert(
+      _raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
             reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
          ),
-         ptInsert, sizeof(T) * ciInsert
+         ptInsert, sizeof(T) * ciInsert, 0
       );
    }
 
@@ -325,11 +325,11 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
-      _raw_trivial_vextr_impl::insert(
+      _raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
             reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
          ),
-         ptInsert, sizeof(T) * ciInsert
+         ptInsert, sizeof(T) * ciInsert, 0
       );
    }
 
@@ -342,10 +342,11 @@ public:
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
-      _raw_trivial_vextr_impl::remove(
+      _raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
             reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
          ),
+         nullptr, 0,
          reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
       );
    }

@@ -817,8 +817,8 @@ public:
       Count of characters in the array pointed to by pchAdd.
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
-      _raw_trivial_vextr_impl::insert(
-         _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd
+      _raw_trivial_vextr_impl::insert_remove(
+         _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd, 0
       );
    }
 
@@ -916,8 +916,8 @@ public:
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
    void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
-      _raw_trivial_vextr_impl::insert(
-         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert
+      _raw_trivial_vextr_impl::insert_remove(
+         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
       );
    }
 
