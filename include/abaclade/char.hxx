@@ -124,52 +124,6 @@ typedef char char8_t;
    typedef uint32_t char32_t;
 #endif
 
-
-/** Defines a UTF-8 string literal. On some platforms, this relies on the source files being encoded
-in UTF-8.
-
-s
-   String literal.
-return
-   UTF-8 string literal.
-*/
-#if ABC_CXX_UTF8LIT == 2
-   #define U8SL(s) u8 ## s
-#elif ABC_CXX_UTF8LIT == 1
-   // Rely on the source files being encoded in UTF-8.
-   #define U8SL(s) s
-#endif
-
-
-/** Defines a UTF-16 string literal. Not supported on all platforms; check with #ifdef before using.
-
-s
-   String literal.
-return
-   UTF-16 string literal.
-*/
-#if ABC_CXX_CHAR16 == 2
-   #define U16SL(s) u ## s
-#elif ABC_CXX_CHAR16 == 1
-   #define U16SL(s) L ## s
-#endif
-
-
-/** Defines a UTF-32/UCS-32 string literal. Not supported on all platforms; check with #ifdef before
-using.
-
-s
-   String literal.
-return
-   UTF-32 string literal.
-*/
-#if ABC_CXX_CHAR32 == 2
-   #define U32SL(s) U ## s
-#elif ABC_CXX_CHAR32 == 1
-   #define U32SL(s) L ## s
-#endif
-
-
 /** UTF-* encoding supported by the host. */
 #if ABC_HOST_API_WIN32 && defined(UNICODE)
    #define ABC_HOST_UTF 16
@@ -219,9 +173,15 @@ return
    UTF string literal.
 */
 #if ABC_HOST_UTF == 8
-   #define SL(s) U8SL(s)
+   #if ABC_CXX_UTF8LIT == 2
+      // Use ABC_CPP_CAT2() to expand macros before pasting them with u8.
+      #define SL(s) ABC_CPP_CAT2(u8, s)
+   #else
+      #define SL(s) s
+   #endif
 #elif ABC_HOST_UTF == 16
-   #define SL(s) U16SL(s)
+   // Use ABC_CPP_CAT2() to expand macros before pasting them with L.
+   #define SL(s) ABC_CPP_CAT2(L, s)
 #endif
 
 
