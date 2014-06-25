@@ -63,10 +63,10 @@ void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
 
 namespace abc {
 
-char_t const _int_to_str_backend_base::smc_achIntToStrU[16] = {
+char const _int_to_str_backend_base::smc_achIntToStrU[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-char_t const _int_to_str_backend_base::smc_achIntToStrL[16] = {
+char const _int_to_str_backend_base::smc_achIntToStrL[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
 
@@ -76,7 +76,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    // Default to generating at least a single zero.
    m_cchWidth(1),
    m_cchBuf(1 /*possible sign*/ + 3 /*max base10 characters per byte*/ * cbInt),
-   mc_cbInt(uint8_t(cbInt)),
+   mc_cbInt(static_cast<uint8_t>(cbInt)),
    // Default to decimal notation.
    m_iBaseOrShift(10),
    // Default padding is with spaces (and won’t be applied by default).
@@ -101,7 +101,7 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
    // Display a plus or a space in front of non-negative numbers.
    if (ch == '+' || ch == ' ') {
       // Force this character to be displayed for non-negative numbers.
-      m_chSign = char_t(ch);
+      m_chSign = static_cast<char>(ch);
       if (it == sFormat.cend()) {
          goto default_notation;
       }
@@ -129,7 +129,7 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
       // here for a 0 – see if above).
       m_cchWidth = 0;
       do {
-         m_cchWidth = m_cchWidth * 10 + static_cast<unsigned>(ch) - '0';
+         m_cchWidth = m_cchWidth * 10 + static_cast<unsigned>(ch - '0');
          if (it == sFormat.cend()) {
             goto default_notation;
          }
@@ -162,7 +162,7 @@ default_notation:
          switch (ch) {
             case 'b': // Binary notation, lowercase prefix.
             case 'B': // Binary notation, uppercase prefix.
-               m_chPrefix1 = char_t(ch);
+               m_chPrefix1 = static_cast<char>(ch);
                m_iBaseOrShift = 1;
                cchByte = 8;
                break;
@@ -174,7 +174,7 @@ default_notation:
                m_pchIntToStr = smc_achIntToStrU;
                // Fall through.
             case 'x': // Hexadecimal notation, lowercase prefix and letters.
-               m_chPrefix1 = char_t(ch);
+               m_chPrefix1 = static_cast<char>(ch);
                m_iBaseOrShift = 4;
                cchByte = 2;
                break;
@@ -211,7 +211,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    }
    // Determine the sign character: only if in decimal notation, and make it a minus sign if the
    // number is negative.
-   char_t chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
+   char chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
    // Decide whether we’ll put a sign last, after the padding.
    bool bSignLast(chSign && m_chPad == '0');
    // Add the sign character if there’s no prefix and the padding is not zeroes.

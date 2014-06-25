@@ -233,7 +233,7 @@ protected:
 protected:
 
    /** Pointer to either smc_achIntToStrL or smc_achIntToStrU. */
-   char_t const * m_pchIntToStr;
+   char const * m_pchIntToStr;
    /** Minimum number of digits to be generated. Always >= 1, to ensure the generation of at least a
    single zero. */
    unsigned m_cchWidth;
@@ -244,18 +244,18 @@ protected:
    /** 10 (for decimal notation) or log2(notation) (for power-of-two notations). */
    uint8_t m_iBaseOrShift;
    /** Character to be used to pad the digits to m_cchWidth length. */
-   char_t m_chPad;
+   char m_chPad;
    /** Character to be used as sign in case the number is not negative; NUL if none. */
-   char_t m_chSign;
+   char m_chSign;
    /** First character of the prefix; NUL if none (which means that m_chPrefix1 is ignored). */
-   char_t m_chPrefix0;
+   char m_chPrefix0;
    /** Second character of the prefix; NUL if none. */
-   char_t m_chPrefix1;
+   char m_chPrefix1;
 
    /** Map from int [0-15] to its uppercase hexadecimal representation. */
-   static char_t const smc_achIntToStrU[16];
+   static char const smc_achIntToStrU[16];
    /** Map from int [0-15] to its lowercase hexadecimal representation. */
-   static char_t const smc_achIntToStrL[16];
+   static char const smc_achIntToStrL[16];
 };
 
 

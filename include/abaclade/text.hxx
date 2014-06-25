@@ -100,11 +100,27 @@ return
 */
 inline char32_t codepoint(char_t ch) {
 #if ABC_HOST_UTF == 8
-   return char32_t(uint8_t(ch));
+   return static_cast<char32_t>(static_cast<uint8_t>(ch));
 #elif ABC_HOST_UTF == 16
-   return char32_t(ch);
+   return static_cast<char32_t>(ch);
 #endif
 }
+
+
+#if ABC_HOST_UTF > 8
+
+/** Casts a single character into a character of the largest native size for the host.
+
+ch
+   Character.
+return
+   Equivalent host character.
+*/
+inline char_t host_char(char ch) {
+   return static_cast<char_t>(static_cast<uint8_t>(ch));
+}
+
+#endif
 
 
 /** Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
