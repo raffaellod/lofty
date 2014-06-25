@@ -117,7 +117,7 @@ public:
 #endif
    _codepoint_proxy & operator=(char32_t ch) {
       // TODO: FIXME: convert from char32_t for real.
-      *const_cast<char_t *>(m_pch) = char_t(ch);
+      *const_cast<char_t *>(m_pch) = static_cast<char_t>(ch);
       return *this;
    }
    _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {

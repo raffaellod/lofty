@@ -38,7 +38,7 @@ void to_str_backend<bool>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
@@ -189,7 +189,7 @@ default_notation:
          // If we still have any characters, they are garbage (fall through).
       default:
          ABC_THROW(syntax_error, (
-            SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+            SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
          ));
    }
 
@@ -358,7 +358,7 @@ void _ptr_to_str_backend::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
@@ -400,7 +400,7 @@ void _sequence_to_str_backend::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }

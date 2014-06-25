@@ -65,12 +65,12 @@ uint8_t const utf8_str_traits::smc_aiOverlongDetectionMasks[] = {
          }
       } else {
          // This should be a lead byte, and not the invalid 1111111x.
-         if (utf8_char_traits::is_trail_char(ch) || uint8_t(ch) >= 0xfe) {
+         if (utf8_char_traits::is_trail_char(ch) || static_cast<uint8_t>(ch) >= 0xfe) {
             return false;
          }
          // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
          // been encoded as 01yyyyyy.
-         if (ch == char8_t(0xc1)) {
+         if (ch == '\xc1') {
             return false;
          }
          cbCont = utf8_char_traits::lead_char_to_codepoint_size(ch) - 1;

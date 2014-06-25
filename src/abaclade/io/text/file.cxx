@@ -113,7 +113,7 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
       sEnc.grow_for([pszEnvVarName] (char_t * pch, size_t cchMax) -> size_t {
          // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
          // enough, or the required size (length including NUL) otherwise.
-         return ::GetEnvironmentVariable(pszEnvVarName, pch, DWORD(cchMax));
+         return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
       });
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API

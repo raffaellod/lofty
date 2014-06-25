@@ -153,7 +153,7 @@ void writer::write_line(istr const & s) {
 _writer_print_helper_impl::_writer_print_helper_impl(writer * ptw, istr const & sFormat) :
    m_ptw(ptw),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
-   m_iSubstArg(unsigned(-1)),
+   m_iSubstArg(static_cast<unsigned>(-1)),
    m_sFormat(sFormat),
    m_itFormatToWriteBegin(sFormat.cbegin()) {
 }
@@ -288,7 +288,9 @@ void _writer_print_helper_impl::throw_syntax_error(
    istr const & sDescription, istr::const_iterator it
 ) const {
    // +1 because the first character is 1, to human beings.
-   ABC_THROW(syntax_error, (sDescription, m_sFormat, unsigned(it - m_sFormat.cbegin() + 1)));
+   ABC_THROW(
+      syntax_error, (sDescription, m_sFormat, static_cast<unsigned>(it - m_sFormat.cbegin() + 1))
+   );
 }
 
 
@@ -398,7 +400,9 @@ binbuf_reader::binbuf_reader(
          // This special value prevents guess_encoding() from dismissing char_16/32_t as impossible
          // just because the need to clip cbFile to a size_t resulted in an odd count of bytes.
          static size_t const sc_cbAlignedMax(numeric::max<size_t>::value & ~sizeof(char32_t));
-         cbFile = static_cast<size_t>(std::min(psb->size(), full_size_t(sc_cbAlignedMax)));
+         cbFile = static_cast<size_t>(
+            std::min(psb->size(), static_cast<full_size_t>(sc_cbAlignedMax))
+         );
       } else {
          cbFile = 0;
       }

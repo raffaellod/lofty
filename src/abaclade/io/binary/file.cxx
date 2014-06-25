@@ -519,8 +519,8 @@ file_reader::file_reader(_file_init_data * pfid) :
       // reading them does not fail.
       DWORD cbLastRead;
       if (!::ReadFile(
-         m_fd.get(), pb,
-         DWORD(std::min<size_t>(cbMax, numeric::max<DWORD>::value)), &cbLastRead, nullptr
+         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cbMax, numeric::max<DWORD>::value)),
+         &cbLastRead, nullptr
       )) {
          DWORD iErr(::GetLastError());
          if (iErr == ERROR_HANDLE_EOF) {
@@ -602,8 +602,8 @@ file_writer::file_writer(_file_init_data * pfid) :
       // writing them does not fail.
       DWORD cbLastWritten;
       if (!::WriteFile(
-         m_fd.get(), pb,
-         DWORD(std::min<size_t>(cb, numeric::max<DWORD>::value)), &cbLastWritten, nullptr
+         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cb, numeric::max<DWORD>::value)),
+         &cbLastWritten, nullptr
       )) {
          throw_os_error();
       }
@@ -680,8 +680,8 @@ console_reader::console_reader(_file_init_data * pfid) :
       // reading them does not fail.
       DWORD cchLastRead;
       if (!::ReadConsole(
-         m_fd.get(), pb,
-         DWORD(std::min<size_t>(cchMax, numeric::max<DWORD>::value)), &cchLastRead, nullptr
+         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cchMax, numeric::max<DWORD>::value)),
+         &cchLastRead, nullptr
       )) {
          DWORD iErr(::GetLastError());
          if (iErr == ERROR_HANDLE_EOF) {
@@ -742,8 +742,8 @@ console_writer::console_writer(_file_init_data * pfid) :
       // writing them does not fail.
       DWORD cchLastWritten;
       if (!::WriteConsole(
-         m_fd.get(), pb,
-         DWORD(std::min<size_t>(cch, numeric::max<DWORD>::value)), &cchLastWritten, nullptr
+         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cch, numeric::max<DWORD>::value)),
+         &cchLastWritten, nullptr
       )) {
          throw_os_error();
       }
@@ -824,7 +824,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 #if 0
    if (!m_bBuffered) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
-      m_cbPhysAlign = unsigned(pfid->statFile.st_blksize);
+      m_cbPhysAlign = static_cast<unsigned>(pfid->statFile.st_blksize);
    }
 #endif
 
@@ -846,7 +846,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
          throw_os_error(iErr);
       }
    }
-   m_cb = (full_size_t(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
+   m_cb = (static_cast<full_size_t>(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
 #endif //if _WIN32_WINNT >= 0x0500 … else
 #if 0
    if (!m_bBuffered) {
@@ -1058,10 +1058,11 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
             unlock();
          }
          m_fd = fd;
-         m_ibOffset.QuadPart = LONGLONG(ibOffset);
-         m_cb.QuadPart = LONGLONG(cb);
+         m_ibOffset.QuadPart = static_cast<LONGLONG>(ibOffset);
+         m_cb.QuadPart = static_cast<LONGLONG>(cb);
          if (!::LockFile(
-            m_fd, m_ibOffset.LowPart, DWORD(m_ibOffset.HighPart), m_cb.LowPart, DWORD(m_cb.HighPart)
+            m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
+            static_cast<DWORD>(m_cb.HighPart)
          )) {
             DWORD iErr(::GetLastError());
             if (iErr == ERROR_LOCK_VIOLATION) {
@@ -1077,7 +1078,8 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
       */
       void unlock() {
          if (!::UnlockFile(
-            m_fd, m_ibOffset.LowPart, DWORD(m_ibOffset.HighPart), m_cb.LowPart, DWORD(m_cb.HighPart)
+            m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
+            static_cast<DWORD>(m_cb.HighPart)
          )) {
             throw_os_error();
          }

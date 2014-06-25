@@ -108,11 +108,11 @@ uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
    char8_t * pchDst(pchDstEnd);
    while (cbSeq--) {
       // Each trailing byte uses 6 bits.
-      *--pchDst = char8_t(0x80 | (cp & 0x3f));
+      *--pchDst = static_cast<char8_t>(0x80 | (cp & 0x3f));
       cp >>= 6;
    }
    // The remaining code point bits (after >> 6 * (cbSeq - 1)) make up what goes in the lead byte.
-   *--pchDst = iSeqIndicator | char8_t(cp);
+   *--pchDst = iSeqIndicator | static_cast<char8_t>(cp);
    return pchDstEnd;
 }
 
@@ -135,7 +135,7 @@ namespace text {
       return chSrc0;
    }
    char16_t chSrc1(*++pchSrcBegin);
-   char32_t cp = ((char32_t(chSrc0 & 0x03ff) << 10) | (chSrc1 & 0x03ff)) + 0x10000;
+   char32_t cp = ((static_cast<char32_t>(chSrc0 & 0x03ff) << 10) | (chSrc1 & 0x03ff)) + 0x10000;
    return is_codepoint_valid(cp) ? cp : replacement_char;
 }
 
@@ -147,11 +147,11 @@ namespace text {
    if (cp > 0x00ffff) {
       // The code point requires two UTF-16 characters: generate a surrogate pair.
       cp -= 0x10000;
-      *pchDst++ = char16_t(0xd800 | ((cp & 0x0ffc00) >> 10));
-      *pchDst++ = char16_t(0xdc00 |  (cp & 0x0003ff)       );
+      *pchDst++ = static_cast<char16_t>(0xd800 | ((cp & 0x0ffc00) >> 10));
+      *pchDst++ = static_cast<char16_t>(0xdc00 |  (cp & 0x0003ff)       );
    } else {
       // The code point fits in a single UTF-16 character.
-      *pchDst++ = char16_t(cp);
+      *pchDst++ = static_cast<char16_t>(cp);
    }
    return pchDst;
 }

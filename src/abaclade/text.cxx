@@ -222,10 +222,10 @@ encoding guess_encoding(
    // Easy checks.
    if (cbSrcTotal & (sizeof(char32_t) - 1)) {
       // UTF-32 requires a number of bytes multiple of sizeof(char32_t).
-      fess &= ~unsigned(ESS_MASK_UTF32);
+      fess &= ~static_cast<unsigned>(ESS_MASK_UTF32);
       if (cbSrcTotal & (sizeof(char16_t) - 1)) {
          // UTF-16 requires an even number of bytes.
-         fess &= ~unsigned(ESS_MASK_UTF16);
+         fess &= ~static_cast<unsigned>(ESS_MASK_UTF16);
       }
    }
 
@@ -240,22 +240,24 @@ encoding guess_encoding(
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
          // here.
          if (cbUtf8Cont) {
-            if (!utf8_char_traits::is_trail_char(char8_t(b))) {
+            if (!utf8_char_traits::is_trail_char(static_cast<char8_t>(b))) {
                // This byte should be part of a sequence, but it’s not.
-               fess &= ~unsigned(ESS_UTF8);
+               fess &= ~static_cast<unsigned>(ESS_UTF8);
             } else {
                --cbUtf8Cont;
             }
          } else {
-            if (utf8_char_traits::is_trail_char(char8_t(b))) {
+            if (utf8_char_traits::is_trail_char(static_cast<char8_t>(b))) {
                // This byte should be a lead byte, but it’s not.
-               fess &= ~unsigned(ESS_UTF8);
+               fess &= ~static_cast<unsigned>(ESS_UTF8);
             } else {
-               cbUtf8Cont = utf8_char_traits::lead_char_to_codepoint_size(char8_t(b)) - 1;
+               cbUtf8Cont = utf8_char_traits::lead_char_to_codepoint_size(
+                  static_cast<char8_t>(b)
+               ) - 1;
                if ((b & 0x80) && cbUtf8Cont == 0) {
                   // By utf8_char_traits::lead_char_to_codepoint_size(), a non-ASCII byte that
                   // doesn’t have a continuation is an invalid one.
-                  fess &= ~unsigned(ESS_UTF8);
+                  fess &= ~static_cast<unsigned>(ESS_UTF8);
                }
             }
          }
@@ -296,10 +298,10 @@ encoding guess_encoding(
          // well as other restrictions.
          uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
          if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byteorder::le_to_host(ch))) {
-            fess &= ~unsigned(ESS_UTF32LE);
+            fess &= ~static_cast<unsigned>(ESS_UTF32LE);
          }
          if ((fess & ESS_UTF32BE) && !is_codepoint_valid(byteorder::be_to_host(ch))) {
-            fess &= ~unsigned(ESS_UTF32BE);
+            fess &= ~static_cast<unsigned>(ESS_UTF32BE);
          }
       }
 
@@ -307,7 +309,7 @@ encoding guess_encoding(
          // Check for ISO-8859-1 validity. This is more of a guess, since there’s a big many other
          // encodings that would pass this check.
          if ((sc_abValidISO88591[b >> 3] & (1 << (b & 7))) == 0) {
-            fess &= ~unsigned(ESS_ISO_8859_1);
+            fess &= ~static_cast<unsigned>(ESS_ISO_8859_1);
          }
       }
 
@@ -315,7 +317,7 @@ encoding guess_encoding(
          // Check for Windows-1252 validity. Even more of a guess, since this considers valid even
          // more characters.
          if ((sc_abValidWindows1252[b >> 3] & (1 << (b & 7))) == 0) {
-            fess &= ~unsigned(ESS_WINDOWS_1252);
+            fess &= ~static_cast<unsigned>(ESS_WINDOWS_1252);
          }
       }
 
@@ -416,7 +418,7 @@ size_t transcode(
             if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
                goto break_for;
             }
-            char8_t ch8Src(char8_t(*pbSrc++));
+            char8_t ch8Src(static_cast<char8_t>(*pbSrc++));
             if (!utf8_char_traits::is_trail_char(ch8Src)) {
                unsigned cbCont(utf8_char_traits::lead_char_to_codepoint_size(ch8Src) - 1);
                // Ensure that we still have enough characters.
@@ -427,7 +429,7 @@ size_t transcode(
                ch32 = utf8_char_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
                // Shift in any continuation bytes.
                for (; cbCont; --cbCont) {
-                  ch8Src = char8_t(*pbSrc++);
+                  ch8Src = static_cast<char8_t>(*pbSrc++);
                   if (!utf8_char_traits::is_trail_char(ch8Src)) {
                      // The sequence ended prematurely, and this byte is not part of it.
                      --pbSrc;
@@ -480,7 +482,10 @@ size_t transcode(
                }
                if (utf16_char_traits::is_trail_char(ch16Src1)) {
                   pbSrc += sizeof(char16_t);
-                  ch32 = ((char32_t(ch16Src0 & 0x03ff) << 10) | (ch16Src1 & 0x03ff)) + 0x10000;
+                  ch32 = (
+                     (static_cast<char32_t>(ch16Src0 & 0x03ff) << 10) |
+                     (ch16Src1 & 0x03ff)
+                  ) + 0x10000;
                   if (!is_codepoint_valid(ch32)) {
                      // Replace this invalid code point.
                      ch32 = replacement_char;
@@ -564,10 +569,10 @@ size_t transcode(
                char16_t ch16Dst0, ch16Dst1;
                if (bNeedSurrogate) {
                   ch32 -= 0x10000;
-                  ch16Dst0 = char16_t(0xd800 | ((ch32 & 0x0ffc00) >> 10));
-                  ch16Dst1 = char16_t(0xdc00 |  (ch32 & 0x0003ff)       );
+                  ch16Dst0 = static_cast<char16_t>(0xd800 | ((ch32 & 0x0ffc00) >> 10));
+                  ch16Dst1 = static_cast<char16_t>(0xdc00 |  (ch32 & 0x0003ff)       );
                } else {
-                  ch16Dst0 = char16_t(ch32);
+                  ch16Dst0 = static_cast<char16_t>(ch32);
                }
                if (encDst != encoding::utf16_host) {
                   ch16Dst0 = byteorder::swap(ch16Dst0);
@@ -614,7 +619,7 @@ size_t transcode(
                if (ch32 > 0x0000ff) {
                   ch32 = 0x00003f;
                }
-               *pbDst = uint8_t(ch32);
+               *pbDst = static_cast<uint8_t>(ch32);
             }
             ++pbDst;
             break;

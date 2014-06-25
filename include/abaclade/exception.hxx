@@ -57,7 +57,7 @@ public:
    }
    source_location(char_t const * pszFilePath, unsigned iLine) :
       m_pszFilePath(pszFilePath),
-      m_iLine(uint16_t(iLine)) {
+      m_iLine(static_cast<uint16_t>(iLine)) {
    }
 
 

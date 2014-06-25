@@ -76,7 +76,7 @@ public:
    */
    static /*constexpr*/ char8_t cont_length_to_seq_indicator(unsigned cbCont) {
       // 0x3f00 will produce 0x00 (when >> 0), 0xc0 (2), 0xe0 (3), 0xf0 (4).
-      return char8_t(0x3f00 >> smc_acbitShiftMask[cbCont]);
+      return static_cast<char8_t>(0x3f00 >> smc_acbitShiftMask[cbCont]);
    }
 
 
@@ -103,7 +103,7 @@ public:
       Bits in ch that participate in the code point.
    */
    static /*constexpr*/ char32_t get_lead_char_codepoint_bits(char8_t ch, unsigned cbCont) {
-      return char32_t(ch & (0x7f >> smc_acbitShiftMask[cbCont]));
+      return static_cast<char32_t>(ch & (0x7f >> smc_acbitShiftMask[cbCont]));
    }
 
 
@@ -118,8 +118,10 @@ public:
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
       unsigned i(static_cast<uint8_t>(ch));
       // See comments on smc_acbConts in char_traits.cxx to understand this way of accessing it.
-      //             (smc_acbCpSizesByLeadChar[byte idx] >> [nibble idx → 0 or 4]) & nibble mask
-      return unsigned(smc_acbCpSizesByLeadChar[ i >> 2 ] >> (  (i & 2) << 1     )) & 0xfu;
+      return static_cast<unsigned>(
+      // (smc_acbCpSizesByLeadChar[byte index] >> [nibble index → 0 or 4]) & nibble mask
+         (smc_acbCpSizesByLeadChar[  i >> 2  ] >> (    (i & 2) << 1     )) & 0xf
+      );
    }
 
 

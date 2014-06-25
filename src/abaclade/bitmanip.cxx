@@ -30,19 +30,19 @@ namespace abc {
 namespace bitmanip {
 
 uint8_t _raw_ceiling_to_pow2(uint8_t i) {
-   unsigned iPow2(unsigned(i - 1));
+   unsigned iPow2(static_cast<unsigned>(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
-   return uint8_t(iPow2 + 1);
+   return static_cast<uint8_t>(iPow2 + 1);
 }
 uint16_t _raw_ceiling_to_pow2(uint16_t i) {
-   unsigned iPow2(unsigned(i - 1));
+   unsigned iPow2(static_cast<unsigned>(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
    iPow2 |= iPow2 >> 8;
-   return uint16_t(iPow2 + 1);
+   return static_cast<uint16_t>(iPow2 + 1);
 }
 uint32_t _raw_ceiling_to_pow2(uint32_t i) {
    --i;

@@ -68,13 +68,13 @@ template <typename I>
 inline I ceiling_to_pow2(I i) {
    switch (sizeof(I)) {
       case sizeof(uint8_t):
-         return _raw_ceiling_to_pow2(uint8_t(i));
+         return _raw_ceiling_to_pow2(static_cast<uint8_t>(i));
       case sizeof(uint16_t):
-         return _raw_ceiling_to_pow2(uint16_t(i));
+         return _raw_ceiling_to_pow2(static_cast<uint16_t>(i));
       case sizeof(uint32_t):
-         return _raw_ceiling_to_pow2(uint32_t(i));
+         return _raw_ceiling_to_pow2(static_cast<uint32_t>(i));
       case sizeof(uint64_t):
-         return _raw_ceiling_to_pow2(uint64_t(i));
+         return _raw_ceiling_to_pow2(static_cast<uint64_t>(i));
    }
 }
 

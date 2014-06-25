@@ -218,7 +218,7 @@ protected:
       } else {
          // Avoid extending the sign, as it would generate too many digits in any notation except
          // decimal.
-         write_s16(uint8_t(i), ptwOut);
+         write_s16(static_cast<uint8_t>(i), ptwOut);
       }
    }
 
@@ -271,7 +271,7 @@ inline void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * pt
    } else {
       // Avoid extending the sign in any notation except decimal, as it would generate too many
       // digits.
-      write_s64(uint32_t(i), ptwOut);
+      write_s64(static_cast<uint32_t>(i), ptwOut);
    }
 }
 
@@ -292,7 +292,7 @@ inline void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * pt
    } else {
       // Avoid extending the sign in any notation except decimal, as it would generate too many
       // digits.
-      write_s32(uint16_t(i), ptwOut);
+      write_s32(static_cast<uint16_t>(i), ptwOut);
    }
 }
 
@@ -350,28 +350,28 @@ public:
    void write(I i, io::text::writer * ptwOut) {
       if (sizeof(i) <= sizeof(int8_t)) {
          if (std::is_signed<I>::value) {
-            write_s8(int8_t(i), ptwOut);
+            write_s8(static_cast<int8_t>(i), ptwOut);
          } else {
-            write_u8(uint8_t(i), ptwOut);
+            write_u8(static_cast<uint8_t>(i), ptwOut);
          }
       } else if (sizeof(i) <= sizeof(int16_t)) {
          if (std::is_signed<I>::value) {
-            write_s16(int16_t(i), ptwOut);
+            write_s16(static_cast<int16_t>(i), ptwOut);
          } else {
-            write_u16(uint16_t(i), ptwOut);
+            write_u16(static_cast<uint16_t>(i), ptwOut);
          }
       } else if (sizeof(i) <= sizeof(int32_t)) {
          if (std::is_signed<I>::value) {
-            write_s32(int32_t(i), ptwOut);
+            write_s32(static_cast<int32_t>(i), ptwOut);
          } else {
-            write_u32(uint32_t(i), ptwOut);
+            write_u32(static_cast<uint32_t>(i), ptwOut);
          }
       } else {
          static_assert(sizeof(i) <= sizeof(int64_t), "unsupported integer size");
          if (std::is_signed<I>::value) {
-            write_s64(int64_t(i), ptwOut);
+            write_s64(static_cast<int64_t>(i), ptwOut);
          } else {
-            write_u64(uint64_t(i), ptwOut);
+            write_u64(static_cast<uint64_t>(i), ptwOut);
          }
       }
    }

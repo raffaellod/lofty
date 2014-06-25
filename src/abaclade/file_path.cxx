@@ -186,7 +186,7 @@ file_path file_path::base_name() const {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
       }
-      DWORD cch(::GetCurrentDirectory(DWORD(cchMax - c_cchRoot), pch + c_cchRoot));
+      DWORD cch(::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot));
       if (!cch) {
          throw_os_error();
       }
@@ -216,7 +216,7 @@ file_path file_path::base_name() const {
          return cchMax;
       }
       DWORD cch(::GetFullPathName(
-         achDummyPath, DWORD(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
+         achDummyPath, static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
       ));
       if (!cch) {
          throw_os_error();
@@ -533,7 +533,7 @@ void to_str_backend<file_path>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }

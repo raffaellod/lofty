@@ -37,7 +37,7 @@ void _str_to_str_backend::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cend())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cend())
       ));
    }
 }

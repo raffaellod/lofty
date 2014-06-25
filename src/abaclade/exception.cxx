@@ -1082,7 +1082,7 @@ void to_str_backend<source_location>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, unsigned(it - sFormat.cbegin())
+         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
