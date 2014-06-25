@@ -65,8 +65,7 @@ public:
       Code point that the proxy is currently referencing.
    */
    operator char32_t() const {
-      // TODO: FIXME: convert to char32_t for real.
-      return codepoint(*m_pch);
+      return host_char_traits::chars_to_codepoint(m_pch);
    }
 
 
