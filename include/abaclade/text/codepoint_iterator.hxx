@@ -138,6 +138,14 @@ public:
    template <bool t_bConst> \
    inline bool operator op(abc::char_t ch, abc::text::_codepoint_proxy<t_bConst> const & cpp) { \
       return abc::text::codepoint(ch) op cpp.operator char32_t(); \
+   } \
+   template <bool t_bConst> \
+   inline bool operator op(abc::text::_codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
+      return cpp.operator char32_t() op ch; \
+   } \
+   template <bool t_bConst> \
+   inline bool operator op(char32_t ch, abc::text::_codepoint_proxy<t_bConst> const & cpp) { \
+      return ch op cpp.operator char32_t(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
