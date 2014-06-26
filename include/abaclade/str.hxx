@@ -755,6 +755,10 @@ are automatically converted to this.
 */
 class ABACLADE_SYM mstr :
    public str_base {
+
+   friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char_t ch);
+   friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char32_t ch);
+
 public:
 
    /** Assignment operator.
@@ -979,6 +983,22 @@ protected:
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }
+
+
+   /** Replaces a single code point with another single code point.
+
+   pch
+      Pointer to the start of the code point to replace.
+   chNew
+      Character or code point that will be written at *pch.
+   */
+   void _replace_codepoint(char_t * pch, char_t chNew);
+#if ABC_HOST_UTF > 8
+   void _replace_codepoint(char_t * pch, char chNew) {
+      _replace_codepoint(pch, text::host_char(chNew));
+   }
+#endif
+   void _replace_codepoint(char_t * pch, char32_t chNew);
 };
 
 

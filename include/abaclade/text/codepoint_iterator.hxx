@@ -105,23 +105,15 @@ public:
    return
       *this.
    */
-   _codepoint_proxy & operator=(char_t ch) {
-      *const_cast<char_t *>(m_pch) = ch;
-      return *this;
-   }
+   _codepoint_proxy & operator=(char_t ch);
 #if ABC_HOST_UTF > 8
    _codepoint_proxy & operator=(char ch) {
       return operator=(host_char(ch));
    }
 #endif
-   _codepoint_proxy & operator=(char32_t ch) {
-      // TODO: FIXME: convert from char32_t for real.
-      *const_cast<char_t *>(m_pch) = static_cast<char_t>(ch);
-      return *this;
-   }
+   _codepoint_proxy & operator=(char32_t ch);
    _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {
-      char32_t cp(cpp.operator char32_t());
-      return operator=(cp);
+      return operator=(cpp.operator char32_t());
    }
 };
 

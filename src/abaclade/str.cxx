@@ -324,4 +324,38 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::mstr
+
+
+namespace abc {
+
+void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
+   ABC_TRACE_FUNC(pch, chNew);
+
+   size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
+   uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
+   _raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
+   // insert_remove() may have switched string buffer, so recalculate pch now.
+   pch = chars_begin() + ich;
+   // At this point, insert_remove() validated pch.
+   *pch = chNew;
+}
+void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
+   ABC_TRACE_FUNC(pch, chNew);
+
+   size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
+   size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
+   uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
+   _raw_trivial_vextr_impl::insert_remove(ich, nullptr, cbInsert, cbRemove);
+   // insert_remove() may have switched string buffer, so recalculate pch now.
+   pch = chars_begin() + ich;
+   // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
+   // that there’s nothing that could go wrong here leaving us in an inconsistent state.
+   text::host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
