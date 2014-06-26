@@ -122,24 +122,48 @@ public:
    template <typename T>
    void set_copy_fn() {
       copy_constr = reinterpret_cast<copy_fn>(_typed_copy_constr<typename std::remove_cv<T>::type>);
+#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+      // Force instantiating the template, even if (obviously) never executed.
+      if (!copy_constr) {
+         _typed_copy_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+      }
+#endif
    }
 
 
    template <typename T>
    void set_destr_fn() {
       destruct = reinterpret_cast<destr_fn>(_typed_destruct<typename std::remove_cv<T>::type>);
+#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+      // Force instantiating the template, even if (obviously) never executed.
+      if (!destruct) {
+         _typed_destruct<typename std::remove_cv<T>::type>(nullptr, nullptr);
+      }
+#endif
    }
 
 
    template <typename T>
    void set_equal_fn() {
       equal = reinterpret_cast<equal_fn>(_typed_equal<typename std::remove_cv<T>::type>);
+#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+      // Force instantiating the template, even if (obviously) never executed.
+      if (!equal) {
+         _typed_equal<typename std::remove_cv<T>::type>(nullptr, nullptr);
+      }
+#endif
    }
 
 
    template <typename T>
    void set_move_fn() {
       move_constr = reinterpret_cast<move_fn>(_typed_move_constr<typename std::remove_cv<T>::type>);
+#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+      // Force instantiating the template, even if (obviously) never executed.
+      if (!move_constr) {
+         _typed_move_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+      }
+#endif
    }
 
 
