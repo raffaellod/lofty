@@ -154,7 +154,7 @@ namespace text {
    if (!text::is_codepoint_valid(cp)) {
       ABC_THROW(text::error, ());
    }
-   return cp > 0x00ffff ? 2 : 1;
+   return cp > 0x00ffff ? 2u : 1u;
 }
 
 
