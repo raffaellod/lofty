@@ -905,7 +905,11 @@ public:
    cbRemove
       Size of the slice of item array to remove, in bytes.
    */
-   void insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
+   void insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove) {
+      if (cbAdd != cbRemove) {
+         _insert_remove(ibOffset, pAdd, cbAdd, cbRemove);
+      }
+   }
 
 
    /** Ensures that the item array has at least cbMin of actual item space. If this causes *this to
@@ -942,6 +946,13 @@ protected:
    ) :
       _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
    }
+
+
+private:
+
+   /** Implementation of insert_remove(). See insert_remove().
+   */
+   void _insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };
 
 } //namespace abc

@@ -644,14 +644,9 @@ void _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(_raw_trivial_vextr_i
 }
 
 
-void _raw_trivial_vextr_impl::insert_remove(
+void _raw_trivial_vextr_impl::_insert_remove(
    uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
 ) {
-   if (cbAdd == cbRemove) {
-      // Nothing to do.
-      return;
-   }
-
    ABC_TRACE_FUNC(this, ibOffset, pAdd, cbAdd, cbRemove);
 
    _raw_vextr_transaction trn(this, true, cbAdd, cbRemove);
