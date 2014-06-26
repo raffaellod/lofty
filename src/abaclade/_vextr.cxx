@@ -657,7 +657,7 @@ void _raw_trivial_vextr_impl::_insert_remove(
    if (size_t cbTail = static_cast<size_t>(end<int8_t>() - pbRemoveEnd)) {
       memory::move(pbWorkOffset + cbAdd, pbRemoveEnd, cbTail);
    }
-   if (cbAdd) {
+   if (pAdd) {
       // Copy the new items over.
       memory::copy(pbWorkOffset, static_cast<int8_t const *>(pAdd), cbAdd);
    }
