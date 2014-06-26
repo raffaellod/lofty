@@ -165,7 +165,8 @@ return
 #endif
 
 
-/** Defines a string literal of the default host string literal type.
+/** Implementation of SL(); allows for expansion of the argument prior to pasting it to the
+appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
 s
    String literal.
@@ -174,15 +175,24 @@ return
 */
 #if ABC_HOST_UTF == 8
    #if ABC_CXX_UTF8LIT == 2
-      // Use ABC_CPP_CAT2() to expand macros before pasting them with u8.
-      #define SL(s) ABC_CPP_CAT2(u8, s)
+      #define _ABC_STRL(s) u8 ## s
    #else
-      #define SL(s) s
+      #define _ABC_STRL(s) s
    #endif
 #elif ABC_HOST_UTF == 16
    // Use ABC_CPP_CAT2() to expand macros before pasting them with L.
-   #define SL(s) ABC_CPP_CAT2(L, s)
+   #define _ABC_STRL(s) L ## s
 #endif
+
+
+/** Defines a string literal of the default host string literal type.
+
+s
+   String literal.
+return
+   UTF string literal.
+*/
+#define SL(s) _ABC_STRL(s)
 
 
 
