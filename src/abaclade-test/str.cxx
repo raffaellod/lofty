@@ -98,7 +98,7 @@ public:
       dmstr s;
       init_str_ptr(s);
 
-      // Only the trailing NUL character should be accessible.
+      // No accessible characters.
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
       ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
 
@@ -110,7 +110,7 @@ public:
       ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cend());
       ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
 
-      s += SL("a");
+      s += SL("ä");
       // true: operator+= must have created an item array (there was none).
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
@@ -122,28 +122,28 @@ public:
       ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
       s = s + 'b' + s;
       // true: a new string is created by operator+, which replaces s by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("aba"));
+      ABC_TESTING_ASSERT_EQUAL(s, SL("äbä"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("ba"));
+      ABC_TESTING_ASSERT_EQUAL(s, SL("bä"));
 
       s += 'c';
       // false: there should’ve been enough space for 'c'.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("bac"));
+      ABC_TESTING_ASSERT_EQUAL(s, SL("bäc"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
@@ -151,7 +151,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
-      ABC_TESTING_ASSERT_EQUAL(s[1], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[1], ABC_CHAR('ä'));
 
       s += s;
       // false: there should’ve been enough space for “baba”.
@@ -159,16 +159,16 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
-      ABC_TESTING_ASSERT_EQUAL(s[1], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[1], ABC_CHAR('ä'));
       ABC_TESTING_ASSERT_EQUAL(s[2], 'b');
-      ABC_TESTING_ASSERT_EQUAL(s[3], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[3], ABC_CHAR('ä'));
 
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
       s = dmstr(SL("ab")) + 'c';
       // true: s got replaced by operator=.
@@ -198,14 +198,14 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
 
       s = SL("a\0b");
-      s += SL("\0c");
+      s += SL("\0ç");
       // false: there should have been plenty of storage allocated.
       ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
-      ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0c"));
-      ABC_TESTING_ASSERT_EQUAL(SL("a\0b\0c"), s);
+      ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0ç"));
+      ABC_TESTING_ASSERT_EQUAL(SL("a\0b\0ç"), s);
 
       {
          // Note: all string operations here must involve as few characters as possible to avoid
@@ -347,56 +347,56 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      istr sEmpty, sAB(SL("ab"));
+      istr sEmpty, sAB(SL("äb"));
 
       // Substring of empty string.
       ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1,  1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 0,  1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr( 1,  1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 1), SL(""));
 
       // Substring of a 2-characer string.
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), SL(""));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3,  2), SL("ab"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), SL("äb"));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), SL(""));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2,  2), SL("ab"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), SL("äb"));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), SL(""));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), SL(""));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1,  2), SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0, -1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  1), SL("a"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 0,  2), SL("ab"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 1,  2), SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr( 2,  2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), SL("äb"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), SL(""));
    }
 };
 
