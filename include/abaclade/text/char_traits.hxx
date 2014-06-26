@@ -67,6 +67,17 @@ public:
    static char8_t * codepoint_to_chars(char32_t cp, char8_t * pchDstBegin);
 
 
+   /** Return the number of characters needed to convert the specified code point into UTF-8
+   characters.
+
+   cp
+      Source code point.
+   return
+      Length of the resulting character sequence.
+   */
+   static unsigned codepoint_size(char32_t cp);
+
+
    /** Returns the sequence indicator bit mask suitable to precede a continuation of cbCont bytes.
 
    cbCont
@@ -169,6 +180,17 @@ public:
    static char32_t chars_to_codepoint(char16_t const * pchSrcBegin);
 
 
+   /** Return the number of characters needed to convert the specified code point into UTF-16
+   characters.
+
+   cp
+      Source code point.
+   return
+      Length of the resulting character sequence.
+   */
+   static unsigned codepoint_size(char32_t cp);
+
+
    /** Converts a code point (UTF-32 character) into a char16_t array.
 
    cp
@@ -239,12 +261,14 @@ class ABACLADE_SYM host_char_traits :
 #elif ABC_HOST_UTF == 16
    public utf16_char_traits {
 #endif
+public:
 
 #if ABC_HOST_UTF == 8
    typedef utf8_char_traits traits_base;
 #elif ABC_HOST_UTF == 16
    typedef utf16_char_traits traits_base;
 #endif
+
 
 public:
 

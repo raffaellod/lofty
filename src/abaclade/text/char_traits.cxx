@@ -83,24 +83,32 @@ uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
 }
 
 
+/*static*/ unsigned utf8_char_traits::codepoint_size(char32_t cp) {
+   ABC_TRACE_FUNC(cp);
+
+   if (!text::is_codepoint_valid(cp)) {
+      ABC_THROW(text::error, ());
+   } else if (cp <= 0x00007f) {
+      // Encode xxx xxxx as 0xxxxxxx.
+      return 1;
+   } else if (cp <= 0x0007ff) {
+      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
+      return 2;
+   } else if (cp <= 0x00ffff) {
+      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
+      return 3;
+   } else /*if (cp <= 0x10ffff)*/ {
+      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
+      return 4;
+   }
+}
+
+
 /*static*/ char8_t * utf8_char_traits::codepoint_to_chars(char32_t cp, char8_t * pchDstBegin) {
    ABC_TRACE_FUNC(cp, pchDstBegin);
 
    // Compute the length of the UTF-8 sequence for this code point.
-   unsigned cbSeq;
-   if (cp <= 0x00007f) {
-      // Encode xxx xxxx as 0xxxxxxx.
-      cbSeq = 1;
-   } else if (cp <= 0x0007ff) {
-      // Encode xxx xxyy yyyy as 110xxxxx 10yyyyyy.
-      cbSeq = 2;
-   } else if (cp <= 0x00ffff) {
-      // Encode xxxx yyyy yyzz zzzz as 1110xxxx 10yyyyyy 10zzzzzz.
-      cbSeq = 3;
-   } else /*if (cp <= 0x10ffff)*/ {
-      // Encode w wwxx xxxx yyyy yyzz zzzz as 11110www 10xxxxxx 10yyyyyy 10zzzzzz.
-      cbSeq = 4;
-   }
+   unsigned cbSeq(codepoint_size(cp));
    // Calculate where the sequence will end, and write each byte backwards from there.
    char8_t * pchDstEnd(pchDstBegin + cbSeq);
    --cbSeq;
@@ -140,11 +148,21 @@ namespace text {
 }
 
 
+/*static*/ unsigned utf16_char_traits::codepoint_size(char32_t cp) {
+   ABC_TRACE_FUNC(cp);
+
+   if (!text::is_codepoint_valid(cp)) {
+      ABC_THROW(text::error, ());
+   }
+   return cp > 0x00ffff ? 2 : 1;
+}
+
+
 /*static*/ char16_t * utf16_char_traits::codepoint_to_chars(char32_t cp, char16_t * pchDstBegin) {
    ABC_TRACE_FUNC(cp, pchDstBegin);
 
    char16_t * pchDst(pchDstBegin);
-   if (cp > 0x00ffff) {
+   if (codepoint_size(cp) > 1) {
       // The code point requires two UTF-16 characters: generate a surrogate pair.
       cp -= 0x10000;
       *pchDst++ = static_cast<char16_t>(0xd800 | ((cp & 0x0ffc00) >> 10));
