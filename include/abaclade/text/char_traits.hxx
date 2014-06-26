@@ -159,7 +159,7 @@ namespace text {
 /** UTF-16 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits.
 */
-class utf16_char_traits {
+class ABACLADE_SYM utf16_char_traits {
 public:
 
    /** Max length of a code point, in UTF-16 characters. */
