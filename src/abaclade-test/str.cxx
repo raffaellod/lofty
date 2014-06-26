@@ -19,58 +19,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
+#include <abaclade/testing/utility.hxx>
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_test_case_base
-
-namespace abc {
-namespace test {
-
-class str_test_case_base :
-   public testing::test_case {
-protected:
-
-   /** Initializes the private data members used by str_ptr_changed().
-
-   s
-      String to initialize with.
-   */
-   void init_str_ptr(istr const & s) {
-      ABC_TRACE_FUNC(this, s);
-
-      m_psCheck = &s;
-      m_pchCheck = s.cbegin().base();
-   }
-
-
-   /** Checks if a string’s item array has been reallocated.
-
-   return
-      true if the string’s character array pointer has changed, or false otherwise.
-   */
-   bool str_ptr_changed() {
-      ABC_TRACE_FUNC(this);
-
-      // Update the item array pointer for the next call.
-      char_t const * pchCheckOld(m_pchCheck);
-      m_pchCheck = m_psCheck->cbegin().base();
-      // Check if the item array has changed.
-      return pchCheckOld != m_pchCheck;
-   }
-
-
-private:
-
-   /** Pointer to the local string variable to be checked. */
-   istr const * m_psCheck;
-   /** Pointer to m_psCheck’s item array. */
-   char_t const * m_pchCheck;
-};
-
-} //namespace test
-} //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,23 +30,23 @@ namespace abc {
 namespace test {
 
 class str_basic :
-   public str_test_case_base {
+   public testing::test_case {
 public:
 
-   /** See str_test_case_base::title().
+   /** See testing::test_case::title().
    */
    virtual istr title() {
       return istr(SL("abc::*str classes – basic operations"));
    }
 
 
-   /** See str_test_case_base::run().
+   /** See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
       dmstr s;
-      init_str_ptr(s);
+      auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
 
       // No accessible characters.
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
@@ -112,7 +62,7 @@ public:
 
       s += SL("ä");
       // true: operator+= must have created an item array (there was none).
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
       ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
       ABC_TESTING_ASSERT_THROWS(index_error, s[1]);
@@ -126,28 +76,28 @@ public:
 
       s = s + 'b' + s;
       // true: a new string is created by operator+, which replaces s by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("äbä"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bä"));
 
       s += 'c';
       // false: there should’ve been enough space for 'c'.
-      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
+      ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bäc"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
@@ -155,7 +105,7 @@ public:
 
       s += s;
       // false: there should’ve been enough space for “baba”.
-      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
+      ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
@@ -165,14 +115,14 @@ public:
 
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
       s = dmstr(SL("ab")) + 'c';
       // true: s got replaced by operator=.
-      ABC_TESTING_ASSERT_TRUE(str_ptr_changed());
+      ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
@@ -181,7 +131,7 @@ public:
 
       s += 'd';
       // false: there should’ve been enough space for “abcd”.
-      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
+      ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
@@ -192,7 +142,7 @@ public:
       s += SL("efghijklmnopqrstuvwxyz");
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
       // character array may or may not change depending on heap reallocation strategy.
-      str_ptr_changed();
+      cdpt.changed();
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 26u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
@@ -200,7 +150,7 @@ public:
       s = SL("a\0b");
       s += SL("\0ç");
       // false: there should have been plenty of storage allocated.
-      ABC_TESTING_ASSERT_FALSE(str_ptr_changed());
+      ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
@@ -413,17 +363,17 @@ namespace abc {
 namespace test {
 
 class istr_c_str :
-   public str_test_case_base {
+   public testing::test_case {
 public:
 
-   /** See str_test_case_base::title().
+   /** See testing::test_case::title().
    */
    virtual istr title() {
       return istr(SL("abc::istr – C string extraction"));
    }
 
 
-   /** See str_test_case_base::run().
+   /** See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -470,17 +420,17 @@ namespace abc {
 namespace test {
 
 class mstr_c_str :
-   public str_test_case_base {
+   public testing::test_case {
 public:
 
-   /** See str_test_case_base::title().
+   /** See testing::test_case::title().
    */
    virtual istr title() {
       return istr(SL("abc::mstr – C string extraction"));
    }
 
 
-   /** See str_test_case_base::run().
+   /** See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
