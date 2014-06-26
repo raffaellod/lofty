@@ -533,17 +533,9 @@ size_t transcode(
       // Encode the code point in ch32 into the destination.
       switch (encDst.base()) {
          case encoding::utf8: {
-            // Compute the length of this sequence.
-            unsigned cbSeq;
-            if (ch32 <= 0x00007f) {
-               cbSeq = 1;
-            } else if (ch32 <= 0x0007ff) {
-               cbSeq = 2;
-            } else if (ch32 <= 0x00ffff) {
-               cbSeq = 3;
-            } else {
-               cbSeq = 4;
-            }
+            // Compute the length of this sequence. Technically this could throw if ch32 is not a
+            // valid Unicode code point, but we made sure above that that cannot happen.
+            size_t cbSeq(sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32));
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
@@ -560,12 +552,12 @@ size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
-            bool bNeedSurrogate(ch32 > 0x00ffff);
-            unsigned cbSeq(sizeof(char16_t) + (bNeedSurrogate ? sizeof(char16_t) : 0));
+            size_t cbSeq(sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32));
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
             if (bWriteDst) {
+               bool bNeedSurrogate(cbSeq > sizeof(char16_t));
                char16_t ch16Dst0, ch16Dst1;
                if (bNeedSurrogate) {
                   ch32 -= 0x10000;
