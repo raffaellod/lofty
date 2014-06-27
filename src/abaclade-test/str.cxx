@@ -48,7 +48,7 @@ istr const gc_sAcabaabca(
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_encode
+// abc::test::str_basic
 
 namespace abc {
 namespace test {
@@ -72,18 +72,6 @@ public:
 
       dmstr s;
       auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
-
-      // No accessible characters.
-      ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
-      ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
-
-      // Should not allow to move an iterator to outside [begin, end].
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin());
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cend());
-      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cbegin());
-      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cend());
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
 
       s += SL("ä");
       // true: operator+= must have created an item array (there was none).
@@ -215,6 +203,55 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_iterators
+
+namespace abc {
+namespace test {
+
+
+class str_iterators :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*str classes – iterator-based character access"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+      dmstr s;
+      auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
+
+      // No accessible characters.
+      ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
+      ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
+
+      // Should not allow to move an iterator to outside [begin, end].
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin());
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cend());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cbegin());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cend());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
+
+      // Should not allow to dereference end().
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *s.cend());
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_iterators)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
