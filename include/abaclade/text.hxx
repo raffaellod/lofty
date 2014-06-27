@@ -235,10 +235,15 @@ inline size_t size_in_chars(C const * psz) {
 }
 
 
-/** Converts from one character encoding to another. All pointed-by variables are updated to discard
-the bytes used in the conversion; the number of bytes written is returned.
+/** Converts from one character encoding to another, validating the source as it’s processed.
 
-UTF validity: not necessary; invalid sequences are replaced with text::replacement_char.
+Call this function omitting the last two arguments (ppDst and pcbDstMax) to have returned the
+calculated size of the buffer necessary to hold the converted characters.
+
+After allocating a buffer of the requested size, call this function again with the same arguments
+(but with valid ppDst and pcbDstMax) to perform the transcoding; all the variables pointed to by the
+pointer arguments will be updated to discard the bytes used in the conversion; otherwise no pointed-
+to variables will be written to.
 
 encSrc
    Encoding of the string pointed to by *ppSrc.
@@ -252,18 +257,18 @@ encDst
    Encoding of the string pointed to by *ppDst.
 ppDst
    Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
-   characters are stored in the buffer. If nullptr is passed no writes will be attempted, but all
-   the calculations of source/destination used bytes will still take place.
+   characters are stored in the buffer. If nullptr is passed no writes will be attempted to **ppDst
+   or to any of the arguments, but the return value will be correct.
 pcbDstMax
    Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
    decremented by the number of characters stored in the buffer.
 return
-   Count of bytes that were written to **ppDst.
+   Used destination buffer size, in bytes.
 */
 ABACLADE_SYM size_t transcode(
    std::nothrow_t const &,
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
-   encoding encDst, void       ** ppDst, size_t * pcbDstMax
+   encoding encDst, void       ** ppDst = nullptr, size_t * pcbDstMax = nullptr
 );
 
 } //namespace text

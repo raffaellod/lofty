@@ -399,13 +399,19 @@ size_t transcode(
 ) {
    ABC_TRACE_FUNC(encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
-   // If ppDst is nullptr, we’ll only calculate how much of **ppSrc can be transcoded to fit into
-   // *pcbDstMax; otherwise we’ll also perform the actual transcoding.
-   bool bWriteDst(ppDst != nullptr);
+   // If ppDst or pcbDstMax is nullptr, we’ll only calculate how much of **ppSrc can be transcoded
+   // to fit into *pcbDstMax; otherwise we’ll also perform the actual transcoding.
+   bool bWrite(ppDst && pcbDstMax);
    uint8_t const * pbSrc(static_cast<uint8_t const *>(*ppSrc));
-   uint8_t       * pbDst(bWriteDst ? static_cast<uint8_t *>(*ppDst) : nullptr);
    uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
-   uint8_t const * pbDstEnd(pbDst + *pcbDstMax);
+   uint8_t       * pbDst;
+   uint8_t const * pbDstEnd;
+   if (bWrite) {
+      pbDst = static_cast<uint8_t *>(*ppDst);
+      pbDstEnd = pbDst + *pcbDstMax;
+   } else {
+      pbDst = nullptr;
+   }
 
    uint8_t const * pbSrcLastUsed;
    for (;;) {
@@ -536,10 +542,10 @@ size_t transcode(
             // Compute the length of this sequence. Technically this could throw if ch32 is not a
             // valid Unicode code point, but we made sure above that that cannot happen.
             size_t cbSeq(sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32));
-            if (pbDst + cbSeq > pbDstEnd) {
-               goto break_for;
-            }
-            if (bWriteDst) {
+            if (bWrite) {
+               if (pbDst + cbSeq > pbDstEnd) {
+                  goto break_for;
+               }
                // We know that there’s enough room in *pbDst, so this is safe.
                pbDst = reinterpret_cast<uint8_t *>(utf8_char_traits::codepoint_to_chars(
                   ch32, reinterpret_cast<char8_t *>(pbDst)
@@ -553,10 +559,10 @@ size_t transcode(
          case encoding::utf16le:
          case encoding::utf16be: {
             size_t cbSeq(sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32));
-            if (pbDst + cbSeq > pbDstEnd) {
-               goto break_for;
-            }
-            if (bWriteDst) {
+            if (bWrite) {
+               if (pbDst + cbSeq > pbDstEnd) {
+                  goto break_for;
+               }
                bool bNeedSurrogate(cbSeq > sizeof(char16_t));
                char16_t ch16Dst0, ch16Dst1;
                if (bNeedSurrogate) {
@@ -593,20 +599,20 @@ size_t transcode(
             ch32 = byteorder::swap(ch32);
             // Fall through.
          case encoding::utf32_host:
-            if (pbDst + sizeof(char32_t) > pbDstEnd) {
-               goto break_for;
-            }
-            if (bWriteDst) {
+            if (bWrite) {
+               if (pbDst + sizeof(char32_t) > pbDstEnd) {
+                  goto break_for;
+               }
                *reinterpret_cast<char32_t *>(pbDst) = ch32;
             }
             pbDst += sizeof(char32_t);
             break;
 
          case encoding::iso_8859_1:
-            if (pbDst + 1 > pbDstEnd) {
-               goto break_for;
-            }
-            if (bWriteDst) {
+            if (bWrite) {
+               if (pbDst + 1 > pbDstEnd) {
+                  goto break_for;
+               }
                // Replace characters that cannot be encoded by ISO-8859-1 with question marks.
                if (ch32 > 0x0000ff) {
                   ch32 = 0x00003f;
@@ -626,14 +632,19 @@ size_t transcode(
       }
    }
 break_for:
-   // Undo any incomplete or unused read.
-   pbSrc = pbSrcLastUsed;
-   // Update the variables pointed to by the arguments.
-   *pcbSrc -= static_cast<size_t>(pbSrc - static_cast<uint8_t const *>(*ppSrc));
-   *ppSrc = pbSrc;
-   size_t cbDstUsed(static_cast<size_t>(pbDst - static_cast<uint8_t *>(*ppDst)));
-   *pcbDstMax -= cbDstUsed;
-   *ppDst = pbDst;
+   size_t cbDstUsed;
+   if (bWrite) {
+      cbDstUsed = static_cast<size_t>(pbDst - static_cast<uint8_t *>(*ppDst));
+      // Undo any incomplete or unused read.
+      pbSrc = pbSrcLastUsed;
+      // Update the variables pointed to by the arguments.
+      *pcbSrc -= static_cast<size_t>(pbSrc - static_cast<uint8_t const *>(*ppSrc));
+      *ppSrc = pbSrc;
+      *pcbDstMax -= cbDstUsed;
+      *ppDst = pbDst;
+   } else {
+      cbDstUsed = reinterpret_cast<size_t>(pbDst);
+   }
    return cbDstUsed;
 }
 
