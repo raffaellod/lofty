@@ -200,7 +200,7 @@ public:
       Reference to the current character.
    */
    _codepoint_proxy<true> operator*() const {
-      return _codepoint_proxy<true>(base(), _str());
+      return _codepoint_proxy<true>(throw_if_end(m_pch), m_ps);
    }
 
 
@@ -213,7 +213,7 @@ public:
       Reference to the specified item.
    */
    _codepoint_proxy<true> operator[](ptrdiff_t i) const {
-      return _codepoint_proxy<true>(advance(i, true), _str());
+      return _codepoint_proxy<true>(throw_if_end(advance(i, true)), m_ps);
    }
 
 
@@ -267,6 +267,14 @@ protected:
    ptrdiff_t distance(char_t const * pch) const;
 
 
+   /** Throws an iterator_error if the specified pointer is the end of the string.
+
+   pch
+      Pointer to validate.
+   */
+   char_t const * throw_if_end(char_t const * pch) const;
+
+
 protected:
 
    char_t const * m_pch;
@@ -282,20 +290,24 @@ public:
    /** See _codepoint_iterator_impl<true>::operator*().
    */
    _codepoint_proxy<false> operator*() {
-      return _codepoint_proxy<false>(base(), _str());
+      return _codepoint_proxy<false>(
+         const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps)
+      );
    }
    _codepoint_proxy<true> operator*() const {
-      return _codepoint_proxy<true>(base(), _str());
+      return _codepoint_iterator_impl<true>::operator*();
    }
 
 
    /** See _codepoint_iterator_impl<true>::operator[]().
    */
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
-      return _codepoint_proxy<false>(advance(i, true), _str());
+      return _codepoint_proxy<false>(
+         const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps)
+      );
    }
    _codepoint_proxy<true> operator[](ptrdiff_t i) const {
-      return _codepoint_proxy<true>(advance(i, true), _str());
+      return _codepoint_iterator_impl<true>::operator[](i);
    }
 
 

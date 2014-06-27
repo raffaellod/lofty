@@ -40,6 +40,16 @@ ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    }
 }
 
+
+char_t const * _codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) const {
+   ABC_TRACE_FUNC(this, pch);
+
+   if (pch >= m_ps->chars_end()) {
+      ABC_THROW(pointer_iterator_error, (m_ps->chars_begin(), m_ps->chars_end(), pch));
+   }
+   return pch;
+}
+
 } //namespace text
 } //namespace abc
 
