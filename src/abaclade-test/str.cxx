@@ -24,10 +24,35 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_basic
+// abc::test globals
 
 namespace abc {
 namespace test {
+
+char32_t const gc_chP0(ABC_CHAR('\x20ac'));
+char32_t const gc_chP2(0x024b62);
+// The string “acabaabca” has the following properties:
+// •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
+//    “aba” instead), to catch incorrect skip-last comparisons;
+// •  first and last characters match 'a', but other inner ones do too;
+// •  would match “abcd” were it not for the last character;
+// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
+// The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
+// above and ‘c’ with the BMP (Plane 0) character above.
+istr const gc_sAcabaabca(
+   istr() + 'a' + gc_chP0 + 'a' + gc_chP2 + SL("aa") + gc_chP2 + gc_chP0 + 'a'
+);
+
+} //namespace test
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_encode
+
+namespace abc {
+namespace test {
+
 
 class str_basic :
    public testing::test_case {
@@ -172,6 +197,17 @@ public:
          s1 = std::move(s3) + SL("c");
          ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
       }
+
+      // While we’re at it, let’s also validate gc_sAcabaabca.
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[0], 'a');
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[1], gc_chP0);
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[2], 'a');
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[3], gc_chP2);
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[4], 'a');
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[5], 'a');
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[6], gc_chP2);
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[7], gc_chP0);
+      ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[8], 'a');
    }
 };
 
@@ -281,14 +317,14 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_encode)
 namespace abc {
 namespace test {
 
-class str_substr :
+class str_substr_range_permutations :
    public testing::test_case {
 public:
 
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – substring extraction"));
+      return istr(SL("abc::*str classes – range permutations"));
    }
 
 
@@ -353,7 +389,7 @@ public:
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_range_permutations)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -480,19 +516,19 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_substr_ascii
+// abc::test::str_substr
 
 namespace abc {
 namespace test {
 
-class str_substr_ascii :
+class str_find :
    public testing::test_case {
 public:
 
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – ASCII character and substring search"));
+      return istr(SL("abc::*str classes – character and substring search"));
    }
 
 
@@ -501,24 +537,23 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      // ASCII character and substring search.
-      // The string “acabaabca” has the following properties:
-      // •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
-      //    “aba” instead), to catch incorrect skip-last comparisons;
-      // •  first and last characters match 'a', but other inner ones do too;
-      // •  would match “abcd” were it not for the last character;
-      // •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-      istr const s(SL("acabaabca"));
-      istr::const_iterator it;
+      // Special characters.
+      char32_t ch0(gc_chP0);
+      char32_t ch2(gc_chP2);
+      // See gc_sAcabaabca for more information on its pattern. To make it more interesting, here we
+      // also duplicate it.
+      istr const s(gc_sAcabaabca + gc_sAcabaabca);
 
-      ABC_TESTING_ASSERT_EQUAL(s.find('b'), s.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("ab")), s.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abca")), s.cbegin() + 5);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abcd")), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabc")), s.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("abaabcd")), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find_last('b'), s.cend() - 3);
+      ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);
+      ABC_TESTING_ASSERT_EQUAL(s.find('d'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'd'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + SL("aa") + ch2 + ch0), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + SL("aa") + ch2 + ch0 + 'd'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find_last('a'), s.cend() - 1);
 #if 0
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(ch2), s.cend() - 3);
       ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ab")), s.cend() - 4);
       ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ac")), s.cend() - 9);
       ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ca")), s.cend() - 2);
@@ -529,16 +564,16 @@ public:
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_find)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_substr_nonascii
+// abc::test::str_substr_starts_with
 
 namespace abc {
 namespace test {
 
-class str_substr_nonascii :
+class str_substr_starts_with :
    public testing::test_case {
 public:
 
@@ -546,7 +581,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes – non-ASCII character and substring search")
+         SL("abc::*str classes – initial matching")
       );
    }
 
@@ -556,39 +591,76 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      // Non-ASCII character and substring search.
-      istr const s(SL("àßçàŒ"));
-      istr::const_iterator it;
+      // Special characters.
+      char32_t ch0(gc_chP0);
+      char32_t ch2(gc_chP2);
+      // See gc_sAcabaabca for more information on its pattern.
+      istr const & s(gc_sAcabaabca);
 
-      ABC_TESTING_ASSERT_EQUAL(s.find(ABC_CHAR('ß')), s.cbegin() + 1);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àß")), s.cbegin());
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àŒ")), s.cbegin() + 3);
-      ABC_TESTING_ASSERT_EQUAL(s.find(SL("àü")), s.cend());
-
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("")));
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("à")));
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(SL("àß")));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("ß")));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("ßç")));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr()));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr() + 'a'));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr() + 'a' + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + 'a' + ch2));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + ch2));
       ABC_TESTING_ASSERT_TRUE(s.starts_with(s));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(s + SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(SL("-") + s));
-
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("")));
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("Œ")));
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(SL("àŒ")));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("à")));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("çà")));
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(s + SL("-")));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(SL("-") + s));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(s + '-'));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with('-' + s));
    }
 };
 
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_nonascii)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_starts_with)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_substr_ends_with
+
+namespace abc {
+namespace test {
+
+class str_substr_ends_with :
+   public testing::test_case {
+public:
+
+   /** See abc::testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(
+         SL("abc::*str classes – final matching")
+      );
+   }
+
+
+   /** See abc::testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+      // Special characters.
+      char32_t ch0(gc_chP0);
+      char32_t ch2(gc_chP2);
+      // See gc_sAcabaabca for more information on its pattern.
+      istr const & s(gc_sAcabaabca);
+
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr()));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr() + 'a'));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr() + ch0 + 'a'));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch2 + 'a'));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch2));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(s + '-'));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with('-' + s));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ends_with)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
