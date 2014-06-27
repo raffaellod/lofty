@@ -158,20 +158,14 @@ dmstr str_writer::release_content() {
       memory::copy(m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(p), cch);
       m_ichOffset += cch;
    } else {
-      do {
-         // Calculate the additional size required, ceiling it to sizeof(char_t).
-         size_t cchDstEst((abc::text::estimate_transcoded_size(
-            enc, p, cb, abc::text::encoding::host
-         ) + sizeof(char_t) - 1) / sizeof(char_t));
-         m_psWriteBuf->set_capacity(m_ichOffset + cchDstEst, true);
-         // Get the resulting buffer and its actual size.
-         void * pBuf(m_psWriteBuf->begin().base() + m_ichOffset);
-         size_t cbBuf(sizeof(char_t) * (m_psWriteBuf->capacity() - m_ichOffset));
-         // Fill as much of the buffer as possible, and advance m_ichOffset accordingly.
-         m_ichOffset += abc::text::transcode(
-            std::nothrow, enc, &p, &cb, abc::text::encoding::host, &pBuf, &cbBuf
-         ) / sizeof(char_t);
-      } while (cb);
+      // Calculate the additional buffer size required.
+      size_t cbBuf(abc::text::transcode(std::nothrow, enc, &p, &cb, abc::text::encoding::host));
+      m_psWriteBuf->set_capacity(m_ichOffset + cbBuf / sizeof(char_t), true);
+      // Transcode the source into the string buffer and advance m_ichOffset accordingly.
+      void * pBuf(m_psWriteBuf->begin().base() + m_ichOffset);
+      m_ichOffset += abc::text::transcode(
+         std::nothrow, enc, &p, &cb, abc::text::encoding::host, &pBuf, &cbBuf
+      ) / sizeof(char_t);
    }
    // Truncate the string.
    m_psWriteBuf->set_size_in_chars(m_ichOffset);
