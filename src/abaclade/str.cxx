@@ -129,39 +129,22 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
-      // Enlarge the string as necessary, then overwrite any character in the affected range.
+      // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
       memory::copy(vb.begin().base(), _raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
-      cbUsed = 0;
       void const * pStr(chars_begin());
-      // Calculate the additional size required.
-      size_t cbDstEst(abc::text::estimate_transcoded_size(
-         abc::text::encoding::host, pStr, cbStr, enc
-      ));
-      for (;;) {
-         vb.set_capacity(cbDstEst, true);
-         // Get the resulting buffer and its actual size.
-         void * pBuf(vb.begin().base() + cbUsed);
-         size_t cbBuf(vb.capacity() - cbUsed);
-         // Fill as much of the buffer as possible, and increment cbUsed accordingly.
-         cbUsed += abc::text::transcode(
-            std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbBuf
-         );
-         if (!cbStr) {
-            break;
-         }
-         // The buffer needs to be larger than estimated; let’s try in increments. Since we don’t
-         // want to repeat this many times, increment the previous estimate by 50%.
-         size_t cbDstNewEst(cbDstEst + (cbDstEst << 1));
-         // Detect overflow.
-         if (cbDstNewEst < cbDstEst) {
-            cbDstNewEst = numeric::max<size_t>::value;
-         }
-         cbDstEst = cbDstNewEst;
-      }
+      // Calculate the size required, then resize vb accorgingly.
+      cbUsed = abc::text::transcode(std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc);
+      vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
+      // Transcode the string into vb.
+      void * pBuf(vb.begin().base());
+      // Re-assign to cbUsed because transcode() will set *(&cbUsed) to 0.
+      cbUsed = abc::text::transcode(
+         std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed
+      );
    }
    if (bNulT) {
       memory::clear(vb.begin().base() + cbUsed, cbChar);
