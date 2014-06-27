@@ -464,21 +464,20 @@ binbuf_reader::binbuf_reader(
          if (cbBuf > sc_cbBufChunkMax) {
             cbBuf = sc_cbBufChunkMax;
          }
-         // Calculate the additional size required, ceiling it to sizeof(char_t).
-         size_t cchDstEst((abc::text::estimate_transcoded_size(
-            m_enc, pbBuf, cbBuf, abc::text::encoding::host
-         ) + sizeof(char_t) - 1) / sizeof(char_t));
+         void const * pSrc(pbBuf);
+         size_t cbSrcConsumed(cbBuf);
+         // Calculate the additional size required.
+         size_t cbDst(abc::text::transcode(
+            std::nothrow, m_enc, &pSrc, &cbSrcConsumed, abc::text::encoding::host
+         ));
          // Enlarge the destination string and get its begin/end pointers.
-         ps->set_capacity(cchReadTotal + cchDstEst, true);
+         ps->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
          char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
          char_t * pchDstEnd(pchDstOffset);
-         // Transcode as much of the buffer chunk as possible, and advance pchDstEnd accordingly.
-         int8_t const * pbSrc(pbBuf);
-         size_t cbSrcConsumed(cbBuf);
-         size_t cbDst(sizeof(char_t) * (ps->capacity() - cchReadTotal));
+         // Transcode the buffer chunk and advance pchDstEnd accordingly.
          abc::text::transcode(
-            std::nothrow, m_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrcConsumed,
+            std::nothrow, m_enc, &pSrc, &cbSrcConsumed,
             abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
          );
 
@@ -495,13 +494,13 @@ binbuf_reader::binbuf_reader(
          // to consume.
          if (pchDstConsumeEnd != pchDstEnd) {
             // Restore the arguments for transcode().
-            pbSrc = pbBuf;
+            pSrc = pbBuf;
             cbSrcConsumed = cbBuf;
             pchDstEnd = pchDstOffset;
             cbDst = reinterpret_cast<size_t>(pchDstConsumeEnd) -
                reinterpret_cast<size_t>(pchDstOffset);
             abc::text::transcode(
-               std::nothrow, m_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrcConsumed,
+               std::nothrow, m_enc, &pSrc, &cbSrcConsumed,
                abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
             );
             ABC_ASSERT(
