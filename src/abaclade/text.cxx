@@ -27,66 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-size_t estimate_transcoded_size(encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst) {
-   ABC_TRACE_FUNC(encSrc, pSrc, cbSrc, encDst);
-
-   // Little helper to map abc::text::encoding values with byte sizes (see below).
-   struct enc_cb_t {
-      uint8_t enc;
-      uint8_t cb;
-   };
-
-   // Average size, in bytes, of 10 characters in each supported encoding.
-   static enc_cb_t const sc_aecAvg10Chars[] = {
-      { encoding::utf8,         15 }, // Some languages require 3 bytes per character.
-      { encoding::utf16le,      20 }, // Consider surrogates extremely unlikely, as they are.
-      { encoding::utf16be,      20 }, // Same as encoding::utf16le.
-      { encoding::utf32le,      40 }, // Exact constant.
-      { encoding::utf32be,      40 }, // Same as encoding::utf32le.
-      { encoding::iso_8859_1,   10 }, // Exact constant.
-      { encoding::windows_1252, 10 }, // Exact constant.
-      { encoding::ebcdic,       10 }, // Exact constant.
-   };
-
-   if (encSrc == encoding::unknown) {
-      ABC_THROW(argument_error, ());
-   }
-   if (encDst == encoding::unknown) {
-      ABC_THROW(argument_error, ());
-   }
-   // TODO: use this to give a more accurate estimate for UTF-8, by evaluating which language block
-   // seems to be dominant in the source.
-   ABC_UNUSED_ARG(pSrc);
-
-   size_t cbSrcAvg, cbDstAvg;
-   // Estimate the number of code points in the source.
-   // TODO: improve search algorithm, or maybe use a real map.
-   for (size_t i(0); i < ABC_COUNTOF(sc_aecAvg10Chars); ++i) {
-      encoding::enum_type enc(encoding::enum_type(sc_aecAvg10Chars[i].enc));
-      if (encSrc == enc) {
-         cbSrcAvg = sc_aecAvg10Chars[i].cb;
-      }
-      if (encDst == enc) {
-         cbDstAvg = sc_aecAvg10Chars[i].cb;
-      }
-   }
-   // If we were using floating-point math, this would be the return statement’s expression:
-   //    ceil(cbSrc / cbSrcAvg) * cbDstAvg
-   // We need to emulate ceil() on integers with:
-   //    (cbSrc + cbSrcAvg - 1) / cbSrcAvg
-   // Also, we have to multiply first, to avoid underflow, but this would expose to overflow, in
-   // which case we’ll divide first, as in the original expression.
-   size_t ccp(cbSrc * cbDstAvg);
-   if (ccp >= cbSrc) {
-      // No integer overflow.
-      return (ccp + cbSrcAvg - 1) / cbSrcAvg;
-   } else {
-      // Integer overflow occurred: evaluate the expression in the original order.
-      return ((cbSrc + cbSrcAvg - 1) / cbSrcAvg) * cbDstAvg;
-   }
-}
-
-
 size_t get_encoding_size(encoding enc) {
    ABC_TRACE_FUNC(enc);
 

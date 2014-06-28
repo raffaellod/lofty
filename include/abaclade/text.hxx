@@ -123,26 +123,6 @@ inline char_t host_char(char ch) {
 #endif
 
 
-/** Provides an estimate of the space, in bytes, necessary to store a string, transcoded in a
-different encoding. For example, transcoding from UTF-32 to UTF-16 will yield half the source size,
-although special cases such as surrogates might make the estimate too low.
-
-encSrc
-   Source encoding.
-pSrc
-   Pointer to the source string.
-cbSrc
-   Length of the source string, in bytes.
-encDst
-   Target encoding.
-return
-   Estimated size necessary for the destination string, in bytes.
-*/
-ABACLADE_SYM size_t estimate_transcoded_size(
-   encoding encSrc, void const * pSrc, size_t cbSrc, encoding encDst
-);
-
-
 /** Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
 encodings (e.g. identity_encoding).
 
