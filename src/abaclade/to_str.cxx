@@ -115,7 +115,7 @@ void _int_to_str_backend_base::set_format(istr const & sFormat) {
       }
       ch = *it++;
    }
-   // Pad with zeroes instead of spaces.
+   // Pad with zeros instead of spaces.
    if (ch == '0') {
       m_chPad = '0';
       if (it == sFormat.cend()) {
@@ -214,7 +214,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    char chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
    // Decide whether we’ll put a sign last, after the padding.
    bool bSignLast(chSign && m_chPad == '0');
-   // Add the sign character if there’s no prefix and the padding is not zeroes.
+   // Add the sign character if there’s no prefix and the padding is not zeros.
    if (chSign && m_chPad != '0') {
       *--it = chSign;
    }
@@ -223,7 +223,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    while (it > itFirstDigit) {
       *--it = m_chPad;
    }
-   // Add prefix or sign (if padding with zeroes), if any.
+   // Add prefix or sign (if padding with zeros), if any.
    if (m_chPrefix0) {
       if (m_chPrefix1) {
          *--it = m_chPrefix1;

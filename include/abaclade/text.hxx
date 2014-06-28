@@ -81,7 +81,7 @@ ABC_ENUM(line_terminator, \
 );
 
 
-/** This must be used to replace any invalid char32_t value. */
+/** This should be used to replace any invalid char32_t value. */
 char32_t const replacement_char(0x00fffd);
 
 /** Maximum run length for the encoding of a code point, in any encoding.
