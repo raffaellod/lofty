@@ -352,7 +352,7 @@ namespace text {
 
 binbuf_reader::binbuf_reader(
    std::shared_ptr<binary::buffered_reader> pbbr,
-   abc::text::encoding enc /* = abc::text::encoding::unknown*/,
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/,
    abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
 ) :
    base(lterm),
@@ -432,6 +432,7 @@ binbuf_reader::binbuf_reader(
          ps->set_capacity(cchReadTotal + cchBuf, true);
          char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
+         // TODO: FIXME: don’t just copy blindly; first validate the source instead.
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
@@ -442,6 +443,11 @@ binbuf_reader::binbuf_reader(
                sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
             ).base();
          }
+         if (pchDstConsumeEnd < pchDstOffset) {
+            // The caller wants to not consume bytes that we already consumed in a previous
+            // iteration, which is impossible.
+            // TODO: throw an exception.
+         }
          size_t cchConsumed(static_cast<size_t>(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
@@ -451,14 +457,15 @@ binbuf_reader::binbuf_reader(
       }
    } else {
       // Sub-optimal case: transcoding is needed.
-
       // Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid consuming
       // (expensive: we’d need to calculate the buffer offset back from the string offset, and the
       // only way to do so is to re-transcode the buffer capping the destination size – see below),
       // only translate relatively small portions (of size sc_cbBufChunkMax) of the buffer at a
       // time.
-      // TODO: tune this value – too small causes more repeated function calls, too large causes
-      // more work in abc::text::transcode().
+
+      // TODO: tune sc_cbBufChunkMax – too small causes more repeated function calls, too large
+      // causes more work in abc::text::transcode() when we need to move characters back to the
+      // source.
       static size_t const sc_cbBufChunkMax(128);
       while (cbBuf) {
          if (cbBuf > sc_cbBufChunkMax) {
@@ -488,6 +495,11 @@ binbuf_reader::binbuf_reader(
             pchDstConsumeEnd = fnGetConsumeEnd(
                sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
             ).base();
+         }
+         if (pchDstConsumeEnd < pchDstOffset) {
+            // The caller wants to not consume bytes that we already consumed in a previous
+            // iteration, which is impossible.
+            // TODO: throw an exception.
          }
          // If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
          // destination size to the consumed range of characters; this will yield the count of bytes
@@ -540,7 +552,7 @@ namespace text {
 
 binbuf_writer::binbuf_writer(
    std::shared_ptr<binary::buffered_writer> pbbw,
-   abc::text::encoding enc /* = abc::text::encoding::unknown*/,
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/,
    abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
 ) :
    base(lterm),
