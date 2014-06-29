@@ -373,6 +373,24 @@ binbuf_reader::binbuf_reader(
 }
 
 
+/*static*/ char_t const * binbuf_reader::call_get_consume_end(
+   char_t const * pchBegin, char_t const * pchOffset, size_t cch, std::function<
+      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+   > const & fnGetConsumeEnd
+) {
+   istr sConsumableBuf(unsafe, pchBegin, cch);
+   char_t const * pchConsumeEnd(fnGetConsumeEnd(
+      sConsumableBuf, istr::const_iterator(pchOffset, &sConsumableBuf)
+   ).base());
+   if (pchConsumeEnd < pchOffset) {
+      // The caller wants to not consume bytes that we already consumed in a previous call, which
+      // is not possible.
+      // TODO: throw an exception.
+   }
+   return pchConsumeEnd;
+}
+
+
 /*virtual*/ bool binbuf_reader::read_while(mstr * ps, std::function<
    istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
 > fnGetConsumeEnd) {
@@ -436,18 +454,9 @@ binbuf_reader::binbuf_reader(
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
-         char_t const * pchDstConsumeEnd;
-         {
-            istr sConsumableBuf(unsafe, pchDstBegin, cchReadTotal + cchBuf);
-            pchDstConsumeEnd = fnGetConsumeEnd(
-               sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
-            ).base();
-         }
-         if (pchDstConsumeEnd < pchDstOffset) {
-            // The caller wants to not consume bytes that we already consumed in a previous
-            // iteration, which is impossible.
-            // TODO: throw an exception.
-         }
+         char_t const * pchDstConsumeEnd(call_get_consume_end(
+            pchDstBegin, pchDstOffset, cchReadTotal + cchBuf, fnGetConsumeEnd
+         ));
          size_t cchConsumed(static_cast<size_t>(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
@@ -489,18 +498,9 @@ binbuf_reader::binbuf_reader(
          );
 
          // Determine how much of the string is to be consumed.
-         char_t const * pchDstConsumeEnd;
-         {
-            istr sConsumableBuf(unsafe, pchDstBegin, static_cast<size_t>(pchDstEnd - pchDstBegin));
-            pchDstConsumeEnd = fnGetConsumeEnd(
-               sConsumableBuf, istr::const_iterator(pchDstOffset, &sConsumableBuf)
-            ).base();
-         }
-         if (pchDstConsumeEnd < pchDstOffset) {
-            // The caller wants to not consume bytes that we already consumed in a previous
-            // iteration, which is impossible.
-            // TODO: throw an exception.
-         }
+         char_t const * pchDstConsumeEnd(call_get_consume_end(
+            pchDstBegin, pchDstOffset, static_cast<size_t>(pchDstEnd - pchDstBegin), fnGetConsumeEnd
+         ));
          // If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
          // destination size to the consumed range of characters; this will yield the count of bytes
          // to consume.

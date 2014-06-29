@@ -932,6 +932,29 @@ protected:
 
    /** Underlying binary buffered reader. */
    std::shared_ptr<binary::buffered_reader> m_pbbr;
+
+
+private:
+
+   /** Invokes the consumer function translating its arguments and translating back and validating
+   its return value.
+
+   pchBegin
+      Pointer to the buffer from which characters should be consumed.
+   pchOffset
+      Pointer to the end in *pchBegin of any previously consumed characters.
+   cch
+      Size of the buffer pointed to by pchBegin, in characters.
+   fnGetConsumeEnd
+      See read_while()’s fnGetConsumeEnd argument.
+   return
+      Pointer returned by fnGetConsumeEnd.
+   */
+   static char_t const * call_get_consume_end(
+      char_t const * pchBegin, char_t const * pchOffset, size_t cch, std::function<
+         istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+      > const & fnGetConsumeEnd
+   );
 };
 
 } //namespace text
