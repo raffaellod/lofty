@@ -378,6 +378,8 @@ binbuf_reader::binbuf_reader(
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd
 ) {
+   ABC_TRACE_FUNC(pchBegin, pchOffset, cch/*, fnGetConsumeEnd*/);
+
    istr sConsumableBuf(unsafe, pchBegin, cch);
    char_t const * pchConsumeEnd(fnGetConsumeEnd(
       sConsumableBuf, istr::const_iterator(pchOffset, &sConsumableBuf)
@@ -385,7 +387,8 @@ binbuf_reader::binbuf_reader(
    if (pchConsumeEnd < pchOffset) {
       // The caller wants to not consume bytes that we already consumed in a previous call, which
       // is not possible.
-      // TODO: throw an exception.
+      // TODO: provide more information in the exception.
+      ABC_THROW(iterator_error, ());
    }
    return pchConsumeEnd;
 }
