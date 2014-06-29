@@ -118,6 +118,19 @@ public:
    }
 
 
+   /** Checks if a character is a valid UTF-8 lead character.
+
+   ch
+      Character to validate.
+   return
+      true if ch is a valid UTF-8 lead character, or false otherwise.
+   */
+   static bool is_valid_lead_char(char8_t ch) {
+      uint8_t i(static_cast<uint8_t>(ch));
+      return (smc_aiValidLeadCharsMask[i >> 3] & (0x80u >> (i & 0x07u))) != 0;
+   }
+
+
    /** Returns the run length of an UTF-8 sequence, given its lead byte.
 
    ch
@@ -143,6 +156,9 @@ private:
    /** Shift counts for the mask 0x7f to be applied to each lead byte to get the bits actually part
    of the code point; indexed by the number of bytes in the sequence. */
    static uint8_t const smc_acbitShiftMask[];
+   /** A set bit in this array means that the corresponding character is a valid UTF-8 lead
+   character. */
+   static uint8_t const smc_aiValidLeadCharsMask[];
 };
 
 } //namespace text

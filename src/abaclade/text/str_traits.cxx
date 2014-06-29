@@ -28,60 +28,65 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-uint8_t const utf8_str_traits::smc_aiOverlongDetectionMasks[] = {
-   // Leading byte = 110zzzzz, first continuation byte must have at least one K=1 in ccKyyyyy.
-   0x20,
-   // Leading byte = 1110zzzz, first continuation byte must have at least one K=1 in ccKKyyyy.
-   0x30,
-   // Leading byte = 11110zzz, first continuation byte must have at least one K=1 in ccKKKyyy.
-   0x38,
-   // Leading byte = 111110zz, first continuation byte must have at least one K=1 in ccKKKKyy.
-   0x3c,
-   // Leading byte = 1111110z, first continuation byte must have at least one K=1 in ccKKKKKy.
-   0x3e
-};
-
-
 /*static*/ bool utf8_str_traits::is_valid(char8_t const * pchBegin, char8_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   unsigned cbCont(0);
-   bool bCheckFirstContByteForOverlongs;
-   for (char8_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      char8_t ch(*pch);
-      if (cbCont) {
-         // Ensure that the lead byte is really followed by cbCont trailing bytes.
+   for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
+      char8_t ch(*pch++);
+      // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
+      if (!utf8_char_traits::is_valid_lead_char(ch)) {
+         return false;
+      }
+
+      // If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
+      // nested for loop; see below for more info.
+      bool bValidateOnBitsInFirstTrailByte((ch & 0xef) == 0xe0);
+
+      // Ensure that these bits are 0 to detect encoded code points above
+      // (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
+      // 10000 xxxxyyyy yyzzzzzz.
+      char8_t iFirstTrailByteOffValidityMask(ch == '\xf4' ? 0x30 : 0x00);
+
+      for (unsigned cbTrail(utf8_char_traits::lead_char_to_codepoint_size(ch)); --cbTrail; ) {
+         if (pch == pchEnd) {
+            // The string ended prematurely when we were expecting more trail characters.
+            return false;
+         }
+         ch = *pch++;
+         // Verify that this is a trailing byte.
          if (!utf8_char_traits::is_trail_char(ch)) {
             return false;
          }
-         --cbCont;
-         if (bCheckFirstContByteForOverlongs) {
-            // Detect an overlong due to unused bits in the lead byte and first continuation bytes.
-            // See smc_aiOverlongDetectionMasks for more information on how this check works.
-            if (!(ch & smc_aiOverlongDetectionMasks[cbCont])) {
+         if (bValidateOnBitsInFirstTrailByte) {
+            // Detect overlong encodings by detecting zeros in the lead byte and masking the first
+            // trail byte with an “on” mask.
+            static char8_t const sc_aiOverlongDetectionMasks[] = {
+               // 1-character sequences cannot be overlongs.
+               /* 1 */ 0,
+               // 2-character overlongs are filtered out by utf8_char_traits::is_valid_lead_char().
+               /* 2 */ 0,
+               // Detect 11100000 100xxxxx …, overlong for 110xxxxx ….
+               /* 3 */ 0x20,
+               // Detect 11110000 1000xxxx …, overlong for 1110xxxx ….
+               /* 4 */ 0x30
+               // Longer overlongs are possible, but they require a lead byte that is filtered out
+               // by utf8_char_traits::is_valid_lead_char().
+            };
+            if (!(ch & sc_aiOverlongDetectionMasks[cbTrail])) {
                return false;
             }
-            bCheckFirstContByteForOverlongs = false;
+            bValidateOnBitsInFirstTrailByte = false;
          }
-      } else {
-         // This should be a lead byte, and not the invalid 1111111x.
-         if (utf8_char_traits::is_trail_char(ch) || static_cast<uint8_t>(ch) >= 0xfe) {
-            return false;
+         if (iFirstTrailByteOffValidityMask) {
+            // If the “off” mask reveals a “1” bit, this trail byte is invalid.
+            if (ch & iFirstTrailByteOffValidityMask) {
+               return false;
+            }
+            iFirstTrailByteOffValidityMask = 0;
          }
-         // Detect an overlong that would fit in a single character: 11000001 10yyyyyy should have
-         // been encoded as 01yyyyyy.
-         if (ch == '\xc1') {
-            return false;
-         }
-         cbCont = utf8_char_traits::lead_char_to_codepoint_size(ch) - 1;
-         // If no code point bits are used (1) in the lead byte, enable overlong detection for
-         // the first continuation byte.
-         bCheckFirstContByteForOverlongs = (
-            utf8_char_traits::get_lead_char_codepoint_bits(ch, cbCont) == 0
-         );
       }
    }
-   return cbCont == 0;
+   return true;
 }
 
 } //namespace text
@@ -139,8 +144,8 @@ namespace text {
    auto itNextFailNext(pvcchFailNext->begin());
 
    // The earliest repetition of a non-first character can only occur on the fourth character, so
-   // start by skipping two characters and storing two zeroes for them, then the first iteration
-   // will also always store an additional zero and consume one more character.
+   // start by skipping two characters and storing two zeros for them, then the first iteration will
+   // also always store an additional zero and consume one more character.
    char_t const * pchNeedle(pchNeedleBegin + 2);
    char_t const * pchRestart(pchNeedleBegin);
    *itNextFailNext++ = 0;

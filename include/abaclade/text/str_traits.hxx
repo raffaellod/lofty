@@ -36,7 +36,7 @@ std::char_traits.
 class ABACLADE_SYM utf8_str_traits {
 public:
 
-   /** Checks if a string is valid UTF.
+   /** Checks if a string is valid UTF-8.
 
    pchBegin
       Pointer to the first character of the string to validate.
@@ -46,18 +46,6 @@ public:
       true if the string is valid UTF, or false otherwise.
    */
    static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
-
-
-private:
-
-   /** Bitmasks to be applied to the first trailing byte to check if a code point is using an
-   overlong encoding. For example, even though 11100000 10100000 10000000 has all zeroes in the code
-   point part of the lead byte (mask 1110xxxx), it cannot be encoded with fewer bytes because the
-   second byte uses 6 bits and the 2-byte-long sequence lead byte only has 5 code point bits (mask
-   110xxxxx); in this case the mask 00100000, applied to the second byte (10100000) allows to find
-   out if a code point could have been encoded with fewer characters.
-   The first element (index 0) is for 1-byte continuations. */
-   static uint8_t const smc_aiOverlongDetectionMasks[];
 };
 
 } //namespace text
