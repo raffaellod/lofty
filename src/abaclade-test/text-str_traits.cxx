@@ -129,17 +129,16 @@ public:
       );
 
       // Technically possible, but not valid UTF-8.
-      // TODO: decide whether is_valid() should reject these strings.
-      /*ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_is_valid(
+      ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_is_valid(
          0xf9, 0x81, 0x81, 0x81, 0x81
       );
       ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_is_valid(
          0xfd, 0x81, 0x81, 0x81, 0x81, 0x81
-      );*/
+      );
 
-      // Technically possible, but not valid UTF-8. Here the string continues in a *valid* second
-      // NUL-terminated string, so we can detect if the invalid byte was interpreted as the lead
-      // byte of some UTF-8 sequence.
+      // Technically possible, but not valid UTF-8. Here the string continues with a few more valid
+      // characters, so we can detect if the invalid byte was interpreted as the lead byte of some
+      // UTF-8 sequence.
       ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_is_valid(
          0xfe,
          0x01, 0x01, 0x01, 0x01, 0x01, 0x01
