@@ -333,11 +333,11 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
 
 
 size_t transcode(
-   std::nothrow_t const &,
+   bool bThrowOnErrors,
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
    encoding encDst, void       ** ppDst, size_t * pcbDstMax
 ) {
-   ABC_TRACE_FUNC(encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
+   ABC_TRACE_FUNC(bThrowOnErrors, encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
    // If ppDst or pcbDstMax is nullptr, we’ll only calculate how much of **ppSrc can be transcoded
    // to fit into *pcbDstMax; otherwise we’ll also perform the actual transcoding.
@@ -386,10 +386,18 @@ size_t transcode(
                if (cbCont || !is_codepoint_valid(ch32)) {
                   // Couldn’t read the whole code point or the result is not valid UTF-32: replace
                   // this invalid code point.
+                  if (bThrowOnErrors) {
+                     // TODO: provide more information in the exception.
+                     ABC_THROW(decode_error, ());
+                  }
                   ch32 = replacement_char;
                }
             } else {
                // Replace this invalid byte.
+               if (bThrowOnErrors) {
+                  // TODO: provide more information in the exception.
+                  ABC_THROW(decode_error, ());
+               }
                ch32 = replacement_char;
             }
             break;
@@ -434,14 +442,26 @@ size_t transcode(
                   ) + 0x10000;
                   if (!is_codepoint_valid(ch32)) {
                      // Replace this invalid code point.
+                     if (bThrowOnErrors) {
+                        // TODO: provide more information in the exception.
+                        ABC_THROW(decode_error, ());
+                     }
                      ch32 = replacement_char;
                   }
                } else {
                   // ch16Src0 is an invalid lone lead surrogate.
+                  if (bThrowOnErrors) {
+                     // TODO: provide more information in the exception.
+                     ABC_THROW(decode_error, ());
+                  }
                   ch32 = replacement_char;
                }
             } else {
                // ch16Src0 is an invalid lone trail surrogate.
+               if (bThrowOnErrors) {
+                  // TODO: provide more information in the exception.
+                  ABC_THROW(decode_error, ());
+               }
                ch32 = replacement_char;
             }
             break;
@@ -553,8 +573,13 @@ size_t transcode(
                if (pbDst + 1 > pbDstEnd) {
                   goto break_for;
                }
-               // Replace characters that cannot be encoded by ISO-8859-1 with question marks.
+               // Check for code points that cannot be represented by ISO-8859-1.
                if (ch32 > 0x0000ff) {
+                  if (bThrowOnErrors) {
+                     // TODO: provide more information in the exception.
+                     ABC_THROW(encode_error, ());
+                  }
+                  // Replace the code point with a question mark.
                   ch32 = 0x00003f;
                }
                *pbDst = static_cast<uint8_t>(ch32);

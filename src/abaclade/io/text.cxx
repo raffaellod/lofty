@@ -487,7 +487,7 @@ binbuf_reader::binbuf_reader(
          size_t cbSrcConsumed(cbBuf);
          // Calculate the additional size required.
          size_t cbDst(abc::text::transcode(
-            std::nothrow, m_enc, &pSrc, &cbSrcConsumed, abc::text::encoding::host
+            true, m_enc, &pSrc, &cbSrcConsumed, abc::text::encoding::host
          ));
          // Enlarge the destination string and get its begin/end pointers.
          ps->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
@@ -496,7 +496,7 @@ binbuf_reader::binbuf_reader(
          char_t * pchDstEnd(pchDstOffset);
          // Transcode the buffer chunk and advance pchDstEnd accordingly.
          abc::text::transcode(
-            std::nothrow, m_enc, &pSrc, &cbSrcConsumed,
+            true, m_enc, &pSrc, &cbSrcConsumed,
             abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
          );
 
@@ -515,7 +515,7 @@ binbuf_reader::binbuf_reader(
             cbDst = reinterpret_cast<size_t>(pchDstConsumeEnd) -
                reinterpret_cast<size_t>(pchDstOffset);
             abc::text::transcode(
-               std::nothrow, m_enc, &pSrc, &cbSrcConsumed,
+               true, m_enc, &pSrc, &cbSrcConsumed,
                abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
             );
             ABC_ASSERT(
@@ -605,7 +605,7 @@ binbuf_writer::binbuf_writer(
    } else {
       // Sub-optimal case: transcoding is needed.
       cbBuf = abc::text::transcode(
-         std::nothrow, enc, &p, &cb, m_enc, reinterpret_cast<void **>(&pbBuf), &cbBuf
+         true, enc, &p, &cb, m_enc, reinterpret_cast<void **>(&pbBuf), &cbBuf
       );
    }
    m_pbbw->commit_bytes(cbBuf);

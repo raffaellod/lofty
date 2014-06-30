@@ -225,6 +225,14 @@ After allocating a buffer of the requested size, call this function again with t
 pointer arguments will be updated to discard the bytes used in the conversion; otherwise no pointed-
 to variables will be written to.
 
+bThrowOnErrors
+   On decoding, if true, an exception of type abc::text::decode_error will be thrown if any invalid
+   characters are found; otherwise invalid characters will be silently replaced with
+   abc::text::replacement_char.
+
+   On encoding, if true, an exception of type abc::text::encode_error will be thrown if any code
+   points cannot be converted to the destination encoding; otherwise characters that cannot be
+   encoded will be replaced with an encoding-specific replacement character.
 encSrc
    Encoding of the string pointed to by *ppSrc.
 ppSrc
@@ -246,7 +254,7 @@ return
    Used destination buffer size, in bytes.
 */
 ABACLADE_SYM size_t transcode(
-   std::nothrow_t const &,
+   bool bThrowOnErrors,
    encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
    encoding encDst, void       ** ppDst = nullptr, size_t * pcbDstMax = nullptr
 );

@@ -137,13 +137,13 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
       cbChar = text::get_encoding_size(enc);
       void const * pStr(chars_begin());
       // Calculate the size required, then resize vb accorgingly.
-      cbUsed = abc::text::transcode(std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc);
+      cbUsed = abc::text::transcode(true, abc::text::encoding::host, &pStr, &cbStr, enc);
       vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
       // Transcode the string into vb.
       void * pBuf(vb.begin().base());
       // Re-assign to cbUsed because transcode() will set *(&cbUsed) to 0.
       cbUsed = abc::text::transcode(
-         std::nothrow, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed
+         true, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed
       );
    }
    if (bNulT) {

@@ -42,10 +42,16 @@ public:
       Pointer to the first character of the string to validate.
    pchEnd
       Pointer to beyond the last character of the string to validate.
+   bThrowOnErrors
+      If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
+      are found; otherwise the presence of errors will be reported via the return value of the
+      function.
    return
-      true if the string is valid UTF, or false otherwise.
+      true if the string is valid UTF-8, or false otherwise.
    */
-   static bool is_valid(char8_t const * pchBegin, char8_t const * pchEnd);
+   static bool is_valid(
+      char8_t const * pchBegin, char8_t const * pchEnd, bool bThrowOnErrors = false
+   );
 };
 
 } //namespace text
@@ -65,9 +71,22 @@ std::char_traits.
 class ABACLADE_SYM utf16_str_traits {
 public:
 
-   /** See utf8_str_traits::is_valid().
+   /** Checks if a string is valid UTF-16.
+
+   pchBegin
+      Pointer to the first character of the string to validate.
+   pchEnd
+      Pointer to beyond the last character of the string to validate.
+   bThrowOnErrors
+      If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
+      are found; otherwise the presence of errors will be reported via the return value of the
+      function.
+   return
+      true if the string is valid UTF-16, or false otherwise.
    */
-   static bool is_valid(char16_t const * pchBegin, char16_t const * pchEnd);
+   static bool is_valid(
+      char16_t const * pchBegin, char16_t const * pchEnd, bool bThrowOnErrors = false
+   );
 };
 
 } //namespace text
