@@ -453,7 +453,14 @@ binbuf_reader::binbuf_reader(
          ps->set_capacity(cchReadTotal + cchBuf, true);
          char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
-         // TODO: FIXME: don’t just copy blindly; first validate the source instead.
+         // Validate the characters in the source buffer before appending them to *ps.
+         // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors are converted
+         // into a special character, in which case we switch to the else branch below
+         // (abc::text:transcode can fix errors if told so).
+         abc::text::host_str_traits::is_valid(
+            reinterpret_cast<char_t const *>(pbBuf),
+            reinterpret_cast<char_t const *>(pbBuf + cbBuf), true
+         );
          memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
