@@ -457,7 +457,7 @@ binbuf_reader::binbuf_reader(
          // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors are converted
          // into a special character, in which case we switch to the else branch below
          // (abc::text:transcode can fix errors if told so).
-         abc::text::host_str_traits::is_valid(
+         abc::text::host_str_traits::validate(
             reinterpret_cast<char_t const *>(pbBuf),
             reinterpret_cast<char_t const *>(pbBuf + cbBuf), true
          );

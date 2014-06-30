@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-/*static*/ bool utf8_str_traits::is_valid(
+/*static*/ bool utf8_str_traits::validate(
    char8_t const * pchBegin, char8_t const * pchEnd, bool bThrowOnErrors /*= false*/
 ) {
    ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
@@ -127,7 +127,7 @@ namespace text {
 namespace abc {
 namespace text {
 
-/*static*/ bool utf16_str_traits::is_valid(
+/*static*/ bool utf16_str_traits::validate(
    char16_t const * pchBegin, char16_t const * pchEnd, bool bThrowOnErrors /*= false*/
 ) {
    ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);

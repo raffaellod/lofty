@@ -49,7 +49,7 @@ public:
    return
       true if the string is valid UTF-8, or false otherwise.
    */
-   static bool is_valid(
+   static bool validate(
       char8_t const * pchBegin, char8_t const * pchEnd, bool bThrowOnErrors = false
    );
 };
@@ -84,7 +84,7 @@ public:
    return
       true if the string is valid UTF-16, or false otherwise.
    */
-   static bool is_valid(
+   static bool validate(
       char16_t const * pchBegin, char16_t const * pchEnd, bool bThrowOnErrors = false
    );
 };
