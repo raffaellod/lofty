@@ -34,12 +34,14 @@ namespace text {
    ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
 
    for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
+      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
       char8_t ch(*pch++);
       // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
       if (!utf8_char_traits::is_valid_lead_char(ch)) {
          if (bThrowOnErrors) {
-            // TODO: provide more information in the exception.
-            ABC_THROW(decode_error, ());
+            ABC_THROW(decode_error, (
+               SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
+            ));
          } else {
             return false;
          }
@@ -55,21 +57,14 @@ namespace text {
       char8_t iFirstTrailByteOffValidityMask(ch == '\xf4' ? 0x30 : 0x00);
 
       for (unsigned cbTrail(utf8_char_traits::lead_char_to_codepoint_size(ch)); --cbTrail; ) {
-         if (pch == pchEnd) {
-            // The string ended prematurely when we were expecting more trail characters.
+         if (pch == pchEnd || !utf8_char_traits::is_trail_char(ch = *pch++)) {
+            // The string ended prematurely when we were expecting more trail characters, or this is
+            // not a trail character.
             if (bThrowOnErrors) {
-               // TODO: provide more information in the exception.
-               ABC_THROW(decode_error, ());
-            } else {
-               return false;
-            }
-         }
-         ch = *pch++;
-         // Verify that this is a trailing byte.
-         if (!utf8_char_traits::is_trail_char(ch)) {
-            if (bThrowOnErrors) {
-               // TODO: provide more information in the exception.
-               ABC_THROW(decode_error, ());
+               ABC_THROW(decode_error, (
+                  SL("unexpected end of UTF-8 sequence"),
+                  pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+               ));
             } else {
                return false;
             }
@@ -91,8 +86,10 @@ namespace text {
             };
             if (!(ch & sc_aiOverlongDetectionMasks[cbTrail])) {
                if (bThrowOnErrors) {
-                  // TODO: provide more information in the exception.
-                  ABC_THROW(decode_error, ());
+                  ABC_THROW(decode_error, (
+                     SL("overlong UTF-8 sequence"),
+                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                  ));
                } else {
                   return false;
                }
@@ -103,8 +100,10 @@ namespace text {
             // If the “off” mask reveals a “1” bit, this trail byte is invalid.
             if (ch & iFirstTrailByteOffValidityMask) {
                if (bThrowOnErrors) {
-                  // TODO: provide more information in the exception.
-                  ABC_THROW(decode_error, ());
+                  ABC_THROW(decode_error, (
+                     SL("UTF-8 sequence decoded into invalid code point"),
+                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                  ));
                } else {
                   return false;
                }
@@ -134,6 +133,7 @@ namespace text {
 
    bool bExpectTrailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
       char16_t ch(*pch);
       bool bSurrogate(utf16_char_traits::is_surrogate(ch));
       if (bSurrogate) {
@@ -142,8 +142,9 @@ namespace text {
          // but we’re not in a surrogate, this character is invalid.
          if (bTrailSurrogate != bExpectTrailSurrogate) {
             if (bThrowOnErrors) {
-               // TODO: provide more information in the exception.
-               ABC_THROW(decode_error, ());
+               ABC_THROW(decode_error, (
+                  SL("invalid lone surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+               ));
             } else {
                return false;
             }
@@ -152,8 +153,9 @@ namespace text {
       } else if (bExpectTrailSurrogate) {
          // We were expecting a trail surrogate, but this is not a surrogate at all.
          if (bThrowOnErrors) {
-            // TODO: provide more information in the exception.
-            ABC_THROW(decode_error, ());
+            ABC_THROW(decode_error, (
+               SL("invalid lone lead surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+            ));
          } else {
             return false;
          }

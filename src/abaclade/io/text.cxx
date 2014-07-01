@@ -454,7 +454,7 @@ binbuf_reader::binbuf_reader(
          char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
          // Validate the characters in the source buffer before appending them to *ps.
-         // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors are converted
+         // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
          // into a special character, in which case we switch to the else branch below
          // (abc::text:transcode can fix errors if told so).
          abc::text::host_str_traits::validate(
