@@ -646,13 +646,56 @@ namespace abc {
 namespace text {
 
 decode_error::decode_error() :
+   generic_error(),
    error() {
-   m_pszWhat = "abc::text::decode_error";
+   m_pszWhat = "abc::decode_error";
+}
+decode_error::decode_error(decode_error const & x) :
+   generic_error(x),
+   error(x),
+   m_sDescription(x.m_sDescription),
+   m_viInvalid(x.m_viInvalid) {
 }
 
 
-void decode_error::init(errint_t err /*= 0*/) {
+decode_error & decode_error::operator=(decode_error const & x) {
+   ABC_TRACE_FUNC(this/*, x*/);
+
+   error::operator=(x);
+   m_sDescription = x.m_sDescription;
+   m_viInvalid = x.m_viInvalid;
+   return *this;
+}
+
+
+void decode_error::init(
+   istr const & sDescription /*= istr()*/, uint8_t const * pbInvalidBegin /*= nullptr*/,
+   uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
+) {
    error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
+   m_sDescription = sDescription;
+   m_viInvalid.append(pbInvalidBegin, static_cast<size_t>(pbInvalidEnd - pbInvalidBegin));
+}
+
+
+void decode_error::_print_extended_info(io::text::writer * ptwOut) const {
+   istr sFormat;
+   if (m_sDescription) {
+      if (m_viInvalid) {
+         sFormat = SL("{0}, byte dump: {1}\n");
+      } else {
+         sFormat = SL("{0}\n");
+      }
+   } else {
+      if (m_viInvalid) {
+         sFormat = SL("byte dump: {1}\n");
+      }
+   }
+
+   if (sFormat) {
+      ptwOut->print(sFormat, m_sDescription, m_viInvalid);
+   }
+   error::_print_extended_info(ptwOut);
 }
 
 } //namespace text
@@ -667,13 +710,55 @@ namespace abc {
 namespace text {
 
 encode_error::encode_error() :
+   generic_error(),
    error() {
-   m_pszWhat = "abc::text::encode_error";
+   m_pszWhat = "abc::encode_error";
+}
+encode_error::encode_error(encode_error const & x) :
+   generic_error(x),
+   error(x),
+   m_sDescription(x.m_sDescription),
+   m_iInvalidCodePoint(x.m_iInvalidCodePoint) {
 }
 
 
-void encode_error::init(errint_t err /*= 0*/) {
+encode_error & encode_error::operator=(encode_error const & x) {
+   ABC_TRACE_FUNC(this/*, x*/);
+
+   error::operator=(x);
+   m_sDescription = x.m_sDescription;
+   m_iInvalidCodePoint = x.m_iInvalidCodePoint;
+   return *this;
+}
+
+
+void encode_error::init(
+   istr const & sDescription /*= istr()*/, char32_t chInvalid /*= 0xffffff*/, errint_t err /*= 0*/
+) {
    error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
+   m_sDescription = sDescription;
+   m_iInvalidCodePoint = static_cast<uint32_t>(chInvalid);
+}
+
+
+void encode_error::_print_extended_info(io::text::writer * ptwOut) const {
+   istr sFormat;
+   if (m_sDescription) {
+      if (m_iInvalidCodePoint != 0xffffff) {
+         sFormat = SL("{0}, code point: {1}\n");
+      } else {
+         sFormat = SL("{0}\n");
+      }
+   } else {
+      if (m_iInvalidCodePoint != 0xffffff) {
+         sFormat = SL("code point: {1}\n");
+      }
+   }
+
+   if (sFormat) {
+      ptwOut->print(sFormat, m_sDescription, m_iInvalidCodePoint);
+   }
+   error::_print_extended_info(ptwOut);
 }
 
 } //namespace text
