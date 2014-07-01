@@ -364,42 +364,55 @@ size_t transcode(
             if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
                goto break_for;
             }
+            uint8_t const * pbSrcCpBegin(pbSrc);
             char8_t ch8Src(static_cast<char8_t>(*pbSrc++));
             if (!utf8_char_traits::is_trail_char(ch8Src)) {
-               unsigned cbCont(utf8_char_traits::lead_char_to_codepoint_size(ch8Src) - 1);
+               unsigned cbSeq(utf8_char_traits::lead_char_to_codepoint_size(ch8Src));
+               // Subtract 1 because we already consumed the lead character, above.
+               unsigned cbTrail(cbSeq - 1);
                // Ensure that we still have enough characters.
-               if (pbSrc + cbCont > pbSrcEnd) {
+               if (pbSrc + cbTrail > pbSrcEnd) {
                   goto break_for;
                }
                // Convert the first byte to an UTF-32 character.
-               ch32 = utf8_char_traits::get_lead_char_codepoint_bits(ch8Src, cbCont);
+               ch32 = utf8_char_traits::get_lead_char_codepoint_bits(ch8Src, cbTrail);
                // Shift in any continuation bytes.
-               for (; cbCont; --cbCont) {
+               for (; cbTrail; --cbTrail) {
                   ch8Src = static_cast<char8_t>(*pbSrc++);
                   if (!utf8_char_traits::is_trail_char(ch8Src)) {
                      // The sequence ended prematurely, and this byte is not part of it.
+                     if (bThrowOnErrors) {
+                        ABC_THROW(decode_error, (
+                           SL("unexpected end of UTF-8 sequence"),
+                           pbSrcCpBegin, pbSrcCpBegin + cbSeq
+                        ));
+                     }
+                     // The error will be handled after this loop.
                      --pbSrc;
                      break;
                   }
                   ch32 = (ch32 << 6) | (ch8Src & 0x3f);
                }
-               if (cbCont || !is_codepoint_valid(ch32)) {
-                  // Couldn’t read the whole code point or the result is not valid UTF-32: replace
-                  // this invalid code point.
-                  if (bThrowOnErrors) {
-                     // TODO: provide more information in the exception.
-                     ABC_THROW(decode_error, ());
-                  }
-                  ch32 = replacement_char;
+               if (!cbTrail && is_codepoint_valid(ch32)) {
+                  // Everything went well.
+                  break;
+               }
+               // Couldn’t read the whole code point or the result is not valid UTF-32.
+               if (bThrowOnErrors) {
+                  ABC_THROW(decode_error, (
+                     SL("UTF-8 sequence decoded into invalid code point"),
+                     pbSrcCpBegin, pbSrcCpBegin + cbSeq
+                  ));
                }
             } else {
-               // Replace this invalid byte.
                if (bThrowOnErrors) {
-                  // TODO: provide more information in the exception.
-                  ABC_THROW(decode_error, ());
+                  ABC_THROW(decode_error, (
+                     SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
+                  ));
                }
-               ch32 = replacement_char;
             }
+            // Replace this invalid code point.
+            ch32 = replacement_char;
             break;
          }
 
@@ -418,6 +431,7 @@ size_t transcode(
             if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                goto break_for;
             }
+            uint8_t const * pbSrcCpBegin(pbSrc);
             char16_t ch16Src0(*reinterpret_cast<char16_t const *>(pbSrc));
             pbSrc += sizeof(char16_t);
             if (encSrc != encoding::utf16_host) {
@@ -437,33 +451,36 @@ size_t transcode(
                if (utf16_char_traits::is_trail_char(ch16Src1)) {
                   pbSrc += sizeof(char16_t);
                   ch32 = (
-                     (static_cast<char32_t>(ch16Src0 & 0x03ff) << 10) |
-                     (ch16Src1 & 0x03ff)
+                     (static_cast<char32_t>(ch16Src0 & 0x03ff) << 10) | (ch16Src1 & 0x03ff)
                   ) + 0x10000;
-                  if (!is_codepoint_valid(ch32)) {
-                     // Replace this invalid code point.
-                     if (bThrowOnErrors) {
-                        // TODO: provide more information in the exception.
-                        ABC_THROW(decode_error, ());
-                     }
-                     ch32 = replacement_char;
+                  if (is_codepoint_valid(ch32)) {
+                     // Everything went well.
+                     break;
+                  }
+                  if (bThrowOnErrors) {
+                     ABC_THROW(decode_error, (
+                        SL("UTF-16 surrogate decoded into invalid code point"),
+                        pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t) * 2
+                     ));
                   }
                } else {
-                  // ch16Src0 is an invalid lone lead surrogate.
                   if (bThrowOnErrors) {
-                     // TODO: provide more information in the exception.
-                     ABC_THROW(decode_error, ());
+                     ABC_THROW(decode_error, (
+                        SL("invalid lone lead surrogate"),
+                        pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+                     ));
                   }
-                  ch32 = replacement_char;
                }
             } else {
-               // ch16Src0 is an invalid lone trail surrogate.
                if (bThrowOnErrors) {
-                  // TODO: provide more information in the exception.
-                  ABC_THROW(decode_error, ());
+                  ABC_THROW(decode_error, (
+                     SL("invalid lone trail surrogate"),
+                     pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+                  ));
                }
-               ch32 = replacement_char;
             }
+            // Replace this invalid code point.
+            ch32 = replacement_char;
             break;
          }
 
@@ -576,8 +593,7 @@ size_t transcode(
                // Check for code points that cannot be represented by ISO-8859-1.
                if (ch32 > 0x0000ff) {
                   if (bThrowOnErrors) {
-                     // TODO: provide more information in the exception.
-                     ABC_THROW(encode_error, ());
+                     ABC_THROW(encode_error, (SL("no transcoding available to ISO-8859-1"), ch32));
                   }
                   // Replace the code point with a question mark.
                   ch32 = 0x00003f;
@@ -682,7 +698,7 @@ void decode_error::_print_extended_info(io::text::writer * ptwOut) const {
    istr sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
-         sFormat = SL("{0}, byte dump: {1}\n");
+         sFormat = SL("{0}: byte dump: {1}\n");
       } else {
          sFormat = SL("{0}\n");
       }
@@ -745,7 +761,7 @@ void encode_error::_print_extended_info(io::text::writer * ptwOut) const {
    istr sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = SL("{0}, code point: {1}\n");
+         sFormat = SL("{0}: code point: {1}\n");
       } else {
          sFormat = SL("{0}\n");
       }
