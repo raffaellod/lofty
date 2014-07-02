@@ -431,7 +431,7 @@ public:
       Size of the string.
    */
    size_t size_in_codepoints() const {
-      return text::host_str_traits::size_in_codepoints(chars_begin(), chars_end());
+      return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
 
@@ -593,23 +593,19 @@ protected:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    inline bool operator op(abc::str_base const & s1, abc::str_base const & s2) { \
-      return abc::text::host_str_traits::compare( \
+      return abc::text::str_traits::compare( \
          s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
       ) op 0; \
    } \
    template <size_t t_cch> \
    inline bool operator op(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) { \
       abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
-      return abc::text::host_str_traits::compare( \
-         s.chars_begin(), s.chars_end(), ach, pchEnd \
-      ) op 0; \
+      return abc::text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
    } \
    template <size_t t_cch> \
    inline bool operator op(abc::char_t const (& ach)[t_cch], abc::str_base const & s) { \
       abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
-      return abc::text::host_str_traits::compare( \
-         ach, pchEnd, s.chars_begin(), s.chars_end() \
-      ) op 0; \
+      return abc::text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)

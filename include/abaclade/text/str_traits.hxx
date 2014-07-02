@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::host_str_traits
+// abc::text::str_traits
 
 
 namespace abc {
@@ -33,7 +33,7 @@ namespace text {
 /** Low-level functions for dealing with character strings; used by abc::*str. Note that this class
 is not modeled after std::char_traits.
 */
-class ABACLADE_SYM host_str_traits {
+class ABACLADE_SYM str_traits {
 public:
 
    /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See

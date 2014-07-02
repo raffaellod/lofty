@@ -22,13 +22,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::host_str_traits
+// abc::text::str_traits
 
 
 namespace abc {
 namespace text {
 
-/*static*/ void host_str_traits::_build_find_failure_restart_table(
+/*static*/ void str_traits::_build_find_failure_restart_table(
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
@@ -61,7 +61,7 @@ namespace text {
 }
 
 
-/*static*/ int host_str_traits::compare(
+/*static*/ int str_traits::compare(
    char_t const * pch1Begin, char_t const * pch1End,
    char_t const * pch2Begin, char_t const * pch2End
 ) {
@@ -108,7 +108,7 @@ namespace text {
 }
 
 
-/*static*/ char_t const * host_str_traits::find_char(
+/*static*/ char_t const * str_traits::find_char(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
@@ -123,7 +123,7 @@ namespace text {
       return find_char(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
-/*static*/ char_t const * host_str_traits::find_char(
+/*static*/ char_t const * str_traits::find_char(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const* pchNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
@@ -168,7 +168,7 @@ namespace text {
 }
 
 
-/*static*/ char_t const * host_str_traits::find_char_last(
+/*static*/ char_t const * str_traits::find_char_last(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
 ) {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
@@ -188,7 +188,7 @@ namespace text {
 }
 
 
-/*static*/ char_t const * host_str_traits::find_substr(
+/*static*/ char_t const * str_traits::find_substr(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
 ) {
@@ -265,7 +265,7 @@ namespace text {
 }
 
 
-/*static*/ char_t const * host_str_traits::find_substr_last(
+/*static*/ char_t const * str_traits::find_substr_last(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
 ) {
@@ -276,9 +276,7 @@ namespace text {
 }
 
 
-/*static*/ size_t host_str_traits::size_in_codepoints(
-   char_t const * pchBegin, char_t const * pchEnd
-) {
+/*static*/ size_t str_traits::size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
    size_t ccp(0);
@@ -293,7 +291,7 @@ namespace text {
 }
 
 
-/*static*/ bool host_str_traits::validate(
+/*static*/ bool str_traits::validate(
    char_t const * pchBegin, char_t const * pchEnd, bool bThrowOnErrors /*= false*/
 ) {
    ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
