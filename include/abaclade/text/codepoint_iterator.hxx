@@ -289,25 +289,21 @@ public:
 
    /** See _codepoint_iterator_impl<true>::operator*().
    */
+   using _codepoint_iterator_impl<true>::operator*;
    _codepoint_proxy<false> operator*() {
       return _codepoint_proxy<false>(
          const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps)
       );
    }
-   _codepoint_proxy<true> operator*() const {
-      return _codepoint_iterator_impl<true>::operator*();
-   }
 
 
    /** See _codepoint_iterator_impl<true>::operator[]().
    */
+   using _codepoint_iterator_impl<true>::operator[];
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
       return _codepoint_proxy<false>(
          const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps)
       );
-   }
-   _codepoint_proxy<true> operator[](ptrdiff_t i) const {
-      return _codepoint_iterator_impl<true>::operator[](i);
    }
 
 
