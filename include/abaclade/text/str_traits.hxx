@@ -34,24 +34,6 @@ namespace text {
 std::char_traits.
 */
 class ABACLADE_SYM utf8_str_traits {
-public:
-
-   /** Checks if a string is valid UTF-8.
-
-   pchBegin
-      Pointer to the first character of the string to validate.
-   pchEnd
-      Pointer to beyond the last character of the string to validate.
-   bThrowOnErrors
-      If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
-      are found; otherwise the presence of errors will be reported via the return value of the
-      function.
-   return
-      true if the string is valid UTF-8, or false otherwise.
-   */
-   static bool validate(
-      char8_t const * pchBegin, char8_t const * pchEnd, bool bThrowOnErrors = false
-   );
 };
 
 } //namespace text
@@ -69,24 +51,6 @@ namespace text {
 std::char_traits.
 */
 class ABACLADE_SYM utf16_str_traits {
-public:
-
-   /** Checks if a string is valid UTF-16.
-
-   pchBegin
-      Pointer to the first character of the string to validate.
-   pchEnd
-      Pointer to beyond the last character of the string to validate.
-   bThrowOnErrors
-      If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
-      are found; otherwise the presence of errors will be reported via the return value of the
-      function.
-   return
-      true if the string is valid UTF-16, or false otherwise.
-   */
-   static bool validate(
-      char16_t const * pchBegin, char16_t const * pchEnd, bool bThrowOnErrors = false
-   );
 };
 
 } //namespace text
@@ -265,6 +229,24 @@ public:
       Count of code points included in the string.
    */
    static size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
+
+
+   /** Validates the character in a string.
+
+   pchBegin
+      Pointer to the first character of the string to validate.
+   pchEnd
+      Pointer to beyond the last character of the string to validate.
+   bThrowOnErrors
+      If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
+      are found; otherwise the presence of errors will be reported via the return value of the
+      function.
+   return
+      true if the string is valid UTF-8, or false otherwise.
+   */
+   static bool validate(
+      char_t const * pchBegin, char_t const * pchEnd, bool bThrowOnErrors = false
+   );
 };
 
 } //namespace text

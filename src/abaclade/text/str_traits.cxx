@@ -22,154 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf8_str_traits
-
-
-namespace abc {
-namespace text {
-
-/*static*/ bool utf8_str_traits::validate(
-   char8_t const * pchBegin, char8_t const * pchEnd, bool bThrowOnErrors /*= false*/
-) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
-
-   for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
-      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
-      char8_t ch(*pch++);
-      // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
-      if (!utf8_char_traits::is_valid_lead_char(ch)) {
-         if (bThrowOnErrors) {
-            ABC_THROW(decode_error, (
-               SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
-            ));
-         } else {
-            return false;
-         }
-      }
-
-      // If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
-      // nested for loop; see below for more info.
-      bool bValidateOnBitsInFirstTrailByte((ch & 0xef) == 0xe0);
-
-      // Ensure that these bits are 0 to detect encoded code points above
-      // (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
-      // 10000 xxxxyyyy yyzzzzzz.
-      char8_t iFirstTrailByteOffValidityMask(ch == '\xf4' ? 0x30 : 0x00);
-
-      for (unsigned cbTrail(utf8_char_traits::lead_char_to_codepoint_size(ch)); --cbTrail; ) {
-         if (pch == pchEnd || !utf8_char_traits::is_trail_char(ch = *pch++)) {
-            // The string ended prematurely when we were expecting more trail characters, or this is
-            // not a trail character.
-            if (bThrowOnErrors) {
-               ABC_THROW(decode_error, (
-                  SL("unexpected end of UTF-8 sequence"),
-                  pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
-               ));
-            } else {
-               return false;
-            }
-         }
-         if (bValidateOnBitsInFirstTrailByte) {
-            // Detect overlong encodings by detecting zeros in the lead byte and masking the first
-            // trail byte with an “on” mask.
-            static char8_t const sc_aiOverlongDetectionMasks[] = {
-               // 1-character sequences cannot be overlongs.
-               /* 1 */ 0,
-               // 2-character overlongs are filtered out by utf8_char_traits::is_valid_lead_char().
-               /* 2 */ 0,
-               // Detect 11100000 100xxxxx …, overlong for 110xxxxx ….
-               /* 3 */ 0x20,
-               // Detect 11110000 1000xxxx …, overlong for 1110xxxx ….
-               /* 4 */ 0x30
-               // Longer overlongs are possible, but they require a lead byte that is filtered out
-               // by utf8_char_traits::is_valid_lead_char().
-            };
-            if (!(ch & sc_aiOverlongDetectionMasks[cbTrail])) {
-               if (bThrowOnErrors) {
-                  ABC_THROW(decode_error, (
-                     SL("overlong UTF-8 sequence"),
-                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
-                  ));
-               } else {
-                  return false;
-               }
-            }
-            bValidateOnBitsInFirstTrailByte = false;
-         }
-         if (iFirstTrailByteOffValidityMask) {
-            // If the “off” mask reveals a “1” bit, this trail byte is invalid.
-            if (ch & iFirstTrailByteOffValidityMask) {
-               if (bThrowOnErrors) {
-                  ABC_THROW(decode_error, (
-                     SL("UTF-8 sequence decoded into invalid code point"),
-                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
-                  ));
-               } else {
-                  return false;
-               }
-            }
-            iFirstTrailByteOffValidityMask = 0;
-         }
-      }
-   }
-   return true;
-}
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf16_str_traits
-
-
-namespace abc {
-namespace text {
-
-/*static*/ bool utf16_str_traits::validate(
-   char16_t const * pchBegin, char16_t const * pchEnd, bool bThrowOnErrors /*= false*/
-) {
-   ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
-
-   bool bExpectTrailSurrogate(false);
-   for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
-      char16_t ch(*pch);
-      bool bSurrogate(utf16_char_traits::is_surrogate(ch));
-      if (bSurrogate) {
-         bool bTrailSurrogate(utf16_char_traits::is_trail_char(ch));
-         // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
-         // but we’re not in a surrogate, this character is invalid.
-         if (bTrailSurrogate != bExpectTrailSurrogate) {
-            if (bThrowOnErrors) {
-               ABC_THROW(decode_error, (
-                  SL("invalid lone surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
-               ));
-            } else {
-               return false;
-            }
-         }
-         bExpectTrailSurrogate = !bTrailSurrogate;
-      } else if (bExpectTrailSurrogate) {
-         // We were expecting a trail surrogate, but this is not a surrogate at all.
-         if (bThrowOnErrors) {
-            ABC_THROW(decode_error, (
-               SL("invalid lone lead surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
-            ));
-         } else {
-            return false;
-         }
-      }
-   }
-   // Cannot end in the middle of a surrogate.
-   return !bExpectTrailSurrogate;
-}
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::host_str_traits
 
 
@@ -438,6 +290,129 @@ namespace text {
       ++ccp;
    }
    return ccp;
+}
+
+
+/*static*/ bool host_str_traits::validate(
+   char_t const * pchBegin, char_t const * pchEnd, bool bThrowOnErrors /*= false*/
+) {
+   ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
+
+#if ABC_HOST_UTF == 8
+   for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
+      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
+      char8_t ch(*pch++);
+      // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
+      if (!utf8_char_traits::is_valid_lead_char(ch)) {
+         if (bThrowOnErrors) {
+            ABC_THROW(decode_error, (
+               SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
+            ));
+         } else {
+            return false;
+         }
+      }
+
+      // If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
+      // nested for loop; see below for more info.
+      bool bValidateOnBitsInFirstTrailByte((ch & 0xef) == 0xe0);
+
+      // Ensure that these bits are 0 to detect encoded code points above
+      // (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
+      // 10000 xxxxyyyy yyzzzzzz.
+      char8_t iFirstTrailByteOffValidityMask(ch == '\xf4' ? 0x30 : 0x00);
+
+      for (unsigned cbTrail(utf8_char_traits::lead_char_to_codepoint_size(ch)); --cbTrail; ) {
+         if (pch == pchEnd || !utf8_char_traits::is_trail_char(ch = *pch++)) {
+            // The string ended prematurely when we were expecting more trail characters, or this is
+            // not a trail character.
+            if (bThrowOnErrors) {
+               ABC_THROW(decode_error, (
+                  SL("unexpected end of UTF-8 sequence"),
+                  pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+               ));
+            } else {
+               return false;
+            }
+         }
+         if (bValidateOnBitsInFirstTrailByte) {
+            // Detect overlong encodings by detecting zeros in the lead byte and masking the first
+            // trail byte with an “on” mask.
+            static char8_t const sc_aiOverlongDetectionMasks[] = {
+               // 1-character sequences cannot be overlongs.
+               /* 1 */ 0,
+               // 2-character overlongs are filtered out by utf8_char_traits::is_valid_lead_char().
+               /* 2 */ 0,
+               // Detect 11100000 100xxxxx …, overlong for 110xxxxx ….
+               /* 3 */ 0x20,
+               // Detect 11110000 1000xxxx …, overlong for 1110xxxx ….
+               /* 4 */ 0x30
+               // Longer overlongs are possible, but they require a lead byte that is filtered out
+               // by utf8_char_traits::is_valid_lead_char().
+            };
+            if (!(ch & sc_aiOverlongDetectionMasks[cbTrail])) {
+               if (bThrowOnErrors) {
+                  ABC_THROW(decode_error, (
+                     SL("overlong UTF-8 sequence"),
+                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                  ));
+               } else {
+                  return false;
+               }
+            }
+            bValidateOnBitsInFirstTrailByte = false;
+         }
+         if (iFirstTrailByteOffValidityMask) {
+            // If the “off” mask reveals a “1” bit, this trail byte is invalid.
+            if (ch & iFirstTrailByteOffValidityMask) {
+               if (bThrowOnErrors) {
+                  ABC_THROW(decode_error, (
+                     SL("UTF-8 sequence decoded into invalid code point"),
+                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                  ));
+               } else {
+                  return false;
+               }
+            }
+            iFirstTrailByteOffValidityMask = 0;
+         }
+      }
+   }
+   return true;
+#elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
+   bool bExpectTrailSurrogate(false);
+   for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
+      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
+      char16_t ch(*pch);
+      bool bSurrogate(utf16_char_traits::is_surrogate(ch));
+      if (bSurrogate) {
+         bool bTrailSurrogate(utf16_char_traits::is_trail_char(ch));
+         // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
+         // but we’re not in a surrogate, this character is invalid.
+         if (bTrailSurrogate != bExpectTrailSurrogate) {
+            if (bThrowOnErrors) {
+               ABC_THROW(decode_error, (
+                  SL("invalid lone surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+               ));
+            } else {
+               return false;
+            }
+         }
+         bExpectTrailSurrogate = !bTrailSurrogate;
+      } else if (bExpectTrailSurrogate) {
+         // We were expecting a trail surrogate, but this is not a surrogate at all.
+         if (bThrowOnErrors) {
+            ABC_THROW(decode_error, (
+               SL("invalid lone lead surrogate"), pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
+            ));
+         } else {
+            return false;
+         }
+      }
+   }
+   // Cannot end in the middle of a surrogate.
+   return !bExpectTrailSurrogate;
+#endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
 }
 
 } //namespace text
