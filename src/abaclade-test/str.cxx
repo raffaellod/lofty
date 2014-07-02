@@ -83,35 +83,35 @@ public:
       ABC_TESTING_ASSERT_DOES_NOT_THROW(++s.cbegin());
       ABC_TESTING_ASSERT_DOES_NOT_THROW(--s.cend());
       ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
       s = s + 'b' + s;
       // true: a new string is created by operator+, which replaces s by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("äbä"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bä"));
 
       s += 'c';
       // false: there should’ve been enough space for 'c'.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("bäc"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 2u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
       ABC_TESTING_ASSERT_EQUAL(s[1], ABC_CHAR('ä'));
@@ -119,7 +119,7 @@ public:
       s += s;
       // false: there should’ve been enough space for “baba”.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'b');
       ABC_TESTING_ASSERT_EQUAL(s[1], ABC_CHAR('ä'));
@@ -129,14 +129,14 @@ public:
       s = s.substr(-3, -2);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
       s = dmstr(SL("ab")) + 'c';
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 3u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(s[1], 'b');
@@ -145,7 +145,7 @@ public:
       s += 'd';
       // false: there should’ve been enough space for “abcd”.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 4u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 4u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 4u);
       ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(s[1], 'b');
@@ -156,7 +156,7 @@ public:
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
       // character array may or may not change depending on heap reallocation strategy.
       cdpt.changed();
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 26u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 26u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26u);
       ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
 
@@ -164,7 +164,7 @@ public:
       s += SL("\0ç");
       // false: there should have been plenty of storage allocated.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
-      ABC_TESTING_ASSERT_EQUAL(s.size_in_codepoints(), 5u);
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
       ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0ç"));

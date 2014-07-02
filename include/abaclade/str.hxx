@@ -415,6 +415,16 @@ public:
    }
 
 
+   /** Returns size of the string, in code points.
+
+   return
+      Size of the string.
+   */
+   size_t size() const {
+      return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
+   }
+
+
    /** Returns size of the string, in characters.
 
    return
@@ -422,16 +432,6 @@ public:
    */
    size_t size_in_chars() const {
       return _raw_trivial_vextr_impl::size<char_t>();
-   }
-
-
-   /** Returns size of the string, in code points.
-
-   return
-      Size of the string.
-   */
-   size_t size_in_codepoints() const {
-      return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
 
@@ -554,7 +554,7 @@ protected:
 
    ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size_in_codepoints() to it.
+      1-based index from the end of the character array by adding this->size() to it.
    return
       Resulting iterator.
    */
@@ -567,11 +567,11 @@ protected:
    ichBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
       if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size_in_codepoints() to it.
+      this->size() to it.
    ichEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
       index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size_in_codepoints() to it.
+      adding this->size() to it.
    return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [end(), end()) if the indices represent an empty interval after being adjusted.

@@ -336,8 +336,8 @@ public:
    return
       Count of characters.
    */
-   size_t size_in_codepoints() const {
-      return m_s.size_in_codepoints();
+   size_t size() const {
+      return m_s.size();
    }
 
 
