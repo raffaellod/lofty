@@ -405,16 +405,6 @@ public:
    }
 
 
-   /** Returns size of the string, in bytes.
-
-   return
-      Size of the string.
-   */
-   size_t size_in_bytes() const {
-      return _raw_trivial_vextr_impl::size<int8_t>();
-   }
-
-
    /** Returns size of the string, in code points.
 
    return
@@ -422,6 +412,16 @@ public:
    */
    size_t size() const {
       return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
+   }
+
+
+   /** Returns size of the string, in bytes.
+
+   return
+      Size of the string.
+   */
+   size_t size_in_bytes() const {
+      return _raw_trivial_vextr_impl::size<int8_t>();
    }
 
 
