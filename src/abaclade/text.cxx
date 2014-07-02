@@ -439,6 +439,8 @@ size_t transcode(
             }
             if (!utf16_char_traits::is_surrogate(ch16Src0)) {
                ch32 = ch16Src0;
+               // Everything went well.
+               break;
             } else if (utf16_char_traits::is_lead_surrogate(ch16Src0)) {
                // Expect to be able to read a second character, the trail surrogate.
                if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
