@@ -843,47 +843,6 @@ public:
    }
 
 
-   /** Grows the character array until the specified callback succeeds in filling it and returns a
-   number of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
-   (NUL terminator included), it must return <= 2 (NUL excluded).
-
-   This method is not transaction-safe; if an exception is thrown in the callback or elsewhere,
-   *this will not be restored to its previous state.
-
-   TODO: maybe improve exception resilience? Check typical usage to see if it’s an issue.
-
-   Note: this method probably benefits from being inlined in spite of its size, because in most
-   cases the callback will be just a lambda wrapper around some API/OS function, so when the
-   compiler inlines this method, it will most likely blend its code with the (also inlined) lambda,
-   probably resulting in some optimizations that would be otherwise missed.
-
-   fnRead
-      Callback that is invoked to fill up the string buffer.
-      pch
-         Pointer to the beginning of the buffer to be filled up by the callback.
-      cchMax
-         Size of the buffer pointed to by pch.
-      return
-         Count of characters written to the buffer pointed to by pch. If less than cchMax, this will
-         be the final count of characters of *this; otherwise, fnRead will be called once more with
-         a larger cchMax after the string buffer has been enlarged.
-   */
-   void grow_for(std::function<size_t (char_t * pch, size_t cchMax)> fnRead) {
-      typedef _raw_vextr_impl_base rvib;
-      // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
-      // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly
-      // the requested number of characters, eliminating the need to query back with capacity().
-      size_t cchRet, cchMax(rvib::smc_cbCapacityMin * rvib::smc_iGrowthRate);
-      do {
-         cchMax *= rvib::smc_iGrowthRate;
-         set_capacity(cchMax, false);
-         cchRet = fnRead(chars_begin(), cchMax);
-      } while (cchRet >= cchMax);
-      // Finalize the length.
-      set_size_in_chars(cchRet);
-   }
-
-
    /** Inserts characters into the string at a specific character (not code point) offset.
 
    ichOffset
@@ -952,6 +911,47 @@ public:
    */
    void set_capacity(size_t cchMin, bool bPreserve) {
       _raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
+   }
+
+
+   /** Expands the character array until the specified callback succeeds in filling it and returns a
+   number of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
+   (NUL terminator included), it must return <= 2 (NUL excluded).
+
+   This method is not transaction-safe; if an exception is thrown in the callback or elsewhere,
+   *this will not be restored to its previous state.
+
+   TODO: maybe improve exception resilience? Check typical usage to see if it’s an issue.
+
+   Note: this method probably benefits from being inlined in spite of its size, because in most
+   cases the callback will be just a lambda wrapper around some API/OS function, so when the
+   compiler inlines this method, it will most likely blend its code with the (also inlined) lambda,
+   probably resulting in some optimizations that would be otherwise missed.
+
+   fnRead
+      Callback that is invoked to fill up the string buffer.
+      pch
+         Pointer to the beginning of the buffer to be filled up by the callback.
+      cchMax
+         Size of the buffer pointed to by pch.
+      return
+         Count of characters written to the buffer pointed to by pch. If less than cchMax, this will
+         be the final count of characters of *this; otherwise, fnRead will be called once more with
+         a larger cchMax after the string buffer has been enlarged.
+   */
+   void set_from(std::function<size_t (char_t * pch, size_t cchMax)> fnRead) {
+      typedef _raw_vextr_impl_base rvib;
+      // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
+      // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly
+      // the requested number of characters, eliminating the need to query back with capacity().
+      size_t cchRet, cchMax(rvib::smc_cbCapacityMin * rvib::smc_iGrowthRate);
+      do {
+         cchMax *= rvib::smc_iGrowthRate;
+         set_capacity(cchMax, false);
+         cchRet = fnRead(chars_begin(), cchMax);
+      } while (cchRet >= cchMax);
+      // Finalize the length.
+      set_size_in_chars(cchRet);
    }
 
 

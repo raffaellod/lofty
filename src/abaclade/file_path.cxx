@@ -164,9 +164,9 @@ file_path file_path::base_name() const {
 
    dmstr s;
 #if ABC_HOST_API_POSIX
-   s.grow_for([] (char_t * pch, size_t cchMax) -> size_t {
+   s.set_from([] (char_t * pch, size_t cchMax) -> size_t {
       if (::getcwd(pch, cchMax)) {
-         // The length will be necessarily less than cchMax, so grow_for() will stop.
+         // The length will be necessarily less than cchMax, so set_from() will stop.
          return text::size_in_chars(pch);
       }
       if (errno != ERANGE) {
@@ -177,11 +177,11 @@ file_path file_path::base_name() const {
    });
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    // Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
-   // mstr::grow_for() allocate space for that too, by adding the size of the root to the buffer
+   // mstr::set_from() allocate space for that too, by adding the size of the root to the buffer
    // size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
    // reserve space for the root prefix.
    size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-   s.grow_for([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
+   s.set_from([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -210,7 +210,7 @@ file_path file_path::base_name() const {
    char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
    dmstr s;
    size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-   s.grow_for([c_cchRoot, &achDummyPath] (char_t * pch, size_t cchMax) -> size_t {
+   s.set_from([c_cchRoot, &achDummyPath] (char_t * pch, size_t cchMax) -> size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
