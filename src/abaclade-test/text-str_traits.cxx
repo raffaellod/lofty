@@ -150,9 +150,9 @@ public:
    }
 };
 
-#undef ABC_TESTING_ASSERT_text_utf8_str_traits_is_valid
-#undef ABC_TESTING_ASSERT_TRUE_text_utf8_str_traits_is_valid
-#undef ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_is_valid
+#undef ABC_TESTING_ASSERT_text_utf8_str_traits_validate
+#undef ABC_TESTING_ASSERT_TRUE_text_utf8_str_traits_validate
+#undef ABC_TESTING_ASSERT_FALSE_text_utf8_str_traits_validate
 
 } //namespace test
 } //namespace abc
@@ -220,9 +220,9 @@ public:
    }
 };
 
-#undef ABC_TESTING_ASSERT_text_utf16_str_traits_is_valid
-#undef ABC_TESTING_ASSERT_TRUE_text_utf16_str_traits_is_valid
-#undef ABC_TESTING_ASSERT_FALSE_text_utf16_str_traits_is_valid
+#undef ABC_TESTING_ASSERT_text_utf16_str_traits_validate
+#undef ABC_TESTING_ASSERT_TRUE_text_utf16_str_traits_validate
+#undef ABC_TESTING_ASSERT_FALSE_text_utf16_str_traits_validate
 
 } //namespace test
 } //namespace abc
