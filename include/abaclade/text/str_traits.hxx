@@ -24,55 +24,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf8_str_traits
-
-
-namespace abc {
-namespace text {
-
-/** UTF-8 string traits (constants and functions). Note that this class is not modeled after
-std::char_traits.
-*/
-class ABACLADE_SYM utf8_str_traits {
-};
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf16_str_traits
-
-
-namespace abc {
-namespace text {
-
-/** UTF-16 string traits (constants and functions). Note that this class is not modeled after
-std::char_traits.
-*/
-class ABACLADE_SYM utf16_str_traits {
-};
-
-} //namespace text
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::host_str_traits
 
 
 namespace abc {
 namespace text {
 
-/** String traits for host string types (including abc::*str). Derives from either utf8_str_traits
-or utf16_str_traits.
+/** Low-level functions for dealing with character strings; used by abc::*str. Note that this class
+is not modeled after std::char_traits.
 */
-class ABACLADE_SYM host_str_traits :
-#if ABC_HOST_UTF == 8
-   public utf8_str_traits {
-#elif ABC_HOST_UTF == 16
-   public utf16_str_traits {
-#endif
+class ABACLADE_SYM host_str_traits {
 public:
 
    /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
