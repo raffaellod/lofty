@@ -934,7 +934,7 @@ public:
          be the final count of characters of *this; otherwise, fnRead will be called once more with
          a larger cchMax after the string buffer has been enlarged.
    */
-   void set_from(std::function<size_t (char_t * pch, size_t cchMax)> fnRead);
+   void set_from(std::function<size_t (char_t * pch, size_t cchMax)> const & fnRead);
 
 
    /** Changes the length of the string. If the string needs to be lengthened, the added characters

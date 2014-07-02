@@ -334,7 +334,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
 }
 
 
-void mstr::set_from(std::function<size_t (char_t * pch, size_t cchMax)> fnRead) {
+void mstr::set_from(std::function<size_t (char_t * pch, size_t cchMax)> const & fnRead) {
    typedef _raw_vextr_impl_base rvib;
    // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
    // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the
