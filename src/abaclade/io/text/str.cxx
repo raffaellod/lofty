@@ -94,7 +94,7 @@ str_reader::str_reader(
 
 /*virtual*/ bool str_reader::read_while(mstr * ps, std::function<
    istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-> fnGetConsumeEnd) {
+> const & fnGetConsumeEnd) {
    ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 
    ABC_UNUSED_ARG(fnGetConsumeEnd);

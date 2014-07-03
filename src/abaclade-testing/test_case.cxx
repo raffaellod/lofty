@@ -45,7 +45,7 @@ void test_case::init(runner * prunner) {
 
 
 void test_case::assert_does_not_throw(
-   source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr
+   source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr);
 
@@ -80,8 +80,8 @@ void test_case::assert_true(source_location const & srcloc, bool bActual, istr c
 
 
 void test_case::assert_throws(
-   source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr,
-   std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
+   source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr,
+   std::function<bool (std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat);
 

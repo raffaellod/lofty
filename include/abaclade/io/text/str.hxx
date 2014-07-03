@@ -111,7 +111,7 @@ public:
    */
    virtual bool read_while(mstr * ps, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-   > fnGetConsumeEnd);
+   > const & fnGetConsumeEnd);
 
 
 protected:

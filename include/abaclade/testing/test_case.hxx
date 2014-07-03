@@ -87,7 +87,7 @@ protected:
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr
+      source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
    );
 
 
@@ -273,8 +273,8 @@ protected:
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
-      source_location const & srcloc, std::function<void ()> fnExpr, istr const & sExpr,
-      std::function<bool (std::exception const &)> fnMatchType, char const * pszExpectedWhat
+      source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr,
+      std::function<bool (std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
    );
 
 

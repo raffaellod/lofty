@@ -396,7 +396,7 @@ binbuf_reader::binbuf_reader(
 
 /*virtual*/ bool binbuf_reader::read_while(mstr * ps, std::function<
    istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-> fnGetConsumeEnd) {
+> const & fnGetConsumeEnd) {
    ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
 
    // Start with trying to read enough bytes to have the certainty we can decode even the longest

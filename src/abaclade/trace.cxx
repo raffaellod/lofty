@@ -34,7 +34,9 @@ namespace abc {
 /*tls*/ bool _scope_trace_impl::sm_bReentering(false);
 
 
-void _scope_trace_impl::trace_scope(std::function<void (io::text::writer * ptwOut)> fnWriteVars) {
+void _scope_trace_impl::trace_scope(
+   std::function<void (io::text::writer * ptwOut)> const & fnWriteVars
+) {
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {

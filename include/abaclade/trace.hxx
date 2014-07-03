@@ -257,7 +257,7 @@ protected:
       ptwOut
          Pointer to the writer to output to.
    */
-   void trace_scope(std::function<void (io::text::writer * ptwOut)> fnWriteVars);
+   void trace_scope(std::function<void (io::text::writer * ptwOut)> const & fnWriteVars);
 
 
    /** Writes an argument separator.
