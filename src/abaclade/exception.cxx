@@ -2040,7 +2040,7 @@ void pointer_iterator_error::init(
 
 void pointer_iterator_error::_print_extended_info(io::text::writer * ptwOut) const {
    ptwOut->print(
-      SL("invalid iterator: {} (container begin/end range: [{}–{}])\n"),
+      SL("invalid iterator: {} (container begin/end range: [{}, {}])\n"),
       m_pInvalid, m_pContBegin, m_pContEnd
    );
    iterator_error::_print_extended_info(ptwOut);
