@@ -901,6 +901,22 @@ public:
    }
 
 
+   /** Replaces all occurrences of a character with another character.
+
+   chSearch
+      Character to search for.
+   chReplacement
+      Character to replace chSearch with.
+   */
+   void replace(char_t chSearch, char_t chReplacement);
+#if ABC_HOST_UTF > 8
+   void replace(char chSearch, char chReplacement) {
+      replace(text::host_char(chSearch), text::host_char(chReplacement));
+   }
+#endif
+   void replace(char32_t chSearch, char32_t chReplacement);
+
+
    /** See _raw_trivial_vextr_impl::set_capacity().
 
    cchMin

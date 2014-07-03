@@ -308,8 +308,29 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 namespace abc {
 
+void mstr::replace(char_t chSearch, char_t chReplacement) {
+   ABC_TRACE_FUNC(this, chSearch, chReplacement);
+
+   for (char_t * pch(chars_begin()), * pchEnd(chars_end()); pch != pchEnd; ++pch) {
+      if (*pch == chSearch) {
+         *pch = chReplacement;
+      }
+   }
+}
+void mstr::replace(char32_t chSearch, char32_t chReplacement) {
+   ABC_TRACE_FUNC(this, chSearch, chReplacement);
+
+   // TODO: optimize this. Using iterators is fast, but probably not as efficient as it could be.
+   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
+      if (*it == chSearch) {
+         *it = chReplacement;
+      }
+   }
+}
+
+
 void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
-   ABC_TRACE_FUNC(pch, chNew);
+   ABC_TRACE_FUNC(this, pch, chNew);
 
    size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
    uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
@@ -320,7 +341,7 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    *pch = chNew;
 }
 void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
-   ABC_TRACE_FUNC(pch, chNew);
+   ABC_TRACE_FUNC(this, pch, chNew);
 
    size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
    size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
