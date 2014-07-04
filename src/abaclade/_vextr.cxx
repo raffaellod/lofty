@@ -548,13 +548,8 @@ void _raw_complex_vextr_impl::set_capacity(
 void _raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t cb) {
    ABC_TRACE_FUNC(this, /*type, */cb);
 
-   if (cb != size<int8_t>()) {
-      if (cb > capacity<int8_t>()) {
-         // Enlarge the item array.
-         set_capacity(type, cb, true);
-      }
-      m_pEnd = begin<int8_t>() + cb;
-   }
+   ABC_UNUSED_ARG(type);
+   // TODO: implement this.
 }
 
 } //namespace abc

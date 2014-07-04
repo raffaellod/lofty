@@ -134,7 +134,13 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** See _raw_complex_vextr_impl::set_capacity().
+
+   ciMin
+      Minimum count of elements requested.
+   bPreserve
+      If true, the previous contents of the vector will be preserved even if the reallocation causes
+      the vector to switch to a different item array.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       type_void_adapter type;
@@ -144,7 +150,13 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** See _raw_complex_vextr_impl::set_capacity().
+
+   TODO: destruct in _raw_complex_vextr_impl::set_size() any elements being taken out, and default-
+   construct the newly-created elements here.
+
+   ci
+      New element count, in bytes.
    */
    void set_size(size_t ci) {
       type_void_adapter type;
@@ -352,14 +364,26 @@ public:
    }
 
 
-   /** TODO: comment.
+   /** See _raw_trivial_vextr_impl::set_capacity().
+
+   ciMin
+      Minimum count of elements requested.
+   bPreserve
+      If true, the previous contents of the vector will be preserved even if the reallocation causes
+      the vector to switch to a different item array.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
       _raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
    }
 
 
-   /** TODO: comment.
+   /** See _raw_complex_vextr_impl::set_capacity().
+
+   TODO: maybe default-construct the newly-created elements here for consistency with the non-
+   trivial specialization?
+
+   ci
+      New element count, in bytes.
    */
    void set_size(size_t ci) {
       _raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
@@ -1307,7 +1331,6 @@ operator+(abc::vector_base<T, true> const & v1, abc::vector_base<T, true> const 
 }
 // Overloads taking an mvector r-value-reference as either or both operands; they can avoid creating
 // intermediate copies of the elements from one or both source vectors.
-// TODO: verify that compilers actually select these overloads whenever possible.
 template <typename T>
 inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
 operator+(
