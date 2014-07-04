@@ -22,6 +22,37 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::_codepoint_proxy
+
+
+namespace abc {
+namespace text {
+
+_codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
+   // Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
+   // can recalculate the pointers from these offsets.
+   uintptr_t ichThis(static_cast<uintptr_t>(m_pch - mc_ps->chars_begin()));
+   uintptr_t ichIter;
+   if (mc_pcii) {
+      ichIter = static_cast<uintptr_t>(mc_pcii->m_pch - mc_ps->chars_begin());
+   }
+   static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
+      const_cast<char_t *>(m_pch), ch
+   );
+   // If _replace_codepoint() switched string buffer, recalculate the internal pointers from the
+   // offsets saved above.
+   m_pch = mc_ps->chars_begin() + ichThis;
+   if (mc_pcii) {
+      mc_pcii->m_pch = mc_ps->chars_begin() + ichIter;
+   }
+   return *this;
+}
+
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_iterator_impl
 
 

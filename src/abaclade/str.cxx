@@ -320,8 +320,8 @@ void mstr::replace(char_t chSearch, char_t chReplacement) {
 void mstr::replace(char32_t chSearch, char32_t chReplacement) {
    ABC_TRACE_FUNC(this, chSearch, chReplacement);
 
-   // TODO: optimize this. Using iterators is fast, but probably not as efficient as it could be.
-   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
+   // TODO: optimize this. Using iterators requires little code but it’s not that efficient.
+   for (auto it(begin()); it != end(); ++it) {
       if (*it == chSearch) {
          *it = chReplacement;
       }

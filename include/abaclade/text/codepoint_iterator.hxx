@@ -30,6 +30,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
+// Forward declaration.
+template <bool t_bConst>
+class _codepoint_iterator_impl;
+
 /** TODO: comment.
 */
 template <bool t_bConst>
@@ -46,16 +50,19 @@ public:
       Pointer to the character(s) that this proxy will present as char32_t.
    ps
       Pointer to the string that contains *pch.
+   pcii
+      Pointer to the iterator that instantiated *this; *pcii will be updated if changes to the . If not instantiated by an iterator, this
+      should be set to nullptr.
    cpp
       Source code point proxy to copy.
    */
    _codepoint_proxy(char_t const * pch, str_base const * ps) :
       m_pch(pch),
-      m_ps(ps) {
+      mc_ps(ps) {
    }
    _codepoint_proxy(_codepoint_proxy const & cpp) :
       m_pch(cpp.m_pch),
-      m_ps(cpp.m_ps) {
+      mc_ps(cpp.mc_ps) {
    }
 
 
@@ -77,7 +84,7 @@ private:
 protected:
 
    char_t const * m_pch;
-   str_base const * m_ps;
+   str_base const * const mc_ps;
 };
 
 // Non-const specialization.
@@ -87,16 +94,30 @@ class _codepoint_proxy<false> :
 public:
 
    /** See _codepoint_proxy<true>::_codepoint_proxy().
+
+   pch
+      Pointer to the character(s) that this proxy will present as char32_t.
+   ps
+      Pointer to the string that contains *pch.
+   pcii
+      Pointer to the instantiating iterator; *pcii will be updated in case of changes to *ps. If not
+      instantiated by an iterator, this should be set to nullptr.
+   cpp
+      Source code point proxy to copy.
    */
-   _codepoint_proxy(char_t * pch, str_base * ps) :
-      _codepoint_proxy<true>(pch, ps) {
+   _codepoint_proxy(char_t * pch, str_base * ps, _codepoint_iterator_impl<false> * pcii) :
+      _codepoint_proxy<true>(pch, ps),
+      mc_pcii(pcii) {
    }
    _codepoint_proxy(_codepoint_proxy const & cpp) :
-      _codepoint_proxy<true>(cpp) {
+      _codepoint_proxy<true>(cpp),
+      mc_pcii(cpp.mc_pcii) {
    }
 
 
-   /** Assignment operator.
+   /** Assignment operator. Note that the copy assignment operator copies the char32_t value, not
+   the internal data members; this allows to write expressions like *itDst = *itSrc to copy code
+   points from one iterator to another.
 
    ch
       Source character.
@@ -115,6 +136,17 @@ public:
    _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {
       return operator=(cpp.operator char32_t());
    }
+   // Support copying a code point from a const iterator to a non-const iterator.
+   _codepoint_proxy & operator=(_codepoint_proxy<true> const & cpp) {
+      return operator=(cpp.operator char32_t());
+   }
+
+
+protected:
+
+   /** Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
+   nullptr if *this was not instantiated by an iterator. */
+   _codepoint_iterator_impl<false> * const mc_pcii;
 };
 
 } //namespace text
@@ -285,6 +317,10 @@ protected:
 template <>
 class _codepoint_iterator_impl<false> :
    public _codepoint_iterator_impl<true> {
+
+   // Needs to be able to update m_pch is the string buffer changes.
+   friend _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch);
+
 public:
 
    /** See _codepoint_iterator_impl<true>::operator*().
@@ -292,7 +328,7 @@ public:
    using _codepoint_iterator_impl<true>::operator*;
    _codepoint_proxy<false> operator*() {
       return _codepoint_proxy<false>(
-         const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps)
+         const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps), this
       );
    }
 
@@ -302,7 +338,7 @@ public:
    using _codepoint_iterator_impl<true>::operator[];
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
       return _codepoint_proxy<false>(
-         const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps)
+         const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps), this
       );
    }
 

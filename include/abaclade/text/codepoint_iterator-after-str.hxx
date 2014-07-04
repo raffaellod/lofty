@@ -24,25 +24,29 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::_codepoint_iterator_impl
+// abc::text::_codepoint_proxy
 
 
 namespace abc {
 namespace text {
 
 inline _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char_t ch) {
-   static_cast<mstr *>(const_cast<str_base *>(m_ps))->_replace_codepoint(
-      const_cast<char_t *>(m_pch), ch
-   );
-   return *this;
-}
-inline _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
-   static_cast<mstr *>(const_cast<str_base *>(m_ps))->_replace_codepoint(
+   static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
       const_cast<char_t *>(m_pch), ch
    );
    return *this;
 }
 
+} //namespace text
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::text::_codepoint_iterator_impl
+
+
+namespace abc {
+namespace text {
 
 inline char_t const * _codepoint_iterator_impl<true>::advance(ptrdiff_t i, bool bIndex) const {
    return m_ps->_advance_char_ptr(m_pch, i, bIndex);
