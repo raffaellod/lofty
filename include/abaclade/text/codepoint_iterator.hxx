@@ -34,7 +34,7 @@ namespace text {
 template <bool t_bConst>
 class _codepoint_iterator_impl;
 
-/** TODO: comment.
+/** Exposes a abc::char_t * as a char32_t &.
 */
 template <bool t_bConst>
 class _codepoint_proxy;
