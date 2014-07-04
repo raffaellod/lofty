@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test globals
 
+
 namespace abc {
 namespace test {
 
@@ -50,9 +51,9 @@ istr const gc_sAcabaabca(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_basic
 
+
 namespace abc {
 namespace test {
-
 
 class str_basic :
    public testing::test_case {
@@ -208,9 +209,9 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_iterators
 
+
 namespace abc {
 namespace test {
-
 
 class str_iterators :
    public testing::test_case {
@@ -256,6 +257,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_iterators)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_encode
+
 
 namespace abc {
 namespace test {
@@ -348,6 +350,57 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_encode)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::str_replace
+
+
+namespace abc {
+namespace test {
+
+class str_replace :
+   public testing::test_case {
+public:
+
+   /** See testing::test_case::title().
+   */
+   virtual istr title() {
+      return istr(SL("abc::*str classes – character replacement"));
+   }
+
+
+   /** See testing::test_case::run().
+   */
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+      smstr<8> s;
+
+      // No replacements to be made.
+      ABC_TESTING_ASSERT_EQUAL(((s = SL("aaa")).replace('b', 'c'), s), SL("aaa"));
+      // Simple ASCII-to-ASCII replacement: no size change.
+      ABC_TESTING_ASSERT_EQUAL(((s = SL("aaa")).replace('a', 'b'), s), SL("bbb"));
+      // Complex ASCII-to-char32_t replacement: size will increase beyond the embedded capacity, so
+      // the iterator used in abc::mstr::replace() must be intelligent enough to self-refresh with
+      // the new descriptor.
+      ABC_TESTING_ASSERT_EQUAL(
+         ((s = SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
+         istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
+      );
+      // Less-complex char32_t-to-ASCII replacement: size will decrease.
+      ABC_TESTING_ASSERT_EQUAL(
+         ((s = istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
+            replace(gc_chP2, char32_t('a')), s),
+         SL("aaaaa")
+      );
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_replace)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr
 
 
@@ -432,6 +485,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_range_permutations)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::istr_c_str
 
+
 namespace abc {
 namespace test {
 
@@ -488,6 +542,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::istr_c_str)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::mstr_c_str
+
 
 namespace abc {
 namespace test {
@@ -555,6 +610,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr
 
+
 namespace abc {
 namespace test {
 
@@ -607,6 +663,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_find)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr_starts_with
 
+
 namespace abc {
 namespace test {
 
@@ -654,6 +711,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_starts_with)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr_ends_with
+
 
 namespace abc {
 namespace test {
