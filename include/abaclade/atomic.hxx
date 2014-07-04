@@ -65,7 +65,7 @@ piDst
 iAddend
    Right addend.
 return
-   Sum of *piDst + iAddend.
+   Sum of *piDst and iAddend.
 */
 template <typename I>
 inline I add(I volatile * piDst, I iAddend) {
@@ -203,7 +203,7 @@ piDst
 iAddend
    Subtrahend.
 return
-   Difference of *piDst - iAddend.
+   Difference between *piDst and iAddend.
 */
 template <typename I>
 inline I subtract(I volatile * piDst, I iSubtrahend) {
