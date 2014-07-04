@@ -68,7 +68,7 @@ return
    Sum of *piDst + iAddend.
 */
 template <typename I>
-I add(I volatile * piDst, I iAddend) {
+inline I add(I volatile * piDst, I iAddend) {
 #if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
@@ -104,7 +104,7 @@ return
    Previous value of *pi, as well as the current one if *pi was not changed.
 */
 template <typename I>
-I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
+inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #if ABC_HOST_API_POSIX
    I iOldValue;
    pthread_mutex_lock(&g_mtx);
@@ -206,7 +206,7 @@ return
    Difference of *piDst - iAddend.
 */
 template <typename I>
-I subtract(I volatile * piDst, I iSubtrahend) {
+inline I subtract(I volatile * piDst, I iSubtrahend) {
 #if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
