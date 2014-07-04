@@ -178,15 +178,13 @@ which allow to print “{” and “}” respectively.
 
 A replacement field can specify an argument index; if omitted, the argument used will be the one
 following the last used one, or the first if no arguments have been used up to that point. After the
-optional argument index, a conversion might be requested (TODO), and an optional type-dependent
-format specification can be indicated; this will be passed as-is to the specialization of
-abc::to_str_backend for the selected argument.
+optional argument index, an optional type-dependent format specification can be indicated; this will
+be passed as-is to the specialization of abc::to_str_backend for the selected argument.
 
 Grammar for a replacement field:
 
-   replacement_field : “{” index? ( “!” conversion )? ( “:” format_spec )? “}”
+   replacement_field : “{” index? ( “:” format_spec )? “}”
    index             : [0-9]+
-   conversion        : [ars]
    format_spec       : <type-specific format specification>
 
 Basic usage examples for index:

@@ -230,29 +230,6 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
       ++m_iSubstArg;
    }
 
-   // Check for a conversion specifier; defaults to string.
-   char32_t chConversion('s');
-   if (ch == '!') {
-      if (++it >= itEnd) {
-         throw_syntax_error(SL("expected conversion specifier"), it);
-      }
-      ch = *it;
-      switch (ch) {
-         case 's':
-// TODO: case 'r':
-// TODO: case 'a':
-            chConversion = ch;
-            ABC_UNUSED_ARG(chConversion);
-            break;
-         default:
-            throw_syntax_error(SL("unknown conversion specifier"), it);
-      }
-      if (++it >= itEnd) {
-         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
-      }
-      ch = *it;
-   }
-
    // Check for a format specification.
    if (ch == ':') {
       if (++it >= itEnd) {
