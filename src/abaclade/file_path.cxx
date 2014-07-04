@@ -443,12 +443,8 @@ dmstr::const_iterator file_path::base_name_start() const {
 
 #if ABC_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
-   // TODO: change to use mstr::replace() when that becomes available.
-   for (auto it(s.begin()); it != s.end(); ++it) {
-      if (*it == '/') {
-         *it = '\\';
-      }
-   }
+   s.replace('/', '\\');
+
    if (!is_absolute(s)) {
       // abc::file_path::is_absolute() is very strict and does not return true for DOS-style or UNC
       // paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
