@@ -346,7 +346,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
    size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
    uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
-   _raw_trivial_vextr_impl::insert_remove(ich, nullptr, cbInsert, cbRemove);
+   _raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
