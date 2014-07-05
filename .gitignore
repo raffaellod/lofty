@@ -5,6 +5,8 @@
 *.suo
 *.vcxproj.user
 bin
+doc/gh-pages
+doc/gh-wiki
 doc/*.pdf
 int
 ipch
