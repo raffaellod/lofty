@@ -185,7 +185,7 @@ return
 #endif
 
 
-/** Defines a string literal of the default host string literal type.
+/** Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
 s
    String literal.
