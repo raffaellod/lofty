@@ -1,42 +1,43 @@
 ﻿1. Introduction
 ---------------
 
-Abaclade is a framework for C++11 designed and written with these features in
-mind:
+Abaclade is a C++11 framework featuring:
 
-•  Full support for text-based and GUI applications, as well as service-oriented
-   architectures;
-•  Intelligent usage of C++11 features and interoperability with the C++11 STL;
-•  Extended run-time debugging support, with aims to reach or exceed that of
-   languages such as Java or Python, featuring full stack traces (including
-   arguments and locals) and a diverse and semantically-rich exception class
-   hierarchy;
+•  Automatic stack traces that include the actual values of arguments and local
+   variables ‒ better than Python or Java!
+
+•  Programs don’t just crash: every error condition results in an exception,
+   including dereferencing a null pointer ‒ you’ll always know what went wrong
+   (see [DOC:8503 Stack tracing]);
+
+•  Semantically-rich exception class hierarchy that allows for clean-looking
+   error handling instead of C-style return values to be checked (see [DOC:8190
+   Exception class hierarchy]);
+
 •  Testing framework integrated in the library and in the included cross-
-   platform make utility (Abamake);
-•  Modern I/O and IPC classes, inspired by Python’s library;
-•  Compiler-enforced type safety (no void pointers, no C-style variadic
-   functions).
+   platform make utility (see [DOC:6931 Abamake]);
+
+•  Approachable and intuitive programming style, similar to Python’s; a good
+   example is its modern I/O class hierarchy inspired by Python 3.x’s library,
+   including a fully type-safe replacement for printf() (see [DOC:7103
+   abc::io::text::writer::print()]);
+
+•  Full support for Unicode and the C++11 char32_t character type (see
+   [DOC:4854 Unicode support in Abaclade]);
+
+•  Cross-platform (currently Linux and Windows) and seamlessly integrated with
+   the C++11 STL;
+
+•  Favor templates and their specializations over macros and void pointers ‒ no
+   C-style variadic functions either;
+
+•  Support for text-based and (TODO) GUI applications as well as service-
+   oriented architectures.
 
 
-2. Why Abaclade?
-----------------
+2. <intentionally left blank>
+-----------------------------
 
-Here’s what Abaclade has to offer, compared to other libraries/frameworks:
-•  Full support for stack dumps (like Python or Java);
-•  Programs don’t just crash – every error is an exception (including e.g.
-   accessing a null pointer);
-•  Rich exception class hierarchy, allowing for clean-looking error handling;
-•  C++-only (unlike, say, glib), so it was designed around features of the
-   language rather than adapting to C++ an existing design;
-•  Does not require a pre-preprocessor (unlike, say, Qt) because it gets
-   everything done with a few macros and a lot of templates;
-•  Does not clutter the code with macros (unlike, say, Boost, glib, Qt);
-•  Offers an approachable and intuitive programming style, similar to Python
-   (unlike Boost);
-•  It’s built on top of the core STL (unlike most frameworks), and follows the
-   same patterns and naming convention;
-•  Achieves high execution efficiency due to the extensive use of std::move()
-   and de-templated containers.
 
 
 2.1. Some history
