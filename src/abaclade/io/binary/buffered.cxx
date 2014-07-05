@@ -254,7 +254,7 @@ void default_buffered_writer::flush_buffer() {
 
    if (m_cbWriteBufUsed) {
       size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
-      ABC_ASSERT(cbWritten == m_cbWriteBufUsed, SL("the entire buffer must have been written"));
+      ABC_ASSERT(cbWritten == m_cbWriteBufUsed, ABC_SL("the entire buffer must have been written"));
       m_cbWriteBufUsed = 0;
    }
 }

@@ -84,7 +84,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::exception – polymorphism"));
+      return istr(ABC_SL("abc::exception – polymorphism"));
    }
 
 
@@ -158,7 +158,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
+      return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
    }
 
 
@@ -229,7 +229,7 @@ public:
          int iZero(static_cast<int>(sEmpty.size_in_chars())), iOne(1);
          ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
          // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
-         istr(SL("{}")).format(iOne);
+         istr(ABC_SL("{}")).format(iOne);
       }
    }
 };

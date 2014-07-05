@@ -35,8 +35,8 @@ public:
 
       auto ptwOut(io::text::stdout());
       ptwOut->set_encoding(text::encoding::utf8);
-      ptwOut->write(SL("I/O test file encoded using "));
-      ptwOut->write(SL("UTF-8"));
+      ptwOut->write(ABC_SL("I/O test file encoded using "));
+      ptwOut->write(ABC_SL("UTF-8"));
 
       // Test result determined by Abamake’s output comparer.
       return 0;

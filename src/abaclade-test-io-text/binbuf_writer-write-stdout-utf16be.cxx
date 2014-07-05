@@ -35,8 +35,8 @@ public:
 
       auto ptwOut(io::text::stdout());
       ptwOut->set_encoding(text::encoding::utf16be);
-      ptwOut->write(SL("I/O test file encoded using "));
-      ptwOut->write(SL("UTF-16BE"));
+      ptwOut->write(ABC_SL("I/O test file encoded using "));
+      ptwOut->write(ABC_SL("UTF-16BE"));
 
       // Test result determined by Abamake’s output comparer.
       return 0;

@@ -51,17 +51,17 @@ public:
    virtual int main(mvector<istr const> const & vsArgs) {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      istr s(SL("Test String"));
+      istr s(ABC_SL("Test String"));
 
       smvector<int, 5> vi;
       vi.append(101);
       vi.append(102);
 
-      io::text::stdout()->print(SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
+      io::text::stdout()->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
 
-      io::text::stdout()->write_line(SL("Before calling first_function()"));
+      io::text::stdout()->write_line(ABC_SL("Before calling first_function()"));
       first_function(s, vi);
-      io::text::stdout()->write_line(SL("After calling first_function()"));
+      io::text::stdout()->write_line(ABC_SL("After calling first_function()"));
 
       return 0;
    }
@@ -82,10 +82,10 @@ public:
    void first_function(istr const & s, mvector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
 
-      io::text::stdout()->write_line(SL("Before calling is_zero()"));
+      io::text::stdout()->write_line(ABC_SL("Before calling is_zero()"));
       // Passing a null pointer!
       is_zero(numbers_enum::two, nullptr);
-      io::text::stdout()->write_line(SL("After calling is_zero()"));
+      io::text::stdout()->write_line(ABC_SL("After calling is_zero()"));
    }
 
 

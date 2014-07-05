@@ -78,14 +78,14 @@ void runner::log_assertion(
 
    if (bPass) {
       m_ptwOut->print(
-         SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected
+         ABC_SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected
       );
    } else {
       ++m_cFailedAssertions;
       m_ptwOut->print(
-         SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
-            SL("  expected: {}{}\n")
-            SL("  actual:   {}\n"),
+         ABC_SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
+            ABC_SL("  expected: {}{}\n")
+            ABC_SL("  actual:   {}\n"),
          srcloc, sExpr, sOp, sExpected, sActual
       );
    }
@@ -111,22 +111,26 @@ void runner::run() {
 void runner::run_test_case(test_case & tc) {
    ABC_TRACE_FUNC(this/*, tc*/);
 
-   m_ptwOut->print(SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
+   m_ptwOut->print(ABC_SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
 
    try {
       tc.run();
    } catch (assertion_error const &) {
       // This exception type is only used to interrupt abc::testing::test_case::run().
-      m_ptwOut->write(SL("test case execution interrupted\n"));
+      m_ptwOut->write(ABC_SL("test case execution interrupted\n"));
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(m_ptwOut.get(), &x);
-      m_ptwOut->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      m_ptwOut->write(
+         ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n")
+      );
    } catch (...) {
       exception::write_with_scope_trace(m_ptwOut.get());
-      m_ptwOut->write(SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      m_ptwOut->write(
+         ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n")
+      );
    }
 
-   m_ptwOut->write(SL("ABCMK-TEST-CASE-END\n"));
+   m_ptwOut->write(ABC_SL("ABCMK-TEST-CASE-END\n"));
 }
 
 } //namespace testing

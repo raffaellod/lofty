@@ -38,7 +38,7 @@ void throw_os_error() {
    throw_os_error(errno);
 }
 void throw_os_error(errint_t err) {
-   ABC_ASSERT(err != 0, SL("cannot throw an exception for a success"));
+   ABC_ASSERT(err != 0, ABC_SL("cannot throw an exception for a success"));
    switch (err) {
       case E2BIG: // Argument list too long (POSIX.1-2001)
       case EBADF: // Bad file number (POSIX.1-2001)
@@ -231,7 +231,7 @@ void throw_os_error() {
    throw_os_error(::GetLastError());
 }
 void throw_os_error(errint_t err) {
-   ABC_ASSERT(err != ERROR_SUCCESS, SL("cannot throw an exception for a success"));
+   ABC_ASSERT(err != ERROR_SUCCESS, ABC_SL("cannot throw an exception for a success"));
    switch (err) {
       // TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
       // we shouldn’t throw due to them.
@@ -1082,7 +1082,7 @@ void to_str_backend<source_location>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
@@ -1094,7 +1094,7 @@ void to_str_backend<source_location>::write(
    ABC_TRACE_FUNC(this, srcloc, ptwOut);
 
    ptwOut->write(istr(unsafe, srcloc.file_path()));
-   ptwOut->write(SL(":"));
+   ptwOut->write(ABC_SL(":"));
    ptwOut->write(srcloc.line_number());
 }
 
@@ -1180,13 +1180,13 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(SL("Unhandled exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
+      ptwOut->print(ABC_SL("Unhandled exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       // If the virtual method _print_extended_info() is not the default one provided by
       // abc::exception, the class has a custom implementation, probably to print something useful.
       if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
          try {
-            ptwOut->write(SL("Extended information:\n"));
+            ptwOut->write(ABC_SL("Extended information:\n"));
             pabcx->_print_extended_info(ptwOut);
          } catch (...) {
             // The exception is not rethrown because we don’t want exception details to interfere
@@ -1197,13 +1197,15 @@ char const * exception::what() const {
    } else {
       // Some other type of exception; not much to say.
       pabcx = nullptr;
-      ptwOut->write(SL("Unhandled exception: (unknown type)\n"));
+      ptwOut->write(ABC_SL("Unhandled exception: (unknown type)\n"));
    }
 
-   ptwOut->write(SL("Stack trace (most recent call first):\n"));
+   ptwOut->write(ABC_SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      ptwOut->print(SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc);
+      ptwOut->print(
+         ABC_SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc
+      );
    }
    // Print the stack trace collected via ABC_TRACE_FUNC().
    ptwOut->write(_scope_trace_impl::get_trace_writer()->release_content());
@@ -1520,7 +1522,7 @@ namespace abc {
       sm_bReentering = true;
       try {
          io::text::stderr()->print(
-            SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
+            ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
             sMsg, sExpr, srcloc, sFunction
          );
       } catch (...) {
@@ -1708,7 +1710,7 @@ void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
 
 
 void index_error::_print_extended_info(io::text::writer * ptwOut) const {
-   ptwOut->print(SL("invalid index: {}\n"), m_iInvalid);
+   ptwOut->print(ABC_SL("invalid index: {}\n"), m_iInvalid);
    lookup_error::_print_extended_info(ptwOut);
 }
 
@@ -1837,7 +1839,7 @@ void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 namespace abc {
 
-char_t const memory_address_error::smc_achUnknownAddress[] = SL("unknown memory address");
+char_t const memory_address_error::smc_achUnknownAddress[] = ABC_SL("unknown memory address");
 
 
 memory_address_error::memory_address_error() :
@@ -1867,7 +1869,7 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 void memory_address_error::_print_extended_info(io::text::writer * ptwOut) const {
    if (m_pInvalid != smc_achUnknownAddress) {
-      ptwOut->print(SL("invalid address: {}\n"), m_pInvalid);
+      ptwOut->print(ABC_SL("invalid address: {}\n"), m_pInvalid);
    } else {
       ptwOut->write(smc_achUnknownAddress);
    }
@@ -2040,7 +2042,7 @@ void pointer_iterator_error::init(
 
 void pointer_iterator_error::_print_extended_info(io::text::writer * ptwOut) const {
    ptwOut->print(
-      SL("invalid iterator: {} (container begin/end range: [{}, {}])\n"),
+      ABC_SL("invalid iterator: {} (container begin/end range: [{}, {}])\n"),
       m_pInvalid, m_pContBegin, m_pContEnd
    );
    iterator_error::_print_extended_info(ptwOut);
@@ -2116,29 +2118,29 @@ void syntax_error::_print_extended_info(io::text::writer * ptwOut) const {
    if (m_sSource) {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = SL("{0} in {1}:{2}:{3}\n");
+            sFormat = ABC_SL("{0} in {1}:{2}:{3}\n");
          } else {
-            sFormat = SL("{0} in expression \"{1}\", character {3}\n");
+            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}\n");
          }
       } else {
          if (m_iLine) {
-            sFormat = SL("{0} in {1}:{2}\n");
+            sFormat = ABC_SL("{0} in {1}:{2}\n");
          } else {
-            sFormat = SL("{0} in expression \"{1}\"\n");
+            sFormat = ABC_SL("{0} in expression \"{1}\"\n");
          }
       }
    } else {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = SL("{0} in <input>:{2}:{3}\n");
+            sFormat = ABC_SL("{0} in <input>:{2}:{3}\n");
          } else {
-            sFormat = SL("{0} in <expression>, character {3}\n");
+            sFormat = ABC_SL("{0} in <expression>, character {3}\n");
          }
       } else {
          if (m_iLine) {
-            sFormat = SL("{0} in <input>:{2}\n");
+            sFormat = ABC_SL("{0} in <input>:{2}\n");
          } else {
-            sFormat = SL("{0}\n");
+            sFormat = ABC_SL("{0}\n");
          }
       }
    }

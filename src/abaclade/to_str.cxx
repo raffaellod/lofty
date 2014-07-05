@@ -38,7 +38,7 @@ void to_str_backend<bool>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
@@ -48,9 +48,9 @@ void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, b, ptwOut);
 
    if (b) {
-      ptwOut->write(SL("true"));
+      ptwOut->write(ABC_SL("true"));
    } else {
-      ptwOut->write(SL("false"));
+      ptwOut->write(ABC_SL("false"));
    }
 }
 
@@ -189,7 +189,7 @@ default_notation:
          // If we still have any characters, they are garbage (fall through).
       default:
          ABC_THROW(syntax_error, (
-            SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+            ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
          ));
    }
 
@@ -338,7 +338,7 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 
 namespace abc {
 
-char_t const _ptr_to_str_backend::smc_achFormat[] = SL("#x");
+char_t const _ptr_to_str_backend::smc_achFormat[] = ABC_SL("#x");
 
 
 _ptr_to_str_backend::_ptr_to_str_backend() {
@@ -358,7 +358,7 @@ void _ptr_to_str_backend::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }
@@ -370,7 +370,7 @@ void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut)
    if (iPtr) {
       m_tsbInt.write(iPtr, ptwOut);
    } else {
-      m_tsbStr.write(istr(SL("nullptr")), ptwOut);
+      m_tsbStr.write(istr(ABC_SL("nullptr")), ptwOut);
    }
 }
 
@@ -384,7 +384,7 @@ void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut)
 namespace abc {
 
 _sequence_to_str_backend::_sequence_to_str_backend(istr const & sStart, istr const & sEnd) :
-   m_sSeparator(SL(", ")),
+   m_sSeparator(ABC_SL(", ")),
    m_sStart(sStart),
    m_sEnd(sEnd) {
 }
@@ -400,7 +400,7 @@ void _sequence_to_str_backend::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }

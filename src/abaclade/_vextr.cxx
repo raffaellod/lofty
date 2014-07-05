@@ -325,7 +325,7 @@ void _raw_complex_vextr_impl::assign_move(
    if (rcvi.m_pBegin == m_pBegin) {
       return;
    }
-   ABC_ASSERT(rcvi.m_bDynamic, SL("cannot move an embedded item array"));
+   ABC_ASSERT(rcvi.m_bDynamic, ABC_SL("cannot move an embedded item array"));
    // Discard the current contents.
    destruct_items(type);
    this->~_raw_complex_vextr_impl();
@@ -592,7 +592,7 @@ void _raw_trivial_vextr_impl::assign_move(_raw_trivial_vextr_impl && rtvi) {
    }
    ABC_ASSERT(
       !rtvi.m_bPrefixedItemArray || rtvi.m_bDynamic,
-      SL("cannot transfer ownership of a non-dynamic prefixed item array")
+      ABC_SL("cannot transfer ownership of a non-dynamic prefixed item array")
    );
    // Discard the current contents.
    this->~_raw_trivial_vextr_impl();

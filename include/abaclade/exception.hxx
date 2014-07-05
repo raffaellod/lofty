@@ -34,7 +34,7 @@ return
    abc::source_location instance.
 */
 #define ABC_SOURCE_LOCATION() \
-   (::abc::source_location(SL(__FILE__), __LINE__))
+   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
 
 
 namespace abc {
@@ -252,16 +252,16 @@ since this file is included in virtually every file whereas trace.hxx is not.
 
 /** Pretty-printed name of the current function. */
 #if ABC_HOST_GCC
-   // With GCC we cannot use SL(__PRETTY_FUNCTION__) because apparently __PRETTY_FUNCTION__ is
+   // With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because apparently __PRETTY_FUNCTION__ is
    // expanded by the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t
-   // know what scope even means; this causes SL(__PRETTY_FUNCTION__) to expand to
+   // know what scope even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to
    // u8__PRETTY_FUNCTION__. However, since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s
-   // not really necessary, so we just avoid using SL() here.
+   // not really necessary, so we just avoid using ABC_SL() here.
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
    #define _ABC_THIS_FUNC \
-      SL(__FUNCTION__)
+      ABC_SL(__FUNCTION__)
 #else
    #define _ABC_THIS_FUNC \
       nullptr
@@ -470,7 +470,7 @@ expr
       do { \
          if (!(expr)) { \
             abc::assertion_error::_assertion_failed( \
-               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, SL(#expr), sMsg \
+               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
             ); \
          } \
       } while (0)

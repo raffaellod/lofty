@@ -349,7 +349,7 @@ public:
    /** Constructor.
    */
    to_str_backend() :
-      _sequence_to_str_backend(SL("("), SL(")")) {
+      _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
 
@@ -447,7 +447,7 @@ public:
    /** Constructor.
    */
    to_str_backend() :
-      _sequence_to_str_backend(SL("("), SL(")")) {
+      _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
 

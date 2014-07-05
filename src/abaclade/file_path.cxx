@@ -78,22 +78,22 @@ static bool file_attrs(file_path const & fp, DWORD fi) {
 
 char_t const file_path::smc_aszSeparator[] =
 #if ABC_HOST_API_POSIX
-   SL("/");
+   ABC_SL("/");
 #elif ABC_HOST_API_WIN32
-   SL("\\");
+   ABC_SL("\\");
 #else
    #error HOST_API
 #endif
 char_t const file_path::smc_aszRoot[] =
 #if ABC_HOST_API_POSIX
-   SL("/");
+   ABC_SL("/");
 #elif ABC_HOST_API_WIN32
-   SL("\\\\?\\");
+   ABC_SL("\\\\?\\");
 #else
    #error HOST_API
 #endif
 #if ABC_HOST_API_WIN32
-char_t const file_path::smc_aszUNCRoot[] = SL("\\\\?\\UNC\\");
+char_t const file_path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
 
@@ -408,8 +408,8 @@ dmstr::const_iterator file_path::base_name_start() const {
          cch >= sc_cchVolumeRoot &&
          (ch = *(pch + sc_cchVolumeRoot - 3), ch >= 'A' && ch <= 'Z') &&
          (*(pch + sc_cchVolumeRoot - 2) == ':' && *(pch + sc_cchVolumeRoot - 1) == '\\'),
-         SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
-            SL("abc::file_path::validate_and_adjust() needs to be fixed")
+         ABC_SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
+            ABC_SL("abc::file_path::validate_and_adjust() needs to be fixed")
       );
       // Return the index of “a” in “\\?\X:\a”.
       return sc_cchRoot;
@@ -451,7 +451,7 @@ dmstr::const_iterator file_path::base_name_start() const {
       // “\\server\share”, so we have to detect them here and prefix them with the Win32 File
       // Namespace prefix.
 
-      if (s.starts_with(SL("\\\\"))) {
+      if (s.starts_with(ABC_SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
          s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
       } else {
@@ -529,7 +529,7 @@ void to_str_backend<file_path>::set_format(istr const & sFormat) {
    // If we still have any characters, they are garbage.
    if (it != sFormat.cend()) {
       ABC_THROW(syntax_error, (
-         SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
       ));
    }
 }

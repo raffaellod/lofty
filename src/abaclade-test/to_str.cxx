@@ -85,7 +85,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str – int"));
+      return istr(ABC_SL("abc::to_str – int"));
    }
 
 
@@ -95,27 +95,27 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Test zero, decimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL("")), SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL(" 1")), SL(" 0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL("01")), SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL(" 2")), SL(" 0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, SL("02")), SL("00"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, ABC_SL("")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, ABC_SL(" 1")), ABC_SL(" 0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, ABC_SL("01")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, ABC_SL(" 2")), ABC_SL(" 0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(0, ABC_SL("02")), ABC_SL("00"));
 
       // Test positive values, decimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, SL("")), SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, SL(" 1")), SL(" 1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, SL("01")), SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, SL(" 2")), SL(" 1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, SL("02")), SL("01"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, ABC_SL("")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, ABC_SL(" 1")), ABC_SL(" 1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, ABC_SL("01")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, ABC_SL(" 2")), ABC_SL(" 1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(1, ABC_SL("02")), ABC_SL("01"));
 
       // Test negative values, decimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL("")), SL("-1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL(" 1")), SL("-1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL("01")), SL("-1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL(" 2")), SL("-1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL("02")), SL("-1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL(" 3")), SL(" -1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, SL("03")), SL("-01"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL("")), ABC_SL("-1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL(" 1")), ABC_SL("-1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL("01")), ABC_SL("-1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL(" 2")), ABC_SL("-1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL("02")), ABC_SL("-1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL(" 3")), ABC_SL(" -1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(-1, ABC_SL("03")), ABC_SL("-01"));
    }
 };
 
@@ -138,7 +138,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str – int8_t"));
+      return istr(ABC_SL("abc::to_str – int8_t"));
    }
 
 
@@ -148,27 +148,27 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Test zero, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL("x")), SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL(" 1x")), SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL("01x")), SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL(" 2x")), SL(" 0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), SL("02x")), SL("00"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL(" 1x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("01x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL(" 2x")), ABC_SL(" 0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("02x")), ABC_SL("00"));
 
       // Test positive values, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), SL("x")), SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), SL(" 1x")), SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), SL("01x")), SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), SL(" 2x")), SL(" 1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), SL("02x")), SL("01"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL(" 1x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("01x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL(" 2x")), ABC_SL(" 1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("02x")), ABC_SL("01"));
 
       // Test negative values, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL("x")), SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL(" 1x")), SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL("01x")), SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL(" 2x")), SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL("02x")), SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL(" 3x")), SL(" ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), SL("03x")), SL("0ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 1x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("01x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 2x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("02x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 3x")), ABC_SL(" ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("03x")), ABC_SL("0ff"));
    }
 };
 
@@ -191,7 +191,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str – raw pointers"));
+      return istr(ABC_SL("abc::to_str – raw pointers"));
    }
 
 
@@ -204,28 +204,29 @@ public:
 
       // Test nullptr.
       ABC_TESTING_ASSERT_EQUAL(
-         get_to_str_output(static_cast<void *>(nullptr), SL("")), SL("nullptr")
+         get_to_str_output(static_cast<void *>(nullptr), ABC_SL("")), ABC_SL("nullptr")
       );
 
       // Test void pointer.
       ABC_TESTING_ASSERT_EQUAL(
-         get_to_str_output(reinterpret_cast<void *>(iBad), SL("")), SL("0xbad")
+         get_to_str_output(reinterpret_cast<void *>(iBad), ABC_SL("")), ABC_SL("0xbad")
       );
 
       // Test void const volatile pointer.
       ABC_TESTING_ASSERT_EQUAL(
-         get_to_str_output(reinterpret_cast<void const volatile *>(iBad), SL("")), SL("0xbad")
+         get_to_str_output(reinterpret_cast<void const volatile *>(iBad), ABC_SL("")),
+         ABC_SL("0xbad")
       );
 
       // Test function pointer.
       ABC_TESTING_ASSERT_EQUAL(
-         get_to_str_output(reinterpret_cast<void (*)(int)>(iBad), SL("")), SL("0xbad")
+         get_to_str_output(reinterpret_cast<void (*)(int)>(iBad), ABC_SL("")), ABC_SL("0xbad")
       );
 
       // Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
       // by abc::to_str().
       ABC_TESTING_ASSERT_EQUAL(
-         get_to_str_output(reinterpret_cast<char_t const *>(iBad), SL("")), SL("0xbad")
+         get_to_str_output(reinterpret_cast<char_t const *>(iBad), ABC_SL("")), ABC_SL("0xbad")
       );
    }
 };
@@ -249,7 +250,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str – smart pointers"));
+      return istr(ABC_SL("abc::to_str – smart pointers"));
    }
 
 
@@ -264,29 +265,29 @@ public:
       {
          std::unique_ptr<int> upi(pi);
          // Test non-nullptr std::unique_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, SL("")), sPtr);
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, ABC_SL("")), sPtr);
 
          upi.release();
          // Test nullptr std::unique_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, SL("")), SL("nullptr"));
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(upi, ABC_SL("")), ABC_SL("nullptr"));
       }
       {
          std::shared_ptr<int> spi(pi);
          // Test non-nullptr std::shared_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, SL("")), sPtr);
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, ABC_SL("")), sPtr);
          std::weak_ptr<int> wpi(spi);
          // Test non-nullptr std::weak_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), sPtr);
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, ABC_SL("")), sPtr);
 
          spi.reset();
          // Test nullptr std::shared_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, SL("")), SL("nullptr"));
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(spi, ABC_SL("")), ABC_SL("nullptr"));
          // Test expired non-nullptr std::weak_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), SL("nullptr"));
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, ABC_SL("")), ABC_SL("nullptr"));
 
          wpi.reset();
          // Test nullptr std::weak_ptr.
-         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, SL("")), SL("nullptr"));
+         ABC_TESTING_ASSERT_EQUAL(get_to_str_output(wpi, ABC_SL("")), ABC_SL("nullptr"));
       }
    }
 };
@@ -310,7 +311,7 @@ public:
    /** See to_str_test_case_base::title().
    */
    virtual istr title() {
-      return istr(SL("abc::to_str – STL tuple types"));
+      return istr(ABC_SL("abc::to_str – STL tuple types"));
    }
 
 
@@ -326,10 +327,12 @@ public:
 #endif
 
       // Test {std,abc::_std}::tuple.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<>()), SL("()"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int>(1)), SL("(1)"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int, int>(1, 2)), SL("(1, 2)"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<istr, int>(SL("abc"), 42)), SL("(abc, 42)"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<>()), ABC_SL("()"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int>(1)), ABC_SL("(1)"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(tuple<int, int>(1, 2)), ABC_SL("(1, 2)"));
+      ABC_TESTING_ASSERT_EQUAL(
+         get_to_str_output(tuple<istr, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)")
+      );
    }
 };
 

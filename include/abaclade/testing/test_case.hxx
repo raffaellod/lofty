@@ -111,7 +111,7 @@ protected:
    ) {
       bool bPass = (tActual == tEqual);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL("== "),
+         srcloc, bPass, sExpr, ABC_SL("== "),
          bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -149,7 +149,7 @@ protected:
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL("> "),
+         srcloc, bPass, sExpr, ABC_SL("> "),
          bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -175,7 +175,7 @@ protected:
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL(">= "),
+         srcloc, bPass, sExpr, ABC_SL(">= "),
          bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -201,7 +201,7 @@ protected:
    ) {
       bool bPass = (tActual < tUBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL("<= "),
+         srcloc, bPass, sExpr, ABC_SL("<= "),
          bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -227,7 +227,7 @@ protected:
    ) {
       bool bPass = (tActual <= tUBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL("<= "),
+         srcloc, bPass, sExpr, ABC_SL("<= "),
          bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -253,7 +253,7 @@ protected:
    ) {
       bool bPass = (tActual != tNotEqual);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, SL("!= "),
+         srcloc, bPass, sExpr, ABC_SL("!= "),
          bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr() : istr(to_str(tActual))
       );
    }
@@ -309,7 +309,7 @@ expr
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
    this->assert_does_not_throw(ABC_SOURCE_LOCATION(), [&] () -> void { \
       static_cast<void>(expr); \
-   }, SL(#expr))
+   }, ABC_SL(#expr))
 
 
 /** Asserts that the value of an expression equals a specific value.
@@ -320,7 +320,7 @@ value
    Value that expr should evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
-   this->assert_equal(ABC_SOURCE_LOCATION(), (expr), value, SL(#expr), SL(#value))
+   this->assert_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 
 /** Asserts that an expression evaluates to false.
@@ -329,7 +329,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(ABC_SOURCE_LOCATION(), (expr), SL(#expr))
+   this->assert_false(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
 
 
 /** Asserts that the value of an expression is strictly greater than a specific lower bound.
@@ -340,7 +340,7 @@ lbound
    Exclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
-   this->assert_greater(ABC_SOURCE_LOCATION(), (expr), lbound, SL(#expr), SL(#lbound))
+   this->assert_greater(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
 
 
 /** Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
@@ -351,7 +351,7 @@ lbound
    Inclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
-   this->assert_greater_equal(ABC_SOURCE_LOCATION(), (expr), lbound, SL(#expr), SL(#lbound))
+   this->assert_greater_equal(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
 
 
 /** Asserts that the value of an expression is strictly less than a specific upper bound.
@@ -362,7 +362,7 @@ ubound
    Exclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS(expr, ubound) \
-   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), expected, SL(#expr), SL(#ubound))
+   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), expected, ABC_SL(#expr), ABC_SL(#ubound))
 
 
 /** Asserts that the value of an expression is less-than or equal-to a specific upper bound.
@@ -373,7 +373,7 @@ ubound
    Inclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
-   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), ubound, SL(#expr), SL(#ubound))
+   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), ubound, ABC_SL(#expr), ABC_SL(#ubound))
 
 
 /** Asserts that the value of an expression differs from a specific value.
@@ -384,7 +384,7 @@ value
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
-   this->assert_not_equal(ABC_SOURCE_LOCATION(), (expr), value, SL(#expr), SL(#value))
+   this->assert_not_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 
 /** Asserts that an expression throws a specific type of exception.
@@ -400,7 +400,7 @@ expr
    desired type of exception. */ \
    this->assert_throws(ABC_SOURCE_LOCATION(), [&] () -> void { \
       static_cast<void>(expr); \
-   }, SL(#expr), [] (::std::exception const & x) -> bool { \
+   }, ABC_SL(#expr), [] (::std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \
    }, type().what())
 
@@ -411,7 +411,7 @@ expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(ABC_SOURCE_LOCATION(), (expr), SL(#expr))
+   this->assert_true(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

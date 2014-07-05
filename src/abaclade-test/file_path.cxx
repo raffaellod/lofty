@@ -36,7 +36,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path – normalization of relative and absolute paths"));
+      return istr(ABC_SL("abc::file_path – normalization of relative and absolute paths"));
    }
 
 
@@ -49,8 +49,8 @@ public:
       // nonetheless, the assertions should still be valid.
 
       istr sSep(file_path::separator());
-#define norm_path(s)   istr(file_path(SL(s)).normalize())
-#define format_seps(s) istr(SL(s)).format(sSep)
+#define norm_path(s)   istr(file_path(ABC_SL(s)).normalize())
+#define format_seps(s) istr(ABC_SL(s)).format(sSep)
 
       // Empty path.
       ABC_TESTING_ASSERT_EQUAL(norm_path(""),          format_seps("")            );
@@ -171,7 +171,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::file_path – normalization of joined paths"));
+      return istr(ABC_SL("abc::file_path – normalization of joined paths"));
    }
 
 
@@ -183,36 +183,36 @@ public:
       file_path fp(file_path::current_dir());
 
       // These should be normalized out.
-      ABC_TESTING_ASSERT_EQUAL((fp / SL(""   )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("/"  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("//" )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("/." )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("./" )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("/./")).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("./.")).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL(""   )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/"  )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("//" )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("."  )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/." )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./" )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/./")).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./.")).normalize(), fp);
 
       // These should NOT be normalized: three dots are just another regular path component.
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / SL("..."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / SL("/..." )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / SL(".../" )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / SL("/.../")).normalize(), fp);
+      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("..."  )).normalize(), fp);
+      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("/..." )).normalize(), fp);
+      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL(".../" )).normalize(), fp);
+      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("/.../")).normalize(), fp);
 
       // Now with one additional trailing component.
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("/test"   )).normalize(), fp / SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("//test"  )).normalize(), fp / SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("./test"  )).normalize(), fp / SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("/./test" )).normalize(), fp / SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("././test")).normalize(), fp / SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/test"   )).normalize(), fp / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("//test"  )).normalize(), fp / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./test"  )).normalize(), fp / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/./test" )).normalize(), fp / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("././test")).normalize(), fp / ABC_SL("test"));
 
       // Verify that ".." works.
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/.."       )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/../b"     )).normalize(), fp / SL("b"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/../b/.."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/b/../.."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/b/../c"   )).normalize(), fp / SL("a/c"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/../b/../c")).normalize(), fp / SL("c"));
-      ABC_TESTING_ASSERT_EQUAL((fp / SL("a/b/../../c")).normalize(), fp / SL("c"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/.."       )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b"     )).normalize(), fp / ABC_SL("b"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b/.."  )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../.."  )).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../c"   )).normalize(), fp / ABC_SL("a/c"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b/../c")).normalize(), fp / ABC_SL("c"));
+      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../../c")).normalize(), fp / ABC_SL("c"));
    }
 };
 

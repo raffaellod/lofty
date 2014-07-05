@@ -42,7 +42,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::enum-derived classes – basic operations"));
+      return istr(ABC_SL("abc::enum-derived classes – basic operations"));
    }
 
 
@@ -54,7 +54,7 @@ public:
       test_enum e(test_enum::value2);
 
       ABC_TESTING_ASSERT_TRUE(e == test_enum::value2);
-      ABC_TESTING_ASSERT_EQUAL(to_str(e), SL("value2"));
+      ABC_TESTING_ASSERT_EQUAL(to_str(e), ABC_SL("value2"));
    }
 };
 

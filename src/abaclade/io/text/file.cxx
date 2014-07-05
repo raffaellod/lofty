@@ -138,7 +138,7 @@ std::shared_ptr<binbuf_writer> stderr() {
    // TODO: mutex!
    if (!g_ptwStdErr) {
       g_ptwStdErr = std::dynamic_pointer_cast<binbuf_writer>(
-         _construct_stdio(binary::stderr(), SL("ABC_STDERR_ENCODING"))
+         _construct_stdio(binary::stderr(), ABC_SL("ABC_STDERR_ENCODING"))
       );
    }
    return g_ptwStdErr;
@@ -151,7 +151,7 @@ std::shared_ptr<binbuf_reader> stdin() {
    // TODO: mutex!
    if (!g_ptrStdIn) {
       g_ptrStdIn = std::dynamic_pointer_cast<binbuf_reader>(
-         _construct_stdio(binary::stdin(), SL("ABC_STDIN_ENCODING"))
+         _construct_stdio(binary::stdin(), ABC_SL("ABC_STDIN_ENCODING"))
       );
    }
    return g_ptrStdIn;
@@ -164,7 +164,7 @@ std::shared_ptr<binbuf_writer> stdout() {
    // TODO: mutex!
    if (!g_ptwStdOut) {
       g_ptwStdOut = std::dynamic_pointer_cast<binbuf_writer>(
-         _construct_stdio(binary::stdout(), SL("ABC_STDOUT_ENCODING"))
+         _construct_stdio(binary::stdout(), ABC_SL("ABC_STDOUT_ENCODING"))
       );
    }
    return g_ptwStdOut;

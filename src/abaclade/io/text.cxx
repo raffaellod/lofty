@@ -192,7 +192,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
             // Mark the beginning of the replacement field.
             itReplFieldBegin = it - 1;
             if (it >= itEnd) {
-               throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+               throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
             }
             ch = *it;
             if (ch != '{') {
@@ -201,7 +201,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
             }
          } else if (ch == '}') {
             if (it >= itEnd || *it != '}') {
-               throw_syntax_error(SL("single '}' encountered in format string"), it - 1);
+               throw_syntax_error(ABC_SL("single '}' encountered in format string"), it - 1);
             }
          }
          // Convert “{{” into “{” or “}}” into “}”.
@@ -221,7 +221,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
          iArg += static_cast<unsigned>(ch - '0');
       } while (++it < itEnd && (ch = *it, ch >= '0' && ch <= '9'));
       if (it >= itEnd) {
-         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+         throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       // Save this index as the last used one.
       m_iSubstArg = iArg;
@@ -233,19 +233,19 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    // Check for a format specification.
    if (ch == ':') {
       if (++it >= itEnd) {
-         throw_syntax_error(SL("expected format specification"), it);
+         throw_syntax_error(ABC_SL("expected format specification"), it);
       }
       m_pchReplFormatSpecBegin = it.base();
       // Find the end of the replacement field.
       it = m_sFormat.find('}', it);
       if (it == m_sFormat.cend()) {
-         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+         throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       m_pchReplFormatSpecEnd = it.base();
    } else {
       // If there’s no format specification, it must be the end of the replacement field.
       if (ch != '}') {
-         throw_syntax_error(SL("unmatched '{' in format string"), itReplFieldBegin);
+         throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       // Set the format specification to nothing.
       m_pchReplFormatSpecBegin = nullptr;
@@ -504,7 +504,7 @@ binbuf_reader::binbuf_reader(
             );
             ABC_ASSERT(
                pchDstEnd == pchDstConsumeEnd,
-               SL("abc::text::transcode() did not transcode the expected count of characters")
+               ABC_SL("abc::text::transcode() did not transcode the expected count of characters")
             );
          }
 
@@ -563,7 +563,9 @@ binbuf_writer::binbuf_writer(
 /*virtual*/ void binbuf_writer::write_binary(void const * p, size_t cb, abc::text::encoding enc) {
    ABC_TRACE_FUNC(this, p, cb, enc);
 
-   ABC_ASSERT(enc != abc::text::encoding::unknown, SL("cannot write data with unknown encoding"));
+   ABC_ASSERT(
+      enc != abc::text::encoding::unknown, ABC_SL("cannot write data with unknown encoding")
+   );
 
    // If no encoding has been set yet, default to UTF-8 if we’re writing to a regular file, or the
    // host platform’s default in all other cases.

@@ -63,11 +63,11 @@ istr get_line_terminator_str(line_terminator lterm) {
 
    switch (lterm.base()) {
       case abc::text::line_terminator::cr:
-         return istr(SL("\r"));
+         return istr(ABC_SL("\r"));
       case abc::text::line_terminator::lf:
-         return istr(SL("\n"));
+         return istr(ABC_SL("\n"));
       case abc::text::line_terminator::cr_lf:
-         return istr(SL("\r\n"));
+         return istr(ABC_SL("\r\n"));
       default:
          // TODO: provide more information in the exception.
          ABC_THROW(domain_error, ());
@@ -383,7 +383,7 @@ size_t transcode(
                      // The sequence ended prematurely, and this byte is not part of it.
                      if (bThrowOnErrors) {
                         ABC_THROW(decode_error, (
-                           SL("unexpected end of UTF-8 sequence"),
+                           ABC_SL("unexpected end of UTF-8 sequence"),
                            pbSrcCpBegin, pbSrcCpBegin + cbSeq
                         ));
                      }
@@ -400,14 +400,14 @@ size_t transcode(
                // Couldn’t read the whole code point or the result is not valid UTF-32.
                if (bThrowOnErrors) {
                   ABC_THROW(decode_error, (
-                     SL("UTF-8 sequence decoded into invalid code point"),
+                     ABC_SL("UTF-8 sequence decoded into invalid code point"),
                      pbSrcCpBegin, pbSrcCpBegin + cbSeq
                   ));
                }
             } else {
                if (bThrowOnErrors) {
                   ABC_THROW(decode_error, (
-                     SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
+                     ABC_SL("invalid UTF-8 lead byte"), pbSrcCpBegin, pbSrcCpBegin + 1
                   ));
                }
             }
@@ -461,14 +461,14 @@ size_t transcode(
                   }
                   if (bThrowOnErrors) {
                      ABC_THROW(decode_error, (
-                        SL("UTF-16 surrogate decoded into invalid code point"),
+                        ABC_SL("UTF-16 surrogate decoded into invalid code point"),
                         pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t) * 2
                      ));
                   }
                } else {
                   if (bThrowOnErrors) {
                      ABC_THROW(decode_error, (
-                        SL("invalid lone lead surrogate"),
+                        ABC_SL("invalid lone lead surrogate"),
                         pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
                      ));
                   }
@@ -476,7 +476,7 @@ size_t transcode(
             } else {
                if (bThrowOnErrors) {
                   ABC_THROW(decode_error, (
-                     SL("invalid lone trail surrogate"),
+                     ABC_SL("invalid lone trail surrogate"),
                      pbSrcCpBegin, pbSrcCpBegin + sizeof(char16_t)
                   ));
                }
@@ -595,7 +595,9 @@ size_t transcode(
                // Check for code points that cannot be represented by ISO-8859-1.
                if (ch32 > 0x0000ff) {
                   if (bThrowOnErrors) {
-                     ABC_THROW(encode_error, (SL("no transcoding available to ISO-8859-1"), ch32));
+                     ABC_THROW(
+                        encode_error, (ABC_SL("no transcoding available to ISO-8859-1"), ch32)
+                     );
                   }
                   // Replace the code point with a question mark.
                   ch32 = 0x00003f;
@@ -700,13 +702,13 @@ void decode_error::_print_extended_info(io::text::writer * ptwOut) const {
    istr sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
-         sFormat = SL("{0}: byte dump: {1}\n");
+         sFormat = ABC_SL("{0}: byte dump: {1}\n");
       } else {
-         sFormat = SL("{0}\n");
+         sFormat = ABC_SL("{0}\n");
       }
    } else {
       if (m_viInvalid) {
-         sFormat = SL("byte dump: {1}\n");
+         sFormat = ABC_SL("byte dump: {1}\n");
       }
    }
 
@@ -763,13 +765,13 @@ void encode_error::_print_extended_info(io::text::writer * ptwOut) const {
    istr sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = SL("{0}: code point: {1}\n");
+         sFormat = ABC_SL("{0}: code point: {1}\n");
       } else {
-         sFormat = SL("{0}\n");
+         sFormat = ABC_SL("{0}\n");
       }
    } else {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = SL("code point: {1}\n");
+         sFormat = ABC_SL("code point: {1}\n");
       }
    }
 

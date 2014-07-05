@@ -41,10 +41,10 @@ void _scope_trace_impl::trace_scope(
       sm_bReentering = true;
       try {
          io::text::writer * ptwOut(get_trace_writer());
-         ptwOut->print(SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
+         ptwOut->print(ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
          // Allow the caller to write any scope variables.
          fnWriteVars(ptwOut);
-         ptwOut->print(SL(" at {}\n"), m_srcloc);
+         ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
@@ -55,7 +55,7 @@ void _scope_trace_impl::trace_scope(
 
 
 void _scope_trace_impl::write_separator(io::text::writer * ptwOut) {
-   ptwOut->write(SL(", "));
+   ptwOut->write(ABC_SL(", "));
 }
 
 } //namespace abc

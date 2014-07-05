@@ -53,11 +53,13 @@ void test_case::assert_does_not_throw(
    try {
       fnExpr();
    } catch (::std::exception const & x) {
-      sCaughtWhat = istr(SL("throws {}")).format(x.what());
+      sCaughtWhat = istr(ABC_SL("throws {}")).format(x.what());
    } catch (...) {
-      sCaughtWhat = SL("unknown type");
+      sCaughtWhat = ABC_SL("unknown type");
    }
-   m_prunner->log_assertion(srcloc, !sCaughtWhat, sExpr, istr(), SL("does not throw"), sCaughtWhat);
+   m_prunner->log_assertion(
+      srcloc, !sCaughtWhat, sExpr, istr(), ABC_SL("does not throw"), sCaughtWhat
+   );
 }
 
 
@@ -65,7 +67,7 @@ void test_case::assert_false(source_location const & srcloc, bool bActual, istr 
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, !bActual, sExpr, istr(), !bActual ? istr() : SL("false"), SL("true")
+      srcloc, !bActual, sExpr, istr(), !bActual ? istr() : ABC_SL("false"), ABC_SL("true")
    );
 }
 
@@ -74,7 +76,7 @@ void test_case::assert_true(source_location const & srcloc, bool bActual, istr c
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, bActual, sExpr, istr(), bActual ? istr() : SL("true"), SL("false")
+      srcloc, bActual, sExpr, istr(), bActual ? istr() : ABC_SL("true"), ABC_SL("false")
    );
 }
 
@@ -89,19 +91,19 @@ void test_case::assert_throws(
    istr sCaughtWhat;
    try {
       fnExpr();
-      sCaughtWhat = SL("does not throw");
+      sCaughtWhat = ABC_SL("does not throw");
    } catch (::std::exception const & x) {
       if (fnMatchType(x)) {
          bPass = true;
       } else {
-         sCaughtWhat = istr(SL("throws {}")).format(char_ptr_to_str_adapter(x.what()));
+         sCaughtWhat = istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(x.what()));
       }
    } catch (...) {
-      sCaughtWhat = SL("unknown type");
+      sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
       srcloc, bPass, sExpr, istr(),
-      istr(SL("throws {}")).format(char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
+      istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
    );
 }
 

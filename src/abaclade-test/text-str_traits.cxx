@@ -49,7 +49,7 @@ namespace test {
          this->ABC_CPP_CAT(assert_, b)( \
             ABC_SOURCE_LOCATION(), \
             text::str_traits::validate(ach, ach + ABC_COUNTOF(ach) - 6), \
-            SL("text::str_traits::validate(") SL(# __VA_ARGS__) SL(")") \
+            ABC_SL("text::str_traits::validate(") ABC_SL(# __VA_ARGS__) ABC_SL(")") \
          ); \
       } while (false)
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
@@ -65,7 +65,7 @@ namespace test {
          this->ABC_CPP_CAT(assert_, b)( \
             ABC_SOURCE_LOCATION(), \
             text::str_traits::validate(ach, ach + ABC_COUNTOF(ach) - 2), \
-            SL("text::str_traits::validate(") SL(# __VA_ARGS__) SL(")") \
+            ABC_SL("text::str_traits::validate(") ABC_SL(# __VA_ARGS__) ABC_SL(")") \
          ); \
       } while (false)
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
@@ -83,7 +83,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::text::str_traits – validity of counted strings"));
+      return istr(ABC_SL("abc::text::str_traits – validity of counted strings"));
    }
 
 

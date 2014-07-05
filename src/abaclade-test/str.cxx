@@ -41,7 +41,7 @@ char32_t const gc_chP2(0x024b62);
 // The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
 // above and ‘c’ with the BMP (Plane 0) character above.
 istr const gc_sAcabaabca(
-   istr() + 'a' + gc_chP0 + 'a' + gc_chP2 + SL("aa") + gc_chP2 + gc_chP0 + 'a'
+   istr() + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
 );
 
 } //namespace test
@@ -62,7 +62,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – basic operations"));
+      return istr(ABC_SL("abc::*str classes – basic operations"));
    }
 
 
@@ -74,7 +74,7 @@ public:
       dmstr s;
       auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
 
-      s += SL("ä");
+      s += ABC_SL("ä");
       // true: operator+= must have created an item array (there was none).
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
@@ -93,21 +93,21 @@ public:
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("äbä"));
+      ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("äbä"));
 
       s = s.substr(1, 3);
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("bä"));
+      ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("bä"));
 
       s += 'c';
       // false: there should’ve been enough space for 'c'.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("bäc"));
+      ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("bäc"));
 
       s = s.substr(0, -1);
       // true: s got replaced by operator=.
@@ -134,7 +134,7 @@ public:
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
       ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
-      s = dmstr(SL("ab")) + 'c';
+      s = dmstr(ABC_SL("ab")) + 'c';
       // true: s got replaced by operator=.
       ABC_TESTING_ASSERT_TRUE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
@@ -153,37 +153,37 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s[2], 'c');
       ABC_TESTING_ASSERT_EQUAL(s[3], 'd');
 
-      s += SL("efghijklmnopqrstuvwxyz");
+      s += ABC_SL("efghijklmnopqrstuvwxyz");
       // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
       // character array may or may not change depending on heap reallocation strategy.
       cdpt.changed();
       ABC_TESTING_ASSERT_EQUAL(s.size(), 26u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26u);
-      ABC_TESTING_ASSERT_EQUAL(s, SL("abcdefghijklmnopqrstuvwxyz"));
+      ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("abcdefghijklmnopqrstuvwxyz"));
 
-      s = SL("a\0b");
-      s += SL("\0ç");
+      s = ABC_SL("a\0b");
+      s += ABC_SL("\0ç");
       // false: there should have been plenty of storage allocated.
       ABC_TESTING_ASSERT_FALSE(cdpt.changed());
       ABC_TESTING_ASSERT_EQUAL(s.size(), 5u);
       ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
       // Test both ways to make sure that the char_t[] overload is always chosen over char *.
-      ABC_TESTING_ASSERT_EQUAL(s, SL("a\0b\0ç"));
-      ABC_TESTING_ASSERT_EQUAL(SL("a\0b\0ç"), s);
+      ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("a\0b\0ç"));
+      ABC_TESTING_ASSERT_EQUAL(ABC_SL("a\0b\0ç"), s);
 
       {
          // Note: all string operations here must involve as few characters as possible to avoid
          // triggering a reallocation, which would break these tests.
 
-         dmstr s1, s2(SL("a"));
+         dmstr s1, s2(ABC_SL("a"));
          char_t const * pchCheck(s2.cbegin().base());
          // Verify that the compiler selects operator+(dmstr &&, …) when possible.
-         s1 = std::move(s2) + SL("b");
+         s1 = std::move(s2) + ABC_SL("b");
          ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
 
          istr s3(std::move(s1));
          // Verify that the compiler selects operator+(istr &&, …) when possible.
-         s1 = std::move(s3) + SL("c");
+         s1 = std::move(s3) + ABC_SL("c");
          ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
       }
 
@@ -220,7 +220,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – iterator-based character access"));
+      return istr(ABC_SL("abc::*str classes – iterator-based character access"));
    }
 
 
@@ -270,7 +270,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes – conversion to different encodings")
+         ABC_SL("abc::*str classes – conversion to different encodings")
       );
    }
 
@@ -363,7 +363,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – character replacement"));
+      return istr(ABC_SL("abc::*str classes – character replacement"));
    }
 
 
@@ -375,21 +375,21 @@ public:
       smstr<8> s;
 
       // No replacements to be made.
-      ABC_TESTING_ASSERT_EQUAL(((s = SL("aaa")).replace('b', 'c'), s), SL("aaa"));
+      ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('b', 'c'), s), ABC_SL("aaa"));
       // Simple ASCII-to-ASCII replacement: no size change.
-      ABC_TESTING_ASSERT_EQUAL(((s = SL("aaa")).replace('a', 'b'), s), SL("bbb"));
+      ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('a', 'b'), s), ABC_SL("bbb"));
       // Complex ASCII-to-char32_t replacement: size will increase beyond the embedded capacity, so
       // the iterator used in abc::mstr::replace() must be intelligent enough to self-refresh with
       // the new descriptor.
       ABC_TESTING_ASSERT_EQUAL(
-         ((s = SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
+         ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
          istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
       );
       // Less-complex char32_t-to-ASCII replacement: size will decrease.
       ABC_TESTING_ASSERT_EQUAL(
          ((s = istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
             replace(gc_chP2, char32_t('a')), s),
-         SL("aaaaa")
+         ABC_SL("aaaaa")
       );
    }
 };
@@ -414,7 +414,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – range permutations"));
+      return istr(ABC_SL("abc::*str classes – range permutations"));
    }
 
 
@@ -423,56 +423,56 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      istr sEmpty, sAB(SL("äb"));
+      istr sEmpty, sAB(ABC_SL("äb"));
 
       // Substring of empty string.
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 1), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 1), ABC_SL(""));
 
       // Substring of a 2-characer string.
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), ABC_SL("äb"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), ABC_SL("äb"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), ABC_SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), ABC_SL("ä"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), ABC_SL("äb"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), ABC_SL("b"));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), ABC_SL(""));
    }
 };
 
@@ -496,7 +496,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::istr – C string extraction"));
+      return istr(ABC_SL("abc::istr – C string extraction"));
    }
 
 
@@ -513,7 +513,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
-      s = SL("");
+      s = ABC_SL("");
       psz = s.c_str();
       // s should have adopted the literal and therefore have a trailing NUL, so it should have
       // returned its own character array.
@@ -522,7 +522,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
-      s = SL("a");
+      s = ABC_SL("a");
       psz = s.c_str();
       // s should have adopted the literal and therefore have a trailing NUL, so it should have
       // returned its own character array.
@@ -554,7 +554,7 @@ public:
    /** See testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::mstr – C string extraction"));
+      return istr(ABC_SL("abc::mstr – C string extraction"));
    }
 
 
@@ -571,7 +571,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
-      s = SL("");
+      s = ABC_SL("");
       psz = s.c_str();
       // s still has no character array, so it should have returned the static NUL character again.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
@@ -579,7 +579,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
-      s = SL("a");
+      s = ABC_SL("a");
       psz = s.c_str();
       // s should have copied the literal but dropped its trailing NUL, so it must’ve returned a
       // distinct character array.
@@ -589,7 +589,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
 
-      s += SL("b");
+      s += ABC_SL("b");
       psz = s.c_str();
       // The character array should have grown, but still lack the trailing NUL.
       ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
@@ -621,7 +621,7 @@ public:
    /** See abc::testing::test_case::title().
    */
    virtual istr title() {
-      return istr(SL("abc::*str classes – character and substring search"));
+      return istr(ABC_SL("abc::*str classes – character and substring search"));
    }
 
 
@@ -642,14 +642,14 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2), s.cbegin() + 2);
       ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
       ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'd'), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + SL("aa") + ch2 + ch0), s.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + SL("aa") + ch2 + ch0 + 'd'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend());
       ABC_TESTING_ASSERT_EQUAL(s.find_last('a'), s.cend() - 1);
 #if 0
       ABC_TESTING_ASSERT_EQUAL(s.find_last(ch2), s.cend() - 3);
-      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ab")), s.cend() - 4);
-      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ac")), s.cend() - 9);
-      ABC_TESTING_ASSERT_EQUAL(s.find_last(SL("ca")), s.cend() - 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ab")), s.cend() - 4);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ac")), s.cend() - 9);
+      ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ca")), s.cend() - 2);
 #endif
    }
 };
@@ -675,7 +675,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes – initial matching")
+         ABC_SL("abc::*str classes – initial matching")
       );
    }
 
@@ -724,7 +724,7 @@ public:
    */
    virtual istr title() {
       return istr(
-         SL("abc::*str classes – final matching")
+         ABC_SL("abc::*str classes – final matching")
       );
    }
 

@@ -149,7 +149,9 @@ dmstr str_writer::release_content() {
       // Nothing to do.
       return;
    }
-   ABC_ASSERT(enc != abc::text::encoding::unknown, SL("cannot write data with unknown encoding"));
+   ABC_ASSERT(
+      enc != abc::text::encoding::unknown, ABC_SL("cannot write data with unknown encoding")
+   );
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       size_t cch(cb / sizeof(char_t));

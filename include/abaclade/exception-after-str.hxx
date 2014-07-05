@@ -58,10 +58,10 @@ public:
 
    Examples:
 
-      syntax_error(SL("expression cannot be empty"))
-      syntax_error(SL("unmatched '{'"), sExpr, iChar)
-      syntax_error(SL("expected expression"), istr(), iChar, iLine)
-      syntax_error(SL("unexpected end of file"), fpSource, iChar, iLine)
+      syntax_error(ABC_SL("expression cannot be empty"))
+      syntax_error(ABC_SL("unmatched '{'"), sExpr, iChar)
+      syntax_error(ABC_SL("expected expression"), istr(), iChar, iLine)
+      syntax_error(ABC_SL("unexpected end of file"), fpSource, iChar, iLine)
 
    sDescription
       Description of the syntax error.

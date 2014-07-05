@@ -165,7 +165,7 @@ return
 #endif
 
 
-/** Implementation of SL(); allows for expansion of the argument prior to pasting it to the
+/** Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
 s
@@ -175,13 +175,13 @@ return
 */
 #if ABC_HOST_UTF == 8
    #if ABC_CXX_UTF8LIT == 2
-      #define _ABC_STRL(s) u8 ## s
+      #define _ABC_SL(s) u8 ## s
    #else
-      #define _ABC_STRL(s) s
+      #define _ABC_SL(s) s
    #endif
 #elif ABC_HOST_UTF == 16
    // Use ABC_CPP_CAT2() to expand macros before pasting them with L.
-   #define _ABC_STRL(s) L ## s
+   #define _ABC_SL(s) L ## s
 #endif
 
 
@@ -192,7 +192,7 @@ s
 return
    UTF string literal.
 */
-#define SL(s) _ABC_STRL(s)
+#define ABC_SL(s) _ABC_SL(s)
 
 
 

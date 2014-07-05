@@ -35,7 +35,7 @@ app::app() {
    // Asserting here is okay, because if the assertion is true, nothing will happen, and if it’s
    // not, that means that there’s already an app instance with all the infrastructure needed to
    // handle a failed assertion.
-   ABC_ASSERT(!sm_papp, SL("multiple instantiation of abc::app singleton class"));
+   ABC_ASSERT(!sm_papp, ABC_SL("multiple instantiation of abc::app singleton class"));
    sm_papp = this;
 }
 
