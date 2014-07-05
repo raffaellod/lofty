@@ -22,8 +22,8 @@ Abaclade is a C++11 framework featuring:
    including a fully type-safe replacement for printf() (see [DOC:7103
    abc::io::text::writer::print()]);
 
-•  Full support for Unicode and the C++11 char32_t character type (see
-   [DOC:4854 Unicode support in Abaclade]);
+•  Full support for Unicode and the C++11 char32_t character type (see [DOC:4854
+   Unicode support in Abaclade]);
 
 •  Cross-platform (currently Linux and Windows) and seamlessly integrated with
    the C++11 STL;
@@ -32,12 +32,15 @@ Abaclade is a C++11 framework featuring:
    C-style variadic functions either;
 
 •  Support for text-based and (TODO) GUI applications as well as service-
-   oriented architectures.
+   oriented architectures;
+
+•  Stable development ‒ Abaclade features a fairly through regression test suite
+   that shields clients from regressions when upgrading from one version to the
+   next one.
 
 
-2. <intentionally left blank>
------------------------------
-
+2. Past, present and future
+---------------------------
 
 
 2.1. Some history
@@ -56,6 +59,31 @@ several dead-ended projects.
 When C++11 finally reached the final draft status, it turned out that it allowed
 for most of the features that had originally been planned, so development of
 Abaclade as it is now was finally started.
+
+
+2.2. Current status of Abaclade
+-------------------------------
+
+Abaclade can be considered of “beta” grade, and adoption by small projects is
+encouraged.
+
+
+2.3. Project goals
+------------------
+
+Abaclade has very ambitious goals:
+
+1. Supersede other C++ libraries that fail to exploit the features of C++11 ‒
+   especially libraries developed as C++ bindings for C libraries;
+
+2. Demonstrate that C++ programs can be as sleek as Java or Python programs,
+   while being considerably more efficient;
+
+3. Encourage writing of software in C++ instead of other less efficient
+   languages such as C (development efficiency) or Java (execution efficiency);
+
+All future development will be geared towards getting closer to accomplishing
+these objectives.
 
 
 3. Compatibility
