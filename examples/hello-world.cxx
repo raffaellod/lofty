@@ -38,7 +38,7 @@ using namespace abc;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// example_app
+// hello_world_app
 
 
 /** This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
