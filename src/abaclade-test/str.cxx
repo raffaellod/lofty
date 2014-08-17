@@ -59,14 +59,14 @@ class str_basic :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*str classes – basic operations"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -217,14 +217,14 @@ class str_iterators :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*str classes – iterator-based character access"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -266,7 +266,7 @@ class str_encode :
    public testing::test_case {
 public:
 
-   /** See abc::testing::test_case::title().
+   /*! See abc::testing::test_case::title().
    */
    virtual istr title() {
       return istr(
@@ -275,7 +275,7 @@ public:
    }
 
 
-   /** See abc::testing::test_case::run().
+   /*! See abc::testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -360,14 +360,14 @@ class str_replace :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*str classes – character replacement"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -411,14 +411,14 @@ class str_substr_range_permutations :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*str classes – range permutations"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -493,14 +493,14 @@ class istr_c_str :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::istr – C string extraction"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -551,14 +551,14 @@ class mstr_c_str :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::mstr – C string extraction"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -618,14 +618,14 @@ class str_find :
    public testing::test_case {
 public:
 
-   /** See abc::testing::test_case::title().
+   /*! See abc::testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*str classes – character and substring search"));
    }
 
 
-   /** See abc::testing::test_case::run().
+   /*! See abc::testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -671,7 +671,7 @@ class str_substr_starts_with :
    public testing::test_case {
 public:
 
-   /** See abc::testing::test_case::title().
+   /*! See abc::testing::test_case::title().
    */
    virtual istr title() {
       return istr(
@@ -680,7 +680,7 @@ public:
    }
 
 
-   /** See abc::testing::test_case::run().
+   /*! See abc::testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -720,7 +720,7 @@ class str_substr_ends_with :
    public testing::test_case {
 public:
 
-   /** See abc::testing::test_case::title().
+   /*! See abc::testing::test_case::title().
    */
    virtual istr title() {
       return istr(
@@ -729,7 +729,7 @@ public:
    }
 
 
-   /** See abc::testing::test_case::run().
+   /*! See abc::testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);

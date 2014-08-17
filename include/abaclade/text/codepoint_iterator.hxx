@@ -34,7 +34,7 @@ namespace text {
 template <bool t_bConst>
 class _codepoint_iterator_impl;
 
-/** Exposes a abc::char_t * as a char32_t &.
+/*! Exposes a abc::char_t * as a char32_t &.
 */
 template <bool t_bConst>
 class _codepoint_proxy;
@@ -44,7 +44,7 @@ template <>
 class _codepoint_proxy<true> {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pch
       Pointer to the character(s) that this proxy will present as char32_t.
@@ -66,7 +66,7 @@ public:
    }
 
 
-   /** Implicit conversion to a code point.
+   /*! Implicit conversion to a code point.
 
    return
       Code point that the proxy is currently referencing.
@@ -93,7 +93,7 @@ class _codepoint_proxy<false> :
    public _codepoint_proxy<true> {
 public:
 
-   /** See _codepoint_proxy<true>::_codepoint_proxy().
+   /*! See _codepoint_proxy<true>::_codepoint_proxy().
 
    pch
       Pointer to the character(s) that this proxy will present as char32_t.
@@ -115,7 +115,7 @@ public:
    }
 
 
-   /** Assignment operator. Note that the copy assignment operator copies the char32_t value, not
+   /*! Assignment operator. Note that the copy assignment operator copies the char32_t value, not
    the internal data members; this allows to write expressions like *itDst = *itSrc to copy code
    points from one iterator to another.
 
@@ -144,7 +144,7 @@ public:
 
 protected:
 
-   /** Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
+   /*! Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
    nullptr if *this was not instantiated by an iterator. */
    _codepoint_iterator_impl<false> * const mc_pcii;
 };
@@ -214,7 +214,7 @@ ABC_RELOP_IMPL(<=)
 namespace abc {
 namespace text {
 
-/** Base class for codepoint_iterator. Its specializations include all the members that don’t return
+/*! Base class for codepoint_iterator. Its specializations include all the members that don’t return
 an iterator or a reference to one, so that those are only defined once in the “real” template
 codepoint_iterator instead of once for each specialization.
 */
@@ -226,7 +226,7 @@ template <>
 class ABACLADE_SYM _codepoint_iterator_impl<true> {
 public:
 
-   /** Dereferencing operator.
+   /*! Dereferencing operator.
 
    return
       Reference to the current character.
@@ -236,7 +236,7 @@ public:
    }
 
 
-   /** Element access operator.
+   /*! Element access operator.
 
    i
       Index relative to *this. If the resulting index is outside of the string’s [begin, end) range,
@@ -249,7 +249,7 @@ public:
    }
 
 
-   /** Returns the underlying iterator type.
+   /*! Returns the underlying iterator type.
 
    return
       Pointer to the value pointed to by this iterator.
@@ -259,7 +259,7 @@ public:
    }
 
 
-   /** Returns the string that created this iterator.
+   /*! Returns the string that created this iterator.
 
    return
       Pointer to the value pointed to by this iterator.
@@ -271,7 +271,7 @@ public:
 
 protected:
 
-   /** Constructor.
+   /*! Constructor.
 
    pch
       Pointer to set the iterator to.
@@ -284,12 +284,12 @@ protected:
    }
 
 
-   /** Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
+   /*! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
    */
    char_t const * advance(ptrdiff_t i, bool bIndex) const;
 
 
-   /** Computes the distance from another iterator/pointer.
+   /*! Computes the distance from another iterator/pointer.
 
    pch
       Pointer from which to calculate the distance.
@@ -299,7 +299,7 @@ protected:
    ptrdiff_t distance(char_t const * pch) const;
 
 
-   /** Throws an iterator_error if the specified pointer is the end of the string.
+   /*! Throws an iterator_error if the specified pointer is the end of the string.
 
    pch
       Pointer to validate.
@@ -323,7 +323,7 @@ class _codepoint_iterator_impl<false> :
 
 public:
 
-   /** See _codepoint_iterator_impl<true>::operator*().
+   /*! See _codepoint_iterator_impl<true>::operator*().
    */
    using _codepoint_iterator_impl<true>::operator*;
    _codepoint_proxy<false> operator*() {
@@ -333,7 +333,7 @@ public:
    }
 
 
-   /** See _codepoint_iterator_impl<true>::operator[]().
+   /*! See _codepoint_iterator_impl<true>::operator[]().
    */
    using _codepoint_iterator_impl<true>::operator[];
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
@@ -343,14 +343,14 @@ public:
    }
 
 
-   /** See _codepoint_iterator_impl<true>::base().
+   /*! See _codepoint_iterator_impl<true>::base().
    */
    char_t * base() const {
       return const_cast<char_t *>(m_pch);
    }
 
 
-   /** See _codepoint_iterator_impl<true>::_str().
+   /*! See _codepoint_iterator_impl<true>::_str().
    */
    str_base * _str() const {
       return const_cast<str_base *>(m_ps);
@@ -359,14 +359,14 @@ public:
 
 protected:
 
-   /** See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
+   /*! See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
    */
    _codepoint_iterator_impl(char_t * pch, str_base * ps) :
       _codepoint_iterator_impl<true>(pch, ps) {
    }
 
 
-   /** See _codepoint_iterator_impl<true>::advance().
+   /*! See _codepoint_iterator_impl<true>::advance().
    */
    char_t * advance(ptrdiff_t i, bool bIndex) const {
       return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i, bIndex));
@@ -384,7 +384,7 @@ protected:
 namespace abc {
 namespace text {
 
-/** Character iterator that hides the underlying encoded representation, presenting a string as an
+/*! Character iterator that hides the underlying encoded representation, presenting a string as an
 array of code points (char32_t). Pointers/references are still char_t.
 */
 template <bool t_bConst>
@@ -396,7 +396,7 @@ class codepoint_iterator :
    > {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pch
       Pointer to set the iterator to.
@@ -421,7 +421,7 @@ public:
    }
 
 
-   /** Addition-assignment operator.
+   /*! Addition-assignment operator.
 
    i
       Count of positions by which to advance the iterator. If the resulting iterator is outside of
@@ -435,7 +435,7 @@ public:
    }
 
 
-   /** Subtraction-assignment operator.
+   /*! Subtraction-assignment operator.
 
    i
       Count of positions by which to rewind the iterator. If the resulting iterator is outside of
@@ -449,7 +449,7 @@ public:
    }
 
 
-   /** Addition operator.
+   /*! Addition operator.
 
    i
       Count of positions by which to advance the iterator. If the resulting iterator is outside of
@@ -462,7 +462,7 @@ public:
    }
 
 
-   /** Subtraction/difference operator.
+   /*! Subtraction/difference operator.
 
    i
       Count of positions by which to rewind the iterator. If the resulting iterator is outside of
@@ -482,7 +482,7 @@ public:
    }
 
 
-   /** Preincrement operator. If the resulting iterator was already at the string’s end, an
+   /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
 
    return
@@ -494,7 +494,7 @@ public:
    }
 
 
-   /** Postincrement operator. If the resulting iterator was already at the string’s end, an
+   /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
 
    return
@@ -507,7 +507,7 @@ public:
    }
 
 
-   /** Predecrement operator. If the resulting iterator was already at the string’s beginning, an
+   /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
 
    return
@@ -519,7 +519,7 @@ public:
    }
 
 
-   /** Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
+   /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
 
    return

@@ -35,22 +35,22 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/** Base class for standard exceptions (18.8.1).
+/*! Base class for standard exceptions (18.8.1).
 */
 class ABACLADE_SYM exception {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    exception();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~exception();
 
 
-   /** Returns information on the exception.
+   /*! Returns information on the exception.
 
    return
       Description of the exception.

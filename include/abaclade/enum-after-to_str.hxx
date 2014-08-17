@@ -29,12 +29,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Implementation of the specializations of to_str_backend for enum_impl specializations.
+/*! Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
 class ABACLADE_SYM _enum_to_str_backend_impl {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -44,7 +44,7 @@ public:
 
 protected:
 
-   /** Writes an enumeration value, applying the formatting options.
+   /*! Writes an enumeration value, applying the formatting options.
 
    e
       Enumeration value to write.
@@ -69,7 +69,7 @@ class to_str_backend<enum_impl<T>> :
    public _enum_to_str_backend_impl {
 public:
 
-   /** See abc::_enum_to_str_backend_impl::write().
+   /*! See abc::_enum_to_str_backend_impl::write().
    */
    void write(enum_impl<T> e, io::text::writer * ptwOut) {
       _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);

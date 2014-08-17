@@ -31,12 +31,12 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Base interface for binary (non-text) I/O.
+/*! Base interface for binary (non-text) I/O.
 */
 class ABACLADE_SYM base {
 public:
 
-   /** Destructor. Also needed to make the class polymorphic (have a vtable).
+   /*! Destructor. Also needed to make the class polymorphic (have a vtable).
    */
    virtual ~base();
 };
@@ -54,13 +54,13 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for binary (non-text) input.
+/*! Interface for binary (non-text) input.
 */
 class ABACLADE_SYM reader :
    public virtual base {
 public:
 
-   /** Reads at most cbMax bytes.
+   /*! Reads at most cbMax bytes.
 
    p
       Address of the destination buffer.
@@ -86,18 +86,18 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for binary (non-text) output.
+/*! Interface for binary (non-text) output.
 */
 class ABACLADE_SYM writer :
    public virtual base {
 public:
 
-   /** Forces writing any data in the write buffer.
+   /*! Forces writing any data in the write buffer.
    */
    virtual void flush() = 0;
 
 
-   /** Writes an array of bytes.
+   /*! Writes an array of bytes.
 
    p
       Address of the source buffer.
@@ -122,12 +122,12 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
+/*! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 */
 class ABACLADE_SYM seekable {
 public:
 
-   /** Changes the current read/write position.
+   /*! Changes the current read/write position.
 
    iOffset
       New position, relative to sfWhence.
@@ -139,7 +139,7 @@ public:
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) = 0;
 
 
-   /** Returns the current read/write position.
+   /*! Returns the current read/write position.
 
    return
       Current position.
@@ -160,12 +160,12 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for binary I/O classes that access data with a known size.
+/*! Interface for binary I/O classes that access data with a known size.
 */
 class ABACLADE_SYM sized {
 public:
 
-   /** Returns the size of the data.
+   /*! Returns the size of the data.
 
    return
       Data size, in bytes.

@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** DOC:7101 abc::file_path
+/*! DOC:7101 abc::file_path
 
 An abc::file_path instance is always either an empty path string ("") or a path that is not
 necessarily normalized or absolute, but has no incorrect or redundant path separators; e.g. an
@@ -65,7 +65,7 @@ windows/desktop/aa365247.aspx>
 class _file_path_iterator;
 #endif
 
-/** Filesystem path.
+/*! Filesystem path.
 */
 class ABACLADE_SYM file_path :
    public support_explicit_operator_bool<file_path> {
@@ -76,7 +76,7 @@ class ABACLADE_SYM file_path :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    fp
       Source file path.
@@ -98,7 +98,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    fp
       Source file path.
@@ -121,7 +121,7 @@ public:
    }
 
 
-   /** Returns true if the path length is greater than 0.
+   /*! Returns true if the path length is greater than 0.
 
    return
       true if the length of the path string is greater than 0, or false otherwise.
@@ -131,7 +131,7 @@ public:
    }
 
 
-   /** Automatic cast to string.
+   /*! Automatic cast to string.
 
    return
       An immutable, constant reference to the internal path string.
@@ -141,7 +141,7 @@ public:
    }
 
 
-   /** Concatenation-assignment operator.
+   /*! Concatenation-assignment operator.
 
    s
       String to append.
@@ -154,7 +154,7 @@ public:
    }
 
 
-   /** Concatenation operator.
+   /*! Concatenation operator.
 
    s
       String to append.
@@ -166,7 +166,7 @@ public:
    }
 
 
-   /** Path-correct concatenation-assignment operator. Joins the current path with the provided
+   /*! Path-correct concatenation-assignment operator. Joins the current path with the provided
    string, inserting a separator if necessary.
 
    s
@@ -177,7 +177,7 @@ public:
    file_path & operator/=(istr const & s);
 
 
-   /** Path-correct concatenation operator. See operator/=() for details.
+   /*! Path-correct concatenation operator. See operator/=() for details.
 
    s
       Path component(s) to append.
@@ -189,7 +189,7 @@ public:
    }
 
 
-   /** Returns the absolute and normalized version of the path. If the path is not already absolute,
+   /*! Returns the absolute and normalized version of the path. If the path is not already absolute,
    it will be assumed to be relative to abc::file_path::current_dir(). Under Win32 there’s a
    current directory for each volume, so the base directory will be different depending on whether
    the path includes a volume designator and on which volume it identifies.
@@ -200,7 +200,7 @@ public:
    file_path absolute() const;
 
 
-   /** Returns the base name of (last component in) the path.
+   /*! Returns the base name of (last component in) the path.
 
    return
       Last component in the path.
@@ -208,7 +208,7 @@ public:
    file_path base_name() const;
 
 
-   /** Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
+   /*! Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
 
    return
       Current directory.
@@ -218,7 +218,7 @@ public:
 
 #if ABC_HOST_API_WIN32
 
-   /** Returns the current directory for the specified volume.
+   /*! Returns the current directory for the specified volume.
 
    chVolume
       Volume designator.
@@ -231,7 +231,7 @@ public:
 
 
 #if 0
-   /** Returns an iterator over entries in the path matching the specified pattern.
+   /*! Returns an iterator over entries in the path matching the specified pattern.
 
    TODO: comment signature.
    */
@@ -239,7 +239,7 @@ public:
 #endif
 
 
-   /** Returns true if the path is in absolute form. Under Win32, this means that the path is
+   /*! Returns true if the path is in absolute form. Under Win32, this means that the path is
    prefixed with “\\?\”, e.g. “\\?\C:\my\path”.
 
    return
@@ -250,7 +250,7 @@ public:
    }
 
 
-   /** Returns true if the path represents a directory.
+   /*! Returns true if the path represents a directory.
 
    return
       true if the path represents a directory, of false otherwise.
@@ -258,7 +258,7 @@ public:
    bool is_dir() const;
 
 
-   /** Returns true if the path is absolute and this->parent_dir() == *this.
+   /*! Returns true if the path is absolute and this->parent_dir() == *this.
 
    return
       true if the path represents a root directory, of false otherwise.
@@ -268,7 +268,7 @@ public:
    }
 
 
-   /** Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
+   /*! Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
    resulting replacements may lead to a different path if the original path includes symbolic links.
 
    return
@@ -277,7 +277,7 @@ public:
    file_path normalize() const;
 
 
-   /** Returns a string representation of the path suitable to use with the OS’s file API.
+   /*! Returns a string representation of the path suitable to use with the OS’s file API.
 
    Under Win32, this returns the absolute (and normalized) version of the path, in order to overcome
    both the MAX_PATH limitation by using the Win32 File Namespace prefix, as well as parsing the
@@ -305,7 +305,7 @@ public:
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 
-   /** Returns the directory containing the path.
+   /*! Returns the directory containing the path.
 
    return
       Parent directory of the path.
@@ -313,7 +313,7 @@ public:
    file_path parent_dir() const;
 
 
-   /** Returns the root (POSIX) or the Win32 File Namespace root (Win32).
+   /*! Returns the root (POSIX) or the Win32 File Namespace root (Win32).
 
    return
       Root directory.
@@ -321,7 +321,7 @@ public:
    static file_path root();
 
 
-   /** Returns the platform-dependent path component separator.
+   /*! Returns the platform-dependent path component separator.
 
    return
       Path component separator.
@@ -331,7 +331,7 @@ public:
    }
 
 
-   /** Returns the count of characters in the path.
+   /*! Returns the count of characters in the path.
 
    return
       Count of characters.
@@ -343,7 +343,7 @@ public:
 
 private:
 
-   /** Locates the first character of the final component in the path, e.g. “a” in “a” (all), “a” in
+   /*! Locates the first character of the final component in the path, e.g. “a” in “a” (all), “a” in
    “/a”, “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a”
    “X:b\a” (Win32).
 
@@ -354,7 +354,7 @@ private:
    dmstr::const_iterator base_name_start() const;
 
 
-   /** Returns the length of the root part of the specified path or, in other words, the index of
+   /*! Returns the length of the root part of the specified path or, in other words, the index of
    the first character in the path that is not part of the root, e.g. “a” in “/a” (POSIX),
    “\\?\UNC\a”, “\\?\X:\a”, “\a”, “X:a” (Win32); the last two only if bIncludeNonAbsolute because
    they represent relative paths in Win32: “\a” is relative to the current directory’s volume
@@ -371,7 +371,7 @@ private:
    static size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
 
 
-   /** Returns true if the specified string represents an absolute path. Under Win32, this means
+   /*! Returns true if the specified string represents an absolute path. Under Win32, this means
    that the path needs to be prefixed with “\\?\”, e.g. “\\?\C:\my\path”; a path starting with a
    volume designator (e.g. “C:\my\path”) is not considered absolute, as far as abc::file_path is
    concerned (and it will never be stored as-is in m_s either).
@@ -384,7 +384,7 @@ private:
    static bool is_absolute(istr const & s);
 
 
-   /** Validates and adjusts a path to make it suitable as abc::file_path’s internal representation:
+   /*! Validates and adjusts a path to make it suitable as abc::file_path’s internal representation:
    •  Collapses sequences of consecutive path separators into a single separator;
    •  Removes any trailing separators;
    •  (Win32 only) Replaces forward slashes with backslashes;
@@ -401,11 +401,11 @@ private:
 
 private:
 
-   /** Full file path, always in normalized form. */
+   /*! Full file path, always in normalized form. */
    dmstr m_s;
-   /** Platform-specific path component separator. */
+   /*! Platform-specific path component separator. */
    static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
-   /** Platform-specific root path. */
+   /*! Platform-specific root path. */
    static char_t const smc_aszRoot[
 #if ABC_HOST_API_POSIX
       1 /*"/"*/ + 1 /*NUL*/
@@ -416,7 +416,7 @@ private:
 #endif
    ];
 #if ABC_HOST_API_WIN32
-   /** Root for UNC paths in the Win32 File Namespace. */
+   /*! Root for UNC paths in the Win32 File Namespace. */
    static char_t const smc_aszUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
 #endif
 };
@@ -444,7 +444,7 @@ namespace std {
 template <>
 struct hash<abc::file_path>  {
 
-   /** See std::hash::operator()().
+   /*! See std::hash::operator()().
    */
    size_t operator()(abc::file_path const & fp) const {
       return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
@@ -465,7 +465,7 @@ class ABACLADE_SYM to_str_backend<file_path> :
    public to_str_backend<istr> {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -473,7 +473,7 @@ public:
    void set_format(istr const & sFormat);
 
 
-   /** Writes a string, applying the formatting options.
+   /*! Writes a string, applying the formatting options.
 
    fp
       File path to write.

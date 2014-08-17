@@ -56,7 +56,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
-/** TODO: comment or remove.
+/*! TODO: comment or remove.
 */
 #if ABC_HOST_GCC
    #define _abc_alloca(cb) \
@@ -102,7 +102,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 namespace abc {
 namespace memory {
 
-/** Requests the dynamic allocation of a memory block of the specified number of bytes.
+/*! Requests the dynamic allocation of a memory block of the specified number of bytes.
 
 cb
    Count of bytes to allocate.
@@ -112,7 +112,7 @@ return
 ABACLADE_SYM void * _raw_alloc(size_t cb);
 
 
-/** Releases a block of dynamically allocated memory.
+/*! Releases a block of dynamically allocated memory.
 
 p
    Pointer to the memory block to be released.
@@ -120,7 +120,7 @@ p
 ABACLADE_SYM void _raw_free(void const * p);
 
 
-/** Resizes a dynamically allocated memory block.
+/*! Resizes a dynamically allocated memory block.
 
 p
    Pointer to the memory block to resize.
@@ -142,12 +142,12 @@ ABACLADE_SYM void * _raw_realloc(void * p, size_t cb);
 namespace abc {
 namespace memory {
 
-/** Deleter that deallocates memory using memory::free().
+/*! Deleter that deallocates memory using memory::free().
 */
 template <typename T>
 struct freeing_deleter {
 
-   /** Deallocates the specified memory block.
+   /*! Deallocates the specified memory block.
 
    pt
       Pointer to the object to delete.
@@ -162,7 +162,7 @@ template <typename T>
 struct freeing_deleter<T[]> :
    public freeing_deleter<T> {
 
-   /** Deallocates the specified array. See also freeing_deleter<T>::operator()().
+   /*! Deallocates the specified array. See also freeing_deleter<T>::operator()().
 
    pt
       Pointer to the array to deallocate.
@@ -184,14 +184,14 @@ struct freeing_deleter<T[]> :
 namespace abc {
 namespace memory {
 
-/** Wrapper that invokes a deleter if and only if a set condition is true.
+/*! Wrapper that invokes a deleter if and only if a set condition is true.
 */
 template <typename T, typename TDeleter = std::default_delete<T>>
 class conditional_deleter :
    public TDeleter {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    bEnabled
       If true, the deleter will delete objects when invoked; if false, it will do nothing.
@@ -209,7 +209,7 @@ public:
    }
 
 
-   /** Deletes the specified object if the condition set in the constructor was true.
+   /*! Deletes the specified object if the condition set in the constructor was true.
 
    pt
       Pointer to the object to delete.
@@ -221,7 +221,7 @@ public:
    }
 
 
-   /** Returns true if the deleter is enabled.
+   /*! Returns true if the deleter is enabled.
 
    return
       true if the deleter is enable, or false otherwise.
@@ -242,7 +242,7 @@ class conditional_deleter<T[], TDeleter> :
    public conditional_deleter<T, TDeleter> {
 public:
 
-   /** See conditional_deleter<T>::conditional_deleter().
+   /*! See conditional_deleter<T>::conditional_deleter().
    */
    conditional_deleter(bool bEnabled) :
       conditional_deleter<T, TDeleter>(bEnabled) {
@@ -253,7 +253,7 @@ public:
    }
 
 
-   /** Deletes the specified array if the condition set in the constructor was true. See also
+   /*! Deletes the specified array if the condition set in the constructor was true. See also
    conditional_deleter<T, TDeleter>::operator()().
 
    pt
@@ -278,7 +278,7 @@ public:
 namespace abc {
 namespace memory {
 
-/** Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
+/*! Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
 plus additional cbExtra bytes.
 
 c
@@ -298,7 +298,7 @@ inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra
 }
 
 
-/** Changes the size of a block of dynamically allocated memory, updating the pointer referencing
+/*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
 it in case a new memory block is needed.
 
 ppt
@@ -327,7 +327,7 @@ inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size
 namespace abc {
 namespace memory {
 
-/** Sets to the value 0 every item in the specified memory block.
+/*! Sets to the value 0 every item in the specified memory block.
 
 ptDst
    Pointer to the target memory block.
@@ -349,7 +349,7 @@ inline T * clear(T * ptDst, size_t c = 1) {
 }
 
 
-/** Copies memory, by number of items.
+/*! Copies memory, by number of items.
 
 ptDst
    Pointer to the destination memory.
@@ -396,7 +396,7 @@ inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
 }
 
 
-/** Copies possibly overlapping memory, by number of items.
+/*! Copies possibly overlapping memory, by number of items.
 
 ptDst
    Pointer to the destination memory.
@@ -420,7 +420,7 @@ inline T * move(T * ptDst, T const * ptSrc, size_t c) {
 }
 
 
-/** Copies a value over each item of a static array.
+/*! Copies a value over each item of a static array.
 
 ptDst
    Pointer to the destination memory.

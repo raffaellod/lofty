@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace io {
 
-/** Unsigned integer wide enough to express an I/O-related size. */
+/*! Unsigned integer wide enough to express an I/O-related size. */
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef uint64_t full_size_t;
 #else
@@ -37,7 +37,7 @@ namespace io {
 #endif
 
 
-/** Integer wide enough to express an I/O-related offset. */
+/*! Integer wide enough to express an I/O-related offset. */
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef int64_t offset_t;
 #else
@@ -45,28 +45,28 @@ namespace io {
 #endif
 
 
-/** File access modes.
+/*! File access modes.
 */
 ABC_ENUM(access_mode, \
-   /** Read-only access. */ \
+   /*! Read-only access. */ \
    (read,       1), \
-   /** Write-only access. */ \
+   /*! Write-only access. */ \
    (write,      2), \
-   /** Read/write access. */ \
+   /*! Read/write access. */ \
    (read_write, 3), \
-   /** Append-only access. */ \
+   /*! Append-only access. */ \
    (append,     4) \
 );
 
 
-/** Position indicators to which offsets may be relative.
+/*! Position indicators to which offsets may be relative.
 */
 ABC_ENUM(seek_from, \
-   /** The offset is relative to the start of the data (absolute seek). */ \
+   /*! The offset is relative to the start of the data (absolute seek). */ \
    (start,   0), \
-   /** The offset is relative to the current offset (incremental seek). */ \
+   /*! The offset is relative to the current offset (incremental seek). */ \
    (current, 1), \
-   /** The offset is relative to the end of the data and presumably negative. */ \
+   /*! The offset is relative to the end of the data and presumably negative. */ \
    (end,     2) \
 );
 
@@ -78,14 +78,14 @@ ABC_ENUM(seek_from, \
    #undef stderr
 #endif
 
-/** List of standard (OS-provided) files.
+/*! List of standard (OS-provided) files.
 */
 ABC_ENUM(stdfile, \
-   /** Internal identifier for stdin. */ \
+   /*! Internal identifier for stdin. */ \
    (stdin,  0), \
-   /** Internal identifier for stdout. */ \
+   /*! Internal identifier for stdout. */ \
    (stdout, 1), \
-   /** Internal identifier for stderr. */ \
+   /*! Internal identifier for stderr. */ \
    (stderr, 2) \
 );
 

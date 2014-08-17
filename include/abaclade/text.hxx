@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text globals
 
-/** DOC:4854 Unicode support in Abaclade
+/*! DOC:4854 Unicode support in Abaclade
 
 Abaclade comes with full built-in support for Unicode. The C++11 char32_t type (typedef-ined by
 Abaclade on non-compliant compilers such as MSC16) is the preferred character type across Abaclade;
@@ -56,69 +56,69 @@ results in an UTF-8 or UTF-16 string literal depending on the host platform.
 namespace abc {
 namespace text {
 
-/** Recognized text encodings. Little endians should be listed before big endians; some code relies
+/*! Recognized text encodings. Little endians should be listed before big endians; some code relies
 on this.
 */
 ABC_ENUM(encoding, \
-   /** Unknown/undetermined encoding. */ \
+   /*! Unknown/undetermined encoding. */ \
    (unknown,      0), \
-   /** UTF-8 encoding. */ \
+   /*! UTF-8 encoding. */ \
    (utf8,         1), \
-   /** UTF-16 Little Endian encoding. */ \
+   /*! UTF-16 Little Endian encoding. */ \
    (utf16le,      2), \
-   /** UTF-16 Big Endian encoding. */ \
+   /*! UTF-16 Big Endian encoding. */ \
    (utf16be,      3), \
-   /** UTF-32 Little Endian encoding. */ \
+   /*! UTF-32 Little Endian encoding. */ \
    (utf32le,      4), \
-   /** UTF-32 Big Endian encoding. */ \
+   /*! UTF-32 Big Endian encoding. */ \
    (utf32be,      5), \
-   /** ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
+   /*! ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
    (iso_8859_1,   6), \
-   /** Windows-1252 encoding. Only supported in detection and handling, but not as internal string
+   /*! Windows-1252 encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
    (windows_1252, 7), \
-   /** EBCDIC encoding. Only supported in detection and handling, but not as internal string
+   /*! EBCDIC encoding. Only supported in detection and handling, but not as internal string
     * representation. */ \
    (ebcdic,       8), \
-   /** UTF-16 encoding (host endianness). */ \
+   /*! UTF-16 encoding (host endianness). */ \
    (utf16_host,   (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)), \
-   /** UTF-32 encoding (host endianness). */ \
+   /*! UTF-32 encoding (host endianness). */ \
    (utf32_host,   (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)), \
-   /** Default host encoding. */ \
+   /*! Default host encoding. */ \
    (host,         (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host))) \
 );
 
 
-/** Recognized line terminators.
+/*! Recognized line terminators.
 */
 ABC_ENUM(line_terminator, \
-   /** Unknown/undetermined line terminator. */ \
+   /*! Unknown/undetermined line terminator. */ \
    (unknown, 0), \
-   /** Old Mac style: Carriage Return, '\r'. */ \
+   /*! Old Mac style: Carriage Return, '\r'. */ \
    (cr,      1), \
-   /** Unix/POSIX style: Line Feed, '\n'. */ \
+   /*! Unix/POSIX style: Line Feed, '\n'. */ \
    (lf,      2), \
-   /** DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */ \
+   /*! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */ \
    (cr_lf,   3), \
-   /** EBCDIC style: Next Line, '\x15'. */ \
+   /*! EBCDIC style: Next Line, '\x15'. */ \
    (nel,     4), \
-   /** Default host line terminator. */ \
+   /*! Default host line terminator. */ \
    (host,    (ABC_HOST_API_WIN32 ? cr_lf : lf)) \
 );
 
 
-/** This should be used to replace any invalid char32_t value. */
+/*! This should be used to replace any invalid char32_t value. */
 char32_t const replacement_char(0x00fffd);
 
-/** Maximum run length for the encoding of a code point, in any encoding.
+/*! Maximum run length for the encoding of a code point, in any encoding.
 
 Technically, 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
 here. */
 size_t const max_codepoint_length(6);
 
 
-/** Casts a single character into a code point.
+/*! Casts a single character into a code point.
 
 ch
    Character.
@@ -136,7 +136,7 @@ inline char32_t codepoint(char_t ch) {
 
 #if ABC_HOST_UTF > 8
 
-/** Casts a single character into a character of the largest native size for the host.
+/*! Casts a single character into a character of the largest native size for the host.
 
 ch
    Character.
@@ -150,7 +150,7 @@ inline char_t host_char(char ch) {
 #endif
 
 
-/** Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
+/*! Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
 encodings (e.g. identity_encoding).
 
 enc
@@ -162,7 +162,7 @@ return
 ABACLADE_SYM size_t get_encoding_size(encoding enc);
 
 
-/** Returns a line terminator string corresponding to the specified line_terminator value.
+/*! Returns a line terminator string corresponding to the specified line_terminator value.
 
 lterm
    Desired line terminator.
@@ -172,7 +172,7 @@ return
 ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm);
 
 
-/** Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
+/*! Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
 total number of bytes in the source of which the buffer is the beginning.
 
 While this function can check for validity of some encodings, it does not guarantee that, for
@@ -197,7 +197,7 @@ ABACLADE_SYM encoding guess_encoding(
 );
 
 
-/** Tries to guess the line terminators employed in a string.
+/*! Tries to guess the line terminators employed in a string.
 
 pchBegin
    Pointer to the first character of the string to scan for a line terminator sequence.
@@ -209,7 +209,7 @@ return
 ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
 
 
-/** Checks if a UTF-32 character is a valid Unicode code point, which means that its ordinal value
+/*! Checks if a UTF-32 character is a valid Unicode code point, which means that its ordinal value
 must be included in the interval [0, U+10FFFF] (see Unicode Standard 6.2 § 2.4 “Code Points and
 Characters”).
 
@@ -223,7 +223,7 @@ inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
 }
 
 
-/** Calculates the length of a NUL-terminated string, in characters.
+/*! Calculates the length of a NUL-terminated string, in characters.
 
 psz
    Pointer to the NUL-terminated string of which to calculate the length.
@@ -242,7 +242,7 @@ inline size_t size_in_chars(C const * psz) {
 }
 
 
-/** Converts from one character encoding to another, validating the source as it’s processed.
+/*! Converts from one character encoding to another, validating the source as it’s processed.
 
 Call this function omitting the last two arguments (ppDst and pcbDstMax) to have returned the
 calculated size of the buffer necessary to hold the converted characters.

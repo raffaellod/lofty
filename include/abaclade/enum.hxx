@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 
-/** DOC:3549 Enumeration classes
+/*! DOC:3549 Enumeration classes
 
 Abaclade features support for advanced enumeration classes. These are the features that set them
 apart from C++11 “enum class” enumerations:
@@ -53,7 +53,7 @@ directly refer to the C++ enum type.
 This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 */
 
-/** Defines an enumeration class derived from abc::enum_impl. See [DOC:3549 Enumeration classes] for
+/*! Defines an enumeration class derived from abc::enum_impl. See [DOC:3549 Enumeration classes] for
 more information.
 
 TODO: allow specifying a default value (instead of having __default = max + 1).
@@ -70,14 +70,14 @@ name
 #define ABC_ENUM(name, ...) \
    struct ABC_CPP_CAT(_, name, _e) { \
    \
-      /** Publicly-accessible enumerated constants. */ \
+      /*! Publicly-accessible enumerated constants. */ \
       enum enum_type { \
          ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER, __VA_ARGS__) \
          __default = 0 \
       }; \
    \
    \
-      /** Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
+      /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
       static ::abc::enum_member const * _get_map() { \
          static ::abc::enum_member const sc_map[] = { \
             ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
@@ -89,7 +89,7 @@ name
    typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
 
 
-/** Expands into an enum name/value assignment.
+/*! Expands into an enum name/value assignment.
 
 name
    Name of the enumeration constant.
@@ -100,7 +100,7 @@ value
          name = value,
 
 
-/** Expands into an abc::enum_member initializer.
+/*! Expands into an abc::enum_member initializer.
 
 name
    Name of the enumeration constant.
@@ -124,19 +124,19 @@ value
 
 namespace abc {
 
-/** Enumeration member (name/value pair).
+/*! Enumeration member (name/value pair).
 */
 struct ABACLADE_SYM enum_member {
 
-   /** Name. */
+   /*! Name. */
    char_t const * pszName;
-   /** Length of *pszName, in characters. */
+   /*! Length of *pszName, in characters. */
    unsigned short cchName;
-   /** Value. */
+   /*! Value. */
    int iValue;
 
 
-   /** Finds and returns the member associated to the specified enumerated value or name. If no
+   /*! Finds and returns the member associated to the specified enumerated value or name. If no
    match is found, an exception will be throw.
 
    pem
@@ -162,7 +162,7 @@ struct ABACLADE_SYM enum_member {
 
 namespace abc {
 
-/** Implementation of enumeration classes.
+/*! Implementation of enumeration classes.
 */
 template <class T>
 class enum_impl :
@@ -172,7 +172,7 @@ public:
    typedef typename T::enum_type enum_type;
 
 
-   /** Constructor.
+   /*! Constructor.
 
    e
       Source value.
@@ -202,7 +202,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    e
       Source value.
@@ -219,7 +219,7 @@ public:
    }
 
 
-   /** Returns the current base enumerated value.
+   /*! Returns the current base enumerated value.
 
    return
       Current value.
@@ -229,7 +229,7 @@ public:
    }
 
 
-   /** Returns the name of the current enumerated value.
+   /*! Returns the name of the current enumerated value.
 
    return
       Name of the current value.
@@ -239,7 +239,7 @@ public:
 
 protected:
 
-   /** Returns a pointer to the name/value pair for the current value.
+   /*! Returns a pointer to the name/value pair for the current value.
 
    return
       Pointer to the name/value pair for the current value.
@@ -251,7 +251,7 @@ protected:
 
 private:
 
-   /** Enumerated value. */
+   /*! Enumerated value. */
    enum_type m_e;
 };
 

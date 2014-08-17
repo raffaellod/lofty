@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Thin templated wrapper for _raw_*_vextr_impl to make the interface of those two classes
+/*! Thin templated wrapper for _raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations.
 */
 template <typename T, bool t_bCopyConstructible, bool t_bTrivial = std::is_trivial<T>::value>
@@ -41,7 +41,7 @@ class _raw_vector<T, false, false> :
    public noncopyable {
 public:
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_raw_vector() {
       type_void_adapter type;
@@ -50,7 +50,7 @@ public:
    }
 
 
-   /** Moves the contents of the two sources to *this.
+   /*! Moves the contents of the two sources to *this.
 
    p1Begin
       Pointer to the start of the first source array.
@@ -69,7 +69,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::assign_move().
+   /*! See _raw_complex_vextr_impl::assign_move().
    */
    void assign_move(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
@@ -78,7 +78,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See _raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    */
    void assign_move_dynamic_or_move_items(_raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
@@ -88,7 +88,7 @@ public:
    }
 
 
-   /** Inserts elements at a specific position in the vector by moving them.
+   /*! Inserts elements at a specific position in the vector by moving them.
 
    ptOffset
       Pointer to where the elements should be inserted.
@@ -112,7 +112,7 @@ public:
    }
 
 
-   /** Removes a slice from the vector.
+   /*! Removes a slice from the vector.
 
    ptRemoveBegin
       Pointer to the first element to remove.
@@ -134,7 +134,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::set_capacity().
+   /*! See _raw_complex_vextr_impl::set_capacity().
 
    ciMin
       Minimum count of elements requested.
@@ -150,7 +150,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::set_capacity().
+   /*! See _raw_complex_vextr_impl::set_capacity().
 
    TODO: destruct in _raw_complex_vextr_impl::set_size() any elements being taken out, and default-
    construct the newly-created elements here.
@@ -168,7 +168,7 @@ public:
 
 protected:
 
-   /** See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
+   /*! See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_complex_vextr_impl(cbEmbeddedCapacity) {
@@ -191,7 +191,7 @@ class _raw_vector<T, true, false> :
    public _raw_vector<T, false, false> {
 public:
 
-   /** See _raw_complex_vextr_impl::assign_copy().
+   /*! See _raw_complex_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       type_void_adapter type;
@@ -202,7 +202,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::assign_concat().
+   /*! See _raw_complex_vextr_impl::assign_concat().
    */
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
@@ -215,7 +215,7 @@ public:
    }
 
 
-   /** Inserts elements at a specific position in the vector by copying them.
+   /*! Inserts elements at a specific position in the vector by copying them.
 
    ptOffset
       Pointer to where the elements should be inserted.
@@ -242,7 +242,7 @@ public:
 
 protected:
 
-   /** See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
+   /*! See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_vector<T, false, false>(cbEmbeddedCapacity) {
@@ -260,14 +260,14 @@ class _raw_vector<T, true, true> :
    public _raw_trivial_vextr_impl {
 public:
 
-   /** See _raw_trivial_vextr_impl::assign_copy().
+   /*! See _raw_trivial_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       _raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_concat().
+   /*! See _raw_trivial_vextr_impl::assign_concat().
    */
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
@@ -277,7 +277,7 @@ public:
    }
 
 
-   /** Moves the contents of the two sources to *this.
+   /*! Moves the contents of the two sources to *this.
 
    p1Begin
       Pointer to the start of the first source array.
@@ -293,21 +293,21 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move().
+   /*! See _raw_trivial_vextr_impl::assign_move().
    */
    void assign_move(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move(std::move(rtvi));
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
    */
    void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
       _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
    }
 
 
-   /** Inserts elements at a specific position in the vector.
+   /*! Inserts elements at a specific position in the vector.
 
    ptOffset
       Pointer to where the elements should be inserted.
@@ -326,7 +326,7 @@ public:
    }
 
 
-   /** Inserts one or more elements. Semantically this is supposed to move them, but for trivial
+   /*! Inserts one or more elements. Semantically this is supposed to move them, but for trivial
    types that’s the same as copying them.
 
    ptOffset
@@ -346,7 +346,7 @@ public:
    }
 
 
-   /** Removes elements from the vector.
+   /*! Removes elements from the vector.
 
    ptRemoveBegin
       Pointer to the first element to remove.
@@ -364,7 +364,7 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::set_capacity().
+   /*! See _raw_trivial_vextr_impl::set_capacity().
 
    ciMin
       Minimum count of elements requested.
@@ -377,7 +377,7 @@ public:
    }
 
 
-   /** See _raw_complex_vextr_impl::set_capacity().
+   /*! See _raw_complex_vextr_impl::set_capacity().
 
    TODO: maybe default-construct the newly-created elements here for consistency with the non-
    trivial specialization?
@@ -392,7 +392,7 @@ public:
 
 protected:
 
-   /** See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
+   /*! See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
    */
    _raw_vector(size_t cbEmbeddedCapacity) :
       _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
@@ -417,7 +417,7 @@ class mvector;
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class dmvector;
 
-/** Base class for vectors.
+/*! Base class for vectors.
 
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
 *vector classes.
@@ -433,7 +433,7 @@ class vector_base<T, false> :
    protected _raw_vector<T, std::is_copy_constructible<T>::value>,
    public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
 
-   /** true if T is copy constructible, or false otherwise. */
+   /*! true if T is copy constructible, or false otherwise. */
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
 
 
@@ -456,7 +456,7 @@ public:
 
 public:
 
-   /** Element access operator.
+   /*! Element access operator.
 
    i
       Element index. See abc::vector_base::translate_index() for allowed index values.
@@ -468,7 +468,7 @@ public:
    }
 
 
-   /** Returns true if the length is greater than 0.
+   /*! Returns true if the length is greater than 0.
 
    return
       true if the vector is not empty, or false otherwise.
@@ -479,7 +479,7 @@ public:
    }
 
 
-   /** Equality comparison operator.
+   /*! Equality comparison operator.
 
    v
       Object to compare to *this.
@@ -512,7 +512,7 @@ public:
    }
 
 
-   /** Inequality comparison operator.
+   /*! Inequality comparison operator.
 
    v
       Object to compare to *this.
@@ -524,7 +524,7 @@ public:
    }
 
 
-   /** Returns a forward iterator set to the first element.
+   /*! Returns a forward iterator set to the first element.
 
    return
       Forward iterator to the first element.
@@ -534,7 +534,7 @@ public:
    }
 
 
-   /** Returns the maximum number of elements the array can currently hold.
+   /*! Returns the maximum number of elements the array can currently hold.
 
    return
       Current size of the item array storage, in elements.
@@ -544,7 +544,7 @@ public:
    }
 
 
-   /** Returns a const forward iterator set to the first element.
+   /*! Returns a const forward iterator set to the first element.
 
    return
       Forward iterator to the first element.
@@ -554,7 +554,7 @@ public:
    }
 
 
-   /** Returns a const forward iterator set beyond the last element.
+   /*! Returns a const forward iterator set beyond the last element.
 
    return
       Forward iterator to beyond the last element.
@@ -564,7 +564,7 @@ public:
    }
 
 
-   /** Returns a const reverse iterator set to the last element.
+   /*! Returns a const reverse iterator set to the last element.
 
    return
       Reverse iterator to the last element.
@@ -574,7 +574,7 @@ public:
    }
 
 
-   /** Returns a const reverse iterator set to before the first element.
+   /*! Returns a const reverse iterator set to before the first element.
 
    return
       Reverse iterator to before the first element.
@@ -584,7 +584,7 @@ public:
    }
 
 
-   /** Returns a forward iterator set beyond the last element.
+   /*! Returns a forward iterator set beyond the last element.
 
    return
       Forward iterator to the first element.
@@ -594,7 +594,7 @@ public:
    }
 
 
-   /** Returns the count of elements in the array.
+   /*! Returns the count of elements in the array.
 
    return
       Count of elements.
@@ -604,7 +604,7 @@ public:
    }
 
 
-   /** Returns a reverse iterator set to the last element.
+   /*! Returns a reverse iterator set to the last element.
 
    return
       Reverse iterator to the last element.
@@ -614,7 +614,7 @@ public:
    }
 
 
-   /** Returns a reverse iterator set to before the first element.
+   /*! Returns a reverse iterator set to before the first element.
 
    return
       Reverse iterator to before the first element.
@@ -626,7 +626,7 @@ public:
 
 protected:
 
-   /** Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
+   /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
    ciEmbedded
@@ -644,7 +644,7 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::assign_move().
+   /*! See _raw_vector<T>::assign_move().
 
    v
       Source vector.
@@ -656,7 +656,7 @@ protected:
    }
 
 
-   /** See _raw_vector<T>::assign_move_dynamic_or_move_items().
+   /*! See _raw_vector<T>::assign_move_dynamic_or_move_items().
 
    v
       Source vector.
@@ -668,7 +668,7 @@ protected:
    }
 
 
-   /** Converts a possibly negative item index into a pointer into the item array, throwing an
+   /*! Converts a possibly negative item index into a pointer into the item array, throwing an
    exception if the result is out of bounds for the item array.
 
    i
@@ -684,7 +684,7 @@ protected:
    }
 
 
-   /** Converts a left-closed, right-open interval with possibly negative element indices into one
+   /*! Converts a left-closed, right-open interval with possibly negative element indices into one
    consisting of two pointers into the item array.
 
    iBegin
@@ -715,7 +715,7 @@ class vector_base<T, true> :
    public vector_base<T, false> {
 public:
 
-   /** Returns a slice of the vector.
+   /*! Returns a slice of the vector.
 
    iBegin
       Index of the first element. See abc::vector_base::translate_range() for allowed begin index
@@ -735,7 +735,7 @@ public:
 
 protected:
 
-   /** Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
+   /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
    ciEmbedded
@@ -762,7 +762,7 @@ protected:
 
 namespace abc {
 
-/** vector_base-derived class, to be used as argument type for functions that want to modify a
+/*! vector_base-derived class, to be used as argument type for functions that want to modify a
 vector argument, since this allows for in-place alterations to the vector. Both smvector and
 dmvector are automatically converted to this.
 */
@@ -776,27 +776,27 @@ template <typename T>
 class mvector<T, false> :
    public vector_base<T, std::is_copy_constructible<T>::value> {
 
-   /** true if T is copy constructible, or false otherwise. */
+   /*! true if T is copy constructible, or false otherwise. */
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
-   /** Shortcut to access the base class. */
+   /*! Shortcut to access the base class. */
    typedef vector_base<T, smc_bCopyConstructible> vector_base_;
 
 
 public:
 
-   /** See vector_base::iterator. */
+   /*! See vector_base::iterator. */
    typedef typename vector_base_::iterator iterator;
-   /** See vector_base::const_iterator. */
+   /*! See vector_base::const_iterator. */
    typedef typename vector_base_::const_iterator const_iterator;
-   /** See vector_base::reverse_iterator. */
+   /*! See vector_base::reverse_iterator. */
    typedef typename vector_base_::reverse_iterator reverse_iterator;
-   /** See vector_base::const_reverse_iterator. */
+   /*! See vector_base::const_reverse_iterator. */
    typedef typename vector_base_::const_reverse_iterator const_reverse_iterator;
 
 
 public:
 
-   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
    v
@@ -810,7 +810,7 @@ public:
    }
 
 
-   /** Concatenation-assignment operator.
+   /*! Concatenation-assignment operator.
 
    v
       Vector to concatenate.
@@ -823,7 +823,7 @@ public:
    }
 
 
-   /** See vector_base::operator[]().
+   /*! See vector_base::operator[]().
    */
    T & operator[](intptr_t i) {
       return const_cast<T &>(vector_base_::operator[](i));
@@ -833,7 +833,7 @@ public:
    }
 
 
-   /** Adds elements at the end of the vector.
+   /*! Adds elements at the end of the vector.
 
    t
       Element to add.
@@ -843,7 +843,7 @@ public:
    }
 
 
-   /** See vector_base::begin(). Here also available in non-const overload.
+   /*! See vector_base::begin(). Here also available in non-const overload.
    */
    iterator begin() {
       return iterator(_raw_vextr_impl_base::begin<T>());
@@ -853,7 +853,7 @@ public:
    }
 
 
-   /** Removes all elements from the vector.
+   /*! Removes all elements from the vector.
    */
    void clear() {
       static_cast<vector_base_ *>(this)->~vector_base_();
@@ -861,7 +861,7 @@ public:
    }
 
 
-   /** See vector_base::end(). Here also available in non-const overload.
+   /*! See vector_base::end(). Here also available in non-const overload.
    */
    iterator end() {
       return iterator(_raw_vextr_impl_base::end<T>());
@@ -871,7 +871,7 @@ public:
    }
 
 
-   /** Inserts elements at a specific position in the vector.
+   /*! Inserts elements at a specific position in the vector.
 
    iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
@@ -890,7 +890,7 @@ public:
    }
 
 
-   /** See vector_base::rbegin(). Here also available in non-const overload.
+   /*! See vector_base::rbegin(). Here also available in non-const overload.
    */
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(_raw_vextr_impl_base::end<T>()));
@@ -900,7 +900,7 @@ public:
    }
 
 
-   /** Removes a single element from the vector.
+   /*! Removes a single element from the vector.
 
    i
       Index of the element to remove. See abc::vector_base::translate_index() for allowed index
@@ -918,7 +918,7 @@ public:
    }
 
 
-   /** See vector_base::rend(). Here also available in non-const overload.
+   /*! See vector_base::rend(). Here also available in non-const overload.
    */
    reverse_iterator rend() {
       return reverse_iterator(iterator(_raw_vextr_impl_base::begin<T>()));
@@ -928,7 +928,7 @@ public:
    }
 
 
-   /** Removes a range of elements from the vector.
+   /*! Removes a range of elements from the vector.
 
    iBegin
       Index of the first element. See abc::vector_base::translate_range() for allowed begin index
@@ -960,7 +960,7 @@ public:
    }
 
 
-   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
    switch to using a different item array, any elements in the current one will be destructed unless
    bPreserve == true, which will cause them to be moved to the new item array.
 
@@ -975,7 +975,7 @@ public:
    }
 
 
-   /** Changes the count of items in the vector. If the new item count is greater than the current
+   /*! Changes the count of items in the vector. If the new item count is greater than the current
    one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
    elements are properly constructed, or problems will arise when the destructor will attempt to
    destruct these elements.
@@ -988,7 +988,7 @@ public:
    }
 
 
-   /** Resizes the vector so that it only takes up as much memory as strictly necessary.
+   /*! Resizes the vector so that it only takes up as much memory as strictly necessary.
    */
    void shrink_to_fit() {
       // TODO: implement this.
@@ -997,7 +997,7 @@ public:
 
 protected:
 
-   /** Constructor. Constructs the object as empty, setting m_p to nullptr.
+   /*! Constructor. Constructs the object as empty, setting m_p to nullptr.
 
    cbEmbeddedCapacity
       Size of the embedded item array, in bytes, or 0 if no embedded item array is present.
@@ -1013,19 +1013,19 @@ class mvector<T, true> :
    public mvector<T, false> {
 public:
 
-   /** See vector_base::iterator. */
+   /*! See vector_base::iterator. */
    typedef typename mvector<T, false>::iterator iterator;
-   /** See vector_base::const_iterator. */
+   /*! See vector_base::const_iterator. */
    typedef typename mvector<T, false>::const_iterator const_iterator;
-   /** See vector_base::reverse_iterator. */
+   /*! See vector_base::reverse_iterator. */
    typedef typename mvector<T, false>::reverse_iterator reverse_iterator;
-   /** See vector_base::const_reverse_iterator. */
+   /*! See vector_base::const_reverse_iterator. */
    typedef typename mvector<T, false>::const_reverse_iterator const_reverse_iterator;
 
 
 public:
 
-   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
    v
@@ -1043,7 +1043,7 @@ public:
    }
 
 
-   /** Concatenation-assignment operator.
+   /*! Concatenation-assignment operator.
 
    v
       Vector to concatenate.
@@ -1060,7 +1060,7 @@ public:
    }
 
 
-   /** Adds elements at the end of the vector.
+   /*! Adds elements at the end of the vector.
 
    t
       Element to copy (const &) or move (&&) to the end of the vector.
@@ -1080,7 +1080,7 @@ public:
    }
 
 
-   /** Inserts elements at a specific position in the vector.
+   /*! Inserts elements at a specific position in the vector.
 
    iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
@@ -1119,7 +1119,7 @@ public:
 
 protected:
 
-   /** See mvector<T, false>::mvector().
+   /*! See mvector<T, false>::mvector().
    */
    mvector(size_t cbEmbeddedCapacity) :
       mvector<T, false>(cbEmbeddedCapacity) {
@@ -1135,7 +1135,7 @@ protected:
 
 namespace abc {
 
-/** Dynamically-allocated mutable vector.
+/*! Dynamically-allocated mutable vector.
 */
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
 class dmvector;
@@ -1146,7 +1146,7 @@ class dmvector<T, false> :
    public mvector<T, false> {
 public:
 
-   /** Constructor. The individual items or the entire source item array will be moved to *this.
+   /*! Constructor. The individual items or the entire source item array will be moved to *this.
 
    v
       Source vector.
@@ -1175,7 +1175,7 @@ public:
    }
 
 
-   /** Assignment operator. The individual items or the entire source item array will be moved to
+   /*! Assignment operator. The individual items or the entire source item array will be moved to
    *this.
 
    v
@@ -1200,7 +1200,7 @@ class dmvector<T, true> :
    public mvector<T, true> {
 public:
 
-   /** Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
+   /*! Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
    *this.
 
    v
@@ -1283,7 +1283,7 @@ public:
    }
 
 
-   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
    v
@@ -1313,7 +1313,7 @@ public:
 } //namespace abc
 
 
-/** Concatenation operator.
+/*! Concatenation operator.
 
 v1
    Left operand.
@@ -1359,7 +1359,7 @@ inline abc::dmvector<T, t_bCopyConstructible> operator+(
 
 namespace abc {
 
-/** mvector_-derived class, good for clients that need in-place manipulation of vectors that are
+/*! mvector_-derived class, good for clients that need in-place manipulation of vectors that are
 most likely to be shorter than a known small size.
 */
 template <
@@ -1378,7 +1378,7 @@ class smvector<T, t_ciEmbeddedCapacity, false> :
 
 public:
 
-   /** Constructor. The individual items or the entire source item array will be moved to *this.
+   /*! Constructor. The individual items or the entire source item array will be moved to *this.
 
    v
       Source vector.
@@ -1414,7 +1414,7 @@ public:
    }
 
 
-   /** Assignment operator. The individual items or the entire source item array will be moved to
+   /*! Assignment operator. The individual items or the entire source item array will be moved to
    *this.
 
    v
@@ -1460,7 +1460,7 @@ class smvector<T, t_ciEmbeddedCapacity, true> :
 
 public:
 
-   /** Constructor. R-value-reference arguments will have their contents transferred to *this.
+   /*! Constructor. R-value-reference arguments will have their contents transferred to *this.
 
    v
       Source vector.
@@ -1519,7 +1519,7 @@ public:
    }
 
 
-   /** Assignment operator. R-value-reference arguments will have their contents transferred to
+   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
    v

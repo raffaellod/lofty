@@ -40,7 +40,7 @@ namespace utility {
 template <class T>
 class container_data_ptr_tracker;
 
-/** Allows to declare a container_data_ptr_tracker instance using the auto keyword.
+/*! Allows to declare a container_data_ptr_tracker instance using the auto keyword.
 
 t
    Object to track.
@@ -62,12 +62,12 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/** Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
+/*! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 */
 class class_with_internal_pointer {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    cwip
       Source object.
@@ -86,7 +86,7 @@ public:
    }
 
 
-   /** Validates that the object’s internal pointer has the expected value.
+   /*! Validates that the object’s internal pointer has the expected value.
 
    return
       true if the internal pointer is valid, or false otherwise.
@@ -100,9 +100,9 @@ public:
 
 private:
 
-   /** Pointer to m_i. */
+   /*! Pointer to m_i. */
    uint16_t * m_pi;
-   /** Data referenced by m_pi. */
+   /*! Data referenced by m_pi. */
    uint16_t m_i;
 };
 
@@ -118,13 +118,13 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/** Tracks changes in the internal data pointer of a container.
+/*! Tracks changes in the internal data pointer of a container.
 */
 template <class T>
 class container_data_ptr_tracker {
 public:
 
-   /** Constructor. Starts tracking changes in the specified object.
+   /*! Constructor. Starts tracking changes in the specified object.
 
    t
       Object to track.
@@ -135,7 +135,7 @@ public:
    }
 
 
-   /** Checks if the monitored object’s data pointer has changed.
+   /*! Checks if the monitored object’s data pointer has changed.
 
    return
       true if the data pointer has changed, or false otherwise.
@@ -157,9 +157,9 @@ public:
 
 private:
 
-   /** Reference to the T instance to be monitored. */
+   /*! Reference to the T instance to be monitored. */
    T const & m_t;
-   /** Pointer to m_t’s data. */
+   /*! Pointer to m_t’s data. */
    typename T::const_pointer m_pti;
 };
 
@@ -182,13 +182,13 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/** This class is meant for use in containers to track when items are copied, when they’re moved,
+/*! This class is meant for use in containers to track when items are copied, when they’re moved,
 and to check if individual instances have been copied instead of being moved.
 */
 class ABACLADE_TESTING_SYM instances_counter {
 public:
 
-   /** Constructor. The copying overload doesn’t really use their argument, because the only non-
+   /*! Constructor. The copying overload doesn’t really use their argument, because the only non-
    static member (m_iUnique) is always generated.
 
    ic
@@ -209,7 +209,7 @@ public:
    }
 
 
-   /** Assigment operator. The copying overload doesn’t really use its argument, because the only
+   /*! Assigment operator. The copying overload doesn’t really use its argument, because the only
    non-static member (m_iUnique) is always generated.
 
    ic
@@ -228,7 +228,7 @@ public:
    }
 
 
-   /** Equality comparison operator. Should always return false, since no two simultaneously-living
+   /*! Equality comparison operator. Should always return false, since no two simultaneously-living
    instances should have the same unique value.
 
    oc
@@ -241,7 +241,7 @@ public:
    }
 
 
-   /** Inequality comparison operator. Should always return true, since no two simultaneously-living
+   /*! Inequality comparison operator. Should always return true, since no two simultaneously-living
    instances should have the same unique value.
 
    oc
@@ -254,7 +254,7 @@ public:
    }
 
 
-   /** Returns the count of instances created, excluding moved ones.
+   /*! Returns the count of instances created, excluding moved ones.
 
    return
       Count of instances.
@@ -264,7 +264,7 @@ public:
    }
 
 
-   /** Returns the count of moved instances.
+   /*! Returns the count of moved instances.
 
    return
       Count of instances.
@@ -274,7 +274,7 @@ public:
    }
 
 
-   /** Returns the count of new (not copied, not moved) instances. Useful to track how many
+   /*! Returns the count of new (not copied, not moved) instances. Useful to track how many
    instances have not been created from a source instance, perhaps only to be copy- or move-assigned
    later, which would be less efficient than just copy- or move-constructing, 
 
@@ -286,7 +286,7 @@ public:
    }
 
 
-   /** Resets the copies/moves/new instance counts.
+   /*! Resets the copies/moves/new instance counts.
    */
    static void reset_counts() {
       m_cCopies = 0;
@@ -295,7 +295,7 @@ public:
    }
 
 
-   /** Returns the unique value associated to this object.
+   /*! Returns the unique value associated to this object.
 
    return
       Unique value.
@@ -307,15 +307,15 @@ public:
 
 private:
 
-   /** Unique value associated to this object. */
+   /*! Unique value associated to this object. */
    int m_iUnique;
-   /** Count of instances created, excluding moved ones. */
+   /*! Count of instances created, excluding moved ones. */
    static size_t m_cCopies;
-   /** Count of moved instances. */
+   /*! Count of moved instances. */
    static size_t m_cMoves;
-   /** Count of new (not copied, not moved) instances. */
+   /*! Count of new (not copied, not moved) instances. */
    static size_t m_cNew;
-   /** Value of m_iUnique for the next instance. */
+   /*! Value of m_iUnique for the next instance. */
    static int m_iNextUnique;
 };
 

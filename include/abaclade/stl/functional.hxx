@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/** Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
+/*! Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
 */
 template <typename T>
 struct hash;
@@ -43,7 +43,7 @@ struct hash;
 template <>
 struct hash<bool> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -55,7 +55,7 @@ struct hash<bool> {
 template <>
 struct hash<char> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -67,7 +67,7 @@ struct hash<char> {
 template <>
 struct hash<signed char> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -79,7 +79,7 @@ struct hash<signed char> {
 template <>
 struct hash<unsigned char> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -91,7 +91,7 @@ struct hash<unsigned char> {
 template <>
 struct hash<char16_t> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -103,7 +103,7 @@ struct hash<char16_t> {
 template <>
 struct hash<char32_t> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -115,7 +115,7 @@ struct hash<char32_t> {
 template <>
 struct hash<wchar_t> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -127,7 +127,7 @@ struct hash<wchar_t> {
 template <>
 struct hash<short> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -139,7 +139,7 @@ struct hash<short> {
 template <>
 struct hash<unsigned short> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -151,7 +151,7 @@ struct hash<unsigned short> {
 template <>
 struct hash<int> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -163,7 +163,7 @@ struct hash<int> {
 template <>
 struct hash<unsigned int> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -175,7 +175,7 @@ struct hash<unsigned int> {
 template <>
 struct hash<long> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -187,7 +187,7 @@ struct hash<long> {
 template <>
 struct hash<long long> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -199,7 +199,7 @@ struct hash<long long> {
 template <>
 struct hash<unsigned long> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -211,7 +211,7 @@ struct hash<unsigned long> {
 template <>
 struct hash<unsigned long long> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -223,7 +223,7 @@ struct hash<unsigned long long> {
 template <>
 struct hash<float> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -235,7 +235,7 @@ struct hash<float> {
 template <>
 struct hash<double> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -247,7 +247,7 @@ struct hash<double> {
 template <>
 struct hash<long double> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */
@@ -259,7 +259,7 @@ struct hash<long double> {
 template <typename T>
 struct hash<T *> {
 
-   /** Function call operator.
+   /*! Function call operator.
 
    TODO: comment signature.
    */

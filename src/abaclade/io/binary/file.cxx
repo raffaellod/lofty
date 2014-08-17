@@ -42,20 +42,20 @@ static std::shared_ptr<file_writer> g_pbfwStdOut;
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
-   /** Set by _construct(). */
+   /*! Set by _construct(). */
    struct ::stat statFile;
 #endif
-   /** See file_base::m_fd. To be set before calling _construct(). */
+   /*! See file_base::m_fd. To be set before calling _construct(). */
    filedesc fd;
-   /** Determines what type of I/O object will be instantiated. To be set before calling
+   /*! Determines what type of I/O object will be instantiated. To be set before calling
    _construct(). */
    access_mode am;
-   /** See file_base::m_bBuffered. To be set before calling _construct(). */
+   /*! See file_base::m_bBuffered. To be set before calling _construct(). */
    bool bBuffered:1;
 };
 
 
-/** Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
+/*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
 
 pfid
@@ -198,7 +198,7 @@ static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
 }
 
 
-/** Returns a new binary I/O object controlling the specified file descriptor.
+/*! Returns a new binary I/O object controlling the specified file descriptor.
 
 fd
    File descriptor to take ownership of.
@@ -1017,21 +1017,21 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
    // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
    // write-protect the bytes we’re going to add, and then release the write protection.
 
-   /** Win32 ::LockFile() / ::UnlockFile() helper.
+   /*! Win32 ::LockFile() / ::UnlockFile() helper.
 
    TODO: this will probably find use somewhere else as well, so move it to file.hxx.
    */
    class file_lock {
    public:
 
-      /** Constructor.
+      /*! Constructor.
       */
       file_lock() :
          m_fd(INVALID_HANDLE_VALUE) {
       }
 
 
-      /** Destructor.
+      /*! Destructor.
       */
       ~file_lock() {
          if (m_fd != INVALID_HANDLE_VALUE) {
@@ -1040,7 +1040,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
       }
 
 
-      /** Attempts to lock a range of bytes for the specified file. Returns true if a lock was
+      /*! Attempts to lock a range of bytes for the specified file. Returns true if a lock was
       acquired, false if it was not because of any or all of the requested bytes being locked by
       another process, or throws an exception for any other error.
 
@@ -1074,7 +1074,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
       }
 
 
-      /** Releases the lock acquired by lock().
+      /*! Releases the lock acquired by lock().
       */
       void unlock() {
          if (!::UnlockFile(
@@ -1088,11 +1088,11 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
 
    private:
 
-      /** Locked file. */
+      /*! Locked file. */
       filedesc_t m_fd;
-      /** Start of the locked byte range. */
+      /*! Start of the locked byte range. */
       LARGE_INTEGER m_ibOffset;
-      /** Length of the locked byte range. */
+      /*! Length of the locked byte range. */
       LARGE_INTEGER m_cb;
    };
 

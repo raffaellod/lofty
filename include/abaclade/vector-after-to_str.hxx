@@ -29,26 +29,26 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Base class for the specializations of to_str_backend for vector types. Not using templates, so
+/*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file.
 */
 class ABACLADE_SYM _vector_to_str_backend :
    public _sequence_to_str_backend {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    _vector_to_str_backend();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_vector_to_str_backend();
 
 
 protected:
 
-   /** Formatting options to be applied to the individual elements, obtained from the constructor
+   /*! Formatting options to be applied to the individual elements, obtained from the constructor
    argument sFormat. */
    istr m_sEltFormat;
 };
@@ -68,7 +68,7 @@ class to_str_backend<vector_base<T>> :
    public _vector_to_str_backend {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -81,7 +81,7 @@ public:
    }
 
 
-   /** Writes a vector, applying the formatting options.
+   /*! Writes a vector, applying the formatting options.
 
    v
       Vector to write.
@@ -106,7 +106,7 @@ public:
 
 protected:
 
-   /** Backend for the individual elements. */
+   /*! Backend for the individual elements. */
    to_str_backend<T> m_tsbElt;
 };
 

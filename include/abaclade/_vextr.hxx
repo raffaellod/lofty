@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 
-/** DOC:4019 abc::*str and abc::*vector design
+/*! DOC:4019 abc::*str and abc::*vector design
 
 abc::*str and abc::*vectors are intelligent wrappers around C arrays; they are able to dynamically
 adjust the size of the underlying array, while also taking advantage of an optional fixed-size array
@@ -228,7 +228,7 @@ Key:
 
 namespace abc {
 
-/** Stores an item array and its capacity. Used as a real template by classes with embedded item
+/*! Stores an item array and its capacity. Used as a real template by classes with embedded item
 array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vector design]), and used
 with template capacity == 1 for all non-template-driven manipulations in non-template code in the
 “lower-level” hierarchy, which relies on m_cbCapacity instead.
@@ -237,12 +237,12 @@ template <typename T, size_t t_ciEmbeddedCapacity>
 class _raw_vextr_prefixed_item_array {
 public:
 
-   /** Embedded item array capacity, in bytes. */
+   /*! Embedded item array capacity, in bytes. */
    static size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
-   /** Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
+   /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
    so it can be greater than smc_cbEmbeddedCapacity. */
    size_t m_cbCapacity;
-   /** Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
+   /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
    destructed automatically, and because the count may be greater than what’s declared here. */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
@@ -256,7 +256,7 @@ public:
 
 namespace abc {
 
-/** Template-independent members of _raw_*_vextr_impl that are identical for trivial and non-trivial
+/*! Template-independent members of _raw_*_vextr_impl that are identical for trivial and non-trivial
 types.
 */
 class ABACLADE_SYM _raw_vextr_impl_base {
@@ -268,14 +268,14 @@ protected:
 
 public:
 
-   /** Non-template prefixed item array used for the calculation of offsets that will then be
+   /*! Non-template prefixed item array used for the calculation of offsets that will then be
    applied to real instantiations of the prefixed item array template. */
    typedef _raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
 
 
 public:
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_raw_vextr_impl_base() {
       if (m_bDynamic) {
@@ -284,7 +284,7 @@ public:
    }
 
 
-   /** Returns a pointer to the start of the item array.
+   /*! Returns a pointer to the start of the item array.
 
    return
       Pointer to the first item.
@@ -299,7 +299,7 @@ public:
    }
 
 
-   /** Returns the count of item slots in the current item array.
+   /*! Returns the count of item slots in the current item array.
 
    return
       Size of the item array.
@@ -311,7 +311,7 @@ public:
    }
 
 
-   /** Returns a pointer to the end of the item array.
+   /*! Returns a pointer to the end of the item array.
 
    return
       Pointer to beyond the last item.
@@ -326,7 +326,7 @@ public:
    }
 
 
-   /** Returns the count of items in the item array.
+   /*! Returns the count of items in the item array.
 
    return
       Size of the item array.
@@ -339,7 +339,7 @@ public:
 
 private:
 
-   /** Internal constructor used by transaction. Access is private, but _raw_vextr_transaction can
+   /*! Internal constructor used by transaction. Access is private, but _raw_vextr_transaction can
    use it.
 
    Note that this doesn’t really initialize the object!
@@ -354,7 +354,7 @@ private:
 
 protected:
 
-   /** Constructor. The overload with cbEmbeddedCapacity constructs the object as empty, setting
+   /*! Constructor. The overload with cbEmbeddedCapacity constructs the object as empty, setting
    m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
    item array.
 
@@ -380,7 +380,7 @@ protected:
    }
 
 
-   /** Resets the contents of the object to nullptr.
+   /*! Resets the contents of the object to nullptr.
    */
    void assign_empty() {
       m_pBegin = nullptr;
@@ -391,7 +391,7 @@ protected:
    }
 
 
-   /** Copies the data members of the source to *this.
+   /*! Copies the data members of the source to *this.
 
    rvib
       Source vextr.
@@ -405,7 +405,7 @@ protected:
    }
 
 
-   /** Calculates the new capacity for the item array for growing from cbOld to cbNew bytes while
+   /*! Calculates the new capacity for the item array for growing from cbOld to cbNew bytes while
    attempting to reduce future allocations for subsequent size increases.
 
    cbOld
@@ -418,7 +418,7 @@ protected:
    static size_t calculate_increased_capacity(size_t cbOld, size_t cbNew);
 
 
-   /** Returns a pointer to the current prefixed item array, or nullptr if the current item array is
+   /*! Returns a pointer to the current prefixed item array, or nullptr if the current item array is
    not prefixed.
 
    return
@@ -441,7 +441,7 @@ protected:
    }
 
 
-   /** Returns a pointer to the embedded prefixed item array that follows this object, if present.
+   /*! Returns a pointer to the embedded prefixed item array that follows this object, if present.
 
    return
       Pointer to the embedded item array, or nullptr otherwise.
@@ -471,7 +471,7 @@ protected:
    }
 
 
-   /** Converts a possibly negative item byte offset into a pointer into the item array, throwing an
+   /*! Converts a possibly negative item byte offset into a pointer into the item array, throwing an
    index_error exception if the result is out of bounds for the item array.
 
    ib
@@ -483,7 +483,7 @@ protected:
    void const * translate_offset(intptr_t ib) const;
 
 
-   /** Converts a left-closed, right-open interval with possibly negative byte offsets into one
+   /*! Converts a left-closed, right-open interval with possibly negative byte offsets into one
    consisting of two pointers into the item array.
 
    ibBegin
@@ -503,7 +503,7 @@ protected:
    ) const;
 
 
-   /** Validates that the specified pointer references an item within or at the end of the item
+   /*! Validates that the specified pointer references an item within or at the end of the item
    array, throwing an index_error exception if it doesn’t. Similar to validate_pointer_noend(), but
    it accepts a pointer to the end of the item array.
 
@@ -513,7 +513,7 @@ protected:
    void validate_pointer(void const * p) const;
 
 
-   /** Validates that the specified pointer references an item within the item array, throwing an
+   /*! Validates that the specified pointer references an item within the item array, throwing an
    index_error exception if it doesn’t. Similar to validate_pointer(), but it rejects a pointer to
    the end of the item array.
 
@@ -525,23 +525,23 @@ protected:
 
 protected:
 
-   /** Pointer to the start of the item array. */
+   /*! Pointer to the start of the item array. */
    void * m_pBegin;
-   /** Pointer to the end of the item array. */
+   /*! Pointer to the end of the item array. */
    void * m_pEnd;
-   /** true if *this includes an embedded prefixed item array. */
+   /*! true if *this includes an embedded prefixed item array. */
    bool const mc_bEmbeddedPrefixedItemArray:1;
-   /** true if the item array is part of a prefixed item array. */
+   /*! true if the item array is part of a prefixed item array. */
    bool m_bPrefixedItemArray:1;
-   /** true if the current item array is allocated dynamically, or false otherwise (embedded
+   /*! true if the current item array is allocated dynamically, or false otherwise (embedded
    prefixed or non-prefixed). */
    bool m_bDynamic:1;
-   /** true if the item array is NUL-terminated. */
+   /*! true if the item array is NUL-terminated. */
    bool m_bNulT:1;
 
-   /** The item array size must be no less than this many bytes. */
+   /*! The item array size must be no less than this many bytes. */
    static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
-   /** Size multiplier. This should take into account that we want to reallocate as rarely as
+   /*! Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth. */
    static unsigned const smc_iGrowthRate = 2;
 };
@@ -555,7 +555,7 @@ protected:
 
 namespace abc {
 
-/** Allows to get a temporary item array from a pool of options, then work with it, and upon
+/*! Allows to get a temporary item array from a pool of options, then work with it, and upon
 destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base, or
 properly discarded.
 
@@ -568,7 +568,7 @@ class ABACLADE_SYM _raw_vextr_transaction :
    public noncopyable {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    prvib
       Subject of the transaction.
@@ -587,7 +587,7 @@ public:
    );
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_raw_vextr_transaction() {
       // Only allow m_rvibWork to release its item array if we allocated it for the transaction and
@@ -596,7 +596,7 @@ public:
    }
 
 
-   /** Commits the transaction; if the item array is to be replaced, the current one will be 
+   /*! Commits the transaction; if the item array is to be replaced, the current one will be 
    released if necessary; it’s up to the client to destruct any items in it. If this method is not
    called before the transaction is destructed, it’s up to the client to also ensure that any and
    all objects constructed in the work array have been properly destructed.
@@ -604,7 +604,7 @@ public:
    void commit();
 
 
-   /** Returns the work item array.
+   /*! Returns the work item array.
 
    return
       Pointer to the working item array.
@@ -615,7 +615,7 @@ public:
    }
 
 
-   /** Returns true if the contents of the item array need to migrated due to the transaction
+   /*! Returns true if the contents of the item array need to migrated due to the transaction
    switching item arrays. If the array was/will be only resized, the return value is false, because
    the reallocation did/will take care of moving the item array.
 
@@ -629,7 +629,7 @@ public:
 
 private:
 
-   /** Completes construction of the object.
+   /*! Completes construction of the object.
 
    bTrivial
       If true, the items are of a trivial type; if false, they’re not.
@@ -641,13 +641,13 @@ private:
 
 private:
 
-   /** Temporary vextr that contains the new values for each vextr member, ready to be applied to
+   /*! Temporary vextr that contains the new values for each vextr member, ready to be applied to
    *m_prvib when the transaction is committed. Its internal pointers may or may not be the same as
    the ones in m_prvib depending on whether we needed a new item array. */
    _raw_vextr_impl_base m_rvibWork;
-   /** Subject of the transaction. */
+   /*! Subject of the transaction. */
    _raw_vextr_impl_base * m_prvib;
-   /** true if m_rvibWork references an item array that has been dynamically allocated for the
+   /*! true if m_rvibWork references an item array that has been dynamically allocated for the
    transaction and needs to be freed in the destructor, which can happen when an exception occurs
    before the transaction is committed. */
    bool m_bFree;
@@ -662,13 +662,13 @@ private:
 
 namespace abc {
 
-/** Template-independent implementation of a vector for non-trivial contained types.
+/*! Template-independent implementation of a vector for non-trivial contained types.
 */
 class ABACLADE_SYM _raw_complex_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
-   /** Copies or moves the contents of the two sources to *this, according to the source type. If
+   /*! Copies or moves the contents of the two sources to *this, according to the source type. If
    bMove{1,2} == true, the source items will be moved by having their const-ness cast away ‒ be
    careful.
 
@@ -692,7 +692,7 @@ public:
    );
 
 
-   /** Copies the contents of the source to *this.
+   /*! Copies the contents of the source to *this.
 
    type
       Adapter for the items’ type.
@@ -711,7 +711,7 @@ public:
    }
 
 
-   /** Moves the contents of the source to *this, taking ownership of the whole item array (items
+   /*! Moves the contents of the source to *this, taking ownership of the whole item array (items
    are not moved nor copied).
 
    type
@@ -722,7 +722,7 @@ public:
    void assign_move(type_void_adapter const & type, _raw_complex_vextr_impl && rcvi);
 
 
-   /** Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
+   /*! Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
    items instead.
 
    type
@@ -735,7 +735,7 @@ public:
    );
 
 
-   /** Destructs the item array. It does not deallocate the item array.
+   /*! Destructs the item array. It does not deallocate the item array.
 
    type
       Adapter for the items’ type.
@@ -745,7 +745,7 @@ public:
    }
 
 
-   /** Inserts items at a specific position in the vextr.
+   /*! Inserts items at a specific position in the vextr.
 
    type
       Adapter for the items’ type.
@@ -764,7 +764,7 @@ public:
    );
 
 
-   /** Removes items from the vextr.
+   /*! Removes items from the vextr.
 
    type
       Adapter for the items’ type.
@@ -776,7 +776,7 @@ public:
    void remove(type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove);
 
 
-   /** Ensures that the item array has at least ciMin of actual item space. If this causes *this to
+   /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
    switch to using a different item array, any data in the current one will be lost unless bPreserve
    == true.
 
@@ -791,7 +791,7 @@ public:
    void set_capacity(type_void_adapter const & type, size_t cbMin, bool bPreserve);
 
 
-   /** Changes the count of items in the vextr. If the new item count is greater than the current
+   /*! Changes the count of items in the vextr. If the new item count is greater than the current
    one, the added items will be left uninitialized; it’s up to the caller to make sure that these
    items are properly constructed, or problems will arise when the destructor will attempt to
    destruct these items.
@@ -806,7 +806,7 @@ public:
 
 protected:
 
-   /** See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /*! See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
       _raw_vextr_impl_base(cbEmbeddedCapacity) {
@@ -825,14 +825,14 @@ protected:
 
 namespace abc {
 
-/** Template-independent implementation of a vector for trivial contained types. This is the most
+/*! Template-independent implementation of a vector for trivial contained types. This is the most
 derived common base class of both vector and str.
 */
 class ABACLADE_SYM _raw_trivial_vextr_impl :
    public _raw_vextr_impl_base {
 public:
 
-   /** Copies the contents of the two sources to *this. This method must never be called with p1 or
+   /*! Copies the contents of the two sources to *this. This method must never be called with p1 or
    p2 == m_pBegin.
 
    p1Begin
@@ -849,7 +849,7 @@ public:
    );
 
 
-   /** Copies the contents of the source array to *this.
+   /*! Copies the contents of the source array to *this.
 
    pBegin
       Pointer to the start of the source array.
@@ -866,7 +866,7 @@ public:
    }
 
 
-   /** Moves the source’s item array to *this. This must be called with rtvi being in control of a
+   /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
    non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::*str and
    abc::*vector design] to see how str and vector ensure this.
 
@@ -876,7 +876,7 @@ public:
    void assign_move(_raw_trivial_vextr_impl && rtvi);
 
 
-   /** Moves the source’s item array if dynamically-allocated, else copies its items (not move –
+   /*! Moves the source’s item array if dynamically-allocated, else copies its items (not move –
    items are trivial) to *this.
 
    rtvi
@@ -885,7 +885,7 @@ public:
    void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi);
 
 
-   /** Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
+   /*! Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
    prefixed item array for *this.
 
    rtvi
@@ -894,7 +894,7 @@ public:
    void assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi);
 
 
-   /** Inserts or removes items at a specific position in the vextr.
+   /*! Inserts or removes items at a specific position in the vextr.
 
    ibOffset
       Byte index at which the items should be inserted or removed.
@@ -912,7 +912,7 @@ public:
    }
 
 
-   /** Ensures that the item array has at least cbMin of actual item space. If this causes *this to
+   /*! Ensures that the item array has at least cbMin of actual item space. If this causes *this to
    switch to using a different item array, any data in the current one will be lost unless bPreserve
    == true.
 
@@ -925,7 +925,7 @@ public:
    void set_capacity(size_t cbMin, bool bPreserve);
 
 
-   /** Changes the count of items in the vextr. If the item array needs to be lengthened, the added
+   /*! Changes the count of items in the vextr. If the item array needs to be lengthened, the added
    items will be left uninitialized.
 
    cb
@@ -936,7 +936,7 @@ public:
 
 protected:
 
-   /** See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /*! See _raw_vextr_impl_base::_raw_vextr_impl_base().
    */
    _raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
       _raw_vextr_impl_base(cbEmbeddedCapacity) {
@@ -950,7 +950,7 @@ protected:
 
 private:
 
-   /** Implementation of insert_remove(). See insert_remove().
+   /*! Implementation of insert_remove(). See insert_remove().
    */
    void _insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };

@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::app
 
 
-/** DOC:1063 Application startup and abc::app
+/*! DOC:1063 Application startup and abc::app
 
 Programs using Abaclade declare their main() function by deriving a class from abc::app, overriding
 its main() method, and declaring that the derived class contains the program’s entry point using
@@ -49,23 +49,23 @@ returning.
 
 namespace abc {
 
-/** Abstract application.
+/*! Abstract application.
 */
 class ABACLADE_SYM app :
    public noncopyable {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    app();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~app();
 
 
-   /** C-style entry point for executables.
+   /*! C-style entry point for executables.
 
    cArgs
       Count of arguments.
@@ -98,7 +98,7 @@ public:
 
 #if ABC_HOST_API_WIN32
 
-   /** Entry point for Windows executables.
+   /*! Entry point for Windows executables.
 
    hinst
       Module’s instance handle.
@@ -130,7 +130,7 @@ public:
 #endif //if ABC_HOST_API_WIN32
 
 
-   /** Entry point of the application.
+   /*! Entry point of the application.
 
    vsArgs
       Command-line arguments.
@@ -142,7 +142,7 @@ public:
 
 protected:
 
-   /** Fills up a string vector from the command-line arguments.
+   /*! Fills up a string vector from the command-line arguments.
 
    cArgs
       Number of arguments.
@@ -160,14 +160,14 @@ protected:
 
 protected:
 
-   /** Pointer to the one and only instance of the application-defined app class. */
+   /*! Pointer to the one and only instance of the application-defined app class. */
    static app * sm_papp;
 };
 
 } //namespace abc
 
 
-/** Declares an abc::app-derived class as being the app class for the application.
+/*! Declares an abc::app-derived class as being the app class for the application.
 
 cls
    Main abc::app-derived class.

@@ -36,7 +36,7 @@ static std::shared_ptr<binbuf_reader> g_ptrStdIn;
 static std::shared_ptr<binbuf_writer> g_ptwStdOut;
 
 
-/** Instantiates a text::base specialization appropriate for the specified binary I/O object,
+/*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
 returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
 I/O wrapper is instanciated as well.
 
@@ -74,7 +74,7 @@ static std::shared_ptr<binbuf_base> _construct(
 }
 
 
-/** Detects the encoding to use for a standard text I/O file, with the help of an optional
+/*! Detects the encoding to use for a standard text I/O file, with the help of an optional
 environment variable.
 
 TODO: document this behavior and the related enviroment variables.

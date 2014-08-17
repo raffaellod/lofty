@@ -29,13 +29,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Base class for the specializations of to_str_backend for string types. Not using templates, so
+/*! Base class for the specializations of to_str_backend for string types. Not using templates, so
 the implementation can be in a cxx file. This is used by string literal types as well (see below).
 */
 class ABACLADE_SYM _str_to_str_backend {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -45,7 +45,7 @@ public:
 
 protected:
 
-   /** Writes a string, applying the formatting options.
+   /*! Writes a string, applying the formatting options.
 
    p
       Pointer to the string to write.
@@ -69,14 +69,14 @@ protected:
 namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
-   /** Character literal. \
+   /*! Character literal. \
    */ \
    template <> \
    class to_str_backend<C> : \
       public _str_to_str_backend { \
    public: \
    \
-      /** Writes a character, applying the formatting options.
+      /*! Writes a character, applying the formatting options.
 
       ch
          Character to write.
@@ -88,14 +88,14 @@ namespace abc {
       } \
    }; \
    \
-   /** String literal. \
+   /*! String literal. \
    */ \
    template <size_t t_cch> \
    class to_str_backend<C [t_cch]> : \
       public _str_to_str_backend { \
    public: \
    \
-      /** Writes a string, applying the formatting options.
+      /*! Writes a string, applying the formatting options.
 
       ach
          String to write.
@@ -110,7 +110,7 @@ namespace abc {
       } \
    }; \
    \
-   /** MSC16 BUG: this partial specialization is necessary. */ \
+   /*! MSC16 BUG: this partial specialization is necessary. */ \
    template <size_t t_cch> \
    class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char, text::encoding::utf8)
@@ -142,7 +142,7 @@ class ABACLADE_SYM to_str_backend<str_base> :
    public _str_to_str_backend {
 public:
 
-   /** Writes a string, applying the formatting options.
+   /*! Writes a string, applying the formatting options.
 
    s
       String to write.

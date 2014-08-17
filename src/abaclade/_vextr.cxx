@@ -357,7 +357,7 @@ void _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
 }
 
 
-/** Safely moves a range of items to another position in the same array, carefully moving items in
+/*! Safely moves a range of items to another position in the same array, carefully moving items in
 case the source and the destination ranges overlap. Note that this will also destruct the source
 items.
 

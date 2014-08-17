@@ -33,14 +33,14 @@ class file_path_normalization :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::file_path – normalization of relative and absolute paths"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -168,14 +168,14 @@ class file_path_normalization_joined :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::file_path – normalization of joined paths"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);

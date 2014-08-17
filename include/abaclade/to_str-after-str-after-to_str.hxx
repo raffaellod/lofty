@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
+/*! Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
 for compatibility with STL methods such as std::exception::what(). Without this, C strings are
 printed only as pointers, which is often undesirable.
 
@@ -41,7 +41,7 @@ class char_ptr_to_str_adapter {
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    psz
       C-style NUL-terminated string.
@@ -53,7 +53,7 @@ public:
 
 protected:
 
-   /** Wrapped C-style string. */
+   /*! Wrapped C-style string. */
    char const * m_psz;
 };
 
@@ -71,7 +71,7 @@ class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> :
    public _str_to_str_backend {
 public:
 
-   /** Writes a C-style NUL-terminated string, applying the formatting options.
+   /*! Writes a C-style NUL-terminated string, applying the formatting options.
 
    cs
       C string to write.
@@ -90,17 +90,17 @@ public:
 
 namespace abc {
 
-/** Base class for the specializations of to_str_backend for integer types.
+/*! Base class for the specializations of to_str_backend for integer types.
 */
 class ABACLADE_SYM _ptr_to_str_backend {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    _ptr_to_str_backend();
 
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -110,7 +110,7 @@ public:
 
 protected:
 
-   /** Converts a pointer to a string representation.
+   /*! Converts a pointer to a string representation.
 
    iPtr
       Pointer to write.
@@ -122,11 +122,11 @@ protected:
 
 protected:
 
-   /** Backend used to write the pointer as an integer. */
+   /*! Backend used to write the pointer as an integer. */
    to_str_backend<uintptr_t> m_tsbInt;
-   /** Backend used to write a nullptr. */
+   /*! Backend used to write a nullptr. */
    to_str_backend<istr> m_tsbStr;
-   /** Format string used to display the address. */
+   /*! Format string used to display the address. */
    static char_t const smc_achFormat[];
 };
 
@@ -145,7 +145,7 @@ class to_str_backend<T *> :
    public _ptr_to_str_backend {
 public:
 
-   /** Converts a pointer to a string representation.
+   /*! Converts a pointer to a string representation.
 
    p
       Pointer to write.
@@ -163,7 +163,7 @@ class to_str_backend<std::unique_ptr<T, TDel>> :
    public _ptr_to_str_backend {
 public:
 
-   /** See _ptr_to_str_backend::write().
+   /*! See _ptr_to_str_backend::write().
    */
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
@@ -177,7 +177,7 @@ class to_str_backend<std::shared_ptr<T>> :
    public _ptr_to_str_backend {
 public:
 
-   /** Converts a pointer to a string representation.
+   /*! Converts a pointer to a string representation.
 
    p
       Pointer to write.
@@ -196,7 +196,7 @@ class to_str_backend<std::weak_ptr<T>> :
    public _ptr_to_str_backend {
 public:
 
-   /** Converts a pointer to a string representation.
+   /*! Converts a pointer to a string representation.
 
    p
       Pointer to write.
@@ -217,13 +217,13 @@ public:
 
 namespace abc {
 
-/** Base class for the specializations of to_str_backend for sequence types. Not using templates, so
+/*! Base class for the specializations of to_str_backend for sequence types. Not using templates, so
 the implementation can be in a cxx file.
 */
 class ABACLADE_SYM _sequence_to_str_backend {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    sStart
       Sequence start delimiter.
@@ -233,12 +233,12 @@ public:
    _sequence_to_str_backend(istr const & sStart, istr const & sEnd);
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_sequence_to_str_backend();
 
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -246,7 +246,7 @@ public:
    void set_format(istr const & sFormat);
 
 
-   /** Writes the sequence end delimiter.
+   /*! Writes the sequence end delimiter.
 
    ptwOut
       Pointer to the writer to output to.
@@ -256,7 +256,7 @@ public:
    }
 
 
-   /** Writes an element separator (typically a comma).
+   /*! Writes an element separator (typically a comma).
 
    ptwOut
       Pointer to the writer to output to.
@@ -266,7 +266,7 @@ public:
    }
 
 
-   /** Writes the sequence start delimiter.
+   /*! Writes the sequence start delimiter.
 
    ptwOut
       Pointer to the writer to output to.
@@ -278,13 +278,13 @@ public:
 
 protected:
 
-   /** Separator to be output between elements. */
+   /*! Separator to be output between elements. */
    istr m_sSeparator;
-   /** Sequence start delimiter. */
+   /*! Sequence start delimiter. */
    istr m_sStart;
-   /** Sequence end delimiter. */
+   /*! Sequence end delimiter. */
    istr m_sEnd;
-   /** Backend for strings. */
+   /*! Backend for strings. */
    to_str_backend<istr> m_tsbStr;
 };
 
@@ -299,7 +299,7 @@ namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/** Helper to write a single element out of a tuple, recursing to print any remaining ones.
+/*! Helper to write a single element out of a tuple, recursing to print any remaining ones.
 */
 template <class TTuple, typename ... Ts>
 class _tuple_to_str_backend_element_writer;
@@ -309,7 +309,7 @@ template <class TTuple>
 class _tuple_to_str_backend_element_writer<TTuple> {
 public:
 
-   /** Writes the current element to the specified text writer, then recurses to write the rest.
+   /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
    tpl
       Tuple from which to extract the element to write.
@@ -328,14 +328,14 @@ class _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
    public _tuple_to_str_backend_element_writer<TTuple, Ts ...> {
 public:
 
-   /** See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
+   /*! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    */
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
 
 protected:
 
-   /** Backend for the current element type. */
+   /*! Backend for the current element type. */
    to_str_backend<T0> m_tsbt0;
 };
 
@@ -346,14 +346,14 @@ class to_str_backend<std::tuple<Ts ...>> :
    public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
 
-   /** Converts a tuple into its string representation.
+   /*! Converts a tuple into its string representation.
 
    tpl
       Tuple to write.
@@ -386,7 +386,7 @@ inline void _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_ele
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/** Helper to write the elements of a tuple.
+/*! Helper to write the elements of a tuple.
 */
 // Template recursion step.
 template <
@@ -399,14 +399,14 @@ class _tuple_to_str_backend_element_writer :
    > {
 public:
 
-   /** See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
+   /*! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    */
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
 
 protected:
 
-   /** Backend for the current element type. */
+   /*! Backend for the current element type. */
    to_str_backend<T0> m_tsbt0;
 };
 
@@ -419,7 +419,7 @@ class _tuple_to_str_backend_element_writer<
 > {
 public:
 
-   /** Writes the current element to the specified text writer, then recurses to write the rest.
+   /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
    tpl
       Tuple from which to extract the element to write.
@@ -444,14 +444,14 @@ class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
    > {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
 
-   /** Converts a tuple into its string representation.
+   /*! Converts a tuple into its string representation.
 
    tpl
       Tuple to write.

@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc globals
 
 
-/** DOC:1829 __VA_ARGS__ MSC16 bug
+/*! DOC:1829 __VA_ARGS__ MSC16 bug
 
 Due to a confirmed bug in MSC16 (see <http://connect.microsoft.com/VisualStudio/feedback/details/
 380090/variadic-macro-replacement>), all variadic macros need to wrap their implementation in an
@@ -35,7 +35,7 @@ expansion of ABC_1829() to have the result of the implementation expanded once m
 result in __VA_ARGS__ being expanded correctly, working around the bug.
 */
 
-/** Expands into its argument, working around [DOC:1829 __VA_ARGS__ MSC16 bug].
+/*! Expands into its argument, working around [DOC:1829 __VA_ARGS__ MSC16 bug].
 
 x
    Argument to expand into.
@@ -45,7 +45,7 @@ return
 #define ABC_1829(x) x
 
 
-/** Expands into the count of its arguments.
+/*! Expands into the count of its arguments.
 
 ...
    Arguments to count.
@@ -83,7 +83,7 @@ return
    count
 
 
-/** Expands into a joined version of the two provided tokens. Necessary to implement the more
+/*! Expands into a joined version of the two provided tokens. Necessary to implement the more
 generic ABC_CPP_CAT().
 
 token1
@@ -100,7 +100,7 @@ return
    token1 ## token2
 
 
-/** Expands into a joined version of the provided tokens.
+/*! Expands into a joined version of the provided tokens.
 
 ...
    Tokens to join.
@@ -172,7 +172,7 @@ return
    t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
 
 
-/** Expands into a string version of the specified token.
+/*! Expands into a string version of the specified token.
 
 x
    Expression to convert to a string literal.
@@ -186,7 +186,7 @@ return
    #x
 
 
-/** Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
+/*! Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
 guaranteed on all platforms.
 
 s
@@ -203,7 +203,7 @@ return
 #endif
 
 
-/** Expands into a macro that will evaluate its first argument or the remaining ones, depending on
+/*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether bit evaluates to 1 or 0, respectively.
 
 bit
@@ -220,7 +220,7 @@ return
    true_part
 
 
-/** Expands into the complement of the specified bit.
+/*! Expands into the complement of the specified bit.
 
 bit
    Bit to complement.
@@ -234,7 +234,7 @@ return
 #define _ABC_CPP_COMPL_1 0
 
 
-/** Expands into the argument + 1.
+/*! Expands into the argument + 1.
 
 int
    Number.
@@ -346,7 +346,7 @@ return
 #define _ABC_CPP_INC_99 100
 
 
-/** Expands into the argument - 1.
+/*! Expands into the argument - 1.
 
 int
    Number.
@@ -458,7 +458,7 @@ return
 #define _ABC_CPP_DEC_99 98
 
 
-/** Used with _ABC_CPP_MAKE_CHECK_RET_ONE() it expands into emit 1 or 0 depending on whether the
+/*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE() it expands into emit 1 or 0 depending on whether the
 latter is expanded or not.
 
 ...
@@ -479,7 +479,7 @@ latter is expanded or not.
    dummy, 1
 
 
-/** Expands into either 1 or 0 depending on whether the argument is a tuple or not.
+/*! Expands into either 1 or 0 depending on whether the argument is a tuple or not.
 
 x
    Expression.
@@ -490,7 +490,7 @@ return
    ABC_CPP_CHECK(_ABC_CPP_MAKE_CHECK_RET_ONE x)
 
 
-/** Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
+/*! Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
 respectively.
 
 x
@@ -505,7 +505,7 @@ return
    _ABC_CPP_MAKE_CHECK_RET_ONE()
 
 
-/** Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
+/*! Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
 respectively.
 
 x
@@ -517,7 +517,7 @@ return
    ABC_CPP_COMPL(ABC_CPP_NOT(x))
 
 
-/** Expands into a macro that will evaluate its first argument or the remaining ones, depending on
+/*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether x evaluates to non-0 or 0, respectively.
 
 x
@@ -529,7 +529,7 @@ return
    ABC_CPP_IIF(ABC_CPP_BOOL(x))
 
 
-/** Expands into the invocation of the specified macro once for each of the remaining scalar
+/*! Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
 
 macro
@@ -642,7 +642,7 @@ return
 #define _ABC_CPP_LIST_W_99(m, h, ...) m(h) ABC_1829(_ABC_CPP_LIST_W_98(m, __VA_ARGS__))
 
 
-/** Expands into the invocation of the specified macro once for each of the remaining tuples passed
+/*! Expands into the invocation of the specified macro once for each of the remaining tuples passed
 as arguments.
 
 macro

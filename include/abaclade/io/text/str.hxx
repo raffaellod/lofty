@@ -31,31 +31,31 @@ namespace abc {
 namespace io {
 namespace text {
 
-/** Implementation of text (character-based) I/O from/to a string.
+/*! Implementation of text (character-based) I/O from/to a string.
 */
 class ABACLADE_SYM str_base :
    public virtual base,
    public noncopyable {
 public:
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~str_base();
 
 
-   /** See base::encoding().
+   /*! See base::encoding().
    */
    virtual abc::text::encoding encoding() const;
 
 
-   /** See base::line_terminator().
+   /*! See base::line_terminator().
    */
    virtual abc::text::line_terminator line_terminator() const;
 
 
 protected:
 
-   /** Constructor.
+   /*! Constructor.
 
    lterm
       Initial value for line_terminator().
@@ -65,7 +65,7 @@ protected:
 
 protected:
 
-   /** Current read/write offset into the string. */
+   /*! Current read/write offset into the string. */
    uintptr_t m_ichOffset;
 };
 
@@ -82,14 +82,14 @@ namespace abc {
 namespace io {
 namespace text {
 
-/** Implementation of text (character-based) input from a string.
+/*! Implementation of text (character-based) input from a string.
 */
 class ABACLADE_SYM str_reader :
    public virtual str_base,
    public virtual reader {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    s
       Source string.
@@ -107,7 +107,7 @@ public:
    );
 
 
-   /** See reader::read_while().
+   /*! See reader::read_while().
    */
    virtual bool read_while(mstr * ps, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
@@ -116,10 +116,10 @@ public:
 
 protected:
 
-   /** Pointer to the source string. Normally points to m_sReadBuf, but subclasses may change that
+   /*! Pointer to the source string. Normally points to m_sReadBuf, but subclasses may change that
    as needed. */
    istr const * m_psReadBuf;
-   /** Target of m_psReadBuf, unless overridden by subclasses. */
+   /*! Target of m_psReadBuf, unless overridden by subclasses. */
    istr m_sReadBuf;
 };
 
@@ -136,14 +136,14 @@ namespace abc {
 namespace io {
 namespace text {
 
-/** Implementation of text (character-based) output into a string.
+/*! Implementation of text (character-based) output into a string.
 */
 class ABACLADE_SYM str_writer :
    public virtual str_base,
    public virtual writer {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    psBuf
       Pointer to a mutable string to use as the destination of all writes. If omitted, an internal
@@ -156,12 +156,12 @@ public:
    );
 
 
-   /** Truncates the internal buffer so that the next write will occur at offset 0.
+   /*! Truncates the internal buffer so that the next write will occur at offset 0.
    */
    void clear();
 
 
-   /** Returns the internal string buffer as a read-only string.
+   /*! Returns the internal string buffer as a read-only string.
 
    return
       Content of the writer.
@@ -171,7 +171,7 @@ public:
    }
 
 
-   /** Yields ownership of the internal string buffer. If the str_writer instance was constructed
+   /*! Yields ownership of the internal string buffer. If the str_writer instance was constructed
    based on an external string, all internal variables will be successfully reset, but the result
    will be an empty string; the accumulated data will only be accessible through the external
    string.
@@ -182,16 +182,16 @@ public:
    dmstr release_content();
 
 
-   /** See writer::write_binary().
+   /*! See writer::write_binary().
    */
    virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc);
 
 
 protected:
 
-   /** Pointer to the destination string. */
+   /*! Pointer to the destination string. */
    mstr * m_psWriteBuf;
-   /** Default target of m_psWriteBuf, if none is supplied via constructor. */
+   /*! Default target of m_psWriteBuf, if none is supplied via constructor. */
    dmstr m_sDefaultWriteBuf;
 };
 

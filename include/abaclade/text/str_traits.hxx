@@ -30,13 +30,13 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-/** Low-level functions for dealing with character strings; used by abc::*str. Note that this class
+/*! Low-level functions for dealing with character strings; used by abc::*str. Note that this class
 is not modeled after std::char_traits.
 */
 class ABACLADE_SYM str_traits {
 public:
 
-   /** Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
+   /*! Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
    [DOC:1502 KMP substring search] for how this is built and used.
 
    pchNeedleBegin
@@ -51,7 +51,7 @@ public:
    );
 
 
-   /** Compares two strings.
+   /*! Compares two strings.
 
    pch1Begin
       Pointer to the first character of the first string to compare.
@@ -73,7 +73,7 @@ public:
    );
 
 
-   /** Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
+   /*! Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
    matches are found. The overload taking a char_t pointer allows to search for the encoded
    representation of any code point.
 
@@ -110,7 +110,7 @@ public:
    );
 
 
-   /** Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
+   /*! Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
    no matches are found.
 
    pchHaystackBegin
@@ -140,7 +140,7 @@ public:
    );
 
 
-   /** Returns the character index of the first occurrence of a string into another.
+   /*! Returns the character index of the first occurrence of a string into another.
 
    pchHaystackBegin
       Pointer to the first character of the string to be searched.
@@ -160,7 +160,7 @@ public:
    );
 
 
-   /** Returns the character index of the last occurrence of a string into another.
+   /*! Returns the character index of the last occurrence of a string into another.
 
    pchHaystackBegin
       Pointer to the first character of the string to be searched.
@@ -180,7 +180,7 @@ public:
    );
 
 
-   /** Returns count of code points in a string.
+   /*! Returns count of code points in a string.
 
    pchBegin
       Pointer to the beginning of the string.
@@ -192,7 +192,7 @@ public:
    static size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
 
 
-   /** Validates the character in a string.
+   /*! Validates the character in a string.
 
    pchBegin
       Pointer to the first character of the string to validate.

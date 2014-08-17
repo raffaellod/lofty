@@ -29,24 +29,24 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** The syntax for the specified expression is invalid.
+/*! The syntax for the specified expression is invalid.
 */
 class ABACLADE_SYM syntax_error :
    public virtual generic_error {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    syntax_error();
    syntax_error(syntax_error const & x);
 
 
-   /** Assignment operator. See abc::generic_error::operator=().
+   /*! Assignment operator. See abc::generic_error::operator=().
    */
    syntax_error & operator=(syntax_error const & x);
 
 
-   /** See abc::generic_error::init().
+   /*! See abc::generic_error::init().
 
    All arguments are optional, and can be specified leaving defaulted gaps in between; the resulting
    exception message will not contain omitted arguments.
@@ -80,20 +80,20 @@ public:
 
 protected:
 
-   /** See exception::_print_extended_info().
+   /*! See exception::_print_extended_info().
    */
    virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
 
-   /** Description of the syntax error. */
+   /*! Description of the syntax error. */
    istr m_sDescription;
-   /** Source of the syntax error (whole or individual line). */
+   /*! Source of the syntax error (whole or individual line). */
    istr m_sSource;
-   /** Character at which the error is located. */
+   /*! Character at which the error is located. */
    unsigned m_iChar;
-   /** Line where the error is located. */
+   /*! Line where the error is located. */
    unsigned m_iLine;
 };
 

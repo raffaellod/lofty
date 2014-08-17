@@ -36,14 +36,14 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/** Thrown to indicate that a test assertion failed, and the execution of the test case must be
+/*! Thrown to indicate that a test assertion failed, and the execution of the test case must be
 halted.
 */
 class ABACLADE_TESTING_SYM assertion_error :
    public virtual exception {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    assertion_error();
 };
@@ -63,12 +63,12 @@ namespace testing {
 class test_case;
 
 
-/** Executes test cases.
+/*! Executes test cases.
 */
 class ABACLADE_TESTING_SYM runner {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    posOut
       Pointer to the writer that will be used to log the results of the tests.
@@ -76,18 +76,18 @@ public:
    runner(std::shared_ptr<io::text::writer> ptwOut);
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~runner();
 
 
-   /** Loads all the test cases registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
+   /*! Loads all the test cases registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
    them.
    */
    void load_registered_test_cases();
 
 
-   /** Logs an assertion.
+   /*! Logs an assertion.
 
    srcloc
       Location of the expression.
@@ -111,7 +111,7 @@ public:
    );
 
 
-   /** Prints test results based on the information collected by log_assertion() and
+   /*! Prints test results based on the information collected by log_assertion() and
    run_test_case().
 
    return
@@ -120,12 +120,12 @@ public:
    bool log_summary();
 
 
-   /** Executes each loaded test case.
+   /*! Executes each loaded test case.
    */
    void run();
 
 
-   /** Executes a test case.
+   /*! Executes a test case.
 
    tc
       Test case to execute.
@@ -135,11 +135,11 @@ public:
 
 private:
 
-   /** Vector of loaded test test cases to be executed. */
+   /*! Vector of loaded test test cases to be executed. */
    dmvector<std::unique_ptr<test_case>> m_vptc;
-   /** Output writer. */
+   /*! Output writer. */
    std::shared_ptr<io::text::writer> m_ptwOut;
-   /** Total count of failed assertions. */
+   /*! Total count of failed assertions. */
    unsigned m_cFailedAssertions;
 };
 

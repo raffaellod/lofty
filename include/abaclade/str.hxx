@@ -33,7 +33,7 @@ namespace abc {
 class istr;
 class dmstr;
 
-/** Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
+/*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
 
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
@@ -59,7 +59,7 @@ public:
 
 public:
 
-   /** Pointer to a C-style, NUL-terminated character array that may or may not share memory with
+   /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with
    an abc::*str instance. */
    typedef std::unique_ptr<
       char_t const [],
@@ -69,7 +69,7 @@ public:
 
 public:
 
-   /** Allows automatic cross-class-hierarchy casts.
+   /*! Allows automatic cross-class-hierarchy casts.
 
    return
       Const reference to *this as an immutable string.
@@ -77,7 +77,7 @@ public:
    operator istr const &() const;
 
 
-   /** Character access operator.
+   /*! Character access operator.
 
    i
       Character index. If outside of the [begin, end) range, an  index_error exception will be
@@ -90,7 +90,7 @@ public:
    }
 
 
-   /** Returns true if the length is greater than 0.
+   /*! Returns true if the length is greater than 0.
 
    return
       true if the string is not empty, or false otherwise.
@@ -101,7 +101,7 @@ public:
    }
 
 
-   /** Advances or backs up a pointer by the specified number of code points, returning the
+   /*! Advances or backs up a pointer by the specified number of code points, returning the
    resulting pointer. If the pointer is moved outside of the buffer, an index_error or
    iterator_error exception (depending on bIndex) is thrown.
 
@@ -118,7 +118,7 @@ public:
    char_t const * _advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const;
 
 
-   /** Returns a forward iterator set to the first element.
+   /*! Returns a forward iterator set to the first element.
 
    return
       Forward iterator to the first element.
@@ -128,7 +128,7 @@ public:
    }
 
 
-   /** Returns a pointer to a NUL-terminated version of the string.
+   /*! Returns a pointer to a NUL-terminated version of the string.
 
    If the string already includes a NUL terminator, the returned pointer will refer to the same
    character array, and it will not own it; if the string does not include a NUL terminator, the
@@ -145,7 +145,7 @@ public:
    c_str_pointer c_str() const;
 
 
-   /** Returns the maximum number of characters the string buffer can currently hold.
+   /*! Returns the maximum number of characters the string buffer can currently hold.
 
    return
       Size of the string buffer, in characters.
@@ -155,7 +155,7 @@ public:
    }
 
 
-   /** Returns a const forward iterator set to the first element.
+   /*! Returns a const forward iterator set to the first element.
 
    return
       Forward iterator to the first element.
@@ -165,7 +165,7 @@ public:
    }
 
 
-   /** Returns a const forward iterator set beyond the last element.
+   /*! Returns a const forward iterator set beyond the last element.
 
    return
       Forward iterator to beyond the last element.
@@ -175,7 +175,7 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::begin().
+   /*! See _raw_trivial_vextr_impl::begin().
    */
    char_t * chars_begin() {
       return _raw_trivial_vextr_impl::begin<char_t>();
@@ -185,7 +185,7 @@ public:
    }
 
 
-   /** See _raw_trivial_vextr_impl::end().
+   /*! See _raw_trivial_vextr_impl::end().
    */
    char_t * chars_end() {
       return _raw_trivial_vextr_impl::end<char_t>();
@@ -195,7 +195,7 @@ public:
    }
 
 
-   /** Returns a const reverse iterator set to the last element.
+   /*! Returns a const reverse iterator set to the last element.
 
    return
       Reverse iterator to the last element.
@@ -205,7 +205,7 @@ public:
    }
 
 
-   /** Returns a const reverse iterator set to before the first element.
+   /*! Returns a const reverse iterator set to before the first element.
 
    return
       Reverse iterator to before the first element.
@@ -215,7 +215,7 @@ public:
    }
 
 
-   /** Returns the string, encoded as requested, into a byte vector.
+   /*! Returns the string, encoded as requested, into a byte vector.
 
    enc
       Requested encoding.
@@ -229,7 +229,7 @@ public:
    dmvector<uint8_t> encode(text::encoding enc, bool bNulT) const;
 
 
-   /** Returns a forward iterator set beyond the last element.
+   /*! Returns a forward iterator set beyond the last element.
 
    return
       Forward iterator to the first element.
@@ -239,7 +239,7 @@ public:
    }
 
 
-   /** Returns true if the string ends with a specified suffix.
+   /*! Returns true if the string ends with a specified suffix.
 
    s
       String that *this should end with.
@@ -249,7 +249,7 @@ public:
    bool ends_with(istr const & s) const;
 
 
-   /** Searches for and returns the first occurrence of the specified character or substring.
+   /*! Searches for and returns the first occurrence of the specified character or substring.
 
    chNeedle
       Character to search for.
@@ -285,7 +285,7 @@ public:
    const_iterator find(istr const & sNeedle, const_iterator itWhence) const;
 
 
-   /** Searches for and returns the last occurrence of the specified character or substring.
+   /*! Searches for and returns the last occurrence of the specified character or substring.
 
    chNeedle
       Character to search for.
@@ -321,7 +321,7 @@ public:
    const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const;
 
 
-   /** Uses the current content of the string to generate a new one using io::text::writer::print().
+   /*! Uses the current content of the string to generate a new one using io::text::writer::print().
 
    ts
       Replacement values.
@@ -385,7 +385,7 @@ public:
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 
-   /** Returns a reverse iterator set to the last element.
+   /*! Returns a reverse iterator set to the last element.
 
    return
       Reverse iterator to the last element.
@@ -395,7 +395,7 @@ public:
    }
 
 
-   /** Returns a reverse iterator set to before the first element.
+   /*! Returns a reverse iterator set to before the first element.
 
    return
       Reverse iterator to before the first element.
@@ -405,7 +405,7 @@ public:
    }
 
 
-   /** Returns size of the string, in code points.
+   /*! Returns size of the string, in code points.
 
    return
       Size of the string.
@@ -415,7 +415,7 @@ public:
    }
 
 
-   /** Returns size of the string, in bytes.
+   /*! Returns size of the string, in bytes.
 
    return
       Size of the string.
@@ -425,7 +425,7 @@ public:
    }
 
 
-   /** Returns size of the string, in characters.
+   /*! Returns size of the string, in characters.
 
    return
       Size of the string.
@@ -435,7 +435,7 @@ public:
    }
 
 
-   /** Returns true if the string starts with a specified prefix.
+   /*! Returns true if the string starts with a specified prefix.
 
    s
       String that *this should start with.
@@ -445,7 +445,7 @@ public:
    bool starts_with(istr const & s) const;
 
 
-   /** Returns a portion of the string.
+   /*! Returns a portion of the string.
 
    ichBegin
       Index of the first character of the substring. See abc::str_base::translate_range() for
@@ -468,7 +468,7 @@ public:
 
 protected:
 
-   /** Constructor.
+   /*! Constructor.
 
    cbEmbeddedCapacity
       Size of the embedded character array, in bytes, or 0 if no embedded array is present.
@@ -487,7 +487,7 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_copy().
+   /*! See _raw_trivial_vextr_impl::assign_copy().
 
    pchBegin
       Pointer to the start of the source string.
@@ -499,7 +499,7 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_concat().
+   /*! See _raw_trivial_vextr_impl::assign_concat().
 
    pch1Begin
       Pointer to the start of the first source string.
@@ -518,7 +518,7 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move().
+   /*! See _raw_trivial_vextr_impl::assign_move().
 
    s
       Source string.
@@ -528,7 +528,7 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
    s
       Source string.
@@ -540,7 +540,7 @@ protected:
    }
 
 
-   /** See _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
+   /*! See _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
 
    s
       Source string.
@@ -550,7 +550,7 @@ protected:
    }
 
 
-   /** Converts a possibly negative character index into an iterator.
+   /*! Converts a possibly negative character index into an iterator.
 
    ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
@@ -561,7 +561,7 @@ protected:
    const_iterator translate_index(intptr_t ich) const;
 
 
-   /** Converts a left-closed, right-open interval with possibly negative character indices into one
+   /*! Converts a left-closed, right-open interval with possibly negative character indices into one
    consisting of two iterators.
 
    ichBegin
@@ -583,7 +583,7 @@ protected:
 
 protected:
 
-   /** Single NUL terminator. */
+   /*! Single NUL terminator. */
    static char_t const smc_chNul;
 };
 
@@ -637,14 +637,14 @@ namespace abc {
 // Forward declaration.
 class mstr;
 
-/** str_base-derived class, to be used as “the” string class in most cases. It cannot be modified
+/*! str_base-derived class, to be used as “the” string class in most cases. It cannot be modified
 in-place, which means that it shouldn’t be used in code performing intensive string manipulations.
 */
 class istr :
    public str_base {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    s
       Source string.
@@ -690,7 +690,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    s
       Source string.
@@ -745,7 +745,7 @@ struct hash<abc::istr> : public hash<abc::str_base> {};
 
 namespace abc {
 
-/** str_base-derived class, to be used as argument type for functions that want to modify a string
+/*! str_base-derived class, to be used as argument type for functions that want to modify a string
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
 are automatically converted to this.
 */
@@ -757,7 +757,7 @@ class ABACLADE_SYM mstr :
 
 public:
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    s
       Source string.
@@ -780,7 +780,7 @@ public:
    mstr & operator=(dmstr && s);
 
 
-   /** Concatenation-assignment operator.
+   /*! Concatenation-assignment operator.
 
    ch
       Character to append.
@@ -809,7 +809,7 @@ public:
    }
 
 
-   /** Same as operator+=(), but for multi-argument overloads.
+   /*! Same as operator+=(), but for multi-argument overloads.
 
    pchAdd
       Pointer to an array of characters to append.
@@ -823,7 +823,7 @@ public:
    }
 
 
-   /** See str_base::begin(). Here also available in non-const overload.
+   /*! See str_base::begin(). Here also available in non-const overload.
    */
    iterator begin() {
       return iterator(chars_begin(), this);
@@ -833,7 +833,7 @@ public:
    }
 
 
-   /** See str_base::end(). Here also available in non-const overload.
+   /*! See str_base::end(). Here also available in non-const overload.
    */
    iterator end() {
       return iterator(chars_end(), this);
@@ -843,7 +843,7 @@ public:
    }
 
 
-   /** Inserts characters into the string at a specific character (not code point) offset.
+   /*! Inserts characters into the string at a specific character (not code point) offset.
 
    ichOffset
       0-based offset at which to insert the characters.
@@ -881,7 +881,7 @@ public:
    }
 
 
-   /** See str_base::rbegin(). Here also available in non-const overload.
+   /*! See str_base::rbegin(). Here also available in non-const overload.
    */
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(chars_end(), this));
@@ -891,7 +891,7 @@ public:
    }
 
 
-   /** See str_base::rend(). Here also available in non-const overload.
+   /*! See str_base::rend(). Here also available in non-const overload.
    */
    reverse_iterator rend() {
       return reverse_iterator(iterator(chars_begin(), this));
@@ -901,7 +901,7 @@ public:
    }
 
 
-   /** Replaces all occurrences of a character with another character.
+   /*! Replaces all occurrences of a character with another character.
 
    chSearch
       Character to search for.
@@ -917,7 +917,7 @@ public:
    void replace(char32_t chSearch, char32_t chReplacement);
 
 
-   /** See _raw_trivial_vextr_impl::set_capacity().
+   /*! See _raw_trivial_vextr_impl::set_capacity().
 
    cchMin
       Minimum count of characters requested.
@@ -930,7 +930,7 @@ public:
    }
 
 
-   /** Expands the character array until the specified callback succeeds in filling it and returns a
+   /*! Expands the character array until the specified callback succeeds in filling it and returns a
    number of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
    (NUL terminator included), it must return <= 2 (NUL excluded).
 
@@ -953,7 +953,7 @@ public:
    void set_from(std::function<size_t (char_t * pch, size_t cchMax)> const & fnRead);
 
 
-   /** Changes the length of the string. If the string needs to be lengthened, the added characters
+   /*! Changes the length of the string. If the string needs to be lengthened, the added characters
    will be left uninitialized.
 
    cch
@@ -972,14 +972,14 @@ public:
 
 protected:
 
-   /** See str_base::str_base().
+   /*! See str_base::str_base().
    */
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }
 
 
-   /** Replaces a single code point with another single code point.
+   /*! Replaces a single code point with another single code point.
 
    pch
       Pointer to the start of the code point to replace.
@@ -1027,14 +1027,14 @@ struct hash<abc::mstr> : public hash<abc::str_base> {};
 
 namespace abc {
 
-/** mstr-derived class, good for clients that need in-place manipulation of strings whose length is
+/*! mstr-derived class, good for clients that need in-place manipulation of strings whose length is
 unknown at design time.
 */
 class dmstr :
    public mstr {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    s
       Source string.
@@ -1100,7 +1100,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    s
       Source string.
@@ -1144,7 +1144,7 @@ public:
 
 #if ABC_HOST_MSC
 
-   /** MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
+   /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
 	str_base::operator istr const &().
    */
    operator istr const &() const {
@@ -1195,7 +1195,7 @@ inline mstr & mstr::operator=(dmstr && s) {
 } //namespace abc
 
 
-/** Concatenation operator.
+/*! Concatenation operator.
 
 sL
    Left string operand.
@@ -1337,7 +1337,7 @@ struct hash<abc::dmstr> : public hash<abc::str_base> {};
 
 namespace abc {
 
-/** mstr-derived class, good for clients that need in-place manipulation of strings that are most
+/*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size.
 */
 template <size_t t_cchEmbeddedCapacity>
@@ -1349,7 +1349,7 @@ class smstr :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    s
       Source string.
@@ -1395,7 +1395,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    s
       Source string.

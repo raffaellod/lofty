@@ -36,7 +36,7 @@ class buffered_reader;
 class buffered_writer;
 
 
-/** Creates and returns a buffered wrapper for the specified binary I/O object.
+/*! Creates and returns a buffered wrapper for the specified binary I/O object.
 
 pbb
    Pointer to a binary I/O object.
@@ -46,7 +46,7 @@ return
 ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 
 
-/** Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
+/*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
 
 pbr
    Pointer to an unbuffered binary reader.
@@ -58,7 +58,7 @@ inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pb
 }
 
 
-/** Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
+/*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
 
 pbw
    Pointer to an unbuffered binary writer.
@@ -83,13 +83,13 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for buffering objects that wrap binary::* instances.
+/*! Interface for buffering objects that wrap binary::* instances.
 */
 class ABACLADE_SYM buffered_base :
    public virtual base {
 public:
 
-   /** Returns a pointer to the wrapper unbuffered binary I/O object.
+   /*! Returns a pointer to the wrapper unbuffered binary I/O object.
    */
    virtual std::shared_ptr<base> unbuffered() const = 0;
 };
@@ -107,14 +107,14 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for buffering objects that wrap binary::reader instances.
+/*! Interface for buffering objects that wrap binary::reader instances.
 */
 class ABACLADE_SYM buffered_reader :
    public virtual buffered_base,
    public reader {
 public:
 
-   /** Marks the specified amount of bytes as read, so that they won’t be presented again on the
+   /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
 
    c
@@ -126,7 +126,7 @@ public:
    }
 
 
-   /** Non-template implementation of consume(). See consume().
+   /*! Non-template implementation of consume(). See consume().
 
    cb
       Count of bytes to mark as read.
@@ -134,7 +134,7 @@ public:
    virtual void consume_bytes(size_t cb) = 0;
 
 
-   /** Returns a view of the internal read buffer, performing at most one read from the underlying
+   /*! Returns a view of the internal read buffer, performing at most one read from the underlying
    binary reader.
 
    TODO: change to return a read-only, non-shareable ivector<T>.
@@ -159,7 +159,7 @@ public:
    }
 
 
-   /** Non-template implementation of peek(). See peek().
+   /*! Non-template implementation of peek(). See peek().
 
    cb
       Count of bytes to peek.
@@ -167,7 +167,7 @@ public:
    virtual std::pair<void const *, size_t> peek_bytes(size_t cb) = 0;
 
 
-   /** See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
+   /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
    preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
@@ -187,14 +187,14 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Interface for buffering objects that wrap binary::writer instances.
+/*! Interface for buffering objects that wrap binary::writer instances.
 */
 class ABACLADE_SYM buffered_writer :
    public virtual buffered_base,
    public writer {
 public:
 
-   /** Commits (writes) any pending buffer blocks returned by get_buffer().
+   /*! Commits (writes) any pending buffer blocks returned by get_buffer().
 
    c
       Count of elements to commit.
@@ -205,7 +205,7 @@ public:
    }
 
 
-   /** Non-template, byte-oriented implementation of commit(). See commit().
+   /*! Non-template, byte-oriented implementation of commit(). See commit().
 
    cb
       Count of bytes to commit.
@@ -213,7 +213,7 @@ public:
    virtual void commit_bytes(size_t cb) = 0;
 
 
-   /** Returns a buffer large enough to store up to c items.
+   /*! Returns a buffer large enough to store up to c items.
 
    c
       Count of items to create buffer space for.
@@ -230,7 +230,7 @@ public:
    }
 
 
-   /** Byte-oriented implementation of get_buffer(). See get_buffer().
+   /*! Byte-oriented implementation of get_buffer(). See get_buffer().
 
    cb
       Count of bytes to create buffer space for.
@@ -238,7 +238,7 @@ public:
    virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb) = 0;
 
 
-   /** See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
+   /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
    is preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
@@ -258,14 +258,14 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Provides buffering on top of a binary::reader instance.
+/*! Provides buffering on top of a binary::reader instance.
 */
 class ABACLADE_SYM default_buffered_reader :
    public buffered_reader,
    public noncopyable {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pbr
       Pointer to a buffered reader to wrap.
@@ -273,39 +273,39 @@ public:
    default_buffered_reader(std::shared_ptr<reader> pbr);
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~default_buffered_reader();
 
 
-   /** See buffered_reader::consume_bytes().
+   /*! See buffered_reader::consume_bytes().
    */
    virtual void consume_bytes(size_t cb);
 
 
-   /** See buffered_reader::peek_bytes().
+   /*! See buffered_reader::peek_bytes().
    */
    virtual std::pair<void const *, size_t> peek_bytes(size_t cb);
 
 
-   /** See buffered_reader::unbuffered().
+   /*! See buffered_reader::unbuffered().
    */
    virtual std::shared_ptr<base> unbuffered() const;
 
 
 protected:
 
-   /** Wrapped binary reader. */
+   /*! Wrapped binary reader. */
    std::shared_ptr<reader> m_pbr;
-   /** Read buffer. */
+   /*! Read buffer. */
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbReadBuf;
-   /** Size of m_pbReadBuf. */
+   /*! Size of m_pbReadBuf. */
    size_t m_cbReadBuf;
-   /** Offset of the first used byte in m_pbReadBuf. */
+   /*! Offset of the first used byte in m_pbReadBuf. */
    size_t m_ibReadBufUsed;
-   /** Number of bytes used in m_pbReadBuf. */
+   /*! Number of bytes used in m_pbReadBuf. */
    size_t m_cbReadBufUsed;
-   /** Default/increment size of m_pbReadBuf. */
+   /*! Default/increment size of m_pbReadBuf. */
    // TODO: tune this value.
    static size_t const smc_cbReadBufDefault = 0x1000;
 };
@@ -323,14 +323,14 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/** Provides buffering on top of a binary::writer instance.
+/*! Provides buffering on top of a binary::writer instance.
 */
 class ABACLADE_SYM default_buffered_writer :
    public buffered_writer,
    public noncopyable {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pbw
       Pointer to a buffered writer to wrap.
@@ -338,22 +338,22 @@ public:
    default_buffered_writer(std::shared_ptr<writer> pbw);
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~default_buffered_writer();
 
 
-   /** See buffered_writer::commit_bytes().
+   /*! See buffered_writer::commit_bytes().
    */
    virtual void commit_bytes(size_t cb);
 
 
-   /** See buffered_writer::flush().
+   /*! See buffered_writer::flush().
    */
    virtual void flush();
 
 
-   /** See buffered_writer::get_buffer_bytes().
+   /*! See buffered_writer::get_buffer_bytes().
 
    cb
       Count of bytes to create buffer space for.
@@ -361,29 +361,29 @@ public:
    virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb);
 
 
-   /** See buffered_writer::unbuffered().
+   /*! See buffered_writer::unbuffered().
    */
    virtual std::shared_ptr<base> unbuffered() const;
 
 
 protected:
 
-   /** Flushes the internal write buffer.
+   /*! Flushes the internal write buffer.
    */
    void flush_buffer();
 
 
 protected:
 
-   /** Wrapped binary writer. */
+   /*! Wrapped binary writer. */
    std::shared_ptr<writer> m_pbw;
-   /** Write buffer. */
+   /*! Write buffer. */
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbWriteBuf;
-   /** Size of m_pbWriteBuf. */
+   /*! Size of m_pbWriteBuf. */
    size_t m_cbWriteBuf;
-   /** Number of bytes used in m_pbWriteBuf. */
+   /*! Number of bytes used in m_pbWriteBuf. */
    size_t m_cbWriteBufUsed;
-   /** Default/increment size of m_pbWriteBuf. */
+   /*! Default/increment size of m_pbWriteBuf. */
    // TODO: tune this value.
    static size_t const smc_cbWriteBufDefault = 0x1000;
 };

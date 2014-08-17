@@ -38,22 +38,22 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/** Base class for test cases.
+/*! Base class for test cases.
 */
 class ABACLADE_TESTING_SYM test_case {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    test_case();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~test_case();
 
 
-   /** Initializes the object. Split into a method separated from the constructor so that derived
+   /*! Initializes the object. Split into a method separated from the constructor so that derived
    classes don’t need to declare a constructor just to forward its arguments.
 
    prunner
@@ -62,12 +62,12 @@ public:
    void init(runner * prunner);
 
 
-   /** Executes the test case.
+   /*! Executes the test case.
    */
    virtual void run() = 0;
 
 
-   /** Returns a short description for the test case.
+   /*! Returns a short description for the test case.
 
    return
       Test case title.
@@ -77,7 +77,7 @@ public:
 
 protected:
 
-   /** Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
+   /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
 
    srcloc
       Location of the expression.
@@ -91,7 +91,7 @@ protected:
    );
 
 
-   /** Implementation of ABC_TESTING_ASSERT_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_EQUAL.
 
    srcloc
       Location of the expression.
@@ -117,7 +117,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_FALSE.
+   /*! Implementation of ABC_TESTING_ASSERT_FALSE.
 
    srcloc
       Location of the expression.
@@ -129,7 +129,7 @@ protected:
    void assert_false(source_location const & srcloc, bool bActual, istr const & sExpr);
 
 
-   /** Implementation of ABC_TESTING_ASSERT_GREATER.
+   /*! Implementation of ABC_TESTING_ASSERT_GREATER.
 
    srcloc
       Location of the expression.
@@ -155,7 +155,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
 
    srcloc
       Location of the expression.
@@ -181,7 +181,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_LESS.
+   /*! Implementation of ABC_TESTING_ASSERT_LESS.
 
    srcloc
       Location of the expression.
@@ -207,7 +207,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
 
    srcloc
       Location of the expression.
@@ -233,7 +233,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
 
    srcloc
       Location of the expression.
@@ -259,7 +259,7 @@ protected:
    }
 
 
-   /** Implementation of ABC_TESTING_ASSERT_THROWS.
+   /*! Implementation of ABC_TESTING_ASSERT_THROWS.
 
    srcloc
       Location of the expression.
@@ -278,7 +278,7 @@ protected:
    );
 
 
-   /** Implementation of ABC_TESTING_ASSERT_TRUE.
+   /*! Implementation of ABC_TESTING_ASSERT_TRUE.
 
    srcloc
       Location of the expression.
@@ -292,7 +292,7 @@ protected:
 
 protected:
 
-   /** Runner executing this test. */
+   /*! Runner executing this test. */
    runner * m_prunner;
 };
 
@@ -300,7 +300,7 @@ protected:
 } //namespace abc
 
 
-/** Asserts that an expression does not throw.
+/*! Asserts that an expression does not throw.
 
 expr
    Expression to evaluate.
@@ -312,7 +312,7 @@ expr
    }, ABC_SL(#expr))
 
 
-/** Asserts that the value of an expression equals a specific value.
+/*! Asserts that the value of an expression equals a specific value.
 
 expr
    Expression to evaluate.
@@ -323,7 +323,7 @@ value
    this->assert_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 
-/** Asserts that an expression evaluates to false.
+/*! Asserts that an expression evaluates to false.
 
 expr
    Expression to evaulate.
@@ -332,7 +332,7 @@ expr
    this->assert_false(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
 
 
-/** Asserts that the value of an expression is strictly greater than a specific lower bound.
+/*! Asserts that the value of an expression is strictly greater than a specific lower bound.
 
 expr
    Expression to evaluate.
@@ -343,7 +343,7 @@ lbound
    this->assert_greater(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
 
 
-/** Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
+/*! Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
 
 expr
    Expression to evaluate.
@@ -354,7 +354,7 @@ lbound
    this->assert_greater_equal(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
 
 
-/** Asserts that the value of an expression is strictly less than a specific upper bound.
+/*! Asserts that the value of an expression is strictly less than a specific upper bound.
 
 expr
    Expression to evaluate.
@@ -365,7 +365,7 @@ ubound
    this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), expected, ABC_SL(#expr), ABC_SL(#ubound))
 
 
-/** Asserts that the value of an expression is less-than or equal-to a specific upper bound.
+/*! Asserts that the value of an expression is less-than or equal-to a specific upper bound.
 
 expr
    Expression to evaluate.
@@ -376,7 +376,7 @@ ubound
    this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), ubound, ABC_SL(#expr), ABC_SL(#ubound))
 
 
-/** Asserts that the value of an expression differs from a specific value.
+/*! Asserts that the value of an expression differs from a specific value.
 
 expr
    Expression to evaluate.
@@ -387,7 +387,7 @@ value
    this->assert_not_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 
-/** Asserts that an expression throws a specific type of exception.
+/*! Asserts that an expression throws a specific type of exception.
 
 type
    Exception class that should be caught.
@@ -405,7 +405,7 @@ expr
    }, type().what())
 
 
-/** Asserts that an expression evaluates to true.
+/*! Asserts that an expression evaluates to true.
 
 expr
    Expression to evaulate.
@@ -421,15 +421,15 @@ expr
 namespace abc {
 namespace testing {
 
-/** Maintains a list of abc::testing::test_case-derived classes that can be used by an
+/*! Maintains a list of abc::testing::test_case-derived classes that can be used by an
 abc::testing::runner instance to instantiate and execute each test case.
 */
 class ABACLADE_TESTING_SYM test_case_factory_impl {
 public:
 
-   /** Factory function, returning an abc::testing::test_case instance. */
+   /*! Factory function, returning an abc::testing::test_case instance. */
    typedef std::unique_ptr<test_case> (* factory_fn)(runner * prunner);
-   /** Linked list item. */
+   /*! Linked list item. */
    struct list_item {
       list_item * pliNext;
       factory_fn pfnFactory;
@@ -438,7 +438,7 @@ public:
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pli
       Pointer to the derived class’s factory list item.
@@ -446,7 +446,7 @@ public:
    test_case_factory_impl(list_item * pli);
 
 
-   /** Returns a pointer to the head of the list of factory functions, which the caller can then use
+   /*! Returns a pointer to the head of the list of factory functions, which the caller can then use
    to walk the entire list (ending when an item’s next pointer is nullptr).
 
    return
@@ -459,9 +459,9 @@ public:
 
 private:
 
-   /** Pointer to the head of the list of factory functions. */
+   /*! Pointer to the head of the list of factory functions. */
    static list_item * sm_pliHead;
-   /** Pointer to the “next” pointer of the tail of the list of factory functions. */
+   /*! Pointer to the “next” pointer of the tail of the list of factory functions. */
    static list_item ** sm_ppliTailNext;
 };
 
@@ -476,7 +476,7 @@ private:
 namespace abc {
 namespace testing {
 
-/** Template version of abc::testing::test_case_factory_impl, able to instantiate classes derived
+/*! Template version of abc::testing::test_case_factory_impl, able to instantiate classes derived
 from abc::testing::test_case.
 */
 template <class T>
@@ -484,14 +484,14 @@ class test_case_factory :
    public test_case_factory_impl {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    test_case_factory() :
       test_case_factory_impl(&sm_li) {
    }
 
 
-   /** Class factory for T.
+   /*! Class factory for T.
 
    prunner
       Runner to provide to the test case.
@@ -505,7 +505,7 @@ public:
 
 private:
 
-   /** Entry in the list of factory functions for this class. */
+   /*! Entry in the list of factory functions for this class. */
    static list_item sm_li;
 };
 
@@ -513,7 +513,7 @@ private:
 } //namespace abc
 
 
-/** Registers an abc::testing::test_case-derived class for execution by an abc::testing::runner
+/*! Registers an abc::testing::test_case-derived class for execution by an abc::testing::runner
 instance.
 
 cls

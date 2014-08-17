@@ -29,14 +29,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Iterator based on a plain pointer.
+/*! Iterator based on a plain pointer.
 */
 template <typename TCont, typename TVal>
 class pointer_iterator :
    public std::iterator<std::random_access_iterator_tag, TVal> {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    pt
       Pointer to set the iterator to.
@@ -56,7 +56,7 @@ public:
    }
 
 
-   /** Dereferencing operator.
+   /*! Dereferencing operator.
 
    return
       Reference to the current item.
@@ -66,7 +66,7 @@ public:
    }
 
 
-   /** Dereferencing member access operator.
+   /*! Dereferencing member access operator.
 
    return
       Pointer to the current item.
@@ -76,7 +76,7 @@ public:
    }
 
 
-   /** Element access operator.
+   /*! Element access operator.
 
    i
       Index relative to *this.
@@ -88,7 +88,7 @@ public:
    }
 
 
-   /** Addition-assignment operator.
+   /*! Addition-assignment operator.
 
    i
       Count of positions by which to advance the iterator.
@@ -101,7 +101,7 @@ public:
    }
 
 
-   /** Subtraction-assignment operator.
+   /*! Subtraction-assignment operator.
 
    i
       Count of positions by which to rewind the iterator.
@@ -114,7 +114,7 @@ public:
    }
 
 
-   /** Addition operator.
+   /*! Addition operator.
 
    i
       Count of positions by which to advance the iterator.
@@ -126,7 +126,7 @@ public:
    }
 
 
-   /** Subtraction/difference operator.
+   /*! Subtraction/difference operator.
 
    i
       Count of positions by which to rewind the iterator.
@@ -145,7 +145,7 @@ public:
    }
 
 
-   /** Preincrement operator.
+   /*! Preincrement operator.
 
    return
       *this after it’s moved to the value following the one currently pointed to by.
@@ -156,7 +156,7 @@ public:
    }
 
 
-   /** Postincrement operator.
+   /*! Postincrement operator.
 
    return
       Iterator pointing to the value following the one pointed to by this iterator.
@@ -166,7 +166,7 @@ public:
    }
 
 
-   /** Predecrement operator.
+   /*! Predecrement operator.
 
    return
       *this after it’s moved to the value preceding the one currently pointed to by.
@@ -177,7 +177,7 @@ public:
    }
 
 
-   /** Postdecrement operator.
+   /*! Postdecrement operator.
 
    return
       Iterator pointing to the value preceding the one pointed to by this iterator.
@@ -202,7 +202,7 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
 
-   /** Returns the underlying iterator type.
+   /*! Returns the underlying iterator type.
 
    return
       Pointer to the value pointed to by this iterator.

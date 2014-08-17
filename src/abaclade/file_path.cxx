@@ -35,13 +35,13 @@ namespace abc {
 
 #if ABC_HOST_API_POSIX
 
-/** Wrapper for a stat structure that self-loads with information on the file.
+/*! Wrapper for a stat structure that self-loads with information on the file.
 */
 class file_stat :
    public ::stat {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    fp
       Path to get statistics for.
@@ -55,7 +55,7 @@ public:
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
-/** Checks whether a path has the specified attribute(s) set.
+/*! Checks whether a path has the specified attribute(s) set.
 
 fp
    Path to get attributes of.

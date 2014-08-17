@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/** Returns the greatest of two objects (C++11 § 25.4.7 “Minimum and maximum”).
+/*! Returns the greatest of two objects (C++11 § 25.4.7 “Minimum and maximum”).
 
 t1
    First value.
@@ -54,7 +54,7 @@ inline T const & max(T const & t1, T const & t2, TCompare fnComp) {
 }
 
 
-/** Returns the least of two objects (C++11 § 25.4.7 “Minimum and maximum”).
+/*! Returns the least of two objects (C++11 § 25.4.7 “Minimum and maximum”).
 
 t1
    First value.

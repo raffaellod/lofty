@@ -35,14 +35,14 @@ class vector_basic :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – basic operations"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -117,14 +117,14 @@ class vector_relops :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – relational operators"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -174,14 +174,14 @@ class vector_iterators :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – operations with iterators"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -220,14 +220,14 @@ class vector_remove_trivial :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – removal of trivial elements"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -338,14 +338,14 @@ class vector_memory_mgmt :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – memory management"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -529,14 +529,14 @@ class vector_move :
 
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::*vector classes – item and item array movement"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -574,7 +574,7 @@ public:
    }
 
 
-   /** Instantiates and returns a dynamic vector. The vector will contain one item, added in a way
+   /*! Instantiates and returns a dynamic vector. The vector will contain one item, added in a way
    that should cause only one new instance of instances_counter to be created, one moved and none
    copied. Additional copies/moved may occur upon return.
 

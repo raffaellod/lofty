@@ -79,7 +79,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace byteorder {
 
-/** Implementation of swap(), specialized by size in bytes of the argument. See swap().
+/*! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 */
 template <size_t cb>
 struct _swap_impl;
@@ -126,7 +126,7 @@ struct _swap_impl<8> {
 };
 
 
-/** Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
+/*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
 
 i
@@ -141,7 +141,7 @@ inline I swap(I i) {
 }
 
 
-/** Converts a number from host endianness to big endian.
+/*! Converts a number from host endianness to big endian.
 
 i
    Source integer.
@@ -158,7 +158,7 @@ inline I host_to_be(I i) {
 }
 
 
-/** Converts a number from host endianness to little endian.
+/*! Converts a number from host endianness to little endian.
 
 i
    Source integer.
@@ -175,7 +175,7 @@ inline I host_to_le(I i) {
 }
 
 
-/** Converts a number from big endian to host endianness.
+/*! Converts a number from big endian to host endianness.
 
 i
    Source integer.
@@ -192,7 +192,7 @@ inline I be_to_host(I i) {
 }
 
 
-/** Converts a number from little endian to host endianness.
+/*! Converts a number from little endian to host endianness.
 
 i
    Source integer.
@@ -215,7 +215,7 @@ inline I le_to_host(I i) {
 // Define compile-time counterparts to the above functions.
 // These can all go away as soon as constexpr is available on all supported compilers.
 
-/** Unconditionally flips the byte order in a 16-bit number.
+/*! Unconditionally flips the byte order in a 16-bit number.
 
 i
    Source integer.
@@ -228,7 +228,7 @@ return
       ((static_cast<uint16_t>(i) & 0x00ff) << 8) \
    )
 
-/** Unconditionally flips the byte order in a 32-bit number.
+/*! Unconditionally flips the byte order in a 32-bit number.
 
 i
    Source integer.
@@ -243,7 +243,7 @@ return
       ((static_cast<uint32_t>(i) & 0x000000ff) << 24) \
    )
 
-/** Unconditionally flips the byte order in a 64-bit number.
+/*! Unconditionally flips the byte order in a 64-bit number.
 
 i
    Source integer.
@@ -263,7 +263,7 @@ return
    )
 
 
-/** Converts a 16-bit number from host endianness to big endian.
+/*! Converts a 16-bit number from host endianness to big endian.
 
 i
    Source integer.
@@ -277,7 +277,7 @@ return
 #endif
 
 
-/** Converts a 32-bit number from host endianness to big endian.
+/*! Converts a 32-bit number from host endianness to big endian.
 
 i
    Source integer.
@@ -291,7 +291,7 @@ return
 #endif
 
 
-/** Converts a 64-bit number from host endianness to big endian.
+/*! Converts a 64-bit number from host endianness to big endian.
 
 i
    Source integer.
@@ -305,7 +305,7 @@ return
 #endif
 
 
-/** Converts a 16-bit number from host endianness to little endian.
+/*! Converts a 16-bit number from host endianness to little endian.
 
 i
    Source integer.
@@ -319,7 +319,7 @@ return
 #endif
 
 
-/** Converts a 32-bit number from host endianness to little endian.
+/*! Converts a 32-bit number from host endianness to little endian.
 
 i
    Source integer.
@@ -333,7 +333,7 @@ return
 #endif
 
 
-/** Converts a 64-bit number from host endianness to little endian.
+/*! Converts a 64-bit number from host endianness to little endian.
 
 i
    Source integer.
@@ -347,7 +347,7 @@ return
 #endif
 
 
-/** Converts a 16-bit number from big endian to host endianness.
+/*! Converts a 16-bit number from big endian to host endianness.
 
 i
    Source integer.
@@ -361,7 +361,7 @@ return
 #endif
 
 
-/** Converts a 32-bit number from big endian to host endianness.
+/*! Converts a 32-bit number from big endian to host endianness.
 
 i
    Source integer.
@@ -375,7 +375,7 @@ return
 #endif
 
 
-/** Converts a 64-bit number from big endian to host endianness.
+/*! Converts a 64-bit number from big endian to host endianness.
 
 i
    Source integer.
@@ -389,7 +389,7 @@ return
 #endif
 
 
-/** Converts a 16-bit number from little endian to host endianness.
+/*! Converts a 16-bit number from little endian to host endianness.
 
 i
    Source integer.
@@ -403,7 +403,7 @@ return
 #endif
 
 
-/** Converts a 32-bit number from little endian to host endianness.
+/*! Converts a 32-bit number from little endian to host endianness.
 
 i
    Source integer.
@@ -417,7 +417,7 @@ return
 #endif
 
 
-/** Converts a 64-bit number from little endian to host endianness.
+/*! Converts a 64-bit number from little endian to host endianness.
 
 i
    Source integer.

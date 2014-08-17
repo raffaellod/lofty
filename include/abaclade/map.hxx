@@ -37,7 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** Thin templated wrapper for _raw_*_map_impl, so make the interface of those two classes
+/*! Thin templated wrapper for _raw_*_map_impl, so make the interface of those two classes
 consistent, so _map_impl doesn’t need specializations.
 */
 template <
@@ -51,7 +51,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    public _raw_complex_map_impl {
 
 
-   /** Adds a key/value pair to the map. Adding an item with a key that already exists in the map
+   /*! Adds a key/value pair to the map. Adding an item with a key that already exists in the map
    (thus just replacing the value) is guaranteed not to invalidate any iterator.
 
    TODO: comment signature.
@@ -71,7 +71,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Copies or moves the contents of the source to *this according to the source type:
+   /*! Copies or moves the contents of the source to *this according to the source type:
    •  _raw_map_root const &: copy descriptor
    •  _raw_map_root &&: move descriptor or (move items + empty source map)
 
@@ -91,7 +91,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Returns a pointer to the value associated to the specified key. If the key could not be
+   /*! Returns a pointer to the value associated to the specified key. If the key could not be
    found, an exception is thrown.
 
    TODO: comment signature.
@@ -108,7 +108,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Destructs every key and value in the descriptor, then releases it.
+   /*! Destructs every key and value in the descriptor, then releases it.
    */
    void release_desc() {
       type_void_adapter typeKey, typeVal;
@@ -120,7 +120,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Deletes a key/value pair.
+   /*! Deletes a key/value pair.
 
    TODO: comment signature.
    */
@@ -135,7 +135,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Removes all items from the map.
+   /*! Removes all items from the map.
    */
    void clear() {
       type_void_adapter typeKey, typeVal;
@@ -147,7 +147,7 @@ struct _raw_map_impl<TKey, TVal, false> :
    }
 
 
-   /** Inserts a new key/value pair into the map. If the key already exist, the corresponding value
+   /*! Inserts a new key/value pair into the map. If the key already exist, the corresponding value
    is replaced.
 
    TODO: comment signature.
@@ -180,13 +180,13 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 namespace abc {
 
-/** Map with fast lookup. Implements commit-or-rollback semantics.
+/*! Map with fast lookup. Implements commit-or-rollback semantics.
 */
 template <typename TKey, typename TVal, size_t t_ceStatic = 0>
 class map;
 
 
-/** Implementation of map.
+/*! Implementation of map.
 */
 template <typename TKey, typename TVal, size_t t_ceStatic>
 class _map_impl :
@@ -203,14 +203,14 @@ protected:
 
 public:
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~_map_impl() {
       _raw_map_cast()->release_desc();
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    TODO: comment signature.
    */
@@ -229,7 +229,7 @@ public:
    }
 
 
-   /** Provides access to the individual items making up the array.
+   /*! Provides access to the individual items making up the array.
 
    TODO: comment signature.
    */
@@ -242,7 +242,7 @@ public:
    }
 
 
-   /** Returns true if the map contains at least one item.
+   /*! Returns true if the map contains at least one item.
 
    TODO: comment signature.
    */
@@ -251,7 +251,7 @@ public:
    }
 
 
-   /** Adds a key/value pair to the map. Adding an item with a key that already exists in the map
+   /*! Adds a key/value pair to the map. Adding an item with a key that already exists in the map
    (thus just replacing the value) is guaranteed not to invalidate any iterator.
 
    TODO: comment signature.
@@ -274,7 +274,7 @@ public:
    }
 
 
-   /** Returns the number of items in the map.
+   /*! Returns the number of items in the map.
 
    TODO: comment signature.
    */
@@ -283,7 +283,7 @@ public:
    }
 
 
-   /** Returns a _raw_map wrapper for the _raw_map_data wrapped by this map.
+   /*! Returns a _raw_map wrapper for the _raw_map_data wrapped by this map.
 
    TODO: comment signature.
    */
@@ -297,7 +297,7 @@ public:
    }
 
 
-   /** Removes an item from the map.
+   /*! Removes an item from the map.
 
    key
       Key associated to the item to be removed.
@@ -307,7 +307,7 @@ public:
    }
 
 
-   /** Removes all the items in the map.
+   /*! Removes all the items in the map.
    */
    void clear() {
       _raw_map_cast()->clear();
@@ -317,7 +317,7 @@ public:
 protected:
 
 
-   /** Constructor.
+   /*! Constructor.
 
    TODO: comment signature.
    */
@@ -343,7 +343,7 @@ protected:
    }
 
 
-   /** Copies or moves the contents of the source to *this according to the source type:
+   /*! Copies or moves the contents of the source to *this according to the source type:
    •  _raw_map_root const &: copy descriptor
    •  _raw_map_root &&: move descriptor or (move items + empty source map)
 
@@ -357,7 +357,7 @@ protected:
    }
 
 
-   /** Computes the hash value of a key.
+   /*! Computes the hash value of a key.
 
    TODO: comment signature.
    */
@@ -367,7 +367,7 @@ protected:
    }
 
 
-   /** Inserts a new key/value pair into the map. If the key already exist, the corresponding value
+   /*! Inserts a new key/value pair into the map. If the key already exist, the corresponding value
    is replaced.
 
    TODO: comment signature.
@@ -405,7 +405,7 @@ class map<TKey, TVal, 0> :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    TODO: comment signature.
    */
@@ -426,13 +426,13 @@ public:
    }
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~map() {
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    TODO: comment signature.
    */
@@ -450,7 +450,7 @@ public:
 
 protected:
 
-   /** Initializes the embedded descriptor, and returns a pointer to it.
+   /*! Initializes the embedded descriptor, and returns a pointer to it.
 
    TODO: comment signature.
    */
@@ -478,7 +478,7 @@ class map :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    TODO: comment signature.
    */
@@ -503,13 +503,13 @@ public:
    }
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    ~map() {
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    TODO: comment signature.
    */
@@ -531,7 +531,7 @@ public:
    }
 
 
-   /** Implicit cast as map<TKey, TVal, 0> reference. It only allows read-only access; any attempt
+   /*! Implicit cast as map<TKey, TVal, 0> reference. It only allows read-only access; any attempt
    to cast a non-const reference will either result in a move to be implicitly performed (r-value)
    or a compiler error (l-value).
 
@@ -544,7 +544,7 @@ public:
 
 protected:
 
-   /** Initializes the embedded descriptor, and returns a pointer to it.
+   /*! Initializes the embedded descriptor, and returns a pointer to it.
 
    TODO: comment signature.
    */
@@ -563,7 +563,7 @@ protected:
 
 #if 0
 
-/** Dumps the hash table using an external function.
+/*! Dumps the hash table using an external function.
 */
 void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
    fwriter_printf(pfw,

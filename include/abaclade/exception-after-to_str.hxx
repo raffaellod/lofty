@@ -33,7 +33,7 @@ template <>
 class ABACLADE_SYM to_str_backend<source_location> {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -41,7 +41,7 @@ public:
    void set_format(istr const & sFormat);
 
 
-   /** Writes a source location, applying the formatting options.
+   /*! Writes a source location, applying the formatting options.
 
    srcloc
       Source location to write.

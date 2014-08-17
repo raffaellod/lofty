@@ -37,7 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/** Defines a member named type as T.
+/*! Defines a member named type as T.
 */
 template <typename T>
 struct identity {
@@ -45,7 +45,7 @@ struct identity {
 };
 
 
-/** Allows a method to accept an argument of any reference type, while declaring only an r-value
+/*! Allows a method to accept an argument of any reference type, while declaring only an r-value
 reference (C++11 § 20.2.3 “forward/move helpers”). N2835-compliant.
 
 t
@@ -83,7 +83,7 @@ inline typename enable_if<is_lvalue_reference<T>::value, T>::type forward(
 #endif
 
 
-/** Converts a value into an r-value reference, enabling move semantics on the argument (C++11 §
+/*! Converts a value into an r-value reference, enabling move semantics on the argument (C++11 §
 20.2.3 “forward/move helpers”).
 
 t
@@ -97,7 +97,7 @@ inline typename remove_reference<T>::type && move(T && t) {
 }
 
 
-/** Swaps the value of two objects (C++11 § 20.2.2 “swap”).
+/*! Swaps the value of two objects (C++11 § 20.2.2 “swap”).
 
 t1
    First object.

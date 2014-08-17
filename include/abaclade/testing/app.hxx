@@ -38,14 +38,14 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/** Testing application. It interacts with registered abc::testing::test_case-derived classes,
+/*! Testing application. It interacts with registered abc::testing::test_case-derived classes,
 allowing for the execution of test cases.
 */
 class ABACLADE_TESTING_SYM app :
    public abc::app {
 public:
 
-   /** See abc::app::main().
+   /*! See abc::app::main().
    */
    virtual int main(mvector<istr const> const & vsArgs);
 };

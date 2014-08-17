@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc globals
 
 
-/** Indicates the level of UTF-8 string literals support:
+/*! Indicates the level of UTF-8 string literals support:
 •  2 - The UTF-8 string literal prefix (u8) is supported;
 •  1 - The u8 prefix is not supported, but the compiler will generate valid UTF-8 string literals if
        the source file is UTF-8+BOM-encoded;
@@ -35,14 +35,14 @@ You should have received a copy of the GNU General Public License along with Aba
 */
 #define ABC_CXX_UTF8LIT 0
 
-/** Indicates how char16_t is defined:
+/*! Indicates how char16_t is defined:
 •  2 - char16_t is a native type, distinct from uint16_t and wchar_t;
 •  1 - abc::char16_t is a typedef for native 16-bit wchar_t, distinct from uint16_t;
 •  0 - abc::char16_t is a typedef for uint16_t.
 */
 #define ABC_CXX_CHAR16 0
 
-/** Indicates how char32_t is defined:
+/*! Indicates how char32_t is defined:
 •  2 - char32_t is a native type, distinct from uint32_t and wchar_t;
 •  1 - abc::char32_t is a typedef for native 32-bit wchar_t, distinct from uint32_t;
 •  0 - abc::char32_t is a typedef for uint32_t.
@@ -107,24 +107,24 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-/** UTF-8 character type. */
+/*! UTF-8 character type. */
 typedef char char8_t;
 
-/** UTF-16 character type. */
+/*! UTF-16 character type. */
 #if ABC_CXX_CHAR16 == 1
    typedef wchar_t char16_t;
 #elif ABC_CXX_CHAR16 == 0
    typedef uint16_t char16_t;
 #endif
 
-/** UTF-32 character type. */
+/*! UTF-32 character type. */
 #if ABC_CXX_CHAR32 == 1
    typedef wchar_t char32_t;
 #elif ABC_CXX_CHAR32 == 0
    typedef uint32_t char32_t;
 #endif
 
-/** UTF-* encoding supported by the host. */
+/*! UTF-* encoding supported by the host. */
 #if ABC_HOST_API_WIN32 && defined(UNICODE)
    #define ABC_HOST_UTF 16
 #else
@@ -133,7 +133,7 @@ typedef char char8_t;
 
 namespace abc {
 
-/** Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
+/*! Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
 characters types. */
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
@@ -144,7 +144,7 @@ characters types. */
 } //namespace abc
 
 
-/** Use this to specify a non-ASCII character literal. When compiled, this will expand into a
+/*! Use this to specify a non-ASCII character literal. When compiled, this will expand into a
 character literal of the widest type supported by the compiler, which is char32_t in the best case
 and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
 
@@ -165,7 +165,7 @@ return
 #endif
 
 
-/** Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
+/*! Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
 s
@@ -185,7 +185,7 @@ return
 #endif
 
 
-/** Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
+/*! Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
 s
    String literal.

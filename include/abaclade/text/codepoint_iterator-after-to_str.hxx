@@ -34,7 +34,7 @@ class to_str_backend<text::_codepoint_proxy<t_bConst>> :
    public to_str_backend<char32_t> {
 public:
 
-   /** Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
+   /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
    cpp
       Code point to write.
@@ -60,7 +60,7 @@ class to_str_backend<text::codepoint_iterator<t_bConst>> :
    public to_str_backend<typename text::codepoint_iterator<t_bConst>::pointer> {
 public:
 
-   /** Writes a code point iterator as a pointer, applying the formatting options.
+   /*! Writes a code point iterator as a pointer, applying the formatting options.
 
    it
       Iterator to write.

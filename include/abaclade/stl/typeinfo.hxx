@@ -35,25 +35,25 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/** Runtime type information (C++11 § 18.7.1 “Class type_info”).
+/*! Runtime type information (C++11 § 18.7.1 “Class type_info”).
 */
 class type_info :
    public ::abc::noncopyable {
 public:
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~type_info();
 
 
-   /** Equality relational operator.
+   /*! Equality relational operator.
 
    TODO: comment signature.
    */
    bool operator==(type_info const & ti) const;
 
 
-   /** Inequality relational operator.
+   /*! Inequality relational operator.
 
    TODO: comment signature.
    */
@@ -62,21 +62,21 @@ public:
    }
 
 
-   /** Returns true if *this collates before ti.
+   /*! Returns true if *this collates before ti.
 
    TODO: comment signature.
    */
    bool before(type_info const & ti) const;
 
 
-   /** Returns an hash code for *this.
+   /*! Returns an hash code for *this.
 
    TODO: comment signature.
    */
    size_t hash_code() const;
 
 
-   /** Returns the name of the type.
+   /*! Returns the name of the type.
 
    TODO: comment signature.
    */
@@ -92,23 +92,23 @@ public:
 
 namespace std {
 
-/** Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
+/*! Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
 */
 class ABACLADE_SYM bad_cast :
    public exception {
 public:
 
-   /** See exception::exception().
+   /*! See exception::exception().
    */
    bad_cast();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~bad_cast();
 
 
-   /** See exception::what().
+   /*! See exception::what().
    */
    virtual char const * what() const;
 };
@@ -122,23 +122,23 @@ public:
 
 namespace std {
 
-/** Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
+/*! Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
 */
 class ABACLADE_SYM bad_typeid :
    public exception {
 public:
 
-   /** See exception::exception().
+   /*! See exception::exception().
    */
    bad_typeid();
 
 
-   /** Destructor.
+   /*! Destructor.
    */
    virtual ~bad_typeid();
 
 
-   /** See exception::what().
+   /*! See exception::what().
    */
    virtual char const * what() const;
 };

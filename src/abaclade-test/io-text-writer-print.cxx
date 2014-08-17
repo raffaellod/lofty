@@ -32,14 +32,14 @@ class text_writer_print_no_replacements :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::io::text::writer::print() – no replacements"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -89,14 +89,14 @@ class text_writer_print_one_replacement :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::io::text_writer::print() – one replacement"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);
@@ -170,14 +170,14 @@ class text_writer_print_two_replacements :
    public testing::test_case {
 public:
 
-   /** See testing::test_case::title().
+   /*! See testing::test_case::title().
    */
    virtual istr title() {
       return istr(ABC_SL("abc::io::text_writer::print() – two replacements"));
    }
 
 
-   /** See testing::test_case::run().
+   /*! See testing::test_case::run().
    */
    virtual void run() {
       ABC_TRACE_FUNC(this);

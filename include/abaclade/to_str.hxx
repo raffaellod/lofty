@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** DOC:3984 abc::to_str() and abc::to_str_backend()
+/*! DOC:3984 abc::to_str() and abc::to_str_backend()
 
 abc::to_str() is a more advanced counterpart to std::to_string() (see C++11 § 21.5 “Numeric
 conversions”); here are the main differences when compared to the STL function:
@@ -60,7 +60,7 @@ been defined, GCC will generate an error:
 The only fix for this is to provide an explicit specialization of abc::to_str_backend for my_type.
 */
 
-/** Returns the string representation of the specified value, optionally with a custom format.
+/*! Returns the string representation of the specified value, optionally with a custom format.
 
 t
    Object to generate a string representation for.
@@ -80,7 +80,7 @@ dmstr to_str(T const & t, istr const & sFormat = istr());
 
 namespace abc {
 
-/** Generates a string suitable for display from an object. Once constructed with the desired format
+/*! Generates a string suitable for display from an object. Once constructed with the desired format
 specification, an instance can convert to a string any number of T instances. */
 template <typename T>
 class to_str_backend;
@@ -102,7 +102,7 @@ template <>
 class ABACLADE_SYM to_str_backend<bool> {
 public:
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -110,7 +110,7 @@ public:
    void set_format(istr const & sFormat);
 
 
-   /** Converts a boolean value to its string representation.
+   /*! Converts a boolean value to its string representation.
 
    b
       Boolean value to write.
@@ -129,12 +129,12 @@ public:
 
 namespace abc {
 
-/** Base class for the specializations of to_str_backend for integer types.
+/*! Base class for the specializations of to_str_backend for integer types.
 */
 class ABACLADE_SYM _int_to_str_backend_base {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    cbInt
       Size of the integer type.
@@ -142,7 +142,7 @@ public:
    _int_to_str_backend_base(unsigned cbInt);
 
 
-   /** Changes the output format.
+   /*! Changes the output format.
 
    sFormat
       Formatting options.
@@ -152,7 +152,7 @@ public:
 
 protected:
 
-   /** Writes the provided buffer to *posOut, prefixed as necessary.
+   /*! Writes the provided buffer to *posOut, prefixed as necessary.
 
    bNegative
       true if the number is negative, or false otherwise.
@@ -169,7 +169,7 @@ protected:
    ) const;
 
 
-   /** Converts an integer to its string representation.
+   /*! Converts an integer to its string representation.
 
    i
       Integer to write.
@@ -180,37 +180,37 @@ protected:
    void write_impl(I i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 64-bit signed integer to its string representation. See write_impl().
+   /*! Converts a 64-bit signed integer to its string representation. See write_impl().
    */
    void write_s64(int64_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 64-bit unsigned integer to its string representation. See write_impl().
+   /*! Converts a 64-bit unsigned integer to its string representation. See write_impl().
    */
    void write_u64(uint64_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 32-bit signed integer to its string representation. See write_impl().
+   /*! Converts a 32-bit signed integer to its string representation. See write_impl().
    */
    void write_s32(int32_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 32-bit unsigned integer to its string representation. See write_impl().
+   /*! Converts a 32-bit unsigned integer to its string representation. See write_impl().
    */
    void write_u32(uint32_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 16-bit signed integer to its string representation. See write_impl().
+   /*! Converts a 16-bit signed integer to its string representation. See write_impl().
    */
    void write_s16(int16_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts a 16-bit unsigned integer to its string representation. See write_impl().
+   /*! Converts a 16-bit unsigned integer to its string representation. See write_impl().
    */
    void write_u16(uint16_t i, io::text::writer * ptwOut) const;
 
 
-   /** Converts an 8-bit signed integer to its string representation. See write_impl().
+   /*! Converts an 8-bit signed integer to its string representation. See write_impl().
    */
    void write_s8(int8_t i, io::text::writer * ptwOut) const {
       if (m_iBaseOrShift == 10) {
@@ -223,7 +223,7 @@ protected:
    }
 
 
-   /** Converts an 8-bit unsigned integer to its string representation. See write_impl().
+   /*! Converts an 8-bit unsigned integer to its string representation. See write_impl().
    */
    void write_u8(uint8_t i, io::text::writer * ptwOut) const {
       write_u16(i, ptwOut);
@@ -232,29 +232,29 @@ protected:
 
 protected:
 
-   /** Pointer to either smc_achIntToStrL or smc_achIntToStrU. */
+   /*! Pointer to either smc_achIntToStrL or smc_achIntToStrU. */
    char const * m_pchIntToStr;
-   /** Minimum number of digits to be generated. Always >= 1, to ensure the generation of at least a
+   /*! Minimum number of digits to be generated. Always >= 1, to ensure the generation of at least a
    single zero. */
    unsigned m_cchWidth;
-   /** Required buffer size. */
+   /*! Required buffer size. */
    unsigned m_cchBuf;
-   /** Integer size, in bytes. */
+   /*! Integer size, in bytes. */
    uint8_t const mc_cbInt;
-   /** 10 (for decimal notation) or log2(notation) (for power-of-two notations). */
+   /*! 10 (for decimal notation) or log2(notation) (for power-of-two notations). */
    uint8_t m_iBaseOrShift;
-   /** Character to be used to pad the digits to m_cchWidth length. */
+   /*! Character to be used to pad the digits to m_cchWidth length. */
    char m_chPad;
-   /** Character to be used as sign in case the number is not negative; NUL if none. */
+   /*! Character to be used as sign in case the number is not negative; NUL if none. */
    char m_chSign;
-   /** First character of the prefix; NUL if none (which means that m_chPrefix1 is ignored). */
+   /*! First character of the prefix; NUL if none (which means that m_chPrefix1 is ignored). */
    char m_chPrefix0;
-   /** Second character of the prefix; NUL if none. */
+   /*! Second character of the prefix; NUL if none. */
    char m_chPrefix1;
 
-   /** Map from int [0-15] to its uppercase hexadecimal representation. */
+   /*! Map from int [0-15] to its uppercase hexadecimal representation. */
    static char const smc_achIntToStrU[16];
-   /** Map from int [0-15] to its lowercase hexadecimal representation. */
+   /*! Map from int [0-15] to its lowercase hexadecimal representation. */
    static char const smc_achIntToStrL[16];
 };
 
@@ -312,21 +312,21 @@ inline void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * p
 
 namespace abc {
 
-/** Implementation of the specializations of to_str_backend for integer types.
+/*! Implementation of the specializations of to_str_backend for integer types.
 */
 template <typename I>
 class _int_to_str_backend :
    public _int_to_str_backend_base {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    _int_to_str_backend() :
       _int_to_str_backend_base(sizeof(I)) {
    }
 
 
-   /** Converts an integer to its string representation.
+   /*! Converts an integer to its string representation.
 
    This design is rather tricky in the way one implementation calls another:
 
@@ -379,7 +379,7 @@ public:
 
 protected:
 
-   /** Initial (static) buffer size sufficient to output the number in binary notation. */
+   /*! Initial (static) buffer size sufficient to output the number in binary notation. */
    static size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 

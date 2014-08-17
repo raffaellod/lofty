@@ -38,7 +38,7 @@ namespace abc {
 namespace io {
 namespace text {
 
-/** Returns the text writer associated to the standard error output file (stderr).
+/*! Returns the text writer associated to the standard error output file (stderr).
 
 return
    Standard error file.
@@ -46,7 +46,7 @@ return
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stderr();
 
 
-/** Returns the text reader associated to the standard input file (stdin).
+/*! Returns the text reader associated to the standard input file (stdin).
 
 return
    Standard input file.
@@ -54,7 +54,7 @@ return
 ABACLADE_SYM std::shared_ptr<binbuf_reader> stdin();
 
 
-/** Returns the text writer associated to the standard output file (stdout).
+/*! Returns the text writer associated to the standard output file (stdout).
 
 return
    Standard output file.
@@ -62,7 +62,7 @@ return
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stdout();
 
 
-/** Opens a file for text-mode access.
+/*! Opens a file for text-mode access.
 
 fp
    Path to the file.
@@ -78,7 +78,7 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
 );
 
 
-/** Opens a file for text-mode reading.
+/*! Opens a file for text-mode reading.
 
 fp
    Path to the file.
@@ -94,7 +94,7 @@ inline std::shared_ptr<binbuf_reader> open_reader(
 }
 
 
-/** Opens a file for text-mode writing.
+/*! Opens a file for text-mode writing.
 
 fp
    Path to the file.

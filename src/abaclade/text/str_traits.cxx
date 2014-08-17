@@ -201,7 +201,7 @@ namespace text {
    char_t const * pchHaystack(pchHaystackBegin);
    char_t const * pchNeedle(pchNeedleBegin);
    try {
-      /** DOC:1502 KMP substring search
+      /*! DOC:1502 KMP substring search
 
       This is an implementation of the Knuth-Morris-Pratt algorithm.
 

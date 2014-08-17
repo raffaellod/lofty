@@ -48,7 +48,7 @@ namespace bitmanip {
 */
 
 
-/** Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
+/*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
 abc::bitmanip::ceiling_to_pow2().
 */
 ABACLADE_SYM uint8_t _raw_ceiling_to_pow2(uint8_t i);
@@ -57,7 +57,7 @@ ABACLADE_SYM uint32_t _raw_ceiling_to_pow2(uint32_t i);
 ABACLADE_SYM uint64_t _raw_ceiling_to_pow2(uint64_t i);
 
 
-/** Returns the argument rounded up to the closest power of 2.
+/*! Returns the argument rounded up to the closest power of 2.
 
 i
    Integer to round up.
@@ -79,7 +79,7 @@ inline I ceiling_to_pow2(I i) {
 }
 
 
-/** Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
+/*! Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
 
 i
    Integer to round up.
@@ -95,7 +95,7 @@ inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
 }
 
 
-/** Rotates bits to the left (most significant bits shifted out, and back in to become least
+/*! Rotates bits to the left (most significant bits shifted out, and back in to become least
 significant).
 
 i
@@ -111,7 +111,7 @@ inline /*constexpr*/ I rotate_l(I i, unsigned c) {
 }
 
 
-/** Rotates bits to the right (least significant bits shifted out, and back in to become most
+/*! Rotates bits to the right (least significant bits shifted out, and back in to become most
 significant).
 
 i

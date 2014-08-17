@@ -34,7 +34,7 @@ class to_str_backend<pointer_iterator<TCont, TVal>> :
    public to_str_backend<typename pointer_iterator<TCont, TVal>::pointer> {
 public:
 
-   /** Writes an iterator as a pointer, applying the formatting options.
+   /*! Writes an iterator as a pointer, applying the formatting options.
 
    it
       Iterator to write.

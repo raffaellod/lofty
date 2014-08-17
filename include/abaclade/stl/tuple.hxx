@@ -44,7 +44,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace _std {
 
-/** Null type, used to reduce the number of tuple items from the preset maximum.
+/*! Null type, used to reduce the number of tuple items from the preset maximum.
 */
 struct _tuple_void {
 };
@@ -62,7 +62,7 @@ struct _tuple_void {
 namespace abc {
 namespace _std {
 
-/** Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
+/*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough.
 */
 template <size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
@@ -74,7 +74,7 @@ class _tuple_head<t_i, T, true> :
    private T {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    th
       Source tuple head.
@@ -99,7 +99,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    th
       Source tuple head.
@@ -116,7 +116,7 @@ public:
    }
 
 
-   /** Accessor to the wrapped object.
+   /*! Accessor to the wrapped object.
 
    return
       Reference to the wrapped element.
@@ -134,7 +134,7 @@ template <size_t t_i, typename T>
 class _tuple_head<t_i, T, false> {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    th
       Source tuple head.
@@ -159,7 +159,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    th
       Source tuple head.
@@ -176,7 +176,7 @@ public:
    }
 
 
-   /** Accessor to the wrapped element.
+   /*! Accessor to the wrapped element.
 
    return
       Reference to the wrapped element.
@@ -191,7 +191,7 @@ public:
 
 private:
 
-   /** Internal T instance. */
+   /*! Internal T instance. */
    T m_t;
 };
 
@@ -206,7 +206,7 @@ private:
 namespace abc {
 namespace _std {
 
-/** Internal implementation of tuple.
+/*! Internal implementation of tuple.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -229,7 +229,7 @@ class _tuple_tail<t_i, T0, Ts ...> :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    thead
       Source tuple head.
@@ -256,7 +256,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    tt
       Source tuple tail.
@@ -275,7 +275,7 @@ public:
    }
 
 
-   /** Returns the embedded _tuple_head.
+   /*! Returns the embedded _tuple_head.
 
    return
       Reference to the embedded tuple head.
@@ -288,7 +288,7 @@ public:
    }
 
 
-   /** Returns the embedded _tuple_tail.
+   /*! Returns the embedded _tuple_tail.
 
    return
       Reference to the embedded tuple tail.
@@ -318,7 +318,7 @@ class _tuple_tail :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    tt
       Source tuple tail.
@@ -360,7 +360,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    tt
       Source tuple tail.
@@ -379,7 +379,7 @@ public:
    }
 
 
-   /** Returns the embedded _tuple_head.
+   /*! Returns the embedded _tuple_head.
 
    return
       Reference to the embedded tuple head.
@@ -392,7 +392,7 @@ public:
    }
 
 
-   /** Returns the embedded _tuple_tail.
+   /*! Returns the embedded _tuple_tail.
 
    return
       Reference to the embedded tuple tail.
@@ -413,7 +413,7 @@ class _tuple_tail<
 > {
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    tt
       Source tuple tail.
@@ -430,7 +430,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    return
       *this.
@@ -453,7 +453,7 @@ public:
 namespace abc {
 namespace _std {
 
-/** Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
+/*! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -465,7 +465,7 @@ class tuple :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    ts
       Source elements.
@@ -490,7 +490,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    tpl
       Source tuple.
@@ -522,7 +522,7 @@ class tuple :
 
 public:
 
-   /** Constructor.
+   /*! Constructor.
 
    t0...t9
       Source elements.
@@ -704,7 +704,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
 
    tpl
       Source tuple.
@@ -734,7 +734,7 @@ public:
 namespace abc {
 namespace _std {
 
-/** Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple
+/*! Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple
 helper classes”).
 */
 template <size_t t_i, typename T>
@@ -794,7 +794,7 @@ namespace _std {
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-/** Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
+/*! Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
 make it work.
 */
 template <
@@ -836,7 +836,7 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 
-/** Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
+/*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
 
 tpl
    Tuple from which to extract an element.
@@ -892,7 +892,7 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 namespace abc {
 namespace _std {
 
-/** Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper
+/*! Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper
 classes”).
 */
 template <class T>
@@ -973,13 +973,13 @@ struct tuple_size<tuple<
 namespace abc {
 namespace _std {
 
-/** Internal (implementation-defined) type of ignore. It supports construction and assignment from
+/*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
 any type, and silently discards everything.
 */
 class __ignore_t {
 public:
 
-   /** Constructor.
+   /*! Constructor.
    */
    __ignore_t() {
    }
@@ -990,7 +990,7 @@ public:
    }
 
 
-   /** Assignment operator.
+   /*! Assignment operator.
    */
    __ignore_t const & operator=(__ignore_t const &) const {
       return *this;
@@ -1002,7 +1002,7 @@ public:
 };
 
 
-/** Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
+/*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
 “Tuples”).
 */
 extern __ignore_t const ignore;
@@ -1018,7 +1018,7 @@ extern __ignore_t const ignore;
 namespace abc {
 namespace _std {
 
-/** Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation
+/*! Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation
 functions”).
 
 ts

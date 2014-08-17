@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/** DOC:3395 Move constructors and exceptions
+/*! DOC:3395 Move constructors and exceptions
 
 In this section, “move constructor” will strictly refer to class::class(class &&).
 
@@ -42,12 +42,12 @@ throw exceptions. This requirement is relaxed for moves that involve two differe
 these will not be used by container classes.
 */
 
-/** Encapsulates raw constructors, destructors and assignment operators for a type.
+/*! Encapsulates raw constructors, destructors and assignment operators for a type.
 */
 struct type_void_adapter {
 public:
 
-   /** Prototype of a function that copies items from one array to another.
+   /*! Prototype of a function that copies items from one array to another.
 
    pDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
@@ -59,7 +59,7 @@ public:
    typedef void (* copy_fn)(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd);
 
 
-   /** Prototype of a function that destructs a range of items in an array.
+   /*! Prototype of a function that destructs a range of items in an array.
 
    pBegin
       Pointer to the first item to destruct.
@@ -69,7 +69,7 @@ public:
    typedef void (* destr_fn)(void const * pBegin, void const * pEnd);
 
 
-   /** Prototype of a function that compares two values for equality.
+   /*! Prototype of a function that compares two values for equality.
 
    p1
       Pointer to the first item.
@@ -81,7 +81,7 @@ public:
    typedef bool (* equal_fn)(void const * p1, void const * p2);
 
 
-   /** Prototype of a function that moves items from one array to another.
+   /*! Prototype of a function that moves items from one array to another.
 
    pDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
@@ -95,15 +95,15 @@ public:
 
 public:
 
-   /** Size of a variable of this type, in bytes. */
+   /*! Size of a variable of this type, in bytes. */
    size_t cb;
-   /** Function to copy items from one array to another. */
+   /*! Function to copy items from one array to another. */
    copy_fn copy_constr;
-   /** Function to destruct items in an array. */
+   /*! Function to destruct items in an array. */
    destr_fn destruct;
-   /** Function to compare two items for equality. */
+   /*! Function to compare two items for equality. */
    equal_fn equal;
-   /** Function to move items from one array to another. */
+   /*! Function to move items from one array to another. */
    move_fn move_constr;
 
 
@@ -175,7 +175,7 @@ public:
 
 private:
 
-   /** Copies a range of items from one array to another, overwriting any existing contents in the
+   /*! Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
 
    ptDstBegin
@@ -221,7 +221,7 @@ private:
    }
 
 
-   /** Destructs a range of items in an array.
+   /*! Destructs a range of items in an array.
 
    ptBegin
       Pointer to the first item to destruct.
@@ -239,7 +239,7 @@ private:
    }
 
 
-   /** Compares two values for equality.
+   /*! Compares two values for equality.
 
    pt1
       Pointer to the first item.
@@ -254,7 +254,7 @@ private:
    }
 
 
-   /** Moves a range of items from one array to another, overwriting any existing contents in the
+   /*! Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
 
    ptDstBegin
