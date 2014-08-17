@@ -740,7 +740,7 @@ class writer;
 #include <abaclade/pointer_iterator.hxx>
 #include <abaclade/numeric.hxx>
 #include <abaclade/type_void_adapter.hxx>
-#include <abaclade/_vextr.hxx>
+#include <abaclade/detail/vextr.hxx>
 #include <abaclade/vector.hxx>
 #include <abaclade/byteorder.hxx>
 #include <abaclade/text.hxx>

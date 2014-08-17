@@ -68,7 +68,7 @@ namespace abc {
 
 template <>
 class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> :
-   public _str_to_str_backend {
+   public detail::str_to_str_backend {
 public:
 
    /*! Writes a C-style NUL-terminated string, applying the formatting options.

@@ -24,26 +24,27 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_vector_to_str_backend
+// abc::detail::vector_to_str_backend
 
 
 namespace abc {
+namespace detail {
 
 /*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file.
 */
-class ABACLADE_SYM _vector_to_str_backend :
+class ABACLADE_SYM vector_to_str_backend :
    public _sequence_to_str_backend {
 public:
 
    /*! Constructor.
    */
-   _vector_to_str_backend();
+   vector_to_str_backend();
 
 
    /*! Destructor.
    */
-   ~_vector_to_str_backend();
+   ~vector_to_str_backend();
 
 
 protected:
@@ -53,6 +54,7 @@ protected:
    istr m_sEltFormat;
 };
 
+} //namespace detail
 } //namespace abc
 
 
@@ -65,7 +67,7 @@ namespace abc {
 // Specialization of to_str_backend.
 template <typename T>
 class to_str_backend<vector_base<T>> :
-   public _vector_to_str_backend {
+   public detail::vector_to_str_backend {
 public:
 
    /*! Changes the output format.
@@ -76,7 +78,7 @@ public:
    void set_format(istr const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
-      _vector_to_str_backend::set_format(sFormat);
+      detail::vector_to_str_backend::set_format(sFormat);
       m_tsbElt.set_format(m_sEltFormat);
    }
 

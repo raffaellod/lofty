@@ -40,7 +40,7 @@ See [DOC:4019 abc::*str and abc::*vector design] for implementation details for 
 abc::*str classes.
 */
 class ABACLADE_SYM str_base :
-   protected _raw_trivial_vextr_impl,
+   protected detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str_base> {
 public:
 
@@ -97,7 +97,8 @@ public:
    */
    explicit_operator_bool() const {
       // Use int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than check.
-      return _raw_vextr_impl_base::end<int8_t>() > _raw_vextr_impl_base::begin<int8_t>();
+      return detail::raw_vextr_impl_base::end<int8_t>() >
+         detail::raw_vextr_impl_base::begin<int8_t>();
    }
 
 
@@ -151,7 +152,7 @@ public:
       Size of the string buffer, in characters.
    */
    size_t capacity() const {
-      return _raw_vextr_impl_base::capacity<char_t>();
+      return detail::raw_vextr_impl_base::capacity<char_t>();
    }
 
 
@@ -175,23 +176,23 @@ public:
    }
 
 
-   /*! See _raw_trivial_vextr_impl::begin().
+   /*! See detail::raw_trivial_vextr_impl::begin().
    */
    char_t * chars_begin() {
-      return _raw_trivial_vextr_impl::begin<char_t>();
+      return detail::raw_trivial_vextr_impl::begin<char_t>();
    }
    char_t const * chars_begin() const {
-      return _raw_trivial_vextr_impl::begin<char_t>();
+      return detail::raw_trivial_vextr_impl::begin<char_t>();
    }
 
 
-   /*! See _raw_trivial_vextr_impl::end().
+   /*! See detail::raw_trivial_vextr_impl::end().
    */
    char_t * chars_end() {
-      return _raw_trivial_vextr_impl::end<char_t>();
+      return detail::raw_trivial_vextr_impl::end<char_t>();
    }
    char_t const * chars_end() const {
-      return _raw_trivial_vextr_impl::end<char_t>();
+      return detail::raw_trivial_vextr_impl::end<char_t>();
    }
 
 
@@ -421,7 +422,7 @@ public:
       Size of the string.
    */
    size_t size_in_bytes() const {
-      return _raw_trivial_vextr_impl::size<int8_t>();
+      return detail::raw_trivial_vextr_impl::size<int8_t>();
    }
 
 
@@ -431,7 +432,7 @@ public:
       Size of the string.
    */
    size_t size_in_chars() const {
-      return _raw_trivial_vextr_impl::size<char_t>();
+      return detail::raw_trivial_vextr_impl::size<char_t>();
    }
 
 
@@ -480,14 +481,14 @@ protected:
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
    str_base(size_t cbEmbeddedCapacity) :
-      _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
+      detail::raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
    str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
-      _raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
+      detail::raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_copy().
+   /*! See detail::raw_trivial_vextr_impl::assign_copy().
 
    pchBegin
       Pointer to the start of the source string.
@@ -495,11 +496,11 @@ protected:
       Pointer to the end of the source string.
    */
    void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
-      _raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
+      detail::raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_concat().
+   /*! See detail::raw_trivial_vextr_impl::assign_concat().
 
    pch1Begin
       Pointer to the start of the first source string.
@@ -514,39 +515,41 @@ protected:
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
    ) {
-      _raw_trivial_vextr_impl::assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
+      detail::raw_trivial_vextr_impl::assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_move().
+   /*! See detail::raw_trivial_vextr_impl::assign_move().
 
    s
       Source string.
    */
    void assign_move(str_base && s) {
-      _raw_trivial_vextr_impl::assign_move(static_cast<_raw_trivial_vextr_impl &&>(s));
+      detail::raw_trivial_vextr_impl::assign_move(
+         static_cast<detail::raw_trivial_vextr_impl &&>(s)
+      );
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
    s
       Source string.
    */
    void assign_move_dynamic_or_move_items(str_base && s) {
-      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-         static_cast<_raw_trivial_vextr_impl &&>(s)
+      detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
+         static_cast<detail::raw_trivial_vextr_impl &&>(s)
       );
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
+   /*! See detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
 
    s
       Source string.
    */
    void assign_share_raw_or_copy_desc(str_base const & s) {
-      _raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
+      detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
    }
 
 
@@ -817,8 +820,8 @@ public:
       Count of characters in the array pointed to by pchAdd.
    */
    void append(char_t const * pchAdd, size_t cchAdd) {
-      _raw_trivial_vextr_impl::insert_remove(
-         _raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd, 0
+      detail::raw_trivial_vextr_impl::insert_remove(
+         detail::raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd, 0
       );
    }
 
@@ -875,7 +878,7 @@ public:
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
    void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
-      _raw_trivial_vextr_impl::insert_remove(
+      detail::raw_trivial_vextr_impl::insert_remove(
          sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
       );
    }
@@ -917,7 +920,7 @@ public:
    void replace(char32_t chSearch, char32_t chReplacement);
 
 
-   /*! See _raw_trivial_vextr_impl::set_capacity().
+   /*! See detail::raw_trivial_vextr_impl::set_capacity().
 
    cchMin
       Minimum count of characters requested.
@@ -926,7 +929,7 @@ public:
       causes the string to switch to a different character array.
    */
    void set_capacity(size_t cchMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
+      detail::raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
    }
 
 
@@ -963,7 +966,7 @@ public:
       changed.
    */
    void set_size_in_chars(size_t cch, bool bClear = false) {
-      _raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
+      detail::raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
       if (bClear) {
          memory::clear(chars_begin(), cch);
       }
@@ -1343,9 +1346,11 @@ likely to be shorter than a known small size.
 template <size_t t_cchEmbeddedCapacity>
 class smstr :
    public mstr,
-   private _raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
+   private detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
 
-   using _raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   using detail::raw_vextr_prefixed_item_array<
+      char_t, t_cchEmbeddedCapacity
+   >::smc_cbEmbeddedCapacity;
 
 public:
 

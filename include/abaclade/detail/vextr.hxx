@@ -34,9 +34,9 @@ item, instead of the more common start pointer/length pair of variables. This ma
 iterator against the end of the array a matter of a simple load/compare in terms of machine level
 instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair. The
 item array pointed to by the begin/end pointers can be part of a prefixed item array
-(abc::_raw_vextr_prefixed_item_array), which includes information such as the total capacity of the
-item array, which is used to find out when the item array needs to be reallocated to make room for
-more items.
+(abc::detail::raw_vextr_prefixed_item_array), which includes information such as the total capacity
+of the item array, which is used to find out when the item array needs to be reallocated to make
+room for more items.
 
 While there are several implementations of these classes, they can all be grouped in two clades:
 immutable and mutable/modifiable. The firsts behave much like Python’s strings or tuples, in that
@@ -57,16 +57,16 @@ copyable types.
 
 The lower-level hierarchy consists in these non-template classes:
 
-•  _raw_vextr_impl_base: core functionality for a vector of items: a little code and all member
-   variables.
+•  detail::raw_vextr_impl_base: core functionality for a vector of items: a little code and all
+   member variables.
 
-   •  _raw_complex_vextr_impl: implementation of a vector of objects of non-trivial class: this is
-      fully transactional and therefore exception-proof, but it’s of course slower and uses more
-      memory even during simpler operations.
+   •  detail::raw_complex_vextr_impl: implementation of a vector of objects of non-trivial class:
+      this is fully transactional and therefore exception-proof, but it’s of course slower and uses
+      more memory even during simpler operations.
 
-   •  _raw_trivial_vextr_impl: implementation of a vector of plain values (instances of trivial
-      class or native type): this is a near-optimal solution, still exception-proof but also taking
-      advantage of the knowledge that no copy constructors need to be called.
+   •  detail::raw_trivial_vextr_impl: implementation of a vector of plain values (instances of
+      trivial class or native type): this is a near-optimal solution, still exception-proof but also
+      taking advantage of the knowledge that no copy constructors need to be called.
 
 Making these classes non-template allows avoiding template bloat, possibly at the expense of some
 execution speed.
@@ -75,21 +75,21 @@ Note: vextr is a portmanteau of vector and str(ing), because most of the above c
 both.
 
 For vectors, the two leaf classes above are wrapped by an additional template layer,
-abc::_raw_vector, that eliminates any differences between the two interfaces caused by the need for
-abc::_raw_trivial_vextr_impl to also double as implementation of the string classes. The complete
-lower-level class hierarchy is therefore:
+abc::detail::raw_vector, that eliminates any differences between the two interfaces caused by the
+need for abc::detail::raw_trivial_vextr_impl to also double as implementation of the string classes.
+The complete lower-level class hierarchy is therefore:
 
-•  _raw_vextr_impl_base
+•  detail::raw_vextr_impl_base
 
-   •  _raw_complex_vextr_impl / _raw_trivial_vextr_impl
+   •  detail::raw_complex_vextr_impl / detail::raw_trivial_vextr_impl
 
-      •  _raw_vector: consolidates the trivial and complex interfaces into a single one by having
-         two distinct specializations (trivial/non-trivial).
+      •  detail::raw_vector: consolidates the trivial and complex interfaces into a single one by
+         having two distinct specializations (trivial/non-trivial).
 
          •  vector_base: base for the upper-level vector class hierarchy.
 
-      •  str_base: always derives from _raw_trivial_vextr_impl, it’s the base for the upper-level
-         string class hierarchy.
+      •  str_base: always derives from detail::raw_trivial_vextr_impl, it’s the base for the upper-
+         level string class hierarchy.
 
 
 The upper-level class hierarchies consist in these classes:
@@ -223,10 +223,11 @@ Key:
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vextr_prefixed_item_array
+// abc::detail::raw_vextr_prefixed_item_array
 
 
 namespace abc {
+namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
 array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vector design]), and used
@@ -234,7 +235,7 @@ with template capacity == 1 for all non-template-driven manipulations in non-tem
 “lower-level” hierarchy, which relies on m_cbCapacity instead.
 */
 template <typename T, size_t t_ciEmbeddedCapacity>
-class _raw_vextr_prefixed_item_array {
+class raw_vextr_prefixed_item_array {
 public:
 
    /*! Embedded item array capacity, in bytes. */
@@ -247,37 +248,39 @@ public:
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
+} //namespace detail
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vextr_impl_base
+// abc::detail::raw_vextr_impl_base
 
 
 namespace abc {
+namespace detail {
 
-/*! Template-independent members of _raw_*_vextr_impl that are identical for trivial and non-trivial
-types.
+/*! Template-independent members of detail::raw_*_vextr_impl that are identical for trivial and non-
+trivial types.
 */
-class ABACLADE_SYM _raw_vextr_impl_base {
+class ABACLADE_SYM raw_vextr_impl_base {
 protected:
 
    // Allow transactions to access this class’s protected members.
-   friend class _raw_vextr_transaction;
+   friend class raw_vextr_transaction;
 
 
 public:
 
    /*! Non-template prefixed item array used for the calculation of offsets that will then be
    applied to real instantiations of the prefixed item array template. */
-   typedef _raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
+   typedef raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
 
 
 public:
 
    /*! Destructor.
    */
-   ~_raw_vextr_impl_base() {
+   ~raw_vextr_impl_base() {
       if (m_bDynamic) {
          memory::_raw_free(prefixed_item_array());
       }
@@ -339,12 +342,12 @@ public:
 
 private:
 
-   /*! Internal constructor used by transaction. Access is private, but _raw_vextr_transaction can
+   /*! Internal constructor used by transaction. Access is private, but raw_vextr_transaction can
    use it.
 
    Note that this doesn’t really initialize the object!
    */
-   _raw_vextr_impl_base() :
+   raw_vextr_impl_base() :
       mc_bEmbeddedPrefixedItemArray(false),
       // This is needed to disable the destructor, so we won’t try to release an invalid pointer in
       // case anything goes wrong before the rest of the object is initialized.
@@ -367,10 +370,8 @@ protected:
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   _raw_vextr_impl_base(size_t cbEmbeddedCapacity);
-   _raw_vextr_impl_base(
-      void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
-   ) :
+   raw_vextr_impl_base(size_t cbEmbeddedCapacity);
+   raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) :
       m_pBegin(const_cast<void *>(pConstSrcBegin)),
       m_pEnd(const_cast<void *>(pConstSrcEnd)),
       mc_bEmbeddedPrefixedItemArray(false),
@@ -396,7 +397,7 @@ protected:
    rvib
       Source vextr.
    */
-   void assign_shallow(_raw_vextr_impl_base const & rvib) {
+   void assign_shallow(raw_vextr_impl_base const & rvib) {
       m_pBegin             = rvib.m_pBegin;
       m_pEnd               = rvib.m_pEnd;
       m_bPrefixedItemArray = rvib.m_bPrefixedItemArray;
@@ -437,7 +438,7 @@ protected:
       }
    }
    _prefixed_item_array const * prefixed_item_array() const {
-      return const_cast<_raw_vextr_impl_base *>(this)->prefixed_item_array();
+      return const_cast<raw_vextr_impl_base *>(this)->prefixed_item_array();
    }
 
 
@@ -456,15 +457,15 @@ protected:
    // is inaccessible”
    #pragma warning(disable: 4623)
 #endif
-         class _raw_vextr_impl_base_with_embedded_prefixed_item_array :
-            public _raw_vextr_impl_base,
-            public _raw_vextr_impl_base::_prefixed_item_array {
+         class raw_vextr_impl_base_with_embedded_prefixed_item_array :
+            public raw_vextr_impl_base,
+            public raw_vextr_impl_base::_prefixed_item_array {
          };
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
 
-         return static_cast<_raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this);
+         return static_cast<raw_vextr_impl_base_with_embedded_prefixed_item_array *>(this);
       } else {
          return nullptr;
       }
@@ -546,25 +547,27 @@ protected:
    static unsigned const smc_iGrowthRate = 2;
 };
 
+} //namespace detail
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vextr_transaction
+// abc::detail::raw_vextr_transaction
 
 
 namespace abc {
+namespace detail {
 
 /*! Allows to get a temporary item array from a pool of options, then work with it, and upon
-destruction it ensures that the array is either adopted by the associated _raw_vextr_impl_base, or
-properly discarded.
+destruction it ensures that the array is either adopted by the associated
+detail::raw_vextr_impl_base, or properly discarded.
 
 A transaction will not take care of copying the item array, if switching to a different item array.
 
 For size increases, the reallocation (if any) is performed in the constructor; for decreases, it’s
 performed in commit().
 */
-class ABACLADE_SYM _raw_vextr_transaction :
+class ABACLADE_SYM raw_vextr_transaction :
    public noncopyable {
 public:
 
@@ -581,15 +584,13 @@ public:
    cbRemove
       Item array size decrease, in bytes.
    */
-   _raw_vextr_transaction(_raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
-   _raw_vextr_transaction(
-      _raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove
-   );
+   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
+   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove);
 
 
    /*! Destructor.
    */
-   ~_raw_vextr_transaction() {
+   ~raw_vextr_transaction() {
       // Only allow m_rvibWork to release its item array if we allocated it for the transaction and
       // commit() was never called.
       m_rvibWork.m_bDynamic = m_bFree;
@@ -644,28 +645,30 @@ private:
    /*! Temporary vextr that contains the new values for each vextr member, ready to be applied to
    *m_prvib when the transaction is committed. Its internal pointers may or may not be the same as
    the ones in m_prvib depending on whether we needed a new item array. */
-   _raw_vextr_impl_base m_rvibWork;
+   raw_vextr_impl_base m_rvibWork;
    /*! Subject of the transaction. */
-   _raw_vextr_impl_base * m_prvib;
+   raw_vextr_impl_base * m_prvib;
    /*! true if m_rvibWork references an item array that has been dynamically allocated for the
    transaction and needs to be freed in the destructor, which can happen when an exception occurs
    before the transaction is committed. */
    bool m_bFree;
 };
 
+} //namespace detail
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_complex_vextr_impl
+// abc::detail::raw_complex_vextr_impl
 
 
 namespace abc {
+namespace detail {
 
 /*! Template-independent implementation of a vector for non-trivial contained types.
 */
-class ABACLADE_SYM _raw_complex_vextr_impl :
-   public _raw_vextr_impl_base {
+class ABACLADE_SYM raw_complex_vextr_impl :
+   public raw_vextr_impl_base {
 public:
 
    /*! Copies or moves the contents of the two sources to *this, according to the source type. If
@@ -719,7 +722,7 @@ public:
    rcvi
       Source vextr.
    */
-   void assign_move(type_void_adapter const & type, _raw_complex_vextr_impl && rcvi);
+   void assign_move(type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
 
 
    /*! Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
@@ -731,7 +734,7 @@ public:
       Source vextr.
    */
    void assign_move_dynamic_or_move_items(
-      type_void_adapter const & type, _raw_complex_vextr_impl && rcvi
+      type_void_adapter const & type, raw_complex_vextr_impl && rcvi
    );
 
 
@@ -806,30 +809,32 @@ public:
 
 protected:
 
-   /*! See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /*! See raw_vextr_impl_base::raw_vextr_impl_base().
    */
-   _raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
-      _raw_vextr_impl_base(cbEmbeddedCapacity) {
+   raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
+      raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
-   _raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
-      _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
+   raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
+      raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
    }
 };
 
+} //namespace detail
 } //namespace abc
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_trivial_vextr_impl
+// abc::detail::raw_trivial_vextr_impl
 
 
 namespace abc {
+namespace detail {
 
 /*! Template-independent implementation of a vector for trivial contained types. This is the most
 derived common base class of both vector and str.
 */
-class ABACLADE_SYM _raw_trivial_vextr_impl :
-   public _raw_vextr_impl_base {
+class ABACLADE_SYM raw_trivial_vextr_impl :
+   public raw_vextr_impl_base {
 public:
 
    /*! Copies the contents of the two sources to *this. This method must never be called with p1 or
@@ -873,7 +878,7 @@ public:
    rtvi
       Source vextr.
    */
-   void assign_move(_raw_trivial_vextr_impl && rtvi);
+   void assign_move(raw_trivial_vextr_impl && rtvi);
 
 
    /*! Moves the source’s item array if dynamically-allocated, else copies its items (not move –
@@ -882,7 +887,7 @@ public:
    rtvi
       Source vextr.
    */
-   void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi);
+   void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi);
 
 
    /*! Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
@@ -891,7 +896,7 @@ public:
    rtvi
       Source vextr.
    */
-   void assign_share_raw_or_copy_desc(_raw_trivial_vextr_impl const & rtvi);
+   void assign_share_raw_or_copy_desc(raw_trivial_vextr_impl const & rtvi);
 
 
    /*! Inserts or removes items at a specific position in the vextr.
@@ -936,15 +941,15 @@ public:
 
 protected:
 
-   /*! See _raw_vextr_impl_base::_raw_vextr_impl_base().
+   /*! See raw_vextr_impl_base::raw_vextr_impl_base().
    */
-   _raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
-      _raw_vextr_impl_base(cbEmbeddedCapacity) {
+   raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
+      raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
-   _raw_trivial_vextr_impl(
+   raw_trivial_vextr_impl(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
    ) :
-      _raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
+      raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
    }
 
 
@@ -955,6 +960,7 @@ private:
    void _insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };
 
+} //namespace detail
 } //namespace abc
 
 

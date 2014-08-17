@@ -24,15 +24,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend
+// abc::detail::str_to_str_backend
 
 
 namespace abc {
+namespace detail {
 
 /*! Base class for the specializations of to_str_backend for string types. Not using templates, so
 the implementation can be in a cxx file. This is used by string literal types as well (see below).
 */
-class ABACLADE_SYM _str_to_str_backend {
+class ABACLADE_SYM str_to_str_backend {
 public:
 
    /*! Changes the output format.
@@ -59,6 +60,7 @@ protected:
    void write(void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut);
 };
 
+} //namespace detail
 } //namespace abc
 
 
@@ -73,7 +75,7 @@ namespace abc {
    */ \
    template <> \
    class to_str_backend<C> : \
-      public _str_to_str_backend { \
+      public detail::str_to_str_backend { \
    public: \
    \
       /*! Writes a character, applying the formatting options.
@@ -84,7 +86,7 @@ namespace abc {
          Pointer to the writer to output to.
       */ \
       void write(C ch, io::text::writer * ptwOut) { \
-         _str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
+         detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
       } \
    }; \
    \
@@ -92,7 +94,7 @@ namespace abc {
    */ \
    template <size_t t_cch> \
    class to_str_backend<C [t_cch]> : \
-      public _str_to_str_backend { \
+      public detail::str_to_str_backend { \
    public: \
    \
       /*! Writes a string, applying the formatting options.
@@ -106,7 +108,7 @@ namespace abc {
          ABC_ASSERT( \
             ach[t_cch - 1 /*NUL*/] == '\0', ABC_SL("string literal must be NUL-terminated") \
          ); \
-         _str_to_str_backend::write(ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut); \
+         detail::str_to_str_backend::write(ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut); \
       } \
    }; \
    \
@@ -139,7 +141,7 @@ namespace abc {
 
 template <>
 class ABACLADE_SYM to_str_backend<str_base> :
-   public _str_to_str_backend {
+   public detail::str_to_str_backend {
 public:
 
    /*! Writes a string, applying the formatting options.
@@ -150,7 +152,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(str_base const & s, io::text::writer * ptwOut) {
-      _str_to_str_backend::write(
+      detail::str_to_str_backend::write(
          s.chars_begin(),
          reinterpret_cast<size_t>(s.chars_end()) - reinterpret_cast<size_t>(s.chars_begin()),
          text::encoding::host, ptwOut

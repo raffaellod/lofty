@@ -24,26 +24,27 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_raw_vector
+// abc::detail::raw_vector
 
 namespace abc {
+namespace detail {
 
-/*! Thin templated wrapper for _raw_*_vextr_impl to make the interface of those two classes
+/*! Thin templated wrapper for raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations.
 */
 template <typename T, bool t_bCopyConstructible, bool t_bTrivial = std::is_trivial<T>::value>
-class _raw_vector;
+class raw_vector;
 
 // Partial specialization for non-copyable, non-trivial types.
 template <typename T>
-class _raw_vector<T, false, false> :
-   public _raw_complex_vextr_impl,
+class raw_vector<T, false, false> :
+   public raw_complex_vextr_impl,
    public noncopyable {
 public:
 
    /*! Destructor.
    */
-   ~_raw_vector() {
+   ~raw_vector() {
       type_void_adapter type;
       type.set_destr_fn<T>();
       destruct_items(type);
@@ -65,26 +66,26 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
+      raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
    }
 
 
-   /*! See _raw_complex_vextr_impl::assign_move().
+   /*! See raw_complex_vextr_impl::assign_move().
    */
-   void assign_move(_raw_complex_vextr_impl && rcvi) {
+   void assign_move(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
-      _raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
+      raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
 
-   /*! See _raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    */
-   void assign_move_dynamic_or_move_items(_raw_complex_vextr_impl && rcvi) {
+   void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
+      raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
    }
 
 
@@ -102,10 +103,10 @@ public:
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(
+      raw_complex_vextr_impl::insert(
          type,
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, true
       );
@@ -124,17 +125,17 @@ public:
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::remove(
+      raw_complex_vextr_impl::remove(
          type,
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptRemoveBegin) - raw_vextr_impl_base::begin<int8_t>()
          ),
          reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
       );
    }
 
 
-   /*! See _raw_complex_vextr_impl::set_capacity().
+   /*! See raw_complex_vextr_impl::set_capacity().
 
    ciMin
       Minimum count of elements requested.
@@ -146,13 +147,13 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
+      raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
    }
 
 
-   /*! See _raw_complex_vextr_impl::set_capacity().
+   /*! See raw_complex_vextr_impl::set_capacity().
 
-   TODO: destruct in _raw_complex_vextr_impl::set_size() any elements being taken out, and default-
+   TODO: destruct in raw_complex_vextr_impl::set_size() any elements being taken out, and default-
    construct the newly-created elements here.
 
    ci
@@ -162,47 +163,47 @@ public:
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
+      raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
    }
 
 
 protected:
 
-   /*! See _raw_complex_vextr_impl::_raw_complex_vextr_impl().
+   /*! See raw_complex_vextr_impl::raw_complex_vextr_impl().
    */
-   _raw_vector(size_t cbEmbeddedCapacity) :
-      _raw_complex_vextr_impl(cbEmbeddedCapacity) {
+   raw_vector(size_t cbEmbeddedCapacity) :
+      raw_complex_vextr_impl(cbEmbeddedCapacity) {
    }
-   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
-      _raw_complex_vextr_impl(ptConstSrc, ciSrc) {
+   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      raw_complex_vextr_impl(ptConstSrc, ciSrc) {
    }
 
 
 private:
 
-   // Hide these _raw_complex_vextr_impl methods to trigger errors as a debugging aid.
+   // Hide these raw_complex_vextr_impl methods to trigger errors as a debugging aid.
 
    void assign_copy(type_void_adapter const & type, T const * ptBegin, T const * ptEnd);
 };
 
 // Partial specialization for copyable, non-trivial types.
 template <typename T>
-class _raw_vector<T, true, false> :
-   public _raw_vector<T, false, false> {
+class raw_vector<T, true, false> :
+   public raw_vector<T, false, false> {
 public:
 
-   /*! See _raw_complex_vextr_impl::assign_copy().
+   /*! See raw_complex_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_copy(type, ptBegin, ptEnd);
+      raw_complex_vextr_impl::assign_copy(type, ptBegin, ptEnd);
    }
 
 
-   /*! See _raw_complex_vextr_impl::assign_concat().
+   /*! See raw_complex_vextr_impl::assign_concat().
    */
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
@@ -211,7 +212,7 @@ public:
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
-      _raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, iMove);
+      raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, iMove);
    }
 
 
@@ -230,10 +231,10 @@ public:
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
-      _raw_complex_vextr_impl::insert(
+      raw_complex_vextr_impl::insert(
          type,
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, false
       );
@@ -242,13 +243,13 @@ public:
 
 protected:
 
-   /*! See _raw_vector<T, false, false>::_raw_vector<T, false, false>().
+   /*! See raw_vector<T, false, false>::raw_vector<T, false, false>().
    */
-   _raw_vector(size_t cbEmbeddedCapacity) :
-      _raw_vector<T, false, false>(cbEmbeddedCapacity) {
+   raw_vector(size_t cbEmbeddedCapacity) :
+      raw_vector<T, false, false>(cbEmbeddedCapacity) {
    }
-   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
-      _raw_vector<T, false, false>(ptConstSrc, ciSrc) {
+   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      raw_vector<T, false, false>(ptConstSrc, ciSrc) {
    }
 };
 
@@ -256,24 +257,24 @@ protected:
 // for the individual elements, because move semantics don’t apply (trivial values are always
 // copied).
 template <typename T>
-class _raw_vector<T, true, true> :
-   public _raw_trivial_vextr_impl {
+class raw_vector<T, true, true> :
+   public raw_trivial_vextr_impl {
 public:
 
-   /*! See _raw_trivial_vextr_impl::assign_copy().
+   /*! See raw_trivial_vextr_impl::assign_copy().
    */
    void assign_copy(T const * ptBegin, T const * ptEnd) {
-      _raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
+      raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_concat().
+   /*! See raw_trivial_vextr_impl::assign_concat().
    */
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
    ) {
       ABC_UNUSED_ARG(iMove);
-      _raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
+      raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
 
@@ -289,21 +290,21 @@ public:
       Pointer to the end of the second source array.
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
-      _raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
+      raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_move().
+   /*! See raw_trivial_vextr_impl::assign_move().
    */
-   void assign_move(_raw_trivial_vextr_impl && rtvi) {
-      _raw_trivial_vextr_impl::assign_move(std::move(rtvi));
+   void assign_move(raw_trivial_vextr_impl && rtvi) {
+      raw_trivial_vextr_impl::assign_move(std::move(rtvi));
    }
 
 
-   /*! See _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
+   /*! See raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
    */
-   void assign_move_dynamic_or_move_items(_raw_trivial_vextr_impl && rtvi) {
-      _raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
+   void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
+      raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
    }
 
 
@@ -317,9 +318,9 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
-      _raw_trivial_vextr_impl::insert_remove(
+      raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, 0
       );
@@ -337,9 +338,9 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
-      _raw_trivial_vextr_impl::insert_remove(
+      raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, 0
       );
@@ -354,9 +355,9 @@ public:
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
-      _raw_trivial_vextr_impl::insert_remove(
+      raw_trivial_vextr_impl::insert_remove(
          static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptRemoveBegin) - _raw_vextr_impl_base::begin<int8_t>()
+            reinterpret_cast<int8_t const *>(ptRemoveBegin) - raw_vextr_impl_base::begin<int8_t>()
          ),
          nullptr, 0,
          reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
@@ -364,7 +365,7 @@ public:
    }
 
 
-   /*! See _raw_trivial_vextr_impl::set_capacity().
+   /*! See raw_trivial_vextr_impl::set_capacity().
 
    ciMin
       Minimum count of elements requested.
@@ -373,11 +374,11 @@ public:
       the vector to switch to a different item array.
    */
    void set_capacity(size_t ciMin, bool bPreserve) {
-      _raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
+      raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
    }
 
 
-   /*! See _raw_complex_vextr_impl::set_capacity().
+   /*! See raw_complex_vextr_impl::set_capacity().
 
    TODO: maybe default-construct the newly-created elements here for consistency with the non-
    trivial specialization?
@@ -386,22 +387,23 @@ public:
       New element count, in bytes.
    */
    void set_size(size_t ci) {
-      _raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
+      raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
    }
 
 
 protected:
 
-   /*! See _raw_trivial_vextr_impl::_raw_trivial_vextr_impl().
+   /*! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
    */
-   _raw_vector(size_t cbEmbeddedCapacity) :
-      _raw_trivial_vextr_impl(cbEmbeddedCapacity) {
+   raw_vector(size_t cbEmbeddedCapacity) :
+      raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
-   _raw_vector(T const * ptConstSrc, size_t ciSrc) :
-      _raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
+   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+      raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
    }
 };
 
+} //namespace detail
 } //namespace abc
 
 
@@ -426,11 +428,11 @@ template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>:
 class vector_base;
 
 // Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
-// false on _raw_vector, so that vector_base<T, true> can inherit from this and still get all the
-// copyable-only members of _raw_vector<T, true>.
+// false on detail::raw_vector, so that vector_base<T, true> can inherit from this and still get all
+// the copyable-only members of detail::raw_vector<T, true>.
 template <typename T>
 class vector_base<T, false> :
-   protected _raw_vector<T, std::is_copy_constructible<T>::value>,
+   protected detail::raw_vector<T, std::is_copy_constructible<T>::value>,
    public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
 
    /*! true if T is copy constructible, or false otherwise. */
@@ -475,7 +477,8 @@ public:
    */
    explicit_operator_bool() const {
       // Use int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
-      return _raw_vextr_impl_base::end<int8_t>() > _raw_vextr_impl_base::begin<int8_t>();
+      return detail::raw_vextr_impl_base::end<int8_t>() >
+         detail::raw_vextr_impl_base::begin<int8_t>();
    }
 
 
@@ -530,7 +533,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator begin() const {
-      return const_iterator(_raw_vextr_impl_base::begin<T>());
+      return const_iterator(detail::raw_vextr_impl_base::begin<T>());
    }
 
 
@@ -540,7 +543,7 @@ public:
       Current size of the item array storage, in elements.
    */
    size_t capacity() const {
-      return _raw_vextr_impl_base::capacity<T>();
+      return detail::raw_vextr_impl_base::capacity<T>();
    }
 
 
@@ -550,7 +553,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
-      return const_iterator(_raw_vextr_impl_base::begin<T>());
+      return const_iterator(detail::raw_vextr_impl_base::begin<T>());
    }
 
 
@@ -560,7 +563,7 @@ public:
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
-      return const_iterator(_raw_vextr_impl_base::end<T>());
+      return const_iterator(detail::raw_vextr_impl_base::end<T>());
    }
 
 
@@ -590,7 +593,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(_raw_vextr_impl_base::end<T>());
+      return const_iterator(detail::raw_vextr_impl_base::end<T>());
    }
 
 
@@ -600,7 +603,7 @@ public:
       Count of elements.
    */
    size_t size() const {
-      return _raw_vextr_impl_base::size<T>();
+      return detail::raw_vextr_impl_base::size<T>();
    }
 
 
@@ -637,33 +640,33 @@ protected:
       Count of items in the array pointed to by pt.
    */
    vector_base(size_t ciEmbedded) :
-      _raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
+      detail::raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
    }
    vector_base(T const * pt, size_t ci) :
-      _raw_vector<T, smc_bCopyConstructible>(pt, ci) {
+      detail::raw_vector<T, smc_bCopyConstructible>(pt, ci) {
    }
 
 
-   /*! See _raw_vector<T>::assign_move().
+   /*! See detail::raw_vector<T>::assign_move().
 
    v
       Source vector.
    */
    void assign_move(vector_base && v) {
-      _raw_vector<T, smc_bCopyConstructible>::assign_move(
-         static_cast<_raw_vector<T, smc_bCopyConstructible> &&>(v)
+      detail::raw_vector<T, smc_bCopyConstructible>::assign_move(
+         static_cast<detail::raw_vector<T, smc_bCopyConstructible> &&>(v)
       );
    }
 
 
-   /*! See _raw_vector<T>::assign_move_dynamic_or_move_items().
+   /*! See detail::raw_vector<T>::assign_move_dynamic_or_move_items().
 
    v
       Source vector.
    */
    void assign_move_dynamic_or_move_items(vector_base && v) {
-      _raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
-         static_cast<_raw_vector<T, smc_bCopyConstructible> &&>(v)
+      detail::raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
+         static_cast<detail::raw_vector<T, smc_bCopyConstructible> &&>(v)
       );
    }
 
@@ -678,7 +681,7 @@ protected:
       Pointer to the element.
    */
    T const * translate_index(intptr_t i) const {
-      return static_cast<T const *>(_raw_vector<T, smc_bCopyConstructible>::translate_offset(
+      return static_cast<T const *>(detail::raw_vector<T, smc_bCopyConstructible>::translate_offset(
          static_cast<ptrdiff_t>(sizeof(T)) * i
       ));
    }
@@ -700,7 +703,7 @@ protected:
       interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
    */
    std::pair<T const *, T const *> translate_range(intptr_t iBegin, intptr_t iEnd) const {
-      auto range(_raw_trivial_vextr_impl::translate_byte_range(
+      auto range(detail::raw_trivial_vextr_impl::translate_byte_range(
          static_cast<ptrdiff_t>(sizeof(T)) * iBegin, static_cast<ptrdiff_t>(sizeof(T)) * iEnd
       ));
       return std::make_pair(
@@ -846,7 +849,7 @@ public:
    /*! See vector_base::begin(). Here also available in non-const overload.
    */
    iterator begin() {
-      return iterator(_raw_vextr_impl_base::begin<T>());
+      return iterator(detail::raw_vextr_impl_base::begin<T>());
    }
    const_iterator begin() const {
       return vector_base_::begin();
@@ -864,7 +867,7 @@ public:
    /*! See vector_base::end(). Here also available in non-const overload.
    */
    iterator end() {
-      return iterator(_raw_vextr_impl_base::end<T>());
+      return iterator(detail::raw_vextr_impl_base::end<T>());
    }
    const_iterator end() const {
       return vector_base_::end();
@@ -893,7 +896,7 @@ public:
    /*! See vector_base::rbegin(). Here also available in non-const overload.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(iterator(_raw_vextr_impl_base::end<T>()));
+      return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
    }
    const_reverse_iterator rbegin() const {
       return vector_base_::rbegin();
@@ -921,7 +924,7 @@ public:
    /*! See vector_base::rend(). Here also available in non-const overload.
    */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(_raw_vextr_impl_base::begin<T>()));
+      return reverse_iterator(iterator(detail::raw_vextr_impl_base::begin<T>()));
    }
    const_reverse_iterator rend() const {
       return vector_base_::rend();
@@ -1372,9 +1375,9 @@ class smvector;
 template <typename T, size_t t_ciEmbeddedCapacity>
 class smvector<T, t_ciEmbeddedCapacity, false> :
    public mvector<T, false>,
-   private _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
+   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 
-   using _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
 
 public:
 
@@ -1454,9 +1457,9 @@ public:
 template <typename T, size_t t_ciEmbeddedCapacity>
 class smvector<T, t_ciEmbeddedCapacity, true> :
    public mvector<T, true>,
-   private _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
+   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 
-   using _raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
 
 public:
 

@@ -22,12 +22,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_str_to_str_backend
+// abc::detail::str_to_str_backend
 
 
 namespace abc {
+namespace detail {
 
-void _str_to_str_backend::set_format(istr const & sFormat) {
+void str_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -43,7 +44,7 @@ void _str_to_str_backend::set_format(istr const & sFormat) {
 }
 
 
-void _str_to_str_backend::write(
+void str_to_str_backend::write(
    void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut
 ) {
    ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
@@ -51,6 +52,7 @@ void _str_to_str_backend::write(
    ptwOut->write_binary(p, cb, enc);
 }
 
+} //namespace detail
 } //namespace abc
 
 
@@ -131,7 +133,7 @@ dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(vb.begin().base(), _raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
+      memory::copy(vb.begin().base(), detail::raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
@@ -334,7 +336,7 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
 
    size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
    uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
-   _raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
+   detail::raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch.
@@ -346,7 +348,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
    size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
    uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
-   _raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
+   detail::raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means

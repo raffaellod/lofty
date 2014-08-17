@@ -326,7 +326,7 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 ) {
    size_t cch(text::size_in_chars(cs.m_psz));
    text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
-   _str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
+   detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
 }
 
 } //namespace abc
