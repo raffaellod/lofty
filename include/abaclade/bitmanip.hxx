@@ -47,14 +47,17 @@ namespace bitmanip {
 •  _InterlockedCompareExchange64
 */
 
+namespace detail {
 
 /*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
 abc::bitmanip::ceiling_to_pow2().
 */
-ABACLADE_SYM uint8_t _raw_ceiling_to_pow2(uint8_t i);
-ABACLADE_SYM uint16_t _raw_ceiling_to_pow2(uint16_t i);
-ABACLADE_SYM uint32_t _raw_ceiling_to_pow2(uint32_t i);
-ABACLADE_SYM uint64_t _raw_ceiling_to_pow2(uint64_t i);
+ABACLADE_SYM uint8_t ceiling_to_pow2(uint8_t i);
+ABACLADE_SYM uint16_t ceiling_to_pow2(uint16_t i);
+ABACLADE_SYM uint32_t ceiling_to_pow2(uint32_t i);
+ABACLADE_SYM uint64_t ceiling_to_pow2(uint64_t i);
+
+} //namespace detail
 
 
 /*! Returns the argument rounded up to the closest power of 2.
@@ -68,13 +71,13 @@ template <typename I>
 inline I ceiling_to_pow2(I i) {
    switch (sizeof(I)) {
       case sizeof(uint8_t):
-         return _raw_ceiling_to_pow2(static_cast<uint8_t>(i));
+         return detail::ceiling_to_pow2(static_cast<uint8_t>(i));
       case sizeof(uint16_t):
-         return _raw_ceiling_to_pow2(static_cast<uint16_t>(i));
+         return detail::ceiling_to_pow2(static_cast<uint16_t>(i));
       case sizeof(uint32_t):
-         return _raw_ceiling_to_pow2(static_cast<uint32_t>(i));
+         return detail::ceiling_to_pow2(static_cast<uint32_t>(i));
       case sizeof(uint64_t):
-         return _raw_ceiling_to_pow2(static_cast<uint64_t>(i));
+         return detail::ceiling_to_pow2(static_cast<uint64_t>(i));
    }
 }
 
