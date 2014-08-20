@@ -1119,7 +1119,7 @@ exception::exception(exception const & x) :
    m_bInFlight(x.m_bInFlight) {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
-      _scope_trace_impl::trace_writer_addref();
+      detail::scope_trace_impl::trace_writer_addref();
    }
 }
 
@@ -1127,7 +1127,7 @@ exception::exception(exception const & x) :
 /*virtual*/ exception::~exception() {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
-      _scope_trace_impl::trace_writer_release();
+      detail::scope_trace_impl::trace_writer_release();
    }
 }
 
@@ -1144,11 +1144,11 @@ exception & exception::operator=(exception const & x) {
    // release()/addref().
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
-         _scope_trace_impl::trace_writer_release();
+         detail::scope_trace_impl::trace_writer_release();
       }
       m_bInFlight = x.m_bInFlight;
       if (m_bInFlight) {
-         _scope_trace_impl::trace_writer_addref();
+         detail::scope_trace_impl::trace_writer_addref();
       }
    }
    return *this;
@@ -1160,8 +1160,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_srcloc = srcloc;
    // Clear any old trace writer buffer and create a new one with *this as its only reference. See
    // [DOC:8503 Stack tracing].
-   _scope_trace_impl::trace_writer_clear();
-   _scope_trace_impl::trace_writer_addref();
+   detail::scope_trace_impl::trace_writer_clear();
+   detail::scope_trace_impl::trace_writer_addref();
    m_bInFlight = true;
 }
 
@@ -1208,7 +1208,7 @@ char const * exception::what() const {
       );
    }
    // Print the stack trace collected via ABC_TRACE_FUNC().
-   ptwOut->write(_scope_trace_impl::get_trace_writer()->release_content());
+   ptwOut->write(detail::scope_trace_impl::get_trace_writer()->release_content());
 }
 
 

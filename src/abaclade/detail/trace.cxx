@@ -22,19 +22,20 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_scope_trace_impl
+// abc::detail::scope_trace_impl
 
 
 namespace abc {
+namespace detail {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<io::text::str_writer> _scope_trace_impl::sm_ptswScopeTrace;
-/*tls*/ unsigned _scope_trace_impl::sm_cScopeTraceRefs(0);
-/*tls*/ unsigned _scope_trace_impl::sm_iStackDepth(0);
-/*tls*/ bool _scope_trace_impl::sm_bReentering(false);
+/*tls*/ std::unique_ptr<io::text::str_writer> scope_trace_impl::sm_ptswScopeTrace;
+/*tls*/ unsigned scope_trace_impl::sm_cScopeTraceRefs(0);
+/*tls*/ unsigned scope_trace_impl::sm_iStackDepth(0);
+/*tls*/ bool scope_trace_impl::sm_bReentering(false);
 
 
-void _scope_trace_impl::trace_scope(
+void scope_trace_impl::trace_scope(
    std::function<void (io::text::writer * ptwOut)> const & fnWriteVars
 ) {
    if (!sm_bReentering && std::uncaught_exception()) {
@@ -54,10 +55,11 @@ void _scope_trace_impl::trace_scope(
 }
 
 
-void _scope_trace_impl::write_separator(io::text::writer * ptwOut) {
+void scope_trace_impl::write_separator(io::text::writer * ptwOut) {
    ptwOut->write(ABC_SL(", "));
 }
 
+} //namespace detail
 } //namespace abc
 
 

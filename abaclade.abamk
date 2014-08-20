@@ -28,6 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/atomic.cxx"/>
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
+      <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/detail/vextr.cxx"/>
       <source path="src/abaclade/file_path.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
@@ -50,7 +51,6 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/text/codepoint_iterator.cxx"/>
       <source path="src/abaclade/text/str_traits.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
-      <source path="src/abaclade/trace.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
 
       <unittest name="abaclade-test">

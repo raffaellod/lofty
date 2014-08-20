@@ -775,6 +775,7 @@ class writer;
 #include <abaclade/str-after-str_writer.hxx>
 #include <abaclade/to_str-after-str_writer.hxx>
 
+#include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>
 
 
