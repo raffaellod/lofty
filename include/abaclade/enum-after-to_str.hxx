@@ -24,14 +24,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_enum_to_str_backend_impl
+// abc::detail::enum_to_str_backend_impl
 
 
 namespace abc {
+namespace detail {
 
 /*! Implementation of the specializations of to_str_backend for enum_impl specializations.
 */
-class ABACLADE_SYM _enum_to_str_backend_impl {
+class ABACLADE_SYM enum_to_str_backend_impl {
 public:
 
    /*! Changes the output format.
@@ -54,6 +55,7 @@ protected:
    void write_impl(int i, enum_member const * pem, io::text::writer * ptwOut);
 };
 
+} //namespace detail
 } //namespace abc
 
 
@@ -66,13 +68,13 @@ namespace abc {
 // Specialization of to_str_backend.
 template <class T>
 class to_str_backend<enum_impl<T>> :
-   public _enum_to_str_backend_impl {
+   public detail::enum_to_str_backend_impl {
 public:
 
-   /*! See abc::_enum_to_str_backend_impl::write().
+   /*! See abc::detail::enum_to_str_backend_impl::write().
    */
    void write(enum_impl<T> e, io::text::writer * ptwOut) {
-      _enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
+      detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
    }
 };
 

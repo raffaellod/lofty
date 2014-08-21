@@ -56,12 +56,13 @@ namespace abc {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_enum_to_str_backend_impl
+// abc::detail::enum_to_str_backend_impl
 
 
 namespace abc {
+namespace detail {
 
-void _enum_to_str_backend_impl::set_format(istr const & sFormat) {
+void enum_to_str_backend_impl::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -77,7 +78,7 @@ void _enum_to_str_backend_impl::set_format(istr const & sFormat) {
 }
 
 
-void _enum_to_str_backend_impl::write_impl(
+void enum_to_str_backend_impl::write_impl(
    int i, enum_member const * pem, io::text::writer * ptwOut
 ) {
    ABC_TRACE_FUNC(this, i, pem, ptwOut);
@@ -86,6 +87,7 @@ void _enum_to_str_backend_impl::write_impl(
    ptwOut->write(istr(unsafe, petvp->pszName));
 }
 
+} //namespace detail
 } //namespace abc
 
 
