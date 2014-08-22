@@ -70,12 +70,12 @@ public:
    /** Sample enumeration. Used to demonstrate Abaclade’s support for automatic translation of
    enumerated values into strings.
    */
-   ABC_ENUM(numbers_enum, \
-      (zero,  0), \
-      (one,   1), \
-      (two,   2), \
-      (three, 3), \
-      (four,  4)  \
+   ABC_ENUM(numbers_enum,
+      (zero,  0),
+      (one,   1),
+      (two,   2),
+      (three, 3),
+      (four,  4)
    );
 
 

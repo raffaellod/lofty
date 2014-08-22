@@ -28,10 +28,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-ABC_ENUM(test_enum, \
-   (value1, 15), \
-   (value2, 56), \
-   (value3, 91) \
+ABC_ENUM(test_enum,
+   (value1, 15),
+   (value2, 56),
+   (value3, 91)
 );
 
 
