@@ -35,12 +35,11 @@ namespace abc {
 Abaclade features support for advanced enumeration classes. These are the features that set them
 apart from C++11 “enum class” enumerations:
 
-•  Strong typing: constants from one enumeration are not automatically converted to a different
+•  Strong typing: constants from one enumeration are not implicitly converted to a different
    enumeration type;
 •  Scoped constants: the enumeration members are members of the enumeration class, not of its
-   containing namespace; different classes can therefore use constants of the same name (note that
-   this will not confuse developers, since the constants will need to be qualified with the
-   enumeration type name);
+   containing scope; different classes can therefore use constants of the same name because their
+   usage will need to be qualified with the enumeration type name;
 •  Conversion from/to string: instances of an Abaclade enumeration class can be serialized and
    de-serialized as strings with no additional code.
 
@@ -53,8 +52,100 @@ directly refer to the C++ enum type.
 This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 */
 
-/*! Defines an enumeration class derived from abc::enum_impl. See [DOC:3549 Enumeration classes] for
-more information.
+/*! Implementation of the various ABC_ENUM() flavors.
+
+name
+   Name of the enumeration type.
+memberwalker
+   Walker that will be applied to the enumeration members to generate the C++ enum members.
+arrayitemwalker
+   Walker that will be applied to the enumeration members to generate the internal name/value array.
+...
+   Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
+   name::enum_type.
+*/
+#define _ABC_ENUM_IMPL(name, memberwalker, arrayitemwalker, ...) \
+   class ABC_CPP_CAT(_, name, _e) { \
+   private: \
+   \
+      static int const smc_iBase = __COUNTER__; \
+   \
+   \
+   public: \
+   \
+      /*! Publicly-accessible enumerated constants. */ \
+      enum enum_type { \
+         ABC_CPP_TUPLELIST_WALK(memberwalker, __VA_ARGS__) \
+         __default = 0 \
+      }; \
+   \
+   \
+      /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
+      static ::abc::enum_member const * _get_map() { \
+         static ::abc::enum_member const sc_map[] = { \
+            ABC_CPP_TUPLELIST_WALK(arrayitemwalker, __VA_ARGS__) \
+            { nullptr, 0, 0 } \
+         }; \
+         return sc_map; \
+      } \
+   \
+   \
+   protected: \
+   \
+      /*! Number of members specified for the enum. */ \
+      static size_t const smc_cMembers = ABC_CPP_LIST_COUNT(__VA_ARGS__); \
+   \
+   }; \
+   typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
+
+
+/*! Expands into an enum name/value assignment.
+
+name
+   Name of the enumeration constant. The associated value is incremental in the ABC_ENUM, just like
+   in C++ enums.
+*/
+#define _ABC_ENUM_MEMBER(name) \
+         name = __COUNTER__ - smc_iBase,
+
+
+/*! Expands into an enum name/value assignment.
+
+name
+   Name of the enumeration constant.
+value
+   Value of the enumeration constant.
+*/
+#define _ABC_ENUM_MEMBER_PAIR(name, value) \
+         name = value,
+
+
+/*! Expands into an abc::enum_member initializer.
+
+name
+   Name of the enumeration constant.
+*/
+#define _ABC_ENUM_MEMBER_ARRAY_ITEM(name) \
+            { \
+               ABC_SL(ABC_CPP_TOSTRING(name)), \
+               ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, \
+               enum_type::name \
+            },
+
+
+/*! Expands into _ABC_ENUM_MEMBER_ARRAY_ITEM().
+
+name
+   Name of the enumeration constant.
+value
+   Value of the enumeration constant. Not used.
+*/
+#define _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM(name, value) \
+   _ABC_ENUM_MEMBER_ARRAY_ITEM(name)
+
+
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
+classes] for more information.
 
 TODO: allow specifying a default value (instead of having __default = max + 1).
 
@@ -68,51 +159,7 @@ name
    name::enum_type.
 */
 #define ABC_ENUM(name, ...) \
-   struct ABC_CPP_CAT(_, name, _e) { \
-   \
-      /*! Publicly-accessible enumerated constants. */ \
-      enum enum_type { \
-         ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER, __VA_ARGS__) \
-         __default = 0 \
-      }; \
-   \
-   \
-      /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
-      static ::abc::enum_member const * _get_map() { \
-         static ::abc::enum_member const sc_map[] = { \
-            ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
-            { nullptr, 0, 0 } \
-         }; \
-         return sc_map; \
-      } \
-   }; \
-   typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
-
-
-/*! Expands into an enum name/value assignment.
-
-name
-   Name of the enumeration constant.
-value
-   Value of the enumeration constant.
-*/
-#define _ABC_ENUM_MEMBER(name, value) \
-         name = value,
-
-
-/*! Expands into an abc::enum_member initializer.
-
-name
-   Name of the enumeration constant.
-value
-   Value of the enumeration constant.
-*/
-#define _ABC_ENUM_MEMBER_ARRAY_ITEM(name, value) \
-            { \
-               ABC_SL(ABC_CPP_TOSTRING(name)), \
-               ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, \
-               name \
-            },
+   _ABC_ENUM_IMPL(name, _ABC_ENUM_MEMBER_PAIR, _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__)
 
 } //namespace abc
 
@@ -237,6 +284,16 @@ public:
    istr name() const;
 
 
+   /*! Returns the count of members in the enumeration.
+
+   return
+      Member count.
+   */
+   static size_t size() {
+      return T::smc_cMembers;
+   }
+
+
 protected:
 
    /*! Returns a pointer to the name/value pair for the current value.
@@ -247,6 +304,13 @@ protected:
    enum_member const * _member() const {
       return enum_member::find_in_map(T::_get_map(), m_e);
    }
+
+
+public:
+
+   /*! Count of the members of the enumeration. Same as the value returned by size(), but this can
+   be used in constant contexts, such as the size of an array. */
+   static size_t const size_const = T::smc_cMembers;
 
 
 private:
