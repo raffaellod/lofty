@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-/** DOC:0105 Exceptions and stack traces example
+/*! DOC:0105 Exceptions and stack traces example
 
 This program showcases Abaclade’s ability to display stack traces when an exception is thrown, as
 well as its support for catching null pointer access and similar invalid operations. See the source
@@ -35,13 +35,13 @@ using namespace abc;
 // exceptions_app
 
 
-/** Application class for this program.
+/*! Application class for this program.
 */
 class exceptions_app :
    public app {
 public:
 
-   /** Main function of the program.
+   /*! Main function of the program.
 
    vsArgs
       Arguments that were provided to this program via command line.
@@ -67,7 +67,7 @@ public:
    }
 
 
-   /** Sample enumeration. Used to demonstrate Abaclade’s support for automatic translation of
+   /*! Sample enumeration. Used to demonstrate Abaclade’s support for automatic translation of
    enumerated values into strings.
    */
    ABC_ENUM(numbers_enum,

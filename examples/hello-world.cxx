@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-/** DOC:0101 Hello World example
+/*! DOC:0101 Hello World example
 
 This is a basic usage example of Abaclade; all it does is display the canonical “Hello World” text,
 then it terminates. See the source code for line-by-line comments.
@@ -41,7 +41,7 @@ using namespace abc;
 // hello_world_app
 
 
-/** This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
+/*! This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
 class shall be instantiated as soon as the program is started, and its main() method should be
 invoked immediately afterwards; see [DOC:1063 Application startup and abc::app].
 */
@@ -49,7 +49,7 @@ class hello_world_app :
    public app {
 public:
 
-   /** This method is invoked when the program starts; returning from this method causes the end of
+   /*! This method is invoked when the program starts; returning from this method causes the end of
    the program.
 
    vsArgs
