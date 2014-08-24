@@ -22,10 +22,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::enum_member
+// abc::detail::enum_member
 
 
 namespace abc {
+namespace detail {
 
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int iValue) {
    ABC_TRACE_FUNC(pem, iValue);
@@ -52,6 +53,7 @@ namespace abc {
    ABC_THROW(domain_error, ());
 }
 
+} //namespace detail
 } //namespace abc
 
 

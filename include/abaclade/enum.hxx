@@ -81,8 +81,8 @@ arrayitemwalker
    \
    \
       /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
-      static ::abc::enum_member const * _get_map() { \
-         static ::abc::enum_member const sc_map[] = { \
+      static ::abc::detail::enum_member const * _get_map() { \
+         static ::abc::detail::enum_member const sc_map[] = { \
             ABC_CPP_TUPLELIST_WALK(arrayitemwalker, __VA_ARGS__) \
             { nullptr, 0, 0 } \
          }; \
@@ -120,7 +120,7 @@ value
          name = value,
 
 
-/*! Expands into an abc::enum_member initializer.
+/*! Expands into an abc::detail::enum_member initializer.
 
 name
    Name of the enumeration constant.
@@ -166,10 +166,11 @@ name
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::enum_member
+// abc::detail::enum_member
 
 
 namespace abc {
+namespace detail {
 
 /*! Enumeration member (name/value pair).
 */
@@ -200,6 +201,7 @@ struct ABACLADE_SYM enum_member {
    static enum_member const * find_in_map(enum_member const * pem, istr const & sName);
 };
 
+} //namespace detail
 } //namespace abc
 
 
@@ -241,11 +243,11 @@ public:
    }
    // Conversion from integer.
    explicit enum_impl(int iValue) :
-      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
+      m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
    }
    // Conversion from string.
    explicit enum_impl(istr const & sName) :
-      m_e(static_cast<enum_type>(enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
+      m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
    }
 
 
@@ -301,8 +303,8 @@ protected:
    return
       Pointer to the name/value pair for the current value.
    */
-   enum_member const * _member() const {
-      return enum_member::find_in_map(T::_get_map(), m_e);
+   detail::enum_member const * _member() const {
+      return detail::enum_member::find_in_map(T::_get_map(), m_e);
    }
 
 
