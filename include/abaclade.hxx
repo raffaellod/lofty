@@ -21,6 +21,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_HXX
 
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_HOST_*
+
 /*! Version of GCC if building with it, or 0 otherwise. */
 #define ABC_HOST_GCC 0
 /*! Version of MSC if building with it, or 0 otherwise. */
@@ -86,9 +90,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif //if ABC_HOST_MSC
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_API_*
-
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
 #define ABC_HOST_API_LINUX 0
@@ -115,9 +116,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #define ABC_HOST_API_POSIX 1
 #endif
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_WORD_SIZE
 
 /*! Machine word size for this microarchitecture. */
 // TODO: the word/pointer size is much more easily detected by a configure program.
