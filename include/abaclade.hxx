@@ -134,6 +134,13 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc globals – platform-dependent fixes
 
 
+// Make sure DEBUG and _DEBUG are coherent; DEBUG wins.
+#if defined(DEBUG) && !defined(_DEBUG)
+   #define _DEBUG
+#elif !defined(DEBUG) && defined(_DEBUG)
+   #undef _DEBUG
+#endif
+
 #include <abaclade/cppmacros.hxx>
 
 #if ABC_HOST_MSC
