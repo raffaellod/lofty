@@ -674,11 +674,14 @@ unsafe_t const unsafe;
 #if ABC_HOST_MSC
    // Silence warnings from system header files.
    #pragma warning(push)
+   // “expression before comma has no effect; expected expression with side-effect”
+   #pragma warning(disable: 4548)
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
 #endif //if ABC_HOST_MSC
 #include <limits.h> // CHAR_BIT *_MAX *_MIN
 #include <stddef.h> // size_t
+#include <malloc.h> // free malloc realloc
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
