@@ -54,28 +54,35 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 
 /*! Implementation of the various ABC_ENUM() flavors.
 
+TODO: use a non-enum-member default value for “uninitialized” state, instead of current __default.
+
 name
    Name of the enumeration type.
-memberwalker
-   Walker that will be applied to the enumeration members to generate the C++ enum members.
-arrayitemwalker
-   Walker that will be applied to the enumeration members to generate the internal name/value array.
+iBaseValue
+   Value of __COUNTER__ prior to the expansion of the member values; used to dynamically generate
+   values in sequence for the enum members.
+cMembers
+   Count of members of the enumeration.
+members
+   C++ enum members.
+arrayitems
+   Internal name/value array items.
 ...
    Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
    name::enum_type.
 */
-#define _ABC_ENUM_IMPL(name, memberwalker, arrayitemwalker, ...) \
+#define _ABC_ENUM_IMPL(name, iBaseValue, cMembers, members, arrayitems) \
    class ABC_CPP_CAT(_, name, _e) { \
    private: \
    \
-      static int const smc_iBase = __COUNTER__; \
+      static int const smc_iBase = iBaseValue + 1; \
    \
    \
    public: \
    \
       /*! Publicly-accessible enumerated constants. */ \
       enum enum_type { \
-         ABC_CPP_TUPLELIST_WALK(memberwalker, __VA_ARGS__) \
+         members \
          __default = 0 \
       }; \
    \
@@ -83,7 +90,7 @@ arrayitemwalker
       /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
       static ::abc::detail::enum_member const * _get_map() { \
          static ::abc::detail::enum_member const sc_map[] = { \
-            ABC_CPP_TUPLELIST_WALK(arrayitemwalker, __VA_ARGS__) \
+            arrayitems \
             { nullptr, 0, 0 } \
          }; \
          return sc_map; \
@@ -93,7 +100,7 @@ arrayitemwalker
    protected: \
    \
       /*! Number of members specified for the enum. */ \
-      static size_t const smc_cMembers = ABC_CPP_LIST_COUNT(__VA_ARGS__); \
+      static size_t const smc_cMembers = cMembers; \
    \
    }; \
    typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
@@ -147,8 +154,6 @@ value
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
 classes] for more information.
 
-TODO: allow specifying a default value (instead of having __default = max + 1).
-
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
 etc.
 
@@ -159,7 +164,35 @@ name
    name::enum_type.
 */
 #define ABC_ENUM(name, ...) \
-   _ABC_ENUM_IMPL(name, _ABC_ENUM_MEMBER_PAIR, _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__)
+   _ABC_ENUM_IMPL( \
+      name, \
+      __COUNTER__, \
+      ABC_CPP_LIST_COUNT(__VA_ARGS__), \
+      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR, __VA_ARGS__), \
+      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__) \
+   )
+
+
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
+classes] for more information. Similar to ABC_ENUM(), except the values can be listed individually,
+as in:
+
+   ABC_ENUM_AUTO(myenum, item1, item2, item3);
+
+name
+   Name of the enumeration type.
+...
+   Sequence of member names; these will be the members of the underlying C++ enum, name::enum_type.
+   Their values will start from 0 and increase by 1 for each member.
+*/
+#define ABC_ENUM_AUTO_VALUES(name, ...) \
+   _ABC_ENUM_IMPL( \
+      name, \
+      __COUNTER__, \
+      ABC_CPP_LIST_COUNT(__VA_ARGS__), \
+      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER, __VA_ARGS__), \
+      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
+   )
 
 } //namespace abc
 
