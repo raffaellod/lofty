@@ -136,7 +136,7 @@ name
             { \
                ABC_SL(ABC_CPP_TOSTRING(name)), \
                ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/, \
-               enum_type::name \
+               name \
             },
 
 
