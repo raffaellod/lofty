@@ -117,7 +117,23 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// #include core and system header files that require a special order
+// abc globals – ABC_HOST_WORD_SIZE
+
+/*! Machine word size for this microarchitecture. */
+// TODO: the word/pointer size is much more easily detected by a configure program.
+#if ABC_HOST_API_WIN64
+   #define ABC_HOST_WORD_SIZE 64
+#elif ABC_HOST_API_WIN32
+   #define ABC_HOST_WORD_SIZE 32
+#elif defined(__SIZEOF_POINTER__)
+   #define ABC_HOST_WORD_SIZE (__SIZEOF_POINTER__ * 8)
+#else
+   #error Unable to determine the word size for this microarchitecture
+#endif
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – platform-dependent fixes
 
 
 #include <abaclade/cppmacros.hxx>
@@ -133,31 +149,13 @@ You should have received a copy of the GNU General Public License along with Aba
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
 #endif //if ABC_HOST_MSC
-#include <stdint.h> // *int*_t __WORDSIZE (if supported)
+#include <stdint.h> // *int*_t
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
 
+// This defines our “real” char16_t.
 #include <abaclade/char.hxx>
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_WORD_SIZE
-
-/*! Machine word size for this microarchitecture. */
-#if ABC_HOST_API_WIN64
-   #define ABC_HOST_WORD_SIZE 64
-#elif ABC_HOST_API_WIN32
-   #define ABC_HOST_WORD_SIZE 32
-#elif defined(__WORDSIZE)
-   #define ABC_HOST_WORD_SIZE __WORDSIZE
-#else
-   #error Unable to determine the word size for this microarchitecture
-#endif
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – platform-dependent fixes
 
 #if ABC_HOST_API_POSIX
 
