@@ -458,8 +458,8 @@ return
 #define _ABC_CPP_DEC_99 98
 
 
-/*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE() it expands into emit 1 or 0 depending on whether the
-latter is expanded or not.
+/*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE(); it expands into 1 or 0 depending on whether the latter
+is expanded or not.
 
 ...
    Unused.
