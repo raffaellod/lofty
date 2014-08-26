@@ -209,11 +209,10 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
          // The current item array (embedded or dynamic) is not large enough.
 
          // Calculate the total allocation size.
-         size_t cbNewCapacity(raw_vextr_impl_base::calculate_increased_capacity(
-            m_prvib->size<int8_t>(), cbNew
-         ));
+         size_t cbOrig(m_prvib->size<int8_t>());
+         size_t cbNewCapacity(raw_vextr_impl_base::calculate_increased_capacity(cbOrig, cbNew));
          typedef raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
-         size_t cbNewItemArrayDesc(reinterpret_cast<ptrdiff_t>(
+         size_t cbNewItemArrayDesc(reinterpret_cast<size_t>(
             reinterpret_cast<prefixed_item_array *>(0)->m_at
          ) + cbNewCapacity);
          prefixed_item_array * ppia;
@@ -226,7 +225,7 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
                memory::_raw_realloc(ppia, cbNewItemArrayDesc)
             );
             m_prvib->m_pBegin = ppia->m_at;
-            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbNew;
+            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbOrig;
          } else {
             // Allocate a new item array. This is the only option for non-trivial types because they
             // must be moved using their move constructor.
@@ -530,8 +529,8 @@ void raw_complex_vextr_impl::set_capacity(
 ) {
    ABC_TRACE_FUNC(this, /*type, */cbMin, bPreserve);
 
-   size_t cbOrig(size<int8_t>());
    raw_vextr_transaction trn(this, false, cbMin);
+   size_t cbOrig(size<int8_t>());
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -675,8 +674,8 @@ void raw_trivial_vextr_impl::_insert_remove(
 void raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
    ABC_TRACE_FUNC(this, cbMin, bPreserve);
 
-   size_t cbOrig(size<int8_t>());
    raw_vextr_transaction trn(this, true, cbMin);
+   size_t cbOrig(size<int8_t>());
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
          memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
