@@ -47,27 +47,20 @@ namespace io {
 
 /*! File access modes.
 */
-ABC_ENUM(access_mode,
-   /*! Read-only access. */
-   (read,       1),
-   /*! Write-only access. */
-   (write,      2),
-   /*! Read/write access. */
-   (read_write, 3),
-   /*! Append-only access. */
-   (append,     4)
+ABC_ENUM_AUTO_VALUES(access_mode,
+   read,       //! Read-only access.
+   write,      //! Write-only access.
+   read_write, //! Read/write access.
+   append      //! Append-only access.
 );
 
 
 /*! Position indicators to which offsets may be relative.
 */
-ABC_ENUM(seek_from,
-   /*! The offset is relative to the start of the data (absolute seek). */
-   (start,   0),
-   /*! The offset is relative to the current offset (incremental seek). */
-   (current, 1),
-   /*! The offset is relative to the end of the data and presumably negative. */
-   (end,     2)
+ABC_ENUM_AUTO_VALUES(seek_from,
+   start,   //! The offset is relative to the start of the data (absolute seek).
+   current, //! The offset is relative to the current offset (incremental seek).
+   end      //! The offset is relative to the end of the data and presumably negative.
 );
 
 
@@ -80,13 +73,10 @@ ABC_ENUM(seek_from,
 
 /*! List of standard (OS-provided) files.
 */
-ABC_ENUM(stdfile,
-   /*! Internal identifier for stdin. */
-   (stdin,  0),
-   /*! Internal identifier for stdout. */
-   (stdout, 1),
-   /*! Internal identifier for stderr. */
-   (stderr, 2)
+ABC_ENUM_AUTO_VALUES(stdfile,
+   stdin,  //! Internal identifier for stdin.
+   stdout, //! Internal identifier for stdout.
+   stderr  //! Internal identifier for stderr.
 );
 
 } //namespace io
