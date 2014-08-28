@@ -174,10 +174,10 @@ name
 
 
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
-classes] for more information. Similar to ABC_ENUM(), except the values can be listed individually,
-as in:
+classes] for more information. Similar to ABC_ENUM(), except the members are listed individually and
+their values cannot be explicitly specified; for example:
 
-   ABC_ENUM_AUTO(myenum, item1, item2, item3);
+   ABC_ENUM_AUTO_VALUES(myenum, item1, item2, item3);
 
 name
    Name of the enumeration type.
