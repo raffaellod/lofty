@@ -468,10 +468,10 @@ binbuf_reader::binbuf_reader(
             cbBuf = sc_cbBufChunkMax;
          }
          void const * pSrc(pbBuf);
-         size_t cbSrcConsumed(cbBuf);
+         size_t cbSrcRemaining(cbBuf);
          // Calculate the additional size required.
          size_t cbDst(abc::text::transcode(
-            true, m_enc, &pSrc, &cbSrcConsumed, abc::text::encoding::host
+            true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
          ));
          // Enlarge the destination string and get its begin/end pointers.
          ps->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
@@ -480,7 +480,7 @@ binbuf_reader::binbuf_reader(
          char_t * pchDstEnd(pchDstOffset);
          // Transcode the buffer chunk and advance pchDstEnd accordingly.
          abc::text::transcode(
-            true, m_enc, &pSrc, &cbSrcConsumed,
+            true, m_enc, &pSrc, &cbSrcRemaining,
             abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
          );
 
@@ -494,12 +494,12 @@ binbuf_reader::binbuf_reader(
          if (pchDstConsumeEnd != pchDstEnd) {
             // Restore the arguments for transcode().
             pSrc = pbBuf;
-            cbSrcConsumed = cbBuf;
+            cbSrcRemaining = cbBuf;
             pchDstEnd = pchDstOffset;
             cbDst = reinterpret_cast<size_t>(pchDstConsumeEnd) -
                reinterpret_cast<size_t>(pchDstOffset);
             abc::text::transcode(
-               true, m_enc, &pSrc, &cbSrcConsumed,
+               true, m_enc, &pSrc, &cbSrcRemaining,
                abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
             );
             ABC_ASSERT(
@@ -510,7 +510,7 @@ binbuf_reader::binbuf_reader(
 
          // Consume as much of the buffer as fnGetConsumeEnd said.
          cchReadTotal += static_cast<size_t>(pchDstConsumeEnd - pchDstOffset);
-         m_pbbr->consume_bytes(cbSrcConsumed);
+         m_pbbr->consume_bytes(cbBuf - cbSrcRemaining);
 
          // Read some more bytes; see comment to this same line at the beginning of this method.
          std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
