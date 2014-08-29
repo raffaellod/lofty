@@ -518,15 +518,12 @@ file_reader::file_reader(_file_init_data * pfid) :
       // This will be repeated at least once, and as long as we still have some bytes to read, and
       // reading them does not fail.
       DWORD cbLastRead;
-      if (!::ReadFile(
+      BOOL bRet = ::ReadFile(
          m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cbMax, numeric::max<DWORD>::value)),
          &cbLastRead, nullptr
-      )) {
-         DWORD iErr(::GetLastError());
-         if (iErr == ERROR_HANDLE_EOF) {
-            break;
-         }
-         throw_os_error(iErr);
+      );
+      if (readfile_returned_eof(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
+         break;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
@@ -538,6 +535,18 @@ file_reader::file_reader(_file_init_data * pfid) :
 
    return static_cast<size_t>(pb - static_cast<int8_t *>(p));
 }
+
+
+#if ABC_HOST_API_WIN32
+
+/*virtual*/ bool file_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
+   if (iErr != ERROR_SUCCESS) {
+      throw_os_error(iErr);
+   }
+   return cchRead == 0;
+}
+
+#endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -689,6 +698,9 @@ console_reader::console_reader(_file_init_data * pfid) :
          }
          throw_os_error(iErr);
       }
+      if (!cchLastRead) {
+         break;
+      }
       // Some bytes were read; prepare for the next attempt.
       pb += cchLastRead * sizeof(char_t);
       cchMax -= static_cast<size_t>(cchLastRead);
@@ -778,6 +790,23 @@ pipe_reader::pipe_reader(_file_init_data * pfid) :
 
 /*virtual*/ pipe_reader::~pipe_reader() {
 }
+
+
+#if ABC_HOST_API_WIN32
+
+/*virtual*/ bool pipe_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
+   ABC_UNUSED_ARG(cchRead);
+   switch (iErr) {
+      case ERROR_SUCCESS:
+         return false;
+      case ERROR_BROKEN_PIPE:
+         return true;
+      default:
+         throw_os_error(iErr);
+   }
+}
+
+#endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io

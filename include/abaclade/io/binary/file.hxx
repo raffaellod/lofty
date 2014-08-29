@@ -298,6 +298,25 @@ public:
    /*! See reader::read().
    */
    virtual size_t read(void * p, size_t cbMax);
+
+
+#if ABC_HOST_API_WIN32
+
+   // Under Win32 there are major differences in detection of EOF depending on the file type.
+
+   /*! Detects EOF conditions and real errors.
+
+   cchRead
+      Count of bytes read by ::ReadFile().
+   iErr
+      Value returned by ::GetLastError() if ::ReadFile() returned false, or ERROR_SUCCESS otherwise.
+   return
+      true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are
+      thrown for all non-EOF error conditions.
+   */
+   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const;
+
+#endif //if ABC_HOST_API_WIN32
 };
 
 } //namespace binary
@@ -482,6 +501,16 @@ public:
    /*! Destructor.
    */
    virtual ~pipe_reader();
+
+
+#if ABC_HOST_API_WIN32
+
+   /*! See file_reader::readfile_returned_eof(). Pipes report EOF in a completely different way than
+   regular files.
+   */
+   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const;
+
+#endif //if ABC_HOST_API_WIN32
 };
 
 } //namespace binary
