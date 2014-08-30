@@ -582,12 +582,6 @@ protected:
    std::pair<const_iterator, const_iterator> translate_range(
       intptr_t ichBegin, intptr_t ichEnd
    ) const;
-
-
-protected:
-
-   /*! Single NUL terminator. */
-   static char_t const smc_chNul;
 };
 
 } //namespace abc
@@ -721,6 +715,12 @@ public:
       ::new(this) istr(ach);
       return *this;
    }
+
+
+public:
+
+   //! Empty string constant.
+   static istr const & empty;
 };
 
 

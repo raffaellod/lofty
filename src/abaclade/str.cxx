@@ -60,10 +60,24 @@ void str_to_str_backend::write(
 // abc::str_base
 
 
+namespace {
+
+//! Single NUL terminator.
+abc::char_t const gc_chNul('\0');
+
+abc::detail::raw_vextr_impl_data const gc_rvidEmpty = {
+   /*m_pBegin*/ const_cast<abc::char_t *>(&gc_chNul),
+   /*m_pEnd*/ const_cast<abc::char_t *>(&gc_chNul),
+   /*mc_bEmbeddedPrefixedItemArray*/ false,
+   /*m_bPrefixedItemArray*/ false,
+   /*m_bDynamic*/ false,
+   /*m_bNulT*/ true
+};
+
+} //namespace
+
+
 namespace abc {
-
-char_t const str_base::smc_chNul('\0');
-
 
 char_t const * str_base::_advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const {
    ABC_TRACE_FUNC(this, pch, i, bIndex);
@@ -118,7 +132,7 @@ str_base::c_str_pointer str_base::c_str() const {
       return std::move(psz);
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return c_str_pointer(&smc_chNul, c_str_pointer::deleter_type(false));
+      return c_str_pointer(&::gc_chNul, c_str_pointer::deleter_type(false));
    }
 }
 
@@ -300,6 +314,18 @@ size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
    }
    return iHash;
 }
+
+} //namespace std
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::istr
+
+
+namespace abc {
+
+// Can’t use static_cast<>() due to str_base being a protected base.
+istr const & empty = *reinterpret_cast<istr const *>(&gc_rvidEmpty);
 
 } //namespace std
 
