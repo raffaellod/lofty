@@ -96,7 +96,7 @@ public:
    sExpr
       Source representation of the expression being evaluated.
    sOp
-      Applied comparison operator.
+      Applied relational operator.
    sExpected
       If bPass, expression generating the expected value (i.e. the C++ expression, as a string); if
       !bPass, computed expected value (i.e. the actual value returned by the C++ expression, as a

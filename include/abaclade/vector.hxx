@@ -482,7 +482,7 @@ public:
    }
 
 
-   /*! Equality comparison operator.
+   /*! Equality relational operator.
 
    v
       Object to compare to *this.
@@ -515,7 +515,7 @@ public:
    }
 
 
-   /*! Inequality comparison operator.
+   /*! Inequality relational operator.
 
    v
       Object to compare to *this.

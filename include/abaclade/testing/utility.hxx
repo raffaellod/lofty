@@ -228,7 +228,7 @@ public:
    }
 
 
-   /*! Equality comparison operator. Should always return false, since no two simultaneously-living
+   /*! Equality relational operator. Should always return false, since no two simultaneously-living
    instances should have the same unique value.
 
    oc
@@ -241,7 +241,7 @@ public:
    }
 
 
-   /*! Inequality comparison operator. Should always return true, since no two simultaneously-living
+   /*! Inequality relational operator. Should always return true, since no two simultaneously-living
    instances should have the same unique value.
 
    oc
