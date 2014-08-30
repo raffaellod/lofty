@@ -268,7 +268,6 @@ protected:
    // Allow transactions to access this class’s protected members.
    friend class raw_vextr_transaction;
 
-
 public:
 
    /*! Non-template prefixed item array used for the calculation of offsets that will then be
