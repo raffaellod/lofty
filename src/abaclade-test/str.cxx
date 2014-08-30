@@ -171,6 +171,12 @@ public:
       ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("a\0b\0ç"));
       ABC_TESTING_ASSERT_EQUAL(ABC_SL("a\0b\0ç"), s);
 
+      // Now that the string is not empty, validate that clear() truncates it without freeing its
+      // buffer.
+      s.clear();
+      ABC_TESTING_ASSERT_EQUAL(s.size(), 0u);
+      ABC_TESTING_ASSERT_GREATER(s.capacity(), 0u);
+
       {
          // Note: all string operations here must involve as few characters as possible to avoid
          // triggering a reallocation, which would break these tests.
