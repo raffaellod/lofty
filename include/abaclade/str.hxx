@@ -836,6 +836,13 @@ public:
    }
 
 
+   /*! Truncates the string to zero length, without deallocating the internal buffer.
+   */
+   void clear() {
+      set_size(0);
+   }
+
+
    /*! See str_base::end(). Here also available in non-const overload.
    */
    iterator end() {
