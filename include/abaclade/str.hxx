@@ -637,7 +637,7 @@ class mstr;
 /*! str_base-derived class, to be used as “the” string class in most cases. It cannot be modified
 in-place, which means that it shouldn’t be used in code performing intensive string manipulations.
 */
-class istr :
+class ABACLADE_SYM istr :
    public str_base {
 public:
 
