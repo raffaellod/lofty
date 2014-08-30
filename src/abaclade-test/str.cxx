@@ -429,56 +429,56 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      istr sEmpty, sAB(ABC_SL("äb"));
+      istr sAB(ABC_SL("äb"));
 
       // Substring of empty string.
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(-1, 1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(0, 1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sEmpty.substr(1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, 1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, 1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, 1), istr::empty);
 
       // Substring of a 2-characer string.
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), ABC_SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), ABC_SL("ä"));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), ABC_SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), ABC_SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), ABC_SL("ä"));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), ABC_SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), ABC_SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), ABC_SL("ä"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), ABC_SL("ä"));
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), ABC_SL("äb"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), istr::empty);
       ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), ABC_SL("b"));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), ABC_SL(""));
-      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), istr::empty);
+      ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), istr::empty);
    }
 };
 

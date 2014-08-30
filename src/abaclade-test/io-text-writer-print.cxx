@@ -59,7 +59,7 @@ public:
 
       // No replacements.
       stw.clear();
-      ABC_TESTING_ASSERT_EQUAL((stw.print(ABC_SL("")), stw.get_str()), ABC_SL(""));
+      ABC_TESTING_ASSERT_EQUAL((stw.print(istr::empty), stw.get_str()), istr::empty);
       stw.clear();
       ABC_TESTING_ASSERT_EQUAL((stw.print(ABC_SL("x")), stw.get_str()), ABC_SL("x"));
       stw.clear();
