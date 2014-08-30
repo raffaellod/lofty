@@ -253,6 +253,35 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::detail::raw_vextr_impl_data
+
+
+namespace abc {
+namespace detail {
+
+/*! Data members of raw_vextr_impl_base, as a plain old struct.
+*/
+struct raw_vextr_impl_data {
+   //! Pointer to the start of the item array.
+   void * m_pBegin;
+   //! Pointer to the end of the item array.
+   void * m_pEnd;
+   //! true if *this includes an embedded prefixed item array.
+   bool /*const*/ mc_bEmbeddedPrefixedItemArray:1;
+   //! true if the item array is part of a prefixed item array.
+   bool m_bPrefixedItemArray:1;
+   /*! true if the current item array is allocated dynamically, or false otherwise (embedded
+   prefixed or non-prefixed). */
+   bool m_bDynamic:1;
+   //! true if the item array is NUL-terminated.
+   bool m_bNulT:1;
+};
+
+} //namespace detail
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::raw_vextr_impl_base
 
 
@@ -262,7 +291,8 @@ namespace detail {
 /*! Template-independent members of detail::raw_*_vextr_impl that are identical for trivial and non-
 trivial types.
 */
-class ABACLADE_SYM raw_vextr_impl_base {
+class ABACLADE_SYM raw_vextr_impl_base :
+   public raw_vextr_impl_data {
 protected:
 
    // Allow transactions to access this class’s protected members.
@@ -346,11 +376,11 @@ private:
 
    Note that this doesn’t really initialize the object!
    */
-   raw_vextr_impl_base() :
-      mc_bEmbeddedPrefixedItemArray(false),
+   raw_vextr_impl_base() {
+      mc_bEmbeddedPrefixedItemArray = false;
       // This is needed to disable the destructor, so we won’t try to release an invalid pointer in
       // case anything goes wrong before the rest of the object is initialized.
-      m_bDynamic(false) {
+      m_bDynamic = false;
    }
 
 
@@ -370,13 +400,13 @@ protected:
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
    raw_vextr_impl_base(size_t cbEmbeddedCapacity);
-   raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) :
-      m_pBegin(const_cast<void *>(pConstSrcBegin)),
-      m_pEnd(const_cast<void *>(pConstSrcEnd)),
-      mc_bEmbeddedPrefixedItemArray(false),
-      m_bPrefixedItemArray(false),
-      m_bDynamic(false),
-      m_bNulT(bNulT) {
+   raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) {
+      m_pBegin = const_cast<void *>(pConstSrcBegin);
+      m_pEnd = const_cast<void *>(pConstSrcEnd);
+      mc_bEmbeddedPrefixedItemArray = false;
+      m_bPrefixedItemArray = false;
+      m_bDynamic = false;
+      m_bNulT = bNulT;
    }
 
 
@@ -524,20 +554,6 @@ protected:
 
 
 protected:
-
-   /*! Pointer to the start of the item array. */
-   void * m_pBegin;
-   /*! Pointer to the end of the item array. */
-   void * m_pEnd;
-   /*! true if *this includes an embedded prefixed item array. */
-   bool const mc_bEmbeddedPrefixedItemArray:1;
-   /*! true if the item array is part of a prefixed item array. */
-   bool m_bPrefixedItemArray:1;
-   /*! true if the current item array is allocated dynamically, or false otherwise (embedded
-   prefixed or non-prefixed). */
-   bool m_bDynamic:1;
-   /*! true if the item array is NUL-terminated. */
-   bool m_bNulT:1;
 
    /*! The item array size must be no less than this many bytes. */
    static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;

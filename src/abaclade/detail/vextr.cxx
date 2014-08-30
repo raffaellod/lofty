@@ -28,17 +28,17 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-raw_vextr_impl_base::raw_vextr_impl_base(size_t cbEmbeddedCapacity) :
-   m_pBegin(nullptr),
-   m_pEnd(nullptr),
-   mc_bEmbeddedPrefixedItemArray(cbEmbeddedCapacity > 0),
-   m_bPrefixedItemArray(false),
-   m_bDynamic(false),
-   m_bNulT(false) {
-   if (cbEmbeddedCapacity) {
+raw_vextr_impl_base::raw_vextr_impl_base(size_t cbEmbeddedCapacity) {
+   m_pBegin = nullptr;
+   m_pEnd = nullptr;
+   mc_bEmbeddedPrefixedItemArray = cbEmbeddedCapacity > 0;
+   if (mc_bEmbeddedPrefixedItemArray) {
       // Assign cbEmbeddedCapacity to the embedded item array that follows *this.
       embedded_prefixed_item_array()->m_cbCapacity = cbEmbeddedCapacity;
    }
+   m_bPrefixedItemArray = false;
+   m_bDynamic = false;
+   m_bNulT = false;
 }
 
 
