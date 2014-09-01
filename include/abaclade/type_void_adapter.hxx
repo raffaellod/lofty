@@ -184,40 +184,68 @@ private:
    ptSrcEnd
       Pointer to beyond the last item to copy.
    */
+#if ABC_HOST_MSC
+
+   // MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
+   // version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
+   // saying it doesn’t know which one to choose.
    template <typename T>
    static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
          memory::copy(ptDstBegin, ptSrcBegin, static_cast<size_t>(ptSrcEnd - ptSrcBegin));
       } else {
+         // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
+         // copy.
          T * ptDst(ptDstBegin);
-         if (
-#if ABC_HOST_GCC >= 40700
-            std::is_nothrow_copy_constructible<T>::value
-#else
-            std::has_nothrow_copy_constructor<T>::value
-#endif
-         ) {
-            // Not trivial, but it won’t throw either.
+         try {
             for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
                ::new(ptDst) T(*ptSrc);
             }
-         } else {
-            // Exceptions can occur, so implement an all-or-nothing copy.
-            try {
-               for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
-                  ::new(ptDst) T(*ptSrc);
-               }
-            } catch (...) {
-               // Undo (destruct) all the copies instantiated.
-               while (--ptDst >= ptDstBegin) {
-                  ptDst->~T();
-               }
-               throw;
+         } catch (...) {
+            // Undo (destruct) all the copies instantiated.
+            while (--ptDst >= ptDstBegin) {
+               ptDst->~T();
             }
+            throw;
          }
       }
    }
+
+#else //if ABC_HOST_MSC
+
+   // Only enabled if the copy constructor is trivial.
+   template <typename T>
+   static void _typed_copy_constr(
+      typename std::enable_if<std::has_trivial_copy_constructor<T>::value, T *>::type ptDstBegin,
+      T const * ptSrcBegin, T const * ptSrcEnd
+   ) {
+      // No constructor, fastest copy possible.
+      memory::copy(ptDstBegin, ptSrcBegin, static_cast<size_t>(ptSrcEnd - ptSrcBegin));
+   }
+   // Only enabled if the copy constructor is not trivial.
+   template <typename T>
+   static void _typed_copy_constr(
+      typename std::enable_if<!std::has_trivial_copy_constructor<T>::value, T *>::type ptDstBegin,
+      T const * ptSrcBegin, T const * ptSrcEnd
+   ) {
+      // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
+      // copy.
+      T * ptDst(ptDstBegin);
+      try {
+         for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+            ::new(ptDst) T(*ptSrc);
+         }
+      } catch (...) {
+         // Undo (destruct) all the copies instantiated.
+         while (--ptDst >= ptDstBegin) {
+            ptDst->~T();
+         }
+         throw;
+      }
+   }
+
+#endif //if ABC_HOST_MSC … else
 
 
    /*! Destructs a range of items in an array.
