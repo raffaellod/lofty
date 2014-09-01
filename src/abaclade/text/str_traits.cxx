@@ -29,11 +29,11 @@ namespace abc {
 namespace text {
 
 /*static*/ void str_traits::_build_find_failure_restart_table(
-   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<std::size_t> * pvcchFailNext
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
 
-   pvcchFailNext->set_size(static_cast<size_t>(pchNeedleEnd - pchNeedleBegin));
+   pvcchFailNext->set_size(static_cast<std::size_t>(pchNeedleEnd - pchNeedleBegin));
    auto itNextFailNext(pvcchFailNext->begin());
 
    // The earliest repetition of a non-first character can only occur on the fourth character, so
@@ -43,7 +43,7 @@ namespace text {
    char_t const * pchRestart(pchNeedleBegin);
    *itNextFailNext++ = 0;
    *itNextFailNext++ = 0;
-   size_t ichRestart(0);
+   std::size_t ichRestart(0);
    while (pchNeedle < pchNeedleEnd) {
       // Store the current failure restart index, or 0 if the previous character was the third or
       // was not a match.
@@ -216,10 +216,10 @@ namespace text {
       */
 
       // Build the failure restart table.
-      smvector<size_t, 64> vcchFailNext;
+      smvector<std::size_t, 64> vcchFailNext;
       _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
 
-      size_t iFailNext(0);
+      std::size_t iFailNext(0);
       while (pchHaystack < pchHaystackEnd) {
          if (*pchHaystack == *pchNeedle) {
             ++pchNeedle;
@@ -234,7 +234,7 @@ namespace text {
          } else if (iFailNext > 0) {
             // The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
             // much into the needle we can retry matching characters.
-            iFailNext = vcchFailNext[static_cast<intptr_t>(iFailNext)];
+            iFailNext = vcchFailNext[static_cast<std::intptr_t>(iFailNext)];
             pchNeedle = pchNeedleBegin + iFailNext;
          } else {
             // Not a match, and no restart point: we’re out of options to match this character, so
@@ -276,10 +276,12 @@ namespace text {
 }
 
 
-/*static*/ size_t str_traits::size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd) {
+/*static*/ std::size_t str_traits::size_in_codepoints(
+   char_t const * pchBegin, char_t const * pchEnd
+) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   size_t ccp(0);
+   std::size_t ccp(0);
    for (
       char_t const * pch(pchBegin);
       pch < pchEnd;
@@ -298,7 +300,7 @@ namespace text {
 
 #if ABC_HOST_UTF == 8
    for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
-      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
+      std::uint8_t const * pbSrcCpBegin(reinterpret_cast<std::uint8_t const *>(pch));
       char8_t ch(*pch++);
       // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
       if (!utf8_char_traits::is_valid_lead_char(ch)) {
@@ -327,7 +329,7 @@ namespace text {
             if (bThrowOnErrors) {
                ABC_THROW(decode_error, (
                   ABC_SL("unexpected end of UTF-8 sequence"),
-                  pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                  pbSrcCpBegin, reinterpret_cast<std::uint8_t const *>(pch)
                ));
             } else {
                return false;
@@ -352,7 +354,7 @@ namespace text {
                if (bThrowOnErrors) {
                   ABC_THROW(decode_error, (
                      ABC_SL("overlong UTF-8 sequence"),
-                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                     pbSrcCpBegin, reinterpret_cast<std::uint8_t const *>(pch)
                   ));
                } else {
                   return false;
@@ -366,7 +368,7 @@ namespace text {
                if (bThrowOnErrors) {
                   ABC_THROW(decode_error, (
                      ABC_SL("UTF-8 sequence decoded into invalid code point"),
-                     pbSrcCpBegin, reinterpret_cast<uint8_t const *>(pch)
+                     pbSrcCpBegin, reinterpret_cast<std::uint8_t const *>(pch)
                   ));
                } else {
                   return false;
@@ -380,7 +382,7 @@ namespace text {
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
    bool bExpectTrailSurrogate(false);
    for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      uint8_t const * pbSrcCpBegin(reinterpret_cast<uint8_t const *>(pch));
+      std::uint8_t const * pbSrcCpBegin(reinterpret_cast<std::uint8_t const *>(pch));
       char16_t ch(*pch);
       bool bSurrogate(utf16_char_traits::is_surrogate(ch));
       if (bSurrogate) {

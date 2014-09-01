@@ -70,9 +70,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <byteswap.h> // bswap_*()
    #define ABC_HAVE_BSWAP
 #else
-   ABACLADE_SYM uint16_t bswap_16(uint16_t i);
-   ABACLADE_SYM uint32_t bswap_32(uint32_t i);
-   ABACLADE_SYM uint64_t bswap_64(uint64_t i);
+   ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
+   ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
+   ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 #endif
 
 
@@ -80,13 +80,13 @@ namespace abc {
 namespace byteorder {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
-template <size_t cb>
+template <std::size_t cb>
 struct _swap_impl;
 
 // Specialization for 1-byte integers.
 template <>
 struct _swap_impl<1> {
-   typedef uint8_t type;
+   typedef std::uint8_t type;
 
    type operator()(type i) {
       // No byte swapping on a single byte.
@@ -97,7 +97,7 @@ struct _swap_impl<1> {
 // Specialization for 2-byte integers.
 template <>
 struct _swap_impl<2> {
-   typedef uint16_t type;
+   typedef std::uint16_t type;
 
    type operator()(type i) {
       return bswap_16(i);
@@ -107,7 +107,7 @@ struct _swap_impl<2> {
 // Specialization for 4-byte integers.
 template <>
 struct _swap_impl<4> {
-   typedef uint32_t type;
+   typedef std::uint32_t type;
 
    type operator()(type i) {
       return bswap_32(i);
@@ -117,7 +117,7 @@ struct _swap_impl<4> {
 // Specialization for 8-byte integers.
 template <>
 struct _swap_impl<8> {
-   typedef uint64_t type;
+   typedef std::uint64_t type;
 
    type operator()(type i) {
       return bswap_64(i);
@@ -223,8 +223,8 @@ return
 */
 #define ABC_BYTEORDER_SWAP16(i) \
    ( \
-      ((static_cast<uint16_t>(i) & 0xff00) >> 8) | \
-      ((static_cast<uint16_t>(i) & 0x00ff) << 8) \
+      ((static_cast<std::uint16_t>(i) & 0xff00) >> 8) | \
+      ((static_cast<std::uint16_t>(i) & 0x00ff) << 8) \
    )
 
 /*! Unconditionally flips the byte order in a 32-bit number.
@@ -236,10 +236,10 @@ return
 */
 #define ABC_BYTEORDER_SWAP32(i) \
    ( \
-      ((static_cast<uint32_t>(i) & 0xff000000) >> 24) | \
-      ((static_cast<uint32_t>(i) & 0x00ff0000) >>  8) | \
-      ((static_cast<uint32_t>(i) & 0x0000ff00) <<  8) | \
-      ((static_cast<uint32_t>(i) & 0x000000ff) << 24) \
+      ((static_cast<std::uint32_t>(i) & 0xff000000) >> 24) | \
+      ((static_cast<std::uint32_t>(i) & 0x00ff0000) >>  8) | \
+      ((static_cast<std::uint32_t>(i) & 0x0000ff00) <<  8) | \
+      ((static_cast<std::uint32_t>(i) & 0x000000ff) << 24) \
    )
 
 /*! Unconditionally flips the byte order in a 64-bit number.
@@ -251,14 +251,14 @@ return
 */
 #define ABC_BYTEORDER_SWAP64(i) \
    ( \
-      ((static_cast<uint64_t>(i) & 0xff00000000000000ull) >> 56) | \
-      ((static_cast<uint64_t>(i) & 0x00ff000000000000ull) >> 40) | \
-      ((static_cast<uint64_t>(i) & 0x0000ff0000000000ull) >> 24) | \
-      ((static_cast<uint64_t>(i) & 0x000000ff00000000ull) >>  8) | \
-      ((static_cast<uint64_t>(i) & 0x00000000ff000000ull) <<  8) | \
-      ((static_cast<uint64_t>(i) & 0x0000000000ff0000ull) << 24) | \
-      ((static_cast<uint64_t>(i) & 0x000000000000ff00ull) << 40) | \
-      ((static_cast<uint64_t>(i) & 0x00000000000000ffull) << 56) \
+      ((static_cast<std::uint64_t>(i) & 0xff00000000000000ull) >> 56) | \
+      ((static_cast<std::uint64_t>(i) & 0x00ff000000000000ull) >> 40) | \
+      ((static_cast<std::uint64_t>(i) & 0x0000ff0000000000ull) >> 24) | \
+      ((static_cast<std::uint64_t>(i) & 0x000000ff00000000ull) >>  8) | \
+      ((static_cast<std::uint64_t>(i) & 0x00000000ff000000ull) <<  8) | \
+      ((static_cast<std::uint64_t>(i) & 0x0000000000ff0000ull) << 24) | \
+      ((static_cast<std::uint64_t>(i) & 0x000000000000ff00ull) << 40) | \
+      ((static_cast<std::uint64_t>(i) & 0x00000000000000ffull) << 56) \
    )
 
 
@@ -272,7 +272,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_HOSTTOBE16(i) ABC_BYTEORDER_SWAP16(i)
 #else
-   #define ABC_BYTEORDER_HOSTTOBE16(i) static_cast<uint16_t>(i)
+   #define ABC_BYTEORDER_HOSTTOBE16(i) static_cast<std::uint16_t>(i)
 #endif
 
 
@@ -286,7 +286,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_HOSTTOBE32(i) ABC_BYTEORDER_SWAP32(i)
 #else
-   #define ABC_BYTEORDER_HOSTTOBE32(i) static_cast<uint32_t>(i)
+   #define ABC_BYTEORDER_HOSTTOBE32(i) static_cast<std::uint32_t>(i)
 #endif
 
 
@@ -300,7 +300,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_HOSTTOBE64(i) ABC_BYTEORDER_SWAP64(i)
 #else
-   #define ABC_BYTEORDER_HOSTTOBE64(i) static_cast<uint64_t>(i)
+   #define ABC_BYTEORDER_HOSTTOBE64(i) static_cast<std::uint64_t>(i)
 #endif
 
 
@@ -312,7 +312,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_HOSTTOLE16(i) static_cast<uint16_t>(i)
+   #define ABC_BYTEORDER_HOSTTOLE16(i) static_cast<std::uint16_t>(i)
 #else
    #define ABC_BYTEORDER_HOSTTOLE16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
@@ -326,7 +326,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_HOSTTOLE32(i) static_cast<uint32_t>(i)
+   #define ABC_BYTEORDER_HOSTTOLE32(i) static_cast<std::uint32_t>(i)
 #else
    #define ABC_BYTEORDER_HOSTTOLE32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
@@ -340,7 +340,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_HOSTTOLE64(i) static_cast<uint64_t>(i)
+   #define ABC_BYTEORDER_HOSTTOLE64(i) static_cast<std::uint64_t>(i)
 #else
    #define ABC_BYTEORDER_HOSTTOLE64(i) ABC_BYTEORDER_SWAP64(i)
 #endif
@@ -356,7 +356,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_BETOHOST16(i) ABC_BYTEORDER_SWAP16(i)
 #else
-   #define ABC_BYTEORDER_BETOHOST16(i) static_cast<uint16_t>(i)
+   #define ABC_BYTEORDER_BETOHOST16(i) static_cast<std::uint16_t>(i)
 #endif
 
 
@@ -370,7 +370,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_BETOHOST32(i) ABC_BYTEORDER_SWAP32(i)
 #else
-   #define ABC_BYTEORDER_BETOHOST32(i) static_cast<uint32_t>(i)
+   #define ABC_BYTEORDER_BETOHOST32(i) static_cast<std::uint32_t>(i)
 #endif
 
 
@@ -384,7 +384,7 @@ return
 #if ABC_HOST_LITTLE_ENDIAN
    #define ABC_BYTEORDER_BETOHOST64(i) ABC_BYTEORDER_SWAP64(i)
 #else
-   #define ABC_BYTEORDER_BETOHOST64(i) static_cast<uint64_t>(i)
+   #define ABC_BYTEORDER_BETOHOST64(i) static_cast<std::uint64_t>(i)
 #endif
 
 
@@ -396,7 +396,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_LETOHOST16(i) static_cast<uint16_t>(i)
+   #define ABC_BYTEORDER_LETOHOST16(i) static_cast<std::uint16_t>(i)
 #else
    #define ABC_BYTEORDER_LETOHOST16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
@@ -410,7 +410,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_LETOHOST32(i) static_cast<uint32_t>(i)
+   #define ABC_BYTEORDER_LETOHOST32(i) static_cast<std::uint32_t>(i)
 #else
    #define ABC_BYTEORDER_LETOHOST32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
@@ -424,7 +424,7 @@ return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
-   #define ABC_BYTEORDER_LETOHOST64(i) static_cast<uint64_t>(i)
+   #define ABC_BYTEORDER_LETOHOST64(i) static_cast<std::uint64_t>(i)
 #else
    #define ABC_BYTEORDER_LETOHOST64(i) ABC_BYTEORDER_SWAP64(i)
 #endif

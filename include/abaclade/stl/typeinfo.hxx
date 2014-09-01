@@ -71,7 +71,7 @@ public:
 
    TODO: comment signature.
    */
-   size_t hash_code() const;
+   std::size_t hash_code() const;
 
 
    /*! Returns the name of the type.

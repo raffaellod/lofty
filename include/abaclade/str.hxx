@@ -49,8 +49,8 @@ public:
    typedef char_t const * const_pointer;
    typedef char_t & reference;
    typedef char_t const & const_reference;
-   typedef size_t size_type;
-   typedef ptrdiff_t difference_type;
+   typedef std::size_t size_type;
+   typedef std::ptrdiff_t difference_type;
    typedef text::codepoint_iterator<false> iterator;
    typedef text::codepoint_iterator<true> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -86,7 +86,7 @@ public:
    return
       Character at index i.
    */
-   text::_codepoint_proxy<true> operator[](intptr_t i) const {
+   text::_codepoint_proxy<true> operator[](std::intptr_t i) const {
       return text::_codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
@@ -97,9 +97,10 @@ public:
       true if the string is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      // Use int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than check.
-      return detail::raw_vextr_impl_base::end<int8_t>() >
-         detail::raw_vextr_impl_base::begin<int8_t>();
+      // Use std::int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than
+      // check.
+      return detail::raw_vextr_impl_base::end<std::int8_t>() >
+         detail::raw_vextr_impl_base::begin<std::int8_t>();
    }
 
 
@@ -117,7 +118,7 @@ public:
    return
       Resulting pointer.
    */
-   char_t const * _advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const;
+   char_t const * _advance_char_ptr(char_t const * pch, std::ptrdiff_t i, bool bIndex) const;
 
 
    /*! Returns a forward iterator set to the first element.
@@ -152,7 +153,7 @@ public:
    return
       Size of the string buffer, in characters.
    */
-   size_t capacity() const {
+   std::size_t capacity() const {
       return detail::raw_vextr_impl_base::capacity<char_t>();
    }
 
@@ -224,7 +225,7 @@ public:
    return
       Resulting byte vector.
    */
-   dmvector<uint8_t> encode(text::encoding enc, bool bNulT) const;
+   dmvector<std::uint8_t> encode(text::encoding enc, bool bNulT) const;
 
 
    /*! Returns a forward iterator set beyond the last element.
@@ -408,7 +409,7 @@ public:
    return
       Size of the string.
    */
-   size_t size() const {
+   std::size_t size() const {
       return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
@@ -418,8 +419,8 @@ public:
    return
       Size of the string.
    */
-   size_t size_in_bytes() const {
-      return detail::raw_trivial_vextr_impl::size<int8_t>();
+   std::size_t size_in_bytes() const {
+      return detail::raw_trivial_vextr_impl::size<std::int8_t>();
    }
 
 
@@ -428,7 +429,7 @@ public:
    return
       Size of the string.
    */
-   size_t size_in_chars() const {
+   std::size_t size_in_chars() const {
       return detail::raw_trivial_vextr_impl::size<char_t>();
    }
 
@@ -458,8 +459,8 @@ public:
    return
       Substring of *this.
    */
-   dmstr substr(intptr_t ichBegin) const;
-   dmstr substr(intptr_t ichBegin, intptr_t ichEnd) const;
+   dmstr substr(std::intptr_t ichBegin) const;
+   dmstr substr(std::intptr_t ichBegin, std::intptr_t ichEnd) const;
    dmstr substr(const_iterator itBegin) const;
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
 
@@ -477,10 +478,10 @@ protected:
    bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str_base(size_t cbEmbeddedCapacity) :
+   str_base(std::size_t cbEmbeddedCapacity) :
       detail::raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
-   str_base(char_t const * pchConstSrc, size_t cchSrc, bool bNulT) :
+   str_base(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
       detail::raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
@@ -558,7 +559,7 @@ protected:
    return
       Resulting iterator.
    */
-   const_iterator translate_index(intptr_t ich) const;
+   const_iterator translate_index(std::intptr_t ich) const;
 
 
    /*! Converts a left-closed, right-open interval with possibly negative character indices into one
@@ -577,7 +578,7 @@ protected:
       interval [end(), end()) if the indices represent an empty interval after being adjusted.
    */
    std::pair<const_iterator, const_iterator> translate_range(
-      intptr_t ichBegin, intptr_t ichEnd
+      std::intptr_t ichBegin, std::intptr_t ichEnd
    ) const;
 };
 
@@ -591,12 +592,12 @@ protected:
          s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
       ) op 0; \
    } \
-   template <size_t t_cch> \
+   template <std::size_t t_cch> \
    inline bool operator op(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) { \
       abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
       return abc::text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
    } \
-   template <size_t t_cch> \
+   template <std::size_t t_cch> \
    inline bool operator op(abc::char_t const (& ach)[t_cch], abc::str_base const & s) { \
       abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
       return abc::text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
@@ -616,7 +617,7 @@ namespace std {
 template <>
 struct ABACLADE_SYM hash<abc::str_base> {
 
-   size_t operator()(abc::str_base const & s) const;
+   std::size_t operator()(abc::str_base const & s) const;
 };
 
 } //namespace std
@@ -668,7 +669,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
    istr(mstr && s);
    istr(dmstr && s);
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    istr(char_t const (& ach)[t_cch]) :
       str_base(ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0') {
    }
@@ -679,7 +680,7 @@ public:
    istr(unsafe_t, char_t const * psz) :
       str_base(psz, text::size_in_chars(psz), true) {
    }
-   istr(unsafe_t, char_t const * psz, size_t cch) :
+   istr(unsafe_t, char_t const * psz, std::size_t cch) :
       str_base(psz, cch, false) {
    }
 
@@ -705,7 +706,7 @@ public:
    // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
    istr & operator=(mstr && s);
    istr & operator=(dmstr && s);
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    istr & operator=(char_t const (& ach)[t_cch]) {
       // This order is safe, because the constructor invoked on the next line won’t throw.
       this->~istr();
@@ -800,7 +801,9 @@ public:
 #endif
    mstr & operator+=(char32_t ch) {
       char_t ach[text::host_char_traits::max_codepoint_length];
-      append(ach, static_cast<size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach));
+      append(ach, static_cast<std::size_t>(
+         text::host_char_traits::codepoint_to_chars(ch, ach) - ach
+      ));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -816,9 +819,9 @@ public:
    cchAdd
       Count of characters in the array pointed to by pchAdd.
    */
-   void append(char_t const * pchAdd, size_t cchAdd) {
+   void append(char_t const * pchAdd, std::size_t cchAdd) {
       detail::raw_trivial_vextr_impl::insert_remove(
-         detail::raw_vextr_impl_base::size<int8_t>(), pchAdd, sizeof(char_t) * cchAdd, 0
+         detail::raw_vextr_impl_base::size<std::int8_t>(), pchAdd, sizeof(char_t) * cchAdd, 0
       );
    }
 
@@ -857,25 +860,25 @@ public:
    cchInsert
       Count of characters in the array pointed to by pchInsert.
    */
-   void insert(uintptr_t ichOffset, char_t ch) {
+   void insert(std::uintptr_t ichOffset, char_t ch) {
       insert(ichOffset, &ch, 1);
    }
 #if ABC_HOST_UTF > 8
-   void insert(uintptr_t ichOffset, char ch) {
+   void insert(std::uintptr_t ichOffset, char ch) {
       insert(ichOffset, text::host_char(ch));
    }
 #endif
-   void insert(uintptr_t ichOffset, char32_t ch) {
+   void insert(std::uintptr_t ichOffset, char32_t ch) {
       char_t ach[text::host_char_traits::max_codepoint_length];
       insert(
          ichOffset, ach,
-         static_cast<size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach)
+         static_cast<std::size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach)
       );
    }
-   void insert(uintptr_t ichOffset, istr const & s) {
+   void insert(std::uintptr_t ichOffset, istr const & s) {
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
-   void insert(uintptr_t ichOffset, char_t const * pchInsert, size_t cchInsert) {
+   void insert(std::uintptr_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
       detail::raw_trivial_vextr_impl::insert_remove(
          sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
       );
@@ -922,7 +925,7 @@ public:
       If true, the previous contents of the string will be preserved even if the reallocation
       causes the string to switch to a different character array.
    */
-   void set_capacity(size_t cchMin, bool bPreserve) {
+   void set_capacity(std::size_t cchMin, bool bPreserve) {
       detail::raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
    }
 
@@ -947,7 +950,7 @@ public:
          be the final count of characters of *this; otherwise, fnRead will be called once more with
          a larger cchMax after the string buffer has been enlarged.
    */
-   void set_from(std::function<size_t (char_t * pch, size_t cchMax)> const & fnRead);
+   void set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead);
 
 
    /*! Changes the length of the string. If the string needs to be lengthened, the added characters
@@ -959,7 +962,7 @@ public:
       If true, the string will be cleared after being resized; if false, no characters will be
       changed.
    */
-   void set_size_in_chars(size_t cch, bool bClear = false) {
+   void set_size_in_chars(std::size_t cch, bool bClear = false) {
       detail::raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
       if (bClear) {
          memory::clear(chars_begin(), cch);
@@ -970,7 +973,7 @@ public:
 protected:
 
    //! See str_base::str_base().
-   mstr(size_t cbEmbeddedCapacity) :
+   mstr(std::size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }
 
@@ -1078,7 +1081,7 @@ public:
       mstr(0) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    dmstr(char_t const (& ach)[t_cch]) :
       mstr(0) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
@@ -1131,7 +1134,7 @@ public:
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    dmstr & operator=(char_t const (& ach)[t_cch]) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
@@ -1153,10 +1156,10 @@ public:
 
 // Now these can be implemented.
 
-inline dmstr str_base::substr(intptr_t ichBegin) const {
-   return substr(ichBegin, static_cast<intptr_t>(size_in_chars()));
+inline dmstr str_base::substr(std::intptr_t ichBegin) const {
+   return substr(ichBegin, static_cast<std::intptr_t>(size_in_chars()));
 }
-inline dmstr str_base::substr(intptr_t ichBegin, intptr_t ichEnd) const {
+inline dmstr str_base::substr(std::intptr_t ichBegin, std::intptr_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
    return dmstr(range.first.base(), range.second.base());
 }
@@ -1336,7 +1339,7 @@ namespace abc {
 /*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size.
 */
-template <size_t t_cchEmbeddedCapacity>
+template <std::size_t t_cchEmbeddedCapacity>
 class smstr :
    public mstr,
    private detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
@@ -1386,7 +1389,7 @@ public:
       mstr(smc_cbEmbeddedCapacity) {
       assign_move(std::move(s));
    }
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    smstr(char_t const (& ach)[t_cch]) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
@@ -1431,7 +1434,7 @@ public:
       assign_move(std::move(s));
       return *this;
    }
-   template <size_t t_cch>
+   template <std::size_t t_cch>
    smstr & operator=(char_t const (& ach)[t_cch]) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
@@ -1444,7 +1447,7 @@ public:
 namespace std {
 
 // Specialization of std::hash.
-template <size_t t_cchEmbeddedCapacity>
+template <std::size_t t_cchEmbeddedCapacity>
 struct hash<abc::smstr<t_cchEmbeddedCapacity>> : public hash<abc::str_base> {};
 
 } //namespace std

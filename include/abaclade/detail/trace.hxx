@@ -281,7 +281,7 @@ public:
    //! Tuple type used to store the trace variables.
    typedef std::tuple<Ts const & ...> _tuple_base;
    //! Count of trace variables.
-   static size_t const smc_cTs = sizeof ...(Ts);
+   static std::size_t const smc_cTs = sizeof ...(Ts);
 
 
 public:
@@ -401,7 +401,7 @@ public:
       T7 const &, T8 const &, T9 const &
    > _tuple_base;
    //! Count of trace variables.
-   static size_t const smc_cTs = _std::tuple_size<_std::tuple<
+   static std::size_t const smc_cTs = _std::tuple_size<_std::tuple<
       T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    >>::value;
 
@@ -442,7 +442,7 @@ template <
 inline void scope_trace_vars_impl<
    TScopeTrace, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
 >::write_vars(io::text::writer * ptwOut) {
-   static size_t const sc_cTs(
+   static std::size_t const sc_cTs(
       _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
    );
    // Write the current (T0) tuple element. *this is part of a scope_trace, which in turn contains a

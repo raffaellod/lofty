@@ -74,7 +74,7 @@ void reader::read_all(mstr * ps) {
 bool reader::read_line(mstr * ps) {
    ABC_TRACE_FUNC(this, ps);
 
-   size_t cchLTerm(0);
+   std::size_t cchLTerm(0);
    bool bEOF(read_while(ps, [this, &cchLTerm] (
       istr const & sRead, istr::const_iterator itLastReadBegin
    ) -> istr::const_iterator {
@@ -109,7 +109,7 @@ bool reader::read_line(mstr * ps) {
       // Consume the string up to and including the line terminator; after read_while() we’ll strip
       // the line terminator (cchLTerm characters) from the string.
       cchLTerm = sLTerm.size_in_chars();
-      return itLineEnd + static_cast<ptrdiff_t>(cchLTerm);
+      return itLineEnd + static_cast<std::ptrdiff_t>(cchLTerm);
    }));
    // Remove the line terminator from the end of the string.
    if (cchLTerm) {
@@ -163,13 +163,13 @@ void _writer_print_helper_impl::run() {
    // Since this specialization has no replacements, verify that the format string doesn’t specify
    // any either.
    if (write_format_up_to_next_repl()) {
-      ABC_THROW(index_error, (static_cast<intptr_t>(m_iSubstArg)));
+      ABC_THROW(index_error, (static_cast<std::intptr_t>(m_iSubstArg)));
    }
 }
 
 
 void _writer_print_helper_impl::throw_index_error() {
-   ABC_THROW(index_error, (static_cast<intptr_t>(m_iSubstArg)));
+   ABC_THROW(index_error, (static_cast<std::intptr_t>(m_iSubstArg)));
 }
 
 
@@ -277,8 +277,8 @@ void _writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) 
    if (itUpTo > m_itFormatToWriteBegin) {
       m_ptw->write_binary(
          m_itFormatToWriteBegin.base(),
-         reinterpret_cast<size_t>(itUpTo.base()) -
-            reinterpret_cast<size_t>(m_itFormatToWriteBegin.base()),
+         reinterpret_cast<std::size_t>(itUpTo.base()) -
+            reinterpret_cast<std::size_t>(m_itFormatToWriteBegin.base()),
          abc::text::encoding::host
       );
       m_itFormatToWriteBegin = itUpTo;
@@ -351,7 +351,7 @@ binbuf_reader::binbuf_reader(
 
 
 /*static*/ char_t const * binbuf_reader::call_get_consume_end(
-   char_t const * pchBegin, char_t const * pchOffset, size_t cch, std::function<
+   char_t const * pchBegin, char_t const * pchOffset, std::size_t cch, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd
 ) {
@@ -383,9 +383,9 @@ binbuf_reader::binbuf_reader(
    // code point.
    // This also doesn’t mean that we’ll only read as few, because the buffered reader will probably
    // read many more than this.
-   int8_t const * pbBuf;
-   size_t cbBuf;
-   std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
+   std::int8_t const * pbBuf;
+   std::size_t cbBuf;
+   std::tie(pbBuf, cbBuf) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
    if (!cbBuf) {
       // If nothing was read, this is the end of the data.
       return false;
@@ -393,12 +393,14 @@ binbuf_reader::binbuf_reader(
 
    // If the encoding is still undefined, try to guess it now.
    if (m_enc == abc::text::encoding::unknown) {
-      size_t cbFile, cbBom;
+      std::size_t cbFile, cbBom;
       if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
-         // This special value prevents guess_encoding() from dismissing char_16/32_t as impossible
-         // just because the need to clip cbFile to a size_t resulted in an odd count of bytes.
-         static size_t const sc_cbAlignedMax(numeric::max<size_t>::value & ~sizeof(char32_t));
-         cbFile = static_cast<size_t>(
+         // This special value prevents guess_encoding() from dismissing char16/32_t as impossible
+         // just because the need to clip cbFile to a std::size_t resulted in an odd count of bytes.
+         static std::size_t const sc_cbAlignedMax(
+            numeric::max<std::size_t>::value & ~sizeof(char32_t)
+         );
+         cbFile = static_cast<std::size_t>(
             std::min(psb->size(), static_cast<full_size_t>(sc_cbAlignedMax))
          );
       } else {
@@ -416,17 +418,17 @@ binbuf_reader::binbuf_reader(
          pbBuf += cbBom;
          cbBuf -= cbBom;
          if (!cbBuf) {
-            std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
+            std::tie(pbBuf, cbBuf) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
          }
       }
    }
 
-   size_t cchReadTotal(0);
+   std::size_t cchReadTotal(0);
    if (m_enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       while (cbBuf) {
          // Enlarge the destination string and append the read buffer contents to it.
-         size_t cchBuf(cbBuf / sizeof(char_t));
+         std::size_t cchBuf(cbBuf / sizeof(char_t));
          ps->set_capacity(cchReadTotal + cchBuf, true);
          char_t * pchDstBegin(ps->chars_begin());
          char_t * pchDstOffset(pchDstBegin + cchReadTotal);
@@ -438,18 +440,18 @@ binbuf_reader::binbuf_reader(
             reinterpret_cast<char_t const *>(pbBuf),
             reinterpret_cast<char_t const *>(pbBuf + cbBuf), true
          );
-         memory::copy(reinterpret_cast<int8_t *>(pchDstOffset), pbBuf, cbBuf);
+         memory::copy(reinterpret_cast<std::int8_t *>(pchDstOffset), pbBuf, cbBuf);
 
          // Consume as much of the string as fnGetConsumeEnd says.
          char_t const * pchDstConsumeEnd(call_get_consume_end(
             pchDstBegin, pchDstOffset, cchReadTotal + cchBuf, fnGetConsumeEnd
          ));
-         size_t cchConsumed(static_cast<size_t>(pchDstConsumeEnd - pchDstOffset));
+         std::size_t cchConsumed(static_cast<std::size_t>(pchDstConsumeEnd - pchDstOffset));
          cchReadTotal += cchConsumed;
          m_pbbr->consume<char_t>(cchConsumed);
 
          // Read some more bytes; see comment to this same line at the beginning of this method.
-         std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
+         std::tie(pbBuf, cbBuf) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
       }
    } else {
       // Sub-optimal case: transcoding is needed.
@@ -462,15 +464,15 @@ binbuf_reader::binbuf_reader(
       // TODO: tune sc_cbBufChunkMax – too small causes more repeated function calls, too large
       // causes more work in abc::text::transcode() when we need to move characters back to the
       // source.
-      static size_t const sc_cbBufChunkMax(128);
+      static std::size_t const sc_cbBufChunkMax(128);
       while (cbBuf) {
          if (cbBuf > sc_cbBufChunkMax) {
             cbBuf = sc_cbBufChunkMax;
          }
          void const * pSrc(pbBuf);
-         size_t cbSrcRemaining(cbBuf);
+         std::size_t cbSrcRemaining(cbBuf);
          // Calculate the additional size required.
-         size_t cbDst(abc::text::transcode(
+         std::size_t cbDst(abc::text::transcode(
             true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
          ));
          // Enlarge the destination string and get its begin/end pointers.
@@ -486,7 +488,8 @@ binbuf_reader::binbuf_reader(
 
          // Determine how much of the string is to be consumed.
          char_t const * pchDstConsumeEnd(call_get_consume_end(
-            pchDstBegin, pchDstOffset, static_cast<size_t>(pchDstEnd - pchDstBegin), fnGetConsumeEnd
+            pchDstBegin, pchDstOffset, static_cast<std::size_t>(pchDstEnd - pchDstBegin),
+            fnGetConsumeEnd
          ));
          // If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
          // destination size to the consumed range of characters; this will yield the count of bytes
@@ -496,8 +499,8 @@ binbuf_reader::binbuf_reader(
             pSrc = pbBuf;
             cbSrcRemaining = cbBuf;
             pchDstEnd = pchDstOffset;
-            cbDst = reinterpret_cast<size_t>(pchDstConsumeEnd) -
-               reinterpret_cast<size_t>(pchDstOffset);
+            cbDst = reinterpret_cast<std::size_t>(pchDstConsumeEnd) -
+               reinterpret_cast<std::size_t>(pchDstOffset);
             abc::text::transcode(
                true, m_enc, &pSrc, &cbSrcRemaining,
                abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
@@ -509,11 +512,11 @@ binbuf_reader::binbuf_reader(
          }
 
          // Consume as much of the buffer as fnGetConsumeEnd said.
-         cchReadTotal += static_cast<size_t>(pchDstConsumeEnd - pchDstOffset);
+         cchReadTotal += static_cast<std::size_t>(pchDstConsumeEnd - pchDstOffset);
          m_pbbr->consume_bytes(cbBuf - cbSrcRemaining);
 
          // Read some more bytes; see comment to this same line at the beginning of this method.
-         std::tie(pbBuf, cbBuf) = m_pbbr->peek<int8_t>(abc::text::max_codepoint_length);
+         std::tie(pbBuf, cbBuf) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
       }
    }
 
@@ -560,7 +563,9 @@ binbuf_writer::binbuf_writer(
 }
 
 
-/*virtual*/ void binbuf_writer::write_binary(void const * p, size_t cb, abc::text::encoding enc) {
+/*virtual*/ void binbuf_writer::write_binary(
+   void const * p, std::size_t cb, abc::text::encoding enc
+) {
    ABC_TRACE_FUNC(this, p, cb, enc);
 
    ABC_ASSERT(
@@ -581,12 +586,12 @@ binbuf_writer::binbuf_writer(
    if (!cb) {
       return;
    }
-   int8_t * pbBuf;
-   size_t cbBuf;
-   std::tie(pbBuf, cbBuf) = m_pbbw->get_buffer<int8_t>(cb);
+   std::int8_t * pbBuf;
+   std::size_t cbBuf;
+   std::tie(pbBuf, cbBuf) = m_pbbw->get_buffer<std::int8_t>(cb);
    if (enc == m_enc) {
       // Optimal case: no transcoding necessary.
-      memory::copy(pbBuf, static_cast<int8_t const *>(p), cb);
+      memory::copy(pbBuf, static_cast<std::int8_t const *>(p), cb);
       cbBuf = cb;
    } else {
       // Sub-optimal case: transcoding is needed.

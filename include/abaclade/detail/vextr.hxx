@@ -234,16 +234,16 @@ array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vect
 with template capacity == 1 for all non-template-driven manipulations in non-template code in the
 “lower-level” hierarchy, which relies on m_cbCapacity instead.
 */
-template <typename T, size_t t_ciEmbeddedCapacity>
+template <typename T, std::size_t t_ciEmbeddedCapacity>
 class raw_vextr_prefixed_item_array {
 public:
 
    //! Embedded item array capacity, in bytes.
-   static size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
+   static std::size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
    /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
    so it can be greater than smc_cbEmbeddedCapacity.
    */
-   size_t m_cbCapacity;
+   std::size_t m_cbCapacity;
    /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
    destructed automatically, and because the count may be greater than what’s declared here.
    */
@@ -305,7 +305,7 @@ public:
    /*! Non-template prefixed item array used for the calculation of offsets that will then be
    applied to real instantiations of the prefixed item array template.
    */
-   typedef raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
+   typedef raw_vextr_prefixed_item_array<std::int8_t, 1> _prefixed_item_array;
 
 
 public:
@@ -339,7 +339,7 @@ public:
       Size of the item array.
    */
    template <typename T>
-   size_t capacity() const {
+   std::size_t capacity() const {
       auto ppia(prefixed_item_array());
       return ppia ? ppia->m_cbCapacity / sizeof(T) : 0;
    }
@@ -366,8 +366,8 @@ public:
       Size of the item array.
    */
    template <typename T>
-   size_t size() const {
-      return static_cast<size_t>(end<T>() - begin<T>());
+   std::size_t size() const {
+      return static_cast<std::size_t>(end<T>() - begin<T>());
    }
 
 
@@ -401,7 +401,7 @@ protected:
    bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   raw_vextr_impl_base(size_t cbEmbeddedCapacity);
+   raw_vextr_impl_base(std::size_t cbEmbeddedCapacity);
    raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) {
       m_pBegin = const_cast<void *>(pConstSrcBegin);
       m_pEnd = const_cast<void *>(pConstSrcEnd);
@@ -445,7 +445,7 @@ protected:
    return
       New item array capacity, in bytes.
    */
-   static size_t calculate_increased_capacity(size_t cbOld, size_t cbNew);
+   static std::size_t calculate_increased_capacity(std::size_t cbOld, std::size_t cbNew);
 
 
    /*! Returns a pointer to the current prefixed item array, or nullptr if the current item array is
@@ -458,7 +458,7 @@ protected:
       if (m_bPrefixedItemArray) {
          // Subtract from m_pBegin the offset of the item array.
          return reinterpret_cast<_prefixed_item_array *>(
-            begin<int8_t>() - reinterpret_cast<ptrdiff_t>(
+            begin<std::int8_t>() - reinterpret_cast<std::ptrdiff_t>(
                reinterpret_cast<_prefixed_item_array *>(0)->m_at
             )
          );
@@ -506,11 +506,11 @@ protected:
 
    ib
       If positive, this is interpreted as a 0-based byte offset; if negative, it’s interpreted as a
-      1-based byte offset from the end of the item array by adding this->size<int8_t>() to it.
+      1-based byte offset from the end of the item array by adding this->size<std::int8_t>() to it.
    return
       Pointer to the item.
    */
-   void const * translate_offset(intptr_t ib) const;
+   void const * translate_offset(std::intptr_t ib) const;
 
 
    /*! Converts a left-closed, right-open interval with possibly negative byte offsets into one
@@ -519,17 +519,17 @@ protected:
    ibBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based byte
       offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
-      by adding this->size<int8_t>() to it.
+      by adding this->size<std::int8_t>() to it.
    ibEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based byte
       offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
-      by adding this->size<int8_t>() to it.
+      by adding this->size<std::int8_t>() to it.
    return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
    */
    std::pair<void const *, void const *> translate_byte_range(
-      intptr_t ibBegin, intptr_t ibEnd
+      std::intptr_t ibBegin, std::intptr_t ibEnd
    ) const;
 
 
@@ -556,7 +556,7 @@ protected:
 protected:
 
    //! The item array size must be no less than this many bytes.
-   static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
+   static std::size_t const smc_cbCapacityMin = sizeof(std::intptr_t) * 8;
    /*! Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth.
    */
@@ -600,8 +600,10 @@ public:
    cbRemove
       Item array size decrease, in bytes.
    */
-   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
-   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove);
+   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew);
+   raw_vextr_transaction(
+      raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbAdd, std::size_t cbRemove
+   );
 
    //! Destructor.
    ~raw_vextr_transaction() {
@@ -651,7 +653,7 @@ private:
    cbNew
       New item array size, in bytes.
    */
-   void _construct(bool bTrivial, size_t cbNew);
+   void _construct(bool bTrivial, std::size_t cbNew);
 
 
 private:
@@ -706,7 +708,7 @@ public:
    */
    void assign_concat(
       type_void_adapter const & type, void const * p1Begin, void const * p1End,
-      void const * p2Begin, void const * p2End, uint8_t iMove
+      void const * p2Begin, void const * p2End, std::uint8_t iMove
    );
 
 
@@ -777,8 +779,8 @@ public:
       true to move the items from pInsert to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, uintptr_t ibOffset, void const * pInsert, size_t cbInsert,
-      bool bMove
+      type_void_adapter const & type, std::uintptr_t ibOffset, void const * pInsert,
+      std::size_t cbInsert, bool bMove
    );
 
 
@@ -791,7 +793,7 @@ public:
    cbRemove
       Size of the array slice to remove, in bytes.
    */
-   void remove(type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove);
+   void remove(type_void_adapter const & type, std::uintptr_t ibOffset, std::size_t cbRemove);
 
 
    /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -806,7 +808,7 @@ public:
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
-   void set_capacity(type_void_adapter const & type, size_t cbMin, bool bPreserve);
+   void set_capacity(type_void_adapter const & type, std::size_t cbMin, bool bPreserve);
 
 
    /*! Changes the count of items in the vextr. If the new item count is greater than the current
@@ -819,13 +821,13 @@ public:
    cb
       New size of the items, in bytes.
    */
-   void set_size(type_void_adapter const & type, size_t cb);
+   void set_size(type_void_adapter const & type, std::size_t cb);
 
 
 protected:
 
    //! See raw_vextr_impl_base::raw_vextr_impl_base().
-   raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
+   raw_complex_vextr_impl(std::size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
    raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
@@ -924,7 +926,9 @@ public:
    cbRemove
       Size of the slice of item array to remove, in bytes.
    */
-   void insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove) {
+   void insert_remove(
+      std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
+   ) {
       if (cbAdd != cbRemove) {
          _insert_remove(ibOffset, pAdd, cbAdd, cbRemove);
       }
@@ -941,7 +945,7 @@ public:
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
-   void set_capacity(size_t cbMin, bool bPreserve);
+   void set_capacity(std::size_t cbMin, bool bPreserve);
 
 
    /*! Changes the count of items in the vextr. If the item array needs to be lengthened, the added
@@ -950,13 +954,13 @@ public:
    cb
       New size of the items, in bytes.
    */
-   void set_size(size_t cb);
+   void set_size(std::size_t cb);
 
 
 protected:
 
    //! See raw_vextr_impl_base::raw_vextr_impl_base().
-   raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
+   raw_trivial_vextr_impl(std::size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
    raw_trivial_vextr_impl(
@@ -969,7 +973,9 @@ protected:
 private:
 
    //! Implementation of insert_remove(). See insert_remove().
-   void _insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
+   void _insert_remove(
+      std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
+   );
 };
 
 } //namespace detail

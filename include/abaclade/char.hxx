@@ -36,16 +36,16 @@ You should have received a copy of the GNU General Public License along with Aba
 #define ABC_CXX_UTF8LIT 0
 
 /*! Indicates how char16_t is defined:
-•  2 - char16_t is a native type, distinct from uint16_t and wchar_t;
-•  1 - abc::char16_t is a typedef for native 16-bit wchar_t, distinct from uint16_t;
-•  0 - abc::char16_t is a typedef for uint16_t.
+•  2 - char16_t is a native type, distinct from std::uint16_t and wchar_t;
+•  1 - abc::char16_t is a typedef for native 16-bit wchar_t, distinct from std::uint16_t;
+•  0 - abc::char16_t is a typedef for std::uint16_t.
 */
 #define ABC_CXX_CHAR16 0
 
 /*! Indicates how char32_t is defined:
-•  2 - char32_t is a native type, distinct from uint32_t and wchar_t;
-•  1 - abc::char32_t is a typedef for native 32-bit wchar_t, distinct from uint32_t;
-•  0 - abc::char32_t is a typedef for uint32_t.
+•  2 - char32_t is a native type, distinct from std::uint32_t and wchar_t;
+•  1 - abc::char32_t is a typedef for native 32-bit wchar_t, distinct from std::uint32_t;
+•  0 - abc::char32_t is a typedef for std::uint32_t.
 */
 #define ABC_CXX_CHAR32 0
 
@@ -63,10 +63,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #if ABC_HOST_GCC >= 40400
-   // char16_t is a native type, different than uint16_t.
+   // char16_t is a native type, different than std::uint16_t.
    #undef ABC_CXX_CHAR16
    #define ABC_CXX_CHAR16 2
-   // char32_t is a native type, different than uint32_t.
+   // char32_t is a native type, different than std::uint32_t.
    #undef ABC_CXX_CHAR32
    #define ABC_CXX_CHAR32 2
 
@@ -114,14 +114,14 @@ typedef char char8_t;
 #if ABC_CXX_CHAR16 == 1
    typedef wchar_t char16_t;
 #elif ABC_CXX_CHAR16 == 0
-   typedef uint16_t char16_t;
+   typedef std::uint16_t char16_t;
 #endif
 
 //! UTF-32 character type.
 #if ABC_CXX_CHAR32 == 1
    typedef wchar_t char32_t;
 #elif ABC_CXX_CHAR32 == 0
-   typedef uint32_t char32_t;
+   typedef std::uint32_t char32_t;
 #endif
 
 //! UTF-* encoding supported by the host.

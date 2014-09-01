@@ -95,7 +95,7 @@ public:
 public:
 
    //! Size of a variable of this type, in bytes.
-   size_t cb;
+   std::size_t cb;
    //! Function to copy items from one array to another.
    copy_fn copy_constr;
    //! Function to destruct items in an array.
@@ -193,7 +193,7 @@ private:
    static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
-         memory::copy(ptDstBegin, ptSrcBegin, static_cast<size_t>(ptSrcEnd - ptSrcBegin));
+         memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
       } else {
          // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
          // copy.
@@ -221,7 +221,7 @@ private:
       T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       // No constructor, fastest copy possible.
-      memory::copy(ptDstBegin, ptSrcBegin, static_cast<size_t>(ptSrcEnd - ptSrcBegin));
+      memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
    }
    // Only enabled if the copy constructor is not trivial.
    template <typename T>

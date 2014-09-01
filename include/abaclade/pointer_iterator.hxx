@@ -82,7 +82,7 @@ public:
    return
       Reference to the specified item.
    */
-   TVal & operator[](ptrdiff_t i) const {
+   TVal & operator[](std::ptrdiff_t i) const {
       return m_ptval[i];
    }
 
@@ -94,7 +94,7 @@ public:
    return
       *this after it’s moved forward by i positions.
    */
-   pointer_iterator & operator+=(ptrdiff_t i) {
+   pointer_iterator & operator+=(std::ptrdiff_t i) {
       m_ptval += i;
       return *this;
    }
@@ -107,7 +107,7 @@ public:
    return
       *this after it’s moved backwards by i positions.
    */
-   pointer_iterator & operator-=(ptrdiff_t i) {
+   pointer_iterator & operator-=(std::ptrdiff_t i) {
       m_ptval -= i;
       return *this;
    }
@@ -120,7 +120,7 @@ public:
    return
       Iterator that’s i items ahead of *this.
    */
-   pointer_iterator operator+(ptrdiff_t i) const {
+   pointer_iterator operator+(std::ptrdiff_t i) const {
       return pointer_iterator(m_ptval + i);
    }
 
@@ -135,11 +135,11 @@ public:
       Iterator that’s i items behind *this (subtraction) or distance between *this and it
       (difference).
    */
-   pointer_iterator operator-(ptrdiff_t i) const {
+   pointer_iterator operator-(std::ptrdiff_t i) const {
       return pointer_iterator(m_ptval - i);
    }
    template <typename TVal2>
-   ptrdiff_t operator-(pointer_iterator<TCont, TVal2> it) const {
+   std::ptrdiff_t operator-(pointer_iterator<TCont, TVal2> it) const {
       return m_ptval - it.base();
    }
 

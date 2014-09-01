@@ -45,7 +45,7 @@ void str_to_str_backend::set_format(istr const & sFormat) {
 
 
 void str_to_str_backend::write(
-   void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut
+   void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut
 ) {
    ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
 
@@ -79,11 +79,13 @@ abc::detail::raw_vextr_impl_data const gc_rvidEmpty = {
 
 namespace abc {
 
-char_t const * str_base::_advance_char_ptr(char_t const * pch, ptrdiff_t i, bool bIndex) const {
+char_t const * str_base::_advance_char_ptr(
+   char_t const * pch, std::ptrdiff_t i, bool bIndex
+) const {
    ABC_TRACE_FUNC(this, pch, i, bIndex);
 
    char_t const * pchBegin(chars_begin()), * pchEnd(chars_end());
-   ptrdiff_t iOrig(i);
+   std::ptrdiff_t iOrig(i);
 
    // If i is positive, move forward.
    for (; i > 0 && pch < pchEnd; --i) {
@@ -119,7 +121,7 @@ str_base::c_str_pointer str_base::c_str() const {
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_pointer(chars_begin(), c_str_pointer::deleter_type(false));
-   } else if (size_t cch = size_in_chars()) {
+   } else if (std::size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
       c_str_pointer psz(
@@ -137,17 +139,17 @@ str_base::c_str_pointer str_base::c_str() const {
 }
 
 
-dmvector<uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
+dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
-   dmvector<uint8_t> vb;
-   size_t cbChar, cbUsed, cbStr(size_in_bytes());
+   dmvector<std::uint8_t> vb;
+   std::size_t cbChar, cbUsed, cbStr(size_in_bytes());
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(vb.begin().base(), detail::raw_trivial_vextr_impl::begin<uint8_t>(), cbStr);
+      memory::copy(vb.begin().base(), detail::raw_trivial_vextr_impl::begin<std::uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
@@ -240,7 +242,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-str_base::const_iterator str_base::translate_index(intptr_t ich) const {
+str_base::const_iterator str_base::translate_index(std::intptr_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    const_iterator it, itLoopEnd;
@@ -267,7 +269,7 @@ str_base::const_iterator str_base::translate_index(intptr_t ich) const {
 
 
 std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
-   intptr_t ichBegin, intptr_t ichEnd
+   std::intptr_t ichBegin, std::intptr_t ichEnd
 ) const {
    ABC_TRACE_FUNC(this, ichBegin, ichEnd);
 
@@ -290,26 +292,26 @@ namespace std {
 // <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 //
 // The bases are calculated by src/fnv_hash_basis.py.
-size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
+std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    static_assert(
-      sizeof(size_t) * 8 == ABC_HOST_WORD_SIZE,
-      "unexpected sizeof(size_t) will break FNV prime/basis selection"
+      sizeof(std::size_t) * 8 == ABC_HOST_WORD_SIZE,
+      "unexpected sizeof(std::size_t) will break FNV prime/basis selection"
    );
 #if ABC_HOST_WORD_SIZE == 16
-   size_t const c_iFNVPrime(0x1135);
-   size_t const c_iFNVBasis(16635u);
+   std::size_t const c_iFNVPrime(0x1135);
+   std::size_t const c_iFNVBasis(16635u);
 #elif ABC_HOST_WORD_SIZE == 32
-   size_t const c_iFNVPrime(0x01000193);
-   size_t const c_iFNVBasis(2166136261u);
+   std::size_t const c_iFNVPrime(0x01000193);
+   std::size_t const c_iFNVBasis(2166136261u);
 #elif ABC_HOST_WORD_SIZE == 64
-   size_t const c_iFNVPrime(0x00000100000001b3);
-   size_t const c_iFNVBasis(14695981039346656037u);
+   std::size_t const c_iFNVPrime(0x00000100000001b3);
+   std::size_t const c_iFNVBasis(14695981039346656037u);
 #endif
-   size_t iHash(c_iFNVBasis);
+   std::size_t iHash(c_iFNVBasis);
    for (auto it(s.cbegin()), itEnd(s.cend()); it != itEnd; ++it) {
-      iHash ^= static_cast<size_t>(*it);
+      iHash ^= static_cast<std::size_t>(*it);
       iHash *= c_iFNVPrime;
    }
    return iHash;
@@ -360,8 +362,8 @@ void mstr::replace(char32_t chSearch, char32_t chReplacement) {
 void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
+   std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
+   std::uintptr_t ich(static_cast<std::uintptr_t>(pch - chars_begin()));
    detail::raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
@@ -371,9 +373,9 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
 void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
-   size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   uintptr_t ich(static_cast<uintptr_t>(pch - chars_begin()));
+   std::size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
+   std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
+   std::uintptr_t ich(static_cast<std::uintptr_t>(pch - chars_begin()));
    detail::raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
@@ -383,13 +385,13 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
 }
 
 
-void mstr::set_from(std::function<size_t (char_t * pch, size_t cchMax)> const & fnRead) {
+void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
    ABC_TRACE_FUNC(this/*, fnRead*/);
 
    // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
    // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the
    // requested number of characters, eliminating the need to query back with capacity().
-   size_t cchRet, cchMax(smc_cbCapacityMin * smc_iGrowthRate);
+   std::size_t cchRet, cchMax(smc_cbCapacityMin * smc_iGrowthRate);
    do {
       cchMax *= smc_iGrowthRate;
       set_capacity(cchMax, false);

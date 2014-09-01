@@ -42,7 +42,7 @@ namespace text {
 //    └─────────────┴──────────────┴────────┘
 //
 // See utf8_char_traits::lead_char_to_codepoint_size() for the actual code accessing this array.
-uint8_t const utf8_char_traits::smc_acbCpSizesByLeadChar[] = {
+std::uint8_t const utf8_char_traits::smc_acbCpSizesByLeadChar[] = {
    // 0xxxxxxx
    0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
    0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -62,12 +62,12 @@ uint8_t const utf8_char_traits::smc_acbCpSizesByLeadChar[] = {
    0x16
 };
 
-uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
+std::uint8_t const utf8_char_traits::smc_acbitShiftMask[] = {
 // 0xxxxxxx 110xxxxx 1110xxxx 11110xxx 111110xx 1111110x
    0,       2,       3,       4,       5,       6
 };
 
-uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
+std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    // 1-byte sequences (1:1 with ASCII).
    /* 0x0? */ 0xff, 0xff,
    /* 0x1? */ 0xff, 0xff,

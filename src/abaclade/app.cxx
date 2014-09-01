@@ -48,7 +48,7 @@ app::app() {
 /*static*/ void app::_build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet) {
    ABC_TRACE_FUNC(cArgs, ppszArgs, pvsRet);
 
-   pvsRet->set_capacity(static_cast<size_t>(cArgs), false);
+   pvsRet->set_capacity(static_cast<std::size_t>(cArgs), false);
    // Make each string not allocate a new character array.
    for (int i(0); i < cArgs; ++i) {
       pvsRet->append(istr(unsafe, ppszArgs[i]));

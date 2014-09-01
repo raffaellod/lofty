@@ -56,7 +56,7 @@ public:
    }
    source_location(char_t const * pszFilePath, unsigned iLine) :
       m_pszFilePath(pszFilePath),
-      m_iLine(static_cast<uint16_t>(iLine)) {
+      m_iLine(static_cast<std::uint16_t>(iLine)) {
    }
 
 
@@ -85,7 +85,7 @@ protected:
    //! Path to the source file.
    char_t const * m_pszFilePath;
    //! Line number in m_pszFilePath.
-   uint16_t m_iLine;
+   std::uint16_t m_iLine;
 };
 
 } //namespace abc
@@ -855,7 +855,7 @@ public:
    return
       Index that was not valid in the context in which it was used.
    */
-   intptr_t index() const {
+   std::intptr_t index() const {
       return m_iInvalid;
    }
 
@@ -867,7 +867,7 @@ public:
    err
       OS-defined error number associated to the exception.
    */
-   void init(intptr_t iInvalid, errint_t err = 0);
+   void init(std::intptr_t iInvalid, errint_t err = 0);
 
 
 protected:
@@ -879,7 +879,7 @@ protected:
 private:
 
    //! Index that caused the error.
-   intptr_t m_iInvalid;
+   std::intptr_t m_iInvalid;
 };
 
 } //namespace abc

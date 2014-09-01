@@ -287,7 +287,7 @@ public:
       Encoding used by the buffer. If different from the writer’s encoding, a conversion will be
       performed on the fly.
    */
-   virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc) = 0;
+   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc) = 0;
 
 
    /*! Writes a string followed by a new-line.
@@ -481,7 +481,7 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<size_t>(
+         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
             wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
          )));
          tsb.write(m_t0, wph_base::m_ptw);
@@ -651,7 +651,7 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<size_t>(
+         tsb.set_format(istr(unsafe, wph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
             wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
          )));
          tsb.write(m_t0, wph_base::m_ptw);
@@ -925,7 +925,7 @@ private:
       Pointer returned by fnGetConsumeEnd.
    */
    static char_t const * call_get_consume_end(
-      char_t const * pchBegin, char_t const * pchOffset, size_t cch, std::function<
+      char_t const * pchBegin, char_t const * pchOffset, std::size_t cch, std::function<
          istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
       > const & fnGetConsumeEnd
    );
@@ -975,7 +975,7 @@ public:
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const;
 
    //! See writer::write_binary().
-   virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc);
+   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc);
 
 
 protected:

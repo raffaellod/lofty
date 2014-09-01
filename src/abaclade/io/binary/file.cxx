@@ -494,10 +494,10 @@ file_reader::file_reader(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ size_t file_reader::read(void * p, size_t cbMax) {
+/*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   int8_t * pb(static_cast<int8_t *>(p));
+   std::int8_t * pb(static_cast<std::int8_t *>(p));
    // The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
    // read()-equivalent function is invoked at least once, so we give it a chance to report any
    // errors, instead of masking them by skipping the call (e.g. due to cbMax == 0 on input).
@@ -505,8 +505,8 @@ file_reader::file_reader(_file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
-      ssize_t cbLastRead(::read(
-         m_fd.get(), pb, std::min<size_t>(cbMax, numeric::max<ssize_t>::value)
+      ::ssize_t cbLastRead(::read(
+         m_fd.get(), pb, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
       ));
       if (cbLastRead == 0) {
          // EOF.
@@ -520,7 +520,8 @@ file_reader::file_reader(_file_init_data * pfid) :
       // reading them does not fail.
       DWORD cbLastRead;
       BOOL bRet = ::ReadFile(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cbMax, numeric::max<DWORD>::value)),
+         m_fd.get(), pb,
+         static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
          &cbLastRead, nullptr
       );
       if (readfile_returned_eof(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
@@ -531,10 +532,10 @@ file_reader::file_reader(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were read; prepare for the next attempt.
       pb += cbLastRead;
-      cbMax -= static_cast<size_t>(cbLastRead);
+      cbMax -= static_cast<std::size_t>(cbLastRead);
    } while (cbMax);
 
-   return static_cast<size_t>(pb - static_cast<int8_t *>(p));
+   return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
 
 
@@ -589,10 +590,10 @@ file_writer::file_writer(_file_init_data * pfid) :
 }
 
 
-/*virtual*/ size_t file_writer::write(void const * p, size_t cb) {
+/*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) {
    ABC_TRACE_FUNC(this, p, cb);
 
-   int8_t const * pb(static_cast<int8_t const *>(p));
+   std::int8_t const * pb(static_cast<std::int8_t const *>(p));
 
    // The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
    // write()-equivalent function is invoked at least once, so we give it a chance to report any
@@ -601,8 +602,8 @@ file_writer::file_writer(_file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
-      ssize_t cbLastWritten(::write(
-         m_fd.get(), pb, std::min<size_t>(cb, numeric::max<ssize_t>::value)
+      ::ssize_t cbLastWritten(::write(
+         m_fd.get(), pb, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
       ));
       if (cbLastWritten < 0) {
          throw_os_error();
@@ -612,7 +613,7 @@ file_writer::file_writer(_file_init_data * pfid) :
       // writing them does not fail.
       DWORD cbLastWritten;
       if (!::WriteFile(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cb, numeric::max<DWORD>::value)),
+         m_fd.get(), pb, static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value)),
          &cbLastWritten, nullptr
       )) {
          throw_os_error();
@@ -622,10 +623,10 @@ file_writer::file_writer(_file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were written; prepare for the next attempt.
       pb += cbLastWritten;
-      cb -= static_cast<size_t>(cbLastWritten);
+      cb -= static_cast<std::size_t>(cbLastWritten);
    } while (cb);
 
-   return static_cast<size_t>(pb - static_cast<int8_t const *>(p));
+   return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
 }
 
 } //namespace binary
@@ -675,14 +676,14 @@ console_reader::console_reader(_file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t console_reader::read(void * p, size_t cbMax) {
+/*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
-   size_t cchMax(cbMax / sizeof(char_t));
+   std::size_t cchMax(cbMax / sizeof(char_t));
 
-   int8_t * pb(static_cast<int8_t *>(p));
+   std::int8_t * pb(static_cast<std::int8_t *>(p));
    // ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
    // of masking them by skipping the call (e.g. due to cchMax == 0 on input).
    do {
@@ -690,7 +691,8 @@ console_reader::console_reader(_file_init_data * pfid) :
       // reading them does not fail.
       DWORD cchLastRead;
       if (!::ReadConsole(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cchMax, numeric::max<DWORD>::value)),
+         m_fd.get(), pb,
+         static_cast<DWORD>(std::min<std::size_t>(cchMax, numeric::max<DWORD>::value)),
          &cchLastRead, nullptr
       )) {
          DWORD iErr(::GetLastError());
@@ -704,10 +706,10 @@ console_reader::console_reader(_file_init_data * pfid) :
       }
       // Some bytes were read; prepare for the next attempt.
       pb += cchLastRead * sizeof(char_t);
-      cchMax -= static_cast<size_t>(cchLastRead);
+      cchMax -= static_cast<std::size_t>(cchLastRead);
    } while (cchMax);
 
-   return static_cast<size_t>(pb - static_cast<int8_t *>(p));
+   return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -738,16 +740,16 @@ console_writer::console_writer(_file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t console_writer::write(void const * p, size_t cb) {
+/*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) {
    ABC_TRACE_FUNC(this, p, cb);
 
    // TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
-   size_t cch(cb / sizeof(char_t));
+   std::size_t cch(cb / sizeof(char_t));
 
-   int8_t const * pb(static_cast<int8_t const *>(p));
+   std::int8_t const * pb(static_cast<std::int8_t const *>(p));
    // ::WriteConsole() is invoked at least once, so we give it a chance to report any errors,
    // instead of masking them by skipping the call (e.g. due to cch == 0 on input).
    do {
@@ -755,17 +757,17 @@ console_writer::console_writer(_file_init_data * pfid) :
       // writing them does not fail.
       DWORD cchLastWritten;
       if (!::WriteConsole(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<size_t>(cch, numeric::max<DWORD>::value)),
+         m_fd.get(), pb, static_cast<DWORD>(std::min<std::size_t>(cch, numeric::max<DWORD>::value)),
          &cchLastWritten, nullptr
       )) {
          throw_os_error();
       }
       // Some bytes were written; prepare for the next attempt.
       pb += cchLastWritten * sizeof(char_t);
-      cch -= static_cast<size_t>(cchLastWritten);
+      cch -= static_cast<std::size_t>(cchLastWritten);
    } while (cch);
 
-   return static_cast<size_t>(pb - static_cast<int8_t const *>(p));
+   return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
 }
 
 #endif //if ABC_HOST_API_WIN32
@@ -850,7 +852,7 @@ regular_file_base::regular_file_base(_file_init_data * pfid) :
 
 #if ABC_HOST_API_POSIX
 
-   m_cb = static_cast<size_t>(pfid->statFile.st_size);
+   m_cb = static_cast<std::size_t>(pfid->statFile.st_size);
 #if 0
    if (!m_bBuffered) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
@@ -1041,7 +1043,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ size_t regular_file_writer::write(void const * p, size_t cb) {
+/*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) {
    ABC_TRACE_FUNC(this, p, cb);
 
    // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then

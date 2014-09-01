@@ -122,7 +122,7 @@ public:
       Count of elements to mark as read.
    */
    template <typename T>
-   void consume(size_t c) {
+   void consume(std::size_t c) {
       return consume_bytes(sizeof(T) * c);
    }
 
@@ -132,7 +132,7 @@ public:
    cb
       Count of bytes to mark as read.
    */
-   virtual void consume_bytes(size_t cb) = 0;
+   virtual void consume_bytes(std::size_t cb) = 0;
 
 
    /*! Returns a view of the internal read buffer, performing at most one read from the underlying
@@ -153,7 +153,7 @@ public:
          0 indicates that no more data is available (EOF).
    */
    template <typename T>
-   std::pair<T const *, size_t> peek(size_t c = 1) {
+   std::pair<T const *, std::size_t> peek(std::size_t c = 1) {
       auto ret(peek_bytes(sizeof(T) * c));
       // Repack the tuple, changing pointer type.
       return std::make_pair(static_cast<T const *>(ret.first), ret.second);
@@ -165,14 +165,14 @@ public:
    cb
       Count of bytes to peek.
    */
-   virtual std::pair<void const *, size_t> peek_bytes(size_t cb) = 0;
+   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
 
 
    /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
    preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
-   virtual size_t read(void * p, size_t cbMax);
+   virtual std::size_t read(void * p, std::size_t cbMax);
 };
 
 } //namespace binary
@@ -200,7 +200,7 @@ public:
       Count of elements to commit.
    */
    template <typename T>
-   void commit(size_t c) {
+   void commit(std::size_t c) {
       commit_bytes(sizeof(T) * c);
    }
 
@@ -210,7 +210,7 @@ public:
    cb
       Count of bytes to commit.
    */
-   virtual void commit_bytes(size_t cb) = 0;
+   virtual void commit_bytes(std::size_t cb) = 0;
 
 
    /*! Returns a buffer large enough to store up to c items.
@@ -223,7 +223,7 @@ public:
       •  Size of the portion of internal buffer, in bytes.
    */
    template <typename T>
-   std::pair<T *, size_t> get_buffer(size_t c) {
+   std::pair<T *, std::size_t> get_buffer(std::size_t c) {
       auto ret(get_buffer_bytes(sizeof(T) * c));
       // Repack the tuple, changing pointer type.
       return std::make_pair(static_cast<T *>(ret.first), ret.second);
@@ -235,14 +235,14 @@ public:
    cb
       Count of bytes to create buffer space for.
    */
-   virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb) = 0;
+   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
 
 
    /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
    is preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
-   virtual size_t write(void const * p, size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb);
 };
 
 } //namespace binary
@@ -275,10 +275,10 @@ public:
    virtual ~default_buffered_reader();
 
    //! See buffered_reader::consume_bytes().
-   virtual void consume_bytes(size_t cb);
+   virtual void consume_bytes(std::size_t cb);
 
    //! See buffered_reader::peek_bytes().
-   virtual std::pair<void const *, size_t> peek_bytes(size_t cb);
+   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb);
 
    //! See buffered_reader::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const;
@@ -289,16 +289,16 @@ protected:
    //! Wrapped binary reader.
    std::shared_ptr<reader> m_pbr;
    //! Read buffer.
-   std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbReadBuf;
+   std::unique_ptr<std::int8_t[], memory::freeing_deleter<std::int8_t[]>> m_pbReadBuf;
    //! Size of m_pbReadBuf.
-   size_t m_cbReadBuf;
+   std::size_t m_cbReadBuf;
    //! Offset of the first used byte in m_pbReadBuf.
-   size_t m_ibReadBufUsed;
+   std::size_t m_ibReadBufUsed;
    //! Number of bytes used in m_pbReadBuf.
-   size_t m_cbReadBufUsed;
+   std::size_t m_cbReadBufUsed;
    //! Default/increment size of m_pbReadBuf.
    // TODO: tune this value.
-   static size_t const smc_cbReadBufDefault = 0x1000;
+   static std::size_t const smc_cbReadBufDefault = 0x1000;
 };
 
 } //namespace binary
@@ -331,7 +331,7 @@ public:
    virtual ~default_buffered_writer();
 
    //! See buffered_writer::commit_bytes().
-   virtual void commit_bytes(size_t cb);
+   virtual void commit_bytes(std::size_t cb);
 
    //! See buffered_writer::flush().
    virtual void flush();
@@ -342,7 +342,7 @@ public:
    cb
       Count of bytes to create buffer space for.
    */
-   virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb);
+   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb);
 
    //! See buffered_writer::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const;
@@ -359,14 +359,14 @@ protected:
    //! Wrapped binary writer.
    std::shared_ptr<writer> m_pbw;
    //! Write buffer.
-   std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbWriteBuf;
+   std::unique_ptr<std::int8_t[], memory::freeing_deleter<std::int8_t[]>> m_pbWriteBuf;
    //! Size of m_pbWriteBuf.
-   size_t m_cbWriteBuf;
+   std::size_t m_cbWriteBuf;
    //! Number of bytes used in m_pbWriteBuf.
-   size_t m_cbWriteBufUsed;
+   std::size_t m_cbWriteBufUsed;
    //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
-   static size_t const smc_cbWriteBufDefault = 0x1000;
+   static std::size_t const smc_cbWriteBufDefault = 0x1000;
 };
 
 } //namespace binary

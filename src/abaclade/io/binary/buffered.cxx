@@ -20,12 +20,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/bitmanip.hxx>
 #include <algorithm>
-#if ABC_HOST_API_POSIX
-   #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
-   #include <fcntl.h> // O_*
-   #include <sys/stat.h> // S_*, stat()
-// #include <sys/mman.h> // mmap(), munmap(), PROT_*, MAP_*
-#endif
 
 
 
@@ -65,25 +59,25 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*virtual*/ size_t buffered_reader::read(void * p, size_t cbMax) {
+/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   size_t cbReadTotal(0);
+   std::size_t cbReadTotal(0);
    while (cbMax) {
       // Attempt to read at least the count of bytes requested by the caller.
-      int8_t const * pbBuf;
-      size_t cbBuf;
-      std::tie(pbBuf, cbBuf) = peek<int8_t>(cbMax);
+      std::int8_t const * pbBuf;
+      std::size_t cbBuf;
+      std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
       if (!cbBuf) {
          // No more data available.
          break;
       }
       // Copy whatever was read into the caller-supplied buffer.
-      memory::copy(static_cast<int8_t *>(p), pbBuf, cbBuf);
+      memory::copy(static_cast<std::int8_t *>(p), pbBuf, cbBuf);
       cbReadTotal += cbBuf;
       // Advance the pointer and decrease the count of bytes to read, so that the next call will
       // attempt to fill in the remaining buffer space.
-      p = static_cast<int8_t *>(p) + cbBuf;
+      p = static_cast<std::int8_t *>(p) + cbBuf;
       cbMax -= cbBuf;
    }
    return cbReadTotal;
@@ -102,15 +96,15 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*virtual*/ size_t buffered_writer::write(void const * p, size_t cb) {
+/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) {
    ABC_TRACE_FUNC(this, p, cb);
 
    // Obtain a buffer large enough.
-   int8_t * pbBuf;
-   size_t cbBuf;
-   std::tie(pbBuf, cbBuf) = get_buffer<int8_t>(cb);
+   std::int8_t * pbBuf;
+   std::size_t cbBuf;
+   std::tie(pbBuf, cbBuf) = get_buffer<std::int8_t>(cb);
    // Copy the source data into the buffer.
-   memory::copy(pbBuf, static_cast<int8_t const *>(p), cb);
+   memory::copy(pbBuf, static_cast<std::int8_t const *>(p), cb);
    return cb;
 }
 
@@ -139,7 +133,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ void default_buffered_reader::consume_bytes(size_t cb) {
+/*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
@@ -153,7 +147,9 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ std::pair<void const *, size_t> default_buffered_reader::peek_bytes(size_t cb) {
+/*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
+   std::size_t cb
+) {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
@@ -170,17 +166,17 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
             }
             m_ibReadBufUsed = 0;
          } else {
-            size_t cbReadBufNew(m_cbReadBuf + smc_cbReadBufDefault);
+            std::size_t cbReadBufNew(m_cbReadBuf + smc_cbReadBufDefault);
             // Check for overflow.
             if (cbReadBufNew < m_cbReadBuf) {
-               cbReadBufNew = numeric::max<size_t>::value;
+               cbReadBufNew = numeric::max<std::size_t>::value;
             }
             memory::realloc(&m_pbReadBuf, cbReadBufNew);
             m_cbReadBuf = cbReadBufNew;
          }
       }
       // Try to fill the buffer.
-      size_t cbRead(m_pbr->read(
+      std::size_t cbRead(m_pbr->read(
          m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
       ));
       // Account for the additional data.
@@ -233,7 +229,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 }
 
 
-/*virtual*/ void default_buffered_writer::commit_bytes(size_t cb) {
+/*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbWriteBuf - m_cbWriteBufUsed) {
@@ -253,30 +249,32 @@ void default_buffered_writer::flush_buffer() {
    ABC_TRACE_FUNC(this);
 
    if (m_cbWriteBufUsed) {
-      size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
+      std::size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
       ABC_ASSERT(cbWritten == m_cbWriteBufUsed, ABC_SL("the entire buffer must have been written"));
       m_cbWriteBufUsed = 0;
    }
 }
 
 
-/*virtual*/ std::pair<void *, size_t> default_buffered_writer::get_buffer_bytes(size_t cb) {
+/*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
+   std::size_t cb
+) {
    ABC_TRACE_FUNC(this, cb);
 
-   size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
+   std::size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
    // If the requested buffer size is more that is currently available, flush the buffer.
    if (cb > cbWriteBufAvail) {
       flush_buffer();
       // If the buffer is still too small, enlarge it.
       if (cb > m_cbWriteBuf) {
-         size_t cbWriteBufNew(bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault));
+         std::size_t cbWriteBufNew(bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault));
          memory::realloc(&m_pbWriteBuf, cbWriteBufNew);
          m_cbWriteBuf = cbWriteBufNew;
       }
       cbWriteBufAvail = m_cbWriteBuf;
    }
    // Return the available portion of the buffer.
-   return std::pair<void *, size_t>(m_pbWriteBuf.get() + m_cbWriteBufUsed, cbWriteBufAvail);
+   return std::pair<void *, std::size_t>(m_pbWriteBuf.get() + m_cbWriteBufUsed, cbWriteBufAvail);
 }
 
 

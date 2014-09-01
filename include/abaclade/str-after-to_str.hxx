@@ -57,7 +57,7 @@ protected:
    ptwOut
       Pointer to the writer to output to.
    */
-   void write(void const * p, size_t cb, text::encoding enc, io::text::writer * ptwOut);
+   void write(void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut);
 };
 
 } //namespace detail
@@ -90,7 +90,7 @@ namespace abc {
    }; \
    \
    /*! String literal. */ \
-   template <size_t t_cch> \
+   template <std::size_t t_cch> \
    class to_str_backend<C [t_cch]> : \
       public detail::str_to_str_backend { \
    public: \
@@ -111,7 +111,7 @@ namespace abc {
    }; \
    \
    /*! MSC16 BUG: this partial specialization is necessary. */ \
-   template <size_t t_cch> \
+   template <std::size_t t_cch> \
    class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char, text::encoding::utf8)
 // Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if
@@ -152,7 +152,8 @@ public:
    void write(str_base const & s, io::text::writer * ptwOut) {
       detail::str_to_str_backend::write(
          s.chars_begin(),
-         reinterpret_cast<size_t>(s.chars_end()) - reinterpret_cast<size_t>(s.chars_begin()),
+         reinterpret_cast<std::size_t>(s.chars_end()) -
+            reinterpret_cast<std::size_t>(s.chars_begin()),
          text::encoding::host, ptwOut
       );
    }
@@ -176,7 +177,7 @@ class to_str_backend<mstr> : public to_str_backend<str_base> {};
 template <>
 class to_str_backend<dmstr> : public to_str_backend<str_base> {};
 
-template <size_t t_cchStatic>
+template <std::size_t t_cchStatic>
 class to_str_backend<smstr<t_cchStatic>> : public to_str_backend<str_base> {};
 
 } //namespace abc

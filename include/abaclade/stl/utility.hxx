@@ -109,7 +109,7 @@ inline void swap(T & t1, T & t2) {
    t1 = move(t2);
    t2 = move(tt);
 }
-template <typename T, size_t t_ci>
+template <typename T, std::size_t t_ci>
 inline void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
    T const * pt1Max(&t1 + t_ci);
    for (T * pt1(t1), * pt2(t2); pt1 < pt1Max; ++pt1, ++pt2) {

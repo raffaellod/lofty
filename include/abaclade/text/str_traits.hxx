@@ -47,7 +47,8 @@ public:
       Pointer to a vector that will receive the failure restart indices.
    */
    static void _build_find_failure_restart_table(
-      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<size_t> * pvcchFailNext
+      char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
+      mvector<std::size_t> * pvcchFailNext
    );
 
 
@@ -189,7 +190,7 @@ public:
    return
       Count of code points included in the string.
    */
-   static size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
+   static std::size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
 
 
    /*! Validates the character in a string.

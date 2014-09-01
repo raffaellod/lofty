@@ -286,7 +286,7 @@ public:
    virtual ~file_reader();
 
    //! See reader::read().
-   virtual size_t read(void * p, size_t cbMax);
+   virtual std::size_t read(void * p, std::size_t cbMax);
 
 
 #if ABC_HOST_API_WIN32
@@ -337,7 +337,7 @@ public:
    virtual void flush();
 
    //! See writer::write().
-   virtual size_t write(void const * p, size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb);
 };
 
 } //namespace binary
@@ -400,7 +400,7 @@ public:
    // type.
 
    //! See file_reader::read().
-   virtual size_t read(void * p, size_t cbMax);
+   virtual std::size_t read(void * p, std::size_t cbMax);
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -437,7 +437,7 @@ public:
    // type.
 
    //! See file_writer::write().
-   virtual size_t write(void const * p, size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -606,7 +606,7 @@ public:
 #if ABC_HOST_API_WIN32
 
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
-   virtual size_t write(void const * p, size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
 

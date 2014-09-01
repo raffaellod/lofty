@@ -154,7 +154,7 @@ You should have received a copy of the GNU General Public License along with Aba
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
 #endif //if ABC_HOST_MSC
-#include <stdint.h> // *int*_t
+#include <cstdint> // std::*int*_t
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
@@ -651,7 +651,7 @@ return
    Multiple of sizeof(std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
-   ((static_cast<size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
+   ((static_cast<std::size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
 
 namespace abc {
@@ -680,7 +680,7 @@ unsafe_t const unsafe;
    #pragma warning(disable: 4668)
 #endif //if ABC_HOST_MSC
 #include <limits.h> // CHAR_BIT *_MAX *_MIN
-#include <stddef.h> // size_t
+#include <cstddef> // std::ptrdiff_t std::size_t
 #include <malloc.h> // free malloc realloc
 #if ABC_HOST_MSC
    #pragma warning(pop)

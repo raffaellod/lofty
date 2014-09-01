@@ -180,36 +180,36 @@ protected:
    void write_impl(I i, io::text::writer * ptwOut) const;
 
    //! Converts a 64-bit signed integer to its string representation. See write_impl().
-   void write_s64(int64_t i, io::text::writer * ptwOut) const;
+   void write_s64(std::int64_t i, io::text::writer * ptwOut) const;
 
    //! Converts a 64-bit unsigned integer to its string representation. See write_impl().
-   void write_u64(uint64_t i, io::text::writer * ptwOut) const;
+   void write_u64(std::uint64_t i, io::text::writer * ptwOut) const;
 
    //! Converts a 32-bit signed integer to its string representation. See write_impl().
-   void write_s32(int32_t i, io::text::writer * ptwOut) const;
+   void write_s32(std::int32_t i, io::text::writer * ptwOut) const;
 
    //! Converts a 32-bit unsigned integer to its string representation. See write_impl().
-   void write_u32(uint32_t i, io::text::writer * ptwOut) const;
+   void write_u32(std::uint32_t i, io::text::writer * ptwOut) const;
 
    //! Converts a 16-bit signed integer to its string representation. See write_impl().
-   void write_s16(int16_t i, io::text::writer * ptwOut) const;
+   void write_s16(std::int16_t i, io::text::writer * ptwOut) const;
 
    //! Converts a 16-bit unsigned integer to its string representation. See write_impl().
-   void write_u16(uint16_t i, io::text::writer * ptwOut) const;
+   void write_u16(std::uint16_t i, io::text::writer * ptwOut) const;
 
    //! Converts an 8-bit signed integer to its string representation. See write_impl().
-   void write_s8(int8_t i, io::text::writer * ptwOut) const {
+   void write_s8(std::int8_t i, io::text::writer * ptwOut) const {
       if (m_iBaseOrShift == 10) {
          write_s16(i, ptwOut);
       } else {
          // Avoid extending the sign, as it would generate too many digits in any notation except
          // decimal.
-         write_s16(static_cast<uint8_t>(i), ptwOut);
+         write_s16(static_cast<std::uint8_t>(i), ptwOut);
       }
    }
 
    //! Converts an 8-bit unsigned integer to its string representation. See write_impl().
-   void write_u8(uint8_t i, io::text::writer * ptwOut) const {
+   void write_u8(std::uint8_t i, io::text::writer * ptwOut) const {
       write_u16(i, ptwOut);
    }
 
@@ -225,9 +225,9 @@ protected:
    //! Required buffer size.
    unsigned m_cchBuf;
    //! Integer size, in bytes.
-   uint8_t const mc_cbInt;
+   std::uint8_t const mc_cbInt;
    //! 10 (for decimal notation) or log2(notation) (for power-of-two notations).
-   uint8_t m_iBaseOrShift;
+   std::uint8_t m_iBaseOrShift;
    //! Character to be used to pad the digits to m_cchWidth length.
    char m_chPad;
    //! Character to be used as sign in case the number is not negative; NUL if none.
@@ -250,18 +250,18 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * ptwOut) const {
+inline void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
    if (m_iBaseOrShift == 10) {
       write_s64(i, ptwOut);
    } else {
       // Avoid extending the sign in any notation except decimal, as it would generate too many
       // digits.
-      write_s64(static_cast<uint32_t>(i), ptwOut);
+      write_s64(static_cast<std::uint32_t>(i), ptwOut);
    }
 }
 
 
-inline void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * ptwOut) const {
+inline void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_u64(i, ptwOut);
 }
 
@@ -271,18 +271,18 @@ inline void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * p
 // On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 // turn defer to write_64*() (see above).
 
-inline void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * ptwOut) const {
+inline void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    if (m_iBaseOrShift == 10) {
       write_s32(i, ptwOut);
    } else {
       // Avoid extending the sign in any notation except decimal, as it would generate too many
       // digits.
-      write_s32(static_cast<uint16_t>(i), ptwOut);
+      write_s32(static_cast<std::uint16_t>(i), ptwOut);
    }
 }
 
 
-inline void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * ptwOut) const {
+inline void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_u32(i, ptwOut);
 }
 
@@ -331,30 +331,30 @@ public:
       Pointer to the writer to output to.
    */
    void write(I i, io::text::writer * ptwOut) {
-      if (sizeof(i) <= sizeof(int8_t)) {
+      if (sizeof(i) <= sizeof(std::int8_t)) {
          if (std::is_signed<I>::value) {
-            write_s8(static_cast<int8_t>(i), ptwOut);
+            write_s8(static_cast<std::int8_t>(i), ptwOut);
          } else {
-            write_u8(static_cast<uint8_t>(i), ptwOut);
+            write_u8(static_cast<std::uint8_t>(i), ptwOut);
          }
-      } else if (sizeof(i) <= sizeof(int16_t)) {
+      } else if (sizeof(i) <= sizeof(std::int16_t)) {
          if (std::is_signed<I>::value) {
-            write_s16(static_cast<int16_t>(i), ptwOut);
+            write_s16(static_cast<std::int16_t>(i), ptwOut);
          } else {
-            write_u16(static_cast<uint16_t>(i), ptwOut);
+            write_u16(static_cast<std::uint16_t>(i), ptwOut);
          }
-      } else if (sizeof(i) <= sizeof(int32_t)) {
+      } else if (sizeof(i) <= sizeof(std::int32_t)) {
          if (std::is_signed<I>::value) {
-            write_s32(static_cast<int32_t>(i), ptwOut);
+            write_s32(static_cast<std::int32_t>(i), ptwOut);
          } else {
-            write_u32(static_cast<uint32_t>(i), ptwOut);
+            write_u32(static_cast<std::uint32_t>(i), ptwOut);
          }
       } else {
-         static_assert(sizeof(i) <= sizeof(int64_t), "unsupported integer size");
+         static_assert(sizeof(i) <= sizeof(std::int64_t), "unsupported integer size");
          if (std::is_signed<I>::value) {
-            write_s64(static_cast<int64_t>(i), ptwOut);
+            write_s64(static_cast<std::int64_t>(i), ptwOut);
          } else {
-            write_u64(static_cast<uint64_t>(i), ptwOut);
+            write_u64(static_cast<std::uint64_t>(i), ptwOut);
          }
       }
    }
@@ -363,7 +363,7 @@ public:
 protected:
 
    //! Initial (static) buffer size sufficient to output the number in binary notation.
-   static size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
+   static std::size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 
 } //namespace abc

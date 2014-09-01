@@ -100,7 +100,7 @@ arrayitems
    protected: \
    \
       /*! Number of members specified for the enum. */ \
-      static size_t const smc_cMembers = cMembers; \
+      static std::size_t const smc_cMembers = cMembers; \
    \
    }; \
    typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
@@ -322,7 +322,7 @@ public:
    return
       Member count.
    */
-   static size_t size() {
+   static std::size_t size() {
       return T::smc_cMembers;
    }
 
@@ -344,7 +344,7 @@ public:
    /*! Count of the members of the enumeration. Same as the value returned by size(), but this can
    be used in constant contexts, such as the size of an array.
    */
-   static size_t const size_const = T::smc_cMembers;
+   static std::size_t const size_const = T::smc_cMembers;
 
 
 private:

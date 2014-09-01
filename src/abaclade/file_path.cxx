@@ -118,14 +118,14 @@ file_path file_path::absolute() const {
       // Prepend the current directory to make the path absolute, then proceed to normalize.
       fpAbsolute = current_dir() / *this;
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      static size_t const sc_ichVolume(0 /*“X” in “X:”*/);
-      static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-      static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+      static std::size_t const sc_ichVolume(0 /*“X” in “X:”*/);
+      static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+      static std::size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
 
       // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
       // and be relative to the current directory in that volume. Either way, these two formats
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
-      size_t cch(m_s.size_in_chars());
+      std::size_t cch(m_s.size_in_chars());
       char_t const * pch(m_s.chars_begin());
       if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
@@ -164,7 +164,7 @@ file_path file_path::base_name() const {
 
    dmstr s;
 #if ABC_HOST_API_POSIX
-   s.set_from([] (char_t * pch, size_t cchMax) -> size_t {
+   s.set_from([] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (::getcwd(pch, cchMax)) {
          // The length will be necessarily less than cchMax, so set_from() will stop.
          return text::size_in_chars(pch);
@@ -180,8 +180,8 @@ file_path file_path::base_name() const {
    // mstr::set_from() allocate space for that too, by adding the size of the root to the buffer
    // size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
    // reserve space for the root prefix.
-   size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-   s.set_from([c_cchRoot] (char_t * pch, size_t cchMax) -> size_t {
+   std::size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   s.set_from([c_cchRoot] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -209,8 +209,8 @@ file_path file_path::base_name() const {
    // Create a dummy path for ::GetFullPathName() to expand.
    char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
    dmstr s;
-   size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
-   s.set_from([c_cchRoot, &achDummyPath] (char_t * pch, size_t cchMax) -> size_t {
+   std::size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   s.set_from([c_cchRoot, &achDummyPath] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -251,7 +251,7 @@ file_path file_path::normalize() const {
 
    dmstr s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
-   auto itRootEnd(itBegin + static_cast<ptrdiff_t>(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s, true)));
 
    // Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
    // separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back
@@ -261,7 +261,7 @@ file_path file_path::normalize() const {
    // •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
    // •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
    smvector<dmstr::iterator, 5> vitSeps;
-   intptr_t cDots(0);
+   std::intptr_t cDots(0);
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
       char32_t ch(*itSrc);
@@ -316,7 +316,7 @@ file_path file_path::normalize() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(static_cast<size_t>(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 
@@ -341,7 +341,7 @@ file_path file_path::parent_dir() const {
    }
    // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
    // separator; advance the iterator instead.
-   if (itLastSep - itBegin < static_cast<ptrdiff_t>(get_root_length(m_s, true))) {
+   if (itLastSep - itBegin < static_cast<std::ptrdiff_t>(get_root_length(m_s, true))) {
       ++itLastSep;
    }
    return m_s.substr(itBegin, itLastSep);
@@ -364,9 +364,9 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 #if ABC_HOST_API_WIN32
    // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
-   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+   static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
 
-   size_t cch(m_s.size_in_chars());
+   std::size_t cch(m_s.size_in_chars());
    if (cch > sc_ichVolumeColon) {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
       // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
@@ -380,10 +380,10 @@ dmstr::const_iterator file_path::base_name_start() const {
 }
 
 
-/*static*/ size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
+/*static*/ std::size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
 
-   static size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   static std::size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
 
 #if ABC_HOST_API_POSIX
    if (s.starts_with(smc_aszRoot)) {
@@ -391,12 +391,12 @@ dmstr::const_iterator file_path::base_name_start() const {
       return sc_cchRoot;
    }
 #elif ABC_HOST_API_WIN32
-   static size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
-   static size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
-   static size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-   static size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+   static std::size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
+   static std::size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
+   static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+   static std::size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
 
-   size_t cch(s.size_in_chars());
+   std::size_t cch(s.size_in_chars());
    char_t const * pch(s.chars_begin());
    if (s.starts_with(smc_aszRoot)) {
       if (s.starts_with(smc_aszUNCRoot)) {
@@ -455,7 +455,7 @@ dmstr::const_iterator file_path::base_name_start() const {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
          s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
       } else {
-         size_t cch(s.size_in_chars());
+         std::size_t cch(s.size_in_chars());
          char_t * pch(s.chars_begin());
          if (cch >= 2 && *(pch + 1) == ':') {
             char_t chVolume(*pch);
@@ -478,7 +478,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 
    auto itBegin(s.begin()), itEnd(s.end());
    // Save an iterator to the end of the root prefix.
-   auto itRootEnd(itBegin + static_cast<ptrdiff_t>(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s, true)));
 
    // Collapse sequences of one or more path separators with a single separator.
    auto itDst(itRootEnd);
@@ -506,7 +506,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(static_cast<size_t>(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
    return std::move(s);
 }
 

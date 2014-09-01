@@ -30,22 +30,22 @@ namespace abc {
 namespace bitmanip {
 namespace detail {
 
-uint8_t ceiling_to_pow2(uint8_t i) {
+std::uint8_t ceiling_to_pow2(std::uint8_t i) {
    unsigned iPow2(static_cast<unsigned>(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
-   return static_cast<uint8_t>(iPow2 + 1);
+   return static_cast<std::uint8_t>(iPow2 + 1);
 }
-uint16_t ceiling_to_pow2(uint16_t i) {
+std::uint16_t ceiling_to_pow2(std::uint16_t i) {
    unsigned iPow2(static_cast<unsigned>(i - 1));
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
    iPow2 |= iPow2 >> 8;
-   return static_cast<uint16_t>(iPow2 + 1);
+   return static_cast<std::uint16_t>(iPow2 + 1);
 }
-uint32_t ceiling_to_pow2(uint32_t i) {
+std::uint32_t ceiling_to_pow2(std::uint32_t i) {
    --i;
    i |= i >> 1;
    i |= i >> 2;
@@ -54,7 +54,7 @@ uint32_t ceiling_to_pow2(uint32_t i) {
    i |= i >> 16;
    return i + 1;
 }
-uint64_t ceiling_to_pow2(uint64_t i) {
+std::uint64_t ceiling_to_pow2(std::uint64_t i) {
    --i;
    i |= i >> 1;
    i |= i >> 2;

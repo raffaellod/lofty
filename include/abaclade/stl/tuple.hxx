@@ -64,11 +64,11 @@ namespace _std {
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough.
 */
-template <size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
+template <std::size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
 class _tuple_head;
 
 // Specialization for empty types: enable EBO.
-template <size_t t_i, typename T>
+template <std::size_t t_i, typename T>
 class _tuple_head<t_i, T, true> :
    private T {
 public:
@@ -129,7 +129,7 @@ public:
 };
 
 // Specialization non non-empty types.
-template <size_t t_i, typename T>
+template <std::size_t t_i, typename T>
 class _tuple_head<t_i, T, false> {
 public:
 
@@ -208,16 +208,16 @@ namespace _std {
 //! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename ... Ts>
 class _tuple_tail;
 
 // Base case for the template recursion.
-template <size_t t_i>
+template <std::size_t t_i>
 class _tuple_tail<t_i> {
 };
 
 // Template recursion step.
-template <size_t t_i, typename T0, typename ... Ts>
+template <std::size_t t_i, typename T0, typename ... Ts>
 class _tuple_tail<t_i, T0, Ts ...> :
    public _tuple_head<t_i, T0>,
    public _tuple_tail<t_i + 1, Ts ...> {
@@ -302,7 +302,7 @@ public:
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   size_t t_i, typename T0 = _tuple_void, typename T1 = _tuple_void, typename T2 = _tuple_void,
+   std::size_t t_i, typename T0 = _tuple_void, typename T1 = _tuple_void, typename T2 = _tuple_void,
    typename T3 = _tuple_void, typename T4 = _tuple_void, typename T5 = _tuple_void,
    typename T6 = _tuple_void, typename T7 = _tuple_void, typename T8 = _tuple_void,
    typename T9 = _tuple_void
@@ -404,7 +404,7 @@ public:
 };
 
 // Base case for the template recursion.
-template <size_t t_i>
+template <std::size_t t_i>
 class _tuple_tail<
    t_i, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
    _tuple_void, _tuple_void, _tuple_void
@@ -734,13 +734,13 @@ namespace _std {
 /*! Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple
 helper classes”).
 */
-template <size_t t_i, typename T>
+template <std::size_t t_i, typename T>
 struct tuple_element;
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 // Recursion: remove 1 from the index, and 1 item from the tuple.
-template <size_t t_i, typename T0, typename ... Ts>
+template <std::size_t t_i, typename T0, typename ... Ts>
 struct tuple_element<t_i, tuple<T0, Ts ...>> :
    public tuple_element<t_i - 1, tuple<Ts ...>> {
 };
@@ -753,7 +753,7 @@ struct tuple_element<0, tuple<T0, Ts ...>> {
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <size_t t_i, typename T>
+template <std::size_t t_i, typename T>
 struct tuple_element;
 
 #define ABC_SPECIALIZE_tuple_element_FOR_INDEX(i) \
@@ -795,7 +795,7 @@ namespace _std {
 make it work.
 */
 template <
-   size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
    typename T6, typename T7, typename T8, typename T9
 >
 struct _tuple_get_helper;
@@ -842,13 +842,13 @@ return
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename ... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > &>(tpl).get();
 }
-template <size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename ... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...> const & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
@@ -858,7 +858,7 @@ inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
    typename T6, typename T7, typename T8, typename T9
 >
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type & get(
@@ -867,7 +867,7 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
    return _tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 template <
-   size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
+   std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
    typename T6, typename T7, typename T8, typename T9
 >
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type const & get(
@@ -898,7 +898,7 @@ struct tuple_size;
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <class ... Ts>
-struct tuple_size<tuple<Ts ...>> : std::integral_constant<size_t, sizeof ...(Ts)> {};
+struct tuple_size<tuple<Ts ...>> : std::integral_constant<std::size_t, sizeof ...(Ts)> {};
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -907,55 +907,55 @@ template <
    typename T7, typename T8, typename T9
 >
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
-   std::integral_constant<size_t, 10> {};
+   std::integral_constant<std::size_t, 10> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8
 >
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, _tuple_void>> :
-   std::integral_constant<size_t, 9> {};
+   std::integral_constant<std::size_t, 9> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7
 >
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, _tuple_void, _tuple_void>> :
-   std::integral_constant<size_t, 8> {};
+   std::integral_constant<std::size_t, 8> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, _tuple_void, _tuple_void, _tuple_void>> :
-   std::integral_constant<size_t, 7> {};
+   std::integral_constant<std::size_t, 7> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, T5, _tuple_void, _tuple_void, _tuple_void, _tuple_void
 >> :
-   std::integral_constant<size_t, 6> {};
+   std::integral_constant<std::size_t, 6> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void
->> : std::integral_constant<size_t, 5> {};
+>> : std::integral_constant<std::size_t, 5> {};
 template <typename T0, typename T1, typename T2, typename T3>
 struct tuple_size<tuple<
    T0, T1, T2, T3, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void
->> : std::integral_constant<size_t, 4> {};
+>> : std::integral_constant<std::size_t, 4> {};
 template <typename T0, typename T1, typename T2>
 struct tuple_size<tuple<
    T0, T1, T2, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
    _tuple_void
->> : std::integral_constant<size_t, 3> {};
+>> : std::integral_constant<std::size_t, 3> {};
 template <typename T0, typename T1>
 struct tuple_size<tuple<
    T0, T1, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
    _tuple_void, _tuple_void
->> : std::integral_constant<size_t, 2> {};
+>> : std::integral_constant<std::size_t, 2> {};
 template <typename T0>
 struct tuple_size<tuple<
    T0, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
    _tuple_void, _tuple_void
->> : std::integral_constant<size_t, 1> {};
+>> : std::integral_constant<std::size_t, 1> {};
 template <>
 struct tuple_size<tuple<
    _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
    _tuple_void, _tuple_void, _tuple_void
->> : std::integral_constant<size_t, 0> {};
+>> : std::integral_constant<std::size_t, 0> {};
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 

@@ -31,14 +31,14 @@ namespace io {
 
 //! Unsigned integer wide enough to express an I/O-related size.
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   typedef uint64_t full_size_t;
+   typedef std::uint64_t full_size_t;
 #else
    #error HOST_API
 #endif
 
 //! Integer wide enough to express an I/O-related offset.
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   typedef int64_t offset_t;
+   typedef std::int64_t offset_t;
 #else
    #error HOST_API
 #endif

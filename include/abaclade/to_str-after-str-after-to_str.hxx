@@ -115,13 +115,13 @@ protected:
    ptwOut
       Pointer to the writer to output to.
    */
-   void _write_impl(uintptr_t iPtr, io::text::writer * ptwOut);
+   void _write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut);
 
 
 protected:
 
    //! Backend used to write the pointer as an integer.
-   to_str_backend<uintptr_t> m_tsbInt;
+   to_str_backend<std::uintptr_t> m_tsbInt;
    //! Backend used to write a nullptr.
    to_str_backend<istr> m_tsbStr;
    //! Format string used to display the address.
@@ -151,7 +151,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(T * p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<uintptr_t>(p), ptwOut);
+      _write_impl(reinterpret_cast<std::uintptr_t>(p), ptwOut);
    }
 };
 
@@ -163,7 +163,7 @@ public:
 
    //! See _ptr_to_str_backend::write().
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
    }
 };
 
@@ -182,7 +182,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
    }
 };
 
@@ -201,7 +201,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<uintptr_t>(p.lock().get()), ptwOut);
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.lock().get()), ptwOut);
    }
 };
 
@@ -466,7 +466,7 @@ template <
 inline void _tuple_to_str_backend_element_writer<
    TTuple, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
 >::_write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
-   static size_t const sc_cTs(
+   static std::size_t const sc_cTs(
       _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
    );
    m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (1 /*T0*/ + sc_cTs)>(tpl), ptwOut);

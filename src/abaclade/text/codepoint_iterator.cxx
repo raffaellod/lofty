@@ -31,10 +31,10 @@ namespace text {
 _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
    // Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
    // can recalculate the pointers from these offsets.
-   uintptr_t ichThis(static_cast<uintptr_t>(m_pch - mc_ps->chars_begin()));
-   uintptr_t ichIter;
+   std::uintptr_t ichThis(static_cast<std::uintptr_t>(m_pch - mc_ps->chars_begin()));
+   std::uintptr_t ichIter;
    if (mc_pcii) {
-      ichIter = static_cast<uintptr_t>(mc_pcii->m_pch - mc_ps->chars_begin());
+      ichIter = static_cast<std::uintptr_t>(mc_pcii->m_pch - mc_ps->chars_begin());
    }
    static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
       const_cast<char_t *>(m_pch), ch
@@ -59,13 +59,13 @@ _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
 namespace abc {
 namespace text {
 
-ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
+std::ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
    if (m_pch > pch) {
-      return static_cast<ptrdiff_t>(str_traits::size_in_codepoints(pch, m_pch));
+      return static_cast<std::ptrdiff_t>(str_traits::size_in_codepoints(pch, m_pch));
    } else if (m_pch < pch) {
-      return -static_cast<ptrdiff_t>(str_traits::size_in_codepoints(m_pch, pch));
+      return -static_cast<std::ptrdiff_t>(str_traits::size_in_codepoints(m_pch, pch));
    } else {
       return 0;
    }

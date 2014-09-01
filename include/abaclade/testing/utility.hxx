@@ -100,9 +100,9 @@ public:
 private:
 
    //! Pointer to m_i.
-   uint16_t * m_pi;
+   std::uint16_t * m_pi;
    //! Data referenced by m_pi.
-   uint16_t m_i;
+   std::uint16_t m_i;
 };
 
 } //namespace utility
@@ -258,7 +258,7 @@ public:
    return
       Count of instances.
    */
-   static size_t copies() {
+   static std::size_t copies() {
       return m_cCopies;
    }
 
@@ -268,7 +268,7 @@ public:
    return
       Count of instances.
    */
-   static size_t moves() {
+   static std::size_t moves() {
       return m_cMoves;
    }
 
@@ -280,7 +280,7 @@ public:
    return
       Count of instances.
    */
-   static size_t new_insts() {
+   static std::size_t new_insts() {
       return m_cNew;
    }
 
@@ -309,11 +309,11 @@ private:
    //! Unique value associated to this object.
    int m_iUnique;
    //! Count of instances created, excluding moved ones.
-   static size_t m_cCopies;
+   static std::size_t m_cCopies;
    //! Count of moved instances.
-   static size_t m_cMoves;
+   static std::size_t m_cMoves;
    //! Count of new (not copied, not moved) instances.
-   static size_t m_cNew;
+   static std::size_t m_cNew;
    //! Value of m_iUnique for the next instance.
    static int m_iNextUnique;
 };

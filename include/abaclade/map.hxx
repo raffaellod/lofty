@@ -56,7 +56,7 @@ struct _raw_map_impl<TKey, TVal, false> :
 
    TODO: comment signature.
    */
-   void add(TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal) {
+   void add(TKey const * pkey, std::size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal) {
       type_void_adapter typeKey, typeVal;
       typeKey.set_copy_fn<TKey>();
       typeKey.set_destr_fn<TKey>();
@@ -96,14 +96,14 @@ struct _raw_map_impl<TKey, TVal, false> :
 
    TODO: comment signature.
    */
-   TVal * get_value(TKey const * pkey, size_t hash) {
+   TVal * get_value(TKey const * pkey, std::size_t hash) {
       type_void_adapter typeKey;
       typeKey.set_equal_fn<TKey>();
       return static_cast<TVal *>(_raw_complex_map_impl::get_value(
          sizeof(TKey), sizeof(TVal), typeKey.equal, pkey, hash
       ));
    }
-   TVal const * get_value(TKey const * pkey, size_t hash) const {
+   TVal const * get_value(TKey const * pkey, std::size_t hash) const {
       return const_cast<_raw_map_impl *>(this)->get_value(pkey, hash);
    }
 
@@ -122,7 +122,7 @@ struct _raw_map_impl<TKey, TVal, false> :
 
    TODO: comment signature.
    */
-   void remove(TKey const * pkey, size_t hash) {
+   void remove(TKey const * pkey, std::size_t hash) {
       type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_equal_fn<TKey>();
@@ -148,8 +148,8 @@ struct _raw_map_impl<TKey, TVal, false> :
 
    TODO: comment signature.
    */
-   size_t set_item(
-      TKey const * pkey, size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal
+   std::size_t set_item(
+      TKey const * pkey, std::size_t hash, TVal const * pval, bool bMoveKey, bool bMoveVal
    ) {
       type_void_adapter typeKey, typeVal;
       typeKey.set_copy_fn<TKey>();
@@ -177,12 +177,12 @@ struct _raw_map_impl<TKey, TVal, false> :
 namespace abc {
 
 //! Map with fast lookup. Implements commit-or-rollback semantics.
-template <typename TKey, typename TVal, size_t t_ceStatic = 0>
+template <typename TKey, typename TVal, std::size_t t_ceStatic = 0>
 class map;
 
 
 //! Implementation of map.
-template <typename TKey, typename TVal, size_t t_ceStatic>
+template <typename TKey, typename TVal, std::size_t t_ceStatic>
 class _map_impl :
    public _raw_map_data,
    public support_explicit_operator_bool<_map_impl<TKey, TVal, t_ceStatic>> {
@@ -215,7 +215,7 @@ public:
       assign(std::move(m));
       return *static_cast<TMap *>(this);
    }
-   template <size_t t_ceStatic2>
+   template <std::size_t t_ceStatic2>
    TMap & operator=(map<TKey, TVal, t_ceStatic2> && m) {
       assign(std::move(m));
       return *static_cast<TMap *>(this);
@@ -271,7 +271,7 @@ public:
 
    TODO: comment signature.
    */
-   size_t get_size() const {
+   std::size_t get_size() const {
       return _raw_map_cast()->get_size();
    }
 
@@ -327,7 +327,7 @@ protected:
       m_prmd = nullptr;
       assign(std::move(m));
    }
-   template <size_t t_ceStatic2>
+   template <std::size_t t_ceStatic2>
    _map_impl(_raw_map_desc * prmd, map<TKey, TVal, t_ceStatic2> && m) {
       ABC_UNUSED_ARG(prmd);
       m_prmd = nullptr;
@@ -353,8 +353,8 @@ protected:
 
    TODO: comment signature.
    */
-   size_t key_hash(TKey const & key) {
-      size_t hash(std::hash<typename std::remove_cv<TKey>::type>()(key));
+   std::size_t key_hash(TKey const & key) {
+      std::size_t hash(std::hash<typename std::remove_cv<TKey>::type>()(key));
       return _raw_map_root::adjust_hash(hash);
    }
 
@@ -412,7 +412,7 @@ public:
    map(map && m) :
       map_impl(get_embedded_desc(), std::move(m)) {
    }
-   template <size_t t_ceStatic>
+   template <std::size_t t_ceStatic>
    map(map<TKey, TVal, t_ceStatic> && m) :
       map_impl(get_embedded_desc(), std::move(m)) {
    }
@@ -432,7 +432,7 @@ public:
    map & operator=(map && m) {
       return map_impl::operator=(std::move(m));
    }
-   template <size_t t_ceStatic>
+   template <std::size_t t_ceStatic>
    map & operator=(map<TKey, TVal, t_ceStatic> && m) {
       return map_impl::operator=(std::move(m));
    }
@@ -449,13 +449,13 @@ protected:
    }
 };
 
-template <typename TKey, typename TVal, size_t t_ceStatic>
+template <typename TKey, typename TVal, std::size_t t_ceStatic>
 class map :
    public _map_impl<TKey, TVal, t_ceStatic>,
    protected _embedded_map_desc<
       TKey, TVal, (t_ceStatic > _raw_map_desc::smc_ceMin
          ? t_ceStatic
-         : static_cast<size_t>(_raw_map_desc::smc_ceMin))
+         : static_cast<std::size_t>(_raw_map_desc::smc_ceMin))
    > {
 
    typedef map<TKey, TVal, 0> map0;
@@ -463,7 +463,7 @@ class map :
    typedef _embedded_map_desc<
       TKey, TVal, (t_ceStatic > _raw_map_desc::smc_ceMin
          ? t_ceStatic
-         : static_cast<size_t>(_raw_map_desc::smc_ceMin))
+         : static_cast<std::size_t>(_raw_map_desc::smc_ceMin))
    > embedded_map_desc;
 
 public:
@@ -487,7 +487,7 @@ public:
    map(map0 && m) :
       map_impl(get_embedded_desc(), std::move(m)) {
    }
-   template <size_t t_ceStatic2>
+   template <std::size_t t_ceStatic2>
    map(map<TKey, TVal, t_ceStatic2> && m) :
       map_impl(get_embedded_desc(), std::move(m)) {
    }
@@ -513,7 +513,7 @@ public:
    map & operator=(map0 && m) {
       return map_impl::operator=(std::move(m));
    }
-   template <size_t t_ceStatic2>
+   template <std::size_t t_ceStatic2>
    map & operator=(map<TKey, TVal, t_ceStatic2> && m) {
       return map_impl::operator=(std::move(m));
    }
@@ -562,7 +562,7 @@ void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
       pht->cEntries,
       (pht->cEntries * 100 + (pht->ceMax >> 1)) / pht->ceMax
    );
-   for (size_t i(0); i < pht->ceMax; ++i) {
+   for (std::size_t i(0); i < pht->ceMax; ++i) {
       fwriter_printf(pfw, T("  Entry %d:\n"), i);
       for (struct hashentry * phe(pht->apheHeads[i]); phe; phe = phe->pheNext)
          fwriter_printf(pfw, T("    %#08x \"%s\" data: %p\n"), phe->hash, phe->aszKey, phe->pData);

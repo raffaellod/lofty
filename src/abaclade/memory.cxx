@@ -34,16 +34,20 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
    return abc::memory::_raw_alloc(cb);
 }
-void * ABC_STL_CALLCONV operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
    return abc::memory::_raw_alloc(cb);
 }
-void * ABC_STL_CALLCONV operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void * ABC_STL_CALLCONV operator new(
+   std::size_t cb, std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE() {
    return ::malloc(cb);
 }
-void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void * ABC_STL_CALLCONV operator new[](
+   std::size_t cb, std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE() {
    return ::malloc(cb);
 }
 
@@ -73,7 +77,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 namespace abc {
 namespace memory {
 
-void * _raw_alloc(size_t cb) {
+void * _raw_alloc(std::size_t cb) {
    void * p(::malloc(cb));
    if (!p) {
       ABC_THROW(memory_allocation_error, ());
@@ -87,7 +91,7 @@ void _raw_free(void const * p) {
 }
 
 
-void * _raw_realloc(void * p, size_t cb) {
+void * _raw_realloc(void * p, std::size_t cb) {
    p = ::realloc(p, cb);
    if (!p) {
       ABC_THROW(memory_allocation_error, ());

@@ -335,7 +335,7 @@ public:
    return
       Count of characters.
    */
-   size_t size() const {
+   std::size_t size() const {
       return m_s.size();
    }
 
@@ -367,7 +367,7 @@ private:
    return
       Length of the root part in s, or 0 if s does not start with a root part.
    */
-   static size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
+   static std::size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
 
 
    /*! Returns true if the specified string represents an absolute path. Under Win32, this means
@@ -444,7 +444,7 @@ template <>
 struct hash<abc::file_path>  {
 
    //! See std::hash::operator()().
-   size_t operator()(abc::file_path const & fp) const {
+   std::size_t operator()(abc::file_path const & fp) const {
       return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
    }
 };

@@ -48,7 +48,7 @@ inline _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char_t ch) {
 namespace abc {
 namespace text {
 
-inline char_t const * _codepoint_iterator_impl<true>::advance(ptrdiff_t i, bool bIndex) const {
+inline char_t const * _codepoint_iterator_impl<true>::advance(std::ptrdiff_t i, bool bIndex) const {
    return m_ps->_advance_char_ptr(m_pch, i, bIndex);
 }
 

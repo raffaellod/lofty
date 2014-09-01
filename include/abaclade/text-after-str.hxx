@@ -80,8 +80,8 @@ public:
       Pointer to the end of the byte sequence that caused the error.
    */
    void init(
-      istr const & sDescription = istr(), uint8_t const * pbInvalidBegin = nullptr,
-      uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
+      istr const & sDescription = istr(), std::uint8_t const * pbInvalidBegin = nullptr,
+      std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
    );
 
 
@@ -96,7 +96,7 @@ private:
    //! Description of the encountered problem.
    istr m_sDescription;
    //! Bytes that caused the error.
-   smvector<uint8_t, 16> m_viInvalid;
+   smvector<std::uint8_t, 16> m_viInvalid;
 };
 
 } //namespace text
@@ -150,7 +150,7 @@ private:
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
    we don’t want to find out when trying to print it in _print_extended_info().
    */
-   uint32_t m_iInvalidCodePoint;
+   std::uint32_t m_iInvalidCodePoint;
 };
 
 } //namespace text

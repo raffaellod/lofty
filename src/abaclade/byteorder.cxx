@@ -27,14 +27,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #ifndef ABC_HAVE_BSWAP
 
-uint16_t bswap_16(uint16_t i) {
+std::uint16_t bswap_16(std::uint16_t i) {
    return
       ((i & 0xff00u) >> 8) |
       ((i & 0x00ffu) << 8);
 }
 
 
-uint32_t bswap_32(uint32_t i) {
+std::uint32_t bswap_32(std::uint32_t i) {
    return
       ((i & 0xff000000u) >> 24) |
       ((i & 0x00ff0000u) >>  8) |
@@ -43,7 +43,7 @@ uint32_t bswap_32(uint32_t i) {
 }
 
 
-uint64_t bswap_64(uint64_t i) {
+std::uint64_t bswap_64(std::uint64_t i) {
    return
       ((i & 0xff00000000000000ull) >> 56) |
       ((i & 0x00ff000000000000ull) >> 40) |

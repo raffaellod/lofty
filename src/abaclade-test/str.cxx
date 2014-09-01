@@ -282,11 +282,11 @@ public:
       s += char32_t(0x0000a2);
       s += char32_t(0x0020ac);
       s += char32_t(0x024b62);
-      dmvector<uint8_t> vb;
+      dmvector<std::uint8_t> vb;
 
       vb = s.encode(text::encoding::utf8, false);
       {
-         smvector<uint8_t, 16> vbUtf8;
+         smvector<std::uint8_t, 16> vbUtf8;
          vbUtf8.append(0x24);
          vbUtf8.append(0xc2);
          vbUtf8.append(0xa2);
@@ -302,7 +302,7 @@ public:
 
       vb = s.encode(text::encoding::utf16be, false);
       {
-         smvector<uint8_t, 16> vbUtf16;
+         smvector<std::uint8_t, 16> vbUtf16;
          vbUtf16.append(0x00);
          vbUtf16.append(0x24);
          vbUtf16.append(0x00);
@@ -318,7 +318,7 @@ public:
 
       vb = s.encode(text::encoding::utf32le, false);
       {
-         smvector<uint8_t, 16> vbUtf32;
+         smvector<std::uint8_t, 16> vbUtf32;
          vbUtf32.append(0x24);
          vbUtf32.append(0x00);
          vbUtf32.append(0x00);

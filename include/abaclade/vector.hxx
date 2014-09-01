@@ -93,15 +93,16 @@ public:
    ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
-   void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
+   void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
       raw_complex_vextr_impl::insert(
          type,
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptOffset) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, true
       );
@@ -122,10 +123,11 @@ public:
       type.set_size<T>();
       raw_complex_vextr_impl::remove(
          type,
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptRemoveBegin) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptRemoveBegin) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
-         reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
+         reinterpret_cast<std::size_t>(ptRemoveEnd) - reinterpret_cast<std::size_t>(ptRemoveBegin)
       );
    }
 
@@ -138,7 +140,7 @@ public:
       If true, the previous contents of the vector will be preserved even if the reallocation causes
       the vector to switch to a different item array.
    */
-   void set_capacity(size_t ciMin, bool bPreserve) {
+   void set_capacity(std::size_t ciMin, bool bPreserve) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -154,7 +156,7 @@ public:
    ci
       New element count, in bytes.
    */
-   void set_size(size_t ci) {
+   void set_size(std::size_t ci) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -165,10 +167,10 @@ public:
 protected:
 
    //! See raw_complex_vextr_impl::raw_complex_vextr_impl().
-   raw_vector(size_t cbEmbeddedCapacity) :
+   raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_complex_vextr_impl(cbEmbeddedCapacity) {
    }
-   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_complex_vextr_impl(ptConstSrc, ciSrc) {
    }
 
@@ -197,7 +199,7 @@ public:
 
    //! See raw_complex_vextr_impl::assign_concat().
    void assign_concat(
-      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
+      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, std::uint8_t iMove
    ) {
       type_void_adapter type;
       type.set_copy_fn<T>();
@@ -216,7 +218,7 @@ public:
    ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
-   void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
+   void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
       type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
@@ -224,8 +226,9 @@ public:
       type.set_size<T>();
       raw_complex_vextr_impl::insert(
          type,
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptOffset) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, false
       );
@@ -235,10 +238,10 @@ public:
 protected:
 
    //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
-   raw_vector(size_t cbEmbeddedCapacity) :
+   raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_vector<T, false, false>(cbEmbeddedCapacity) {
    }
-   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_vector<T, false, false>(ptConstSrc, ciSrc) {
    }
 };
@@ -258,7 +261,7 @@ public:
 
    //! See raw_trivial_vextr_impl::assign_concat().
    void assign_concat(
-      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
+      T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, std::uint8_t iMove
    ) {
       ABC_UNUSED_ARG(iMove);
       raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
@@ -300,10 +303,11 @@ public:
    ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
-   void insert_copy(T const * ptOffset, T const * ptInsert, size_t ciInsert) {
+   void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
       raw_trivial_vextr_impl::insert_remove(
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptOffset) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, 0
       );
@@ -320,10 +324,11 @@ public:
    ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
-   void insert_move(T const * ptOffset, T * ptInsert, size_t ciInsert) {
+   void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
       raw_trivial_vextr_impl::insert_remove(
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptOffset) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptOffset) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
          ptInsert, sizeof(T) * ciInsert, 0
       );
@@ -339,11 +344,12 @@ public:
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
       raw_trivial_vextr_impl::insert_remove(
-         static_cast<size_t>(
-            reinterpret_cast<int8_t const *>(ptRemoveBegin) - raw_vextr_impl_base::begin<int8_t>()
+         static_cast<std::size_t>(
+            reinterpret_cast<std::int8_t const *>(ptRemoveBegin) -
+               raw_vextr_impl_base::begin<std::int8_t>()
          ),
          nullptr, 0,
-         reinterpret_cast<size_t>(ptRemoveEnd) - reinterpret_cast<size_t>(ptRemoveBegin)
+         reinterpret_cast<std::size_t>(ptRemoveEnd) - reinterpret_cast<std::size_t>(ptRemoveBegin)
       );
    }
 
@@ -356,7 +362,7 @@ public:
       If true, the previous contents of the vector will be preserved even if the reallocation causes
       the vector to switch to a different item array.
    */
-   void set_capacity(size_t ciMin, bool bPreserve) {
+   void set_capacity(std::size_t ciMin, bool bPreserve) {
       raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
    }
 
@@ -369,7 +375,7 @@ public:
    ci
       New element count, in bytes.
    */
-   void set_size(size_t ci) {
+   void set_size(std::size_t ci) {
       raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
    }
 
@@ -377,10 +383,10 @@ public:
 protected:
 
    //! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
-   raw_vector(size_t cbEmbeddedCapacity) :
+   raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
-   raw_vector(T const * ptConstSrc, size_t ciSrc) :
+   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
    }
 };
@@ -428,8 +434,8 @@ public:
    typedef T const * const_pointer;
    typedef T & reference;
    typedef T const & const_reference;
-   typedef size_t size_type;
-   typedef ptrdiff_t difference_type;
+   typedef std::size_t size_type;
+   typedef std::ptrdiff_t difference_type;
    typedef pointer_iterator<vector_base<T, std::is_copy_constructible<T>::value>, T> iterator;
    typedef pointer_iterator<
       vector_base<T, std::is_copy_constructible<T>::value
@@ -447,7 +453,7 @@ public:
    return
       Element at index i.
    */
-   T const & operator[](intptr_t i) const {
+   T const & operator[](std::intptr_t i) const {
       return *this->translate_index(i);
    }
 
@@ -458,9 +464,9 @@ public:
       true if the vector is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
-      // Use int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
-      return detail::raw_vextr_impl_base::end<int8_t>() >
-         detail::raw_vextr_impl_base::begin<int8_t>();
+      // Use std::int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
+      return detail::raw_vextr_impl_base::end<std::int8_t>() >
+         detail::raw_vextr_impl_base::begin<std::int8_t>();
    }
 
 
@@ -482,7 +488,7 @@ public:
       }
       return true;
    }
-   template <size_t t_ci>
+   template <std::size_t t_ci>
    bool operator==(T const (& at)[t_ci]) const {
       if (size() != t_ci) {
          return false;
@@ -524,7 +530,7 @@ public:
    return
       Current size of the item array storage, in elements.
    */
-   size_t capacity() const {
+   std::size_t capacity() const {
       return detail::raw_vextr_impl_base::capacity<T>();
    }
 
@@ -584,7 +590,7 @@ public:
    return
       Count of elements.
    */
-   size_t size() const {
+   std::size_t size() const {
       return detail::raw_vextr_impl_base::size<T>();
    }
 
@@ -621,10 +627,10 @@ protected:
    ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(size_t ciEmbedded) :
+   vector_base(std::size_t ciEmbedded) :
       detail::raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
    }
-   vector_base(T const * pt, size_t ci) :
+   vector_base(T const * pt, std::size_t ci) :
       detail::raw_vector<T, smc_bCopyConstructible>(pt, ci) {
    }
 
@@ -662,9 +668,9 @@ protected:
    return
       Pointer to the element.
    */
-   T const * translate_index(intptr_t i) const {
+   T const * translate_index(std::intptr_t i) const {
       return static_cast<T const *>(detail::raw_vector<T, smc_bCopyConstructible>::translate_offset(
-         static_cast<ptrdiff_t>(sizeof(T)) * i
+         static_cast<std::ptrdiff_t>(sizeof(T)) * i
       ));
    }
 
@@ -684,9 +690,10 @@ protected:
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
    */
-   std::pair<T const *, T const *> translate_range(intptr_t iBegin, intptr_t iEnd) const {
+   std::pair<T const *, T const *> translate_range(std::intptr_t iBegin, std::intptr_t iEnd) const {
       auto range(detail::raw_trivial_vextr_impl::translate_byte_range(
-         static_cast<ptrdiff_t>(sizeof(T)) * iBegin, static_cast<ptrdiff_t>(sizeof(T)) * iEnd
+         static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
+         static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
       ));
       return std::make_pair(
          static_cast<T const *>(range.first), static_cast<T const *>(range.second)
@@ -709,10 +716,10 @@ public:
       Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
       index values.
    */
-   dmvector<T, true> slice(intptr_t iBegin) const {
+   dmvector<T, true> slice(std::intptr_t iBegin) const {
       return slice(iBegin, this->size());
    }
-   dmvector<T, true> slice(intptr_t iBegin, intptr_t iEnd) const {
+   dmvector<T, true> slice(std::intptr_t iBegin, std::intptr_t iEnd) const {
       auto range(this->translate_range(iBegin, iEnd));
       return dmvector<T, true>(range.first, range.second);
    }
@@ -730,10 +737,10 @@ protected:
    ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(size_t ciEmbedded) :
+   vector_base(std::size_t ciEmbedded) :
       vector_base<T, false>(ciEmbedded) {
    }
-   vector_base(T const * pt, size_t ci) :
+   vector_base(T const * pt, std::size_t ci) :
       vector_base<T, false>(pt, ci) {
    }
 };
@@ -808,10 +815,10 @@ public:
    }
 
    //! See vector_base::operator[]().
-   T & operator[](intptr_t i) {
+   T & operator[](std::intptr_t i) {
       return const_cast<T &>(vector_base_::operator[](i));
    }
-   T const & operator[](intptr_t i) const {
+   T const & operator[](std::intptr_t i) const {
       return vector_base_::operator[](i);
    }
 
@@ -858,7 +865,7 @@ public:
    t
       Element to insert.
    */
-   void insert(intptr_t iOffset, typename std::remove_const<T>::type && t) {
+   void insert(std::intptr_t iOffset, typename std::remove_const<T>::type && t) {
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
    void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
@@ -883,7 +890,7 @@ public:
    it
       Iterator to the element to remove.
    */
-   void remove_at(intptr_t i) {
+   void remove_at(std::intptr_t i) {
       T const * pt(this->translate_index(i));
       this->remove(pt, pt + 1);
    }
@@ -914,15 +921,15 @@ public:
    itEnd
       Iterator to beyond the last element to remove.
    */
-   void remove_range(intptr_t iBegin, intptr_t iEnd) {
+   void remove_range(std::intptr_t iBegin, std::intptr_t iEnd) {
       auto range(this->translate_range(iBegin, iEnd));
       this->remove(range.first, range.second);
    }
-   void remove_range(intptr_t iBegin, const_iterator itEnd) {
+   void remove_range(std::intptr_t iBegin, const_iterator itEnd) {
       auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
       this->remove(range.first, range.second);
    }
-   void remove_range(const_iterator itBegin, intptr_t iEnd) {
+   void remove_range(const_iterator itBegin, std::intptr_t iEnd) {
       auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
       this->remove(range.first, range.second);
    }
@@ -943,7 +950,7 @@ public:
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vector to switch to a different item array.
    */
-   void set_capacity(size_t ciMin, bool bPreserve) {
+   void set_capacity(std::size_t ciMin, bool bPreserve) {
       vector_base_::set_capacity(ciMin, bPreserve);
    }
 
@@ -956,7 +963,7 @@ public:
    ci
       New vector size.
    */
-   void set_size(size_t ci) {
+   void set_size(std::size_t ci) {
       vector_base_::set_size(ci);
    }
 
@@ -974,7 +981,7 @@ protected:
    cbEmbeddedCapacity
       Size of the embedded item array, in bytes, or 0 if no embedded item array is present.
    */
-   mvector(size_t cbEmbeddedCapacity) :
+   mvector(std::size_t cbEmbeddedCapacity) :
       vector_base_(cbEmbeddedCapacity) {
    }
 };
@@ -1047,7 +1054,7 @@ public:
    void append(typename std::remove_const<T>::type && t) {
       this->insert_move(this->cend().base(), &t, 1);
    }
-   void append(T const * pt, size_t ci) {
+   void append(T const * pt, std::size_t ci) {
       this->insert_copy(this->cend().base(), pt, ci);
    }
 
@@ -1066,13 +1073,13 @@ public:
    ci
       Count of elements in the array pointed to by pt.
    */
-   void insert(intptr_t iOffset, T const & t) {
+   void insert(std::intptr_t iOffset, T const & t) {
       this->insert_copy(this->translate_index(iOffset), &t, 1);
    }
-   void insert(intptr_t iOffset, typename std::remove_const<T>::type && t) {
+   void insert(std::intptr_t iOffset, typename std::remove_const<T>::type && t) {
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
-   void insert(intptr_t iOffset, T const * pt, size_t ci) {
+   void insert(std::intptr_t iOffset, T const * pt, std::size_t ci) {
       this->insert_copy(this->translate_index(iOffset), pt, ci);
    }
    void insert(const_iterator itOffset, T const & t) {
@@ -1083,7 +1090,7 @@ public:
       this->validate_pointer(itOffset.base());
       this->insert_move(itOffset.base(), &t, 1);
    }
-   void insert(const_iterator itOffset, T const * pt, size_t ci) {
+   void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
       this->validate_pointer(itOffset.base());
       this->insert_copy(itOffset.base(), pt, ci);
    }
@@ -1092,7 +1099,7 @@ public:
 protected:
 
    //! See mvector<T, false>::mvector().
-   mvector(size_t cbEmbeddedCapacity) :
+   mvector(std::size_t cbEmbeddedCapacity) :
       mvector<T, false>(cbEmbeddedCapacity) {
    }
 };
@@ -1238,7 +1245,7 @@ public:
          v1.begin().base(), v1.end().base(), v2.begin().base(), v2.end().base()
       );
    }
-   template <size_t t_ci>
+   template <std::size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
       mvector<T, true>(0) {
       this->assign_copy(at, at + t_ci);
@@ -1333,13 +1340,13 @@ namespace abc {
 most likely to be shorter than a known small size.
 */
 template <
-   typename T, size_t t_ciEmbeddedCapacity,
+   typename T, std::size_t t_ciEmbeddedCapacity,
    bool t_bCopyConstructible = std::is_copy_constructible<T>::value
 >
 class smvector;
 
 // Partial specialization for non-copyable types.
-template <typename T, size_t t_ciEmbeddedCapacity>
+template <typename T, std::size_t t_ciEmbeddedCapacity>
 class smvector<T, t_ciEmbeddedCapacity, false> :
    public mvector<T, false>,
    private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
@@ -1365,7 +1372,7 @@ public:
    // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciEmbeddedCapacity2>
+   template <std::size_t t_ciEmbeddedCapacity2>
    smvector(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
    >::type v) :
@@ -1401,7 +1408,7 @@ public:
    // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciEmbeddedCapacity2>
+   template <std::size_t t_ciEmbeddedCapacity2>
    smvector & operator=(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
    >::type v) {
@@ -1421,7 +1428,7 @@ public:
 };
 
 // Partial specialization for copyable types.
-template <typename T, size_t t_ciEmbeddedCapacity>
+template <typename T, std::size_t t_ciEmbeddedCapacity>
 class smvector<T, t_ciEmbeddedCapacity, true> :
    public mvector<T, true>,
    private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
@@ -1457,7 +1464,7 @@ public:
    // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciEmbeddedCapacity2>
+   template <std::size_t t_ciEmbeddedCapacity2>
    smvector(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
    >::type v) :
@@ -1478,7 +1485,7 @@ public:
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_move(std::move(v));
    }
-   template <size_t t_ci>
+   template <std::size_t t_ci>
    explicit smvector(T const (& at)[t_ci]) :
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_copy(at, at + t_ci);
@@ -1510,7 +1517,7 @@ public:
    // If the source is using its embedded item array, it will be copied without allocating a dynamic
    // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
    // way, this won’t throw.
-   template <size_t t_ciEmbeddedCapacity2>
+   template <std::size_t t_ciEmbeddedCapacity2>
    smvector & operator=(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
    >::type v) {

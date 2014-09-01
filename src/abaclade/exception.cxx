@@ -1699,7 +1699,7 @@ index_error & index_error::operator=(index_error const & x) {
 }
 
 
-void index_error::init(intptr_t iInvalid, errint_t err /*= 0*/) {
+void index_error::init(std::intptr_t iInvalid, errint_t err /*= 0*/) {
    lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
    m_iInvalid = iInvalid;
 }

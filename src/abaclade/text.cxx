@@ -27,13 +27,13 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-size_t get_encoding_size(encoding enc) {
+std::size_t get_encoding_size(encoding enc) {
    ABC_TRACE_FUNC(enc);
 
    // Little helper to map abc::text::encoding values with byte sizes (see below).
    struct enc_cb_t {
-      uint8_t enc;
-      uint8_t cb;
+      std::uint8_t enc;
+      std::uint8_t cb;
    };
 
    // Character size, in bytes, for each recognized encoding.
@@ -48,7 +48,7 @@ size_t get_encoding_size(encoding enc) {
       { encoding::ebcdic,       1 },
    };
    // TODO: improve search algorithm, or maybe use a real map.
-   for (size_t i(0); i < ABC_COUNTOF(sc_aecEncChar); ++i) {
+   for (std::size_t i(0); i < ABC_COUNTOF(sc_aecEncChar); ++i) {
       if (enc == encoding::enum_type(sc_aecEncChar[i].enc)) {
          return sc_aecEncChar[i].cb;
       }
@@ -76,16 +76,16 @@ istr get_line_terminator_str(line_terminator lterm) {
 
 
 encoding guess_encoding(
-   void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal /*= 0*/,
-   size_t * pcbBom /*= nullptr*/
+   void const * pBufBegin, void const * pBufEnd, std::size_t cbSrcTotal /*= 0*/,
+   std::size_t * pcbBom /*= nullptr*/
 ) {
    ABC_TRACE_FUNC(pBufBegin, pBufEnd, cbSrcTotal, pcbBom);
 
-   uint8_t const * pbBufBegin(static_cast<uint8_t const *>(pBufBegin));
-   uint8_t const * pbBufEnd(static_cast<uint8_t const *>(pBufEnd));
+   std::uint8_t const * pbBufBegin(static_cast<std::uint8_t const *>(pBufBegin));
+   std::uint8_t const * pbBufEnd(static_cast<std::uint8_t const *>(pBufEnd));
    // If the total size is not specified, assume that the buffer is the whole source.
    if (!cbSrcTotal) {
-      cbSrcTotal = static_cast<size_t>(pbBufEnd - pbBufBegin);
+      cbSrcTotal = static_cast<std::size_t>(pbBufEnd - pbBufBegin);
    }
 
    // Statuses for the scanner. Each BOM status must be 1 bit to the right of its resulting
@@ -117,21 +117,21 @@ encoding guess_encoding(
    };
 
    // A 1 in this bit array means that the corresponding byte value is valid in ISO-8859-1.
-   static uint8_t const sc_abValidISO88591[] = {
+   static std::uint8_t const sc_abValidISO88591[] = {
       0x80, 0x3e, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f,
       0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
    };
    // A 1 in this bit array means that the corresponding byte value is valid in Windows-1252.
-   static uint8_t const sc_abValidWindows1252[] = {
+   static std::uint8_t const sc_abValidWindows1252[] = {
       0x80, 0x3e, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f,
       0xfd, 0x5f, 0xfe, 0xdf, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
    };
    // BOMs for sc_absd.
-   static uint8_t const
+   static std::uint8_t const
       sc_abUtf8Bom   [] = { 0xef, 0xbb, 0xbf },
       sc_abUtf16leBom[] = { 0xff, 0xfe },
       sc_abUtf16beBom[] = { 0xfe, 0xff },
@@ -139,9 +139,9 @@ encoding guess_encoding(
       sc_abUtf32beBom[] = { 0x00, 0x00, 0xfe, 0xff };
    // Struct to uniformize scanning for BOMs.
    static struct bomscandata_t {
-      uint8_t const * pabBom;
-      uint16_t ess;
-      uint8_t cbBom;
+      std::uint8_t const * pabBom;
+      std::uint16_t ess;
+      std::uint8_t cbBom;
    } const sc_absd[] = {
       { sc_abUtf8Bom,    ESS_UTF8_BOM,    sizeof(sc_abUtf8Bom   ) },
       { sc_abUtf16leBom, ESS_UTF16LE_BOM, sizeof(sc_abUtf16leBom) },
@@ -172,9 +172,9 @@ encoding guess_encoding(
    // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
    // exactly one guess.
    unsigned cbUtf8Cont(0);
-   uintptr_t ib(0);
-   for (uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
-      uint8_t b(*pbBuf);
+   std::uintptr_t ib(0);
+   for (std::uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
+      std::uint8_t b(*pbBuf);
 
       if (fess & ESS_UTF8) {
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
@@ -213,7 +213,7 @@ encoding guess_encoding(
                switch (b & 0xfc) {
                   case 0xd8: {
                      // There must be a trail surrogate after 1 byte.
-                     uint8_t const * pbNext(pbBuf + sizeof(char16_t));
+                     std::uint8_t const * pbNext(pbBuf + sizeof(char16_t));
                      if (pbNext >= pbBufEnd || (*pbNext & 0xfc) != 0xdc) {
                         fess &= ~ess;
                      }
@@ -221,7 +221,7 @@ encoding guess_encoding(
                   }
                   case 0xdc: {
                      // Assume there was a lead surrogate 2 bytes before.
-                     uint8_t const * pbPrev(pbBuf - sizeof(char16_t));
+                     std::uint8_t const * pbPrev(pbBuf - sizeof(char16_t));
                      if (pbPrev < pbBufBegin || (*pbPrev & 0xfc) != 0xd8) {
                         fess &= ~ess;
                      }
@@ -236,7 +236,7 @@ encoding guess_encoding(
          // Check for UTF-32 validity. Just ensure that each quadruplet of bytes defines a valid
          // UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
          // well as other restrictions.
-         uint32_t ch(*reinterpret_cast<uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
+         std::uint32_t ch(*reinterpret_cast<std::uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
          if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byteorder::le_to_host(ch))) {
             fess &= ~static_cast<unsigned>(ESS_UTF32LE);
          }
@@ -265,7 +265,7 @@ encoding guess_encoding(
          // Lastly, check for one or more BOMs. This needs to be last, so if it enables other
          // checks, they don’t get performed on the last BOM byte it just analyzed, which would most
          // likely cause them to fail.
-         for (uintptr_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
+         for (std::uintptr_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
             unsigned essBom(sc_absd[iBsd].ess);
             if (fess & essBom) {
                if (b != sc_absd[iBsd].pabBom[ib]) {
@@ -332,28 +332,28 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
 }
 
 
-size_t transcode(
+std::size_t transcode(
    bool bThrowOnErrors,
-   encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
-   encoding encDst, void       ** ppDst, size_t * pcbDstMax
+   encoding encSrc, void const ** ppSrc, std::size_t * pcbSrc,
+   encoding encDst, void       ** ppDst, std::size_t * pcbDstMax
 ) {
    ABC_TRACE_FUNC(bThrowOnErrors, encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
    // If ppDst or pcbDstMax is nullptr, we’ll only calculate how much of **ppSrc can be transcoded
    // to fit into *pcbDstMax; otherwise we’ll also perform the actual transcoding.
    bool bWrite(ppDst && pcbDstMax);
-   uint8_t const * pbSrc(static_cast<uint8_t const *>(*ppSrc));
-   uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
-   uint8_t       * pbDst;
-   uint8_t const * pbDstEnd;
+   std::uint8_t const * pbSrc(static_cast<std::uint8_t const *>(*ppSrc));
+   std::uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
+   std::uint8_t       * pbDst;
+   std::uint8_t const * pbDstEnd;
    if (bWrite) {
-      pbDst = static_cast<uint8_t *>(*ppDst);
+      pbDst = static_cast<std::uint8_t *>(*ppDst);
       pbDstEnd = pbDst + *pcbDstMax;
    } else {
       pbDst = nullptr;
    }
 
-   uint8_t const * pbSrcLastUsed;
+   std::uint8_t const * pbSrcLastUsed;
    for (;;) {
       pbSrcLastUsed = pbSrc;
       char32_t ch32;
@@ -364,7 +364,7 @@ size_t transcode(
             if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
                goto break_for;
             }
-            uint8_t const * pbSrcCpBegin(pbSrc);
+            std::uint8_t const * pbSrcCpBegin(pbSrc);
             char8_t ch8Src(static_cast<char8_t>(*pbSrc++));
             if (!utf8_char_traits::is_trail_char(ch8Src)) {
                unsigned cbSeq(utf8_char_traits::lead_char_to_codepoint_size(ch8Src));
@@ -431,7 +431,7 @@ size_t transcode(
             if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                goto break_for;
             }
-            uint8_t const * pbSrcCpBegin(pbSrc);
+            std::uint8_t const * pbSrcCpBegin(pbSrc);
             char16_t ch16Src0(*reinterpret_cast<char16_t const *>(pbSrc));
             pbSrc += sizeof(char16_t);
             if (encSrc != encoding::utf16_host) {
@@ -520,13 +520,13 @@ size_t transcode(
          case encoding::utf8: {
             // Compute the length of this sequence. Technically this could throw if ch32 is not a
             // valid Unicode code point, but we made sure above that that cannot happen.
-            size_t cbSeq(sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32));
+            std::size_t cbSeq(sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32));
             if (bWrite) {
                if (pbDst + cbSeq > pbDstEnd) {
                   goto break_for;
                }
                // We know that there’s enough room in *pbDst, so this is safe.
-               pbDst = reinterpret_cast<uint8_t *>(utf8_char_traits::codepoint_to_chars(
+               pbDst = reinterpret_cast<std::uint8_t *>(utf8_char_traits::codepoint_to_chars(
                   ch32, reinterpret_cast<char8_t *>(pbDst)
                ));
             } else {
@@ -537,7 +537,7 @@ size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
-            size_t cbSeq(sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32));
+            std::size_t cbSeq(sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32));
             if (bWrite) {
                if (pbDst + cbSeq > pbDstEnd) {
                   goto break_for;
@@ -602,7 +602,7 @@ size_t transcode(
                   // Replace the code point with a question mark.
                   ch32 = 0x00003f;
                }
-               *pbDst = static_cast<uint8_t>(ch32);
+               *pbDst = static_cast<std::uint8_t>(ch32);
             }
             ++pbDst;
             break;
@@ -617,18 +617,18 @@ size_t transcode(
       }
    }
 break_for:
-   size_t cbDstUsed;
+   std::size_t cbDstUsed;
    if (bWrite) {
-      cbDstUsed = static_cast<size_t>(pbDst - static_cast<uint8_t *>(*ppDst));
+      cbDstUsed = static_cast<std::size_t>(pbDst - static_cast<std::uint8_t *>(*ppDst));
       // Undo any incomplete or unused read.
       pbSrc = pbSrcLastUsed;
       // Update the variables pointed to by the arguments.
-      *pcbSrc -= static_cast<size_t>(pbSrc - static_cast<uint8_t const *>(*ppSrc));
+      *pcbSrc -= static_cast<std::size_t>(pbSrc - static_cast<std::uint8_t const *>(*ppSrc));
       *ppSrc = pbSrc;
       *pcbDstMax -= cbDstUsed;
       *ppDst = pbDst;
    } else {
-      cbDstUsed = reinterpret_cast<size_t>(pbDst);
+      cbDstUsed = reinterpret_cast<std::size_t>(pbDst);
    }
    return cbDstUsed;
 }
@@ -689,12 +689,12 @@ decode_error & decode_error::operator=(decode_error const & x) {
 
 
 void decode_error::init(
-   istr const & sDescription /*= istr()*/, uint8_t const * pbInvalidBegin /*= nullptr*/,
-   uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
+   istr const & sDescription /*= istr()*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
+   std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
 ) {
    error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
    m_sDescription = sDescription;
-   m_viInvalid.append(pbInvalidBegin, static_cast<size_t>(pbInvalidEnd - pbInvalidBegin));
+   m_viInvalid.append(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
 }
 
 
@@ -757,7 +757,7 @@ void encode_error::init(
 ) {
    error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
    m_sDescription = sDescription;
-   m_iInvalidCodePoint = static_cast<uint32_t>(chInvalid);
+   m_iInvalidCodePoint = static_cast<std::uint32_t>(chInvalid);
 }
 
 

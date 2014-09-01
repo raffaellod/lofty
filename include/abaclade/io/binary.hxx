@@ -67,7 +67,7 @@ public:
       Count of bytes read. For non-zero values of cbMax, a return value of 0 indicates that the end
       of the data was reached.
    */
-   virtual size_t read(void * p, size_t cbMax) = 0;
+   virtual std::size_t read(void * p, std::size_t cbMax) = 0;
 };
 
 } //namespace binary
@@ -101,7 +101,7 @@ public:
    return
       Count of bytes written.
    */
-   virtual size_t write(void const * p, size_t cb) = 0;
+   virtual std::size_t write(void const * p, std::size_t cb) = 0;
 };
 
 } //namespace binary

@@ -60,7 +60,7 @@ protected:
 protected:
 
    //! Current read/write offset into the string.
-   uintptr_t m_ichOffset;
+   std::uintptr_t m_ichOffset;
 };
 
 } //namespace text
@@ -171,7 +171,7 @@ public:
    dmstr release_content();
 
    //! See writer::write_binary().
-   virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc);
+   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc);
 
 
 protected:

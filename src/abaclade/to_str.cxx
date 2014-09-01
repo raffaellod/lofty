@@ -76,7 +76,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    // Default to generating at least a single zero.
    m_cchWidth(1),
    m_cchBuf(1 /*possible sign*/ + 3 /*max base10 characters per byte*/ * cbInt),
-   mc_cbInt(static_cast<uint8_t>(cbInt)),
+   mc_cbInt(static_cast<std::uint8_t>(cbInt)),
    // Default to decimal notation.
    m_iBaseOrShift(10),
    // Default padding is with spaces (and won’t be applied by default).
@@ -219,7 +219,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
       *--it = chSign;
    }
    // Ensure that at least m_cchWidth characters are generated (but reserve a space for the sign).
-   auto itFirstDigit(itEnd - static_cast<ptrdiff_t>(m_cchWidth - (bSignLast ? 1 : 0)));
+   auto itFirstDigit(itEnd - static_cast<std::ptrdiff_t>(m_cchWidth - (bSignLast ? 1 : 0)));
    while (it > itFirstDigit) {
       *--it = m_chPad;
    }
@@ -235,7 +235,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    }
    // Write the constructed string.
    ptwOut->write_binary(
-      it.base(), sizeof(char_t) * static_cast<size_t>(itEnd - it), text::encoding::host
+      it.base(), sizeof(char_t) * static_cast<std::size_t>(itEnd - it), text::encoding::host
    );
 }
 
@@ -275,36 +275,36 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
 }
 
 
-void _int_to_str_backend_base::write_s64(int64_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_s64(std::int64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-void _int_to_str_backend_base::write_u64(uint64_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_u64(std::uint64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 64
 
-void _int_to_str_backend_base::write_s32(int32_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-void _int_to_str_backend_base::write_u32(uint32_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
 #if ABC_HOST_WORD_SIZE < 32
 
-void _int_to_str_backend_base::write_s16(int16_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 
-void _int_to_str_backend_base::write_u16(uint16_t i, io::text::writer * ptwOut) const {
+void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
@@ -324,7 +324,7 @@ namespace abc {
 void to_str_backend<char_ptr_to_str_adapter>::write(
    char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
 ) {
-   size_t cch(text::size_in_chars(cs.m_psz));
+   std::size_t cch(text::size_in_chars(cs.m_psz));
    text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
    detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
 }
@@ -364,7 +364,7 @@ void _ptr_to_str_backend::set_format(istr const & sFormat) {
 }
 
 
-void _ptr_to_str_backend::_write_impl(uintptr_t iPtr, io::text::writer * ptwOut) {
+void _ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, iPtr, ptwOut);
 
    if (iPtr) {

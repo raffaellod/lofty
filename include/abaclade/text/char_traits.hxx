@@ -127,7 +127,7 @@ public:
       true if ch is a valid UTF-8 lead character, or false otherwise.
    */
    static bool is_valid_lead_char(char8_t ch) {
-      uint8_t i(static_cast<uint8_t>(ch));
+      std::uint8_t i(static_cast<std::uint8_t>(ch));
       return (smc_aiValidLeadCharsMask[i >> 3] & (0x80u >> (i & 0x07u))) != 0;
    }
 
@@ -141,7 +141,7 @@ public:
       point encoded as a single byte or an invalid sequence.
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
-      unsigned i(static_cast<uint8_t>(ch));
+      unsigned i(static_cast<std::uint8_t>(ch));
       // See comments on smc_acbConts in char_traits.cxx to understand this way of accessing it.
       return static_cast<unsigned>(
       // (smc_acbCpSizesByLeadChar[byte index] >> [nibble index → 0 or 4]) & nibble mask
@@ -153,15 +153,15 @@ public:
 private:
 
    //! Maps each UTF-8 lead byte to the length of its entire encoded code point.
-   static uint8_t const smc_acbCpSizesByLeadChar[];
+   static std::uint8_t const smc_acbCpSizesByLeadChar[];
    /*! Shift counts for the mask 0x7f to be applied to each lead byte to get the bits actually part
    of the code point; indexed by the number of bytes in the sequence.
    */
-   static uint8_t const smc_acbitShiftMask[];
+   static std::uint8_t const smc_acbitShiftMask[];
    /*! A set bit in this array means that the corresponding character is a valid UTF-8 lead
    character.
    */
-   static uint8_t const smc_aiValidLeadCharsMask[];
+   static std::uint8_t const smc_aiValidLeadCharsMask[];
 };
 
 } //namespace text

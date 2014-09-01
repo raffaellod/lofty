@@ -189,7 +189,7 @@ public:
          int i[2];
          void * p(&i[0]);
          // Misalign the pointer, partly entering the second int.
-         p = static_cast<int8_t *>(p) + 1;
+         p = static_cast<std::int8_t *>(p) + 1;
          ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
       }
 

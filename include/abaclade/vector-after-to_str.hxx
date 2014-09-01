@@ -125,7 +125,7 @@ class to_str_backend<mvector<T>> : public to_str_backend<vector_base<T>> {};
 template <typename T>
 class to_str_backend<dmvector<T>> : public to_str_backend<vector_base<T>> {};
 
-template <typename T, size_t t_ciStatic>
+template <typename T, std::size_t t_ciStatic>
 class to_str_backend<smvector<T, t_ciStatic>> : public to_str_backend<vector_base<T>> {};
 
 } //namespace abc

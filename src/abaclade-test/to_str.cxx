@@ -141,27 +141,27 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Test zero, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("x")), ABC_SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL(" 1x")), ABC_SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("01x")), ABC_SL("0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL(" 2x")), ABC_SL(" 0"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(0), ABC_SL("02x")), ABC_SL("00"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(0), ABC_SL("x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(0), ABC_SL(" 1x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(0), ABC_SL("01x")), ABC_SL("0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(0), ABC_SL(" 2x")), ABC_SL(" 0"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(0), ABC_SL("02x")), ABC_SL("00"));
 
       // Test positive values, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("x")), ABC_SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL(" 1x")), ABC_SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("01x")), ABC_SL("1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL(" 2x")), ABC_SL(" 1"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(1), ABC_SL("02x")), ABC_SL("01"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(1), ABC_SL("x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(1), ABC_SL(" 1x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(1), ABC_SL("01x")), ABC_SL("1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(1), ABC_SL(" 2x")), ABC_SL(" 1"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(1), ABC_SL("02x")), ABC_SL("01"));
 
       // Test negative values, hexadecimal base.
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("x")), ABC_SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 1x")), ABC_SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("01x")), ABC_SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 2x")), ABC_SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("02x")), ABC_SL("ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL(" 3x")), ABC_SL(" ff"));
-      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(int8_t(-1), ABC_SL("03x")), ABC_SL("0ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL("x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL(" 1x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL("01x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL(" 2x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL("02x")), ABC_SL("ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL(" 3x")), ABC_SL(" ff"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(std::int8_t(-1), ABC_SL("03x")), ABC_SL("0ff"));
    }
 };
 
@@ -190,7 +190,7 @@ public:
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
-      uintptr_t iBad(0xbad);
+      std::uintptr_t iBad(0xbad);
 
       // Test nullptr.
       ABC_TESTING_ASSERT_EQUAL(
@@ -305,9 +305,9 @@ public:
       ABC_TRACE_FUNC(this);
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-      using ::std::tuple;
+      using std::tuple;
 #else
-      using ::abc::_std::tuple;
+      using abc::_std::tuple;
 #endif
 
       // Test {std,abc::_std}::tuple.

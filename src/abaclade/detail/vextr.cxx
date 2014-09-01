@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-raw_vextr_impl_base::raw_vextr_impl_base(size_t cbEmbeddedCapacity) {
+raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    m_pBegin = nullptr;
    m_pEnd = nullptr;
    mc_bEmbeddedPrefixedItemArray = cbEmbeddedCapacity > 0;
@@ -42,18 +42,20 @@ raw_vextr_impl_base::raw_vextr_impl_base(size_t cbEmbeddedCapacity) {
 }
 
 
-/*static*/ size_t raw_vextr_impl_base::calculate_increased_capacity(size_t cbOld, size_t cbNew) {
+/*static*/ std::size_t raw_vextr_impl_base::calculate_increased_capacity(
+   std::size_t cbOld, std::size_t cbNew
+) {
    ABC_TRACE_FUNC(cbOld, cbNew);
 
-   size_t cbNewCapacity;
+   std::size_t cbNewCapacity;
    // Avoid a pointless multiplication by 0.
    if (cbOld) {
       cbNewCapacity = cbOld * smc_iGrowthRate;
       // Check for overflow.
       if (cbNewCapacity <= cbOld) {
-         // If size_t overflowed, the memory allocation cannot possibly succeed; just return a very
-         // large number instead.
-         return numeric::max<size_t>::value;
+         // If std::size_t overflowed, the memory allocation cannot possibly succeed; just return a
+         // very large number instead.
+         return numeric::max<std::size_t>::value;
       }
    } else {
       cbNewCapacity = smc_cbCapacityMin;
@@ -72,12 +74,12 @@ raw_vextr_impl_base::raw_vextr_impl_base(size_t cbEmbeddedCapacity) {
 }
 
 
-void const * raw_vextr_impl_base::translate_offset(intptr_t ib) const {
+void const * raw_vextr_impl_base::translate_offset(std::intptr_t ib) const {
    ABC_TRACE_FUNC(this, ib);
 
-   int8_t const * pb(ib >= 0 ? begin<int8_t>() : end<int8_t>());
+   std::int8_t const * pb(ib >= 0 ? begin<std::int8_t>() : end<std::int8_t>());
    pb += ib;
-   if (begin<int8_t>() <= pb && pb < end<int8_t>()) {
+   if (begin<std::int8_t>() <= pb && pb < end<std::int8_t>()) {
       return pb;
    }
    // TODO: use the index, not the offset.
@@ -86,11 +88,11 @@ void const * raw_vextr_impl_base::translate_offset(intptr_t ib) const {
 
 
 std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
-   intptr_t ibBegin, intptr_t ibEnd
+   std::intptr_t ibBegin, std::intptr_t ibEnd
 ) const {
    ABC_TRACE_FUNC(this, ibBegin, ibEnd);
 
-   intptr_t cb(static_cast<intptr_t>(size<int8_t>()));
+   std::intptr_t cb(static_cast<std::intptr_t>(size<std::int8_t>()));
    if (ibBegin < 0) {
       ibBegin += cb;
       if (ibBegin < 0) {
@@ -113,7 +115,9 @@ std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
       return std::pair<void const *, void const *>(nullptr, nullptr);
    }
    // Return the constructed interval.
-   return std::pair<void const *, void const *>(begin<int8_t>() + ibBegin, begin<int8_t>() + ibEnd);
+   return std::pair<void const *, void const *>(
+      begin<std::int8_t>() + ibBegin, begin<std::int8_t>() + ibEnd
+   );
 }
 
 
@@ -122,7 +126,7 @@ void raw_vextr_impl_base::validate_pointer(void const * p) const {
 
    if (p < m_pBegin || p > m_pEnd) {
       // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (static_cast<int8_t const *>(p) - begin<int8_t>()));
+      ABC_THROW(index_error, (static_cast<std::int8_t const *>(p) - begin<std::int8_t>()));
    }
 }
 
@@ -132,7 +136,7 @@ void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 
    if (p < m_pBegin || p >= m_pEnd) {
       // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (static_cast<int8_t const *>(p) - begin<int8_t>()));
+      ABC_THROW(index_error, (static_cast<std::int8_t const *>(p) - begin<std::int8_t>()));
    }
 }
 
@@ -148,7 +152,7 @@ namespace abc {
 namespace detail {
 
 raw_vextr_transaction::raw_vextr_transaction(
-   raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew
+   raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew
 ) :
    m_prvib(prvib) {
    ABC_TRACE_FUNC(this, prvib, bTrivial, cbNew);
@@ -156,12 +160,12 @@ raw_vextr_transaction::raw_vextr_transaction(
    _construct(bTrivial, cbNew);
 }
 raw_vextr_transaction::raw_vextr_transaction(
-   raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove
+   raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbAdd, std::size_t cbRemove
 ) :
    m_prvib(prvib) {
    ABC_TRACE_FUNC(this, prvib, bTrivial, cbAdd, cbRemove);
 
-   _construct(bTrivial, prvib->size<int8_t>() + cbAdd - cbRemove);
+   _construct(bTrivial, prvib->size<std::int8_t>() + cbAdd - cbRemove);
 }
 
 
@@ -182,7 +186,7 @@ void raw_vextr_transaction::commit() {
 }
 
 
-void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
+void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
    ABC_TRACE_FUNC(this, bTrivial, cbNew);
 
    m_bFree = false;
@@ -201,7 +205,7 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
          // The embedded item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = ppiaEmbedded->m_at;
          m_rvibWork.m_bDynamic = false;
-      } else if (cbNew <= m_prvib->capacity<int8_t>()) {
+      } else if (cbNew <= m_prvib->capacity<std::int8_t>()) {
          // The current item array is large enough, no need to change anything.
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
          m_rvibWork.m_bDynamic = m_prvib->m_bDynamic;
@@ -209,10 +213,10 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
          // The current item array (embedded or dynamic) is not large enough.
 
          // Calculate the total allocation size.
-         size_t cbOrig(m_prvib->size<int8_t>());
-         size_t cbNewCapacity(raw_vextr_impl_base::calculate_increased_capacity(cbOrig, cbNew));
+         std::size_t cbOrig(m_prvib->size<std::int8_t>());
+         std::size_t cbNewCapacity(raw_vextr_impl_base::calculate_increased_capacity(cbOrig, cbNew));
          typedef raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
-         size_t cbNewItemArrayDesc(reinterpret_cast<size_t>(
+         std::size_t cbNewItemArrayDesc(reinterpret_cast<std::size_t>(
             reinterpret_cast<prefixed_item_array *>(0)->m_at
          ) + cbNewCapacity);
          prefixed_item_array * ppia;
@@ -225,7 +229,7 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
                memory::_raw_realloc(ppia, cbNewItemArrayDesc)
             );
             m_prvib->m_pBegin = ppia->m_at;
-            m_prvib->m_pEnd = m_prvib->begin<int8_t>() + cbOrig;
+            m_prvib->m_pEnd = m_prvib->begin<std::int8_t>() + cbOrig;
          } else {
             // Allocate a new item array. This is the only option for non-trivial types because they
             // must be moved using their move constructor.
@@ -236,7 +240,7 @@ void raw_vextr_transaction::_construct(bool bTrivial, size_t cbNew) {
          m_rvibWork.m_pBegin = ppia->m_at;
          m_rvibWork.m_bDynamic = true;
       }
-      m_rvibWork.m_pEnd = static_cast<int8_t *>(m_rvibWork.m_pBegin) + cbNew;
+      m_rvibWork.m_pEnd = static_cast<std::int8_t *>(m_rvibWork.m_pBegin) + cbNew;
    }
 }
 
@@ -253,21 +257,21 @@ namespace detail {
 
 void raw_complex_vextr_impl::assign_concat(
    type_void_adapter const & type, void const * p1Begin, void const * p1End, void const * p2Begin,
-   void const * p2End, uint8_t iMove
+   void const * p2End, std::uint8_t iMove
 ) {
    ABC_TRACE_FUNC(this, /*type, */p1Begin, p1End, p2Begin, p2End, iMove);
 
-   size_t cb1(reinterpret_cast<size_t>(p1End) - reinterpret_cast<size_t>(p1Begin));
-   size_t cb2(reinterpret_cast<size_t>(p2End) - reinterpret_cast<size_t>(p2Begin));
+   std::size_t cb1(reinterpret_cast<std::size_t>(p1End) - reinterpret_cast<std::size_t>(p1Begin));
+   std::size_t cb2(reinterpret_cast<std::size_t>(p2End) - reinterpret_cast<std::size_t>(p2Begin));
    raw_vextr_transaction trn(this, false, cb1 + cb2);
-   size_t cbOrig(size<int8_t>());
-   std::unique_ptr<int8_t[]> pbBackup;
-   int8_t * pbWorkCopy(trn.work_array<int8_t>());
+   std::size_t cbOrig(size<std::int8_t>());
+   std::unique_ptr<std::int8_t[]> pbBackup;
+   std::int8_t * pbWorkCopy(trn.work_array<std::int8_t>());
    if (cb1 || cb2) {
       // If we’re going to overwrite the old item array and we’re going to perform copies (exception
       // hazard), move the items to a backup array so we can restore them in case of exceptions.
       if (cbOrig && iMove != 1 + 2 && !trn.will_replace_item_array()) {
-         pbBackup.reset(new int8_t[cbOrig]);
+         pbBackup.reset(new std::int8_t[cbOrig]);
          type.move_constr(pbBackup.get(), m_pBegin, m_pEnd);
          destruct_items(type);
       }
@@ -289,9 +293,9 @@ void raw_complex_vextr_impl::assign_concat(
          }
       } catch (...) {
          // If we already constructed the copies of p1, destruct them.
-         int8_t * pbWorkCopy1Begin(trn.work_array<int8_t>());
+         std::int8_t * pbWorkCopy1Begin(trn.work_array<std::int8_t>());
          if (pbWorkCopy > pbWorkCopy1Begin) {
-            int8_t * pbWorkCopy1End(pbWorkCopy1Begin + cb1);
+            std::int8_t * pbWorkCopy1End(pbWorkCopy1Begin + cb1);
             if (iMove & 1) {
                // If we moved them from p1, don’t forget to move them back. Of course this means
                // that we first have to destruct p1’s items and re-construct them.
@@ -382,10 +386,10 @@ static void overlapping_move_constr(
    if (pDstBegin == pSrcBegin) {
       return;
    }
-   int8_t * pbSrcBegin(static_cast<int8_t *>(pSrcBegin));
-   int8_t * pbSrcEnd  (static_cast<int8_t *>(pSrcEnd  ));
-   int8_t * pbDstBegin(static_cast<int8_t *>(pDstBegin));
-   int8_t * pbDstEnd  (pbDstBegin + (pbSrcEnd - pbSrcBegin));
+   std::int8_t * pbSrcBegin(static_cast<std::int8_t *>(pSrcBegin));
+   std::int8_t * pbSrcEnd  (static_cast<std::int8_t *>(pSrcEnd  ));
+   std::int8_t * pbDstBegin(static_cast<std::int8_t *>(pDstBegin));
+   std::int8_t * pbDstEnd  (pbDstBegin + (pbSrcEnd - pbSrcBegin));
    if (pbDstBegin < pbSrcBegin && pbSrcBegin < pbDstEnd) {
       // ┌─────────────────┐
       // │ a - - B C D e f │
@@ -394,7 +398,7 @@ static void overlapping_move_constr(
       // └─────────────────┘
       //
       // Move the items from left to right (the block moves from right to left).
-      size_t cbBeforeOverlap(static_cast<size_t>(pbSrcBegin - pbDstBegin));
+      std::size_t cbBeforeOverlap(static_cast<std::size_t>(pbSrcBegin - pbDstBegin));
 
       // Move-construct the items that have an unused destination, then destruct them, so they can
       // be overwritten by the next move if necessary.
@@ -420,7 +424,7 @@ static void overlapping_move_constr(
       //
       // This situation is the mirror of the above, so the move must be done backwards, copying
       // right to left (the block moves from left to right).
-      size_t cbAfterOverlap(static_cast<size_t>(pbDstEnd - pbSrcEnd));
+      std::size_t cbAfterOverlap(static_cast<std::size_t>(pbDstEnd - pbSrcEnd));
 
       // Move-construct the items that have an unused destination, then destruct them, so they can
       // be overwritten by the next move if necessary.
@@ -432,10 +436,10 @@ static void overlapping_move_constr(
 
       // Move-assign backwards all the remaining items (the overlapping area) to shift them.
       // This is slow, costing two function calls for each item.
-      int8_t * pbSrcItem(pbSrcEnd - cbAfterOverlap);
-      int8_t * pbDstItem(pbSrcEnd);
+      std::int8_t * pbSrcItem(pbSrcEnd - cbAfterOverlap);
+      std::int8_t * pbDstItem(pbSrcEnd);
       while (pbSrcItem > pbSrcBegin) {
-         int8_t * pbSrcItemEnd(pbSrcItem);
+         std::int8_t * pbSrcItemEnd(pbSrcItem);
          pbSrcItem -= type.cb;
          pbDstItem -= type.cb;
          type.move_constr(pbDstItem, pbSrcItem, pbSrcItemEnd);
@@ -451,21 +455,21 @@ static void overlapping_move_constr(
 
 
 void raw_complex_vextr_impl::insert(
-   type_void_adapter const & type, uintptr_t ibOffset, void const * pInsert, size_t cbInsert,
-   bool bMove
+   type_void_adapter const & type, std::uintptr_t ibOffset, void const * pInsert,
+   std::size_t cbInsert, bool bMove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, pInsert, cbInsert, bMove);
 
    raw_vextr_transaction trn(this, false, cbInsert, 0);
-   int8_t * pbOffset(begin<int8_t>() + ibOffset);
-   void const * pInsertEnd(static_cast<int8_t const *>(pInsert) + cbInsert);
-   int8_t * pbWorkInsertBegin(trn.work_array<int8_t>() + ibOffset);
-   int8_t * pbWorkInsertEnd(static_cast<int8_t *>(pbWorkInsertBegin) + cbInsert);
+   std::int8_t * pbOffset(begin<std::int8_t>() + ibOffset);
+   void const * pInsertEnd(static_cast<std::int8_t const *>(pInsert) + cbInsert);
+   std::int8_t * pbWorkInsertBegin(trn.work_array<std::int8_t>() + ibOffset);
+   std::int8_t * pbWorkInsertEnd(static_cast<std::int8_t *>(pbWorkInsertBegin) + cbInsert);
    // Regardless of whether we’re switching item arrays, the items beyond the insertion point must
    // always be moved.
-   size_t cbTail(static_cast<size_t>(end<int8_t>() - pbOffset));
+   std::size_t cbTail(static_cast<std::size_t>(end<std::int8_t>() - pbOffset));
    if (cbTail) {
-      overlapping_move_constr(type, pbWorkInsertEnd, pbOffset, end<int8_t>());
+      overlapping_move_constr(type, pbWorkInsertEnd, pbOffset, end<std::int8_t>());
    }
    // Copy/move the new items over.
    if (bMove) {
@@ -495,20 +499,20 @@ void raw_complex_vextr_impl::insert(
 
 
 void raw_complex_vextr_impl::remove(
-   type_void_adapter const & type, uintptr_t ibOffset, size_t cbRemove
+   type_void_adapter const & type, std::uintptr_t ibOffset, std::size_t cbRemove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, cbRemove);
 
    raw_vextr_transaction trn(this, false, 0, cbRemove);
-   int8_t * pbRemoveBegin(begin<int8_t>() + ibOffset);
-   int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
+   std::int8_t * pbRemoveBegin(begin<std::int8_t>() + ibOffset);
+   std::int8_t * pbRemoveEnd(pbRemoveBegin + cbRemove);
    // Destruct the items to be removed.
    type.destruct(pbRemoveBegin, pbRemoveEnd);
    // The items beyond the last removed must be either copied to the new item array at cbRemove
    // offset, or shifted to pbRemoveBegin in the old item array.
    if (pbRemoveEnd < m_pEnd) {
       if (trn.will_replace_item_array()) {
-         type.move_constr(trn.work_array<int8_t>() + ibOffset, pbRemoveEnd, m_pEnd);
+         type.move_constr(trn.work_array<std::int8_t>() + ibOffset, pbRemoveEnd, m_pEnd);
          type.destruct(pbRemoveEnd, m_pEnd);
       } else {
          overlapping_move_constr(type, pbRemoveBegin, pbRemoveEnd, m_pEnd);
@@ -525,12 +529,12 @@ void raw_complex_vextr_impl::remove(
 
 
 void raw_complex_vextr_impl::set_capacity(
-   type_void_adapter const & type, size_t cbMin, bool bPreserve
+   type_void_adapter const & type, std::size_t cbMin, bool bPreserve
 ) {
    ABC_TRACE_FUNC(this, /*type, */cbMin, bPreserve);
 
    raw_vextr_transaction trn(this, false, cbMin);
-   size_t cbOrig(size<int8_t>());
+   std::size_t cbOrig(size<std::int8_t>());
    if (trn.will_replace_item_array()) {
       // Destruct every item from the array we’re abandoning, but first move-construct them if
       // told to do so.
@@ -545,11 +549,11 @@ void raw_complex_vextr_impl::set_capacity(
    }
    trn.commit();
    // The transaction changed the size to ciMin, which is incorrect.
-   m_pEnd = begin<int8_t>() + cbOrig;
+   m_pEnd = begin<std::int8_t>() + cbOrig;
 }
 
 
-void raw_complex_vextr_impl::set_size(type_void_adapter const & type, size_t cb) {
+void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_t cb) {
    ABC_TRACE_FUNC(this, /*type, */cb);
 
    ABC_UNUSED_ARG(type);
@@ -572,16 +576,16 @@ void raw_trivial_vextr_impl::assign_concat(
 ) {
    ABC_TRACE_FUNC(this, p1Begin, p1End, p2Begin, p2End);
 
-   size_t cb1(reinterpret_cast<size_t>(p1End) - reinterpret_cast<size_t>(p1Begin));
-   size_t cb2(reinterpret_cast<size_t>(p2End) - reinterpret_cast<size_t>(p2Begin));
+   std::size_t cb1(reinterpret_cast<std::size_t>(p1End) - reinterpret_cast<std::size_t>(p1Begin));
+   std::size_t cb2(reinterpret_cast<std::size_t>(p2End) - reinterpret_cast<std::size_t>(p2Begin));
    raw_vextr_transaction trn(this, true, cb1 + cb2);
-   int8_t * pbWorkCopy(trn.work_array<int8_t>());
+   std::int8_t * pbWorkCopy(trn.work_array<std::int8_t>());
    if (cb1) {
-      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p1Begin), cb1);
+      memory::copy(pbWorkCopy, static_cast<std::int8_t const *>(p1Begin), cb1);
       pbWorkCopy += cb1;
    }
    if (cb2) {
-      memory::copy(pbWorkCopy, static_cast<int8_t const *>(p2Begin), cb2);
+      memory::copy(pbWorkCopy, static_cast<std::int8_t const *>(p2Begin), cb2);
    }
 
    trn.commit();
@@ -646,39 +650,39 @@ void raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(raw_trivial_vextr_imp
 
 
 void raw_trivial_vextr_impl::_insert_remove(
-   uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove
+   std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
 ) {
    ABC_TRACE_FUNC(this, ibOffset, pAdd, cbAdd, cbRemove);
 
    raw_vextr_transaction trn(this, true, cbAdd, cbRemove);
-   int8_t const * pbRemoveEnd(begin<int8_t>() + ibOffset + cbRemove);
-   int8_t * pbWorkOffset(trn.work_array<int8_t>() + ibOffset);
+   std::int8_t const * pbRemoveEnd(begin<std::int8_t>() + ibOffset + cbRemove);
+   std::int8_t * pbWorkOffset(trn.work_array<std::int8_t>() + ibOffset);
    // Regardless of an item array switch, the items beyond the insertion point (when adding) or the
    // last removed (when removing) must always be moved/copied.
-   if (size_t cbTail = static_cast<size_t>(end<int8_t>() - pbRemoveEnd)) {
+   if (std::size_t cbTail = static_cast<std::size_t>(end<std::int8_t>() - pbRemoveEnd)) {
       memory::move(pbWorkOffset + cbAdd, pbRemoveEnd, cbTail);
    }
    if (pAdd) {
       // Copy the new items over.
-      memory::copy(pbWorkOffset, static_cast<int8_t const *>(pAdd), cbAdd);
+      memory::copy(pbWorkOffset, static_cast<std::int8_t const *>(pAdd), cbAdd);
    }
    // Also copy to the new array the items before iOffset, otherwise we’ll lose them in the switch.
    if (ibOffset && trn.will_replace_item_array()) {
-      memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), ibOffset);
+      memory::copy(trn.work_array<std::int8_t>(), begin<std::int8_t>(), ibOffset);
    }
 
    trn.commit();
 }
 
 
-void raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
+void raw_trivial_vextr_impl::set_capacity(std::size_t cbMin, bool bPreserve) {
    ABC_TRACE_FUNC(this, cbMin, bPreserve);
 
    raw_vextr_transaction trn(this, true, cbMin);
-   size_t cbOrig(size<int8_t>());
+   std::size_t cbOrig(size<std::int8_t>());
    if (trn.will_replace_item_array()) {
       if (bPreserve) {
-         memory::copy(trn.work_array<int8_t>(), begin<int8_t>(), cbOrig);
+         memory::copy(trn.work_array<std::int8_t>(), begin<std::int8_t>(), cbOrig);
       } else {
          // We’ll lose the item array when the transaction is commited.
          cbOrig = 0;
@@ -686,19 +690,19 @@ void raw_trivial_vextr_impl::set_capacity(size_t cbMin, bool bPreserve) {
    }
    trn.commit();
    // The transaction changed the size to ciMin, which is incorrect.
-   m_pEnd = begin<int8_t>() + cbOrig;
+   m_pEnd = begin<std::int8_t>() + cbOrig;
 }
 
 
-void raw_trivial_vextr_impl::set_size(size_t cb) {
+void raw_trivial_vextr_impl::set_size(std::size_t cb) {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb != size<int8_t>()) {
-      if (cb > capacity<int8_t>()) {
+   if (cb != size<std::int8_t>()) {
+      if (cb > capacity<std::int8_t>()) {
          // Enlarge the item array.
          set_capacity(cb, true);
       }
-      m_pEnd = begin<int8_t>() + cb;
+      m_pEnd = begin<std::int8_t>() + cb;
    }
 }
 

@@ -52,10 +52,10 @@ namespace detail {
 /*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
 abc::bitmanip::ceiling_to_pow2().
 */
-ABACLADE_SYM uint8_t ceiling_to_pow2(uint8_t i);
-ABACLADE_SYM uint16_t ceiling_to_pow2(uint16_t i);
-ABACLADE_SYM uint32_t ceiling_to_pow2(uint32_t i);
-ABACLADE_SYM uint64_t ceiling_to_pow2(uint64_t i);
+ABACLADE_SYM std::uint8_t ceiling_to_pow2(std::uint8_t i);
+ABACLADE_SYM std::uint16_t ceiling_to_pow2(std::uint16_t i);
+ABACLADE_SYM std::uint32_t ceiling_to_pow2(std::uint32_t i);
+ABACLADE_SYM std::uint64_t ceiling_to_pow2(std::uint64_t i);
 
 } //namespace detail
 
@@ -70,14 +70,14 @@ return
 template <typename I>
 inline I ceiling_to_pow2(I i) {
    switch (sizeof(I)) {
-      case sizeof(uint8_t):
-         return detail::ceiling_to_pow2(static_cast<uint8_t>(i));
-      case sizeof(uint16_t):
-         return detail::ceiling_to_pow2(static_cast<uint16_t>(i));
-      case sizeof(uint32_t):
-         return detail::ceiling_to_pow2(static_cast<uint32_t>(i));
-      case sizeof(uint64_t):
-         return detail::ceiling_to_pow2(static_cast<uint64_t>(i));
+      case sizeof(std::uint8_t):
+         return detail::ceiling_to_pow2(static_cast<std::uint8_t>(i));
+      case sizeof(std::uint16_t):
+         return detail::ceiling_to_pow2(static_cast<std::uint16_t>(i));
+      case sizeof(std::uint32_t):
+         return detail::ceiling_to_pow2(static_cast<std::uint32_t>(i));
+      case sizeof(std::uint64_t):
+         return detail::ceiling_to_pow2(static_cast<std::uint64_t>(i));
    }
 }
 

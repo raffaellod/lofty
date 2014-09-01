@@ -49,9 +49,6 @@ public:
       Pointer to the character(s) that this proxy will present as char32_t.
    ps
       Pointer to the string that contains *pch.
-   pcii
-      Pointer to the iterator that instantiated *this; *pcii will be updated if changes to the . If not instantiated by an iterator, this
-      should be set to nullptr.
    cpp
       Source code point proxy to copy.
    */
@@ -244,7 +241,7 @@ public:
    return
       Reference to the specified item.
    */
-   _codepoint_proxy<true> operator[](ptrdiff_t i) const {
+   _codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
       return _codepoint_proxy<true>(throw_if_end(advance(i, true)), m_ps);
    }
 
@@ -284,7 +281,7 @@ protected:
    }
 
    //! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
-   char_t const * advance(ptrdiff_t i, bool bIndex) const;
+   char_t const * advance(std::ptrdiff_t i, bool bIndex) const;
 
 
    /*! Computes the distance from another iterator/pointer.
@@ -294,7 +291,7 @@ protected:
    return
       Distance between *this and pch, in code points.
    */
-   ptrdiff_t distance(char_t const * pch) const;
+   std::ptrdiff_t distance(char_t const * pch) const;
 
 
    /*! Throws an iterator_error if the specified pointer is the end of the string.
@@ -333,7 +330,7 @@ public:
 
    //! See _codepoint_iterator_impl<true>::operator[]().
    using _codepoint_iterator_impl<true>::operator[];
-   _codepoint_proxy<false> operator[](ptrdiff_t i) {
+   _codepoint_proxy<false> operator[](std::ptrdiff_t i) {
       return _codepoint_proxy<false>(
          const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps), this
       );
@@ -358,7 +355,7 @@ protected:
    }
 
    //! See _codepoint_iterator_impl<true>::advance().
-   char_t * advance(ptrdiff_t i, bool bIndex) const {
+   char_t * advance(std::ptrdiff_t i, bool bIndex) const {
       return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i, bIndex));
    }
 };
@@ -419,7 +416,7 @@ public:
    return
       *this after it’s moved forward by i positions.
    */
-   codepoint_iterator & operator+=(ptrdiff_t i) {
+   codepoint_iterator & operator+=(std::ptrdiff_t i) {
       this->m_pch = this->advance(i, false);
       return *this;
    }
@@ -433,7 +430,7 @@ public:
    return
       *this after it’s moved backwards by i positions.
    */
-   codepoint_iterator & operator-=(ptrdiff_t i) {
+   codepoint_iterator & operator-=(std::ptrdiff_t i) {
       this->m_pch = this->advance(i, false);
       return *this;
    }
@@ -447,7 +444,7 @@ public:
    return
       Iterator that’s i items ahead of *this.
    */
-   codepoint_iterator operator+(ptrdiff_t i) const {
+   codepoint_iterator operator+(std::ptrdiff_t i) const {
       return codepoint_iterator(this->advance(i, false), this->_str());
    }
 
@@ -463,11 +460,11 @@ public:
       Iterator that’s i items behind *this (subtraction) or distance between *this and it, in code
       points (difference).
    */
-   codepoint_iterator operator-(ptrdiff_t i) const {
+   codepoint_iterator operator-(std::ptrdiff_t i) const {
       return codepoint_iterator(this->advance(-i, false), this->_str());
    }
    template <bool t_bConst2>
-   ptrdiff_t operator-(codepoint_iterator<t_bConst2> it) const {
+   std::ptrdiff_t operator-(codepoint_iterator<t_bConst2> it) const {
       return this->distance(it.base());
    }
 

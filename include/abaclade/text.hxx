@@ -118,7 +118,7 @@ char32_t const replacement_char(0x00fffd);
 Technically 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
 here.
 */
-size_t const max_codepoint_length(6);
+std::size_t const max_codepoint_length(6);
 
 
 /*! Casts a single character into a code point.
@@ -130,7 +130,7 @@ return
 */
 inline char32_t codepoint(char_t ch) {
 #if ABC_HOST_UTF == 8
-   return static_cast<char32_t>(static_cast<uint8_t>(ch));
+   return static_cast<char32_t>(static_cast<std::uint8_t>(ch));
 #elif ABC_HOST_UTF == 16
    return static_cast<char32_t>(ch);
 #endif
@@ -147,7 +147,7 @@ return
    Equivalent host character.
 */
 inline char_t host_char(char ch) {
-   return static_cast<char_t>(static_cast<uint8_t>(ch));
+   return static_cast<char_t>(static_cast<std::uint8_t>(ch));
 }
 
 #endif
@@ -162,7 +162,7 @@ return
    Size of a character (not a code point, which can require more than one character) for the
    specified encoding, in bytes.
 */
-ABACLADE_SYM size_t get_encoding_size(encoding enc);
+ABACLADE_SYM std::size_t get_encoding_size(encoding enc);
 
 
 /*! Returns a line terminator string corresponding to the specified line_terminator value.
@@ -196,7 +196,8 @@ return
    Detected encoding of the string pointed to by pBuf.
 */
 ABACLADE_SYM encoding guess_encoding(
-   void const * pBufBegin, void const * pBufEnd, size_t cbSrcTotal = 0, size_t * pcbBom = nullptr
+   void const * pBufBegin, void const * pBufEnd, std::size_t cbSrcTotal = 0,
+   std::size_t * pcbBom = nullptr
 );
 
 
@@ -234,14 +235,14 @@ return
    Length of the string pointed to by psz, in characters.
 */
 template <typename C>
-inline size_t size_in_chars(C const * psz) {
+inline std::size_t size_in_chars(C const * psz) {
 //   ABC_TRACE_FUNC(psz);
 
    C const * pch(psz);
    while (*pch) {
       ++pch;
    }
-   return static_cast<size_t>(pch - psz);
+   return static_cast<std::size_t>(pch - psz);
 }
 
 
@@ -283,10 +284,10 @@ pcbDstMax
 return
    Used destination buffer size, in bytes.
 */
-ABACLADE_SYM size_t transcode(
+ABACLADE_SYM std::size_t transcode(
    bool bThrowOnErrors,
-   encoding encSrc, void const ** ppSrc, size_t * pcbSrc,
-   encoding encDst, void       ** ppDst = nullptr, size_t * pcbDstMax = nullptr
+   encoding encSrc, void const ** ppSrc, std::size_t * pcbSrc,
+   encoding encDst, void       ** ppDst = nullptr, std::size_t * pcbDstMax = nullptr
 );
 
 } //namespace text

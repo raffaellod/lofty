@@ -31,25 +31,25 @@ You should have received a copy of the GNU General Public License along with Aba
    extern "C" {
 
    #undef RtlZeroMemory
-   WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, size_t cb);
+   WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, SIZE_T cb);
 
    #undef RtlFillMemory
-   WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, size_t cb, UCHAR iValue);
+   WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, SIZE_T cb, UCHAR iValue);
 
    #undef RtlFillMemoryUlong
-   WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, size_t cb, ULONG iValue);
+   WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, SIZE_T cb, ULONG iValue);
 
    #undef RtlFillMemoryUlonglong
-   WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, size_t cb, ULONGLONG iValue);
+   WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, SIZE_T cb, ULONGLONG iValue);
 
    #undef RtlCopyMemory
    WINBASEAPI void WINAPI RtlCopyMemory(
-      void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, SIZE_T cb
    );
 
    #undef RtlMoveMemory
    WINBASEAPI void WINAPI RtlMoveMemory(
-      void UNALIGNED * pDst, void UNALIGNED const * pSrc, size_t cb
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, SIZE_T cb
    );
 
    } //extern "C"
@@ -61,7 +61,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #define _abc_alloca(cb) \
       __builtin_alloca((cb))
 #elif ABC_HOST_MSC
-   extern "C" void * ABC_STL_CALLCONV _alloca(size_t cb);
+   extern "C" void * ABC_STL_CALLCONV _alloca(std::size_t cb);
    #define _abc_alloca(cb) \
       _alloca(cb)
 #endif
@@ -78,10 +78,14 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * ABC_STL_CALLCONV operator new[](size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * ABC_STL_CALLCONV operator new(size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
-void * ABC_STL_CALLCONV operator new[](size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * ABC_STL_CALLCONV operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * ABC_STL_CALLCONV operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
+void * ABC_STL_CALLCONV operator new(
+   std::size_t cb, std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE();
+void * ABC_STL_CALLCONV operator new[](
+   std::size_t cb, std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE();
 
 
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
@@ -108,7 +112,7 @@ cb
 return
    Pointer to the allocated memory block.
 */
-ABACLADE_SYM void * _raw_alloc(size_t cb);
+ABACLADE_SYM void * _raw_alloc(std::size_t cb);
 
 
 /*! Releases a block of dynamically allocated memory.
@@ -128,7 +132,7 @@ cb
 return
    Pointer to the resized memory block. May or may not be the same as p.
 */
-ABACLADE_SYM void * _raw_realloc(void * p, size_t cb);
+ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
 
 } //namespace memory
 } //namespace abc
@@ -286,7 +290,7 @@ return
    the pointer is destructed.
 */
 template <typename T>
-inline std::unique_ptr<T, freeing_deleter<T>> alloc(size_t c = 1, size_t cbExtra = 0) {
+inline std::unique_ptr<T, freeing_deleter<T>> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
    typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
    return std::unique_ptr<T, freeing_deleter<T>>(
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
@@ -305,7 +309,9 @@ cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
 template <typename T>
-inline void realloc(std::unique_ptr<T, freeing_deleter<T>> * ppt, size_t c, size_t cbExtra = 0) {
+inline void realloc(
+   std::unique_ptr<T, freeing_deleter<T>> * ppt, std::size_t c, std::size_t cbExtra = 0
+) {
    typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
    TElt * pt(static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra)));
    ppt->release();
@@ -333,7 +339,7 @@ return
    Same as ptDst.
 */
 template <typename T>
-inline T * clear(T * ptDst, size_t c = 1) {
+inline T * clear(T * ptDst, std::size_t c = 1) {
 #if ABC_HOST_API_POSIX
    ::memset(ptDst, 0, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
@@ -361,17 +367,17 @@ inline T * copy(T * ptDst, T const * ptSrc) {
    // Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
    // that the compiler can inline the copy.
    switch (sizeof(T)) {
-      case sizeof(int8_t):
-         *reinterpret_cast<int8_t *>(ptDst) = *reinterpret_cast<int8_t const *>(ptSrc);
+      case sizeof(std::int8_t):
+         *reinterpret_cast<std::int8_t *>(ptDst) = *reinterpret_cast<std::int8_t const *>(ptSrc);
          break;
-      case sizeof(int16_t):
-         *reinterpret_cast<int16_t *>(ptDst) = *reinterpret_cast<int16_t const *>(ptSrc);
+      case sizeof(std::int16_t):
+         *reinterpret_cast<std::int16_t *>(ptDst) = *reinterpret_cast<std::int16_t const *>(ptSrc);
          break;
-      case sizeof(int32_t):
-         *reinterpret_cast<int32_t *>(ptDst) = *reinterpret_cast<int32_t const *>(ptSrc);
+      case sizeof(std::int32_t):
+         *reinterpret_cast<std::int32_t *>(ptDst) = *reinterpret_cast<std::int32_t const *>(ptSrc);
          break;
-      case sizeof(int64_t):
-         *reinterpret_cast<int64_t *>(ptDst) = *reinterpret_cast<int64_t const *>(ptSrc);
+      case sizeof(std::int64_t):
+         *reinterpret_cast<std::int64_t *>(ptDst) = *reinterpret_cast<std::int64_t const *>(ptSrc);
          break;
       default:
          copy<T>(ptDst, ptSrc, 1);
@@ -380,7 +386,7 @@ inline T * copy(T * ptDst, T const * ptSrc) {
    return ptDst;
 }
 template <typename T>
-inline T * copy(T * ptDst, T const * ptSrc, size_t c) {
+inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
 #if ABC_HOST_API_POSIX
    ::memcpy(ptDst, ptSrc, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
@@ -404,7 +410,7 @@ return
    Same as ptDst.
 */
 template <typename T>
-inline T * move(T * ptDst, T const * ptSrc, size_t c) {
+inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
 #if ABC_HOST_API_POSIX
    ::memmove(ptDst, ptSrc, sizeof(T) * c);
 #elif ABC_HOST_API_WIN32
@@ -428,10 +434,10 @@ return
    Same as ptDst.
 */
 template <typename T>
-inline T * set(T * ptDst, T const & tValue, size_t c) {
+inline T * set(T * ptDst, T const & tValue, std::size_t c) {
    switch (sizeof(T)) {
 #if ABC_HOST_API_POSIX
-      case sizeof(int8_t):
+      case sizeof(std::int8_t):
          ::memset(ptDst, tValue, c);
          break;
 #elif ABC_HOST_API_WIN32
