@@ -327,7 +327,7 @@ std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 namespace abc {
 
 // Can’t use static_cast<>() due to str_base being a protected base.
-istr const & istr::empty = *reinterpret_cast<istr const *>(&gc_rvidEmpty);
+istr const & istr::empty = *static_cast<istr const *>(&gc_rvidEmpty);
 
 } //namespace std
 
