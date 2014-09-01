@@ -29,8 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*! Iterator based on a plain pointer.
-*/
+//! Iterator based on a plain pointer.
 template <typename TCont, typename TVal>
 class pointer_iterator :
    public std::iterator<std::random_access_iterator_tag, TVal> {
@@ -214,6 +213,7 @@ ABC_RELOP_IMPL(<=)
 
 protected:
 
+   //! Underlying pointer to the current item.
    TVal * m_ptval;
 };
 

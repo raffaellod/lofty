@@ -37,7 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace io {
 
-/*! Native OS file descriptor/handle. */
+//! Native OS file descriptor/handle.
 #if ABC_HOST_API_POSIX
    typedef int filedesc_t;
 #elif ABC_HOST_API_WIN32
@@ -165,9 +165,7 @@ public:
    }
    filedesc(filedesc && fd);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~filedesc();
 
 
@@ -216,12 +214,11 @@ public:
 
 private:
 
-   /*! The actual descriptor. */
+   //! The actual descriptor.
    filedesc_t m_fd;
-   /*! If true, the wrapper will close the file on destruction. */
+   //! If true, the wrapper will close the file on destruction.
    bool m_bOwn;
-
-   /*! Logically null file descriptor. */
+   //! Logically null file descriptor.
    static filedesc_t const smc_fdNull;
 };
 
@@ -237,15 +234,13 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Base for file binary I/O classes.
-*/
+//! Base for file binary I/O classes.
 class ABACLADE_SYM file_base :
    public virtual base,
    public noncopyable {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~file_base();
 
 
@@ -261,7 +256,7 @@ protected:
 
 protected:
 
-   /*! Descriptor of the underlying file. */
+   //! Descriptor of the underlying file.
    filedesc m_fd;
 };
 
@@ -278,25 +273,19 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary file input.
-*/
+//! Binary file input.
 class ABACLADE_SYM file_reader :
    public virtual file_base,
    public reader {
 public:
 
-   /*! See file_base::file_base().
-   */
+   //! See file_base::file_base().
    file_reader(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~file_reader();
 
-
-   /*! See reader::read().
-   */
+   //! See reader::read().
    virtual size_t read(void * p, size_t cbMax);
 
 
@@ -332,30 +321,22 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary file output.
-*/
+//! Binary file output.
 class ABACLADE_SYM file_writer :
    public virtual file_base,
    public writer {
 public:
 
-   /*! See writer::writer().
-   */
+   //! See writer::writer().
    file_writer(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~file_writer();
 
-
-   /*! See writer::flush().
-   */
+   //! See writer::flush().
    virtual void flush();
 
-
-   /*! See writer::write().
-   */
+   //! See writer::write().
    virtual size_t write(void const * p, size_t cb);
 };
 
@@ -372,21 +353,18 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Base for console/terminal binary I/O classes.
-*/
+//! Base for console/terminal binary I/O classes.
 class ABACLADE_SYM console_file_base :
    public virtual file_base {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~console_file_base();
 
 
 protected:
 
-   /*! See file_base::file_base().
-   */
+   //! See file_base::file_base().
    console_file_base(_file_init_data * pfid);
 };
 
@@ -403,20 +381,16 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Console/terminal input pseudo-file.
-*/
+//! Console/terminal input pseudo-file.
 class ABACLADE_SYM console_reader :
    public virtual console_file_base,
    public file_reader {
 public:
 
-   /*! See file_reader::file_reader().
-   */
+   //! See file_reader::file_reader().
    console_reader(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~console_reader();
 
 
@@ -425,8 +399,7 @@ public:
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /*! See file_reader::read().
-   */
+   //! See file_reader::read().
    virtual size_t read(void * p, size_t cbMax);
 
 #endif //if ABC_HOST_API_WIN32
@@ -445,20 +418,16 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Console/terminal output pseudo-file.
-*/
+//! Console/terminal output pseudo-file.
 class ABACLADE_SYM console_writer :
    public virtual console_file_base,
    public file_writer {
 public:
 
-   /*! See file_writer::file_writer().
-   */
+   //! See file_writer::file_writer().
    console_writer(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~console_writer();
 
 
@@ -467,8 +436,7 @@ public:
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
-   /*! See file_writer::write().
-   */
+   //! See file_writer::write().
    virtual size_t write(void const * p, size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
@@ -487,19 +455,15 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary reader for the output end of a pipe.
-*/
+//! Binary reader for the output end of a pipe.
 class ABACLADE_SYM pipe_reader :
    public file_reader {
 public:
 
-   /*! See file_reader::file_reader().
-   */
+   //! See file_reader::file_reader().
    pipe_reader(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~pipe_reader();
 
 
@@ -526,19 +490,15 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary writer for the input end of a pipe.
-*/
+//! Binary writer for the input end of a pipe.
 class ABACLADE_SYM pipe_writer :
    public file_writer {
 public:
 
-   /*! See file_writer::file_writer().
-   */
+   //! See file_writer::file_writer().
    pipe_writer(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~pipe_writer();
 };
 
@@ -555,47 +515,38 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Base for binary I/O classes for regular disk files.
-*/
+//! Base for binary I/O classes for regular disk files.
 class ABACLADE_SYM regular_file_base :
    public virtual file_base,
    public seekable,
    public sized {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~regular_file_base();
 
-
-   /*! See seekable::seek().
-   */
+   //! See seekable::seek().
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence);
 
-
-   /*! See sized::size().
-   */
+   //! See sized::size().
    virtual full_size_t size() const;
 
-
-   /*! See seekable::tell().
-   */
+   //! See seekable::tell().
    virtual offset_t tell() const;
 
 
 protected:
 
-   /*! See file_base::file_base().
-   */
+   //! See file_base::file_base().
    regular_file_base(_file_init_data * pfid);
 
 
 protected:
 
-   /*! Size of the file. */
+   //! Size of the file.
    full_size_t m_cb;
 #if 0
-   /*! Physical alignment for unbuffered/direct disk access. */
+   //! Physical alignment for unbuffered/direct disk access.
    unsigned m_cbPhysAlign;
 #endif
 };
@@ -613,20 +564,16 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary reader for regular disk files.
-*/
+//! Binary reader for regular disk files.
 class ABACLADE_SYM regular_file_reader :
    public virtual regular_file_base,
    public file_reader {
 public:
 
-   /*! See regular_file_base().
-   */
+   //! See regular_file_base().
    regular_file_reader(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~regular_file_reader();
 };
 
@@ -643,27 +590,22 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Binary writer for regular disk files.
-*/
+//! Binary writer for regular disk files.
 class ABACLADE_SYM regular_file_writer :
    public virtual regular_file_base,
    public file_writer {
 public:
 
-   /*! See regular_file_base().
-   */
+   //! See regular_file_base().
    regular_file_writer(_file_init_data * pfid);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~regular_file_writer();
 
 
 #if ABC_HOST_API_WIN32
 
-   /*! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
-   */
+   //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    virtual size_t write(void const * p, size_t cb);
 
 #endif //if ABC_HOST_API_WIN32
@@ -672,7 +614,7 @@ public:
 protected:
 
 #if ABC_HOST_API_WIN32
-   /*! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it. */
+   //! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it.
    bool m_bAppend:1;
 #endif
 };

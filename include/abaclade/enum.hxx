@@ -205,15 +205,14 @@ name
 namespace abc {
 namespace detail {
 
-/*! Enumeration member (name/value pair).
-*/
+//! Enumeration member (name/value pair).
 struct ABACLADE_SYM enum_member {
 
-   /*! Name. */
+   //! Name.
    char_t const * pszName;
-   /*! Length of *pszName, in characters. */
+   //! Size of *pszName, in characters.
    unsigned short cchName;
-   /*! Value. */
+   //! Value.
    int iValue;
 
 
@@ -244,8 +243,7 @@ struct ABACLADE_SYM enum_member {
 
 namespace abc {
 
-/*! Implementation of enumeration classes.
-*/
+//! Implementation of enumeration classes.
 template <class T>
 class enum_impl :
    public T {
@@ -344,13 +342,14 @@ protected:
 public:
 
    /*! Count of the members of the enumeration. Same as the value returned by size(), but this can
-   be used in constant contexts, such as the size of an array. */
+   be used in constant contexts, such as the size of an array.
+   */
    static size_t const size_const = T::smc_cMembers;
 
 
 private:
 
-   /*! Enumerated value. */
+   //! Enumerated value.
    enum_type m_e;
 };
 

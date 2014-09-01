@@ -45,7 +45,7 @@ template <typename T>
 union force_max_align {
 public:
 
-   /*! Actual storage. */
+   //! Actual storage.
    T t;
 
 
@@ -53,7 +53,8 @@ private:
 
    /*! Forces the whole union to have the most generic alignment; on many architectures this will be
    2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
-   pointers it returns. */
+   pointers it returns.
+   */
    std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
 };
 
@@ -71,21 +72,22 @@ struct _raw_map_desc {
 
    struct _s {
       /*! Numer of entries in the table - 1. We store this instead of the actual number of entries,
-      because this is used much more frequently. */
+      because this is used much more frequently.
+      */
       size_t iMask;
-      /*! Number of active entries in the table. */
+      //! Number of active entries in the table.
       size_t ceActive;
-      /*! Number of active and reserved entries in the table. */
+      //! Number of active and reserved entries in the table.
       size_t ceUsed;
-      /*! Offset of the keys array from this, in bytes. */
+      //! Offset of the keys array from this, in bytes.
       size_t ibKeysOffset;
-      /*! Offset of the values array from this, in bytes. */
+      //! Offset of the values array from this, in bytes.
       size_t ibValsOffset;
    };
    force_max_align<_s> m;
 
    enum {
-      /*! No less than this many map entries. Must be a power of 2, and at least 4. */
+      //! No less than this many map entries. Must be a power of 2, and at least 4.
       smc_ceMin = 8
    };
 
@@ -278,10 +280,7 @@ class _embedded_map_desc :
    public _raw_map_desc {
 public:
 
-   /*! Constructor.
-
-   TODO: comment signature.
-   */
+   //! Constructor.
    _embedded_map_desc() {
    }
 
@@ -304,13 +303,15 @@ public:
 
 private:
 
-   /*! Static hashes array. */
+   //! Static hashes array.
    size_t ahashes[t_ceFixed];
    /*! Static keys array. This can’t be a TKey[], because we don’t want the keys to be constructed/
-   destructed automatically. */
+   destructed automatically.
+   */
    std::max_align_t atkeys[ABC_ALIGNED_SIZE(sizeof(TKey) * t_ceFixed)];
    /*! Static values array. This can’t be a TVal[], because we don’t want the values to be
-   constructed/destructed automatically. */
+   constructed/destructed automatically.
+   */
    std::max_align_t atvals[ABC_ALIGNED_SIZE(sizeof(TVal) * t_ceFixed)];
 };
 
@@ -323,11 +324,10 @@ private:
 
 namespace abc {
 
-/*! Template-independent data members of _raw_*_map_impl.
-*/
+//! Template-independent data members of _raw_*_map_impl.
 struct _raw_map_data {
 
-   /*! Pointer to the map descriptor. */
+   //! Pointer to the map descriptor.
    _raw_map_desc * m_prmd;
 };
 
@@ -341,7 +341,8 @@ struct _raw_map_data {
 namespace abc {
 
 /*! Template-independent methods of _raw_*_map_impl that are identical for trivial and non-trivial
-types. */
+types.
+*/
 struct _raw_map_root :
    public _raw_map_data {
 public:
@@ -472,12 +473,12 @@ protected:
 
 protected:
 
-   /*! See large comment block below. This must be >= 1. */
+   //! See large comment block below. This must be >= 1.
    static int const smc_cbitPerturb = 5;
    /*! Hash value used to mark unused entries. This is zero, so that we can quickly wipe the hashes
    array of a descriptor. */
    static size_t const smc_hashUnused = 0;
-   /*! Hash value used to mark reserved entries (i.e. formerly used). */
+   //! Hash value used to mark reserved entries (i.e. formerly used).
    static size_t const smc_hashReserved = smc_hashUnused - 1;
 };
 
@@ -490,8 +491,7 @@ protected:
 
 namespace abc {
 
-/*! Template-independent implementation of a map for non-trivial contained types.
-*/
+//! Template-independent implementation of a map for non-trivial contained types.
 struct _raw_complex_map_impl :
    public _raw_map_root {
 
@@ -804,8 +804,7 @@ protected:
 
 namespace abc {
 
-/*! Template-independent implementation of a map for trivial contained types.
-*/
+//! Template-independent implementation of a map for trivial contained types.
 struct _raw_trivial_map_impl :
    public _raw_map_root {
 };

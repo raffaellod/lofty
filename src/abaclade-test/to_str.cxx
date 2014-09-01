@@ -32,8 +32,7 @@ class to_str_test_case_base :
    public testing::test_case {
 protected:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    to_str_test_case_base() :
       m_stw(&m_sWriterBuffer) {
    }
@@ -62,9 +61,9 @@ protected:
 
 protected:
 
-   /*! Buffer for m_tw, to avoid performance impacts from memory (re)allocation. */
+   //! Buffer for m_tw, to avoid performance impacts from memory (re)allocation.
    smstr<128> m_sWriterBuffer;
-   /*! Destination for to_str() writes. */
+   //! Destination for to_str() writes.
    io::text::str_writer m_stw;
 };
 
@@ -82,15 +81,12 @@ class to_str_int :
    public to_str_test_case_base {
 public:
 
-   /*! See to_str_test_case_base::title().
-   */
+   //! See to_str_test_case_base::title().
    virtual istr title() {
       return istr(ABC_SL("abc::to_str – int"));
    }
 
-
-   /*! See to_str_test_case_base::run().
-   */
+   //! See to_str_test_case_base::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
@@ -135,15 +131,12 @@ class to_str_int8 :
    public to_str_test_case_base {
 public:
 
-   /*! See to_str_test_case_base::title().
-   */
+   //! See to_str_test_case_base::title().
    virtual istr title() {
       return istr(ABC_SL("abc::to_str – int8_t"));
    }
 
-
-   /*! See to_str_test_case_base::run().
-   */
+   //! See to_str_test_case_base::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
@@ -188,15 +181,12 @@ class to_str_raw_pointers :
    public to_str_test_case_base {
 public:
 
-   /*! See to_str_test_case_base::title().
-   */
+   //! See to_str_test_case_base::title().
    virtual istr title() {
       return istr(ABC_SL("abc::to_str – raw pointers"));
    }
 
-
-   /*! See to_str_test_case_base::run().
-   */
+   //! See to_str_test_case_base::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
@@ -247,15 +237,12 @@ class to_str_smart_pointers :
    public to_str_test_case_base {
 public:
 
-   /*! See to_str_test_case_base::title().
-   */
+   //! See to_str_test_case_base::title().
    virtual istr title() {
       return istr(ABC_SL("abc::to_str – smart pointers"));
    }
 
-
-   /*! See to_str_test_case_base::run().
-   */
+   //! See to_str_test_case_base::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
@@ -308,15 +295,12 @@ class to_str_tuples :
    public to_str_test_case_base {
 public:
 
-   /*! See to_str_test_case_base::title().
-   */
+   //! See to_str_test_case_base::title().
    virtual istr title() {
       return istr(ABC_SL("abc::to_str – STL tuple types"));
    }
 
-
-   /*! See to_str_test_case_base::run().
-   */
+   //! See to_str_test_case_base::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 

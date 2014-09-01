@@ -37,8 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/*! Defines a member named type as T.
-*/
+//! Defines a member named type as T.
 template <typename T>
 struct identity {
    typedef T type;

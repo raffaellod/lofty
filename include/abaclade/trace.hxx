@@ -83,13 +83,11 @@ Currently unsupported:
    swallows any nested exceptions, gracefully failing to generate a complete stack trace.
 */
 
-/*! Provides stack frame logging for the function in which it’s used.
-*/
+//! Provides stack frame logging for the function in which it’s used.
 #define ABC_TRACE_FUNC(...) \
    _ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(_scope_trace_), __VA_ARGS__)
 
-/*! Implementation of ABC_TRACE_FUNC() and similar macros.
-*/
+//! Implementation of ABC_TRACE_FUNC() and similar macros.
 #define _ABC_TRACE_SCOPE_IMPL(var, ...) \
    auto var(::abc::detail::scope_trace_impl::make(__VA_ARGS__)); \
    var._set_context(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC)

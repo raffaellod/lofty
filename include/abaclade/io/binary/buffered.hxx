@@ -83,13 +83,15 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for buffering objects that wrap binary::* instances.
-*/
+//! Interface for buffering objects that wrap binary::* instances.
 class ABACLADE_SYM buffered_base :
    public virtual base {
 public:
 
    /*! Returns a pointer to the wrapper unbuffered binary I/O object.
+
+   return
+      Pointer to a unbuffered binary I/O object.
    */
    virtual std::shared_ptr<base> unbuffered() const = 0;
 };
@@ -107,8 +109,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for buffering objects that wrap binary::reader instances.
-*/
+//! Interface for buffering objects that wrap binary::reader instances.
 class ABACLADE_SYM buffered_reader :
    public virtual buffered_base,
    public reader {
@@ -187,8 +188,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for buffering objects that wrap binary::writer instances.
-*/
+//! Interface for buffering objects that wrap binary::writer instances.
 class ABACLADE_SYM buffered_writer :
    public virtual buffered_base,
    public writer {
@@ -258,8 +258,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Provides buffering on top of a binary::reader instance.
-*/
+//! Provides buffering on top of a binary::reader instance.
 class ABACLADE_SYM default_buffered_reader :
    public buffered_reader,
    public noncopyable {
@@ -272,40 +271,32 @@ public:
    */
    default_buffered_reader(std::shared_ptr<reader> pbr);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~default_buffered_reader();
 
-
-   /*! See buffered_reader::consume_bytes().
-   */
+   //! See buffered_reader::consume_bytes().
    virtual void consume_bytes(size_t cb);
 
-
-   /*! See buffered_reader::peek_bytes().
-   */
+   //! See buffered_reader::peek_bytes().
    virtual std::pair<void const *, size_t> peek_bytes(size_t cb);
 
-
-   /*! See buffered_reader::unbuffered().
-   */
+   //! See buffered_reader::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const;
 
 
 protected:
 
-   /*! Wrapped binary reader. */
+   //! Wrapped binary reader.
    std::shared_ptr<reader> m_pbr;
-   /*! Read buffer. */
+   //! Read buffer.
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbReadBuf;
-   /*! Size of m_pbReadBuf. */
+   //! Size of m_pbReadBuf.
    size_t m_cbReadBuf;
-   /*! Offset of the first used byte in m_pbReadBuf. */
+   //! Offset of the first used byte in m_pbReadBuf.
    size_t m_ibReadBufUsed;
-   /*! Number of bytes used in m_pbReadBuf. */
+   //! Number of bytes used in m_pbReadBuf.
    size_t m_cbReadBufUsed;
-   /*! Default/increment size of m_pbReadBuf. */
+   //! Default/increment size of m_pbReadBuf.
    // TODO: tune this value.
    static size_t const smc_cbReadBufDefault = 0x1000;
 };
@@ -323,8 +314,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Provides buffering on top of a binary::writer instance.
-*/
+//! Provides buffering on top of a binary::writer instance.
 class ABACLADE_SYM default_buffered_writer :
    public buffered_writer,
    public noncopyable {
@@ -337,19 +327,13 @@ public:
    */
    default_buffered_writer(std::shared_ptr<writer> pbw);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~default_buffered_writer();
 
-
-   /*! See buffered_writer::commit_bytes().
-   */
+   //! See buffered_writer::commit_bytes().
    virtual void commit_bytes(size_t cb);
 
-
-   /*! See buffered_writer::flush().
-   */
+   //! See buffered_writer::flush().
    virtual void flush();
 
 
@@ -360,30 +344,27 @@ public:
    */
    virtual std::pair<void *, size_t> get_buffer_bytes(size_t cb);
 
-
-   /*! See buffered_writer::unbuffered().
-   */
+   //! See buffered_writer::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const;
 
 
 protected:
 
-   /*! Flushes the internal write buffer.
-   */
+   //! Flushes the internal write buffer.
    void flush_buffer();
 
 
 protected:
 
-   /*! Wrapped binary writer. */
+   //! Wrapped binary writer.
    std::shared_ptr<writer> m_pbw;
-   /*! Write buffer. */
+   //! Write buffer.
    std::unique_ptr<int8_t[], memory::freeing_deleter<int8_t[]>> m_pbWriteBuf;
-   /*! Size of m_pbWriteBuf. */
+   //! Size of m_pbWriteBuf.
    size_t m_cbWriteBuf;
-   /*! Number of bytes used in m_pbWriteBuf. */
+   //! Number of bytes used in m_pbWriteBuf.
    size_t m_cbWriteBufUsed;
-   /*! Default/increment size of m_pbWriteBuf. */
+   //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
    static size_t const smc_cbWriteBufDefault = 0x1000;
 };

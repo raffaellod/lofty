@@ -32,45 +32,37 @@ class exception_polymorphism :
    public testing::test_case {
 protected:
 
-   /*! First-level abc::generic_error subclass.
-   */
+   //! First-level abc::generic_error subclass.
    class derived1_error :
       public virtual generic_error {
    public:
 
-      /*! Constructor.
-      */
+      //! Constructor.
       derived1_error() :
          generic_error() {
          m_pszWhat = "abc::test::exception_polymorphism::derived1_error";
       }
    };
 
-
-   /*! Second-level abc::generic_error subclass.
-   */
+   //! Second-level abc::generic_error subclass.
    class derived2_error :
       public virtual derived1_error {
    public:
 
-      /*! Constructor.
-      */
+      //! Constructor.
       derived2_error() :
          derived1_error() {
          m_pszWhat = "abc::test::exception_polymorphism::derived2_error";
       }
    };
 
-
-   /*! Diamond-inheritance abc::generic_error subclass.
-   */
+   //! Diamond-inheritance abc::generic_error subclass.
    class derived3_error :
       public virtual derived1_error,
       public virtual derived2_error {
    public:
 
-      /*! Constructor.
-      */
+      //! Constructor.
       derived3_error() :
          derived1_error(),
          derived2_error() {
@@ -81,15 +73,13 @@ protected:
 
 public:
 
-   /*! See testing::test_case::title().
-   */
+   //! See testing::test_case::title().
    virtual istr title() {
       return istr(ABC_SL("abc::exception – polymorphism"));
    }
 
 
-   /*! See testing::test_case::run().
-   */
+   //! See testing::test_case::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 
@@ -155,15 +145,13 @@ class exception_from_os_hard_error :
    public testing::test_case {
 public:
 
-   /*! See testing::test_case::title().
-   */
+   //! See testing::test_case::title().
    virtual istr title() {
       return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
    }
 
 
-   /*! See testing::test_case::run().
-   */
+   //! See testing::test_case::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 

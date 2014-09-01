@@ -60,61 +60,64 @@ namespace text {
 on this.
 */
 ABC_ENUM(encoding,
-   /*! Unknown/undetermined encoding. */
+   //! Unknown/undetermined encoding.
    (unknown,      0),
-   /*! UTF-8 encoding. */
+   //! UTF-8 encoding.
    (utf8,         1),
-   /*! UTF-16 Little Endian encoding. */
+   //! UTF-16 Little Endian encoding.
    (utf16le,      2),
-   /*! UTF-16 Big Endian encoding. */
+   //! UTF-16 Big Endian encoding.
    (utf16be,      3),
-   /*! UTF-32 Little Endian encoding. */
+   //! UTF-32 Little Endian encoding.
    (utf32le,      4),
-   /*! UTF-32 Big Endian encoding. */
+   //! UTF-32 Big Endian encoding.
    (utf32be,      5),
    /*! ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
-   representation. */
+   representation.
+   */
    (iso_8859_1,   6),
    /*! Windows-1252 encoding. Only supported in detection and handling, but not as internal string
-   representation. */
+   representation.
+   */
    (windows_1252, 7),
    /*! EBCDIC encoding. Only supported in detection and handling, but not as internal string
-   representation. */
+   representation.
+   */
    (ebcdic,       8),
-   /*! UTF-16 encoding (host endianness). */
+   //! UTF-16 encoding (host endianness).
    (utf16_host,   (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)),
-   /*! UTF-32 encoding (host endianness). */
+   //! UTF-32 encoding (host endianness).
    (utf32_host,   (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)),
-   /*! Default host encoding. */
+   //! Default host encoding.
    (host,         (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host)))
 );
 
 
-/*! Recognized line terminators.
-*/
+//! Recognized line terminators.
 ABC_ENUM(line_terminator,
-   /*! Unknown/undetermined line terminator. */
+   //! Unknown/undetermined line terminator.
    (unknown, 0),
-   /*! Old Mac style: Carriage Return, '\r'. */
+   //! Old Mac style: Carriage Return, '\r'.
    (cr,      1),
-   /*! Unix/POSIX style: Line Feed, '\n'. */
+   //! Unix/POSIX style: Line Feed, '\n'.
    (lf,      2),
-   /*! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'. */
+   //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
    (cr_lf,   3),
-   /*! EBCDIC style: Next Line, '\x15'. */
+   //! EBCDIC style: Next Line, '\x15'.
    (nel,     4),
-   /*! Default host line terminator. */
+   //! Default host line terminator.
    (host,    (ABC_HOST_API_WIN32 ? cr_lf : lf))
 );
 
 
-/*! This should be used to replace any invalid char32_t value. */
+//! This should be used to replace any invalid char32_t value.
 char32_t const replacement_char(0x00fffd);
 
 /*! Maximum run length for the encoding of a code point, in any encoding.
 
-Technically, 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
-here. */
+Technically 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
+here.
+*/
 size_t const max_codepoint_length(6);
 
 

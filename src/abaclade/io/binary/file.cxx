@@ -42,15 +42,16 @@ static std::shared_ptr<file_writer> g_pbfwStdOut;
 
 struct _file_init_data {
 #if ABC_HOST_API_POSIX
-   /*! Set by _construct(). */
+   //! Set by _construct().
    struct ::stat statFile;
 #endif
-   /*! See file_base::m_fd. To be set before calling _construct(). */
+   //! See file_base::m_fd. To be set before calling _construct().
    filedesc fd;
    /*! Determines what type of I/O object will be instantiated. To be set before calling
-   _construct(). */
+   _construct().
+   */
    access_mode am;
-   /*! See file_base::m_bBuffered. To be set before calling _construct(). */
+   //! See file_base::m_bBuffered. To be set before calling _construct().
    bool bBuffered:1;
 };
 
@@ -1053,15 +1054,12 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
    class file_lock {
    public:
 
-      /*! Constructor.
-      */
+      //! Constructor.
       file_lock() :
          m_fd(INVALID_HANDLE_VALUE) {
       }
 
-
-      /*! Destructor.
-      */
+      //! Destructor.
       ~file_lock() {
          if (m_fd != INVALID_HANDLE_VALUE) {
             unlock();
@@ -1102,9 +1100,7 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
          return true;
       }
 
-
-      /*! Releases the lock acquired by lock().
-      */
+      //! Releases the lock acquired by lock().
       void unlock() {
          if (!::UnlockFile(
             m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
@@ -1117,11 +1113,11 @@ regular_file_writer::regular_file_writer(_file_init_data * pfid) :
 
    private:
 
-      /*! Locked file. */
+      //! Locked file.
       filedesc_t m_fd;
-      /*! Start of the locked byte range. */
+      //! Start of the locked byte range.
       LARGE_INTEGER m_ibOffset;
-      /*! Length of the locked byte range. */
+      //! Length of the locked byte range.
       LARGE_INTEGER m_cb;
    };
 

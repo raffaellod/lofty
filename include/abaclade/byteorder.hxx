@@ -79,8 +79,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace byteorder {
 
-/*! Implementation of swap(), specialized by size in bytes of the argument. See swap().
-*/
+//! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 template <size_t cb>
 struct _swap_impl;
 

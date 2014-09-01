@@ -49,19 +49,15 @@ returning.
 
 namespace abc {
 
-/*! Abstract application.
-*/
+//! Abstract application.
 class ABACLADE_SYM app :
    public noncopyable {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    app();
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~app();
 
 
@@ -160,7 +156,7 @@ protected:
 
 protected:
 
-   /*! Pointer to the one and only instance of the application-defined app class. */
+   //! Pointer to the one and only instance of the application-defined app class.
    static app * sm_papp;
 };
 

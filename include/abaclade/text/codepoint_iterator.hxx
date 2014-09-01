@@ -34,8 +34,7 @@ namespace text {
 template <bool t_bConst>
 class _codepoint_iterator_impl;
 
-/*! Exposes a abc::char_t * as a char32_t &.
-*/
+//! Exposes a abc::char_t * as a char32_t &.
 template <bool t_bConst>
 class _codepoint_proxy;
 
@@ -145,7 +144,8 @@ public:
 protected:
 
    /*! Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
-   nullptr if *this was not instantiated by an iterator. */
+   nullptr if *this was not instantiated by an iterator.
+   */
    _codepoint_iterator_impl<false> * const mc_pcii;
 };
 
@@ -283,9 +283,7 @@ protected:
       m_ps(ps) {
    }
 
-
-   /*! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
-   */
+   //! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
    char_t const * advance(ptrdiff_t i, bool bIndex) const;
 
 
@@ -309,7 +307,9 @@ protected:
 
 protected:
 
+   //! Pointer to the current character.
    char_t const * m_pch;
+   //! Pointer to the source string.
    str_base const * m_ps;
 };
 
@@ -323,8 +323,7 @@ class _codepoint_iterator_impl<false> :
 
 public:
 
-   /*! See _codepoint_iterator_impl<true>::operator*().
-   */
+   //! See _codepoint_iterator_impl<true>::operator*().
    using _codepoint_iterator_impl<true>::operator*;
    _codepoint_proxy<false> operator*() {
       return _codepoint_proxy<false>(
@@ -332,9 +331,7 @@ public:
       );
    }
 
-
-   /*! See _codepoint_iterator_impl<true>::operator[]().
-   */
+   //! See _codepoint_iterator_impl<true>::operator[]().
    using _codepoint_iterator_impl<true>::operator[];
    _codepoint_proxy<false> operator[](ptrdiff_t i) {
       return _codepoint_proxy<false>(
@@ -342,16 +339,12 @@ public:
       );
    }
 
-
-   /*! See _codepoint_iterator_impl<true>::base().
-   */
+   //! See _codepoint_iterator_impl<true>::base().
    char_t * base() const {
       return const_cast<char_t *>(m_pch);
    }
 
-
-   /*! See _codepoint_iterator_impl<true>::_str().
-   */
+   //! See _codepoint_iterator_impl<true>::_str().
    str_base * _str() const {
       return const_cast<str_base *>(m_ps);
    }
@@ -359,15 +352,12 @@ public:
 
 protected:
 
-   /*! See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
-   */
+   //! See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
    _codepoint_iterator_impl(char_t * pch, str_base * ps) :
       _codepoint_iterator_impl<true>(pch, ps) {
    }
 
-
-   /*! See _codepoint_iterator_impl<true>::advance().
-   */
+   //! See _codepoint_iterator_impl<true>::advance().
    char_t * advance(ptrdiff_t i, bool bIndex) const {
       return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i, bIndex));
    }

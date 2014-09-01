@@ -28,8 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-/*! Generates an abc::char_t literal followed by a comma.
-*/
+//! Generates an abc::char_t literal followed by a comma.
 #define _ABC_CHAR_COMMA(ch) char_t(ch),
 
 #if ABC_HOST_UTF == 8
@@ -80,15 +79,13 @@ class str_traits_validity :
    public testing::test_case {
 public:
 
-   /*! See testing::test_case::title().
-   */
+   //! See testing::test_case::title().
    virtual istr title() {
       return istr(ABC_SL("abc::text::str_traits – validity of counted strings"));
    }
 
 
-   /*! See testing::test_case::run().
-   */
+   //! See testing::test_case::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 

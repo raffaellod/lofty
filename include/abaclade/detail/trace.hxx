@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-/*! Tracks local variables, to be used during e.g. a stack unwind. */
+//! Tracks local variables, to be used during e.g. a stack unwind.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename ... Ts>
@@ -67,6 +67,9 @@ public:
 
    /*! Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
+
+   return
+      Pointer to the string text writer containing the current stack trace.
    */
    static io::text::str_writer * get_trace_writer() {
       if (!sm_ptswScopeTrace) {
@@ -139,9 +142,7 @@ public:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-
-   /*! Increments the reference count of the scope trace being generated.
-   */
+   //! Increments the reference count of the scope trace being generated.
    static void trace_writer_addref() {
       ++sm_cScopeTraceRefs;
    }
@@ -159,8 +160,7 @@ public:
    }
 
 
-   /*! Erases any collected stack frames.
-   */
+   //! Erases any collected stack frames.
    static void trace_writer_clear() {
       sm_ptswScopeTrace.reset();
       sm_iStackDepth = 0;
@@ -205,20 +205,21 @@ protected:
 
 private:
 
-   /*! Function name. */
+   //! Function name.
    char_t const * m_pszFunction;
-   /*! Source location. */
+   //! Source location.
    source_location m_srcloc;
 
-   /*! Writer that collects the rendered scope trace when an exception is thrown. */
+   //! Writer that collects the rendered scope trace when an exception is thrown.
    static /*tls*/ std::unique_ptr<io::text::str_writer> sm_ptswScopeTrace;
-   /*! Number of the next stack frame to be added to the rendered trace. */
+   //! Number of the next stack frame to be added to the rendered trace.
    static /*tls*/ unsigned sm_iStackDepth;
-   /*! Count of references to the current rendered trace. Managed by abc::exception. */
+   //! Count of references to the current rendered trace. Managed by abc::exception.
    static /*tls*/ unsigned sm_cScopeTraceRefs;
    /*! true if trace_scope() (the only method that actually may do anything at all) is being run.
    If this is true, another call to it should not try to do anything, otherwise we may get stuck in
-   an infinite recursion. */
+   an infinite recursion.
+   */
    static /*tls*/ bool sm_bReentering;
 };
 
@@ -235,8 +236,7 @@ namespace detail {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/*! Helper to write a single variable out of a scope_trace, recursing to print any remaining ones.
-*/
+//! Helper to write a single variable out of a scope_trace, recursing to print any remaining ones.
 template <class TScopeTrace, typename ... Ts>
 class scope_trace_vars_impl;
 
@@ -262,8 +262,7 @@ class scope_trace_vars_impl<TScopeTrace, T0, Ts ...> :
    public scope_trace_vars_impl<TScopeTrace, Ts ...> {
 protected:
 
-   /*! See scope_trace_vars_impl<TScopeTrace>::write_vars().
-   */
+   //! See scope_trace_vars_impl<TScopeTrace>::write_vars().
    void write_vars(io::text::writer * ptwOut);
 };
 
@@ -279,9 +278,9 @@ class scope_trace :
 
 public:
 
-   /*! Tuple type used to store the trace variables. */
+   //! Tuple type used to store the trace variables.
    typedef std::tuple<Ts const & ...> _tuple_base;
-   /*! Count of trace variables. */
+   //! Count of trace variables.
    static size_t const smc_cTs = sizeof ...(Ts);
 
 
@@ -334,8 +333,7 @@ inline scope_trace<Ts ...> scope_trace_impl::make(Ts const & ... ts) {
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/*! Helper to write a single variable out of a scope_trace, recursing to print any remaining ones.
-*/
+//! Helper to write a single variable out of a scope_trace, recursing to print any remaining ones.
 // Template recursion step.
 template <
    class TScopeTrace, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -397,12 +395,12 @@ class scope_trace :
 
 public:
 
-   /*! Tuple type used to store the trace variables. */
+   //! Tuple type used to store the trace variables.
    typedef _std::tuple<
       T0 const &, T1 const &, T2 const &, T3 const &, T4 const &, T5 const &, T6 const &,
       T7 const &, T8 const &, T9 const &
    > _tuple_base;
-   /*! Count of trace variables. */
+   //! Count of trace variables.
    static size_t const smc_cTs = _std::tuple_size<_std::tuple<
       T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    >>::value;
@@ -426,9 +424,7 @@ public:
       _tuple_base(static_cast<_tuple_base &&>(st)) {
    }
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~scope_trace() {
       scope_trace_impl::trace_scope([this] (io::text::writer * ptwOut) -> void {
          this->write_vars(ptwOut);

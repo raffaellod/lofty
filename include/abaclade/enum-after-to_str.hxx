@@ -30,8 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-/*! Implementation of the specializations of to_str_backend for enum_impl specializations.
-*/
+//! Implementation of the specializations of to_str_backend for enum_impl specializations.
 class ABACLADE_SYM enum_to_str_backend_impl {
 public:
 
@@ -71,8 +70,7 @@ class to_str_backend<enum_impl<T>> :
    public detail::enum_to_str_backend_impl {
 public:
 
-   /*! See abc::detail::enum_to_str_backend_impl::write().
-   */
+   //! See abc::detail::enum_to_str_backend_impl::write().
    void write(enum_impl<T> e, io::text::writer * ptwOut) {
       detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
    }

@@ -35,8 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/*! Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
-*/
+//! Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
 template <typename T>
 struct hash;
 
@@ -45,7 +44,10 @@ struct hash<bool> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   b
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(bool b) const {
       return b;
@@ -57,7 +59,10 @@ struct hash<char> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   ch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(char ch) const {
       return ch;
@@ -69,7 +74,10 @@ struct hash<signed char> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   sch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(signed char sch) const {
       return sch;
@@ -81,7 +89,10 @@ struct hash<unsigned char> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   uch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(unsigned char uch) const {
       return uch;
@@ -93,7 +104,10 @@ struct hash<char16_t> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   ch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(char16_t ch) const {
       return ch;
@@ -105,7 +119,10 @@ struct hash<char32_t> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   ch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(char32_t ch) const {
       return ch;
@@ -117,7 +134,10 @@ struct hash<wchar_t> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   ch
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(wchar_t ch) const {
       return ch;
@@ -129,7 +149,10 @@ struct hash<short> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(short i) const {
       return i;
@@ -141,7 +164,10 @@ struct hash<unsigned short> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(unsigned short i) const {
       return i;
@@ -153,7 +179,10 @@ struct hash<int> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(int i) const {
       return i;
@@ -165,7 +194,10 @@ struct hash<unsigned int> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(unsigned int i) const {
       return i;
@@ -177,7 +209,10 @@ struct hash<long> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(long i) const {
       return i;
@@ -189,7 +224,10 @@ struct hash<long long> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(long long i) const {
       return i;
@@ -201,7 +239,10 @@ struct hash<unsigned long> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(unsigned long i) const {
       return i;
@@ -213,7 +254,10 @@ struct hash<unsigned long long> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   i
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(unsigned long long i) const {
       return i;
@@ -225,7 +269,10 @@ struct hash<float> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   f
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(float f) const {
       return f;
@@ -237,7 +284,10 @@ struct hash<double> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   d
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(double d) const {
       return d;
@@ -249,7 +299,10 @@ struct hash<long double> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   ld
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(long double ld) const {
       return ld;
@@ -261,7 +314,10 @@ struct hash<T *> {
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   pt
+      Object to computer the hash of.
+   return
+      Hash of the argument.
    */
    size_t operator()(T * pt) const {
       return reinterpret_cast<uintptr_t>(pt);

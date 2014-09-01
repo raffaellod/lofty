@@ -59,8 +59,9 @@ public:
 
 public:
 
-   /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with
-   an abc::*str instance. */
+   /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
+   abc::*str instance.
+   */
    typedef std::unique_ptr<
       char_t const [],
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
@@ -175,9 +176,7 @@ public:
       return const_iterator(chars_end(), this);
    }
 
-
-   /*! See detail::raw_trivial_vextr_impl::begin().
-   */
+   //! See detail::raw_trivial_vextr_impl::begin().
    char_t * chars_begin() {
       return detail::raw_trivial_vextr_impl::begin<char_t>();
    }
@@ -185,9 +184,7 @@ public:
       return detail::raw_trivial_vextr_impl::begin<char_t>();
    }
 
-
-   /*! See detail::raw_trivial_vextr_impl::end().
-   */
+   //! See detail::raw_trivial_vextr_impl::end().
    char_t * chars_end() {
       return detail::raw_trivial_vextr_impl::end<char_t>();
    }
@@ -825,9 +822,7 @@ public:
       );
    }
 
-
-   /*! See str_base::begin(). Here also available in non-const overload.
-   */
+   //! See str_base::begin(). Here also available in non-const overload.
    iterator begin() {
       return iterator(chars_begin(), this);
    }
@@ -835,16 +830,12 @@ public:
       return str_base::begin();
    }
 
-
-   /*! Truncates the string to zero length, without deallocating the internal buffer.
-   */
+   //! Truncates the string to zero length, without deallocating the internal buffer.
    void clear() {
       set_size(0);
    }
 
-
-   /*! See str_base::end(). Here also available in non-const overload.
-   */
+   //! See str_base::end(). Here also available in non-const overload.
    iterator end() {
       return iterator(chars_end(), this);
    }
@@ -890,9 +881,7 @@ public:
       );
    }
 
-
-   /*! See str_base::rbegin(). Here also available in non-const overload.
-   */
+   //! See str_base::rbegin(). Here also available in non-const overload.
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(chars_end(), this));
    }
@@ -900,9 +889,7 @@ public:
       return str_base::rbegin();
    }
 
-
-   /*! See str_base::rend(). Here also available in non-const overload.
-   */
+   //! See str_base::rend(). Here also available in non-const overload.
    reverse_iterator rend() {
       return reverse_iterator(iterator(chars_begin(), this));
    }
@@ -982,8 +969,7 @@ public:
 
 protected:
 
-   /*! See str_base::str_base().
-   */
+   //! See str_base::str_base().
    mstr(size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }

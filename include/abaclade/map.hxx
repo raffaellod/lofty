@@ -107,9 +107,7 @@ struct _raw_map_impl<TKey, TVal, false> :
       return const_cast<_raw_map_impl *>(this)->get_value(pkey, hash);
    }
 
-
-   /*! Destructs every key and value in the descriptor, then releases it.
-   */
+   //! Destructs every key and value in the descriptor, then releases it.
    void release_desc() {
       type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
@@ -134,9 +132,7 @@ struct _raw_map_impl<TKey, TVal, false> :
       _raw_complex_map_impl::remove(typeKey, typeVal, pkey, hash);
    }
 
-
-   /*! Removes all items from the map.
-   */
+   //! Removes all items from the map.
    void clear() {
       type_void_adapter typeKey, typeVal;
       typeKey.set_destr_fn<TKey>();
@@ -180,14 +176,12 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 namespace abc {
 
-/*! Map with fast lookup. Implements commit-or-rollback semantics.
-*/
+//! Map with fast lookup. Implements commit-or-rollback semantics.
 template <typename TKey, typename TVal, size_t t_ceStatic = 0>
 class map;
 
 
-/*! Implementation of map.
-*/
+//! Implementation of map.
 template <typename TKey, typename TVal, size_t t_ceStatic>
 class _map_impl :
    public _raw_map_data,
@@ -203,8 +197,7 @@ protected:
 
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    ~_map_impl() {
       _raw_map_cast()->release_desc();
    }
@@ -307,8 +300,7 @@ public:
    }
 
 
-   /*! Removes all the items in the map.
-   */
+   //! Removes all the items in the map.
    void clear() {
       _raw_map_cast()->clear();
    }
@@ -425,9 +417,7 @@ public:
       map_impl(get_embedded_desc(), std::move(m)) {
    }
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~map() {
    }
 
@@ -502,9 +492,7 @@ public:
       map_impl(get_embedded_desc(), std::move(m)) {
    }
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~map() {
    }
 

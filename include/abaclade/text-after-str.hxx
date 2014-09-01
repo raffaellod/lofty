@@ -30,19 +30,15 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace text {
 
-/*! A text encoding or decoding error occurred.
-*/
+//! A text encoding or decoding error occurred.
 class ABACLADE_SYM error :
    public virtual generic_error {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    error();
 
-
-   /*! See abc::generic_error::init().
-   */
+   //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
 
@@ -57,20 +53,20 @@ public:
 namespace abc {
 namespace text {
 
-/*! A text decoding error occurred.
-*/
+//! A text decoding error occurred.
 class ABACLADE_SYM decode_error :
    public virtual error {
 public:
 
    /*! Constructor.
+
+   x
+      Source object.
    */
    decode_error();
    decode_error(decode_error const & x);
 
-
-   /*! Assignment operator. See abc::text::error::operator=().
-   */
+   //! Assignment operator. See abc::text::error::operator=().
    decode_error & operator=(decode_error const & x);
 
 
@@ -91,16 +87,15 @@ public:
 
 protected:
 
-   /*! See error::_print_extended_info().
-   */
+   //! See error::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
 
-   /*! Description of the encountered problem. */
+   //! Description of the encountered problem.
    istr m_sDescription;
-   /*! Bytes that caused the error. */
+   //! Bytes that caused the error.
    smvector<uint8_t, 16> m_viInvalid;
 };
 
@@ -115,20 +110,20 @@ private:
 namespace abc {
 namespace text {
 
-/*! A text encoding error occurred.
-*/
+//! A text encoding error occurred.
 class ABACLADE_SYM encode_error :
    public virtual error {
 public:
 
    /*! Constructor.
+
+   x
+      Source object.
    */
    encode_error();
    encode_error(encode_error const & x);
 
-
-   /*! Assignment operator. See abc::text::error::operator=().
-   */
+   //! Assignment operator. See abc::text::error::operator=().
    encode_error & operator=(encode_error const & x);
 
 
@@ -144,17 +139,17 @@ public:
 
 protected:
 
-   /*! See error::_print_extended_info().
-   */
+   //! See error::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 
 private:
 
-   /*! Description of the encountered problem. */
+   //! Description of the encountered problem.
    istr m_sDescription;
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
-   we don’t want to find out when trying to print it in _print_extended_info(). */
+   we don’t want to find out when trying to print it in _print_extended_info().
+   */
    uint32_t m_iInvalidCodePoint;
 };
 

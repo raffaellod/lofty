@@ -44,8 +44,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace _std {
 
-/*! Null type, used to reduce the number of tuple items from the preset maximum.
-*/
+//! Null type, used to reduce the number of tuple items from the preset maximum.
 struct _tuple_void {
 };
 
@@ -191,7 +190,7 @@ public:
 
 private:
 
-   /*! Internal T instance. */
+   //! Internal T instance.
    T m_t;
 };
 
@@ -206,8 +205,7 @@ private:
 namespace abc {
 namespace _std {
 
-/*! Internal implementation of tuple.
-*/
+//! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <size_t t_i, typename ... Ts>
@@ -453,8 +451,7 @@ public:
 namespace abc {
 namespace _std {
 
-/*! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
-*/
+//! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename ... Ts>
@@ -979,8 +976,7 @@ any type, and silently discards everything.
 class __ignore_t {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    __ignore_t() {
    }
    __ignore_t(__ignore_t const &) {
@@ -989,9 +985,7 @@ public:
    __ignore_t(T const &) {
    }
 
-
-   /*! Assignment operator.
-   */
+   //! Assignment operator.
    __ignore_t const & operator=(__ignore_t const &) const {
       return *this;
    }

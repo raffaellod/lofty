@@ -53,7 +53,7 @@ public:
 
 protected:
 
-   /*! Wrapped C-style string. */
+   //! Wrapped C-style string.
    char const * m_psz;
 };
 
@@ -90,13 +90,11 @@ public:
 
 namespace abc {
 
-/*! Base class for the specializations of to_str_backend for integer types.
-*/
+//! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM _ptr_to_str_backend {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    _ptr_to_str_backend();
 
 
@@ -122,11 +120,11 @@ protected:
 
 protected:
 
-   /*! Backend used to write the pointer as an integer. */
+   //! Backend used to write the pointer as an integer.
    to_str_backend<uintptr_t> m_tsbInt;
-   /*! Backend used to write a nullptr. */
+   //! Backend used to write a nullptr.
    to_str_backend<istr> m_tsbStr;
-   /*! Format string used to display the address. */
+   //! Format string used to display the address.
    static char_t const smc_achFormat[];
 };
 
@@ -163,8 +161,7 @@ class to_str_backend<std::unique_ptr<T, TDel>> :
    public _ptr_to_str_backend {
 public:
 
-   /*! See _ptr_to_str_backend::write().
-   */
+   //! See _ptr_to_str_backend::write().
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<uintptr_t>(p.get()), ptwOut);
    }
@@ -232,9 +229,7 @@ public:
    */
    _sequence_to_str_backend(istr const & sStart, istr const & sEnd);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~_sequence_to_str_backend();
 
 
@@ -278,13 +273,13 @@ public:
 
 protected:
 
-   /*! Separator to be output between elements. */
+   //! Separator to be output between elements.
    istr m_sSeparator;
-   /*! Sequence start delimiter. */
+   //! Sequence start delimiter.
    istr m_sStart;
-   /*! Sequence end delimiter. */
+   //! Sequence end delimiter.
    istr m_sEnd;
-   /*! Backend for strings. */
+   //! Backend for strings.
    to_str_backend<istr> m_tsbStr;
 };
 
@@ -299,8 +294,7 @@ namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/*! Helper to write a single element out of a tuple, recursing to print any remaining ones.
-*/
+//! Helper to write a single element out of a tuple, recursing to print any remaining ones.
 template <class TTuple, typename ... Ts>
 class _tuple_to_str_backend_element_writer;
 
@@ -328,14 +322,13 @@ class _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
    public _tuple_to_str_backend_element_writer<TTuple, Ts ...> {
 public:
 
-   /*! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
-   */
+   //! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
 
 protected:
 
-   /*! Backend for the current element type. */
+   //! Backend for the current element type.
    to_str_backend<T0> m_tsbt0;
 };
 
@@ -346,8 +339,7 @@ class to_str_backend<std::tuple<Ts ...>> :
    public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
@@ -386,8 +378,7 @@ inline void _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_ele
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-/*! Helper to write the elements of a tuple.
-*/
+//! Helper to write the elements of a tuple.
 // Template recursion step.
 template <
    class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -399,14 +390,13 @@ class _tuple_to_str_backend_element_writer :
    > {
 public:
 
-   /*! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
-   */
+   //! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
 
 protected:
 
-   /*! Backend for the current element type. */
+   //! Backend for the current element type.
    to_str_backend<T0> m_tsbt0;
 };
 
@@ -444,8 +434,7 @@ class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
    > {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }

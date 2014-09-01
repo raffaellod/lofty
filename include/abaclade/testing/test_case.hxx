@@ -38,18 +38,15 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/*! Base class for test cases.
-*/
+//! Base class for test cases.
 class ABACLADE_TESTING_SYM test_case {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    test_case();
 
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~test_case();
 
 
@@ -62,8 +59,7 @@ public:
    void init(runner * prunner);
 
 
-   /*! Executes the test case.
-   */
+   //! Executes the test case.
    virtual void run() = 0;
 
 
@@ -292,7 +288,7 @@ protected:
 
 protected:
 
-   /*! Runner executing this test. */
+   //! Runner executing this test.
    runner * m_prunner;
 };
 
@@ -427,9 +423,9 @@ abc::testing::runner instance to instantiate and execute each test case.
 class ABACLADE_TESTING_SYM test_case_factory_impl {
 public:
 
-   /*! Factory function, returning an abc::testing::test_case instance. */
+   //! Factory function, returning an abc::testing::test_case instance.
    typedef std::unique_ptr<test_case> (* factory_fn)(runner * prunner);
-   /*! Linked list item. */
+   //! Linked list item.
    struct list_item {
       list_item * pliNext;
       factory_fn pfnFactory;
@@ -459,9 +455,9 @@ public:
 
 private:
 
-   /*! Pointer to the head of the list of factory functions. */
+   //! Pointer to the head of the list of factory functions.
    static list_item * sm_pliHead;
-   /*! Pointer to the “next” pointer of the tail of the list of factory functions. */
+   //! Pointer to the “next” pointer of the tail of the list of factory functions.
    static list_item ** sm_ppliTailNext;
 };
 
@@ -484,8 +480,7 @@ class test_case_factory :
    public test_case_factory_impl {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    test_case_factory() :
       test_case_factory_impl(&sm_li) {
    }
@@ -505,7 +500,7 @@ public:
 
 private:
 
-   /*! Entry in the list of factory functions for this class. */
+   //! Entry in the list of factory functions for this class.
    static list_item sm_li;
 };
 

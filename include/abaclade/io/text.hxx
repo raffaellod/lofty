@@ -31,13 +31,11 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Base interface for text (character-based) I/O.
-*/
+//! Base interface for text (character-based) I/O.
 class ABACLADE_SYM base {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~base();
 
 
@@ -70,7 +68,8 @@ protected:
 protected:
 
    /*! Line terminator used for line-oriented I/O. If not explicitly set, it will be automatically
-   determined and assigned on the first line-mode I/O method call. */
+   determined and assigned on the first line-mode I/O method call.
+   */
    abc::text::line_terminator m_lterm;
 };
 
@@ -87,8 +86,7 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Interface for text (character-based) input.
-*/
+//! Interface for text (character-based) input.
 class ABACLADE_SYM reader :
    public virtual base {
 public:
@@ -138,8 +136,7 @@ public:
 
 protected:
 
-   /*! See base::base().
-   */
+   //! See base::base().
    explicit reader(abc::text::line_terminator lterm);
 };
 
@@ -196,8 +193,7 @@ Reference for Python’s str.format(): <http://docs.python.org/3/library/string.
 syntax>
 */
 
-/*! Interface for binary (non-text) output.
-*/
+//! Interface for binary (non-text) output.
 class ABACLADE_SYM writer :
    public virtual base {
 public:
@@ -304,8 +300,7 @@ public:
 
 protected:
 
-   /*! See base::base().
-   */
+   //! See base::base().
    writer(abc::text::line_terminator lterm);
 };
 
@@ -322,8 +317,7 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Template-free implementation of abc::io::text::_writer_print_helper.
-*/
+//! Template-free implementation of abc::io::text::_writer_print_helper.
 class ABACLADE_SYM _writer_print_helper_impl :
    public noncopyable {
 public:
@@ -387,28 +381,27 @@ private:
 
 protected:
 
-   /*! Target text writer. */
+   //! Target text writer.
    writer * m_ptw;
    // TODO: use iterators for the following two member variables.
-   /*! Start of the format specification of the current replacement. */
+   //! Start of the format specification of the current replacement.
    char_t const * m_pchReplFormatSpecBegin;
-   /*! End of the format specification of the current replacement. */
+   //! End of the format specification of the current replacement.
    char_t const * m_pchReplFormatSpecEnd;
-   /*! 0-based index of the argument to replace the next replacement. */
+   //! 0-based index of the argument to replace the next replacement.
    unsigned m_iSubstArg;
 
 
 private:
 
-   /*! Format string. */
+   //! Format string.
    istr const & m_sFormat;
-   /*! First format string character to be written yet. */
+   //! First format string character to be written yet.
    istr::const_iterator m_itFormatToWriteBegin;
 };
 
 
-/*! Helper for/implementation of abc::io::text::writer::print().
-*/
+//! Helper for/implementation of abc::io::text::writer::print().
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename ... Ts>
@@ -473,8 +466,7 @@ public:
    }
 
 
-   /*! See _writer_print_helper<>::run().
-   */
+   //! See _writer_print_helper<>::run().
    void run() {
       while (wph_base::write_format_up_to_next_repl()) {
          // Perform and write the replacement.
@@ -485,8 +477,7 @@ public:
 
 protected:
 
-   /*! See _writer_print_helper<>::write_repl().
-   */
+   //! See _writer_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
@@ -503,7 +494,7 @@ protected:
 
 private:
 
-   /*! Nth replacement. */
+   //! Nth replacement.
    T0 const & m_t0;
 };
 
@@ -645,9 +636,7 @@ public:
       m_t0(t0) {
    }
 
-
-   /*! See _writer_print_helper<>::run().
-   */
+   //! See _writer_print_helper<>::run().
    void run() {
       while (wph_base::write_format_up_to_next_repl()) {
          // Perform and write the replacement.
@@ -658,8 +647,7 @@ public:
 
 protected:
 
-   /*! See _writer_print_helper<>::write_repl().
-   */
+   //! See _writer_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
@@ -676,7 +664,7 @@ protected:
 
 private:
 
-   /*! Nth replacement. */
+   //! Nth replacement.
    T0 const & m_t0;
 };
 
@@ -831,24 +819,18 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Base for text I/O classes built on top of a binary::buffered_base instance.
-*/
+//! Base for text I/O classes built on top of a binary::buffered_base instance.
 class ABACLADE_SYM binbuf_base :
    public virtual base {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~binbuf_base();
 
-
-   /*! Returns a pointer to the underlying buffered binary I/O object.
-   */
+   //! Returns a pointer to the underlying buffered binary I/O object.
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const = 0;
 
-
-   /*! See base::encoding().
-   */
+   //! See base::encoding().
    virtual abc::text::encoding encoding() const;
 
 
@@ -867,7 +849,8 @@ protected:
 protected:
 
    /*! Encoding used for I/O to/from the underlying buffered_base. If not explicitly set, it will be
-   automatically determined and assigned on the first read or write. */
+   automatically determined and assigned on the first read or write.
+   */
    abc::text::encoding m_enc;
 };
 
@@ -884,8 +867,7 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
-*/
+//! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
 class ABACLADE_SYM binbuf_reader :
    public virtual binbuf_base,
    public virtual reader {
@@ -908,19 +890,13 @@ public:
       abc::text::line_terminator lterm = abc::text::line_terminator::unknown
    );
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~binbuf_reader();
 
-
-   /*! See binbuf_base::buffered_base().
-   */
+   //! See binbuf_base::buffered_base().
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const;
 
-
-   /*! See reader::read_while().
-   */
+   //! See reader::read_while().
    virtual bool read_while(mstr * ps, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd);
@@ -928,7 +904,7 @@ public:
 
 protected:
 
-   /*! Underlying binary buffered reader. */
+   //! Underlying binary buffered reader.
    std::shared_ptr<binary::buffered_reader> m_pbbr;
 
 
@@ -968,8 +944,7 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
-*/
+//! Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
 class ABACLADE_SYM binbuf_writer :
    public virtual binbuf_base,
    public virtual writer {
@@ -993,25 +968,19 @@ public:
       abc::text::line_terminator lterm = abc::text::line_terminator::unknown
    );
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~binbuf_writer();
 
-
-   /*! See binbuf_base::buffered_base().
-   */
+   //! See binbuf_base::buffered_base().
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const;
 
-
-   /*! See writer::write_binary().
-   */
+   //! See writer::write_binary().
    virtual void write_binary(void const * p, size_t cb, abc::text::encoding enc);
 
 
 protected:
 
-   /*! Underlying binary buffered writer. */
+   //! Underlying binary buffered writer.
    std::shared_ptr<binary::buffered_writer> m_pbbw;
 };
 

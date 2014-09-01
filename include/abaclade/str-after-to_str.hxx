@@ -71,8 +71,7 @@ protected:
 namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
-   /*! Character literal. \
-   */ \
+   /*! Character literal. */ \
    template <> \
    class to_str_backend<C> : \
       public detail::str_to_str_backend { \
@@ -90,8 +89,7 @@ namespace abc {
       } \
    }; \
    \
-   /*! String literal. \
-   */ \
+   /*! String literal. */ \
    template <size_t t_cch> \
    class to_str_backend<C [t_cch]> : \
       public detail::str_to_str_backend { \

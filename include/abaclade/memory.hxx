@@ -56,8 +56,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
-/*! TODO: comment or remove.
-*/
+//! TODO: comment or remove.
 #if ABC_HOST_GCC
    #define _abc_alloca(cb) \
       __builtin_alloca((cb))
@@ -142,8 +141,7 @@ ABACLADE_SYM void * _raw_realloc(void * p, size_t cb);
 namespace abc {
 namespace memory {
 
-/*! Deleter that deallocates memory using memory::free().
-*/
+//! Deleter that deallocates memory using memory::free().
 template <typename T>
 struct freeing_deleter {
 
@@ -184,8 +182,7 @@ struct freeing_deleter<T[]> :
 namespace abc {
 namespace memory {
 
-/*! Wrapper that invokes a deleter if and only if a set condition is true.
-*/
+//! Wrapper that invokes a deleter if and only if a set condition is true.
 template <typename T, typename TDeleter = std::default_delete<T>>
 class conditional_deleter :
    public TDeleter {
@@ -242,8 +239,7 @@ class conditional_deleter<T[], TDeleter> :
    public conditional_deleter<T, TDeleter> {
 public:
 
-   /*! See conditional_deleter<T>::conditional_deleter().
-   */
+   //! See conditional_deleter<T>::conditional_deleter().
    conditional_deleter(bool bEnabled) :
       conditional_deleter<T, TDeleter>(bEnabled) {
    }

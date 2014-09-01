@@ -31,13 +31,11 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Base interface for binary (non-text) I/O.
-*/
+//! Base interface for binary (non-text) I/O.
 class ABACLADE_SYM base {
 public:
 
-   /*! Destructor. Also needed to make the class polymorphic (have a vtable).
-   */
+   //! Destructor. Also needed to make the class polymorphic (have a vtable).
    virtual ~base();
 };
 
@@ -54,8 +52,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for binary (non-text) input.
-*/
+//! Interface for binary (non-text) input.
 class ABACLADE_SYM reader :
    public virtual base {
 public:
@@ -86,14 +83,12 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for binary (non-text) output.
-*/
+//! Interface for binary (non-text) output.
 class ABACLADE_SYM writer :
    public virtual base {
 public:
 
-   /*! Forces writing any data in the write buffer.
-   */
+   //! Forces writing any data in the write buffer.
    virtual void flush() = 0;
 
 
@@ -122,8 +117,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
-*/
+//! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 class ABACLADE_SYM seekable {
 public:
 
@@ -160,8 +154,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Interface for binary I/O classes that access data with a known size.
-*/
+//! Interface for binary I/O classes that access data with a known size.
 class ABACLADE_SYM sized {
 public:
 

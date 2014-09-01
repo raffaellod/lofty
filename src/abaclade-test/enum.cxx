@@ -39,15 +39,12 @@ class enum_basic :
    public testing::test_case {
 public:
 
-   /*! See testing::test_case::title().
-   */
+   //! See testing::test_case::title().
    virtual istr title() {
       return istr(ABC_SL("abc::enum-derived classes – basic operations"));
    }
 
-
-   /*! See testing::test_case::run().
-   */
+   //! See testing::test_case::run().
    virtual void run() {
       ABC_TRACE_FUNC(this);
 

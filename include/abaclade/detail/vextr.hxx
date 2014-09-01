@@ -238,13 +238,15 @@ template <typename T, size_t t_ciEmbeddedCapacity>
 class raw_vextr_prefixed_item_array {
 public:
 
-   /*! Embedded item array capacity, in bytes. */
+   //! Embedded item array capacity, in bytes.
    static size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
    /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
-   so it can be greater than smc_cbEmbeddedCapacity. */
+   so it can be greater than smc_cbEmbeddedCapacity.
+   */
    size_t m_cbCapacity;
    /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
-   destructed automatically, and because the count may be greater than what’s declared here. */
+   destructed automatically, and because the count may be greater than what’s declared here.
+   */
    std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
@@ -259,8 +261,7 @@ public:
 namespace abc {
 namespace detail {
 
-/*! Data members of raw_vextr_impl_base, as a plain old struct.
-*/
+//! Data members of raw_vextr_impl_base, as a plain old struct.
 struct raw_vextr_impl_data {
    //! Pointer to the start of the item array.
    void * m_pBegin;
@@ -271,7 +272,8 @@ struct raw_vextr_impl_data {
    //! true if the item array is part of a prefixed item array.
    bool m_bPrefixedItemArray:1;
    /*! true if the current item array is allocated dynamically, or false otherwise (embedded
-   prefixed or non-prefixed). */
+   prefixed or non-prefixed).
+   */
    bool m_bDynamic:1;
    //! true if the item array is NUL-terminated.
    bool m_bNulT:1;
@@ -301,14 +303,14 @@ protected:
 public:
 
    /*! Non-template prefixed item array used for the calculation of offsets that will then be
-   applied to real instantiations of the prefixed item array template. */
+   applied to real instantiations of the prefixed item array template.
+   */
    typedef raw_vextr_prefixed_item_array<int8_t, 1> _prefixed_item_array;
 
 
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    ~raw_vextr_impl_base() {
       if (m_bDynamic) {
          memory::_raw_free(prefixed_item_array());
@@ -409,9 +411,7 @@ protected:
       m_bNulT = bNulT;
    }
 
-
-   /*! Resets the contents of the object to nullptr.
-   */
+   //! Resets the contents of the object to nullptr.
    void assign_empty() {
       m_pBegin = nullptr;
       m_pEnd = nullptr;
@@ -555,10 +555,11 @@ protected:
 
 protected:
 
-   /*! The item array size must be no less than this many bytes. */
+   //! The item array size must be no less than this many bytes.
    static size_t const smc_cbCapacityMin = sizeof(intptr_t) * 8;
    /*! Size multiplier. This should take into account that we want to reallocate as rarely as
-   possible, so every time we do it it should be for a rather conspicuous growth. */
+   possible, so every time we do it it should be for a rather conspicuous growth.
+   */
    static unsigned const smc_iGrowthRate = 2;
 };
 
@@ -602,9 +603,7 @@ public:
    raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbNew);
    raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, size_t cbAdd, size_t cbRemove);
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~raw_vextr_transaction() {
       // Only allow m_rvibWork to release its item array if we allocated it for the transaction and
       // commit() was never called.
@@ -659,13 +658,15 @@ private:
 
    /*! Temporary vextr that contains the new values for each vextr member, ready to be applied to
    *m_prvib when the transaction is committed. Its internal pointers may or may not be the same as
-   the ones in m_prvib depending on whether we needed a new item array. */
+   the ones in m_prvib depending on whether we needed a new item array.
+   */
    raw_vextr_impl_base m_rvibWork;
-   /*! Subject of the transaction. */
+   //! Subject of the transaction.
    raw_vextr_impl_base * m_prvib;
    /*! true if m_rvibWork references an item array that has been dynamically allocated for the
    transaction and needs to be freed in the destructor, which can happen when an exception occurs
-   before the transaction is committed. */
+   before the transaction is committed.
+   */
    bool m_bFree;
 };
 
@@ -680,8 +681,7 @@ private:
 namespace abc {
 namespace detail {
 
-/*! Template-independent implementation of a vector for non-trivial contained types.
-*/
+//! Template-independent implementation of a vector for non-trivial contained types.
 class ABACLADE_SYM raw_complex_vextr_impl :
    public raw_vextr_impl_base {
 public:
@@ -824,8 +824,7 @@ public:
 
 protected:
 
-   /*! See raw_vextr_impl_base::raw_vextr_impl_base().
-   */
+   //! See raw_vextr_impl_base::raw_vextr_impl_base().
    raw_complex_vextr_impl(size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
@@ -956,8 +955,7 @@ public:
 
 protected:
 
-   /*! See raw_vextr_impl_base::raw_vextr_impl_base().
-   */
+   //! See raw_vextr_impl_base::raw_vextr_impl_base().
    raw_trivial_vextr_impl(size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
@@ -970,8 +968,7 @@ protected:
 
 private:
 
-   /*! Implementation of insert_remove(). See insert_remove().
-   */
+   //! Implementation of insert_remove(). See insert_remove().
    void _insert_remove(uintptr_t ibOffset, void const * pAdd, size_t cbAdd, size_t cbRemove);
 };
 

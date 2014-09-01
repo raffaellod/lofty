@@ -62,8 +62,7 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/*! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
-*/
+//! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 class class_with_internal_pointer {
 public:
 
@@ -100,9 +99,9 @@ public:
 
 private:
 
-   /*! Pointer to m_i. */
+   //! Pointer to m_i.
    uint16_t * m_pi;
-   /*! Data referenced by m_pi. */
+   //! Data referenced by m_pi.
    uint16_t m_i;
 };
 
@@ -157,9 +156,9 @@ public:
 
 private:
 
-   /*! Reference to the T instance to be monitored. */
+   //! Reference to the T instance to be monitored.
    T const & m_t;
-   /*! Pointer to m_t’s data. */
+   //! Pointer to m_t’s data.
    typename T::const_pointer m_pti;
 };
 
@@ -307,15 +306,15 @@ public:
 
 private:
 
-   /*! Unique value associated to this object. */
+   //! Unique value associated to this object.
    int m_iUnique;
-   /*! Count of instances created, excluding moved ones. */
+   //! Count of instances created, excluding moved ones.
    static size_t m_cCopies;
-   /*! Count of moved instances. */
+   //! Count of moved instances.
    static size_t m_cMoves;
-   /*! Count of new (not copied, not moved) instances. */
+   //! Count of new (not copied, not moved) instances.
    static size_t m_cNew;
-   /*! Value of m_iUnique for the next instance. */
+   //! Value of m_iUnique for the next instance.
    static int m_iNextUnique;
 };
 

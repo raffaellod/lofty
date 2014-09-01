@@ -40,7 +40,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace atomic {
 
-/*! Integer type of optimal size for atomic operations (usually the machine’s word size). */
+//! Integer type of optimal size for atomic operations (usually the machine’s word size).
 #if ABC_HOST_API_POSIX
    // No preference really, since we use don’t use atomic intrinsics.
    typedef int int_t;

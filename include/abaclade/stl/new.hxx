@@ -37,11 +37,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace std {
 
-/*! Type of nothrow constant (C++11 § 18.6 “Dynamic memory management”).
-*/
+//! Type of nothrow constant (C++11 § 18.6 “Dynamic memory management”).
 struct nothrow_t {};
 
-/*! Constant to request no exceptions to be thrown (C++11 § 18.6 “Dynamic memory management”). */
+//! Constant to request no exceptions to be thrown (C++11 § 18.6 “Dynamic memory management”).
 extern nothrow_t const nothrow;
 
 } //namespace std
@@ -54,24 +53,18 @@ extern nothrow_t const nothrow;
 
 namespace std {
 
-/*! Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
-*/
+//! Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
 class ABACLADE_SYM bad_alloc :
    public exception {
 public:
 
-   /*! See exception::exception().
-   */
+   //! See exception::exception().
    bad_alloc();
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    virtual ~bad_alloc();
 
-
-   /*! See exception::what().
-   */
+   //! See exception::what().
    virtual char const * what() const;
 };
 

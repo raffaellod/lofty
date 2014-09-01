@@ -42,8 +42,7 @@ class raw_vector<T, false, false> :
    public noncopyable {
 public:
 
-   /*! Destructor.
-   */
+   //! Destructor.
    ~raw_vector() {
       type_void_adapter type;
       type.set_destr_fn<T>();
@@ -69,18 +68,14 @@ public:
       raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
    }
 
-
-   /*! See raw_complex_vextr_impl::assign_move().
-   */
+   //! See raw_complex_vextr_impl::assign_move().
    void assign_move(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
       raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
-
-   /*! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
-   */
+   //! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destr_fn<T>();
@@ -169,8 +164,7 @@ public:
 
 protected:
 
-   /*! See raw_complex_vextr_impl::raw_complex_vextr_impl().
-   */
+   //! See raw_complex_vextr_impl::raw_complex_vextr_impl().
    raw_vector(size_t cbEmbeddedCapacity) :
       raw_complex_vextr_impl(cbEmbeddedCapacity) {
    }
@@ -192,8 +186,7 @@ class raw_vector<T, true, false> :
    public raw_vector<T, false, false> {
 public:
 
-   /*! See raw_complex_vextr_impl::assign_copy().
-   */
+   //! See raw_complex_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       type_void_adapter type;
       type.set_copy_fn<T>();
@@ -202,9 +195,7 @@ public:
       raw_complex_vextr_impl::assign_copy(type, ptBegin, ptEnd);
    }
 
-
-   /*! See raw_complex_vextr_impl::assign_concat().
-   */
+   //! See raw_complex_vextr_impl::assign_concat().
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
    ) {
@@ -243,8 +234,7 @@ public:
 
 protected:
 
-   /*! See raw_vector<T, false, false>::raw_vector<T, false, false>().
-   */
+   //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
    raw_vector(size_t cbEmbeddedCapacity) :
       raw_vector<T, false, false>(cbEmbeddedCapacity) {
    }
@@ -261,15 +251,12 @@ class raw_vector<T, true, true> :
    public raw_trivial_vextr_impl {
 public:
 
-   /*! See raw_trivial_vextr_impl::assign_copy().
-   */
+   //! See raw_trivial_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
    }
 
-
-   /*! See raw_trivial_vextr_impl::assign_concat().
-   */
+   //! See raw_trivial_vextr_impl::assign_concat().
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, uint8_t iMove
    ) {
@@ -293,16 +280,12 @@ public:
       raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
-
-   /*! See raw_trivial_vextr_impl::assign_move().
-   */
+   //! See raw_trivial_vextr_impl::assign_move().
    void assign_move(raw_trivial_vextr_impl && rtvi) {
       raw_trivial_vextr_impl::assign_move(std::move(rtvi));
    }
 
-
-   /*! See raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
-   */
+   //! See raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
    void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
       raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(std::move(rtvi));
    }
@@ -393,8 +376,7 @@ public:
 
 protected:
 
-   /*! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
-   */
+   //! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
    raw_vector(size_t cbEmbeddedCapacity) :
       raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
@@ -435,7 +417,7 @@ class vector_base<T, false> :
    protected detail::raw_vector<T, std::is_copy_constructible<T>::value>,
    public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
 
-   /*! true if T is copy constructible, or false otherwise. */
+   //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
 
 
@@ -779,21 +761,21 @@ template <typename T>
 class mvector<T, false> :
    public vector_base<T, std::is_copy_constructible<T>::value> {
 
-   /*! true if T is copy constructible, or false otherwise. */
+   //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
-   /*! Shortcut to access the base class. */
+   //! Shortcut to access the base class.
    typedef vector_base<T, smc_bCopyConstructible> vector_base_;
 
 
 public:
 
-   /*! See vector_base::iterator. */
+   //! See vector_base::iterator.
    typedef typename vector_base_::iterator iterator;
-   /*! See vector_base::const_iterator. */
+   //! See vector_base::const_iterator.
    typedef typename vector_base_::const_iterator const_iterator;
-   /*! See vector_base::reverse_iterator. */
+   //! See vector_base::reverse_iterator.
    typedef typename vector_base_::reverse_iterator reverse_iterator;
-   /*! See vector_base::const_reverse_iterator. */
+   //! See vector_base::const_reverse_iterator.
    typedef typename vector_base_::const_reverse_iterator const_reverse_iterator;
 
 
@@ -825,9 +807,7 @@ public:
       return *this;
    }
 
-
-   /*! See vector_base::operator[]().
-   */
+   //! See vector_base::operator[]().
    T & operator[](intptr_t i) {
       return const_cast<T &>(vector_base_::operator[](i));
    }
@@ -845,9 +825,7 @@ public:
       insert(this->cend(), std::move(t));
    }
 
-
-   /*! See vector_base::begin(). Here also available in non-const overload.
-   */
+   //! See vector_base::begin(). Here also available in non-const overload.
    iterator begin() {
       return iterator(detail::raw_vextr_impl_base::begin<T>());
    }
@@ -855,17 +833,13 @@ public:
       return vector_base_::begin();
    }
 
-
-   /*! Removes all elements from the vector.
-   */
+   //! Removes all elements from the vector.
    void clear() {
       static_cast<vector_base_ *>(this)->~vector_base_();
       this->assign_empty();
    }
 
-
-   /*! See vector_base::end(). Here also available in non-const overload.
-   */
+   //! See vector_base::end(). Here also available in non-const overload.
    iterator end() {
       return iterator(detail::raw_vextr_impl_base::end<T>());
    }
@@ -892,9 +866,7 @@ public:
       this->insert_move(itOffset.base(), &t, 1);
    }
 
-
-   /*! See vector_base::rbegin(). Here also available in non-const overload.
-   */
+   //! See vector_base::rbegin(). Here also available in non-const overload.
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
    }
@@ -920,9 +892,7 @@ public:
       this->remove(it.base(), (it + 1).base());
    }
 
-
-   /*! See vector_base::rend(). Here also available in non-const overload.
-   */
+   //! See vector_base::rend(). Here also available in non-const overload.
    reverse_iterator rend() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::begin<T>()));
    }
@@ -991,8 +961,7 @@ public:
    }
 
 
-   /*! Resizes the vector so that it only takes up as much memory as strictly necessary.
-   */
+   //! Resizes the vector so that it only takes up as much memory as strictly necessary.
    void shrink_to_fit() {
       // TODO: implement this.
    }
@@ -1016,13 +985,13 @@ class mvector<T, true> :
    public mvector<T, false> {
 public:
 
-   /*! See vector_base::iterator. */
+   //! See vector_base::iterator.
    typedef typename mvector<T, false>::iterator iterator;
-   /*! See vector_base::const_iterator. */
+   //! See vector_base::const_iterator.
    typedef typename mvector<T, false>::const_iterator const_iterator;
-   /*! See vector_base::reverse_iterator. */
+   //! See vector_base::reverse_iterator.
    typedef typename mvector<T, false>::reverse_iterator reverse_iterator;
-   /*! See vector_base::const_reverse_iterator. */
+   //! See vector_base::const_reverse_iterator.
    typedef typename mvector<T, false>::const_reverse_iterator const_reverse_iterator;
 
 
@@ -1122,8 +1091,7 @@ public:
 
 protected:
 
-   /*! See mvector<T, false>::mvector().
-   */
+   //! See mvector<T, false>::mvector().
    mvector(size_t cbEmbeddedCapacity) :
       mvector<T, false>(cbEmbeddedCapacity) {
    }
@@ -1138,8 +1106,7 @@ protected:
 
 namespace abc {
 
-/*! Dynamically-allocated mutable vector.
-*/
+//! Dynamically-allocated mutable vector.
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
 class dmvector;
 

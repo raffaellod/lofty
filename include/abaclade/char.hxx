@@ -107,24 +107,24 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-/*! UTF-8 character type. */
+//! UTF-8 character type.
 typedef char char8_t;
 
-/*! UTF-16 character type. */
+//! UTF-16 character type.
 #if ABC_CXX_CHAR16 == 1
    typedef wchar_t char16_t;
 #elif ABC_CXX_CHAR16 == 0
    typedef uint16_t char16_t;
 #endif
 
-/*! UTF-32 character type. */
+//! UTF-32 character type.
 #if ABC_CXX_CHAR32 == 1
    typedef wchar_t char32_t;
 #elif ABC_CXX_CHAR32 == 0
    typedef uint32_t char32_t;
 #endif
 
-/*! UTF-* encoding supported by the host. */
+//! UTF-* encoding supported by the host.
 #if ABC_HOST_API_WIN32 && defined(UNICODE)
    #define ABC_HOST_UTF 16
 #else
@@ -134,7 +134,8 @@ typedef char char8_t;
 namespace abc {
 
 /*! Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
-characters types. */
+characters types.
+*/
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
 #elif ABC_HOST_UTF == 16

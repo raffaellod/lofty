@@ -29,24 +29,21 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace io {
 
-/*! Unsigned integer wide enough to express an I/O-related size. */
+//! Unsigned integer wide enough to express an I/O-related size.
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef uint64_t full_size_t;
 #else
    #error HOST_API
 #endif
 
-
-/*! Integer wide enough to express an I/O-related offset. */
+//! Integer wide enough to express an I/O-related offset.
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    typedef int64_t offset_t;
 #else
    #error HOST_API
 #endif
 
-
-/*! File access modes.
-*/
+//! File access modes.
 ABC_ENUM_AUTO_VALUES(access_mode,
    read,       //! Read-only access.
    write,      //! Write-only access.
@@ -54,9 +51,7 @@ ABC_ENUM_AUTO_VALUES(access_mode,
    append      //! Append-only access.
 );
 
-
-/*! Position indicators to which offsets may be relative.
-*/
+//! Position indicators to which offsets may be relative.
 ABC_ENUM_AUTO_VALUES(seek_from,
    start,   //! The offset is relative to the start of the data (absolute seek).
    current, //! The offset is relative to the current offset (incremental seek).
@@ -71,8 +66,7 @@ ABC_ENUM_AUTO_VALUES(seek_from,
    #undef stderr
 #endif
 
-/*! List of standard (OS-provided) files.
-*/
+//! List of standard (OS-provided) files.
 ABC_ENUM_AUTO_VALUES(stdfile,
    stdin,  //! Internal identifier for stdin.
    stdout, //! Internal identifier for stdout.

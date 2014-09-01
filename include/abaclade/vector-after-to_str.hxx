@@ -37,20 +37,18 @@ class ABACLADE_SYM vector_to_str_backend :
    public _sequence_to_str_backend {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    vector_to_str_backend();
 
-
-   /*! Destructor.
-   */
+   //! Destructor.
    ~vector_to_str_backend();
 
 
 protected:
 
    /*! Formatting options to be applied to the individual elements, obtained from the constructor
-   argument sFormat. */
+   argument sFormat.
+   */
    istr m_sEltFormat;
 };
 
@@ -108,7 +106,7 @@ public:
 
 protected:
 
-   /*! Backend for the individual elements. */
+   //! Backend for the individual elements.
    to_str_backend<T> m_tsbElt;
 };
 

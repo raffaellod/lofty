@@ -43,8 +43,7 @@ class ABACLADE_TESTING_SYM assertion_error :
    public virtual exception {
 public:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    assertion_error();
 };
 
@@ -76,8 +75,7 @@ public:
    runner(std::shared_ptr<io::text::writer> ptwOut);
 
 
-   /*! Destructor.
-   */
+   //! Destructor.
    ~runner();
 
 
@@ -120,8 +118,7 @@ public:
    bool log_summary();
 
 
-   /*! Executes each loaded test case.
-   */
+   //! Executes each loaded test case.
    void run();
 
 
@@ -135,11 +132,11 @@ public:
 
 private:
 
-   /*! Vector of loaded test test cases to be executed. */
+   //! Vector of loaded test test cases to be executed.
    dmvector<std::unique_ptr<test_case>> m_vptc;
-   /*! Output writer. */
+   //! Output writer.
    std::shared_ptr<io::text::writer> m_ptwOut;
-   /*! Total count of failed assertions. */
+   //! Total count of failed assertions.
    unsigned m_cFailedAssertions;
 };
 

@@ -65,8 +65,7 @@ windows/desktop/aa365247.aspx>
 class _file_path_iterator;
 #endif
 
-/*! Filesystem path.
-*/
+//! Filesystem path.
 class ABACLADE_SYM file_path :
    public support_explicit_operator_bool<file_path> {
 
@@ -401,11 +400,11 @@ private:
 
 private:
 
-   /*! Full file path, always in normalized form. */
+   //! Full file path, always in normalized form.
    dmstr m_s;
-   /*! Platform-specific path component separator. */
+   //! Platform-specific path component separator.
    static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
-   /*! Platform-specific root path. */
+   //! Platform-specific root path.
    static char_t const smc_aszRoot[
 #if ABC_HOST_API_POSIX
       1 /*"/"*/ + 1 /*NUL*/
@@ -416,7 +415,7 @@ private:
 #endif
    ];
 #if ABC_HOST_API_WIN32
-   /*! Root for UNC paths in the Win32 File Namespace. */
+   //! Root for UNC paths in the Win32 File Namespace.
    static char_t const smc_aszUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
 #endif
 };
@@ -444,8 +443,7 @@ namespace std {
 template <>
 struct hash<abc::file_path>  {
 
-   /*! See std::hash::operator()().
-   */
+   //! See std::hash::operator()().
    size_t operator()(abc::file_path const & fp) const {
       return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
    }

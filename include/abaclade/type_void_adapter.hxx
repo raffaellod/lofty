@@ -42,8 +42,7 @@ throw exceptions. This requirement is relaxed for moves that involve two differe
 these will not be used by container classes.
 */
 
-/*! Encapsulates raw constructors, destructors and assignment operators for a type.
-*/
+//! Encapsulates raw constructors, destructors and assignment operators for a type.
 struct type_void_adapter {
 public:
 
@@ -95,21 +94,21 @@ public:
 
 public:
 
-   /*! Size of a variable of this type, in bytes. */
+   //! Size of a variable of this type, in bytes.
    size_t cb;
-   /*! Function to copy items from one array to another. */
+   //! Function to copy items from one array to another.
    copy_fn copy_constr;
-   /*! Function to destruct items in an array. */
+   //! Function to destruct items in an array.
    destr_fn destruct;
-   /*! Function to compare two items for equality. */
+   //! Function to compare two items for equality.
    equal_fn equal;
-   /*! Function to move items from one array to another. */
+   //! Function to move items from one array to another.
    move_fn move_constr;
 
 
 public:
 
-
+   //! Constructor.
    type_void_adapter() :
       cb(0),
       copy_constr(nullptr),
@@ -118,7 +117,7 @@ public:
       move_constr(nullptr) {
    }
 
-
+   //! Initializes this->copy_constr.
    template <typename T>
    void set_copy_fn() {
       copy_constr = reinterpret_cast<copy_fn>(_typed_copy_constr<typename std::remove_cv<T>::type>);
@@ -130,7 +129,7 @@ public:
 #endif
    }
 
-
+   //! Initializes this->destruct.
    template <typename T>
    void set_destr_fn() {
       destruct = reinterpret_cast<destr_fn>(_typed_destruct<typename std::remove_cv<T>::type>);
@@ -142,7 +141,7 @@ public:
 #endif
    }
 
-
+   //! Initializes this->equal.
    template <typename T>
    void set_equal_fn() {
       equal = reinterpret_cast<equal_fn>(_typed_equal<typename std::remove_cv<T>::type>);
@@ -154,7 +153,7 @@ public:
 #endif
    }
 
-
+   //! Initializes this->move_constr.
    template <typename T>
    void set_move_fn() {
       move_constr = reinterpret_cast<move_fn>(_typed_move_constr<typename std::remove_cv<T>::type>);
@@ -166,7 +165,7 @@ public:
 #endif
    }
 
-
+   //! Initializes this->cb.
    template <typename T>
    void set_size() {
       cb = sizeof(T);
