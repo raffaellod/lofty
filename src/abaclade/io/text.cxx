@@ -216,12 +216,16 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
    if (ch >= '0' && ch <= '9') {
       // Consume as many digits as there are, and convert them into the argument index.
       unsigned iArg(0);
-      do {
-         iArg *= 10;
+      for (;;) {
          iArg += static_cast<unsigned>(ch - '0');
-      } while (++it < itEnd && (ch = *it, ch >= '0' && ch <= '9'));
-      if (it >= itEnd) {
-         throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
+         if (++it >= itEnd) {
+            throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
+         }
+         ch = *it;
+         if (ch < '0' || ch > '9') {
+            break;
+         }
+         iArg *= 10;
       }
       // Save this index as the last used one.
       m_iSubstArg = iArg;
