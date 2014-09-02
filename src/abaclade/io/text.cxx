@@ -572,14 +572,9 @@ binbuf_writer::binbuf_writer(
       enc != abc::text::encoding::unknown, ABC_SL("cannot write data with unknown encoding")
    );
 
-   // If no encoding has been set yet, default to UTF-8 if we’re writing to a regular file, or the
-   // host platform’s default in all other cases.
+   // If no encoding has been set yet, default to UTF-8.
    if (m_enc == abc::text::encoding::unknown) {
-      if (std::dynamic_pointer_cast<binary::regular_file_base>(m_pbbw->unbuffered())) {
-         m_enc = abc::text::encoding::utf8;
-      } else {
-         m_enc = abc::text::encoding::host;
-      }
+      m_enc = abc::text::encoding::utf8;
    }
 
    // Trivial case.

@@ -955,9 +955,8 @@ public:
    pbbw
       Pointer to a binary buffered writer to work with.
    enc
-      Initial value for encoding(). If omitted, on the first write it will default to
-      abc::text::encoding::utf8 for regular files, and to abc::text::encoding::host for all other
-      binary writer types.
+      Initial value for encoding(). If omitted and never explicitly set, on the first write it will
+      default to abc::text::encoding::utf8.
    lterm
       Initial value for line_terminator(). If omitted, on the first write it will default to
       abc::text::line_terminator::host.
