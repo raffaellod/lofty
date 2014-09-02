@@ -453,7 +453,7 @@ public:
    return
       Element at index i.
    */
-   T const & operator[](std::intptr_t i) const {
+   T const & operator[](std::ptrdiff_t i) const {
       return *this->translate_index(i);
    }
 
@@ -668,7 +668,7 @@ protected:
    return
       Pointer to the element.
    */
-   T const * translate_index(std::intptr_t i) const {
+   T const * translate_index(std::ptrdiff_t i) const {
       return static_cast<T const *>(detail::raw_vector<T, smc_bCopyConstructible>::translate_offset(
          static_cast<std::ptrdiff_t>(sizeof(T)) * i
       ));
@@ -690,7 +690,9 @@ protected:
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
    */
-   std::pair<T const *, T const *> translate_range(std::intptr_t iBegin, std::intptr_t iEnd) const {
+   std::pair<T const *, T const *> translate_range(
+      std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
+   ) const {
       auto range(detail::raw_trivial_vextr_impl::translate_byte_range(
          static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
          static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
@@ -716,10 +718,10 @@ public:
       Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
       index values.
    */
-   dmvector<T, true> slice(std::intptr_t iBegin) const {
+   dmvector<T, true> slice(std::ptrdiff_t iBegin) const {
       return slice(iBegin, this->size());
    }
-   dmvector<T, true> slice(std::intptr_t iBegin, std::intptr_t iEnd) const {
+   dmvector<T, true> slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
       auto range(this->translate_range(iBegin, iEnd));
       return dmvector<T, true>(range.first, range.second);
    }
@@ -815,10 +817,10 @@ public:
    }
 
    //! See vector_base::operator[]().
-   T & operator[](std::intptr_t i) {
+   T & operator[](std::ptrdiff_t i) {
       return const_cast<T &>(vector_base_::operator[](i));
    }
-   T const & operator[](std::intptr_t i) const {
+   T const & operator[](std::ptrdiff_t i) const {
       return vector_base_::operator[](i);
    }
 
@@ -865,7 +867,7 @@ public:
    t
       Element to insert.
    */
-   void insert(std::intptr_t iOffset, typename std::remove_const<T>::type && t) {
+   void insert(std::ptrdiff_t iOffset, typename std::remove_const<T>::type && t) {
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
    void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
@@ -890,7 +892,7 @@ public:
    it
       Iterator to the element to remove.
    */
-   void remove_at(std::intptr_t i) {
+   void remove_at(std::ptrdiff_t i) {
       T const * pt(this->translate_index(i));
       this->remove(pt, pt + 1);
    }
@@ -921,15 +923,15 @@ public:
    itEnd
       Iterator to beyond the last element to remove.
    */
-   void remove_range(std::intptr_t iBegin, std::intptr_t iEnd) {
+   void remove_range(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) {
       auto range(this->translate_range(iBegin, iEnd));
       this->remove(range.first, range.second);
    }
-   void remove_range(std::intptr_t iBegin, const_iterator itEnd) {
+   void remove_range(std::ptrdiff_t iBegin, const_iterator itEnd) {
       auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
       this->remove(range.first, range.second);
    }
-   void remove_range(const_iterator itBegin, std::intptr_t iEnd) {
+   void remove_range(const_iterator itBegin, std::ptrdiff_t iEnd) {
       auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
       this->remove(range.first, range.second);
    }
@@ -1073,13 +1075,13 @@ public:
    ci
       Count of elements in the array pointed to by pt.
    */
-   void insert(std::intptr_t iOffset, T const & t) {
+   void insert(std::ptrdiff_t iOffset, T const & t) {
       this->insert_copy(this->translate_index(iOffset), &t, 1);
    }
-   void insert(std::intptr_t iOffset, typename std::remove_const<T>::type && t) {
+   void insert(std::ptrdiff_t iOffset, typename std::remove_const<T>::type && t) {
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
-   void insert(std::intptr_t iOffset, T const * pt, std::size_t ci) {
+   void insert(std::ptrdiff_t iOffset, T const * pt, std::size_t ci) {
       this->insert_copy(this->translate_index(iOffset), pt, ci);
    }
    void insert(const_iterator itOffset, T const & t) {

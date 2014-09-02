@@ -31,10 +31,10 @@ namespace text {
 _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
    // Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
    // can recalculate the pointers from these offsets.
-   std::uintptr_t ichThis(static_cast<std::uintptr_t>(m_pch - mc_ps->chars_begin()));
-   std::uintptr_t ichIter;
+   std::size_t ichThis(static_cast<std::size_t>(m_pch - mc_ps->chars_begin()));
+   std::size_t ichIter;
    if (mc_pcii) {
-      ichIter = static_cast<std::uintptr_t>(mc_pcii->m_pch - mc_ps->chars_begin());
+      ichIter = static_cast<std::size_t>(mc_pcii->m_pch - mc_ps->chars_begin());
    }
    static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
       const_cast<char_t *>(m_pch), ch

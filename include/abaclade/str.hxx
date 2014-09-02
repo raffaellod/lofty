@@ -86,7 +86,7 @@ public:
    return
       Character at index i.
    */
-   text::_codepoint_proxy<true> operator[](std::intptr_t i) const {
+   text::_codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
       return text::_codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
@@ -459,8 +459,8 @@ public:
    return
       Substring of *this.
    */
-   dmstr substr(std::intptr_t ichBegin) const;
-   dmstr substr(std::intptr_t ichBegin, std::intptr_t ichEnd) const;
+   dmstr substr(std::ptrdiff_t ichBegin) const;
+   dmstr substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const;
    dmstr substr(const_iterator itBegin) const;
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
 
@@ -559,7 +559,7 @@ protected:
    return
       Resulting iterator.
    */
-   const_iterator translate_index(std::intptr_t ich) const;
+   const_iterator translate_index(std::ptrdiff_t ich) const;
 
 
    /*! Converts a left-closed, right-open interval with possibly negative character indices into one
@@ -578,7 +578,7 @@ protected:
       interval [end(), end()) if the indices represent an empty interval after being adjusted.
    */
    std::pair<const_iterator, const_iterator> translate_range(
-      std::intptr_t ichBegin, std::intptr_t ichEnd
+      std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
    ) const;
 };
 
@@ -860,25 +860,25 @@ public:
    cchInsert
       Count of characters in the array pointed to by pchInsert.
    */
-   void insert(std::uintptr_t ichOffset, char_t ch) {
+   void insert(std::size_t ichOffset, char_t ch) {
       insert(ichOffset, &ch, 1);
    }
 #if ABC_HOST_UTF > 8
-   void insert(std::uintptr_t ichOffset, char ch) {
+   void insert(std::size_t ichOffset, char ch) {
       insert(ichOffset, text::host_char(ch));
    }
 #endif
-   void insert(std::uintptr_t ichOffset, char32_t ch) {
+   void insert(std::size_t ichOffset, char32_t ch) {
       char_t ach[text::host_char_traits::max_codepoint_length];
       insert(
          ichOffset, ach,
          static_cast<std::size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach)
       );
    }
-   void insert(std::uintptr_t ichOffset, istr const & s) {
+   void insert(std::size_t ichOffset, istr const & s) {
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
-   void insert(std::uintptr_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
+   void insert(std::size_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
       detail::raw_trivial_vextr_impl::insert_remove(
          sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
       );
@@ -1156,10 +1156,10 @@ public:
 
 // Now these can be implemented.
 
-inline dmstr str_base::substr(std::intptr_t ichBegin) const {
-   return substr(ichBegin, static_cast<std::intptr_t>(size_in_chars()));
+inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
+   return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
 }
-inline dmstr str_base::substr(std::intptr_t ichBegin, std::intptr_t ichEnd) const {
+inline dmstr str_base::substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
    return dmstr(range.first.base(), range.second.base());
 }

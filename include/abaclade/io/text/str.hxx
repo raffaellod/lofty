@@ -60,7 +60,7 @@ protected:
 protected:
 
    //! Current read/write offset into the string.
-   std::uintptr_t m_ichOffset;
+   std::size_t m_ichOffset;
 };
 
 } //namespace text

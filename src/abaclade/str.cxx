@@ -242,7 +242,7 @@ bool str_base::starts_with(istr const & s) const {
 }
 
 
-str_base::const_iterator str_base::translate_index(std::intptr_t ich) const {
+str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    const_iterator it, itLoopEnd;
@@ -269,7 +269,7 @@ str_base::const_iterator str_base::translate_index(std::intptr_t ich) const {
 
 
 std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
-   std::intptr_t ichBegin, std::intptr_t ichEnd
+   std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
 ) const {
    ABC_TRACE_FUNC(this, ichBegin, ichEnd);
 
@@ -363,7 +363,7 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
    std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   std::uintptr_t ich(static_cast<std::uintptr_t>(pch - chars_begin()));
+   std::size_t ich(static_cast<std::size_t>(pch - chars_begin()));
    detail::raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
@@ -375,7 +375,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
 
    std::size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
    std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   std::uintptr_t ich(static_cast<std::uintptr_t>(pch - chars_begin()));
+   std::size_t ich(static_cast<std::size_t>(pch - chars_begin()));
    detail::raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;

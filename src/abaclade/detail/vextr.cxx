@@ -74,7 +74,7 @@ raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
 }
 
 
-void const * raw_vextr_impl_base::translate_offset(std::intptr_t ib) const {
+void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
    ABC_TRACE_FUNC(this, ib);
 
    std::int8_t const * pb(ib >= 0 ? begin<std::int8_t>() : end<std::int8_t>());
@@ -88,11 +88,11 @@ void const * raw_vextr_impl_base::translate_offset(std::intptr_t ib) const {
 
 
 std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
-   std::intptr_t ibBegin, std::intptr_t ibEnd
+   std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
 ) const {
    ABC_TRACE_FUNC(this, ibBegin, ibEnd);
 
-   std::intptr_t cb(static_cast<std::intptr_t>(size<std::int8_t>()));
+   std::ptrdiff_t cb(static_cast<std::ptrdiff_t>(size<std::int8_t>()));
    if (ibBegin < 0) {
       ibBegin += cb;
       if (ibBegin < 0) {
@@ -455,8 +455,8 @@ static void overlapping_move_constr(
 
 
 void raw_complex_vextr_impl::insert(
-   type_void_adapter const & type, std::uintptr_t ibOffset, void const * pInsert,
-   std::size_t cbInsert, bool bMove
+   type_void_adapter const & type, std::size_t ibOffset, void const * pInsert, std::size_t cbInsert,
+   bool bMove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, pInsert, cbInsert, bMove);
 
@@ -499,7 +499,7 @@ void raw_complex_vextr_impl::insert(
 
 
 void raw_complex_vextr_impl::remove(
-   type_void_adapter const & type, std::uintptr_t ibOffset, std::size_t cbRemove
+   type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, cbRemove);
 
@@ -650,7 +650,7 @@ void raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(raw_trivial_vextr_imp
 
 
 void raw_trivial_vextr_impl::_insert_remove(
-   std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
+   std::size_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
 ) {
    ABC_TRACE_FUNC(this, ibOffset, pAdd, cbAdd, cbRemove);
 

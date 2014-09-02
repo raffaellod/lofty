@@ -855,7 +855,7 @@ public:
    return
       Index that was not valid in the context in which it was used.
    */
-   std::intptr_t index() const {
+   std::ptrdiff_t index() const {
       return m_iInvalid;
    }
 
@@ -867,7 +867,7 @@ public:
    err
       OS-defined error number associated to the exception.
    */
-   void init(std::intptr_t iInvalid, errint_t err = 0);
+   void init(std::ptrdiff_t iInvalid, errint_t err = 0);
 
 
 protected:
@@ -879,7 +879,7 @@ protected:
 private:
 
    //! Index that caused the error.
-   std::intptr_t m_iInvalid;
+   std::ptrdiff_t m_iInvalid;
 };
 
 } //namespace abc

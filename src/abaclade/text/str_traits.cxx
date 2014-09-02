@@ -234,7 +234,7 @@ namespace text {
          } else if (iFailNext > 0) {
             // The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
             // much into the needle we can retry matching characters.
-            iFailNext = vcchFailNext[static_cast<std::intptr_t>(iFailNext)];
+            iFailNext = vcchFailNext[static_cast<std::ptrdiff_t>(iFailNext)];
             pchNeedle = pchNeedleBegin + iFailNext;
          } else {
             // Not a match, and no restart point: we’re out of options to match this character, so

@@ -261,7 +261,7 @@ file_path file_path::normalize() const {
    // •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
    // •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
    smvector<dmstr::iterator, 5> vitSeps;
-   std::intptr_t cDots(0);
+   std::size_t cDots(0);
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
       char32_t ch(*itSrc);
@@ -271,7 +271,7 @@ file_path file_path::normalize() const {
          if (ch == text::codepoint(smc_aszSeparator[0])) {
             if (cDots > 0 && cDots <= 2) {
                // We found “./” or “../”: go back by as many separators as the count of dots.
-               auto itPrevSep(vitSeps.cend() - cDots);
+               auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
                if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
                   itDst = *itPrevSep + 1 /*“/”*/;
                   if (cDots > 1) {
@@ -301,7 +301,7 @@ file_path file_path::normalize() const {
    }
    if (cDots > 0 && cDots <= 2) {
       // We ended on “.” or “..”, go back by as many separators as the count of dots.
-      auto itPrevSep(vitSeps.cend() - cDots);
+      auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
       if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
          // Place itDst on the separator, so we don’t end up with a traling separator.
          itDst = *itPrevSep;

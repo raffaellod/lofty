@@ -293,10 +293,10 @@ public:
    */
    _raw_map_desc * init_and_get_desc() {
       _raw_map_desc::m.t.iMask = t_ceFixed - 1;
-      _raw_map_desc::m.t.ibKeysOffset = reinterpret_cast<std::intptr_t>(&atkeys) -
-         reinterpret_cast<std::intptr_t>(this);
-      _raw_map_desc::m.t.ibValsOffset = reinterpret_cast<std::intptr_t>(&atvals) -
-         reinterpret_cast<std::intptr_t>(this);
+      _raw_map_desc::m.t.ibKeysOffset = reinterpret_cast<std::ptrdiff_t>(&atkeys) -
+         reinterpret_cast<std::ptrdiff_t>(this);
+      _raw_map_desc::m.t.ibValsOffset = reinterpret_cast<std::ptrdiff_t>(&atvals) -
+         reinterpret_cast<std::ptrdiff_t>(this);
       // Purposefully avoid calling reset(), so we don’t slow down map::map() when the embedded
       // descriptor isn’t going to be used.
       return this;

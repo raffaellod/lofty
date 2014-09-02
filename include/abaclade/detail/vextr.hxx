@@ -510,7 +510,7 @@ protected:
    return
       Pointer to the item.
    */
-   void const * translate_offset(std::intptr_t ib) const;
+   void const * translate_offset(std::ptrdiff_t ib) const;
 
 
    /*! Converts a left-closed, right-open interval with possibly negative byte offsets into one
@@ -529,7 +529,7 @@ protected:
       interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
    */
    std::pair<void const *, void const *> translate_byte_range(
-      std::intptr_t ibBegin, std::intptr_t ibEnd
+      std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
    ) const;
 
 
@@ -556,7 +556,7 @@ protected:
 protected:
 
    //! The item array size must be no less than this many bytes.
-   static std::size_t const smc_cbCapacityMin = sizeof(std::intptr_t) * 8;
+   static std::size_t const smc_cbCapacityMin = sizeof(std::ptrdiff_t) * 8;
    /*! Size multiplier. This should take into account that we want to reallocate as rarely as
    possible, so every time we do it it should be for a rather conspicuous growth.
    */
@@ -779,7 +779,7 @@ public:
       true to move the items from pInsert to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, std::uintptr_t ibOffset, void const * pInsert,
+      type_void_adapter const & type, std::size_t ibOffset, void const * pInsert,
       std::size_t cbInsert, bool bMove
    );
 
@@ -793,7 +793,7 @@ public:
    cbRemove
       Size of the array slice to remove, in bytes.
    */
-   void remove(type_void_adapter const & type, std::uintptr_t ibOffset, std::size_t cbRemove);
+   void remove(type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove);
 
 
    /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
@@ -927,7 +927,7 @@ public:
       Size of the slice of item array to remove, in bytes.
    */
    void insert_remove(
-      std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
+      std::size_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
    ) {
       if (cbAdd != cbRemove) {
          _insert_remove(ibOffset, pAdd, cbAdd, cbRemove);
@@ -974,7 +974,7 @@ private:
 
    //! Implementation of insert_remove(). See insert_remove().
    void _insert_remove(
-      std::uintptr_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
+      std::size_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
    );
 };
 

@@ -172,7 +172,7 @@ encoding guess_encoding(
    // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
    // exactly one guess.
    unsigned cbUtf8Cont(0);
-   std::uintptr_t ib(0);
+   std::size_t ib(0);
    for (std::uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
       std::uint8_t b(*pbBuf);
 
@@ -265,7 +265,7 @@ encoding guess_encoding(
          // Lastly, check for one or more BOMs. This needs to be last, so if it enables other
          // checks, they don’t get performed on the last BOM byte it just analyzed, which would most
          // likely cause them to fail.
-         for (std::uintptr_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
+         for (std::size_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
             unsigned essBom(sc_absd[iBsd].ess);
             if (fess & essBom) {
                if (b != sc_absd[iBsd].pabBom[ib]) {
