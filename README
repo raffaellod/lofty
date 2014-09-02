@@ -108,8 +108,6 @@ dependency on Python.
 4. Building Abaclade
 --------------------
 
-At the moment, Abaclade lacks only offers very basic means for installation.
-
 Abaclade comes with a built-in cross-platform make utility, Abamake (see also
 [DOC:6931 Abamake]); the way it works is very similar to the common UNIX make
 utility, but Abamakefiles are written in an XML syntax inspired by MSBuild
