@@ -3,16 +3,13 @@
 
 Abaclade is a C++11 framework featuring:
 
-•  Automatic stack traces that include the actual values of arguments and local
-   variables ‒ better than Python or Java!
+•  Multiple platform compatibility (currently Linux and Windows, planned FreeBSD
+   and OSX) and seamless integration with the C++11 STL;
 
-•  Programs don’t just crash: every error condition results in an exception,
-   including dereferencing a null pointer ‒ you’ll always know what went wrong
-   (see [DOC:8503 Stack tracing]);
-
-•  Semantically-rich exception class hierarchy that allows for clean-looking
-   error handling instead of C-style return values to be checked (see [DOC:8190
-   Exception class hierarchy]);
+•  Integrated self-diagnosis: programs don’t just crash; every error condition
+   (including dereferencing a null pointer) results in an exception and a stack
+   trace that includes the actual values of arguments and local variables ‒
+   you’ll always know what went wrong! (see [DOC:8503 Stack tracing]);
 
 •  Testing framework integrated in the library and in the included cross-
    platform make utility (see [DOC:6931 Abamake]);
@@ -25,18 +22,11 @@ Abaclade is a C++11 framework featuring:
 •  Full support for Unicode and the C++11 char32_t character type (see [DOC:4854
    Unicode support in Abaclade]);
 
-•  Cross-platform (currently Linux and Windows) and seamlessly integrated with
-   the C++11 STL;
-
-•  Favor templates and their specializations over macros and void pointers ‒ no
+•  Use of templates and their specializations over macros and void pointers ‒ no
    C-style variadic functions either;
 
-•  Support for text-based and (TODO) GUI applications as well as service-
-   oriented architectures;
-
-•  Stable development ‒ Abaclade features a fairly through regression test suite
-   that shields clients from regressions when upgrading from one version to the
-   next one.
+•  Support for text-based and (in the future) GUI applications as well as
+   service-oriented architectures;
 
 
 2. Past, present and future
@@ -109,7 +99,10 @@ Supported operating systems:
    Windows XP and later versions are supported.
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
-the host system.
+the build host system.
+
+Future plans include support for Clang, FreeBSD, OSX and removal of the
+dependency on Python.
 
 
 4. Building Abaclade
