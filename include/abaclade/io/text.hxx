@@ -466,7 +466,6 @@ public:
       m_t0(t0) {
    }
 
-
    //! See writer_print_helper<>::run().
    void run() {
       while (wph_base::write_format_up_to_next_repl()) {
@@ -830,13 +829,13 @@ class ABACLADE_SYM binbuf_base :
 public:
 
    //! Destructor.
-   virtual ~binbuf_base();
+   virtual ~binbuf_base() /*override*/;
 
    //! Returns a pointer to the underlying buffered binary I/O object.
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const = 0;
 
    //! See base::encoding().
-   virtual abc::text::encoding encoding() const;
+   virtual abc::text::encoding encoding() const /*override*/;
 
 
 protected:
@@ -896,15 +895,15 @@ public:
    );
 
    //! Destructor.
-   virtual ~binbuf_reader();
+   virtual ~binbuf_reader() /*override*/;
 
    //! See binbuf_base::buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> buffered_base() const;
+   virtual std::shared_ptr<binary::buffered_base> buffered_base() const /*override*/;
 
    //! See reader::read_while().
    virtual bool read_while(mstr * ps, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-   > const & fnGetConsumeEnd);
+   > const & fnGetConsumeEnd) /*override*/;
 
 
 protected:
@@ -973,13 +972,13 @@ public:
    );
 
    //! Destructor.
-   virtual ~binbuf_writer();
+   virtual ~binbuf_writer() /*override*/;
 
    //! See binbuf_base::buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> buffered_base() const;
+   virtual std::shared_ptr<binary::buffered_base> buffered_base() const /*override*/;
 
    //! See writer::write_binary().
-   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc);
+   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc) /*override*/;
 
 
 protected:
