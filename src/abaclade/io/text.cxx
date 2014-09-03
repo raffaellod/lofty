@@ -242,7 +242,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
       m_pchReplFormatSpecBegin = it.base();
       // Find the end of the replacement field.
       it = m_sFormat.find('}', it);
-      if (it == m_sFormat.cend()) {
+      if (it == itEnd) {
          throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
       }
       m_pchReplFormatSpecEnd = it.base();
