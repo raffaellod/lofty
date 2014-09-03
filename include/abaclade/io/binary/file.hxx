@@ -241,7 +241,7 @@ class ABACLADE_SYM file_base :
 public:
 
    //! Destructor.
-   virtual ~file_base();
+   virtual ~file_base() /*override*/;
 
 
 protected:
@@ -283,10 +283,10 @@ public:
    file_reader(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_reader();
+   virtual ~file_reader() /*override*/;
 
    //! See reader::read().
-   virtual std::size_t read(void * p, std::size_t cbMax);
+   virtual std::size_t read(void * p, std::size_t cbMax) /*override*/;
 
 
 #if ABC_HOST_API_WIN32
@@ -331,13 +331,13 @@ public:
    file_writer(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_writer();
+   virtual ~file_writer() /*override*/;
 
    //! See writer::flush().
-   virtual void flush();
+   virtual void flush() /*override*/;
 
    //! See writer::write().
-   virtual std::size_t write(void const * p, std::size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
 };
 
 } //namespace binary
@@ -359,7 +359,7 @@ class ABACLADE_SYM console_file_base :
 public:
 
    //! Destructor.
-   virtual ~console_file_base();
+   virtual ~console_file_base() /*override*/;
 
 
 protected:
@@ -391,7 +391,7 @@ public:
    console_reader(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_reader();
+   virtual ~console_reader() /*override*/;
 
 
 #if ABC_HOST_API_WIN32
@@ -400,7 +400,7 @@ public:
    // type.
 
    //! See file_reader::read().
-   virtual std::size_t read(void * p, std::size_t cbMax);
+   virtual std::size_t read(void * p, std::size_t cbMax) /*override*/;
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -428,7 +428,7 @@ public:
    console_writer(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_writer();
+   virtual ~console_writer() /*override*/;
 
 
 #if ABC_HOST_API_WIN32
@@ -437,7 +437,7 @@ public:
    // type.
 
    //! See file_writer::write().
-   virtual std::size_t write(void const * p, std::size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -464,7 +464,7 @@ public:
    pipe_reader(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_reader();
+   virtual ~pipe_reader() /*override*/;
 
 
 #if ABC_HOST_API_WIN32
@@ -472,7 +472,7 @@ public:
    /*! See file_reader::readfile_returned_eof(). Pipes report EOF in a completely different way than
    regular files.
    */
-   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const;
+   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/;
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -499,7 +499,7 @@ public:
    pipe_writer(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_writer();
+   virtual ~pipe_writer() /*override*/;
 };
 
 } //namespace binary
@@ -523,16 +523,16 @@ class ABACLADE_SYM regular_file_base :
 public:
 
    //! Destructor.
-   virtual ~regular_file_base();
+   virtual ~regular_file_base() /*override*/;
 
    //! See seekable::seek().
-   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence);
+   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) /*override*/;
 
    //! See sized::size().
-   virtual full_size_t size() const;
+   virtual full_size_t size() const /*override*/;
 
    //! See seekable::tell().
-   virtual offset_t tell() const;
+   virtual offset_t tell() const /*override*/;
 
 
 protected:
@@ -574,7 +574,7 @@ public:
    regular_file_reader(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_reader();
+   virtual ~regular_file_reader() /*override*/;
 };
 
 } //namespace binary
@@ -600,13 +600,13 @@ public:
    regular_file_writer(_file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_writer();
+   virtual ~regular_file_writer() /*override*/;
 
 
 #if ABC_HOST_API_WIN32
 
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
-   virtual std::size_t write(void const * p, std::size_t cb);
+   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
 
 #endif //if ABC_HOST_API_WIN32
 
