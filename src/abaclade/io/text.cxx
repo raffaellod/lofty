@@ -149,8 +149,21 @@ void writer::write_line(istr const & s) {
    tsb.write(get_line_terminator_str(lterm), this);
 }
 
+} //namespace text
+} //namespace io
+} //namespace abc
 
-_writer_print_helper_impl::_writer_print_helper_impl(writer * ptw, istr const & sFormat) :
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::text::detail::writer_print_helper
+
+
+namespace abc {
+namespace io {
+namespace text {
+namespace detail {
+
+writer_print_helper_impl::writer_print_helper_impl(writer * ptw, istr const & sFormat) :
    m_ptw(ptw),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
    m_iSubstArg(static_cast<unsigned>(-1)),
@@ -159,7 +172,7 @@ _writer_print_helper_impl::_writer_print_helper_impl(writer * ptw, istr const & 
 }
 
 
-void _writer_print_helper_impl::run() {
+void writer_print_helper_impl::run() {
    // Since this specialization has no replacements, verify that the format string doesn’t specify
    // any either.
    if (write_format_up_to_next_repl()) {
@@ -168,12 +181,12 @@ void _writer_print_helper_impl::run() {
 }
 
 
-void _writer_print_helper_impl::throw_index_error() {
+void writer_print_helper_impl::throw_index_error() {
    ABC_THROW(index_error, (static_cast<std::ptrdiff_t>(m_iSubstArg)));
 }
 
 
-bool _writer_print_helper_impl::write_format_up_to_next_repl() {
+bool writer_print_helper_impl::write_format_up_to_next_repl() {
    ABC_TRACE_FUNC(this);
 
    // Search for the next replacement, if any.
@@ -265,7 +278,7 @@ bool _writer_print_helper_impl::write_format_up_to_next_repl() {
 }
 
 
-void _writer_print_helper_impl::throw_syntax_error(
+void writer_print_helper_impl::throw_syntax_error(
    istr const & sDescription, istr::const_iterator it
 ) const {
    // +1 because the first character is 1, to human beings.
@@ -275,7 +288,7 @@ void _writer_print_helper_impl::throw_syntax_error(
 }
 
 
-void _writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
+void writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
    ABC_TRACE_FUNC(this, itUpTo);
 
    if (itUpTo > m_itFormatToWriteBegin) {
@@ -289,6 +302,7 @@ void _writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) 
    }
 }
 
+} //namespace detail
 } //namespace text
 } //namespace io
 } //namespace abc
