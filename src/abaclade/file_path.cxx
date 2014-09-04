@@ -49,6 +49,8 @@ public:
       Path to get statistics for.
    */
    file_stat(file_path const & fp) {
+      ABC_TRACE_FUNC(this, fp);
+
       if (::stat(fp.os_str().c_str().get(), this)) {
          throw_os_error();
       }
@@ -67,6 +69,8 @@ return
    true if the path has all the file attributes in fi, or false otherwise.
 */
 bool file_attrs(file_path const & fp, DWORD fi) {
+   ABC_TRACE_FUNC(fp, fi);
+
    DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str().get()));
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
