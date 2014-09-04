@@ -1220,10 +1220,13 @@ void exception::_print_extended_info(io::text::writer * ptwOut) const {
 
 #if ABC_HOST_API_LINUX
 
-// These should be member variables of exception::async_handler_manager.
+// These should be member variables of exception::async_handler_manager, but they’re not due to
+// their header file requirements.
+
+namespace {
 
 //! Signals that we can translate into C++ exceptions.
-static int const g_aiHandledSignals[] = {
+int const g_aiHandledSignals[] = {
 // Signal (Default action) Description (standard).
 // SIGABRT, // (Core) Abort signal from abort(3) (POSIX.1-1990).
 // SIGALRM, // (Term) Timer signal from alarm(2) (POSIX.1-1990).
@@ -1247,10 +1250,10 @@ static int const g_aiHandledSignals[] = {
 // SIGUSR2  // (Term) User-defined signal 2 (POSIX.1-1990).
 };
 //! Default handler for each of the signals above.
-static struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
+struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
 //! Translates POSIX signals into C++ exceptions, whenever possible.
-static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
+void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
    ABC_TRACE_FUNC(iSignal, psi, pctx);
 
    // Don’t let external programs mess with us: if the source is not the kernel, ignore the error.
@@ -1335,6 +1338,8 @@ static void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
    ::abort();
 }
 
+} //namespace
+
 
 exception::async_handler_manager::async_handler_manager() {
    struct ::sigaction saNew;
@@ -1364,13 +1369,16 @@ exception::async_handler_manager::~async_handler_manager() {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_LINUX
 
-// These should be member variables of exception::async_handler_manager.
+// These should be member variables of exception::async_handler_manager, but they’re not due to
+// their header file requirements.
+
+namespace {
 
 //! Structured Exception translator on program startup.
-static ::_se_translator_function g_sefDefault;
+::_se_translator_function g_sefDefault;
 
 //! Translates Win32 Structured Exceptions into C++ exceptions, whenever possible.
-static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
+void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
    ABC_TRACE_FUNC(iCode, pxpInfo);
 
    switch (iCode) {
@@ -1446,6 +1454,8 @@ static void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POI
          break;
    }
 }
+
+} //namespace
 
 
 exception::async_handler_manager::async_handler_manager() {
