@@ -43,13 +43,6 @@ str_base::str_base(abc::text::line_terminator lterm /*= abc::text::line_terminat
    return abc::text::encoding::host;
 }
 
-
-/*virtual*/ abc::text::line_terminator str_base::line_terminator() const {
-   ABC_TRACE_FUNC(this);
-
-   return m_lterm;
-}
-
 } //namespace text
 } //namespace io
 } //namespace abc

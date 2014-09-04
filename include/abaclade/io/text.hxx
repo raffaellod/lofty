@@ -52,7 +52,9 @@ public:
    return
       Line terminator.
    */
-   abc::text::line_terminator line_terminator() const;
+   abc::text::line_terminator line_terminator() const {
+      return m_lterm;
+   }
 
 
 protected:

@@ -43,9 +43,6 @@ public:
    //! See base::encoding().
    virtual abc::text::encoding encoding() const /*override*/;
 
-   //! See base::line_terminator().
-   virtual abc::text::line_terminator line_terminator() const;
-
 
 protected:
 
