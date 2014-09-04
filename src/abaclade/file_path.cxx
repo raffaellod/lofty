@@ -33,6 +33,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
+namespace {
+
 #if ABC_HOST_API_POSIX
 
 /*! Wrapper for a stat structure that self-loads with information on the file.
@@ -64,7 +66,7 @@ fi
 return
    true if the path has all the file attributes in fi, or false otherwise.
 */
-static bool file_attrs(file_path const & fp, DWORD fi) {
+bool file_attrs(file_path const & fp, DWORD fi) {
    DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str().get()));
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
@@ -74,6 +76,7 @@ static bool file_attrs(file_path const & fp, DWORD fi) {
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
+} //namespace
 
 
 char_t const file_path::smc_aszSeparator[] =
