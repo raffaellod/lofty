@@ -425,12 +425,17 @@ filedesc_t const filedesc::smc_fdNull =
 filedesc::filedesc(filedesc && fd) :
    m_fd(fd.m_fd),
    m_bOwn(fd.m_bOwn) {
+
+   ABC_TRACE_FUNC(this);
+
    fd.m_fd = smc_fdNull;
    fd.m_bOwn = false;
 }
 
 
 filedesc::~filedesc() {
+   ABC_TRACE_FUNC(this);
+
    if (m_bOwn && m_fd != smc_fdNull) {
 #if ABC_HOST_API_POSIX
       ::close(m_fd);
@@ -444,6 +449,8 @@ filedesc::~filedesc() {
 
 
 filedesc & filedesc::operator=(filedesc_t fd) {
+   ABC_TRACE_FUNC(this, fd);
+
    if (fd != m_fd) {
       this->~filedesc();
    }
@@ -452,6 +459,8 @@ filedesc & filedesc::operator=(filedesc_t fd) {
    return *this;
 }
 filedesc & filedesc::operator=(filedesc && fd) {
+   ABC_TRACE_FUNC(this);
+
    if (fd.m_fd != m_fd) {
       this->~filedesc();
       m_fd = fd.m_fd;
