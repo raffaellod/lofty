@@ -40,8 +40,8 @@ public:
    //! Destructor.
    virtual ~str_base() /*override*/;
 
-   //! See base::encoding().
-   virtual abc::text::encoding encoding() const /*override*/;
+   //! See base::get_encoding().
+   virtual abc::text::encoding get_encoding() const /*override*/;
 
 
 protected:

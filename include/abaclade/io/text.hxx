@@ -44,7 +44,7 @@ public:
    return
       Text encoding.
    */
-   virtual abc::text::encoding encoding() const = 0;
+   virtual abc::text::encoding get_encoding() const = 0;
 
 
    /*! Returns the line terminator used in the data store.
@@ -846,8 +846,8 @@ public:
    //! Returns a pointer to the underlying buffered binary I/O object.
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const = 0;
 
-   //! See base::encoding().
-   virtual abc::text::encoding encoding() const /*override*/;
+   //! See base::get_encoding().
+   virtual abc::text::encoding get_encoding() const /*override*/;
 
 
 protected:
@@ -855,7 +855,7 @@ protected:
    /*! Constructor.
 
    enc
-      Initial value for encoding().
+      Initial value for get_encoding().
    lterm
       Initial value for line_terminator().
    */
@@ -894,8 +894,8 @@ public:
    pbbr
       Pointer to a binary buffered reader to work with.
    enc
-      Initial value for encoding(). If omitted, an encoding will be automatically detected (guessed)
-      on the first read from the underlying binary reader.
+      Initial value for get_encoding(). If omitted, an encoding will be automatically detected
+      (guessed) on the first read from the underlying binary reader.
    lterm
       Initial value for line_terminator(). If omitted, a line terminator sequence will be
       automatically detected (guessed) on the first read from the underlying binary reader.
@@ -971,8 +971,8 @@ public:
    pbbw
       Pointer to a binary buffered writer to work with.
    enc
-      Initial value for encoding(). If omitted and never explicitly set, on the first write it will
-      default to abc::text::encoding::utf8.
+      Initial value for get_encoding(). If omitted and never explicitly set, on the first write it
+      will default to abc::text::encoding::utf8.
    lterm
       Initial value for line_terminator(). If omitted, on the first write it will default to
       abc::text::line_terminator::host.

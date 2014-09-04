@@ -326,7 +326,7 @@ binbuf_base::binbuf_base(abc::text::encoding enc, abc::text::line_terminator lte
 }
 
 
-/*virtual*/ abc::text::encoding binbuf_base::encoding() const {
+/*virtual*/ abc::text::encoding binbuf_base::get_encoding() const {
    ABC_TRACE_FUNC(this);
 
    return m_enc;

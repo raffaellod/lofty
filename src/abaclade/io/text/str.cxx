@@ -39,7 +39,7 @@ str_base::str_base(abc::text::line_terminator lterm /*= abc::text::line_terminat
 }
 
 
-/*virtual*/ abc::text::encoding str_base::encoding() const {
+/*virtual*/ abc::text::encoding str_base::get_encoding() const {
    return abc::text::encoding::host;
 }
 
