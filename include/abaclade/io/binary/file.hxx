@@ -49,10 +49,15 @@ namespace io {
 
 namespace binary {
 
+namespace detail {
+
 /*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
 after the necessary header files have been included.
 */
-struct _file_init_data;
+struct file_init_data;
+
+} //namespace detail
+
 
 // Forward declarations.
 class file_base;
@@ -251,7 +256,7 @@ protected:
    pfid
       Data used to initialize the object, as set by abc::io::open() and other functions.
    */
-   file_base(_file_init_data * pfid);
+   file_base(detail::file_init_data * pfid);
 
 
 protected:
@@ -280,7 +285,7 @@ class ABACLADE_SYM file_reader :
 public:
 
    //! See file_base::file_base().
-   file_reader(_file_init_data * pfid);
+   file_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~file_reader() /*override*/;
@@ -328,7 +333,7 @@ class ABACLADE_SYM file_writer :
 public:
 
    //! See writer::writer().
-   file_writer(_file_init_data * pfid);
+   file_writer(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~file_writer() /*override*/;
@@ -365,7 +370,7 @@ public:
 protected:
 
    //! See file_base::file_base().
-   console_file_base(_file_init_data * pfid);
+   console_file_base(detail::file_init_data * pfid);
 };
 
 } //namespace binary
@@ -388,7 +393,7 @@ class ABACLADE_SYM console_reader :
 public:
 
    //! See file_reader::file_reader().
-   console_reader(_file_init_data * pfid);
+   console_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~console_reader() /*override*/;
@@ -425,21 +430,18 @@ class ABACLADE_SYM console_writer :
 public:
 
    //! See file_writer::file_writer().
-   console_writer(_file_init_data * pfid);
+   console_writer(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~console_writer() /*override*/;
 
-
 #if ABC_HOST_API_WIN32
-
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
    //! See file_writer::write().
    virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
-
-#endif //if ABC_HOST_API_WIN32
+#endif
 };
 
 } //namespace binary
@@ -461,7 +463,7 @@ class ABACLADE_SYM pipe_reader :
 public:
 
    //! See file_reader::file_reader().
-   pipe_reader(_file_init_data * pfid);
+   pipe_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_reader() /*override*/;
@@ -474,7 +476,7 @@ public:
    */
    virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/;
 
-#endif //if ABC_HOST_API_WIN32
+#endif
 };
 
 } //namespace binary
@@ -496,7 +498,7 @@ class ABACLADE_SYM pipe_writer :
 public:
 
    //! See file_writer::file_writer().
-   pipe_writer(_file_init_data * pfid);
+   pipe_writer(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_writer() /*override*/;
@@ -538,7 +540,7 @@ public:
 protected:
 
    //! See file_base::file_base().
-   regular_file_base(_file_init_data * pfid);
+   regular_file_base(detail::file_init_data * pfid);
 
 
 protected:
@@ -571,7 +573,7 @@ class ABACLADE_SYM regular_file_reader :
 public:
 
    //! See regular_file_base().
-   regular_file_reader(_file_init_data * pfid);
+   regular_file_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~regular_file_reader() /*override*/;
@@ -597,18 +599,15 @@ class ABACLADE_SYM regular_file_writer :
 public:
 
    //! See regular_file_base().
-   regular_file_writer(_file_init_data * pfid);
+   regular_file_writer(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~regular_file_writer() /*override*/;
 
-
 #if ABC_HOST_API_WIN32
-
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
-
-#endif //if ABC_HOST_API_WIN32
+#endif
 
 
 protected:

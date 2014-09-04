@@ -35,12 +35,9 @@ namespace abc {
 namespace io {
 namespace binary {
 
-static std::shared_ptr<file_writer> g_pbfwStdErr;
-static std::shared_ptr<file_reader> g_pbfrStdIn;
-static std::shared_ptr<file_writer> g_pbfwStdOut;
+namespace detail {
 
-
-struct _file_init_data {
+struct file_init_data {
 #if ABC_HOST_API_POSIX
    //! Set by _construct().
    struct ::stat statFile;
@@ -55,6 +52,15 @@ struct _file_init_data {
    bool bBuffered:1;
 };
 
+} //namespace detail
+
+namespace {
+
+std::shared_ptr<file_writer> g_pbfwStdErr;
+std::shared_ptr<file_reader> g_pbfrStdIn;
+std::shared_ptr<file_writer> g_pbfwStdOut;
+
+
 
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
@@ -64,7 +70,7 @@ pfid
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
+std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
@@ -115,7 +121,7 @@ static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    switch (::GetFileType(pfid->fd.get())) {
-      case FILE_TYPE_CHAR:
+      case FILE_TYPE_CHAR: {
          // Serial line or console.
          // Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
          // which could be a problem with stdout/stderr because we don’t ask for that permission for
@@ -138,7 +144,7 @@ static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
             }
          }
          break;
-
+      }
       case FILE_TYPE_DISK:
          // Regular file.
          switch (pfid->am.base()) {
@@ -171,13 +177,14 @@ static std::shared_ptr<file_base> _construct(_file_init_data * pfid) {
          }
          break;
 
-      case FILE_TYPE_UNKNOWN:
+      case FILE_TYPE_UNKNOWN: {
          // Unknown or error.
          DWORD iErr(::GetLastError());
          if (iErr != ERROR_SUCCESS) {
             throw_os_error(iErr);
          }
          break;
+      }
    }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
@@ -208,10 +215,10 @@ am
 return
    Pointer to a binary I/O object controlling fd.
 */
-static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
+std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(/*fd*/);
 
-   _file_init_data fid;
+   detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = am;
    // Since this method is supposed to be used only for standard descriptors, assume that OS
@@ -219,6 +226,8 @@ static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    fid.bBuffered = true;
    return _construct(&fid);
 }
+
+} //namespace
 
 
 std::shared_ptr<file_writer> stderr() {
@@ -322,7 +331,7 @@ std::shared_ptr<file_base> open(
 ) {
    ABC_TRACE_FUNC(fp, am, bBuffered);
 
-   _file_init_data fid;
+   detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
    int fi;
    switch (am.base()) {
@@ -464,7 +473,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-file_base::file_base(_file_init_data * pfid) :
+file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd)) {
 }
 
@@ -485,7 +494,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-file_reader::file_reader(_file_init_data * pfid) :
+file_reader::file_reader(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
@@ -563,7 +572,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-file_writer::file_writer(_file_init_data * pfid) :
+file_writer::file_writer(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
@@ -642,7 +651,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-console_file_base::console_file_base(_file_init_data * pfid) :
+console_file_base::console_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
@@ -663,7 +672,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-console_reader::console_reader(_file_init_data * pfid) :
+console_reader::console_reader(detail::file_init_data * pfid) :
    file_base(pfid),
    console_file_base(pfid),
    file_reader(pfid) {
@@ -727,7 +736,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-console_writer::console_writer(_file_init_data * pfid) :
+console_writer::console_writer(detail::file_init_data * pfid) :
    file_base(pfid),
    console_file_base(pfid),
    file_writer(pfid) {
@@ -785,7 +794,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-pipe_reader::pipe_reader(_file_init_data * pfid) :
+pipe_reader::pipe_reader(detail::file_init_data * pfid) :
    file_base(pfid),
    file_reader(pfid) {
 }
@@ -824,7 +833,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-pipe_writer::pipe_writer(_file_init_data * pfid) :
+pipe_writer::pipe_writer(detail::file_init_data * pfid) :
    file_base(pfid),
    file_writer(pfid) {
 }
@@ -846,7 +855,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-regular_file_base::regular_file_base(_file_init_data * pfid) :
+regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
    ABC_TRACE_FUNC(this, pfid);
 
@@ -1001,11 +1010,10 @@ namespace abc {
 namespace io {
 namespace binary {
 
-regular_file_reader::regular_file_reader(_file_init_data * pfid) :
+regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
    file_base(pfid),
    regular_file_base(pfid),
    file_reader(pfid) {
-   ABC_TRACE_FUNC(this, pfid);
 }
 
 
@@ -1025,7 +1033,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-regular_file_writer::regular_file_writer(_file_init_data * pfid) :
+regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    file_base(pfid),
    regular_file_base(pfid),
    file_writer(pfid) {
