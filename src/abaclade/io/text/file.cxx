@@ -31,9 +31,11 @@ namespace abc {
 namespace io {
 namespace text {
 
-static std::shared_ptr<binbuf_writer> g_ptwStdErr;
-static std::shared_ptr<binbuf_reader> g_ptrStdIn;
-static std::shared_ptr<binbuf_writer> g_ptwStdOut;
+namespace {
+
+std::shared_ptr<binbuf_writer> g_ptwStdErr;
+std::shared_ptr<binbuf_reader> g_ptrStdIn;
+std::shared_ptr<binbuf_writer> g_ptwStdOut;
 
 
 /*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
@@ -45,7 +47,7 @@ pbb
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<binbuf_base> _construct(
+std::shared_ptr<binbuf_base> _construct(
    std::shared_ptr<binary::base> pbb, abc::text::encoding enc
 ) {
    ABC_TRACE_FUNC(pbb, enc);
@@ -91,7 +93,7 @@ pszEnvVarName
 return
    Encoding appropriate for the requested standard I/O file.
 */
-static std::shared_ptr<binbuf_base> _construct_stdio(
+std::shared_ptr<binbuf_base> _construct_stdio(
    std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
 ) {
    ABC_TRACE_FUNC(pbb, pszEnvVarName);
@@ -130,6 +132,8 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
    }
    return _construct(std::move(pbb), enc);
 }
+
+} //namespace
 
 
 std::shared_ptr<binbuf_writer> stderr() {
