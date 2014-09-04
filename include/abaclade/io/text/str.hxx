@@ -46,12 +46,9 @@ public:
 
 protected:
 
-   /*! Constructor.
-
-   lterm
-      Initial value for line_terminator().
+   /*! See base::base().
    */
-   explicit str_base(abc::text::line_terminator lterm = abc::text::line_terminator::host);
+   str_base();
 
 
 protected:
@@ -83,18 +80,10 @@ public:
 
    s
       Source string.
-   lterm
-      Initial value for line_terminator().
    */
-   explicit str_reader(
-      istr const & s, abc::text::line_terminator lterm = abc::text::line_terminator::host
-   );
-   explicit str_reader(
-      istr && s, abc::text::line_terminator lterm = abc::text::line_terminator::host
-   );
-   explicit str_reader(
-      mstr && s, abc::text::line_terminator lterm = abc::text::line_terminator::host
-   );
+   explicit str_reader(istr const & s);
+   explicit str_reader(istr && s);
+   explicit str_reader(mstr && s);
 
    //! See reader::read_while().
    virtual bool read_while(mstr * ps, std::function<
@@ -135,13 +124,9 @@ public:
 
    psBuf
       Pointer to a mutable string to use as the destination of all writes. If omitted, an internal
-      string will be used.
-   lterm
-      Initial value for line_terminator().
+      dynamically-allocated string will be used.
    */
-   explicit str_writer(
-      mstr * psBuf = nullptr, abc::text::line_terminator lterm = abc::text::line_terminator::host
-   );
+   explicit str_writer(mstr * psBuf = nullptr);
 
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();

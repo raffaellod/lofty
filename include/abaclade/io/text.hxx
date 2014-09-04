@@ -70,11 +70,8 @@ public:
 protected:
 
    /*! Constructor.
-
-   lterm
-      Initial value for line_terminator().
    */
-   explicit base(abc::text::line_terminator lterm);
+   base();
 
 
 protected:
@@ -149,7 +146,7 @@ public:
 protected:
 
    //! See base::base().
-   explicit reader(abc::text::line_terminator lterm);
+   reader();
 };
 
 } //namespace text
@@ -313,7 +310,7 @@ public:
 protected:
 
    //! See base::base().
-   writer(abc::text::line_terminator lterm);
+   writer();
 };
 
 } //namespace text
@@ -856,10 +853,8 @@ protected:
 
    enc
       Initial value for get_encoding().
-   lterm
-      Initial value for line_terminator().
    */
-   binbuf_base(abc::text::encoding enc, abc::text::line_terminator lterm);
+   binbuf_base(abc::text::encoding enc);
 
 
 protected:
@@ -896,14 +891,10 @@ public:
    enc
       Initial value for get_encoding(). If omitted, an encoding will be automatically detected
       (guessed) on the first read from the underlying binary reader.
-   lterm
-      Initial value for line_terminator(). If omitted, a line terminator sequence will be
-      automatically detected (guessed) on the first read from the underlying binary reader.
    */
    explicit binbuf_reader(
       std::shared_ptr<binary::buffered_reader> pbbr,
-      abc::text::encoding enc = abc::text::encoding::unknown,
-      abc::text::line_terminator lterm = abc::text::line_terminator::unknown
+      abc::text::encoding enc = abc::text::encoding::unknown
    );
 
    //! Destructor.
@@ -973,14 +964,10 @@ public:
    enc
       Initial value for get_encoding(). If omitted and never explicitly set, on the first write it
       will default to abc::text::encoding::utf8.
-   lterm
-      Initial value for line_terminator(). If omitted, on the first write it will default to
-      abc::text::line_terminator::host.
    */
    explicit binbuf_writer(
       std::shared_ptr<binary::buffered_writer> pbbw,
-      abc::text::encoding enc = abc::text::encoding::unknown,
-      abc::text::line_terminator lterm = abc::text::line_terminator::unknown
+      abc::text::encoding enc = abc::text::encoding::unknown
    );
 
    //! Destructor.

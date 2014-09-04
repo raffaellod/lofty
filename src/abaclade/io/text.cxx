@@ -30,8 +30,8 @@ namespace abc {
 namespace io {
 namespace text {
 
-base::base(abc::text::line_terminator lterm) :
-   m_lterm(lterm) {
+base::base() :
+   m_lterm(abc::text::line_terminator::unknown) {
 }
 
 
@@ -52,8 +52,8 @@ namespace abc {
 namespace io {
 namespace text {
 
-reader::reader(abc::text::line_terminator lterm) :
-   base(lterm) {
+reader::reader() :
+   base() {
 }
 
 
@@ -131,8 +131,8 @@ namespace abc {
 namespace io {
 namespace text {
 
-writer::writer(abc::text::line_terminator lterm) :
-   base(lterm) {
+writer::writer() :
+   base() {
 }
 
 
@@ -141,9 +141,11 @@ void writer::write_line(istr const & s) {
 
    to_str_backend<istr> tsb;
    tsb.write(s, this);
-   abc::text::line_terminator lterm(m_lterm);
+   abc::text::line_terminator lterm;
    // If at this point we still haven’t picked a line terminator, use the platform’s default.
-   if (lterm == abc::text::line_terminator::unknown) {
+   if (m_lterm != abc::text::line_terminator::unknown) {
+      lterm = m_lterm;
+   } else {
       lterm = abc::text::line_terminator::host;
    }
    tsb.write(get_line_terminator_str(lterm), this);
@@ -316,8 +318,8 @@ namespace abc {
 namespace io {
 namespace text {
 
-binbuf_base::binbuf_base(abc::text::encoding enc, abc::text::line_terminator lterm) :
-   base(lterm),
+binbuf_base::binbuf_base(abc::text::encoding enc) :
+   base(),
    m_enc(enc) {
 }
 
@@ -347,12 +349,11 @@ namespace text {
 
 binbuf_reader::binbuf_reader(
    std::shared_ptr<binary::buffered_reader> pbbr,
-   abc::text::encoding enc /*= abc::text::encoding::unknown*/,
-   abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) :
-   base(lterm),
-   binbuf_base(enc, lterm),
-   reader(lterm),
+   base(),
+   binbuf_base(enc),
+   reader(),
    m_pbbr(std::move(pbbr)) {
 }
 
@@ -560,12 +561,11 @@ namespace text {
 
 binbuf_writer::binbuf_writer(
    std::shared_ptr<binary::buffered_writer> pbbw,
-   abc::text::encoding enc /*= abc::text::encoding::unknown*/,
-   abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) :
-   base(lterm),
-   binbuf_base(enc, lterm),
-   writer(lterm),
+   base(),
+   binbuf_base(enc),
+   writer(),
    m_pbbw(std::move(pbbw)) {
 }
 

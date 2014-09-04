@@ -68,13 +68,13 @@ fp
    Path to the file.
 am
    Desired access mode.
+enc
+   Encoding to be used the the text.
 return
    Pointer to a text I/O object for the file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_base> open(
-   file_path const & fp, access_mode am,
-   abc::text::encoding enc = abc::text::encoding::unknown,
-   abc::text::line_terminator lterm = abc::text::line_terminator::unknown
+   file_path const & fp, access_mode am, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
 
@@ -82,15 +82,15 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
 
 fp
    Path to the file.
+enc
+   Encoding to be used the the text.
 return
    Pointer to a text reader for the file.
 */
 inline std::shared_ptr<binbuf_reader> open_reader(
-   file_path const & fp,
-   abc::text::encoding enc = abc::text::encoding::unknown,
-   abc::text::line_terminator lterm = abc::text::line_terminator::unknown
+   file_path const & fp, abc::text::encoding enc = abc::text::encoding::unknown
 ) {
-   return std::dynamic_pointer_cast<binbuf_reader>(open(fp, access_mode::read, enc, lterm));
+   return std::dynamic_pointer_cast<binbuf_reader>(open(fp, access_mode::read, enc));
 }
 
 
@@ -98,15 +98,15 @@ inline std::shared_ptr<binbuf_reader> open_reader(
 
 fp
    Path to the file.
+enc
+   Encoding to be used the the text.
 return
    Pointer to a text writer for the file.
 */
 inline std::shared_ptr<binbuf_writer> open_writer(
-   file_path const & fp,
-   abc::text::encoding enc = abc::text::encoding::utf8,
-   abc::text::line_terminator lterm = abc::text::line_terminator::unknown
+   file_path const & fp, abc::text::encoding enc = abc::text::encoding::utf8
 ) {
-   return std::dynamic_pointer_cast<binbuf_writer>(open(fp, access_mode::write, enc, lterm));
+   return std::dynamic_pointer_cast<binbuf_writer>(open(fp, access_mode::write, enc));
 }
 
 } //namespace text

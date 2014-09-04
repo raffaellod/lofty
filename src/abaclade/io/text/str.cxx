@@ -29,8 +29,8 @@ namespace abc {
 namespace io {
 namespace text {
 
-str_base::str_base(abc::text::line_terminator lterm /*= abc::text::line_terminator::host*/) :
-   base(lterm),
+str_base::str_base() :
+   base(),
    m_ichOffset(0) {
 }
 
@@ -56,30 +56,24 @@ namespace abc {
 namespace io {
 namespace text {
 
-str_reader::str_reader(
-   istr const & s, abc::text::line_terminator lterm /*= abc::text::line_terminator::host*/
-) :
-   base(lterm),
-   str_base(lterm),
-   reader(lterm),
+str_reader::str_reader(istr const & s) :
+   base(),
+   str_base(),
+   reader(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(s) {
 }
-str_reader::str_reader(
-   istr && s, abc::text::line_terminator lterm /*= abc::text::line_terminator::host*/
-) :
-   base(lterm),
-   str_base(lterm),
-   reader(lterm),
+str_reader::str_reader(istr && s) :
+   base(),
+   str_base(),
+   reader(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(std::move(s)) {
 }
-str_reader::str_reader(
-   mstr && s, abc::text::line_terminator lterm /*= abc::text::line_terminator::host*/
-) :
-   base(lterm),
-   str_base(lterm),
-   reader(lterm),
+str_reader::str_reader(mstr && s) :
+   base(),
+   str_base(),
+   reader(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(std::move(s)) {
 }
@@ -108,13 +102,10 @@ namespace abc {
 namespace io {
 namespace text {
 
-str_writer::str_writer(
-   mstr * psBuf /*= nullptr*/,
-   abc::text::line_terminator lterm /*= abc::text::line_terminator::host*/
-) :
-   base(lterm),
-   str_base(lterm),
-   writer(lterm),
+str_writer::str_writer(mstr * psBuf /*= nullptr*/) :
+   base(),
+   str_base(),
+   writer(),
    m_psWriteBuf(psBuf ? psBuf : &m_sDefaultWriteBuf) {
 }
 

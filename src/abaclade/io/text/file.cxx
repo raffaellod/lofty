@@ -46,9 +46,9 @@ return
    Shared pointer to the newly created object.
 */
 static std::shared_ptr<binbuf_base> _construct(
-   std::shared_ptr<binary::base> pbb, abc::text::encoding enc, abc::text::line_terminator lterm
+   std::shared_ptr<binary::base> pbb, abc::text::encoding enc
 ) {
-   ABC_TRACE_FUNC(pbb, enc, lterm);
+   ABC_TRACE_FUNC(pbb, enc);
 
    // Choose what type of text I/O object to create based on what type of binary I/O object we got.
 
@@ -64,10 +64,10 @@ static std::shared_ptr<binbuf_base> _construct(
 
    // Now we must have a buffered reader or writer, or pbb is not something we can use.
    if (pbbr) {
-      return std::make_shared<binbuf_reader>(std::move(pbbr), enc, lterm);
+      return std::make_shared<binbuf_reader>(std::move(pbbr), enc);
    }
    if (pbbw) {
-      return std::make_shared<binbuf_writer>(std::move(pbbw), enc, lterm);
+      return std::make_shared<binbuf_writer>(std::move(pbbw), enc);
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
@@ -128,7 +128,7 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
          }
       }
    }
-   return _construct(std::move(pbb), enc, abc::text::line_terminator::unknown);
+   return _construct(std::move(pbb), enc);
 }
 
 
@@ -172,12 +172,11 @@ std::shared_ptr<binbuf_writer> stdout() {
 
 
 std::shared_ptr<binbuf_base> open(
-   file_path const & fp, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/,
-   abc::text::line_terminator lterm /*= abc::text::line_terminator::unknown*/
+   file_path const & fp, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(fp, am, enc, lterm);
+   ABC_TRACE_FUNC(fp, am, enc);
 
-   return _construct(binary::open(fp, am), enc, lterm);
+   return _construct(binary::open(fp, am), enc);
 }
 
 } //namespace text
