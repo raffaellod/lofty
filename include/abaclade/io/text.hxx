@@ -52,8 +52,18 @@ public:
    return
       Line terminator.
    */
-   abc::text::line_terminator line_terminator() const {
+   abc::text::line_terminator get_line_terminator() const {
       return m_lterm;
+   }
+
+
+   /*! Assigns a new line terminator that will be used for all following writes.
+
+   lterm
+      New line terminator.
+   */
+   void set_line_terminator(abc::text::line_terminator lterm) {
+      m_lterm = lterm;
    }
 
 
