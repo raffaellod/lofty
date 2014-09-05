@@ -80,10 +80,6 @@ ABC_ENUM(encoding,
    representation.
    */
    (windows_1252, 7),
-   /*! EBCDIC encoding. Only supported in detection and handling, but not as internal string
-   representation.
-   */
-   (ebcdic,       8),
    //! UTF-16 encoding (host endianness).
    (utf16_host,   (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)),
    //! UTF-32 encoding (host endianness).
@@ -103,8 +99,6 @@ ABC_ENUM(line_terminator,
    (lf,      2),
    //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
    (cr_lf,   3),
-   //! EBCDIC style: Next Line, '\x15'.
-   (nel,     4),
    //! Default host line terminator.
    (host,    (ABC_HOST_API_WIN32 ? cr_lf : lf))
 );

@@ -44,8 +44,7 @@ std::size_t get_encoding_size(encoding enc) {
       { encoding::utf32le,      4 },
       { encoding::utf32be,      4 },
       { encoding::iso_8859_1,   1 },
-      { encoding::windows_1252, 1 },
-      { encoding::ebcdic,       1 },
+      { encoding::windows_1252, 1 }
    };
    // TODO: improve search algorithm, or maybe use a real map.
    for (std::size_t i(0); i < ABC_COUNTOF(sc_aecEncChar); ++i) {
