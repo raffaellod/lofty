@@ -648,7 +648,7 @@ public:
    pchBegin
       Pointer to the beginning of the source stirng.
    pchEnd
-      Pointer to beyond the end of the source stirng.
+      Pointer to the end of the source stirng.
    psz
       Pointer to the source NUL-terminated string literal.
    cch
@@ -1042,15 +1042,15 @@ public:
    pchBegin
       Pointer to the beginning of the source stirng.
    pchEnd
-      Pointer to beyond the end of the source stirng.
+      Pointer to the end of the source stirng.
    pch1Begin
       Pointer to the beginning of the left source stirng to concatenate.
    pch1End
-      Pointer to beyond the end of the left source stirng.
+      Pointer to the end of the left source stirng.
    pch2Begin
       Pointer to the beginning of the right source stirng to concatenate.
    pch2End
-      Pointer to beyond the end of the right source stirng.
+      Pointer to the end of the right source stirng.
    */
    dmstr() :
       mstr(0) {

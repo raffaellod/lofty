@@ -327,7 +327,7 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
          return line_terminator::lf;
       }
    }
-   return line_terminator::unknown;
+   return line_terminator::any;
 }
 
 

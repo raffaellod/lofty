@@ -86,7 +86,7 @@ public:
    explicit str_reader(mstr && s);
 
    //! See reader::read_while().
-   virtual bool read_while(mstr * ps, std::function<
+   virtual bool read_while(mstr * psDst, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd) /*override*/;
 
@@ -153,7 +153,9 @@ public:
    dmstr release_content();
 
    //! See writer::write_binary().
-   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc) /*override*/;
+   virtual void write_binary(
+      void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
+   ) /*override*/;
 
 
 protected:

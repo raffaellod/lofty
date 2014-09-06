@@ -72,35 +72,35 @@ ABC_ENUM(encoding,
    (utf32le,      4),
    //! UTF-32 Big Endian encoding.
    (utf32be,      5),
-   /*! ISO-8859-1 encoding. Only supported in detection and handling, but not as internal string
-   representation.
-   */
+   //! ISO-8859-1 encoding.
    (iso_8859_1,   6),
-   /*! Windows-1252 encoding. Only supported in detection and handling, but not as internal string
-   representation.
-   */
+   //! Windows-1252 encoding.
    (windows_1252, 7),
    //! UTF-16 encoding (host endianness).
    (utf16_host,   (ABC_HOST_LITTLE_ENDIAN ? utf16le : utf16be)),
    //! UTF-32 encoding (host endianness).
    (utf32_host,   (ABC_HOST_LITTLE_ENDIAN ? utf32le : utf32be)),
    //! Default host encoding.
-   (host,         (ABC_HOST_UTF == 8 ? utf8 : (ABC_HOST_UTF == 16 ? utf16_host : utf32_host)))
+   (host,         (ABC_HOST_UTF == 16 ? utf16_host : utf8))
 );
 
 
 //! Recognized line terminators.
 ABC_ENUM(line_terminator,
-   //! Unknown/undetermined line terminator.
-   (unknown, 0),
+   /*! In the context of a text I/O, accept as line ending any line terminator read, or write LF
+   characters as the host line terminator. */
+   (any,               0),
+   /*! In the context of a text I/O, read any line terminator as single LF, or write LF characters
+   as the host line terminator. */
+   (convert_any_to_lf, 1),
    //! Old Mac style: Carriage Return, '\r'.
-   (cr,      1),
+   (cr,                2),
    //! Unix/POSIX style: Line Feed, '\n'.
-   (lf,      2),
+   (lf,                3),
    //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
-   (cr_lf,   3),
+   (cr_lf,             4),
    //! Default host line terminator.
-   (host,    (ABC_HOST_API_WIN32 ? cr_lf : lf))
+   (host,              (ABC_HOST_API_WIN32 ? cr_lf : lf))
 );
 
 
@@ -180,7 +180,7 @@ TODO: why not guarantee validity? It would help weed out more encodings with few
 pchBegin
    Pointer to the beginning of the buffer to scan for encoding clues.
 pchEnd
-   Pointer to beyond the end of the buffer.
+   Pointer to the end of the buffer.
 cbSrcTotal
    Total size, in bytes, of a larger string of which *pBuf is the beginning.
 pcbBom
@@ -195,14 +195,15 @@ ABACLADE_SYM encoding guess_encoding(
 );
 
 
-/*! Tries to guess the line terminators employed in a string.
+/*! Tries to guess the line terminator sequence employed in a string.
 
 pchBegin
    Pointer to the first character of the string to scan for a line terminator sequence.
 pchEnd
    Pointer to beyond the last character of the string.
 return
-   Detected line terminator sequence.
+   Detected line terminator sequence, or line_terminator::any if the source buffer did not include
+   any known line terminator sequence..
 */
 ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
 

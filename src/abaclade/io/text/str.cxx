@@ -79,10 +79,10 @@ str_reader::str_reader(mstr && s) :
 }
 
 
-/*virtual*/ bool str_reader::read_while(mstr * ps, std::function<
+/*virtual*/ bool str_reader::read_while(mstr * psDst, std::function<
    istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
 > const & fnGetConsumeEnd) {
-   ABC_TRACE_FUNC(this, ps/*, fnGetConsumeEnd*/);
+   ABC_TRACE_FUNC(this, psDst/*, fnGetConsumeEnd*/);
 
    ABC_UNUSED_ARG(fnGetConsumeEnd);
    // TODO: implement this.
@@ -126,10 +126,12 @@ dmstr str_writer::release_content() {
 }
 
 
-/*virtual*/ void str_writer::write_binary(void const * p, std::size_t cb, abc::text::encoding enc) {
-   ABC_TRACE_FUNC(this, p, cb, enc);
+/*virtual*/ void str_writer::write_binary(
+   void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
+) /*override*/ {
+   ABC_TRACE_FUNC(this, pSrc, cbSrc, enc);
 
-   if (!cb) {
+   if (!cbSrc) {
       // Nothing to do.
       return;
    }
@@ -138,19 +140,19 @@ dmstr str_writer::release_content() {
    );
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      std::size_t cch(cb / sizeof(char_t));
+      std::size_t cch(cbSrc / sizeof(char_t));
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_psWriteBuf->set_capacity(m_ichOffset + cch, true);
-      memory::copy(m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(p), cch);
+      memory::copy(m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(pSrc), cch);
       m_ichOffset += cch;
    } else {
       // Calculate the additional buffer size required.
-      std::size_t cbBuf(abc::text::transcode(true, enc, &p, &cb, abc::text::encoding::host));
+      std::size_t cbBuf(abc::text::transcode(true, enc, &pSrc, &cbSrc, abc::text::encoding::host));
       m_psWriteBuf->set_capacity(m_ichOffset + cbBuf / sizeof(char_t), true);
       // Transcode the source into the string buffer and advance m_ichOffset accordingly.
       void * pBuf(m_psWriteBuf->begin().base() + m_ichOffset);
       m_ichOffset += abc::text::transcode(
-         true, enc, &p, &cb, abc::text::encoding::host, &pBuf, &cbBuf
+         true, enc, &pSrc, &cbSrc, abc::text::encoding::host, &pBuf, &cbBuf
       ) / sizeof(char_t);
    }
    // Truncate the string.

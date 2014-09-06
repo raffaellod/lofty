@@ -42,7 +42,7 @@ public:
    pchNeedleBegin
       Pointer to the beginning of the search string.
    pchNeedleEnd
-      Pointer beyond the end of the search string.
+      Pointer to the end of the search string.
    pvcchFailNext
       Pointer to a vector that will receive the failure restart indices.
    */
@@ -186,7 +186,7 @@ public:
    pchBegin
       Pointer to the beginning of the string.
    pchEnd
-      Pointer beyond the end of the string.
+      Pointer to the end of the string.
    return
       Count of code points included in the string.
    */

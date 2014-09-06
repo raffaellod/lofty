@@ -69,15 +69,23 @@ public:
 
 protected:
 
-   /*! Constructor.
-   */
+   //! Constructor.
    base();
 
 
 protected:
 
-   /*! Line terminator used for line-oriented I/O. If not explicitly set, it will be automatically
-   determined and assigned on the first line-mode I/O method call.
+   /*! Determines how line terminators are read and written.
+
+   When reading, a value of line_terminator::any or line_terminator::convert_any_to_lf will cause
+   any occurrence of “\n”, “\r”, or “\r\n” to be accepted as a line terminator, and
+   line_terminator::convert_any_to_lf will additionally cause them to be returned to the reader as
+   “\n”; any other value will leave all terminators unchanged, only considering the corresponding
+   line terminator for line-oriented reads.
+
+   When writing, “\n” characters will be converted to the line terminator indicated by this
+   variable, with line_terminator::any and line_terminator::convert_any_to_lf having the same
+   meaning as line_terminator::host.
    */
    abc::text::line_terminator m_lterm;
 };
@@ -102,30 +110,30 @@ public:
 
    /*! Reads the entire source into the specified mutable string.
 
-   ps
+   psDst
       Pointer to the string that will receive the data.
    */
-   void read_all(mstr * ps);
+   void read_all(mstr * psDst);
 
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.
 
-   ps
+   psDst
       Pointer to the string that will receive the read line.
    return
-      true if a line could be read, or false if the end of the data was reached, in which case *ps
-      is left in an undetermined state.
+      true if a line could be read, or false if the end of the data was reached, in which case
+      *psDst is left in an undetermined state.
    */
-   bool read_line(mstr * ps);
+   bool read_line(mstr * psDst);
 
 
    /*! Reads data into the specified mutable string, invoking a callback function to determine how
    much of the read data should be consumed.
 
-   ps
+   psDst
       Pointer to the string that will receive the read data.
    fnGetConsumeEnd
-      Callback that is invoked after each internal read.
+      If non-null, this callback is invoked at least once for each internal read.
       sRead
          String containing every character read by this invocation of read_while() up to this point.
       itLastReadBegin
@@ -133,12 +141,12 @@ public:
          re-scanning portions of the string that it has seen before.
       return
          Iterator to beyond the last character to be consumed, i.e. that the callback wants
-         read_while() to include in the destination string (*ps).
+         read_while() to include in the destination string (*psDst).
    return
-      true if a string could be read, or false if the end of the data was reached, in which case *ps
-      is left in an undetermined state.
+      true if a string could be read, or false if the end of the data was reached, in which case
+      *psDst is left in an undetermined state.
    */
-   virtual bool read_while(mstr * ps, std::function<
+   virtual bool read_while(mstr * psDst, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd) = 0;
 
@@ -288,15 +296,15 @@ public:
    /*! Writes the contents of a memory buffer, first translating them to the text writer’s character
    encoding, if necessary.
 
-   p
+   pSrc
       Pointer to the buffer to write.
-   cb
+   cbSrc
       Size of the buffer, in bytes.
    enc
       Encoding used by the buffer. If different from the writer’s encoding, a conversion will be
       performed on the fly.
    */
-   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc) = 0;
+   virtual void write_binary(void const * pSrc, std::size_t cbSrc, abc::text::encoding enc) = 0;
 
 
    /*! Writes a string followed by a new-line.
@@ -904,15 +912,9 @@ public:
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const /*override*/;
 
    //! See reader::read_while().
-   virtual bool read_while(mstr * ps, std::function<
+   virtual bool read_while(mstr * psDst, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd) /*override*/;
-
-
-protected:
-
-   //! Underlying binary buffered reader.
-   std::shared_ptr<binary::buffered_reader> m_pbbr;
 
 
 private:
@@ -936,6 +938,23 @@ private:
          istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
       > const & fnGetConsumeEnd
    );
+
+
+protected:
+
+   //! Underlying binary buffered reader.
+   std::shared_ptr<binary::buffered_reader> m_pbbr;
+
+
+private:
+
+   /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
+   next read operation encounters a leading ‘\n’, that character will not be considered as a line
+   terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present
+   clients with a single ‘\n’ character instead of two, as it would happen without this tracker (one
+   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second.
+   */
+   bool m_bDiscardNextLF:1;
 };
 
 } //namespace text
@@ -977,7 +996,9 @@ public:
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const /*override*/;
 
    //! See writer::write_binary().
-   virtual void write_binary(void const * p, std::size_t cb, abc::text::encoding enc) /*override*/;
+   virtual void write_binary(
+      void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
+   ) /*override*/;
 
 
 protected:
