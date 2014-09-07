@@ -744,27 +744,6 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_not_found_error
-
-
-namespace abc {
-
-//! A file could not be found.
-class ABACLADE_SYM file_not_found_error :
-   public virtual environment_error {
-public:
-
-   //! Constructor.
-   file_not_found_error();
-
-   //! See abc::environment_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::floating_point_error
 
 

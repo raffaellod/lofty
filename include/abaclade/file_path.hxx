@@ -623,6 +623,65 @@ inline _file_path_iterator file_path::find(istr const & sPattern) const {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::file_not_found_error
+
+
+namespace abc {
+
+//! A file could not be found.
+class ABACLADE_SYM file_not_found_error :
+   public virtual environment_error {
+public:
+public:
+
+   /*! Constructor.
+
+   x
+      Source error.
+   */
+   file_not_found_error();
+   file_not_found_error(file_not_found_error const & x);
+
+   //! Assignment operator. See abc::environment_error::operator=().
+   file_not_found_error & operator=(file_not_found_error const & x);
+
+
+   /*! Returns the path that couldn’t be found.
+
+   return
+      Path that couldn’t be found at the moment it was accessed.
+   */
+   abc::file_path const & file_path() const {
+      return m_fpNotFound;
+   }
+
+
+   /*! See abc::environment_error::init().
+
+   fpNotFound
+      Path that couldn’t be found.
+   err
+      OS-defined error number associated to the exception.
+   */
+   void init(abc::file_path const & fpNotFound, errint_t err = 0);
+
+
+protected:
+
+   //! See environment_error::_print_extended_info().
+   virtual void _print_extended_info(io::text::writer * ptwOut) const;
+
+
+private:
+
+   //! File path that caused the error.
+   abc::file_path m_fpNotFound;
+};
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif //ifndef _ABACLADE_FILE_PATH_HXX

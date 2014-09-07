@@ -94,7 +94,7 @@ void throw_os_error(errint_t err) {
 
       case ENODEV: // No such device (POSIX.1-2001)
       case ENOENT: // No such file or directory (POSIX.1-2001)
-         ABC_THROW(file_not_found_error, (err));
+         ABC_THROW(file_not_found_error, (file_path(), err));
 
 
       case EIDRM: // Identifier removed (POSIX.1-2001)
@@ -1613,25 +1613,6 @@ environment_error::environment_error() :
 
 void environment_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
-}
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_not_found_error
-
-
-namespace abc {
-
-file_not_found_error::file_not_found_error() :
-   environment_error() {
-   m_pszWhat = "abc::file_not_found_error";
-}
-
-
-void file_not_found_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
 }
 
 } //namespace abc

@@ -552,4 +552,43 @@ void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * p
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::file_not_found_error
+
+
+namespace abc {
+
+file_not_found_error::file_not_found_error() :
+   generic_error(),
+   environment_error() {
+   m_pszWhat = "abc::file_not_found_error";
+}
+file_not_found_error::file_not_found_error(file_not_found_error const & x) :
+   generic_error(x),
+   environment_error(x),
+   m_fpNotFound(x.m_fpNotFound) {
+}
+
+
+file_not_found_error & file_not_found_error::operator=(file_not_found_error const & x) {
+   environment_error::operator=(x);
+   m_fpNotFound = x.m_fpNotFound;
+   return *this;
+}
+
+
+void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err /*= 0*/) {
+   environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
+   m_fpNotFound = fpNotFound;
+}
+
+
+/*virtual*/ void file_not_found_error::_print_extended_info(io::text::writer * ptwOut) const {
+   ptwOut->print(ABC_SL("couln’t find path: “{}”\n"), m_fpNotFound);
+   environment_error::_print_extended_info(ptwOut);
+}
+
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
