@@ -76,17 +76,17 @@ You should have received a copy of the GNU General Public License along with Aba
 
       <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
          <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf8.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/utf8.txt"/>
+         <expected-output path="src/abaclade-test-io-text/data/utf8.txt"/>
       </unittest -->
 
       <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
          <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf16be.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/utf16be.txt"/>
+         <expected-output path="src/abaclade-test-io-text/data/utf16be.txt"/>
       </unittest -->
 
       <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf32le">
          <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf32le.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/utf32le.txt"/>
+         <expected-output path="src/abaclade-test-io-text/data/utf32le.txt"/>
       </unittest -->
    </dynlib>
 
