@@ -155,9 +155,10 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    if (cb > m_cbReadBufUsed) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
       if (m_ibReadBufUsed + m_cbReadBufUsed == m_cbReadBuf) {
-         // No more room in the buffer. If the “used window” is at an offset (m_ibReadBufUsed > 0),
-         // shift it backwards to offset 0, and we’ll use the resulting free space (m_ibReadBufUsed
-         // bytes); otherwise just enlarge the buffer.
+         /* No more room in the buffer. If the “used window” is at an offset (m_ibReadBufUsed > 0),
+         shift it backwards to offset 0, and we’ll use the resulting free space (m_ibReadBufUsed
+         bytes); otherwise just enlarge the buffer. */
+
          if (m_ibReadBufUsed > 0) {
             if (m_cbReadBufUsed) {
                memory::move(

@@ -45,8 +45,7 @@ struct file_init_data {
    //! See file_base::m_fd. To be set before calling _construct().
    filedesc fd;
    /*! Determines what type of I/O object will be instantiated. To be set before calling
-   _construct().
-   */
+   _construct(). */
    access_mode am;
    //! See file_base::m_bBuffered. To be set before calling _construct().
    bool bBuffered:1;
@@ -122,12 +121,14 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    switch (::GetFileType(pfid->fd.get())) {
       case FILE_TYPE_CHAR: {
-         // Serial line or console.
-         // Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
-         // which could be a problem with stdout/stderr because we don’t ask for that permission for
-         // these handles; however, for consoles, “The handles returned by CreateFile,
-         // CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE
-         // access rights”, so we can trust this to succeed for console handles.
+         /* Serial line or console.
+
+         Using ::GetConsoleMode() to detect a console handle requires GENERIC_READ access rights,
+         which could be a problem with stdout/stderr because we don’t ask for that permission for
+         these handles; however, for consoles, “The handles returned by CreateFile,
+         CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE access
+         rights”, so we can trust this to succeed for console handles. */
+
          DWORD iConsoleMode;
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
@@ -233,17 +234,10 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 std::shared_ptr<file_writer> stderr() {
    ABC_TRACE_FUNC();
 
-   // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
-   // needs to be handled here, with two options:
-   // a. Return a nullptr std::shared_ptr. This means that all callers will need additional checks
-   //    to detect this condition; further downstream, some code will need to use alternative means
-   //    of output (a message box?).
-   // b. Dynamically create a console to write to. This is not very Win32-like, but it allows to
-   //    output larger amounts of data that would be unsightly in a message box.
-   //
-   // Note that this is not an issue for POSIX programs, because when a standard file handle is
-   // redirected to /dev/null, it’s still a valid file handle, so no errors occur when reading/
-   // writing to it.
+   /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
+   avoid exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened
+   on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
+   are open on /dev/null. */
 
    // TODO: mutex!
    if (!g_pbfwStdErr) {
@@ -265,17 +259,10 @@ std::shared_ptr<file_writer> stderr() {
 std::shared_ptr<file_reader> stdin() {
    ABC_TRACE_FUNC();
 
-   // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
-   // needs to be handled here, with two options:
-   // a. Return a nullptr std::shared_ptr. This means that all callers will need additional checks
-   //    to detect this condition; further downstream, some code will need to use alternative means
-   //    of output (a message box?).
-   // b. Dynamically create a console to write to. This is not very Win32-like, but it allows to
-   //    output larger amounts of data that would be unsightly in a message box.
-   //
-   // Note that this is not an issue for POSIX programs, because when a standard file handle is
-   // redirected to /dev/null, it’s still a valid file handle, so no errors occur when reading/
-   // writing to it.
+   /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
+   avoid exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened
+   on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
+   are open on /dev/null. */
 
    // TODO: mutex!
    if (!g_pbfrStdIn) {
@@ -297,17 +284,10 @@ std::shared_ptr<file_reader> stdin() {
 std::shared_ptr<file_writer> stdout() {
    ABC_TRACE_FUNC();
 
-   // TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). This
-   // needs to be handled here, with two options:
-   // a. Return a nullptr std::shared_ptr. This means that all callers will need additional checks
-   //    to detect this condition; further downstream, some code will need to use alternative means
-   //    of output (a message box?).
-   // b. Dynamically create a console to write to. This is not very Win32-like, but it allows to
-   //    output larger amounts of data that would be unsightly in a message box.
-   //
-   // Note that this is not an issue for POSIX programs, because when a standard file handle is
-   // redirected to /dev/null, it’s still a valid file handle, so no errors occur when reading/
-   // writing to it.
+   /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
+   avoid exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened
+   on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
+   are open on /dev/null. */
 
    // TODO: mutex!
    if (!g_pbfwStdOut) {
@@ -373,9 +353,10 @@ std::shared_ptr<file_base> open(
          iAction = OPEN_ALWAYS;
          break;
       case access_mode::append:
-         // This combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for local
-         // files, write operations will not overwrite existing data”. Requiring fewer permissions,
-         // this also allows ::CreateFile() to succeed on files with stricter ACLs.
+         /* This combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for local
+         files, write operations will not overwrite existing data”. Requiring fewer permissions,
+         this also allows ::CreateFile() to succeed on files with stricter ACLs. */
+
          fiAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
          fiShareMode = FILE_SHARE_READ;
          iAction = OPEN_ALWAYS;
@@ -516,9 +497,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    ABC_TRACE_FUNC(this, p, cbMax);
 
    std::int8_t * pb(static_cast<std::int8_t *>(p));
-   // The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
-   // read()-equivalent function is invoked at least once, so we give it a chance to report any
-   // errors, instead of masking them by skipping the call (e.g. due to cbMax == 0 on input).
+   /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
+   read()-equivalent function is invoked at least once, so we give it a chance to report any errors,
+   instead of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
    do {
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
@@ -613,9 +594,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 
    std::int8_t const * pb(static_cast<std::int8_t const *>(p));
 
-   // The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
-   // write()-equivalent function is invoked at least once, so we give it a chance to report any
-   // errors, instead of masking them by skipping the call (e.g. due to cb == 0 on input).
+   /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
+   write()-equivalent function is invoked at least once, so we give it a chance to report any
+   errors, instead of masking them by skipping the call (e.g. due to cb == 0 on input). */
    do {
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
@@ -900,9 +881,9 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if _WIN32_WINNT >= 0x0500 … else
 #if 0
    if (!m_bBuffered) {
-      // Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
-      // file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical
-      // sector size.
+      /* Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
+      file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical sector
+      size. */
       m_cbPhysAlign = 4096;
    }
 #endif
@@ -1143,11 +1124,13 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    // The file_lock has to be in this scope, so it will unlock after the write is performed.
    file_lock flAppend;
    if (m_bAppend) {
-      // In this loop, we’ll seek to EOF and try to lock the not-yet-existing bytes that we want to
-      // write to; if the latter fails, we’ll assume that somebody else is doing the same, so we’ll
-      // retry from the seek.
-      // TODO: guarantee of termination? Maybe the foreign locker won’t release the lock, ever. This
-      // is too easy to fool.
+      /* In this loop, we’ll seek to EOF and try to lock the not-yet-existing bytes that we want to
+      write to; if the latter fails, we’ll assume that somebody else is doing the same, so we’ll
+      retry from the seek.
+
+      TODO: guarantee of termination? Maybe the foreign locker won’t release the lock, ever. This is
+      too easy to fool. */
+
       offset_t ibEOF;
       do {
          ibEOF = seek(0, seek_from::end);

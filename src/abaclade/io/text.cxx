@@ -386,8 +386,8 @@ binbuf_reader::binbuf_reader(
       sConsumableBuf, istr::const_iterator(pchOffset, &sConsumableBuf)
    ).base());
    if (pchConsumeEnd < pchOffset) {
-      // The caller wants to not consume bytes that we already consumed in a previous call, which
-      // is not possible.
+      // The caller wants to not consume bytes that we already consumed in a previous call, which is
+      // not possible.
       // TODO: provide more information in the exception.
       ABC_THROW(iterator_error, ());
    }
