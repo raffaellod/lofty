@@ -59,9 +59,9 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/enum.cxx"/>
          <source path="src/abaclade-test/exception.cxx"/>
          <source path="src/abaclade-test/file_path.cxx"/>
-         <source path="src/abaclade-test/io-text-writer-print.cxx"/>
+         <source path="src/abaclade-test/io/text/writer-print.cxx"/>
          <source path="src/abaclade-test/str.cxx"/>
-         <source path="src/abaclade-test/text-str_traits.cxx"/>
+         <source path="src/abaclade-test/text/str_traits.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>
          <source path="src/abaclade-test/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
@@ -75,18 +75,13 @@ You should have received a copy of the GNU General Public License along with Aba
       </unittest>
 
       <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
-         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf8.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/data/utf8.txt"/>
+         <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
+         <expected-output path="src/abaclade-test/io/text/data/utf8.txt"/>
       </unittest -->
 
       <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
-         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf16be.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/data/utf16be.txt"/>
-      </unittest -->
-
-      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf32le">
-         <source path="src/abaclade-test-io-text/binbuf_writer-write-stdout-utf32le.cxx"/>
-         <expected-output path="src/abaclade-test-io-text/data/utf32le.txt"/>
+         <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
+         <expected-output path="src/abaclade-test/io/text/data/utf16be.txt"/>
       </unittest -->
    </dynlib>
 
