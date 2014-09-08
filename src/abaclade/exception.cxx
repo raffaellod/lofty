@@ -375,7 +375,7 @@ void throw_os_error(errint_t err) {
 
       case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
       case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-         ABC_THROW(file_not_found_error, (err));
+         ABC_THROW(file_not_found_error, (file_path(), err));
 
 
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
