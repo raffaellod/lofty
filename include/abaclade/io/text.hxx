@@ -953,6 +953,27 @@ private:
    std::size_t detect_encoding(std::int8_t const * pb, std::size_t cb);
 
 
+   /*! Implementation of read_while() for the source encoding == host encoding.
+
+   pb
+      Pointer to a buffer with the initial contents of the file.
+   pcb
+      Pointer to the size of the buffer pointed to by pb; on return it will contain the count of
+      bytes remaining in the last peek buffer.
+   psDst
+      Pointer to the string that will receive the read data.
+   fnGetConsumeEnd
+      See read_while()’s fnGetConsumeEnd argument.
+   return
+      Count of characters read into *psDst.
+   */
+   std::size_t read_while_host_encoding(
+      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
+         istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+      > const & fnGetConsumeEnd
+   );
+
+
 protected:
 
    //! Underlying binary buffered reader.
