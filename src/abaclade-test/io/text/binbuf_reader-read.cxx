@@ -47,10 +47,10 @@ public:
       auto ptrIn(io::text::open_reader(
          file_path(ABC_SL("src/abaclade-test/io/text/data/utf8_lf_no-trailing-nl.txt"))
       ));
-      dmstr s;
+      dmstr sLine;
       unsigned i(1);
-      while (ptrIn->read_line(&s)) {
-         ABC_TESTING_ASSERT_EQUAL(s.size(), i++);
+      while (ptrIn->read_line(&sLine)) {
+         ABC_TESTING_ASSERT_EQUAL(sLine.size(), i++);
       }
    }
 };
