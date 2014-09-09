@@ -940,7 +940,7 @@ private:
    );
 
 
-   /*! Detects the encoding used in the source.
+   /*! Detects the encoding used in the provided buffer.
 
    pb
       Pointer to a buffer with the initial contents of the file.
@@ -967,7 +967,7 @@ private:
    return
       Count of characters read into *psDst.
    */
-   std::size_t read_while_host_encoding(
+   std::size_t read_while_with_host_encoding(
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
          istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
       > const & fnGetConsumeEnd
@@ -988,7 +988,7 @@ private:
    return
       Count of characters read into *psDst.
    */
-   std::size_t read_while_transcode(
+   std::size_t read_while_with_transcode(
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
          istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
       > const & fnGetConsumeEnd

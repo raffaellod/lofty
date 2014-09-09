@@ -460,10 +460,10 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    std::size_t cchReadTotal(0);
    if (m_enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      cchReadTotal = read_while_host_encoding(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
+      cchReadTotal = read_while_with_host_encoding(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
    } else {
       // Sub-optimal case: transcoding is needed.
-      cchReadTotal = read_while_transcode(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
+      cchReadTotal = read_while_with_transcode(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
    }
 
    // Truncate the string.
@@ -473,7 +473,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    return cbSrc || cchReadTotal;
 }
 
-std::size_t binbuf_reader::read_while_host_encoding(
+std::size_t binbuf_reader::read_while_with_host_encoding(
    std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd
@@ -597,7 +597,7 @@ std::size_t binbuf_reader::read_while_host_encoding(
 }
 
 
-std::size_t binbuf_reader::read_while_transcode(
+std::size_t binbuf_reader::read_while_with_transcode(
    std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd
@@ -608,14 +608,22 @@ std::size_t binbuf_reader::read_while_transcode(
    /* Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid consuming
    (expensive: we’d need to calculate the buffer offset back from the string offset, and the only
    way to do so is to re-transcode the buffer capping the destination size – see below), only
-   translate relatively small portions (of size sc_cbSrcChunkMax) of the buffer at a time.
+   translate relatively small portions (of size c_cbSrcChunkMax) of the buffer at a time.
 
-   TODO: tune sc_cbSrcChunkMax – too small causes more repeated function calls, too large causes
-   more work in abc::text::transcode() when we need to move characters back to the source. */
-   static std::size_t const sc_cbSrcChunkMax(128);
+   TODO: make sc_cbSrcChunkMax dynamically as large as possible while still fitting in the available
+   memory.
+
+   TODO: tune sc_cbSrcChunkMaxForGetConsumeEnd – too small causes more repeated function calls, too
+   large causes more work in abc::text::transcode() when we need to move characters back to the
+   source. */
+   static std::size_t const sc_cbSrcChunkMax(64 * 1024);
+   static std::size_t const sc_cbSrcChunkMaxForGetConsumeEnd(128);
+   std::size_t const c_cbSrcChunkMax(
+      fnGetConsumeEnd ? sc_cbSrcChunkMaxForGetConsumeEnd : sc_cbSrcChunkMax
+   );
    while (cbSrc) {
-      if (cbSrc > sc_cbSrcChunkMax) {
-         cbSrc = sc_cbSrcChunkMax;
+      if (cbSrc > c_cbSrcChunkMax) {
+         cbSrc = c_cbSrcChunkMax;
       }
       void const * pSrc(pbSrc);
       std::size_t cbSrcRemaining(cbSrc);
