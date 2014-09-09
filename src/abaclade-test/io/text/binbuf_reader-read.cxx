@@ -50,7 +50,7 @@ public:
       dmstr s;
       unsigned i(1);
       while (ptrIn->read_line(&s)) {
-         ABC_TESTING_ASSERT_EQUAL(i++, s.size());
+         ABC_TESTING_ASSERT_EQUAL(s.size(), i++);
       }
    }
 };
