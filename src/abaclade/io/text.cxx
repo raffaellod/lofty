@@ -462,81 +462,8 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
       // Optimal case: no transcoding necessary.
       cchReadTotal = read_while_host_encoding(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
    } else {
-      /* Sub-optimal case: transcoding is needed.
-
-      Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid consuming
-      (expensive: we’d need to calculate the buffer offset back from the string offset, and the only
-      way to do so is to re-transcode the buffer capping the destination size – see below), only
-      translate relatively small portions (of size sc_cbSrcChunkMax) of the buffer at a time.
-
-      TODO: tune sc_cbSrcChunkMax – too small causes more repeated function calls, too large causes
-      more work in abc::text::transcode() when we need to move characters back to the source. */
-
-      static std::size_t const sc_cbSrcChunkMax(128);
-      while (cbSrc) {
-         if (cbSrc > sc_cbSrcChunkMax) {
-            cbSrc = sc_cbSrcChunkMax;
-         }
-         void const * pSrc(pbSrc);
-         std::size_t cbSrcRemaining(cbSrc);
-         // Calculate the additional size required.
-         std::size_t cbDst(abc::text::transcode(
-            true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
-         ));
-         // Enlarge the destination string and get its begin/end pointers.
-         psDst->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
-         char_t * pchDstBegin(psDst->chars_begin());
-         char_t * pchDstOffset(pchDstBegin + cchReadTotal);
-         char_t * pchDstEnd(pchDstOffset);
-         // Transcode the buffer chunk and advance pchDstEnd accordingly.
-         abc::text::transcode(
-            true, m_enc, &pSrc, &cbSrcRemaining,
-            abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
-         );
-
-         // Determine how much of the string is to be consumed.
-         char_t const * pchDstConsumeEnd;
-         bool bContinue(true);
-         if (fnGetConsumeEnd) {
-            pchDstConsumeEnd = call_get_consume_end(
-               pchDstBegin, pchDstOffset, static_cast<std::size_t>(pchDstEnd - pchDstBegin),
-               fnGetConsumeEnd
-            );
-            /* If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping
-            the destination size to the consumed range of characters; this will yield the count of
-            bytes to consume. */
-            if (pchDstConsumeEnd && pchDstConsumeEnd != pchDstEnd) {
-               // Restore the arguments for transcode().
-               pSrc = pbSrc;
-               cbSrcRemaining = cbSrc;
-               pchDstEnd = pchDstOffset;
-               cbDst = reinterpret_cast<std::size_t>(pchDstConsumeEnd) -
-                  reinterpret_cast<std::size_t>(pchDstOffset);
-               abc::text::transcode(
-                  true, m_enc, &pSrc, &cbSrcRemaining,
-                  abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
-               );
-               ABC_ASSERT(
-                  pchDstEnd == pchDstConsumeEnd,
-                  ABC_SL("abc::text::transcode() didn’t transcode the expected count of characters")
-               );
-               bContinue = false;
-            } else {
-               pchDstConsumeEnd = pchDstEnd;
-            }
-         } else {
-            pchDstConsumeEnd = pchDstEnd;
-         }
-         // Consume as much of the string as fnGetConsumeEnd, if provided, said.
-         cchReadTotal += static_cast<std::size_t>(pchDstConsumeEnd - pchDstOffset);
-         m_pbbr->consume_bytes(cbSrc - cbSrcRemaining);
-         if (!bContinue) {
-            break;
-         }
-
-         // Read some more bytes; see comment to this same line at the beginning of this method.
-         std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
-      }
+      // Sub-optimal case: transcoding is needed.
+      cchReadTotal = read_while_transcode(pbSrc, &cbSrc, psDst, fnGetConsumeEnd);
    }
 
    // Truncate the string.
@@ -577,22 +504,21 @@ std::size_t binbuf_reader::read_while_host_encoding(
          /* Apply line terminators translation into “\n”s. There are two options on how to do it:
 
          a. Translate all line terminators in each buffer returned by peek(), then call
-            fnGetConsumeEnd to get the end of the consumed buffer, and then rescan the peek
-            buffer to find out where that end falls in it, so we can consume the correct amount
-            of bytes read;
+            fnGetConsumeEnd to get the end of the consumed buffer, and then rescan the peek buffer
+            to find out where that end falls in it, so we can consume the correct amount of bytes
+            read;
 
          b. Find the first line terminator (any one), then call fnGetConsumeEnd to get the end of
             the consumed buffer, and if that’s the entire line just read, repeat this until the
-            whole peek buffer has been consumed or fnGetConsumeEnd stops before the end of a
-            line.
+            whole peek buffer has been consumed or fnGetConsumeEnd stops before the end of a line.
 
-         It’s likely that fnGetConsumeEnd will only consume a small portion of the first peek
-         buffer (as in done by read_line()), so a. would unnecessarily translate all the line
-         terminators in the peek buffer (which could contain the entire file), while b. may end
-         up calling fnGetConsumeEnd and peek() multiple times, but it’s not going to scan the
-         entire peek buffer unless it really happens to be a single line, and in any case it
-         won’t need to scan it a second time because it knows it encountered at most a single
-         line terminator. This makes b. the chosen algorithm. */
+         It’s likely that fnGetConsumeEnd will only consume a small portion of the first peek buffer
+         (as in done by read_line()), so a. would unnecessarily translate all the line terminators
+         in the peek buffer (which could contain the entire file), while b. may end up calling
+         fnGetConsumeEnd and peek() multiple times, but it’s not going to scan the entire peek
+         buffer unless it really happens to be a single line, and in any case it won’t need to scan
+         it a second time because it knows it encountered at most a single line terminator. This
+         makes b. the chosen algorithm. */
 
          char_t const * pchSrc(pchSrcBegin);
          char_t * pchDst(pchDstOffset);
@@ -626,12 +552,12 @@ std::size_t binbuf_reader::read_while_host_encoding(
             } while (pchSrc < pchSrcEnd);
             if (fnGetConsumeEnd) {
                pchDstConsumeEnd = call_get_consume_end(
-                  pchDstBegin, pchDstLineStart,
-                  static_cast<std::size_t>(pchDst - pchDstLineStart), fnGetConsumeEnd
+                  pchDstBegin, pchDstLineStart, static_cast<std::size_t>(pchDst - pchDstLineStart),
+                  fnGetConsumeEnd
                );
                if (pchDstConsumeEnd) {
-                  // We ended up not consuming the line terminator, so we shouldn’t try to
-                  // discard a ‘\n’.
+                  // We ended up not consuming the line terminator, so we shouldn’t try to discard a
+                  // ‘\n’.
                   m_bDiscardNextLF = true;
                   bContinue = false;
                   break;
@@ -663,7 +589,92 @@ std::size_t binbuf_reader::read_while_host_encoding(
          break;
       }
 
-      // Read some more bytes; see comment to this same line at the beginning of this method.
+      // Read some more bytes; see comment to this same line in read_while().
+      std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
+   }
+   *pcbSrc = cbSrc;
+   return cchReadTotal;
+}
+
+
+std::size_t binbuf_reader::read_while_transcode(
+   std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
+      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
+   > const & fnGetConsumeEnd
+) {
+   ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst/*, fnGetConsumeEnd*/);
+
+   std::size_t cbSrc(*pcbSrc), cchReadTotal(0);
+   /* Since fnGetConsumeEnd can reject part of the string which we’d then need to avoid consuming
+   (expensive: we’d need to calculate the buffer offset back from the string offset, and the only
+   way to do so is to re-transcode the buffer capping the destination size – see below), only
+   translate relatively small portions (of size sc_cbSrcChunkMax) of the buffer at a time.
+
+   TODO: tune sc_cbSrcChunkMax – too small causes more repeated function calls, too large causes
+   more work in abc::text::transcode() when we need to move characters back to the source. */
+   static std::size_t const sc_cbSrcChunkMax(128);
+   while (cbSrc) {
+      if (cbSrc > sc_cbSrcChunkMax) {
+         cbSrc = sc_cbSrcChunkMax;
+      }
+      void const * pSrc(pbSrc);
+      std::size_t cbSrcRemaining(cbSrc);
+      // Calculate the additional size required.
+      std::size_t cbDst(abc::text::transcode(
+         true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
+      ));
+      // Enlarge the destination string and get its begin/end pointers.
+      psDst->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
+      char_t * pchDstBegin(psDst->chars_begin());
+      char_t * pchDstOffset(pchDstBegin + cchReadTotal);
+      char_t * pchDstEnd(pchDstOffset);
+      // Transcode the buffer chunk and advance pchDstEnd accordingly.
+      abc::text::transcode(
+         true, m_enc, &pSrc, &cbSrcRemaining,
+         abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
+      );
+
+      // Determine how much of the string is to be consumed.
+      char_t const * pchDstConsumeEnd;
+      bool bContinue(true);
+      if (fnGetConsumeEnd) {
+         pchDstConsumeEnd = call_get_consume_end(
+            pchDstBegin, pchDstOffset, static_cast<std::size_t>(pchDstEnd - pchDstBegin),
+            fnGetConsumeEnd
+         );
+         /* If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping the
+         destination size to the consumed range of characters; this will yield the count of bytes to
+         consume. */
+         if (pchDstConsumeEnd && pchDstConsumeEnd != pchDstEnd) {
+            // Restore the arguments for transcode().
+            pSrc = pbSrc;
+            cbSrcRemaining = cbSrc;
+            pchDstEnd = pchDstOffset;
+            cbDst = reinterpret_cast<std::size_t>(pchDstConsumeEnd) -
+               reinterpret_cast<std::size_t>(pchDstOffset);
+            abc::text::transcode(
+               true, m_enc, &pSrc, &cbSrcRemaining,
+               abc::text::encoding::host, reinterpret_cast<void **>(&pchDstEnd), &cbDst
+            );
+            ABC_ASSERT(
+               pchDstEnd == pchDstConsumeEnd,
+               ABC_SL("abc::text::transcode() didn’t transcode the expected count of characters")
+            );
+            bContinue = false;
+         } else {
+            pchDstConsumeEnd = pchDstEnd;
+         }
+      } else {
+         pchDstConsumeEnd = pchDstEnd;
+      }
+      // Consume as much of the string as fnGetConsumeEnd, if provided, said.
+      cchReadTotal += static_cast<std::size_t>(pchDstConsumeEnd - pchDstOffset);
+      m_pbbr->consume_bytes(cbSrc - cbSrcRemaining);
+      if (!bContinue) {
+         break;
+      }
+
+      // Read some more bytes; see comment to this same line in read_while().
       std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
    }
    *pcbSrc = cbSrc;
