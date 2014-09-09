@@ -940,6 +940,19 @@ private:
    );
 
 
+   /*! Detects the encoding used in the source.
+
+   pb
+      Pointer to a buffer with the initial contents of the file.
+   cb
+      Size of the buffer pointed to by pb.
+   return
+      Size of the BOM, if found in the source. If non-zero, the caller should discard this many
+      bytes from the provided buffer.
+   */
+   std::size_t detect_encoding(std::int8_t const * pb, std::size_t cb);
+
+
 protected:
 
    //! Underlying binary buffered reader.

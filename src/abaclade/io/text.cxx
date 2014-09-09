@@ -398,6 +398,33 @@ binbuf_reader::binbuf_reader(
 }
 
 
+std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t cb) {
+   ABC_TRACE_FUNC(this, pb, cb);
+
+   std::size_t cbFile, cbBom;
+   if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
+      // This special value prevents guess_encoding() from dismissing char16/32_t as impossible
+      // just because the need to clip cbFile to a std::size_t resulted in an odd count of bytes.
+      static std::size_t const sc_cbAlignedMax(
+         numeric::max<std::size_t>::value & ~sizeof(char32_t)
+      );
+      cbFile = static_cast<std::size_t>(
+         std::min(psb->size(), static_cast<full_size_t>(sc_cbAlignedMax))
+      );
+   } else {
+      cbFile = 0;
+   }
+   m_enc = abc::text::guess_encoding(pb, pb + cb, cbFile, &cbBom);
+   // Cannot continue if the encoding is still unknown.
+   if (m_enc == abc::text::encoding::unknown) {
+      // TODO: provide more information in the exception.
+      ABC_THROW(abc::text::error, ());
+   }
+   // If a BOM was read, consume and discard it.
+   return cbBom;
+}
+
+
 /*virtual*/ bool binbuf_reader::read_while(mstr * psDst, std::function<
    istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
 > const & fnGetConsumeEnd) /*override*/ {
@@ -418,25 +445,7 @@ binbuf_reader::binbuf_reader(
 
    // If the encoding is still undefined, try to guess it now.
    if (m_enc == abc::text::encoding::unknown) {
-      std::size_t cbFile, cbBom;
-      if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
-         // This special value prevents guess_encoding() from dismissing char16/32_t as impossible
-         // just because the need to clip cbFile to a std::size_t resulted in an odd count of bytes.
-         static std::size_t const sc_cbAlignedMax(
-            numeric::max<std::size_t>::value & ~sizeof(char32_t)
-         );
-         cbFile = static_cast<std::size_t>(
-            std::min(psb->size(), static_cast<full_size_t>(sc_cbAlignedMax))
-         );
-      } else {
-         cbFile = 0;
-      }
-      m_enc = abc::text::guess_encoding(pbSrc, pbSrc + cbSrc, cbFile, &cbBom);
-      // Cannot continue if the encoding is still unknown.
-      if (m_enc == abc::text::encoding::unknown) {
-         // TODO: provide more information in the exception.
-         ABC_THROW(abc::text::error, ());
-      }
+      std::size_t cbBom(detect_encoding(pbSrc, cbSrc));
       // If a BOM was read, consume and discard it.
       if (cbBom) {
          m_pbbr->consume_bytes(cbBom);
