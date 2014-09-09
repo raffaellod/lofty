@@ -622,6 +622,9 @@ binbuf_reader::binbuf_reader(
                   pchDstEnd == pchDstConsumeEnd,
                   ABC_SL("abc::text::transcode() didn’t transcode the expected count of characters")
                );
+               bContinue = false;
+            } else {
+               pchDstConsumeEnd = pchDstEnd;
             }
          } else {
             pchDstConsumeEnd = pchDstEnd;
