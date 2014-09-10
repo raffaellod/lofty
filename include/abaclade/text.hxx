@@ -159,7 +159,8 @@ return
 ABACLADE_SYM std::size_t get_encoding_size(encoding enc);
 
 
-/*! Returns a line terminator string corresponding to the specified line_terminator value.
+/*! Returns a line terminator string corresponding to the specified line_terminator value, or the
+host default if lterm is line_terminator::any or line_terminator::convert_any_to_lf.
 
 lterm
    Desired line terminator.

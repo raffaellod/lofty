@@ -60,6 +60,9 @@ std::size_t get_encoding_size(encoding enc) {
 istr get_line_terminator_str(line_terminator lterm) {
    ABC_TRACE_FUNC(lterm);
 
+   if (lterm == line_terminator::any || lterm == line_terminator::convert_any_to_lf) {
+      lterm = line_terminator::host;
+   }
    switch (lterm.base()) {
       case abc::text::line_terminator::cr:
          return istr(ABC_SL("\r"));
