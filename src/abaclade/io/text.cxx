@@ -377,13 +377,13 @@ binbuf_reader::binbuf_reader(
 
 
 /*static*/ char_t const * binbuf_reader::call_get_consume_end(
-   char_t const * pchBegin, char_t const * pchOffset, std::size_t cch, std::function<
+   char_t const * pchBegin, char_t const * pchOffset, char_t const * pchEnd, std::function<
       istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
    > const & fnGetConsumeEnd
 ) {
-   ABC_TRACE_FUNC(pchBegin, pchOffset, cch/*, fnGetConsumeEnd*/);
+   ABC_TRACE_FUNC(pchBegin, pchOffset, pchEnd/*, fnGetConsumeEnd*/);
 
-   istr sConsumableBuf(unsafe, pchBegin, cch);
+   istr sConsumableBuf(unsafe, pchBegin, static_cast<std::size_t>(pchEnd - pchBegin));
    auto itConsumeEnd(fnGetConsumeEnd(
       sConsumableBuf, istr::const_iterator(pchOffset, &sConsumableBuf)
    ));
@@ -552,8 +552,7 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
             } while (pchSrc < pchSrcEnd);
             if (fnGetConsumeEnd) {
                pchDstConsumeEnd = call_get_consume_end(
-                  pchDstBegin, pchDstLineStart,
-                  static_cast<std::size_t>(pchDstLineEnd - pchDstBegin), fnGetConsumeEnd
+                  pchDstBegin, pchDstLineStart, pchDstLineEnd, fnGetConsumeEnd
                );
                if (pchDstConsumeEnd) {
                   if (pchDstConsumeEnd < pchDstLineEnd) {
@@ -576,7 +575,7 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
          cchConsumed = cchSrc;
          if (fnGetConsumeEnd) {
             char_t const * pchDstConsumeEnd(call_get_consume_end(
-               pchDstBegin, pchDstOffset, cchReadTotal + cchSrc, fnGetConsumeEnd
+               pchDstBegin, pchDstOffset, pchDstOffset + cchSrc, fnGetConsumeEnd
             ));
             if (pchDstConsumeEnd) {
                // Only consume as much of the string as fnGetConsumeEnd says.
@@ -672,8 +671,7 @@ std::size_t binbuf_reader::read_while_with_transcode(
             } while (pchDstLineEnd < pchDstEnd);
             if (fnGetConsumeEnd) {
                pchDstConsumeEnd = call_get_consume_end(
-                  pchDstBegin, pchDstLineStart,
-                  static_cast<std::size_t>(pchDstLineEnd - pchDstBegin), fnGetConsumeEnd
+                  pchDstBegin, pchDstLineStart, pchDstLineEnd, fnGetConsumeEnd
                );
                /* If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping
                the destination size to the consumed range of characters; this will yield the count
@@ -709,8 +707,7 @@ std::size_t binbuf_reader::read_while_with_transcode(
          do {
             if (fnGetConsumeEnd) {
                pchDstConsumeEnd = call_get_consume_end(
-                  pchDstBegin, pchDstOffset, static_cast<std::size_t>(pchDstEnd - pchDstBegin),
-                  fnGetConsumeEnd
+                  pchDstBegin, pchDstOffset, pchDstEnd, fnGetConsumeEnd
                );
                /* If fnGetConsumeEnd rejected some of the characters, repeat the transcoding capping
                the destination size to the consumed range of characters; this will yield the count
