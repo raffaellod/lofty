@@ -101,4 +101,42 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf8_mixed_no_
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::binbuf_reader_read_line_utf32_lf_no_trailing_nl
+
+namespace abc {
+namespace test {
+
+class binbuf_reader_read_line_utf32_lf_no_trailing_nl :
+   public testing::test_case {
+public:
+
+   //! See testing::test_case::title().
+   virtual istr title() {
+      return istr(ABC_SL(
+         "abc::io::text::binbuf_reader – reading line-by-line, UTF-32, LF, no trailing LF"
+      ));
+   }
+
+   //! See testing::test_case::run().
+   virtual void run() {
+      ABC_TRACE_FUNC(this);
+
+      auto ptrIn(io::text::open_reader(
+         file_path(ABC_SL("src/abaclade-test/io/text/data/utf32le+bom_lf_no-trailing-nl.txt"))
+      ));
+      dmstr sLine;
+      unsigned i(1);
+      while (ptrIn->read_line(&sLine)) {
+         ABC_TESTING_ASSERT_EQUAL(sLine.size(), i++);
+      }
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf32_lf_no_trailing_nl)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
