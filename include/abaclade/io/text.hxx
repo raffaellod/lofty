@@ -132,23 +132,13 @@ public:
 
    psDst
       Pointer to the string that will receive the read data.
-   fnGetConsumeEnd
-      If non-null, this callback is invoked at least once for each internal read.
-      sRead
-         String containing every character read by this invocation of read_while() up to this point.
-      itLastReadBegin
-         Iterator to the start of the last read portion of sRead. The callback can use this to avoid
-         re-scanning portions of the string that it has seen before.
-      return
-         Iterator to beyond the last character to be consumed, i.e. that the callback wants
-         read_while() to include in the destination string (*psDst).
+   bOneLine
+      If true, reading will stop at the first line terminator character.
    return
       true if a string could be read, or false if the end of the data was reached, in which case
       *psDst is left in an undetermined state.
    */
-   virtual bool read_while(mstr * psDst, std::function<
-      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-   > const & fnGetConsumeEnd) = 0;
+   virtual bool read_while(mstr * psDst, bool bOneLine) = 0;
 
 
 protected:
@@ -912,33 +902,10 @@ public:
    virtual std::shared_ptr<binary::buffered_base> buffered_base() const /*override*/;
 
    //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, std::function<
-      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-   > const & fnGetConsumeEnd) /*override*/;
+   virtual bool read_while(mstr * psDst, bool bOneLine) /*override*/;
 
 
 private:
-
-   /*! Invokes the consumer function translating its arguments and translating back and validating
-   its return value.
-
-   pchBegin
-      Pointer to the buffer from which characters should be consumed.
-   pchOffset
-      Pointer to the end in *pchBegin of any previously consumed characters.
-   pchEnd
-      Pointer to the end of the buffer pointed to by pchBegin.
-   fnGetConsumeEnd
-      See read_while()’s fnGetConsumeEnd argument.
-   return
-      Pointer returned by fnGetConsumeEnd.
-   */
-   static char_t const * call_get_consume_end(
-      char_t const * pchBegin, char_t const * pchOffset, char_t const * pchEnd, std::function<
-         istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-      > const & fnGetConsumeEnd
-   );
-
 
    /*! Detects the encoding used in the provided buffer.
 
@@ -962,15 +929,13 @@ private:
       bytes remaining in the last peek buffer.
    psDst
       Pointer to the string that will receive the read data.
-   fnGetConsumeEnd
-      See read_while()’s fnGetConsumeEnd argument.
+   bOneLine
+      If true, reading will stop at the first line terminator character.
    return
       Count of characters read into *psDst.
    */
    std::size_t read_while_with_host_encoding(
-      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
-         istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-      > const & fnGetConsumeEnd
+      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 
 
@@ -983,15 +948,13 @@ private:
       bytes remaining in the last peek buffer.
    psDst
       Pointer to the string that will receive the read data.
-   fnGetConsumeEnd
-      See read_while()’s fnGetConsumeEnd argument.
+   bOneLine
+      If true, reading will stop at the first line terminator character.
    return
       Count of characters read into *psDst.
    */
    std::size_t read_while_with_transcode(
-      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, std::function<
-         istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-      > const & fnGetConsumeEnd
+      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 
 

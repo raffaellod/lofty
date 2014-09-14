@@ -86,9 +86,7 @@ public:
    explicit str_reader(mstr && s);
 
    //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, std::function<
-      istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-   > const & fnGetConsumeEnd) /*override*/;
+   virtual bool read_while(mstr * psDst, bool bOneLine) /*override*/;
 
 
 protected:
