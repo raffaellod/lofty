@@ -117,6 +117,38 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf8_mixed_no_
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::binbuf_reader_read_line_utf16_mixed_no_trailing_nl
+
+namespace abc {
+namespace test {
+
+class binbuf_reader_read_line_utf16_mixed_no_trailing_nl :
+   public binbuf_reader_read_line_base {
+public:
+
+   //! See binbuf_reader_read_line_base::title().
+   virtual istr title() /*override*/ {
+      return istr(ABC_SL(
+         "abc::io::text::binbuf_reader – "
+            "reading line-by-line, UTF-16, CR/LF/CRLF mix, no trailing LF"
+      ));
+   }
+
+   //! See binbuf_reader_read_line_base::get_test_data().
+   virtual file_path get_test_data() /*override*/ {
+      return file_path(ABC_SL(
+         "src/abaclade-test/io/text/data/utf16le+bom_mixed_no-trailing-nl.txt"
+      ));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf16_mixed_no_trailing_nl)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::binbuf_reader_read_line_utf32_lf_no_trailing_nl
 
 namespace abc {
@@ -143,6 +175,38 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf32_lf_no_trailing_nl)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::binbuf_reader_read_line_utf32_mixed_no_trailing_nl
+
+namespace abc {
+namespace test {
+
+class binbuf_reader_read_line_utf32_mixed_no_trailing_nl :
+   public binbuf_reader_read_line_base {
+public:
+
+   //! See binbuf_reader_read_line_base::title().
+   virtual istr title() /*override*/ {
+      return istr(ABC_SL(
+         "abc::io::text::binbuf_reader – "
+            "reading line-by-line, UTF-32, CR/LF/CRLF mix, no trailing LF"
+      ));
+   }
+
+   //! See binbuf_reader_read_line_base::get_test_data().
+   virtual file_path get_test_data() /*override*/ {
+      return file_path(ABC_SL(
+         "src/abaclade-test/io/text/data/utf32le+bom_mixed_no-trailing-nl.txt"
+      ));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf32_mixed_no_trailing_nl)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
