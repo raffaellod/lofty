@@ -34,12 +34,12 @@ class file_path_normalization :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::file_path – normalization of relative and absolute paths"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Note that under Win32, paths that start with “/” are still relative to the current volume;
@@ -166,12 +166,12 @@ class file_path_normalization_joined :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::file_path – normalization of joined paths"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       file_path fp(file_path::current_dir());

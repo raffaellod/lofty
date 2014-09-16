@@ -509,7 +509,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 
-/*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) {
+/*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    std::int8_t * pb(static_cast<std::int8_t *>(p));
@@ -587,7 +587,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 
-/*virtual*/ void file_writer::flush() {
+/*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
@@ -605,7 +605,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 
-/*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) {
+/*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    std::int8_t const * pb(static_cast<std::int8_t const *>(p));
@@ -691,7 +691,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) {
+/*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
@@ -755,7 +755,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) {
+/*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    // TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
@@ -812,7 +812,7 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ bool pipe_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
+/*virtual*/ bool pipe_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/ {
    ABC_UNUSED_ARG(cchRead);
    switch (iErr) {
       case ERROR_SUCCESS:
@@ -914,7 +914,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 }
 
 
-/*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) {
+/*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) /*override*/ {
    ABC_TRACE_FUNC(this, ibOffset, sfWhence);
 
 #if ABC_HOST_API_POSIX
@@ -984,14 +984,14 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 }
 
 
-/*virtual*/ full_size_t regular_file_base::size() const {
+/*virtual*/ full_size_t regular_file_base::size() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_cb;
 }
 
 
-/*virtual*/ offset_t regular_file_base::tell() const {
+/*virtual*/ offset_t regular_file_base::tell() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
@@ -1057,7 +1057,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 
-/*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) {
+/*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then

@@ -51,7 +51,7 @@ public:
    return
       Description of the exception.
    */
-   virtual char const * what() const;
+   virtual char const * what() const override;
 };
 
 } //namespace std

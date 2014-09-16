@@ -48,7 +48,7 @@ bad_alloc::bad_alloc() {
 }
 
 
-/*virtual*/ char const * bad_alloc::what() const {
+/*virtual*/ char const * bad_alloc::what() const /*override*/ {
    return "std::bad_alloc";
 }
 

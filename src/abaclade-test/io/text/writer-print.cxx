@@ -33,12 +33,12 @@ class text_writer_print_no_replacements :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::io::text::writer::print() – no replacements"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
@@ -87,12 +87,12 @@ class text_writer_print_one_replacement :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::io::text_writer::print() – one replacement"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
@@ -165,12 +165,12 @@ class text_writer_print_two_replacements :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::io::text_writer::print() – two replacements"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;

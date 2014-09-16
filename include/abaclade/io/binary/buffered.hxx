@@ -172,7 +172,7 @@ public:
    preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
-   virtual std::size_t read(void * p, std::size_t cbMax) /*override*/;
+   virtual std::size_t read(void * p, std::size_t cbMax) override;
 };
 
 } //namespace binary
@@ -242,7 +242,7 @@ public:
    is preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer.
    */
-   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
+   virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
 } //namespace binary
@@ -272,16 +272,16 @@ public:
    default_buffered_reader(std::shared_ptr<reader> pbr);
 
    //! Destructor.
-   virtual ~default_buffered_reader() /*override*/;
+   virtual ~default_buffered_reader();
 
    //! See buffered_reader::consume_bytes().
-   virtual void consume_bytes(std::size_t cb) /*override*/;
+   virtual void consume_bytes(std::size_t cb) override;
 
    //! See buffered_reader::peek_bytes().
-   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) /*override*/;
+   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) override;
 
    //! See buffered_reader::unbuffered().
-   virtual std::shared_ptr<base> unbuffered() const /*override*/;
+   virtual std::shared_ptr<base> unbuffered() const override;
 
 
 protected:
@@ -328,13 +328,13 @@ public:
    default_buffered_writer(std::shared_ptr<writer> pbw);
 
    //! Destructor.
-   virtual ~default_buffered_writer() /*override*/;
+   virtual ~default_buffered_writer();
 
    //! See buffered_writer::commit_bytes().
-   virtual void commit_bytes(std::size_t cb) /*override*/;
+   virtual void commit_bytes(std::size_t cb) override;
 
    //! See buffered_writer::flush().
-   virtual void flush() /*override*/;
+   virtual void flush() override;
 
 
    /*! See buffered_writer::get_buffer_bytes().
@@ -342,10 +342,10 @@ public:
    cb
       Count of bytes to create buffer space for.
    */
-   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) /*override*/;
+   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
    //! See buffered_writer::unbuffered().
-   virtual std::shared_ptr<base> unbuffered() const /*override*/;
+   virtual std::shared_ptr<base> unbuffered() const override;
 
 
 protected:

@@ -103,7 +103,7 @@ public:
    virtual ~bad_cast();
 
    //! See exception::what().
-   virtual char const * what() const;
+   virtual char const * what() const override;
 };
 
 } //namespace std
@@ -127,7 +127,7 @@ public:
    virtual ~bad_typeid();
 
    //! See exception::what().
-   virtual char const * what() const;
+   virtual char const * what() const override;
 };
 
 } //namespace std

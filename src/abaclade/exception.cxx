@@ -1696,7 +1696,7 @@ void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
 }
 
 
-void index_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void index_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    ptwOut->print(ABC_SL("invalid index: {}\n"), m_iInvalid);
    lookup_error::_print_extended_info(ptwOut);
 }
@@ -1854,7 +1854,9 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 }
 
 
-void memory_address_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void memory_address_error::_print_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
    if (m_pInvalid != smc_achUnknownAddress) {
       ptwOut->print(ABC_SL("invalid address: {}\n"), m_pInvalid);
    } else {
@@ -2027,7 +2029,9 @@ void pointer_iterator_error::init(
 }
 
 
-void pointer_iterator_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void pointer_iterator_error::_print_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
    ptwOut->print(
       ABC_SL("invalid iterator: {} (container begin/end range: [{}, {}])\n"),
       m_pInvalid, m_pContBegin, m_pContEnd
@@ -2100,7 +2104,7 @@ void syntax_error::init(
 }
 
 
-void syntax_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void syntax_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sSource) {
       if (m_iChar) {

@@ -82,12 +82,12 @@ class to_str_int :
 public:
 
    //! See to_str_test_case_base::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::to_str – int"));
    }
 
    //! See to_str_test_case_base::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Test zero, decimal base.
@@ -132,12 +132,12 @@ class to_str_int8 :
 public:
 
    //! See to_str_test_case_base::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::to_str – int8_t"));
    }
 
    //! See to_str_test_case_base::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Test zero, hexadecimal base.
@@ -182,12 +182,12 @@ class to_str_raw_pointers :
 public:
 
    //! See to_str_test_case_base::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::to_str – raw pointers"));
    }
 
    //! See to_str_test_case_base::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       std::uintptr_t iBad(0xbad);
@@ -238,12 +238,12 @@ class to_str_smart_pointers :
 public:
 
    //! See to_str_test_case_base::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::to_str – smart pointers"));
    }
 
    //! See to_str_test_case_base::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       int * pi(new int);
@@ -296,12 +296,12 @@ class to_str_tuples :
 public:
 
    //! See to_str_test_case_base::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::to_str – STL tuple types"));
    }
 
    //! See to_str_test_case_base::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES

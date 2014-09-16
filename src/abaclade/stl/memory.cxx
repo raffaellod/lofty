@@ -36,7 +36,7 @@ bad_weak_ptr::bad_weak_ptr() {
 }
 
 
-/*virtual*/ char const * bad_weak_ptr::what() const {
+/*virtual*/ char const * bad_weak_ptr::what() const /*override*/ {
    return "std::bad_weak_ptr";
 }
 

@@ -60,12 +60,12 @@ class str_basic :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – basic operations"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmstr s;
@@ -221,12 +221,12 @@ class str_iterators :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – iterator-based character access"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmstr s;
@@ -267,14 +267,14 @@ class str_encode :
 public:
 
    //! See abc::testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::*str classes – conversion to different encodings")
       );
    }
 
    //! See abc::testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       smstr<32> s;
@@ -358,12 +358,12 @@ class str_replace :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – character replacement"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       smstr<8> s;
@@ -406,12 +406,12 @@ class str_substr_range_permutations :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – range permutations"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       istr sAB(ABC_SL("äb"));
@@ -485,12 +485,12 @@ class istr_c_str :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::istr – C string extraction"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       istr s;
@@ -540,12 +540,12 @@ class mstr_c_str :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::mstr – C string extraction"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmstr s;
@@ -604,12 +604,12 @@ class str_find :
 public:
 
    //! See abc::testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – character and substring search"));
    }
 
    //! See abc::testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Special characters.
@@ -654,14 +654,14 @@ class str_substr_starts_with :
 public:
 
    //! See abc::testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::*str classes – initial matching")
       );
    }
 
    //! See abc::testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Special characters.
@@ -700,14 +700,14 @@ class str_substr_ends_with :
 public:
 
    //! See abc::testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::*str classes – final matching")
       );
    }
 
    //! See abc::testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       // Special characters.

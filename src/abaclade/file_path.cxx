@@ -582,7 +582,9 @@ void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err 
 }
 
 
-/*virtual*/ void file_not_found_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void file_not_found_error::_print_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
    ptwOut->print(ABC_SL("couldn’t find path: “{}”\n"), m_fpNotFound);
    environment_error::_print_extended_info(ptwOut);
 }

@@ -46,7 +46,7 @@ class ABACLADE_TESTING_SYM app :
 public:
 
    //! See abc::app::main().
-   virtual int main(mvector<istr const> const & vsArgs);
+   virtual int main(mvector<istr const> const & vsArgs) override;
 };
 
 } //namespace testing

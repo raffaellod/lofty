@@ -246,7 +246,7 @@ class ABACLADE_SYM file_base :
 public:
 
    //! Destructor.
-   virtual ~file_base() /*override*/;
+   virtual ~file_base();
 
 
 protected:
@@ -288,10 +288,10 @@ public:
    file_reader(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_reader() /*override*/;
+   virtual ~file_reader();
 
    //! See reader::read().
-   virtual std::size_t read(void * p, std::size_t cbMax) /*override*/;
+   virtual std::size_t read(void * p, std::size_t cbMax) override;
 
 
 #if ABC_HOST_API_WIN32
@@ -336,13 +336,13 @@ public:
    file_writer(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_writer() /*override*/;
+   virtual ~file_writer();
 
    //! See writer::flush().
-   virtual void flush() /*override*/;
+   virtual void flush() override;
 
    //! See writer::write().
-   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
+   virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
 } //namespace binary
@@ -364,7 +364,7 @@ class ABACLADE_SYM console_file_base :
 public:
 
    //! Destructor.
-   virtual ~console_file_base() /*override*/;
+   virtual ~console_file_base();
 
 
 protected:
@@ -396,7 +396,7 @@ public:
    console_reader(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_reader() /*override*/;
+   virtual ~console_reader();
 
 
 #if ABC_HOST_API_WIN32
@@ -405,7 +405,7 @@ public:
    // type.
 
    //! See file_reader::read().
-   virtual std::size_t read(void * p, std::size_t cbMax) /*override*/;
+   virtual std::size_t read(void * p, std::size_t cbMax) override;
 
 #endif //if ABC_HOST_API_WIN32
 };
@@ -433,14 +433,14 @@ public:
    console_writer(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_writer() /*override*/;
+   virtual ~console_writer();
 
 #if ABC_HOST_API_WIN32
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
    //! See file_writer::write().
-   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
+   virtual std::size_t write(void const * p, std::size_t cb) override;
 #endif
 };
 
@@ -466,7 +466,7 @@ public:
    pipe_reader(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_reader() /*override*/;
+   virtual ~pipe_reader();
 
 
 #if ABC_HOST_API_WIN32
@@ -474,7 +474,7 @@ public:
    /*! See file_reader::readfile_returned_eof(). Pipes report EOF in a completely different way than
    regular files.
    */
-   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/;
+   virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const override;
 
 #endif
 };
@@ -501,7 +501,7 @@ public:
    pipe_writer(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_writer() /*override*/;
+   virtual ~pipe_writer();
 };
 
 } //namespace binary
@@ -525,16 +525,16 @@ class ABACLADE_SYM regular_file_base :
 public:
 
    //! Destructor.
-   virtual ~regular_file_base() /*override*/;
+   virtual ~regular_file_base();
 
    //! See seekable::seek().
-   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) /*override*/;
+   virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) override;
 
    //! See sized::size().
-   virtual full_size_t size() const /*override*/;
+   virtual full_size_t size() const override;
 
    //! See seekable::tell().
-   virtual offset_t tell() const /*override*/;
+   virtual offset_t tell() const override;
 
 
 protected:
@@ -576,7 +576,7 @@ public:
    regular_file_reader(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_reader() /*override*/;
+   virtual ~regular_file_reader();
 };
 
 } //namespace binary
@@ -602,11 +602,11 @@ public:
    regular_file_writer(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_writer() /*override*/;
+   virtual ~regular_file_writer();
 
 #if ABC_HOST_API_WIN32
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
-   virtual std::size_t write(void const * p, std::size_t cb) /*override*/;
+   virtual std::size_t write(void const * p, std::size_t cb) override;
 #endif
 
 

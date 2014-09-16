@@ -310,7 +310,7 @@ binbuf_base::binbuf_base(abc::text::encoding enc) :
 }
 
 
-/*virtual*/ abc::text::encoding binbuf_base::get_encoding() const {
+/*virtual*/ abc::text::encoding binbuf_base::get_encoding() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_enc;
@@ -345,7 +345,8 @@ binbuf_reader::binbuf_reader(
 }
 
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::buffered_base() const {
+/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::buffered_base(
+) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_pbbr;
@@ -665,7 +666,8 @@ binbuf_writer::binbuf_writer(
 }
 
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::buffered_base() const {
+/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::buffered_base(
+) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_pbbw;

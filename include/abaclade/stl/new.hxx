@@ -65,7 +65,7 @@ public:
    virtual ~bad_alloc();
 
    //! See exception::what().
-   virtual char const * what() const;
+   virtual char const * what() const override;
 };
 
 } //namespace std

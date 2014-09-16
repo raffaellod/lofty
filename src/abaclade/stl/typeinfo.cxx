@@ -36,7 +36,7 @@ bad_cast::bad_cast() {
 }
 
 
-/*virtual*/ char const * bad_cast::what() const {
+/*virtual*/ char const * bad_cast::what() const /*override*/ {
    return "std::bad_cast";
 }
 
@@ -57,7 +57,7 @@ bad_typeid::bad_typeid() {
 }
 
 
-/*virtual*/ char const * bad_typeid::what() const {
+/*virtual*/ char const * bad_typeid::what() const /*override*/ {
    return "std::bad_typeid";
 }
 

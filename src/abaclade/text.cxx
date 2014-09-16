@@ -707,7 +707,7 @@ void decode_error::init(
 }
 
 
-void decode_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void decode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
@@ -770,7 +770,7 @@ void encode_error::init(
 }
 
 
-void encode_error::_print_extended_info(io::text::writer * ptwOut) const {
+/*virtual*/ void encode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {

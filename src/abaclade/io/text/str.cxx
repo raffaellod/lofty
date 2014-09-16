@@ -39,7 +39,7 @@ str_base::str_base() :
 }
 
 
-/*virtual*/ abc::text::encoding str_base::get_encoding() const {
+/*virtual*/ abc::text::encoding str_base::get_encoding() const /*override*/ {
    return abc::text::encoding::host;
 }
 
@@ -79,7 +79,7 @@ str_reader::str_reader(mstr && s) :
 }
 
 
-/*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) {
+/*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    // TODO: implement this.

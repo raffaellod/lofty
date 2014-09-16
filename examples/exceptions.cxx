@@ -48,7 +48,7 @@ public:
    return
       Return value of this program.
    */
-   virtual int main(mvector<istr const> const & vsArgs) {
+   virtual int main(mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       istr s(ABC_SL("Test String"));

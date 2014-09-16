@@ -31,7 +31,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/*virtual*/ int app::main(mvector<istr const> const & vsArgs) {
+/*virtual*/ int app::main(mvector<istr const> const & vsArgs) /*override*/ {
    ABC_TRACE_FUNC(this, vsArgs);
 
    ABC_UNUSED_ARG(vsArgs);

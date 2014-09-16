@@ -28,7 +28,7 @@ class test_app :
    public app {
 public:
 
-   virtual int main(mvector<istr const> const & vsArgs) {
+   virtual int main(mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       ABC_UNUSED_ARG(vsArgs);

@@ -676,7 +676,7 @@ public:
    virtual ~bad_weak_ptr();
 
    //! See exception::what().
-   virtual char const * what() const;
+   virtual char const * what() const override;
 };
 
 } //namespace std
@@ -804,7 +804,7 @@ public:
 protected:
 
    //! See _shared_refcount::delete_owned().
-   virtual void delete_owned() {
+   virtual void delete_owned() override {
       delete m_pt;
       m_pt = nullptr;
    }
@@ -845,7 +845,7 @@ public:
    }
 
    //! See _basic_shared_refcount::get_deleter().
-   virtual void * get_deleter(type_info const & ti) const {
+   virtual void * get_deleter(type_info const & ti) const override {
       return ti == typeid(TDel) ? &m_tdel : nullptr;
    }
 
@@ -853,7 +853,7 @@ public:
 protected:
 
    //! See _basic_shared_refcount::delete_owned().
-   virtual void delete_owned() {
+   virtual void delete_owned() override {
       m_tdel(_basic_shared_refcount<T>::m_pt);
       _basic_shared_refcount<T>::m_pt = nullptr;
    }
@@ -904,7 +904,7 @@ public:
 protected:
 
    //! See _shared_refcount::delete_owned().
-   virtual void delete_owned() {
+   virtual void delete_owned() override {
       if (m_bOwnedConstructed) {
          // Calculate the address of the T that follows *this.
          T * pt(reinterpret_cast<max_align_t *>(this) + ABC_ALIGNED_SIZE(sizeof(*this)));

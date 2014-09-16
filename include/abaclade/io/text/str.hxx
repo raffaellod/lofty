@@ -38,10 +38,10 @@ class ABACLADE_SYM str_base :
 public:
 
    //! Destructor.
-   virtual ~str_base() /*override*/;
+   virtual ~str_base();
 
    //! See base::get_encoding().
-   virtual abc::text::encoding get_encoding() const /*override*/;
+   virtual abc::text::encoding get_encoding() const override;
 
 
 protected:
@@ -86,7 +86,7 @@ public:
    explicit str_reader(mstr && s);
 
    //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, bool bOneLine) /*override*/;
+   virtual bool read_while(mstr * psDst, bool bOneLine) override;
 
 
 protected:
@@ -153,7 +153,7 @@ public:
    //! See writer::write_binary().
    virtual void write_binary(
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
-   ) /*override*/;
+   ) override;
 
 
 protected:

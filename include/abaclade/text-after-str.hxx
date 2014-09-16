@@ -88,7 +88,7 @@ public:
 protected:
 
    //! See error::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
 
 private:
@@ -140,7 +140,7 @@ public:
 protected:
 
    //! See error::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const;
+   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
 
 private:

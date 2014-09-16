@@ -36,12 +36,12 @@ class vector_basic :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – basic operations"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v;
@@ -115,12 +115,12 @@ class vector_relops :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – relational operators"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v1a, v1b, v2, v3;
@@ -169,12 +169,12 @@ class vector_iterators :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – operations with iterators"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v;
@@ -212,12 +212,12 @@ class vector_remove_trivial :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – removal of trivial elements"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
@@ -327,12 +327,12 @@ class vector_memory_mgmt :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – memory management"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       using testing::utility::make_container_data_ptr_tracker;
@@ -515,12 +515,12 @@ class vector_move :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – item and item array movement"));
    }
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       {

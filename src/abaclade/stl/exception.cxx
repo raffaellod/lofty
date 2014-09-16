@@ -36,7 +36,7 @@ exception::exception() {
 }
 
 
-/*virtual*/ char const * exception::what() const {
+/*virtual*/ char const * exception::what() const /*override*/ {
    return "std::exception";
 }
 

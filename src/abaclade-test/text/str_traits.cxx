@@ -80,13 +80,13 @@ class str_traits_validity :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::text::str_traits – validity of counted strings"));
    }
 
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_UTF == 8

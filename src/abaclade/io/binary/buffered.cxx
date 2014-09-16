@@ -59,7 +59,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) {
+/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    std::size_t cbReadTotal(0);
@@ -96,7 +96,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) {
+/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    // Obtain a buffer large enough.
@@ -133,7 +133,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) {
+/*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
@@ -149,7 +149,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 /*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
    std::size_t cb
-) {
+) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbReadBufUsed) {
@@ -188,7 +188,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 
-/*virtual*/ std::shared_ptr<base> default_buffered_reader::unbuffered() const {
+/*virtual*/ std::shared_ptr<base> default_buffered_reader::unbuffered() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return std::dynamic_pointer_cast<base>(m_pbr);
@@ -221,7 +221,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 }
 
 
-/*virtual*/ void default_buffered_writer::flush() {
+/*virtual*/ void default_buffered_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    // Flush both the write buffer and any lower-level buffers.
@@ -230,7 +230,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 }
 
 
-/*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) {
+/*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_cbWriteBuf - m_cbWriteBufUsed) {
@@ -259,7 +259,7 @@ void default_buffered_writer::flush_buffer() {
 
 /*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
    std::size_t cb
-) {
+) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    std::size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
@@ -279,7 +279,7 @@ void default_buffered_writer::flush_buffer() {
 }
 
 
-/*virtual*/ std::shared_ptr<base> default_buffered_writer::unbuffered() const {
+/*virtual*/ std::shared_ptr<base> default_buffered_writer::unbuffered() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return std::dynamic_pointer_cast<base>(m_pbw);

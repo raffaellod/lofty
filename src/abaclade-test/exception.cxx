@@ -74,13 +74,13 @@ protected:
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::exception – polymorphism"));
    }
 
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       ABC_TESTING_ASSERT_THROWS(exception, throw_exception());
@@ -146,13 +146,13 @@ class exception_from_os_hard_error :
 public:
 
    //! See testing::test_case::title().
-   virtual istr title() {
+   virtual istr title() override {
       return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
    }
 
 
    //! See testing::test_case::run().
-   virtual void run() {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       {
