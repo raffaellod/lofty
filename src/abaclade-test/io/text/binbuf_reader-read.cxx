@@ -98,10 +98,10 @@ public:
 
    //! See binbuf_reader_read_line_base::title().
    virtual istr title() /*override*/ {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – "
-            "reading line-by-line, UTF-8, CR/LF/CRLF mix, no trailing LF"
-      ));
+      return istr(
+         ABC_SL("abc::io::text::binbuf_reader – ")
+         ABC_SL("reading line-by-line, UTF-8, CR/LF/CRLF mix, no trailing LF")
+      );
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
@@ -128,10 +128,10 @@ public:
 
    //! See binbuf_reader_read_line_base::title().
    virtual istr title() /*override*/ {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – "
-            "reading line-by-line, UTF-16, CR/LF/CRLF mix, no trailing LF"
-      ));
+      return istr(
+         ABC_SL("abc::io::text::binbuf_reader – ")
+         ABC_SL("reading line-by-line, UTF-16, CR/LF/CRLF mix, no trailing LF")
+      );
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
@@ -189,10 +189,10 @@ public:
 
    //! See binbuf_reader_read_line_base::title().
    virtual istr title() /*override*/ {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – "
-            "reading line-by-line, UTF-32, CR/LF/CRLF mix, no trailing LF"
-      ));
+      return istr(
+         ABC_SL("abc::io::text::binbuf_reader – ")
+         ABC_SL("reading line-by-line, UTF-32, CR/LF/CRLF mix, no trailing LF")
+      );
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
