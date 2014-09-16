@@ -24,12 +24,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_base
+// abc::test::bbr_readline_test_case
 
 namespace abc {
 namespace test {
 
-class binbuf_reader_read_line_base :
+template <class T>
+class bbr_readline_test_case :
    public testing::test_case {
 public:
 
@@ -38,19 +39,37 @@ public:
    return
       Relative path to the test data file.
    */
-   virtual file_path get_test_data() = 0;
+   istr get_test_data_file_name() const;
 
    //! See testing::test_case::run().
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      auto ptrIn(io::text::open_reader(get_test_data()));
+      T const * t(static_cast<T const *>(this));
+      file_path fp(ABC_SL("src/abaclade-test/io/text/data/") + t->get_test_data_file_name());
+      auto ptrIn(io::text::open_reader(fp));
       dmstr sLine;
       unsigned i(1);
       while (ptrIn->read_line(&sLine)) {
          ABC_TESTING_ASSERT_EQUAL(sLine.size(), i++);
       }
    }
+
+   //! See testing::test_case::title().
+   virtual istr title() override {
+      ABC_TRACE_FUNC(this);
+
+      T const * t(static_cast<T const *>(this));
+      return ABC_SL("abc::io::text::binbuf_reader – reading line-by-line, ") + t->title_suffix();
+   }
+
+
+   /*! Returns the portion of test_case::title() specific to the test case.
+
+   return
+      Title suffix.
+   */
+   istr title_suffix() const;
 };
 
 } //namespace test
@@ -64,19 +83,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf8_lf_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf8_lf_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – reading line-by-line, UTF-8, LF, no trailing LF"
-      ));
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-8, LF, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL("src/abaclade-test/io/text/data/utf8_lf_no-trailing-nl.txt"));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf8_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -93,20 +110,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf8_mixed_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf8_mixed_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(
-         ABC_SL("abc::io::text::binbuf_reader – ")
-         ABC_SL("reading line-by-line, UTF-8, CR/LF/CRLF mix, no trailing LF")
-      );
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-8, CR/LF/CRLF mix, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL("src/abaclade-test/io/text/data/utf8_mixed_no-trailing-nl.txt"));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf8_mixed_no-trailing-nl.txt"));
    }
 };
 
@@ -123,21 +137,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf16be_lf_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf16be_lf_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – reading line-by-line, UTF-16BE, LF mix, no trailing LF"
-      ));
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-16BE, LF mix, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL(
-         "src/abaclade-test/io/text/data/utf16be+bom_lf_no-trailing-nl.txt"
-      ));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf16be+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -154,21 +164,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf16le_lf_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf16le_lf_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – reading line-by-line, UTF-16LE, LF mix, no trailing LF"
-      ));
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-16LE, LF mix, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL(
-         "src/abaclade-test/io/text/data/utf16le+bom_lf_no-trailing-nl.txt"
-      ));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf16le+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -185,22 +191,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf16le_mixed_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf16le_mixed_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(
-         ABC_SL("abc::io::text::binbuf_reader – ")
-         ABC_SL("reading line-by-line, UTF-16LE, CR/LF/CRLF mix, no trailing LF")
-      );
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-16LE, CR/LF/CRLF mix, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL(
-         "src/abaclade-test/io/text/data/utf16le+bom_mixed_no-trailing-nl.txt"
-      ));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf16le+bom_mixed_no-trailing-nl.txt"));
    }
 };
 
@@ -217,19 +218,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf32le_lf_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf32le_lf_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(ABC_SL(
-         "abc::io::text::binbuf_reader – reading line-by-line, UTF-32LE, LF, no trailing LF"
-      ));
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-32LE, LF, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL("src/abaclade-test/io/text/data/utf32le+bom_lf_no-trailing-nl.txt"));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf32le+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -246,22 +245,17 @@ namespace abc {
 namespace test {
 
 class binbuf_reader_read_line_utf32le_mixed_no_trailing_nl :
-   public binbuf_reader_read_line_base {
+   public bbr_readline_test_case<binbuf_reader_read_line_utf32le_mixed_no_trailing_nl> {
 public:
 
-   //! See binbuf_reader_read_line_base::title().
-   virtual istr title() override {
-      return istr(
-         ABC_SL("abc::io::text::binbuf_reader – ")
-         ABC_SL("reading line-by-line, UTF-32LE, CR/LF/CRLF mix, no trailing LF")
-      );
+   //! See bbr_readline_test_case::title_suffix().
+   istr title_suffix() const {
+      return istr(ABC_SL("UTF-32LE, CR/LF/CRLF mix, no trailing LF"));
    }
 
-   //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() override {
-      return file_path(ABC_SL(
-         "src/abaclade-test/io/text/data/utf32le+bom_mixed_no-trailing-nl.txt"
-      ));
+   //! See bbr_readline_test_case::get_test_data_file_name().
+   istr get_test_data_file_name() const {
+      return istr(ABC_SL("utf32le+bom_mixed_no-trailing-nl.txt"));
    }
 };
 
