@@ -345,7 +345,7 @@ std::size_t transcode(
    std::uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
    std::uint8_t       * pbDst;
    std::uint8_t const * pbDstEnd;
-   bool bWrite(ppDst);
+   bool bWrite(ppDst != nullptr);
    if (pcbDstMax) {
       if (ppDst) {
          pbDst = static_cast<std::uint8_t *>(*ppDst);
