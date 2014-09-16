@@ -41,7 +41,7 @@ public:
    virtual file_path get_test_data() = 0;
 
    //! See testing::test_case::run().
-   virtual void run() /*override*/ {
+   virtual void run() override {
       ABC_TRACE_FUNC(this);
 
       auto ptrIn(io::text::open_reader(get_test_data()));
@@ -68,14 +68,14 @@ class binbuf_reader_read_line_utf8_lf_no_trailing_nl :
 public:
 
    //! See binbuf_reader_read_line_base::title().
-   virtual istr title() /*override*/ {
+   virtual istr title() override {
       return istr(ABC_SL(
          "abc::io::text::binbuf_reader – reading line-by-line, UTF-8, LF, no trailing LF"
       ));
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() /*override*/ {
+   virtual file_path get_test_data() override {
       return file_path(ABC_SL("src/abaclade-test/io/text/data/utf8_lf_no-trailing-nl.txt"));
    }
 };
@@ -97,7 +97,7 @@ class binbuf_reader_read_line_utf8_mixed_no_trailing_nl :
 public:
 
    //! See binbuf_reader_read_line_base::title().
-   virtual istr title() /*override*/ {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::io::text::binbuf_reader – ")
          ABC_SL("reading line-by-line, UTF-8, CR/LF/CRLF mix, no trailing LF")
@@ -105,7 +105,7 @@ public:
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() /*override*/ {
+   virtual file_path get_test_data() override {
       return file_path(ABC_SL("src/abaclade-test/io/text/data/utf8_mixed_no-trailing-nl.txt"));
    }
 };
@@ -127,7 +127,7 @@ class binbuf_reader_read_line_utf16_mixed_no_trailing_nl :
 public:
 
    //! See binbuf_reader_read_line_base::title().
-   virtual istr title() /*override*/ {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::io::text::binbuf_reader – ")
          ABC_SL("reading line-by-line, UTF-16, CR/LF/CRLF mix, no trailing LF")
@@ -135,7 +135,7 @@ public:
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() /*override*/ {
+   virtual file_path get_test_data() override {
       return file_path(ABC_SL(
          "src/abaclade-test/io/text/data/utf16le+bom_mixed_no-trailing-nl.txt"
       ));
@@ -159,14 +159,14 @@ class binbuf_reader_read_line_utf32_lf_no_trailing_nl :
 public:
 
    //! See binbuf_reader_read_line_base::title().
-   virtual istr title() /*override*/ {
+   virtual istr title() override {
       return istr(ABC_SL(
          "abc::io::text::binbuf_reader – reading line-by-line, UTF-32, LF, no trailing LF"
       ));
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() /*override*/ {
+   virtual file_path get_test_data() override {
       return file_path(ABC_SL("src/abaclade-test/io/text/data/utf32le+bom_lf_no-trailing-nl.txt"));
    }
 };
@@ -188,7 +188,7 @@ class binbuf_reader_read_line_utf32_mixed_no_trailing_nl :
 public:
 
    //! See binbuf_reader_read_line_base::title().
-   virtual istr title() /*override*/ {
+   virtual istr title() override {
       return istr(
          ABC_SL("abc::io::text::binbuf_reader – ")
          ABC_SL("reading line-by-line, UTF-32, CR/LF/CRLF mix, no trailing LF")
@@ -196,7 +196,7 @@ public:
    }
 
    //! See binbuf_reader_read_line_base::get_test_data().
-   virtual file_path get_test_data() /*override*/ {
+   virtual file_path get_test_data() override {
       return file_path(ABC_SL(
          "src/abaclade-test/io/text/data/utf32le+bom_mixed_no-trailing-nl.txt"
       ));
