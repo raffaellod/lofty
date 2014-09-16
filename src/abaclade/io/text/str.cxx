@@ -79,12 +79,9 @@ str_reader::str_reader(mstr && s) :
 }
 
 
-/*virtual*/ bool str_reader::read_while(mstr * psDst, std::function<
-   istr::const_iterator (istr const & sRead, istr::const_iterator itLastReadBegin)
-> const & fnGetConsumeEnd) {
-   ABC_TRACE_FUNC(this, psDst/*, fnGetConsumeEnd*/);
+/*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) {
+   ABC_TRACE_FUNC(this, psDst, bOneLine);
 
-   ABC_UNUSED_ARG(fnGetConsumeEnd);
    // TODO: implement this.
    return false;
 }
