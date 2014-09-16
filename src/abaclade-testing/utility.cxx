@@ -29,9 +29,9 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-size_t instances_counter::m_cCopies = 0;
-size_t instances_counter::m_cMoves = 0;
-size_t instances_counter::m_cNew = 0;
+std::size_t instances_counter::m_cCopies = 0;
+std::size_t instances_counter::m_cMoves = 0;
+std::size_t instances_counter::m_cNew = 0;
 int instances_counter::m_iNextUnique = 0;
 
 } //namespace utility
