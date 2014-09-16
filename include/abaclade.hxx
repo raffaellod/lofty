@@ -230,6 +230,12 @@ You should have received a copy of the GNU General Public License along with Aba
    #error Please compile with /GR
 #endif
 
+// MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
+#if ABC_HOST_MSC
+   #define override \
+      __pragma(warning(suppress:4481)) override
+#endif
+
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437).
 */
