@@ -147,9 +147,9 @@ private:
 
    //! Description of the encountered problem.
    istr m_sDescription;
+
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
-   we don’t want to find out when trying to print it in _print_extended_info().
-   */
+   we don’t want to find out when trying to print it in _print_extended_info(). */
    std::uint32_t m_iInvalidCodePoint;
 };
 

@@ -211,7 +211,7 @@ public:
       Unowned raw file descriptor.
    */
    filedesc_t release() {
-      filedesc_t fd(m_fd);
+      filedesc_t fd = m_fd;
       m_fd = smc_fdNull;
       return fd;
    }

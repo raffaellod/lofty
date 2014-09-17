@@ -96,7 +96,7 @@ public:
    ) {
 //      ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-      for (char_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+      for (char_t const * pch = pchHaystackBegin; pch < pchHaystackEnd; ++pch) {
          if (*pch == chNeedle) {
             return pch;
          }
@@ -129,7 +129,7 @@ public:
    ) {
 //      ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
 
-      for (char_t const * pch(pchHaystackEnd); pch > pchHaystackBegin; ) {
+      for (char_t const * pch = pchHaystackEnd; pch > pchHaystackBegin; ) {
          if (*--pch == chNeedle) {
             return pch;
          }

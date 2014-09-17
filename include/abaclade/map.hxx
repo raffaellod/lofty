@@ -227,7 +227,7 @@ public:
    TODO: comment signature.
    */
    TVnc & operator[](TKey const & key) {
-      TVal * pval(_raw_map_cast()->get_value(&key, key_hash(key)));
+      TVal * pval = _raw_map_cast()->get_value(&key, key_hash(key));
       return *pval;
    }
    TVal const & operator[](TKey const & key) const {
@@ -562,9 +562,9 @@ void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
       pht->cEntries,
       (pht->cEntries * 100 + (pht->ceMax >> 1)) / pht->ceMax
    );
-   for (std::size_t i(0); i < pht->ceMax; ++i) {
+   for (std::size_t i = 0; i < pht->ceMax; ++i) {
       fwriter_printf(pfw, T("  Entry %d:\n"), i);
-      for (struct hashentry * phe(pht->apheHeads[i]); phe; phe = phe->pheNext)
+      for (struct hashentry * phe = pht->apheHeads[i]; phe; phe = phe->pheNext)
          fwriter_printf(pfw, T("    %#08x \"%s\" data: %p\n"), phe->hash, phe->aszKey, phe->pData);
    }
 }

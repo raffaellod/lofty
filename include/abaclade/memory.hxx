@@ -313,7 +313,7 @@ inline void realloc(
    std::unique_ptr<T, freeing_deleter<T>> * ppt, std::size_t c, std::size_t cbExtra = 0
 ) {
    typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
-   TElt * pt(static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra)));
+   TElt * pt = static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra));
    ppt->release();
    ppt->reset(pt);
 }
@@ -446,7 +446,7 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
          break;
 #endif
       default:
-         for (T const * ptDstMax(ptDst + c); ptDst < ptDstMax; ++ptDst) {
+         for (T const * ptDstMax = ptDst + c; ptDst < ptDstMax; ++ptDst) {
             copy(ptDst, &tValue);
          }
          break;

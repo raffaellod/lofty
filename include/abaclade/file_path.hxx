@@ -553,7 +553,7 @@ public:
       if (::FindNextFileW(m_hSearch, &m_wfd)) {
          m_pathCurr = next_file_path();
       } else {
-         unsigned long iErr(::GetLastError());
+         DWORD iErr = ::GetLastError();
          if (iErr != ERROR_NO_MORE_FILES) {
             throw_os_error(iErr);
          }
@@ -576,10 +576,9 @@ private:
    // Wrapper for ::FindFirstFile(), to support RIIA.
    //
    static HANDLE find_first_file(char_t const * pszPattern, WIN32_FIND_DATA * pwfd) {
-      HANDLE h(::FindFirstFileW(pszPattern, pwfd));
+      HANDLE h = ::FindFirstFileW(pszPattern, pwfd);
       if (h == INVALID_HANDLE_VALUE) {
-
-         DWORD iErr(::GetLastError());
+         DWORD iErr = ::GetLastError();
          if (iErr != ERROR_FILE_NOT_FOUND) {
             throw_os_error(iErr);
          }

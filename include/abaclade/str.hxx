@@ -646,12 +646,12 @@ protected:
    } \
    template <std::size_t t_cch> \
    inline bool operator op(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) { \
-      abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
+      abc::char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
       return abc::text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
    } \
    template <std::size_t t_cch> \
    inline bool operator op(abc::char_t const (& ach)[t_cch], abc::str_base const & s) { \
-      abc::char_t const * pchEnd(ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')); \
+      abc::char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
       return abc::text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
    }
 ABC_RELOP_IMPL(==)

@@ -197,9 +197,9 @@ private:
       } else {
          // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
          // copy.
-         T * ptDst(ptDstBegin);
+         T * ptDst = ptDstBegin;
          try {
-            for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+            for (T const * ptSrc = ptSrcBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
                ::new(ptDst) T(*ptSrc);
             }
          } catch (...) {
@@ -231,9 +231,9 @@ private:
    ) {
       // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
       // copy.
-      T * ptDst(ptDstBegin);
+      T * ptDst = ptDstBegin;
       try {
-         for (T const * ptSrc(ptSrcBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+         for (T const * ptSrc = ptSrcBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
             ::new(ptDst) T(*ptSrc);
          }
       } catch (...) {
@@ -259,7 +259,7 @@ private:
    static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
       if (!std::has_trivial_destructor<T>::value) {
          // The destructor is not a no-op.
-         for (T const * pt(ptBegin); pt < ptEnd; ++pt) {
+         for (T const * pt = ptBegin; pt < ptEnd; ++pt) {
             pt->~T();
          }
       }
@@ -293,7 +293,7 @@ private:
    */
    template <typename T>
    static void _typed_move_constr(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
-      for (T * ptSrc(ptSrcBegin), * ptDst(ptDstBegin); ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
+      for (T * ptSrc = ptSrcBegin, * ptDst = ptDstBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
          ::new(ptDst) T(std::move(*ptSrc));
       }
    }

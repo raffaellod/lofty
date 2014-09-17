@@ -378,7 +378,7 @@ public:
 
    //! Destructor.
    ~unique_ptr() {
-      T * pt(get());
+      T * pt = get();
       if (pt) {
          get_deleter()(pt);
       }
@@ -465,7 +465,7 @@ public:
       Pointer to the formerly-owned object.
    */
    T * release() {
-      T * pt(get());
+      T * pt = get();
       std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
@@ -478,7 +478,7 @@ public:
       Pointer to a new object to take ownership of.
    */
    void reset(T * pt = nullptr) {
-      T * ptOld(get());
+      T * ptOld = get();
       std::get<0>(m_pt_and_tdel) = move(pt);
       if (ptOld) {
          get_deleter()(ptOld);
@@ -607,7 +607,7 @@ public:
       Pointer to the formerly-owned array.
    */
    T * release() {
-      T * pt(get());
+      T * pt = get();
       std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
@@ -620,7 +620,7 @@ public:
       Pointer to a new array to take ownership of.
    */
    void reset(T * pt = nullptr) {
-      T * ptOld(get());
+      T * ptOld = get();
       std::get<0>(m_pt_and_tdel) = move(pt);
       if (ptOld) {
          get_deleter()(ptOld);
@@ -907,7 +907,7 @@ protected:
    virtual void delete_owned() override {
       if (m_bOwnedConstructed) {
          // Calculate the address of the T that follows *this.
-         T * pt(reinterpret_cast<max_align_t *>(this) + ABC_ALIGNED_SIZE(sizeof(*this)));
+         T * pt = reinterpret_cast<max_align_t *>(this) + ABC_ALIGNED_SIZE(sizeof(*this));
          pt->~T();
          m_bOwnedConstructed = false;
       }
@@ -1036,7 +1036,7 @@ public:
    */
    shared_ptr & operator=(shared_ptr const & spt) {
       if (&spt != this) {
-         T * psrNew(spt.m_psr);
+         T * psrNew = spt.m_psr;
          if (psrNew) {
             psrNew->add_strong_ref();
          }
@@ -1271,7 +1271,7 @@ public:
    */
    weak_ptr & operator=(weak_ptr const & wpt) {
       if (&wpt != this) {
-         T * psrNew(wpt.m_psr);
+         T * psrNew = wpt.m_psr;
          if (psrNew) {
             psrNew->add_weak_ref();
          }
@@ -1494,10 +1494,10 @@ template <typename T, class TAllocator, typename ... TArgs>
 inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs && ... targs) {
    // Allocate a block of memory large enough to contain a refcount object and a T instance, making
    // sure the T has proper alignment.
-   max_align_t * p(new max_align_t[
+   max_align_t * p = new max_align_t[
       ABC_ALIGNED_SIZE(sizeof(_prefix_shared_refcount<T>)) + ABC_ALIGNED_SIZE(sizeof(T))
-   ]);
-   T * pt(p + ABC_ALIGNED_SIZE(sizeof(_prefix_shared_refcount<T>)));
+   ];
+   T * pt = p + ABC_ALIGNED_SIZE(sizeof(_prefix_shared_refcount<T>));
    // Construct and return a raw shared_ptr, also constructing the refcount object on the fly.
    // Note that we’ll only call set_owned_constructed() on the refcount after T::T() succeeds; in
    // case this throws, shared_ptr::~shared_ptr() will call m_psr->release_strong(), but this won’t
@@ -1522,7 +1522,7 @@ TODO: comment signature.
 */
 template <typename TDel, typename T>
 inline TDel * get_deleter(shared_ptr<T> const & spt) {
-   _shared_refcount * psr(spt.get_shared_refcount());
+   _shared_refcount * psr = spt.get_shared_refcount();
    if (psr) {
       return static_cast<TDel *>(psr->get_deleter(typeid(TDel)));
    } else {

@@ -127,7 +127,7 @@ public:
       true if ch is a valid UTF-8 lead character, or false otherwise.
    */
    static bool is_valid_lead_char(char8_t ch) {
-      std::uint8_t i(static_cast<std::uint8_t>(ch));
+      std::uint8_t i = static_cast<std::uint8_t>(ch);
       return (smc_aiValidLeadCharsMask[i >> 3] & (0x80u >> (i & 0x07u))) != 0;
    }
 
@@ -141,7 +141,7 @@ public:
       point encoded as a single byte or an invalid sequence.
    */
    static /*constexpr*/ unsigned lead_char_to_codepoint_size(char8_t ch) {
-      unsigned i(static_cast<std::uint8_t>(ch));
+      unsigned i = static_cast<std::uint8_t>(ch);
       // See comments on smc_acbConts in char_traits.cxx to understand this way of accessing it.
       return static_cast<unsigned>(
       // (smc_acbCpSizesByLeadChar[byte index] >> [nibble index → 0 or 4]) & nibble mask

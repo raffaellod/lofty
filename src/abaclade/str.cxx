@@ -125,7 +125,7 @@ detail::c_str_ptr str_base::c_str() const {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
       detail::c_str_ptr psz(memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(), true);
-      char_t * pch(const_cast<char_t *>(psz.get()));
+      char_t * pch = const_cast<char_t *>(static_cast<char_t const *>(psz));
       memory::copy(pch, chars_begin(), cch);
       memory::clear(pch + cch);
       return std::move(psz);

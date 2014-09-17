@@ -893,7 +893,7 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(std::ptrdiff_t i) {
-      T const * pt(this->translate_index(i));
+      T const * pt = this->translate_index(i);
       this->remove(pt, pt + 1);
    }
    void remove_at(const_iterator it) {

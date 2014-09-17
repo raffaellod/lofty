@@ -153,7 +153,7 @@ struct _raw_map_desc {
    TODO: comment signature.
    */
    void * get_key_at(std::size_t cbKey, std::size_t ie) {
-      std::int8_t * pKeys(reinterpret_cast<std::int8_t *>(get_pKeys()));
+      std::int8_t * pKeys = reinterpret_cast<std::int8_t *>(get_pKeys());
       return pKeys + cbKey * ie;
    }
    void const * get_key_at(std::size_t cbKey, std::size_t ie) const {
@@ -166,7 +166,7 @@ struct _raw_map_desc {
    TODO: comment signature.
    */
    void * get_value_at(std::size_t cbVal, std::size_t ie) {
-      std::int8_t * pVals(reinterpret_cast<std::int8_t *>(get_pVals()));
+      std::int8_t * pVals = reinterpret_cast<std::int8_t *>(get_pVals());
       return pVals + cbVal * ie;
    }
    void const * get_value_at(std::size_t cbVal, std::size_t ie) const {
@@ -249,7 +249,7 @@ protected:
       std::size_t cbKey, std::size_t ce, std::size_t * pibKeysOffset, std::size_t * pibValsOffset
    ) {
       // Calculate the size of this with a std::size_t[ce] hashes array appended.
-      std::size_t cbThisWithArrays(sizeof(_raw_map_desc) + sizeof(std::size_t) * ce);
+      std::size_t cbThisWithArrays = sizeof(_raw_map_desc) + sizeof(std::size_t) * ce;
       // Align the keys array to the closest std::max_align_t boundary, which will fit any type.
       *pibKeysOffset = bitmanip::ceiling_to_pow2_multiple(
          cbThisWithArrays, sizeof(std::max_align_t)
@@ -383,8 +383,8 @@ public:
       std::size_t cbKey, std::size_t cbVal, type_void_adapter::equal_fn pfnKeyEqual,
       void const * pKey, std::size_t hash
    ) {
-      std::size_t ie(lookup(cbKey, pfnKeyEqual, pKey, hash));
-      std::size_t hashEntry(m_prmd->get_phashes()[ie]);
+      std::size_t ie(lookup = cbKey, pfnKeyEqual, pKey, hash);
+      std::size_t hashEntry = m_prmd->get_phashes()[ie];
       if (!is_entry_active(hashEntry)) {
          ABC_THROW(key_error, ());
       }
@@ -416,10 +416,10 @@ public:
       std::size_t cbKey, type_void_adapter::equal_fn pfnKeyEqual, void const * pKey,
       std::size_t hash
    ) const {
-      std::size_t const * phashes(m_prmd->get_phashes());
-      std::size_t hashFull(hash), i(hash);
-      std::size_t ieRet(i & m_prmd->m.t.iMask);
-      std::size_t hashEntry(phashes[ieRet]);
+      std::size_t const * phashes = m_prmd->get_phashes();
+      std::size_t hashFull = hash, i = hash;
+      std::size_t ieRet = i & m_prmd->m.t.iMask;
+      std::size_t hashEntry = phashes[ieRet];
       // If the entry is unused or it’s active and the key matches, use it.
       if (hashEntry == smc_hashUnused || (
          hashEntry == hashFull && pfnKeyEqual(m_prmd->get_key_at(cbKey, ieRet), pKey)
@@ -430,13 +430,13 @@ public:
       // If the entry is only reserved, keep track of it as it will be used if there are no other
       // active entries with this same colliding hash. Otherwise it’s a collision, and this slot
       // can’t be used at all.
-      std::size_t ieNone(~std::size_t(0));
-      std::size_t ieFirstRes(hashEntry == smc_hashReserved ? ieRet : ieNone);
+      std::size_t ieNone = ~std::size_t(0);
+      std::size_t ieFirstRes = (hashEntry == smc_hashReserved ? ieRet : ieNone);
       // Either way, now check for all the other entries in the same relocation chain, and at the
       // end, either the first empty or the first reserved entries will have been picked.
       for (;; hash >>= smc_cbitPerturb) {
          i = i * 5 + hash + 1;
-         std::size_t ie(i & m_prmd->m.t.iMask);
+         std::size_t ie = i & m_prmd->m.t.iMask;
          hashEntry = phashes[ie];
          if (hashEntry == smc_hashUnused) {
             // Unused entry: return it, unless we previously found a reserved entry, in which case
@@ -465,7 +465,7 @@ protected:
    _raw_map_desc * get_embedded_desc() {
       // This works under the assumption that the alignment of the _raw_map_desc-derived object
       // forces the containing _raw_map_data-derived object to have the same alignment.
-      std::int8_t * p(reinterpret_cast<std::int8_t *>(this));
+      std::int8_t * p = reinterpret_cast<std::int8_t *>(this);
       p += bitmanip::ceiling_to_pow2_multiple(sizeof(*this), sizeof(std::max_align_t));
       return reinterpret_cast<_raw_map_desc *>(p);
    }
@@ -508,7 +508,7 @@ struct _raw_complex_map_impl :
    ) {
       // The only way of knowing if set_item() took up one more entry is to count the number of used
       // entries; if that goes up, we might need to resize the map.
-      std::size_t ceUsedBefore(m_prmd->m.t.ceUsed);
+      std::size_t ceUsedBefore = m_prmd->m.t.ceUsed;
       set_item(typeKey, typeVal, pKey, hash, pVal, bMoveKey, bMoveVal);
       if (m_prmd->m.t.ceUsed > ceUsedBefore && !m_prmd->can_fit(m_prmd->m.t.ceActive)) {
          try {
@@ -534,9 +534,8 @@ struct _raw_complex_map_impl :
       if (&rmrSrc == this) {
          return;
       }
-      _raw_map_desc const * pemdSrc(
-         static_cast<_raw_complex_map_impl const *>(&rmrSrc)->get_embedded_desc()
-      );
+      _raw_map_desc const * pemdSrc =
+         static_cast<_raw_complex_map_impl const *>(&rmrSrc)->get_embedded_desc();
       if (bMove && rmrSrc.m_prmd != pemdSrc) {
          // The source is using a dynamic descriptor, and we are performing a move: just take
          // ownership of the source descriptor.
@@ -549,7 +548,7 @@ struct _raw_complex_map_impl :
       }
       if (bMove) {
          // If moving, clear the source by assigning it its emptied embedded descriptor.
-         _raw_map_desc * pemdSrcW(const_cast<_raw_map_desc *>(pemdSrc));
+         _raw_map_desc * pemdSrcW = const_cast<_raw_map_desc *>(pemdSrc);
          pemdSrcW->reset();
          const_cast<_raw_map_root &>(rmrSrc).m_prmd = pemdSrcW;
       }
@@ -561,13 +560,15 @@ struct _raw_complex_map_impl :
    TODO: comment signature.
    */
    void release_desc(type_void_adapter const & typeKey, type_void_adapter const & typeVal) {
-      std::size_t * phash(m_prmd->get_phashes());
-      std::int8_t * pbKey(static_cast<std::int8_t *>(m_prmd->get_pKeys())),
-                  * pbVal(static_cast<std::int8_t *>(m_prmd->get_pVals()));
+      std::size_t * phash = m_prmd->get_phashes();
+      std::int8_t * pbKey = static_cast<std::int8_t *>(m_prmd->get_pKeys()),
+                  * pbVal = static_cast<std::int8_t *>(m_prmd->get_pVals());
       // This loop will stop as soon as all the active entries have been destructed, potentially
       // saving quite a few comparisons.
       for (
-         std::size_t ce(m_prmd->m.t.ceActive); ce; ++phash, pbKey += typeKey.cb, pbVal += typeVal.cb
+         std::size_t ce = m_prmd->m.t.ceActive;
+         ce;
+         ++phash, pbKey += typeKey.cb, pbVal += typeVal.cb
       ) {
          if (is_entry_active(*phash)) {
             typeKey.destruct(pbKey, 1);
@@ -590,14 +591,14 @@ struct _raw_complex_map_impl :
       type_void_adapter const & typeKey, type_void_adapter const & typeVal,
       void const * pKey, std::size_t hash
    ) {
-      std::size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
-      std::size_t * phashEntry(&m_prmd->get_phashes()[ie]);
+      std::size_t ie = lookup(typeKey.cb, typeKey.equal, pKey, hash);
+      std::size_t * phashEntry = &m_prmd->get_phashes()[ie];
       if (!is_entry_active(*phashEntry)) {
          ABC_THROW(key_error, ());
       }
 
-      void * pEntryKey(m_prmd->get_key_at(typeKey.cb, ie));
-      void * pEntryVal(m_prmd->get_value_at(typeVal.cb, ie));
+      void * pEntryKey = m_prmd->get_key_at(typeKey.cb, ie);
+      void * pEntryVal = m_prmd->get_value_at(typeVal.cb, ie);
       typeKey.destruct(pEntryKey, 1);
       typeVal.destruct(pEntryVal, 1);
       // Mark this entry as reserved, because we might have other collided hashes. Notice that this
@@ -627,12 +628,12 @@ struct _raw_complex_map_impl :
       type_void_adapter const & typeKey, type_void_adapter const & typeVal,
       void const * pKey, std::size_t hash, void const * pVal, bool bMoveKey, bool bMoveVal
    ) {
-      std::size_t ie(lookup(typeKey.cb, typeKey.equal, pKey, hash));
-      std::size_t * phashEntry(&m_prmd->get_phashes()[ie]);
+      std::size_t ie = lookup(typeKey.cb, typeKey.equal, pKey, hash);
+      std::size_t * phashEntry = &m_prmd->get_phashes()[ie];
       void * pEntryKey;
-      void * pEntryVal(m_prmd->get_value_at(typeVal.cb, ie));
+      void * pEntryVal = m_prmd->get_value_at(typeVal.cb, ie);
       std::unique_ptr<std::int8_t[]> pbValBackup;
-      bool bActive(is_entry_active(*phashEntry));
+      bool bActive = is_entry_active(*phashEntry);
       if (bActive) {
          pbValBackup.reset(new std::int8_t[typeVal.cb]);
          // Move the current value to the backup, and destruct the emptied value of the entry.
@@ -699,7 +700,7 @@ protected:
    ) {
       _raw_map_desc * prmdDst, * pemdDst(get_embedded_desc());
       std::unique_ptr<_dynamic_map_desc> pdmdDstNew;
-      bool bUseEmbedded(pemdDst->can_fit(ceNew) && m_prmd != pemdDst);
+      bool bUseEmbedded = (pemdDst->can_fit(ceNew) && m_prmd != pemdDst);
       if (bUseEmbedded) {
          // The embedded descriptor is large enough, so we can make prmdDst point directly to it.
          pemdDst->reset();
@@ -715,37 +716,37 @@ protected:
          prmdDst = pdmdDstNew.get();
       }
 
-      std::size_t const * phashSrc  (prmdSrc->get_phashes());
-      std::size_t       * phashesDst(prmdDst->get_phashes());
-      std::int8_t const * pbKeySrc (static_cast<std::int8_t const *>(prmdSrc->get_pKeys()));
-      std::int8_t       * pbKeysDst(static_cast<std::int8_t       *>(prmdDst->get_pKeys()));
-      std::int8_t const * pbValSrc (static_cast<std::int8_t const *>(prmdSrc->get_pVals()));
-      std::int8_t       * pbValsDst(static_cast<std::int8_t       *>(prmdDst->get_pVals()));
+      std::size_t const * phashSrc   = prmdSrc->get_phashes();
+      std::size_t       * phashesDst = prmdDst->get_phashes();
+      std::int8_t const * pbKeySrc  = static_cast<std::int8_t const *>(prmdSrc->get_pKeys());
+      std::int8_t       * pbKeysDst = static_cast<std::int8_t       *>(prmdDst->get_pKeys());
+      std::int8_t const * pbValSrc  = static_cast<std::int8_t const *>(prmdSrc->get_pVals());
+      std::int8_t       * pbValsDst = static_cast<std::int8_t       *>(prmdDst->get_pVals());
       // Copy the active entries in random order. This loop will stop as soon as all the active
       // entries have been copied, potentially saving quite a few comparisons.
       for (
-         std::size_t ceSrc(prmdSrc->m.t.ceActive);
+         std::size_t ceSrc = prmdSrc->m.t.ceActive;
          ceSrc;
          ++phashSrc, pbKeySrc += typeKey.cb, pbValSrc += typeVal.cb
       ) {
          if (is_entry_active(*phashSrc)) {
             // This entry is active: find its insertion point in *this.
-            std::size_t hash(*phashSrc), i(hash);
-            std::size_t ieDst(i & prmdDst->m.t.iMask);
+            std::size_t hash = *phashSrc, i = hash;
+            std::size_t ieDst = i & prmdDst->m.t.iMask;
             for (; phashesDst[ieDst] != smc_hashUnused; hash >>= smc_cbitPerturb) {
                i = i * 5 + hash + 1;
                ieDst = i & prmdDst->m.t.iMask;
             }
-            std::size_t * phashDst(&phashesDst[ieDst]);
-            std::int8_t * pbKeyDst(pbKeysDst + typeKey.cb * ieDst);
-            std::int8_t * pbValDst(pbValsDst + typeVal.cb * ieDst);
+            std::size_t * phashDst = &phashesDst[ieDst];
+            std::int8_t * pbKeyDst = pbKeysDst + typeKey.cb * ieDst;
+            std::int8_t * pbValDst = pbValsDst + typeVal.cb * ieDst;
             if (bMove) {
                typeKey.move_constr(pbKeyDst, const_cast<std::int8_t *>(pbKeySrc), 1);
                typeVal.move_constr(pbValDst, const_cast<std::int8_t *>(pbValSrc), 1);
             } else {
                // This will tell us if we need to also destruct the key we just copied, in case of
                // exceptions.
-               bool bKeyConstructed(false);
+               bool bKeyConstructed = false;
                try {
                   typeKey.copy_constr(pbKeyDst, pbKeySrc, 1);
                   bKeyConstructed = true;
@@ -793,7 +794,7 @@ protected:
    void resize(
       type_void_adapter const & typeKey, type_void_adapter const & typeVal, std::size_t ceNew
    ) {
-      _raw_map_desc * prmd(get_embedded_desc());
+      _raw_map_desc * prmd = get_embedded_desc();
       if (m_prmd == prmd && prmd->can_fit(ceNew)) {
          // If the embedded descriptor can still fit the items, don’t do anything at all.
          return;
