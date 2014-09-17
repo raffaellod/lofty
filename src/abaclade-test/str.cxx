@@ -496,27 +496,27 @@ public:
       istr s;
       auto psz(s.c_str());
       // s has no character array, so it should have returned the static NUL character.
-      ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
+      ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = ABC_SL("");
       psz = s.c_str();
       // s should have adopted the literal and therefore have a trailing NUL, so it should have
       // returned its own character array.
-      ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
+      ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = ABC_SL("a");
       psz = s.c_str();
       // s should have adopted the literal and therefore have a trailing NUL, so it should have
       // returned its own character array.
-      ABC_TESTING_ASSERT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 1u);
+      ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
    }
@@ -551,35 +551,35 @@ public:
       dmstr s;
       auto psz(s.c_str());
       // s has no character array, so it should have returned the static NUL character.
-      ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
+      ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = ABC_SL("");
       psz = s.c_str();
       // s still has no character array, so it should have returned the static NUL character again.
-      ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_FALSE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 0u);
+      ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
       s = ABC_SL("a");
       psz = s.c_str();
       // s should have copied the literal but dropped its trailing NUL, so it must’ve returned a
       // distinct character array.
-      ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 1u);
+      ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_TRUE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
 
       s += ABC_SL("b");
       psz = s.c_str();
       // The character array should have grown, but still lack the trailing NUL.
-      ABC_TESTING_ASSERT_NOT_EQUAL(psz.get(), s.cbegin().base());
-      ABC_TESTING_ASSERT_TRUE(psz.get_deleter().enabled());
-      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz.get()), 2u);
+      ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+      ABC_TESTING_ASSERT_TRUE(psz._get().get_deleter().enabled());
+      ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 2u);
       ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
       ABC_TESTING_ASSERT_EQUAL(psz[1], 'b');
       ABC_TESTING_ASSERT_EQUAL(psz[2], '\0');

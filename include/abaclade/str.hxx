@@ -28,6 +28,69 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 namespace abc {
+namespace detail {
+
+/*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
+abc::*str instance. */
+class c_str_ptr {
+private:
+
+   //! Internal conditionally-deleting pointer type.
+   typedef std::unique_ptr<
+      char_t const [],
+      memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
+   > pointer;
+
+
+public:
+
+   /*! Constructor.
+
+   pch
+      Pointer to the character array.
+   bOwn
+      If true, the pointer will own the character array; if false, it won’t try to deallocate it.
+   */
+   c_str_ptr(char_t const * pch, bool bOwn) :
+      m_p(pch, pointer::deleter_type(bOwn)) {
+   }
+
+
+   /*! Implicit conversion to char_t const *.
+
+   return
+      Pointer to the character array.
+   */
+   operator char_t const *() const {
+      return m_p.get();
+   }
+
+
+   /*! Enables access to the internal pointer.
+
+   return
+      Reference to the internal pointer.
+   */
+   pointer const & _get() const {
+      return m_p;
+   }
+
+
+private:
+
+   //! Conditionally-deleting pointer.
+   pointer m_p;
+};
+
+} //namespace detail
+} //namespace abc
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::str_base
+
+
+namespace abc {
 
 // Forward declarations.
 class istr;
@@ -55,17 +118,6 @@ public:
    typedef text::codepoint_iterator<true> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-
-
-public:
-
-   /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
-   abc::*str instance.
-   */
-   typedef std::unique_ptr<
-      char_t const [],
-      memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
-   > c_str_pointer;
 
 
 public:
@@ -145,7 +197,7 @@ public:
    return
       NUL-terminated version of the string.
    */
-   c_str_pointer c_str() const;
+   detail::c_str_ptr c_str() const;
 
 
    /*! Returns the maximum number of characters the string buffer can currently hold.

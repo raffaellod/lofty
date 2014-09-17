@@ -332,7 +332,7 @@ std::shared_ptr<file_base> open(
    if (!bBuffered) {
       fi |= O_DIRECT;
    }
-   fid.fd = ::open(fp.os_str().c_str().get(), fi, 0666);
+   fid.fd = ::open(fp.os_str().c_str(), fi, 0666);
    if (!fid.fd) {
       switch (errno) {
          case ENODEV: // No such device (POSIX.1-2001)
@@ -376,9 +376,7 @@ std::shared_ptr<file_base> open(
    } else if (fiAccess & GENERIC_READ) {
       fi |= FILE_FLAG_SEQUENTIAL_SCAN;
    }
-   fid.fd = ::CreateFile(
-      fp.os_str().c_str().get(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr
-   );
+   fid.fd = ::CreateFile(fp.os_str().c_str(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
    if (!fid.fd) {
       DWORD iErr(::GetLastError());
       switch (iErr) {

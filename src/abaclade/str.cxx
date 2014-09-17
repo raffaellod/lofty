@@ -115,26 +115,23 @@ char_t const * str_base::_advance_char_ptr(
 }
 
 
-str_base::c_str_pointer str_base::c_str() const {
+detail::c_str_ptr str_base::c_str() const {
    ABC_TRACE_FUNC(this);
 
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return c_str_pointer(chars_begin(), c_str_pointer::deleter_type(false));
+      return detail::c_str_ptr(chars_begin(), false);
    } else if (std::size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
-      c_str_pointer psz(
-         memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(),
-         c_str_pointer::deleter_type(true)
-      );
+      detail::c_str_ptr psz(memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(), true);
       char_t * pch(const_cast<char_t *>(psz.get()));
       memory::copy(pch, chars_begin(), cch);
       memory::clear(pch + cch);
       return std::move(psz);
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return c_str_pointer(&::gc_chNul, c_str_pointer::deleter_type(false));
+      return detail::c_str_ptr(&::gc_chNul, false);
    }
 }
 

@@ -51,7 +51,7 @@ public:
    file_stat(file_path const & fp) {
       ABC_TRACE_FUNC(this, fp);
 
-      if (::stat(fp.os_str().c_str().get(), this)) {
+      if (::stat(fp.os_str().c_str(), this)) {
          throw_os_error();
       }
    }
@@ -71,7 +71,7 @@ return
 bool file_attrs(file_path const & fp, DWORD fi) {
    ABC_TRACE_FUNC(fp, fi);
 
-   DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str().get()));
+   DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str()));
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
    }
