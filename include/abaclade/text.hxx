@@ -230,16 +230,10 @@ psz
 return
    Length of the string pointed to by psz, in characters.
 */
-template <typename C>
-inline std::size_t size_in_chars(C const * psz) {
-//   ABC_TRACE_FUNC(psz);
-
-   C const * pch(psz);
-   while (*pch) {
-      ++pch;
-   }
-   return static_cast<std::size_t>(pch - psz);
-}
+ABACLADE_SYM std::size_t size_in_chars(char_t const * psz);
+#if ABC_HOST_UTF > 8
+ABACLADE_SYM std::size_t size_in_chars(char const * psz);
+#endif
 
 
 /*! Converts from one character encoding to another, validating the source as it’s processed.

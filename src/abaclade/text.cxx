@@ -642,6 +642,39 @@ break_for:
    return cbDstUsed;
 }
 
+
+namespace detail {
+
+/*! Template implementation of abc::text::size_in_chars().
+
+psz
+   Pointer to the NUL-terminated string of which to calculate the length.
+return
+   Length of the string pointed to by psz, in characters.
+*/
+template <typename C>
+std::size_t size_in_chars(C const * psz) {
+   ABC_TRACE_FUNC(psz);
+
+   C const * pch(psz);
+   while (*pch) {
+      ++pch;
+   }
+   return static_cast<std::size_t>(pch - psz);
+}
+
+} //namespace detail
+
+
+std::size_t size_in_chars(char_t const * psz) {
+   return detail::size_in_chars(psz);
+}
+#if ABC_HOST_UTF > 8
+std::size_t size_in_chars(char const * psz) {
+   return detail::size_in_chars(psz);
+}
+#endif
+
 } //namespace text
 } //namespace abc
 
