@@ -539,18 +539,19 @@ std::size_t binbuf_reader::read_while_with_transcode(
    TODO: tune the initial value for cbSrcMax: smaller causes more repeated function calls, larger
    causes more work in abc::text::transcode() when we need to move characters back to the source. */
    //std::size_t cbSrcMax(32);
-   std::size_t cchReadTotal(0);
+   std::size_t cchReadTotal(0), cbSrc(*pcbSrc);
+   bool bLineEndsOnCRLFAndFoundCR(false);
    for (
       ;
-      *pcbSrc;
-      std::tie(pbSrc, *pcbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length)
+      cbSrc;
+      std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length)
    ) {
-      /*if (bOneLine && *pcbSrc > cbSrcMax) {
-         *pcbSrc = cbSrcMax;
+      /*if (bOneLine && cbSrc > cbSrcMax) {
+         cbSrc = cbSrcMax;
          cbSrcMax *= 2;
       }*/
       void const * pSrc(pbSrc);
-      std::size_t cbSrcRemaining(*pcbSrc);
+      std::size_t cbSrcRemaining(cbSrc);
       // Calculate the additional size required.
       std::size_t cbDst(abc::text::transcode(
          true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
@@ -581,7 +582,6 @@ std::size_t binbuf_reader::read_while_with_transcode(
             }
             m_bDiscardNextLF = false;
          }
-         bool bLineEndsOnCRLFAndFoundCR(false);
          while (pchDstUntranslated < pchDstEnd) {
             char_t ch(*pchDstUntranslated++);
             // TODO: avoid writing ch if source and destination pointers are in sync.
@@ -603,6 +603,7 @@ std::size_t binbuf_reader::read_while_with_transcode(
                }
             } else if (ch == '\n') {
                if (bLineEndsOnLFOrAny || bLineEndsOnCRLFAndFoundCR) {
+                  bLineEndsOnCRLFAndFoundCR = false;
                   break;
                }
             }
@@ -616,7 +617,7 @@ std::size_t binbuf_reader::read_while_with_transcode(
             // Restore the arguments for transcode(), keeping in mind we don’t want back the LF we
             // discarded earlier due to m_bDiscardNextLF.
             pSrc = static_cast<std::int8_t const *>(pbSrc);
-            cbSrcRemaining = *pcbSrc;
+            cbSrcRemaining = cbSrc;
             cbDst = reinterpret_cast<std::size_t>(pchDstUntranslated) -
                reinterpret_cast<std::size_t>(pchDstOffset);
             abc::text::transcode(
@@ -629,12 +630,13 @@ std::size_t binbuf_reader::read_while_with_transcode(
       } while (!bOneLine && pchDstUntranslated < pchDstEnd);
       // Count the transcoded bytes and consume the used bytes.
       cchReadTotal += static_cast<std::size_t>(pchDstTranslated - pchDstOffset);
-      m_pbbr->consume_bytes(*pcbSrc - cbSrcRemaining);
+      m_pbbr->consume_bytes(cbSrc - cbSrcRemaining);
       if (cbSrcRemaining) {
          // We broke out of the line-consuming loop due to bOneLine, so stop here.
          break;
       }
    }
+   *pcbSrc = cbSrc;
    return cchReadTotal;
 }
 
