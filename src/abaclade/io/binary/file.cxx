@@ -180,7 +180,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
 
       case FILE_TYPE_UNKNOWN: {
          // Unknown or error.
-         DWORD iErr(::GetLastError());
+         DWORD iErr = ::GetLastError();
          if (iErr != ERROR_SUCCESS) {
             throw_os_error(iErr);
          }
@@ -343,7 +343,7 @@ std::shared_ptr<file_base> open(
       }
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD fiAccess, fiShareMode, iAction, fi(FILE_ATTRIBUTE_NORMAL);
+   DWORD fiAccess, fiShareMode, iAction, fi = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
       default:
       case access_mode::read:
@@ -378,7 +378,7 @@ std::shared_ptr<file_base> open(
    }
    fid.fd = ::CreateFile(fp.os_str().c_str(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
    if (!fid.fd) {
-      DWORD iErr(::GetLastError());
+      DWORD iErr = ::GetLastError();
       switch (iErr) {
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
          case ERROR_UNKNOWN_PORT: // The specified port is unknown.
@@ -420,7 +420,6 @@ filedesc_t const filedesc::smc_fdNull =
 filedesc::filedesc(filedesc && fd) :
    m_fd(fd.m_fd),
    m_bOwn(fd.m_bOwn) {
-
    ABC_TRACE_FUNC(this);
 
    fd.m_fd = smc_fdNull;
@@ -510,7 +509,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   std::int8_t * pb(static_cast<std::int8_t *>(p));
+   std::int8_t * pb = static_cast<std::int8_t *>(p);
    /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
    read()-equivalent function is invoked at least once, so we give it a chance to report any errors,
    instead of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
@@ -518,9 +517,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
-      ::ssize_t cbLastRead(::read(
+      ::ssize_t cbLastRead = ::read(
          m_fd.get(), pb, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
-      ));
+      );
       if (cbLastRead == 0) {
          // EOF.
          break;
@@ -606,7 +605,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   std::int8_t const * pb(static_cast<std::int8_t const *>(p));
+   std::int8_t const * pb = static_cast<std::int8_t const *>(p);
 
    /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
    write()-equivalent function is invoked at least once, so we give it a chance to report any
@@ -615,9 +614,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
-      ::ssize_t cbLastWritten(::write(
+      ::ssize_t cbLastWritten = ::write(
          m_fd.get(), pb, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
-      ));
+      );
       if (cbLastWritten < 0) {
          throw_os_error();
       }
@@ -694,9 +693,9 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
-   std::size_t cchMax(cbMax / sizeof(char_t));
+   std::size_t cchMax = cbMax / sizeof(char_t);
 
-   std::int8_t * pb(static_cast<std::int8_t *>(p));
+   std::int8_t * pb = static_cast<std::int8_t *>(p);
    // ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
    // of masking them by skipping the call (e.g. due to cchMax == 0 on input).
    do {
@@ -708,7 +707,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
          static_cast<DWORD>(std::min<std::size_t>(cchMax, numeric::max<DWORD>::value)),
          &cchLastRead, nullptr
       )) {
-         DWORD iErr(::GetLastError());
+         DWORD iErr = ::GetLastError();
          if (iErr == ERROR_HANDLE_EOF) {
             break;
          }
@@ -760,9 +759,9 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
-   std::size_t cch(cb / sizeof(char_t));
+   std::size_t cch = cb / sizeof(char_t);
 
-   std::int8_t const * pb(static_cast<std::int8_t const *>(p));
+   std::int8_t const * pb = static_cast<std::int8_t const *>(p);
    // ::WriteConsole() is invoked at least once, so we give it a chance to report any errors,
    // instead of masking them by skipping the call (e.g. due to cch == 0 on input).
    do {
@@ -884,9 +883,9 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       throw_os_error();
    }
 #else //if _WIN32_WINNT >= 0x0500
-   DWORD cbHigh, cbLow(::GetFileSize(fd.get(), &cbHigh));
+   DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
    if (cbLow == INVALID_FILE_SIZE) {
-      DWORD iErr(::GetLastError());
+      DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
          throw_os_error(iErr);
       }
@@ -931,7 +930,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
          iWhence = SEEK_END;
          break;
    }
-   offset_t ibNewOffset(::lseek(m_fd.get(), ibOffset, iWhence));
+   offset_t ibNewOffset = ::lseek(m_fd.get(), ibOffset, iWhence);
    if (ibNewOffset == -1) {
       throw_os_error();
    }
@@ -968,7 +967,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       m_fd.get(), ibNewOffset.LowPart, &ibNewOffset.HighPart, iWhence
    );
    if (ibNewOffset.LowPart == INVALID_SET_FILE_POINTER) {
-      DWORD iErr(::GetLastError());
+      DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
          throw_os_error(iErr);
       }
@@ -1105,7 +1104,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
             m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
             static_cast<DWORD>(m_cb.HighPart)
          )) {
-            DWORD iErr(::GetLastError());
+            DWORD iErr = ::GetLastError();
             if (iErr == ERROR_LOCK_VIOLATION) {
                return false;
             }

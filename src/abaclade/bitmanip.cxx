@@ -31,14 +31,14 @@ namespace bitmanip {
 namespace detail {
 
 std::uint8_t ceiling_to_pow2(std::uint8_t i) {
-   unsigned iPow2(static_cast<unsigned>(i - 1));
+   unsigned iPow2 = static_cast<unsigned>(i - 1);
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;
    return static_cast<std::uint8_t>(iPow2 + 1);
 }
 std::uint16_t ceiling_to_pow2(std::uint16_t i) {
-   unsigned iPow2(static_cast<unsigned>(i - 1));
+   unsigned iPow2 = static_cast<unsigned>(i - 1);
    iPow2 |= iPow2 >> 1;
    iPow2 |= iPow2 >> 2;
    iPow2 |= iPow2 >> 4;

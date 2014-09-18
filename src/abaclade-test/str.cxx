@@ -179,7 +179,7 @@ public:
          // triggering a reallocation, which would break these tests.
 
          dmstr s1, s2(ABC_SL("a"));
-         char_t const * pchCheck(s2.cbegin().base());
+         char_t const * pchCheck = s2.cbegin().base();
          // Verify that the compiler selects operator+(dmstr &&, …) when possible.
          s1 = std::move(s2) + ABC_SL("b");
          ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
@@ -494,6 +494,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       istr s;
+      // Note: storing its return value in a variable is NOT a way to use c_str().
       auto psz(s.c_str());
       // s has no character array, so it should have returned the static NUL character.
       ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
@@ -549,6 +550,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       dmstr s;
+      // Note: storing its return value in a variable is NOT a way to use c_str().
       auto psz(s.c_str());
       // s has no character array, so it should have returned the static NUL character.
       ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
@@ -613,8 +615,8 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Special characters.
-      char32_t ch0(gc_chP0);
-      char32_t ch2(gc_chP2);
+      char32_t ch0 = gc_chP0;
+      char32_t ch2 = gc_chP2;
       // See gc_sAcabaabca for more information on its pattern. To make it more interesting, here we
       // also duplicate it.
       istr const s(gc_sAcabaabca + gc_sAcabaabca);
@@ -665,10 +667,10 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Special characters.
-      char32_t ch0(gc_chP0);
-      char32_t ch2(gc_chP2);
+      char32_t ch0 = gc_chP0;
+      char32_t ch2 = gc_chP2;
       // See gc_sAcabaabca for more information on its pattern.
-      istr const & s(gc_sAcabaabca);
+      istr const & s = gc_sAcabaabca;
 
       ABC_TESTING_ASSERT_TRUE(s.starts_with(istr()));
       ABC_TESTING_ASSERT_TRUE(s.starts_with(istr() + 'a'));
@@ -711,10 +713,10 @@ public:
       ABC_TRACE_FUNC(this);
 
       // Special characters.
-      char32_t ch0(gc_chP0);
-      char32_t ch2(gc_chP2);
+      char32_t ch0 = gc_chP0;
+      char32_t ch2 = gc_chP2;
       // See gc_sAcabaabca for more information on its pattern.
-      istr const & s(gc_sAcabaabca);
+      istr const & s = gc_sAcabaabca;
 
       ABC_TESTING_ASSERT_TRUE(s.ends_with(istr()));
       ABC_TESTING_ASSERT_TRUE(s.ends_with(istr() + 'a'));

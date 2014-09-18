@@ -190,7 +190,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      std::uintptr_t iBad(0xbad);
+      std::uintptr_t iBad = 0xbad;
 
       // Test nullptr.
       ABC_TESTING_ASSERT_EQUAL(
@@ -246,7 +246,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      int * pi(new int);
+      int * pi = new int;
       istr sPtr(to_str(pi));
 
       {

@@ -87,7 +87,7 @@ void test_case::assert_throws(
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat);
 
-   bool bPass(false);
+   bool bPass = false;
    istr sCaughtWhat;
    try {
       fnExpr();

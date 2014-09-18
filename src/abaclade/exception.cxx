@@ -1354,7 +1354,7 @@ exception::async_handler_manager::async_handler_manager() {
    saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
 
    // Setup handlers for the signals in g_aiHandledSignals.
-   for (int i(ABC_COUNTOF(g_aiHandledSignals)); --i >= 0; ) {
+   for (std::ptrdiff_t i = ABC_COUNTOF(g_aiHandledSignals); --i >= 0; ) {
       ::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
    }
 }
@@ -1362,7 +1362,7 @@ exception::async_handler_manager::async_handler_manager() {
 
 exception::async_handler_manager::~async_handler_manager() {
    // Restore the saved signal handlers.
-   for (int i(ABC_COUNTOF(g_aiHandledSignals)); --i >= 0; ) {
+   for (std::ptrdiff_t i = ABC_COUNTOF(g_aiHandledSignals); --i >= 0; ) {
       ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], nullptr);
    }
 }
@@ -1390,9 +1390,9 @@ void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS *
          // inaccessible address. If this value is 8, the thread causes a user-mode data execution
          // prevention (DEP) violation.
          // ExceptionInformation[1] specifies the virtual address of the inaccessible data.
-         void const * pAddr(reinterpret_cast<void const *>(
+         void const * pAddr = reinterpret_cast<void const *>(
             pxpInfo->ExceptionRecord->ExceptionInformation[1]
-         ));
+         );
          if (pAddr == nullptr) {
             ABC_THROW(abc::null_pointer_error, ());
          } else {

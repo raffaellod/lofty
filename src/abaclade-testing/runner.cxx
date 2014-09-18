@@ -60,7 +60,7 @@ void runner::load_registered_test_cases() {
    ABC_TRACE_FUNC(this);
 
    for (
-      test_case_factory_impl::list_item * pli(test_case_factory_impl::get_factory_list_head());
+      test_case_factory_impl::list_item * pli = test_case_factory_impl::get_factory_list_head();
       pli;
       pli = pli->pliNext
    ) {

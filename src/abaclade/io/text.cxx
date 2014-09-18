@@ -67,19 +67,19 @@ void reader::read_all(mstr * psDst) {
 bool reader::read_line(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
-   bool bEOF(read_while(psDst, true));
+   bool bEOF = read_while(psDst, true);
 
    // Strip the line terminator, if any.
-   std::size_t cchLTerm(0);
+   std::size_t cchLTerm = 0;
    if (
       m_lterm == abc::text::line_terminator::any ||
       m_lterm == abc::text::line_terminator::convert_any_to_lf
    ) {
       // Reading stopped at the first CR or LF, so removing either from its end will cause it to
       // contain none.
-      char_t const * pch(psDst->chars_end() - 1), * pchBegin(psDst->chars_begin());
+      char_t const * pch = psDst->chars_end() - 1, * pchBegin = psDst->chars_begin();
       if (pch != pchBegin) {
-         char_t ch(*pch);
+         char_t ch = *pch;
          if (ch == '\n' || ch == '\r') {
             cchLTerm = 1;
          }
@@ -360,9 +360,8 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
       // This special value prevents guess_encoding() from dismissing char16/32_t as impossible
       // just because the need to clip cbFile to a std::size_t resulted in an odd count of bytes.
-      static std::size_t const sc_cbAlignedMax(
-         numeric::max<std::size_t>::value & ~sizeof(char32_t)
-      );
+      static std::size_t const sc_cbAlignedMax =
+         numeric::max<std::size_t>::value & ~sizeof(char32_t);
       cbFile = static_cast<std::size_t>(
          std::min(psb->size(), static_cast<full_size_t>(sc_cbAlignedMax))
       );
@@ -398,7 +397,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
 
    // If the encoding is still undefined, try to guess it now.
    if (m_enc == abc::text::encoding::unknown) {
-      std::size_t cbBom(detect_encoding(pbSrc, cbSrc));
+      std::size_t cbBom = detect_encoding(pbSrc, cbSrc);
       // If a BOM was read, consume and discard it.
       if (cbBom) {
          m_pbbr->consume_bytes(cbBom);
@@ -411,7 +410,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
       }
    }
 
-   std::size_t cchReadTotal(0);
+   std::size_t cchReadTotal = 0;
    if (m_enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cchReadTotal = read_while_with_host_encoding(pbSrc, &cbSrc, psDst, bOneLine);
@@ -443,19 +442,19 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
       m_lterm == abc::text::line_terminator::convert_any_to_lf
    );
    // This loop consumes one peek buffer at a time; it may end prematurely if bOneLine == true.
-   std::size_t cchReadTotal(0);
+   std::size_t cchReadTotal = 0;
    for (
       ;
       *pcbSrc;
       std::tie(pbSrc, *pcbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length)
    ) {
       // Enlarge the destination string and append the read buffer contents to it.
-      char_t const * pchSrcBegin(reinterpret_cast<char_t const *>(pbSrc));
-      char_t const * pchSrcEnd(reinterpret_cast<char_t const *>(pbSrc + *pcbSrc));
-      std::size_t cchSrc(*pcbSrc / sizeof(char_t));
+      char_t const * pchSrcBegin = reinterpret_cast<char_t const *>(pbSrc);
+      char_t const * pchSrcEnd = reinterpret_cast<char_t const *>(pbSrc + *pcbSrc);
+      std::size_t cchSrc = *pcbSrc / sizeof(char_t);
       psDst->set_capacity(cchReadTotal + cchSrc, true);
-      char_t * pchDstBegin(psDst->chars_begin());
-      char_t * pchDstOffset(pchDstBegin + cchReadTotal);
+      char_t * pchDstBegin = psDst->chars_begin();
+      char_t * pchDstOffset = pchDstBegin + cchReadTotal;
       // Validate the characters in the source buffer before appending them to *psDst.
       // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
       // into a special character, in which case we switch to using read_while_with_transcode()
@@ -467,8 +466,8 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
       terminator matching m_lterm, and the line terminator is also translated on the fly if
       appropriate. If not asked for just a single line, this continues until we exhaust the current
       peek buffer. */
-      char_t const * pchSrc(pchSrcBegin);
-      char_t * pchDst(pchDstOffset);
+      char_t const * pchSrc = pchSrcBegin;
+      char_t * pchDst = pchDstOffset;
       do {
          // If the first character is a CR that’s part of a CR+LF terminator we already presented as
          // a LF, make it disappear.
@@ -478,9 +477,9 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
             }
             m_bDiscardNextLF = false;
          }
-         bool bLineEndsOnCRLFAndFoundCR(false);
+         bool bLineEndsOnCRLFAndFoundCR = false;
          while (pchSrc < pchSrcEnd) {
-            char_t ch(*pchSrc++);
+            char_t ch = *pchSrc++;
             *pchDst++ = ch;
             if (ch == '\r') {
                if (bLineEndsOnCROrAny) {
@@ -539,8 +538,8 @@ std::size_t binbuf_reader::read_while_with_transcode(
    TODO: tune the initial value for cbSrcMax: smaller causes more repeated function calls, larger
    causes more work in abc::text::transcode() when we need to move characters back to the source. */
    //std::size_t cbSrcMax(32);
-   std::size_t cchReadTotal(0), cbSrc(*pcbSrc);
-   bool bLineEndsOnCRLFAndFoundCR(false);
+   std::size_t cchReadTotal = 0, cbSrc = *pcbSrc;
+   bool bLineEndsOnCRLFAndFoundCR = false;
    for (
       ;
       cbSrc;
@@ -550,17 +549,17 @@ std::size_t binbuf_reader::read_while_with_transcode(
          cbSrc = cbSrcMax;
          cbSrcMax *= 2;
       }*/
-      void const * pSrc(pbSrc);
-      std::size_t cbSrcRemaining(cbSrc);
+      void const * pSrc = pbSrc;
+      std::size_t cbSrcRemaining = cbSrc;
       // Calculate the additional size required.
-      std::size_t cbDst(abc::text::transcode(
+      std::size_t cbDst = abc::text::transcode(
          true, m_enc, &pSrc, &cbSrcRemaining, abc::text::encoding::host
-      ));
+      );
       // Enlarge the destination string and get its begin/end pointers.
       psDst->set_capacity(cchReadTotal + cbDst / sizeof(char_t), true);
-      char_t const * pchDstBegin(psDst->chars_begin());
-      char_t * pchDstOffset(const_cast<char_t *>(pchDstBegin) + cchReadTotal);
-      char_t * pchDstEnd(pchDstOffset);
+      char_t const * pchDstBegin = psDst->chars_begin();
+      char_t * pchDstOffset = const_cast<char_t *>(pchDstBegin) + cchReadTotal;
+      char_t * pchDstEnd = pchDstOffset;
       // Transcode the buffer chunk and advance pchDstEnd accordingly.
       abc::text::transcode(
          true, m_enc, &pSrc, &cbSrcRemaining,
@@ -571,8 +570,8 @@ std::size_t binbuf_reader::read_while_with_transcode(
       from its start (pchDstOffset). Each iteration ends on the first line terminator matching
       m_lterm, and the line terminator is also translated on the fly if appropriate. If not asked
       for just a single line, this continues until we exhaust the current peek buffer. */
-      char_t const * pchDstUntranslated(pchDstOffset);
-      char_t * pchDstTranslated(pchDstOffset);
+      char_t const * pchDstUntranslated = pchDstOffset;
+      char_t * pchDstTranslated = pchDstOffset;
       do {
          // If the first character is a CR that’s part of a CR+LF terminator we already presented as
          // a LF, make it disappear.
@@ -583,7 +582,7 @@ std::size_t binbuf_reader::read_while_with_transcode(
             m_bDiscardNextLF = false;
          }
          while (pchDstUntranslated < pchDstEnd) {
-            char_t ch(*pchDstUntranslated++);
+            char_t ch = *pchDstUntranslated++;
             // TODO: avoid writing ch if source and destination pointers are in sync.
             *pchDstTranslated++ = ch;
             if (ch == '\r') {

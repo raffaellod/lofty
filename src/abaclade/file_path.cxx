@@ -71,7 +71,7 @@ return
 bool file_attrs(file_path const & fp, DWORD fi) {
    ABC_TRACE_FUNC(fp, fi);
 
-   DWORD fiAttrs(::GetFileAttributes(fp.os_str().c_str()));
+   DWORD fiAttrs = ::GetFileAttributes(fp.os_str().c_str());
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
    }
@@ -125,15 +125,15 @@ file_path file_path::absolute() const {
       // Prepend the current directory to make the path absolute, then proceed to normalize.
       fpAbsolute = current_dir() / *this;
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      static std::size_t const sc_ichVolume(0 /*“X” in “X:”*/);
-      static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-      static std::size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+      static std::size_t const sc_ichVolume      = 0; // “X” in “X:”.
+      static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”.
+      static std::size_t const sc_ichLeadingSep  = 0; // “\” in “\”.
 
       // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
       // and be relative to the current directory in that volume. Either way, these two formats
       // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
-      std::size_t cch(m_s.size_in_chars());
-      char_t const * pch(m_s.chars_begin());
+      std::size_t cch = m_s.size_in_chars();
+      char_t const * pch = m_s.chars_begin();
       if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
@@ -187,13 +187,13 @@ file_path file_path::base_name() const {
    // mstr::set_from() allocate space for that too, by adding the size of the root to the buffer
    // size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
    // reserve space for the root prefix.
-   std::size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   std::size_t const c_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
    s.set_from([c_cchRoot] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (c_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
       }
-      DWORD cch(::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot));
+      DWORD cch = ::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot);
       if (!cch) {
          throw_os_error();
       }
@@ -222,9 +222,9 @@ file_path file_path::base_name() const {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
       }
-      DWORD cch(::GetFullPathName(
+      DWORD cch = ::GetFullPathName(
          achDummyPath, static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
-      ));
+      );
       if (!cch) {
          throw_os_error();
       }
@@ -268,10 +268,10 @@ file_path file_path::normalize() const {
    // •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
    // •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
    smvector<dmstr::iterator, 5> vitSeps;
-   std::size_t cDots(0);
+   std::size_t cDots = 0;
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
-      char32_t ch(*itSrc);
+      char32_t ch = *itSrc;
       if (ch == '.') {
          ++cDots;
       } else {
@@ -371,9 +371,9 @@ dmstr::const_iterator file_path::base_name_start() const {
    }
 #if ABC_HOST_API_WIN32
    // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
-   static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
+   static std::size_t const sc_ichVolumeColon = 1; //“:” in “X:”.
 
-   std::size_t cch(m_s.size_in_chars());
+   std::size_t cch = m_s.size_in_chars();
    if (cch > sc_ichVolumeColon) {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
       // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
@@ -390,7 +390,7 @@ dmstr::const_iterator file_path::base_name_start() const {
 /*static*/ std::size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
 
-   static std::size_t const sc_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
+   static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
 
 #if ABC_HOST_API_POSIX
    if (s.starts_with(smc_aszRoot)) {
@@ -398,13 +398,13 @@ dmstr::const_iterator file_path::base_name_start() const {
       return sc_cchRoot;
    }
 #elif ABC_HOST_API_WIN32
-   static std::size_t const sc_cchUNCRoot(ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/);
-   static std::size_t const sc_cchVolumeRoot(sc_cchRoot + 3 /*“X:\”*/);
-   static std::size_t const sc_ichVolumeColon(1 /*“:” in “X:”*/);
-   static std::size_t const sc_ichLeadingSep(0 /*“\” in “\”*/);
+   static std::size_t const sc_cchUNCRoot = ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/;
+   static std::size_t const sc_cchVolumeRoot = sc_cchRoot + 3; //“X:\”
+   static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”
+   static std::size_t const sc_ichLeadingSep = 0; // “\” in “\”
 
-   std::size_t cch(s.size_in_chars());
-   char_t const * pch(s.chars_begin());
+   std::size_t cch = s.size_in_chars();
+   char_t const * pch = s.chars_begin();
    if (s.starts_with(smc_aszRoot)) {
       if (s.starts_with(smc_aszUNCRoot)) {
          // Return the index of “a” in “\\?\UNC\a”.
@@ -462,10 +462,10 @@ dmstr::const_iterator file_path::base_name_start() const {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
          s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
       } else {
-         std::size_t cch(s.size_in_chars());
-         char_t * pch(s.chars_begin());
+         std::size_t cch = s.size_in_chars();
+         char_t * pch = s.chars_begin();
          if (cch >= 2 && *(pch + 1) == ':') {
-            char_t chVolume(*pch);
+            char_t chVolume = *pch;
             // If the path is in the form “x:”, normalize the volume designator to uppercase.
             if (chVolume >= 'a' && chVolume <= 'z') {
                chVolume -= 'a' - 'A';
@@ -489,10 +489,10 @@ dmstr::const_iterator file_path::base_name_start() const {
 
    // Collapse sequences of one or more path separators with a single separator.
    auto itDst(itRootEnd);
-   bool bPrevIsSeparator(false);
+   bool bPrevIsSeparator = false;
    for (auto itSrc(itRootEnd); itSrc != itEnd; ++itSrc) {
-      char32_t ch(*itSrc);
-      bool bCurrIsSeparator(ch == text::codepoint(smc_aszSeparator[0]));
+      char32_t ch = *itSrc;
+      bool bCurrIsSeparator = ch == text::codepoint(smc_aszSeparator[0]);
       if (bCurrIsSeparator && bPrevIsSeparator) {
          // Collapse consecutive separators by advancing itSrc (as part of the for loop) without
          // advancing itDst.

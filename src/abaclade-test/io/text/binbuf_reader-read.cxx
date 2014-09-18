@@ -45,11 +45,11 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      T const * t(static_cast<T const *>(this));
+      T const * t = static_cast<T const *>(this);
       file_path fp(ABC_SL("src/abaclade-test/io/text/data/") + t->get_test_data_file_name());
       auto ptrIn(io::text::open_reader(fp));
       dmstr sLine;
-      unsigned i(1);
+      unsigned i = 1;
       while (ptrIn->read_line(&sLine)) {
          ABC_TESTING_ASSERT_EQUAL(sLine.size(), i++);
       }
@@ -59,7 +59,7 @@ public:
    virtual istr title() override {
       ABC_TRACE_FUNC(this);
 
-      T const * t(static_cast<T const *>(this));
+      T const * t = static_cast<T const *>(this);
       return ABC_SL("abc::io::text::binbuf_reader – reading line-by-line, ") + t->title_suffix();
    }
 

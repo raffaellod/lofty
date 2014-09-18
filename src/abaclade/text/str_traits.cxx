@@ -39,11 +39,11 @@ namespace text {
    // The earliest repetition of a non-first character can only occur on the fourth character, so
    // start by skipping two characters and storing two zeros for them, then the first iteration will
    // also always store an additional zero and consume one more character.
-   char_t const * pchNeedle(pchNeedleBegin + 2);
-   char_t const * pchRestart(pchNeedleBegin);
+   char_t const * pchNeedle = pchNeedleBegin + 2;
+   char_t const * pchRestart = pchNeedleBegin;
    *itNextFailNext++ = 0;
    *itNextFailNext++ = 0;
-   std::size_t ichRestart(0);
+   std::size_t ichRestart = 0;
    while (pchNeedle < pchNeedleEnd) {
       // Store the current failure restart index, or 0 if the previous character was the third or
       // was not a match.
@@ -67,18 +67,18 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pch1Begin, pch1End, pch2Begin, pch2End);
 
-   char_t const * pch1(pch1Begin), * pch2(pch2Begin);
+   char_t const * pch1 = pch1Begin, * pch2 = pch2Begin;
    while (pch1 < pch1End && pch2 < pch2End) {
-      char_t ch1(*pch1++), ch2(*pch2++);
+      char_t ch1 = *pch1++, ch2 = *pch2++;
 #if ABC_HOST_UTF == 8
-      // Note: not only don’t sequences matter when scanning for the first differing bytes, but once
-      // a pair of differing bytes is found, if they are part of a sequence, its start must have
-      // been the same, so only their absolute value matters; if they started a sequence, the first
-      // byte of a longer encoding (greater code point value) if greater than that of a shorter one.
+      /* Note: not only don’t sequences matter when scanning for the first differing bytes, but once
+      a pair of differing bytes is found, if they are part of a sequence, its start must have been
+      the same, so only their absolute value matters; if they started a sequence, the first byte of
+      a longer encoding (greater code point value) if greater than that of a shorter one. */
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
       // Surrogates mess with the ability to just compare the absolute char16_t value.
-      bool bIsSurrogate1(host_char_traits::is_surrogate(ch1));
-      bool bIsSurrogate2(host_char_traits::is_surrogate(ch2));
+      bool bIsSurrogate1 = host_char_traits::is_surrogate(ch1);
+      bool bIsSurrogate2 = host_char_traits::is_surrogate(ch2);
       if (bIsSurrogate1 != bIsSurrogate2) {
          if (bIsSurrogate1) {
             // If ch1 is a surrogate and ch2 is not, ch1 > ch2.
@@ -129,16 +129,16 @@ namespace text {
    ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, pchNeedle);
 
 #if ABC_HOST_UTF == 8
-   char8_t chNeedleLead(*pchNeedle);
-   for (char8_t const * pch(pchHaystackBegin), * pchNext; pch < pchHaystackEnd; pch = pchNext) {
-      char8_t ch(*pch);
-      unsigned cbCp(host_char_traits::lead_char_to_codepoint_size(ch));
+   char8_t chNeedleLead = *pchNeedle;
+   for (char8_t const * pch = pchHaystackBegin, * pchNext; pch < pchHaystackEnd; pch = pchNext) {
+      char8_t ch = *pch;
+      unsigned cbCp = host_char_traits::lead_char_to_codepoint_size(ch);
       // Make the next iteration resume from the next code point.
       pchNext = pch + cbCp;
       if (ch == chNeedleLead) {
          if (--cbCp) {
             // The lead bytes match; check if the trailing ones do as well.
-            char8_t const * pchCont(pch), * pchNeedleCont(pchNeedle);
+            char8_t const * pchCont = pch, * pchNeedleCont = pchNeedle;
             while (++pchCont < pchNext && *pchCont == *++pchNeedleCont) {
                ;
             }
@@ -155,10 +155,11 @@ namespace text {
    char16_t chNeedle0(pchNeedle[0]);
    // We only have a second character if the first is a lead surrogate. Using NUL as a special value
    // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
-   char16_t chNeedle1(host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : host_char(0));
+   char16_t chNeedle1 =
+      host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : host_char(0);
    // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
    // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
-   for (char16_t const * pch(pchHaystackBegin); pch < pchHaystackEnd; ++pch) {
+   for (char16_t const * pch = pchHaystackBegin; pch < pchHaystackEnd; ++pch) {
       if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
          return pch;
       }
@@ -198,8 +199,8 @@ namespace text {
       // No needle, so just return the beginning of the haystack.
       return pchHaystackBegin;
    }
-   char_t const * pchHaystack(pchHaystackBegin);
-   char_t const * pchNeedle(pchNeedleBegin);
+   char_t const * pchHaystack = pchHaystackBegin;
+   char_t const * pchNeedle = pchNeedleBegin;
    try {
       /*! DOC:1502 KMP substring search
 
@@ -219,7 +220,7 @@ namespace text {
       smvector<std::size_t, 64> vcchFailNext;
       _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
 
-      std::size_t iFailNext(0);
+      std::size_t iFailNext = 0;
       while (pchHaystack < pchHaystackEnd) {
          if (*pchHaystack == *pchNeedle) {
             ++pchNeedle;
@@ -245,10 +246,10 @@ namespace text {
    } catch (std::bad_alloc const &) {
       // Could not allocate enough memory for the failure restart table: fall back to a trivial (and
       // potentially slower) substring search.
-      char_t chFirst(*pchNeedleBegin);
+      char_t chFirst = *pchNeedleBegin;
       for (; pchHaystack < pchHaystackEnd; ++pchHaystack) {
          if (*pchHaystack == chFirst) {
-            char_t const * pchHaystackMatch(pchHaystack);
+            char_t const * pchHaystackMatch = pchHaystack;
             pchNeedle = pchNeedleBegin;
             while (++pchNeedle < pchNeedleEnd && *++pchHaystackMatch == *pchNeedle) {
                ;
@@ -281,9 +282,9 @@ namespace text {
 ) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   std::size_t ccp(0);
+   std::size_t ccp = 0;
    for (
-      char_t const * pch(pchBegin);
+      char_t const * pch = pchBegin;
       pch < pchEnd;
       pch += host_char_traits::lead_char_to_codepoint_size(*pch)
    ) {
@@ -299,9 +300,9 @@ namespace text {
    ABC_TRACE_FUNC(pchBegin, pchEnd, bThrowOnErrors);
 
 #if ABC_HOST_UTF == 8
-   for (char8_t const * pch(pchBegin); pch < pchEnd; ) {
-      std::uint8_t const * pbSrcCpBegin(reinterpret_cast<std::uint8_t const *>(pch));
-      char8_t ch(*pch++);
+   for (char8_t const * pch = pchBegin; pch < pchEnd; ) {
+      std::uint8_t const * pbSrcCpBegin = reinterpret_cast<std::uint8_t const *>(pch);
+      char8_t ch = *pch++;
       // This should be a lead byte, and not the start of an overlong or an invalid lead byte.
       if (!utf8_char_traits::is_valid_lead_char(ch)) {
          if (bThrowOnErrors) {
@@ -315,14 +316,14 @@ namespace text {
 
       // If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
       // nested for loop; see below for more info.
-      bool bValidateOnBitsInFirstTrailByte((ch & 0xef) == 0xe0);
+      bool bValidateOnBitsInFirstTrailByte = (ch & 0xef) == 0xe0;
 
       // Ensure that these bits are 0 to detect encoded code points above
       // (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
       // 10000 xxxxyyyy yyzzzzzz.
-      char8_t iFirstTrailByteOffValidityMask(ch == '\xf4' ? 0x30 : 0x00);
+      char8_t iFirstTrailByteOffValidityMask = ch == '\xf4' ? 0x30 : 0x00;
 
-      for (unsigned cbTrail(utf8_char_traits::lead_char_to_codepoint_size(ch)); --cbTrail; ) {
+      for (unsigned cbTrail = utf8_char_traits::lead_char_to_codepoint_size(ch); --cbTrail; ) {
          if (pch == pchEnd || !utf8_char_traits::is_trail_char(ch = *pch++)) {
             // The string ended prematurely when we were expecting more trail characters, or this is
             // not a trail character.
@@ -380,13 +381,13 @@ namespace text {
    }
    return true;
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
-   bool bExpectTrailSurrogate(false);
-   for (char16_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      std::uint8_t const * pbSrcCpBegin(reinterpret_cast<std::uint8_t const *>(pch));
-      char16_t ch(*pch);
-      bool bSurrogate(utf16_char_traits::is_surrogate(ch));
+   bool bExpectTrailSurrogate = false;
+   for (char16_t const * pch = pchBegin; pch < pchEnd; ++pch) {
+      std::uint8_t const * pbSrcCpBegin = reinterpret_cast<std::uint8_t const *>(pch);
+      char16_t ch = *pch;
+      bool bSurrogate = utf16_char_traits::is_surrogate(ch);
       if (bSurrogate) {
-         bool bTrailSurrogate(utf16_char_traits::is_trail_char(ch));
+         bool bTrailSurrogate = utf16_char_traits::is_trail_char(ch);
          // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
          // but we’re not in a surrogate, this character is invalid.
          if (bTrailSurrogate != bExpectTrailSurrogate) {

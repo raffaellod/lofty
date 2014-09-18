@@ -91,7 +91,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
 void _int_to_str_backend_base::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
-   bool bPrefix(false);
+   bool bPrefix = false;
    auto it(sFormat.cbegin());
    char32_t ch;
    if (it == sFormat.cend()) {
@@ -211,9 +211,9 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    }
    // Determine the sign character: only if in decimal notation, and make it a minus sign if the
    // number is negative.
-   char chSign(m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0');
+   char chSign = m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0';
    // Decide whether we’ll put a sign last, after the padding.
-   bool bSignLast(chSign && m_chPad == '0');
+   bool bSignLast = chSign && m_chPad == '0';
    // Add the sign character if there’s no prefix and the padding is not zeros.
    if (chSign && m_chPad != '0') {
       *--it = chSign;
@@ -255,7 +255,7 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
    I iRest(i);
    if (m_iBaseOrShift == 10) {
       // Base 10: must use % and /.
-      I iDivider((I(m_iBaseOrShift)));
+      I iDivider = static_cast<I>(m_iBaseOrShift);
       while (iRest) {
          I iMod(iRest % iDivider);
          iRest /= iDivider;
@@ -263,7 +263,7 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
       }
    } else {
       // Base 2 ^ n: can use & and >>.
-      I iMask((I(1) << m_iBaseOrShift) - 1);
+      I iMask = (I(1) << m_iBaseOrShift) - 1;
       while (iRest) {
          *--it = m_pchIntToStr[iRest & iMask];
          iRest >>= m_iBaseOrShift;
@@ -324,7 +324,7 @@ namespace abc {
 void to_str_backend<char_ptr_to_str_adapter>::write(
    char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
 ) {
-   std::size_t cch(text::size_in_chars(cs.m_psz));
+   std::size_t cch = text::size_in_chars(cs.m_psz);
    text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
    detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
 }

@@ -47,7 +47,7 @@ std::size_t get_encoding_size(encoding enc) {
       { encoding::windows_1252, 1 }
    };
    // TODO: improve search algorithm, or maybe use a real map.
-   for (std::size_t i(0); i < ABC_COUNTOF(sc_aecEncChar); ++i) {
+   for (std::size_t i = 0; i < ABC_COUNTOF(sc_aecEncChar); ++i) {
       if (enc == encoding::enum_type(sc_aecEncChar[i].enc)) {
          return sc_aecEncChar[i].cb;
       }
@@ -83,9 +83,9 @@ encoding guess_encoding(
 ) {
    ABC_TRACE_FUNC(pBufBegin, pBufEnd, cbSrcTotal, pcbBom);
 
-   std::uint8_t const * pbBufBegin(static_cast<std::uint8_t const *>(pBufBegin));
-   std::uint8_t const * pbBufEnd(static_cast<std::uint8_t const *>(pBufEnd));
-   // If the total size is not specified, assume that the buffer is the whole source.
+   std::uint8_t const * pbBufBegin = static_cast<std::uint8_t const *>(pBufBegin);
+   std::uint8_t const * pbBufEnd = static_cast<std::uint8_t const *>(pBufEnd);
+   // If the total size is not specified, assume that the buffer is the wholesource.
    if (!cbSrcTotal) {
       cbSrcTotal = static_cast<std::size_t>(pbBufEnd - pbBufBegin);
    }
@@ -154,7 +154,7 @@ encoding guess_encoding(
 
 
    // Initially, consider anything that doesn’t require a BOM.
-   unsigned fess(ESS_MASK_START);
+   unsigned fess = ESS_MASK_START;
 
    // Initially, assume no BOM will be found.
    if (pcbBom) {
@@ -173,10 +173,10 @@ encoding guess_encoding(
 
    // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
    // exactly one guess.
-   unsigned cbUtf8Cont(0);
-   std::size_t ib(0);
-   for (std::uint8_t const * pbBuf(pbBufBegin); pbBuf < pbBufEnd; ++pbBuf, ++ib) {
-      std::uint8_t b(*pbBuf);
+   unsigned cbUtf8Cont = 0;
+   std::size_t ib = 0;
+   for (std::uint8_t const * pbBuf = pbBufBegin; pbBuf < pbBufEnd; ++pbBuf, ++ib) {
+      std::uint8_t b = *pbBuf;
 
       if (fess & ESS_UTF8) {
          // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
@@ -208,14 +208,14 @@ encoding guess_encoding(
       if (fess & (ESS_UTF16LE | ESS_UTF16BE)) {
          // Check for UTF-16 validity. The only check possible is proper ordering of surrogates;
          // everything else is allowed.
-         for (unsigned ess(ESS_UTF16LE); ess <= ESS_UTF16BE; ess <<= 2) {
+         for (unsigned ess = ESS_UTF16LE; ess <= ESS_UTF16BE; ess <<= 2) {
             // This will go ahead with the check if ib is indexing the most significant byte, i.e.
             // odd for LE and even for BE.
             if ((fess & ess) && ((ib & sizeof(char16_t)) != 0) == (ess != ESS_UTF16LE)) {
                switch (b & 0xfc) {
                   case 0xd8: {
                      // There must be a trail surrogate after 1 byte.
-                     std::uint8_t const * pbNext(pbBuf + sizeof(char16_t));
+                     std::uint8_t const * pbNext = pbBuf + sizeof(char16_t);
                      if (pbNext >= pbBufEnd || (*pbNext & 0xfc) != 0xdc) {
                         fess &= ~ess;
                      }
@@ -223,7 +223,7 @@ encoding guess_encoding(
                   }
                   case 0xdc: {
                      // Assume there was a lead surrogate 2 bytes before.
-                     std::uint8_t const * pbPrev(pbBuf - sizeof(char16_t));
+                     std::uint8_t const * pbPrev = pbBuf - sizeof(char16_t);
                      if (pbPrev < pbBufBegin || (*pbPrev & 0xfc) != 0xd8) {
                         fess &= ~ess;
                      }
@@ -235,10 +235,12 @@ encoding guess_encoding(
       }
 
       if ((fess & (ESS_UTF32LE | ESS_UTF32BE)) && (ib & sizeof(char32_t)) == sizeof(char32_t) - 1) {
-         // Check for UTF-32 validity. Just ensure that each quadruplet of bytes defines a valid
-         // UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
-         // well as other restrictions.
-         std::uint32_t ch(*reinterpret_cast<std::uint32_t const *>(pbBuf - (sizeof(char32_t) - 1)));
+         /* Check for UTF-32 validity. Just ensure that each quadruplet of bytes defines a valid
+         UTF-32 character; this is fairly strict, as it requires one 00 byte every four bytes, as
+         well as other restrictions. */
+         std::uint32_t ch = *reinterpret_cast<std::uint32_t const *>(
+            pbBuf - (sizeof(char32_t) - 1)
+         );
          if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byteorder::le_to_host(ch))) {
             fess &= ~static_cast<unsigned>(ESS_UTF32LE);
          }
@@ -264,11 +266,11 @@ encoding guess_encoding(
       }
 
       if (fess & ESS_MASK_BOMS) {
-         // Lastly, check for one or more BOMs. This needs to be last, so if it enables other
-         // checks, they don’t get performed on the last BOM byte it just analyzed, which would most
-         // likely cause them to fail.
-         for (std::size_t iBsd(0); iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
-            unsigned essBom(sc_absd[iBsd].ess);
+         /* Lastly, check for one or more BOMs. This needs to be last, so if it enables other
+         checks, they don’t get performed on the last BOM byte it just analyzed, which would most
+         likely cause them to fail. */
+         for (std::size_t iBsd = 0; iBsd < ABC_COUNTOF(sc_absd); ++iBsd) {
+            unsigned essBom = sc_absd[iBsd].ess;
             if (fess & essBom) {
                if (b != sc_absd[iBsd].pabBom[ib]) {
                   // This byte doesn’t match: stop checking for this BOM.
@@ -278,9 +280,9 @@ encoding guess_encoding(
                   // checking for the BOM, and enable checking for the encoding itself.
                   fess &= ~essBom;
                   fess |= essBom << 1;
-                  // Return the BOM length to the caller, if requested. This will be overwritten in
-                  // case another, longer BOM is found (e.g. the BOM in UTF-16LE is the start of the
-                  // BOM in UTF-32LE).
+                  /* Return the BOM length to the caller, if requested. This will be overwritten in
+                  case another, longer BOM is found (e.g. the BOM in UTF-16LE is the start of the
+                  BOM in UTF-32LE). */
                   if (pcbBom) {
                      *pcbBom = sc_absd[iBsd].cbBom;
                   }
@@ -314,8 +316,8 @@ encoding guess_encoding(
 line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
-   for (char_t const * pch(pchBegin); pch < pchEnd; ++pch) {
-      char_t ch(*pch);
+   for (char_t const * pch = pchBegin; pch < pchEnd; ++pch) {
+      char_t ch = *pch;
       if (ch == '\r') {
          // CR can be followed by a LF to form the sequence CRLF, so check the following character
          // (if we have one). If we found a CR as the very last character in the buffer, we can’t
@@ -341,11 +343,11 @@ std::size_t transcode(
 ) {
    ABC_TRACE_FUNC(bThrowOnErrors, encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
-   std::uint8_t const * pbSrc(static_cast<std::uint8_t const *>(*ppSrc));
-   std::uint8_t const * pbSrcEnd(pbSrc + *pcbSrc);
+   std::uint8_t const * pbSrc = static_cast<std::uint8_t const *>(*ppSrc);
+   std::uint8_t const * pbSrcEnd = pbSrc + *pcbSrc;
    std::uint8_t       * pbDst;
    std::uint8_t const * pbDstEnd;
-   bool bWrite(ppDst != nullptr);
+   bool bWrite = ppDst != nullptr;
    if (pcbDstMax) {
       if (ppDst) {
          pbDst = static_cast<std::uint8_t *>(*ppDst);
@@ -369,12 +371,12 @@ std::size_t transcode(
             if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
                goto break_for;
             }
-            std::uint8_t const * pbSrcCpBegin(pbSrc);
-            char8_t ch8Src(static_cast<char8_t>(*pbSrc++));
+            std::uint8_t const * pbSrcCpBegin = pbSrc;
+            char8_t ch8Src = static_cast<char8_t>(*pbSrc++);
             if (!utf8_char_traits::is_trail_char(ch8Src)) {
-               unsigned cbSeq(utf8_char_traits::lead_char_to_codepoint_size(ch8Src));
+               unsigned cbSeq = utf8_char_traits::lead_char_to_codepoint_size(ch8Src);
                // Subtract 1 because we already consumed the lead character, above.
-               unsigned cbTrail(cbSeq - 1);
+               unsigned cbTrail = cbSeq - 1;
                // Ensure that we still have enough characters.
                if (pbSrc + cbTrail > pbSrcEnd) {
                   goto break_for;
@@ -436,7 +438,7 @@ std::size_t transcode(
             if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                goto break_for;
             }
-            std::uint8_t const * pbSrcCpBegin(pbSrc);
+            std::uint8_t const * pbSrcCpBegin = pbSrc;
             char16_t ch16Src0(*reinterpret_cast<char16_t const *>(pbSrc));
             pbSrc += sizeof(char16_t);
             if (encSrc != encoding::utf16_host) {
@@ -451,7 +453,7 @@ std::size_t transcode(
                if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                   goto break_for;
                }
-               char16_t ch16Src1(*reinterpret_cast<char16_t const *>(pbSrc));
+               char16_t ch16Src1 = *reinterpret_cast<char16_t const *>(pbSrc);
                if (encSrc != encoding::utf16_host) {
                   ch16Src1 = byteorder::swap(ch16Src1);
                }
@@ -525,7 +527,7 @@ std::size_t transcode(
          case encoding::utf8: {
             // Compute the length of this sequence. Technically this could throw if ch32 is not a
             // valid Unicode code point, but we made sure above that that cannot happen.
-            std::size_t cbSeq(sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32));
+            std::size_t cbSeq = sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32);
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
@@ -542,12 +544,12 @@ std::size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
-            std::size_t cbSeq(sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32));
+            std::size_t cbSeq = sizeof(char16_t) * utf16_char_traits::codepoint_size(ch32);
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;
             }
             if (bWrite) {
-               bool bNeedSurrogate(cbSeq > sizeof(char16_t));
+               bool bNeedSurrogate = cbSeq > sizeof(char16_t);
                char16_t ch16Dst0, ch16Dst1;
                if (bNeedSurrogate) {
                   ch32 -= 0x10000;
@@ -656,7 +658,7 @@ template <typename C>
 std::size_t size_in_chars(C const * psz) {
    ABC_TRACE_FUNC(psz);
 
-   C const * pch(psz);
+   C const * pch = psz;
    while (*pch) {
       ++pch;
    }

@@ -167,7 +167,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
             }
             m_ibReadBufUsed = 0;
          } else {
-            std::size_t cbReadBufNew(m_cbReadBuf + smc_cbReadBufDefault);
+            std::size_t cbReadBufNew = m_cbReadBuf + smc_cbReadBufDefault;
             // Check for overflow.
             if (cbReadBufNew < m_cbReadBuf) {
                cbReadBufNew = numeric::max<std::size_t>::value;
@@ -177,9 +177,9 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
          }
       }
       // Try to fill the buffer.
-      std::size_t cbRead(m_pbr->read(
+      std::size_t cbRead = m_pbr->read(
          m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
-      ));
+      );
       // Account for the additional data.
       m_cbReadBufUsed += cbRead;
    }
@@ -250,7 +250,7 @@ void default_buffered_writer::flush_buffer() {
    ABC_TRACE_FUNC(this);
 
    if (m_cbWriteBufUsed) {
-      std::size_t cbWritten(m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed));
+      std::size_t cbWritten = m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed);
       ABC_ASSERT(cbWritten == m_cbWriteBufUsed, ABC_SL("the entire buffer must have been written"));
       m_cbWriteBufUsed = 0;
    }
@@ -262,13 +262,13 @@ void default_buffered_writer::flush_buffer() {
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   std::size_t cbWriteBufAvail(m_cbWriteBuf - m_cbWriteBufUsed);
+   std::size_t cbWriteBufAvail = m_cbWriteBuf - m_cbWriteBufUsed;
    // If the requested buffer size is more that is currently available, flush the buffer.
    if (cb > cbWriteBufAvail) {
       flush_buffer();
       // If the buffer is still too small, enlarge it.
       if (cb > m_cbWriteBuf) {
-         std::size_t cbWriteBufNew(bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault));
+         std::size_t cbWriteBufNew = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault);
          memory::realloc(&m_pbWriteBuf, cbWriteBufNew);
          m_cbWriteBuf = cbWriteBufNew;
       }

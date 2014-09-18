@@ -156,7 +156,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       {
-         int * p(nullptr);
+         int * p = nullptr;
          ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
 
          // Under POSIX, this also counts as second test for SIGSEGV, checking that the handler is
@@ -187,7 +187,7 @@ public:
       {
          // Create an int (with another one following it) and a pointer to it.
          int i[2];
-         void * p(&i[0]);
+         void * p = &i[0];
          // Misalign the pointer, partly entering the second int.
          p = static_cast<std::int8_t *>(p) + 1;
          ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
@@ -214,7 +214,7 @@ public:
       {
          // Non-obvious division by zero that can’t be detected at compile time.
          istr sEmpty;
-         int iZero(static_cast<int>(sEmpty.size_in_chars())), iOne(1);
+         int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
          ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
          // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
          istr(ABC_SL("{}")).format(iOne);

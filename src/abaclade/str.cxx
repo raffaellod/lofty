@@ -84,8 +84,8 @@ char_t const * str_base::_advance_char_ptr(
 ) const {
    ABC_TRACE_FUNC(this, pch, i, bIndex);
 
-   char_t const * pchBegin(chars_begin()), * pchEnd(chars_end());
-   std::ptrdiff_t iOrig(i);
+   char_t const * pchBegin = chars_begin(), * pchEnd = chars_end();
+   std::ptrdiff_t iOrig = i;
 
    // If i is positive, move forward.
    for (; i > 0 && pch < pchEnd; --i) {
@@ -140,7 +140,7 @@ dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
    dmvector<std::uint8_t> vb;
-   std::size_t cbChar, cbUsed, cbStr(size_in_bytes());
+   std::size_t cbChar, cbUsed, cbStr = size_in_bytes();
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
@@ -150,12 +150,12 @@ dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
-      void const * pStr(chars_begin());
+      void const * pStr = chars_begin();
       // Calculate the size required, then resize vb accorgingly.
       cbUsed = abc::text::transcode(true, abc::text::encoding::host, &pStr, &cbStr, enc);
       vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
       // Transcode the string into vb.
-      void * pBuf(vb.begin().base());
+      void * pBuf = vb.begin().base();
       // Re-assign to cbUsed because transcode() will set *(&cbUsed) to 0.
       cbUsed = abc::text::transcode(
          true, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed
@@ -174,7 +174,7 @@ dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   char_t const * pchStart(chars_end() - s.size_in_chars());
+   char_t const * pchStart = chars_end() - s.size_in_chars();
    return pchStart >= chars_begin() && text::str_traits::compare(
       pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
@@ -232,7 +232,7 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
 bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   char_t const * pchEnd(chars_begin() + s.size_in_chars());
+   char_t const * pchEnd = chars_begin() + s.size_in_chars();
    return pchEnd <= chars_end() && text::str_traits::compare(
       chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
@@ -297,16 +297,16 @@ std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
       "unexpected sizeof(std::size_t) will break FNV prime/basis selection"
    );
 #if ABC_HOST_WORD_SIZE == 16
-   std::size_t const c_iFNVPrime(0x1135);
-   std::size_t const c_iFNVBasis(16635u);
+   std::size_t const c_iFNVPrime = 0x1135;
+   std::size_t const c_iFNVBasis = 16635u;
 #elif ABC_HOST_WORD_SIZE == 32
-   std::size_t const c_iFNVPrime(0x01000193);
-   std::size_t const c_iFNVBasis(2166136261u);
+   std::size_t const c_iFNVPrime = 0x01000193;
+   std::size_t const c_iFNVBasis = 2166136261u;
 #elif ABC_HOST_WORD_SIZE == 64
-   std::size_t const c_iFNVPrime(0x00000100000001b3);
-   std::size_t const c_iFNVBasis(14695981039346656037u);
+   std::size_t const c_iFNVPrime = 0x00000100000001b3;
+   std::size_t const c_iFNVBasis = 14695981039346656037u;
 #endif
-   std::size_t iHash(c_iFNVBasis);
+   std::size_t iHash = c_iFNVBasis;
    for (auto it(s.cbegin()), itEnd(s.cend()); it != itEnd; ++it) {
       iHash ^= static_cast<std::size_t>(*it);
       iHash *= c_iFNVPrime;
@@ -338,7 +338,7 @@ namespace abc {
 void mstr::replace(char_t chSearch, char_t chReplacement) {
    ABC_TRACE_FUNC(this, chSearch, chReplacement);
 
-   for (char_t * pch(chars_begin()), * pchEnd(chars_end()); pch != pchEnd; ++pch) {
+   for (char_t * pch = chars_begin(), * pchEnd = chars_end(); pch != pchEnd; ++pch) {
       if (*pch == chSearch) {
          *pch = chReplacement;
       }
@@ -359,8 +359,9 @@ void mstr::replace(char32_t chSearch, char32_t chReplacement) {
 void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   std::size_t ich(static_cast<std::size_t>(pch - chars_begin()));
+   std::size_t cbRemove =
+      sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
    detail::raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
@@ -370,9 +371,10 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
 void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   std::size_t cbInsert(sizeof(char_t) * text::host_char_traits::codepoint_size(chNew));
-   std::size_t cbRemove(sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch));
-   std::size_t ich(static_cast<std::size_t>(pch - chars_begin()));
+   std::size_t cbInsert = sizeof(char_t) * text::host_char_traits::codepoint_size(chNew);
+   std::size_t cbRemove =
+      sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
    detail::raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
@@ -388,7 +390,7 @@ void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)
    // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
    // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the
    // requested number of characters, eliminating the need to query back with capacity().
-   std::size_t cchRet, cchMax(smc_cbCapacityMin * smc_iGrowthRate);
+   std::size_t cchRet, cchMax = smc_cbCapacityMin * smc_iGrowthRate;
    do {
       cchMax *= smc_iGrowthRate;
       set_capacity(cchMax, false);

@@ -137,17 +137,17 @@ dmstr str_writer::release_content() {
    );
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      std::size_t cch(cbSrc / sizeof(char_t));
+      std::size_t cch = cbSrc / sizeof(char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_psWriteBuf->set_capacity(m_ichOffset + cch, true);
       memory::copy(m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(pSrc), cch);
       m_ichOffset += cch;
    } else {
       // Calculate the additional buffer size required.
-      std::size_t cbBuf(abc::text::transcode(true, enc, &pSrc, &cbSrc, abc::text::encoding::host));
+      std::size_t cbBuf = abc::text::transcode(true, enc, &pSrc, &cbSrc, abc::text::encoding::host);
       m_psWriteBuf->set_capacity(m_ichOffset + cbBuf / sizeof(char_t), true);
       // Transcode the source into the string buffer and advance m_ichOffset accordingly.
-      void * pBuf(m_psWriteBuf->begin().base() + m_ichOffset);
+      void * pBuf = m_psWriteBuf->begin().base() + m_ichOffset;
       m_ichOffset += abc::text::transcode(
          true, enc, &pSrc, &cbSrc, abc::text::encoding::host, &pBuf, &cbBuf
       ) / sizeof(char_t);

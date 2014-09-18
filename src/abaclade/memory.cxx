@@ -78,7 +78,7 @@ namespace abc {
 namespace memory {
 
 void * _raw_alloc(std::size_t cb) {
-   void * p(::malloc(cb));
+   void * p = ::malloc(cb);
    if (!p) {
       ABC_THROW(memory_allocation_error, ());
    }

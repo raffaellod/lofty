@@ -41,7 +41,7 @@ void scope_trace_impl::trace_scope(
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {
-         io::text::writer * ptwOut(get_trace_writer());
+         io::text::writer * ptwOut = get_trace_writer();
          ptwOut->print(ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
          // Allow the caller to write any scope variables.
          fnWriteVars(ptwOut);

@@ -95,10 +95,10 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
 /*static*/ char32_t utf8_char_traits::chars_to_codepoint(char8_t const * pchSrcBegin) {
    ABC_TRACE_FUNC(pchSrcBegin);
 
-   char8_t ch(*pchSrcBegin);
-   unsigned cchTrail(lead_char_to_codepoint_size(ch) - 1);
+   char8_t ch = *pchSrcBegin;
+   unsigned cchTrail = lead_char_to_codepoint_size(ch) - 1;
    // Convert the first byte.
-   char32_t cp(get_lead_char_codepoint_bits(ch, cchTrail));
+   char32_t cp = get_lead_char_codepoint_bits(ch, cchTrail);
    // Shift in any continuation bytes.
    for (; cchTrail; --cchTrail) {
       cp = (cp << 6) | (*++pchSrcBegin & 0x3f);
@@ -132,12 +132,12 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    ABC_TRACE_FUNC(cp, pchDstBegin);
 
    // Compute the length of the UTF-8 sequence for this code point.
-   unsigned cbSeq(codepoint_size(cp));
+   unsigned cbSeq = codepoint_size(cp);
    // Calculate where the sequence will end, and write each byte backwards from there.
-   char8_t * pchDstEnd(pchDstBegin + cbSeq);
+   char8_t * pchDstEnd = pchDstBegin + cbSeq;
    --cbSeq;
-   char8_t iSeqIndicator(cont_length_to_seq_indicator(cbSeq));
-   char8_t * pchDst(pchDstEnd);
+   char8_t iSeqIndicator = cont_length_to_seq_indicator(cbSeq);
+   char8_t * pchDst = pchDstEnd;
    while (cbSeq--) {
       // Each trailing byte uses 6 bits.
       *--pchDst = static_cast<char8_t>(0x80 | (cp & 0x3f));
@@ -162,11 +162,11 @@ namespace text {
 /*static*/ char32_t utf16_char_traits::chars_to_codepoint(char16_t const * pchSrcBegin) {
    ABC_TRACE_FUNC(pchSrcBegin);
 
-   char16_t chSrc0(*pchSrcBegin);
+   char16_t chSrc0 = *pchSrcBegin;
    if (!is_surrogate(chSrc0)) {
       return chSrc0;
    }
-   char16_t chSrc1(*++pchSrcBegin);
+   char16_t chSrc1 = *++pchSrcBegin;
    char32_t cp = ((static_cast<char32_t>(chSrc0 & 0x03ff) << 10) | (chSrc1 & 0x03ff)) + 0x10000;
    return is_codepoint_valid(cp) ? cp : replacement_char;
 }
@@ -185,7 +185,7 @@ namespace text {
 /*static*/ char16_t * utf16_char_traits::codepoint_to_chars(char32_t cp, char16_t * pchDstBegin) {
    ABC_TRACE_FUNC(cp, pchDstBegin);
 
-   char16_t * pchDst(pchDstBegin);
+   char16_t * pchDst = pchDstBegin;
    if (codepoint_size(cp) > 1) {
       // The code point requires two UTF-16 characters: generate a surrogate pair.
       cp -= 0x10000;

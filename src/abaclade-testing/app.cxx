@@ -39,7 +39,7 @@ namespace testing {
    runner r(io::text::stderr());
    r.load_registered_test_cases();
    r.run();
-   bool bAllPassed(r.log_summary());
+   bool bAllPassed = r.log_summary();
 
    return bAllPassed ? 0 : 1;
 }

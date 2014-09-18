@@ -85,7 +85,7 @@ void enum_to_str_backend_impl::write_impl(
 ) {
    ABC_TRACE_FUNC(this, i, pem, ptwOut);
 
-   enum_member const * petvp(enum_member::find_in_map(pem, i));
+   enum_member const * petvp = enum_member::find_in_map(pem, i);
    ptwOut->write(istr(unsafe, petvp->pszName));
 }
 
