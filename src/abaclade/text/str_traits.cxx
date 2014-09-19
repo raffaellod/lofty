@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::str_traits
-
 
 namespace abc {
 namespace text {
@@ -59,7 +57,6 @@ namespace text {
       }
    }
 }
-
 
 /*static*/ int str_traits::compare(
    char_t const * pch1Begin, char_t const * pch1End,
@@ -106,7 +103,6 @@ namespace text {
       return 0;
    }
 }
-
 
 /*static*/ char_t const * str_traits::find_char(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
@@ -168,7 +164,6 @@ namespace text {
    return pchHaystackEnd;
 }
 
-
 /*static*/ char_t const * str_traits::find_char_last(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
 ) {
@@ -187,7 +182,6 @@ namespace text {
       );
    }
 }
-
 
 /*static*/ char_t const * str_traits::find_substr(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
@@ -265,7 +259,6 @@ namespace text {
    return pchHaystackEnd;
 }
 
-
 /*static*/ char_t const * str_traits::find_substr_last(
    char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
@@ -275,7 +268,6 @@ namespace text {
    // TODO: implement this!
    return pchHaystackEnd;
 }
-
 
 /*static*/ std::size_t str_traits::size_in_codepoints(
    char_t const * pchBegin, char_t const * pchEnd
@@ -292,7 +284,6 @@ namespace text {
    }
    return ccp;
 }
-
 
 /*static*/ bool str_traits::validate(
    char_t const * pchBegin, char_t const * pchEnd, bool bThrowOnErrors /*= false*/
@@ -418,7 +409,6 @@ namespace text {
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

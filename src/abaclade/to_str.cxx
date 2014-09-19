@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/math.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for bool
-
 
 namespace abc {
 
@@ -43,7 +41,6 @@ void to_str_backend<bool>::set_format(istr const & sFormat) {
    }
 }
 
-
 void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, b, ptwOut);
 
@@ -56,10 +53,8 @@ void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_int_to_str_backend_base
-
 
 namespace abc {
 
@@ -69,7 +64,6 @@ char const _int_to_str_backend_base::smc_achIntToStrU[16] = {
 char const _int_to_str_backend_base::smc_achIntToStrL[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
-
 
 _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    m_pchIntToStr(smc_achIntToStrL),
@@ -86,7 +80,6 @@ _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    m_chPrefix0('\0'),
    m_chPrefix1('\0') {
 }
-
 
 void _int_to_str_backend_base::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -197,7 +190,6 @@ default_notation:
    m_cchBuf = 2 /*prefix or sign*/ + std::max(m_cchWidth, cchByte * mc_cbInt);
 }
 
-
 void _int_to_str_backend_base::add_prefixes_and_write(
    bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
@@ -239,7 +231,6 @@ void _int_to_str_backend_base::add_prefixes_and_write(
    );
 }
 
-
 template <typename I>
 inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
    ABC_TRACE_FUNC(this, i, ptwOut);
@@ -274,50 +265,38 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
    add_prefixes_and_write(numeric::is_negative<I>(i), ptwOut, &sBuf, it);
 }
 
-
 void _int_to_str_backend_base::write_s64(std::int64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
-
 
 void _int_to_str_backend_base::write_u64(std::uint64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-
 #if ABC_HOST_WORD_SIZE < 64
-
 void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
-
 
 void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-
 #if ABC_HOST_WORD_SIZE < 32
-
 void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-
 void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
-
 #endif //if ABC_HOST_WORD_SIZE < 32
 #endif //if ABC_HOST_WORD_SIZE < 64
 
-
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for char_ptr_to_str_adapter
-
 
 namespace abc {
 
@@ -331,22 +310,18 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_ptr_to_str_backend
-
 
 namespace abc {
 
 char_t const _ptr_to_str_backend::smc_achFormat[] = ABC_SL("#x");
-
 
 _ptr_to_str_backend::_ptr_to_str_backend() {
    ABC_TRACE_FUNC(this);
 
    m_tsbInt.set_format(smc_achFormat);
 }
-
 
 void _ptr_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -363,7 +338,6 @@ void _ptr_to_str_backend::set_format(istr const & sFormat) {
    }
 }
 
-
 void _ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, iPtr, ptwOut);
 
@@ -376,10 +350,8 @@ void _ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * pt
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_sequence_to_str_backend
-
 
 namespace abc {
 
@@ -388,7 +360,6 @@ _sequence_to_str_backend::_sequence_to_str_backend(istr const & sStart, istr con
    m_sStart(sStart),
    m_sEnd(sEnd) {
 }
-
 
 void _sequence_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -405,12 +376,10 @@ void _sequence_to_str_backend::set_format(istr const & sFormat) {
    }
 }
 
-
 _sequence_to_str_backend::~_sequence_to_str_backend() {
 }
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

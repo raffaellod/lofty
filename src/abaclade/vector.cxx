@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::vector_to_str_backend
-
 
 namespace abc {
 namespace detail {
@@ -32,13 +30,11 @@ vector_to_str_backend::vector_to_str_backend() :
    _sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
 }
 
-
 vector_to_str_backend::~vector_to_str_backend() {
 }
 
 } //namespace detail
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -21,20 +21,16 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifdef ABC_STLIMPL
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::exception
-
 
 namespace std {
 
 exception::exception() {
 }
 
-
 /*virtual*/ exception::~exception() {
 }
-
 
 /*virtual*/ char const * exception::what() const /*override*/ {
    return "std::exception";
@@ -42,9 +38,7 @@ exception::exception() {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifdef ABC_STLIMPL
 

@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifdef _ABACLADE_STL_TUPLE_HXX
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::ignore
-
 
 namespace abc {
 namespace _std {
@@ -34,9 +32,7 @@ __ignore_t const ignore;
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifdef _ABACLADE_STL_TUPLE_HXX
 

@@ -23,17 +23,14 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/utility.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_basic
-
 
 namespace abc {
 namespace test {
 
 class vector_basic : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – basic operations"));
@@ -101,17 +98,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_relops
-
 
 namespace abc {
 namespace test {
 
 class vector_relops : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – relational operators"));
@@ -154,17 +148,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_relops)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_iterators
-
 
 namespace abc {
 namespace test {
 
 class vector_iterators : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – operations with iterators"));
@@ -196,17 +187,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_iterators)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_remove_trivial
-
 
 namespace abc {
 namespace test {
 
 class vector_remove_trivial : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – removal of trivial elements"));
@@ -310,17 +298,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_remove_trivial)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_memory_mgmt
-
 
 namespace abc {
 namespace test {
 
 class vector_memory_mgmt : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – memory management"));
@@ -494,10 +479,8 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::vector_move
-
 
 namespace abc {
 namespace test {
@@ -507,7 +490,6 @@ private:
    typedef testing::utility::instances_counter instances_counter;
 
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*vector classes – item and item array movement"));
@@ -518,16 +500,16 @@ public:
       ABC_TRACE_FUNC(this);
 
       {
-         // This will move the item array from the returned vector to v1, so no item copies or moves
-         // will occur other than the ones in return_dmvector().
+         /* This will move the item array from the returned vector to v1, so no item copies or moves
+         will occur other than the ones in return_dmvector(). */
          dmvector<instances_counter> v(return_dmvector());
          ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
          instances_counter::reset_counts();
 
-         // This should create a new copy, with no intermediate moves because all passages are by
-         // reference or pointer.
+         /* This should create a new copy, with no intermediate moves because all passages are by
+         reference or pointer. */
          v.append(v[0]);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
@@ -537,10 +519,10 @@ public:
 
       {
          smvector<instances_counter, 9> v;
-         // This will move the individual items from the returned vector to v2’s embedded item array.
-         // Can’t just construct v2 with return_dmvector() because v2 would just use that item array
-         // instead of its own embedded one, resulting in no additional moves other than the one in
-         // return_dmvector().
+         /* This will move the individual items from the returned vector to v2’s embedded item array.
+         Can’t just construct v2 with return_dmvector() because v2 would just use that item array
+         instead of its own embedded one, resulting in no additional moves other than the one in
+         return_dmvector(). */
          v += return_dmvector();
          ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
@@ -548,7 +530,6 @@ public:
          instances_counter::reset_counts();
       }
    }
-
 
    /*! Instantiates and returns a dynamic vector. The vector will contain one item, added in a way
    that should cause only one new instance of instances_counter to be created, one moved and none

@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::enum_basic
 
@@ -34,10 +33,8 @@ ABC_ENUM(test_enum,
    (value3, 91)
 );
 
-
 class enum_basic : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::enum-derived classes – basic operations"));
@@ -58,7 +55,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::enum_basic)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

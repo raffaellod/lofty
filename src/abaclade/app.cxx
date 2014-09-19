@@ -21,15 +21,12 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/app.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::app
-
 
 namespace abc {
 
 /*static*/ app * app::sm_papp;
-
 
 app::app() {
    // Asserting here is okay, because if the assertion is true, nothing will happen, and if it’s
@@ -39,11 +36,9 @@ app::app() {
    sm_papp = this;
 }
 
-
 /*virtual*/ app::~app() {
    sm_papp = nullptr;
 }
-
 
 /*static*/ void app::_build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet) {
    ABC_TRACE_FUNC(cArgs, ppszArgs, pvsRet);
@@ -63,7 +58,6 @@ app::app() {
 #endif
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

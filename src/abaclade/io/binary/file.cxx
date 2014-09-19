@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary globals
-
 
 namespace abc {
 namespace io {
@@ -58,8 +56,6 @@ namespace {
 std::shared_ptr<file_writer> g_pbfwStdErr;
 std::shared_ptr<file_reader> g_pbfrStdIn;
 std::shared_ptr<file_writer> g_pbfwStdOut;
-
-
 
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
@@ -206,7 +202,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    }
 }
 
-
 /*! Returns a new binary I/O object controlling the specified file descriptor.
 
 fd
@@ -255,7 +250,6 @@ std::shared_ptr<file_writer> stderr() {
    return g_pbfwStdErr;
 }
 
-
 std::shared_ptr<file_reader> stdin() {
    ABC_TRACE_FUNC();
 
@@ -280,7 +274,6 @@ std::shared_ptr<file_reader> stdin() {
    return g_pbfrStdIn;
 }
 
-
 std::shared_ptr<file_writer> stdout() {
    ABC_TRACE_FUNC();
 
@@ -304,7 +297,6 @@ std::shared_ptr<file_writer> stdout() {
    }
    return g_pbfwStdOut;
 }
-
 
 std::shared_ptr<file_base> open(
    file_path const & fp, access_mode am, bool bBuffered /*= true*/
@@ -399,10 +391,8 @@ std::shared_ptr<file_base> open(
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::filedesc
-
 
 namespace abc {
 namespace io {
@@ -416,7 +406,6 @@ filedesc_t const filedesc::smc_fdNull =
    #error HOST_API
 #endif
 
-
 filedesc::filedesc(filedesc && fd) :
    m_fd(fd.m_fd),
    m_bOwn(fd.m_bOwn) {
@@ -425,7 +414,6 @@ filedesc::filedesc(filedesc && fd) :
    fd.m_fd = smc_fdNull;
    fd.m_bOwn = false;
 }
-
 
 filedesc::~filedesc() {
    ABC_TRACE_FUNC(this);
@@ -440,7 +428,6 @@ filedesc::~filedesc() {
 #endif
    }
 }
-
 
 filedesc & filedesc::operator=(filedesc_t fd) {
    ABC_TRACE_FUNC(this, fd);
@@ -467,10 +454,8 @@ filedesc & filedesc::operator=(filedesc && fd) {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_base
-
 
 namespace abc {
 namespace io {
@@ -480,7 +465,6 @@ file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd)) {
 }
 
-
 /*virtual*/ file_base::~file_base() {
 }
 
@@ -488,10 +472,8 @@ file_base::file_base(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_reader
-
 
 namespace abc {
 namespace io {
@@ -501,10 +483,8 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
-
 /*virtual*/ file_reader::~file_reader() {
 }
-
 
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
@@ -550,26 +530,21 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
 
-
 #if ABC_HOST_API_WIN32
-
 /*virtual*/ bool file_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
       throw_os_error(iErr);
    }
    return cchRead == 0;
 }
-
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_writer
-
 
 namespace abc {
 namespace io {
@@ -579,10 +554,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
-
 /*virtual*/ file_writer::~file_writer() {
 }
-
 
 /*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
@@ -600,7 +573,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    #error HOST_API
 #endif
 }
-
 
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
@@ -645,10 +617,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_file_base
-
 
 namespace abc {
 namespace io {
@@ -658,7 +628,6 @@ console_file_base::console_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
 }
 
-
 /*virtual*/ console_file_base::~console_file_base() {
 }
 
@@ -666,10 +635,8 @@ console_file_base::console_file_base(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_reader
-
 
 namespace abc {
 namespace io {
@@ -681,13 +648,10 @@ console_reader::console_reader(detail::file_init_data * pfid) :
    file_reader(pfid) {
 }
 
-
 /*virtual*/ console_reader::~console_reader() {
 }
 
-
 #if ABC_HOST_API_WIN32
-
 /*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
@@ -723,17 +687,14 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 
    return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
-
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_writer
-
 
 namespace abc {
 namespace io {
@@ -745,13 +706,10 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    file_writer(pfid) {
 }
 
-
 /*virtual*/ console_writer::~console_writer() {
 }
 
-
 #if ABC_HOST_API_WIN32
-
 /*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
@@ -781,17 +739,14 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 
    return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
 }
-
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::pipe_reader
-
 
 namespace abc {
 namespace io {
@@ -802,10 +757,8 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
    file_reader(pfid) {
 }
 
-
 /*virtual*/ pipe_reader::~pipe_reader() {
 }
-
 
 #if ABC_HOST_API_WIN32
 
@@ -827,10 +780,8 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::pipe_writer
-
 
 namespace abc {
 namespace io {
@@ -841,7 +792,6 @@ pipe_writer::pipe_writer(detail::file_init_data * pfid) :
    file_writer(pfid) {
 }
 
-
 /*virtual*/ pipe_writer::~pipe_writer() {
 }
 
@@ -849,10 +799,8 @@ pipe_writer::pipe_writer(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::regular_file_base
-
 
 namespace abc {
 namespace io {
@@ -906,10 +854,8 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
-
 /*virtual*/ regular_file_base::~regular_file_base() {
 }
-
 
 /*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) /*override*/ {
    ABC_TRACE_FUNC(this, ibOffset, sfWhence);
@@ -980,13 +926,11 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
-
 /*virtual*/ full_size_t regular_file_base::size() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_cb;
 }
-
 
 /*virtual*/ offset_t regular_file_base::tell() const /*override*/ {
    ABC_TRACE_FUNC(this);
@@ -1004,10 +948,8 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::regular_file_reader
-
 
 namespace abc {
 namespace io {
@@ -1019,7 +961,6 @@ regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
    file_reader(pfid) {
 }
 
-
 /*virtual*/ regular_file_reader::~regular_file_reader() {
 }
 
@@ -1027,10 +968,8 @@ regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::regular_file_writer
-
 
 namespace abc {
 namespace io {
@@ -1047,13 +986,10 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 #endif
 }
 
-
 /*virtual*/ regular_file_writer::~regular_file_writer() {
 }
 
-
 #if ABC_HOST_API_WIN32
-
 /*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
@@ -1066,7 +1002,6 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    */
    class file_lock {
    public:
-
       //! Constructor.
       file_lock() :
          m_fd(INVALID_HANDLE_VALUE) {
@@ -1078,7 +1013,6 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
             unlock();
          }
       }
-
 
       /*! Attempts to lock a range of bytes for the specified file. Returns true if a lock was
       acquired, false if it was not because of any or all of the requested bytes being locked by
@@ -1123,9 +1057,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
          }
       }
 
-
    private:
-
       //! Locked file.
       filedesc_t m_fd;
       //! Start of the locked byte range.
@@ -1153,13 +1085,11 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 
    return file_writer::write(p, cb);
 }
-
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

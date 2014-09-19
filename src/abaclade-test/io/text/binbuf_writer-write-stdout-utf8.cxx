@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 using namespace abc;
 
 
-
 class test_app : public app {
 public:
-
    virtual int main(mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 

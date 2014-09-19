@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/bitmanip.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::bitmanip globals
-
 
 namespace abc {
 namespace bitmanip {
@@ -68,7 +66,6 @@ std::uint64_t ceiling_to_pow2(std::uint64_t i) {
 } //namespace detail
 } //namespace bitmanip
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

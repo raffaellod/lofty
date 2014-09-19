@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::str_to_str_backend
-
 
 namespace abc {
 namespace detail {
@@ -43,7 +41,6 @@ void str_to_str_backend::set_format(istr const & sFormat) {
    }
 }
 
-
 void str_to_str_backend::write(
    void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut
 ) {
@@ -55,10 +52,8 @@ void str_to_str_backend::write(
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::str_base
-
 
 namespace {
 
@@ -75,7 +70,6 @@ abc::detail::raw_vextr_impl_data const gc_rvidEmpty = {
 };
 
 } //namespace
-
 
 namespace abc {
 
@@ -114,7 +108,6 @@ char_t const * str_base::_advance_char_ptr(
    return pch;
 }
 
-
 detail::c_str_ptr str_base::c_str() const {
    ABC_TRACE_FUNC(this);
 
@@ -134,7 +127,6 @@ detail::c_str_ptr str_base::c_str() const {
       return detail::c_str_ptr(&::gc_chNul, false);
    }
 }
-
 
 dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
@@ -170,7 +162,6 @@ dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    return std::move(vb);
 }
 
-
 bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
@@ -179,7 +170,6 @@ bool str_base::ends_with(istr const & s) const {
       pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
 }
-
 
 str_base::const_iterator str_base::find(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
@@ -201,7 +191,6 @@ str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itW
       itWhence.base(), chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
    ), this);
 }
-
 
 str_base::const_iterator str_base::find_last(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
@@ -228,7 +217,6 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
    ), this);
 }
 
-
 bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
@@ -237,7 +225,6 @@ bool str_base::starts_with(istr const & s) const {
       chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
 }
-
 
 str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    ABC_TRACE_FUNC(this, ich);
@@ -264,7 +251,6 @@ str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    return std::move(it);
 }
 
-
 std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
    std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
 ) const {
@@ -282,13 +268,12 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
 
 } //namespace abc
 
-
 namespace std {
 
-// Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
-// <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
-//
-// The bases are calculated by src/fnv_hash_basis.py.
+/* Implementation based on the Fowler/Noll/Vo variant 1a (FNV-1a) algorithm. See
+<http://www.isthe.com/chongo/tech/comp/fnv/> for details.
+
+The bases are calculated by src/fnv_hash_basis.py. */
 std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
    ABC_TRACE_FUNC(this, s);
 
@@ -316,10 +301,8 @@ std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::istr
-
 
 namespace abc {
 
@@ -328,10 +311,8 @@ istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::mstr
-
 
 namespace abc {
 
@@ -354,7 +335,6 @@ void mstr::replace(char32_t chSearch, char32_t chReplacement) {
       }
    }
 }
-
 
 void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
@@ -383,7 +363,6 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    text::host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
 }
 
-
 void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
    ABC_TRACE_FUNC(this/*, fnRead*/);
 
@@ -401,7 +380,6 @@ void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)
 }
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::test_case
-
 
 namespace abc {
 namespace testing {
@@ -32,17 +30,14 @@ namespace testing {
 test_case::test_case() {
 }
 
-
 /*virtual*/ test_case::~test_case() {
 }
-
 
 void test_case::init(runner * prunner) {
    ABC_TRACE_FUNC(this, prunner);
 
    m_prunner = prunner;
 }
-
 
 void test_case::assert_does_not_throw(
    source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
@@ -62,7 +57,6 @@ void test_case::assert_does_not_throw(
    );
 }
 
-
 void test_case::assert_false(source_location const & srcloc, bool bActual, istr const & sExpr) {
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
@@ -71,7 +65,6 @@ void test_case::assert_false(source_location const & srcloc, bool bActual, istr 
    );
 }
 
-
 void test_case::assert_true(source_location const & srcloc, bool bActual, istr const & sExpr) {
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
@@ -79,7 +72,6 @@ void test_case::assert_true(source_location const & srcloc, bool bActual, istr c
       srcloc, bActual, sExpr, istr(), bActual ? istr() : ABC_SL("true"), ABC_SL("false")
    );
 }
-
 
 void test_case::assert_throws(
    source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr,
@@ -110,19 +102,14 @@ void test_case::assert_throws(
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::test_case_factory_impl
-
 
 namespace abc {
 namespace testing {
 
-/*static*/ test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead(nullptr);
-// MSC16 BUG: for some reason, this will be parsed as a function declaration if written as a
-// constructor call.
-/*static*/ test_case_factory_impl::list_item ** test_case_factory_impl::sm_ppliTailNext = nullptr;
-
+test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead = nullptr;
+test_case_factory_impl::list_item ** test_case_factory_impl::sm_ppliTailNext = nullptr;
 
 test_case_factory_impl::test_case_factory_impl(list_item * pli) {
    if (sm_pliHead) {
@@ -138,7 +125,6 @@ test_case_factory_impl::test_case_factory_impl(list_item * pli) {
 
 } //namespace testing
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

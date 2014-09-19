@@ -21,20 +21,16 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifdef ABC_STLIMPL
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_alloc
-
 
 namespace std {
 
 bad_cast::bad_cast() {
 }
 
-
 /*virtual*/ bad_cast::~bad_cast() {
 }
-
 
 /*virtual*/ char const * bad_cast::what() const /*override*/ {
    return "std::bad_cast";
@@ -42,20 +38,16 @@ bad_cast::bad_cast() {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_typeid
-
 
 namespace std {
 
 bad_typeid::bad_typeid() {
 }
 
-
 /*virtual*/ bad_typeid::~bad_typeid() {
 }
-
 
 /*virtual*/ char const * bad_typeid::what() const /*override*/ {
    return "std::bad_typeid";
@@ -63,9 +55,7 @@ bad_typeid::bad_typeid() {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifdef ABC_STLIMPL
 

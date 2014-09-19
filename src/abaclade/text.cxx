@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text globals
 
@@ -56,7 +55,6 @@ std::size_t get_encoding_size(encoding enc) {
    ABC_THROW(domain_error, ());
 }
 
-
 istr get_line_terminator_str(line_terminator lterm) {
    ABC_TRACE_FUNC(lterm);
 
@@ -75,7 +73,6 @@ istr get_line_terminator_str(line_terminator lterm) {
          ABC_THROW(domain_error, ());
    }
 }
-
 
 encoding guess_encoding(
    void const * pBufBegin, void const * pBufEnd, std::size_t cbSrcTotal /*= 0*/,
@@ -312,7 +309,6 @@ encoding guess_encoding(
    }
 }
 
-
 line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd) {
    ABC_TRACE_FUNC(pchBegin, pchEnd);
 
@@ -334,7 +330,6 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
    }
    return line_terminator::any;
 }
-
 
 std::size_t transcode(
    bool bThrowOnErrors,
@@ -684,7 +679,6 @@ std::size_t size_in_chars(char const * psz) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::error
 
-
 namespace abc {
 namespace text {
 
@@ -693,7 +687,6 @@ error::error() :
    m_pszWhat = "abc::text::error";
 }
 
-
 void error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<error>::mapped_error);
 }
@@ -701,10 +694,8 @@ void error::init(errint_t err /*= 0*/) {
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::decode_error
-
 
 namespace abc {
 namespace text {
@@ -721,7 +712,6 @@ decode_error::decode_error(decode_error const & x) :
    m_viInvalid(x.m_viInvalid) {
 }
 
-
 decode_error & decode_error::operator=(decode_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -731,7 +721,6 @@ decode_error & decode_error::operator=(decode_error const & x) {
    return *this;
 }
 
-
 void decode_error::init(
    istr const & sDescription /*= istr()*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
    std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
@@ -740,7 +729,6 @@ void decode_error::init(
    m_sDescription = sDescription;
    m_viInvalid.append(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
 }
-
 
 /*virtual*/ void decode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
@@ -765,10 +753,8 @@ void decode_error::init(
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::encode_error
-
 
 namespace abc {
 namespace text {
@@ -785,7 +771,6 @@ encode_error::encode_error(encode_error const & x) :
    m_iInvalidCodePoint(x.m_iInvalidCodePoint) {
 }
 
-
 encode_error & encode_error::operator=(encode_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -795,7 +780,6 @@ encode_error & encode_error::operator=(encode_error const & x) {
    return *this;
 }
 
-
 void encode_error::init(
    istr const & sDescription /*= istr()*/, char32_t chInvalid /*= 0xffffff*/, errint_t err /*= 0*/
 ) {
@@ -803,7 +787,6 @@ void encode_error::init(
    m_sDescription = sDescription;
    m_iInvalidCodePoint = static_cast<std::uint32_t>(chInvalid);
 }
-
 
 /*virtual*/ void encode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
@@ -827,7 +810,6 @@ void encode_error::init(
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

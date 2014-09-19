@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – helpers for abc::byteorder globals
-
 
 #ifndef ABC_HAVE_BSWAP
 
@@ -33,7 +31,6 @@ std::uint16_t bswap_16(std::uint16_t i) {
       ((i & 0x00ffu) << 8);
 }
 
-
 std::uint32_t bswap_32(std::uint32_t i) {
    return
       ((i & 0xff000000u) >> 24) |
@@ -41,7 +38,6 @@ std::uint32_t bswap_32(std::uint32_t i) {
       ((i & 0x0000ff00u) <<  8) |
       ((i & 0x000000ffu) << 24);
 }
-
 
 std::uint64_t bswap_64(std::uint64_t i) {
    return
@@ -56,7 +52,6 @@ std::uint64_t bswap_64(std::uint64_t i) {
 }
 
 #endif //ifndef ABC_HAVE_BSWAP
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

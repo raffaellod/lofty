@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_proxy
-
 
 namespace abc {
 namespace text {
@@ -51,10 +49,8 @@ _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_iterator_impl
-
 
 namespace abc {
 namespace text {
@@ -71,7 +67,6 @@ std::ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) cons
    }
 }
 
-
 char_t const * _codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
@@ -83,7 +78,6 @@ char_t const * _codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) 
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

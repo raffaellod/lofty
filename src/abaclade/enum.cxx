@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::enum_member
-
 
 namespace abc {
 namespace detail {
@@ -56,10 +54,8 @@ namespace detail {
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::enum_to_str_backend_impl
-
 
 namespace abc {
 namespace detail {
@@ -79,7 +75,6 @@ void enum_to_str_backend_impl::set_format(istr const & sFormat) {
    }
 }
 
-
 void enum_to_str_backend_impl::write_impl(
    int i, enum_member const * pem, io::text::writer * ptwOut
 ) {
@@ -91,7 +86,6 @@ void enum_to_str_backend_impl::write_impl(
 
 } //namespace detail
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

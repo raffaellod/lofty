@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::text_writer_print_no_replacements
 
@@ -30,7 +29,6 @@ namespace test {
 
 class text_writer_print_no_replacements : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::io::text::writer::print() – no replacements"));
@@ -74,7 +72,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_no_replacements)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::text_writer_print_one_replacement
 
@@ -83,7 +80,6 @@ namespace test {
 
 class text_writer_print_one_replacement : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::io::text_writer::print() – one replacement"));
@@ -151,7 +147,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_one_replacement)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::text_writer_print_two_replacements
 
@@ -160,7 +155,6 @@ namespace test {
 
 class text_writer_print_two_replacements : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::io::text_writer::print() – two replacements"));
@@ -219,7 +213,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_two_replacements)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

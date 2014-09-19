@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::raw_vextr_impl_base
-
 
 namespace abc {
 namespace detail {
@@ -40,7 +38,6 @@ raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    m_bDynamic = false;
    m_bNulT = false;
 }
-
 
 /*static*/ std::size_t raw_vextr_impl_base::calculate_increased_capacity(
    std::size_t cbOld, std::size_t cbNew
@@ -73,7 +70,6 @@ raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    return cbNewCapacity;
 }
 
-
 void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
    ABC_TRACE_FUNC(this, ib);
 
@@ -85,7 +81,6 @@ void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
    // TODO: use the index, not the offset.
    ABC_THROW(index_error, (ib));
 }
-
 
 std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
    std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
@@ -120,7 +115,6 @@ std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
    );
 }
 
-
 void raw_vextr_impl_base::validate_pointer(void const * p) const {
    ABC_TRACE_FUNC(this, p);
 
@@ -129,7 +123,6 @@ void raw_vextr_impl_base::validate_pointer(void const * p) const {
       ABC_THROW(index_error, (static_cast<std::int8_t const *>(p) - begin<std::int8_t>()));
    }
 }
-
 
 void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
    ABC_TRACE_FUNC(this, p);
@@ -143,10 +136,8 @@ void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::raw_vextr_transaction
-
 
 namespace abc {
 namespace detail {
@@ -168,7 +159,6 @@ raw_vextr_transaction::raw_vextr_transaction(
    _construct(bTrivial, prvib->size<std::int8_t>() + cbAdd - cbRemove);
 }
 
-
 void raw_vextr_transaction::commit() {
    ABC_TRACE_FUNC(this);
 
@@ -184,7 +174,6 @@ void raw_vextr_transaction::commit() {
 
    // TODO: consider releasing some memory from an oversized dynamically-allocated item array.
 }
-
 
 void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
    ABC_TRACE_FUNC(this, bTrivial, cbNew);
@@ -249,10 +238,8 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::raw_complex_vextr_impl
-
 
 namespace abc {
 namespace detail {
@@ -326,7 +313,6 @@ void raw_complex_vextr_impl::assign_concat(
    trn.commit();
 }
 
-
 void raw_complex_vextr_impl::assign_move(
    type_void_adapter const & type, raw_complex_vextr_impl && rcvi
 ) {
@@ -344,7 +330,6 @@ void raw_complex_vextr_impl::assign_move(
    // And now empty the source.
    rcvi.assign_empty();
 }
-
 
 void raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    type_void_adapter const & type, raw_complex_vextr_impl && rcvi
@@ -503,7 +488,6 @@ void raw_complex_vextr_impl::insert(
    trn.commit();
 }
 
-
 void raw_complex_vextr_impl::remove(
    type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove
 ) {
@@ -533,7 +517,6 @@ void raw_complex_vextr_impl::remove(
    trn.commit();
 }
 
-
 void raw_complex_vextr_impl::set_capacity(
    type_void_adapter const & type, std::size_t cbMin, bool bPreserve
 ) {
@@ -558,7 +541,6 @@ void raw_complex_vextr_impl::set_capacity(
    m_pEnd = begin<std::int8_t>() + cbOrig;
 }
 
-
 void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_t cb) {
    ABC_TRACE_FUNC(this, /*type, */cb);
 
@@ -569,10 +551,8 @@ void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::raw_trivial_vextr_impl
-
 
 namespace abc {
 namespace detail {
@@ -597,7 +577,6 @@ void raw_trivial_vextr_impl::assign_concat(
    trn.commit();
 }
 
-
 void raw_trivial_vextr_impl::assign_move(raw_trivial_vextr_impl && rtvi) {
    ABC_TRACE_FUNC(this/*, rtvi*/);
 
@@ -617,7 +596,6 @@ void raw_trivial_vextr_impl::assign_move(raw_trivial_vextr_impl && rtvi) {
    rtvi.assign_empty();
 }
 
-
 void raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
    ABC_TRACE_FUNC(this/*, rtvi*/);
 
@@ -633,7 +611,6 @@ void raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(raw_trivial_vextr
       rtvi.assign_empty();
    }
 }
-
 
 void raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(raw_trivial_vextr_impl const & rtvi) {
    ABC_TRACE_FUNC(this/*, rtvi*/);
@@ -653,7 +630,6 @@ void raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(raw_trivial_vextr_imp
       assign_shallow(rtvi);
    }
 }
-
 
 void raw_trivial_vextr_impl::_insert_remove(
    std::size_t ibOffset, void const * pAdd, std::size_t cbAdd, std::size_t cbRemove
@@ -680,7 +656,6 @@ void raw_trivial_vextr_impl::_insert_remove(
    trn.commit();
 }
 
-
 void raw_trivial_vextr_impl::set_capacity(std::size_t cbMin, bool bPreserve) {
    ABC_TRACE_FUNC(this, cbMin, bPreserve);
 
@@ -699,7 +674,6 @@ void raw_trivial_vextr_impl::set_capacity(std::size_t cbMin, bool bPreserve) {
    m_pEnd = begin<std::int8_t>() + cbOrig;
 }
 
-
 void raw_trivial_vextr_impl::set_size(std::size_t cb) {
    ABC_TRACE_FUNC(this, cb);
 
@@ -714,7 +688,6 @@ void raw_trivial_vextr_impl::set_size(std::size_t cb) {
 
 } //namespace detail
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

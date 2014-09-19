@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifdef ABC_STLIMPL
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::nothrow_t and std::nothrow
-
 
 namespace std {
 
@@ -32,21 +30,16 @@ nothrow_t const nothrow;
 
 } //namespace std
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_alloc
-
 
 namespace std {
 
 bad_alloc::bad_alloc() {
 }
 
-
 /*virtual*/ bad_alloc::~bad_alloc() {
 }
-
 
 /*virtual*/ char const * bad_alloc::what() const /*override*/ {
    return "std::bad_alloc";
@@ -54,9 +47,7 @@ bad_alloc::bad_alloc() {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifdef ABC_STLIMPL
 

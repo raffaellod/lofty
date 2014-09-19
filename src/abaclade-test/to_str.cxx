@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_test_case_base
 
@@ -30,12 +29,10 @@ namespace test {
 
 class to_str_test_case_base : public testing::test_case {
 protected:
-
    //! Constructor.
    to_str_test_case_base() :
       m_stw(&m_sWriterBuffer) {
    }
-
 
    /*! Same as abc::to_str(), except it uses an writer with a static string for higher speed.
 
@@ -57,9 +54,7 @@ protected:
       return m_stw.get_str();
    }
 
-
 protected:
-
    //! Buffer for m_tw, to avoid performance impacts from memory (re)allocation.
    smstr<128> m_sWriterBuffer;
    //! Destination for to_str() writes.
@@ -69,7 +64,6 @@ protected:
 } //namespace test
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_int
 
@@ -78,7 +72,6 @@ namespace test {
 
 class to_str_int : public to_str_test_case_base {
 public:
-
    //! See to_str_test_case_base::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::to_str – int"));
@@ -118,7 +111,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_int8
 
@@ -127,7 +119,6 @@ namespace test {
 
 class to_str_int8 : public to_str_test_case_base {
 public:
-
    //! See to_str_test_case_base::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::to_str – int8_t"));
@@ -167,7 +158,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_raw_pointers
 
@@ -176,7 +166,6 @@ namespace test {
 
 class to_str_raw_pointers : public to_str_test_case_base {
 public:
-
    //! See to_str_test_case_base::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::to_str – raw pointers"));
@@ -222,7 +211,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_raw_pointers)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_smart_pointers
 
@@ -231,7 +219,6 @@ namespace test {
 
 class to_str_smart_pointers : public to_str_test_case_base {
 public:
-
    //! See to_str_test_case_base::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::to_str – smart pointers"));
@@ -279,7 +266,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_smart_pointers)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::to_str_tuples
 
@@ -288,7 +274,6 @@ namespace test {
 
 class to_str_tuples : public to_str_test_case_base {
 public:
-
    //! See to_str_test_case_base::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::to_str – STL tuple types"));
@@ -318,7 +303,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_tuples)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

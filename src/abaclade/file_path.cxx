@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::file_path
-
 
 namespace abc {
 
@@ -37,11 +35,9 @@ namespace {
 
 #if ABC_HOST_API_POSIX
 
-/*! Wrapper for a stat structure that self-loads with information on the file.
-*/
+//! Wrapper for a stat structure that self-loads with information on the file.
 class file_stat : public ::stat {
 public:
-
    /*! Constructor.
 
    fp
@@ -102,8 +98,6 @@ char_t const file_path::smc_aszRoot[] =
 char_t const file_path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
-
-
 file_path & file_path::operator/=(istr const & s) {
    ABC_TRACE_FUNC(this, s);
 
@@ -111,7 +105,6 @@ file_path & file_path::operator/=(istr const & s) {
    m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator) + s);
    return *this;
 }
-
 
 file_path file_path::absolute() const {
    ABC_TRACE_FUNC(this);
@@ -157,13 +150,11 @@ file_path file_path::absolute() const {
    return fpAbsolute.normalize();
 }
 
-
 file_path file_path::base_name() const {
    ABC_TRACE_FUNC(this);
 
    return m_s.substr(base_name_start());
 }
-
 
 /*static*/ file_path file_path::current_dir() {
    ABC_TRACE_FUNC();
@@ -206,9 +197,7 @@ file_path file_path::base_name() const {
    return std::move(s);
 }
 
-
 #if ABC_HOST_API_WIN32
-
 /*static*/ file_path file_path::current_dir_for_volume(char_t chVolume) {
    ABC_TRACE_FUNC(chVolume);
 
@@ -235,9 +224,7 @@ file_path file_path::base_name() const {
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
    return std::move(s);
 }
-
 #endif //if ABC_HOST_API_WIN32
-
 
 bool file_path::is_dir() const {
    ABC_TRACE_FUNC(this);
@@ -251,7 +238,6 @@ bool file_path::is_dir() const {
 #endif
 }
 
-
 file_path file_path::normalize() const {
    ABC_TRACE_FUNC(this);
 
@@ -259,13 +245,14 @@ file_path file_path::normalize() const {
    auto itBegin(s.begin()), itEnd(s.end());
    auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s, true)));
 
-   // Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
-   // separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back
-   // to the character following the last (“.”) or second-last (“..”) separator encountered, or
-   // itRootEnd if no previous separators are available:
-   // •  Upon encountering the second “/” in “a/./”, roll back to index 2;
-   // •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
-   // •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
+   /* Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
+   separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back to
+   to the character following the last (“.”) or second-last (“..”) separator encountered, or
+   itRootEnd if no previous separators are available:
+   •  Upon encountering the second “/” in “a/./”, roll back to index 2;
+   •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
+   •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
+   */
    smvector<dmstr::iterator, 5> vitSeps;
    std::size_t cDots = 0;
    auto itDst(itRootEnd);
@@ -326,7 +313,6 @@ file_path file_path::normalize() const {
    return std::move(s);
 }
 
-
 #if ABC_HOST_API_WIN32
 istr file_path::os_str() const {
    ABC_TRACE_FUNC(this);
@@ -334,7 +320,6 @@ istr file_path::os_str() const {
    return std::move(absolute().m_s);
 }
 #endif //if ABC_HOST_API_WIN32
-
 
 file_path file_path::parent_dir() const {
    ABC_TRACE_FUNC(this);
@@ -353,13 +338,11 @@ file_path file_path::parent_dir() const {
    return m_s.substr(itBegin, itLastSep);
 }
 
-
 /*static*/ file_path file_path::root() {
    ABC_TRACE_FUNC();
 
    return dmstr(smc_aszRoot);
 }
-
 
 dmstr::const_iterator file_path::base_name_start() const {
    ABC_TRACE_FUNC(this);
@@ -384,7 +367,6 @@ dmstr::const_iterator file_path::base_name_start() const {
 #endif
    return itBaseNameStart;
 }
-
 
 /*static*/ std::size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
@@ -436,13 +418,11 @@ dmstr::const_iterator file_path::base_name_start() const {
    return 0;
 }
 
-
 /*static*/ bool file_path::is_absolute(istr const & s) {
    ABC_TRACE_FUNC(s);
 
    return s.starts_with(smc_aszRoot);
 }
-
 
 /*static*/ dmstr file_path::validate_and_adjust(dmstr s) {
    ABC_TRACE_FUNC(s);
@@ -518,10 +498,8 @@ dmstr::const_iterator file_path::base_name_start() const {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend ‒ specialization for abc::file_path
-
 
 namespace abc {
 
@@ -540,7 +518,6 @@ void to_str_backend<file_path>::set_format(istr const & sFormat) {
    }
 }
 
-
 void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, fp, ptwOut);
 
@@ -549,10 +526,8 @@ void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * p
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::file_not_found_error
-
 
 namespace abc {
 
@@ -567,19 +542,16 @@ file_not_found_error::file_not_found_error(file_not_found_error const & x) :
    m_fpNotFound(x.m_fpNotFound) {
 }
 
-
 file_not_found_error & file_not_found_error::operator=(file_not_found_error const & x) {
    environment_error::operator=(x);
    m_fpNotFound = x.m_fpNotFound;
    return *this;
 }
 
-
 void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
    m_fpNotFound = fpNotFound;
 }
-
 
 /*virtual*/ void file_not_found_error::_print_extended_info(
    io::text::writer * ptwOut
@@ -589,7 +561,6 @@ void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err 
 }
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

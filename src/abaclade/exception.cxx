@@ -25,10 +25,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
-
 
 namespace abc {
 
@@ -68,20 +66,16 @@ void throw_os_error(errint_t err) {
       case ENOTSOCK: // Socket operation on non-socket (POSIX.1-2001)
          ABC_THROW(argument_error, (err));
 
-
       case ERANGE: // Math result not representable (POSIX.1-2001, C99)
          ABC_THROW(arithmetic_error, (err));
-
 
 #ifdef ENOBUFS
       case ENOBUFS: // No buffer space available (Linux)
          ABC_THROW(buffer_error, (err));
 #endif
 
-
       case EDOM: // Math argument out of domain of func (POSIX.1-2001, C99)
          ABC_THROW(domain_error, (err));
-
 
       case ECHILD: // No child processes (POSIX.1-2001)
       case EDEADLK: // Resource deadlock avoided (POSIX.1-2001)
@@ -91,11 +85,9 @@ void throw_os_error(errint_t err) {
       case ESRCH: // No such process (POSIX.1-2001)
          ABC_THROW(environment_error, (err));
 
-
       case ENODEV: // No such device (POSIX.1-2001)
       case ENOENT: // No such file or directory (POSIX.1-2001)
          ABC_THROW(file_not_found_error, (file_path(), err));
-
 
       case EIDRM: // Identifier removed (POSIX.1-2001)
       case EILSEQ: // Illegal byte sequence (POSIX.1-2001, C99)
@@ -103,7 +95,6 @@ void throw_os_error(errint_t err) {
       case ENOPROTOOPT: // Protocol not available (POSIX.1-2001)
       default:
          ABC_THROW(generic_error, (err));
-
 
       case EAGAIN: // Try again (POSIX.1-2001)
       case EALREADY: // Operation already in progress (POSIX.1-2001)
@@ -151,14 +142,11 @@ void throw_os_error(errint_t err) {
       case EXDEV: // Improper link (POSIX.1-2001)
          ABC_THROW(io_error, (err));
 
-
       case ENOMEM: // Out of memory (POSIX.1-2001)
          ABC_THROW(memory_allocation_error, (err));
 
-
       case EFAULT: // Bad address (POSIX.1-2001)
          ABC_THROW(memory_address_error, (err));
-
 
       case EADDRINUSE: // Address already in use (POSIX.1-2001).
       case EADDRNOTAVAIL: // Cannot assign requested address (POSIX.1-2001)
@@ -181,7 +169,6 @@ void throw_os_error(errint_t err) {
       case ESOCKTNOSUPPORT: // Socket type not supported (Linux)
 #endif
          ABC_THROW(network_error, (err));
-
 
 #ifdef ECOMM
       case ECOMM: // Communication error on send (Linux)
@@ -210,14 +197,11 @@ void throw_os_error(errint_t err) {
       case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
          ABC_THROW(network_io_error, (err));
 
-
       case ENOSYS: // Function not implemented (POSIX.1-2001)
          ABC_THROW(not_implemented_error, (err));
 
-
       case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
          ABC_THROW(overflow_error, (err));
-
 
       case EACCES: // Permission denied (POSIX.1-2001)
       case EPERM: // Operation not permitted (POSIX.1-2001)
@@ -240,7 +224,6 @@ void throw_os_error(errint_t err) {
       case ERROR_SUCCESS_RESTART_REQUIRED: // The requested operation is successful. Changes will
          // not be effective until the service is restarted.
          break;
-
 
       case ERROR_BAD_DESCRIPTOR_FORMAT: // A security descriptor is not in the right format
          // (absolute or self-relative).
@@ -341,13 +324,11 @@ void throw_os_error(errint_t err) {
       case ERROR_WINDOW_OF_OTHER_THREAD: // Invalid window; it belongs to another thread.
          ABC_THROW(argument_error, (err));
 
-
       case ERROR_BUFFER_OVERFLOW: // The file name is too long.
       case ERROR_INSUFFICIENT_BUFFER: // The data area passed to a system call is too small.
       case ERROR_INVALID_USER_BUFFER: // The supplied user buffer is not valid for the requested
          // operation.
          ABC_THROW(buffer_error, (err));
-
 
       case ERROR_CHILD_MUST_BE_VOLATILE: // Cannot create a stable subkey under a volatile parent
          // key.
@@ -372,11 +353,9 @@ void throw_os_error(errint_t err) {
       case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
          ABC_THROW(environment_error, (err));
 
-
       case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
       case ERROR_UNKNOWN_PORT: // The specified port is unknown.
          ABC_THROW(file_not_found_error, (file_path(), err));
-
 
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
          // when initialization has already been completed.
@@ -612,11 +591,9 @@ void throw_os_error(errint_t err) {
       default:
          ABC_THROW(generic_error, (err));
 
-
       case ERROR_BAD_PATHNAME: // The specified path is invalid.
       case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
          ABC_THROW(invalid_path_error, (err));
-
 
       case ERROR_ALREADY_ASSIGNED: // The local device name is already in use.
       case ERROR_ALREADY_EXISTS: // Cannot create a file when that file already exists.
@@ -822,12 +799,10 @@ void throw_os_error(errint_t err) {
          // %3) into drive %1.
          ABC_THROW(io_error, (err));
 
-
       case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
       case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
       case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
          ABC_THROW(key_error, (err));
-
 
       case ERROR_NO_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
          // requested service.
@@ -840,11 +815,9 @@ void throw_os_error(errint_t err) {
          // requested service.
          ABC_THROW(memory_allocation_error, (err));
 
-
       case ERROR_INVALID_ADDRESS: // Attempt to access invalid address.
       case ERROR_NOACCESS: // Invalid access to memory location.
          ABC_THROW(memory_address_error, (err));
-
 
       case ERROR_ACTIVE_CONNECTIONS: // Active connections still exist.
       case ERROR_ADDRESS_ALREADY_ASSOCIATED: // The network transport endpoint already has an
@@ -884,7 +857,6 @@ void throw_os_error(errint_t err) {
       case ERROR_WINS_INTERNAL: // WINS encountered an error while processing the command.
          ABC_THROW(network_error, (err));
 
-
       case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
       case ERROR_ADDRESS_NOT_ASSOCIATED: // An address has not yet been associated with the network
          // endpoint.
@@ -899,10 +871,8 @@ void throw_os_error(errint_t err) {
       case ERROR_REQUEST_ABORTED: // The request was aborted.
          ABC_THROW(network_io_error, (err));
 
-
       case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
          ABC_THROW(overflow_error, (err));
-
 
       case ERROR_ACCESS_DENIED: // Access is denied.
       case ERROR_ACCOUNT_DISABLED: // Logon failure - account currently disabled.
@@ -1035,7 +1005,6 @@ void throw_os_error(errint_t err) {
          // password is incorrect.
          ABC_THROW(security_error, (err));
 
-
       case ERROR_NO_UNICODE_TRANSLATION: // No mapping for the Unicode character exists in the
          // target multibyte code page.
          ABC_THROW(text::encode_error, (istr(), 0xffffff, err));
@@ -1044,9 +1013,7 @@ void throw_os_error(errint_t err) {
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
-
 // Default translations between exception class to OS-specific error code.
-
 #if ABC_HOST_API_POSIX
    ABC_MAP_ERROR_CLASS_TO_ERRINT(argument_error, EINVAL);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(domain_error, EDOM);
@@ -1065,10 +1032,8 @@ void throw_os_error(errint_t err) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::source_location
-
 
 namespace abc {
 
@@ -1087,7 +1052,6 @@ void to_str_backend<source_location>::set_format(istr const & sFormat) {
    }
 }
 
-
 void to_str_backend<source_location>::write(
    source_location const & srcloc, io::text::writer * ptwOut
 ) {
@@ -1100,10 +1064,8 @@ void to_str_backend<source_location>::write(
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
-
 
 namespace abc {
 
@@ -1123,14 +1085,12 @@ exception::exception(exception const & x) :
    }
 }
 
-
 /*virtual*/ exception::~exception() {
    // See [DOC:8503 Stack tracing].
    if (m_bInFlight) {
       detail::scope_trace_impl::trace_writer_release();
    }
 }
-
 
 exception & exception::operator=(exception const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
@@ -1154,7 +1114,6 @@ exception & exception::operator=(exception const & x) {
    return *this;
 }
 
-
 void exception::_before_throw(source_location const & srcloc, char_t const * pszFunction) {
    m_pszSourceFunction = pszFunction;
    m_srcloc = srcloc;
@@ -1165,11 +1124,9 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
-
 char const * exception::what() const {
    return m_pszWhat;
 }
-
 
 /*static*/ void exception::write_with_scope_trace(
    io::text::writer * ptwOut /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
@@ -1211,12 +1168,10 @@ char const * exception::what() const {
    ptwOut->write(detail::scope_trace_impl::get_trace_writer()->release_content());
 }
 
-
 void exception::_print_extended_info(io::text::writer * ptwOut) const {
    // Nothing to print.
    ABC_UNUSED_ARG(ptwOut);
 }
-
 
 #if ABC_HOST_API_LINUX
 
@@ -1359,7 +1314,6 @@ exception::async_handler_manager::async_handler_manager() {
    }
 }
 
-
 exception::async_handler_manager::~async_handler_manager() {
    // Restore the saved signal handlers.
    for (std::ptrdiff_t i = ABC_COUNTOF(g_aiHandledSignals); --i >= 0; ) {
@@ -1463,7 +1417,6 @@ exception::async_handler_manager::async_handler_manager() {
    g_sefDefault = ::_set_se_translator(eahm_se_translator);
 }
 
-
 exception::async_handler_manager::~async_handler_manager() {
    ::_set_se_translator(g_sefDefault);
 }
@@ -1472,10 +1425,8 @@ exception::async_handler_manager::~async_handler_manager() {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::argument_error
-
 
 namespace abc {
 
@@ -1484,17 +1435,14 @@ argument_error::argument_error() :
    m_pszWhat = "abc::argument_error";
 }
 
-
 void argument_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<argument_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::arithmetic_error
-
 
 namespace abc {
 
@@ -1503,23 +1451,19 @@ arithmetic_error::arithmetic_error() :
    m_pszWhat = "abc::arithmetic_error";
 }
 
-
 void arithmetic_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<arithmetic_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::assertion_error
-
 
 namespace abc {
 
 //TODO: tls
 /*tls*/ bool assertion_error::sm_bReentering(false);
-
 
 /*static*/ void assertion_error::_assertion_failed(
    source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
@@ -1542,10 +1486,8 @@ namespace abc {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::buffer_error
-
 
 namespace abc {
 
@@ -1554,17 +1496,14 @@ buffer_error::buffer_error() :
    m_pszWhat = "abc::buffer_error";
 }
 
-
 void buffer_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<buffer_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::division_by_zero_error
-
 
 namespace abc {
 
@@ -1573,17 +1512,14 @@ division_by_zero_error::division_by_zero_error() :
    m_pszWhat = "abc::division_by_zero_error";
 }
 
-
 void division_by_zero_error::init(errint_t err /*= 0*/) {
    arithmetic_error::init(err ? err : os_error_mapping<division_by_zero_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::domain_error
-
 
 namespace abc {
 
@@ -1598,10 +1534,8 @@ void domain_error::init(errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::environment_error
-
 
 namespace abc {
 
@@ -1610,17 +1544,14 @@ environment_error::environment_error() :
    m_pszWhat = "abc::environment_error";
 }
 
-
 void environment_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::floating_point_error
-
 
 namespace abc {
 
@@ -1629,17 +1560,14 @@ floating_point_error::floating_point_error() :
    m_pszWhat = "abc::floating_point_error";
 }
 
-
 void floating_point_error::init(errint_t err /*= 0*/) {
    arithmetic_error::init(err ? err : os_error_mapping<floating_point_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::generic_error
-
 
 namespace abc {
 
@@ -1652,7 +1580,6 @@ generic_error::generic_error(generic_error const & x) :
    m_err(x.m_err) {
 }
 
-
 generic_error & generic_error::operator=(generic_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -1663,10 +1590,8 @@ generic_error & generic_error::operator=(generic_error const & x) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::index_error
-
 
 namespace abc {
 
@@ -1680,7 +1605,6 @@ index_error::index_error(index_error const & x) :
    m_iInvalid(x.m_iInvalid) {
 }
 
-
 index_error & index_error::operator=(index_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -1689,12 +1613,10 @@ index_error & index_error::operator=(index_error const & x) {
    return *this;
 }
 
-
 void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
    lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
    m_iInvalid = iInvalid;
 }
-
 
 /*virtual*/ void index_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    ptwOut->print(ABC_SL("invalid index: {}\n"), m_iInvalid);
@@ -1703,10 +1625,8 @@ void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::invalid_path_error
-
 
 namespace abc {
 
@@ -1715,17 +1635,14 @@ invalid_path_error::invalid_path_error() :
    m_pszWhat = "abc::invalid_path_error";
 }
 
-
 void invalid_path_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<invalid_path_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io_error
-
 
 namespace abc {
 
@@ -1734,17 +1651,14 @@ io_error::io_error() :
    m_pszWhat = "abc::io_error";
 }
 
-
 void io_error::init(errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<io_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::iterator_error
-
 
 namespace abc {
 
@@ -1753,17 +1667,14 @@ iterator_error::iterator_error() :
    m_pszWhat = "abc::iterator_error";
 }
 
-
 void iterator_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<iterator_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::key_error
-
 
 namespace abc {
 
@@ -1772,17 +1683,14 @@ key_error::key_error() :
    m_pszWhat = "abc::key_error";
 }
 
-
 void key_error::init(errint_t err /*= 0*/) {
    lookup_error::init(err ? err : os_error_mapping<key_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::lookup_error
-
 
 namespace abc {
 
@@ -1791,17 +1699,14 @@ lookup_error::lookup_error() :
    m_pszWhat = "abc::lookup_error";
 }
 
-
 void lookup_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<lookup_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_access_error
-
 
 namespace abc {
 
@@ -1809,7 +1714,6 @@ memory_access_error::memory_access_error() :
    memory_address_error() {
    m_pszWhat = "abc::memory_access_error";
 }
-
 
 void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
    memory_address_error::init(
@@ -1819,15 +1723,12 @@ void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_address_error
-
 
 namespace abc {
 
 char_t const memory_address_error::smc_achUnknownAddress[] = ABC_SL("unknown memory address");
-
 
 memory_address_error::memory_address_error() :
    generic_error() {
@@ -1838,7 +1739,6 @@ memory_address_error::memory_address_error(memory_address_error const & x) :
    m_pInvalid(x.m_pInvalid) {
 }
 
-
 memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -1847,12 +1747,10 @@ memory_address_error & memory_address_error::operator=(memory_address_error cons
    return *this;
 }
 
-
 void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<memory_address_error>::mapped_error);
    m_pInvalid = pInvalid;
 }
-
 
 /*virtual*/ void memory_address_error::_print_extended_info(
    io::text::writer * ptwOut
@@ -1867,10 +1765,8 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_allocation_error
-
 
 namespace abc {
 
@@ -1879,17 +1775,14 @@ memory_allocation_error::memory_allocation_error() :
    m_pszWhat = "abc::memory_allocation_error";
 }
 
-
 void memory_allocation_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<memory_allocation_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::network_error
-
 
 namespace abc {
 
@@ -1898,17 +1791,14 @@ network_error::network_error() :
    m_pszWhat = "abc::network_error";
 }
 
-
 void network_error::init(errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<network_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::network_io_error
-
 
 namespace abc {
 
@@ -1917,7 +1807,6 @@ network_io_error::network_io_error() :
    network_error() {
    m_pszWhat = "abc::network_io_error";
 }
-
 
 void network_io_error::init(errint_t err /*= 0*/) {
    if (!err) {
@@ -1929,10 +1818,8 @@ void network_io_error::init(errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
-
 
 namespace abc {
 
@@ -1941,17 +1828,14 @@ not_implemented_error::not_implemented_error() :
    m_pszWhat = "abc::not_implemented_error";
 }
 
-
 void not_implemented_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<not_implemented_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::null_pointer_error
-
 
 namespace abc {
 
@@ -1959,7 +1843,6 @@ null_pointer_error::null_pointer_error() :
    memory_address_error() {
    m_pszWhat = "abc::null_pointer_error";
 }
-
 
 void null_pointer_error::init(errint_t err /*= 0*/) {
    memory_address_error::init(
@@ -1969,10 +1852,8 @@ void null_pointer_error::init(errint_t err /*= 0*/) {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::overflow_error
-
 
 namespace abc {
 
@@ -1981,17 +1862,14 @@ overflow_error::overflow_error() :
    m_pszWhat = "abc::overflow_error";
 }
 
-
 void overflow_error::init(errint_t err /*= 0*/) {
    arithmetic_error::init(err ? err : os_error_mapping<overflow_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::pointer_iterator_error
-
 
 namespace abc {
 
@@ -2007,7 +1885,6 @@ pointer_iterator_error::pointer_iterator_error(pointer_iterator_error const & x)
    m_pInvalid(x.m_pInvalid) {
 }
 
-
 pointer_iterator_error & pointer_iterator_error::operator=(pointer_iterator_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -2018,7 +1895,6 @@ pointer_iterator_error & pointer_iterator_error::operator=(pointer_iterator_erro
    return *this;
 }
 
-
 void pointer_iterator_error::init(
    void const * pContBegin, void const * pContEnd, void const * pInvalid, errint_t err /*= 0*/
 ) {
@@ -2027,7 +1903,6 @@ void pointer_iterator_error::init(
    m_pContEnd = pContEnd;
    m_pInvalid = pInvalid;
 }
-
 
 /*virtual*/ void pointer_iterator_error::_print_extended_info(
    io::text::writer * ptwOut
@@ -2041,10 +1916,8 @@ void pointer_iterator_error::init(
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::security_error
-
 
 namespace abc {
 
@@ -2053,17 +1926,14 @@ security_error::security_error() :
    m_pszWhat = "abc::security_error";
 }
 
-
 void security_error::init(errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<security_error>::mapped_error);
 }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::syntax_error
-
 
 namespace abc {
 
@@ -2079,7 +1949,6 @@ syntax_error::syntax_error(syntax_error const & x) :
    m_iLine(x.m_iLine) {
 }
 
-
 syntax_error & syntax_error::operator=(syntax_error const & x) {
    ABC_TRACE_FUNC(this/*, x*/);
 
@@ -2091,7 +1960,6 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
    return *this;
 }
 
-
 void syntax_error::init(
    istr const & sDescription /*= istr()*/, istr const & sSource /*= istr()*/,
    unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
@@ -2102,7 +1970,6 @@ void syntax_error::init(
    m_iChar = iChar;
    m_iLine = iLine;
 }
-
 
 /*virtual*/ void syntax_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
@@ -2141,7 +2008,6 @@ void syntax_error::init(
 }
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

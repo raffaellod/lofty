@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/binary/file.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text globals
-
 
 namespace abc {
 namespace io {
@@ -36,7 +34,6 @@ namespace {
 std::shared_ptr<binbuf_writer> g_ptwStdErr;
 std::shared_ptr<binbuf_reader> g_ptrStdIn;
 std::shared_ptr<binbuf_writer> g_ptwStdOut;
-
 
 /*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
 returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
@@ -74,7 +71,6 @@ std::shared_ptr<binbuf_base> _construct(
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
 }
-
 
 /*! Detects the encoding to use for a standard text I/O file, with the help of an optional
 environment variable.
@@ -148,7 +144,6 @@ std::shared_ptr<binbuf_writer> stderr() {
    return g_ptwStdErr;
 }
 
-
 std::shared_ptr<binbuf_reader> stdin() {
    ABC_TRACE_FUNC();
 
@@ -160,7 +155,6 @@ std::shared_ptr<binbuf_reader> stdin() {
    }
    return g_ptrStdIn;
 }
-
 
 std::shared_ptr<binbuf_writer> stdout() {
    ABC_TRACE_FUNC();
@@ -174,7 +168,6 @@ std::shared_ptr<binbuf_writer> stdout() {
    return g_ptwStdOut;
 }
 
-
 std::shared_ptr<binbuf_base> open(
    file_path const & fp, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
@@ -186,7 +179,6 @@ std::shared_ptr<binbuf_base> open(
 } //namespace text
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

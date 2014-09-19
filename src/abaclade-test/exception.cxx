@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::exception_polymorphism
 
@@ -30,11 +29,9 @@ namespace test {
 
 class exception_polymorphism : public testing::test_case {
 protected:
-
    //! First-level abc::generic_error subclass.
    class derived1_error : public virtual generic_error {
    public:
-
       //! Constructor.
       derived1_error() :
          generic_error() {
@@ -45,7 +42,6 @@ protected:
    //! Second-level abc::generic_error subclass.
    class derived2_error : public virtual derived1_error {
    public:
-
       //! Constructor.
       derived2_error() :
          derived1_error() {
@@ -56,7 +52,6 @@ protected:
    //! Diamond-inheritance abc::generic_error subclass.
    class derived3_error : public virtual derived1_error, public virtual derived2_error {
    public:
-
       //! Constructor.
       derived3_error() :
          derived1_error(),
@@ -65,14 +60,11 @@ protected:
       }
    };
 
-
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::exception – polymorphism"));
    }
-
 
    //! See testing::test_case::run().
    virtual void run() override {
@@ -88,13 +80,11 @@ public:
       ABC_TESTING_ASSERT_THROWS(derived3_error, throw_derived3_error(5123));
    }
 
-
    void throw_exception() {
       ABC_TRACE_FUNC(this);
 
       ABC_THROW(exception, ());
    }
-
 
    void throw_generic_error() {
       ABC_TRACE_FUNC(this);
@@ -102,20 +92,17 @@ public:
       ABC_THROW(generic_error, ());
    }
 
-
    void throw_derived1_error() {
       ABC_TRACE_FUNC(this);
 
       ABC_THROW(derived1_error, ());
    }
 
-
    void throw_derived2_error() {
       ABC_TRACE_FUNC(this);
 
       ABC_THROW(derived2_error, ());
    }
-
 
    void throw_derived3_error(int i) {
       ABC_TRACE_FUNC(this, i);
@@ -129,7 +116,6 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::exception_from_os_hard_error
 
@@ -138,12 +124,10 @@ namespace test {
 
 class exception_from_os_hard_error : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
    }
-
 
    //! See testing::test_case::run().
    virtual void run() override {
@@ -220,7 +204,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_from_os_hard_error)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

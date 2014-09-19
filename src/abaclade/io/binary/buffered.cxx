@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <algorithm>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary globals
-
 
 namespace abc {
 namespace io {
@@ -50,10 +48,8 @@ std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_reader
-
 
 namespace abc {
 namespace io {
@@ -87,10 +83,8 @@ namespace binary {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_writer
-
 
 namespace abc {
 namespace io {
@@ -112,10 +106,8 @@ namespace binary {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::default_buffered_reader
-
 
 namespace abc {
 namespace io {
@@ -128,10 +120,8 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    m_cbReadBufUsed(0) {
 }
 
-
 /*virtual*/ default_buffered_reader::~default_buffered_reader() {
 }
-
 
 /*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -145,7 +135,6 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    m_ibReadBufUsed += cb;
    m_cbReadBufUsed -= cb;
 }
-
 
 /*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
    std::size_t cb
@@ -187,7 +176,6 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    return std::make_pair(m_pbReadBuf.get() + m_ibReadBufUsed, m_cbReadBufUsed);
 }
 
-
 /*virtual*/ std::shared_ptr<base> default_buffered_reader::unbuffered() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
@@ -198,10 +186,8 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::default_buffered_writer
-
 
 namespace abc {
 namespace io {
@@ -213,13 +199,11 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    m_cbWriteBufUsed(0) {
 }
 
-
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
    ABC_TRACE_FUNC(this);
 
    flush_buffer();
 }
-
 
 /*virtual*/ void default_buffered_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
@@ -228,7 +212,6 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    flush_buffer();
    m_pbw->flush();
 }
-
 
 /*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -245,7 +228,6 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    }
 }
 
-
 void default_buffered_writer::flush_buffer() {
    ABC_TRACE_FUNC(this);
 
@@ -255,7 +237,6 @@ void default_buffered_writer::flush_buffer() {
       m_cbWriteBufUsed = 0;
    }
 }
-
 
 /*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
    std::size_t cb
@@ -278,7 +259,6 @@ void default_buffered_writer::flush_buffer() {
    return std::pair<void *, std::size_t>(m_pbWriteBuf.get() + m_cbWriteBufUsed, cbWriteBufAvail);
 }
 
-
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::unbuffered() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
@@ -288,7 +268,6 @@ void default_buffered_writer::flush_buffer() {
 } //namespace binary
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

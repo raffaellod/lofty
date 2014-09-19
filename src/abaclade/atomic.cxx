@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/atomic.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::atomic global variables
-
 
 namespace abc {
 namespace atomic {
@@ -35,7 +33,6 @@ pthread_mutex_t g_mtx(PTHREAD_MUTEX_INITIALIZER);
 
 } //namespace atomic
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

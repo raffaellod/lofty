@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – standard new/delete operators
-
 
 #if ABC_HOST_MSC
    #pragma warning(push)
@@ -51,7 +49,6 @@ void * ABC_STL_CALLCONV operator new[](
    return ::malloc(cb);
 }
 
-
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
    abc::memory::_raw_free(p);
 }
@@ -69,10 +66,8 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
    #pragma warning(pop)
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals – management
-
 
 namespace abc {
 namespace memory {
@@ -85,11 +80,9 @@ void * _raw_alloc(std::size_t cb) {
    return p;
 }
 
-
 void _raw_free(void const * p) {
    ::free(const_cast<void *>(p));
 }
-
 
 void * _raw_realloc(void * p, std::size_t cb) {
    p = ::realloc(p, cb);
@@ -101,7 +94,6 @@ void * _raw_realloc(void * p, std::size_t cb) {
 
 } //namespace memory
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

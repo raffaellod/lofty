@@ -20,10 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::str_base
-
 
 namespace abc {
 namespace io {
@@ -34,10 +32,8 @@ str_base::str_base() :
    m_ichOffset(0) {
 }
 
-
 /*virtual*/ str_base::~str_base() {
 }
-
 
 /*virtual*/ abc::text::encoding str_base::get_encoding() const /*override*/ {
    return abc::text::encoding::host;
@@ -47,10 +43,8 @@ str_base::str_base() :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::str_reader
-
 
 namespace abc {
 namespace io {
@@ -78,7 +72,6 @@ str_reader::str_reader(mstr && s) :
    m_sReadBuf(std::move(s)) {
 }
 
-
 /*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
@@ -90,10 +83,8 @@ str_reader::str_reader(mstr && s) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::str_writer
-
 
 namespace abc {
 namespace io {
@@ -106,7 +97,6 @@ str_writer::str_writer(mstr * psBuf /*= nullptr*/) :
    m_psWriteBuf(psBuf ? psBuf : &m_sDefaultWriteBuf) {
 }
 
-
 void str_writer::clear() {
    ABC_TRACE_FUNC(this);
 
@@ -114,14 +104,12 @@ void str_writer::clear() {
    m_ichOffset = 0;
 }
 
-
 dmstr str_writer::release_content() {
    ABC_TRACE_FUNC(this);
 
    m_ichOffset = 0;
    return std::move(*m_psWriteBuf);
 }
-
 
 /*virtual*/ void str_writer::write_binary(
    void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
@@ -159,7 +147,6 @@ dmstr str_writer::release_content() {
 } //namespace text
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

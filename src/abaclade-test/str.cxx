@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/utility.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test globals
-
 
 namespace abc {
 namespace test {
@@ -47,17 +45,14 @@ istr const gc_sAcabaabca(
 } //namespace test
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_basic
-
 
 namespace abc {
 namespace test {
 
 class str_basic : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – basic operations"));
@@ -207,17 +202,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_iterators
-
 
 namespace abc {
 namespace test {
 
 class str_iterators : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – iterator-based character access"));
@@ -252,17 +244,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_iterators)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_encode
-
 
 namespace abc {
 namespace test {
 
 class str_encode : public testing::test_case {
 public:
-
    //! See abc::testing::test_case::title().
    virtual istr title() override {
       return istr(
@@ -342,17 +331,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_encode)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_replace
-
 
 namespace abc {
 namespace test {
 
 class str_replace : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – character replacement"));
@@ -389,17 +375,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_replace)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr
-
 
 namespace abc {
 namespace test {
 
 class str_substr_range_permutations : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – range permutations"));
@@ -467,17 +450,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_range_permutations)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::istr_c_str
-
 
 namespace abc {
 namespace test {
 
 class istr_c_str : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::istr – C string extraction"));
@@ -522,17 +502,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::istr_c_str)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::mstr_c_str
-
 
 namespace abc {
 namespace test {
 
 class mstr_c_str : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::mstr – C string extraction"));
@@ -586,17 +563,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr
-
 
 namespace abc {
 namespace test {
 
 class str_find : public testing::test_case {
 public:
-
    //! See abc::testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::*str classes – character and substring search"));
@@ -635,17 +609,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_find)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr_starts_with
-
 
 namespace abc {
 namespace test {
 
 class str_substr_starts_with : public testing::test_case {
 public:
-
    //! See abc::testing::test_case::title().
    virtual istr title() override {
       return istr(
@@ -680,17 +651,14 @@ public:
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_starts_with)
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_substr_ends_with
-
 
 namespace abc {
 namespace test {
 
 class str_substr_ends_with : public testing::test_case {
 public:
-
    //! See abc::testing::test_case::title().
    virtual istr title() override {
       return istr(
@@ -724,7 +692,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_ends_with)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

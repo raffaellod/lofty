@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::assertion_error
-
 
 namespace abc {
 namespace testing {
@@ -38,10 +36,8 @@ assertion_error::assertion_error() :
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::runner
-
 
 namespace abc {
 namespace testing {
@@ -51,10 +47,8 @@ runner::runner(std::shared_ptr<io::text::writer> ptwOut) :
    m_cFailedAssertions(0) {
 }
 
-
 runner::~runner() {
 }
-
 
 void runner::load_registered_test_cases() {
    ABC_TRACE_FUNC(this);
@@ -68,7 +62,6 @@ void runner::load_registered_test_cases() {
       m_vptc.append(pli->pfnFactory(this));
    }
 }
-
 
 void runner::log_assertion(
    source_location const & srcloc, bool bPass,
@@ -91,13 +84,11 @@ void runner::log_assertion(
    }
 }
 
-
 bool runner::log_summary() {
    ABC_TRACE_FUNC(this);
 
    return m_cFailedAssertions == 0;
 }
-
 
 void runner::run() {
    ABC_TRACE_FUNC(this);
@@ -106,7 +97,6 @@ void runner::run() {
       run_test_case(**it);
    }
 }
-
 
 void runner::run_test_case(test_case & tc) {
    ABC_TRACE_FUNC(this/*, tc*/);
@@ -135,7 +125,6 @@ void runner::run_test_case(test_case & tc) {
 
 } //namespace testing
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

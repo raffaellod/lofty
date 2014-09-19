@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::scope_trace_impl
 
@@ -33,7 +32,6 @@ namespace detail {
 /*tls*/ unsigned scope_trace_impl::sm_cScopeTraceRefs(0);
 /*tls*/ unsigned scope_trace_impl::sm_iStackDepth(0);
 /*tls*/ bool scope_trace_impl::sm_bReentering(false);
-
 
 void scope_trace_impl::trace_scope(
    std::function<void (io::text::writer * ptwOut)> const & fnWriteVars
@@ -54,14 +52,12 @@ void scope_trace_impl::trace_scope(
    }
 }
 
-
 void scope_trace_impl::write_separator(io::text::writer * ptwOut) {
    ptwOut->write(ABC_SL(", "));
 }
 
 } //namespace detail
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

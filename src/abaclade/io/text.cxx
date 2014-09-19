@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/binary/file.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::base
-
 
 namespace abc {
 namespace io {
@@ -34,19 +32,15 @@ base::base() :
    m_lterm(abc::text::line_terminator::convert_any_to_lf) {
 }
 
-
 /*virtual*/ base::~base() {
 }
-
 
 } //namespace text
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::reader
-
 
 namespace abc {
 namespace io {
@@ -56,13 +50,11 @@ reader::reader() :
    base() {
 }
 
-
 void reader::read_all(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    read_while(psDst, false);
 }
-
 
 bool reader::read_line(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
@@ -104,10 +96,8 @@ bool reader::read_line(mstr * psDst) {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::writer
-
 
 namespace abc {
 namespace io {
@@ -116,7 +106,6 @@ namespace text {
 writer::writer() :
    base() {
 }
-
 
 void writer::write_line(istr const & s) {
    ABC_TRACE_FUNC(this, s);
@@ -137,10 +126,8 @@ void writer::write_line(istr const & s) {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::detail::writer_print_helper
-
 
 namespace abc {
 namespace io {
@@ -155,7 +142,6 @@ writer_print_helper_impl::writer_print_helper_impl(writer * ptw, istr const & sF
    m_itFormatToWriteBegin(sFormat.cbegin()) {
 }
 
-
 void writer_print_helper_impl::run() {
    // Since this specialization has no replacements, verify that the format string doesn’t specify
    // any either.
@@ -164,11 +150,9 @@ void writer_print_helper_impl::run() {
    }
 }
 
-
 void writer_print_helper_impl::throw_index_error() {
    ABC_THROW(index_error, (static_cast<std::ptrdiff_t>(m_iSubstArg)));
 }
-
 
 bool writer_print_helper_impl::write_format_up_to_next_repl() {
    ABC_TRACE_FUNC(this);
@@ -261,7 +245,6 @@ bool writer_print_helper_impl::write_format_up_to_next_repl() {
    return true;
 }
 
-
 void writer_print_helper_impl::throw_syntax_error(
    istr const & sDescription, istr::const_iterator it
 ) const {
@@ -270,7 +253,6 @@ void writer_print_helper_impl::throw_syntax_error(
       syntax_error, (sDescription, m_sFormat, static_cast<unsigned>(it - m_sFormat.cbegin() + 1))
    );
 }
-
 
 void writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
    ABC_TRACE_FUNC(this, itUpTo);
@@ -291,10 +273,8 @@ void writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_base
-
 
 namespace abc {
 namespace io {
@@ -305,10 +285,8 @@ binbuf_base::binbuf_base(abc::text::encoding enc) :
    m_enc(enc) {
 }
 
-
 /*virtual*/ binbuf_base::~binbuf_base() {
 }
-
 
 /*virtual*/ abc::text::encoding binbuf_base::get_encoding() const /*override*/ {
    ABC_TRACE_FUNC(this);
@@ -320,10 +298,8 @@ binbuf_base::binbuf_base(abc::text::encoding enc) :
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_reader
-
 
 namespace abc {
 namespace io {
@@ -340,10 +316,8 @@ binbuf_reader::binbuf_reader(
    m_bDiscardNextLF(false) {
 }
 
-
 /*virtual*/ binbuf_reader::~binbuf_reader() {
 }
-
 
 /*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::buffered_base(
 ) const /*override*/ {
@@ -351,7 +325,6 @@ binbuf_reader::binbuf_reader(
 
    return m_pbbr;
 }
-
 
 std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t cb) {
    ABC_TRACE_FUNC(this, pb, cb);
@@ -377,7 +350,6 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    // If a BOM was read, consume and discard it.
    return cbBom;
 }
-
 
 /*virtual*/ bool binbuf_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
@@ -431,16 +403,14 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
 ) {
    ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);
 
-   bool bLineEndsOnCROrAny(
+   bool bLineEndsOnCROrAny =
       m_lterm == abc::text::line_terminator::cr ||
       m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf
-   );
-   bool bLineEndsOnLFOrAny(
+      m_lterm == abc::text::line_terminator::convert_any_to_lf;
+   bool bLineEndsOnLFOrAny =
       m_lterm == abc::text::line_terminator::lf ||
       m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf
-   );
+      m_lterm == abc::text::line_terminator::convert_any_to_lf;
    // This loop consumes one peek buffer at a time; it may end prematurely if bOneLine == true.
    std::size_t cchReadTotal = 0;
    for (
@@ -514,22 +484,19 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
    return cchReadTotal;
 }
 
-
 std::size_t binbuf_reader::read_while_with_transcode(
    std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
 ) {
    ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);
 
-   bool bLineEndsOnCROrAny(
+   bool bLineEndsOnCROrAny =
       m_lterm == abc::text::line_terminator::cr ||
       m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf
-   );
-   bool bLineEndsOnLFOrAny(
+      m_lterm == abc::text::line_terminator::convert_any_to_lf;
+   bool bLineEndsOnLFOrAny =
       m_lterm == abc::text::line_terminator::lf ||
       m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf
-   );
+      m_lterm == abc::text::line_terminator::convert_any_to_lf;
    /* If bOneLine == true, we may need to reject part of a string we just transcoded (expensive:
    we’d need to calculate the buffer offset back from the string offset, and the only way to do so
    is to re-transcode the buffer capping the destination size – see below), se we’ll only transcode
@@ -643,10 +610,8 @@ std::size_t binbuf_reader::read_while_with_transcode(
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_writer
-
 
 namespace abc {
 namespace io {
@@ -662,10 +627,8 @@ binbuf_writer::binbuf_writer(
    m_pbbw(std::move(pbbw)) {
 }
 
-
 /*virtual*/ binbuf_writer::~binbuf_writer() {
 }
-
 
 /*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::buffered_base(
 ) const /*override*/ {
@@ -673,7 +636,6 @@ binbuf_writer::binbuf_writer(
 
    return m_pbbw;
 }
-
 
 /*virtual*/ void binbuf_writer::write_binary(
    void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
@@ -712,7 +674,6 @@ binbuf_writer::binbuf_writer(
 } //namespace text
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

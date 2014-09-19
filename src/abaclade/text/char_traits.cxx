@@ -20,28 +20,27 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::utf8_char_traits
-
 
 namespace abc {
 namespace text {
 
-// Optimization 1: odd indices would have the same values as the preceding even ones, so the number
-// of elements can be cut in half.
-// Optimization 2: the maximum length is less than 0xf, so each value is encoded in a nibble instead
-// of a full byte.
-//
-// In the end, the lead byte is treated like this:
-//
-//    ┌─────────────┬──────────────┬────────┐
-//    │ 7 6 5 4 3 2 │       1      │    0   │
-//    ├─────────────┼──────────────┼────────┤
-//    │ byte  index │ nibble index │ unused │
-//    └─────────────┴──────────────┴────────┘
-//
-// See utf8_char_traits::lead_char_to_codepoint_size() for the actual code accessing this array.
+/* Optimization 1: odd indices would have the same values as the preceding even ones, so the number
+of elements can be cut in half.
+
+Optimization 2: the maximum length is less than 0xf, so each value is encoded in a nibble instead of
+a full byte.
+
+In the end, the lead byte is treated like this:
+
+   ┌─────────────┬──────────────┬────────┐
+   │ 7 6 5 4 3 2 │       1      │    0   │
+   ├─────────────┼──────────────┼────────┤
+   │ byte  index │ nibble index │ unused │
+   └─────────────┴──────────────┴────────┘
+
+See utf8_char_traits::lead_char_to_codepoint_size() for the actual code accessing this array. */
 std::uint8_t const utf8_char_traits::smc_acbCpSizesByLeadChar[] = {
    // 0xxxxxxx
    0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -54,8 +53,8 @@ std::uint8_t const utf8_char_traits::smc_acbCpSizesByLeadChar[] = {
    0x33, 0x33, 0x33, 0x33,
    // 11110xxx
    0x44, 0x44,
-   // These are either overlong (code points encoded using more bytes than necessary) or invalid
-   // (the resulting symbol would be out of Unicode code point range).
+   /* These are either overlong (code points encoded using more bytes than necessary) or invalid
+   (the resulting symbol would be out of Unicode code point range). */
    // 111110xx
    0x55,
    // 1111110x same as above, and 1111111x is invalid (not UTF-8), so just skip it.
@@ -91,7 +90,6 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    /* 0xf? */ 0xf8, 0x00
 };
 
-
 /*static*/ char32_t utf8_char_traits::chars_to_codepoint(char8_t const * pchSrcBegin) {
    ABC_TRACE_FUNC(pchSrcBegin);
 
@@ -105,7 +103,6 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    }
    return cp;
 }
-
 
 /*static*/ unsigned utf8_char_traits::codepoint_size(char32_t cp) {
    ABC_TRACE_FUNC(cp);
@@ -126,7 +123,6 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
       return 4;
    }
 }
-
 
 /*static*/ char8_t * utf8_char_traits::codepoint_to_chars(char32_t cp, char8_t * pchDstBegin) {
    ABC_TRACE_FUNC(cp, pchDstBegin);
@@ -151,10 +147,8 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::utf16_char_traits
-
 
 namespace abc {
 namespace text {
@@ -171,7 +165,6 @@ namespace text {
    return is_codepoint_valid(cp) ? cp : replacement_char;
 }
 
-
 /*static*/ unsigned utf16_char_traits::codepoint_size(char32_t cp) {
    ABC_TRACE_FUNC(cp);
 
@@ -180,7 +173,6 @@ namespace text {
    }
    return cp > 0x00ffff ? 2u : 1u;
 }
-
 
 /*static*/ char16_t * utf16_char_traits::codepoint_to_chars(char32_t cp, char16_t * pchDstBegin) {
    ABC_TRACE_FUNC(cp, pchDstBegin);
@@ -200,7 +192,6 @@ namespace text {
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/utility.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility::instances_counter
 
@@ -37,7 +36,6 @@ int instances_counter::m_iNextUnique = 0;
 } //namespace utility
 } //namespace testing
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
