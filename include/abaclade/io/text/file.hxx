@@ -30,7 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/file_path.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text globals
 
@@ -45,7 +44,6 @@ return
 */
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stderr();
 
-
 /*! Returns the text reader associated to the standard input file (stdin).
 
 return
@@ -53,14 +51,12 @@ return
 */
 ABACLADE_SYM std::shared_ptr<binbuf_reader> stdin();
 
-
 /*! Returns the text writer associated to the standard output file (stdout).
 
 return
    Standard output file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stdout();
-
 
 /*! Opens a file for text-mode access.
 
@@ -77,7 +73,6 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
    file_path const & fp, access_mode am, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
-
 /*! Opens a file for text-mode reading.
 
 fp
@@ -92,7 +87,6 @@ inline std::shared_ptr<binbuf_reader> open_reader(
 ) {
    return std::dynamic_pointer_cast<binbuf_reader>(open(fp, access_mode::read, enc));
 }
-
 
 /*! Opens a file for text-mode writing.
 
@@ -113,10 +107,7 @@ inline std::shared_ptr<binbuf_writer> open_writer(
 } //namespace io
 } //namespace abc
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_IO_TEXT_FILE_HXX
 

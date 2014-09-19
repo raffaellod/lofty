@@ -20,22 +20,17 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_explob_helper
-
 
 namespace abc {
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-
 void _explob_helper::bool_true() const {
 }
-
 #endif
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

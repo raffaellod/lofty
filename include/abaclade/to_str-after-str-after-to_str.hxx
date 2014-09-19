@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::char_ptr_to_str_adapter
-
 
 namespace abc {
 
@@ -33,14 +31,12 @@ namespace abc {
 for compatibility with STL methods such as std::exception::what(). Without this, C strings are
 printed only as pointers, which is often undesirable.
 
-Instances of this class don’t own the memory object they point to.
-*/
+Instances of this class don’t own the memory object they point to. */
 class char_ptr_to_str_adapter {
-
+private:
    friend class to_str_backend<char_ptr_to_str_adapter>;
 
 public:
-
    /*! Constructor.
 
    psz
@@ -50,27 +46,21 @@ public:
       m_psz(psz) {
    }
 
-
 protected:
-
    //! Wrapped C-style string.
    char const * m_psz;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for char_ptr_to_str_adapter
-
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> :
-   public detail::str_to_str_backend {
+class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> : public detail::str_to_str_backend {
 public:
-
    /*! Writes a C-style NUL-terminated string, applying the formatting options.
 
    cs
@@ -83,20 +73,16 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_ptr_to_str_backend
-
 
 namespace abc {
 
 //! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM _ptr_to_str_backend {
 public:
-
    //! Constructor.
    _ptr_to_str_backend();
-
 
    /*! Changes the output format.
 
@@ -105,9 +91,7 @@ public:
    */
    void set_format(istr const & sFormat);
 
-
 protected:
-
    /*! Converts a pointer to a string representation.
 
    iPtr
@@ -117,9 +101,7 @@ protected:
    */
    void _write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut);
 
-
 protected:
-
    //! Backend used to write the pointer as an integer.
    to_str_backend<std::uintptr_t> m_tsbInt;
    //! Backend used to write a nullptr.
@@ -130,19 +112,15 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specializations for pointer types
-
 
 namespace abc {
 
 // Specialization for raw pointer types.
 template <typename T>
-class to_str_backend<T *> :
-   public _ptr_to_str_backend {
+class to_str_backend<T *> : public _ptr_to_str_backend {
 public:
-
    /*! Converts a pointer to a string representation.
 
    p
@@ -157,10 +135,8 @@ public:
 
 // Specialization for std::unique_ptr.
 template <typename T, typename TDel>
-class to_str_backend<std::unique_ptr<T, TDel>> :
-   public _ptr_to_str_backend {
+class to_str_backend<std::unique_ptr<T, TDel>> : public _ptr_to_str_backend {
 public:
-
    //! See _ptr_to_str_backend::write().
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
@@ -170,10 +146,8 @@ public:
 // Specialization for std::shared_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::shared_ptr<T>> :
-   public _ptr_to_str_backend {
+class to_str_backend<std::shared_ptr<T>> : public _ptr_to_str_backend {
 public:
-
    /*! Converts a pointer to a string representation.
 
    p
@@ -189,10 +163,8 @@ public:
 // Specialization for std::weak_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::weak_ptr<T>> :
-   public _ptr_to_str_backend {
+class to_str_backend<std::weak_ptr<T>> : public _ptr_to_str_backend {
 public:
-
    /*! Converts a pointer to a string representation.
 
    p
@@ -207,19 +179,15 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_sequence_to_str_backend
-
 
 namespace abc {
 
 /*! Base class for the specializations of to_str_backend for sequence types. Not using templates, so
-the implementation can be in a cxx file.
-*/
+the implementation can be in a cxx file. */
 class ABACLADE_SYM _sequence_to_str_backend {
 public:
-
    /*! Constructor.
 
    sStart
@@ -232,14 +200,12 @@ public:
    //! Destructor.
    ~_sequence_to_str_backend();
 
-
    /*! Changes the output format.
 
    sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
-
 
    /*! Writes the sequence end delimiter.
 
@@ -250,7 +216,6 @@ public:
       m_tsbStr.write(m_sEnd, ptwOut);
    }
 
-
    /*! Writes an element separator (typically a comma).
 
    ptwOut
@@ -259,7 +224,6 @@ public:
    void _write_separator(io::text::writer * ptwOut) {
       m_tsbStr.write(m_sSeparator, ptwOut);
    }
-
 
    /*! Writes the sequence start delimiter.
 
@@ -270,9 +234,7 @@ public:
       m_tsbStr.write(m_sStart, ptwOut);
    }
 
-
 protected:
-
    //! Separator to be output between elements.
    istr m_sSeparator;
    //! Sequence start delimiter.
@@ -285,10 +247,8 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for std::tuple or abc::_std::tuple
-
 
 namespace abc {
 
@@ -302,7 +262,6 @@ class _tuple_to_str_backend_element_writer;
 template <class TTuple>
 class _tuple_to_str_backend_element_writer<TTuple> {
 public:
-
    /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
    tpl
@@ -321,29 +280,23 @@ template <class TTuple, typename T0, typename ... Ts>
 class _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
    public _tuple_to_str_backend_element_writer<TTuple, Ts ...> {
 public:
-
    //! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
-
 protected:
-
    //! Backend for the current element type.
    to_str_backend<T0> m_tsbt0;
 };
-
 
 template <typename ... Ts>
 class to_str_backend<std::tuple<Ts ...>> :
    public _sequence_to_str_backend,
    public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
 public:
-
    //! Constructor.
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
-
 
    /*! Converts a tuple into its string representation.
 
@@ -389,13 +342,10 @@ class _tuple_to_str_backend_element_writer :
       TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
    > {
 public:
-
    //! See _tuple_to_str_backend_element_writer<TTuple>::_write_elements().
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
 
-
 protected:
-
    //! Backend for the current element type.
    to_str_backend<T0> m_tsbt0;
 };
@@ -408,7 +358,6 @@ class _tuple_to_str_backend_element_writer<
    _std::_tuple_void
 > {
 public:
-
    /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
    tpl
@@ -433,12 +382,10 @@ class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
       _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    > {
 public:
-
    //! Constructor.
    to_str_backend() :
       _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
-
 
    /*! Converts a tuple into its string representation.
 
@@ -482,7 +429,6 @@ inline void _tuple_to_str_backend_element_writer<
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

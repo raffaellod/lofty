@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str()
 
@@ -74,15 +73,13 @@ dmstr to_str(T const & t, istr const & sFormat = istr());
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend
 
 namespace abc {
 
 /*! Generates a string suitable for display from an object. Once constructed with the desired format
-specification, an instance can convert to a string any number of T instances.
-*/
+specification, an instance can convert to a string any number of T instances. */
 template <typename T>
 class to_str_backend;
 
@@ -92,24 +89,20 @@ class to_str_backend<T const> : public to_str_backend<T> {};
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for bool
-
 
 namespace abc {
 
 template <>
 class ABACLADE_SYM to_str_backend<bool> {
 public:
-
    /*! Changes the output format.
 
    sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
-
 
    /*! Converts a boolean value to its string representation.
 
@@ -123,24 +116,20 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_int_to_str_backend_base
-
 
 namespace abc {
 
 //! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM _int_to_str_backend_base {
 public:
-
    /*! Constructor.
 
    cbInt
       Size of the integer type.
    */
    _int_to_str_backend_base(unsigned cbInt);
-
 
    /*! Changes the output format.
 
@@ -149,9 +138,7 @@ public:
    */
    void set_format(istr const & sFormat);
 
-
 protected:
-
    /*! Writes the provided buffer to *posOut, prefixed as necessary.
 
    bNegative
@@ -167,7 +154,6 @@ protected:
    void add_prefixes_and_write(
       bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
    ) const;
-
 
    /*! Converts an integer to its string representation.
 
@@ -213,14 +199,11 @@ protected:
       write_u16(i, ptwOut);
    }
 
-
 protected:
-
    //! Pointer to either smc_achIntToStrL or smc_achIntToStrU.
    char const * m_pchIntToStr;
    /*! Minimum number of digits to be generated. Always >= 1, to ensure the generation of at least a
-   single zero.
-   */
+   single zero. */
    unsigned m_cchWidth;
    //! Required buffer size.
    unsigned m_cchBuf;
@@ -236,14 +219,11 @@ protected:
    char m_chPrefix0;
    //! Second character of the prefix; NUL if none.
    char m_chPrefix1;
-
    //! Map from int [0-15] to its uppercase hexadecimal representation.
    static char const smc_achIntToStrU[16];
    //! Map from int [0-15] to its lowercase hexadecimal representation.
    static char const smc_achIntToStrL[16];
 };
-
-
 
 #if ABC_HOST_WORD_SIZE >= 32
 #if ABC_HOST_WORD_SIZE >= 64
@@ -260,16 +240,14 @@ inline void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer
    }
 }
 
-
 inline void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_u64(i, ptwOut);
 }
 
 #endif //if ABC_HOST_WORD_SIZE >= 64
 
-
-// On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
-// turn defer to write_64*() (see above).
+/* On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
+turn defer to write_64*() (see above). */
 
 inline void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    if (m_iBaseOrShift == 10) {
@@ -281,7 +259,6 @@ inline void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer
    }
 }
 
-
 inline void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_u32(i, ptwOut);
 }
@@ -290,24 +267,19 @@ inline void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::write
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_int_to_str_backend
-
 
 namespace abc {
 
 //! Implementation of the specializations of to_str_backend for integer types.
 template <typename I>
-class _int_to_str_backend :
-   public _int_to_str_backend_base {
+class _int_to_str_backend : public _int_to_str_backend_base {
 public:
-
    //! Constructor.
    _int_to_str_backend() :
       _int_to_str_backend_base(sizeof(I)) {
    }
-
 
    /*! Converts an integer to its string representation.
 
@@ -359,19 +331,15 @@ public:
       }
    }
 
-
 protected:
-
    //! Initial (static) buffer size sufficient to output the number in binary notation.
    static std::size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for integer types
-
 
 namespace abc {
 
@@ -391,7 +359,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

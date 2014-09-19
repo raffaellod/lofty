@@ -24,8 +24,7 @@ using namespace abc;
 
 
 
-class test_app :
-   public app {
+class test_app : public app {
 public:
 
    virtual int main(mvector<istr const> const & vsArgs) override {

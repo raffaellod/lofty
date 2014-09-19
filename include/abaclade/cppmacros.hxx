@@ -22,17 +22,15 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
-
 
 /*! DOC:1829 __VA_ARGS__ MSC16 bug
 
 Due to a confirmed bug in MSC16 (see <http://connect.microsoft.com/VisualStudio/feedback/details/
 380090/variadic-macro-replacement>), all variadic macros need to wrap their implementation in an
 expansion of ABC_1829() to have the result of the implementation expanded once more, which will
-result in __VA_ARGS__ being expanded correctly, working around the bug.
+result in __VA_ARGS__ being expanded correctly, working around the bug. 
 */
 
 /*! Expands into its argument, working around [DOC:1829 __VA_ARGS__ MSC16 bug].
@@ -43,7 +41,6 @@ return
    x.
 */
 #define ABC_1829(x) x
-
 
 /*! Expands into the count of its arguments.
 
@@ -82,7 +79,6 @@ return
    ) \
    count
 
-
 /*! Expands into a joined version of the two provided tokens. Necessary to implement the more
 generic ABC_CPP_CAT().
 
@@ -98,7 +94,6 @@ return
 
 #define _ABC_CPP_CAT2_IMPL(token1, token2) \
    token1 ## token2
-
 
 /*! Expands into a joined version of the provided tokens.
 
@@ -171,7 +166,6 @@ return
 #define _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
    t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
 
-
 /*! Expands into a string version of the specified token.
 
 x
@@ -184,7 +178,6 @@ return
 
 #define _ABC_CPP_TOSTRING_IMPL(x) \
    #x
-
 
 /*! Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
 guaranteed on all platforms.
@@ -202,7 +195,6 @@ return
       ABC_CPP_CAT2(s, __LINE__)
 #endif
 
-
 /*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether bit evaluates to 1 or 0, respectively.
 
@@ -219,7 +211,6 @@ return
 #define _ABC_CPP_IIF_1(true_part, ...) \
    true_part
 
-
 /*! Expands into the complement of the specified bit.
 
 bit
@@ -232,7 +223,6 @@ return
 
 #define _ABC_CPP_COMPL_0 1
 #define _ABC_CPP_COMPL_1 0
-
 
 /*! Expands into the argument + 1.
 
@@ -345,7 +335,6 @@ return
 #define _ABC_CPP_INC_98 99
 #define _ABC_CPP_INC_99 100
 
-
 /*! Expands into the argument - 1.
 
 int
@@ -457,7 +446,6 @@ return
 #define _ABC_CPP_DEC_98 97
 #define _ABC_CPP_DEC_99 98
 
-
 /*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE(); it expands into 1 or 0 depending on whether the latter
 is expanded or not.
 
@@ -471,13 +459,12 @@ is expanded or not.
 #define _ABC_CPP_CHECK_EXPAND(ignore, ret, ...) \
    ret
 
-// Expands into a placeholder and 1, which will replace the 0 if passed as argument to
-// ABC_CPP_CHECK().
-//
+/*! Expands into a placeholder and 1, which will replace the 0 if passed as argument to
+ABC_CPP_CHECK(). */
+
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
    dummy, 1
-
 
 /*! Expands into either 1 or 0 depending on whether the argument is a tuple or not.
 
@@ -488,7 +475,6 @@ return
 */
 #define ABC_CPP_IS_TUPLE(x) \
    ABC_CPP_CHECK(_ABC_CPP_MAKE_CHECK_RET_ONE x)
-
 
 /*! Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
 respectively.
@@ -504,7 +490,6 @@ return
 #define _ABC_CPP_NOT_0 \
    _ABC_CPP_MAKE_CHECK_RET_ONE()
 
-
 /*! Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
 respectively.
 
@@ -516,7 +501,6 @@ return
 #define ABC_CPP_BOOL(x) \
    ABC_CPP_COMPL(ABC_CPP_NOT(x))
 
-
 /*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether x evaluates to non-0 or 0, respectively.
 
@@ -527,7 +511,6 @@ return
 */
 #define ABC_CPP_IF(x) \
    ABC_CPP_IIF(ABC_CPP_BOOL(x))
-
 
 /*! Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
@@ -641,7 +624,6 @@ return
 #define _ABC_CPP_LIST_W_98(m, h, ...) m(h) ABC_1829(_ABC_CPP_LIST_W_97(m, __VA_ARGS__))
 #define _ABC_CPP_LIST_W_99(m, h, ...) m(h) ABC_1829(_ABC_CPP_LIST_W_98(m, __VA_ARGS__))
 
-
 /*! Expands into the invocation of the specified macro once for each of the remaining tuples passed
 as arguments.
 
@@ -753,7 +735,6 @@ return
 #define _ABC_CPP_TUPLELIST_W_97(m, h, ...) m h ABC_1829(_ABC_CPP_TUPLELIST_W_96(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_98(m, h, ...) m h ABC_1829(_ABC_CPP_TUPLELIST_W_97(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_99(m, h, ...) m h ABC_1829(_ABC_CPP_TUPLELIST_W_98(m, __VA_ARGS__))
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

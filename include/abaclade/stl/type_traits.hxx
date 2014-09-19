@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – constants
 
@@ -47,16 +46,13 @@ typedef integral_constant<bool, false> false_type;
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – qualifier removal
-
 
 namespace std {
 
 /*! Removes const and volatile qualifiers from a type (C++11 § 20.9.7.1 “Const-volatile
-modifications”).
-*/
+modifications”). */
 template <typename T>
 struct remove_cv {
    typedef T type;
@@ -76,15 +72,13 @@ struct remove_cv<T const volatile> {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – type traits
 
-
 namespace std {
 
-// All the constants that depend on compiler support will default to a safe (if pessimistic)
-// default, in case no such support is available.
+/* All the constants that depend on compiler support will default to a safe (if pessimistic)
+default, in case no such support is available. */
 
 #if 0
 // True if a type has a default constructor.
@@ -139,7 +133,6 @@ struct is_nothrow_destructible
 template <typename T>
 struct has_virtual_destructor
 #endif
-
 
 //! True if T::operator=(T const &) is declared as throw().
 template <typename T>
@@ -223,7 +216,6 @@ struct is_reference : public integral_constant<
    bool, is_lvalue_reference<T>::value || is_rvalue_reference<T>::value
 > {};
 
-
 /*! True if T is a scalar type or a trivially copyable class with a trivial default constructor
 (C++11 § 20.9.4.3 “Type properties”).
 */
@@ -246,10 +238,8 @@ struct is_void : public _is_void_helper<typename remove_cv<T>::type> {};
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – type changers
-
 
 namespace std {
 
@@ -302,16 +292,13 @@ struct remove_reference<T &&> {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – conditionals
-
 
 namespace std {
 
 /*! Defines a member named type as TTrue if t_bTest == true, else if is defined as TFalse
-(C++11 § 20.9.7.6 “Other transformations”).
-*/
+(C++11 § 20.9.7.6 “Other transformations”). */
 template <bool t_bTest, typename TTrue, typename TFalse>
 struct conditional {
    typedef TFalse type;
@@ -321,10 +308,8 @@ struct conditional<true, TTrue, TFalse> {
    typedef TTrue type;
 };
 
-
 /*! Defines a member named type as T, if and only if t_bTest == true (C++11 § 20.9.7.6 “Other
-transformations”).
-*/
+transformations”). */
 template <bool t_bTest, typename T = void>
 struct enable_if {
 };
@@ -335,9 +320,7 @@ struct enable_if<true, T> {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_TYPE_TRAITS_HXX
 

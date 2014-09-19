@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::source_location
-
 
 /*! Expands into the instantiation of a temporary abc::source_location object referencing the
 location in which it’s used.
@@ -36,13 +34,11 @@ return
 #define ABC_SOURCE_LOCATION() \
    (::abc::source_location(ABC_SL(__FILE__), __LINE__))
 
-
 namespace abc {
 
 //! Source code location.
 class source_location {
 public:
-
    /*! Constructor.
 
    pszFilePath
@@ -59,7 +55,6 @@ public:
       m_iLine(static_cast<std::uint16_t>(iLine)) {
    }
 
-
    /*! Returns the file path.
 
    return
@@ -68,7 +63,6 @@ public:
    char_t const * file_path() const {
       return m_pszFilePath;
    }
-
 
    /*! Returns the line number.
 
@@ -79,9 +73,7 @@ public:
       return m_iLine;
    }
 
-
 protected:
-
    //! Path to the source file.
    char_t const * m_pszFilePath;
    //! Line number in m_pszFilePath.
@@ -93,7 +85,6 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
-
 
 namespace abc {
 
@@ -110,48 +101,57 @@ std::exception members. See for example this fictional hierarchy, displaying an 
 Abaclade design having a single class hierarchy where each class would derive individually from a
 std::exception-derived class:
 
-   class abc::exception :                  abc::exception
-      public std::exception {             ┌────────────────┐
-      …                                   │ std::exception │
-   };                                     └────────────────┘
+   class abc::exception : public std::exception {};
 
-   class abc::network_error :              abc::network_error
-      public virtual abc::exception {     ┌──────────────────┐
-      …                                   │ abc::exception   │
-   };                                     │┌────────────────┐│
-                                          ││ std::exception ││
-                                          │└────────────────┘│
-                                          └──────────────────┘
+       abc::exception
+      ┌────────────────┐
+      │ std::exception │
+      └────────────────┘
 
-   class abc::io_error :                   abc::io_error
-      public virtual abc::exception,      ┌────────────────────────┐
-      public std::ios_base::failure {     │ abc::exception         │
-      …                                   │┌──────────────────────┐│
-   };                                     ││ std::exception       ││
-                                          │└──────────────────────┘│
-                                          ├────────────────────────┤
-                                          │ std::ios_base::failure │
-                                          │┌──────────────────────┐│
-                                          ││ std::exception       ││
-                                          │└──────────────────────┘│
-                                          └────────────────────────┘
+   class abc::network_error : public virtual abc::exception {};
 
-   class abc::network_io_error :           abc::network_io_error
-      public virtual abc::network_error,  ┌────────────────────┬──────────────────────────┐
-      public virtual abc::io_error {      │ abc::network_error │ abc::io_error            │
-      …                                   │┌───────────────────┴─────────────────────────┐│
-   };                                     ││ abc::exception                              ││
-                                          ││┌───────────────────────────────────────────┐││
-                                          │││ std::exception                            │││
-                                          ││└───────────────────────────────────────────┘││
-                                          │└───────────────────┬─────────────────────────┘│
-                                          │                    │┌────────────────────────┐│
-                                          │                    ││ std::ios_base::failure ││
-                                          │                    ││┌──────────────────────┐││
-                                          │                    │││ std::exception       │││
-                                          │                    ││└──────────────────────┘││
-                                          │                    │└────────────────────────┘│
-                                          └────────────────────┴──────────────────────────┘
+       abc::network_error
+      ┌──────────────────┐
+      │ abc::exception   │
+      │┌────────────────┐│
+      ││ std::exception ││
+      │└────────────────┘│
+      └──────────────────┘
+
+   class abc::io_error : public virtual abc::exception, public std::ios_base::failure {};
+
+       abc::io_error
+      ┌────────────────────────┐
+      │ abc::exception         │
+      │┌──────────────────────┐│
+      ││ std::exception       ││
+      │└──────────────────────┘│
+      ├────────────────────────┤
+      │ std::ios_base::failure │
+      │┌──────────────────────┐│
+      ││ std::exception       ││
+      │└──────────────────────┘│
+      └────────────────────────┘
+
+   class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {};
+
+       abc::network_io_error
+      ┌────────────────────┬──────────────────────────┐
+      │ abc::network_error │ abc::io_error            │
+      │┌───────────────────┴─────────────────────────┐│
+      ││ abc::exception                              ││
+      ││┌───────────────────────────────────────────┐││
+      │││ std::exception                            │││
+      ││└───────────────────────────────────────────┘││
+      │└───────────────────┬─────────────────────────┘│
+      │                    │┌────────────────────────┐│
+      │                    ││ std::ios_base::failure ││
+      │                    ││┌──────────────────────┐││
+      │                    │││ std::exception       │││
+      │                    ││└──────────────────────┘││
+      │                    │└────────────────────────┘│
+      └────────────────────┴──────────────────────────┘
+
 
 As visible in the last two class data representations, objects can include multiple distinct copies
 of std::exception, which leads to ambiguity: for example, abc::io_error may be cast as both
@@ -166,51 +166,66 @@ instantiating the class template abc::_exception_aggregator, specializations of 
 leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See this
 example based on the previous one:
 
-   class abc::exception {                           ABC_THROW(abc::exception, ())
-      typedef std::exception related_std;          ┌────────────────┐
-      …                                            │ std::exception │
-   };                                              ├────────────────┤
-                                                   │ abc::exception │
-                                                   └────────────────┘
+   class abc::exception {
+      typedef std::exception related_std;
+   };
 
-   class abc::network_error :                       ABC_THROW(abc::network_error, ())
-      public virtual abc::exception {              ┌────────────────────┐
-      …                                            │ std::exception     │
-   };                                              ├────────────────────┤
-                                                   │ abc::network_error │
-                                                   │┌──────────────────┐│
-                                                   ││ abc::exception   ││
-                                                   │└──────────────────┘│
-                                                   └────────────────────┘
+       ABC_THROW(abc::exception, ())
+      ┌────────────────┐
+      │ std::exception │
+      ├────────────────┤
+      │ abc::exception │
+      └────────────────┘
 
-   class abc::io_error :                            ABC_THROW(abc::io_error, ())
-      public virtual abc::exception {              ┌────────────────────────┐
-      typedef std::ios_base::failure related_std;  │ std::ios_base::failure │
-      …                                            │┌──────────────────────┐│
-   };                                              ││ std::exception       ││
-                                                   │└──────────────────────┘│
-                                                   ├────────────────────────┤
-                                                   │ abc::io_error          │
-                                                   │┌──────────────────────┐│
-                                                   ││ abc::exception       ││
-                                                   │└──────────────────────┘│
-                                                   └────────────────────────┘
+   class abc::network_error : public virtual abc::exception {};
 
-   class abc::network_io_error :                    ABC_THROW(abc::network_io_error, ())
-      public virtual abc::network_error,           ┌──────────────────────────────────────┐
-      public virtual abc::io_error {               │ std::ios_base::failure               │
-      typedef std::ios_base::failure related_std;  │┌────────────────────────────────────┐│
-      …                                            ││ std::exception                     ││
-   };                                              │└────────────────────────────────────┘│
-                                                   ├──────────────────────────────────────┤
-                                                   │ abc::network_io_error                │
-                                                   │┌────────────────────┬───────────────┐│
-                                                   ││ abc::network_error │ abc::io_error ││
-                                                   ││┌───────────────────┴──────────────┐││
-                                                   │││ abc::exception                   │││
-                                                   ││└───────────────────┬──────────────┘││
-                                                   │└────────────────────┴───────────────┘│
-                                                   └──────────────────────────────────────┘
+       ABC_THROW(abc::network_error, ())
+      ┌────────────────────┐
+      │ std::exception     │
+      ├────────────────────┤
+      │ abc::network_error │
+      │┌──────────────────┐│
+      ││ abc::exception   ││
+      │└──────────────────┘│
+      └────────────────────┘
+
+   class abc::io_error : public virtual abc::exception {
+      typedef std::ios_base::failure related_std;
+   };
+
+       ABC_THROW(abc::io_error, ())
+      ┌────────────────────────┐
+      │ std::ios_base::failure │
+      │┌──────────────────────┐│
+      ││ std::exception       ││
+      │└──────────────────────┘│
+      ├────────────────────────┤
+      │ abc::io_error          │
+      │┌──────────────────────┐│
+      ││ abc::exception       ││
+      │└──────────────────────┘│
+      └────────────────────────┘
+
+   class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {
+      typedef std::ios_base::failure related_std;
+   };
+
+       ABC_THROW(abc::network_io_error, ())
+      ┌──────────────────────────────────────┐
+      │ std::ios_base::failure               │
+      │┌────────────────────────────────────┐│
+      ││ std::exception                     ││
+      │└────────────────────────────────────┘│
+      ├──────────────────────────────────────┤
+      │ abc::network_io_error                │
+      │┌────────────────────┬───────────────┐│
+      ││ abc::network_error │ abc::io_error ││
+      ││┌───────────────────┴──────────────┐││
+      │││ abc::exception                   │││
+      ││└───────────────────┬──────────────┘││
+      │└────────────────────┴───────────────┘│
+      └──────────────────────────────────────┘
+
 
 Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
 abc::_exception_aggregator (with identical template arguments) across all binaries, because no
@@ -266,16 +281,12 @@ since this file is included in virtually every file whereas trace.hxx is not.
       nullptr
 #endif
 
-
 /*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
 that can be caught from code written for either framework.
 */
 template <class TAbc, class TStd = typename TAbc::related_std>
-class _exception_aggregator :
-   public TStd,
-   public TAbc {
+class _exception_aggregator : public TStd, public TAbc {
 public:
-
    //! Constructor.
    _exception_aggregator() :
       TStd(),
@@ -291,7 +302,6 @@ public:
       return TAbc::what();
    }
 };
-
 
 /*! Throws the specified object, after providing it with debug information.
 
@@ -309,7 +319,6 @@ info
       throw _x; \
    } while (false)
 
-
 /*! Verifies an expression at compile time; failure is reported as a compiler error. See C++11 § 7
 “Declarations” point 4.
 
@@ -326,10 +335,8 @@ msg
 //! Base for all abc exceptions classes.
 class ABACLADE_SYM exception {
 public:
-
    //! Related STL exception class.
    typedef std::exception related_std;
-
 
    /*! Constructor.
 
@@ -345,7 +352,6 @@ public:
    //! Assignment operator. See std::exception::operator=().
    exception & operator=(exception const & x);
 
-
    /*! Stores context information to be displayed if the exception is not caught.
 
    srcloc
@@ -359,7 +365,6 @@ public:
    void init() {
    }
 
-
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
    to override it; only abc::_exception_aggregator will define this as a virtual, to override
    std::exception::what() with this implementation.
@@ -368,7 +373,6 @@ public:
       Name of the exception class.
    */
    char const * what() const;
-
 
    /*! Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
@@ -382,16 +386,13 @@ public:
       io::text::writer * ptwOut = nullptr, std::exception const * pstdx = nullptr
    );
 
-
 protected:
-
    /*! Prints extended information for the exception.
 
    ptwOut
       Pointer to the writer to output to.
    */
    virtual void _print_extended_info(io::text::writer * ptwOut) const;
-
 
 public:
 
@@ -404,8 +405,7 @@ public:
    Note: this class uses global or thread-local variables (OS-dependent) for all its member
    variables, since their types cannot be specified without #including a lot of files into this one.
    */
-   class ABACLADE_SYM async_handler_manager :
-      public noncopyable {
+   class ABACLADE_SYM async_handler_manager : public noncopyable {
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
    public:
 
@@ -417,17 +417,13 @@ public:
 #endif
    };
 
-
 protected:
-
    /*! String to be returned by what(). Derived classes can overwrite this instead of overriding the
    entire std::exception::what() method.
    */
    char const * m_pszWhat;
 
-
 private:
-
    //! Source function name.
    char_t const * m_pszSourceFunction;
    //! Source location.
@@ -438,10 +434,8 @@ private:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::assertion_error
-
 
 namespace abc {
 
@@ -465,17 +459,13 @@ expr
       static_cast<void>(0)
 #endif
 
-
 //! An assertion failed.
-class ABACLADE_SYM assertion_error :
-   public exception {
+class ABACLADE_SYM assertion_error : public exception {
 public:
-
    //! Throws an exception of type ab::assertion_error due to an expression failing validation.
    static ABC_FUNC_NORETURN void _assertion_failed(
       source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
    );
-
 
 protected:
 
@@ -488,25 +478,20 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::user_interrupt
-
 
 namespace abc {
 
 //! The user hit an interrupt key (usually Ctrl-C or Del).
-class ABACLADE_SYM user_interrupt :
-   public exception {
+class ABACLADE_SYM user_interrupt : public exception {
 public:
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::generic_error
-
 
 namespace abc {
 
@@ -519,9 +504,7 @@ namespace abc {
    #error HOST_API
 #endif
 
-
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-
 /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
 
 err
@@ -529,15 +512,11 @@ err
 */
 ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error();
 ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error(errint_t err);
-
 #endif
 
-
 //! Base for all error-related exceptions classes.
-class ABACLADE_SYM generic_error :
-   public exception {
+class ABACLADE_SYM generic_error : public exception {
 public:
-
    /*! Constructor.
 
    x
@@ -549,7 +528,6 @@ public:
    //! Assignment operator. See abc::exception::operator=().
    generic_error & operator=(generic_error const & x);
 
-
    /*! See abc::exception::init().
 
    err
@@ -560,7 +538,6 @@ public:
       m_err = err;
    }
 
-
    /*! Returns the OS-defined error number, if any.
 
    return
@@ -570,32 +547,25 @@ public:
       return m_err;
    }
 
-
 protected:
-
    //! OS-specific error wrapped by this exception.
    errint_t m_err;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::os_error_mapping
-
 
 namespace abc {
 
 /*! Defines a member mapped_error to the default OS-specific error code associated to an exception
-class.
-*/
+class. */
 template <class TError>
 struct os_error_mapping {
-
    //! Default error code the class errclass maps from.
    static errint_t const mapped_error = 0;
 };
-
 
 /*! Defines an OS-specific error code to be the default for an exception class.
 
@@ -608,24 +578,19 @@ err
    template <> \
    class os_error_mapping<errclass> { \
    public: \
-   \
       static errint_t const mapped_error = err; \
    }
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::argument_error
-
 
 namespace abc {
 
 //! A function/method received an argument that had an inappropriate value.
-class ABACLADE_SYM argument_error :
-   public virtual generic_error {
+class ABACLADE_SYM argument_error : public virtual generic_error {
 public:
-
    /*! Constructor.
 
    TODO: add arguments name/value, to be passed by macro ABC_THROW_ARGUMENT_ERROR(argname).
@@ -638,18 +603,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::arithmetic_error
-
 
 namespace abc {
 
 //! Base for arithmetic errors.
-class ABACLADE_SYM arithmetic_error :
-   public virtual generic_error {
+class ABACLADE_SYM arithmetic_error : public virtual generic_error {
 public:
-
    //! Constructor.
    arithmetic_error();
 
@@ -659,18 +620,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::buffer_error
-
 
 namespace abc {
 
 //! A buffer operation could not be performed.
-class ABACLADE_SYM buffer_error :
-   public virtual generic_error {
+class ABACLADE_SYM buffer_error : public virtual generic_error {
 public:
-
    //! Constructor.
    buffer_error();
 
@@ -680,18 +637,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::division_by_zero_error
-
 
 namespace abc {
 
 //! The divisor of a division or modulo operation was zero.
-class ABACLADE_SYM division_by_zero_error :
-   public virtual arithmetic_error {
+class ABACLADE_SYM division_by_zero_error : public virtual arithmetic_error {
 public:
-
    //! Constructor.
    division_by_zero_error();
 
@@ -701,17 +654,13 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::domain_error
 
-
 namespace abc {
 
-class ABACLADE_SYM domain_error :
-   public virtual generic_error {
+class ABACLADE_SYM domain_error : public virtual generic_error {
 public:
-
    //! Constructor.
    domain_error();
 
@@ -721,18 +670,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::environment_error
-
 
 namespace abc {
 
 //! Base for errors that occur in the outer system.
-class ABACLADE_SYM environment_error :
-   public virtual generic_error {
+class ABACLADE_SYM environment_error : public virtual generic_error {
 public:
-
    //! Constructor.
    environment_error();
 
@@ -742,18 +687,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::floating_point_error
-
 
 namespace abc {
 
 //! A floating point operation failed.
-class ABACLADE_SYM floating_point_error :
-   public virtual arithmetic_error {
+class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
 public:
-
    //! Constructor.
    floating_point_error();
 
@@ -763,18 +704,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::iterator_error
-
 
 namespace abc {
 
 //! Invalid iterator operation, such as moving an iterator to outside the container’s range.
-class ABACLADE_SYM iterator_error :
-   public virtual generic_error {
+class ABACLADE_SYM iterator_error : public virtual generic_error {
 public:
-
    //! Constructor.
    iterator_error();
 
@@ -784,18 +721,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::lookup_error
-
 
 namespace abc {
 
 //! Base for errors due to an invalid key or index being used on a mapping or sequence.
-class ABACLADE_SYM lookup_error :
-   public virtual generic_error {
+class ABACLADE_SYM lookup_error : public virtual generic_error {
 public:
-
    //! Constructor.
    lookup_error();
 
@@ -805,18 +738,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::index_error
-
 
 namespace abc {
 
 //! Sequence subscript out of range.
-class ABACLADE_SYM index_error :
-   public virtual lookup_error {
+class ABACLADE_SYM index_error : public virtual lookup_error {
 public:
-
    /*! Constructor.
 
    x
@@ -828,7 +757,6 @@ public:
    //! Assignment operator. See abc::lookup_error::operator=().
    index_error & operator=(index_error const & x);
 
-
    /*! Returns the invalid index.
 
    return
@@ -837,7 +765,6 @@ public:
    std::ptrdiff_t index() const {
       return m_iInvalid;
    }
-
 
    /*! See abc::lookup_error::init().
 
@@ -848,33 +775,25 @@ public:
    */
    void init(std::ptrdiff_t iInvalid, errint_t err = 0);
 
-
 protected:
-
    //! See exception::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Index that caused the error.
    std::ptrdiff_t m_iInvalid;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::key_error
-
 
 namespace abc {
 
 //! Mapping (dictionary) key not found in the set of existing keys.
-class ABACLADE_SYM key_error :
-   public virtual lookup_error {
+class ABACLADE_SYM key_error : public virtual lookup_error {
 public:
-
    //! Constructor.
    key_error();
 
@@ -884,18 +803,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::invalid_path_error
-
 
 namespace abc {
 
 //! The specified file path is not a valid path.
-class ABACLADE_SYM invalid_path_error :
-   public virtual generic_error {
+class ABACLADE_SYM invalid_path_error : public virtual generic_error {
 public:
-
    //! Constructor.
    invalid_path_error();
 
@@ -905,18 +820,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io_error
-
 
 namespace abc {
 
 //! An I/O operation failed for an I/O-related reason.
-class ABACLADE_SYM io_error :
-   public virtual environment_error {
+class ABACLADE_SYM io_error : public virtual environment_error {
 public:
-
    //! Constructor.
    io_error();
 
@@ -926,18 +837,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_address_error
-
 
 namespace abc {
 
 //! An attempt was made to access an invalid memory location.
-class ABACLADE_SYM memory_address_error :
-   public virtual generic_error {
+class ABACLADE_SYM memory_address_error : public virtual generic_error {
 public:
-
    /*! Constructor.
 
    x
@@ -949,7 +856,6 @@ public:
    //! Assignment operator. See abc::generic_error::operator=().
    memory_address_error & operator=(memory_address_error const & x);
 
-
    /*! Returns the faulty address.
 
    return
@@ -958,7 +864,6 @@ public:
    void const * address() const {
       return m_pInvalid;
    }
-
 
    /*! See abc::generic_error::init().
 
@@ -972,15 +877,11 @@ public:
    }
    void init(void const * pInvalid, errint_t err = 0);
 
-
 protected:
-
    //! See exception::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Address that could not be dereferenced.
    void const * m_pInvalid;
    //! String used as special value for when the address is not available.
@@ -989,18 +890,14 @@ private:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_access_error
-
 
 namespace abc {
 
 //! An invalid memory access (e.g. misaligned pointer) was detected.
-class ABACLADE_SYM memory_access_error :
-   public virtual memory_address_error {
+class ABACLADE_SYM memory_access_error : public virtual memory_address_error {
 public:
-
    //! Constructor.
    memory_access_error();
 
@@ -1010,18 +907,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory_allocation_error
-
 
 namespace abc {
 
 //! A memory allocation request could not be satisfied.
-class ABACLADE_SYM memory_allocation_error :
-   public virtual generic_error {
+class ABACLADE_SYM memory_allocation_error : public virtual generic_error {
 public:
-
    //! See abc::generic_error::related_std.
    typedef std::bad_alloc related_std;
 
@@ -1034,18 +927,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::network_error
-
 
 namespace abc {
 
 //! A network-related error occurred.
-class ABACLADE_SYM network_error :
-   public virtual environment_error {
+class ABACLADE_SYM network_error : public virtual environment_error {
 public:
-
    //! Constructor.
    network_error();
 
@@ -1055,19 +944,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::network_io_error
-
 
 namespace abc {
 
 //! An I/O operation failed for a network-related reason.
-class ABACLADE_SYM network_io_error :
-   public virtual io_error,
-   public virtual network_error {
+class ABACLADE_SYM network_io_error : public virtual io_error, public virtual network_error {
 public:
-
    //! Constructor.
    network_io_error();
 
@@ -1077,20 +961,15 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::not_implemented_error
-
 
 namespace abc {
 
 /*! Method not implemented for this class. Usually thrown when a class is not able to provide a full
-implementation of an interface; in practice, this should be avoided.
-*/
-class ABACLADE_SYM not_implemented_error :
-   public virtual generic_error {
+implementation of an interface; in practice, this should be avoided. */
+class ABACLADE_SYM not_implemented_error : public virtual generic_error {
 public:
-
    //! Constructor.
    not_implemented_error();
 
@@ -1100,18 +979,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::null_pointer_error
-
 
 namespace abc {
 
 //! An attempt was made to access the memory location 0 (nullptr).
-class ABACLADE_SYM null_pointer_error :
-   public virtual memory_address_error {
+class ABACLADE_SYM null_pointer_error : public virtual memory_address_error {
 public:
-
    //! Constructor.
    null_pointer_error();
 
@@ -1121,21 +996,16 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::overflow_error
-
 
 namespace abc {
 
 /*! Result of an arithmetic operation too large to be represented. Because of the lack of
 standardization of floating point exception handling in C, most floating point operations are also
-not checked.
-*/
-class ABACLADE_SYM overflow_error :
-   public virtual arithmetic_error {
+not checked. */
+class ABACLADE_SYM overflow_error : public virtual arithmetic_error {
 public:
-
    //! Constructor.
    overflow_error();
 
@@ -1145,18 +1015,14 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::pointer_iterator_error
-
 
 namespace abc {
 
 //! Invalid operation on a pointer-like iterator.
-class ABACLADE_SYM pointer_iterator_error :
-   public virtual iterator_error {
+class ABACLADE_SYM pointer_iterator_error : public virtual iterator_error {
 public:
-
    /*! Constructor.
 
    x
@@ -1168,7 +1034,6 @@ public:
    //! Assignment operator. See abc::iterator_error::operator=().
    pointer_iterator_error & operator=(pointer_iterator_error const & x);
 
-
    /*! Returns the container’s begin iterator’s pointer.
 
    return
@@ -1177,7 +1042,6 @@ public:
    void const * container_begin_pointer() const {
       return m_pContBegin;
    }
-
 
    /*! Returns the container’s end iterator’s pointer.
 
@@ -1188,7 +1052,6 @@ public:
       return m_pContBegin;
    }
 
-
    /*! Returns the invalid iterator pointer value.
 
    return
@@ -1197,7 +1060,6 @@ public:
    void const * iterator_pointer() const {
       return m_pInvalid;
    }
-
 
    /*! See abc::iterator_error::init().
 
@@ -1214,15 +1076,11 @@ public:
       void const * pContBegin, void const * pContEnd, void const * pInvalid, errint_t err = 0
    );
 
-
 protected:
-
    //! See exception::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Value returned by the container’s cbegin().base().
    void const * m_pContBegin;
    //! Value returned by the container’s cend().base().
@@ -1233,18 +1091,14 @@ private:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::security_error
-
 
 namespace abc {
 
 //! An operation failed to prevent a security hazard.
-class ABACLADE_SYM security_error :
-   public virtual environment_error {
+class ABACLADE_SYM security_error : public virtual environment_error {
 public:
-
    //! Constructor.
    security_error();
 
@@ -1253,7 +1107,6 @@ public:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -30,10 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/bitmanip.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_desc
-
 
 namespace abc {
 
@@ -44,20 +42,15 @@ TODO maybe move to other header file?
 template <typename T>
 union force_max_align {
 public:
-
    //! Actual storage.
    T t;
 
-
 private:
-
    /*! Forces the whole union to have the most generic alignment; on many architectures this will be
    2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
-   pointers it returns.
-   */
+   pointers it returns. */
    std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
 };
-
 
 /*! Template-independent map descriptor.
 
@@ -66,10 +59,8 @@ struct, while the other two arrays (keys and values) might need to have padding 
 so we’ll store their offset relative to the beginning of the struct, to avoid having to recalculate
 it on every access.
 
-See [HACK#0012 abc::map] to understand why we have so many classes just to implement a map.
-*/
+See [HACK#0012 abc::map] to understand why we have so many classes just to implement a map. */
 struct _raw_map_desc {
-
    struct _s {
       /*! Numer of entries in the table - 1. We store this instead of the actual number of entries,
       because this is used much more frequently.
@@ -91,7 +82,6 @@ struct _raw_map_desc {
       smc_ceMin = 8
    };
 
-
    /*! Returns a pointer to this object’s (undeclared) hashes array.
 
    TODO: comment signature.
@@ -102,7 +92,6 @@ struct _raw_map_desc {
    std::size_t const * get_phashes() const {
       return const_cast<_raw_map_desc *>(this)->get_phashes();
    }
-
 
    /*! Returns a pointer to this object’s (undeclared) key array.
 
@@ -115,7 +104,6 @@ struct _raw_map_desc {
       return const_cast<_raw_map_desc *>(this)->get_pKeys();
    }
 
-
    /*! Returns a oointer to this object’s (undeclared) value array.
 
    TODO: comment signature.
@@ -127,7 +115,6 @@ struct _raw_map_desc {
       return const_cast<_raw_map_desc *>(this)->get_pVals();
    }
 
-
    /*! Returns true if the descriptor has enough entries to accomodate the specified number of
    items.
 
@@ -137,7 +124,6 @@ struct _raw_map_desc {
       return ce * 3 < (m.t.iMask + 1) * 2;
    }
 
-
    /*! Returns true if the descriptor has enough entries to accomodate the specified number of
    items.
 
@@ -146,7 +132,6 @@ struct _raw_map_desc {
    std::size_t get_byte_size(std::size_t cbVal) {
       return m.t.ibValsOffset + cbVal * (m.t.iMask + 1);
    }
-
 
    /*! Returns a pointer to the key at the specified index.
 
@@ -160,7 +145,6 @@ struct _raw_map_desc {
       return const_cast<_raw_map_desc *>(this)->get_key_at(cbKey, ie);
    }
 
-
    /*! Returns a pointer to the value at the specified index.
 
    TODO: comment signature.
@@ -172,7 +156,6 @@ struct _raw_map_desc {
    void const * get_value_at(std::size_t cbVal, std::size_t ie) const {
       return const_cast<_raw_map_desc *>(this)->get_value_at(cbVal, ie);
    }
-
 
    /*! Clears the descriptor. It assumes that *this has no contents that need to be destructed.
 
@@ -187,19 +170,14 @@ struct _raw_map_desc {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_dynamic_map_desc
 
-
 namespace abc {
 
-/*! Template-independent dynamically-allocated descriptor.
-*/
-class _dynamic_map_desc :
-   public _raw_map_desc {
+//! Template-independent dynamically-allocated descriptor.
+class _dynamic_map_desc : public _raw_map_desc {
 public:
-
    /*! Allocates enough memory to contain the descriptor and a specified number of hashes, keys and
    values. The values pointed to by the last arguments are to be passed back to the constructor.
 
@@ -222,7 +200,6 @@ public:
       return memory::_raw_alloc((cbDesc - sizeof(_raw_map_desc)) + *pibValsOffset + cbVal * ce);
    }
 
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -236,10 +213,7 @@ public:
       reset();
    }
 
-
 protected:
-
-
    /*! Computes the padding to be added before the keys and values arrays, and calculates and
    returns the resulting offsets.
 
@@ -264,10 +238,8 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_embedded_map_desc
-
 
 namespace abc {
 
@@ -275,17 +247,13 @@ namespace abc {
 
 Note that, since instances of this class will follow the object that uses them (e.g. map contains
 _raw_map_data first, then _embedded_map_desc), the _raw_map_desc members of this class cannot be
-initialized in a constructor, because that would be called too late.
-*/
+initialized in a constructor, because that would be called too late. */
 template <typename TKey, typename TVal, std::size_t t_ceFixed>
-class _embedded_map_desc :
-   public _raw_map_desc {
+class _embedded_map_desc : public _raw_map_desc {
 public:
-
    //! Constructor.
    _embedded_map_desc() {
    }
-
 
    /*! Returns a pointer to the embedded static descriptor, after initializing it to zero length.
 
@@ -302,53 +270,41 @@ public:
       return this;
    }
 
-
 private:
-
    //! Static hashes array.
    std::size_t ahashes[t_ceFixed];
    /*! Static keys array. This can’t be a TKey[], because we don’t want the keys to be constructed/
-   destructed automatically.
-   */
+   destructed automatically. */
    std::max_align_t atkeys[ABC_ALIGNED_SIZE(sizeof(TKey) * t_ceFixed)];
    /*! Static values array. This can’t be a TVal[], because we don’t want the values to be
-   constructed/destructed automatically.
-   */
+   constructed/destructed automatically. */
    std::max_align_t atvals[ABC_ALIGNED_SIZE(sizeof(TVal) * t_ceFixed)];
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_data
-
 
 namespace abc {
 
 //! Template-independent data members of _raw_*_map_impl.
 struct _raw_map_data {
-
    //! Pointer to the map descriptor.
    _raw_map_desc * m_prmd;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_root
-
 
 namespace abc {
 
 /*! Template-independent methods of _raw_*_map_impl that are identical for trivial and non-trivial
-types.
-*/
-struct _raw_map_root :
-   public _raw_map_data {
+types. */
+struct _raw_map_root : public _raw_map_data {
 public:
-
    /*! Adjusts a hash code to avoid reserved values.
 
    TODO: comment signature.
@@ -363,7 +319,6 @@ public:
       }
    }
 
-
    /*! See the template version _map_impl::get_size().
 
    TODO: comment signature.
@@ -371,7 +326,6 @@ public:
    std::size_t get_size() const {
       return m_prmd->m.t.ceActive;
    }
-
 
    /*! Returns a pointer to the value associated to the specified key. If the key could not be
    found, an exception is thrown. See also the template version (returning & instead of *)
@@ -397,7 +351,6 @@ public:
       return const_cast<_raw_map_root *>(this)->get_value(cbKey, cbVal, pfnKeyEqual, pKey, hash);
    }
 
-
    /*! Returns true if the provided hash value identifies an active entry.
 
    TODO: comment signature.
@@ -405,7 +358,6 @@ public:
    static bool is_entry_active(std::size_t hash) {
       return hash != smc_hashUnused && hash != smc_hashReserved;
    }
-
 
    /*! Returns an the index of the entry associated to the specified key (and its hash). Based on
    Algorithm D from Knuth Vol. 3, Sec. 6.4.
@@ -455,9 +407,7 @@ public:
       }
    }
 
-
 protected:
-
    /*! Returns a pointer to the _embedded_map_desc that’s assumed to follow *this.
 
    TODO: comment signature.
@@ -473,9 +423,7 @@ protected:
       return const_cast<_raw_map_root *>(this)->get_embedded_desc();
    }
 
-
 protected:
-
    //! See large comment block below. This must be >= 1.
    static int const smc_cbitPerturb = 5;
    /*! Hash value used to mark unused entries. This is zero, so that we can quickly wipe the hashes
@@ -487,17 +435,13 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_complex_map_impl
-
 
 namespace abc {
 
 //! Template-independent implementation of a map for non-trivial contained types.
-struct _raw_complex_map_impl :
-   public _raw_map_root {
-
+struct _raw_complex_map_impl : public _raw_map_root {
    /*! See the template version _map_impl::add().
 
    TODO: comment signature.
@@ -520,7 +464,6 @@ struct _raw_complex_map_impl :
          }
       }
    }
-
 
    /*! See the template version _map_impl::assign(). If bMove == true, the source will be modified
    by having its const-ness cast away - be careful.
@@ -554,7 +497,6 @@ struct _raw_complex_map_impl :
       }
    }
 
-
    /*! Destructs every key and value in the descriptor, then releases it.
 
    TODO: comment signature.
@@ -582,7 +524,6 @@ struct _raw_complex_map_impl :
       }
    }
 
-
    /*! See the template version _map_impl::remove().
 
    TODO: comment signature.
@@ -607,7 +548,6 @@ struct _raw_complex_map_impl :
       --m_prmd->m.t.ceActive;
    }
 
-
    /*! See the template version _map_impl::clear().
 
    TODO: comment signature.
@@ -618,7 +558,6 @@ struct _raw_complex_map_impl :
       m_prmd = get_embedded_desc();
       m_prmd->reset();
    }
-
 
    /*! See the template version _map_impl::set_item().
 
@@ -686,9 +625,7 @@ struct _raw_complex_map_impl :
       return ie;
    }
 
-
 protected:
-
    /*! Copies or moves the contents of the source descriptor to a newly allocated descriptor or to
    the embedded one if not in use, based on the requested size.
 
@@ -784,7 +721,6 @@ protected:
       }
    }
 
-
    /*! Resizes the map by allocating a larger descriptor and moving all the entries to it. The
    number of used entries might decrease, because copying to a new descriptor will discard any
    reserved entries.
@@ -805,23 +741,18 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_trivial_map_impl
-
 
 namespace abc {
 
 //! Template-independent implementation of a map for trivial contained types.
-struct _raw_trivial_map_impl :
-   public _raw_map_root {
+struct _raw_trivial_map_impl : public _raw_map_root {
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE__MAP_BASE_HXX
 

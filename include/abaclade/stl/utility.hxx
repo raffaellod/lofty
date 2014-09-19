@@ -30,10 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/stl/type_traits.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Declarations and implementations
-
 
 namespace std {
 
@@ -42,7 +40,6 @@ template <typename T>
 struct identity {
    typedef T type;
 };
-
 
 /*! Allows a method to accept an argument of any reference type, while declaring only an r-value
 reference (C++11 § 20.2.3 “forward/move helpers”). N2835-compliant.
@@ -81,7 +78,6 @@ inline typename enable_if<is_lvalue_reference<T>::value, T>::type forward(
 ) = delete;
 #endif
 
-
 /*! Converts a value into an r-value reference, enabling move semantics on the argument (C++11 §
 20.2.3 “forward/move helpers”).
 
@@ -94,7 +90,6 @@ template <typename T>
 inline typename remove_reference<T>::type && move(T && t) {
    return static_cast<typename remove_reference<T>::type &&>(t);
 }
-
 
 /*! Swaps the value of two objects (C++11 § 20.2.2 “swap”).
 
@@ -119,9 +114,7 @@ inline void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_UTILITY_HXX
 

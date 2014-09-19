@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
-
 
 /*! Indicates the level of UTF-8 string literals support:
 •  2 - The UTF-8 string literal prefix (u8) is supported;
@@ -137,8 +135,7 @@ namespace abc {
 characters types.
 
 When introducing a new possible value for this constant, please make sure to update the value
-selection logic for abc::text::encoding::host to provide the corresponding UTF encoding.
-*/
+selection logic for abc::text::encoding::host to provide the corresponding UTF encoding. */
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
 #elif ABC_HOST_UTF == 16
@@ -168,7 +165,6 @@ return
    #define ABC_CHAR(ch) L ## ch
 #endif
 
-
 /*! Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
@@ -188,7 +184,6 @@ return
    #define _ABC_SL(s) L ## s
 #endif
 
-
 /*! Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
 s
@@ -197,8 +192,6 @@ return
    UTF string literal.
 */
 #define ABC_SL(s) _ABC_SL(s)
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

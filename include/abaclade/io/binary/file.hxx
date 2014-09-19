@@ -30,7 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/file_path.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io globals
 
@@ -52,8 +51,7 @@ namespace binary {
 namespace detail {
 
 /*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
-after the necessary header files have been included.
-*/
+after the necessary header files have been included. */
 struct file_init_data;
 
 } //namespace detail
@@ -64,14 +62,12 @@ class file_base;
 class file_reader;
 class file_writer;
 
-
 /*! Returns the binary writer associated to the standard error output file (stderr).
 
 return
    Standard error file.
 */
 ABACLADE_SYM std::shared_ptr<file_writer> stderr();
-
 
 /*! Returns the binary reader associated to the standard input file (stdin).
 
@@ -80,14 +76,12 @@ return
 */
 ABACLADE_SYM std::shared_ptr<file_reader> stdin();
 
-
 /*! Returns the binary writer associated to the standard output file (stdout).
 
 return
    Standard output file.
 */
 ABACLADE_SYM std::shared_ptr<file_writer> stdout();
-
 
 /*! Opens a file for binary access.
 
@@ -103,7 +97,6 @@ return
 */
 std::shared_ptr<file_base> open(file_path const & fp, access_mode am, bool bBuffered = true);
 
-
 /*! Opens a file for binary reading.
 
 fp
@@ -117,7 +110,6 @@ return
 inline std::shared_ptr<file_reader> open_reader(file_path const & fp, bool bBuffered = true) {
    return std::dynamic_pointer_cast<file_reader>(open(fp, access_mode::read, bBuffered));
 }
-
 
 /*! Opens a file for binary writing.
 
@@ -137,23 +129,16 @@ inline std::shared_ptr<file_writer> open_writer(file_path const & fp, bool bBuff
 } //namespace io
 } //namespace abc
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::filedesc
-
 
 namespace abc {
 namespace io {
 
 /*! Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
-doesn’t always own the wrapped filedesc_t (e.g. for standard files).
-*/
-class ABACLADE_SYM filedesc :
-   public support_explicit_operator_bool<filedesc>,
-   public noncopyable {
+doesn’t always own the wrapped filedesc_t (e.g. for standard files). */
+class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
 public:
-
    /*! Constructor.
 
    fd
@@ -173,7 +158,6 @@ public:
    //! Destructor.
    ~filedesc();
 
-
    /*! Assignment operator.
 
    fd
@@ -184,7 +168,6 @@ public:
    filedesc & operator=(filedesc_t fd);
    filedesc & operator=(filedesc && fd);
 
-
    /*! Safe bool operator.
 
    return
@@ -194,7 +177,6 @@ public:
       return m_fd != smc_fdNull;
    }
 
-
    /*! Returns the wrapped raw file descriptor.
 
    return
@@ -203,7 +185,6 @@ public:
    filedesc_t get() const {
       return m_fd;
    }
-
 
    /*! Yields ownership over the wrapped file descriptor, returning it.
 
@@ -216,9 +197,7 @@ public:
       return fd;
    }
 
-
 private:
-
    //! The actual descriptor.
    filedesc_t m_fd;
    //! If true, the wrapper will close the file on destruction.
@@ -230,27 +209,20 @@ private:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_base
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Base for file binary I/O classes.
-class ABACLADE_SYM file_base :
-   public virtual base,
-   public noncopyable {
+class ABACLADE_SYM file_base : public virtual base, public noncopyable {
 public:
-
    //! Destructor.
    virtual ~file_base();
 
-
 protected:
-
    /*! Constructor.
 
    pfid
@@ -258,9 +230,7 @@ protected:
    */
    file_base(detail::file_init_data * pfid);
 
-
 protected:
-
    //! Descriptor of the underlying file.
    filedesc m_fd;
 };
@@ -269,21 +239,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary file input.
-class ABACLADE_SYM file_reader :
-   public virtual file_base,
-   public reader {
+class ABACLADE_SYM file_reader : public virtual file_base, public reader {
 public:
-
    //! See file_base::file_base().
    file_reader(detail::file_init_data * pfid);
 
@@ -293,9 +258,7 @@ public:
    //! See reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
-
 #if ABC_HOST_API_WIN32
-
    // Under Win32 there are major differences in detection of EOF depending on the file type.
 
    /*! Detects EOF conditions and real errors.
@@ -309,7 +272,6 @@ public:
       thrown for all non-EOF error conditions.
    */
    virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const;
-
 #endif //if ABC_HOST_API_WIN32
 };
 
@@ -317,21 +279,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::file_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary file output.
-class ABACLADE_SYM file_writer :
-   public virtual file_base,
-   public writer {
+class ABACLADE_SYM file_writer : public virtual file_base, public writer {
 public:
-
    //! See writer::writer().
    file_writer(detail::file_init_data * pfid);
 
@@ -349,26 +306,20 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_file_base
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Base for console/terminal binary I/O classes.
-class ABACLADE_SYM console_file_base :
-   public virtual file_base {
+class ABACLADE_SYM console_file_base : public virtual file_base {
 public:
-
    //! Destructor.
    virtual ~console_file_base();
 
-
 protected:
-
    //! See file_base::file_base().
    console_file_base(detail::file_init_data * pfid);
 };
@@ -377,36 +328,28 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Console/terminal input pseudo-file.
-class ABACLADE_SYM console_reader :
-   public virtual console_file_base,
-   public file_reader {
+class ABACLADE_SYM console_reader : public virtual console_file_base, public file_reader {
 public:
-
    //! See file_reader::file_reader().
    console_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~console_reader();
 
-
 #if ABC_HOST_API_WIN32
-
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
    //! See file_reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
-
 #endif //if ABC_HOST_API_WIN32
 };
 
@@ -414,21 +357,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Console/terminal output pseudo-file.
-class ABACLADE_SYM console_writer :
-   public virtual console_file_base,
-   public file_writer {
+class ABACLADE_SYM console_writer : public virtual console_file_base, public file_writer {
 public:
-
    //! See file_writer::file_writer().
    console_writer(detail::file_init_data * pfid);
 
@@ -448,34 +386,26 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::pipe_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary reader for the output end of a pipe.
-class ABACLADE_SYM pipe_reader :
-   public file_reader {
+class ABACLADE_SYM pipe_reader : public file_reader {
 public:
-
    //! See file_reader::file_reader().
    pipe_reader(detail::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_reader();
 
-
 #if ABC_HOST_API_WIN32
-
    /*! See file_reader::readfile_returned_eof(). Pipes report EOF in a completely different way than
-   regular files.
-   */
+   regular files. */
    virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const override;
-
 #endif
 };
 
@@ -483,20 +413,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::pipe_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary writer for the input end of a pipe.
-class ABACLADE_SYM pipe_writer :
-   public file_writer {
+class ABACLADE_SYM pipe_writer : public file_writer {
 public:
-
    //! See file_writer::file_writer().
    pipe_writer(detail::file_init_data * pfid);
 
@@ -508,22 +434,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::regular_file_base
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Base for binary I/O classes for regular disk files.
-class ABACLADE_SYM regular_file_base :
-   public virtual file_base,
-   public seekable,
-   public sized {
+class ABACLADE_SYM regular_file_base : public virtual file_base, public seekable, public sized {
 public:
-
    //! Destructor.
    virtual ~regular_file_base();
 
@@ -536,15 +456,11 @@ public:
    //! See seekable::tell().
    virtual offset_t tell() const override;
 
-
 protected:
-
    //! See file_base::file_base().
    regular_file_base(detail::file_init_data * pfid);
 
-
 protected:
-
    //! Size of the file.
    full_size_t m_cb;
 #if 0
@@ -557,21 +473,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::regular_file_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary reader for regular disk files.
-class ABACLADE_SYM regular_file_reader :
-   public virtual regular_file_base,
-   public file_reader {
+class ABACLADE_SYM regular_file_reader : public virtual regular_file_base, public file_reader {
 public:
-
    //! See regular_file_base().
    regular_file_reader(detail::file_init_data * pfid);
 
@@ -583,21 +494,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::regular_file_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Binary writer for regular disk files.
-class ABACLADE_SYM regular_file_writer :
-   public virtual regular_file_base,
-   public file_writer {
+class ABACLADE_SYM regular_file_writer : public virtual regular_file_base, public file_writer {
 public:
-
    //! See regular_file_base().
    regular_file_writer(detail::file_init_data * pfid);
 
@@ -609,9 +515,7 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 #endif
 
-
 protected:
-
 #if ABC_HOST_API_WIN32
    //! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it.
    bool m_bAppend:1;
@@ -622,9 +526,7 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_IO_BINARY_FILE_HXX
 

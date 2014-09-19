@@ -34,10 +34,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::_tuple_void
-
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -53,26 +51,21 @@ struct _tuple_void {
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::_tuple_head
-
 
 namespace abc {
 namespace _std {
 
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
-for empty base optimization (EBO), if the compiler is smart enough.
-*/
+for empty base optimization (EBO), if the compiler is smart enough. */
 template <std::size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
 class _tuple_head;
 
 // Specialization for empty types: enable EBO.
 template <std::size_t t_i, typename T>
-class _tuple_head<t_i, T, true> :
-   private T {
+class _tuple_head<t_i, T, true> : private T {
 public:
-
    /*! Constructor.
 
    th
@@ -97,7 +90,6 @@ public:
       T(static_cast<T &&>(th)) {
    }
 
-
    /*! Assignment operator.
 
    th
@@ -113,7 +105,6 @@ public:
       get() = std::move(th.get());
       return *this;
    }
-
 
    /*! Accessor to the wrapped object.
 
@@ -132,7 +123,6 @@ public:
 template <std::size_t t_i, typename T>
 class _tuple_head<t_i, T, false> {
 public:
-
    /*! Constructor.
 
    th
@@ -157,7 +147,6 @@ public:
       m_t(std::move(th.m_t)) {
    }
 
-
    /*! Assignment operator.
 
    th
@@ -174,7 +163,6 @@ public:
       return *this;
    }
 
-
    /*! Accessor to the wrapped element.
 
    return
@@ -187,9 +175,7 @@ public:
       return m_t;
    }
 
-
 private:
-
    //! Internal T instance.
    T m_t;
 };
@@ -197,10 +183,8 @@ private:
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::_tuple_tail
-
 
 namespace abc {
 namespace _std {
@@ -221,12 +205,11 @@ template <std::size_t t_i, typename T0, typename ... Ts>
 class _tuple_tail<t_i, T0, Ts ...> :
    public _tuple_head<t_i, T0>,
    public _tuple_tail<t_i + 1, Ts ...> {
-
+private:
    typedef _tuple_head<t_i, T0> _thead;
    typedef _tuple_tail<t_i + 1, Ts ...> _ttail;
 
 public:
-
    /*! Constructor.
 
    thead
@@ -253,7 +236,6 @@ public:
       _thead(std::move(tt.get_thead())), _ttail(std::move(tt.get_ttail())) {
    }
 
-
    /*! Assignment operator.
 
    tt
@@ -272,7 +254,6 @@ public:
       return *this;
    }
 
-
    /*! Returns the embedded _tuple_head.
 
    return
@@ -284,7 +265,6 @@ public:
    _thead const & get_thead() const {
       return static_cast<_thead const &>(*this);
    }
-
 
    /*! Returns the embedded _tuple_tail.
 
@@ -310,12 +290,11 @@ template <
 class _tuple_tail :
    public _tuple_head<t_i, T0>,
    public _tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _tuple_void> {
-
+private:
    typedef _tuple_head<t_i, T0> _thead;
    typedef _tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _tuple_void> _ttail;
 
 public:
-
    /*! Constructor.
 
    tt
@@ -357,7 +336,6 @@ public:
       _ttail(std::move(tt.get_ttail())) {
    }
 
-
    /*! Assignment operator.
 
    tt
@@ -376,7 +354,6 @@ public:
       return *this;
    }
 
-
    /*! Returns the embedded _tuple_head.
 
    return
@@ -388,7 +365,6 @@ public:
    _thead const & get_thead() const {
       return *static_cast<_thead const *>(this);
    }
-
 
    /*! Returns the embedded _tuple_tail.
 
@@ -410,7 +386,6 @@ class _tuple_tail<
    _tuple_void, _tuple_void, _tuple_void
 > {
 public:
-
    /*! Constructor.
 
    tt
@@ -427,7 +402,6 @@ public:
    ) {
    }
 
-
    /*! Assignment operator.
 
    return
@@ -443,10 +417,8 @@ public:
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::tuple
-
 
 namespace abc {
 namespace _std {
@@ -455,13 +427,11 @@ namespace _std {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename ... Ts>
-class tuple :
-   public _tuple_tail<0, Ts ...> {
-
+class tuple : public _tuple_tail<0, Ts ...> {
+private:
    typedef _tuple_tail<0, Ts ...> _timpl;
 
 public:
-
    /*! Constructor.
 
    ts
@@ -485,7 +455,6 @@ public:
    tuple(tuple && tpl) :
       _timpl(static_cast<_timpl &&>(tpl)) {
    }
-
 
    /*! Assignment operator.
 
@@ -512,13 +481,11 @@ template <
    typename T6 = _tuple_void, typename T7 = _tuple_void, typename T8 = _tuple_void,
    typename T9 = _tuple_void
 >
-class tuple :
-   public _tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
-
+class tuple : public _tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+private:
    typedef _tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
 
 public:
-
    /*! Constructor.
 
    t0...t9
@@ -700,7 +667,6 @@ public:
       _timpl(static_cast<_timpl &&>(tpl)) {
    }
 
-
    /*! Assignment operator.
 
    tpl
@@ -723,17 +689,14 @@ public:
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::tuple_element
-
 
 namespace abc {
 namespace _std {
 
 /*! Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple
-helper classes”).
-*/
+helper classes”). */
 template <std::size_t t_i, typename T>
 struct tuple_element;
 
@@ -741,8 +704,7 @@ struct tuple_element;
 
 // Recursion: remove 1 from the index, and 1 item from the tuple.
 template <std::size_t t_i, typename T0, typename ... Ts>
-struct tuple_element<t_i, tuple<T0, Ts ...>> :
-   public tuple_element<t_i - 1, tuple<Ts ...>> {
+struct tuple_element<t_i, tuple<T0, Ts ...>> : public tuple_element<t_i - 1, tuple<Ts ...>> {
 };
 
 // Base recursion step.
@@ -781,10 +743,8 @@ ABC_SPECIALIZE_tuple_element_FOR_INDEX(9)
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::get (tuple)
-
 
 namespace abc {
 namespace _std {
@@ -792,8 +752,7 @@ namespace _std {
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 /*! Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
-make it work.
-*/
+make it work. */
 template <
    std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
    typename T6, typename T7, typename T8, typename T9
@@ -806,7 +765,6 @@ struct _tuple_get_helper;
       typename T7, typename T8, typename T9 \
    > \
    struct _tuple_get_helper<i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> { \
-   \
       inline static T ## i & get( \
          tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl \
       ) { \
@@ -831,7 +789,6 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #undef ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
-
 
 /*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
 
@@ -881,17 +838,14 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::tuple_size (tuple)
-
 
 namespace abc {
 namespace _std {
 
 /*! Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper
-classes”).
-*/
+classes”). */
 template <class T>
 struct tuple_size;
 
@@ -926,8 +880,7 @@ struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, _tuple_void, _tuple_void, _t
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, T5, _tuple_void, _tuple_void, _tuple_void, _tuple_void
->> :
-   std::integral_constant<std::size_t, 6> {};
+>> : std::integral_constant<std::size_t, 6> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void
@@ -962,20 +915,16 @@ struct tuple_size<tuple<
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::ignore
-
 
 namespace abc {
 namespace _std {
 
 /*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
-any type, and silently discards everything.
-*/
+any type, and silently discards everything. */
 class __ignore_t {
 public:
-
    //! Constructor.
    __ignore_t() {
    }
@@ -995,19 +944,15 @@ public:
    }
 };
 
-
 /*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
-“Tuples”).
-*/
+“Tuples”). */
 extern __ignore_t const ignore;
 
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_std::tie
-
 
 namespace abc {
 namespace _std {
@@ -1102,9 +1047,7 @@ inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &,
 } //namespace _std
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_TUPLE_HXX
 

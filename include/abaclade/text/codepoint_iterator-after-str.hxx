@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_proxy
-
 
 namespace abc {
 namespace text {
@@ -40,10 +38,8 @@ inline _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char_t ch) {
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_iterator_impl
-
 
 namespace abc {
 namespace text {
@@ -54,7 +50,6 @@ inline char_t const * _codepoint_iterator_impl<true>::advance(std::ptrdiff_t i, 
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

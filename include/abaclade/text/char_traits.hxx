@@ -22,30 +22,23 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::utf8_char_traits
-
 
 namespace abc {
 namespace text {
 
 /*! UTF-8 character traits (constants and functions). Note that this class is not modeled after
-std::char_traits.
-*/
+std::char_traits. */
 class ABACLADE_SYM utf8_char_traits {
 public:
-
    /*! Max length of a code point, in UTF-8 characters (bytes). Technically, 6 is also possible due
-   to the way bits are encoded, but it’s illegal.
-   */
+   to the way bits are encoded, but it’s illegal. */
    static unsigned const max_codepoint_length = 4;
    //! Highest code point that can be encoded in a single UTF-8 character.
    static char32_t const max_single_char_codepoint = 0x7f;
 
-
 public:
-
    /*! Converts a char8_t array into a code point (UTF-32 character).
 
    pchDstBegin
@@ -54,7 +47,6 @@ public:
       Decoded code point.
    */
    static char32_t chars_to_codepoint(char8_t const * pchSrcBegin);
-
 
    /*! Converts a code point (UTF-32 character) into a char8_t array.
 
@@ -67,7 +59,6 @@ public:
    */
    static char8_t * codepoint_to_chars(char32_t cp, char8_t * pchDstBegin);
 
-
    /*! Return the number of characters needed to convert the specified code point into UTF-8
    characters.
 
@@ -77,7 +68,6 @@ public:
       Length of the resulting character sequence.
    */
    static unsigned codepoint_size(char32_t cp);
-
 
    /*! Returns the sequence indicator bit mask suitable to precede a continuation of cbCont bytes.
 
@@ -91,7 +81,6 @@ public:
       return static_cast<char8_t>(0x3f00 >> smc_acbitShiftMask[cbCont]);
    }
 
-
    /*! Returns true if the specified character is a trail (non-lead) character.
 
    ch
@@ -102,7 +91,6 @@ public:
    static /*constexpr*/ bool is_trail_char(char8_t ch) {
       return (ch & 0xc0) == 0x80;
    }
-
 
    /*! Returns the bits in a lead byte that are part of the encoded code point. Notice that the bits
    will need to be shifted in the right position to form a valid UTF-32 character.
@@ -118,7 +106,6 @@ public:
       return static_cast<char32_t>(ch & (0x7f >> smc_acbitShiftMask[cbCont]));
    }
 
-
    /*! Checks if a character is a valid UTF-8 lead character.
 
    ch
@@ -130,7 +117,6 @@ public:
       std::uint8_t i = static_cast<std::uint8_t>(ch);
       return (smc_aiValidLeadCharsMask[i >> 3] & (0x80u >> (i & 0x07u))) != 0;
    }
-
 
    /*! Returns the run length of an UTF-8 sequence, given its lead byte.
 
@@ -149,46 +135,36 @@ public:
       );
    }
 
-
 private:
-
    //! Maps each UTF-8 lead byte to the length of its entire encoded code point.
    static std::uint8_t const smc_acbCpSizesByLeadChar[];
    /*! Shift counts for the mask 0x7f to be applied to each lead byte to get the bits actually part
-   of the code point; indexed by the number of bytes in the sequence.
-   */
+   of the code point; indexed by the number of bytes in the sequence. */
    static std::uint8_t const smc_acbitShiftMask[];
    /*! A set bit in this array means that the corresponding character is a valid UTF-8 lead
-   character.
-   */
+   character. */
    static std::uint8_t const smc_aiValidLeadCharsMask[];
 };
 
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::utf16_char_traits
-
 
 namespace abc {
 namespace text {
 
 /*! UTF-16 character traits (constants and functions). Note that this class is not modeled after
-std::char_traits.
-*/
+std::char_traits. */
 class ABACLADE_SYM utf16_char_traits {
 public:
-
    //! Max length of a code point, in UTF-16 characters.
    static unsigned const max_codepoint_length = 2;
    //! Highest code point that can be encoded in a single UTF-16 character.
    static char32_t const max_single_char_codepoint = 0xffff;
 
-
 public:
-
    /*! Converts a char16_t array into a code point (UTF-32 character).
 
    pchDstBegin
@@ -197,7 +173,6 @@ public:
       Decoded code point.
    */
    static char32_t chars_to_codepoint(char16_t const * pchSrcBegin);
-
 
    /*! Return the number of characters needed to convert the specified code point into UTF-16
    characters.
@@ -208,7 +183,6 @@ public:
       Length of the resulting character sequence.
    */
    static unsigned codepoint_size(char32_t cp);
-
 
    /*! Converts a code point (UTF-32 character) into a char16_t array.
 
@@ -221,7 +195,6 @@ public:
    */
    static char16_t * codepoint_to_chars(char32_t cp, char16_t * pchDstBegin);
 
-
    /*! Returns true if the specified character is a surrogate lead.
 
    ch
@@ -232,7 +205,6 @@ public:
    static /*constexpr*/ bool is_lead_surrogate(char16_t ch) {
       return (ch & 0xfc00) == 0xd800;
    }
-
 
    /*! Returns true if the specified character is a surrogate (lead or trail).
 
@@ -259,17 +231,14 @@ public:
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::host_char_traits
-
 
 namespace abc {
 namespace text {
 
 /*! String traits for the host character type, abc::char_t. Derives from either utf8_char_traits or
-utf16_char_traits.
-*/
+utf16_char_traits. */
 class ABACLADE_SYM host_char_traits :
 #if ABC_HOST_UTF == 8
    public utf8_char_traits {
@@ -284,9 +253,7 @@ public:
    typedef utf16_char_traits traits_base;
 #endif
 
-
 public:
-
    /*! Converts a code point (UTF-32 character) into a char_t array.
 
    cp
@@ -303,7 +270,6 @@ public:
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

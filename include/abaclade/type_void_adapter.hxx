@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::type_void_adapter
-
 
 namespace abc {
 
@@ -45,7 +43,6 @@ these will not be used by container classes.
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 struct type_void_adapter {
 public:
-
    /*! Prototype of a function that copies items from one array to another.
 
    pDstBegin
@@ -57,7 +54,6 @@ public:
    */
    typedef void (* copy_fn)(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd);
 
-
    /*! Prototype of a function that destructs a range of items in an array.
 
    pBegin
@@ -66,7 +62,6 @@ public:
       Pointer to beyond the last item to destruct.
    */
    typedef void (* destr_fn)(void const * pBegin, void const * pEnd);
-
 
    /*! Prototype of a function that compares two values for equality.
 
@@ -79,7 +74,6 @@ public:
    */
    typedef bool (* equal_fn)(void const * p1, void const * p2);
 
-
    /*! Prototype of a function that moves items from one array to another.
 
    pDstBegin
@@ -91,9 +85,7 @@ public:
    */
    typedef void (* move_fn)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
 
-
 public:
-
    //! Size of a variable of this type, in bytes.
    std::size_t cb;
    //! Function to copy items from one array to another.
@@ -105,9 +97,7 @@ public:
    //! Function to move items from one array to another.
    move_fn move_constr;
 
-
 public:
-
    //! Constructor.
    type_void_adapter() :
       cb(0),
@@ -171,9 +161,7 @@ public:
       cb = sizeof(T);
    }
 
-
 private:
-
    /*! Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
 
@@ -185,7 +173,6 @@ private:
       Pointer to beyond the last item to copy.
    */
 #if ABC_HOST_MSC
-
    // MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
    // version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
    // saying it doesn’t know which one to choose.
@@ -211,9 +198,7 @@ private:
          }
       }
    }
-
 #else //if ABC_HOST_MSC
-
    // Only enabled if the copy constructor is trivial.
    template <typename T>
    static void _typed_copy_constr(
@@ -244,9 +229,7 @@ private:
          throw;
       }
    }
-
 #endif //if ABC_HOST_MSC … else
-
 
    /*! Destructs a range of items in an array.
 
@@ -265,7 +248,6 @@ private:
       }
    }
 
-
    /*! Compares two values for equality.
 
    pt1
@@ -279,7 +261,6 @@ private:
    static bool _typed_equal(T const * pt1, T const * pt2) {
       return *pt1 == *pt2;
    }
-
 
    /*! Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
@@ -300,7 +281,6 @@ private:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

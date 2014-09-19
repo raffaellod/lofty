@@ -55,8 +55,7 @@ istr const gc_sAcabaabca(
 namespace abc {
 namespace test {
 
-class str_basic :
-   public testing::test_case {
+class str_basic : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -216,8 +215,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_basic)
 namespace abc {
 namespace test {
 
-class str_iterators :
-   public testing::test_case {
+class str_iterators : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -262,8 +260,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_iterators)
 namespace abc {
 namespace test {
 
-class str_encode :
-   public testing::test_case {
+class str_encode : public testing::test_case {
 public:
 
    //! See abc::testing::test_case::title().
@@ -353,8 +350,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_encode)
 namespace abc {
 namespace test {
 
-class str_replace :
-   public testing::test_case {
+class str_replace : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -401,8 +397,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_replace)
 namespace abc {
 namespace test {
 
-class str_substr_range_permutations :
-   public testing::test_case {
+class str_substr_range_permutations : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -480,8 +475,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_range_permutations)
 namespace abc {
 namespace test {
 
-class istr_c_str :
-   public testing::test_case {
+class istr_c_str : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -536,8 +530,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::istr_c_str)
 namespace abc {
 namespace test {
 
-class mstr_c_str :
-   public testing::test_case {
+class mstr_c_str : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -601,8 +594,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::mstr_c_str)
 namespace abc {
 namespace test {
 
-class str_find :
-   public testing::test_case {
+class str_find : public testing::test_case {
 public:
 
    //! See abc::testing::test_case::title().
@@ -651,8 +643,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_find)
 namespace abc {
 namespace test {
 
-class str_substr_starts_with :
-   public testing::test_case {
+class str_substr_starts_with : public testing::test_case {
 public:
 
    //! See abc::testing::test_case::title().
@@ -697,8 +688,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_substr_starts_with)
 namespace abc {
 namespace test {
 
-class str_substr_ends_with :
-   public testing::test_case {
+class str_substr_ends_with : public testing::test_case {
 public:
 
    //! See abc::testing::test_case::title().

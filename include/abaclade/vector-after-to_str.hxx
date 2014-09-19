@@ -22,52 +22,40 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::vector_to_str_backend
-
 
 namespace abc {
 namespace detail {
 
 /*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
-the implementation can be in a cxx file.
-*/
-class ABACLADE_SYM vector_to_str_backend :
-   public _sequence_to_str_backend {
+the implementation can be in a cxx file. */
+class ABACLADE_SYM vector_to_str_backend : public _sequence_to_str_backend {
 public:
-
    //! Constructor.
    vector_to_str_backend();
 
    //! Destructor.
    ~vector_to_str_backend();
 
-
 protected:
-
    /*! Formatting options to be applied to the individual elements, obtained from the constructor
-   argument sFormat.
-   */
+   argument sFormat. */
    istr m_sEltFormat;
 };
 
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::vector_base
-
 
 namespace abc {
 
 // Specialization of to_str_backend.
 template <typename T>
-class to_str_backend<vector_base<T>> :
-   public detail::vector_to_str_backend {
+class to_str_backend<vector_base<T>> : public detail::vector_to_str_backend {
 public:
-
    /*! Changes the output format.
 
    sFormat
@@ -79,7 +67,6 @@ public:
       detail::vector_to_str_backend::set_format(sFormat);
       m_tsbElt.set_format(m_sEltFormat);
    }
-
 
    /*! Writes a vector, applying the formatting options.
 
@@ -103,19 +90,15 @@ public:
       _write_end(ptwOut);
    }
 
-
 protected:
-
    //! Backend for the individual elements.
    to_str_backend<T> m_tsbElt;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::*vector
-
 
 namespace abc {
 
@@ -129,7 +112,6 @@ template <typename T, std::size_t t_ciStatic>
 class to_str_backend<smvector<T, t_ciStatic>> : public to_str_backend<vector_base<T>> {};
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

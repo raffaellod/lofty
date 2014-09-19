@@ -29,8 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class file_path_normalization :
-   public testing::test_case {
+class file_path_normalization : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -161,8 +160,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
 namespace abc {
 namespace test {
 
-class file_path_normalization_joined :
-   public testing::test_case {
+class file_path_normalization_joined : public testing::test_case {
 public:
 
    //! See testing::test_case::title().

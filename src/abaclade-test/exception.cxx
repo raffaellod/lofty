@@ -28,13 +28,11 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class exception_polymorphism :
-   public testing::test_case {
+class exception_polymorphism : public testing::test_case {
 protected:
 
    //! First-level abc::generic_error subclass.
-   class derived1_error :
-      public virtual generic_error {
+   class derived1_error : public virtual generic_error {
    public:
 
       //! Constructor.
@@ -45,8 +43,7 @@ protected:
    };
 
    //! Second-level abc::generic_error subclass.
-   class derived2_error :
-      public virtual derived1_error {
+   class derived2_error : public virtual derived1_error {
    public:
 
       //! Constructor.
@@ -57,9 +54,7 @@ protected:
    };
 
    //! Diamond-inheritance abc::generic_error subclass.
-   class derived3_error :
-      public virtual derived1_error,
-      public virtual derived2_error {
+   class derived3_error : public virtual derived1_error, public virtual derived2_error {
    public:
 
       //! Constructor.
@@ -141,8 +136,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 namespace abc {
 namespace test {
 
-class exception_from_os_hard_error :
-   public testing::test_case {
+class exception_from_os_hard_error : public testing::test_case {
 public:
 
    //! See testing::test_case::title().

@@ -28,23 +28,19 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::exception
-
 
 namespace std {
 
 //! Base class for standard exceptions (18.8.1).
 class ABACLADE_SYM exception {
 public:
-
    //! Constructor.
    exception();
 
    //! Destructor.
    virtual ~exception();
-
 
    /*! Returns information on the exception.
 
@@ -56,9 +52,7 @@ public:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_EXCEPTION_HXX
 

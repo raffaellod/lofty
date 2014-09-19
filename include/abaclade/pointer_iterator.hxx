@@ -22,19 +22,15 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::pointer_iterator
-
 
 namespace abc {
 
 //! Iterator based on a plain pointer.
 template <typename TCont, typename TVal>
-class pointer_iterator :
-   public std::iterator<std::random_access_iterator_tag, TVal> {
+class pointer_iterator : public std::iterator<std::random_access_iterator_tag, TVal> {
 public:
-
    /*! Constructor.
 
    pt
@@ -54,7 +50,6 @@ public:
       m_ptval(it.base()) {
    }
 
-
    /*! Dereferencing operator.
 
    return
@@ -64,7 +59,6 @@ public:
       return *m_ptval;
    }
 
-
    /*! Dereferencing member access operator.
 
    return
@@ -73,7 +67,6 @@ public:
    TVal * operator->() const {
       return m_ptval;
    }
-
 
    /*! Element access operator.
 
@@ -85,7 +78,6 @@ public:
    TVal & operator[](std::ptrdiff_t i) const {
       return m_ptval[i];
    }
-
 
    /*! Addition-assignment operator.
 
@@ -99,7 +91,6 @@ public:
       return *this;
    }
 
-
    /*! Subtraction-assignment operator.
 
    i
@@ -112,7 +103,6 @@ public:
       return *this;
    }
 
-
    /*! Addition operator.
 
    i
@@ -123,7 +113,6 @@ public:
    pointer_iterator operator+(std::ptrdiff_t i) const {
       return pointer_iterator(m_ptval + i);
    }
-
 
    /*! Subtraction/difference operator.
 
@@ -143,7 +132,6 @@ public:
       return m_ptval - it.base();
    }
 
-
    /*! Preincrement operator.
 
    return
@@ -154,7 +142,6 @@ public:
       return *this;
    }
 
-
    /*! Postincrement operator.
 
    return
@@ -163,7 +150,6 @@ public:
    pointer_iterator operator++(int) {
       return pointer_iterator(m_ptval++);
    }
-
 
    /*! Predecrement operator.
 
@@ -175,7 +161,6 @@ public:
       return *this;
    }
 
-
    /*! Postdecrement operator.
 
    return
@@ -184,7 +169,6 @@ public:
    pointer_iterator operator--(int) {
       return pointer_iterator(m_ptval--);
    }
-
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
@@ -200,7 +184,6 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
-
    /*! Returns the underlying iterator type.
 
    return
@@ -210,15 +193,12 @@ ABC_RELOP_IMPL(<=)
       return m_ptval;
    }
 
-
 protected:
-
    //! Underlying pointer to the current item.
    TVal * m_ptval;
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

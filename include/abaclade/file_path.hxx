@@ -28,10 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::file_path
-
 
 namespace abc {
 
@@ -66,15 +64,13 @@ class _file_path_iterator;
 #endif
 
 //! Filesystem path.
-class ABACLADE_SYM file_path :
-   public support_explicit_operator_bool<file_path> {
+class ABACLADE_SYM file_path : public support_explicit_operator_bool<file_path> {
 
 #if 0
    friend class _file_path_iterator;
 #endif
 
 public:
-
    /*! Constructor.
 
    fp
@@ -95,7 +91,6 @@ public:
    file_path(dmstr s) :
       m_s(validate_and_adjust(std::move(s))) {
    }
-
 
    /*! Assignment operator.
 
@@ -119,7 +114,6 @@ public:
       return *this;
    }
 
-
    /*! Returns true if the path length is greater than 0.
 
    return
@@ -129,7 +123,6 @@ public:
       return bool(m_s);
    }
 
-
    /*! Automatic cast to string.
 
    return
@@ -138,7 +131,6 @@ public:
    operator istr const &() const {
       return m_s;
    }
-
 
    /*! Concatenation-assignment operator.
 
@@ -152,7 +144,6 @@ public:
       return *this;
    }
 
-
    /*! Concatenation operator.
 
    s
@@ -164,7 +155,6 @@ public:
       return file_path(*this) += s;
    }
 
-
    /*! Path-correct concatenation-assignment operator. Joins the current path with the provided
    string, inserting a separator if necessary.
 
@@ -174,7 +164,6 @@ public:
       *this.
    */
    file_path & operator/=(istr const & s);
-
 
    /*! Path-correct concatenation operator. See operator/=() for details.
 
@@ -187,7 +176,6 @@ public:
       return file_path(*this) /= s;
    }
 
-
    /*! Returns the absolute and normalized version of the path. If the path is not already absolute,
    it will be assumed to be relative to abc::file_path::current_dir(). Under Win32 there’s a
    current directory for each volume, so the base directory will be different depending on whether
@@ -198,14 +186,12 @@ public:
    */
    file_path absolute() const;
 
-
    /*! Returns the base name of (last component in) the path.
 
    return
       Last component in the path.
    */
    file_path base_name() const;
-
 
    /*! Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
 
@@ -214,9 +200,7 @@ public:
    */
    static file_path current_dir();
 
-
 #if ABC_HOST_API_WIN32
-
    /*! Returns the current directory for the specified volume.
 
    chVolume
@@ -225,9 +209,7 @@ public:
       Current directory in chVolume.
    */
    static file_path current_dir_for_volume(char_t chVolume);
-
 #endif //if ABC_HOST_API_WIN32
-
 
 #if 0
    /*! Returns an iterator over entries in the path matching the specified pattern.
@@ -236,7 +218,6 @@ public:
    */
    _file_path_iterator find(istr const & sPattern) const;
 #endif
-
 
    /*! Returns true if the path is in absolute form. Under Win32, this means that the path is
    prefixed with “\\?\”, e.g. “\\?\C:\my\path”.
@@ -248,14 +229,12 @@ public:
       return is_absolute(m_s);
    }
 
-
    /*! Returns true if the path represents a directory.
 
    return
       true if the path represents a directory, of false otherwise.
    */
    bool is_dir() const;
-
 
    /*! Returns true if the path is absolute and this->parent_dir() == *this.
 
@@ -266,7 +245,6 @@ public:
       return get_root_length(m_s, false) == m_s.size_in_chars();
    }
 
-
    /*! Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
    resulting replacements may lead to a different path if the original path includes symbolic links.
 
@@ -274,7 +252,6 @@ public:
       Normalized path.
    */
    file_path normalize() const;
-
 
    /*! Returns a string representation of the path suitable to use with the OS’s file API.
 
@@ -303,7 +280,6 @@ public:
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
-
    /*! Returns the directory containing the path.
 
    return
@@ -311,14 +287,12 @@ public:
    */
    file_path parent_dir() const;
 
-
    /*! Returns the root (POSIX) or the Win32 File Namespace root (Win32).
 
    return
       Root directory.
    */
    static file_path root();
-
 
    /*! Returns the platform-dependent path component separator.
 
@@ -329,7 +303,6 @@ public:
       return istr(smc_aszSeparator);
    }
 
-
    /*! Returns the count of characters in the path.
 
    return
@@ -339,9 +312,7 @@ public:
       return m_s.size();
    }
 
-
 private:
-
    /*! Locates the first character of the final component in the path, e.g. “a” in “a” (all), “a” in
    “/a”, “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a”
    “X:b\a” (Win32).
@@ -351,7 +322,6 @@ private:
       m_s if the path does not contain a root component/prefix.
    */
    dmstr::const_iterator base_name_start() const;
-
 
    /*! Returns the length of the root part of the specified path or, in other words, the index of
    the first character in the path that is not part of the root, e.g. “a” in “/a” (POSIX),
@@ -369,7 +339,6 @@ private:
    */
    static std::size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
 
-
    /*! Returns true if the specified string represents an absolute path. Under Win32, this means
    that the path needs to be prefixed with “\\?\”, e.g. “\\?\C:\my\path”; a path starting with a
    volume designator (e.g. “C:\my\path”) is not considered absolute, as far as abc::file_path is
@@ -381,7 +350,6 @@ private:
       true if s represents an absolute path, or false otherwise.
    */
    static bool is_absolute(istr const & s);
-
 
    /*! Validates and adjusts a path to make it suitable as abc::file_path’s internal representation:
    •  Collapses sequences of consecutive path separators into a single separator;
@@ -397,9 +365,7 @@ private:
    */
    static dmstr validate_and_adjust(dmstr s);
 
-
 private:
-
    //! Full file path, always in normalized form.
    dmstr m_s;
    //! Platform-specific path component separator.
@@ -442,7 +408,6 @@ namespace std {
 // Specialization of std::hash.
 template <>
 struct hash<abc::file_path>  {
-
    //! See std::hash::operator()().
    std::size_t operator()(abc::file_path const & fp) const {
       return std::hash<abc::istr>()(static_cast<abc::istr const &>(fp));
@@ -451,25 +416,20 @@ struct hash<abc::file_path>  {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend ‒ specialization for abc::file_path
-
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<file_path> :
-   public to_str_backend<istr> {
+class ABACLADE_SYM to_str_backend<file_path> : public to_str_backend<istr> {
 public:
-
    /*! Changes the output format.
 
    sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
-
 
    /*! Writes a string, applying the formatting options.
 
@@ -483,19 +443,15 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_file_path_iterator
-
 
 namespace abc {
 
 #if 0
 class _file_path_iterator {
 public:
-
-   // Constructor.
-   //
+   //! Constructor.
    _file_path_iterator(file_path const & pathDir, istr const & sPattern) :
       m_pathBaseDir(pathDir),
       m_hSearch(find_first_file((m_pathBaseDir / sPattern).os_str().c_str(), &m_wfd)),
@@ -512,23 +468,17 @@ public:
       iter.m_hSearch = INVALID_HANDLE_VALUE;
    }
 
-
-   // Destructor.
-   //
+   //* Destructor.
    ~_file_path_iterator() {
       if (m_hSearch != INVALID_HANDLE_VALUE) {
          ::FindClose(m_hSearch);
       }
    }
 
-
-   // Assignment operator.
-   //
+   //* Assignment operator.
    _file_path_iterator & operator=(_file_path_iterator && iter);
 
-
-   // Dereferencing operator.
-   //
+   //* Dereferencing operator.
    file_path & operator*() {
       return m_pathCurr;
    }
@@ -536,9 +486,7 @@ public:
       return m_pathCurr;
    }
 
-
-   // Dereferencing member access operator.
-   //
+   //* Dereferencing member access operator.
    file_path & operator->() {
       return m_pathCurr;
    }
@@ -546,9 +494,7 @@ public:
       return m_pathCurr;
    }
 
-
-   // Prefix increment operator.
-   //
+   //* Prefix increment operator.
    _file_path_iterator & operator++() {
       if (::FindNextFileW(m_hSearch, &m_wfd)) {
          m_pathCurr = next_file_path();
@@ -563,18 +509,13 @@ public:
       return *this;
    }
 
-
-   // Returns true if there are still files to be enumerated.
-   //
+   //* Returns true if there are still files to be enumerated.
    operator bool() const {
       return !m_bEOF;
    }
 
-
 private:
-
-   // Wrapper for ::FindFirstFile(), to support RIIA.
-   //
+   //* Wrapper for ::FindFirstFile(), to support RIIA.
    static HANDLE find_first_file(char_t const * pszPattern, WIN32_FIND_DATA * pwfd) {
       HANDLE h = ::FindFirstFileW(pszPattern, pwfd);
       if (h == INVALID_HANDLE_VALUE) {
@@ -586,9 +527,7 @@ private:
       return h;
    }
 
-
-   // Returns the path from the m_wfd member.
-   //
+   //* Returns the path from the m_wfd member.
    file_path next_file_path() const {
       return file_path(
          m_pathBaseDir / istr(m_wfd.cFileName, ::wcslen(m_wfd.cFileName)),
@@ -596,23 +535,22 @@ private:
       );
    }
 
-
 private:
-
-   // Directory being enumerated.
+   //* Directory being enumerated.
    file_path m_pathBaseDir;
-   // Search data.
+   //* Search data.
    WIN32_FIND_DATA m_wfd;
-   // Fake handle to the search.
+   //* Fake handle to the search.
    HANDLE m_hSearch;
-   // true if we run out of files.
+   //* true if we run out of files.
    bool m_bEOF;
-   // Current item.
+   //* Current item.
    file_path m_pathCurr;
 };
 
 
 // Now this can be implemented.
+
 inline _file_path_iterator file_path::find(istr const & sPattern) const {
    return _file_path_iterator(*this, sPattern);
 }
@@ -620,19 +558,14 @@ inline _file_path_iterator file_path::find(istr const & sPattern) const {
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::file_not_found_error
-
 
 namespace abc {
 
 //! A file could not be found.
-class ABACLADE_SYM file_not_found_error :
-   public virtual environment_error {
+class ABACLADE_SYM file_not_found_error : public virtual environment_error {
 public:
-public:
-
    /*! Constructor.
 
    x
@@ -644,7 +577,6 @@ public:
    //! Assignment operator. See abc::environment_error::operator=().
    file_not_found_error & operator=(file_not_found_error const & x);
 
-
    /*! Returns the path that couldn’t be found.
 
    return
@@ -653,7 +585,6 @@ public:
    abc::file_path const & file_path() const {
       return m_fpNotFound;
    }
-
 
    /*! See abc::environment_error::init().
 
@@ -664,24 +595,18 @@ public:
    */
    void init(abc::file_path const & fpNotFound, errint_t err = 0);
 
-
 protected:
-
    //! See environment_error::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! File path that caused the error.
    abc::file_path m_fpNotFound;
 };
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_FILE_PATH_HXX
 

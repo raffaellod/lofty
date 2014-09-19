@@ -28,10 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::hash standard specializations
-
 
 namespace std {
 
@@ -41,7 +39,6 @@ struct hash;
 
 template <>
 struct hash<bool> {
-
    /*! Function call operator.
 
    b
@@ -56,7 +53,6 @@ struct hash<bool> {
 
 template <>
 struct hash<char> {
-
    /*! Function call operator.
 
    ch
@@ -71,7 +67,6 @@ struct hash<char> {
 
 template <>
 struct hash<signed char> {
-
    /*! Function call operator.
 
    sch
@@ -86,7 +81,6 @@ struct hash<signed char> {
 
 template <>
 struct hash<unsigned char> {
-
    /*! Function call operator.
 
    uch
@@ -101,7 +95,6 @@ struct hash<unsigned char> {
 
 template <>
 struct hash<char16_t> {
-
    /*! Function call operator.
 
    ch
@@ -116,7 +109,6 @@ struct hash<char16_t> {
 
 template <>
 struct hash<char32_t> {
-
    /*! Function call operator.
 
    ch
@@ -131,7 +123,6 @@ struct hash<char32_t> {
 
 template <>
 struct hash<wchar_t> {
-
    /*! Function call operator.
 
    ch
@@ -146,7 +137,6 @@ struct hash<wchar_t> {
 
 template <>
 struct hash<short> {
-
    /*! Function call operator.
 
    i
@@ -161,7 +151,6 @@ struct hash<short> {
 
 template <>
 struct hash<unsigned short> {
-
    /*! Function call operator.
 
    i
@@ -176,7 +165,6 @@ struct hash<unsigned short> {
 
 template <>
 struct hash<int> {
-
    /*! Function call operator.
 
    i
@@ -191,7 +179,6 @@ struct hash<int> {
 
 template <>
 struct hash<unsigned int> {
-
    /*! Function call operator.
 
    i
@@ -206,7 +193,6 @@ struct hash<unsigned int> {
 
 template <>
 struct hash<long> {
-
    /*! Function call operator.
 
    i
@@ -221,7 +207,6 @@ struct hash<long> {
 
 template <>
 struct hash<long long> {
-
    /*! Function call operator.
 
    i
@@ -236,7 +221,6 @@ struct hash<long long> {
 
 template <>
 struct hash<unsigned long> {
-
    /*! Function call operator.
 
    i
@@ -251,7 +235,6 @@ struct hash<unsigned long> {
 
 template <>
 struct hash<unsigned long long> {
-
    /*! Function call operator.
 
    i
@@ -266,7 +249,6 @@ struct hash<unsigned long long> {
 
 template <>
 struct hash<float> {
-
    /*! Function call operator.
 
    f
@@ -281,7 +263,6 @@ struct hash<float> {
 
 template <>
 struct hash<double> {
-
    /*! Function call operator.
 
    d
@@ -296,7 +277,6 @@ struct hash<double> {
 
 template <>
 struct hash<long double> {
-
    /*! Function call operator.
 
    ld
@@ -311,7 +291,6 @@ struct hash<long double> {
 
 template <typename T>
 struct hash<T *> {
-
    /*! Function call operator.
 
    pt
@@ -326,9 +305,7 @@ struct hash<T *> {
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_FUNCTIONAL_HXX
 

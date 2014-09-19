@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::str_traits_validity
 
@@ -75,15 +74,12 @@ namespace test {
 #define ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(...) \
    ABC_TESTING_ASSERT_text_str_traits_validate(false, __VA_ARGS__)
 
-class str_traits_validity :
-   public testing::test_case {
+class str_traits_validity : public testing::test_case {
 public:
-
    //! See testing::test_case::title().
    virtual istr title() override {
       return istr(ABC_SL("abc::text::str_traits – validity of counted strings"));
    }
-
 
    //! See testing::test_case::run().
    virtual void run() override {
@@ -162,7 +158,6 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_traits_validity)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

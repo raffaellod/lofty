@@ -28,10 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::bitmanip globals
-
 
 namespace abc {
 namespace bitmanip {
@@ -50,8 +48,7 @@ namespace bitmanip {
 namespace detail {
 
 /*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
-abc::bitmanip::ceiling_to_pow2().
-*/
+abc::bitmanip::ceiling_to_pow2(). */
 ABACLADE_SYM std::uint8_t ceiling_to_pow2(std::uint8_t i);
 ABACLADE_SYM std::uint16_t ceiling_to_pow2(std::uint16_t i);
 ABACLADE_SYM std::uint32_t ceiling_to_pow2(std::uint32_t i);
@@ -81,7 +78,6 @@ inline I ceiling_to_pow2(I i) {
    }
 }
 
-
 /*! Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
 
 i
@@ -97,7 +93,6 @@ inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
    return (i + iStep) & ~iStep;
 }
 
-
 /*! Rotates bits to the left (most significant bits shifted out, and back in to become least
 significant).
 
@@ -112,7 +107,6 @@ template <typename I>
 inline /*constexpr*/ I rotate_l(I i, unsigned c) {
    return (i << c) | (i >> (sizeof(I) * CHAR_BIT - c));
 }
-
 
 /*! Rotates bits to the right (least significant bits shifted out, and back in to become most
 significant).
@@ -132,9 +126,7 @@ inline /*constexpr*/ I rotate_r(I i, unsigned c) {
 } //namespace bitmanip
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_BITMANIP_HXX
 

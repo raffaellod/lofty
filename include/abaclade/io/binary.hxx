@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::base
-
 
 namespace abc {
 namespace io {
@@ -34,7 +32,6 @@ namespace binary {
 //! Base interface for binary (non-text) I/O.
 class ABACLADE_SYM base {
 public:
-
    //! Destructor. Also needed to make the class polymorphic (have a vtable).
    virtual ~base();
 };
@@ -43,20 +40,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Interface for binary (non-text) input.
-class ABACLADE_SYM reader :
-   public virtual base {
+class ABACLADE_SYM reader : public virtual base {
 public:
-
    /*! Reads at most cbMax bytes.
 
    p
@@ -74,23 +67,18 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Interface for binary (non-text) output.
-class ABACLADE_SYM writer :
-   public virtual base {
+class ABACLADE_SYM writer : public virtual base {
 public:
-
    //! Forces writing any data in the write buffer.
    virtual void flush() = 0;
-
 
    /*! Writes an array of bytes.
 
@@ -108,10 +96,8 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::seekable
-
 
 namespace abc {
 namespace io {
@@ -120,7 +106,6 @@ namespace binary {
 //! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 class ABACLADE_SYM seekable {
 public:
-
    /*! Changes the current read/write position.
 
    iOffset
@@ -131,7 +116,6 @@ public:
       Resulting position.
    */
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) = 0;
-
 
    /*! Returns the current read/write position.
 
@@ -145,10 +129,8 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::sized
-
 
 namespace abc {
 namespace io {
@@ -157,7 +139,6 @@ namespace binary {
 //! Interface for binary I/O classes that access data with a known size.
 class ABACLADE_SYM sized {
 public:
-
    /*! Returns the size of the data.
 
    return
@@ -169,7 +150,6 @@ public:
 } //namespace binary
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

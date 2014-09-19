@@ -22,19 +22,15 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::error
-
 
 namespace abc {
 namespace text {
 
 //! A text encoding or decoding error occurred.
-class ABACLADE_SYM error :
-   public virtual generic_error {
+class ABACLADE_SYM error : public virtual generic_error {
 public:
-
    //! Constructor.
    error();
 
@@ -45,19 +41,15 @@ public:
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::decode_error
-
 
 namespace abc {
 namespace text {
 
 //! A text decoding error occurred.
-class ABACLADE_SYM decode_error :
-   public virtual error {
+class ABACLADE_SYM decode_error : public virtual error {
 public:
-
    /*! Constructor.
 
    x
@@ -68,7 +60,6 @@ public:
 
    //! Assignment operator. See abc::text::error::operator=().
    decode_error & operator=(decode_error const & x);
-
 
    /*! See abc::text::error::init().
 
@@ -84,15 +75,11 @@ public:
       std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
    );
 
-
 protected:
-
    //! See error::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Description of the encountered problem.
    istr m_sDescription;
    //! Bytes that caused the error.
@@ -102,19 +89,15 @@ private:
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::encode_error
-
 
 namespace abc {
 namespace text {
 
 //! A text encoding error occurred.
-class ABACLADE_SYM encode_error :
-   public virtual error {
+class ABACLADE_SYM encode_error : public virtual error {
 public:
-
    /*! Constructor.
 
    x
@@ -126,7 +109,6 @@ public:
    //! Assignment operator. See abc::text::error::operator=().
    encode_error & operator=(encode_error const & x);
 
-
    /*! See abc::text::error::init().
 
    sDescription
@@ -136,18 +118,13 @@ public:
    */
    void init(istr const & sDescription = istr(), char32_t chInvalid = 0xffffff, errint_t err = 0);
 
-
 protected:
-
    //! See error::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Description of the encountered problem.
    istr m_sDescription;
-
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
    we don’t want to find out when trying to print it in _print_extended_info(). */
    std::uint32_t m_iInvalidCodePoint;
@@ -155,7 +132,6 @@ private:
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

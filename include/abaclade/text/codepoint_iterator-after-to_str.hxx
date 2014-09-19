@@ -22,18 +22,14 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::text::_codepoint_proxy
-
 
 namespace abc {
 
 template <bool t_bConst>
-class to_str_backend<text::_codepoint_proxy<t_bConst>> :
-   public to_str_backend<char32_t> {
+class to_str_backend<text::_codepoint_proxy<t_bConst>> : public to_str_backend<char32_t> {
 public:
-
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
    cpp
@@ -48,10 +44,8 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::text::codepoint_iterator
-
 
 namespace abc {
 
@@ -59,7 +53,6 @@ template <bool t_bConst>
 class to_str_backend<text::codepoint_iterator<t_bConst>> :
    public to_str_backend<typename text::codepoint_iterator<t_bConst>::pointer> {
 public:
-
    /*! Writes a code point iterator as a pointer, applying the formatting options.
 
    it
@@ -75,7 +68,6 @@ public:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

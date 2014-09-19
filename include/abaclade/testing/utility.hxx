@@ -28,7 +28,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility globals
 
@@ -54,7 +53,6 @@ container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility::class_with_internal_pointer
 
@@ -65,7 +63,6 @@ namespace utility {
 //! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 class class_with_internal_pointer {
 public:
-
    /*! Constructor.
 
    cwip
@@ -84,7 +81,6 @@ public:
       m_i(cwip.m_i) {
    }
 
-
    /*! Validates that the object’s internal pointer has the expected value.
 
    return
@@ -96,9 +92,7 @@ public:
       return m_i == 0xcafe && m_pi == &m_i;
    }
 
-
 private:
-
    //! Pointer to m_i.
    std::uint16_t * m_pi;
    //! Data referenced by m_pi.
@@ -109,7 +103,6 @@ private:
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility::container_data_ptr_tracker
 
@@ -117,12 +110,10 @@ namespace abc {
 namespace testing {
 namespace utility {
 
-/*! Tracks changes in the internal data pointer of a container.
-*/
+/*! Tracks changes in the internal data pointer of a container. */
 template <class T>
 class container_data_ptr_tracker {
 public:
-
    /*! Constructor. Starts tracking changes in the specified object.
 
    t
@@ -132,7 +123,6 @@ public:
       m_t(t),
       m_pti(t.cbegin().base()) {
    }
-
 
    /*! Checks if the monitored object’s data pointer has changed.
 
@@ -153,15 +143,12 @@ public:
       }
    }
 
-
 private:
-
    //! Reference to the T instance to be monitored.
    T const & m_t;
    //! Pointer to m_t’s data.
    typename T::const_pointer m_pti;
 };
-
 
 // Now this can be implemented.
 template <class T>
@@ -173,7 +160,6 @@ inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::utility::instances_counter
 
@@ -182,11 +168,9 @@ namespace testing {
 namespace utility {
 
 /*! This class is meant for use in containers to track when items are copied, when they’re moved,
-and to check if individual instances have been copied instead of being moved.
-*/
+and to check if individual instances have been copied instead of being moved. */
 class ABACLADE_TESTING_SYM instances_counter {
 public:
-
    /*! Constructor. The copying overload doesn’t really use their argument, because the only non-
    static member (m_iUnique) is always generated.
 
@@ -207,7 +191,6 @@ public:
       ++m_cMoves;
    }
 
-
    /*! Assigment operator. The copying overload doesn’t really use its argument, because the only
    non-static member (m_iUnique) is always generated.
 
@@ -226,7 +209,6 @@ public:
       return *this;
    }
 
-
    /*! Equality relational operator. Should always return false, since no two simultaneously-living
    instances should have the same unique value.
 
@@ -238,7 +220,6 @@ public:
    bool operator==(instances_counter const & oc) const {
       return m_iUnique == oc.m_iUnique;
    }
-
 
    /*! Inequality relational operator. Should always return true, since no two simultaneously-living
    instances should have the same unique value.
@@ -252,7 +233,6 @@ public:
       return !operator==(oc);
    }
 
-
    /*! Returns the count of instances created, excluding moved ones.
 
    return
@@ -262,7 +242,6 @@ public:
       return m_cCopies;
    }
 
-
    /*! Returns the count of moved instances.
 
    return
@@ -271,7 +250,6 @@ public:
    static std::size_t moves() {
       return m_cMoves;
    }
-
 
    /*! Returns the count of new (not copied, not moved) instances. Useful to track how many
    instances have not been created from a source instance, perhaps only to be copy- or move-assigned
@@ -284,15 +262,12 @@ public:
       return m_cNew;
    }
 
-
-   /*! Resets the copies/moves/new instance counts.
-   */
+   //! Resets the copies/moves/new instance counts.
    static void reset_counts() {
       m_cCopies = 0;
       m_cMoves = 0;
       m_cNew = 0;
    }
-
 
    /*! Returns the unique value associated to this object.
 
@@ -303,9 +278,7 @@ public:
       return m_iUnique;
    }
 
-
 private:
-
    //! Unique value associated to this object.
    int m_iUnique;
    //! Count of instances created, excluding moved ones.
@@ -322,9 +295,7 @@ private:
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_TESTING_UTILITY_HXX
 

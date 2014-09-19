@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io globals
 
@@ -58,7 +57,6 @@ ABC_ENUM_AUTO_VALUES(seek_from,
    end      //! The offset is relative to the end of the data and presumably negative.
 );
 
-
 // Some C libraries (such as MS CRT) define these as macros.
 #ifdef stdin
    #undef stdin
@@ -75,8 +73,6 @@ ABC_ENUM_AUTO_VALUES(stdfile,
 
 } //namespace io
 } //namespace abc
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -28,21 +28,16 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::assertion_error
-
 
 namespace abc {
 namespace testing {
 
 /*! Thrown to indicate that a test assertion failed, and the execution of the test case must be
-halted.
-*/
-class ABACLADE_TESTING_SYM assertion_error :
-   public virtual exception {
+halted. */
+class ABACLADE_TESTING_SYM assertion_error : public virtual exception {
 public:
-
    //! Constructor.
    assertion_error();
 };
@@ -50,10 +45,8 @@ public:
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::runner
-
 
 namespace abc {
 namespace testing {
@@ -61,12 +54,9 @@ namespace testing {
 // Forward declarations.
 class test_case;
 
-
-/*! Executes test cases.
-*/
+//! Executes test cases.
 class ABACLADE_TESTING_SYM runner {
 public:
-
    /*! Constructor.
 
    posOut
@@ -74,16 +64,12 @@ public:
    */
    runner(std::shared_ptr<io::text::writer> ptwOut);
 
-
    //! Destructor.
    ~runner();
 
-
    /*! Loads all the test cases registered with ABC_TESTING_REGISTER_TEST_CASE() and prepares to run
-   them.
-   */
+   them. */
    void load_registered_test_cases();
-
 
    /*! Logs an assertion.
 
@@ -108,7 +94,6 @@ public:
       istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual = istr()
    );
 
-
    /*! Prints test results based on the information collected by log_assertion() and
    run_test_case().
 
@@ -117,10 +102,8 @@ public:
    */
    bool log_summary();
 
-
    //! Executes each loaded test case.
    void run();
-
 
    /*! Executes a test case.
 
@@ -129,9 +112,7 @@ public:
    */
    void run_test_case(test_case & tc);
 
-
 private:
-
    //! Vector of loaded test test cases to be executed.
    dmvector<std::unique_ptr<test_case>> m_vptc;
    //! Output writer.
@@ -143,9 +124,7 @@ private:
 } //namespace testing
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_TESTING_RUNNER_HXX
 

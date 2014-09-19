@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::str_to_str_backend
-
 
 namespace abc {
 namespace detail {
@@ -35,7 +33,6 @@ the implementation can be in a cxx file. This is used by string literal types as
 */
 class ABACLADE_SYM str_to_str_backend {
 public:
-
    /*! Changes the output format.
 
    sFormat
@@ -43,9 +40,7 @@ public:
    */
    void set_format(istr const & sFormat);
 
-
 protected:
-
    /*! Writes a string, applying the formatting options.
 
    p
@@ -63,20 +58,16 @@ protected:
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for character and string literal types
-
 
 namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
    /*! Character literal. */ \
    template <> \
-   class to_str_backend<C> : \
-      public detail::str_to_str_backend { \
+   class to_str_backend<C> : public detail::str_to_str_backend { \
    public: \
-   \
       /*! Writes a character, applying the formatting options.
 
       ch
@@ -91,10 +82,8 @@ namespace abc {
    \
    /*! String literal. */ \
    template <std::size_t t_cch> \
-   class to_str_backend<C [t_cch]> : \
-      public detail::str_to_str_backend { \
+   class to_str_backend<C [t_cch]> : public detail::str_to_str_backend { \
    public: \
-   \
       /*! Writes a string, applying the formatting options.
 
       ach
@@ -130,18 +119,14 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::str_base
-
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<str_base> :
-   public detail::str_to_str_backend {
+class ABACLADE_SYM to_str_backend<str_base> : public detail::str_to_str_backend {
 public:
-
    /*! Writes a string, applying the formatting options.
 
    s
@@ -161,10 +146,8 @@ public:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::*str
-
 
 namespace abc {
 
@@ -181,7 +164,6 @@ template <std::size_t t_cchStatic>
 class to_str_backend<smstr<t_cchStatic>> : public to_str_backend<str_base> {};
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

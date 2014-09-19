@@ -30,16 +30,13 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/_map_base.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_raw_map_impl
-
 
 namespace abc {
 
 /*! Thin templated wrapper for _raw_*_map_impl, so make the interface of those two classes
-consistent, so _map_impl doesn’t need specializations.
-*/
+consistent, so _map_impl doesn’t need specializations. */
 template <
    typename TKey, typename TVal, bool t_bTrivial = false /*std::is_trivial<T>::value*/
 >
@@ -47,10 +44,7 @@ struct _raw_map_impl;
 
 // Partial specialization for non-trivial types.
 template <typename TKey, typename TVal>
-struct _raw_map_impl<TKey, TVal, false> :
-   public _raw_complex_map_impl {
-
-
+struct _raw_map_impl<TKey, TVal, false> : public _raw_complex_map_impl {
    /*! Adds a key/value pair to the map. Adding an item with a key that already exists in the map
    (thus just replacing the value) is guaranteed not to invalidate any iterator.
 
@@ -70,7 +64,6 @@ struct _raw_map_impl<TKey, TVal, false> :
       _raw_complex_map_impl::add(typeKey, typeVal, pkey, hash, pval, bMoveKey, bMoveVal);
    }
 
-
    /*! Copies or moves the contents of the source to *this according to the source type:
    •  _raw_map_root const &: copy descriptor
    •  _raw_map_root &&: move descriptor or (move items + empty source map)
@@ -89,7 +82,6 @@ struct _raw_map_impl<TKey, TVal, false> :
       typeVal.set_size<TVal>();
       _raw_complex_map_impl::assign(typeKey, typeVal, rmrSrc, bMove);
    }
-
 
    /*! Returns a pointer to the value associated to the specified key. If the key could not be
    found, an exception is thrown.
@@ -117,7 +109,6 @@ struct _raw_map_impl<TKey, TVal, false> :
       _raw_complex_map_impl::release_desc(typeKey, typeVal);
    }
 
-
    /*! Deletes a key/value pair.
 
    TODO: comment signature.
@@ -141,7 +132,6 @@ struct _raw_map_impl<TKey, TVal, false> :
       typeVal.set_size<TVal>();
       _raw_complex_map_impl::clear(typeKey, typeVal);
    }
-
 
    /*! Inserts a new key/value pair into the map. If the key already exist, the corresponding value
    is replaced.
@@ -169,10 +159,8 @@ struct _raw_map_impl<TKey, TVal, false> :
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_map_impl
-
 
 namespace abc {
 
@@ -180,28 +168,24 @@ namespace abc {
 template <typename TKey, typename TVal, std::size_t t_ceStatic = 0>
 class map;
 
-
 //! Implementation of map.
 template <typename TKey, typename TVal, std::size_t t_ceStatic>
 class _map_impl :
    public _raw_map_data,
    public support_explicit_operator_bool<_map_impl<TKey, TVal, t_ceStatic>> {
-
-   typedef map<TKey, TVal, 0> map0;
-   typedef map<TKey, TVal, t_ceStatic> TMap;
-
 protected:
-
    typedef typename std::remove_const<TKey>::type TKnc;
    typedef typename std::remove_const<TVal>::type TVnc;
 
-public:
+private:
+   typedef map<TKey, TVal, 0> map0;
+   typedef map<TKey, TVal, t_ceStatic> TMap;
 
+public:
    //! Destructor.
    ~_map_impl() {
       _raw_map_cast()->release_desc();
    }
-
 
    /*! Assignment operator.
 
@@ -221,7 +205,6 @@ public:
       return *static_cast<TMap *>(this);
    }
 
-
    /*! Provides access to the individual items making up the array.
 
    TODO: comment signature.
@@ -234,7 +217,6 @@ public:
       return const_cast<_map_impl *>(this)->operator[](key);
    }
 
-
    /*! Returns true if the map contains at least one item.
 
    TODO: comment signature.
@@ -242,7 +224,6 @@ public:
    explicit_operator_bool() const {
       return get_size() > 0;
    }
-
 
    /*! Adds a key/value pair to the map. Adding an item with a key that already exists in the map
    (thus just replacing the value) is guaranteed not to invalidate any iterator.
@@ -266,7 +247,6 @@ public:
       return *static_cast<TMap *>(this);
    }
 
-
    /*! Returns the number of items in the map.
 
    TODO: comment signature.
@@ -274,7 +254,6 @@ public:
    std::size_t get_size() const {
       return _raw_map_cast()->get_size();
    }
-
 
    /*! Returns a _raw_map wrapper for the _raw_map_data wrapped by this map.
 
@@ -289,7 +268,6 @@ public:
       );
    }
 
-
    /*! Removes an item from the map.
 
    key
@@ -299,16 +277,12 @@ public:
       _raw_map_cast()->remove(key, key_hash(key));
    }
 
-
    //! Removes all the items in the map.
    void clear() {
       _raw_map_cast()->clear();
    }
 
-
 protected:
-
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -334,7 +308,6 @@ protected:
       assign(std::move(m));
    }
 
-
    /*! Copies or moves the contents of the source to *this according to the source type:
    •  _raw_map_root const &: copy descriptor
    •  _raw_map_root &&: move descriptor or (move items + empty source map)
@@ -348,7 +321,6 @@ protected:
       _raw_map_cast()->assign(rmrSrc, true);
    }
 
-
    /*! Computes the hash value of a key.
 
    TODO: comment signature.
@@ -357,7 +329,6 @@ protected:
       std::size_t hash(std::hash<typename std::remove_cv<TKey>::type>()(key));
       return _raw_map_root::adjust_hash(hash);
    }
-
 
    /*! Inserts a new key/value pair into the map. If the key already exist, the corresponding value
    is replaced.
@@ -380,10 +351,8 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::map
-
 
 namespace abc {
 
@@ -391,12 +360,11 @@ template <typename TKey, typename TVal>
 class map<TKey, TVal, 0> :
    public _map_impl<TKey, TVal, 0>,
    protected _embedded_map_desc<TKey, TVal, _raw_map_desc::smc_ceMin> {
-
+private:
    typedef _map_impl<TKey, TVal, 0> map_impl;
    typedef _embedded_map_desc<TKey, TVal, _raw_map_desc::smc_ceMin> embedded_map_desc;
 
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -421,7 +389,6 @@ public:
    ~map() {
    }
 
-
    /*! Assignment operator.
 
    TODO: comment signature.
@@ -437,9 +404,7 @@ public:
       return map_impl::operator=(std::move(m));
    }
 
-
 protected:
-
    /*! Initializes the embedded descriptor, and returns a pointer to it.
 
    TODO: comment signature.
@@ -457,7 +422,7 @@ class map :
          ? t_ceStatic
          : static_cast<std::size_t>(_raw_map_desc::smc_ceMin))
    > {
-
+private:
    typedef map<TKey, TVal, 0> map0;
    typedef _map_impl<TKey, TVal, t_ceStatic> map_impl;
    typedef _embedded_map_desc<
@@ -467,7 +432,6 @@ class map :
    > embedded_map_desc;
 
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -496,7 +460,6 @@ public:
    ~map() {
    }
 
-
    /*! Assignment operator.
 
    TODO: comment signature.
@@ -518,7 +481,6 @@ public:
       return map_impl::operator=(std::move(m));
    }
 
-
    /*! Implicit cast as map<TKey, TVal, 0> reference. It only allows read-only access; any attempt
    to cast a non-const reference will either result in a move to be implicitly performed (r-value)
    or a compiler error (l-value).
@@ -529,9 +491,7 @@ public:
       return *static_cast<map0 const *>(static_cast<_raw_map_data const *>(this));
    }
 
-
 protected:
-
    /*! Initializes the embedded descriptor, and returns a pointer to it.
 
    TODO: comment signature.
@@ -543,16 +503,12 @@ protected:
 
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_MAP_HXX
 
 #if 0
-
-/*! Dumps the hash table using an external function.
-*/
+//! Dumps the hash table using an external function.
 void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
    fwriter_printf(pfw,
       T("Hash table: seed %#08x, %d max, %d used, %d entries, load factor %d%%\n"),
@@ -568,6 +524,5 @@ void hashtable_statdump(struct hashtable const * pht, struct fwriter * pfw) {
          fwriter_printf(pfw, T("    %#08x \"%s\" data: %p\n"), phe->hash, phe->aszKey, phe->pData);
    }
 }
-
 #endif
 

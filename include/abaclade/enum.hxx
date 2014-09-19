@@ -22,13 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
 
-
 namespace abc {
-
 
 /*! DOC:3549 Enumeration classes
 
@@ -74,18 +71,14 @@ arrayitems
 #define _ABC_ENUM_IMPL(name, iBaseValue, cMembers, members, arrayitems) \
    class ABC_CPP_CAT(_, name, _e) { \
    private: \
-   \
       static int const smc_iBase = iBaseValue + 1; \
    \
-   \
    public: \
-   \
       /*! Publicly-accessible enumerated constants. */ \
       enum enum_type { \
          members \
          __default = 0 \
       }; \
-   \
    \
       /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
       static ::abc::detail::enum_member const * _get_map() { \
@@ -96,15 +89,11 @@ arrayitems
          return sc_map; \
       } \
    \
-   \
    protected: \
-   \
       /*! Number of members specified for the enum. */ \
       static std::size_t const smc_cMembers = cMembers; \
-   \
    }; \
    typedef ::abc::enum_impl<ABC_CPP_CAT(_, name, _e)> name
-
 
 /*! Expands into an enum name/value assignment.
 
@@ -115,7 +104,6 @@ name
 #define _ABC_ENUM_MEMBER(name) \
          name = __COUNTER__ - smc_iBase,
 
-
 /*! Expands into an enum name/value assignment.
 
 name
@@ -125,7 +113,6 @@ value
 */
 #define _ABC_ENUM_MEMBER_PAIR(name, value) \
          name = value,
-
 
 /*! Expands into an abc::detail::enum_member initializer.
 
@@ -139,7 +126,6 @@ name
                name \
             },
 
-
 /*! Expands into _ABC_ENUM_MEMBER_ARRAY_ITEM().
 
 name
@@ -149,7 +135,6 @@ value
 */
 #define _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM(name, value) \
    _ABC_ENUM_MEMBER_ARRAY_ITEM(name)
-
 
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
 classes] for more information.
@@ -171,7 +156,6 @@ name
       ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR, __VA_ARGS__), \
       ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__) \
    )
-
 
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
 classes] for more information. Similar to ABC_ENUM(), except the members are listed individually and
@@ -196,25 +180,20 @@ name
 
 } //namespace abc
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::enum_member
-
 
 namespace abc {
 namespace detail {
 
 //! Enumeration member (name/value pair).
 struct ABACLADE_SYM enum_member {
-
    //! Name.
    char_t const * pszName;
    //! Size of *pszName, in characters.
    unsigned short cchName;
    //! Value.
    int iValue;
-
 
    /*! Finds and returns the member associated to the specified enumerated value or name. If no
    match is found, an exception will be throw.
@@ -236,21 +215,17 @@ struct ABACLADE_SYM enum_member {
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::enum_impl
-
 
 namespace abc {
 
 //! Implementation of enumeration classes.
 template <class T>
-class enum_impl :
-   public T {
+class enum_impl : public T {
 public:
-
+   //! Underlying C++ eunm type.
    typedef typename T::enum_type enum_type;
-
 
    /*! Constructor.
 
@@ -281,7 +256,6 @@ public:
       m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
    }
 
-
    /*! Assignment operator.
 
    e
@@ -298,7 +272,6 @@ public:
       return *this;
    }
 
-
    /*! Returns the current base enumerated value.
 
    return
@@ -308,14 +281,12 @@ public:
       return m_e;
    }
 
-
    /*! Returns the name of the current enumerated value.
 
    return
       Name of the current value.
    */
    istr name() const;
-
 
    /*! Returns the count of members in the enumeration.
 
@@ -326,9 +297,7 @@ public:
       return T::smc_cMembers;
    }
 
-
 protected:
-
    /*! Returns a pointer to the name/value pair for the current value.
 
    return
@@ -338,17 +307,13 @@ protected:
       return detail::enum_member::find_in_map(T::_get_map(), m_e);
    }
 
-
 public:
-
    /*! Count of the members of the enumeration. Same as the value returned by size(), but this can
    be used in constant contexts, such as the size of an array.
    */
    static std::size_t const size_const = T::smc_cMembers;
 
-
 private:
-
    //! Enumerated value.
    enum_type m_e;
 };
@@ -381,7 +346,6 @@ ABC_RELOP_IMPL(>=)
 ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

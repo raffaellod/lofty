@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::numeric globals
 
@@ -51,14 +50,11 @@ inline /*constexpr*/ bool is_negative(
    return false;
 }
 
-
 } //namespace numeric
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::numeric::min and abc::numeric::max
-
 
 namespace abc {
 namespace numeric {
@@ -145,7 +141,6 @@ struct max<unsigned long long> : public std::integral_constant<unsigned long lon
 
 } //namespace numeric
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

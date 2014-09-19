@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::enum_to_str_backend_impl
-
 
 namespace abc {
 namespace detail {
@@ -33,7 +31,6 @@ namespace detail {
 //! Implementation of the specializations of to_str_backend for enum_impl specializations.
 class ABACLADE_SYM enum_to_str_backend_impl {
 public:
-
    /*! Changes the output format.
 
    sFormat
@@ -41,9 +38,7 @@ public:
    */
    void set_format(istr const & sFormat);
 
-
 protected:
-
    /*! Writes an enumeration value, applying the formatting options.
 
    e
@@ -57,19 +52,15 @@ protected:
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::enum_impl
-
 
 namespace abc {
 
 // Specialization of to_str_backend.
 template <class T>
-class to_str_backend<enum_impl<T>> :
-   public detail::enum_to_str_backend_impl {
+class to_str_backend<enum_impl<T>> : public detail::enum_to_str_backend_impl {
 public:
-
    //! See abc::detail::enum_to_str_backend_impl::write().
    void write(enum_impl<T> e, io::text::writer * ptwOut) {
       detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
@@ -77,7 +68,6 @@ public:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

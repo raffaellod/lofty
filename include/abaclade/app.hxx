@@ -28,10 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::app
-
 
 /*! DOC:1063 Application startup and abc::app
 
@@ -50,16 +48,13 @@ returning.
 namespace abc {
 
 //! Abstract application.
-class ABACLADE_SYM app :
-   public noncopyable {
+class ABACLADE_SYM app : public noncopyable {
 public:
-
    //! Constructor.
    app();
 
    //! Destructor.
    virtual ~app();
-
 
    /*! C-style entry point for executables.
 
@@ -91,9 +86,7 @@ public:
       }
    }
 
-
 #if ABC_HOST_API_WIN32
-
    /*! Entry point for Windows executables.
 
    hinst
@@ -122,9 +115,7 @@ public:
          return 123;
       }
    }
-
 #endif //if ABC_HOST_API_WIN32
-
 
    /*! Entry point of the application.
 
@@ -135,9 +126,7 @@ public:
    */
    virtual int main(mvector<istr const> const & vsArgs) = 0;
 
-
 protected:
-
    /*! Fills up a string vector from the command-line arguments.
 
    cArgs
@@ -153,9 +142,7 @@ protected:
    static void _build_args(mvector<istr const> * pvsRet);
 #endif
 
-
 protected:
-
    //! Pointer to the one and only instance of the application-defined app class.
    static app * sm_papp;
 };
@@ -192,7 +179,6 @@ cls
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error TODO-PORT: OUTPUT
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #if ABC_HOST_API_POSIX
-
    #include <memory.h> // memcpy() memmove() memset()
-
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-
    // Clean up pollution caused by previous headers.
    extern "C" {
 
@@ -53,7 +50,6 @@ You should have received a copy of the GNU General Public License along with Aba
    );
 
    } //extern "C"
-
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 //! TODO: comment or remove.
@@ -67,10 +63,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – standard new/delete operators
-
 
 #if ABC_HOST_MSC
    #pragma warning(push)
@@ -87,7 +81,6 @@ void * ABC_STL_CALLCONV operator new[](
    std::size_t cb, std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE();
 
-
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
 void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
 void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
@@ -97,10 +90,8 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
    #pragma warning(pop)
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals – manual memory management
-
 
 namespace abc {
 namespace memory {
@@ -114,14 +105,12 @@ return
 */
 ABACLADE_SYM void * _raw_alloc(std::size_t cb);
 
-
 /*! Releases a block of dynamically allocated memory.
 
 p
    Pointer to the memory block to be released.
 */
 ABACLADE_SYM void _raw_free(void const * p);
-
 
 /*! Resizes a dynamically allocated memory block.
 
@@ -137,10 +126,8 @@ ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
 } //namespace memory
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory::freeing_deleter
-
 
 namespace abc {
 namespace memory {
@@ -148,7 +135,6 @@ namespace memory {
 //! Deleter that deallocates memory using memory::free().
 template <typename T>
 struct freeing_deleter {
-
    /*! Deallocates the specified memory block.
 
    pt
@@ -161,9 +147,7 @@ struct freeing_deleter {
 
 // Specialization for arrays.
 template <typename T>
-struct freeing_deleter<T[]> :
-   public freeing_deleter<T> {
-
+struct freeing_deleter<T[]> : public freeing_deleter<T> {
    /*! Deallocates the specified array. See also freeing_deleter<T>::operator()().
 
    pt
@@ -178,20 +162,16 @@ struct freeing_deleter<T[]> :
 } //namespace memory
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory::conditional_deleter
-
 
 namespace abc {
 namespace memory {
 
 //! Wrapper that invokes a deleter if and only if a set condition is true.
 template <typename T, typename TDeleter = std::default_delete<T>>
-class conditional_deleter :
-   public TDeleter {
+class conditional_deleter : public TDeleter {
 public:
-
    /*! Constructor.
 
    bEnabled
@@ -209,7 +189,6 @@ public:
       m_bEnabled(cd.enabled()) {
    }
 
-
    /*! Deletes the specified object if the condition set in the constructor was true.
 
    pt
@@ -221,7 +200,6 @@ public:
       }
    }
 
-
    /*! Returns true if the deleter is enabled.
 
    return
@@ -231,18 +209,14 @@ public:
       return m_bEnabled;
    }
 
-
 protected:
-
    bool m_bEnabled;
 };
 
 // Specialization for arrays.
 template <typename T, typename TDeleter>
-class conditional_deleter<T[], TDeleter> :
-   public conditional_deleter<T, TDeleter> {
+class conditional_deleter<T[], TDeleter> : public conditional_deleter<T, TDeleter> {
 public:
-
    //! See conditional_deleter<T>::conditional_deleter().
    conditional_deleter(bool bEnabled) :
       conditional_deleter<T, TDeleter>(bEnabled) {
@@ -251,7 +225,6 @@ public:
    conditional_deleter(conditional_deleter<T2, TDeleter2> const & cd) :
       conditional_deleter<T, TDeleter>(cd) {
    }
-
 
    /*! Deletes the specified array if the condition set in the constructor was true. See also
    conditional_deleter<T, TDeleter>::operator()().
@@ -270,10 +243,8 @@ public:
 } //namespace memory
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals – smart pointer-based memory management
-
 
 namespace abc {
 namespace memory {
@@ -296,7 +267,6 @@ inline std::unique_ptr<T, freeing_deleter<T>> alloc(std::size_t c = 1, std::size
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
-
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
 it in case a new memory block is needed.
@@ -321,10 +291,8 @@ inline void realloc(
 } //namespace memory
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals – manipulation
-
 
 namespace abc {
 namespace memory {
@@ -349,7 +317,6 @@ inline T * clear(T * ptDst, std::size_t c = 1) {
 #endif
    return ptDst;
 }
-
 
 /*! Copies memory, by number of items.
 
@@ -397,7 +364,6 @@ inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
    return ptDst;
 }
 
-
 /*! Copies possibly overlapping memory, by number of items.
 
 ptDst
@@ -420,7 +386,6 @@ inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
 #endif
    return ptDst;
 }
-
 
 /*! Copies a value over each item of a static array.
 
@@ -456,7 +421,6 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
 
 } //namespace memory
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -22,18 +22,14 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::syntax_error
-
 
 namespace abc {
 
 //! The syntax for the specified expression is invalid.
-class ABACLADE_SYM syntax_error :
-   public virtual generic_error {
+class ABACLADE_SYM syntax_error : public virtual generic_error {
 public:
-
    /*! Constructor.
 
    x
@@ -42,10 +38,8 @@ public:
    syntax_error();
    syntax_error(syntax_error const & x);
 
-
    //! Assignment operator. See abc::generic_error::operator=().
    syntax_error & operator=(syntax_error const & x);
-
 
    /*! See abc::generic_error::init().
 
@@ -78,15 +72,11 @@ public:
       unsigned iLine = 0, errint_t err = 0
    );
 
-
 protected:
-
    //! See exception::_print_extended_info().
    virtual void _print_extended_info(io::text::writer * ptwOut) const override;
 
-
 private:
-
    //! Description of the syntax error.
    istr m_sDescription;
    //! Source of the syntax error (whole or individual line).
@@ -98,7 +88,6 @@ private:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary globals
 
@@ -35,7 +34,6 @@ class buffered_base;
 class buffered_reader;
 class buffered_writer;
 
-
 /*! Creates and returns a buffered wrapper for the specified binary I/O object.
 
 pbb
@@ -44,7 +42,6 @@ return
    Pointer to a buffered wrapper for *pbb.
 */
 ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
-
 
 /*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
 
@@ -56,7 +53,6 @@ return
 inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pbr) {
    return std::dynamic_pointer_cast<buffered_reader>(buffer(std::move(pbr)));
 }
-
 
 /*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
 
@@ -74,20 +70,16 @@ inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pb
 } //namespace abc
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_base
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Interface for buffering objects that wrap binary::* instances.
-class ABACLADE_SYM buffered_base :
-   public virtual base {
+class ABACLADE_SYM buffered_base : public virtual base {
 public:
-
    /*! Returns a pointer to the wrapper unbuffered binary I/O object.
 
    return
@@ -100,21 +92,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Interface for buffering objects that wrap binary::reader instances.
-class ABACLADE_SYM buffered_reader :
-   public virtual buffered_base,
-   public reader {
+class ABACLADE_SYM buffered_reader : public virtual buffered_base, public reader {
 public:
-
    /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
 
@@ -126,14 +113,12 @@ public:
       return consume_bytes(sizeof(T) * c);
    }
 
-
    /*! Non-template implementation of consume(). See consume().
 
    cb
       Count of bytes to mark as read.
    */
    virtual void consume_bytes(std::size_t cb) = 0;
-
 
    /*! Returns a view of the internal read buffer, performing at most one read from the underlying
    binary reader.
@@ -159,7 +144,6 @@ public:
       return std::make_pair(static_cast<T const *>(ret.first), ret.second);
    }
 
-
    /*! Non-template implementation of peek(). See peek().
 
    cb
@@ -167,11 +151,9 @@ public:
    */
    virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
 
-
    /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
    preferred to calling this method, because it will spare the caller from having to allocate an
-   intermediate buffer.
-   */
+   intermediate buffer. */
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 };
 
@@ -179,21 +161,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Interface for buffering objects that wrap binary::writer instances.
-class ABACLADE_SYM buffered_writer :
-   public virtual buffered_base,
-   public writer {
+class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer {
 public:
-
    /*! Commits (writes) any pending buffer blocks returned by get_buffer().
 
    c
@@ -204,14 +181,12 @@ public:
       commit_bytes(sizeof(T) * c);
    }
 
-
    /*! Non-template, byte-oriented implementation of commit(). See commit().
 
    cb
       Count of bytes to commit.
    */
    virtual void commit_bytes(std::size_t cb) = 0;
-
 
    /*! Returns a buffer large enough to store up to c items.
 
@@ -229,7 +204,6 @@ public:
       return std::make_pair(static_cast<T *>(ret.first), ret.second);
    }
 
-
    /*! Byte-oriented implementation of get_buffer(). See get_buffer().
 
    cb
@@ -237,11 +211,9 @@ public:
    */
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
 
-
    /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
    is preferred to calling this method, because it will spare the caller from having to allocate an
-   intermediate buffer.
-   */
+   intermediate buffer. */
    virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
@@ -249,21 +221,16 @@ public:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::default_buffered_reader
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Provides buffering on top of a binary::reader instance.
-class ABACLADE_SYM default_buffered_reader :
-   public buffered_reader,
-   public noncopyable {
+class ABACLADE_SYM default_buffered_reader : public buffered_reader, public noncopyable {
 public:
-
    /*! Constructor.
 
    pbr
@@ -283,9 +250,7 @@ public:
    //! See buffered_reader::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const override;
 
-
 protected:
-
    //! Wrapped binary reader.
    std::shared_ptr<reader> m_pbr;
    //! Read buffer.
@@ -305,21 +270,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::default_buffered_writer
-
 
 namespace abc {
 namespace io {
 namespace binary {
 
 //! Provides buffering on top of a binary::writer instance.
-class ABACLADE_SYM default_buffered_writer :
-   public buffered_writer,
-   public noncopyable {
+class ABACLADE_SYM default_buffered_writer : public buffered_writer, public noncopyable {
 public:
-
    /*! Constructor.
 
    pbw
@@ -336,7 +296,6 @@ public:
    //! See buffered_writer::flush().
    virtual void flush() override;
 
-
    /*! See buffered_writer::get_buffer_bytes().
 
    cb
@@ -347,15 +306,11 @@ public:
    //! See buffered_writer::unbuffered().
    virtual std::shared_ptr<base> unbuffered() const override;
 
-
 protected:
-
    //! Flushes the internal write buffer.
    void flush_buffer();
 
-
 protected:
-
    //! Wrapped binary writer.
    std::shared_ptr<writer> m_pbw;
    //! Write buffer.
@@ -372,7 +327,6 @@ protected:
 } //namespace binary
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

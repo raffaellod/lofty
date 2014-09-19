@@ -35,10 +35,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/atomic.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::default_delete
-
 
 namespace std {
 
@@ -46,7 +44,6 @@ namespace std {
 template <typename T>
 class default_delete {
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -57,7 +54,6 @@ public:
    default_delete(default_delete<T2> const & dd2) {
       ABC_UNUSED_ARG(dd2);
    }
-
 
    /*! Function call operator.
 
@@ -72,11 +68,9 @@ public:
 template <typename T>
 class default_delete<T[]> {
 public:
-
    //! Constructor.
    /*constexpr*/ default_delete() {
    }
-
 
    /*! Function call operator.
 
@@ -89,10 +83,8 @@ public:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::allocator
-
 
 namespace std {
 
@@ -104,7 +96,6 @@ class allocator;
 template <>
 class allocator<void> {
 public:
-
    typedef void * pointer;
    typedef void const * const_pointer;
    typedef void value_type;
@@ -118,7 +109,6 @@ public:
 template <typename T>
 class allocator {
 public:
-
    typedef size_t size_type;
    typedef ptrdiff_t difference_type;
    typedef T * pointer;
@@ -132,9 +122,7 @@ public:
       typedef allocator<T2> other;
    };
 
-
 public:
-
    /*! Constructor.
 
    a
@@ -164,7 +152,6 @@ public:
       return &reinterpret_cast<int8_t const &>(t);
    }
 
-
    /*! Allocates memory for the requested number of T objects.
 
    TODO: comment signature.
@@ -172,7 +159,6 @@ public:
    pointer allocate(size_type c, allocator<void>::const_pointer pHint = 0) {
       return reinterpret_cast<T *>(::new max_align_t[ABC_ALIGNED_SIZE(c * sizeof(T))]);
    }
-
 
    /*! Releases memory obtained through allocate().
 
@@ -182,7 +168,6 @@ public:
       ::delete static_cast<void *>(p);
    }
 
-
    /*! Returns the meximum number of T objects that allocate() can succeed for.
 
    TODO: comment signature.
@@ -191,20 +176,16 @@ public:
       return ~size_t(0) / sizeof(T);
    }
 
-
    /*! Construct an object at the specified address, with the provided constructor arguments.
 
    TODO: comment signature.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-
    template <typename T2, typename ... TArgs>
    void construct(T2 * pt2, TArgs && ... targs) {
       ::new(pt2) T2(forward(targs) ...);
    }
-
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-
    // Overload for 0-argument T2::T2().
    template <typename T2>
    void construct(T2 * pt2) {
@@ -309,9 +290,7 @@ public:
          forward(targ5), forward(targ6), forward(targ7), forward(targ8), forward(targ9)
       );
    }
-
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
 
    /*! Destructs the argument.
 
@@ -326,27 +305,21 @@ public:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::unique_ptr
-
 
 namespace std {
 
 //! Smart resource-owning pointer (C++11 § 20.7.1.2 “unique_ptr for single objects”).
 template <typename T, typename TDel = default_delete<T>>
-class unique_ptr :
-   public ::abc::noncopyable {
+class unique_ptr : public ::abc::noncopyable {
 public:
-
    //! Type of the element pointed to.
    typedef T element_type;
    //! Type of the deleter.
    typedef TDel deleter_type;
 
-
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -384,10 +357,14 @@ public:
       }
    }
 
-
    /*! Assignment operator.
 
-   TODO: comment signature.
+   upt
+      Source object.
+   upt2
+      Source object.
+   return
+      *this.
    */
    unique_ptr & operator=(unique_ptr && upt) {
       if (&upt != this) {
@@ -407,15 +384,14 @@ public:
       return *this;
    }
 
-
    /*! Dereference operator.
 
-   TODO: comment signature.
+   return
+      Reference to the owned object.
    */
    typename add_lvalue_reference<T>::type operator*() const {
       return *get();
    }
-
 
    /*! Dereferencing member access operator.
 
@@ -426,7 +402,6 @@ public:
       return get();
    }
 
-
    /*! Boolean evaluation operator.
 
    return
@@ -436,7 +411,6 @@ public:
       return get() != nullptr;
    }
 
-
    /*! Returns the wrapped pointer.
 
    return
@@ -445,7 +419,6 @@ public:
    T * get() const {
       return std::get<0>(m_pt_and_tdel);
    }
-
 
    /*! Returns the stored deleter.
 
@@ -458,7 +431,6 @@ public:
       return std::get<1>(m_pt_and_tdel);
    }
 
-
    /*! Returns the wrapped pointer, and deassociates from it.
 
    return
@@ -469,7 +441,6 @@ public:
       std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
-
 
    /*! Deletes the object currently pointed to, if any, and optionally switches to pointing to a
    different object.
@@ -485,30 +456,23 @@ public:
       }
    };
 
-
 protected:
-
    /*! Wrapper for pointer and deleter. It’s a tuple, so that an empty TDel can end up taking up no
-   space at all due to EBO. 
-   */
+   space at all due to EBO. */
    tuple<T *, TDel> m_pt_and_tdel;
 };
 
 // Specialization for dynamically-allocated arrays (C++11 § 20.7.1.3 “unique_ptr for array objects
 // with a runtime length”).
 template <typename T, typename TDel>
-class unique_ptr<T[], TDel> :
-   public ::abc::noncopyable {
+class unique_ptr<T[], TDel> : public ::abc::noncopyable {
 public:
-
    //! Type of the element pointed to.
    typedef T element_type;
    //! Type of the deleter.
    typedef TDel deleter_type;
 
-
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -539,7 +503,6 @@ public:
       reset();
    }
 
-
    /*! Assignment operator.
 
    upt
@@ -559,7 +522,6 @@ public:
       return *this;
    }
 
-
    /*! Item access operator.
 
    TODO: comment signature.
@@ -567,7 +529,6 @@ public:
    T & operator[](size_t i) const {
       return get()[i];
    }
-
 
    /*! Boolean evaluation operator.
 
@@ -578,7 +539,6 @@ public:
       return get() != nullptr;
    }
 
-
    /*! Returns the wrapped pointer.
 
    return
@@ -587,7 +547,6 @@ public:
    T * get() const {
       return std::get<0>(m_pt_and_tdel);
    }
-
 
    /*! Returns the stored deleter.
 
@@ -600,7 +559,6 @@ public:
       return std::get<1>(m_pt_and_tdel);
    }
 
-
    /*! Returns the wrapped pointer, and deassociates from it.
 
    return
@@ -611,7 +569,6 @@ public:
       std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
-
 
    /*! Deletes the object currently pointed to, if any, and optionally switches to pointing to a
    different object.
@@ -627,12 +584,9 @@ public:
       }
    };
 
-
 protected:
-
    /*! Wrapper for pointer and deleter. It’s a tuple, so that an empty TDel can end up taking up no
-   space at all due to EBO.
-   */
+   space at all due to EBO. */
    tuple<T *, TDel> m_pt_and_tdel;
 };
 
@@ -655,20 +609,15 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_weak_ptr
-
 
 namespace std {
 
 /*! Type of exception thrown by shared_ptr in case of attempt to lock an expired weak_ptr (C++11 §
-20.7.2.1 “Class bad_weak_ptr”).
-*/
-class bad_weak_ptr :
-   public std::exception {
+20.7.2.1 “Class bad_weak_ptr”). */
+class bad_weak_ptr : public std::exception {
 public:
-
    //! See exception::exception().
    bad_weak_ptr();
 
@@ -681,22 +630,17 @@ public:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::_shared_refcount
-
 
 namespace std {
 
 /*! Base for control object classes used by shared_ptr and weak_ptr.
 
 All strong references to this object collectively hold a weak reference to it; this prevents race
-conditions upon release of the last strong reference in absence of other weak references.
-*/
-class _shared_refcount :
-   public ::abc::noncopyable {
+conditions upon release of the last strong reference in absence of other weak references. */
+class _shared_refcount : public ::abc::noncopyable {
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -714,13 +658,11 @@ public:
       ::abc::atomic::increment(&m_cWeakRefs);
    }
 
-
    /*! Returns the deleter in use by this owner, if any. Used by std::get_deleter().
 
    TODO: comment signature.
    */
    virtual void * get_deleter(type_info const & ti) const;
-
 
    //! Records the release of a strong reference to this.
    void release_strong() {
@@ -741,7 +683,6 @@ public:
       }
    }
 
-
    /*! Returns the number of strong references to this.
 
    return
@@ -751,20 +692,15 @@ public:
       return m_cStrongRefs;
    }
 
-
 protected:
-
    /*! Destructs the owned object when all the strong references are released, releasing its memory
-   if possible (i.e. the owned object doesn’t live on the same memory block as *this).
-   */
+   if possible (i.e. the owned object doesn’t live on the same memory block as *this). */
    virtual void delete_owned() = 0;
 
    //! Deletes *this.
    virtual void delete_this();
 
-
 protected:
-
    //! Number of shared_ptr references to this.
    ::abc::atomic::int_t volatile m_cStrongRefs;
    //! Number of weak_ptr references to this.
@@ -773,19 +709,15 @@ protected:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::_basic_shared_refcount
-
 
 namespace std {
 
 //! Simple control object class with no custom deleter or allocator support.
 template <typename T>
-class _basic_shared_refcount :
-   public _shared_refcount {
+class _basic_shared_refcount : public _shared_refcount {
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -800,37 +732,29 @@ public:
       ABC_ASSERT(!m_pt);
    }
 
-
 protected:
-
    //! See _shared_refcount::delete_owned().
    virtual void delete_owned() override {
       delete m_pt;
       m_pt = nullptr;
    }
 
-
 protected:
-
    //! Pointer to the owned object.
    T * m_pt;
 };
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::_shared_refcount_with_deleter
-
 
 namespace std {
 
 //! Control object class with custom deleter support.
 template <typename T, typename TDel>
-class _shared_refcount_with_deleter :
-   public _basic_shared_refcount<T> {
+class _shared_refcount_with_deleter : public _basic_shared_refcount<T> {
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -849,39 +773,30 @@ public:
       return ti == typeid(TDel) ? &m_tdel : nullptr;
    }
 
-
 protected:
-
    //! See _basic_shared_refcount::delete_owned().
    virtual void delete_owned() override {
       m_tdel(_basic_shared_refcount<T>::m_pt);
       _basic_shared_refcount<T>::m_pt = nullptr;
    }
 
-
 protected:
-
    //! Deleter for m_pt.
    TDel m_tdel;
 };
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::_prefix_shared_refcount
-
 
 namespace std {
 
 /*! Special control object class used when instanciating a shared_ptr via make_shared(). It expects
-the owned object to be allocated on the same memory block.
-*/
+the owned object to be allocated on the same memory block. */
 template <typename T>
-class _prefix_shared_refcount :
-   public _shared_refcount {
+class _prefix_shared_refcount : public _shared_refcount {
 public:
-
    //! Constructor.
    _prefix_shared_refcount() :
       _shared_refcount(1, 0),
@@ -894,15 +809,12 @@ public:
    }
 
    /*! Declares the T that follows *this as constructed, thereby enabling its destruction in
-   delete_owned().
-   */
+   delete_owned(). */
    void set_owned_constructed() {
       m_bOwnedConstructed = true;
    }
 
-
 protected:
-
    //! See _shared_refcount::delete_owned().
    virtual void delete_owned() override {
       if (m_bOwnedConstructed) {
@@ -913,19 +825,15 @@ protected:
       }
    }
 
-
 protected:
-
    //! true if the T that follows *this has been constructed.
    bool m_bOwnedConstructed;
 };
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::shared_ptr
-
 
 namespace std {
 
@@ -935,16 +843,12 @@ class weak_ptr;
 
 //! Smart resource-sharing pointer (C++11 § 20.7.2.2 “Class template shared_ptr”).
 template <typename T>
-class shared_ptr :
-   public ::abc::support_explicit_operator_bool<shared_ptr<T>> {
+class shared_ptr : public ::abc::support_explicit_operator_bool<shared_ptr<T>> {
 public:
-
    //! Type of the element pointed to.
    typedef T element_type;
 
-
 public:
-
    /*! Constructor. Some of the nullptr_t overloads have been collapsed into the generic pointer
    overloads.
 
@@ -1016,14 +920,12 @@ public:
       m_pt(nullptr) {
    }
 
-
    //! Destructor.
    ~shared_ptr() {
       if (m_psr) {
          m_psr->release_strong();
       }
    }
-
 
    /*! Assignment operator.
 
@@ -1073,7 +975,6 @@ public:
       return operator=(shared_ptr(move(upt2)));
    }
 
-
    /*! Dereference operator.
 
    TODO: comment signature.
@@ -1082,7 +983,6 @@ public:
       return *m_pt;
    }
 
-
    /*! Dereferencing member access operator.
 
    TODO: comment signature.
@@ -1090,7 +990,6 @@ public:
    T * operator->() const {
       return m_pt;
    }
-
 
    /*! Boolean evaluation operator.
 
@@ -1121,7 +1020,6 @@ public:
       operator=(shared_ptr(pt2, tdel, talloc));
    }
 
-
    /*! Returns the wrapped pointer.
 
    return
@@ -1137,7 +1035,6 @@ public:
    template <class T2>
    bool owner_before(weak_ptr<T2> const & wpt2) const;
 
-
    /*! Returns true if no other pointers are referring to the object pointed to.
 
    return
@@ -1146,7 +1043,6 @@ public:
    bool unique() const {
       return use_count() == 1;
    }
-
 
    /*! Returns the number of references to the object pointed to.
 
@@ -1157,13 +1053,11 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-
 #ifdef ABC_CXX_TEMPLATE_FRIENDS
 protected:
 #else
 public:
 #endif
-
    /*! Constructor. Non-standard.
 
    TODO: comment signature.
@@ -1173,7 +1067,6 @@ public:
       m_pt(pt) {
    }
 
-
    /*! Returns a pointer to the shared object owner. Non-standard.
 
    TODO: comment signature.
@@ -1182,9 +1075,7 @@ public:
       return m_psr;
    }
 
-
 protected:
-
    //! Shared reference count. We hold a strong reference to it.
    _shared_refcount * m_psr;
    //! Owned object.
@@ -1193,26 +1084,20 @@ protected:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::weak_ptr
-
 
 namespace std {
 
 /*! Non-owning pointer that providess access to shared_ptr (C++11 § 20.7.2.3 “Class template
-weak_ptr”).
-*/
+weak_ptr”). */
 template <typename T>
 class weak_ptr {
 public:
-
    //! Type of the element pointed to.
    typedef T element_type;
 
-
 public:
-
    /*! Constructor.
 
    TODO: comment signature.
@@ -1259,7 +1144,6 @@ public:
       }
    }
 
-
    /*! Assignment operator.
 
    wpt
@@ -1305,7 +1189,6 @@ public:
       return *this;
    }
 
-
    /*! Returns true if the object pointed to no longer exists.
 
    return
@@ -1314,7 +1197,6 @@ public:
    bool expired() const {
       return use_count() == 0;
    }
-
 
    /*! Returns a non-weak pointer to the object pointed to.
 
@@ -1331,7 +1213,6 @@ public:
    template <class T2>
    bool owner_before(weak_ptr<T2> const & wpt2) const;
 
-
    //! Releases the object pointed to.
    void reset() {
       if (m_psr) {
@@ -1340,7 +1221,6 @@ public:
          m_pt = nullptr;
       }
    }
-
 
    /*! Returns the number of strong references to the object pointed to.
 
@@ -1351,13 +1231,11 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-
 #ifdef ABC_CXX_TEMPLATE_FRIENDS
 protected:
 #else
 public:
 #endif
-
    /*! Constructor. Non-standard, used by make_shared().
 
    TODO: comment signature.
@@ -1368,7 +1246,6 @@ public:
       m_psr->add_weak_ref();
    }
 
-
    /*! Returns a pointer to the shared object owner. Non-standard.
 
    TODO: comment signature.
@@ -1376,7 +1253,6 @@ public:
    _shared_refcount * get_shared_refcount() const {
       return m_psr;
    }
-
 
    /*! Returns a pointer to the shared object owner. Non-standard.
 
@@ -1386,14 +1262,11 @@ public:
       return m_pt;
    }
 
-
 protected:
-
    //! Shared reference count. We hold a weak reference to it.
    _shared_refcount * m_psr;
    /*! Weakly-owned object. Not to be used directly; we only keep it to pass it when constructing a
-   shared_ptr.
-   */
+   shared_ptr. */
    T * m_pt;
 };
 
@@ -1402,7 +1275,7 @@ protected:
 
 template <typename T>
 template <typename T2>
-shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
+inline shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
    m_psr(wpt2->get_shared_refcount()),
    m_pt(wpt2->get()) {
    m_psr->add_strong_ref();
@@ -1410,9 +1283,7 @@ shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 namespace std {
 
@@ -1421,12 +1292,10 @@ namespace std {
 The way this works is that when the last shared_ptr to this is released, the embedded refcount will
 call delete on this, which will self-destruct the refcount.
 
-TODO: initialize m_pThis. Probably need a _shared_refcount somewhere to function.
-*/
+TODO: initialize m_pThis. Probably need a _shared_refcount somewhere to function. */
 template <typename T>
 class enable_shared_from_this {
 public:
-
    /*! Returns a shared pointer to this.
 
    return
@@ -1439,9 +1308,7 @@ public:
       return shared_ptr<T const>(m_pThis);
    }
 
-
 protected:
-
    /*! Constructor.
 
    esft
@@ -1457,7 +1324,6 @@ protected:
    ~enable_shared_from_this() {
    }
 
-
    /*! Assignment operator.
 
    esft
@@ -1468,26 +1334,21 @@ protected:
       return *this;
    }
 
-
 private:
-
    //! Weak reference to *this.
    weak_ptr<T> m_pThis;
 };
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std globals – smart pointers-related
-
 
 namespace std {
 
 /*! Similar to make_shared(), except it uses a custom allocator.
 
-TODO: comment signature.
-*/
+TODO: comment signature. */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename T, class TAllocator, typename ... TArgs>
@@ -1512,8 +1373,9 @@ inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs && ... tar
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+// TODO: non-template version!
 
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 /*! Returns the deleter in use by the specified shared_ptr, if any (C++11 § 20.7.2.2.10
 “get_deleter”).
@@ -1529,7 +1391,6 @@ inline TDel * get_deleter(shared_ptr<T> const & spt) {
       return nullptr;
    }
 }
-
 
 /*! Dynamically allocates an object, using the same memory block to store any dynamic memory used by
 the returned shared pointer to it.
@@ -1622,7 +1483,6 @@ inline shared_ptr<T> make_shared(
 ) {
 }
 
-
 /*! Helper for make_shared(); handles everything except calling T::T().
 
 TODO: comment signature.
@@ -1633,12 +1493,9 @@ inline shared_ptr<T> _make_unconstructed_shared() {
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_MEMORY_HXX
 

@@ -30,17 +30,12 @@ code for more comments.
 using namespace abc;
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // exceptions_app
 
-
-/*! Application class for this program.
-*/
-class exceptions_app :
-   public app {
+//! Application class for this program.
+class exceptions_app : public app {
 public:
-
    /*! Main function of the program.
 
    vsArgs
@@ -66,10 +61,8 @@ public:
       return 0;
    }
 
-
    /*! Sample enumeration. Used to demonstrate Abaclade’s support for automatic translation of
-   enumerated values into strings.
-   */
+   enumerated values into strings. */
    ABC_ENUM(numbers_enum,
       (zero,  0),
       (one,   1),
@@ -77,7 +70,6 @@ public:
       (three, 3),
       (four,  4)
    );
-
 
    void first_function(istr const & s, mvector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
@@ -87,7 +79,6 @@ public:
       is_zero(numbers_enum::two, nullptr);
       io::text::stdout()->write_line(ABC_SL("After calling is_zero()"));
    }
-
 
    void is_zero(numbers_enum ne, bool * pbRet) const {
       ABC_TRACE_FUNC(this, ne, pbRet);

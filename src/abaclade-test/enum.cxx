@@ -35,8 +35,7 @@ ABC_ENUM(test_enum,
 );
 
 
-class enum_basic :
-   public testing::test_case {
+class enum_basic : public testing::test_case {
 public:
 
    //! See testing::test_case::title().

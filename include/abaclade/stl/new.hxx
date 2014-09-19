@@ -30,10 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/stl/exception.hxx>
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::nothrow_t and std::nothrow
-
 
 namespace std {
 
@@ -46,18 +44,14 @@ extern nothrow_t const nothrow;
 } //namespace std
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_alloc
-
 
 namespace std {
 
 //! Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
-class ABACLADE_SYM bad_alloc :
-   public exception {
+class ABACLADE_SYM bad_alloc : public exception {
 public:
-
    //! See exception::exception().
    bad_alloc();
 
@@ -70,10 +64,8 @@ public:
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – storage allocation and deallocation
-
 
 // Single-object new and delete (C++11 § 18.6.1.1 “Single-object forms”).
 void * operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
@@ -105,9 +97,7 @@ inline void operator delete[](void * p, void * pMem) ABC_STL_NOEXCEPT_TRUE() {
    ABC_UNUSED_ARG(pMem);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_STL_NEW_HXX
 

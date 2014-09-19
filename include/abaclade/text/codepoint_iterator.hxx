@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_proxy
-
 
 namespace abc {
 namespace text {
@@ -42,7 +40,6 @@ class _codepoint_proxy;
 template <>
 class _codepoint_proxy<true> {
 public:
-
    /*! Constructor.
 
    pch
@@ -61,7 +58,6 @@ public:
       mc_ps(cpp.mc_ps) {
    }
 
-
    /*! Implicit conversion to a code point.
 
    return
@@ -71,24 +67,18 @@ public:
       return host_char_traits::chars_to_codepoint(m_pch);
    }
 
-
 private:
-
    _codepoint_proxy & operator=(_codepoint_proxy const & cpp);
 
-
 protected:
-
    char_t const * m_pch;
    str_base const * const mc_ps;
 };
 
 // Non-const specialization.
 template <>
-class _codepoint_proxy<false> :
-   public _codepoint_proxy<true> {
+class _codepoint_proxy<false> : public _codepoint_proxy<true> {
 public:
-
    /*! See _codepoint_proxy<true>::_codepoint_proxy().
 
    pch
@@ -109,7 +99,6 @@ public:
       _codepoint_proxy<true>(cpp),
       mc_pcii(cpp.mc_pcii) {
    }
-
 
    /*! Assignment operator. Note that the copy assignment operator copies the char32_t value, not
    the internal data members; this allows to write expressions like *itDst = *itSrc to copy code
@@ -137,12 +126,9 @@ public:
       return operator=(cpp.operator char32_t());
    }
 
-
 protected:
-
    /*! Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
-   nullptr if *this was not instantiated by an iterator.
-   */
+   nullptr if *this was not instantiated by an iterator. */
    _codepoint_iterator_impl<false> * const mc_pcii;
 };
 
@@ -203,18 +189,15 @@ ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_iterator_impl
-
 
 namespace abc {
 namespace text {
 
 /*! Base class for codepoint_iterator. Its specializations include all the members that don’t return
 an iterator or a reference to one, so that those are only defined once in the “real” template
-codepoint_iterator instead of once for each specialization.
-*/
+codepoint_iterator instead of once for each specialization. */
 template <bool t_bConst>
 class _codepoint_iterator_impl;
 
@@ -222,7 +205,6 @@ class _codepoint_iterator_impl;
 template <>
 class ABACLADE_SYM _codepoint_iterator_impl<true> {
 public:
-
    /*! Dereferencing operator.
 
    return
@@ -231,7 +213,6 @@ public:
    _codepoint_proxy<true> operator*() const {
       return _codepoint_proxy<true>(throw_if_end(m_pch), m_ps);
    }
-
 
    /*! Element access operator.
 
@@ -245,7 +226,6 @@ public:
       return _codepoint_proxy<true>(throw_if_end(advance(i, true)), m_ps);
    }
 
-
    /*! Returns the underlying iterator type.
 
    return
@@ -254,7 +234,6 @@ public:
    char_t const * base() const {
       return m_pch;
    }
-
 
    /*! Returns the string that created this iterator.
 
@@ -265,9 +244,7 @@ public:
       return m_ps;
    }
 
-
 protected:
-
    /*! Constructor.
 
    pch
@@ -283,7 +260,6 @@ protected:
    //! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
    char_t const * advance(std::ptrdiff_t i, bool bIndex) const;
 
-
    /*! Computes the distance from another iterator/pointer.
 
    pch
@@ -293,7 +269,6 @@ protected:
    */
    std::ptrdiff_t distance(char_t const * pch) const;
 
-
    /*! Throws an iterator_error if the specified pointer is the end of the string.
 
    pch
@@ -301,9 +276,7 @@ protected:
    */
    char_t const * throw_if_end(char_t const * pch) const;
 
-
 protected:
-
    //! Pointer to the current character.
    char_t const * m_pch;
    //! Pointer to the source string.
@@ -312,14 +285,12 @@ protected:
 
 // Non-const specialization.
 template <>
-class _codepoint_iterator_impl<false> :
-   public _codepoint_iterator_impl<true> {
-
+class _codepoint_iterator_impl<false> : public _codepoint_iterator_impl<true> {
+private:
    // Needs to be able to update m_pch is the string buffer changes.
    friend _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
-
    //! See _codepoint_iterator_impl<true>::operator*().
    using _codepoint_iterator_impl<true>::operator*;
    _codepoint_proxy<false> operator*() {
@@ -346,9 +317,7 @@ public:
       return const_cast<str_base *>(m_ps);
    }
 
-
 protected:
-
    //! See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
    _codepoint_iterator_impl(char_t * pch, str_base * ps) :
       _codepoint_iterator_impl<true>(pch, ps) {
@@ -363,17 +332,14 @@ protected:
 } //namespace text
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::codepoint_iterator
-
 
 namespace abc {
 namespace text {
 
 /*! Character iterator that hides the underlying encoded representation, presenting a string as an
-array of code points (char32_t). Pointers/references are still char_t.
-*/
+array of code points (char32_t). Pointers/references are still char_t. */
 template <bool t_bConst>
 class codepoint_iterator :
    public _codepoint_iterator_impl<t_bConst>,
@@ -382,7 +348,6 @@ class codepoint_iterator :
       typename std::conditional<t_bConst, char_t const, char_t>::type
    > {
 public:
-
    /*! Constructor.
 
    pch
@@ -407,7 +372,6 @@ public:
       _codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {
    }
 
-
    /*! Addition-assignment operator.
 
    i
@@ -420,7 +384,6 @@ public:
       this->m_pch = this->advance(i, false);
       return *this;
    }
-
 
    /*! Subtraction-assignment operator.
 
@@ -435,7 +398,6 @@ public:
       return *this;
    }
 
-
    /*! Addition operator.
 
    i
@@ -447,7 +409,6 @@ public:
    codepoint_iterator operator+(std::ptrdiff_t i) const {
       return codepoint_iterator(this->advance(i, false), this->_str());
    }
-
 
    /*! Subtraction/difference operator.
 
@@ -468,7 +429,6 @@ public:
       return this->distance(it.base());
    }
 
-
    /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
 
@@ -479,7 +439,6 @@ public:
       this->m_pch = this->advance(1, false);
       return *this;
    }
-
 
    /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
@@ -493,7 +452,6 @@ public:
       return codepoint_iterator(pch, this->_str());
    }
 
-
    /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
 
@@ -504,7 +462,6 @@ public:
       this->m_pch = this->advance(-1, false);
       return *this;
    }
-
 
    /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
@@ -517,7 +474,6 @@ public:
       this->m_pch = this->advance(-1, false);
       return codepoint_iterator(pch, this->_str());
    }
-
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
@@ -536,7 +492,6 @@ ABC_RELOP_IMPL(<=)
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

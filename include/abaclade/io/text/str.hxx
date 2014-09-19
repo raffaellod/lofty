@@ -22,37 +22,27 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::str_base
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Implementation of text (character-based) I/O from/to a string.
-class ABACLADE_SYM str_base :
-   public virtual base,
-   public noncopyable {
+class ABACLADE_SYM str_base : public virtual base, public noncopyable {
 public:
-
    //! Destructor.
    virtual ~str_base();
 
    //! See base::get_encoding().
    virtual abc::text::encoding get_encoding() const override;
 
-
 protected:
-
-   /*! See base::base().
-   */
+   //! See base::base().
    str_base();
 
-
 protected:
-
    //! Current read/write offset into the string.
    std::size_t m_ichOffset;
 };
@@ -61,21 +51,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::str_reader
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Implementation of text (character-based) input from a string.
-class ABACLADE_SYM str_reader :
-   public virtual str_base,
-   public virtual reader {
+class ABACLADE_SYM str_reader : public virtual str_base, public virtual reader {
 public:
-
    /*! Constructor.
 
    s
@@ -88,12 +73,9 @@ public:
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
 
-
 protected:
-
    /*! Pointer to the source string. Normally points to m_sReadBuf, but subclasses may change that
-   as needed.
-   */
+   as needed. */
    istr const * m_psReadBuf;
    //! Target of m_psReadBuf, unless overridden by subclasses.
    istr m_sReadBuf;
@@ -103,21 +85,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::str_writer
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Implementation of text (character-based) output into a string.
-class ABACLADE_SYM str_writer :
-   public virtual str_base,
-   public virtual writer {
+class ABACLADE_SYM str_writer : public virtual str_base, public virtual writer {
 public:
-
    /*! Constructor.
 
    psBuf
@@ -129,7 +106,6 @@ public:
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();
 
-
    /*! Returns the internal string buffer as a read-only string.
 
    return
@@ -138,7 +114,6 @@ public:
    istr const & get_str() const {
       return *m_psWriteBuf;
    }
-
 
    /*! Yields ownership of the internal string buffer. If the str_writer instance was constructed
    based on an external string, all internal variables will be successfully reset, but the result
@@ -155,9 +130,7 @@ public:
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
    ) override;
 
-
 protected:
-
    //! Pointer to the destination string.
    mstr * m_psWriteBuf;
    //! Default target of m_psWriteBuf, if none is supplied via constructor.
@@ -167,7 +140,6 @@ protected:
 } //namespace text
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -28,8 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class text_writer_print_no_replacements :
-   public testing::test_case {
+class text_writer_print_no_replacements : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -82,8 +81,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_no_replacements)
 namespace abc {
 namespace test {
 
-class text_writer_print_one_replacement :
-   public testing::test_case {
+class text_writer_print_one_replacement : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -160,8 +158,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::text_writer_print_one_replacement)
 namespace abc {
 namespace test {
 
-class text_writer_print_two_replacements :
-   public testing::test_case {
+class text_writer_print_two_replacements : public testing::test_case {
 public:
 
    //! See testing::test_case::title().

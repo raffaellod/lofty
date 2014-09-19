@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_base
-
+// abc::detail::c_str_ptr
 
 namespace abc {
 namespace detail {
@@ -34,16 +32,13 @@ namespace detail {
 abc::*str instance. */
 class c_str_ptr {
 private:
-
    //! Internal conditionally-deleting pointer type.
    typedef std::unique_ptr<
       char_t const [],
       memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
    > pointer;
 
-
 public:
-
    /*! Constructor.
 
    pch
@@ -55,7 +50,6 @@ public:
       m_p(pch, pointer::deleter_type(bOwn)) {
    }
 
-
    /*! Implicit conversion to char_t const *.
 
    return
@@ -64,7 +58,6 @@ public:
    operator char_t const *() const {
       return m_p.get();
    }
-
 
    /*! Enables access to the internal pointer.
 
@@ -75,9 +68,7 @@ public:
       return m_p;
    }
 
-
 private:
-
    //! Conditionally-deleting pointer.
    pointer m_p;
 };
@@ -85,10 +76,8 @@ private:
 } //namespace detail
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::str_base
-
 
 namespace abc {
 
@@ -100,13 +89,11 @@ class dmstr;
 trailing NUL character.
 
 See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
-abc::*str classes.
-*/
+abc::*str classes. */
 class ABACLADE_SYM str_base :
    protected detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str_base> {
 public:
-
    typedef char_t value_type;
    typedef char_t * pointer;
    typedef char_t const * const_pointer;
@@ -119,16 +106,13 @@ public:
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-
 public:
-
    /*! Allows automatic cross-class-hierarchy casts.
 
    return
       Const reference to *this as an immutable string.
    */
    operator istr const &() const;
-
 
    /*! Character access operator.
 
@@ -142,7 +126,6 @@ public:
       return text::_codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
-
    /*! Returns true if the length is greater than 0.
 
    return
@@ -154,7 +137,6 @@ public:
       return detail::raw_vextr_impl_base::end<std::int8_t>() >
          detail::raw_vextr_impl_base::begin<std::int8_t>();
    }
-
 
    /*! Advances or backs up a pointer by the specified number of code points, returning the
    resulting pointer. If the pointer is moved outside of the buffer, an index_error or
@@ -172,7 +154,6 @@ public:
    */
    char_t const * _advance_char_ptr(char_t const * pch, std::ptrdiff_t i, bool bIndex) const;
 
-
    /*! Returns a forward iterator set to the first element.
 
    return
@@ -181,7 +162,6 @@ public:
    const_iterator begin() const {
       return const_iterator(chars_begin(), this);
    }
-
 
    /*! Returns a pointer to a NUL-terminated version of the string.
 
@@ -199,7 +179,6 @@ public:
    */
    detail::c_str_ptr c_str() const;
 
-
    /*! Returns the maximum number of characters the string buffer can currently hold.
 
    return
@@ -209,7 +188,6 @@ public:
       return detail::raw_vextr_impl_base::capacity<char_t>();
    }
 
-
    /*! Returns a const forward iterator set to the first element.
 
    return
@@ -218,7 +196,6 @@ public:
    const_iterator cbegin() const {
       return const_iterator(chars_begin(), this);
    }
-
 
    /*! Returns a const forward iterator set beyond the last element.
 
@@ -245,7 +222,6 @@ public:
       return detail::raw_trivial_vextr_impl::end<char_t>();
    }
 
-
    /*! Returns a const reverse iterator set to the last element.
 
    return
@@ -255,7 +231,6 @@ public:
       return const_reverse_iterator(cend());
    }
 
-
    /*! Returns a const reverse iterator set to before the first element.
 
    return
@@ -264,7 +239,6 @@ public:
    const_reverse_iterator crend() const {
       return const_reverse_iterator(cbegin());
    }
-
 
    /*! Returns the string, encoded as requested, into a byte vector.
 
@@ -279,7 +253,6 @@ public:
    */
    dmvector<std::uint8_t> encode(text::encoding enc, bool bNulT) const;
 
-
    /*! Returns a forward iterator set beyond the last element.
 
    return
@@ -289,7 +262,6 @@ public:
       return const_iterator(chars_end(), this);
    }
 
-
    /*! Returns true if the string ends with a specified suffix.
 
    s
@@ -298,7 +270,6 @@ public:
       true if *this ends with the specified suffix, or false otherwise.
    */
    bool ends_with(istr const & s) const;
-
 
    /*! Searches for and returns the first occurrence of the specified character or substring.
 
@@ -335,7 +306,6 @@ public:
    }
    const_iterator find(istr const & sNeedle, const_iterator itWhence) const;
 
-
    /*! Searches for and returns the last occurrence of the specified character or substring.
 
    chNeedle
@@ -371,7 +341,6 @@ public:
    }
    const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const;
 
-
    /*! Uses the current content of the string to generate a new one using io::text::writer::print().
 
    ts
@@ -380,12 +349,9 @@ public:
       Resulting string.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-
    template <typename ... Ts>
    dmstr format(Ts const & ... ts) const;
-
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-
    dmstr format() const;
    template <typename T0>
    dmstr format(T0 const & t0) const;
@@ -432,9 +398,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) const;
-
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
 
    /*! Returns a reverse iterator set to the last element.
 
@@ -445,7 +409,6 @@ public:
       return const_reverse_iterator(end());
    }
 
-
    /*! Returns a reverse iterator set to before the first element.
 
    return
@@ -454,7 +417,6 @@ public:
    const_reverse_iterator rend() const {
       return const_reverse_iterator(begin());
    }
-
 
    /*! Returns size of the string, in code points.
 
@@ -465,7 +427,6 @@ public:
       return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
-
    /*! Returns size of the string, in bytes.
 
    return
@@ -474,7 +435,6 @@ public:
    std::size_t size_in_bytes() const {
       return detail::raw_trivial_vextr_impl::size<std::int8_t>();
    }
-
 
    /*! Returns size of the string, in characters.
 
@@ -485,7 +445,6 @@ public:
       return detail::raw_trivial_vextr_impl::size<char_t>();
    }
 
-
    /*! Returns true if the string starts with a specified prefix.
 
    s
@@ -494,7 +453,6 @@ public:
       true if *this starts with the specified suffix, or false otherwise.
    */
    bool starts_with(istr const & s) const;
-
 
    /*! Returns a portion of the string.
 
@@ -516,9 +474,7 @@ public:
    dmstr substr(const_iterator itBegin) const;
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
 
-
 protected:
-
    /*! Constructor.
 
    cbEmbeddedCapacity
@@ -537,7 +493,6 @@ protected:
       detail::raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
-
    /*! See detail::raw_trivial_vextr_impl::assign_copy().
 
    pchBegin
@@ -548,7 +503,6 @@ protected:
    void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
       detail::raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
    }
-
 
    /*! See detail::raw_trivial_vextr_impl::assign_concat().
 
@@ -568,7 +522,6 @@ protected:
       detail::raw_trivial_vextr_impl::assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
-
    /*! See detail::raw_trivial_vextr_impl::assign_move().
 
    s
@@ -579,7 +532,6 @@ protected:
          static_cast<detail::raw_trivial_vextr_impl &&>(s)
       );
    }
-
 
    /*! See detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
@@ -592,7 +544,6 @@ protected:
       );
    }
 
-
    /*! See detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
 
    s
@@ -601,7 +552,6 @@ protected:
    void assign_share_raw_or_copy_desc(str_base const & s) {
       detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
    }
-
 
    /*! Converts a possibly negative character index into an iterator.
 
@@ -612,7 +562,6 @@ protected:
       Resulting iterator.
    */
    const_iterator translate_index(std::ptrdiff_t ich) const;
-
 
    /*! Converts a left-closed, right-open interval with possibly negative character indices into one
    consisting of two iterators.
@@ -668,16 +617,13 @@ namespace std {
 // Specialization of std::hash.
 template <>
 struct ABACLADE_SYM hash<abc::str_base> {
-
    std::size_t operator()(abc::str_base const & s) const;
 };
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::istr
-
 
 namespace abc {
 
@@ -687,10 +633,8 @@ class mstr;
 /*! str_base-derived class, to be used as “the” string class in most cases. It cannot be modified
 in-place, which means that it shouldn’t be used in code performing intensive string manipulations.
 */
-class ABACLADE_SYM istr :
-   public str_base {
+class ABACLADE_SYM istr : public str_base {
 public:
-
    /*! Constructor.
 
    s
@@ -736,7 +680,6 @@ public:
       str_base(psz, cch, false) {
    }
 
-
    /*! Assignment operator.
 
    s
@@ -766,9 +709,7 @@ public:
       return *this;
    }
 
-
 public:
-
    //! Empty string constant.
    static istr const & empty;
 };
@@ -782,7 +723,6 @@ inline str_base::operator istr const &() const {
 
 } //namespace abc
 
-
 namespace std {
 
 // Specialization of std::hash.
@@ -791,25 +731,20 @@ struct hash<abc::istr> : public hash<abc::str_base> {};
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::mstr
-
 
 namespace abc {
 
 /*! str_base-derived class, to be used as argument type for functions that want to modify a string
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
-are automatically converted to this.
-*/
-class ABACLADE_SYM mstr :
-   public str_base {
-
+are automatically converted to this. */
+class ABACLADE_SYM mstr : public str_base {
+private:
    friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char_t ch);
    friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
-
    /*! Assignment operator.
 
    s
@@ -831,7 +766,6 @@ public:
       return *this;
    }
    mstr & operator=(dmstr && s);
-
 
    /*! Concatenation-assignment operator.
 
@@ -862,7 +796,6 @@ public:
       append(s.chars_begin(), s.size_in_chars());
       return *this;
    }
-
 
    /*! Same as operator+=(), but for multi-argument overloads.
 
@@ -897,7 +830,6 @@ public:
    const_iterator end() const {
       return str_base::end();
    }
-
 
    /*! Inserts characters into the string at a specific character (not code point) offset.
 
@@ -952,7 +884,6 @@ public:
       return str_base::rend();
    }
 
-
    /*! Replaces all occurrences of a character with another character.
 
    chSearch
@@ -968,7 +899,6 @@ public:
 #endif
    void replace(char32_t chSearch, char32_t chReplacement);
 
-
    /*! See detail::raw_trivial_vextr_impl::set_capacity().
 
    cchMin
@@ -980,7 +910,6 @@ public:
    void set_capacity(std::size_t cchMin, bool bPreserve) {
       detail::raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
    }
-
 
    /*! Expands the character array until the specified callback succeeds in filling it and returns a
    number of needed characters that’s less than the size of the buffer. For example, for cchMax == 3
@@ -1004,7 +933,6 @@ public:
    */
    void set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead);
 
-
    /*! Changes the length of the string. If the string needs to be lengthened, the added characters
    will be left uninitialized.
 
@@ -1021,14 +949,11 @@ public:
       }
    }
 
-
 protected:
-
    //! See str_base::str_base().
    mstr(std::size_t cbEmbeddedCapacity) :
       str_base(cbEmbeddedCapacity) {
    }
-
 
    /*! Replaces a single code point with another single code point.
 
@@ -1054,14 +979,12 @@ inline istr::istr(mstr && s) :
    assign_move_dynamic_or_move_items(std::move(s));
 }
 
-
 inline istr & istr::operator=(mstr && s) {
    assign_move_dynamic_or_move_items(std::move(s));
    return *this;
 }
 
 } //namespace abc
-
 
 namespace std {
 
@@ -1071,20 +994,15 @@ struct hash<abc::mstr> : public hash<abc::str_base> {};
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::dmstr
-
 
 namespace abc {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings whose length is
-unknown at design time.
-*/
-class dmstr :
-   public mstr {
+unknown at design time. */
+class dmstr : public mstr {
 public:
-
    /*! Constructor.
 
    s
@@ -1150,7 +1068,6 @@ public:
       assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
-
    /*! Assignment operator.
 
    s
@@ -1192,16 +1109,12 @@ public:
       return *this;
    }
 
-
 #if ABC_HOST_MSC
-
    /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
-	str_base::operator istr const &().
-   */
+	str_base::operator istr const &(). */
    operator istr const &() const {
       return str_base::operator istr const &();
    }
-
 #endif //if ABC_HOST_MSC
 };
 
@@ -1225,18 +1138,15 @@ inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) cons
    return dmstr(itBegin.base(), itEnd.base());
 }
 
-
 inline istr::istr(dmstr && s) :
    str_base(0) {
    assign_move(std::move(s));
 }
 
-
 inline istr & istr::operator=(dmstr && s) {
    assign_move(std::move(s));
    return *this;
 }
-
 
 inline mstr & mstr::operator=(dmstr && s) {
    assign_move(std::move(s));
@@ -1381,27 +1291,23 @@ struct hash<abc::dmstr> : public hash<abc::str_base> {};
 
 } //namespace std
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::smstr
-
 
 namespace abc {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
-likely to be shorter than a known small size.
-*/
+likely to be shorter than a known small size. */
 template <std::size_t t_cchEmbeddedCapacity>
 class smstr :
    public mstr,
    private detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
-
+private:
    using detail::raw_vextr_prefixed_item_array<
       char_t, t_cchEmbeddedCapacity
    >::smc_cbEmbeddedCapacity;
 
 public:
-
    /*! Constructor.
 
    s
@@ -1446,7 +1352,6 @@ public:
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
    }
-
 
    /*! Assignment operator.
 
@@ -1495,7 +1400,6 @@ public:
 
 } //namespace abc
 
-
 namespace std {
 
 // Specialization of std::hash.
@@ -1503,7 +1407,6 @@ template <std::size_t t_cchEmbeddedCapacity>
 struct hash<abc::smstr<t_cchEmbeddedCapacity>> : public hash<abc::str_base> {};
 
 } //namespace std
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

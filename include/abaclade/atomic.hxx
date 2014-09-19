@@ -32,10 +32,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::atomic globals
-
 
 namespace abc {
 namespace atomic {
@@ -54,7 +52,6 @@ namespace atomic {
 #if ABC_HOST_API_POSIX
 extern pthread_mutex_t g_mtx;
 #endif
-
 
 /*! Atomically add the second argument to the number pointed to by the first argument, storing the
 result in *piDst and returning it.
@@ -88,7 +85,6 @@ inline I add(I volatile * piDst, I iAddend) {
    #error HOST_API
 #endif
 }
-
 
 /*! Atomically add the second argument to the number pointed to by the first argument, storing the
 result in *pi and returning it.
@@ -131,7 +127,6 @@ inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #endif
 }
 
-
 /*! Atomically decrements the number pointed to by the argument, storing the result in *pi and
 returning it.
 
@@ -162,7 +157,6 @@ inline I decrement(I volatile * pi) {
 #endif
 }
 
-
 /*! Atomically increments the number pointed to by the argument, storing the result in *pi and
 returning it.
 
@@ -192,7 +186,6 @@ inline I increment(I volatile * pi) {
    #error HOST_API
 #endif
 }
-
 
 /*! Atomically subtracts the second argument from the number pointed to by the first argument,
 storing the result in *pi and returning it.
@@ -234,9 +227,7 @@ inline I subtract(I volatile * piDst, I iSubtrahend) {
 } //namespace atomic
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_ATOMIC_HXX
 

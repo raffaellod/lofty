@@ -22,24 +22,20 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::source_location
-
 
 namespace abc {
 
 template <>
 class ABACLADE_SYM to_str_backend<source_location> {
 public:
-
    /*! Changes the output format.
 
    sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
-
 
    /*! Writes a source location, applying the formatting options.
 
@@ -52,7 +48,6 @@ public:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

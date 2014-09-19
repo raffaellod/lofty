@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::byteorder globals
-
 
 #define ABC_HOST_LITTLE_ENDIAN 0
 #define ABC_HOST_BIG_ENDIAN 0
@@ -62,7 +60,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #if !ABC_HOST_LITTLE_ENDIAN && !ABC_HOST_BIG_ENDIAN
    #error Unable to detect byte order (endianness)
 #endif
-
 
 // Define byte reordering functions.
 
@@ -124,7 +121,6 @@ struct _swap_impl<8> {
    }
 };
 
-
 /*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
 
@@ -138,7 +134,6 @@ inline I swap(I i) {
    typedef _swap_impl<sizeof(I)> swap_impl;
    return I(swap_impl()(typename swap_impl::type(i)));
 }
-
 
 /*! Converts a number from host endianness to big endian.
 
@@ -156,7 +151,6 @@ inline I host_to_be(I i) {
 #endif
 }
 
-
 /*! Converts a number from host endianness to little endian.
 
 i
@@ -173,7 +167,6 @@ inline I host_to_le(I i) {
 #endif
 }
 
-
 /*! Converts a number from big endian to host endianness.
 
 i
@@ -189,7 +182,6 @@ inline I be_to_host(I i) {
    return i;
 #endif
 }
-
 
 /*! Converts a number from little endian to host endianness.
 
@@ -261,7 +253,6 @@ return
       ((static_cast<std::uint64_t>(i) & 0x00000000000000ffull) << 56) \
    )
 
-
 /*! Converts a 16-bit number from host endianness to big endian.
 
 i
@@ -274,7 +265,6 @@ return
 #else
    #define ABC_BYTEORDER_HOSTTOBE16(i) static_cast<std::uint16_t>(i)
 #endif
-
 
 /*! Converts a 32-bit number from host endianness to big endian.
 
@@ -289,7 +279,6 @@ return
    #define ABC_BYTEORDER_HOSTTOBE32(i) static_cast<std::uint32_t>(i)
 #endif
 
-
 /*! Converts a 64-bit number from host endianness to big endian.
 
 i
@@ -302,7 +291,6 @@ return
 #else
    #define ABC_BYTEORDER_HOSTTOBE64(i) static_cast<std::uint64_t>(i)
 #endif
-
 
 /*! Converts a 16-bit number from host endianness to little endian.
 
@@ -317,7 +305,6 @@ return
    #define ABC_BYTEORDER_HOSTTOLE16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
 
-
 /*! Converts a 32-bit number from host endianness to little endian.
 
 i
@@ -330,7 +317,6 @@ return
 #else
    #define ABC_BYTEORDER_HOSTTOLE32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
-
 
 /*! Converts a 64-bit number from host endianness to little endian.
 
@@ -345,7 +331,6 @@ return
    #define ABC_BYTEORDER_HOSTTOLE64(i) ABC_BYTEORDER_SWAP64(i)
 #endif
 
-
 /*! Converts a 16-bit number from big endian to host endianness.
 
 i
@@ -358,7 +343,6 @@ return
 #else
    #define ABC_BYTEORDER_BETOHOST16(i) static_cast<std::uint16_t>(i)
 #endif
-
 
 /*! Converts a 32-bit number from big endian to host endianness.
 
@@ -373,7 +357,6 @@ return
    #define ABC_BYTEORDER_BETOHOST32(i) static_cast<std::uint32_t>(i)
 #endif
 
-
 /*! Converts a 64-bit number from big endian to host endianness.
 
 i
@@ -386,7 +369,6 @@ return
 #else
    #define ABC_BYTEORDER_BETOHOST64(i) static_cast<std::uint64_t>(i)
 #endif
-
 
 /*! Converts a 16-bit number from little endian to host endianness.
 
@@ -401,7 +383,6 @@ return
    #define ABC_BYTEORDER_LETOHOST16(i) ABC_BYTEORDER_SWAP16(i)
 #endif
 
-
 /*! Converts a 32-bit number from little endian to host endianness.
 
 i
@@ -415,7 +396,6 @@ return
    #define ABC_BYTEORDER_LETOHOST32(i) ABC_BYTEORDER_SWAP32(i)
 #endif
 
-
 /*! Converts a 64-bit number from little endian to host endianness.
 
 i
@@ -428,8 +408,6 @@ return
 #else
    #define ABC_BYTEORDER_LETOHOST64(i) ABC_BYTEORDER_SWAP64(i)
 #endif
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

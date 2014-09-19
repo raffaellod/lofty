@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::str_traits
-
 
 namespace abc {
 namespace text {
@@ -35,7 +33,6 @@ is not modeled after std::char_traits.
 */
 class ABACLADE_SYM str_traits {
 public:
-
    /*! Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
    [DOC:1502 KMP substring search] for how this is built and used.
 
@@ -50,7 +47,6 @@ public:
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
       mvector<std::size_t> * pvcchFailNext
    );
-
 
    /*! Compares two strings.
 
@@ -72,7 +68,6 @@ public:
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
    );
-
 
    /*! Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
    matches are found. The overload taking a char_t pointer allows to search for the encoded
@@ -110,7 +105,6 @@ public:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const * pchNeedle
    );
 
-
    /*! Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
    no matches are found.
 
@@ -140,7 +134,6 @@ public:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
 
-
    /*! Returns the character index of the first occurrence of a string into another.
 
    pchHaystackBegin
@@ -159,7 +152,6 @@ public:
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd,
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
-
 
    /*! Returns the character index of the last occurrence of a string into another.
 
@@ -180,7 +172,6 @@ public:
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd
    );
 
-
    /*! Returns count of code points in a string.
 
    pchBegin
@@ -191,7 +182,6 @@ public:
       Count of code points included in the string.
    */
    static std::size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
-
 
    /*! Validates the character in a string.
 
@@ -213,7 +203,6 @@ public:
 
 } //namespace text
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

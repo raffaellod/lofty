@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 // Persistent storage support (a.k.a. no-SQL database).
 
-
 /*! TODO: refine design and implement :)
 
 General design:

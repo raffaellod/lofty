@@ -25,7 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::dmstr
 
-
 namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -50,7 +49,6 @@ inline dmstr str_base::format(T0 const & t0) const {
    tsw.print(*static_cast<istr const *>(this), t0);
    return tsw.release_content();
 }
-
 template <typename T0, typename T1>
 inline dmstr str_base::format(T0 const & t0, T1 const & t1) const {
    io::text::str_writer tsw;
@@ -136,7 +134,6 @@ inline dmstr str_base::format(
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::base
-
 
 namespace abc {
 namespace io {
@@ -34,10 +32,8 @@ namespace text {
 //! Base interface for text (character-based) I/O.
 class ABACLADE_SYM base {
 public:
-
    //! Destructor.
    virtual ~base();
-
 
    /*! Returns the encoding of the data store.
 
@@ -45,7 +41,6 @@ public:
       Text encoding.
    */
    virtual abc::text::encoding get_encoding() const = 0;
-
 
    /*! Returns the line terminator used in the data store.
 
@@ -56,7 +51,6 @@ public:
       return m_lterm;
    }
 
-
    /*! Assigns a new line terminator that will be used for all following writes.
 
    lterm
@@ -66,15 +60,11 @@ public:
       m_lterm = lterm;
    }
 
-
 protected:
-
    //! Constructor.
    base();
 
-
 protected:
-
    /*! Determines how line terminators are read and written.
 
    When reading, a value of line_terminator::any or line_terminator::convert_any_to_lf will cause
@@ -85,8 +75,7 @@ protected:
 
    When writing, “\n” characters will be converted to the line terminator indicated by this
    variable, with line_terminator::any and line_terminator::convert_any_to_lf having the same
-   meaning as line_terminator::host.
-   */
+   meaning as line_terminator::host. */
    abc::text::line_terminator m_lterm;
 };
 
@@ -94,27 +83,22 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::reader
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Interface for text (character-based) input.
-class ABACLADE_SYM reader :
-   public virtual base {
+class ABACLADE_SYM reader : public virtual base {
 public:
-
    /*! Reads the entire source into the specified mutable string.
 
    psDst
       Pointer to the string that will receive the data.
    */
    void read_all(mstr * psDst);
-
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.
 
@@ -125,7 +109,6 @@ public:
       *psDst is left in an undetermined state.
    */
    bool read_line(mstr * psDst);
-
 
    /*! Reads data into the specified mutable string, invoking a callback function to determine how
    much of the read data should be consumed.
@@ -140,9 +123,7 @@ public:
    */
    virtual bool read_while(mstr * psDst, bool bOneLine) = 0;
 
-
 protected:
-
    //! See base::base().
    reader();
 };
@@ -151,10 +132,8 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::writer
-
 
 namespace abc {
 namespace io {
@@ -201,10 +180,8 @@ syntax>
 */
 
 //! Interface for binary (non-text) output.
-class ABACLADE_SYM writer :
-   public virtual base {
+class ABACLADE_SYM writer : public virtual base {
 public:
-
    /*! Writes multiple values combined together in the specified format.
 
    sFormat
@@ -270,7 +247,6 @@ public:
    );
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-
    /*! Writes a value using the default formatting for abc::to_str_backend().
 
    t
@@ -281,7 +257,6 @@ public:
       to_str_backend<T> tsb;
       tsb.write(t, this);
    }
-
 
    /*! Writes the contents of a memory buffer, first translating them to the text writer’s character
    encoding, if necessary.
@@ -296,7 +271,6 @@ public:
    */
    virtual void write_binary(void const * pSrc, std::size_t cbSrc, abc::text::encoding enc) = 0;
 
-
    /*! Writes a string followed by a new-line.
 
    s
@@ -304,9 +278,7 @@ public:
    */
    void write_line(istr const & s);
 
-
 protected:
-
    //! See base::base().
    writer();
 };
@@ -315,10 +287,8 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::detail::writer_print_helper
-
 
 namespace abc {
 namespace io {
@@ -326,10 +296,8 @@ namespace text {
 namespace detail {
 
 //! Template-free implementation of abc::io::text::detail::writer_print_helper.
-class ABACLADE_SYM writer_print_helper_impl :
-   public noncopyable {
+class ABACLADE_SYM writer_print_helper_impl : public noncopyable {
 public:
-
    /*! Constructor.
 
    ptw
@@ -339,20 +307,14 @@ public:
    */
    writer_print_helper_impl(writer * ptw, istr const & sFormat);
 
-
    /*! Writes the provided arguments to the target text writer, performing replacements as
-   necessary.
-   */
+   necessary. */
    void run();
 
-
 protected:
-
    /*! Throws an instance of abc::index_error(), providing the invalid replacement index found in
-   the format string.
-   */
+   the format string. */
    ABC_FUNC_NORETURN void throw_index_error();
-
 
    /*! Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
    and returns true, or writes the remaining characters of the format string and returns false if no
@@ -363,9 +325,7 @@ protected:
    */
    bool write_format_up_to_next_repl();
 
-
 private:
-
    /*! Throws an instance of abc::syntax_error(), providing accurate context information.
 
    sDescription
@@ -377,7 +337,6 @@ private:
       istr const & sDescription, istr::const_iterator it
    ) const;
 
-
    /*! Writes the portion of format string between the first character to be written
    (m_itFormatToWriteBegin) and the specified one, and updates m_itFormatToWriteBegin.
 
@@ -386,9 +345,7 @@ private:
    */
    void write_format_up_to(istr::const_iterator itUpTo);
 
-
 protected:
-
    //! Target text writer.
    writer * m_ptw;
    // TODO: use iterators for the following two member variables.
@@ -399,15 +356,12 @@ protected:
    //! 0-based index of the argument to replace the next replacement.
    unsigned m_iSubstArg;
 
-
 private:
-
    //! Format string.
    istr const & m_sFormat;
    //! First format string character to be written yet.
    istr::const_iterator m_itFormatToWriteBegin;
 };
-
 
 //! Helper for/implementation of abc::io::text::writer::print().
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -417,10 +371,8 @@ class writer_print_helper;
 
 // Base recursion step: no arguments to replace.
 template <>
-class writer_print_helper<> :
-   public writer_print_helper_impl {
+class writer_print_helper<> : public writer_print_helper_impl {
 public:
-
    /*! Constructor.
 
    ptw
@@ -432,9 +384,7 @@ public:
       writer_print_helper_impl(ptw, sFormat) {
    }
 
-
 protected:
-
    /*! Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
    iArg
@@ -450,13 +400,11 @@ protected:
 
 // Recursion step: extract one argument, recurse with the rest.
 template <typename T0, typename ... Ts>
-class writer_print_helper<T0, Ts ...> :
-   public writer_print_helper<Ts ...> {
-
+class writer_print_helper<T0, Ts ...> : public writer_print_helper<Ts ...> {
+private:
    typedef writer_print_helper<Ts ...> wph_base;
 
 public:
-
    /*! Constructor.
 
    ptw
@@ -481,9 +429,7 @@ public:
       }
    }
 
-
 protected:
-
    //! See writer_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
@@ -498,9 +444,7 @@ protected:
       }
    }
 
-
 private:
-
    //! Nth replacement.
    T0 const & m_t0;
 };
@@ -513,13 +457,11 @@ template <
    typename T4 = void, typename T5 = void, typename T6 = void, typename T7 = void,
    typename T8 = void, typename T9 = void
 >
-class writer_print_helper :
-   public writer_print_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
-
+class writer_print_helper : public writer_print_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+private:
    typedef writer_print_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> wph_base;
 
 public:
-
    /*! Constructor.
 
    ptw
@@ -651,9 +593,7 @@ public:
       }
    }
 
-
 protected:
-
    //! See writer_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
@@ -668,19 +608,15 @@ protected:
       }
    }
 
-
 private:
-
    //! Nth replacement.
    T0 const & m_t0;
 };
 
 // Base recursion step: no arguments to replace.
 template <>
-class writer_print_helper<> :
-   public writer_print_helper_impl {
+class writer_print_helper<> : public writer_print_helper_impl {
 public:
-
    /*! Constructor.
 
    ptw
@@ -692,9 +628,7 @@ public:
       writer_print_helper_impl(ptw, sFormat) {
    }
 
-
 protected:
-
    /*! Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
    iArg
@@ -821,20 +755,16 @@ inline void writer::print(
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_base
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Base for text I/O classes built on top of a binary::buffered_base instance.
-class ABACLADE_SYM binbuf_base :
-   public virtual base {
+class ABACLADE_SYM binbuf_base : public virtual base {
 public:
-
    //! Destructor.
    virtual ~binbuf_base();
 
@@ -844,9 +774,7 @@ public:
    //! See base::get_encoding().
    virtual abc::text::encoding get_encoding() const override;
 
-
 protected:
-
    /*! Constructor.
 
    enc
@@ -854,12 +782,9 @@ protected:
    */
    binbuf_base(abc::text::encoding enc);
 
-
 protected:
-
    /*! Encoding used for I/O to/from the underlying buffered_base. If not explicitly set, it will be
-   automatically determined and assigned on the first read or write.
-   */
+   automatically determined and assigned on the first read or write. */
    abc::text::encoding m_enc;
 };
 
@@ -867,21 +792,16 @@ protected:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_reader
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
-class ABACLADE_SYM binbuf_reader :
-   public virtual binbuf_base,
-   public virtual reader {
+class ABACLADE_SYM binbuf_reader : public virtual binbuf_base, public virtual reader {
 public:
-
    /*! Constructor.
 
    pbbr
@@ -904,9 +824,7 @@ public:
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
 
-
 private:
-
    /*! Detects the encoding used in the provided buffer.
 
    pb
@@ -918,7 +836,6 @@ private:
       bytes from the provided buffer.
    */
    std::size_t detect_encoding(std::int8_t const * pb, std::size_t cb);
-
 
    /*! Implementation of read_while() for the source encoding == host encoding.
 
@@ -938,7 +855,6 @@ private:
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 
-
    /*! Implementation of read_while() for the source encoding != host encoding.
 
    pb
@@ -957,21 +873,16 @@ private:
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 
-
 protected:
-
    //! Underlying binary buffered reader.
    std::shared_ptr<binary::buffered_reader> m_pbbr;
 
-
 private:
-
    /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
    next read operation encounters a leading ‘\n’, that character will not be considered as a line
    terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present
    clients with a single ‘\n’ character instead of two, as it would happen without this tracker (one
-   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second.
-   */
+   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second. */
    bool m_bDiscardNextLF:1;
 };
 
@@ -979,21 +890,16 @@ private:
 } //namespace io
 } //namespace abc
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::binbuf_writer
-
 
 namespace abc {
 namespace io {
 namespace text {
 
 //! Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
-class ABACLADE_SYM binbuf_writer :
-   public virtual binbuf_base,
-   public virtual writer {
+class ABACLADE_SYM binbuf_writer : public virtual binbuf_base, public virtual writer {
 public:
-
    /*! Constructor.
 
    pbbw
@@ -1018,9 +924,7 @@ public:
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
    ) override;
 
-
 protected:
-
    //! Underlying binary buffered writer.
    std::shared_ptr<binary::buffered_writer> m_pbbw;
 };
@@ -1028,7 +932,6 @@ protected:
 } //namespace text
 } //namespace io
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -28,8 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class to_str_test_case_base :
-   public testing::test_case {
+class to_str_test_case_base : public testing::test_case {
 protected:
 
    //! Constructor.
@@ -77,8 +76,7 @@ protected:
 namespace abc {
 namespace test {
 
-class to_str_int :
-   public to_str_test_case_base {
+class to_str_int : public to_str_test_case_base {
 public:
 
    //! See to_str_test_case_base::title().
@@ -127,8 +125,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int)
 namespace abc {
 namespace test {
 
-class to_str_int8 :
-   public to_str_test_case_base {
+class to_str_int8 : public to_str_test_case_base {
 public:
 
    //! See to_str_test_case_base::title().
@@ -177,8 +174,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_int8)
 namespace abc {
 namespace test {
 
-class to_str_raw_pointers :
-   public to_str_test_case_base {
+class to_str_raw_pointers : public to_str_test_case_base {
 public:
 
    //! See to_str_test_case_base::title().
@@ -233,8 +229,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_raw_pointers)
 namespace abc {
 namespace test {
 
-class to_str_smart_pointers :
-   public to_str_test_case_base {
+class to_str_smart_pointers : public to_str_test_case_base {
 public:
 
    //! See to_str_test_case_base::title().
@@ -291,8 +286,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_smart_pointers)
 namespace abc {
 namespace test {
 
-class to_str_tuples :
-   public to_str_test_case_base {
+class to_str_tuples : public to_str_test_case_base {
 public:
 
    //! See to_str_test_case_base::title().

@@ -31,8 +31,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class vector_basic :
-   public testing::test_case {
+class vector_basic : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -110,8 +109,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_basic)
 namespace abc {
 namespace test {
 
-class vector_relops :
-   public testing::test_case {
+class vector_relops : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -164,8 +162,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_relops)
 namespace abc {
 namespace test {
 
-class vector_iterators :
-   public testing::test_case {
+class vector_iterators : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -207,8 +204,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_iterators)
 namespace abc {
 namespace test {
 
-class vector_remove_trivial :
-   public testing::test_case {
+class vector_remove_trivial : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -322,8 +318,7 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_remove_trivial)
 namespace abc {
 namespace test {
 
-class vector_memory_mgmt :
-   public testing::test_case {
+class vector_memory_mgmt : public testing::test_case {
 public:
 
    //! See testing::test_case::title().
@@ -507,9 +502,8 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_memory_mgmt)
 namespace abc {
 namespace test {
 
-class vector_move :
-   public testing::test_case {
-
+class vector_move : public testing::test_case {
+private:
    typedef testing::utility::instances_counter instances_counter;
 
 public:

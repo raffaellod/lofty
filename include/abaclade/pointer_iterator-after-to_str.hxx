@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::to_str_backend – specialization for abc::pointer_iterator
-
 
 namespace abc {
 
@@ -33,7 +31,6 @@ template <typename TCont, typename TVal>
 class to_str_backend<pointer_iterator<TCont, TVal>> :
    public to_str_backend<typename pointer_iterator<TCont, TVal>::pointer> {
 public:
-
    /*! Writes an iterator as a pointer, applying the formatting options.
 
    it
@@ -47,7 +44,6 @@ public:
 };
 
 } //namespace abc
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

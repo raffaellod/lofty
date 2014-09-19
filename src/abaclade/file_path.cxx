@@ -39,8 +39,7 @@ namespace {
 
 /*! Wrapper for a stat structure that self-loads with information on the file.
 */
-class file_stat :
-   public ::stat {
+class file_stat : public ::stat {
 public:
 
    /*! Constructor.
