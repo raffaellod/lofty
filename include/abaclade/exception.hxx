@@ -240,8 +240,8 @@ See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
 Most of the exception class hierarchy is based on Python’s, which was chosen as model because of its
 breadth and depth.
 
-See related diagram [DIA:8190 Exception class hierarchy] for a diagram of the entire Abaclade
-exception class hierarchy, including the relations with the STL hierarchy.
+See [IMG:8190 Exception class hierarchy] for a diagram of the entire Abaclade exception class
+hierarchy, including the relations with the STL hierarchy.
 
 Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
 exceptions.html>.
