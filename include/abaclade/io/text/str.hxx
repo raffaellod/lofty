@@ -43,7 +43,7 @@ protected:
    str_base();
 
 protected:
-   //! Current read/write offset into the string.
+   //! Current read/write offset into the string, in char_t units.
    std::size_t m_ichOffset;
 };
 
@@ -72,6 +72,15 @@ public:
 
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
+
+   /*! Returns the count of characters (char_t units) still available for reading.
+
+   return
+      Count of characters still available for reading.
+   */
+   std::size_t remaining_size_in_chars() const {
+      return m_psReadBuf->size_in_chars() - m_ichOffset;
+   }
 
 protected:
    /*! Pointer to the source string. Normally points to m_sReadBuf, but subclasses may change that

@@ -128,7 +128,9 @@ dmstr str_writer::release_content() {
       std::size_t cch = cbSrc / sizeof(char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       m_psWriteBuf->set_capacity(m_ichOffset + cch, true);
-      memory::copy(m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(pSrc), cch);
+      memory::copy(
+         m_psWriteBuf->begin().base() + m_ichOffset, static_cast<char_t const *>(pSrc), cch
+      );
       m_ichOffset += cch;
    } else {
       // Calculate the additional buffer size required.
