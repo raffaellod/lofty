@@ -582,7 +582,7 @@ return
    (sizeof(array) / sizeof((array)[0]))
 
 /*! Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
-storage with alignment suitable for any type, just like ::malloc() does. Identical to
+storage with alignment suitable for any type, just like std::malloc() does. Identical to
 bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
 
 cb

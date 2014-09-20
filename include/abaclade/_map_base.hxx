@@ -47,7 +47,7 @@ public:
 
 private:
    /*! Forces the whole union to have the most generic alignment; on many architectures this will be
-   2 * word size. In any case, this makes the union aligned the same way malloc() aligns the
+   2 * word size. In any case, this makes the union aligned the same way std::malloc() aligns the
    pointers it returns. */
    std::max_align_t aligner[ABC_ALIGNED_SIZE(sizeof(T))];
 };

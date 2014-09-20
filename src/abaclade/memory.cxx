@@ -18,9 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#if ABC_HOST_API_POSIX
-   #include <stdlib.h> // free() malloc() realloc()
-#endif
+#include <cstdlib> // std::free() std::malloc() std::realloc()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,12 +39,12 @@ void * ABC_STL_CALLCONV operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((s
 void * ABC_STL_CALLCONV operator new(
    std::size_t cb, std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE() {
-   return ::malloc(cb);
+   return std::malloc(cb);
 }
 void * ABC_STL_CALLCONV operator new[](
    std::size_t cb, std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE() {
-   return ::malloc(cb);
+   return std::malloc(cb);
 }
 
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
@@ -56,10 +54,10 @@ void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
    abc::memory::_raw_free(p);
 }
 void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-   ::free(p);
+   std::free(p);
 }
 void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
-   ::free(p);
+   std::free(p);
 }
 
 #if ABC_HOST_MSC
@@ -73,7 +71,7 @@ namespace abc {
 namespace memory {
 
 void * _raw_alloc(std::size_t cb) {
-   void * p = ::malloc(cb);
+   void * p = std::malloc(cb);
    if (!p) {
       ABC_THROW(memory_allocation_error, ());
    }
@@ -81,11 +79,11 @@ void * _raw_alloc(std::size_t cb) {
 }
 
 void _raw_free(void const * p) {
-   ::free(const_cast<void *>(p));
+   std::free(const_cast<void *>(p));
 }
 
 void * _raw_realloc(void * p, std::size_t cb) {
-   p = ::realloc(p, cb);
+   p = std::realloc(p, cb);
    if (!p) {
       ABC_THROW(memory_allocation_error, ());
    }
