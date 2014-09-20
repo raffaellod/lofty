@@ -606,7 +606,6 @@ return
 #endif //if ABC_HOST_MSC
 #include <climits> // CHAR_BIT *_MAX *_MIN
 #include <cstddef> // std::ptrdiff_t std::size_t
-#include <malloc.h> // free malloc realloc
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
