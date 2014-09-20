@@ -1007,7 +1007,7 @@ void throw_os_error(errint_t err) {
 
       case ERROR_NO_UNICODE_TRANSLATION: // No mapping for the Unicode character exists in the
          // target multibyte code page.
-         ABC_THROW(text::encode_error, (istr(), 0xffffff, err));
+         ABC_THROW(text::encode_error, (istr::empty, 0xffffff, err));
    }
 }
 
@@ -1961,7 +1961,7 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
 }
 
 void syntax_error::init(
-   istr const & sDescription /*= istr()*/, istr const & sSource /*= istr()*/,
+   istr const & sDescription /*= istr::empty*/, istr const & sSource /*= istr::empty*/,
    unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
 ) {
    generic_error::init(err ? err : os_error_mapping<syntax_error>::mapped_error);

@@ -71,7 +71,7 @@ public:
       Pointer to the end of the byte sequence that caused the error.
    */
    void init(
-      istr const & sDescription = istr(), std::uint8_t const * pbInvalidBegin = nullptr,
+      istr const & sDescription = istr::empty, std::uint8_t const * pbInvalidBegin = nullptr,
       std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
    );
 
@@ -116,7 +116,9 @@ public:
    chInvalid
       Code point that caused the error.
    */
-   void init(istr const & sDescription = istr(), char32_t chInvalid = 0xffffff, errint_t err = 0);
+   void init(
+      istr const & sDescription = istr::empty, char32_t chInvalid = 0xffffff, errint_t err = 0
+   );
 
 protected:
    //! See error::_print_extended_info().

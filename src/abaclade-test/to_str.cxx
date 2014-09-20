@@ -44,7 +44,7 @@ protected:
       The resulting contents of the internal writer.
    */
    template <typename T>
-   istr const & get_to_str_output(T const & t, istr const & sFormatSpec = istr()) {
+   istr const & get_to_str_output(T const & t, istr const & sFormatSpec = istr::empty) {
       ABC_TRACE_FUNC(t, sFormatSpec);
 
       m_stw.clear();

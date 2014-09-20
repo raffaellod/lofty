@@ -69,7 +69,7 @@ return
    String representation of t according to sFormat.
 */
 template <typename T>
-dmstr to_str(T const & t, istr const & sFormat = istr());
+dmstr to_str(T const & t, istr const & sFormat = istr::empty);
 
 } //namespace abc
 

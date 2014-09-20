@@ -55,7 +55,7 @@ public:
 
       syntax_error(ABC_SL("expression cannot be empty"))
       syntax_error(ABC_SL("unmatched '{'"), sExpr, iChar)
-      syntax_error(ABC_SL("expected expression"), istr(), iChar, iLine)
+      syntax_error(ABC_SL("expected expression"), istr::empty, iChar, iLine)
       syntax_error(ABC_SL("unexpected end of file"), fpSource, iChar, iLine)
 
    sDescription
@@ -68,8 +68,8 @@ public:
       Line where the error is located.
    */
    void init(
-      istr const & sDescription = istr(), istr const & sSource = istr(), unsigned iChar = 0,
-      unsigned iLine = 0, errint_t err = 0
+      istr const & sDescription = istr::empty, istr const & sSource = istr::empty,
+      unsigned iChar = 0, unsigned iLine = 0, errint_t err = 0
    );
 
 protected:

@@ -39,7 +39,7 @@ char32_t const gc_chP2(0x024b62);
 // The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
 // above and ‘c’ with the BMP (Plane 0) character above.
 istr const gc_sAcabaabca(
-   istr() + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
+   istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
 );
 
 } //namespace test
@@ -359,11 +359,11 @@ public:
       // the new descriptor.
       ABC_TESTING_ASSERT_EQUAL(
          ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
-         istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
+         istr::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
       );
       // Less-complex char32_t-to-ASCII replacement: size will decrease.
       ABC_TESTING_ASSERT_EQUAL(
-         ((s = istr() + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
+         ((s = istr::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
             replace(gc_chP2, char32_t('a')), s),
          ABC_SL("aaaaa")
       );
@@ -589,11 +589,15 @@ public:
 
       ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);
       ABC_TESTING_ASSERT_EQUAL(s.find('d'), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2), s.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + ch0 + 'd'), s.cend());
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2);
-      ABC_TESTING_ASSERT_EQUAL(s.find(istr() + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2), s.cbegin() + 2);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
+      ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2 + ch0 + 'd'), s.cend());
+      ABC_TESTING_ASSERT_EQUAL(
+         s.find(istr::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2
+      );
+      ABC_TESTING_ASSERT_EQUAL(
+         s.find(istr::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend()
+      );
       ABC_TESTING_ASSERT_EQUAL(s.find_last('a'), s.cend() - 1);
 #if 0
       ABC_TESTING_ASSERT_EQUAL(s.find_last(ch2), s.cend() - 3);
@@ -634,12 +638,12 @@ public:
       // See gc_sAcabaabca for more information on its pattern.
       istr const & s = gc_sAcabaabca;
 
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr()));
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr() + 'a'));
-      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr() + 'a' + ch0));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + 'a' + ch2));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + ch0));
-      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr() + ch2));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty + 'a'));
+      ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty + 'a' + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + 'a' + ch2));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + ch2));
       ABC_TESTING_ASSERT_TRUE(s.starts_with(s));
       ABC_TESTING_ASSERT_FALSE(s.starts_with(s + '-'));
       ABC_TESTING_ASSERT_FALSE(s.starts_with('-' + s));
@@ -676,12 +680,12 @@ public:
       // See gc_sAcabaabca for more information on its pattern.
       istr const & s = gc_sAcabaabca;
 
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr()));
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr() + 'a'));
-      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr() + ch0 + 'a'));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch2 + 'a'));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch0));
-      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr() + ch2));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty + 'a'));
+      ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty + ch0 + 'a'));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch2 + 'a'));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch0));
+      ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch2));
       ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
       ABC_TESTING_ASSERT_FALSE(s.ends_with(s + '-'));
       ABC_TESTING_ASSERT_FALSE(s.ends_with('-' + s));

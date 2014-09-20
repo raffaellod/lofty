@@ -64,8 +64,8 @@ void runner::load_registered_test_cases() {
 }
 
 void runner::log_assertion(
-   source_location const & srcloc, bool bPass,
-   istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual /*= istr()*/
+   source_location const & srcloc, bool bPass, istr const & sExpr, istr const & sOp,
+   istr const & sExpected, istr const & sActual /*= istr::empty*/
 ) {
    ABC_TRACE_FUNC(this, srcloc, sExpr, sOp, sExpected, sActual);
 

@@ -722,7 +722,7 @@ decode_error & decode_error::operator=(decode_error const & x) {
 }
 
 void decode_error::init(
-   istr const & sDescription /*= istr()*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
+   istr const & sDescription /*= istr::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
    std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
 ) {
    error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
@@ -781,7 +781,8 @@ encode_error & encode_error::operator=(encode_error const & x) {
 }
 
 void encode_error::init(
-   istr const & sDescription /*= istr()*/, char32_t chInvalid /*= 0xffffff*/, errint_t err /*= 0*/
+   istr const & sDescription /*= istr::empty*/, char32_t chInvalid /*= 0xffffff*/,
+   errint_t err /*= 0*/
 ) {
    error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
    m_sDescription = sDescription;

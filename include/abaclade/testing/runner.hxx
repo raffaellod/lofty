@@ -90,8 +90,8 @@ public:
       string.
    */
    void log_assertion(
-      source_location const & srcloc, bool bPass,
-      istr const & sExpr, istr const & sOp, istr const & sExpected, istr const & sActual = istr()
+      source_location const & srcloc, bool bPass, istr const & sExpr, istr const & sOp,
+      istr const & sExpected, istr const & sActual = istr::empty
    );
 
    /*! Prints test results based on the information collected by log_assertion() and

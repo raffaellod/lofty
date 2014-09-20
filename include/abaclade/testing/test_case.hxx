@@ -98,7 +98,7 @@ protected:
       bool bPass = (tActual == tEqual);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("== "),
-         bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 
@@ -134,7 +134,7 @@ protected:
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("> "),
-         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 
@@ -159,7 +159,7 @@ protected:
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL(">= "),
-         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 
@@ -184,7 +184,7 @@ protected:
       bool bPass = (tActual < tUBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("<= "),
-         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 
@@ -209,7 +209,7 @@ protected:
       bool bPass = (tActual <= tUBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("<= "),
-         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 
@@ -234,7 +234,7 @@ protected:
       bool bPass = (tActual != tNotEqual);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("!= "),
-         bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr() : istr(to_str(tActual))
+         bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr::empty : istr(to_str(tActual))
       );
    }
 

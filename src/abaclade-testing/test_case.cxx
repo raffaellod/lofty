@@ -53,7 +53,7 @@ void test_case::assert_does_not_throw(
       sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
-      srcloc, !sCaughtWhat, sExpr, istr(), ABC_SL("does not throw"), sCaughtWhat
+      srcloc, !sCaughtWhat, sExpr, istr::empty, ABC_SL("does not throw"), sCaughtWhat
    );
 }
 
@@ -61,7 +61,7 @@ void test_case::assert_false(source_location const & srcloc, bool bActual, istr 
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, !bActual, sExpr, istr(), !bActual ? istr() : ABC_SL("false"), ABC_SL("true")
+      srcloc, !bActual, sExpr, istr::empty, !bActual ? istr::empty : ABC_SL("false"), ABC_SL("true")
    );
 }
 
@@ -69,7 +69,7 @@ void test_case::assert_true(source_location const & srcloc, bool bActual, istr c
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, bActual, sExpr, istr(), bActual ? istr() : ABC_SL("true"), ABC_SL("false")
+      srcloc, bActual, sExpr, istr::empty, bActual ? istr::empty : ABC_SL("true"), ABC_SL("false")
    );
 }
 
@@ -94,7 +94,7 @@ void test_case::assert_throws(
       sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
-      srcloc, bPass, sExpr, istr(),
+      srcloc, bPass, sExpr, istr::empty,
       istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
    );
 }
