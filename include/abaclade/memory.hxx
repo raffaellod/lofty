@@ -203,13 +203,14 @@ public:
    /*! Returns true if the deleter is enabled.
 
    return
-      true if the deleter is enable, or false otherwise.
+      true if the deleter is enabled, or false otherwise.
    */
    bool enabled() const {
       return m_bEnabled;
    }
 
 protected:
+   //! true if the deleter is enabled, or false otherwise.
    bool m_bEnabled;
 };
 
