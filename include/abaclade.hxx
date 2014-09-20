@@ -686,6 +686,8 @@ class writer;
 #include <abaclade/str.hxx>
 #include <abaclade/text-after-str.hxx>
 #include <abaclade/to_str.hxx>
+#include <abaclade/from_str.hxx>
+
 #include <abaclade/enum-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
 #include <abaclade/str-after-to_str.hxx>
@@ -702,6 +704,7 @@ class writer;
 
 #include <abaclade/str-after-str_writer.hxx>
 #include <abaclade/to_str-after-str_writer.hxx>
+#include <abaclade/from_str-after-str_reader.hxx>
 
 #include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>
