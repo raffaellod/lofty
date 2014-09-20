@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_HXX
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_HOST_*
 
@@ -89,7 +88,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4820)
 #endif //if ABC_HOST_MSC
 
-
 #define ABC_HOST_API_WIN32 0
 #define ABC_HOST_API_WIN64 0
 #define ABC_HOST_API_LINUX 0
@@ -116,7 +114,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #define ABC_HOST_API_POSIX 1
 #endif
 
-
 //! Machine word size for this microarchitecture.
 // TODO: the word/pointer size is much more easily detected by a configure program.
 #if ABC_HOST_API_WIN64
@@ -129,10 +126,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #error Unable to determine the word size for this microarchitecture
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – platform-dependent fixes
-
 
 // Make sure DEBUG and _DEBUG are coherent; DEBUG wins.
 #if defined(DEBUG) && !defined(_DEBUG)
@@ -158,17 +153,13 @@ You should have received a copy of the GNU General Public License along with Aba
 #if ABC_HOST_MSC
    #pragma warning(pop)
 #endif
-
 // This defines our “real” char16_t.
 #include <abaclade/char.hxx>
 
 #if ABC_HOST_API_POSIX
-
    // This prevents stat() from failing for files bigger than 2 GiB.
    #define _FILE_OFFSET_BITS 64
-
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-
    // Make sure WINVER is defined.
    #ifndef WINVER
       // Pick a default Windows version.
@@ -190,15 +181,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
    #if ABC_HOST_MSC
       // Silence warnings from system header files.
-      // These must be disabled until the end of the compilation unit, because that’s when they
-      // are raised.
 
-      // “Unreferenced inline function has been removed”
+      // “Unreferenced inline function has been removed” ‒ must be disabled until the end of the
+      // compilation unit, because that’s when it’s raised.
       #pragma warning(disable: 4514)
-
       // These can be restored after including header files.
       #pragma warning(push)
-
       // “'macro' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
       #pragma warning(disable: 4668)
    #endif
@@ -221,7 +209,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – C++11 compiler support
 
@@ -237,15 +224,13 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
-them implicitly (N2437).
-*/
+them implicitly (N2437). */
 #if ABC_HOST_GCC >= 40500
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /*! If defined, the compiler allows to delete a specific (overload of a) function, method or
-constructor (N2346).
-*/
+constructor (N2346). */
 #if ABC_HOST_GCC >= 40400
    #define ABC_CXX_FUNC_DELETE
 #endif
@@ -275,13 +260,11 @@ constructor (N2346).
    #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – non-standard, but commonly available, extensions
 
 /*! Declares a function as using the same calling convention as the host C library/STL
-implementation.
-*/
+implementation. */
 #if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
    #define ABC_STL_CALLCONV __cdecl
 #else
@@ -289,19 +272,16 @@ implementation.
 #endif
 
 /*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
-(header) file more than once, speeding up compilation.
-*/
+(header) file more than once, speeding up compilation. */
 #if ABC_HOST_GCC || ABC_HOST_MSC
    #define ABC_CXX_PRAGMA_ONCE
-
    // Use it now for this file.
    #pragma once
 #endif
 
 /*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
-reached.
-*/
+reached. */
 #if ABC_HOST_GCC
    #define ABC_FUNC_NORETURN \
       __attribute__((noreturn))
@@ -345,8 +325,7 @@ reached.
 #endif
 
 /*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
-Abaclade’s shared library (into another library/executable).
-*/
+Abaclade’s shared library (into another library/executable). */
 #ifdef ABAMAKE_BUILD_ABACLADE
    #define ABACLADE_SYM ABC_SYM_EXPORT
 #else
@@ -354,14 +333,12 @@ Abaclade’s shared library (into another library/executable).
 #endif
 
 /*! Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
-from Abaclade’s testing shared library (into another library/executable).
-*/
+from Abaclade’s testing shared library (into another library/executable). */
 #ifdef ABAMAKE_BUILD_ABACLADE_TESTING
    #define ABACLADE_TESTING_SYM ABC_SYM_EXPORT
 #else
    #define ABACLADE_TESTING_SYM ABC_SYM_IMPORT
 #endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
@@ -375,42 +352,29 @@ namespace _std {
 } //namespace _std
 } //namespace abc
 
-
 #ifdef ABC_STLIMPL
-
 // In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
 namespace std {
 using namespace ::abc::_std;
 } //namespace std
-
 #endif
-
 
 namespace abc {
 
 //! A class derived from this one is not copyable.
 class ABACLADE_SYM noncopyable {
 protected:
-
    noncopyable() {
    }
 
 #ifdef ABC_CXX_FUNC_DELETE
-
 protected:
-
    noncopyable(noncopyable const &) = delete;
-
    noncopyable & operator=(noncopyable const &) = delete;
-
 #else //ifdef ABC_CXX_FUNC_DELETE
-
 private:
-
    noncopyable(noncopyable const &);
-
    noncopyable & operator=(noncopyable const &);
-
 #endif //ifdef ABC_CXX_FUNC_DELETE … else
 };
 
@@ -447,15 +411,12 @@ struct add_reference<T &> {
 template <typename T, typename = void>
 struct is_copy_constructible {
 private:
-
    static int test(T &);
    static char test(...);
 
    typedef typename add_reference<T>::type TRef;
 
-
 public:
-
    static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int));
 };
 
@@ -471,36 +432,28 @@ struct is_copy_constructible<T, typename enable_if<
 #endif //if ((ABC_HOST_GCC && ABC_HOST_GCC < 40700) || (ABC_HOST_MSC && ABC_HOST_MSC < 1800)
        //   && !defined(ABC_STLIMPL)
 
-
 //! Declares an explicit conversion operator to bool.
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-
    #define explicit_operator_bool \
       explicit operator bool
-
 
    namespace abc {
 
    /*! A class derived from this one receives support for C++11 explicit operator bool even on
-   non-compliant compilers.
-   */
+   non-compliant compilers. */
    template <typename T>
    struct support_explicit_operator_bool {
    };
 
    } //namespace abc
-
 #else //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-
    #define explicit_operator_bool \
       bool _explicit_operator_bool
-
 
    namespace abc {
 
    //! Non-template helper for support_explicit_operator_bool.
    struct _explob_helper {
-
       //! Non-bool boolean type.
       typedef void (_explob_helper::* bool_type)() const;
 
@@ -508,13 +461,10 @@ struct is_copy_constructible<T, typename enable_if<
       ABACLADE_SYM void bool_true() const;
    };
 
-
    /*! A class derived from this one receives support for C++11 explicit operator bool even on
-   non-compliant compilers.
-   */
+   non-compliant compilers. */
    template <typename T>
    struct support_explicit_operator_bool {
-
       /*! Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
       explicit operator bool().
 
@@ -533,37 +483,29 @@ struct is_copy_constructible<T, typename enable_if<
    } //namespace abc
 
    // Disable relational operators for support_explicit_operator_bool.
-
    #ifdef ABC_CXX_FUNC_DELETE
-
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
          bool operator op( \
             abc::support_explicit_operator_bool<T1> const &, \
             abc::support_explicit_operator_bool<T2> const & \
          ) = delete;
-
    #else //ifdef ABC_CXX_FUNC_DELETE
-
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
          inline bool operator op( \
             abc::support_explicit_operator_bool<T1> const & lhs, \
             abc::support_explicit_operator_bool<T2> const & rhs \
          );
-
    #endif //ifdef ABC_CXX_FUNC_DELETE … else
 
    ABC_RELOP_IMPL(==)
    ABC_RELOP_IMPL(!=)
    #undef ABC_RELOP_IMPL
-
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
-
 /*! Declares a function/method as never throwing exceptions. Supports both C++11 noexcept specifier
-and pre-C++11 throw() exception specifications.
-*/
+and pre-C++11 throw() exception specifications. */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
    #define ABC_STL_NOEXCEPT_TRUE() \
       noexcept(true)
@@ -571,7 +513,6 @@ and pre-C++11 throw() exception specifications.
    #define ABC_STL_NOEXCEPT_TRUE() \
       throw()
 #endif
-
 
 /*! Declares a function/method as possibly throwing exceptions. Supports both C++11 noexcept
 specifier and pre-C++11 throw() exception specifications.
@@ -587,7 +528,6 @@ old_throw_decl
       throw old_throw_decl
 #endif
 
-
 /*! Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
 Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
 
@@ -602,18 +542,15 @@ old_throw_decl
       throw old_throw_decl
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – other
-
 
 #ifndef ABC_STLIMPL
 
 namespace std {
 
 /*! Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
-18.2 “<cstddef>”).
-*/
+18.2 “<cstddef>”). */
 union max_align_t {
    double d;
    long double ld;
@@ -624,7 +561,6 @@ union max_align_t {
 
 #endif //ifndef ABC_STLIMPL
 
-
 /*! Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
 this purpose, but this is noticeably shorter :)
 
@@ -633,7 +569,6 @@ x
 */
 #define ABC_UNUSED_ARG(x) \
    static_cast<void>(x)
-
 
 /*! Returns the number of items in a (static) array.
 
@@ -645,7 +580,6 @@ return
 #undef ABC_COUNTOF
 #define ABC_COUNTOF(array) \
    (sizeof(array) / sizeof((array)[0]))
-
 
 /*! Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
 storage with alignment suitable for any type, just like ::malloc() does. Identical to
@@ -659,10 +593,8 @@ return
 #define ABC_ALIGNED_SIZE(cb) \
    ((static_cast<std::size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // #include other core header files that require a special order
-
 
 #if ABC_HOST_MSC
    // Silence warnings from system header files.
@@ -774,9 +706,7 @@ class writer;
 #include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_HXX
 
