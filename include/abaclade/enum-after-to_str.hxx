@@ -23,6 +23,19 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::enum_impl
+
+namespace abc {
+
+template <class T>
+inline istr enum_impl<T>::name() const {
+   detail::enum_member const * pem = _member();
+   return istr(unsafe, pem->pszName, pem->cchName);
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::enum_to_str_backend_impl
 
 namespace abc {

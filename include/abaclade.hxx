@@ -766,9 +766,6 @@ class writer;
 #endif
 #include <abaclade/str.hxx>
 #include <abaclade/text-after-str.hxx>
-#include <abaclade/text/codepoint_iterator-after-str.hxx>
-#include <abaclade/enum-after-str.hxx>
-#include <abaclade/exception-after-str.hxx>
 #include <abaclade/to_str.hxx>
 #include <abaclade/enum-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
