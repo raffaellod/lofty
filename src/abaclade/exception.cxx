@@ -1057,7 +1057,7 @@ void to_str_backend<source_location>::write(
 ) {
    ABC_TRACE_FUNC(this, srcloc, ptwOut);
 
-   ptwOut->write(istr(unsafe, srcloc.file_path()));
+   ptwOut->write(istr(external_buffer, srcloc.file_path()));
    ptwOut->write(ABC_SL(":"));
    ptwOut->write(srcloc.line_number());
 }
@@ -1161,7 +1161,7 @@ char const * exception::what() const {
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
       ptwOut->print(
-         ABC_SL("#0 {} at {}\n"), istr(unsafe, pabcx->m_pszSourceFunction), pabcx->m_srcloc
+         ABC_SL("#0 {} at {}\n"), istr(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_srcloc
       );
    }
    // Print the stack trace collected via ABC_TRACE_FUNC().

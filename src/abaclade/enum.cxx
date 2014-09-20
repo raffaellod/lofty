@@ -43,7 +43,7 @@ namespace detail {
    ABC_TRACE_FUNC(pem, sName);
 
    for (; pem->pszName; ++pem) {
-      if (sName == istr(unsafe, pem->pszName, pem->cchName)) {
+      if (sName == istr(external_buffer, pem->pszName, pem->cchName)) {
          return pem;
       }
    }
@@ -81,7 +81,7 @@ void enum_to_str_backend_impl::write_impl(
    ABC_TRACE_FUNC(this, i, pem, ptwOut);
 
    enum_member const * petvp = enum_member::find_in_map(pem, i);
-   ptwOut->write(istr(unsafe, petvp->pszName));
+   ptwOut->write(istr(external_buffer, petvp->pszName));
 }
 
 } //namespace detail

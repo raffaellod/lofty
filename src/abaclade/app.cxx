@@ -46,7 +46,7 @@ app::app() {
    pvsRet->set_capacity(static_cast<std::size_t>(cArgs), false);
    // Make each string not allocate a new character array.
    for (int i = 0; i < cArgs; ++i) {
-      pvsRet->append(istr(unsafe, ppszArgs[i]));
+      pvsRet->append(istr(external_buffer, ppszArgs[i]));
    }
 }
 #if ABC_HOST_API_WIN32

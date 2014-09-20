@@ -104,7 +104,7 @@ std::shared_ptr<binbuf_base> _construct_stdio(
 #if ABC_HOST_API_POSIX
       istr sEnc;
       if (char_t const * pszEnvVarValue = ::getenv(pszEnvVarName)) {
-         sEnc = istr(unsafe, pszEnvVarValue);
+         sEnc = istr(external_buffer, pszEnvVarValue);
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       smstr<64> sEnc;

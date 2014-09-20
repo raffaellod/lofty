@@ -660,19 +660,6 @@ return
    ((static_cast<std::size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
 
 
-namespace abc {
-
-//! See abc::unsafe.
-struct unsafe_t {};
-
-/*! Constant used as extra argument for functions to force clients to acknowledge they are
-performing unsafe operations. Use as an extra first argument, similary to std::nothrow.
-*/
-unsafe_t const unsafe;
-
-} //namespace abc
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // #include other core header files that require a special order
 

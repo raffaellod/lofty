@@ -77,6 +77,21 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::external_buffer
+
+namespace abc {
+
+//! See abc::external_buffer.
+struct external_buffer_t {};
+
+/*! Constant similar in use to std::nothrow; when specified as extra argument for abc::*str
+constructors, it indicates that the string should use an external buffer that is guaranteed by the
+caller to have a scope lifetime equal or longer than that of the string. */
+extern ABACLADE_SYM external_buffer_t const external_buffer;
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::str_base
 
 namespace abc {
@@ -673,10 +688,10 @@ public:
       str_base(0) {
       assign_copy(pchBegin, pchEnd);
    }
-   istr(unsafe_t, char_t const * psz) :
+   istr(external_buffer_t const &, char_t const * psz) :
       str_base(psz, text::size_in_chars(psz), true) {
    }
-   istr(unsafe_t, char_t const * psz, std::size_t cch) :
+   istr(external_buffer_t const &, char_t const * psz, std::size_t cch) :
       str_base(psz, cch, false) {
    }
 

@@ -30,7 +30,7 @@ namespace abc {
 template <class T>
 inline istr enum_impl<T>::name() const {
    detail::enum_member const * pem = _member();
-   return istr(unsafe, pem->pszName, pem->cchName);
+   return istr(external_buffer, pem->pszName, pem->cchName);
 }
 
 } //namespace abc

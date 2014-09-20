@@ -134,7 +134,8 @@ protected:
    ppszArgs
       Arguments.
    pvsRet
-      Vector to receive unsafe istr instances containing each argument.
+      Vector to receive istr instances (using external buffers from *ppszArgs) containing each
+      argument.
    */
    static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
 #if ABC_HOST_API_WIN32

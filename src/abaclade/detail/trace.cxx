@@ -40,7 +40,9 @@ void scope_trace_impl::trace_scope(
       sm_bReentering = true;
       try {
          io::text::writer * ptwOut = get_trace_writer();
-         ptwOut->print(ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(unsafe, m_pszFunction));
+         ptwOut->print(
+            ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(external_buffer, m_pszFunction)
+         );
          // Allow the caller to write any scope variables.
          fnWriteVars(ptwOut);
          ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
