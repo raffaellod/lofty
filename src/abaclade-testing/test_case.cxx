@@ -88,14 +88,14 @@ void test_case::assert_throws(
       if (fnMatchType(x)) {
          bPass = true;
       } else {
-         sCaughtWhat = istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(x.what()));
+         sCaughtWhat = istr(ABC_SL("throws {}")).format(istr(external_buffer, x.what()));
       }
    } catch (...) {
       sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
       srcloc, bPass, sExpr, istr::empty,
-      istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
+      istr(ABC_SL("throws {}")).format(istr(external_buffer, pszExpectedWhat)), sCaughtWhat
    );
 }
 
