@@ -31,7 +31,7 @@ class to_str_test_case_base : public testing::test_case {
 protected:
    //! Constructor.
    to_str_test_case_base() :
-      m_stw(&m_sWriterBuffer) {
+      m_stw(external_buffer, &m_sWriterBuffer) {
    }
 
    /*! Same as abc::to_str(), except it uses an writer with a static string for higher speed.

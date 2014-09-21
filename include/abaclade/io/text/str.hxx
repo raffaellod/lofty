@@ -64,11 +64,15 @@ public:
    /*! Constructor.
 
    s
-      Source string.
+      Source string to be copied or moved to the internal buffer.
+   ps
+      Pointer to the source string to be used as external_buffer.
    */
    explicit str_reader(istr const & s);
    explicit str_reader(istr && s);
    explicit str_reader(mstr && s);
+   str_reader(external_buffer_t const &, istr const * ps);
+   str_reader(external_buffer_t const &, mstr const * ps);
 
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
@@ -83,10 +87,9 @@ public:
    }
 
 protected:
-   /*! Pointer to the source string. Normally points to m_sReadBuf, but subclasses may change that
-   as needed. */
+   //! Pointer to the source string, which is m_sReadBuf or an external string.
    istr const * m_psReadBuf;
-   //! Target of m_psReadBuf, unless overridden by subclasses.
+   //! Default target of m_psReadBuf, if none is supplied via the external_buffer constructor.
    istr m_sReadBuf;
 };
 
@@ -107,10 +110,11 @@ public:
    /*! Constructor.
 
    psBuf
-      Pointer to a mutable string to use as the destination of all writes. If omitted, an internal
+      Pointer to a mutable string to use as the destination of all writes; otherwise an internal
       dynamically-allocated string will be used.
    */
-   explicit str_writer(mstr * psBuf = nullptr);
+   str_writer();
+   str_writer(external_buffer_t const &, mstr * psBuf);
 
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();
@@ -142,7 +146,7 @@ public:
 protected:
    //! Pointer to the destination string.
    mstr * m_psWriteBuf;
-   //! Default target of m_psWriteBuf, if none is supplied via constructor.
+   //! Default target of m_psWriteBuf, if none is supplied via the external_buffer constructor.
    dmstr m_sDefaultWriteBuf;
 };
 

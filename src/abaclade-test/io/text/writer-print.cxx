@@ -39,7 +39,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
-      io::text::str_writer stw(&sWriterBuffer);
+      io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
       // Syntax errors.
       stw.clear();
@@ -90,7 +90,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
-      io::text::str_writer stw(&sWriterBuffer);
+      io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
       // Single string replacement, deduced argument index.
       stw.clear();
@@ -165,7 +165,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       smstr<128> sWriterBuffer;
-      io::text::str_writer stw(&sWriterBuffer);
+      io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
       // Single string replacement, referenced twice.
       stw.clear();

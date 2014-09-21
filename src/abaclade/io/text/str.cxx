@@ -71,6 +71,18 @@ str_reader::str_reader(mstr && s) :
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(std::move(s)) {
 }
+str_reader::str_reader(external_buffer_t const &, istr const * ps) :
+   base(),
+   str_base(),
+   reader(),
+   m_psReadBuf(ps) {
+}
+str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
+   base(),
+   str_base(),
+   reader(),
+   m_psReadBuf(ps) {
+}
 
 /*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
@@ -90,11 +102,18 @@ namespace abc {
 namespace io {
 namespace text {
 
-str_writer::str_writer(mstr * psBuf /*= nullptr*/) :
+str_writer::str_writer() :
    base(),
    str_base(),
    writer(),
-   m_psWriteBuf(psBuf ? psBuf : &m_sDefaultWriteBuf) {
+   m_psWriteBuf(&m_sDefaultWriteBuf) {
+}
+
+str_writer::str_writer(external_buffer_t const &, mstr * psBuf) :
+   base(),
+   str_base(),
+   writer(),
+   m_psWriteBuf(psBuf) {
 }
 
 void str_writer::clear() {

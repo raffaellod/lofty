@@ -29,7 +29,7 @@ namespace abc {
 
 template <typename T>
 inline T from_str(istr const & s, istr const & sFormat /*= istr::empty*/) {
-   io::text::str_reader tsr(s);
+   io::text::str_reader tsr(external_buffer, &s);
    from_str_backend<T> fsb;
    fsb.set_format(sFormat);
    T t(fsb.read(t, &tsr));
