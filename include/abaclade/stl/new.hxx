@@ -39,7 +39,7 @@ namespace std {
 struct nothrow_t {};
 
 //! Constant to request no exceptions to be thrown (C++11 § 18.6 “Dynamic memory management”).
-extern nothrow_t const nothrow;
+extern ABACLADE_SYM nothrow_t const nothrow;
 
 } //namespace std
 

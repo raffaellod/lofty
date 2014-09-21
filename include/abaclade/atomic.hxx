@@ -50,7 +50,7 @@ namespace atomic {
 #endif
 
 #if ABC_HOST_API_POSIX
-extern pthread_mutex_t g_mtx;
+extern ABACLADE_SYM pthread_mutex_t g_mtx;
 #endif
 
 /*! Atomically add the second argument to the number pointed to by the first argument, storing the
