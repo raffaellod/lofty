@@ -23,6 +23,57 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::char_ptr_to_str_adapter
+
+namespace abc {
+
+/*! Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
+for compatibility with STL methods such as std::exception::what(). Without this, C strings are
+printed only as pointers, which is often undesirable.
+
+Instances of this class don’t own the memory object they point to. */
+class char_ptr_to_str_adapter {
+private:
+   friend class to_str_backend<char_ptr_to_str_adapter>;
+
+public:
+   /*! Constructor.
+
+   psz
+      C-style NUL-terminated string.
+   */
+   char_ptr_to_str_adapter(char const * psz) :
+      m_psz(psz) {
+   }
+
+protected:
+   //! Wrapped C-style string.
+   char const * m_psz;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for char_ptr_to_str_adapter
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> : public detail::str_to_str_backend {
+public:
+   /*! Writes a C-style NUL-terminated string, applying the formatting options.
+
+   cs
+      C string to write.
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut);
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::_ptr_to_str_backend
 
 namespace abc {
