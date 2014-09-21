@@ -81,7 +81,7 @@ str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
    base(),
    str_base(),
    reader(),
-   m_psReadBuf(ps) {
+   m_psReadBuf(&ps->operator istr const &()) {
 }
 
 /*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
