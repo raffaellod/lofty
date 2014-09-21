@@ -620,6 +620,8 @@ return
    #if ABC_HOST_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
+      // “expression before comma has no effect; expected expression with side-effect”
+      #pragma warning(disable: 4548)
       // “'function': exception specification does not match previous declaration”
       #pragma warning(disable: 4986)
    #endif //if ABC_HOST_MSC
