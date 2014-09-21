@@ -43,11 +43,28 @@ public:
 
    pch
       Pointer to the character array.
+   p
+      Source object.
    bOwn
       If true, the pointer will own the character array; if false, it won’t try to deallocate it.
    */
    c_str_ptr(char_t const * pch, bool bOwn) :
       m_p(pch, pointer::deleter_type(bOwn)) {
+   }
+   c_str_ptr(c_str_ptr && p) :
+      m_p(std::move(p.m_p)) {
+   }
+
+   /*! Assignment operator.
+
+   p
+      Source object.
+   return
+      *this.
+   */
+   c_str_ptr & operator=(c_str_ptr && p) {
+      m_p = std::move(p.m_p);
+      return *this;
    }
 
    /*! Implicit conversion to char_t const *.
