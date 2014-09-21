@@ -35,7 +35,10 @@ inline T from_str(istr const & s, istr const & sFormat /*= istr::empty*/) {
    T t(fsb.read(t, &tsr));
    if (std::size_t cchRemaining = tsr.remaining_size_in_chars()) {
       // There are still unused characters in tsr, so the conversion failed.
-      // TODO: throw an syntax_error-like exception.
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat,
+         static_cast<unsigned>(s.index_from_char_index(s.size_in_chars() - cchRemaining))
+      ));
    }
    return std::move(t);
 }
