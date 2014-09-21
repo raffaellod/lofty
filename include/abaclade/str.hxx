@@ -415,6 +415,18 @@ public:
    ) const;
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
+   /*! Converts a character index into its corresponding code point index.
+
+   ich
+      Character index. No validation is performed on it.
+   return
+      Code point index. If ich is not a valid character index for the string, the return value is
+      undefined.
+   */
+   std::size_t index_from_char_index(std::size_t ich) const {
+      return text::str_traits::size_in_codepoints(chars_begin(), chars_begin() + ich);
+   }
+
    /*! Returns a reverse iterator set to the last element.
 
    return
