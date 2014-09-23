@@ -32,13 +32,13 @@ namespace abc {
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
 ABC_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.
 
-ABC_TRACE_FUNC() initializes a local variable of type abc::_scope_trace which will store references
-to every provided argument.
+ABC_TRACE_FUNC() initializes a local variable of type abc::detail::scope_trace which will store
+references to every provided argument.
 
-abc::_scope_trace::~_scope_trace() detects if the object is being destroyed due to an exceptional
-stack unwinding, in which case it will dump its contents into a thread-local stack trace buffer. The
-outermost catch block (main-level) will output the generated stack trace, if available, using
-abc::exception::write_with_scope_trace().
+abc::detail::scope_trace::~scope_trace() detects if the object is being destroyed due to an
+exceptional stack unwinding, in which case it will dump its contents into a thread-local stack trace
+buffer. The outermost catch block (main-level) will output the generated stack trace, if available,
+using abc::exception::write_with_scope_trace().
 
 When an abc::exception is thrown (it becomes “in-flight”), it will request that the stack trace
 buffer be cleared and it will count itself a a reference to the new trace; when copied, the number
@@ -52,16 +52,17 @@ This covers the following code flows:
 
 •  No exception thrown: no stack trace is generated.
 
-•  Exception is thrown and unwinds up to main(): each abc::_scope_trace adds itself to the stack
-   trace, which is then output; the exception is then destroyed, cleaning the trace buffer.
+•  Exception is thrown and unwinds up to main(): each abc::detail::scope_trace adds itself to the
+   stack trace, which is then output; the exception is then destroyed, cleaning the trace buffer.
 
-•  Exception is thrown, then caught and blocked: one or more abc::_scope_trace might add themselves
-   to the stack trace, but the exception is blocked before it reaches main(), so no output occurs.
+•  Exception is thrown, then caught and blocked: one or more abc::detail::scope_trace might add
+   themselves to the stack trace, but the exception is blocked before it reaches main(), so no
+   output occurs.
 
-•  Exception is thrown, then caught and rethrown: one or more abc::_scope_trace might add themselves
-   to the stack trace, up to the point the exception is caught. Since the exception is not
-   destroyed, the stack trace buffer will keep the original point at which the exception was thrown,
-   resulting in an accurate stack trace in case the exception reaches main().
+•  Exception is thrown, then caught and rethrown: one or more abc::detail::scope_trace might add
+   themselves to the stack trace, up to the point the exception is caught. Since the exception is
+   not destroyed, the stack trace buffer will keep the original point at which the exception was
+   thrown, resulting in an accurate stack trace in case the exception reaches main().
 
 •  Exception is thrown, then caught and a new one is thrown: similar to the previous case, except
    the original exception is destroyed, so the stack trace buffer will not reveal where the original
@@ -84,12 +85,14 @@ Currently unsupported:
 
 //! Provides stack frame logging for the function in which it’s used.
 #define ABC_TRACE_FUNC(...) \
-   _ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(_scope_trace_), __VA_ARGS__)
+   _ABC_TRACE_SCOPE_IMPL( \
+      ABC_CPP_APPEND_UID(_scope_trace_), ABC_CPP_APPEND_UID(_scope_trace_tuple_), __VA_ARGS__ \
+   )
 
 //! Implementation of ABC_TRACE_FUNC() and similar macros.
-#define _ABC_TRACE_SCOPE_IMPL(var, ...) \
-   auto var(::abc::detail::scope_trace_impl::make(__VA_ARGS__)); \
-   var._set_context(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC)
+#define _ABC_TRACE_SCOPE_IMPL(var, tuple, ...) \
+   auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
+   ::abc::detail::scope_trace var(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, &tuple); \
 
 } //namespace abc
 

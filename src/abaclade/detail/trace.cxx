@@ -21,21 +21,31 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace_impl
+// abc::detail::scope_trace_tuple
 
+namespace abc {
+namespace detail {
+
+/*static*/ void scope_trace_tuple::write_separator(io::text::writer * ptwOut) {
+   ptwOut->write(ABC_SL(", "));
+}
+
+} //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::detail::scope_trace
 
 namespace abc {
 namespace detail {
 
 //TODO: tls
-/*tls*/ std::unique_ptr<io::text::str_writer> scope_trace_impl::sm_ptswScopeTrace;
-/*tls*/ unsigned scope_trace_impl::sm_cScopeTraceRefs(0);
-/*tls*/ unsigned scope_trace_impl::sm_iStackDepth(0);
-/*tls*/ bool scope_trace_impl::sm_bReentering(false);
+/*tls*/ std::unique_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
+/*tls*/ unsigned scope_trace::sm_cScopeTraceRefs(0);
+/*tls*/ unsigned scope_trace::sm_iStackDepth(0);
+/*tls*/ bool scope_trace::sm_bReentering(false);
 
-void scope_trace_impl::trace_scope(
-   std::function<void (io::text::writer * ptwOut)> const & fnWriteVars
-) {
+void scope_trace::trace_scope() {
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {
@@ -43,8 +53,8 @@ void scope_trace_impl::trace_scope(
          ptwOut->print(
             ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(external_buffer, m_pszFunction)
          );
-         // Allow the caller to write any scope variables.
-         fnWriteVars(ptwOut);
+         // Write the variables tuple.
+         m_ptplVars->write(ptwOut);
          ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
@@ -52,10 +62,6 @@ void scope_trace_impl::trace_scope(
       }
       sm_bReentering = false;
    }
-}
-
-void scope_trace_impl::write_separator(io::text::writer * ptwOut) {
-   ptwOut->write(ABC_SL(", "));
 }
 
 } //namespace detail

@@ -150,6 +150,7 @@ private:
    typename T::const_pointer m_pti;
 };
 
+
 // Now this can be implemented.
 template <class T>
 inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t) {
