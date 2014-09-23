@@ -255,7 +255,7 @@ namespace abc {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 //! Helper to write a single element out of a tuple, recursing to print any remaining ones.
-template <class TTuple, typename ... Ts>
+template <class TTuple, typename... Ts>
 class _tuple_to_str_backend_element_writer;
 
 // Base case for the template recursion.
@@ -276,7 +276,7 @@ public:
 };
 
 // Template recursion step.
-template <class TTuple, typename T0, typename ... Ts>
+template <class TTuple, typename T0, typename... Ts>
 class _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
    public _tuple_to_str_backend_element_writer<TTuple, Ts ...> {
 public:
@@ -288,7 +288,7 @@ protected:
    to_str_backend<T0> m_tsbt0;
 };
 
-template <typename ... Ts>
+template <typename... Ts>
 class to_str_backend<std::tuple<Ts ...>> :
    public _sequence_to_str_backend,
    public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
@@ -315,7 +315,7 @@ public:
 
 // Now this can be implemented.
 
-template <class TTuple, typename T0, typename ... Ts>
+template <class TTuple, typename T0, typename... Ts>
 inline void _tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
    TTuple const & tpl, io::text::writer * ptwOut
 ) {

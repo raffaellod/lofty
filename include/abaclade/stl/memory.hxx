@@ -181,8 +181,8 @@ public:
    TODO: comment signature.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   template <typename T2, typename ... TArgs>
-   void construct(T2 * pt2, TArgs && ... targs) {
+   template <typename T2, typename... TArgs>
+   void construct(T2 * pt2, TArgs &&... targs) {
       ::new(pt2) T2(forward(targs) ...);
    }
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -1351,8 +1351,8 @@ namespace std {
 TODO: comment signature. */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename T, class TAllocator, typename ... TArgs>
-inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs && ... targs) {
+template <typename T, class TAllocator, typename... TArgs>
+inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs &&... targs) {
    // Allocate a block of memory large enough to contain a refcount object and a T instance, making
    // sure the T has proper alignment.
    max_align_t * p = new max_align_t[
@@ -1399,8 +1399,8 @@ TODO: comment signature.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename T, typename ... TArgs>
-inline shared_ptr<T> make_shared(TArgs && ... targs) {
+template <typename T, typename... TArgs>
+inline shared_ptr<T> make_shared(TArgs &&... targs) {
    return allocate_shared<T, allocator, TArgs ...>(targs ...);
 }
 

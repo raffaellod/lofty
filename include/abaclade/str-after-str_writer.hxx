@@ -29,8 +29,8 @@ namespace abc {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename ... Ts>
-inline dmstr str_base::format(Ts const & ... ts) const {
+template <typename... Ts>
+inline dmstr str_base::format(Ts const &... ts) const {
    io::text::str_writer tsw;
    tsw.print(*static_cast<istr const *>(this), ts ...);
    return tsw.release_content();

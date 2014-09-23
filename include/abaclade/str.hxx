@@ -381,8 +381,8 @@ public:
       Resulting string.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   template <typename ... Ts>
-   dmstr format(Ts const & ... ts) const;
+   template <typename... Ts>
+   dmstr format(Ts const &... ts) const;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
    dmstr format() const;
    template <typename T0>

@@ -192,7 +192,7 @@ namespace _std {
 //! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <std::size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename... Ts>
 class _tuple_tail;
 
 // Base case for the template recursion.
@@ -201,7 +201,7 @@ class _tuple_tail<t_i> {
 };
 
 // Template recursion step.
-template <std::size_t t_i, typename T0, typename ... Ts>
+template <std::size_t t_i, typename T0, typename... Ts>
 class _tuple_tail<t_i, T0, Ts ...> :
    public _tuple_head<t_i, T0>,
    public _tuple_tail<t_i + 1, Ts ...> {
@@ -222,11 +222,11 @@ public:
    _tuple_tail() :
       _thead(), _ttail() {
    }
-   explicit _tuple_tail(T0 const & thead, Ts const & ... ts) :
+   explicit _tuple_tail(T0 const & thead, Ts const &... ts) :
       _thead(thead), _ttail(ts ...) {
    }
-   template <typename Tr0, typename ... Trs>
-   explicit _tuple_tail(Tr0 && thead, Trs && ... ts) :
+   template <typename Tr0, typename... Trs>
+   explicit _tuple_tail(Tr0 && thead, Trs &&... ts) :
       _thead(std::forward<Tr0>(thead)), _ttail(std::forward<Trs>(ts) ...) {
    }
    _tuple_tail(_tuple_tail const & tt) :
@@ -426,7 +426,7 @@ namespace _std {
 //! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename ... Ts>
+template <typename... Ts>
 class tuple : public _tuple_tail<0, Ts ...> {
 private:
    typedef _tuple_tail<0, Ts ...> _timpl;
@@ -442,11 +442,11 @@ public:
    /*constexpr*/ tuple() :
       _timpl() {
    }
-   explicit tuple(Ts const & ... ts) :
+   explicit tuple(Ts const &... ts) :
       _timpl(ts ...) {
    }
-   template <typename ... Trs>
-   explicit tuple(Trs && ... ts) :
+   template <typename... Trs>
+   explicit tuple(Trs &&... ts) :
       _timpl(std::forward<Trs>(ts) ...) {
    }
    tuple(tuple const & tpl) :
@@ -703,12 +703,12 @@ struct tuple_element;
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 // Recursion: remove 1 from the index, and 1 item from the tuple.
-template <std::size_t t_i, typename T0, typename ... Ts>
+template <std::size_t t_i, typename T0, typename... Ts>
 struct tuple_element<t_i, tuple<T0, Ts ...>> : public tuple_element<t_i - 1, tuple<Ts ...>> {
 };
 
 // Base recursion step.
-template <typename T0, typename ... Ts>
+template <typename T0, typename... Ts>
 struct tuple_element<0, tuple<T0, Ts ...>> {
    typedef T0 type;
 };
@@ -799,13 +799,13 @@ return
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <std::size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > &>(tpl).get();
 }
-template <std::size_t t_i, typename ... Ts>
+template <std::size_t t_i, typename... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...> const & tpl) {
    return static_cast<_tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
@@ -851,7 +851,7 @@ struct tuple_size;
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <class ... Ts>
+template <class... Ts>
 struct tuple_size<tuple<Ts ...>> : std::integral_constant<std::size_t, sizeof ...(Ts)> {};
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -967,8 +967,8 @@ return
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename ... Ts>
-inline /*constexpr*/ tuple<Ts & ...> tie(Ts & ... ts) {
+template <typename... Ts>
+inline /*constexpr*/ tuple<Ts & ...> tie(Ts &... ts) {
    return tuple<Ts & ...>(ts ...);
 }
 

@@ -30,7 +30,7 @@ namespace detail {
 
 // Forward declaration.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-template <typename ... Ts>
+template <typename... Ts>
 class scope_trace_tuple_impl;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <
@@ -52,8 +52,8 @@ public:
       Arguments.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   template <typename ... Ts>
-   static scope_trace_tuple_impl<Ts ...> make(Ts const & ... ts);
+   template <typename... Ts>
+   static scope_trace_tuple_impl<Ts ...> make(Ts const &... ts);
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
    static scope_trace_tuple_impl<> make();
    template <typename T0>
@@ -134,7 +134,7 @@ namespace detail {
 
 //! Implementation of scope_trace_tuple with actual data storage.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-template <typename ... Ts>
+template <typename... Ts>
 class scope_trace_tuple_impl : public scope_trace_tuple, public std::tuple<Ts const & ...> {
 private:
    // Handy shortcuts.
@@ -164,7 +164,7 @@ private:
 public:
    //! Constructor.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   explicit scope_trace_tuple_impl(Ts const & ... ts) :
+   explicit scope_trace_tuple_impl(Ts const &... ts) :
       tuple_type(ts ...) {
    }
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -225,8 +225,8 @@ private:
 
 // Now this can be implemented.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-template <typename ... Ts>
-inline /*static*/ scope_trace_tuple_impl<Ts ...> scope_trace_tuple::make(Ts const & ... ts) {
+template <typename... Ts>
+inline /*static*/ scope_trace_tuple_impl<Ts ...> scope_trace_tuple::make(Ts const &... ts) {
    return scope_trace_tuple_impl<Ts ...>(ts ...);
 }
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES

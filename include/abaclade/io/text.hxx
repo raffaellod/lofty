@@ -190,8 +190,8 @@ public:
       Replacement values.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   template <typename ... Ts>
-   void print(istr const & sFormat, Ts const & ... ts);
+   template <typename... Ts>
+   void print(istr const & sFormat, Ts const &... ts);
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
    void print(istr const & sFormat);
    template <typename T0>
@@ -366,7 +366,7 @@ private:
 //! Helper for/implementation of abc::io::text::writer::print().
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename ... Ts>
+template <typename... Ts>
 class writer_print_helper;
 
 // Base recursion step: no arguments to replace.
@@ -399,7 +399,7 @@ protected:
 };
 
 // Recursion step: extract one argument, recurse with the rest.
-template <typename T0, typename ... Ts>
+template <typename T0, typename... Ts>
 class writer_print_helper<T0, Ts ...> : public writer_print_helper<Ts ...> {
 private:
    typedef writer_print_helper<Ts ...> wph_base;
@@ -416,7 +416,7 @@ public:
    ts
       Remaining replacement values.
    */
-   writer_print_helper(writer * ptw, istr const & sFormat, T0 const & t0, Ts const & ... ts) :
+   writer_print_helper(writer * ptw, istr const & sFormat, T0 const & t0, Ts const &... ts) :
       wph_base(ptw, sFormat, ts ...),
       m_t0(t0) {
    }
@@ -654,8 +654,8 @@ protected:
 // Now it’s possible to implement this.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-template <typename ... Ts>
-inline void writer::print(istr const & sFormat, Ts const & ... ts) {
+template <typename... Ts>
+inline void writer::print(istr const & sFormat, Ts const &... ts) {
    detail::writer_print_helper<Ts ...> wph(this, sFormat, ts ...);
    wph.run();
 }
