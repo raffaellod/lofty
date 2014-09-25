@@ -339,16 +339,10 @@ public:
    */
    scope_trace(
       source_location const & srcloc, char_t const * pszFunction, scope_trace_tuple const * ptplVars
-   ) :
-      m_ptplVars(ptplVars),
-      m_pszFunction(pszFunction),
-      m_srcloc(srcloc) {
-   }
+   );
 
    //! Destructor.
-   ~scope_trace() {
-      trace_scope();
-   }
+   ~scope_trace();
 
    /*! Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
@@ -387,24 +381,27 @@ public:
 
 private:
    //! Adds a scope in the current scope trace if an in-flight exception is detected.
-   void trace_scope();
+   void trace_scope() const;
 
 private:
+   //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
+   scope_trace const * m_pstPrev;
    //! Pointer to the caller-allocated tuple containing references to local variables in the scope.
    scope_trace_tuple const * m_ptplVars;
    //! Function name.
    char_t const * m_pszFunction;
    //! Source location.
    source_location m_srcloc;
+   //! Pointer to the head of the scope_trace single-linked list for each thread.
+   static /*tls*/ scope_trace const * sm_pstHead;
    //! Writer that collects the rendered scope trace when an exception is thrown.
    static /*tls*/ std::unique_ptr<io::text::str_writer> sm_ptswScopeTrace;
    //! Number of the next stack frame to be added to the rendered trace.
    static /*tls*/ unsigned sm_iStackDepth;
    //! Count of references to the current rendered trace. Managed by abc::exception.
    static /*tls*/ unsigned sm_cScopeTraceRefs;
-   /*! true if trace_scope() (the only method that actually may do anything at all) is being run.
-   If this is true, another call to it should not try to do anything, otherwise we may get stuck in
-   an infinite recursion. */
+   /*! true if ~trace_scope() is being run; in that case, another call to it should not try to do
+   anything, otherwise we may get stuck in an infinite recursion. */
    static /*tls*/ bool sm_bReentering;
 };
 

@@ -40,28 +40,47 @@ namespace abc {
 namespace detail {
 
 //TODO: tls
+/*tls*/ scope_trace const * scope_trace::sm_pstHead = nullptr;
 /*tls*/ std::unique_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
-/*tls*/ unsigned scope_trace::sm_cScopeTraceRefs(0);
-/*tls*/ unsigned scope_trace::sm_iStackDepth(0);
-/*tls*/ bool scope_trace::sm_bReentering(false);
+/*tls*/ unsigned scope_trace::sm_cScopeTraceRefs = 0;
+/*tls*/ unsigned scope_trace::sm_iStackDepth = 0;
+/*tls*/ bool scope_trace::sm_bReentering = false;
 
-void scope_trace::trace_scope() {
+scope_trace::scope_trace(
+   source_location const & srcloc, char_t const * pszFunction, scope_trace_tuple const * ptplVars
+) :
+   m_pstPrev(sm_pstHead),
+   m_ptplVars(ptplVars),
+   m_pszFunction(pszFunction),
+   m_srcloc(srcloc) {
+   sm_pstHead = this;
+}
+
+scope_trace::~scope_trace() {
+   // The set-and-reset of sm_bReentering doesn’t need memory barriers because this is all contained
+   // in a single thread (sm_bReentering is in TLS).
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {
-         io::text::writer * ptwOut = get_trace_writer();
-         ptwOut->print(
-            ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(external_buffer, m_pszFunction)
-         );
-         // Write the variables tuple.
-         m_ptplVars->write(ptwOut);
-         ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
+         trace_scope();
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
       }
       sm_bReentering = false;
    }
+   // Restore the previous scope trace single-linked list head.
+   sm_pstHead = m_pstPrev;
+}
+
+void scope_trace::trace_scope() const {
+   io::text::writer * ptwOut = get_trace_writer();
+   ptwOut->print(
+      ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(external_buffer, m_pszFunction)
+   );
+   // Write the variables tuple.
+   m_ptplVars->write(ptwOut);
+   ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
 }
 
 } //namespace detail
