@@ -419,8 +419,7 @@ public:
 
 protected:
    /*! String to be returned by what(). Derived classes can overwrite this instead of overriding the
-   entire std::exception::what() method.
-   */
+   entire std::exception::what() method. */
    char const * m_pszWhat;
 
 private:
@@ -468,11 +467,9 @@ public:
    );
 
 protected:
-
    /*! Set to true for the duration of the execution of _assertion_failed(). If another assertion
    fails due to code executed during the call to _assertion_failed(), the latter will just throw,
-   without printing anything; otherwise we’ll most likely get stuck in an infinite recursion.
-   */
+   without printing anything; otherwise we’ll most likely get stuck in an infinite recursion. */
    static /*tls*/ bool sm_bReentering;
 };
 
@@ -659,6 +656,7 @@ public:
 
 namespace abc {
 
+//! Invalid value provided for a variable/argument.
 class ABACLADE_SYM domain_error : public virtual generic_error {
 public:
    //! Constructor.

@@ -33,6 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/file_path.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
+      <source path="src/abaclade/exception-os.cxx"/>
       <source path="src/abaclade/io/binary.cxx"/>
       <source path="src/abaclade/io/binary/buffered.cxx"/>
       <source path="src/abaclade/io/binary/file.cxx"/>
