@@ -142,8 +142,11 @@ private:
    static std::size_t const smc_cTs = std::tuple_size<tuple_type>::value;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <
-   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
-   typename T7, typename T8, typename T9
+   typename T0 /*= _std::_tuple_void*/, typename T1 /*= _std::_tuple_void*/,
+   typename T2 /*= _std::_tuple_void*/, typename T3 /*= _std::_tuple_void*/,
+   typename T4 /*= _std::_tuple_void*/, typename T5 /*= _std::_tuple_void*/,
+   typename T6 /*= _std::_tuple_void*/, typename T7 /*= _std::_tuple_void*/,
+   typename T8 /*= _std::_tuple_void*/, typename T9 /*= _std::_tuple_void*/
 >
 class scope_trace_tuple_impl :
    public scope_trace_tuple,
@@ -178,7 +181,6 @@ public:
       tuple_type(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
    scope_trace_tuple_impl(scope_trace_tuple_impl && tpl) :
       tuple_type(std::move(tpl)) {
    }
