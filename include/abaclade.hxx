@@ -647,6 +647,7 @@ namespace abc {
 
 class str_base;
 class istr;
+class dmstr;
 
 namespace io {
 namespace text {

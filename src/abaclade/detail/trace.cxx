@@ -57,12 +57,12 @@ scope_trace::scope_trace(
 }
 
 scope_trace::~scope_trace() {
-   // The set-and-reset of sm_bReentering doesn’t need memory barriers because this is all contained
-   // in a single thread (sm_bReentering is in TLS).
+   /* The set-and-reset of sm_bReentering doesn’t need memory barriers because this is all contained
+   in a single thread (sm_bReentering is in TLS). */
    if (!sm_bReentering && std::uncaught_exception()) {
       sm_bReentering = true;
       try {
-         trace_scope();
+         write(get_trace_writer(), ++sm_iStackDepth);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
@@ -73,14 +73,18 @@ scope_trace::~scope_trace() {
    sm_pstHead = m_pstPrev;
 }
 
-void scope_trace::trace_scope() const {
-   io::text::writer * ptwOut = get_trace_writer();
-   ptwOut->print(
-      ABC_SL("#{} {} with args: "), ++sm_iStackDepth, istr(external_buffer, m_pszFunction)
-   );
+void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
+   ptwOut->print(ABC_SL("#{} {} with args: "), iStackDepth, istr(external_buffer, m_pszFunction));
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);
    ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
+}
+
+/*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {
+   unsigned iStackDepth = 0;
+   for (scope_trace const * pst = sm_pstHead; pst; pst = pst->m_pstPrev) {
+      pst->write(ptwOut, ++iStackDepth);
+   }
 }
 
 } //namespace detail

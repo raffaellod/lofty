@@ -341,7 +341,7 @@ public:
       source_location const & srcloc, char_t const * pszFunction, scope_trace_tuple const * ptplVars
    );
 
-   //! Destructor.
+   //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
 
    /*! Returns a writer to which the stack frame can be output. The writer is thread-local, which is
@@ -379,9 +379,23 @@ public:
       sm_cScopeTraceRefs = 0;
    }
 
+   /*! Walks the single-linked list of scope_trace instances for the current thread, writing each
+   one to the specified writer.
+
+   ptwOut
+      Pointer to the writer to output to.
+   */
+   static void write_list(io::text::writer * ptwOut);
+
 private:
-   //! Adds a scope in the current scope trace if an in-flight exception is detected.
-   void trace_scope() const;
+   /*! Writes the scope trace to the specified writer.
+
+   ptwOut
+      Pointer to the writer to output to.
+   iStackDepth
+      Stack index to print next to the trace.
+   */
+   void write(io::text::writer * ptwOut, unsigned iStackDepth) const;
 
 private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
@@ -400,7 +414,7 @@ private:
    static /*tls*/ unsigned sm_iStackDepth;
    //! Count of references to the current rendered trace. Managed by abc::exception.
    static /*tls*/ unsigned sm_cScopeTraceRefs;
-   /*! true if ~trace_scope() is being run; in that case, another call to it should not try to do
+   /*! true if ~scope_trace() is being run; in that case, another call to it should not try to do
    anything, otherwise we may get stuck in an infinite recursion. */
    static /*tls*/ bool sm_bReentering;
 };

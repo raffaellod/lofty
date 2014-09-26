@@ -52,11 +52,12 @@ public:
       vi.append(101);
       vi.append(102);
 
-      io::text::stdout()->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
+      auto out(io::text::stdout());
+      out->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
 
-      io::text::stdout()->write_line(ABC_SL("Before calling first_function()"));
+      out->write_line(ABC_SL("Before calling first_function()"));
       first_function(s, vi);
-      io::text::stdout()->write_line(ABC_SL("After calling first_function()"));
+      out->write_line(ABC_SL("After calling first_function()"));
 
       return 0;
    }
@@ -74,10 +75,13 @@ public:
    void first_function(istr const & s, mvector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
 
-      io::text::stdout()->write_line(ABC_SL("Before calling is_zero()"));
+      auto out(io::text::stdout());
+      out->print(ABC_SL("\nCurrent stack/scope trace:\n{}\n"), exception::get_scope_trace());
+
+      out->print(ABC_SL("Before calling is_zero()\n\n"));
       // Passing a null pointer!
       is_zero(numbers_enum::two, nullptr);
-      io::text::stdout()->write_line(ABC_SL("After calling is_zero()"));
+      out->write_line(ABC_SL("After calling is_zero()"));
    }
 
    void is_zero(numbers_enum ne, bool * pbRet) const {

@@ -140,6 +140,12 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
+/*static*/ dmstr exception::get_scope_trace() {
+   io::text::str_writer tsw;
+   detail::scope_trace::write_list(&tsw);
+   return tsw.release_content();
+}
+
 char const * exception::what() const {
    return m_pszWhat;
 }
@@ -229,7 +235,7 @@ void arithmetic_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 //TODO: tls
-/*tls*/ bool assertion_error::sm_bReentering(false);
+/*tls*/ bool assertion_error::sm_bReentering = false;
 
 /*static*/ void assertion_error::_assertion_failed(
    source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
