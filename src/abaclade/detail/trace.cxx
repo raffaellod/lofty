@@ -47,12 +47,11 @@ namespace detail {
 /*tls*/ bool scope_trace::sm_bReentering = false;
 
 scope_trace::scope_trace(
-   source_location const & srcloc, char_t const * pszFunction, scope_trace_tuple const * ptplVars
+   scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars
 ) :
    m_pstPrev(sm_pstHead),
-   m_ptplVars(ptplVars),
-   m_pszFunction(pszFunction),
-   m_srcloc(srcloc) {
+   m_psrcloc(psrcloc),
+   m_ptplVars(ptplVars) {
    sm_pstHead = this;
 }
 
@@ -74,10 +73,12 @@ scope_trace::~scope_trace() {
 }
 
 void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
-   ptwOut->print(ABC_SL("#{} {} with args: "), iStackDepth, istr(external_buffer, m_pszFunction));
+   ptwOut->print(
+      ABC_SL("#{} {} with args: "), iStackDepth, istr(external_buffer, m_psrcloc->pszFunction)
+   );
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);
-   ptwOut->print(ABC_SL(" at {}\n"), m_srcloc);
+   ptwOut->print(ABC_SL(" at {}\n"), source_location(m_psrcloc->pszFilePath, m_psrcloc->iLine));
 }
 
 /*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {

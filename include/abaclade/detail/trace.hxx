@@ -23,6 +23,25 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::detail::scope_trace_source_location
+
+namespace abc {
+namespace detail {
+
+//! Stores the source code location for a scope_trace instance.
+struct scope_trace_source_location {
+   //! Function name.
+   char_t const * pszFunction;
+   //! Path to the source file.
+   char_t const * pszFilePath;
+   //! Line number in pszFilePath.
+   std::uint16_t iLine;
+};
+
+} //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::scope_trace_tuple
 
 namespace abc {
@@ -337,9 +356,7 @@ public:
    tplVars
       Variables to capture.
    */
-   scope_trace(
-      source_location const & srcloc, char_t const * pszFunction, scope_trace_tuple const * ptplVars
-   );
+   scope_trace(scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars);
 
    //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
@@ -400,12 +417,10 @@ private:
 private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
    scope_trace const * m_pstPrev;
+   //! Pointer to the statically-allocated source location.
+   scope_trace_source_location const * m_psrcloc;
    //! Pointer to the caller-allocated tuple containing references to local variables in the scope.
    scope_trace_tuple const * m_ptplVars;
-   //! Function name.
-   char_t const * m_pszFunction;
-   //! Source location.
-   source_location m_srcloc;
    //! Pointer to the head of the scope_trace single-linked list for each thread.
    static /*tls*/ scope_trace const * sm_pstHead;
    //! Writer that collects the rendered scope trace when an exception is thrown.

@@ -86,13 +86,17 @@ Currently unsupported:
 //! Provides stack frame logging for the function in which it’s used.
 #define ABC_TRACE_FUNC(...) \
    _ABC_TRACE_SCOPE_IMPL( \
-      ABC_CPP_APPEND_UID(_scope_trace_), ABC_CPP_APPEND_UID(_scope_trace_tuple_), __VA_ARGS__ \
+      ABC_CPP_APPEND_UID(_scope_trace_), ABC_CPP_APPEND_UID(_scope_trace_tuple_), \
+      ABC_CPP_APPEND_UID(_scope_trace_source_location_), __VA_ARGS__ \
    )
 
 //! Implementation of ABC_TRACE_FUNC() and similar macros.
-#define _ABC_TRACE_SCOPE_IMPL(var, tuple, ...) \
+#define _ABC_TRACE_SCOPE_IMPL(st, tuple, srcloc, ...) \
+   static ::abc::detail::scope_trace_source_location const srcloc = { \
+      _ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
+   }; \
    auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace var(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, &tuple); \
+   ::abc::detail::scope_trace st(&srcloc, &tuple) \
 
 } //namespace abc
 
