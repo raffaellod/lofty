@@ -48,7 +48,7 @@ namespace abc {
 namespace text {
 
 //! A text decoding error occurred.
-class ABACLADE_SYM decode_error : public virtual error {
+class ABACLADE_SYM decode_error : public virtual error, public exception::extended_info {
 public:
    /*! Constructor.
 
@@ -76,8 +76,8 @@ public:
    );
 
 protected:
-   //! See error::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
+   //! See exception::extended_info::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Description of the encountered problem.
@@ -96,7 +96,7 @@ namespace abc {
 namespace text {
 
 //! A text encoding error occurred.
-class ABACLADE_SYM encode_error : public virtual error {
+class ABACLADE_SYM encode_error : public virtual error, public exception::extended_info {
 public:
    /*! Constructor.
 
@@ -121,14 +121,14 @@ public:
    );
 
 protected:
-   //! See error::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
+   //! See exception::extended_info::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Description of the encountered problem.
    istr m_sDescription;
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
-   we don’t want to find out when trying to print it in _print_extended_info(). */
+   we don’t want to find out when trying to print it in write_extended_info(). */
    std::uint32_t m_iInvalidCodePoint;
 };
 

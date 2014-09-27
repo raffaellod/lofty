@@ -155,12 +155,13 @@ char const * exception::what() const {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
       ptwOut->print(ABC_SL("Exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
-      /* If the virtual method _print_extended_info() is not the default one provided by
-      abc::exception, the class has a custom implementation, probably to print something useful. */
-      if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
+
+      if (extended_info const * pxextinfo = dynamic_cast<extended_info const *>(pstdx)) {
+         // The exception implements exception::extended_info; use it to get the additional info.
          try {
-            ptwOut->write(ABC_SL("Extended information:\n"));
-            pabcx->_print_extended_info(ptwOut);
+            ptwOut->write(ABC_SL("Extended information: "));
+            pxextinfo->write_extended_info(ptwOut);
+            ptwOut->write_line();
          } catch (...) {
             /* The exception is not rethrown because we don’t want exception details to interfere
             with the display of the (more important) exception information. */
@@ -179,14 +180,9 @@ char const * exception::what() const {
       );
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
-   ptwOut->write(detail::scope_trace::get_trace_writer()->release_content());
+   ptwOut->write(detail::scope_trace::get_trace_writer()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
    detail::scope_trace::write_list(ptwOut);
-}
-
-void exception::_print_extended_info(io::text::writer * ptwOut) const {
-   // Nothing to print.
-   ABC_UNUSED_ARG(ptwOut);
 }
 
 } //namespace abc
@@ -384,9 +380,8 @@ void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
    m_iInvalid = iInvalid;
 }
 
-/*virtual*/ void index_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   ptwOut->print(ABC_SL("invalid index: {}\n"), m_iInvalid);
-   lookup_error::_print_extended_info(ptwOut);
+/*virtual*/ void index_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
+   ptwOut->print(ABC_SL("invalid index: {}"), m_iInvalid);
 }
 
 } //namespace abc
@@ -518,15 +513,14 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
    m_pInvalid = pInvalid;
 }
 
-/*virtual*/ void memory_address_error::_print_extended_info(
+/*virtual*/ void memory_address_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
    if (m_pInvalid != smc_achUnknownAddress) {
-      ptwOut->print(ABC_SL("invalid address: {}\n"), m_pInvalid);
+      ptwOut->print(ABC_SL("invalid address: {}"), m_pInvalid);
    } else {
       ptwOut->write(smc_achUnknownAddress);
    }
-   generic_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc
@@ -670,14 +664,13 @@ void pointer_iterator_error::init(
    m_pInvalid = pInvalid;
 }
 
-/*virtual*/ void pointer_iterator_error::_print_extended_info(
+/*virtual*/ void pointer_iterator_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
    ptwOut->print(
-      ABC_SL("invalid iterator: {} (container begin/end range: [{}, {}])\n"),
+      ABC_SL("invalid iterator: {} (container begin/end range: [{}, {}])"),
       m_pInvalid, m_pContBegin, m_pContEnd
    );
-   iterator_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc
@@ -737,40 +730,39 @@ void syntax_error::init(
    m_iLine = iLine;
 }
 
-/*virtual*/ void syntax_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
+/*virtual*/ void syntax_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sSource) {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in {1}:{2}:{3}\n");
+            sFormat = ABC_SL("{0} in {1}:{2}:{3}");
          } else {
-            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}\n");
+            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}");
          }
       } else {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in {1}:{2}\n");
+            sFormat = ABC_SL("{0} in {1}:{2}");
          } else {
-            sFormat = ABC_SL("{0} in expression \"{1}\"\n");
+            sFormat = ABC_SL("{0} in expression \"{1}\"");
          }
       }
    } else {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in <input>:{2}:{3}\n");
+            sFormat = ABC_SL("{0} in <input>:{2}:{3}");
          } else {
-            sFormat = ABC_SL("{0} in <expression>, character {3}\n");
+            sFormat = ABC_SL("{0} in <expression>, character {3}");
          }
       } else {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in <input>:{2}\n");
+            sFormat = ABC_SL("{0} in <input>:{2}");
          } else {
-            sFormat = ABC_SL("{0}\n");
+            sFormat = ABC_SL("{0}");
          }
       }
    }
 
    ptwOut->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
-   generic_error::_print_extended_info(ptwOut);
 }
 
 } //namespace abc

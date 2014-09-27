@@ -730,24 +730,23 @@ void decode_error::init(
    m_viInvalid.append(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
 }
 
-/*virtual*/ void decode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
+/*virtual*/ void decode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
-         sFormat = ABC_SL("{0}: byte dump: {1}\n");
+         sFormat = ABC_SL("{0}; byte dump: {1}");
       } else {
-         sFormat = ABC_SL("{0}\n");
+         sFormat = ABC_SL("{0}");
       }
    } else {
       if (m_viInvalid) {
-         sFormat = ABC_SL("byte dump: {1}\n");
+         sFormat = ABC_SL("byte dump: {1}");
       }
    }
 
    if (sFormat) {
       ptwOut->print(sFormat, m_sDescription, m_viInvalid);
    }
-   error::_print_extended_info(ptwOut);
 }
 
 } //namespace text
@@ -789,24 +788,23 @@ void encode_error::init(
    m_iInvalidCodePoint = static_cast<std::uint32_t>(chInvalid);
 }
 
-/*virtual*/ void encode_error::_print_extended_info(io::text::writer * ptwOut) const /*override*/ {
+/*virtual*/ void encode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    istr sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("{0}: code point: {1}\n");
+         sFormat = ABC_SL("{0}; code point: {1}");
       } else {
-         sFormat = ABC_SL("{0}\n");
+         sFormat = ABC_SL("{0}");
       }
    } else {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("code point: {1}\n");
+         sFormat = ABC_SL("code point: {1}");
       }
    }
 
    if (sFormat) {
       ptwOut->print(sFormat, m_sDescription, m_iInvalidCodePoint);
    }
-   error::_print_extended_info(ptwOut);
 }
 
 } //namespace text

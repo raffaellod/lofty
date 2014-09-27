@@ -553,11 +553,10 @@ void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err 
    m_fpNotFound = fpNotFound;
 }
 
-/*virtual*/ void file_not_found_error::_print_extended_info(
+/*virtual*/ void file_not_found_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
-   ptwOut->print(ABC_SL("couldn’t find path: “{}”\n"), m_fpNotFound);
-   environment_error::_print_extended_info(ptwOut);
+   ptwOut->print(ABC_SL("couldn’t find path: “{}”"), m_fpNotFound);
 }
 
 } //namespace abc

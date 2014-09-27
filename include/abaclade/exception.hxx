@@ -322,6 +322,17 @@ info
 //! Base for all abc exceptions classes.
 class ABACLADE_SYM exception {
 public:
+   class ABACLADE_SYM extended_info {
+   public:
+      /*! Writes extended information for the exception to the specified text writer.
+
+      ptwOut
+         Pointer to the writer to output to.
+      */
+      virtual void write_extended_info(io::text::writer * ptwOut) const = 0;
+   };
+
+public:
    //! Related STL exception class.
    typedef std::exception related_std;
 
@@ -372,14 +383,6 @@ public:
    static void write_with_scope_trace(
       io::text::writer * ptwOut = nullptr, std::exception const * pstdx = nullptr
    );
-
-protected:
-   /*! Prints extended information for the exception.
-
-   ptwOut
-      Pointer to the writer to output to.
-   */
-   virtual void _print_extended_info(io::text::writer * ptwOut) const;
 
 public:
 
@@ -729,7 +732,7 @@ public:
 namespace abc {
 
 //! Sequence subscript out of range.
-class ABACLADE_SYM index_error : public virtual lookup_error {
+class ABACLADE_SYM index_error : public virtual lookup_error, public exception::extended_info {
 public:
    /*! Constructor.
 
@@ -761,8 +764,8 @@ public:
    void init(std::ptrdiff_t iInvalid, errint_t err = 0);
 
 protected:
-   //! See exception::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
+   //! See exception::extended_info::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Index that caused the error.
@@ -828,7 +831,9 @@ public:
 namespace abc {
 
 //! An attempt was made to access an invalid memory location.
-class ABACLADE_SYM memory_address_error : public virtual generic_error {
+class ABACLADE_SYM memory_address_error :
+   public virtual generic_error,
+   public exception::extended_info {
 public:
    /*! Constructor.
 
@@ -863,8 +868,8 @@ public:
    void init(void const * pInvalid, errint_t err = 0);
 
 protected:
-   //! See exception::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
+   //! See exception::extended_info::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Address that could not be dereferenced.
@@ -1006,7 +1011,9 @@ public:
 namespace abc {
 
 //! Invalid operation on a pointer-like iterator.
-class ABACLADE_SYM pointer_iterator_error : public virtual iterator_error {
+class ABACLADE_SYM pointer_iterator_error :
+   public virtual iterator_error,
+   public exception::extended_info {
 public:
    /*! Constructor.
 
@@ -1062,8 +1069,8 @@ public:
    );
 
 protected:
-   //! See exception::_print_extended_info().
-   virtual void _print_extended_info(io::text::writer * ptwOut) const override;
+   //! See exception::extended_info::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Value returned by the container’s cbegin().base().
