@@ -76,7 +76,9 @@ public:
       ABC_TRACE_FUNC(this, s, vi);
 
       auto out(io::text::stdout());
-      out->print(ABC_SL("\nCurrent stack/scope trace:\n{}\n"), exception::get_scope_trace());
+      out->write_line();
+      exception::write_with_scope_trace(out.get());
+      out->write_line();
 
       out->print(ABC_SL("Before calling is_zero()\n\n"));
       // Passing a null pointer!

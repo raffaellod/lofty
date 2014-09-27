@@ -140,12 +140,6 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
-/*static*/ dmstr exception::get_scope_trace() {
-   io::text::str_writer tsw;
-   detail::scope_trace::write_list(&tsw);
-   return tsw.release_content();
-}
-
 char const * exception::what() const {
    return m_pszWhat;
 }
@@ -159,24 +153,22 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(ABC_SL("Unhandled exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
+      ptwOut->print(ABC_SL("Exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
-      // If the virtual method _print_extended_info() is not the default one provided by
-      // abc::exception, the class has a custom implementation, probably to print something useful.
+      /* If the virtual method _print_extended_info() is not the default one provided by
+      abc::exception, the class has a custom implementation, probably to print something useful. */
       if (pabcx /*&& pabcx->_print_extended_info != exception::_print_extended_info*/) {
          try {
             ptwOut->write(ABC_SL("Extended information:\n"));
             pabcx->_print_extended_info(ptwOut);
          } catch (...) {
-            // The exception is not rethrown because we don’t want exception details to interfere
-            // with the display of the (more important) exception information.
+            /* The exception is not rethrown because we don’t want exception details to interfere
+            with the display of the (more important) exception information. */
             // FIXME: EXC-SWALLOW
          }
       }
    } else {
-      // Some other type of exception; not much to say.
       pabcx = nullptr;
-      ptwOut->write(ABC_SL("Unhandled exception: (unknown type)\n"));
    }
 
    ptwOut->write(ABC_SL("Stack trace (most recent call first):\n"));
@@ -186,8 +178,10 @@ char const * exception::what() const {
          ABC_SL("#0 {} at {}\n"), istr(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_srcloc
       );
    }
-   // Print the stack trace collected via ABC_TRACE_FUNC().
+   // Print the scope/stack trace collected via ABC_TRACE_FUNC().
    ptwOut->write(detail::scope_trace::get_trace_writer()->release_content());
+   // Append any scope_trace instances that haven’t been destructed yet.
+   detail::scope_trace::write_list(ptwOut);
 }
 
 void exception::_print_extended_info(io::text::writer * ptwOut) const {

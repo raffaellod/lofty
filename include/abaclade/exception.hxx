@@ -352,10 +352,6 @@ public:
    void init() {
    }
 
-   /*! Generates a scope/stack trace.
-   */
-   static dmstr get_scope_trace();
-
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
    to override it; only abc::_exception_aggregator will define this as a virtual, to override
    std::exception::what() with this implementation.

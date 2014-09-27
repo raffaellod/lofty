@@ -216,7 +216,9 @@ private:
    // “'<' : expression is always false”.
    #pragma warning(suppress: 4296) 
 #endif
-   void write_vars(typename std::enable_if<(t_i + 1 < smc_cTs), io::text::writer *>::type ptwOut) const {
+   void write_vars(
+      typename std::enable_if<t_i + 1 < smc_cTs, io::text::writer *>::type ptwOut
+   ) const {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
       ptwOut->write(std::get<t_i>(*this));
 #else
@@ -228,7 +230,9 @@ private:
    }
    // This overload writes a variable without a comma to follow, and does not recurse.
    template <std::size_t t_i>
-   void write_vars(typename std::enable_if<(t_i + 1 == smc_cTs), io::text::writer *>::type ptwOut) const {
+   void write_vars(
+      typename std::enable_if<t_i + 1 == smc_cTs, io::text::writer *>::type ptwOut
+   ) const {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
       ptwOut->write(std::get<t_i>(*this));
 #else
@@ -238,7 +242,7 @@ private:
    // This overload does nothing. Only needed because the tuple may be empty, but write() will call
    // write_vars<0>() unconditionally.
    template <std::size_t t_i>
-   void write_vars(typename std::enable_if<(t_i + 1 > smc_cTs), io::text::writer *>::type ptwOut) const {
+   void write_vars(typename std::enable_if<t_i == smc_cTs, io::text::writer *>::type ptwOut) const {
       ABC_UNUSED_ARG(ptwOut);
    }
 };
