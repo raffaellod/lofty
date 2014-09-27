@@ -266,11 +266,11 @@ since this file is included in virtually every file whereas trace.hxx is not.
 
 //! Pretty-printed name of the current function.
 #if ABC_HOST_GCC
-   // With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because apparently __PRETTY_FUNCTION__ is
-   // expanded by the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t
-   // know what scope even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to
-   // u8__PRETTY_FUNCTION__. However, since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s
-   // not really necessary, so we just avoid using ABC_SL() here.
+   /* With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by
+   the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t know what scope
+   even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to u8__PRETTY_FUNCTION__. However,
+   since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s not really necessary, so we just
+   avoid using ABC_SL() here. */
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
@@ -318,19 +318,6 @@ info
       _x._before_throw(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC); \
       throw _x; \
    } while (false)
-
-/*! Verifies an expression at compile time; failure is reported as a compiler error. See C++11 § 7
-“Declarations” point 4.
-
-expr
-   bool-convertible constant expression to be evaluated.
-msg
-   Diagnostic message to be output in case expr evaluates to false.
-*/
-#if !ABC_HOST_GCC && !ABC_HOST_MSC
-   #define static_assert(expr, msg) \
-      extern char _static_assert_failed[(expr) ? 1 : -1]
-#endif
 
 //! Base for all abc exceptions classes.
 class ABACLADE_SYM exception {
@@ -456,7 +443,7 @@ expr
                ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
             ); \
          } \
-      } while (0)
+      } while (false)
 #else
    #define ABC_ASSERT(expr) \
       static_cast<void>(0)
