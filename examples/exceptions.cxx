@@ -56,7 +56,10 @@ public:
       out->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
 
       out->write_line(ABC_SL("Before calling first_function()"));
+      out->write_line();
       first_function(s, vi);
+
+      // This will never happen.
       out->write_line(ABC_SL("After calling first_function()"));
 
       return 0;
@@ -76,13 +79,16 @@ public:
       ABC_TRACE_FUNC(this, s, vi);
 
       auto out(io::text::stdout());
-      out->write_line();
       exception::write_with_scope_trace(out.get());
       out->write_line();
 
-      out->print(ABC_SL("Before calling is_zero()\n\n"));
+      out->write_line(ABC_SL("Before calling is_zero()"));
+      out->write_line();
+
       // Passing a null pointer!
       is_zero(numbers_enum::two, nullptr);
+
+      // This will never happen.
       out->write_line(ABC_SL("After calling is_zero()"));
    }
 
