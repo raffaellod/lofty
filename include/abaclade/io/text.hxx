@@ -276,7 +276,7 @@ public:
    s
       String to write.
    */
-   void write_line(istr const & s);
+   void write_line(istr const & s = istr::empty);
 
 protected:
    //! See base::base().
