@@ -206,4 +206,91 @@ public:
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_from_os_hard_error)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::exception_scope_trace
+
+namespace abc {
+namespace test {
+
+class exception_scope_trace : public testing::test_case {
+public:
+   //! See testing::test_case::title().
+   virtual istr title() override {
+      return istr(ABC_SL("abc::exception – scope/stack trace generation"));
+   }
+
+   //! See testing::test_case::run().
+   virtual void run() override {
+      std::uint32_t iTestLocal = 3141592654;
+
+      ABC_TRACE_FUNC(this, iTestLocal);
+
+      dmstr sScopeTrace;
+
+      sScopeTrace = get_scope_trace();
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
+
+      try {
+         run_sub_1(12345678u);
+      } catch (std::exception const & x) {
+         sScopeTrace = get_scope_trace(&x);
+      }
+      ABC_TESTING_ASSERT_NOT_EQUAL(
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2(")), sScopeTrace.cend()
+      );
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("spam and eggs")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_NOT_EQUAL(
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1(")), sScopeTrace.cend()
+      );
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("12345678")), sScopeTrace.cend());
+      // This method is invoked via the polymorphic abc::testing::runner class.
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run(")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
+
+      sScopeTrace = get_scope_trace();
+      ABC_TESTING_ASSERT_EQUAL(
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2(")), sScopeTrace.cend()
+      );
+      ABC_TESTING_ASSERT_EQUAL(sScopeTrace.find(ABC_SL("spam and eggs")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_EQUAL(
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1(")), sScopeTrace.cend()
+      );
+      ABC_TESTING_ASSERT_EQUAL(sScopeTrace.find(ABC_SL("12345678")), sScopeTrace.cend());
+      // This method is invoked via the polymorphic abc::testing::runner class.
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run(")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
+   }
+
+   static dmstr get_scope_trace(std::exception const * px = nullptr) {
+      ABC_TRACE_FUNC(px);
+
+      io::text::str_writer tsw;
+      exception::write_with_scope_trace(&tsw, px);
+      return tsw.release_content();
+   }
+
+   void run_sub_1(std::uint32_t iArg) {
+      ABC_TRACE_FUNC(this, iArg);
+
+      run_sub_2(ABC_SL("spam and eggs"));
+   }
+
+   void run_sub_2(istr const & sArg) {
+      ABC_TRACE_FUNC(this, sArg);
+
+      throw_exception();
+   }
+
+   void throw_exception() {
+      ABC_TRACE_FUNC(this);
+
+      ABC_THROW(exception, ());
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_scope_trace)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 

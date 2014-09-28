@@ -282,8 +282,7 @@ since this file is included in virtually every file whereas trace.hxx is not.
 #endif
 
 /*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
-that can be caught from code written for either framework.
-*/
+that can be caught from code written for either framework. */
 template <class TAbc, class TStd = typename TAbc::related_std>
 class _exception_aggregator : public TStd, public TAbc {
 public:
@@ -376,7 +375,8 @@ public:
    to the point of the call to this function.
 
    ptwOut
-      Pointer to the writer to output to. If omitted, the stack trace will be written to stderr.
+      Pointer to the writer to output to. If omitted, the scope/stack trace will be written to
+      stderr.
    pstdx
       Caught exception.
    */
