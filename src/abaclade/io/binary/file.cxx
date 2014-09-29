@@ -710,6 +710,15 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
+bool console_writer::processing_enabled() const {
+   DWORD iConsoleMode;
+   if (!::GetConsoleMode(m_fd.get(), &iConsoleMode)) {
+      // TODO: is this worth throwing an exception for?
+      return false;
+   }
+   return (iConsoleMode & ENABLE_PROCESSED_OUTPUT) != 0;
+}
+
 /*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
@@ -718,24 +727,24 @@ console_writer::console_writer(detail::file_init_data * pfid) :
       static_cast<std::int8_t const *>(p) + cb
    );
    char_t const * pchLastWritten = pchBegin;
-   char_t const * pch = pchBegin;
-   while (pch < pchEnd) {
-      char_t ch = *pch++;
-      if (abc::text::host_char_traits::is_lead_surrogate(ch)) {
-         /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement character
-         in place of the surrogate pair. */
-         write_range(pchLastWritten, pch - 1);
-         ch = abc::text::replacement_char;
-         write_range(&ch, &ch + 1);
-         // If a trail surrogate follows, consume it immediately.
-         if (pch < pchEnd && abc::text::host_char_traits::is_trail_char(*pch)) {
-            ++pch;
+   if (processing_enabled()) {
+      for (char_t const * pch = pchBegin; pch < pchEnd; ) {
+         char_t ch = *pch++;
+         if (abc::text::host_char_traits::is_lead_surrogate(ch)) {
+            /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement character
+            in place of the surrogate pair. */
+            write_range(pchLastWritten, pch - 1);
+            ch = abc::text::replacement_char;
+            write_range(&ch, &ch + 1);
+            // If a trail surrogate follows, consume it immediately.
+            if (pch < pchEnd && abc::text::host_char_traits::is_trail_char(*pch)) {
+               ++pch;
+            }
+            pchLastWritten = pch;
          }
-         pchLastWritten = pch;
       }
    }
-   write_range(pchLastWritten, pch);
-
+   write_range(pchLastWritten, pchEnd);
    return cb;
 }
 

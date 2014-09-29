@@ -381,6 +381,13 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 private:
+   /* Determines whether output processing is enabled for the console pseudo-file.
+
+   return
+      true if the bytes written are to be parsed for special characters, or false otherwise.
+   */
+   bool processing_enabled() const;
+
    /*! Writes a range of characters directly to the console, without any parsing.
 
    pchBegin
