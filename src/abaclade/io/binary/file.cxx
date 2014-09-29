@@ -661,7 +661,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 
    std::int8_t * pb = static_cast<std::int8_t *>(p);
    // ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
-   // of masking them by skipping the call (e.g. due to cchMax == 0 on input).
+   // of masking them by skipping the call (e.g. due to cbMax == 0 on input).
    do {
       // This will be repeated at least once, and as long as we still have some bytes to read, and
       // reading them does not fail.
@@ -713,7 +713,8 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   // TODO: verify that ::WriteConsole() is able to properly display UTF-16 surrogates.
+   // TODO: convert UTF-16 surrogates into abc::text::replacement_char, since ::WriteConsole() is
+   // unable to display them and shows two boxes instead.
 
    // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
    // divided by sizeof(char_t).
@@ -721,7 +722,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 
    std::int8_t const * pb = static_cast<std::int8_t const *>(p);
    // ::WriteConsole() is invoked at least once, so we give it a chance to report any errors,
-   // instead of masking them by skipping the call (e.g. due to cch == 0 on input).
+   // instead of masking them by skipping the call (e.g. due to cb == 0 on input).
    do {
       // This will be repeated at least once, and as long as we still have some bytes to write, and
       // writing them does not fail.
