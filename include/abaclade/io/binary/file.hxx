@@ -379,6 +379,16 @@ public:
 
    //! See file_writer::write().
    virtual std::size_t write(void const * p, std::size_t cb) override;
+
+private:
+   /*! Writes a range of characters directly to the console, without any parsing.
+
+   pchBegin
+      Start of the character array to write.
+   pchEnd
+      End of the character array to write.
+   */
+   void write_range(char_t const * pchBegin, char_t const * pchEnd) const;
 #endif
 };
 

@@ -713,32 +713,48 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   // TODO: convert UTF-16 surrogates into abc::text::replacement_char, since ::WriteConsole() is
-   // unable to display them and shows two boxes instead.
+   char_t const * pchBegin = static_cast<char_t const *>(p);
+   char_t const * pchEnd = reinterpret_cast<char_t const *>(
+      static_cast<std::int8_t const *>(p) + cb
+   );
+   char_t const * pchLastWritten = pchBegin;
+   char_t const * pch = pchBegin;
+   while (pch < pchEnd) {
+      char_t ch = *pch++;
+      if (abc::text::host_char_traits::is_lead_surrogate(ch)) {
+         /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement character
+         in place of the surrogate pair. */
+         write_range(pchLastWritten, pch - 1);
+         ch = abc::text::replacement_char;
+         write_range(&ch, &ch + 1);
+         // If a trail surrogate follows, consume it immediately.
+         if (pch < pchEnd && abc::text::host_char_traits::is_trail_char(*pch)) {
+            ++pch;
+         }
+         pchLastWritten = pch;
+      }
+   }
+   write_range(pchLastWritten, pch);
 
-   // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
-   // divided by sizeof(char_t).
-   std::size_t cch = cb / sizeof(char_t);
+   return cb;
+}
 
-   std::int8_t const * pb = static_cast<std::int8_t const *>(p);
-   // ::WriteConsole() is invoked at least once, so we give it a chance to report any errors,
-   // instead of masking them by skipping the call (e.g. due to cb == 0 on input).
-   do {
-      // This will be repeated at least once, and as long as we still have some bytes to write, and
-      // writing them does not fail.
+void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd) const {
+   ABC_TRACE_FUNC(this, pchBegin, pchEnd);
+
+   // This loop may repeat more than once in the unlikely case cch exceeds what can fit in a DWORD.
+   while (std::size_t cch = static_cast<std::size_t>(pchEnd - pchBegin)) {
       DWORD cchLastWritten;
       if (!::WriteConsole(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<std::size_t>(cch, numeric::max<DWORD>::value)),
-         &cchLastWritten, nullptr
+         m_fd.get(), pchBegin, static_cast<DWORD>(
+            std::min<std::size_t>(cch, numeric::max<DWORD>::value)
+         ), &cchLastWritten, nullptr
       )) {
          throw_os_error();
       }
       // Some bytes were written; prepare for the next attempt.
-      pb += cchLastWritten * sizeof(char_t);
-      cch -= static_cast<std::size_t>(cchLastWritten);
-   } while (cch);
-
-   return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
+      pchBegin += cchLastWritten;
+   }
 }
 #endif //if ABC_HOST_API_WIN32
 
