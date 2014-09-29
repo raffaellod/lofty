@@ -226,8 +226,12 @@ public:
 
       dmstr sScopeTrace;
 
+      // Verify that the current scope trace contains this function.
+
       sScopeTrace = get_scope_trace();
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
+
+      // Verify that an exception in run_sub_*() generates a scope trace with run_sub_*().
 
       try {
          run_sub_1(12345678u);
@@ -245,6 +249,8 @@ public:
       // This method is invoked via the polymorphic abc::testing::runner class.
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run")), sScopeTrace.cend());
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
+
+      // Verify that now the scope trace does not contain run_sub_*().
 
       sScopeTrace = get_scope_trace();
       ABC_TESTING_ASSERT_EQUAL(

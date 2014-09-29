@@ -114,10 +114,9 @@ exception & exception::operator=(exception const & x) {
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
    m_srcloc = x.m_srcloc;
-   // Adopt the source’s in-flight status. See [DOC:8503 Stack tracing].
-   // If the in-flight status is not changing, avoid the pointless (and dangerous, if done in this
-   // sequence – it could delete the trace writer if *this was the last reference to it)
-   // release()/addref().
+   /* Adopt the source’s in-flight status. See [DOC:8503 Stack tracing]. If the in-flight status is
+   not changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
+   trace writer if *this was the last reference to it) release()/addref(). */
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
          detail::scope_trace::trace_writer_release();
