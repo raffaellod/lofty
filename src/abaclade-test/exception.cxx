@@ -235,28 +235,28 @@ public:
          sScopeTrace = get_scope_trace(&x);
       }
       ABC_TESTING_ASSERT_NOT_EQUAL(
-         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2(")), sScopeTrace.cend()
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2")), sScopeTrace.cend()
       );
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("spam and eggs")), sScopeTrace.cend());
       ABC_TESTING_ASSERT_NOT_EQUAL(
-         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1(")), sScopeTrace.cend()
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1")), sScopeTrace.cend()
       );
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("12345678")), sScopeTrace.cend());
       // This method is invoked via the polymorphic abc::testing::runner class.
-      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run(")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run")), sScopeTrace.cend());
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
 
       sScopeTrace = get_scope_trace();
       ABC_TESTING_ASSERT_EQUAL(
-         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2(")), sScopeTrace.cend()
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_2")), sScopeTrace.cend()
       );
       ABC_TESTING_ASSERT_EQUAL(sScopeTrace.find(ABC_SL("spam and eggs")), sScopeTrace.cend());
       ABC_TESTING_ASSERT_EQUAL(
-         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1(")), sScopeTrace.cend()
+         sScopeTrace.find(ABC_SL("exception_scope_trace::run_sub_1")), sScopeTrace.cend()
       );
       ABC_TESTING_ASSERT_EQUAL(sScopeTrace.find(ABC_SL("12345678")), sScopeTrace.cend());
       // This method is invoked via the polymorphic abc::testing::runner class.
-      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run(")), sScopeTrace.cend());
+      ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("runner::run")), sScopeTrace.cend());
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
    }
 
