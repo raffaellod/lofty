@@ -35,6 +35,8 @@ ansi_escape_parser::~ansi_escape_parser() {
 }
 
 bool ansi_escape_parser::got_one_argument(std::int16_t iDefault0) {
+   ABC_TRACE_FUNC(this, iDefault0);
+
    if (m_viCmdArgs.size() == 0) {
       m_viCmdArgs.append(iDefault0);
    }
@@ -42,6 +44,8 @@ bool ansi_escape_parser::got_one_argument(std::int16_t iDefault0) {
 }
 
 bool ansi_escape_parser::got_two_arguments(std::int16_t iDefault0, std::int16_t iDefault1) {
+   ABC_TRACE_FUNC(this, iDefault0, iDefault1);
+
    if (m_viCmdArgs.size() == 0) {
       m_viCmdArgs.append(iDefault0);
    }
@@ -52,6 +56,8 @@ bool ansi_escape_parser::got_two_arguments(std::int16_t iDefault0, std::int16_t 
 }
 
 bool ansi_escape_parser::consume_sequence_char(char_t ch) {
+   ABC_TRACE_FUNC(this, ch);
+
    switch (m_state.base()) {
       case state::escape:
          if (ch == '[' || ch == ']') {
@@ -122,6 +128,8 @@ bool ansi_escape_parser::consume_sequence_char(char_t ch) {
 }
 
 void ansi_escape_parser::run_erase_display_sequence(int iMode) {
+   ABC_TRACE_FUNC(this, iMode);
+
    std::int16_t iRow, iCol, cRows, cCols;
    get_cursor_pos_and_display_size(&iRow, &iCol, &cRows, &cCols);
    if (iMode == 0) {
@@ -143,6 +151,8 @@ void ansi_escape_parser::run_erase_display_sequence(int iMode) {
 }
 
 void ansi_escape_parser::run_erase_row_sequence(int iMode) {
+   ABC_TRACE_FUNC(this, iMode);
+
    std::int16_t iRow, iCol, cRows, cCols;
    get_cursor_pos_and_display_size(&iRow, &iCol, &cRows, &cCols);
    if (iMode == 0) {
@@ -158,6 +168,8 @@ void ansi_escape_parser::run_erase_row_sequence(int iMode) {
 }
 
 void ansi_escape_parser::run_sequence(char_t chCmd) {
+   ABC_TRACE_FUNC(this, chCmd);
+
    if (m_chSeqStart == '[') {
       switch (chCmd) {
          case 'A': // Move cursor up N rows.
@@ -253,6 +265,8 @@ void ansi_escape_parser::run_sequence(char_t chCmd) {
 }
 
 void ansi_escape_parser::run_set_char_attributes_sequence() {
+   ABC_TRACE_FUNC(this);
+
    for (auto it(m_viCmdArgs.cbegin()); it != m_viCmdArgs.cend(); ++it) {
       std::int16_t iCmdArg = *it;
       switch (iCmdArg) {
@@ -307,6 +321,8 @@ void ansi_escape_parser::run_set_char_attributes_sequence() {
 void ansi_escape_parser::safe_set_cursor_pos(
    int iRow, int iCol, bool bAbsoluteRow /*= false*/, bool bAbsoluteCol /*= false*/
 ) {
+   ABC_TRACE_FUNC(this, iRow, iCol, bAbsoluteRow, bAbsoluteCol);
+
    std::int16_t iCurrRow, iCurrCol, cRows, cCols;
    get_cursor_pos_and_display_size(&iCurrRow, &iCurrCol, &cRows, &cCols);
 
