@@ -48,6 +48,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/stl/typeinfo.cxx"/>
       <source path="src/abaclade/str.cxx"/>
       <source path="src/abaclade/text.cxx" />
+      <source path="src/abaclade/text/ansi_escape_parser.cxx"/>
       <source path="src/abaclade/text/char_traits.cxx"/>
       <source path="src/abaclade/text/codepoint_iterator.cxx"/>
       <source path="src/abaclade/text/str_traits.cxx"/>
