@@ -48,15 +48,27 @@ ABC_ENUM_AUTO_VALUES(ansi_escape_parser_state,
 
 } //namespace detail
 
+//! ANSI terminal 3-bit color palette.
+ABC_ENUM(ansi_terminal_color,
+   (black,   0),
+   (red,     1),
+   (green,   2),
+   (yellow,  3),
+   (blue,    4),
+   (magenta, 5),
+   (cyan,    6),
+   (white,   7)
+);
+
 //! Parses ANSI escape sequences into data packets.
 class ABACLADE_SYM ansi_escape_parser {
 public:
    //! Groups together attributes used for graphic rendition (color and other attributes).
    struct char_attributes {
       //! Background color.
-      std::uint8_t iBackground:3;
+      ansi_terminal_color::enum_type iBackground:3;
       //! Foreground color.
-      std::uint8_t iForeground:3;
+      ansi_terminal_color::enum_type iForeground:3;
       //! Generate blinking characters; 0 = off, 1/2 = slow, 3 = rapid.
       std::uint8_t iBlinkSpeed:2;
       //! Display characters using the same color for background and foreground.
@@ -65,7 +77,7 @@ public:
       bool bCrossedOut:1;
       //! Typeface intensity: 0 = faint, 1 = normal, 3 = bold.
       std::uint8_t iIntensity:2;
-      //! Underline the text; 0 = off, 1 = single underline, 2 = double underline.
+      //! Use an italic typeface.
       bool bItalic:1;
       //! Switch background and foreground colors.
       bool bNegativeColors:1;
