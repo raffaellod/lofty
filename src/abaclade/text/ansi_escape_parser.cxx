@@ -274,44 +274,44 @@ void ansi_escape_parser::run_set_char_attributes_sequence() {
          case 39:
          case 49:
             if (iCmdArg != 49) {
-               m_chattrCurr.iForeground = m_chattrDefault.iForeground;
+               m_chattrCurr.clrForeground = m_chattrDefault.clrForeground;
             }
             if (iCmdArg != 39) {
-               m_chattrCurr.iBackground = m_chattrDefault.iBackground;
+               m_chattrCurr.clrBackground = m_chattrDefault.clrBackground;
             }
             if (iCmdArg == 0) {
-               m_chattrCurr.iBlinkSpeed     = m_chattrDefault.iBlinkSpeed;
-               m_chattrCurr.bConcealed      = m_chattrDefault.bConcealed;
-               m_chattrCurr.bCrossedOut     = m_chattrDefault.bCrossedOut;
-               m_chattrCurr.iIntensity      = m_chattrDefault.iIntensity;
-               m_chattrCurr.bItalic         = m_chattrDefault.bItalic;
-               m_chattrCurr.bNegativeColors = m_chattrDefault.bNegativeColors;
-               m_chattrCurr.iUnderline      = m_chattrDefault.iUnderline;
+               m_chattrCurr.iBlinkSpeed   = m_chattrDefault.iBlinkSpeed;
+               m_chattrCurr.bConcealed    = m_chattrDefault.bConcealed;
+               m_chattrCurr.bCrossedOut   = m_chattrDefault.bCrossedOut;
+               m_chattrCurr.iIntensity    = m_chattrDefault.iIntensity;
+               m_chattrCurr.bItalic       = m_chattrDefault.bItalic;
+               m_chattrCurr.bReverseVideo = m_chattrDefault.bReverseVideo;
+               m_chattrCurr.iUnderline    = m_chattrDefault.iUnderline;
             }
             break;
-         case  1: m_chattrCurr.iIntensity      = 3;     break;
-         case  2: m_chattrCurr.iIntensity      = 0;     break;
-         case  3: m_chattrCurr.bItalic         = true;  break;
-         case  4: m_chattrCurr.iUnderline      = 1;     break;
-         case  5: m_chattrCurr.iBlinkSpeed     = 1;     break;
-         case  6: m_chattrCurr.iBlinkSpeed     = 3;     break;
-         case  7: m_chattrCurr.bNegativeColors = true;  break;
-         case  8: m_chattrCurr.bConcealed      = true;  break;
-         case  9: m_chattrCurr.bCrossedOut     = true;  break;
+         case  1: m_chattrCurr.iIntensity    = 2;     break;
+         case  2: m_chattrCurr.iIntensity    = 0;     break;
+         case  3: m_chattrCurr.bItalic       = true;  break;
+         case  4: m_chattrCurr.iUnderline    = 1;     break;
+         case  5: m_chattrCurr.iBlinkSpeed   = 1;     break;
+         case  6: m_chattrCurr.iBlinkSpeed   = 2;     break;
+         case  7: m_chattrCurr.bReverseVideo = true;  break;
+         case  8: m_chattrCurr.bConcealed    = true;  break;
+         case  9: m_chattrCurr.bCrossedOut   = true;  break;
          case 21: // This would set double underline on rare terminals, but bold off on others.
-         case 22: m_chattrCurr.iIntensity      = 1;     break;
-         case 23: m_chattrCurr.bItalic         = false; break;
-         case 24: m_chattrCurr.iUnderline      = 0;     break;
-         case 25: m_chattrCurr.iBlinkSpeed     = 0;     break;
-         case 27: m_chattrCurr.bNegativeColors = false; break;
-         case 28: m_chattrCurr.bConcealed      = false; break;
-         case 29: m_chattrCurr.bCrossedOut     = false; break;
+         case 22: m_chattrCurr.iIntensity    = 1;     break;
+         case 23: m_chattrCurr.bItalic       = false; break;
+         case 24: m_chattrCurr.iUnderline    = 0;     break;
+         case 25: m_chattrCurr.iBlinkSpeed   = 0;     break;
+         case 27: m_chattrCurr.bReverseVideo = false; break;
+         case 28: m_chattrCurr.bConcealed    = false; break;
+         case 29: m_chattrCurr.bCrossedOut   = false; break;
 
          case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37:
-            m_chattrCurr.iForeground = (iCmdArg - 30) & 0x7;
+            m_chattrCurr.clrForeground = static_cast<ansi_terminal_color::enum_type>(iCmdArg - 30);
             break;
          case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47:
-            m_chattrCurr.iBackground = (iCmdArg - 40) & 0x7;
+            m_chattrCurr.clrBackground = static_cast<ansi_terminal_color::enum_type>(iCmdArg - 40);
             break;
       }
    }

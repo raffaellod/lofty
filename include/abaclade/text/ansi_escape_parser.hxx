@@ -66,21 +66,21 @@ public:
    //! Groups together attributes used for graphic rendition (color and other attributes).
    struct char_attributes {
       //! Background color.
-      ansi_terminal_color::enum_type iBackground:3;
+      ansi_terminal_color::enum_type clrBackground:3;
       //! Foreground color.
-      ansi_terminal_color::enum_type iForeground:3;
-      //! Generate blinking characters; 0 = off, 1/2 = slow, 3 = rapid.
+      ansi_terminal_color::enum_type clrForeground:3;
+      //! Generate blinking characters; 0 = off, 1 = slow, 2 = rapid.
       std::uint8_t iBlinkSpeed:2;
       //! Display characters using the same color for background and foreground.
       bool bConcealed:1;
       //! Legible characters, but marked for deletion.
       bool bCrossedOut:1;
-      //! Typeface intensity: 0 = faint, 1 = normal, 3 = bold.
+      //! Typeface intensity: 0 = faint, 1 = normal, 2 = bold.
       std::uint8_t iIntensity:2;
       //! Use an italic typeface.
       bool bItalic:1;
       //! Switch background and foreground colors.
-      bool bNegativeColors:1;
+      bool bReverseVideo:1;
       //! Underline the text; 0 = off, 1 = single underline, 2 = double underline.
       std::uint8_t iUnderline:2;
    };
