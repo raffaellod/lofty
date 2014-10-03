@@ -28,6 +28,9 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/file_path.hxx>
+#if ABC_HOST_API_WIN32
+   #include <abaclade/text/ansi_escape_parser.hxx>
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,7 +368,12 @@ namespace io {
 namespace binary {
 
 //! Console/terminal output pseudo-file.
-class ABACLADE_SYM console_writer : public virtual console_file_base, public file_writer {
+class ABACLADE_SYM console_writer :
+#if ABC_HOST_API_WIN32
+   private abc::text::ansi_escape_parser,
+#endif
+   public virtual console_file_base,
+   public file_writer {
 public:
    //! See file_writer::file_writer().
    console_writer(detail::file_init_data * pfid);
@@ -381,12 +389,35 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 private:
+   //! See abc::text::ansi_escape_parser::clear_display_area().
+   virtual void clear_display_area(std::int16_t iRow, std::int16_t iCol, std::size_t cch) override;
+
+   //! See abc::text::ansi_escape_parser::get_cursor_pos_and_display_size().
+   virtual void get_cursor_pos_and_display_size(
+      std::int16_t * piRow, std::int16_t * piCol, std::int16_t * pcRows, std::int16_t * pcCols
+   ) override;
+
    /* Determines whether output processing is enabled for the console pseudo-file.
 
    return
       true if the bytes written are to be parsed for special characters, or false otherwise.
    */
    bool processing_enabled() const;
+
+   //! See abc::text::ansi_escape_parser::scroll_text().
+   virtual void scroll_text(std::int16_t cRows, std::int16_t cCols) override;
+
+   //! See abc::text::ansi_escape_parser::set_char_attributes().
+   virtual void set_char_attributes() override;
+
+   //! See abc::text::ansi_escape_parser::set_cursor_pos().
+   virtual void set_cursor_pos(std::int16_t iRow, std::int16_t iCol) override;
+
+   //! See abc::text::ansi_escape_parser::set_cursor_visibility().
+   virtual void set_cursor_visibility(bool bVisible) override;
+
+   //! See abc::text::ansi_escape_parser::set_window_title().
+   virtual void set_window_title(istr const & sTitle) override;
 
    /*! Writes a range of characters directly to the console, without any parsing.
 
@@ -396,6 +427,12 @@ private:
       End of the character array to write.
    */
    void write_range(char_t const * pchBegin, char_t const * pchEnd) const;
+
+private:
+   //! Mapping table from ANSI terminal colors to Win32 console background colors.
+   static WORD const smc_aiAnsiColorToBackgroundColor[];
+   //! Mapping table from ANSI terminal colors to Win32 console foreground colors.
+   static WORD const smc_aiAnsiColorToForegroundColor[];
 #endif
 };
 

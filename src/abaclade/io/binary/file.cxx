@@ -700,23 +700,160 @@ namespace abc {
 namespace io {
 namespace binary {
 
+#if ABC_HOST_API_WIN32
+WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
+   /* black   */ 0,
+   /* red     */ FOREGROUND_RED,
+   /* green   */                  FOREGROUND_GREEN,
+   /* yellow  */ FOREGROUND_RED | FOREGROUND_GREEN,
+   /* blue    */                                     FOREGROUND_BLUE,
+   /* magenta */ FOREGROUND_RED |                    FOREGROUND_BLUE,
+   /* cyan    */                  FOREGROUND_GREEN | FOREGROUND_BLUE,
+   /* white   */ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
+};
+WORD const console_writer::smc_aiAnsiColorToBackgroundColor[] = {
+   /* black   */ 0,
+   /* red     */ BACKGROUND_RED,
+   /* green   */                  BACKGROUND_GREEN,
+   /* yellow  */ BACKGROUND_RED | BACKGROUND_GREEN,
+   /* blue    */                                     BACKGROUND_BLUE,
+   /* magenta */ BACKGROUND_RED |                    BACKGROUND_BLUE,
+   /* cyan    */                  BACKGROUND_GREEN | BACKGROUND_BLUE,
+   /* white   */ BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
+};
+#endif
+
 console_writer::console_writer(detail::file_init_data * pfid) :
+#if ABC_HOST_API_WIN32
+   abc::text::ansi_escape_parser(),
+#endif
    file_base(pfid),
    console_file_base(pfid),
    file_writer(pfid) {
+#if ABC_HOST_API_WIN32
+   ABC_TRACE_FUNC(this, pfid);
+
+   ::CONSOLE_SCREEN_BUFFER_INFO csbi;
+   ::GetConsoleScreenBufferInfo(m_fd.get(), &csbi);
+   for (unsigned i = 0; i < ABC_COUNTOF(smc_aiAnsiColorToForegroundColor); ++i) {
+      if ((
+         csbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
+      )) == smc_aiAnsiColorToBackgroundColor[i]) {
+         m_chattrDefault.clrBackground = static_cast<abc::text::ansi_terminal_color::enum_type>(i);
+      }
+      if ((
+         csbi.wAttributes & (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
+      )) == smc_aiAnsiColorToForegroundColor[i]) {
+         m_chattrDefault.clrForeground = static_cast<abc::text::ansi_terminal_color::enum_type>(i);
+      }
+   }
+   m_chattrDefault.iBlinkSpeed   = 0;
+   m_chattrDefault.bConcealed    = false;
+   m_chattrDefault.bCrossedOut   = false;
+   m_chattrDefault.iIntensity    = (csbi.wAttributes & FOREGROUND_INTENSITY) ? 2u : 1u;
+   m_chattrDefault.bItalic       = false;
+   m_chattrDefault.bReverseVideo = false;
+   m_chattrDefault.iUnderline    = false;
+
+   m_chattrCurr = m_chattrDefault;
+#endif
 }
 
 /*virtual*/ console_writer::~console_writer() {
 }
 
 #if ABC_HOST_API_WIN32
+/*virtual*/ void console_writer::clear_display_area(
+   std::int16_t iRow, std::int16_t iCol, std::size_t cch
+) /*override*/ {
+   ABC_TRACE_FUNC(this, iRow, iCol, cch);
+
+   // TODO: implementation.
+}
+
+/*virtual*/ void console_writer::get_cursor_pos_and_display_size(
+   std::int16_t * piRow, std::int16_t * piCol, std::int16_t * pcRows, std::int16_t * pcCols
+) /*override*/ {
+   ABC_TRACE_FUNC(this, piRow, piCol, pcRows, pcCols);
+
+   ::CONSOLE_SCREEN_BUFFER_INFO csbi;
+   ::GetConsoleScreenBufferInfo(m_fd.get(), &csbi);
+   *piRow = csbi.dwCursorPosition.Y;
+   *piCol = csbi.dwCursorPosition.X;
+   *pcRows = csbi.dwSize.Y;
+   *pcCols = csbi.dwSize.X;
+}
+
 bool console_writer::processing_enabled() const {
+   ABC_TRACE_FUNC(this);
+
    DWORD iConsoleMode;
    if (!::GetConsoleMode(m_fd.get(), &iConsoleMode)) {
       // TODO: is this worth throwing an exception for?
       return false;
    }
    return (iConsoleMode & ENABLE_PROCESSED_OUTPUT) != 0;
+}
+
+/*virtual*/ void console_writer::scroll_text(std::int16_t cRows, std::int16_t cCols) /*override*/ {
+   ABC_TRACE_FUNC(this, cRows, cCols);
+
+   // TODO: implementation.
+}
+
+/*virtual*/ void console_writer::set_char_attributes() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   WORD iAttr;
+   if (m_chattrCurr.bConcealed) {
+      if (m_chattrCurr.bReverseVideo) {
+         iAttr  = smc_aiAnsiColorToBackgroundColor[m_chattrCurr.clrForeground];
+         iAttr |= smc_aiAnsiColorToForegroundColor[m_chattrCurr.clrForeground];
+         if (m_chattrCurr.iIntensity == 2) {
+            // Turn on background intensity as well, to match foreground intensity.
+            iAttr |= FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
+         }
+      } else {
+         iAttr  = smc_aiAnsiColorToBackgroundColor[m_chattrCurr.clrBackground];
+         iAttr |= smc_aiAnsiColorToForegroundColor[m_chattrCurr.clrBackground];
+      }
+   } else {
+      if (m_chattrCurr.bReverseVideo) {
+         iAttr  = smc_aiAnsiColorToBackgroundColor[m_chattrCurr.clrForeground];
+         iAttr |= smc_aiAnsiColorToForegroundColor[m_chattrCurr.clrBackground];
+      } else {
+         iAttr  = smc_aiAnsiColorToBackgroundColor[m_chattrCurr.clrBackground];
+         iAttr |= smc_aiAnsiColorToForegroundColor[m_chattrCurr.clrForeground];
+      }
+      if (m_chattrCurr.iIntensity == 2) {
+         iAttr |= FOREGROUND_INTENSITY;
+      }
+   }
+   ::SetConsoleTextAttribute(m_fd.get(), iAttr);
+}
+
+/*virtual*/ void console_writer::set_cursor_pos(std::int16_t iRow, std::int16_t iCol) /*override*/ {
+   ABC_TRACE_FUNC(this, iRow, iCol);
+
+   ::COORD coord;
+   coord.X = iCol;
+   coord.Y = iRow;
+   ::SetConsoleCursorPosition(m_fd.get(), coord);
+}
+
+/*virtual*/ void console_writer::set_cursor_visibility(bool bVisible) /*override*/ {
+   ABC_TRACE_FUNC(this, bVisible);
+
+   ::CONSOLE_CURSOR_INFO cci;
+   ::GetConsoleCursorInfo(m_fd.get(), &cci);
+   cci.bVisible = bVisible;
+   ::SetConsoleCursorInfo(m_fd.get(), &cci);
+}
+
+/*virtual*/ void console_writer::set_window_title(istr const & sTitle) /*override*/ {
+   ABC_TRACE_FUNC(this, sTitle);
+
+   ::SetConsoleTitle(sTitle.c_str());
 }
 
 /*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
@@ -729,22 +866,36 @@ bool console_writer::processing_enabled() const {
    char_t const * pchLastWritten = pchBegin;
    if (processing_enabled()) {
       for (char_t const * pch = pchBegin; pch < pchEnd; ) {
-         char_t ch = *pch++;
+         char_t ch = *pch;
          if (abc::text::host_char_traits::is_lead_surrogate(ch)) {
-            /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement character
-            in place of the surrogate pair. */
-            write_range(pchLastWritten, pch - 1);
-            ch = abc::text::replacement_char;
-            write_range(&ch, &ch + 1);
+            /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement
+            character in place of the surrogate pair. */
+            if (pchLastWritten < pch) {
+               write_range(pchLastWritten, pch);
+            }
+            ++pch;
             // If a trail surrogate follows, consume it immediately.
             if (pch < pchEnd && abc::text::host_char_traits::is_trail_char(*pch)) {
                ++pch;
             }
             pchLastWritten = pch;
+            // Write the replacement character.
+            ch = abc::text::replacement_char;
+            write_range(&ch, &ch + 1);
+         } else if (consume_char(ch)) {
+            // ch is part of an ANSI escape sequence.
+            if (pchLastWritten < pch) {
+               write_range(pchLastWritten, pch);
+            }
+            pchLastWritten = ++pch;
+         } else {
+            ++pch;
          }
       }
    }
-   write_range(pchLastWritten, pchEnd);
+   if (pchLastWritten < pchEnd) {
+      write_range(pchLastWritten, pchEnd);
+   }
    return cb;
 }
 
