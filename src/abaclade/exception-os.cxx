@@ -87,7 +87,7 @@ void throw_os_error(errint_t err) {
 
       case ENODEV: // No such device (POSIX.1-2001)
       case ENOENT: // No such file or directory (POSIX.1-2001)
-         ABC_THROW(file_not_found_error, (file_path(), err));
+         ABC_THROW(file_not_found_error, (os::path(), err));
 
       case EIDRM: // Identifier removed (POSIX.1-2001)
       case EILSEQ: // Illegal byte sequence (POSIX.1-2001, C99)
@@ -355,7 +355,7 @@ void throw_os_error(errint_t err) {
 
       case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
       case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-         ABC_THROW(file_not_found_error, (file_path(), err));
+         ABC_THROW(file_not_found_error, (os::path(), err));
 
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
          // when initialization has already been completed.

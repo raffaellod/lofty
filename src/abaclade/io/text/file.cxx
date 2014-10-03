@@ -169,11 +169,11 @@ std::shared_ptr<binbuf_writer> stdout() {
 }
 
 std::shared_ptr<binbuf_base> open(
-   file_path const & fp, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+   os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(fp, am, enc);
+   ABC_TRACE_FUNC(op, am, enc);
 
-   return _construct(binary::open(fp, am), enc);
+   return _construct(binary::open(op, am), enc);
 }
 
 } //namespace text

@@ -796,7 +796,7 @@ public:
 
 namespace abc {
 
-//! The specified file path is not a valid path.
+//! The specified path is not valid.
 class ABACLADE_SYM invalid_path_error : public virtual generic_error {
 public:
    //! Constructor.

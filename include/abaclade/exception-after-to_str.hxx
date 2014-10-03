@@ -56,7 +56,7 @@ public:
       syntax_error(ABC_SL("expression cannot be empty"))
       syntax_error(ABC_SL("unmatched '{'"), sExpr, iChar)
       syntax_error(ABC_SL("expected expression"), istr::empty, iChar, iLine)
-      syntax_error(ABC_SL("unexpected end of file"), fpSource, iChar, iLine)
+      syntax_error(ABC_SL("unexpected end of file"), opSource, iChar, iLine)
 
    sDescription
       Description of the syntax error.

@@ -298,10 +298,8 @@ std::shared_ptr<file_writer> stdout() {
    return g_pbfwStdOut;
 }
 
-std::shared_ptr<file_base> open(
-   file_path const & fp, access_mode am, bool bBuffered /*= true*/
-) {
-   ABC_TRACE_FUNC(fp, am, bBuffered);
+std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffered /*= true*/) {
+   ABC_TRACE_FUNC(op, am, bBuffered);
 
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
@@ -324,12 +322,12 @@ std::shared_ptr<file_base> open(
    if (!bBuffered) {
       fi |= O_DIRECT;
    }
-   fid.fd = ::open(fp.os_str().c_str(), fi, 0666);
+   fid.fd = ::open(op.os_str().c_str(), fi, 0666);
    if (!fid.fd) {
       switch (errno) {
          case ENODEV: // No such device (POSIX.1-2001)
          case ENOENT: // No such file or directory (POSIX.1-2001)
-            ABC_THROW(file_not_found_error, (fp, errno));
+            ABC_THROW(file_not_found_error, (op, errno));
          default:
             throw_os_error(errno);
       }
@@ -368,13 +366,13 @@ std::shared_ptr<file_base> open(
    } else if (fiAccess & GENERIC_READ) {
       fi |= FILE_FLAG_SEQUENTIAL_SCAN;
    }
-   fid.fd = ::CreateFile(fp.os_str().c_str(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
+   fid.fd = ::CreateFile(op.os_str().c_str(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
    if (!fid.fd) {
       DWORD iErr = ::GetLastError();
       switch (iErr) {
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
          case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-            ABC_THROW(file_not_found_error, (fp, iErr));
+            ABC_THROW(file_not_found_error, (op, iErr));
          default:
             throw_os_error(iErr);
       }

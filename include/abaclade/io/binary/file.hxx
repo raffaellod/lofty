@@ -88,7 +88,7 @@ ABACLADE_SYM std::shared_ptr<file_writer> stdout();
 
 /*! Opens a file for binary access.
 
-fp
+op
    Path to the file.
 am
    Desired access mode.
@@ -98,11 +98,11 @@ bBuffered
 return
    Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<file_base> open(file_path const & fp, access_mode am, bool bBuffered = true);
+std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffered = true);
 
 /*! Opens a file for binary reading.
 
-fp
+op
    Path to the file.
 bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
@@ -110,13 +110,13 @@ bBuffered
 return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<file_reader> open_reader(file_path const & fp, bool bBuffered = true) {
-   return std::dynamic_pointer_cast<file_reader>(open(fp, access_mode::read, bBuffered));
+inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBuffered = true) {
+   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBuffered));
 }
 
 /*! Opens a file for binary writing.
 
-fp
+op
    Path to the file.
 bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
@@ -124,8 +124,8 @@ bBuffered
 return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<file_writer> open_writer(file_path const & fp, bool bBuffered = true) {
-   return std::dynamic_pointer_cast<file_writer>(open(fp, access_mode::write, bBuffered));
+inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBuffered = true) {
+   return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBuffered));
 }
 
 } //namespace binary

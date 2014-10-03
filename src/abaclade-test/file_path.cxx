@@ -23,16 +23,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::file_path_normalization
+// abc::test::os_path_normalization
 
 namespace abc {
 namespace test {
 
-class file_path_normalization : public testing::test_case {
+class os_path_normalization : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::file_path – normalization of relative and absolute paths"));
+      return istr(ABC_SL("abc::os::path – normalization of relative and absolute paths"));
    }
 
    //! See testing::test_case::run().
@@ -42,8 +42,8 @@ public:
       // Note that under Win32, paths that start with “/” are still relative to the current volume;
       // nonetheless, the assertions should still be valid.
 
-      istr sSep(file_path::separator());
-#define norm_path(s)   istr(file_path(ABC_SL(s)).normalize())
+      istr sSep(os::path::separator());
+#define norm_path(s)   istr(os::path(ABC_SL(s)).normalize())
 #define format_seps(s) istr(ABC_SL(s)).format(sSep)
 
       // Empty path.
@@ -149,65 +149,65 @@ public:
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::os_path_normalization)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::file_path_normalization_joined
+// abc::test::os_path_normalization_joined
 
 namespace abc {
 namespace test {
 
-class file_path_normalization_joined : public testing::test_case {
+class os_path_normalization_joined : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::file_path – normalization of joined paths"));
+      return istr(ABC_SL("abc::os::path – normalization of joined paths"));
    }
 
    //! See testing::test_case::run().
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      file_path fp(file_path::current_dir());
+      os::path op(os::path::current_dir());
 
       // These should be normalized out.
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL(""   )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/"  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("//" )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/." )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./" )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/./")).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./.")).normalize(), fp);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL(""   )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("/"  )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("//" )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("."  )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("/." )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("./" )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("/./")).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("./.")).normalize(), op);
 
       // These should NOT be normalized: three dots are just another regular path component.
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("..."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("/..." )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL(".../" )).normalize(), fp);
-      ABC_TESTING_ASSERT_NOT_EQUAL((fp / ABC_SL("/.../")).normalize(), fp);
+      ABC_TESTING_ASSERT_NOT_EQUAL((op / ABC_SL("..."  )).normalize(), op);
+      ABC_TESTING_ASSERT_NOT_EQUAL((op / ABC_SL("/..." )).normalize(), op);
+      ABC_TESTING_ASSERT_NOT_EQUAL((op / ABC_SL(".../" )).normalize(), op);
+      ABC_TESTING_ASSERT_NOT_EQUAL((op / ABC_SL("/.../")).normalize(), op);
 
       // Now with one additional trailing component.
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/test"   )).normalize(), fp / ABC_SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("//test"  )).normalize(), fp / ABC_SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("./test"  )).normalize(), fp / ABC_SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("/./test" )).normalize(), fp / ABC_SL("test"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("././test")).normalize(), fp / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("/test"   )).normalize(), op / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("//test"  )).normalize(), op / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("./test"  )).normalize(), op / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("/./test" )).normalize(), op / ABC_SL("test"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("././test")).normalize(), op / ABC_SL("test"));
 
       // Verify that ".." works.
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/.."       )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b"     )).normalize(), fp / ABC_SL("b"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b/.."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../.."  )).normalize(), fp);
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../c"   )).normalize(), fp / ABC_SL("a/c"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/../b/../c")).normalize(), fp / ABC_SL("c"));
-      ABC_TESTING_ASSERT_EQUAL((fp / ABC_SL("a/b/../../c")).normalize(), fp / ABC_SL("c"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/.."       )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/../b"     )).normalize(), op / ABC_SL("b"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/../b/.."  )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/b/../.."  )).normalize(), op);
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/b/../c"   )).normalize(), op / ABC_SL("a/c"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/../b/../c")).normalize(), op / ABC_SL("c"));
+      ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/b/../../c")).normalize(), op / ABC_SL("c"));
    }
 };
 
 } //namespace test
 } //namespace abc
 
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::file_path_normalization_joined)
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::os_path_normalization_joined)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -43,8 +43,8 @@ public:
       ABC_TRACE_FUNC(this);
 
       T const * t = static_cast<T const *>(this);
-      file_path fp(ABC_SL("src/abaclade-test/io/text/data/") + t->get_test_data_file_name());
-      auto ptrIn(io::text::open_reader(fp));
+      os::path op(ABC_SL("src/abaclade-test/io/text/data/") + t->get_test_data_file_name());
+      auto ptrIn(io::text::open_reader(op));
       dmstr sLine;
       unsigned i = 1;
       while (ptrIn->read_line(&sLine)) {

@@ -27,9 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_path
+// abc::os::path
 
 namespace abc {
+namespace os {
 
 namespace {
 
@@ -40,13 +41,13 @@ class file_stat : public ::stat {
 public:
    /*! Constructor.
 
-   fp
+   op
       Path to get statistics for.
    */
-   file_stat(file_path const & fp) {
-      ABC_TRACE_FUNC(this, fp);
+   file_stat(path const & op) {
+      ABC_TRACE_FUNC(this, op);
 
-      if (::stat(fp.os_str().c_str(), this)) {
+      if (::stat(op.os_str().c_str(), this)) {
          throw_os_error();
       }
    }
@@ -56,17 +57,17 @@ public:
 
 /*! Checks whether a path has the specified attribute(s) set.
 
-fp
+op
    Path to get attributes of.
 fi
    Combination of one or more FILE_ATTRIBUTE_* flags to check for.
 return
    true if the path has all the file attributes in fi, or false otherwise.
 */
-bool file_attrs(file_path const & fp, DWORD fi) {
-   ABC_TRACE_FUNC(fp, fi);
+bool file_attrs(path const & op, DWORD fi) {
+   ABC_TRACE_FUNC(op, fi);
 
-   DWORD fiAttrs = ::GetFileAttributes(fp.os_str().c_str());
+   DWORD fiAttrs = ::GetFileAttributes(op.os_str().c_str());
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       throw_os_error();
    }
@@ -78,7 +79,7 @@ bool file_attrs(file_path const & fp, DWORD fi) {
 } //namespace
 
 
-char_t const file_path::smc_aszSeparator[] =
+char_t const path::smc_aszSeparator[] =
 #if ABC_HOST_API_POSIX
    ABC_SL("/");
 #elif ABC_HOST_API_WIN32
@@ -86,7 +87,7 @@ char_t const file_path::smc_aszSeparator[] =
 #else
    #error HOST_API
 #endif
-char_t const file_path::smc_aszRoot[] =
+char_t const path::smc_aszRoot[] =
 #if ABC_HOST_API_POSIX
    ABC_SL("/");
 #elif ABC_HOST_API_WIN32
@@ -95,10 +96,10 @@ char_t const file_path::smc_aszRoot[] =
    #error HOST_API
 #endif
 #if ABC_HOST_API_WIN32
-char_t const file_path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
+char_t const path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
-file_path & file_path::operator/=(istr const & s) {
+path & path::operator/=(istr const & s) {
    ABC_TRACE_FUNC(this, s);
 
    // Only the root already ends in a separator; everything else needs one.
@@ -106,16 +107,16 @@ file_path & file_path::operator/=(istr const & s) {
    return *this;
 }
 
-file_path file_path::absolute() const {
+path path::absolute() const {
    ABC_TRACE_FUNC(this);
 
-   file_path fpAbsolute;
+   path opAbsolute;
    if (is_absolute()) {
-      fpAbsolute = *this;
+      opAbsolute = *this;
    } else {
 #if ABC_HOST_API_POSIX
       // Prepend the current directory to make the path absolute, then proceed to normalize.
-      fpAbsolute = current_dir() / *this;
+      opAbsolute = current_dir() / *this;
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       static std::size_t const sc_ichVolume      = 0; // “X” in “X:”.
       static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”.
@@ -129,34 +130,34 @@ file_path file_path::absolute() const {
       if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          // The path is in the form “X:a”: get the current directory for that volume and prepend it
          // to the path to make it absolute.
-         fpAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
+         opAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
                       m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
       } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          // The path is in the form “\a”: make it absolute by prepending to it the volume designator
          // of the current directory.
-         fpAbsolute = current_dir().m_s.substr(
+         opAbsolute = current_dir().m_s.substr(
             0, ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/ + 2 /*"X:"*/
          ) + m_s;
       } else {
          // None of the above patterns applies: prepend the current directory to make the path
          // absolute.
-         fpAbsolute = current_dir() / *this;
+         opAbsolute = current_dir() / *this;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error HOST_API
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    }
    // Make sure the path is normalized.
-   return fpAbsolute.normalize();
+   return opAbsolute.normalize();
 }
 
-file_path file_path::base_name() const {
+path path::base_name() const {
    ABC_TRACE_FUNC(this);
 
    return m_s.substr(base_name_start());
 }
 
-/*static*/ file_path file_path::current_dir() {
+/*static*/ path path::current_dir() {
    ABC_TRACE_FUNC();
 
    dmstr s;
@@ -198,7 +199,7 @@ file_path file_path::base_name() const {
 }
 
 #if ABC_HOST_API_WIN32
-/*static*/ file_path file_path::current_dir_for_volume(char_t chVolume) {
+/*static*/ path path::current_dir_for_volume(char_t chVolume) {
    ABC_TRACE_FUNC(chVolume);
 
    // Create a dummy path for ::GetFullPathName() to expand.
@@ -226,7 +227,7 @@ file_path file_path::base_name() const {
 }
 #endif //if ABC_HOST_API_WIN32
 
-bool file_path::is_dir() const {
+bool path::is_dir() const {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
@@ -238,7 +239,7 @@ bool file_path::is_dir() const {
 #endif
 }
 
-file_path file_path::normalize() const {
+path path::normalize() const {
    ABC_TRACE_FUNC(this);
 
    dmstr s(m_s);
@@ -314,21 +315,21 @@ file_path file_path::normalize() const {
 }
 
 #if ABC_HOST_API_WIN32
-istr file_path::os_str() const {
+istr path::os_str() const {
    ABC_TRACE_FUNC(this);
 
    return std::move(absolute().m_s);
 }
 #endif //if ABC_HOST_API_WIN32
 
-file_path file_path::parent_dir() const {
+path path::parent_dir() const {
    ABC_TRACE_FUNC(this);
 
    auto itBegin(m_s.cbegin());
    auto itLastSep(base_name_start());
    if (itLastSep == itBegin) {
       // This path only contains a base name, so there’s no parent directory part.
-      return file_path();
+      return path();
    }
    // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
    // separator; advance the iterator instead.
@@ -338,13 +339,13 @@ file_path file_path::parent_dir() const {
    return m_s.substr(itBegin, itLastSep);
 }
 
-/*static*/ file_path file_path::root() {
+/*static*/ path path::root() {
    ABC_TRACE_FUNC();
 
    return dmstr(smc_aszRoot);
 }
 
-dmstr::const_iterator file_path::base_name_start() const {
+dmstr::const_iterator path::base_name_start() const {
    ABC_TRACE_FUNC(this);
 
    auto itBaseNameStart(m_s.find_last(smc_aszSeparator[0]));
@@ -368,7 +369,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    return itBaseNameStart;
 }
 
-/*static*/ std::size_t file_path::get_root_length(istr const & s, bool bIncludeNonRoot) {
+/*static*/ std::size_t path::get_root_length(istr const & s, bool bIncludeNonRoot) {
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
 
    static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
@@ -397,7 +398,7 @@ dmstr::const_iterator file_path::base_name_start() const {
          (ch = *(pch + sc_cchVolumeRoot - 3), ch >= 'A' && ch <= 'Z') &&
          (*(pch + sc_cchVolumeRoot - 2) == ':' && *(pch + sc_cchVolumeRoot - 1) == '\\'),
          ABC_SL("Win32 File Namespace must continue in either \\\\?\\UNC\\ or \\\\?\\X:\\; ")
-            ABC_SL("abc::file_path::validate_and_adjust() needs to be fixed")
+            ABC_SL("abc::os::path::validate_and_adjust() needs to be fixed")
       );
       // Return the index of “a” in “\\?\X:\a”.
       return sc_cchRoot;
@@ -418,13 +419,13 @@ dmstr::const_iterator file_path::base_name_start() const {
    return 0;
 }
 
-/*static*/ bool file_path::is_absolute(istr const & s) {
+/*static*/ bool path::is_absolute(istr const & s) {
    ABC_TRACE_FUNC(s);
 
    return s.starts_with(smc_aszRoot);
 }
 
-/*static*/ dmstr file_path::validate_and_adjust(dmstr s) {
+/*static*/ dmstr path::validate_and_adjust(dmstr s) {
    ABC_TRACE_FUNC(s);
 
 #if ABC_HOST_API_WIN32
@@ -432,7 +433,7 @@ dmstr::const_iterator file_path::base_name_start() const {
    s.replace('/', '\\');
 
    if (!is_absolute(s)) {
-      // abc::file_path::is_absolute() is very strict and does not return true for DOS-style or UNC
+      // abc::os::path::is_absolute() is very strict and does not return true for DOS-style or UNC
       // paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
       // “\\server\share”, so we have to detect them here and prefix them with the Win32 File
       // Namespace prefix.
@@ -496,14 +497,15 @@ dmstr::const_iterator file_path::base_name_start() const {
    return std::move(s);
 }
 
+} //namespace os
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::file_path
+// abc::to_str_backend ‒ specialization for abc::os::path
 
 namespace abc {
 
-void to_str_backend<file_path>::set_format(istr const & sFormat) {
+void to_str_backend<os::path>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -518,10 +520,10 @@ void to_str_backend<file_path>::set_format(istr const & sFormat) {
    }
 }
 
-void to_str_backend<file_path>::write(file_path const & fp, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, fp, ptwOut);
+void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptwOut) {
+   ABC_TRACE_FUNC(this, op, ptwOut);
 
-   ptwOut->write(static_cast<istr const &>(fp));
+   ptwOut->write(static_cast<istr const &>(op));
 }
 
 } //namespace abc
@@ -539,24 +541,24 @@ file_not_found_error::file_not_found_error() :
 file_not_found_error::file_not_found_error(file_not_found_error const & x) :
    generic_error(x),
    environment_error(x),
-   m_fpNotFound(x.m_fpNotFound) {
+   m_opNotFound(x.m_opNotFound) {
 }
 
 file_not_found_error & file_not_found_error::operator=(file_not_found_error const & x) {
    environment_error::operator=(x);
-   m_fpNotFound = x.m_fpNotFound;
+   m_opNotFound = x.m_opNotFound;
    return *this;
 }
 
-void file_not_found_error::init(abc::file_path const & fpNotFound, errint_t err /*= 0*/) {
+void file_not_found_error::init(os::path const & opNotFound, errint_t err /*= 0*/) {
    environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
-   m_fpNotFound = fpNotFound;
+   m_opNotFound = opNotFound;
 }
 
 /*virtual*/ void file_not_found_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
-   ptwOut->print(ABC_SL("couldn’t find path: “{}”"), m_fpNotFound);
+   ptwOut->print(ABC_SL("couldn’t find path: “{}”"), m_opNotFound);
 }
 
 } //namespace abc

@@ -872,7 +872,7 @@
     </draw:frame>
     <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.5cm" svg:height="3.116cm" svg:x="35.25cm" svg:y="14.35cm">
      <draw:text-box>
-      <text:p text:style-name="P1"><text:span text:style-name="T1">m_fpNotFound</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">m_opNotFound</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">file_path()</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">init() +</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
