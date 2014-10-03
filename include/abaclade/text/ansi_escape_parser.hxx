@@ -91,12 +91,6 @@ public:
    typedef detail::ansi_escape_parser_state state;
 
 public:
-   //! Constructor.
-   ansi_escape_parser();
-
-   //! Destructor.
-   ~ansi_escape_parser();
-
    /*! Analyzes a character, returning true if it’s part of an ANSI escape sequence and was
    therefore consumed by the parser. This is inline-able for performance reasons, since it will need
    to be called on each input character.
@@ -118,6 +112,12 @@ public:
    }
 
 protected:
+   //! Constructor.
+   ansi_escape_parser();
+
+   //! Destructor.
+   ~ansi_escape_parser();
+
    /*! Assigns a null character (e.g. a space) with the current attributes to the specified area.
 
    iRow
