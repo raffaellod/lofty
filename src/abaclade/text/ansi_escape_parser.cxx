@@ -104,7 +104,7 @@ bool ansi_escape_parser::consume_sequence_char(char_t ch) {
          } else {
             run_sequence(ch);
             m_state = state::not_in_sequence;
-            return false;
+            return true;
          }
          break;
 
