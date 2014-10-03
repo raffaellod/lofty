@@ -308,10 +308,10 @@ void ansi_escape_parser::run_set_char_attributes_sequence() {
          case 29: m_chattrCurr.bCrossedOut   = false; break;
 
          case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37:
-            m_chattrCurr.clrForeground = (iCmdArg - 30) & 0x7;
+            m_chattrCurr.clrForeground = static_cast<std::uint8_t>((iCmdArg - 30) & 0x7);
             break;
          case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47:
-            m_chattrCurr.clrBackground = (iCmdArg - 40) & 0x7;
+            m_chattrCurr.clrBackground = static_cast<std::uint8_t>((iCmdArg - 40) & 0x7);
             break;
       }
    }
