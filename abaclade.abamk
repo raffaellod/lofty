@@ -30,7 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/byteorder.cxx"/>
       <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/detail/vextr.cxx"/>
-      <source path="src/abaclade/file_path.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
       <source path="src/abaclade/exception-os.cxx"/>
@@ -41,6 +40,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text/file.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
+      <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/stl/exception.cxx"/>
       <source path="src/abaclade/stl/memory.cxx"/>
       <source path="src/abaclade/stl/new.cxx"/>
@@ -60,9 +60,9 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/abaclade-test.cxx"/>
          <source path="src/abaclade-test/enum.cxx"/>
          <source path="src/abaclade-test/exception.cxx"/>
-         <source path="src/abaclade-test/file_path.cxx"/>
          <source path="src/abaclade-test/io/text/binbuf_reader-read.cxx"/>
          <source path="src/abaclade-test/io/text/writer-print.cxx"/>
+         <source path="src/abaclade-test/os/path.cxx"/>
          <source path="src/abaclade-test/str.cxx"/>
          <source path="src/abaclade-test/text/str_traits.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>

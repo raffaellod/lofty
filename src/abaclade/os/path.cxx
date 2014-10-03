@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/file_path.hxx>
+#include <abaclade/os/path.hxx>
 #if ABC_HOST_API_POSIX
    #include <errno.h> // errno E*
    #include <sys/stat.h> // S_*, stat()

@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/file_path.hxx>
+#include <abaclade/os/path.hxx>
 #if ABC_HOST_API_WIN32
    #include <abaclade/text/ansi_escape_parser.hxx>
 #endif
