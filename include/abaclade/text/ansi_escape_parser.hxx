@@ -65,12 +65,10 @@ class ABACLADE_SYM ansi_escape_parser {
 public:
    //! Groups together attributes used for graphic rendition (color and other attributes).
    struct char_attributes {
-      //! Background color.
-      // TODO: fix ABC_ENUM to not inject additional enum values, then change this to :3.
-      ansi_terminal_color::enum_type clrBackground:4;
-      //! Foreground color.
-      // TODO: fix ABC_ENUM to not inject additional enum values, then change this to :3.
-      ansi_terminal_color::enum_type clrForeground:4;
+      //! Background color (ansi_terminal_color).
+      std::uint8_t clrBackground:3;
+      //! Foreground color (ansi_terminal_color).
+      std::uint8_t clrForeground:3;
       //! Generate blinking characters; 0 = off, 1 = slow, 2 = rapid.
       std::uint8_t iBlinkSpeed:2;
       //! Display characters using the same color for background and foreground.
