@@ -59,6 +59,8 @@ You should have received a copy of the GNU General Public License along with Aba
    // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
    // of class 'class1'”
    #pragma warning(disable: 4251)
+   // “'class' : class has virtual functions, but destructor is not virtual”
+   #pragma warning(disable: 4265)
    // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
    #pragma warning(disable: 4290)
    // “cast truncates constant value” – would be useful, but it’s raised too easily by MSC16.
