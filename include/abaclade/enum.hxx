@@ -51,8 +51,6 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 
 /*! Implementation of the various ABC_ENUM() flavors.
 
-TODO: use a non-enum-member default value for “uninitialized” state, instead of current __default.
-
 name
    Name of the enumeration type.
 iBaseValue
@@ -77,7 +75,6 @@ arrayitems
       /*! Publicly-accessible enumerated constants. */ \
       enum enum_type { \
          members \
-         __default = 0 \
       }; \
    \
       /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
@@ -238,8 +235,7 @@ public:
       String to be converted to enum_type. If this does not match exactly the name of one of the
       members of enum_type, an exception of type abc::domain_error will be thrown.
    */
-   enum_impl() :
-      m_e(T::__default) {
+   enum_impl() {
    }
    enum_impl(enum_type e) :
       m_e(e) {
