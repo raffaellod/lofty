@@ -724,9 +724,6 @@ WORD const console_writer::smc_aiAnsiColorToBackgroundColor[] = {
 #endif
 
 console_writer::console_writer(detail::file_init_data * pfid) :
-#if ABC_HOST_API_WIN32
-   abc::text::ansi_escape_parser(),
-#endif
    file_base(pfid),
    console_file_base(pfid),
    file_writer(pfid) {

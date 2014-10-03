@@ -369,11 +369,12 @@ namespace binary {
 
 //! Console/terminal output pseudo-file.
 class ABACLADE_SYM console_writer :
-#if ABC_HOST_API_WIN32
-   private abc::text::ansi_escape_parser,
-#endif
    public virtual console_file_base,
-   public file_writer {
+   public file_writer
+#if ABC_HOST_API_WIN32
+   , private abc::text::ansi_escape_parser
+#endif
+   {
 public:
    //! See file_writer::file_writer().
    console_writer(detail::file_init_data * pfid);
@@ -567,10 +568,8 @@ public:
 #if ABC_HOST_API_WIN32
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    virtual std::size_t write(void const * p, std::size_t cb) override;
-#endif
 
 protected:
-#if ABC_HOST_API_WIN32
    //! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it.
    bool m_bAppend:1;
 #endif
