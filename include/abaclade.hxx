@@ -264,6 +264,30 @@ constructor (N2346). */
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – compatibility layer for C++11 features that have been implemented in a non-standard
+// way by other compilers
+
+/*! Range-based for statement: for (for-range-declaration : expression) { … } .
+
+rangedecl
+   Declaration of the variable that will hold the values iterated over from the range; most commonly
+   this is auto & or auto const &.
+expr
+   Expression of a type for which std::begin() and std::end() are defined.
+*/
+#if ABC_HOST_GCC || ABC_HOST_MSC >= 1700
+   #define ABC_FOR_EACH(rangedecl, expr) \
+      for (rangedecl : expr)
+#elif ABC_HOST_MSC
+   /* MSC16 has a pre-C++11 syntax that expects to assign expr to a non-const l-value reference; if
+   expr is an r-value, an MSC non-standard extension allows to reference expr from the non-const
+   l-value reference, raising warning C4239; here we suppress this possible warning. */
+   #define ABC_FOR_EACH(rangedecl, expr) \
+      __pragma(warning(suppress: 4239)) \
+      for each (rangedecl in expr)
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – non-standard, but commonly available, extensions
 
 /*! Declares a function as using the same calling convention as the host C library/STL
