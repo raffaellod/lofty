@@ -213,7 +213,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – C++11 compiler support
+// abc globals – C++11 compiler features detection
 
 // Ensure RTTI support is enabled for MSC.
 #if ABC_HOST_MSC && !defined(_CPPRTTI)
@@ -288,7 +288,7 @@ expr
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – non-standard, but commonly available, extensions
+// abc globals – compatibility layer for non-standard features available in all supported compilers
 
 /*! Declares a function as using the same calling convention as the host C library/STL
 implementation. */
@@ -351,6 +351,9 @@ reached. */
    #endif
 #endif
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – symbol visibility
+
 /*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
 Abaclade’s shared library (into another library/executable). */
 #ifdef ABAMAKE_BUILD_ABACLADE
@@ -369,7 +372,7 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
-// alternatives
+// alternatives, plus a few compiler-specific STL fixes
 
 /*! abc::_std contains STL implementation bits from ABC_STLIMPL that we may want to use when
 ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host STL implementations.
