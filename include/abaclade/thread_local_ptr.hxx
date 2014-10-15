@@ -54,13 +54,26 @@ public:
    */
    static void add_var(thread_local_ptr_impl * ptlpi, std::size_t cb);
 
-   /*! Returns a pointer to the specified offset in the storage. On the first call from a new
-   thread, this also lazily creates the thread_local_storage.
+#if ABC_HOST_API_WIN32
+   /*! Hook invoked by DllMain() in abaclade.dll.
 
+   iReason
+      Reason why DllMain() was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
+   */
+   static bool dllmain_hook(unsigned iReason);
+#endif
+
+   /*! Returns a pointer to the specified offset in the storage. On the first call from a new
+   thread, this also lazily creates the thread_local_storage, unless bCreateNewIfNull is false.
+
+   bCreateNewIfNull
+      If the TLS slot is nullptr and bCreateNewIfNull is true, a new new TLS instance will be
+      created; if bCreateNewIfNull is false, nullptr will be returned instead if the TLS slot is
+      uninitialized.
    return
       Pointer to the data store.
    */
-   static thread_local_storage * get();
+   static thread_local_storage * get(bool bCreateNewIfNull = true);
 
    /*! Returns a pointer to the specified offset in the thread-local data store.
 
@@ -83,14 +96,15 @@ private:
    //! Allocates the TLS slot for the process.
    static void alloc_slot();
 
+#if ABC_HOST_API_POSIX
    /*! Destructs the storage instance for the current thread. Invoked by pthread_key_create() when a
-   thread terminates, or manually called by DllMain in abaclade.dll, case for which the argument is
-   optional.
+   thread terminates.
 
    pThis
       Pointer to the TLS for the current thread.
    */
    static void destruct(void * pThis = get());
+#endif
 
    //! Deallocates the TLS slot for the process.
    // TODO: call free_slot() in the POSIX Threads case using reference counting in destruct().

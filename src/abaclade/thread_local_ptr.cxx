@@ -72,17 +72,39 @@ thread_local_storage::~thread_local_storage() {
       ABC_UNUSED_ARG(iErr);
       // throw an exception (iErr).
    }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
    sm_iTls = ::TlsAlloc();
    if (sm_iTls == TLS_OUT_OF_INDEXES) {
       // throw an exception (::GetLastError()).
    }
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#endif
 }
 
+#if ABC_HOST_API_POSIX
 /*static*/ void thread_local_storage::destruct(void * pThis /*= get()*/) {
    delete static_cast<thread_local_storage *>(pThis);
 }
+#endif
+
+#if ABC_HOST_API_WIN32
+/*static*/ bool thread_local_storage::dllmain_hook(unsigned iReason) {
+   if (iReason == DLL_PROCESS_ATTACH || iReason == DLL_THREAD_ATTACH) {
+      if (iReason == DLL_PROCESS_ATTACH) {
+         alloc_slot();
+      }
+      // Not calling construct() since initialization of TLS is lazy.
+   } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
+      // get() may return nullptr, in which case nothing will happen.
+      delete get(true);
+      if (iReason == DLL_PROCESS_DETACH) {
+         free_slot();
+      }
+   }
+   // TODO: handle errors and return false in case.
+   return true;
+}
+#endif //if ABC_HOST_API_WIN32
+
 
 /*static*/ void thread_local_storage::free_slot() {
 #if ABC_HOST_API_POSIX
@@ -92,17 +114,17 @@ thread_local_storage::~thread_local_storage() {
 #endif
 }
 
-/*static*/ thread_local_storage * thread_local_storage::get() {
+/*static*/ thread_local_storage * thread_local_storage::get(bool bCreateNewIfNull /*= true*/) {
    void * pThis;
 #if ABC_HOST_API_POSIX
    // With POSIX Threads we need a one-time call to alloc_slot().
    pthread_once(&sm_pthonce, alloc_slot);
    pThis = pthread_getspecific(sm_pthkey);
 #elif ABC_HOST_API_WIN32
-   // Under Win32, alloc_slot() has already been called by DllMain() in abaclade.dll.
+   // Under Win32, alloc_slot() has already been called by dllmain_hook().
    pThis = ::TlsGetValue(sm_iTls);
 #endif
-   if (pThis) {
+   if (pThis || !bCreateNewIfNull) {
       return static_cast<thread_local_storage *>(pThis);
    } else {
       // First call for this thread: initialize the TLS slot.

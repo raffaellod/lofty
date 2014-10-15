@@ -29,24 +29,15 @@ You should have received a copy of the GNU General Public License along with Aba
 hinst
    Module’s instance handle.
 iReason
-   Reason why the DLL entry point was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
+   Reason why this function was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
 return
    true in case of success, or false otherwise.
 */
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) {
    ABC_UNUSED_ARG(hinst);
    ABC_UNUSED_ARG(pReserved);
-   if (iReason == DLL_PROCESS_ATTACH || iReason == DLL_THREAD_ATTACH) {
-      if (iReason == DLL_PROCESS_ATTACH) {
-         abc::detail::thread_local_storage::alloc_slot();
-      }
-      // Not calling abc::detail::thread_local_storage::construct() since initialization of TLS
-      // is lazy.
-   } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
-      abc::detail::thread_local_storage::destruct();
-      if (iReason == DLL_PROCESS_DETACH) {
-         abc::detail::thread_local_storage::free_slot();
-      }
+   if (!abc::detail::thread_local_storage::dllmain_hook(static_cast<unsigned>(iReason))) {
+      return false;
    }
    return true;
 }
