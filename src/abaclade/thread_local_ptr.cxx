@@ -94,8 +94,9 @@ thread_local_storage::~thread_local_storage() {
       }
       // Not calling construct() since initialization of TLS is lazy.
    } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
-      // get() may return nullptr, in which case nothing will happen.
-      delete get(true);
+      // Allow get() to return nullptr if the TLS slot was not initialized for this thread, in which
+      // case nothing will happen.
+      delete get(false);
       if (iReason == DLL_PROCESS_DETACH) {
          free_slot();
       }
