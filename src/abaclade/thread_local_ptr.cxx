@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/bitmanip.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +64,7 @@ thread_local_storage::~thread_local_storage() {
    sm_ptlpiHead = ptlpi;
    // Calculate the offset for *ptlpi’s storage and increase sm_cb accordingly.
    ptlpi->m_ibTlsOffset = sm_cb;
-   sm_cb += ABC_ALIGNED_SIZE(cb);
+   sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t));
 }
 
 /*static*/ void thread_local_storage::alloc_slot() {
