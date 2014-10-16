@@ -205,7 +205,7 @@ public:
       Internal pointer.
    */
    T * get() const {
-      return detail::thread_local_ptr_impl::get();
+      return detail::thread_local_ptr_impl::get<T>();
    }
 
 private:
