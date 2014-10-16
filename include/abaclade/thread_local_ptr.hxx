@@ -199,6 +199,24 @@ public:
       detail::thread_local_ptr_impl(construct, destruct, sizeof(T)) {
    }
 
+   /*! Dereference operator.
+
+   return
+      Reference to the owned object.
+   */
+   T & operator*() const {
+      return *get();
+   }
+
+   /*! Dereferencing member access operator.
+
+   return
+      Pointer to the owned object.
+   */
+   T * operator->() const {
+      return get();
+   }
+
    /*! Returns the address of the thread-local value this object points to.
 
    return
