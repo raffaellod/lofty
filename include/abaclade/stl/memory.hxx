@@ -322,7 +322,15 @@ public:
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   pt
+      Pointer to acquire ownership of.
+   tdel
+      Deleter to use to delete pt.
+   upt
+      Pointer to transfer ownership from.
+   upt2
+      Pointer to transfer ownership from. T2 and TDel2 must be convertible to T and TDel,
+      respectively.
    */
    /*constexpr*/ unique_ptr() :
       m_pt_and_tdel(nullptr, TDel()) {
@@ -422,7 +430,8 @@ public:
 
    /*! Returns the stored deleter.
 
-   TODO: comment signature.
+   return
+      Reference to the deleter.
    */
    TDel & get_deleter() {
       return std::get<1>(m_pt_and_tdel);
@@ -475,7 +484,12 @@ public:
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   pt
+      Pointer to acquire ownership of.
+   tdel
+      Deleter to use to delete pt.
+   upt
+      Pointer to transfer ownership from.
    */
    /*constexpr*/ unique_ptr() :
       m_pt_and_tdel(nullptr, TDel()) {
@@ -522,9 +536,12 @@ public:
       return *this;
    }
 
-   /*! Item access operator.
+   /*! Element access operator.
 
-   TODO: comment signature.
+   i
+      Index of the element.
+   return
+      Reference to the requested element.
    */
    T & operator[](size_t i) const {
       return get()[i];
@@ -550,7 +567,8 @@ public:
 
    /*! Returns the stored deleter.
 
-   TODO: comment signature.
+   return
+      Reference to the deleter.
    */
    TDel & get_deleter() {
       return std::get<1>(m_pt_and_tdel);
