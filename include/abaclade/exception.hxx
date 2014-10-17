@@ -460,7 +460,7 @@ protected:
    /*! Set to true for the duration of the execution of _assertion_failed(). If another assertion
    fails due to code executed during the call to _assertion_failed(), the latter will just throw,
    without printing anything; otherwise we’ll most likely get stuck in an infinite recursion. */
-   static /*tls*/ bool sm_bReentering;
+   static thread_local_value<bool> sm_bReentering;
 };
 
 } //namespace abc
