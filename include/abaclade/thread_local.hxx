@@ -337,16 +337,10 @@ public:
    tSrc
       Source object to be move-construct the new object from.
    */
-   void reset_new() {
-      T tNew;
+   void reset_new(T tSrc = T()) {
       reset();
       value_t * pValue = get_ptr<value_t>();
-      new(&pValue->t) T(std::move(tNew));
-      pValue->bConstructed = true;
-   }
-   void reset_new(T tSrc) {
-      reset();
-      value_t * pValue = get_ptr<value_t>();
+      // The constructor invoked is T::T(T &&), which should not throw.
       new(&pValue->t) T(std::move(tSrc));
       pValue->bConstructed = true;
    }
