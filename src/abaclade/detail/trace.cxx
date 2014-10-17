@@ -39,12 +39,11 @@ namespace detail {
 namespace abc {
 namespace detail {
 
-//TODO: tls
-/*tls*/ scope_trace const * scope_trace::sm_pstHead = nullptr;
-/*tls*/ std::unique_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
-/*tls*/ unsigned scope_trace::sm_cScopeTraceRefs = 0;
-/*tls*/ unsigned scope_trace::sm_iStackDepth = 0;
-/*tls*/ bool scope_trace::sm_bReentering = false;
+thread_local_value<scope_trace const *> scope_trace::sm_pstHead(nullptr);
+thread_local_value<bool> scope_trace::sm_bReentering(false);
+thread_local_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
+thread_local_value<unsigned> scope_trace::sm_cScopeTraceRefs(0);
+thread_local_value<unsigned> scope_trace::sm_iStackDepth(0);
 
 scope_trace::scope_trace(
    scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars
