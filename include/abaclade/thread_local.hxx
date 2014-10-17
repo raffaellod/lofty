@@ -315,8 +315,8 @@ public:
       Internal pointer.
    */
    T * get() const {
-      value_t * value = get_ptr<value_t>();
-      return value->bConstructed ? reinterpret_cast<T *>(&value->t) : nullptr;
+      value_t * pValue = get_ptr<value_t>();
+      return pValue->bConstructed ? reinterpret_cast<T *>(&pValue->t) : nullptr;
    }
 
    /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
@@ -336,30 +336,30 @@ public:
    void reset_new() {
       T tNew;
       reset();
-      value_t * value = get_ptr<value_t>();
-      new(&value->t) T(std::move(tNew));
-      value->bConstructed = true;
+      value_t * pValue = get_ptr<value_t>();
+      new(&pValue->t) T(std::move(tNew));
+      pValue->bConstructed = true;
    }
    void reset_new(T tSrc) {
       reset();
-      value_t * value = get_ptr<value_t>();
-      new(&value->t) T(std::move(tSrc));
-      value->bConstructed = true;
+      value_t * pValue = get_ptr<value_t>();
+      new(&pValue->t) T(std::move(tSrc));
+      pValue->bConstructed = true;
    }
 
 private:
    //! See detail::thread_local_var_impl::construct().
    virtual void construct(void * p) const override {
-      value_t * value = new(p) value_t;
-      value->bConstructed = false;
+      value_t * pValue = new(p) value_t;
+      pValue->bConstructed = false;
    }
 
    //! See detail::thread_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
-      value_t * value = static_cast<value_t *>(p);
-      if (value->bConstructed) {
-         reinterpret_cast<T *>(&value->t)->~T();
-         value->bConstructed = false;
+      value_t * pValue = static_cast<value_t *>(p);
+      if (pValue->bConstructed) {
+         reinterpret_cast<T *>(&pValue->t)->~T();
+         pValue->bConstructed = false;
       }
    }
 };
