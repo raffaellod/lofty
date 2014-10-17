@@ -33,15 +33,15 @@ pthread_key_t thread_local_storage::sm_pthkey;
 #elif ABC_HOST_API_WIN32
 DWORD thread_local_storage::sm_iTls = TLS_OUT_OF_INDEXES;
 #endif
-thread_local_ptr_impl const * thread_local_storage::sm_ptlpiHead = nullptr;
+thread_local_var_impl const * thread_local_storage::sm_ptlviHead = nullptr;
 std::size_t thread_local_storage::sm_cb = 0;
 
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
 
-   // Iterate over the list of thread_local_ptr constructors to initialize TLS for this thread.
-   for (thread_local_ptr_impl const * ptlpi = sm_ptlpiHead; ptlpi; ptlpi = ptlpi->m_ptlpiNext) {
-      ptlpi->m_pfnConstruct(get_storage(ptlpi->m_ibTlsOffset));
+   // Iterate over the list of constructors to initialize TLS for this thread.
+   for (thread_local_var_impl const * ptlvi = sm_ptlviHead; ptlvi; ptlvi = ptlvi->m_ptlviNext) {
+      ptlvi->construct(get_storage(ptlvi->m_ibTlsOffset));
    }
 
 #if ABC_HOST_API_POSIX
@@ -52,18 +52,18 @@ thread_local_storage::thread_local_storage() :
 }
 
 thread_local_storage::~thread_local_storage() {
-   // Iterate over the list of thread_local_ptr destructors to deinitialize TLS for this thread.
-   for (thread_local_ptr_impl const * ptlpi = sm_ptlpiHead; ptlpi; ptlpi = ptlpi->m_ptlpiNext) {
-      ptlpi->m_pfnDestruct(get_storage(ptlpi->m_ibTlsOffset));
+   // Iterate over the list of destructors to deinitialize TLS for this thread.
+   for (thread_local_var_impl const * ptlvi = sm_ptlviHead; ptlvi; ptlvi = ptlvi->m_ptlviNext) {
+      ptlvi->destruct(get_storage(ptlvi->m_ibTlsOffset));
    }
 }
 
-/*static*/ void thread_local_storage::add_var(thread_local_ptr_impl * ptlpi, std::size_t cb) {
-   // Insert *ptlpi as the first element in the list.
-   ptlpi->m_ptlpiNext = sm_ptlpiHead;
-   sm_ptlpiHead = ptlpi;
-   // Calculate the offset for *ptlpi’s storage and increase sm_cb accordingly.
-   ptlpi->m_ibTlsOffset = sm_cb;
+/*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
+   // Insert *ptlvi as the first element in the list.
+   ptlvi->m_ptlviNext = sm_ptlviHead;
+   sm_ptlviHead = ptlvi;
+   // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
+   ptlvi->m_ibTlsOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t));
 }
 
@@ -138,17 +138,13 @@ thread_local_storage::~thread_local_storage() {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_ptr_impl
+// abc::detail::thread_local_var_impl
 
 namespace abc {
 namespace detail {
 
-thread_local_ptr_impl::thread_local_ptr_impl(
-   void (* pfnConstruct)(void *), void (* pfnDestruct)(void *), std::size_t cbObject
-) :
-   m_pfnConstruct(pfnConstruct),
-   m_pfnDestruct(pfnDestruct) {
-   // Initializes m_ptlpiNext and m_ibTlsOffset.
+thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
+   // Initializes m_ptlviNext and m_ibTlsOffset.
    thread_local_storage::add_var(this, cbObject);
 }
 

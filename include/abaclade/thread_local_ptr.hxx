@@ -23,13 +23,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_ptr_impl
+// abc::detail::thread_local_storage
 
 namespace abc {
 namespace detail {
 
 // Forward declaration.
-class thread_local_ptr_impl;
+class thread_local_var_impl;
 
 //! Abaclade’s TLS slot data manager.
 /* TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
@@ -43,16 +43,16 @@ thread). */
 class ABACLADE_SYM thread_local_storage : public noncopyable {
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified thread_local_ptr_impl instance; it also initializes the m_ptlpiNext and m_ibTlsOffset
+   specified thread_local_var_impl instance; it also initializes the m_ptlviNext and m_ibTlsOffset
    members of the latter. This function will be called during initialization of a new dynamic
    library as it’s being loaded, not during normal run-time.
 
-   ptlpi
+   ptlvi
       Pointer to the new variable to assign storage to.
    cb
       Requested storage size.
    */
-   static void add_var(thread_local_ptr_impl * ptlpi, std::size_t cb);
+   static void add_var(thread_local_var_impl * ptlvi, std::size_t cb);
 
 #if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
@@ -123,8 +123,8 @@ private:
    //! One-time initializer for sm_pthkey.
    static pthread_once_t sm_pthonce;
 #endif
-   //! Pointer to the first thread_local_ptr_impl instance.
-   static thread_local_ptr_impl const * sm_ptlpiHead;
+   //! Pointer to the first thread_local_var_impl instance.
+   static thread_local_var_impl const * sm_ptlviHead;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
 };
@@ -133,52 +133,128 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_ptr_impl
+// abc::detail::thread_local_var_impl
 
 namespace abc {
 namespace detail {
 
-//! Non-template implementation of abc::thread_local_ptr.
-class ABACLADE_SYM thread_local_ptr_impl : public noncopyable {
+//! Non-template implementation of abc::thread_local_value and abc::thread_local_ptr.
+class ABACLADE_SYM thread_local_var_impl : public noncopyable {
 private:
    friend class thread_local_storage;
 
 protected:
    /*! Constructor.
 
-   pfnConstruct
-      Pointer to the subclass-provided constructor.
-   pfnDestruct
-      Pointer to the subclass-provided destructor.
    cbObject
-      Size of the object pointed to by the thread_local_ptr subclass.
+      Size of the object pointed to by the thread_local_value/thread_local_ptr subclass.
    */
-   thread_local_ptr_impl(
-      void (* pfnConstruct)(void *), void (* pfnDestruct)(void *), std::size_t cbObject
-   );
+   thread_local_var_impl(std::size_t cbObject);
 
-   /*! Implementation of thread_local_ptr::get().
+   /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
+
+   p
+      Pointer to the memory block where the new value should be constructed.
+   */
+   virtual void construct(void * p) const = 0;
+
+   /*! Destructs the thread-local value for a terminating thread. Invoked at most once for each
+   thread.
+
+   p
+      Pointer to the value to be destructed.
+   */
+   virtual void destruct(void * p) const = 0;
+
+   /*! Returns a pointer to the current thread’s copy of the variable.
 
    return
       Pointer to the thread-local value for this object.
    */
    template <typename T>
-   T * get() const {
+   T * get_ptr() const {
       return static_cast<T *>(thread_local_storage::get()->get_storage(m_ibTlsOffset));
    }
 
 private:
-   //! Pointer to the next thread_local_ptr_impl instance.
-   thread_local_ptr_impl const * m_ptlpiNext;
-   //! Subclass-provided constructor; used to construct the thread-local value for new threads.
-   void (* m_pfnConstruct)(void *);
-   //! Subclass-provided destructor; used to destruct the thread-local for terminating threads.
-   void (* m_pfnDestruct)(void *);
+   //! Pointer to the next thread_local_var_impl instance.
+   thread_local_var_impl const * m_ptlviNext;
    //! Offset of this variable in the TLS block.
    std::size_t m_ibTlsOffset;
 };
 
 } //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::thread_local_value
+
+namespace abc {
+
+/*! Variable with separate per-thread values. Variables of this type cannot be non-static class
+members. */
+template <typename T>
+class thread_local_value : private detail::thread_local_var_impl {
+public:
+   /*! Constructor.
+
+   tDefault
+      Value that will be copied to initialize the TLS for each thread.
+   */
+   thread_local_value(T tDefault = T()) :
+      detail::thread_local_var_impl(sizeof(T)),
+      mc_tDefault(std::move(tDefault)) {
+   }
+
+   /*! Assignment operator.
+
+   t
+      Source object.
+   return
+      *this.
+   */
+   thread_local_value & operator=(T t) {
+      get() = std::move(t);
+      return *this;
+   }
+
+   /*! Implicit cast to T &.
+
+   return
+      Reference to the object’s value.
+   */
+   operator T &() {
+      return get();
+   }
+   operator T const &() const {
+      return get();
+   }
+
+private:
+   //! See detail::thread_local_var_impl::construct().
+   virtual void construct(void * p) const override {
+      new(p) T(mc_tDefault);
+   }
+
+   //! See detail::thread_local_var_impl::destruct().
+   virtual void destruct(void * p) const override {
+      static_cast<T *>(p)->~T();
+   }
+
+   /*! Returns a reference to the thread-local copy of the value.
+
+   return
+      Reference to the value.
+   */
+   T & get() const {
+      return *get_ptr<T>();
+   }
+
+private:
+   //! Default value for each per-thread copy of the value.
+   T const mc_tDefault;
+};
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,11 +268,11 @@ pointed to by it.
 
 Variables of this type cannot be non-static class members. */
 template <typename T>
-class thread_local_ptr : private detail::thread_local_ptr_impl {
+class thread_local_ptr : private detail::thread_local_var_impl {
 public:
    //! Constructor.
    thread_local_ptr() :
-      detail::thread_local_ptr_impl(construct, destruct, sizeof(T)) {
+      detail::thread_local_var_impl(sizeof(T)) {
    }
 
    /*! Dereference operator.
@@ -223,25 +299,17 @@ public:
       Internal pointer.
    */
    T * get() const {
-      return detail::thread_local_ptr_impl::get<T>();
+      return get_ptr<T>();
    }
 
 private:
-   /*! Constructs a T at the specified address. Invoked at most once for each thread.
-
-   p
-      Address where a T should be constructed.
-   */
-   static void construct(void * p) {
+   //! See detail::thread_local_var_impl::construct().
+   virtual void construct(void * p) const override {
       new(p) T();
    }
 
-   /*! Destructs the specified T. Invoked at most once for each thread.
-
-   p
-      Pointer to the T that should be destructed.
-   */
-   static void destruct(void * p) {
+   //! See detail::thread_local_var_impl::destruct().
+   virtual void destruct(void * p) const override {
       static_cast<T *>(p)->~T();
    }
 };
