@@ -693,7 +693,7 @@ class writer;
 #else
    #include <exception>
 #endif
-#include <abaclade/thread_local_ptr.hxx> // TODO: find best position for this.
+#include <abaclade/thread_local.hxx> // TODO: find best position for this.
 #include <abaclade/exception.hxx>
 #include <abaclade/enum.hxx>
 #ifdef ABC_STLIMPL
