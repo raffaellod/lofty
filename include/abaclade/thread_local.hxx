@@ -332,26 +332,22 @@ public:
       }
    }
 
-   /*! Deletes the object currently pointed to, if any, and constructs a new object. The sequence of
-   the two operations is exactly as described for performance reasons, meaning that the pointer will
-   be left set to nullptr should T::T(U &&) throw.
+   /*! Destructs the object currently pointed to, if any, and constructs a new object.
 
-   TODO: multiple arguments via variadic templates (where supported) or multiple overloads (else).
-
-   u
-      Arguments to be forwarded to T::T().
+   tSrc
+      Source object to be move-construct the new object from.
    */
    void reset_new() {
+      T tNew;
       reset();
       value_t * value = get_ptr<value_t>();
-      new(&value->t) T();
+      new(&value->t) T(std::move(tNew));
       value->bConstructed = true;
    }
-   template <typename U>
-   void reset_new(U && u) {
+   void reset_new(T tSrc) {
       reset();
       value_t * value = get_ptr<value_t>();
-      new(&value->t) T(std::forward(u));
+      new(&value->t) T(std::move(tSrc));
       value->bConstructed = true;
    }
 
