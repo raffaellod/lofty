@@ -264,15 +264,22 @@ namespace abc {
 
 /*! Thread-local pointer to an object. The memory this points to is permanently allocated for each
 thread, and an instance of this class lets each thread access its own private copy of the value
-pointed to by it.
-
-Variables of this type cannot be non-static class members. */
+pointed to by it. Variables of this type cannot be non-static class members. */
 template <typename T>
-class thread_local_ptr : private detail::thread_local_var_impl {
+class thread_local_ptr :
+   private detail::thread_local_var_impl,
+   public support_explicit_operator_bool<thread_local_ptr<T>> {
+private:
+   //! Contains a T and a bool to track whether the T has been constructed.
+   struct value_t {
+      std::int8_t t[sizeof(T)];
+      bool bConstructed;
+   };
+
 public:
    //! Constructor.
    thread_local_ptr() :
-      detail::thread_local_var_impl(sizeof(T)) {
+      detail::thread_local_var_impl(sizeof(value_t)) {
    }
 
    /*! Dereference operator.
@@ -293,24 +300,74 @@ public:
       return get();
    }
 
+   /*! Boolean evaluation operator.
+
+   return
+      true if get() != nullptr, or false otherwise.
+   */
+   explicit_operator_bool() const {
+      return get_ptr<value_t>()->bConstructed;
+   }
+
    /*! Returns the address of the thread-local value this object points to.
 
    return
       Internal pointer.
    */
    T * get() const {
-      return get_ptr<T>();
+      value_t * value = get_ptr<value_t>();
+      return value->bConstructed ? reinterpret_cast<T *>(&value->t) : nullptr;
+   }
+
+   /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
+
+   pt
+      Pointer to a new object to take ownership of.
+   */
+   void reset() {
+      value_t * value = get_ptr<value_t>();
+      if (value->bConstructed) {
+         reinterpret_cast<T *>(&value->t)->~T();
+         value->bConstructed = false;
+      }
+   }
+
+   /*! Deletes the object currently pointed to, if any, and constructs a new object. The sequence of
+   the two operations is exactly as described for performance reasons, meaning that the pointer will
+   be left set to nullptr should T::T(U &&) throw.
+
+   TODO: multiple arguments via variadic templates (where supported) or multiple overloads (else).
+
+   u
+      Arguments to be forwarded to T::T().
+   */
+   void reset_new() {
+      reset();
+      value_t * value = get_ptr<value_t>();
+      new(&value->t) T();
+      value->bConstructed = true;
+   }
+   template <typename U>
+   void reset_new(U && u) {
+      reset();
+      value_t * value = get_ptr<value_t>();
+      new(&value->t) T(std::forward(u));
+      value->bConstructed = true;
    }
 
 private:
    //! See detail::thread_local_var_impl::construct().
    virtual void construct(void * p) const override {
-      new(p) T();
+      value_t * value = new(p) value_t;
+      value->bConstructed = false;
    }
 
    //! See detail::thread_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
-      static_cast<T *>(p)->~T();
+      value_t * value = static_cast<value_t *>(p);
+      if (value->bConstructed) {
+         reinterpret_cast<T *>(&value->t)->~T();
+      }
    }
 };
 

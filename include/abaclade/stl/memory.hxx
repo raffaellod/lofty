@@ -454,7 +454,7 @@ public:
       if (ptOld) {
          get_deleter()(ptOld);
       }
-   };
+   }
 
 protected:
    /*! Wrapper for pointer and deleter. It’s a tuple, so that an empty TDel can end up taking up no
