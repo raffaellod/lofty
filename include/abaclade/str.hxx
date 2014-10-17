@@ -627,25 +627,22 @@ protected:
    ) const;
 };
 
-} //namespace abc
-
-
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   inline bool operator op(abc::str_base const & s1, abc::str_base const & s2) { \
-      return abc::text::str_traits::compare( \
+   inline bool operator op(str_base const & s1, str_base const & s2) { \
+      return text::str_traits::compare( \
          s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
       ) op 0; \
    } \
    template <std::size_t t_cch> \
-   inline bool operator op(abc::str_base const & s, abc::char_t const (& ach)[t_cch]) { \
-      abc::char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return abc::text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
+   inline bool operator op(str_base const & s, char_t const (& ach)[t_cch]) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
    } \
    template <std::size_t t_cch> \
-   inline bool operator op(abc::char_t const (& ach)[t_cch], abc::str_base const & s) { \
-      abc::char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return abc::text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
+   inline bool operator op(char_t const (& ach)[t_cch], str_base const & s) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -655,6 +652,7 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
+} //namespace abc
 
 namespace std {
 

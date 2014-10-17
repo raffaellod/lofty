@@ -314,25 +314,18 @@ private:
    enum_type m_e;
 };
 
-} //namespace abc
-
-
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    template <class T> \
-   inline bool operator op(abc::enum_impl<T> const & e1, abc::enum_impl<T> const & e2) { \
+   inline bool operator op(enum_impl<T> const & e1, enum_impl<T> const & e2) { \
       return e1.base() op e2.base(); \
    } \
    template <class T> \
-   inline bool operator op( \
-      abc::enum_impl<T> const & e1, typename abc::enum_impl<T>::enum_type e2 \
-   ) { \
+   inline bool operator op(enum_impl<T> const & e1, typename enum_impl<T>::enum_type e2) { \
       return e1.base() op e2; \
    } \
    template <class T> \
-   inline bool operator op( \
-      typename abc::enum_impl<T>::enum_type e1, abc::enum_impl<T> const & e2 \
-   ) { \
+   inline bool operator op(typename enum_impl<T>::enum_type e1, enum_impl<T> const & e2) { \
       return e1 op e2.base(); \
    }
 ABC_RELOP_IMPL(==)
@@ -342,6 +335,8 @@ ABC_RELOP_IMPL(>=)
 ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
+
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

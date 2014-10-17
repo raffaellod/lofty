@@ -510,28 +510,27 @@ struct is_copy_constructible<T, typename enable_if<
       }
    };
 
-   } //namespace abc
-
    // Disable relational operators for support_explicit_operator_bool.
    #ifdef ABC_CXX_FUNC_DELETE
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
          bool operator op( \
-            abc::support_explicit_operator_bool<T1> const &, \
-            abc::support_explicit_operator_bool<T2> const & \
+            support_explicit_operator_bool<T1> const &, support_explicit_operator_bool<T2> const & \
          ) = delete;
    #else //ifdef ABC_CXX_FUNC_DELETE
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
          inline bool operator op( \
-            abc::support_explicit_operator_bool<T1> const & lhs, \
-            abc::support_explicit_operator_bool<T2> const & rhs \
+            support_explicit_operator_bool<T1> const & lhs, \
+            support_explicit_operator_bool<T2> const & rhs \
          );
    #endif //ifdef ABC_CXX_FUNC_DELETE … else
 
    ABC_RELOP_IMPL(==)
    ABC_RELOP_IMPL(!=)
    #undef ABC_RELOP_IMPL
+
+   } //namespace abc
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
 /*! Declares a function/method as never throwing exceptions. Supports both C++11 noexcept specifier

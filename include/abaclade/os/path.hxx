@@ -387,14 +387,10 @@ private:
 #endif
 };
 
-} //namespace os
-} //namespace abc
-
-
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   inline bool operator op(abc::os::path const & op1, abc::os::path const & op2) { \
-      return static_cast<abc::istr const &>(op1) op static_cast<abc::istr const &>(op2); \
+   inline bool operator op(path const & op1, path const & op2) { \
+      return static_cast<istr const &>(op1) op static_cast<istr const &>(op2); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -404,6 +400,8 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
+} //namespace os
+} //namespace abc
 
 namespace std {
 

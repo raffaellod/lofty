@@ -132,34 +132,29 @@ protected:
    _codepoint_iterator_impl<false> * const mc_pcii;
 };
 
-} //namespace text
-} //namespace abc
-
-
 // Relational operators. Provided so that comparisons between char32_t (from _codepoint_proxy) and
 // char{,8,16}_t don’t raise warnings.
 #define ABC_RELOP_IMPL(op) \
    template <bool t_bConst1, bool t_bConst2> \
    inline bool operator op( \
-      abc::text::_codepoint_proxy<t_bConst1> const & cpp1, \
-      abc::text::_codepoint_proxy<t_bConst2> const & cpp2 \
+      _codepoint_proxy<t_bConst1> const & cpp1, _codepoint_proxy<t_bConst2> const & cpp2 \
    ) { \
       return cpp1.operator char32_t() op cpp2.operator char32_t(); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(abc::text::_codepoint_proxy<t_bConst> const & cpp, abc::char_t ch) { \
-      return cpp.operator char32_t() op abc::text::codepoint(ch); \
+   inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char_t ch) { \
+      return cpp.operator char32_t() op codepoint(ch); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(abc::char_t ch, abc::text::_codepoint_proxy<t_bConst> const & cpp) { \
-      return abc::text::codepoint(ch) op cpp.operator char32_t(); \
+   inline bool operator op(char_t ch, _codepoint_proxy<t_bConst> const & cpp) { \
+      return codepoint(ch) op cpp.operator char32_t(); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(abc::text::_codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
+   inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
       return cpp.operator char32_t() op ch; \
    } \
    template <bool t_bConst> \
-   inline bool operator op(char32_t ch, abc::text::_codepoint_proxy<t_bConst> const & cpp) { \
+   inline bool operator op(char32_t ch, _codepoint_proxy<t_bConst> const & cpp) { \
       return ch op cpp.operator char32_t(); \
    }
 ABC_RELOP_IMPL(==)
@@ -173,12 +168,12 @@ ABC_RELOP_IMPL(<=)
 #if ABC_HOST_UTF > 8
    #define ABC_RELOP_IMPL(op) \
       template <bool t_bConst> \
-      inline bool operator op(abc::text::_codepoint_proxy<t_bConst> const & cpp, char ch) { \
-         return operator op(cpp, abc::text::host_char(ch)); \
+      inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char ch) { \
+         return operator op(cpp, host_char(ch)); \
       } \
       template <bool t_bConst> \
-      inline bool operator op(char ch, abc::text::_codepoint_proxy<t_bConst> const & cpp) { \
-         return operator op(abc::text::host_char(ch), cpp); \
+      inline bool operator op(char ch, _codepoint_proxy<t_bConst> const & cpp) { \
+         return operator op(host_char(ch), cpp); \
       }
    ABC_RELOP_IMPL(==)
    ABC_RELOP_IMPL(!=)
@@ -188,6 +183,9 @@ ABC_RELOP_IMPL(<=)
    ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 #endif
+
+} //namespace text
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::_codepoint_iterator_impl

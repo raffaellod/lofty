@@ -608,14 +608,11 @@ protected:
    tuple<T *, TDel> m_pt_and_tdel;
 };
 
-} //namespace std
-
-
 // Relational operators for unique_ptr.
 #define ABC_RELOP_IMPL(op) \
    template <typename T1, typename TDel1, typename T2, typename TDel2> \
    inline bool operator op( \
-      std::unique_ptr<T1, TDel1> const & upt1, std::unique_ptr<T2, TDel2> const & upt2 \
+      unique_ptr<T1, TDel1> const & upt1, unique_ptr<T2, TDel2> const & upt2 \
    ) { \
       return upt1.get() op upt2.get(); \
    }
@@ -626,6 +623,8 @@ ABC_RELOP_IMPL(>=)
 ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
+
+} //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // std::bad_weak_ptr
