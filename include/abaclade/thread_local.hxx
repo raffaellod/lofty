@@ -325,11 +325,7 @@ public:
       Pointer to a new object to take ownership of.
    */
    void reset() {
-      value_t * value = get_ptr<value_t>();
-      if (value->bConstructed) {
-         reinterpret_cast<T *>(&value->t)->~T();
-         value->bConstructed = false;
-      }
+      destruct(get_ptr<value_t>());
    }
 
    /*! Destructs the object currently pointed to, if any, and constructs a new object.
@@ -363,6 +359,7 @@ private:
       value_t * value = static_cast<value_t *>(p);
       if (value->bConstructed) {
          reinterpret_cast<T *>(&value->t)->~T();
+         value->bConstructed = false;
       }
    }
 };
