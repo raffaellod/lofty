@@ -32,6 +32,9 @@ namespace text {
 //! Implementation of text (character-based) I/O from/to a string.
 class ABACLADE_SYM str_base : public virtual base, public noncopyable {
 public:
+   //! See base::base().
+   str_base(str_base && sb);
+
    //! Destructor.
    virtual ~str_base();
 
@@ -68,11 +71,15 @@ public:
    ps
       Pointer to the source string to be used as external_buffer.
    */
+   str_reader(str_reader && sr);
    explicit str_reader(istr const & s);
    explicit str_reader(istr && s);
    explicit str_reader(mstr && s);
    str_reader(external_buffer_t const &, istr const * ps);
    str_reader(external_buffer_t const &, mstr const * ps);
+
+   //! Destructor.
+   virtual ~str_reader();
 
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
@@ -114,7 +121,11 @@ public:
       dynamically-allocated string will be used.
    */
    str_writer();
+   str_writer(str_writer && sw);
    str_writer(external_buffer_t const &, mstr * psBuf);
+
+   //! Destructor.
+   virtual ~str_writer();
 
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();

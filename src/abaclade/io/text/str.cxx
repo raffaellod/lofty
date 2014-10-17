@@ -31,6 +31,10 @@ str_base::str_base() :
    base(),
    m_ichOffset(0) {
 }
+str_base::str_base(str_base && sb) :
+   base(std::move(sb)),
+   m_ichOffset(sb.m_ichOffset) {
+}
 
 /*virtual*/ str_base::~str_base() {
 }
@@ -49,6 +53,15 @@ str_base::str_base() :
 namespace abc {
 namespace io {
 namespace text {
+
+str_reader::str_reader(str_reader && sr) :
+   base(std::move(sr)),
+   str_base(std::move(sr)),
+   reader(std::move(sr)),
+   m_psReadBuf(sr.m_psReadBuf != &sr.m_sReadBuf ? sr.m_psReadBuf : &m_sReadBuf),
+   m_sReadBuf(std::move(sr.m_sReadBuf)) {
+   sr.m_psReadBuf = &sr.m_sReadBuf;
+}
 
 str_reader::str_reader(istr const & s) :
    base(),
@@ -84,6 +97,9 @@ str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
    m_psReadBuf(&ps->operator istr const &()) {
 }
 
+/*virtual*/ str_reader::~str_reader() {
+}
+
 /*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
@@ -108,12 +124,22 @@ str_writer::str_writer() :
    writer(),
    m_psWriteBuf(&m_sDefaultWriteBuf) {
 }
-
+str_writer::str_writer(str_writer && sw) :
+   base(std::move(sw)),
+   str_base(std::move(sw)),
+   writer(std::move(sw)),
+   m_psWriteBuf(sw.m_psWriteBuf != &sw.m_sDefaultWriteBuf ? sw.m_psWriteBuf : &m_sDefaultWriteBuf),
+   m_sDefaultWriteBuf(std::move(sw.m_sDefaultWriteBuf)) {
+   sw.m_psWriteBuf = &sw.m_sDefaultWriteBuf;
+}
 str_writer::str_writer(external_buffer_t const &, mstr * psBuf) :
    base(),
    str_base(),
    writer(),
    m_psWriteBuf(psBuf) {
+}
+
+/*virtual*/ str_writer::~str_writer() {
 }
 
 void str_writer::clear() {
