@@ -281,8 +281,11 @@ expr
       for each (rangedecl in expr)
 #endif
 
-// MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
-#if ABC_HOST_MSC
+#if ABC_HOST_GCC && ABC_HOST_GCC < 0x40700
+   // GCC only supports override since version 4.7.
+   #define override
+#elif ABC_HOST_MSC
+   // MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
    #define override \
       __pragma(warning(suppress:4481)) override
 #endif
