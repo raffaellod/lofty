@@ -107,24 +107,43 @@ public:
    };
 
    typedef static_list_iterator<T> iterator;
+   typedef std::reverse_iterator<iterator> reverse_iterator;
 
 private:
    friend class node;
 
 public:
-   /*! Returns an iterator to the start of the list.
+   /*! Returns a forward iterator to the start of the list.
 
    return
       Iterator to the first node in the list.
    */
    static iterator begin();
 
-   /*! Returns an iterator to the end of the list.
+   /*! Returns a forward iterator to the end of the list.
 
    return
       Iterator to the beyond the last node in the list.
    */
    static iterator end();
+
+   /*! Returns a reverse iterator to the end of the list.
+
+   return
+      Reverse Iterator to the last node in the list.
+   */
+   static reverse_iterator rbegin() {
+      return reverse_iterator(end());
+   }
+
+   /*! Returns a reverse iterator to the start of the list.
+
+   return
+      Reverse iterator to the before the first node in the list.
+   */
+   static reverse_iterator rend() {
+      return reverse_iterator(begin());
+   }
 
 private:
    /*! Add a node to the end of the list.
@@ -202,6 +221,7 @@ template <typename T>
 class static_list_iterator :
    public std::iterator<std::bidirectional_iterator_tag, T> {
 private:
+   // Handy shortcut.
    typedef typename static_list<T>::node node;
 
 public:

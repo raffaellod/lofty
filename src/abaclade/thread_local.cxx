@@ -41,7 +41,7 @@ std::size_t thread_local_storage::sm_cb = 0;
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
 
-   // Iterate over the list of constructors to initialize TLS for this thread.
+   // Iterate over the list to construct TLS for this thread.
    for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
       it->construct(get_storage(it->m_ibTlsOffset));
    }
@@ -54,9 +54,8 @@ thread_local_storage::thread_local_storage() :
 }
 
 thread_local_storage::~thread_local_storage() {
-   // Iterate backwards over the list of destructors to deinitialize TLS for this thread.
-   for (auto it(end()), itBegin(begin()); it != itBegin; ) {
-      --it;
+   // Iterate backwards over the list to destruct TLS for this thread.
+   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
       it->destruct(get_storage(it->m_ibTlsOffset));
    }
 }
