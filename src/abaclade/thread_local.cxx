@@ -25,6 +25,9 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::detail::thread_local_storage
 
 namespace abc {
+
+ABC_STATIC_LIST_DEFINE_STATIC_MEMBERS(detail::thread_local_var_impl);
+
 namespace detail {
 
 #if ABC_HOST_API_POSIX
@@ -33,15 +36,14 @@ pthread_key_t thread_local_storage::sm_pthkey;
 #elif ABC_HOST_API_WIN32
 DWORD thread_local_storage::sm_iTls = TLS_OUT_OF_INDEXES;
 #endif
-thread_local_var_impl const * thread_local_storage::sm_ptlviHead = nullptr;
 std::size_t thread_local_storage::sm_cb = 0;
 
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
 
    // Iterate over the list of constructors to initialize TLS for this thread.
-   for (thread_local_var_impl const * ptlvi = sm_ptlviHead; ptlvi; ptlvi = ptlvi->m_ptlviNext) {
-      ptlvi->construct(get_storage(ptlvi->m_ibTlsOffset));
+   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
+      it->construct(get_storage(it->m_ibTlsOffset));
    }
 
 #if ABC_HOST_API_POSIX
@@ -52,16 +54,14 @@ thread_local_storage::thread_local_storage() :
 }
 
 thread_local_storage::~thread_local_storage() {
-   // Iterate over the list of destructors to deinitialize TLS for this thread.
-   for (thread_local_var_impl const * ptlvi = sm_ptlviHead; ptlvi; ptlvi = ptlvi->m_ptlviNext) {
-      ptlvi->destruct(get_storage(ptlvi->m_ibTlsOffset));
+   // Iterate backwards over the list of destructors to deinitialize TLS for this thread.
+   for (auto it(end()), itBegin(begin()); it != itBegin; ) {
+      --it;
+      it->destruct(get_storage(it->m_ibTlsOffset));
    }
 }
 
 /*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
-   // Insert *ptlvi as the first element in the list.
-   ptlvi->m_ptlviNext = sm_ptlviHead;
-   sm_ptlviHead = ptlvi;
    // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
    ptlvi->m_ibTlsOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t));

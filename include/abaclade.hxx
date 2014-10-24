@@ -692,17 +692,15 @@ class writer;
 
 #ifdef ABC_STLIMPL
    #include <abaclade/stl/exception.hxx>
-#else
-   #include <exception>
-#endif
-#include <abaclade/thread_local.hxx> // TODO: find best position for this.
-#include <abaclade/exception.hxx>
-#include <abaclade/enum.hxx>
-#ifdef ABC_STLIMPL
    #include <abaclade/stl/iterator.hxx>
 #else
+   #include <exception>
    #include <iterator>
 #endif
+#include <abaclade/static_list.hxx>
+#include <abaclade/thread_local.hxx>
+#include <abaclade/exception.hxx>
+#include <abaclade/enum.hxx>
 #include <abaclade/pointer_iterator.hxx>
 #include <abaclade/numeric.hxx>
 #include <abaclade/type_void_adapter.hxx>

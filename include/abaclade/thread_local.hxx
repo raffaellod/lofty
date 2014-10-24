@@ -40,7 +40,9 @@ and each library would have its own byte array (keyed in the same way).
 Loading a new library would add a new element in the maps (and in the TLS block for each existing
 thread), and unloading it would remove the library from all maps (and in the TLS block for each
 thread). */
-class ABACLADE_SYM thread_local_storage : public noncopyable {
+class ABACLADE_SYM thread_local_storage :
+   public static_list<thread_local_var_impl>,
+   public noncopyable {
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
    specified thread_local_var_impl instance; it also initializes the m_ptlviNext and m_ibTlsOffset
@@ -123,8 +125,6 @@ private:
    //! One-time initializer for sm_pthkey.
    static pthread_once_t sm_pthonce;
 #endif
-   //! Pointer to the first thread_local_var_impl instance.
-   static thread_local_var_impl const * sm_ptlviHead;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
 };
@@ -139,7 +139,9 @@ namespace abc {
 namespace detail {
 
 //! Non-template implementation of abc::thread_local_value and abc::thread_local_ptr.
-class ABACLADE_SYM thread_local_var_impl : public noncopyable {
+class ABACLADE_SYM thread_local_var_impl :
+   public static_list<thread_local_var_impl>::node,
+   public noncopyable {
 private:
    friend class thread_local_storage;
 
@@ -177,8 +179,6 @@ protected:
    }
 
 private:
-   //! Pointer to the next thread_local_var_impl instance.
-   thread_local_var_impl const * m_ptlviNext;
    //! Offset of this variable in the TLS block.
    std::size_t m_ibTlsOffset;
 };
