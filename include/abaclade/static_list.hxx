@@ -293,12 +293,6 @@ private:
          }
       }
    }
-
-private:
-   //! Pointer to the first node instance.
-   static node * sm_pnFirst;
-   //! Pointer to the last node instance.
-   static node * sm_pnLast;
 };
 
 } //namespace abc
