@@ -28,18 +28,18 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 // Forward declaration.
-template <typename T>
+template <class TContainer, class TValue>
 class static_list_iterator;
 
 //! Base for classes containing static lists of other (node) classes.
-template <typename T>
+template <class TContainer, class TValue>
 class static_list {
 public:
    //! Base class for nodes of static_list.
    class node {
    private:
       friend class static_list;
-      friend class static_list_iterator<T>;
+      friend class static_list_iterator<TContainer, TValue>;
 
    protected:
       //! Constructor.
@@ -106,7 +106,7 @@ public:
       std::uintptr_t m_iPrevXorNext;
    };
 
-   typedef static_list_iterator<T> iterator;
+   typedef static_list_iterator<TContainer, TValue> iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
 
 private:
@@ -152,13 +152,13 @@ private:
       Pointer to the node to append.
    */
    static void append(node * pn) {
-      pn->set_prev_next(nullptr, sm_pnLast);
-      if (!sm_pnFirst) {
-         sm_pnFirst = pn;
-      } else if (sm_pnLast) {
-         sm_pnLast->set_prev_next(pn, sm_pnLast->get_next(nullptr));
+      pn->set_prev_next(nullptr, TContainer::sm_pnLast);
+      if (!TContainer::sm_pnFirst) {
+         TContainer::sm_pnFirst = pn;
+      } else if (TContainer::sm_pnLast) {
+         TContainer::sm_pnLast->set_prev_next(pn, TContainer::sm_pnLast->get_next(nullptr));
       }
-      sm_pnLast = pn;
+      TContainer::sm_pnLast = pn;
    }
 
    /*! Removes a node from the list.
@@ -169,21 +169,21 @@ private:
    static void remove(node * pn) {
       // Find pn in the list.
       for (
-         node * pnCurr = sm_pnFirst, * pnPrev = nullptr;
-         pnCurr != sm_pnLast;
+         node * pnCurr = TContainer::sm_pnFirst, * pnPrev = nullptr;
+         pnCurr != TContainer::sm_pnLast;
          std::tie(pnPrev, pnCurr) = std::make_tuple(pnCurr, pnCurr->get_next(pnPrev))
       ) {
          if (pnCurr == pn) {
             node * pnNext = pn->get_next(pnPrev);
             if (pnPrev) {
                pnPrev->set_prev_next(pnPrev->get_prev(pn), pnNext);
-            } else if (sm_pnFirst == pn) {
-               sm_pnFirst = pnNext;
+            } else if (TContainer::sm_pnFirst == pn) {
+               TContainer::sm_pnFirst = pnNext;
             }
             if (pnNext) {
                pnNext->set_prev_next(pnPrev, pnNext->get_next(pn));
-            } else if (sm_pnLast == pn) {
-               sm_pnLast = pnPrev;
+            } else if (TContainer::sm_pnLast == pn) {
+               TContainer::sm_pnLast = pnPrev;
             }
             pn->set_prev_next(nullptr, nullptr);
             break;
@@ -200,16 +200,23 @@ private:
 
 } //namespace abc
 
-/*! Defines the static member variables for the specified abc::static_list specialization.
+/*! Declares the static member variables for the specified abc::static_list-derived class.
 
-T
-   Template argument for the target abc::static_list specialiation.
+container
+   Class derived from abc::static_list.
 */
-#define ABC_STATIC_LIST_DEFINE_STATIC_MEMBERS(T) \
-   template <> \
-   static_list<T>::node * static_list<T>::sm_pnFirst = nullptr; \
-   template <> \
-   static_list<T>::node * static_list<T>::sm_pnLast = nullptr
+#define ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
+   static node * sm_pnFirst; \
+   static node * sm_pnLast;
+
+/*! Defines the static member variables for the specified abc::static_list-derived class.
+
+container
+   Class derived from abc::static_list.
+*/
+#define ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
+   container::node * container::sm_pnFirst = nullptr; \
+   container::node * container::sm_pnLast = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::static_list_iterator
@@ -217,12 +224,12 @@ T
 namespace abc {
 
 //! Iterator based on a plain pointer.
-template <typename T>
+template <class TContainer, class TValue>
 class static_list_iterator :
-   public std::iterator<std::bidirectional_iterator_tag, T> {
+   public std::iterator<std::bidirectional_iterator_tag, TValue> {
 private:
    // Handy shortcut.
-   typedef typename static_list<T>::node node;
+   typedef typename static_list<TContainer, TValue>::node node;
 
 public:
    /*! Constructor.
@@ -242,8 +249,8 @@ public:
    return
       Reference to the current node.
    */
-   T & operator*() const {
-      return *static_cast<T *>(m_pnCurr);
+   TValue & operator*() const {
+      return *static_cast<TValue *>(m_pnCurr);
    }
 
    /*! Dereferencing member access operator.
@@ -251,8 +258,8 @@ public:
    return
       Pointer to the current node.
    */
-   T * operator->() const {
-      return static_cast<T *>(m_pnCurr);
+   TValue * operator->() const {
+      return static_cast<TValue *>(m_pnCurr);
    }
 
    /*! Preincrement operator.
@@ -305,7 +312,7 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(static_list_iterator<T> const & it) const { \
+   bool operator op(static_list_iterator const & it) const { \
       return m_pnCurr op it.m_pnCurr; \
    }
 ABC_RELOP_IMPL(==)
@@ -330,14 +337,17 @@ private:
 
 
 // Now these can be implemented.
-template <typename T>
-inline typename static_list<T>::iterator static_list<T>::begin() {
-   return iterator(sm_pnFirst, sm_pnFirst ? sm_pnFirst->get_next(nullptr) : nullptr);
+template <class TContainer, class TValue>
+inline typename static_list<TContainer, TValue>::iterator static_list<TContainer, TValue>::begin() {
+   return iterator(
+      TContainer::sm_pnFirst,
+      TContainer::sm_pnFirst ? TContainer::sm_pnFirst->get_next(nullptr) : nullptr
+   );
 }
 
-template <typename T>
-inline typename static_list<T>::iterator static_list<T>::end() {
-   return iterator(sm_pnLast, nullptr);
+template <class TContainer, class TValue>
+inline typename static_list<TContainer, TValue>::iterator static_list<TContainer, TValue>::end() {
+   return iterator(TContainer::sm_pnLast, nullptr);
 }
 
 } //namespace abc

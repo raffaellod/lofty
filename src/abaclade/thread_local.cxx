@@ -25,11 +25,9 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::detail::thread_local_storage
 
 namespace abc {
-
-ABC_STATIC_LIST_DEFINE_STATIC_MEMBERS(detail::thread_local_var_impl);
-
 namespace detail {
 
+ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 #if ABC_HOST_API_POSIX
 pthread_once_t thread_local_storage::sm_pthonce = PTHREAD_ONCE_INIT;
 pthread_key_t thread_local_storage::sm_pthkey;

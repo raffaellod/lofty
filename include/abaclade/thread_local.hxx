@@ -41,7 +41,7 @@ Loading a new library would add a new element in the maps (and in the TLS block 
 thread), and unloading it would remove the library from all maps (and in the TLS block for each
 thread). */
 class ABACLADE_SYM thread_local_storage :
-   public static_list<thread_local_var_impl>,
+   public static_list<thread_local_storage, thread_local_var_impl>,
    public noncopyable {
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
@@ -112,6 +112,9 @@ private:
    // TODO: call free_slot() in the POSIX Threads case using reference counting in destruct().
    static void free_slot();
 
+public:
+   ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
+
 private:
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
@@ -140,7 +143,7 @@ namespace detail {
 
 //! Non-template implementation of abc::thread_local_value and abc::thread_local_ptr.
 class ABACLADE_SYM thread_local_var_impl :
-   public static_list<thread_local_var_impl>::node,
+   public static_list<thread_local_storage, thread_local_var_impl>::node,
    public noncopyable {
 private:
    friend class thread_local_storage;
