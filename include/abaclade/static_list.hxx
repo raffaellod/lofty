@@ -27,10 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-// Forward declaration.
-template <class TContainer, class TValue>
-class static_list_iterator;
-
 //! Base for classes containing static lists of other (node) classes.
 template <class TContainer, class TValue>
 class static_list {
@@ -39,7 +35,7 @@ public:
    class node {
    private:
       friend class static_list;
-      friend class static_list_iterator<TContainer, TValue>;
+      friend class iterator;
 
    protected:
       //! Constructor.
@@ -106,11 +102,113 @@ public:
       std::uintptr_t m_iPrevXorNext;
    };
 
-   typedef static_list_iterator<TContainer, TValue> iterator;
-   typedef std::reverse_iterator<iterator> reverse_iterator;
+   //! Iterator for static_list::node subclasses.
+   class iterator : public std::iterator<std::bidirectional_iterator_tag, TValue> {
+   public:
+      /*! Constructor.
 
-private:
-   friend class node;
+      pnCurr
+         Pointer to the current node.
+      pnNext
+         Pointer to the node following *pnCurr.
+      */
+      iterator(node * pnCurr, node * pnNext) :
+         m_pnCurr(pnCurr),
+         m_pnNext(pnNext) {
+      }
+
+      /*! Dereferencing operator.
+
+      return
+         Reference to the current node.
+      */
+      TValue & operator*() const {
+         return *static_cast<TValue *>(m_pnCurr);
+      }
+
+      /*! Dereferencing member access operator.
+
+      return
+         Pointer to the current node.
+      */
+      TValue * operator->() const {
+         return static_cast<TValue *>(m_pnCurr);
+      }
+
+      /*! Preincrement operator.
+
+      return
+         *this after it’s moved to the node following the one currently pointed to by.
+      */
+      iterator & operator++() {
+         node * pnNewPrev = m_pnCurr;
+         m_pnCurr = m_pnNext;
+         m_pnNext = m_pnCurr->get_next(pnNewPrev);
+         return *this;
+      }
+
+      /*! Postincrement operator.
+
+      return
+         Iterator pointing to the node following the one pointed to by this iterator.
+      */
+      iterator operator++(int) {
+         node * pnNewPrev = m_pnCurr;
+         m_pnCurr = m_pnNext;
+         m_pnNext = m_pnCurr->get_next(pnNewPrev);
+         return iterator(pnNewPrev, m_pnCurr);
+      }
+
+      /*! Predecrement operator.
+
+      return
+         *this after it’s moved to the node preceding the one currently pointed to by.
+      */
+      iterator & operator--() {
+         node * pnNewNext = m_pnCurr;
+         m_pnCurr = m_pnCurr->get_prev(m_pnNext);
+         m_pnNext = pnNewNext;
+         return *this;
+      }
+
+      /*! Postdecrement operator.
+
+      return
+         Iterator pointing to the node preceding the one pointed to by this iterator.
+      */
+      iterator operator--(int) {
+         node * pnNewNextNext = m_pnNext;
+         m_pnNext = m_pnCurr;
+         m_pnCurr = m_pnCurr->get_prev(pnNewNextNext);
+         return iterator(m_pnNext, pnNewNextNext);
+      }
+
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+      bool operator op(iterator const & it) const { \
+         return m_pnCurr op it.m_pnCurr; \
+      }
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+#undef ABC_RELOP_IMPL
+
+      /*! Returns the underlying iterator type.
+
+      return
+         Pointer to the current node.
+      */
+      node * base() const {
+         return m_pnCurr;
+      }
+
+   private:
+      //! Pointer to the current node.
+      node * m_pnCurr;
+      //! Pointer to the next node.
+      node * m_pnNext;
+   };
+
+   typedef std::reverse_iterator<iterator> reverse_iterator;
 
 public:
    /*! Returns a forward iterator to the start of the list.
@@ -118,14 +216,19 @@ public:
    return
       Iterator to the first node in the list.
    */
-   static iterator begin();
+   static iterator begin() {
+      node * pnFirst = TContainer::sm_pnFirst;
+      return iterator(pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
+   }
 
    /*! Returns a forward iterator to the end of the list.
 
    return
       Iterator to the beyond the last node in the list.
    */
-   static iterator end();
+   static iterator end() {
+      return iterator(TContainer::sm_pnLast, nullptr);
+   }
 
    /*! Returns a reverse iterator to the end of the list.
 
@@ -155,8 +258,8 @@ private:
       pn->set_prev_next(nullptr, TContainer::sm_pnLast);
       if (!TContainer::sm_pnFirst) {
          TContainer::sm_pnFirst = pn;
-      } else if (TContainer::sm_pnLast) {
-         TContainer::sm_pnLast->set_prev_next(pn, TContainer::sm_pnLast->get_next(nullptr));
+      } else if (node * pnLast = TContainer::sm_pnLast) {
+         pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
       }
       TContainer::sm_pnLast = pn;
    }
@@ -217,140 +320,6 @@ container
 #define ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
    container::node * container::sm_pnFirst = nullptr; \
    container::node * container::sm_pnLast = nullptr;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::static_list_iterator
-
-namespace abc {
-
-//! Iterator based on a plain pointer.
-template <class TContainer, class TValue>
-class static_list_iterator :
-   public std::iterator<std::bidirectional_iterator_tag, TValue> {
-private:
-   // Handy shortcut.
-   typedef typename static_list<TContainer, TValue>::node node;
-
-public:
-   /*! Constructor.
-
-   pnCurr
-      Pointer to the current node.
-   pnNext
-      Pointer to the node following *pnCurr.
-   */
-   static_list_iterator(node * pnCurr, node * pnNext) :
-      m_pnCurr(pnCurr),
-      m_pnNext(pnNext) {
-   }
-
-   /*! Dereferencing operator.
-
-   return
-      Reference to the current node.
-   */
-   TValue & operator*() const {
-      return *static_cast<TValue *>(m_pnCurr);
-   }
-
-   /*! Dereferencing member access operator.
-
-   return
-      Pointer to the current node.
-   */
-   TValue * operator->() const {
-      return static_cast<TValue *>(m_pnCurr);
-   }
-
-   /*! Preincrement operator.
-
-   return
-      *this after it’s moved to the node following the one currently pointed to by.
-   */
-   static_list_iterator & operator++() {
-      node * pnNewPrev = m_pnCurr;
-      m_pnCurr = m_pnNext;
-      m_pnNext = m_pnCurr->get_next(pnNewPrev);
-      return *this;
-   }
-
-   /*! Postincrement operator.
-
-   return
-      Iterator pointing to the node following the one pointed to by this iterator.
-   */
-   static_list_iterator operator++(int) {
-      node * pnNewPrev = m_pnCurr;
-      m_pnCurr = m_pnNext;
-      m_pnNext = m_pnCurr->get_next(pnNewPrev);
-      return static_list_iterator(pnNewPrev, m_pnCurr);
-   }
-
-   /*! Predecrement operator.
-
-   return
-      *this after it’s moved to the node preceding the one currently pointed to by.
-   */
-   static_list_iterator & operator--() {
-      node * pnNewNext = m_pnCurr;
-      m_pnCurr = m_pnCurr->get_prev(m_pnNext);
-      m_pnNext = pnNewNext;
-      return *this;
-   }
-
-   /*! Postdecrement operator.
-
-   return
-      Iterator pointing to the node preceding the one pointed to by this iterator.
-   */
-   static_list_iterator operator--(int) {
-      node * pnNewNextNext = m_pnNext;
-      m_pnNext = m_pnCurr;
-      m_pnCurr = m_pnCurr->get_prev(pnNewNextNext);
-      return static_list_iterator(m_pnNext, pnNewNextNext);
-   }
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   bool operator op(static_list_iterator const & it) const { \
-      return m_pnCurr op it.m_pnCurr; \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
-
-   /*! Returns the underlying iterator type.
-
-   return
-      Pointer to the current node.
-   */
-   node * base() const {
-      return m_pnCurr;
-   }
-
-private:
-   //! Pointer to the current node.
-   node * m_pnCurr;
-   //! Pointer to the next node.
-   node * m_pnNext;
-};
-
-
-// Now these can be implemented.
-template <class TContainer, class TValue>
-inline typename static_list<TContainer, TValue>::iterator static_list<TContainer, TValue>::begin() {
-   return iterator(
-      TContainer::sm_pnFirst,
-      TContainer::sm_pnFirst ? TContainer::sm_pnFirst->get_next(nullptr) : nullptr
-   );
-}
-
-template <class TContainer, class TValue>
-inline typename static_list<TContainer, TValue>::iterator static_list<TContainer, TValue>::end() {
-   return iterator(TContainer::sm_pnLast, nullptr);
-}
-
-} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
