@@ -108,20 +108,7 @@ void test_case::assert_throws(
 namespace abc {
 namespace testing {
 
-test_case_factory_impl::list_item * test_case_factory_impl::sm_pliHead = nullptr;
-test_case_factory_impl::list_item ** test_case_factory_impl::sm_ppliTailNext = nullptr;
-
-test_case_factory_impl::test_case_factory_impl(list_item * pli) {
-   if (sm_pliHead) {
-      // We have a head and therefore a tail as well: add *pli as the new tail.
-      *sm_ppliTailNext = pli;
-   } else {
-      // We don’t have a head yet: set it up now.
-      sm_pliHead = pli;
-   }
-   // Save the “next” pointer of *pli for the next call.
-   sm_ppliTailNext = &pli->pliNext;
-}
+ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
 
 } //namespace testing
 } //namespace abc

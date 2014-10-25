@@ -380,46 +380,52 @@ expr
    this->assert_true(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::testing::test_case_factory_list
+
+namespace abc {
+namespace testing {
+
+// Forward declaration.
+class test_case_factory_impl;
+
+/*! List of abc::testing::test_case-derived classes that can be used by an abc::testing::runner
+instance to instantiate and execute each test case. */
+class ABACLADE_TESTING_SYM test_case_factory_list :
+   public static_list<test_case_factory_list, test_case_factory_impl> {
+public:
+   ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
+};
+
+} //namespace testing
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::test_case_factory_impl
 
 namespace abc {
 namespace testing {
 
-/*! Maintains a list of abc::testing::test_case-derived classes that can be used by an
-abc::testing::runner instance to instantiate and execute each test case. */
-class ABACLADE_TESTING_SYM test_case_factory_impl {
-public:
-   //! Factory function, returning an abc::testing::test_case instance.
-   typedef std::unique_ptr<test_case> (* factory_fn)(runner * prunner);
-   //! Linked list item.
-   struct list_item {
-      list_item * pliNext;
-      factory_fn pfnFactory;
-   };
-
+//! Non-template base class for test_case_factory.
+class ABACLADE_TESTING_SYM test_case_factory_impl :
+   public static_list<test_case_factory_list, test_case_factory_impl>::node {
 public:
    /*! Constructor.
 
-   pli
-      Pointer to the derived class’s factory list item.
+   pfnFactory
+      Pointer to the derived class’s factory function.
    */
-   test_case_factory_impl(list_item * pli);
-
-   /*! Returns a pointer to the head of the list of factory functions, which the caller can then use
-   to walk the entire list (ending when an item’s next pointer is nullptr).
-
-   return
-      Pointer to the head of the list.
-   */
-   static list_item * get_factory_list_head() {
-      return sm_pliHead;
+   test_case_factory_impl(std::unique_ptr<test_case> (* pfnFactory)(runner * prunner)) :
+      factory(pfnFactory) {
    }
 
-private:
-   //! Pointer to the head of the list of factory functions.
-   static list_item * sm_pliHead;
-   //! Pointer to the “next” pointer of the tail of the list of factory functions.
-   static list_item ** sm_ppliTailNext;
+   /*! Factory of abc::testing::test_case instances.
+
+   prunner
+      Runner to be used by the test case.
+   return
+      Test case instance.
+   */
+   std::unique_ptr<test_case> (* const factory)(runner * prunner);
 };
 
 } //namespace testing
@@ -438,23 +444,20 @@ class test_case_factory : public test_case_factory_impl {
 public:
    //! Constructor.
    test_case_factory() :
-      test_case_factory_impl(&sm_li) {
+      test_case_factory_impl(&static_factory) {
    }
 
+private:
    /*! Class factory for T.
 
    prunner
       Runner to provide to the test case.
    */
-   static std::unique_ptr<test_case> factory(runner * prunner) {
+   static std::unique_ptr<test_case> static_factory(runner * prunner) {
       std::unique_ptr<T> pt(new T());
       pt->init(prunner);
       return std::move(pt);
    }
-
-private:
-   //! Entry in the list of factory functions for this class.
-   static list_item sm_li;
 };
 
 } //namespace testing
@@ -472,11 +475,6 @@ cls
    namespace testing { \
    \
    static test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
-   template <> \
-   /*static*/ test_case_factory_impl::list_item test_case_factory<cls>::sm_li = { \
-      nullptr, \
-      test_case_factory<cls>::factory \
-   }; \
    \
    } /*namespace testing*/ \
    } /*namespace abc*/
