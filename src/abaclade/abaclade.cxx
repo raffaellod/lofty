@@ -44,15 +44,17 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved)
 #endif //if ABC_HOST_API_WIN32
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_explob_helper
+// abc::detail::explob_helper
 
 namespace abc {
+namespace detail {
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-void _explob_helper::bool_true() const {
+void explob_helper::bool_true() const {
 }
 #endif
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

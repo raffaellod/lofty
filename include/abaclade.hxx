@@ -484,11 +484,12 @@ struct is_copy_constructible<T, typename enable_if<
       bool _explicit_operator_bool
 
    namespace abc {
+   namespace detail {
 
    //! Non-template helper for support_explicit_operator_bool.
-   struct _explob_helper {
+   struct explob_helper {
       //! Non-bool boolean type.
-      typedef void (_explob_helper::* bool_type)() const;
+      typedef void (explob_helper::* bool_type)() const;
 
       //! A pointer to this method is used as a boolean true by support_explicit_operator_bool.
       ABACLADE_SYM void bool_true() const;
@@ -504,9 +505,9 @@ struct is_copy_constructible<T, typename enable_if<
       return
          A valid pointer if T::explicit_operator_bool() returns true, or nullptr otherwise.
       */
-      operator _explob_helper::bool_type() const {
+      operator explob_helper::bool_type() const {
          if (static_cast<T const *>(this)->_explicit_operator_bool()) {
-            return &_explob_helper::bool_true;
+            return &explob_helper::bool_true;
          } else {
             return nullptr;
          }
@@ -533,6 +534,7 @@ struct is_copy_constructible<T, typename enable_if<
    ABC_RELOP_IMPL(!=)
    #undef ABC_RELOP_IMPL
 
+   } //namespace detail
    } //namespace abc
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
