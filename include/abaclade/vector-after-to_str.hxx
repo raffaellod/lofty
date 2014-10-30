@@ -30,7 +30,7 @@ namespace detail {
 
 /*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file. */
-class ABACLADE_SYM vector_to_str_backend : public _sequence_to_str_backend {
+class ABACLADE_SYM vector_to_str_backend : public detail::sequence_to_str_backend {
 public:
    //! Constructor.
    vector_to_str_backend();

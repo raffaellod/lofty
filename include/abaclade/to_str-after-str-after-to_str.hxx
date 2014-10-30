@@ -182,13 +182,14 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_sequence_to_str_backend
+// abc::detail::sequence_to_str_backend
 
 namespace abc {
+namespace detail {
 
 /*! Base class for the specializations of to_str_backend for sequence types. Not using templates, so
 the implementation can be in a cxx file. */
-class ABACLADE_SYM _sequence_to_str_backend {
+class ABACLADE_SYM sequence_to_str_backend {
 public:
    /*! Constructor.
 
@@ -197,10 +198,10 @@ public:
    sEnd
       Sequence end delimiter.
    */
-   _sequence_to_str_backend(istr const & sStart, istr const & sEnd);
+   sequence_to_str_backend(istr const & sStart, istr const & sEnd);
 
    //! Destructor.
-   ~_sequence_to_str_backend();
+   ~sequence_to_str_backend();
 
    /*! Changes the output format.
 
@@ -247,6 +248,7 @@ protected:
    to_str_backend<istr> m_tsbStr;
 };
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,12 +294,12 @@ protected:
 
 template <typename... Ts>
 class to_str_backend<std::tuple<Ts ...>> :
-   public _sequence_to_str_backend,
+   public detail::sequence_to_str_backend,
    public _tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
 public:
    //! Constructor.
    to_str_backend() :
-      _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
+      detail::sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
    /*! Converts a tuple into its string representation.
@@ -379,14 +381,14 @@ template <
    typename T7, typename T8, typename T9
 >
 class to_str_backend<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
-   public _sequence_to_str_backend,
+   public detail::sequence_to_str_backend,
    public _tuple_to_str_backend_element_writer<
       _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    > {
 public:
    //! Constructor.
    to_str_backend() :
-      _sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
+      detail::sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }
 
    /*! Converts a tuple into its string representation.

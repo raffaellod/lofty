@@ -27,7 +27,7 @@ namespace abc {
 namespace detail {
 
 vector_to_str_backend::vector_to_str_backend() :
-   _sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
+   detail::sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
 }
 
 vector_to_str_backend::~vector_to_str_backend() {

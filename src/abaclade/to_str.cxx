@@ -355,17 +355,18 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptw
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_sequence_to_str_backend
+// abc::detail::sequence_to_str_backend
 
 namespace abc {
+namespace detail {
 
-_sequence_to_str_backend::_sequence_to_str_backend(istr const & sStart, istr const & sEnd) :
+sequence_to_str_backend::sequence_to_str_backend(istr const & sStart, istr const & sEnd) :
    m_sSeparator(ABC_SL(", ")),
    m_sStart(sStart),
    m_sEnd(sEnd) {
 }
 
-void _sequence_to_str_backend::set_format(istr const & sFormat) {
+void sequence_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -380,9 +381,10 @@ void _sequence_to_str_backend::set_format(istr const & sFormat) {
    }
 }
 
-_sequence_to_str_backend::~_sequence_to_str_backend() {
+sequence_to_str_backend::~sequence_to_str_backend() {
 }
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
