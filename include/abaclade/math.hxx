@@ -34,14 +34,16 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace math {
 
+namespace detail {
+
 /*! Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
 but structs/classes can. */
 template <typename T, bool t_bIsSigned = std::is_signed<T>::value>
-struct _abs_helper;
+struct abs_helper;
 
 // Partial specialization for signed types.
 template <typename T>
-struct _abs_helper<T, true> {
+struct abs_helper<T, true> {
    /*constexpr*/ T operator()(T t) const {
       return std::move(t >= 0 ? t : -t);
    }
@@ -49,11 +51,13 @@ struct _abs_helper<T, true> {
 
 // Partial specialization for unsigned types.
 template <typename T>
-struct _abs_helper<T, false> {
+struct abs_helper<T, false> {
    /*constexpr*/ T operator()(T t) const {
       return std::move(t);
    }
 };
+
+} //namespace detail
 
 /*! Returns the absolute value of the argument. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
@@ -65,7 +69,7 @@ return
 */
 template <typename T>
 inline /*constexpr*/ T abs(T t) {
-   return _abs_helper<T>()(std::move(t));
+   return detail::abs_helper<T>()(std::move(t));
 }
 
 } //namespace math
