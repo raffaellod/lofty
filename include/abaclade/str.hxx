@@ -154,8 +154,8 @@ public:
    return
       Character at index i.
    */
-   text::_codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
-      return text::_codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
+   text::detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
+      return text::detail::codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
    /*! Returns true if the length is greater than 0.
@@ -783,8 +783,10 @@ argument, since unlike istr, it allows in-place alterations to the string. Both 
 are automatically converted to this. */
 class ABACLADE_SYM mstr : public str_base {
 private:
-   friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char_t ch);
-   friend text::_codepoint_proxy<false> & text::_codepoint_proxy<false>::operator=(char32_t ch);
+   friend text::detail::codepoint_proxy<false> &
+      text::detail::codepoint_proxy<false>::operator=(char_t ch);
+   friend text::detail::codepoint_proxy<false> &
+      text::detail::codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
    /*! Assignment operator.

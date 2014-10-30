@@ -23,22 +23,23 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::_codepoint_proxy
+// abc::text::detail::codepoint_proxy
 
 namespace abc {
 namespace text {
+namespace detail {
 
 // Forward declaration.
 template <bool t_bConst>
-class _codepoint_iterator_impl;
+class codepoint_iterator_impl;
 
 //! Exposes a abc::char_t * as a char32_t &.
 template <bool t_bConst>
-class _codepoint_proxy;
+class codepoint_proxy;
 
 // Const specialization.
 template <>
-class _codepoint_proxy<true> {
+class codepoint_proxy<true> {
 public:
    /*! Constructor.
 
@@ -49,11 +50,11 @@ public:
    cpp
       Source code point proxy to copy.
    */
-   _codepoint_proxy(char_t const * pch, str_base const * ps) :
+   codepoint_proxy(char_t const * pch, str_base const * ps) :
       m_pch(pch),
       mc_ps(ps) {
    }
-   _codepoint_proxy(_codepoint_proxy const & cpp) :
+   codepoint_proxy(codepoint_proxy const & cpp) :
       m_pch(cpp.m_pch),
       mc_ps(cpp.mc_ps) {
    }
@@ -68,7 +69,7 @@ public:
    }
 
 private:
-   _codepoint_proxy & operator=(_codepoint_proxy const & cpp);
+   codepoint_proxy & operator=(codepoint_proxy const & cpp);
 
 protected:
    char_t const * m_pch;
@@ -77,9 +78,9 @@ protected:
 
 // Non-const specialization.
 template <>
-class _codepoint_proxy<false> : public _codepoint_proxy<true> {
+class codepoint_proxy<false> : public codepoint_proxy<true> {
 public:
-   /*! See _codepoint_proxy<true>::_codepoint_proxy().
+   /*! See codepoint_proxy<true>::codepoint_proxy().
 
    pch
       Pointer to the character(s) that this proxy will present as char32_t.
@@ -91,12 +92,12 @@ public:
    cpp
       Source code point proxy to copy.
    */
-   _codepoint_proxy(char_t * pch, str_base * ps, _codepoint_iterator_impl<false> * pcii) :
-      _codepoint_proxy<true>(pch, ps),
+   codepoint_proxy(char_t * pch, str_base * ps, codepoint_iterator_impl<false> * pcii) :
+      codepoint_proxy<true>(pch, ps),
       mc_pcii(pcii) {
    }
-   _codepoint_proxy(_codepoint_proxy const & cpp) :
-      _codepoint_proxy<true>(cpp),
+   codepoint_proxy(codepoint_proxy const & cpp) :
+      codepoint_proxy<true>(cpp),
       mc_pcii(cpp.mc_pcii) {
    }
 
@@ -111,50 +112,50 @@ public:
    return
       *this.
    */
-   _codepoint_proxy & operator=(char_t ch);
+   codepoint_proxy & operator=(char_t ch);
 #if ABC_HOST_UTF > 8
-   _codepoint_proxy & operator=(char ch) {
+   codepoint_proxy & operator=(char ch) {
       return operator=(host_char(ch));
    }
 #endif
-   _codepoint_proxy & operator=(char32_t ch);
-   _codepoint_proxy & operator=(_codepoint_proxy const & cpp) {
+   codepoint_proxy & operator=(char32_t ch);
+   codepoint_proxy & operator=(codepoint_proxy const & cpp) {
       return operator=(cpp.operator char32_t());
    }
    // Support copying a code point from a const iterator to a non-const iterator.
-   _codepoint_proxy & operator=(_codepoint_proxy<true> const & cpp) {
+   codepoint_proxy & operator=(codepoint_proxy<true> const & cpp) {
       return operator=(cpp.operator char32_t());
    }
 
 protected:
    /*! Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
    nullptr if *this was not instantiated by an iterator. */
-   _codepoint_iterator_impl<false> * const mc_pcii;
+   codepoint_iterator_impl<false> * const mc_pcii;
 };
 
-// Relational operators. Provided so that comparisons between char32_t (from _codepoint_proxy) and
+// Relational operators. Provided so that comparisons between char32_t (from codepoint_proxy) and
 // char{,8,16}_t don’t raise warnings.
 #define ABC_RELOP_IMPL(op) \
    template <bool t_bConst1, bool t_bConst2> \
    inline bool operator op( \
-      _codepoint_proxy<t_bConst1> const & cpp1, _codepoint_proxy<t_bConst2> const & cpp2 \
+      codepoint_proxy<t_bConst1> const & cpp1, codepoint_proxy<t_bConst2> const & cpp2 \
    ) { \
       return cpp1.operator char32_t() op cpp2.operator char32_t(); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char_t ch) { \
+   inline bool operator op(codepoint_proxy<t_bConst> const & cpp, char_t ch) { \
       return cpp.operator char32_t() op codepoint(ch); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(char_t ch, _codepoint_proxy<t_bConst> const & cpp) { \
+   inline bool operator op(char_t ch, codepoint_proxy<t_bConst> const & cpp) { \
       return codepoint(ch) op cpp.operator char32_t(); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
+   inline bool operator op(codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
       return cpp.operator char32_t() op ch; \
    } \
    template <bool t_bConst> \
-   inline bool operator op(char32_t ch, _codepoint_proxy<t_bConst> const & cpp) { \
+   inline bool operator op(char32_t ch, codepoint_proxy<t_bConst> const & cpp) { \
       return ch op cpp.operator char32_t(); \
    }
 ABC_RELOP_IMPL(==)
@@ -168,11 +169,11 @@ ABC_RELOP_IMPL(<=)
 #if ABC_HOST_UTF > 8
    #define ABC_RELOP_IMPL(op) \
       template <bool t_bConst> \
-      inline bool operator op(_codepoint_proxy<t_bConst> const & cpp, char ch) { \
+      inline bool operator op(codepoint_proxy<t_bConst> const & cpp, char ch) { \
          return operator op(cpp, host_char(ch)); \
       } \
       template <bool t_bConst> \
-      inline bool operator op(char ch, _codepoint_proxy<t_bConst> const & cpp) { \
+      inline bool operator op(char ch, codepoint_proxy<t_bConst> const & cpp) { \
          return operator op(host_char(ch), cpp); \
       }
    ABC_RELOP_IMPL(==)
@@ -184,32 +185,34 @@ ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 #endif
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::_codepoint_iterator_impl
+// abc::text::detail::codepoint_iterator_impl
 
 namespace abc {
 namespace text {
+namespace detail {
 
 /*! Base class for codepoint_iterator. Its specializations include all the members that don’t return
 an iterator or a reference to one, so that those are only defined once in the “real” template
 codepoint_iterator instead of once for each specialization. */
 template <bool t_bConst>
-class _codepoint_iterator_impl;
+class codepoint_iterator_impl;
 
 // Const specialization.
 template <>
-class ABACLADE_SYM _codepoint_iterator_impl<true> {
+class ABACLADE_SYM codepoint_iterator_impl<true> {
 public:
    /*! Dereferencing operator.
 
    return
       Reference to the current character.
    */
-   _codepoint_proxy<true> operator*() const {
-      return _codepoint_proxy<true>(throw_if_end(m_pch), m_ps);
+   codepoint_proxy<true> operator*() const {
+      return codepoint_proxy<true>(throw_if_end(m_pch), m_ps);
    }
 
    /*! Element access operator.
@@ -220,8 +223,8 @@ public:
    return
       Reference to the specified item.
    */
-   _codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
-      return _codepoint_proxy<true>(throw_if_end(advance(i, true)), m_ps);
+   codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
+      return codepoint_proxy<true>(throw_if_end(advance(i, true)), m_ps);
    }
 
    /*! Returns the underlying iterator type.
@@ -250,7 +253,7 @@ protected:
    ps
       Pointer to the string that is creating the iterator.
    */
-   _codepoint_iterator_impl(char_t const * pch, str_base const * ps) :
+   codepoint_iterator_impl(char_t const * pch, str_base const * ps) :
       m_pch(pch),
       m_ps(ps) {
    }
@@ -283,50 +286,51 @@ protected:
 
 // Non-const specialization.
 template <>
-class _codepoint_iterator_impl<false> : public _codepoint_iterator_impl<true> {
+class codepoint_iterator_impl<false> : public codepoint_iterator_impl<true> {
 private:
    // Needs to be able to update m_pch is the string buffer changes.
-   friend _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch);
+   friend codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
-   //! See _codepoint_iterator_impl<true>::operator*().
-   using _codepoint_iterator_impl<true>::operator*;
-   _codepoint_proxy<false> operator*() {
-      return _codepoint_proxy<false>(
+   //! See codepoint_iterator_impl<true>::operator*().
+   using codepoint_iterator_impl<true>::operator*;
+   codepoint_proxy<false> operator*() {
+      return codepoint_proxy<false>(
          const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps), this
       );
    }
 
-   //! See _codepoint_iterator_impl<true>::operator[]().
-   using _codepoint_iterator_impl<true>::operator[];
-   _codepoint_proxy<false> operator[](std::ptrdiff_t i) {
-      return _codepoint_proxy<false>(
+   //! See codepoint_iterator_impl<true>::operator[]().
+   using codepoint_iterator_impl<true>::operator[];
+   codepoint_proxy<false> operator[](std::ptrdiff_t i) {
+      return codepoint_proxy<false>(
          const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps), this
       );
    }
 
-   //! See _codepoint_iterator_impl<true>::base().
+   //! See codepoint_iterator_impl<true>::base().
    char_t * base() const {
       return const_cast<char_t *>(m_pch);
    }
 
-   //! See _codepoint_iterator_impl<true>::_str().
+   //! See codepoint_iterator_impl<true>::_str().
    str_base * _str() const {
       return const_cast<str_base *>(m_ps);
    }
 
 protected:
-   //! See _codepoint_iterator_impl<true>::_codepoint_iterator_impl().
-   _codepoint_iterator_impl(char_t * pch, str_base * ps) :
-      _codepoint_iterator_impl<true>(pch, ps) {
+   //! See codepoint_iterator_impl<true>::codepoint_iterator_impl().
+   codepoint_iterator_impl(char_t * pch, str_base * ps) :
+      codepoint_iterator_impl<true>(pch, ps) {
    }
 
-   //! See _codepoint_iterator_impl<true>::advance().
+   //! See codepoint_iterator_impl<true>::advance().
    char_t * advance(std::ptrdiff_t i, bool bIndex) const {
-      return const_cast<char_t *>(_codepoint_iterator_impl<true>::advance(i, bIndex));
+      return const_cast<char_t *>(codepoint_iterator_impl<true>::advance(i, bIndex));
    }
 };
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
@@ -340,7 +344,7 @@ namespace text {
 array of code points (char32_t). Pointers/references are still char_t. */
 template <bool t_bConst>
 class codepoint_iterator :
-   public _codepoint_iterator_impl<t_bConst>,
+   public detail::codepoint_iterator_impl<t_bConst>,
    public std::iterator<
       std::random_access_iterator_tag,
       typename std::conditional<t_bConst, char_t const, char_t>::type
@@ -356,18 +360,18 @@ public:
       Source iterator.
    */
    /*constexpr*/ codepoint_iterator() :
-      _codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
+      detail::codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
    }
    codepoint_iterator(
       typename std::conditional<t_bConst, char_t const, char_t>::type * pch,
       typename std::conditional<t_bConst, str_base const, str_base>::type * ps
    ) :
-      _codepoint_iterator_impl<t_bConst>(pch, ps) {
+      detail::codepoint_iterator_impl<t_bConst>(pch, ps) {
    }
    // Allows to convert from non-const to const iterator types.
    template <bool t_bConst2>
    codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
-      _codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {
+      detail::codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {
    }
 
    /*! Addition-assignment operator.

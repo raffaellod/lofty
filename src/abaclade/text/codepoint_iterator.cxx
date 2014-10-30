@@ -21,12 +21,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::_codepoint_proxy
+// abc::text::detail::codepoint_proxy
 
 namespace abc {
 namespace text {
+namespace detail {
 
-_codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
+codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
    // Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
    // can recalculate the pointers from these offsets.
    std::size_t ichThis = static_cast<std::size_t>(m_pch - mc_ps->chars_begin());
@@ -46,16 +47,18 @@ _codepoint_proxy<false> & _codepoint_proxy<false>::operator=(char32_t ch) {
    return *this;
 }
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::_codepoint_iterator_impl
+// abc::text::detail::codepoint_iterator_impl
 
 namespace abc {
 namespace text {
+namespace detail {
 
-std::ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) const {
+std::ptrdiff_t codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
    if (m_pch > pch) {
@@ -67,7 +70,7 @@ std::ptrdiff_t _codepoint_iterator_impl<true>::distance(char_t const * pch) cons
    }
 }
 
-char_t const * _codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) const {
+char_t const * codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
 
    if (pch >= m_ps->chars_end()) {
@@ -76,6 +79,7 @@ char_t const * _codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) 
    return pch;
 }
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
