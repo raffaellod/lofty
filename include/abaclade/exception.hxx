@@ -162,9 +162,9 @@ MSVCRT might not know which of the two casts to favor.
 
 In the current implementation of the exception class hierarchy instead, the Abaclade and the STL
 hierarchies are kept completely separated; they are only combined when an exception is thrown, by
-instantiating the class template abc::_exception_aggregator, specializations of which create the
-leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See this
-example based on the previous one:
+instantiating the class template abc::detail::exception_aggregator, specializations of which create
+the leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See
+this example based on the previous one:
 
    class abc::exception {
       typedef std::exception related_std;
@@ -228,12 +228,12 @@ example based on the previous one:
 
 
 Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
-abc::_exception_aggregator (with identical template arguments) across all binaries, because no
-exported definition of it is available; this could be a problem if any code were to catch instances
-of abc::_exception_aggregator, because exceptions thrown in one library wouldn’t be caught by a
-catch block in another. However, this is not an issue because no code should be catching
-abc::_exception_aggregator instance; clients will instead catch the appropriate Abaclade or STL
-exception class, and these are indeed defined once for all binaries, and are therefore unique.
+abc::detail::exception_aggregator (with identical template arguments) across all binaries, because
+no exported definition of it is available; this could be a problem if any code were to catch
+instances of abc::detail::exception_aggregator, because exceptions thrown in one library wouldn’t be
+caught by a catch block in another. However, this is not an issue because no code should be catching
+abc::detail::exception_aggregator instance; clients will instead catch the appropriate Abaclade or
+STL exception class, and these are indeed defined once for all binaries, and are therefore unique.
 
 See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
 
@@ -249,10 +249,10 @@ exceptions.html>.
 
 /*! DOC:8191 Throwing exceptions
 
-ABC_THROW() instantiates a specialization of the class template abc::_exception_aggregator, fills it
-up with context information and the remaining arguments, and then throws it. This is the suggested
-way of throwing an exception within code using Abaclade. See [DOC:8190 Exception class hierarchy]
-for more information on abc::_exception_aggregator and why it exists.
+ABC_THROW() instantiates a specialization of the class template abc::detail::exception_aggregator,
+fills it up with context information and the remaining arguments, and then throws it. This is the
+suggested way of throwing an exception within code using Abaclade. See [DOC:8190 Exception class
+hierarchy] for more information on abc::detail::exception_aggregator and why it exists.
 
 Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace with the
 exact line where the throw statement occurred.
@@ -281,19 +281,21 @@ since this file is included in virtually every file whereas trace.hxx is not.
       nullptr
 #endif
 
+namespace detail {
+
 /*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
 that can be caught from code written for either framework. */
 template <class TAbc, class TStd = typename TAbc::related_std>
-class _exception_aggregator : public TStd, public TAbc {
+class exception_aggregator : public TStd, public TAbc {
 public:
    //! Constructor.
-   _exception_aggregator() :
+   exception_aggregator() :
       TStd(),
       TAbc() {
    }
 
    //! Destructor.
-   virtual ~_exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
+   virtual ~exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
    }
 
    //! See std::exception::what().
@@ -301,6 +303,8 @@ public:
       return TAbc::what();
    }
 };
+
+} //namespace detail
 
 /*! Throws the specified object, after providing it with debug information.
 
@@ -312,7 +316,7 @@ info
 */
 #define ABC_THROW(x, info) \
    do { \
-      ::abc::_exception_aggregator<x> _x; \
+      ::abc::detail::exception_aggregator<x> _x; \
       _x.init info; \
       _x._before_throw(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC); \
       throw _x; \
@@ -363,7 +367,7 @@ public:
    }
 
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
-   to override it; only abc::_exception_aggregator will define this as a virtual, to override
+   to override it; only abc::detail::exception_aggregator will define this as a virtual, to override
    std::exception::what() with this implementation.
 
    return
