@@ -74,15 +74,16 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_ptr_to_str_backend
+// abc::detail::ptr_to_str_backend
 
 namespace abc {
+namespace detail {
 
 //! Base class for the specializations of to_str_backend for integer types.
-class ABACLADE_SYM _ptr_to_str_backend {
+class ABACLADE_SYM ptr_to_str_backend {
 public:
    //! Constructor.
-   _ptr_to_str_backend();
+   ptr_to_str_backend();
 
    /*! Changes the output format.
 
@@ -110,6 +111,7 @@ protected:
    static char_t const smc_achFormat[];
 };
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +121,7 @@ namespace abc {
 
 // Specialization for raw pointer types.
 template <typename T>
-class to_str_backend<T *> : public _ptr_to_str_backend {
+class to_str_backend<T *> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -135,9 +137,9 @@ public:
 
 // Specialization for std::unique_ptr.
 template <typename T, typename TDel>
-class to_str_backend<std::unique_ptr<T, TDel>> : public _ptr_to_str_backend {
+class to_str_backend<std::unique_ptr<T, TDel>> : public detail::ptr_to_str_backend {
 public:
-   //! See _ptr_to_str_backend::write().
+   //! See detail::ptr_to_str_backend::write().
    void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
    }
@@ -146,7 +148,7 @@ public:
 // Specialization for std::shared_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::shared_ptr<T>> : public _ptr_to_str_backend {
+class to_str_backend<std::shared_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -163,7 +165,7 @@ public:
 // Specialization for std::weak_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::weak_ptr<T>> : public _ptr_to_str_backend {
+class to_str_backend<std::weak_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 

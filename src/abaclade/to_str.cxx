@@ -311,19 +311,20 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_ptr_to_str_backend
+// abc::detail::ptr_to_str_backend
 
 namespace abc {
+namespace detail {
 
-char_t const _ptr_to_str_backend::smc_achFormat[] = ABC_SL("#x");
+char_t const ptr_to_str_backend::smc_achFormat[] = ABC_SL("#x");
 
-_ptr_to_str_backend::_ptr_to_str_backend() {
+ptr_to_str_backend::ptr_to_str_backend() {
    ABC_TRACE_FUNC(this);
 
    m_tsbInt.set_format(smc_achFormat);
 }
 
-void _ptr_to_str_backend::set_format(istr const & sFormat) {
+void ptr_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -338,7 +339,7 @@ void _ptr_to_str_backend::set_format(istr const & sFormat) {
    }
 }
 
-void _ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut) {
+void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this, iPtr, ptwOut);
 
    if (iPtr) {
@@ -348,6 +349,7 @@ void _ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * pt
    }
 }
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
