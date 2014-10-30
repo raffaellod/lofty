@@ -229,34 +229,33 @@ After allocating a buffer of the requested size, call this function again with t
 pointer arguments will be updated to discard the bytes used in the conversion; otherwise no pointed-
 to variables will be written to.
 
-bThrowOnErrors
+@param bThrowOnErrors
    On decoding, if true, an exception of type abc::text::decode_error will be thrown if any invalid
    characters are found; otherwise invalid characters will be silently replaced with
    abc::text::replacement_char.
-
    On encoding, if true, an exception of type abc::text::encode_error will be thrown if any code
    points cannot be converted to the destination encoding; otherwise characters that cannot be
    encoded will be replaced with an encoding-specific replacement character.
-encSrc
+@param encSrc
    Encoding of the string pointed to by *ppSrc.
-ppSrc
+@param ppSrc
    Pointer to a pointer to the source string; the pointed-to pointer will be incremented as
    characters are transcoded.
-pcbSrc
+@param pcbSrc
    Pointer to a variable that holds the size of the string pointed to by *ppSrc, and that will be
-   decremented by the number of source characters transcoded.
-encDst
+   decremented by the number of source bytes transcoded.
+@param encDst
    Encoding of the string pointed to by *ppDst.
-ppDst
+@param ppDst
    Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
    characters are stored in the buffer. Passing nullptr is safe and nothing will be written to it,
    but all the other arguments will be updated regardless.
-pcbDstMax
+@param pcbDstMax
    Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
-   decremented by the number of characters stored in the buffer (or that would be stored, if ppDst
+   decremented by the number of bytes stored in the buffer (or that would be stored, if ppDst
    is nullptr). If nullptr is passed no writes will be attempted to any of the arguments, but the
    return value will be correct.
-return
+@return
    Used destination buffer size, in bytes.
 */
 ABACLADE_SYM std::size_t transcode(
