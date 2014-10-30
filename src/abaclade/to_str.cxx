@@ -54,18 +54,19 @@ void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_str_backend_base
+// abc::detail::int_to_str_backend_base
 
 namespace abc {
+namespace detail {
 
-char const _int_to_str_backend_base::smc_achIntToStrU[16] = {
+char const int_to_str_backend_base::smc_achIntToStrU[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-char const _int_to_str_backend_base::smc_achIntToStrL[16] = {
+char const int_to_str_backend_base::smc_achIntToStrL[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
 
-_int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
+int_to_str_backend_base::int_to_str_backend_base(unsigned cbInt) :
    m_pchIntToStr(smc_achIntToStrL),
    // Default to generating at least a single zero.
    m_cchWidth(1),
@@ -81,7 +82,7 @@ _int_to_str_backend_base::_int_to_str_backend_base(unsigned cbInt) :
    m_chPrefix1('\0') {
 }
 
-void _int_to_str_backend_base::set_format(istr const & sFormat) {
+void int_to_str_backend_base::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    bool bPrefix = false;
@@ -190,7 +191,7 @@ default_notation:
    m_cchBuf = 2 /*prefix or sign*/ + std::max(m_cchWidth, cchByte * mc_cbInt);
 }
 
-void _int_to_str_backend_base::add_prefixes_and_write(
+void int_to_str_backend_base::add_prefixes_and_write(
    bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
 ) const {
    ABC_TRACE_FUNC(this, bNegative, ptwOut, psBuf, itBufFirstUsed);
@@ -232,7 +233,7 @@ void _int_to_str_backend_base::add_prefixes_and_write(
 }
 
 template <typename I>
-inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
    ABC_TRACE_FUNC(this, i, ptwOut);
 
    // Create a buffer of sufficient size for binary notation (the largest).
@@ -265,34 +266,35 @@ inline void _int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut)
    add_prefixes_and_write(numeric::is_negative<I>(i), ptwOut, &sBuf, it);
 }
 
-void _int_to_str_backend_base::write_s64(std::int64_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_s64(std::int64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-void _int_to_str_backend_base::write_u64(std::uint64_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_u64(std::uint64_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 #if ABC_HOST_WORD_SIZE < 64
-void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
 #if ABC_HOST_WORD_SIZE < 32
-void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 
-void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
+void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_impl(i, ptwOut);
 }
 #endif //if ABC_HOST_WORD_SIZE < 32
 #endif //if ABC_HOST_WORD_SIZE < 64
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

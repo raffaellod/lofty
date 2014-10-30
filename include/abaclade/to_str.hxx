@@ -117,19 +117,20 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_str_backend_base
+// abc::detail::int_to_str_backend_base
 
 namespace abc {
+namespace detail {
 
 //! Base class for the specializations of to_str_backend for integer types.
-class ABACLADE_SYM _int_to_str_backend_base {
+class ABACLADE_SYM int_to_str_backend_base {
 public:
    /*! Constructor.
 
    cbInt
       Size of the integer type.
    */
-   _int_to_str_backend_base(unsigned cbInt);
+   int_to_str_backend_base(unsigned cbInt);
 
    /*! Changes the output format.
 
@@ -230,7 +231,7 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
    if (m_iBaseOrShift == 10) {
       write_s64(i, ptwOut);
    } else {
@@ -240,7 +241,7 @@ inline void _int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer
    }
 }
 
-inline void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
    write_u64(i, ptwOut);
 }
 
@@ -249,7 +250,7 @@ inline void _int_to_str_backend_base::write_u32(std::uint32_t i, io::text::write
 /* On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 turn defer to write_64*() (see above). */
 
-inline void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
    if (m_iBaseOrShift == 10) {
       write_s32(i, ptwOut);
    } else {
@@ -259,38 +260,40 @@ inline void _int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer
    }
 }
 
-inline void _int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
    write_u32(i, ptwOut);
 }
 
 #endif //if ABC_HOST_WORD_SIZE >= 32
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_int_to_str_backend
+// abc::detail::int_to_str_backend
 
 namespace abc {
+namespace detail {
 
 //! Implementation of the specializations of to_str_backend for integer types.
 template <typename I>
-class _int_to_str_backend : public _int_to_str_backend_base {
+class int_to_str_backend : public int_to_str_backend_base {
 public:
    //! Constructor.
-   _int_to_str_backend() :
-      _int_to_str_backend_base(sizeof(I)) {
+   int_to_str_backend() :
+      int_to_str_backend_base(sizeof(I)) {
    }
 
    /*! Converts an integer to its string representation.
 
    This design is rather tricky in the way one implementation calls another:
 
-   1. _int_to_str_backend<I>::write()
+   1. int_to_str_backend<I>::write()
       Always inlined, dispatches to step 2. based on number of bits;
-   2. _int_to_str_backend_base::write_{s,u}{8,16,32,64}()
+   2. int_to_str_backend_base::write_{s,u}{8,16,32,64}()
       Inlined to a bit-bigger variant or implemented in to_str_backend.cxx, depending on the host
       architecture’s word size;
-   3. _int_to_str_backend_base::write_impl()
+   3. int_to_str_backend_base::write_impl()
       Always inlined, but only used in functions defined in to_str_backend.cxx, so it only generates
       as many copies as strictly necessary to have fastest performance for any integer size.
 
@@ -336,6 +339,7 @@ protected:
    static std::size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 
+} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +349,7 @@ namespace abc {
 
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(I) \
    template <> \
-   class to_str_backend<I> : public _int_to_str_backend<I> {};
+   class to_str_backend<I> : public detail::int_to_str_backend<I> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(  signed char)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned char)
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         short)
