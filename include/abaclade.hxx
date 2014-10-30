@@ -23,6 +23,47 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc namespace hierarchy
+
+//! Abaclade’s top-level namespace.
+namespace abc {
+   //! Bit manipulation functions.
+   namespace bitmanip {}
+
+   //! Byte-ordering functions.
+   namespace byteorder {}
+
+   //! I/O classes and functions.
+   namespace io {
+      //! Classes and functions to perform I/O in binary mode (raw bytes).
+      namespace binary {}
+
+      //! Classes and functions to perform I/O in text mode (with encoding support).
+      namespace text {}
+   } //namespace io
+
+   //! Mathematical functions and algorithms.
+   namespace math {}
+
+   //! Type traits and functions for numeric types.
+   namespace numeric {}
+
+   //! Provides facilities to interact with the underlying OS.
+   namespace os {}
+
+   /*! abc::_std contains STL implementation bits from ABC_STLIMPL that we may want to use when
+   ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host STL
+   implementations. */
+   namespace _std {}
+
+   //! Top-level namespace for Abaclade’s testing framework.
+   namespace testing {}
+
+   //! Contains classes and functions to work with text strings and characters.
+   namespace text {}
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_HOST_*
 
 //! Version of GCC if building with it, or 0 otherwise.
@@ -376,14 +417,6 @@ from Abaclade’s testing shared library (into another library/executable). */
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives, plus a few compiler-specific STL fixes
-
-/*! abc::_std contains STL implementation bits from ABC_STLIMPL that we may want to use when
-ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host STL implementations.
-*/
-namespace abc {
-namespace _std {
-} //namespace _std
-} //namespace abc
 
 #ifdef ABC_STLIMPL
 // In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
