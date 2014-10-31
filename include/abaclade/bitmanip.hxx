@@ -66,6 +66,11 @@ return
 */
 template <typename T>
 inline T ceiling_to_pow2(T i) {
+   static_assert(
+      sizeof(T) == sizeof(std::uint8_t ) || sizeof(T) == sizeof(std::uint16_t) ||
+      sizeof(T) == sizeof(std::uint32_t) || sizeof(T) == sizeof(std::uint64_t),
+      "sizeof(T) is not a supported power of 2"
+   );
    switch (sizeof(T)) {
       case sizeof(std::uint8_t):
          return detail::ceiling_to_pow2(static_cast<std::uint8_t>(i));
