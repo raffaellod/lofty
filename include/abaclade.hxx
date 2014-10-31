@@ -45,6 +45,9 @@ namespace abc {
    //! Mathematical functions and algorithms.
    namespace math {}
 
+   //! Memory management functions and classes. Mostly a templated approach to C’s mem* functions.
+   namespace memory {}
+
    //! Type traits and functions for numeric types.
    namespace numeric {}
 

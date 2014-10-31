@@ -189,7 +189,7 @@ public:
       m_bEnabled(cd.enabled()) {
    }
 
-   /*! Deletes the specified object if the condition set in the constructor was true.
+   /*! Deletes the specified object if the condition set in the constructor is true.
 
    pt
       Pointer to the object to delete.
