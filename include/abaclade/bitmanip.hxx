@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace bitmanip {
 
-/* Intrinsics in VS2010:
+/* Intrinsics in MSC16:
 •  _BitScanForward
 •  _BitScanReverse
 •  _bittest
@@ -47,7 +47,7 @@ namespace bitmanip {
 
 namespace detail {
 
-/*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(I). See
+/*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(T). See
 abc::bitmanip::ceiling_to_pow2(). */
 ABACLADE_SYM std::uint8_t ceiling_to_pow2(std::uint8_t i);
 ABACLADE_SYM std::uint16_t ceiling_to_pow2(std::uint16_t i);
@@ -64,9 +64,9 @@ i
 return
    Smallest power of 2 that’s not smaller than i.
 */
-template <typename I>
-inline I ceiling_to_pow2(I i) {
-   switch (sizeof(I)) {
+template <typename T>
+inline T ceiling_to_pow2(T i) {
+   switch (sizeof(T)) {
       case sizeof(std::uint8_t):
          return detail::ceiling_to_pow2(static_cast<std::uint8_t>(i));
       case sizeof(std::uint16_t):
@@ -87,8 +87,8 @@ iStep
 return
    Smallest multiple of iStep that’s not smaller than i.
 */
-template <typename I>
-inline /*constexpr*/ I ceiling_to_pow2_multiple(I i, I iStep) {
+template <typename T>
+inline /*constexpr*/ T ceiling_to_pow2_multiple(T i, T iStep) {
    --iStep;
    return (i + iStep) & ~iStep;
 }
@@ -103,9 +103,9 @@ c
 return
    Rotated bits of i.
 */
-template <typename I>
-inline /*constexpr*/ I rotate_l(I i, unsigned c) {
-   return (i << c) | (i >> (sizeof(I) * CHAR_BIT - c));
+template <typename T>
+inline /*constexpr*/ T rotate_l(T i, unsigned c) {
+   return (i << c) | (i >> (sizeof(T) * CHAR_BIT - c));
 }
 
 /*! Rotates bits to the right (least significant bits shifted out, and back in to become most
@@ -118,9 +118,9 @@ c
 return
    Rotated bits of i.
 */
-template <typename I>
-inline /*constexpr*/ I rotate_r(I i, unsigned c) {
-   return (i >> c) | (i << (sizeof(I) * CHAR_BIT - c));
+template <typename T>
+inline /*constexpr*/ T rotate_r(T i, unsigned c) {
+   return (i >> c) | (i << (sizeof(T) * CHAR_BIT - c));
 }
 
 } //namespace bitmanip
