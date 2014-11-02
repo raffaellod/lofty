@@ -83,15 +83,15 @@ You should have received a copy of the GNU General Public License along with Aba
       #undef ABC_CXX_CHAR16
       #define ABC_CXX_CHAR16 1
    #else
-      // MSC16 will transcode non-wchar_t string literals into whatever single-byte encoding is
-      // selected for the user running cl.exe; a solution has been provided in form of a hotfix
-      // (<http://support.microsoft.com/kb/2284668/en-us>), but it no longer seems available, and it
-      // was not ported to MSC17/VS2012, thought it seems it was finally built into MSC18/VS2013
-      // (<http://connect.microsoft.com/VisualStudio/feedback/details/773186/pragma-execution-
-      // character-set-utf-8-didnt-support-in-vc-2012>).
-      //
-      // Here we assume that no other compiler exhibits such a random behavior, and they will all
-      // emit valid UTF-8 string literals it the source file is UTF-8+BOM-encoded.
+      /* MSC16 will transcode non-wchar_t string literals into whatever single-byte encoding is
+      selected for the user running cl.exe; a solution has been provided in form of a hotfix
+      (<http://support.microsoft.com/kb/2284668/en-us>), but it no longer seems available, and it
+      was not ported to MSC17/VS2012, thought it seems it was finally built into MSC18/VS2013
+      (<http://connect.microsoft.com/VisualStudio/feedback/details/773186/pragma-execution-
+      character-set-utf-8-didnt-support-in-vc-2012>).
+
+      Here we assume that no other compiler exhibits such a random behavior, and they will all emit
+      valid UTF-8 string literals it the source file is UTF-8+BOM-encoded. */
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 1
 
@@ -151,9 +151,9 @@ and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
 
 TODO: document Unicode support in Abaclade.
 
-ch
+@param ch
    Character literal.
-return
+@return
    Unicode character literal.
 */
 #if ABC_CXX_CHAR32 == 2
@@ -168,9 +168,9 @@ return
 /*! Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
-s
+@param s
    String literal.
-return
+@return
    UTF string literal.
 */
 #if ABC_HOST_UTF == 8
@@ -186,9 +186,9 @@ return
 
 /*! Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
-s
+@param s
    String literal.
-return
+@return
    UTF string literal.
 */
 #define ABC_SL(s) _ABC_SL(s)

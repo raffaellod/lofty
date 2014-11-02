@@ -35,18 +35,18 @@ result in __VA_ARGS__ being expanded correctly, working around the bug.
 
 /*! Expands into its argument, working around [DOC:1829 __VA_ARGS__ MSC16 bug].
 
-x
+@param x
    Argument to expand into.
-return
+@return
    x.
 */
 #define ABC_1829(x) x
 
 /*! Expands into the count of its arguments.
 
-...
+@param ...
    Arguments to count.
-return
+@return
    Count of the arguments.
 */
 #define ABC_CPP_LIST_COUNT(...) \
@@ -82,11 +82,11 @@ return
 /*! Expands into a joined version of the two provided tokens. Necessary to implement the more
 generic ABC_CPP_CAT().
 
-token1
+@param token1
    Left token to join.
-token2
+@param token2
    Right token to join.
-return
+@return
    Concatenation of token1 and token2, in this order.
 */
 #define ABC_CPP_CAT2(token1, token2) \
@@ -97,9 +97,9 @@ return
 
 /*! Expands into a joined version of the provided tokens.
 
-...
+@param ...
    Tokens to join.
-return
+@return
    Tokens joined in the order in which they were provided.
 */
 #define ABC_CPP_CAT(...) \
@@ -168,9 +168,9 @@ return
 
 /*! Expands into a string version of the specified token.
 
-x
+@param x
    Expression to convert to a string literal.
-return
+@return
    String literal representing the specified expression.
 */
 #define ABC_CPP_TOSTRING(x) \
@@ -182,9 +182,9 @@ return
 /*! Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
 guaranteed on all platforms.
 
-s
+@param s
    Prefix for the unique identifier.
-return
+@return
    Unique identifier.
 */
 #if ABC_HOST_GCC || ABC_HOST_MSC
@@ -198,9 +198,9 @@ return
 /*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether bit evaluates to 1 or 0, respectively.
 
-bit
+@param bit
    Boolean selector of the macro that folllows.
-return
+@return
    Execution of the macro that follows.
 */
 #define ABC_CPP_IIF(bit) \
@@ -213,9 +213,9 @@ return
 
 /*! Expands into the complement of the specified bit.
 
-bit
+@param bit
    Bit to complement.
-return
+@return
    Complement of the expansion of bit.
 */
 #define ABC_CPP_COMPL(bit) \
@@ -226,9 +226,9 @@ return
 
 /*! Expands into the argument + 1.
 
-int
+@param int
    Number.
-return
+@return
    Number + 1.
 */
 #define ABC_CPP_INC(int) \
@@ -337,9 +337,9 @@ return
 
 /*! Expands into the argument - 1.
 
-int
+@param int
    Number.
-return
+@return
    Number - 1.
 */
 #define ABC_CPP_DEC(int) \
@@ -449,7 +449,7 @@ return
 /*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE(); it expands into 1 or 0 depending on whether the latter
 is expanded or not.
 
-...
+@param ...
    Unused.
 */
 // Comma after 0 necessary just to provide something for _ABC_CPP_CHECK_EXPAND’s “...”.
@@ -461,16 +461,15 @@ is expanded or not.
 
 /*! Expands into a placeholder and 1, which will replace the 0 if passed as argument to
 ABC_CPP_CHECK(). */
-
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
    dummy, 1
 
 /*! Expands into either 1 or 0 depending on whether the argument is a tuple or not.
 
-x
+@param x
    Expression.
-return
+@return
    1 if the argument is a tuple, or 0 otherwise.
 */
 #define ABC_CPP_IS_TUPLE(x) \
@@ -479,9 +478,9 @@ return
 /*! Expands into either 1 or 0 depending on whether the argument expands into 0 or anything else,
 respectively.
 
-x
+@param x
    Expression to negate.
-return
+@return
    0 or 1.
 */
 #define ABC_CPP_NOT(x) \
@@ -493,9 +492,9 @@ return
 /*! Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
 respectively.
 
-x
+@param x
    Expression to convert to a boolean value.
-return
+@return
    0 or 1.
 */
 #define ABC_CPP_BOOL(x) \
@@ -504,9 +503,9 @@ return
 /*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
 whether x evaluates to non-0 or 0, respectively.
 
-x
+@param x
    Condition.
-return
+@return
    Execution of the macro that follows.
 */
 #define ABC_CPP_IF(x) \
@@ -515,9 +514,9 @@ return
 /*! Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
 
-macro
+@param macro
    Macro to invoke on each item in the remaining arguments.
-return
+@return
    Result of the expansion of macro.
 */
 #define ABC_CPP_LIST_WALK(macro, ...) \
@@ -627,9 +626,9 @@ return
 /*! Expands into the invocation of the specified macro once for each of the remaining tuples passed
 as arguments.
 
-macro
+@param macro
    Macro to invoke on each tuple in the remaining arguments.
-return
+@return
    Result of the expansion of macro.
 */
 #define ABC_CPP_TUPLELIST_WALK(macro, ...) \

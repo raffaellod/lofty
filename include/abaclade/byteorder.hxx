@@ -124,9 +124,9 @@ struct _swap_impl<8> {
 /*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order.
 */
 template <typename I>
@@ -137,9 +137,9 @@ inline I swap(I i) {
 
 /*! Converts a number from host endianness to big endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 template <typename I>
@@ -153,9 +153,9 @@ inline I host_to_be(I i) {
 
 /*! Converts a number from host endianness to little endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 template <typename I>
@@ -169,9 +169,9 @@ inline I host_to_le(I i) {
 
 /*! Converts a number from big endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 template <typename I>
@@ -185,9 +185,9 @@ inline I be_to_host(I i) {
 
 /*! Converts a number from little endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 template <typename I>
@@ -208,9 +208,9 @@ inline I le_to_host(I i) {
 
 /*! Unconditionally flips the byte order in a 16-bit number.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order.
 */
 #define ABC_BYTEORDER_SWAP16(i) \
@@ -221,9 +221,9 @@ return
 
 /*! Unconditionally flips the byte order in a 32-bit number.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order.
 */
 #define ABC_BYTEORDER_SWAP32(i) \
@@ -236,9 +236,9 @@ return
 
 /*! Unconditionally flips the byte order in a 64-bit number.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order.
 */
 #define ABC_BYTEORDER_SWAP64(i) \
@@ -255,9 +255,9 @@ return
 
 /*! Converts a 16-bit number from host endianness to big endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -268,9 +268,9 @@ return
 
 /*! Converts a 32-bit number from host endianness to big endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -281,9 +281,9 @@ return
 
 /*! Converts a 64-bit number from host endianness to big endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -294,9 +294,9 @@ return
 
 /*! Converts a 16-bit number from host endianness to little endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -307,9 +307,9 @@ return
 
 /*! Converts a 32-bit number from host endianness to little endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -320,9 +320,9 @@ return
 
 /*! Converts a 64-bit number from host endianness to little endian.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -333,9 +333,9 @@ return
 
 /*! Converts a 16-bit number from big endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -346,9 +346,9 @@ return
 
 /*! Converts a 32-bit number from big endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -359,9 +359,9 @@ return
 
 /*! Converts a 64-bit number from big endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is little endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -372,9 +372,9 @@ return
 
 /*! Converts a 16-bit number from little endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -385,9 +385,9 @@ return
 
 /*! Converts a 32-bit number from little endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
@@ -398,9 +398,9 @@ return
 
 /*! Converts a 64-bit number from little endian to host endianness.
 
-i
+@param i
    Source integer.
-return
+@return
    Integer with the same byte values as i, but in reverse order if the host is big endian.
 */
 #if ABC_HOST_LITTLE_ENDIAN
