@@ -226,7 +226,7 @@ private:
    }
 
    TValue & get_value(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pvalues.get())[i];
+      return reinterpret_cast<TValue *>(m_pvalues.get())[i];
    }
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
