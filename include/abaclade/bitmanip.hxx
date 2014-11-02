@@ -59,9 +59,9 @@ ABACLADE_SYM std::uint64_t ceiling_to_pow2(std::uint64_t i);
 
 /*! Returns the argument rounded up to the closest power of 2.
 
-i
+@param i
    Integer to round up.
-return
+@return
    Smallest power of 2 that’s not smaller than i.
 */
 template <typename T>
@@ -85,11 +85,11 @@ inline T ceiling_to_pow2(T i) {
 
 /*! Returns the first argument rounded up to a multiple of the second, which has to be a power of 2.
 
-i
+@param i
    Integer to round up.
-iStep
+@param iStep
    Power of 2 to use as step to increment i.
-return
+@return
    Smallest multiple of iStep that’s not smaller than i.
 */
 template <typename T>
@@ -101,11 +101,11 @@ inline /*constexpr*/ T ceiling_to_pow2_multiple(T i, T iStep) {
 /*! Rotates bits to the left (most significant bits shifted out, and back in to become least
 significant).
 
-i
+@param i
    Integer the bits of which are to be rotated.
-c
+@param c
    Count of positions the bits in i will be shifted.
-return
+@return
    Rotated bits of i.
 */
 template <typename T>
@@ -116,11 +116,11 @@ inline /*constexpr*/ T rotate_l(T i, unsigned c) {
 /*! Rotates bits to the right (least significant bits shifted out, and back in to become most
 significant).
 
-i
+@param i
    Integer the bits of which are to be rotated.
-c
+@param c
    Count of positions the bits in i will be shifted.
-return
+@return
    Rotated bits of i.
 */
 template <typename T>

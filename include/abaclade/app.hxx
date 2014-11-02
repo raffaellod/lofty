@@ -58,11 +58,11 @@ public:
 
    /*! C-style entry point for executables.
 
-   cArgs
+   @param cArgs
       Count of arguments.
-   ppszArgs
+   @param ppszArgs
       Arguments.
-   return
+   @return
       Return code of the program.
    */
    template <class TApp>
@@ -89,9 +89,9 @@ public:
 #if ABC_HOST_API_WIN32
    /*! Entry point for Windows executables.
 
-   hinst
+   @param hinst
       Module’s instance handle.
-   iShowCmd
+   @param iShowCmd
       Indication on how the application’s main window should be displayed; one of SW_* flags.
    */
    template <class TApp>
@@ -119,9 +119,9 @@ public:
 
    /*! Entry point of the application.
 
-   vsArgs
+   @param vsArgs
       Command-line arguments.
-   return
+   @return
       Return code of the program.
    */
    virtual int main(mvector<istr const> const & vsArgs) = 0;
@@ -129,11 +129,11 @@ public:
 protected:
    /*! Fills up a string vector from the command-line arguments.
 
-   cArgs
+   @param cArgs
       Number of arguments.
-   ppszArgs
+   @param ppszArgs
       Arguments.
-   pvsRet
+   @param pvsRet
       Vector to receive istr instances (using external buffers from *ppszArgs) containing each
       argument.
    */
@@ -153,7 +153,7 @@ protected:
 
 /*! Declares an abc::app-derived class as being the app class for the application.
 
-cls
+@param cls
    Main abc::app-derived class.
 */
 #if ABC_HOST_API_POSIX
