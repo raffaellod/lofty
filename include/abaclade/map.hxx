@@ -81,6 +81,19 @@ public:
       return *this;
    }
 
+   /*! Element lookup operator.
+
+   @param key
+      Key to lookup.
+   @return
+      Value corresponding to key. If key is not in the map, an exception will be thrown.
+   */
+   TValue & operator[](TKey const & key) const {
+      // Get the exact bucket in the neighborhood of the key’s hash.
+      std::size_t iBucket = bucket_index_from_key(key);
+      return m_pvalues[iBucket];
+   }
+
    void add(TKey key, TValue value) {
    }
 
