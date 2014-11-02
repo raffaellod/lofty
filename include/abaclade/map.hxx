@@ -138,16 +138,17 @@ private:
       }
       // Scan till the end of the neighborhood (clipped to the end of the array).
       std::size_t iBucket = scan_buckets_for_key(key, iHash, iNeighborhoodBegin, iNeighborhoodEnd);
-      if (iBucket == smc_iKeyNotFound && iWrappedNeighborhoodEnd) {
-         // Scan the remaining buckets, if this neighborhood wraps.
-         iBucket = scan_buckets_for_key(key, iHash, 0, iWrappedNeighborhoodEnd);
-         if (iBucket == smc_iKeyNotFound) {
-            // The specified key is not in the map.
-            // TODO: throw proper exception.
-            throw 0;
-         }
+      if (iBucket != smc_iKeyNotFound && iWrappedNeighborhoodEnd) {
+         return iBucket;
       }
-      return iBucket;
+      // Scan the remaining buckets, if this neighborhood wraps.
+      iBucket = scan_buckets_for_key(key, iHash, 0, iWrappedNeighborhoodEnd);
+      if (iBucket != smc_iKeyNotFound) {
+         return iBucket;
+      }
+      // The specified key is not in the map.
+      // TODO: throw proper exception.
+      throw 0;
    }
 
    /*! Calculates, adjusts and returns the hash value for the specified key.
@@ -204,7 +205,7 @@ private:
       TKey const * pkey = m_pkeys + iBegin;
       for (std::size_t const * piHash = piHashesBegin; piHash < piHashesEnd; ++piHash, ++pkey) {
          if (*piHash == iHash && keys_equal(*pkey == key)) {
-            return piHash - piHashesBegin;
+            return static_cast<std::size_t>(piHash - piHashesBegin);
          }
       }
       return smc_iKeyNotFound;
