@@ -240,7 +240,11 @@ private:
    */
    template <typename T>
    static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
+#if ABC_HOST_GCC >= 40800
+      if (!std::is_trivially_destructible<T>::value) {
+#else
       if (!std::has_trivial_destructor<T>::value) {
+#endif
          // The destructor is not a no-op.
          for (T const * pt = ptBegin; pt < ptEnd; ++pt) {
             pt->~T();
