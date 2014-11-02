@@ -105,7 +105,7 @@ public:
    */
    void remove(TKey const & key) {
       // Get the exact bucket in the neighborhood of the key’s hash.
-      std::size_t iBucket = get_key_bucket_index(key);
+      std::size_t iBucket = bucket_index_from_key(key);
       // Mark the bucket as free and destruct the corresponding key and value.
       m_piHashes[iBucket] = smc_iEmptyBucket;
       get_key(iBucket).~TKey();
@@ -120,10 +120,10 @@ private:
       m_cBuckets = cBuckets;
    }
 
-   std::size_t get_key_bucket_index(TKey const & key) const {
-      return get_key_bucket_index(key, get_and_adjust_hash(key));
+   std::size_t bucket_index_from_key(TKey const & key) const {
+      return bucket_index_from_key(key, get_and_adjust_hash(key));
    }
-   std::size_t get_key_bucket_index(TKey const & key, std::size_t iHash) const {
+   std::size_t bucket_index_from_key(TKey const & key, std::size_t iHash) const {
       // Get a range of indices representing the neighborhood.
       std::size_t iNeighborhoodBegin = hash_to_neighborhood_index(iHash);
       std::size_t iNeighborhoodEnd = iNeighborhoodBegin + smc_cNeighborhood;
