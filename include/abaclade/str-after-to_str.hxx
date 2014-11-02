@@ -35,7 +35,7 @@ class ABACLADE_SYM str_to_str_backend {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
@@ -43,13 +43,13 @@ public:
 protected:
    /*! Writes a string, applying the formatting options.
 
-   p
+   @param p
       Pointer to the string to write.
-   cb
+   @param cb
       Size of the string pointed to by p, in bytes.
-   enc
+   @param enc
       Text encoding of the string pointed to by p.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut);
@@ -70,9 +70,9 @@ namespace abc {
    public: \
       /*! Writes a character, applying the formatting options.
 
-      ch
+      @param ch
          Character to write.
-      ptwOut
+      @param ptwOut
          Pointer to the writer to output to.
       */ \
       void write(C ch, io::text::writer * ptwOut) { \
@@ -86,9 +86,9 @@ namespace abc {
    public: \
       /*! Writes a string, applying the formatting options.
 
-      ach
+      @param ach
          String to write.
-      ptwOut
+      @param ptwOut
          Pointer to the writer to output to.
       */ \
       void write(C const (& ach)[t_cch], io::text::writer * ptwOut) { \
@@ -129,9 +129,9 @@ class ABACLADE_SYM to_str_backend<str_base> : public detail::str_to_str_backend 
 public:
    /*! Writes a string, applying the formatting options.
 
-   s
+   @param s
       String to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(str_base const & s, io::text::writer * ptwOut) {

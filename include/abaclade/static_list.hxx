@@ -54,7 +54,7 @@ public:
 
       /*! Assignment operator.
 
-      return
+      @return
          *this.
       */
       node & operator=(node const &) {
@@ -65,7 +65,7 @@ public:
    private:
       /*! Returns a pointer to the next node.
 
-      pnPrev
+      @param pnPrev
          Pointer to the previous node.
       */
       node * get_next(node * pnPrev) {
@@ -76,7 +76,7 @@ public:
 
       /*! Returns a pointer to the previous node.
 
-      pnNext
+      @param pnNext
          Pointer to the next node.
       */
       node * get_prev(node * pnNext) {
@@ -87,9 +87,9 @@ public:
 
       /*! Updates the previous/next pointer.
 
-      pnPrev
+      @param pnPrev
          Pointer to the previous node.
-      pnNext
+      @param pnNext
          Pointer to the next node.
       */
       void set_prev_next(node * pnPrev, node * pnNext) {
@@ -107,9 +107,9 @@ public:
    public:
       /*! Constructor.
 
-      pnCurr
+      @param pnCurr
          Pointer to the current node.
-      pnNext
+      @param pnNext
          Pointer to the node following *pnCurr.
       */
       iterator(node * pnCurr, node * pnNext) :
@@ -119,7 +119,7 @@ public:
 
       /*! Dereferencing operator.
 
-      return
+      @return
          Reference to the current node.
       */
       TValue & operator*() const {
@@ -128,7 +128,7 @@ public:
 
       /*! Dereferencing member access operator.
 
-      return
+      @return
          Pointer to the current node.
       */
       TValue * operator->() const {
@@ -137,7 +137,7 @@ public:
 
       /*! Preincrement operator.
 
-      return
+      @return
          *this after it’s moved to the node following the one currently pointed to by.
       */
       iterator & operator++() {
@@ -149,7 +149,7 @@ public:
 
       /*! Postincrement operator.
 
-      return
+      @return
          Iterator pointing to the node following the one pointed to by this iterator.
       */
       iterator operator++(int) {
@@ -161,7 +161,7 @@ public:
 
       /*! Predecrement operator.
 
-      return
+      @return
          *this after it’s moved to the node preceding the one currently pointed to by.
       */
       iterator & operator--() {
@@ -173,7 +173,7 @@ public:
 
       /*! Postdecrement operator.
 
-      return
+      @return
          Iterator pointing to the node preceding the one pointed to by this iterator.
       */
       iterator operator--(int) {
@@ -194,7 +194,7 @@ ABC_RELOP_IMPL(!=)
 
       /*! Returns the underlying iterator type.
 
-      return
+      @return
          Pointer to the current node.
       */
       node * base() const {
@@ -213,7 +213,7 @@ ABC_RELOP_IMPL(!=)
 public:
    /*! Returns a forward iterator to the start of the list.
 
-   return
+   @return
       Iterator to the first node in the list.
    */
    static iterator begin() {
@@ -223,7 +223,7 @@ public:
 
    /*! Returns a forward iterator to the end of the list.
 
-   return
+   @return
       Iterator to the beyond the last node in the list.
    */
    static iterator end() {
@@ -232,7 +232,7 @@ public:
 
    /*! Returns a reverse iterator to the end of the list.
 
-   return
+   @return
       Reverse Iterator to the last node in the list.
    */
    static reverse_iterator rbegin() {
@@ -241,7 +241,7 @@ public:
 
    /*! Returns a reverse iterator to the start of the list.
 
-   return
+   @return
       Reverse iterator to the before the first node in the list.
    */
    static reverse_iterator rend() {
@@ -251,7 +251,7 @@ public:
 private:
    /*! Add a node to the end of the list.
 
-   pn
+   @param pn
       Pointer to the node to append.
    */
    static void append(node * pn) {
@@ -266,7 +266,7 @@ private:
 
    /*! Removes a node from the list.
 
-   pn
+   @param pn
       Pointer to the node to remove.
    */
    static void remove(node * pn) {
@@ -299,7 +299,7 @@ private:
 
 /*! Declares the static member variables for the specified abc::static_list-derived class.
 
-container
+@param container
    Class derived from abc::static_list.
 */
 #define ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
@@ -308,7 +308,7 @@ container
 
 /*! Defines the static member variables for the specified abc::static_list-derived class.
 
-container
+@param container
    Class derived from abc::static_list.
 */
 #define ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \

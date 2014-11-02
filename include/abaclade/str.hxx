@@ -41,11 +41,11 @@ private:
 public:
    /*! Constructor.
 
-   pch
+   @param pch
       Pointer to the character array.
-   p
+   @param p
       Source object.
-   bOwn
+   @param bOwn
       If true, the pointer will own the character array; if false, it won’t try to deallocate it.
    */
    c_str_ptr(char_t const * pch, bool bOwn) :
@@ -57,9 +57,9 @@ public:
 
    /*! Assignment operator.
 
-   p
+   @param p
       Source object.
-   return
+   @return
       *this.
    */
    c_str_ptr & operator=(c_str_ptr && p) {
@@ -69,7 +69,7 @@ public:
 
    /*! Implicit conversion to char_t const *.
 
-   return
+   @return
       Pointer to the character array.
    */
    operator char_t const *() const {
@@ -78,7 +78,7 @@ public:
 
    /*! Enables access to the internal pointer.
 
-   return
+   @return
       Reference to the internal pointer.
    */
    pointer const & _get() const {
@@ -141,17 +141,17 @@ public:
 public:
    /*! Allows automatic cross-class-hierarchy casts.
 
-   return
+   @return
       Const reference to *this as an immutable string.
    */
    operator istr const &() const;
 
    /*! Character access operator.
 
-   i
+   @param i
       Character index. If outside of the [begin, end) range, an  index_error exception will be
       thrown.
-   return
+   @return
       Character at index i.
    */
    text::detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
@@ -160,7 +160,7 @@ public:
 
    /*! Returns true if the length is greater than 0.
 
-   return
+   @return
       true if the string is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -174,21 +174,21 @@ public:
    resulting pointer. If the pointer is moved outside of the buffer, an index_error or
    iterator_error exception (depending on bIndex) is thrown.
 
-   pch
+   @param pch
       Initial pointer.
-   i
+   @param i
       Count of code points to move from pch by.
-   bIndex
+   @param bIndex
       If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
       false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
-   return
+   @return
       Resulting pointer.
    */
    char_t const * _advance_char_ptr(char_t const * pch, std::ptrdiff_t i, bool bIndex) const;
 
    /*! Returns a forward iterator set to the first element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator begin() const {
@@ -206,14 +206,14 @@ public:
 
    TODO: provide non-immutable version mstr::to_c_str().
 
-   return
+   @return
       NUL-terminated version of the string.
    */
    detail::c_str_ptr c_str() const;
 
    /*! Returns the maximum number of characters the string buffer can currently hold.
 
-   return
+   @return
       Size of the string buffer, in characters.
    */
    std::size_t capacity() const {
@@ -222,7 +222,7 @@ public:
 
    /*! Returns a const forward iterator set to the first element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
@@ -231,7 +231,7 @@ public:
 
    /*! Returns a const forward iterator set beyond the last element.
 
-   return
+   @return
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
@@ -256,7 +256,7 @@ public:
 
    /*! Returns a const reverse iterator set to the last element.
 
-   return
+   @return
       Reverse iterator to the last element.
    */
    const_reverse_iterator crbegin() const {
@@ -265,7 +265,7 @@ public:
 
    /*! Returns a const reverse iterator set to before the first element.
 
-   return
+   @return
       Reverse iterator to before the first element.
    */
    const_reverse_iterator crend() const {
@@ -274,20 +274,20 @@ public:
 
    /*! Returns the string, encoded as requested, into a byte vector.
 
-   enc
+   @param enc
       Requested encoding.
-   bNulT
+   @param bNulT
       If true, the resulting vector will contain an additional NUL terminator (using as many vector
       elements as the destination encoding’s character size); if false, no NUL terminator will be
       present.
-   return
+   @return
       Resulting byte vector.
    */
    dmvector<std::uint8_t> encode(text::encoding enc, bool bNulT) const;
 
    /*! Returns a forward iterator set beyond the last element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator end() const {
@@ -296,23 +296,23 @@ public:
 
    /*! Returns true if the string ends with a specified suffix.
 
-   s
+   @param s
       String that *this should end with.
-   return
+   @return
       true if *this ends with the specified suffix, or false otherwise.
    */
    bool ends_with(istr const & s) const;
 
    /*! Searches for and returns the first occurrence of the specified character or substring.
 
-   chNeedle
+   @param chNeedle
       Character to search for.
-   sNeedle
+   @param sNeedle
       String to search for.
-   itWhence
+   @param itWhence
       Iterator to the first character whence the search should start. When not specified, it
       defaults to cbegin().
-   return
+   @return
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find(char_t chNeedle) const {
@@ -340,14 +340,14 @@ public:
 
    /*! Searches for and returns the last occurrence of the specified character or substring.
 
-   chNeedle
+   @param chNeedle
       Character to search for.
-   sNeedle
+   @param sNeedle
       String to search for.
-   itWhence
+   @param itWhence
       Iterator to the last character whence the search should start. When not specified, it
       defaults to cend().
-   return
+   @return
       Iterator to the first occurrence of the character/string, or cend() when no matches are found.
    */
    const_iterator find_last(char_t chNeedle) const {
@@ -375,9 +375,9 @@ public:
 
    /*! Uses the current content of the string to generate a new one using io::text::writer::print().
 
-   ts
+   @param ts
       Replacement values.
-   return
+   @return
       Resulting string.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -434,9 +434,9 @@ public:
 
    /*! Converts a character index into its corresponding code point index.
 
-   ich
+   @param ich
       Character index. No validation is performed on it.
-   return
+   @return
       Code point index. If ich is not a valid character index for the string, the return value is
       undefined.
    */
@@ -446,7 +446,7 @@ public:
 
    /*! Returns a reverse iterator set to the last element.
 
-   return
+   @return
       Reverse iterator to the last element.
    */
    const_reverse_iterator rbegin() const {
@@ -455,7 +455,7 @@ public:
 
    /*! Returns a reverse iterator set to before the first element.
 
-   return
+   @return
       Reverse iterator to before the first element.
    */
    const_reverse_iterator rend() const {
@@ -464,7 +464,7 @@ public:
 
    /*! Returns size of the string, in code points.
 
-   return
+   @return
       Size of the string.
    */
    std::size_t size() const {
@@ -473,7 +473,7 @@ public:
 
    /*! Returns size of the string, in bytes.
 
-   return
+   @return
       Size of the string.
    */
    std::size_t size_in_bytes() const {
@@ -482,7 +482,7 @@ public:
 
    /*! Returns size of the string, in characters.
 
-   return
+   @return
       Size of the string.
    */
    std::size_t size_in_chars() const {
@@ -491,26 +491,26 @@ public:
 
    /*! Returns true if the string starts with a specified prefix.
 
-   s
+   @param s
       String that *this should start with.
-   return
+   @return
       true if *this starts with the specified suffix, or false otherwise.
    */
    bool starts_with(istr const & s) const;
 
    /*! Returns a portion of the string.
 
-   ichBegin
+   @param ichBegin
       Index of the first character of the substring. See abc::str_base::translate_range() for
       allowed begin index values.
-   ichEnd
+   @param ichEnd
       Index of the last character of the substring, exclusive. See abc::str_base::translate_range()
       for allowed end index values.
-   itBegin
+   @param itBegin
       Iterator to the first character of the substring.
-   itEnd
+   @param itEnd
       Iterator to past the end of the substring.
-   return
+   @return
       Substring of *this.
    */
    dmstr substr(std::ptrdiff_t ichBegin) const;
@@ -521,13 +521,13 @@ public:
 protected:
    /*! Constructor.
 
-   cbEmbeddedCapacity
+   @param cbEmbeddedCapacity
       Size of the embedded character array, in bytes, or 0 if no embedded array is present.
-   pchConstSrc
+   @param pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
-   cchSrc
+   @param cchSrc
       Count of characters in the string pointed to by pchConstSrc.
-   bNulT
+   @param bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
    str_base(std::size_t cbEmbeddedCapacity) :
@@ -539,9 +539,9 @@ protected:
 
    /*! See detail::raw_trivial_vextr_impl::assign_copy().
 
-   pchBegin
+   @param pchBegin
       Pointer to the start of the source string.
-   pchEnd
+   @param pchEnd
       Pointer to the end of the source string.
    */
    void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
@@ -550,13 +550,13 @@ protected:
 
    /*! See detail::raw_trivial_vextr_impl::assign_concat().
 
-   pch1Begin
+   @param pch1Begin
       Pointer to the start of the first source string.
-   pch1End
+   @param pch1End
       Pointer to the end of the first source string.
-   pch2Begin
+   @param pch2Begin
       Pointer to the start of the second source string.
-   pch2End
+   @param pch2End
       Pointer to the end of the second source string.
    */
    void assign_concat(
@@ -568,7 +568,7 @@ protected:
 
    /*! See detail::raw_trivial_vextr_impl::assign_move().
 
-   s
+   @param s
       Source string.
    */
    void assign_move(str_base && s) {
@@ -579,7 +579,7 @@ protected:
 
    /*! See detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
 
-   s
+   @param s
       Source string.
    */
    void assign_move_dynamic_or_move_items(str_base && s) {
@@ -590,7 +590,7 @@ protected:
 
    /*! See detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
 
-   s
+   @param s
       Source string.
    */
    void assign_share_raw_or_copy_desc(str_base const & s) {
@@ -599,10 +599,10 @@ protected:
 
    /*! Converts a possibly negative character index into an iterator.
 
-   ich
+   @param ich
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
       1-based index from the end of the character array by adding this->size() to it.
-   return
+   @return
       Resulting iterator.
    */
    const_iterator translate_index(std::ptrdiff_t ich) const;
@@ -610,15 +610,15 @@ protected:
    /*! Converts a left-closed, right-open interval with possibly negative character indices into one
    consisting of two iterators.
 
-   ichBegin
+   @param ichBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
       if negative, it’s interpreted as a 1-based index from the end of the character array by adding
       this->size() to it.
-   ichEnd
+   @param ichEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
       index; if negative, it’s interpreted as a 1-based index from the end of the character array by
       adding this->size() to it.
-   return
+   @return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [end(), end()) if the indices represent an empty interval after being adjusted.
    */
@@ -679,17 +679,17 @@ class ABACLADE_SYM istr : public str_base {
 public:
    /*! Constructor.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
-   pchBegin
+   @param pchBegin
       Pointer to the beginning of the source stirng.
-   pchEnd
+   @param pchEnd
       Pointer to the end of the source stirng.
-   psz
+   @param psz
       Pointer to the source NUL-terminated string literal.
-   cch
+   @param cch
       Count of characters in the array pointed to be psz.
    */
    istr() :
@@ -724,11 +724,11 @@ public:
 
    /*! Assignment operator.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
-   return
+   @return
       *this.
    */
    istr & operator=(istr const & s) {
@@ -791,9 +791,9 @@ private:
 public:
    /*! Assignment operator.
 
-   s
+   @param s
       Source string.
-   return
+   @return
       *this.
    */
    mstr & operator=(mstr const & s) {
@@ -813,11 +813,11 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   ch
+   @param ch
       Character to append.
-   s
+   @param s
       String to append.
-   return
+   @return
       *this.
    */
    mstr & operator+=(char_t ch) {
@@ -843,9 +843,9 @@ public:
 
    /*! Same as operator+=(), but for multi-argument overloads.
 
-   pchAdd
+   @param pchAdd
       Pointer to an array of characters to append.
-   cchAdd
+   @param cchAdd
       Count of characters in the array pointed to by pchAdd.
    */
    void append(char_t const * pchAdd, std::size_t cchAdd) {
@@ -877,15 +877,15 @@ public:
 
    /*! Inserts characters into the string at a specific character (not code point) offset.
 
-   ichOffset
+   @param ichOffset
       0-based offset at which to insert the characters.
-   ch
+   @param ch
       Character to insert.
-   s
+   @param s
       String to insert.
-   pchInsert
+   @param pchInsert
       Pointer to an array of characters to insert.
-   cchInsert
+   @param cchInsert
       Count of characters in the array pointed to by pchInsert.
    */
    void insert(std::size_t ichOffset, char_t ch) {
@@ -930,9 +930,9 @@ public:
 
    /*! Replaces all occurrences of a character with another character.
 
-   chSearch
+   @param chSearch
       Character to search for.
-   chReplacement
+   @param chReplacement
       Character to replace chSearch with.
    */
    void replace(char_t chSearch, char_t chReplacement);
@@ -945,9 +945,9 @@ public:
 
    /*! See detail::raw_trivial_vextr_impl::set_capacity().
 
-   cchMin
+   @param cchMin
       Minimum count of characters requested.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the string will be preserved even if the reallocation
       causes the string to switch to a different character array.
    */
@@ -964,7 +964,7 @@ public:
 
    TODO: maybe improve exception resilience? Check typical usage to see if it’s an issue.
 
-   fnRead
+   @param fnRead
       Callback that is invoked to fill up the string buffer.
       pch
          Pointer to the beginning of the buffer to be filled up by the callback.
@@ -980,9 +980,9 @@ public:
    /*! Changes the length of the string. If the string needs to be lengthened, the added characters
    will be left uninitialized.
 
-   cch
+   @param cch
       New length of the string.
-   bClear
+   @param bClear
       If true, the string will be cleared after being resized; if false, no characters will be
       changed.
    */
@@ -1001,9 +1001,9 @@ protected:
 
    /*! Replaces a single code point with another single code point.
 
-   pch
+   @param pch
       Pointer to the start of the code point to replace.
-   chNew
+   @param chNew
       Character or code point that will be written at *pch.
    */
    void _replace_codepoint(char_t * pch, char_t chNew);
@@ -1049,21 +1049,21 @@ class dmstr : public mstr {
 public:
    /*! Constructor.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
-   pchBegin
+   @param pchBegin
       Pointer to the beginning of the source stirng.
-   pchEnd
+   @param pchEnd
       Pointer to the end of the source stirng.
-   pch1Begin
+   @param pch1Begin
       Pointer to the beginning of the left source stirng to concatenate.
-   pch1End
+   @param pch1End
       Pointer to the end of the left source stirng.
-   pch2Begin
+   @param pch2Begin
       Pointer to the beginning of the right source stirng to concatenate.
-   pch2End
+   @param pch2End
       Pointer to the end of the right source stirng.
    */
    dmstr() :
@@ -1114,11 +1114,11 @@ public:
 
    /*! Assignment operator.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
-   return
+   @return
       *this.
    */
    dmstr & operator=(dmstr const & s) {
@@ -1202,15 +1202,15 @@ inline mstr & mstr::operator=(dmstr && s) {
 
 /*! Concatenation operator.
 
-sL
+@param sL
    Left string operand.
-sR
+@param sR
    Right string operand.
-chL
+@param chL
    Left character operand.
-chR
+@param chR
    Right character operand.
-return
+@return
    Resulting string.
 */
 inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
@@ -1354,9 +1354,9 @@ private:
 public:
    /*! Constructor.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
    */
    smstr() :
@@ -1399,11 +1399,11 @@ public:
 
    /*! Assignment operator.
 
-   s
+   @param s
       Source string.
-   ach
+   @param ach
       Source NUL-terminated string literal.
-   return
+   @return
       *this.
    */
    smstr & operator=(smstr const & s) {

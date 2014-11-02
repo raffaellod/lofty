@@ -61,11 +61,11 @@ The only fix for this is to provide an explicit specialization of abc::to_str_ba
 
 /*! Returns the string representation of the specified value, optionally with a custom format.
 
-t
+@param t
    Object to generate a string representation for.
-sFormat
+@param sFormat
    Type-specific format string.
-return
+@return
    String representation of t according to sFormat.
 */
 template <typename T>
@@ -99,16 +99,16 @@ class ABACLADE_SYM to_str_backend<bool> {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
 
    /*! Converts a boolean value to its string representation.
 
-   b
+   @param b
       Boolean value to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(bool b, io::text::writer * ptwOut);
@@ -127,14 +127,14 @@ class ABACLADE_SYM int_to_str_backend_base {
 public:
    /*! Constructor.
 
-   cbInt
+   @param cbInt
       Size of the integer type.
    */
    int_to_str_backend_base(unsigned cbInt);
 
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
@@ -142,13 +142,13 @@ public:
 protected:
    /*! Writes the provided buffer to *posOut, prefixed as necessary.
 
-   bNegative
+   @param bNegative
       true if the number is negative, or false otherwise.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
-   psBuf
+   @param psBuf
       Pointer to the string containing the characters to write.
-   itBufFirstUsed
+   @param itBufFirstUsed
       Iterator to the first used character in *psBuf; the last used character is always the last
       character in *psBuf.
    */
@@ -158,9 +158,9 @@ protected:
 
    /*! Converts an integer to its string representation.
 
-   i
+   @param i
       Integer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    template <typename I>
@@ -300,9 +300,9 @@ public:
    The net result is that after all the inlining occurs, this will become a direct call to the
    fastest implementation for I of any given size.
 
-   i
+   @param i
       Integer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(I i, io::text::writer * ptwOut) {

@@ -49,9 +49,9 @@ public:
    members of the latter. This function will be called during initialization of a new dynamic
    library as it’s being loaded, not during normal run-time.
 
-   ptlvi
+   @param ptlvi
       Pointer to the new variable to assign storage to.
-   cb
+   @param cb
       Requested storage size.
    */
    static void add_var(thread_local_var_impl * ptlvi, std::size_t cb);
@@ -59,7 +59,7 @@ public:
 #if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
 
-   iReason
+   @param iReason
       Reason why DllMain() was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
    */
    static bool dllmain_hook(unsigned iReason);
@@ -68,20 +68,20 @@ public:
    /*! Returns a pointer to the specified offset in the storage. On the first call from a new
    thread, this also lazily creates the thread_local_storage, unless bCreateNewIfNull is false.
 
-   bCreateNewIfNull
+   @param bCreateNewIfNull
       If the TLS slot is nullptr and bCreateNewIfNull is true, a new new TLS instance will be
       created; if bCreateNewIfNull is false, nullptr will be returned instead if the TLS slot is
       uninitialized.
-   return
+   @return
       Pointer to the data store.
    */
    static thread_local_storage * get(bool bCreateNewIfNull = true);
 
    /*! Returns a pointer to the specified offset in the thread-local data store.
 
-   ibOffset
+   @param ibOffset
       Desired offset.
-   return
+   @return
       Corresponding pointer.
    */
    void * get_storage(std::size_t ibOffset) const {
@@ -102,7 +102,7 @@ private:
    /*! Destructs the storage instance for the current thread. Invoked by pthread_key_create() when a
    thread terminates.
 
-   pThis
+   @param pThis
       Pointer to the TLS for the current thread.
    */
    static void destruct(void * pThis = get());
@@ -151,14 +151,14 @@ private:
 protected:
    /*! Constructor.
 
-   cbObject
+   @param cbObject
       Size of the object pointed to by the thread_local_value/thread_local_ptr subclass.
    */
    thread_local_var_impl(std::size_t cbObject);
 
    /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
 
-   p
+   @param p
       Pointer to the memory block where the new value should be constructed.
    */
    virtual void construct(void * p) const = 0;
@@ -166,14 +166,14 @@ protected:
    /*! Destructs the thread-local value for a terminating thread. Invoked at most once for each
    thread.
 
-   p
+   @param p
       Pointer to the value to be destructed.
    */
    virtual void destruct(void * p) const = 0;
 
    /*! Returns a pointer to the current thread’s copy of the variable.
 
-   return
+   @return
       Pointer to the thread-local value for this object.
    */
    template <typename T>
@@ -201,7 +201,7 @@ class thread_local_value : private detail::thread_local_var_impl {
 public:
    /*! Constructor.
 
-   tDefault
+   @param tDefault
       Value that will be copied to initialize the TLS for each thread.
    */
    thread_local_value(T tDefault = T()) :
@@ -211,9 +211,9 @@ public:
 
    /*! Assignment operator.
 
-   t
+   @param t
       Source object.
-   return
+   @return
       *this.
    */
    thread_local_value & operator=(T t) {
@@ -223,7 +223,7 @@ public:
 
    /*! Implicit cast to T &.
 
-   return
+   @return
       Reference to the object’s value.
    */
    operator T &() {
@@ -246,7 +246,7 @@ private:
 
    /*! Returns a reference to the thread-local copy of the value.
 
-   return
+   @return
       Reference to the value.
    */
    T & get() const {
@@ -287,7 +287,7 @@ public:
 
    /*! Dereference operator.
 
-   return
+   @return
       Reference to the owned object.
    */
    T & operator*() const {
@@ -296,7 +296,7 @@ public:
 
    /*! Dereferencing member access operator.
 
-   return
+   @return
       Pointer to the owned object.
    */
    T * operator->() const {
@@ -305,7 +305,7 @@ public:
 
    /*! Boolean evaluation operator.
 
-   return
+   @return
       true if get() != nullptr, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -314,7 +314,7 @@ public:
 
    /*! Returns the address of the thread-local value this object points to.
 
-   return
+   @return
       Internal pointer.
    */
    T * get() const {
@@ -324,7 +324,7 @@ public:
 
    /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
 
-   pt
+   @param pt
       Pointer to a new object to take ownership of.
    */
    void reset() {
@@ -337,7 +337,7 @@ public:
 
    /*! Destructs the object currently pointed to, if any, and constructs a new object.
 
-   tSrc
+   @param tSrc
       Source object to be move-construct the new object from.
    */
    void reset_new(T tSrc = T()) {

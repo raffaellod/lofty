@@ -52,7 +52,7 @@ class ABACLADE_SYM decode_error : public virtual error, public exception::extend
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source object.
    */
    decode_error();
@@ -63,11 +63,11 @@ public:
 
    /*! See abc::text::error::init().
 
-   sDescription
+   @param sDescription
       Description of the encountered problem.
-   pbInvalidBegin
+   @param pbInvalidBegin
       Pointer to the start of the byte sequence that caused the error.
-   pbInvalidEnd
+   @param pbInvalidEnd
       Pointer to the end of the byte sequence that caused the error.
    */
    void init(
@@ -100,7 +100,7 @@ class ABACLADE_SYM encode_error : public virtual error, public exception::extend
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source object.
    */
    encode_error();
@@ -111,9 +111,9 @@ public:
 
    /*! See abc::text::error::init().
 
-   sDescription
+   @param sDescription
       Description of the encountered problem.
-   chInvalid
+   @param chInvalid
       Code point that caused the error.
    */
    void init(

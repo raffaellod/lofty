@@ -110,9 +110,9 @@ std::size_t const max_codepoint_length(6);
 
 /*! Casts a single character into a code point.
 
-ch
+@param ch
    Character.
-return
+@return
    Equivalent code point.
 */
 inline char32_t codepoint(char_t ch) {
@@ -126,9 +126,9 @@ inline char32_t codepoint(char_t ch) {
 #if ABC_HOST_UTF > 8
 /*! Casts a single character into a character of the largest native size for the host.
 
-ch
+@param ch
    Character.
-return
+@return
    Equivalent host character.
 */
 inline char_t host_char(char ch) {
@@ -139,9 +139,9 @@ inline char_t host_char(char ch) {
 /*! Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
 encodings (e.g. identity_encoding).
 
-enc
+@param enc
    Desired encoding.
-return
+@return
    Size of a character (not a code point, which can require more than one character) for the
    specified encoding, in bytes.
 */
@@ -150,9 +150,9 @@ ABACLADE_SYM std::size_t get_encoding_size(encoding enc);
 /*! Returns a line terminator string corresponding to the specified line_terminator value, or the
 host default if lterm is line_terminator::any or line_terminator::convert_any_to_lf.
 
-lterm
+@param lterm
    Desired line terminator.
-return
+@return
    String with the requested line terminator sequence.
 */
 ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm);
@@ -165,16 +165,16 @@ example, for a return value of utf8_encoding str_traits::validate() will return 
 buffer.
 TODO: why not guarantee validity? It would help weed out more encodings with fewer bytes.
 
-pchBegin
+@param pchBegin
    Pointer to the beginning of the buffer to scan for encoding clues.
-pchEnd
+@param pchEnd
    Pointer to the end of the buffer.
-cbSrcTotal
+@param cbSrcTotal
    Total size, in bytes, of a larger string of which *pBuf is the beginning.
-pcbBom
+@param pcbBom
    Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
    of the string, in bytes, or 0 otherwise.
-return
+@return
    Detected encoding of the string pointed to by pBuf.
 */
 ABACLADE_SYM encoding guess_encoding(
@@ -184,11 +184,11 @@ ABACLADE_SYM encoding guess_encoding(
 
 /*! Tries to guess the line terminator sequence employed in a string.
 
-pchBegin
+@param pchBegin
    Pointer to the first character of the string to scan for a line terminator sequence.
-pchEnd
+@param pchEnd
    Pointer to beyond the last character of the string.
-return
+@return
    Detected line terminator sequence, or line_terminator::any if the source buffer did not include
    any known line terminator sequence..
 */
@@ -198,9 +198,9 @@ ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char
 must be included in the interval [0, U+10FFFF] (see Unicode Standard 6.2 § 2.4 “Code Points and
 Characters”).
 
-ch
+@param ch
    UTF-32 character to validate.
-return
+@return
    true if the character is a valid code point, or false otherwise.
 */
 inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
@@ -209,9 +209,9 @@ inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
 
 /*! Calculates the length of a NUL-terminated string, in characters.
 
-psz
+@param psz
    Pointer to the NUL-terminated string of which to calculate the length.
-return
+@return
    Length of the string pointed to by psz, in characters.
 */
 ABACLADE_SYM std::size_t size_in_chars(char_t const * psz);

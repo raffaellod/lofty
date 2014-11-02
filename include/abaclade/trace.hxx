@@ -83,7 +83,11 @@ Currently unsupported:
    swallows any nested exceptions, gracefully failing to generate a complete stack trace.
 */
 
-//! Provides stack frame logging for the function in which it’s used.
+/*! Provides stack frame logging for the function in which it’s used.
+
+@param ...
+   Arguments or variables to trace.
+*/
 #define ABC_TRACE_FUNC(...) \
    _ABC_TRACE_SCOPE_IMPL( \
       ABC_CPP_APPEND_UID(_scope_trace_), ABC_CPP_APPEND_UID(_scope_trace_tuple_), \

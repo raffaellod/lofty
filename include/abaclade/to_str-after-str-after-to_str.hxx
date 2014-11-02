@@ -39,7 +39,7 @@ private:
 public:
    /*! Constructor.
 
-   psz
+   @param psz
       C-style NUL-terminated string.
    */
    char_ptr_to_str_adapter(char const * psz) :
@@ -63,9 +63,9 @@ class ABACLADE_SYM to_str_backend<char_ptr_to_str_adapter> : public detail::str_
 public:
    /*! Writes a C-style NUL-terminated string, applying the formatting options.
 
-   cs
+   @param cs
       C string to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut);
@@ -87,7 +87,7 @@ public:
 
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
@@ -95,9 +95,9 @@ public:
 protected:
    /*! Converts a pointer to a string representation.
 
-   iPtr
+   @param iPtr
       Pointer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut);
@@ -125,9 +125,9 @@ class to_str_backend<T *> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
-   p
+   @param p
       Pointer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(T * p, io::text::writer * ptwOut) {
@@ -152,9 +152,9 @@ class to_str_backend<std::shared_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
-   p
+   @param p
       Pointer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
@@ -169,9 +169,9 @@ class to_str_backend<std::weak_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
-   p
+   @param p
       Pointer to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
@@ -193,9 +193,9 @@ class ABACLADE_SYM sequence_to_str_backend {
 public:
    /*! Constructor.
 
-   sStart
+   @param sStart
       Sequence start delimiter.
-   sEnd
+   @param sEnd
       Sequence end delimiter.
    */
    sequence_to_str_backend(istr const & sStart, istr const & sEnd);
@@ -205,14 +205,14 @@ public:
 
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
 
    /*! Writes the sequence end delimiter.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_end(io::text::writer * ptwOut) {
@@ -221,7 +221,7 @@ public:
 
    /*! Writes an element separator (typically a comma).
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_separator(io::text::writer * ptwOut) {
@@ -230,7 +230,7 @@ public:
 
    /*! Writes the sequence start delimiter.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_start(io::text::writer * ptwOut) {
@@ -269,9 +269,9 @@ class tuple_to_str_backend_element_writer<TTuple> {
 public:
    /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
-   tpl
+   @param tpl
       Tuple from which to extract the element to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
@@ -308,9 +308,9 @@ public:
 
    /*! Converts a tuple into its string representation.
 
-   tpl
+   @param tpl
       Tuple to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(std::tuple<Ts ...> const & tpl, io::text::writer * ptwOut) {
@@ -370,9 +370,9 @@ class tuple_to_str_backend_element_writer<
 public:
    /*! Writes the current element to the specified text writer, then recurses to write the rest.
 
-   tpl
+   @param tpl
       Tuple from which to extract the element to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
@@ -399,9 +399,9 @@ public:
 
    /*! Converts a tuple into its string representation.
 
-   tpl
+   @param tpl
       Tuple to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(
