@@ -111,12 +111,15 @@ public:
       Value corresponding to key. If key is not in the map, an exception will be thrown.
    */
    TValue & operator[](TKey const & key) const {
-      // Get the exact bucket in the neighborhood of the key’s hash.
       std::size_t iBucket = bucket_index_from_key(key);
+      if (iBucket == smc_iNullIndex) {
+         // TODO: throw proper exception.
+         throw 0;
+      }
       return m_pvalues[iBucket];
    }
 
-   /*! Adds a key/value pair to the map.
+   /*! Adds a key/value pair to the map, overwriting the value if key is already associated to one.
 
    @param key
       Key to add.
@@ -133,7 +136,8 @@ public:
       TKey * pkey = &get_key(0);
       TValue * pvalue = &get_value(0);
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
-         if (*piHash != smc_iEmptyBucket) {
+         if (*piHash != smc_iEmptyBucketHash) {
+            *piHash = smc_iEmptyBucketHash;
             pkey->~TKey();
             pvalue->~TValue();
          }
@@ -147,20 +151,23 @@ public:
       Key associated to the value to remove.
    */
    void remove(TKey const & key) {
-      // Get the exact bucket in the neighborhood of the key’s hash.
       std::size_t iBucket = bucket_index_from_key(key);
+      if (iBucket == smc_iNullIndex) {
+         // TODO: throw proper exception.
+         throw 0;
+      }
       // Mark the bucket as free and destruct the corresponding key and value.
-      m_piHashes[iBucket] = smc_iEmptyBucket;
+      m_piHashes[iBucket] = smc_iEmptyBucketHash;
       get_key(iBucket).~TKey();
       get_value(iBucket).~TValue();
    }
 
 private:
    void create_empty_buckets(std::size_t cBuckets = smc_cBucketsMin) {
-      m_piHashes.reset(new std::size_t[cBuckets]);
-      m_pkeys.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * cBuckets)]);
-      m_pvalues.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * cBuckets)]);
       m_cBuckets = cBuckets;
+      m_piHashes.reset(new std::size_t[m_cBuckets]);
+      m_pkeys.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * m_cBuckets)]);
+      m_pvalues.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * m_cBuckets)]);
    }
 
    std::size_t bucket_index_from_key(TKey const & key) const {
@@ -168,8 +175,8 @@ private:
    }
    std::size_t bucket_index_from_key(TKey const & key, std::size_t iHash) const {
       // Get a range of indices representing the neighborhood.
-      std::size_t iNeighborhoodBegin = hash_to_neighborhood_index(iHash);
-      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + smc_cNeighborhood;
+      std::size_t iNeighborhoodBegin = neighborhood_index_from_hash(iHash);
+      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + smc_cNeighborhoodBuckets;
       /* Determine if we’ll need to check any buckets at the beginning of the array due to the
       neighborhood wrapping. */
       std::size_t iWrappedNeighborhoodEnd;
@@ -177,21 +184,19 @@ private:
          iWrappedNeighborhoodEnd = iNeighborhoodEnd - m_cBuckets;
          iNeighborhoodEnd = m_cBuckets;
       } else {
+         // Make the wrapped interval [0, 0), i.e. empty.
          iWrappedNeighborhoodEnd = 0;
       }
       // Scan till the end of the neighborhood (clipped to the end of the array).
-      std::size_t iBucket = scan_buckets_for_key(key, iHash, iNeighborhoodBegin, iNeighborhoodEnd);
-      if (iBucket != smc_iKeyNotFound && iWrappedNeighborhoodEnd) {
-         return iBucket;
+      std::size_t iBucket = bucket_index_from_key_and_bucket_range(
+         key, iHash, iNeighborhoodBegin, iNeighborhoodEnd
+      );
+      if (iBucket == smc_iNullIndex && iWrappedNeighborhoodEnd) {
+         /* This neighborhood wraps back to the start of the array, so we have additional buckets to
+         scan. */
+         iBucket = bucket_index_from_key_and_bucket_range(key, iHash, 0, iWrappedNeighborhoodEnd);
       }
-      // Scan the remaining buckets, if this neighborhood wraps.
-      iBucket = scan_buckets_for_key(key, iHash, 0, iWrappedNeighborhoodEnd);
-      if (iBucket != smc_iKeyNotFound) {
-         return iBucket;
-      }
-      // The specified key is not in the map.
-      // TODO: throw proper exception.
-      throw 0;
+      return iBucket;
    }
 
    /*! Calculates, adjusts and returns the hash value for the specified key.
@@ -203,7 +208,7 @@ private:
    */
    std::size_t get_and_adjust_hash(TKey const & key) const {
       std::size_t iHash = hasher::operator()(key);
-      return iHash == smc_iEmptyBucket ? smc_iZeroHash : iHash;
+      return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
    }
 
    TKey & get_key(std::size_t i) const {
@@ -214,11 +219,18 @@ private:
       return reinterpret_cast<TKey *>(m_pvalues.get())[i];
    }
 
-   std::size_t hash_to_neighborhood_index(std::size_t iHash) const {
+   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
+   hash.
+
+   @param iHash
+      Hash to get the neighborhood index for.
+   @return
+      Index of the first bucket in the neighborhood.
+   */
+   std::size_t neighborhood_index_from_hash(std::size_t iHash) const {
       if (!m_cBuckets) {
-         // No buckets, no index can be returned. This means that iHash cannot be in the map.
-         // TODO: throw proper exception.
-         throw 0;
+         // No buckets, so iHash cannot be in the map.
+         return smc_iNullIndex;
       }
       return iHash & (m_cBuckets - 1);
    }
@@ -238,10 +250,10 @@ private:
    @param iEnd
       End of the bucket range.
    @return
-      Index of the bucket at which the key could be found, or smc_iKeyNotFound if the key was not
+      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
-   std::size_t scan_buckets_for_key(
+   std::size_t bucket_index_from_key_and_bucket_range(
       TKey const & key, std::size_t iHash, std::size_t iBegin, std::size_t iEnd
    ) const {
       std::size_t const * piHashesBegin = m_piHashes + iBegin, * piHashesEnd = m_piHashes + iEnd;
@@ -251,7 +263,7 @@ private:
             return static_cast<std::size_t>(piHash - piHashesBegin);
          }
       }
-      return smc_iKeyNotFound;
+      return smc_iNullIndex;
    }
 
 private:
@@ -265,18 +277,17 @@ private:
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.
    std::size_t m_cUsedBuckets;
-   //! Neighborhood size.
-   static std::size_t const smc_cNeighborhood = sizeof(std::size_t) * CHAR_BIT;
    //! Minimum bucket count.
    static std::size_t const smc_cBucketsMin = 8;
    //! Special hash value used to indicate that a bucket is empty.
-   static std::size_t const smc_iEmptyBucket = 0;
-   /*! Special index returned by scan_buckets_for_key() to indicate that the key could not be found
-   in the specified range. */
-   static std::size_t const smc_iKeyNotFound = numeric::max<std::size_t>::value;
+   static std::size_t const smc_iEmptyBucketHash = 0;
+   //! Neighborhood size.
+   static std::size_t const smc_cNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
+   //! Special index returned by several methods to indicate a logical “null index”.
+   static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
    /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
-   smc_iEmptyBucket) as a special value. This specific value is merely the largest prime number that
-   will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */
+   smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
+   that will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */
    static std::size_t const smc_iZeroHash = 65521;
 };
 
