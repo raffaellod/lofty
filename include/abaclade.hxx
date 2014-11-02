@@ -245,11 +245,11 @@ namespace abc {
       #pragma warning(pop)
    #endif
 
-   // Quoting MSDN:
-   // “To avoid conflicts with min and max in WINDEF.H, use _MIN and _MAX instead. These macros
-   // evaluate to _cpp_min and _cpp_max, respectively.”
-   // Of course we don’t care for old compatibility macros, and want to use std::min/max instead, so
-   // undefine these macros.
+   /* Quoting MSDN:
+      “To avoid conflicts with min and max in WINDEF.H, use _MIN and _MAX instead. These macros
+      evaluate to _cpp_min and _cpp_max, respectively.”
+   Of course we don’t care for old compatibility macros, and want to use std::min/max instead, so
+   undefine these macros. */
    #ifdef min
       #undef min
       #undef max
@@ -538,7 +538,7 @@ struct is_copy_constructible<T, typename enable_if<
       /*! Non-bool boolean conversion operator, safer than operator bool(), and almost as good as
       explicit operator bool().
 
-      return
+      @return
          A valid pointer if T::explicit_operator_bool() returns true, or nullptr otherwise.
       */
       operator explob_helper::bool_type() const {
@@ -587,7 +587,7 @@ and pre-C++11 throw() exception specifications. */
 /*! Declares a function/method as possibly throwing exceptions. Supports both C++11 noexcept
 specifier and pre-C++11 throw() exception specifications.
 
-old_throw_decl
+@param old_throw_decl
    Parentheses-enclosed list of types the function/method may throw.
 */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
@@ -601,7 +601,7 @@ old_throw_decl
 /*! Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
 Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
 
-old_throw_decl
+@param old_throw_decl
    Parentheses-enclosed list of types the function/method may throw.
 */
 #ifdef ABC_CXX_STL_USES_NOEXCEPT
@@ -634,7 +634,7 @@ union max_align_t {
 /*! Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
 this purpose, but this is noticeably shorter :)
 
-x
+@param x
    Unused argument.
 */
 #define ABC_UNUSED_ARG(x) \
@@ -642,9 +642,9 @@ x
 
 /*! Returns the number of items in a (static) array.
 
-array
+@param array
    Array for which to compute the count of items.
-return
+@return
    Count of items in array.
 */
 #undef ABC_COUNTOF
@@ -655,9 +655,9 @@ return
 storage with alignment suitable for any type, just like std::malloc() does. Identical to
 bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
 
-cb
+@param cb
    Size to be aligned to sizeof(std::max_align_t).
-return
+@return
    Multiple of sizeof(std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \

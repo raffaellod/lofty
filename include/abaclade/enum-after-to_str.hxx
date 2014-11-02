@@ -46,7 +46,7 @@ class ABACLADE_SYM enum_to_str_backend_impl {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
@@ -54,9 +54,9 @@ public:
 protected:
    /*! Writes an enumeration value, applying the formatting options.
 
-   e
+   @param e
       Enumeration value to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write_impl(int i, enum_member const * pem, io::text::writer * ptwOut);

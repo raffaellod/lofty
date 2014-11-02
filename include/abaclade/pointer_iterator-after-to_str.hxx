@@ -33,9 +33,9 @@ class to_str_backend<pointer_iterator<TCont, TVal>> :
 public:
    /*! Writes an iterator as a pointer, applying the formatting options.
 
-   it
+   @param it
       Iterator to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(pointer_iterator<TCont, TVal> const & it, io::text::writer * ptwOut) {

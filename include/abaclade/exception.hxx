@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 /*! Expands into the instantiation of a temporary abc::source_location object referencing the
 location in which it’s used.
 
-return
+@return
    abc::source_location instance.
 */
 #define ABC_SOURCE_LOCATION() \
@@ -41,9 +41,9 @@ class source_location {
 public:
    /*! Constructor.
 
-   pszFilePath
+   @param pszFilePath
       Path to the source file.
-   iLine
+   @param iLine
       Line number in pszFilePath.
    */
    source_location() :
@@ -57,7 +57,7 @@ public:
 
    /*! Returns the file path.
 
-   return
+   @return
       File path.
    */
    char_t const * file_path() const {
@@ -66,7 +66,7 @@ public:
 
    /*! Returns the line number.
 
-   return
+   @return
       Line number.
    */
    unsigned line_number() const {
@@ -308,9 +308,9 @@ public:
 
 /*! Throws the specified object, after providing it with debug information.
 
-x
+@param x
    Exception instance to be thrown.
-info
+@param info
    Parentheses-enclosed list of data that will be associated to the exception, as accepted by
    x::init().
 */
@@ -329,7 +329,7 @@ public:
    public:
       /*! Writes extended information for the exception to the specified text writer.
 
-      ptwOut
+      @param ptwOut
          Pointer to the writer to output to.
       */
       virtual void write_extended_info(io::text::writer * ptwOut) const = 0;
@@ -341,7 +341,7 @@ public:
 
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    exception();
@@ -355,9 +355,9 @@ public:
 
    /*! Stores context information to be displayed if the exception is not caught.
 
-   srcloc
+   @param srcloc
       Location at which the exception is being thrown.
-   pszFunction
+   @param pszFunction
       Function that is throwing the exception.
    */
    void _before_throw(source_location const & srcloc, char_t const * pszFunction);
@@ -370,7 +370,7 @@ public:
    to override it; only abc::detail::exception_aggregator will define this as a virtual, to override
    std::exception::what() with this implementation.
 
-   return
+   @return
       Name of the exception class.
    */
    char const * what() const;
@@ -378,10 +378,10 @@ public:
    /*! Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to. If omitted, the scope/stack trace will be written to
       stderr.
-   pstdx
+   @param pstdx
       Caught exception.
    */
    static void write_with_scope_trace(
@@ -435,7 +435,7 @@ namespace abc {
 /*! Verifies a condition at runtime, throwing a assertion_error exception if the assertion turns out
 to be incorrect.
 
-expr
+@param expr
    Expression to be validated.
 */
 #ifdef DEBUG
@@ -498,7 +498,7 @@ namespace abc {
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
 /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
 
-err
+@param err
    OS-defined error number.
 */
 ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error();
@@ -510,7 +510,7 @@ class ABACLADE_SYM generic_error : public exception {
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    generic_error();
@@ -521,7 +521,7 @@ public:
 
    /*! See abc::exception::init().
 
-   err
+   @param err
       OS-defined error number associated to the exception.
    */
    void init(errint_t err = 0) {
@@ -531,7 +531,7 @@ public:
 
    /*! Returns the OS-defined error number, if any.
 
-   return
+   @return
       OS-defined error number.
    */
    errint_t os_error() const {
@@ -560,9 +560,9 @@ struct os_error_mapping {
 
 /*! Defines an OS-specific error code to be the default for an exception class.
 
-errclass
+@param errclass
    generic_error-derived class.
-err
+@param err
    OS-specific error code.
 */
 #define ABC_MAP_ERROR_CLASS_TO_ERRINT(errclass, err) \
@@ -740,7 +740,7 @@ class ABACLADE_SYM index_error : public virtual lookup_error, public exception::
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    index_error();
@@ -751,7 +751,7 @@ public:
 
    /*! Returns the invalid index.
 
-   return
+   @return
       Index that was not valid in the context in which it was used.
    */
    std::ptrdiff_t index() const {
@@ -760,9 +760,9 @@ public:
 
    /*! See abc::lookup_error::init().
 
-   iInvalid
+   @param iInvalid
       Index that caused the error.
-   err
+   @param err
       OS-defined error number associated to the exception.
    */
    void init(std::ptrdiff_t iInvalid, errint_t err = 0);
@@ -841,7 +841,7 @@ class ABACLADE_SYM memory_address_error :
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    memory_address_error();
@@ -852,7 +852,7 @@ public:
 
    /*! Returns the faulty address.
 
-   return
+   @return
       Value of the pointer that was dereferenced.
    */
    void const * address() const {
@@ -861,9 +861,9 @@ public:
 
    /*! See abc::generic_error::init().
 
-   pInvalid
+   @param pInvalid
       Pointer that could not be dereferenced.
-   err
+   @param err
       OS-defined error number associated to the error.
    */
    void init(errint_t err = 0) {
@@ -1021,7 +1021,7 @@ class ABACLADE_SYM pointer_iterator_error :
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    pointer_iterator_error();
@@ -1032,7 +1032,7 @@ public:
 
    /*! Returns the container’s begin iterator’s pointer.
 
-   return
+   @return
       Value of container.cbegin().base().
    */
    void const * container_begin_pointer() const {
@@ -1041,7 +1041,7 @@ public:
 
    /*! Returns the container’s end iterator’s pointer.
 
-   return
+   @return
       Value of container.cend().base().
    */
    void const * container_end_pointer() const {
@@ -1050,7 +1050,7 @@ public:
 
    /*! Returns the invalid iterator pointer value.
 
-   return
+   @return
       Pointer that was not valid in the context in which it was used.
    */
    void const * iterator_pointer() const {
@@ -1059,13 +1059,13 @@ public:
 
    /*! See abc::iterator_error::init().
 
-   pContBegin
+   @param pContBegin
       Value returned by the container’s cbegin().base().
-   pContEnd
+   @param pContEnd
       Value returned by the container’s cend().base().
-   pInvalid
+   @param pInvalid
       Pointer member of the iterator that caused the error.
-   err
+   @param err
       OS-defined error number associated to the exception.
    */
    void init(

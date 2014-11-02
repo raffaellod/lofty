@@ -31,9 +31,9 @@ namespace numeric {
 /*! Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
 
-t
+@param t
    Value to check for negativity.
-return
+@return
    true if t is negative, or false otherwise.
 */
 template <typename T>

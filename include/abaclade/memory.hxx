@@ -98,27 +98,27 @@ namespace memory {
 
 /*! Requests the dynamic allocation of a memory block of the specified number of bytes.
 
-cb
+@param cb
    Count of bytes to allocate.
-return
+@return
    Pointer to the allocated memory block.
 */
 ABACLADE_SYM void * _raw_alloc(std::size_t cb);
 
 /*! Releases a block of dynamically allocated memory.
 
-p
+@param p
    Pointer to the memory block to be released.
 */
 ABACLADE_SYM void _raw_free(void const * p);
 
 /*! Resizes a dynamically allocated memory block.
 
-p
+@param p
    Pointer to the memory block to resize.
-cb
+@param cb
    Count of bytes to resize *p to.
-return
+@return
    Pointer to the resized memory block. May or may not be the same as p.
 */
 ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
@@ -137,7 +137,7 @@ template <typename T>
 struct freeing_deleter {
    /*! Deallocates the specified memory block.
 
-   pt
+   @param pt
       Pointer to the object to delete.
    */
    void operator()(T * pt) const {
@@ -150,7 +150,7 @@ template <typename T>
 struct freeing_deleter<T[]> : public freeing_deleter<T> {
    /*! Deallocates the specified array. See also freeing_deleter<T>::operator()().
 
-   pt
+   @param pt
       Pointer to the array to deallocate.
    */
    template <typename T2>
@@ -174,9 +174,9 @@ class conditional_deleter : public TDeleter {
 public:
    /*! Constructor.
 
-   bEnabled
+   @param bEnabled
       If true, the deleter will delete objects when invoked; if false, it will do nothing.
-   cd
+   @param cd
       Source deleter.
    */
    conditional_deleter(bool bEnabled) :
@@ -191,7 +191,7 @@ public:
 
    /*! Deletes the specified object if the condition set in the constructor is true.
 
-   pt
+   @param pt
       Pointer to the object to delete.
    */
    void operator()(T * pt) const {
@@ -202,7 +202,7 @@ public:
 
    /*! Returns true if the deleter is enabled.
 
-   return
+   @return
       true if the deleter is enabled, or false otherwise.
    */
    bool enabled() const {
@@ -230,7 +230,7 @@ public:
    /*! Deletes the specified array if the condition set in the constructor was true. See also
    conditional_deleter<T, TDeleter>::operator()().
 
-   pt
+   @param pt
       Pointer to the array to delete.
    */
    template <typename T2>
@@ -253,11 +253,11 @@ namespace memory {
 /*! Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
 plus additional cbExtra bytes.
 
-c
+@param c
    Count of items to allocate memory for.
-cbExtra
+@param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
-return
+@return
    Pointer to the allocated memory block. The memory will be released with abc::memory::free() when
    the pointer is destructed.
 */
@@ -272,11 +272,11 @@ inline std::unique_ptr<T, freeing_deleter<T>> alloc(std::size_t c = 1, std::size
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
 it in case a new memory block is needed.
 
-ppt
+@param ppt
    Pointer to a smart pointer to the memory block to resize.
-c
+@param c
    Count of items to allocate memory for.
-cbExtra
+@param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
 template <typename T>
@@ -300,11 +300,11 @@ namespace memory {
 
 /*! Sets to the value 0 every item in the specified memory block.
 
-ptDst
+@param ptDst
    Pointer to the target memory block.
-c
+@param c
    Count of items to clear.
-return
+@return
    Same as ptDst.
 */
 template <typename T>
@@ -321,13 +321,13 @@ inline T * clear(T * ptDst, std::size_t c = 1) {
 
 /*! Copies memory, by number of items.
 
-ptDst
+@param ptDst
    Pointer to the destination memory.
-ptSrc
+@param ptSrc
    Pointer to the source data.
-c
+@param c
    Count of items to copy.
-return
+@return
    Same as ptDst.
 */
 template <typename T>
@@ -367,13 +367,13 @@ inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
 
 /*! Copies possibly overlapping memory, by number of items.
 
-ptDst
+@param ptDst
    Pointer to the destination memory.
-ptSrc
+@param ptSrc
    Pointer to the source data.
-c
+@param c
    Count of items to move.
-return
+@return
    Same as ptDst.
 */
 template <typename T>
@@ -390,13 +390,13 @@ inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
 
 /*! Copies a value over each item of a static array.
 
-ptDst
+@param ptDst
    Pointer to the destination memory.
-tValue
+@param tValue
    Source value to replicate over *ptDst.
-c
+@param c
    Count of copies of tValue to make.
-return
+@return
    Same as ptDst.
 */
 template <typename T>

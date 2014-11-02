@@ -51,18 +51,18 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 
 /*! Implementation of the various ABC_ENUM() flavors.
 
-name
+@param name
    Name of the enumeration type.
-iBaseValue
+@param iBaseValue
    Value of __COUNTER__ prior to the expansion of the member values; used to dynamically generate
    values in sequence for the enum members.
-cMembers
+@param cMembers
    Count of members of the enumeration.
-members
+@param members
    C++ enum members.
-arrayitems
+@param arrayitems
    Internal name/value array items.
-...
+@param ...
    Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
    name::enum_type.
 */
@@ -94,7 +94,7 @@ arrayitems
 
 /*! Expands into an enum name/value assignment.
 
-name
+@param name
    Name of the enumeration constant. The associated value is incremental in the ABC_ENUM, just like
    in C++ enums.
 */
@@ -103,9 +103,9 @@ name
 
 /*! Expands into an enum name/value assignment.
 
-name
+@param name
    Name of the enumeration constant.
-value
+@param value
    Value of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER_PAIR(name, value) \
@@ -113,7 +113,7 @@ value
 
 /*! Expands into an abc::detail::enum_member initializer.
 
-name
+@param name
    Name of the enumeration constant.
 */
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name) \
@@ -125,9 +125,9 @@ name
 
 /*! Expands into _ABC_ENUM_MEMBER_ARRAY_ITEM().
 
-name
+@param name
    Name of the enumeration constant.
-value
+@param value
    Value of the enumeration constant. Not used.
 */
 #define _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM(name, value) \
@@ -139,9 +139,9 @@ classes] for more information.
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
 etc.
 
-name
+@param name
    Name of the enumeration type.
-...
+@param ...
    Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
    name::enum_type.
 */
@@ -160,9 +160,9 @@ their values cannot be explicitly specified; for example:
 
    ABC_ENUM_AUTO_VALUES(myenum, item1, item2, item3);
 
-name
+@param name
    Name of the enumeration type.
-...
+@param ...
    Sequence of member names; these will be the members of the underlying C++ enum, name::enum_type.
    Their values will start from 0 and increase by 1 for each member.
 */
@@ -195,14 +195,14 @@ struct ABACLADE_SYM enum_member {
    /*! Finds and returns the member associated to the specified enumerated value or name. If no
    match is found, an exception will be throw.
 
-   pem
+   @param pem
       Pointer to the first item in the enumeration members array; the last item in the array has a
       nullptr name string pointer.
-   iValue
+   @param iValue
       Value of the constant to search for.
-   sName
+   @param sName
       Name of the constant to search for.
-   return
+   @return
       Pointer to the matching name/value pair.
    */
    static enum_member const * find_in_map(enum_member const * pem, int iValue);
@@ -226,12 +226,12 @@ public:
 
    /*! Constructor.
 
-   e
+   @param e
       Source value.
-   iValue
+   @param iValue
       Integer value to be converted to enum_type. If i has a value not in enum_type, an exception
       will be thrown.
-   sName
+   @param sName
       String to be converted to enum_type. If this does not match exactly the name of one of the
       members of enum_type, an exception of type abc::domain_error will be thrown.
    */
@@ -254,9 +254,9 @@ public:
 
    /*! Assignment operator.
 
-   e
+   @param e
       Source value.
-   return
+   @return
       *this.
    */
    enum_impl & operator=(enum_impl const & e) {
@@ -270,7 +270,7 @@ public:
 
    /*! Returns the current base enumerated value.
 
-   return
+   @return
       Current value.
    */
    enum_type base() const {
@@ -279,14 +279,14 @@ public:
 
    /*! Returns the name of the current enumerated value.
 
-   return
+   @return
       Name of the current value.
    */
    istr name() const;
 
    /*! Returns the count of members in the enumeration.
 
-   return
+   @return
       Member count.
    */
    static std::size_t size() {
@@ -296,7 +296,7 @@ public:
 protected:
    /*! Returns a pointer to the name/value pair for the current value.
 
-   return
+   @return
       Pointer to the name/value pair for the current value.
    */
    detail::enum_member const * _member() const {

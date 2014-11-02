@@ -29,11 +29,11 @@ namespace abc {
 
 /*! Returns an object constructed from its string representation, optionally with a custom format.
 
-s
+@param s
    String to reconstruct into an object.
-sFormat
+@param sFormat
    Type-specific format string.
-return
+@return
    Object reconstructed from s according to sFormat.
 */
 template <typename T>

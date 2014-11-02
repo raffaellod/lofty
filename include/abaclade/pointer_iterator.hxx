@@ -33,9 +33,9 @@ class pointer_iterator : public std::iterator<std::random_access_iterator_tag, T
 public:
    /*! Constructor.
 
-   pt
+   @param pt
       Pointer to set the iterator to.
-   it
+   @param it
       Source iterator.
    */
    /*constexpr*/ pointer_iterator() :
@@ -52,7 +52,7 @@ public:
 
    /*! Dereferencing operator.
 
-   return
+   @return
       Reference to the current item.
    */
    TVal & operator*() const {
@@ -61,7 +61,7 @@ public:
 
    /*! Dereferencing member access operator.
 
-   return
+   @return
       Pointer to the current item.
    */
    TVal * operator->() const {
@@ -70,9 +70,9 @@ public:
 
    /*! Element access operator.
 
-   i
+   @param i
       Index relative to *this.
-   return
+   @return
       Reference to the specified item.
    */
    TVal & operator[](std::ptrdiff_t i) const {
@@ -81,9 +81,9 @@ public:
 
    /*! Addition-assignment operator.
 
-   i
+   @param i
       Count of positions by which to advance the iterator.
-   return
+   @return
       *this after it’s moved forward by i positions.
    */
    pointer_iterator & operator+=(std::ptrdiff_t i) {
@@ -93,9 +93,9 @@ public:
 
    /*! Subtraction-assignment operator.
 
-   i
+   @param i
       Count of positions by which to rewind the iterator.
-   return
+   @return
       *this after it’s moved backwards by i positions.
    */
    pointer_iterator & operator-=(std::ptrdiff_t i) {
@@ -105,9 +105,9 @@ public:
 
    /*! Addition operator.
 
-   i
+   @param i
       Count of positions by which to advance the iterator.
-   return
+   @return
       Iterator that’s i items ahead of *this.
    */
    pointer_iterator operator+(std::ptrdiff_t i) const {
@@ -116,11 +116,11 @@ public:
 
    /*! Subtraction/difference operator.
 
-   i
+   @param i
       Count of positions by which to rewind the iterator.
-   it
+   @param it
       Iterator from which to calculate the distance.
-   return
+   @return
       Iterator that’s i items behind *this (subtraction) or distance between *this and it
       (difference).
    */
@@ -134,7 +134,7 @@ public:
 
    /*! Preincrement operator.
 
-   return
+   @return
       *this after it’s moved to the value following the one currently pointed to by.
    */
    pointer_iterator & operator++() {
@@ -144,7 +144,7 @@ public:
 
    /*! Postincrement operator.
 
-   return
+   @return
       Iterator pointing to the value following the one pointed to by this iterator.
    */
    pointer_iterator operator++(int) {
@@ -153,7 +153,7 @@ public:
 
    /*! Predecrement operator.
 
-   return
+   @return
       *this after it’s moved to the value preceding the one currently pointed to by.
    */
    pointer_iterator & operator--() {
@@ -163,7 +163,7 @@ public:
 
    /*! Postdecrement operator.
 
-   return
+   @return
       Iterator pointing to the value preceding the one pointed to by this iterator.
    */
    pointer_iterator operator--(int) {
@@ -186,7 +186,7 @@ ABC_RELOP_IMPL(<=)
 
    /*! Returns the underlying iterator type.
 
-   return
+   @return
       Pointer to the value pointed to by this iterator.
    */
    TVal * base() const {

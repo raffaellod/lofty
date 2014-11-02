@@ -32,7 +32,7 @@ class ABACLADE_SYM syntax_error : public virtual generic_error, public exception
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source object.
    */
    syntax_error();
@@ -58,13 +58,13 @@ public:
       syntax_error(ABC_SL("expected expression"), istr::empty, iChar, iLine)
       syntax_error(ABC_SL("unexpected end of file"), opSource, iChar, iLine)
 
-   sDescription
+   @param sDescription
       Description of the syntax error.
-   sSource
+   @param sSource
       Source of the syntax error (whole or individual line).
-   iChar
+   @param iChar
       Character at which the error is located.
-   iLine
+   @param iLine
       Line where the error is located.
    */
    void init(
@@ -99,16 +99,16 @@ class ABACLADE_SYM to_str_backend<source_location> {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
 
    /*! Writes a source location, applying the formatting options.
 
-   srcloc
+   @param srcloc
       Source location to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(source_location const & srcloc, io::text::writer * ptwOut);

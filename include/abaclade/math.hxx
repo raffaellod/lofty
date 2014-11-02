@@ -62,9 +62,9 @@ struct abs_helper<T, false> {
 /*! Returns the absolute value of the argument. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
 
-t
+@param t
    Value.
-return
+@return
    Absolute value of t.
 */
 template <typename T>
