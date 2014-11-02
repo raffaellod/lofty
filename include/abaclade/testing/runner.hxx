@@ -59,7 +59,7 @@ class ABACLADE_TESTING_SYM runner {
 public:
    /*! Constructor.
 
-   posOut
+   @param posOut
       Pointer to the writer that will be used to log the results of the tests.
    */
    runner(std::shared_ptr<io::text::writer> ptwOut);
@@ -73,19 +73,19 @@ public:
 
    /*! Logs an assertion.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   bPass
+   @param bPass
       true if the assertion was valid, or false otherwise.
-   sExpr
+   @param sExpr
       Source representation of the expression being evaluated.
-   sOp
+   @param sOp
       Applied relational operator.
-   sExpected
+   @param sExpected
       If bPass, expression generating the expected value (i.e. the C++ expression, as a string); if
       !bPass, computed expected value (i.e. the actual value returned by the C++ expression, as a
       string).
-   sActual
+   @param sActual
       Only used if !bPass, this is the computed actual value (i.e. return value of sExpr), as a
       string.
    */
@@ -97,7 +97,7 @@ public:
    /*! Prints test results based on the information collected by log_assertion() and
    run_test_case().
 
-   return
+   @return
       true if all assertions were successful, or false otherwise.
    */
    bool log_summary();
@@ -107,7 +107,7 @@ public:
 
    /*! Executes a test case.
 
-   tc
+   @param tc
       Test case to execute.
    */
    void run_test_case(test_case & tc);

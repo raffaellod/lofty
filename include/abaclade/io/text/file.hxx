@@ -39,34 +39,34 @@ namespace text {
 
 /*! Returns the text writer associated to the standard error output file (stderr).
 
-return
+@return
    Standard error file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stderr();
 
 /*! Returns the text reader associated to the standard input file (stdin).
 
-return
+@return
    Standard input file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_reader> stdin();
 
 /*! Returns the text writer associated to the standard output file (stdout).
 
-return
+@return
    Standard output file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_writer> stdout();
 
 /*! Opens a file for text-mode access.
 
-op
+@param op
    Path to the file.
-am
+@param am
    Desired access mode.
-enc
+@param enc
    Encoding to be used the the text.
-return
+@return
    Pointer to a text I/O object for the file.
 */
 ABACLADE_SYM std::shared_ptr<binbuf_base> open(
@@ -75,11 +75,11 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
 
 /*! Opens a file for text-mode reading.
 
-op
+@param op
    Path to the file.
-enc
+@param enc
    Encoding to be used the the text.
-return
+@return
    Pointer to a text reader for the file.
 */
 inline std::shared_ptr<binbuf_reader> open_reader(
@@ -90,11 +90,11 @@ inline std::shared_ptr<binbuf_reader> open_reader(
 
 /*! Opens a file for text-mode writing.
 
-op
+@param op
    Path to the file.
-enc
+@param enc
    Encoding to be used the the text.
-return
+@return
    Pointer to a text writer for the file.
 */
 inline std::shared_ptr<binbuf_writer> open_writer(

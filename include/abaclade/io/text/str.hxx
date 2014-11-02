@@ -66,9 +66,9 @@ class ABACLADE_SYM str_reader : public virtual str_base, public virtual reader {
 public:
    /*! Constructor.
 
-   s
+   @param s
       Source string to be copied or moved to the internal buffer.
-   ps
+   @param ps
       Pointer to the source string to be used as external_buffer.
    */
    str_reader(str_reader && sr);
@@ -86,7 +86,7 @@ public:
 
    /*! Returns the count of characters (char_t units) still available for reading.
 
-   return
+   @return
       Count of characters still available for reading.
    */
    std::size_t remaining_size_in_chars() const {
@@ -116,7 +116,7 @@ class ABACLADE_SYM str_writer : public virtual str_base, public virtual writer {
 public:
    /*! Constructor.
 
-   psBuf
+   @param psBuf
       Pointer to a mutable string to use as the destination of all writes; otherwise an internal
       dynamically-allocated string will be used.
    */
@@ -132,7 +132,7 @@ public:
 
    /*! Returns the internal string buffer as a read-only string.
 
-   return
+   @return
       Content of the writer.
    */
    istr const & get_str() const {
@@ -144,7 +144,7 @@ public:
    will be an empty string; the accumulated data will only be accessible through the external
    string.
 
-   return
+   @return
       Former content of the writer.
    */
    dmstr release_content();

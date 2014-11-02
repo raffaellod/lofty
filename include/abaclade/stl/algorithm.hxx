@@ -35,11 +35,11 @@ namespace std {
 
 /*! Returns the greatest of two objects (C++11 § 25.4.7 “Minimum and maximum”).
 
-t1
+@param t1
    First value.
-t2
+@param t2
    Second value.
-return
+@return
    Greatest of t1 and t2.
 */
 template <typename T>
@@ -53,11 +53,11 @@ inline T const & max(T const & t1, T const & t2, TCompare fnComp) {
 
 /*! Returns the least of two objects (C++11 § 25.4.7 “Minimum and maximum”).
 
-t1
+@param t1
    First value.
-t2
+@param t2
    Second value.
-return
+@return
    Least of t1 and t2.
 */
 template <typename T>

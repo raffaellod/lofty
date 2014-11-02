@@ -36,18 +36,18 @@ class buffered_writer;
 
 /*! Creates and returns a buffered wrapper for the specified binary I/O object.
 
-pbb
+@param pbb
    Pointer to a binary I/O object.
-return
+@return
    Pointer to a buffered wrapper for *pbb.
 */
 ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 
 /*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
 
-pbr
+@param pbr
    Pointer to an unbuffered binary reader.
-return
+@return
    Pointer to a buffered wrapper for *pbr.
 */
 inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pbr) {
@@ -56,9 +56,9 @@ inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pb
 
 /*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
 
-pbw
+@param pbw
    Pointer to an unbuffered binary writer.
-return
+@return
    Pointer to a buffered wrapper for *pbw.
 */
 inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pbw) {
@@ -82,7 +82,7 @@ class ABACLADE_SYM buffered_base : public virtual base {
 public:
    /*! Returns a pointer to the wrapper unbuffered binary I/O object.
 
-   return
+   @return
       Pointer to a unbuffered binary I/O object.
    */
    virtual std::shared_ptr<base> unbuffered() const = 0;
@@ -105,7 +105,7 @@ public:
    /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
 
-   c
+   @param c
       Count of elements to mark as read.
    */
    template <typename T>
@@ -115,7 +115,7 @@ public:
 
    /*! Non-template implementation of consume(). See consume().
 
-   cb
+   @param cb
       Count of bytes to mark as read.
    */
    virtual void consume_bytes(std::size_t cb) = 0;
@@ -125,12 +125,12 @@ public:
 
    TODO: change to return a read-only, non-shareable ivector<T>.
 
-   c
+   @param c
       Count of items to peek. If greater than the size of the read buffer’s contents, an additional
       read from the underlying binary reader will be made, adding to the contents of the read
       buffer; if the internal buffer is not large enough to hold the cumulative data, it will be
       enlarged.
-   return
+   @return
       Pair containing:
       •  A pointer to the portion of the internal buffer that holds the read data;
       •  Count of bytes read. May be less than the cb argument if EOF is reached, or greater than cb
@@ -146,7 +146,7 @@ public:
 
    /*! Non-template implementation of peek(). See peek().
 
-   cb
+   @param cb
       Count of bytes to peek.
    */
    virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
@@ -173,7 +173,7 @@ class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer
 public:
    /*! Commits (writes) any pending buffer blocks returned by get_buffer().
 
-   c
+   @param c
       Count of elements to commit.
    */
    template <typename T>
@@ -183,16 +183,16 @@ public:
 
    /*! Non-template, byte-oriented implementation of commit(). See commit().
 
-   cb
+   @param cb
       Count of bytes to commit.
    */
    virtual void commit_bytes(std::size_t cb) = 0;
 
    /*! Returns a buffer large enough to store up to c items.
 
-   c
+   @param c
       Count of items to create buffer space for.
-   return
+   @return
       Pair containing:
       •  A pointer to the portion of the internal buffer that the caller can write to;
       •  Size of the portion of internal buffer, in bytes.
@@ -206,7 +206,7 @@ public:
 
    /*! Byte-oriented implementation of get_buffer(). See get_buffer().
 
-   cb
+   @param cb
       Count of bytes to create buffer space for.
    */
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
@@ -233,7 +233,7 @@ class ABACLADE_SYM default_buffered_reader : public buffered_reader, public nonc
 public:
    /*! Constructor.
 
-   pbr
+   @param pbr
       Pointer to a buffered reader to wrap.
    */
    default_buffered_reader(std::shared_ptr<reader> pbr);
@@ -282,7 +282,7 @@ class ABACLADE_SYM default_buffered_writer : public buffered_writer, public nonc
 public:
    /*! Constructor.
 
-   pbw
+   @param pbw
       Pointer to a buffered writer to wrap.
    */
    default_buffered_writer(std::shared_ptr<writer> pbw);
@@ -298,7 +298,7 @@ public:
 
    /*! See buffered_writer::get_buffer_bytes().
 
-   cb
+   @param cb
       Count of bytes to create buffer space for.
    */
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;

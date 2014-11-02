@@ -52,11 +52,11 @@ class ABACLADE_SYM reader : public virtual base {
 public:
    /*! Reads at most cbMax bytes.
 
-   p
+   @param p
       Address of the destination buffer.
-   cbMax
+   @param cbMax
       Size of the destination buffer, in bytes.
-   return
+   @return
       Count of bytes read. For non-zero values of cbMax, a return value of 0 indicates that the end
       of the data was reached.
    */
@@ -82,11 +82,11 @@ public:
 
    /*! Writes an array of bytes.
 
-   p
+   @param p
       Address of the source buffer.
-   cb
+   @param cb
       Size of the source buffer, in bytes.
-   return
+   @return
       Count of bytes written.
    */
    virtual std::size_t write(void const * p, std::size_t cb) = 0;
@@ -108,18 +108,18 @@ class ABACLADE_SYM seekable {
 public:
    /*! Changes the current read/write position.
 
-   iOffset
+   @param iOffset
       New position, relative to sfWhence.
-   sfWhence
+   @param sfWhence
       Indicates what position iOffset is relative to.
-   return
+   @return
       Resulting position.
    */
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) = 0;
 
    /*! Returns the current read/write position.
 
-   return
+   @return
       Current position.
    */
    virtual offset_t tell() const = 0;
@@ -141,7 +141,7 @@ class ABACLADE_SYM sized {
 public:
    /*! Returns the size of the data.
 
-   return
+   @return
       Data size, in bytes.
    */
    virtual full_size_t size() const = 0;

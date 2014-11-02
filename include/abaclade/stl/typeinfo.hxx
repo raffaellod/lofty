@@ -67,7 +67,7 @@ public:
 
    /*! Returns the name of the type.
 
-   return
+   @return
       Name of the type.
    */
    char const * name() const;

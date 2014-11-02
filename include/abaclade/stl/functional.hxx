@@ -41,9 +41,9 @@ template <>
 struct hash<bool> {
    /*! Function call operator.
 
-   b
+   @param b
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(bool b) const {
@@ -55,9 +55,9 @@ template <>
 struct hash<char> {
    /*! Function call operator.
 
-   ch
+   @param ch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(char ch) const {
@@ -69,9 +69,9 @@ template <>
 struct hash<signed char> {
    /*! Function call operator.
 
-   sch
+   @param sch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(signed char sch) const {
@@ -83,9 +83,9 @@ template <>
 struct hash<unsigned char> {
    /*! Function call operator.
 
-   uch
+   @param uch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(unsigned char uch) const {
@@ -97,9 +97,9 @@ template <>
 struct hash<char16_t> {
    /*! Function call operator.
 
-   ch
+   @param ch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(char16_t ch) const {
@@ -111,9 +111,9 @@ template <>
 struct hash<char32_t> {
    /*! Function call operator.
 
-   ch
+   @param ch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(char32_t ch) const {
@@ -125,9 +125,9 @@ template <>
 struct hash<wchar_t> {
    /*! Function call operator.
 
-   ch
+   @param ch
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(wchar_t ch) const {
@@ -139,9 +139,9 @@ template <>
 struct hash<short> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(short i) const {
@@ -153,9 +153,9 @@ template <>
 struct hash<unsigned short> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(unsigned short i) const {
@@ -167,9 +167,9 @@ template <>
 struct hash<int> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(int i) const {
@@ -181,9 +181,9 @@ template <>
 struct hash<unsigned int> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(unsigned int i) const {
@@ -195,9 +195,9 @@ template <>
 struct hash<long> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(long i) const {
@@ -209,9 +209,9 @@ template <>
 struct hash<long long> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(long long i) const {
@@ -223,9 +223,9 @@ template <>
 struct hash<unsigned long> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(unsigned long i) const {
@@ -237,9 +237,9 @@ template <>
 struct hash<unsigned long long> {
    /*! Function call operator.
 
-   i
+   @param i
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(unsigned long long i) const {
@@ -251,9 +251,9 @@ template <>
 struct hash<float> {
    /*! Function call operator.
 
-   f
+   @param f
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(float f) const {
@@ -265,9 +265,9 @@ template <>
 struct hash<double> {
    /*! Function call operator.
 
-   d
+   @param d
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(double d) const {
@@ -279,9 +279,9 @@ template <>
 struct hash<long double> {
    /*! Function call operator.
 
-   ld
+   @param ld
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(long double ld) const {
@@ -293,9 +293,9 @@ template <typename T>
 struct hash<T *> {
    /*! Function call operator.
 
-   pt
+   @param pt
       Object to computer the hash of.
-   return
+   @return
       Hash of the argument.
    */
    size_t operator()(T * pt) const {

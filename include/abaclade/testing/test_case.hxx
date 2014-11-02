@@ -48,7 +48,7 @@ public:
    /*! Initializes the object. Split into a method separated from the constructor so that derived
    classes don’t need to declare a constructor just to forward its arguments.
 
-   prunner
+   @param prunner
       Pointer to the test runner.
    */
    void init(runner * prunner);
@@ -58,7 +58,7 @@ public:
 
    /*! Returns a short description for the test case.
 
-   return
+   @return
       Test case title.
    */
    virtual istr title() = 0;
@@ -66,11 +66,11 @@ public:
 protected:
    /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   fnExpr
+   @param fnExpr
       Functor wrapping the expression to evaluate.
-   sExpr
+   @param sExpr
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
@@ -79,15 +79,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_EQUAL.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tEqual
+   @param tEqual
       Value that the expression should evaluate to.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sEqual
+   @param sEqual
       C++ code evaluating to tEqual.
    */
    template <typename TExpr, typename TEqual>
@@ -104,26 +104,26 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_FALSE.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   bActual
+   @param bActual
       Actual value of the evaluated expression.
-   sExpr
+   @param sExpr
       C++ code evaluating to bActual.
    */
    void assert_false(source_location const & srcloc, bool bActual, istr const & sExpr);
 
    /*! Implementation of ABC_TESTING_ASSERT_GREATER.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tLBound
+   @param tLBound
       Exclusive lower bound.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sLBound
+   @param sLBound
       C++ code evaluating to tLBound.
    */
    template <typename TExpr, typename TLBound>
@@ -140,15 +140,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tLBound
+   @param tLBound
       Inclusive lower bound.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sLBound
+   @param sLBound
       C++ code evaluating to tLBound.
    */
    template <typename TExpr, typename TLBound>
@@ -165,15 +165,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_LESS.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tUBound
+   @param tUBound
       Exclusive upper bound.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sUBound
+   @param sUBound
       C++ code evaluating to tUBound.
    */
    template <typename TExpr, typename TUBound>
@@ -190,15 +190,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tUBound
+   @param tUBound
       Inclusive upper bound.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sUBound
+   @param sUBound
       C++ code evaluating to tUBound.
    */
    template <typename TExpr, typename TUBound>
@@ -215,15 +215,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   tActual
+   @param tActual
       Actual value of the evaluated expression.
-   tNotEqual
+   @param tNotEqual
       Value that the expression should not evaluate to.
-   sExpr
+   @param sExpr
       C++ code evaluating to tActual.
-   sNotEqual
+   @param sNotEqual
       C++ code evaluating to tNotEqual.
    */
    template <typename TExpr, typename TNotEqual>
@@ -240,15 +240,15 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_THROWS.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   fnExpr
+   @param fnExpr
       Functor wrapping the expression to evaluate.
-   sExpr
+   @param sExpr
       Source representation of the expression being evaluated.
-   fnMatchType
+   @param fnMatchType
       Functor that checks whether an std::exception instance is of the desired derived type.
-   pszExpectedWhat
+   @param pszExpectedWhat
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
@@ -258,11 +258,11 @@ protected:
 
    /*! Implementation of ABC_TESTING_ASSERT_TRUE.
 
-   srcloc
+   @param srcloc
       Location of the expression.
-   bActual
+   @param bActual
       Actual value of the evaluated expression.
-   sExpr
+   @param sExpr
       C++ code evaluating to bActual.
    */
    void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
@@ -277,7 +277,7 @@ protected:
 
 /*! Asserts that an expression does not throw.
 
-expr
+@param expr
    Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
@@ -288,9 +288,9 @@ expr
 
 /*! Asserts that the value of an expression equals a specific value.
 
-expr
+@param expr
    Expression to evaluate.
-value
+@param value
    Value that expr should evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
@@ -298,7 +298,7 @@ value
 
 /*! Asserts that an expression evaluates to false.
 
-expr
+@param expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
@@ -306,9 +306,9 @@ expr
 
 /*! Asserts that the value of an expression is strictly greater than a specific lower bound.
 
-expr
+@param expr
    Expression to evaluate.
-lbound
+@param lbound
    Exclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
@@ -316,9 +316,9 @@ lbound
 
 /*! Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
 
-expr
+@param expr
    Expression to evaluate.
-lbound
+@param lbound
    Inclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
@@ -326,9 +326,9 @@ lbound
 
 /*! Asserts that the value of an expression is strictly less than a specific upper bound.
 
-expr
+@param expr
    Expression to evaluate.
-ubound
+@param ubound
    Exclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS(expr, ubound) \
@@ -336,9 +336,9 @@ ubound
 
 /*! Asserts that the value of an expression is less-than or equal-to a specific upper bound.
 
-expr
+@param expr
    Expression to evaluate.
-ubound
+@param ubound
    Inclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
@@ -346,9 +346,9 @@ ubound
 
 /*! Asserts that the value of an expression differs from a specific value.
 
-expr
+@param expr
    Expression to evaluate.
-value
+@param value
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
@@ -356,9 +356,9 @@ value
 
 /*! Asserts that an expression throws a specific type of exception.
 
-type
+@param type
    Exception class that should be caught.
-expr
+@param expr
    Expression to evaluate.
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
@@ -373,7 +373,7 @@ expr
 
 /*! Asserts that an expression evaluates to true.
 
-expr
+@param expr
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
@@ -411,7 +411,7 @@ class ABACLADE_TESTING_SYM test_case_factory_impl :
 public:
    /*! Constructor.
 
-   pfnFactory
+   @param pfnFactory
       Pointer to the derived class’s factory function.
    */
    test_case_factory_impl(std::unique_ptr<test_case> (* pfnFactory)(runner * prunner)) :
@@ -420,9 +420,9 @@ public:
 
    /*! Factory of abc::testing::test_case instances.
 
-   prunner
+   @param prunner
       Runner to be used by the test case.
-   return
+   @return
       Test case instance.
    */
    std::unique_ptr<test_case> (* const factory)(runner * prunner);
@@ -450,7 +450,7 @@ public:
 private:
    /*! Class factory for T.
 
-   prunner
+   @param prunner
       Runner to provide to the test case.
    */
    static std::unique_ptr<test_case> static_factory(runner * prunner) {
@@ -467,7 +467,7 @@ private:
 /*! Registers an abc::testing::test_case-derived class for execution by an abc::testing::runner
 instance.
 
-cls
+@param cls
    Test case class.
 */
 #define ABC_TESTING_REGISTER_TEST_CASE(cls) \

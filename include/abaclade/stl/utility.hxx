@@ -44,9 +44,9 @@ struct identity {
 /*! Allows a method to accept an argument of any reference type, while declaring only an r-value
 reference (C++11 § 20.2.3 “forward/move helpers”). N2835-compliant.
 
-t
+@param t
    Source object.
-return
+@return
    R-value reference to t.
 */
 // Forward r-values as r-values.
@@ -81,9 +81,9 @@ inline typename enable_if<is_lvalue_reference<T>::value, T>::type forward(
 /*! Converts a value into an r-value reference, enabling move semantics on the argument (C++11 §
 20.2.3 “forward/move helpers”).
 
-t
+@param t
    Source object.
-return
+@return
    R-value reference to t.
 */
 template <typename T>
@@ -93,9 +93,9 @@ inline typename remove_reference<T>::type && move(T && t) {
 
 /*! Swaps the value of two objects (C++11 § 20.2.2 “swap”).
 
-t1
+@param t1
    First object.
-t2
+@param t2
    Second object.
 */
 template <typename T>

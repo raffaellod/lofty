@@ -78,8 +78,6 @@ public:
       Source path.
    @param s
       Source string.
-   @return
-      *this.
    */
    path() {
    }

@@ -68,9 +68,9 @@ class _tuple_head<t_i, T, true> : private T {
 public:
    /*! Constructor.
 
-   th
+   @param th
       Source tuple head.
-   t
+   @param t
       Source element.
    */
    _tuple_head() :
@@ -92,9 +92,9 @@ public:
 
    /*! Assignment operator.
 
-   th
+   @param th
       Source tuple head.
-   return
+   @return
       *this.
    */
    _tuple_head & operator=(_tuple_head const & th) {
@@ -108,7 +108,7 @@ public:
 
    /*! Accessor to the wrapped object.
 
-   return
+   @return
       Reference to the wrapped element.
    */
    T & get() {
@@ -125,9 +125,9 @@ class _tuple_head<t_i, T, false> {
 public:
    /*! Constructor.
 
-   th
+   @param th
       Source tuple head.
-   t
+   @param t
       Source element.
    */
    _tuple_head() :
@@ -149,9 +149,9 @@ public:
 
    /*! Assignment operator.
 
-   th
+   @param th
       Source tuple head.
-   return
+   @return
       *this.
    */
    _tuple_head & operator=(_tuple_head const & th) {
@@ -165,7 +165,7 @@ public:
 
    /*! Accessor to the wrapped element.
 
-   return
+   @return
       Reference to the wrapped element.
    */
    T & get() {
@@ -212,11 +212,11 @@ private:
 public:
    /*! Constructor.
 
-   thead
+   @param thead
       Source tuple head.
-   ts
+   @param ts
       Source elements.
-   tt
+   @param tt
       Source tuple tail.
    */
    _tuple_tail() :
@@ -238,9 +238,9 @@ public:
 
    /*! Assignment operator.
 
-   tt
+   @param tt
       Source tuple tail.
-   return
+   @return
       *this.
    */
    _tuple_tail & operator=(_tuple_tail const & tt) {
@@ -256,7 +256,7 @@ public:
 
    /*! Returns the embedded _tuple_head.
 
-   return
+   @return
       Reference to the embedded tuple head.
    */
    _thead & get_thead() {
@@ -268,7 +268,7 @@ public:
 
    /*! Returns the embedded _tuple_tail.
 
-   return
+   @return
       Reference to the embedded tuple tail.
    */
    _ttail & get_ttail() {
@@ -297,9 +297,9 @@ private:
 public:
    /*! Constructor.
 
-   tt
+   @param tt
       Source tuple tail.
-   t0...t9
+   @param t0...t9
       Source elements.
    */
    _tuple_tail() :
@@ -338,9 +338,9 @@ public:
 
    /*! Assignment operator.
 
-   tt
+   @param tt
       Source tuple tail.
-   return
+   @return
       *this.
    */
    _tuple_tail & operator=(_tuple_tail const & tt) {
@@ -356,7 +356,7 @@ public:
 
    /*! Returns the embedded _tuple_head.
 
-   return
+   @return
       Reference to the embedded tuple head.
    */
    _thead & get_thead() {
@@ -368,7 +368,7 @@ public:
 
    /*! Returns the embedded _tuple_tail.
 
-   return
+   @return
       Reference to the embedded tuple tail.
    */
    _ttail & get_ttail() {
@@ -388,7 +388,7 @@ class _tuple_tail<
 public:
    /*! Constructor.
 
-   tt
+   @param tt
       Source tuple tail.
    */
    _tuple_tail() {
@@ -404,7 +404,7 @@ public:
 
    /*! Assignment operator.
 
-   return
+   @return
       *this.
    */
    _tuple_tail & operator=(_tuple_tail const &) {
@@ -434,9 +434,9 @@ private:
 public:
    /*! Constructor.
 
-   ts
+   @param ts
       Source elements.
-   tpl
+   @param tpl
       Source tuple.
    */
    /*constexpr*/ tuple() :
@@ -458,9 +458,9 @@ public:
 
    /*! Assignment operator.
 
-   tpl
+   @param tpl
       Source tuple.
-   return
+   @return
       *this.
    */
    tuple & operator=(tuple const & tpl) {
@@ -488,9 +488,9 @@ private:
 public:
    /*! Constructor.
 
-   t0...t9
+   @param t0...t9
       Source elements.
-   tpl
+   @param tpl
       Source tuple.
    */
    /*constexpr*/ tuple() :
@@ -669,9 +669,9 @@ public:
 
    /*! Assignment operator.
 
-   tpl
+   @param tpl
       Source tuple.
-   return
+   @return
       *this.
    */
    tuple & operator=(tuple const & tpl) {
@@ -792,9 +792,9 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 
 /*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
 
-tpl
+@param tpl
    Tuple from which to extract an element.
-return
+@return
    Reference to the tuple element.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -960,9 +960,9 @@ namespace _std {
 /*! Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation
 functions”).
 
-ts
+@param ts
    Variables to unpack to.
-return
+@return
    Tuple containing references to each argument.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES

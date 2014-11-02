@@ -37,14 +37,14 @@ public:
 
    /*! Returns the encoding of the data store.
 
-   return
+   @return
       Text encoding.
    */
    virtual abc::text::encoding get_encoding() const = 0;
 
    /*! Returns the line terminator used in the data store.
 
-   return
+   @return
       Line terminator.
    */
    abc::text::line_terminator get_line_terminator() const {
@@ -53,7 +53,7 @@ public:
 
    /*! Assigns a new line terminator that will be used for all following writes.
 
-   lterm
+   @param lterm
       New line terminator.
    */
    void set_line_terminator(abc::text::line_terminator lterm) {
@@ -95,16 +95,16 @@ class ABACLADE_SYM reader : public virtual base {
 public:
    /*! Reads the entire source into the specified mutable string.
 
-   psDst
+   @param psDst
       Pointer to the string that will receive the data.
    */
    void read_all(mstr * psDst);
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.
 
-   psDst
+   @param psDst
       Pointer to the string that will receive the read line.
-   return
+   @return
       true if a line could be read, or false if the end of the data was reached, in which case
       *psDst is left in an undetermined state.
    */
@@ -113,11 +113,11 @@ public:
    /*! Reads data into the specified mutable string, invoking a callback function to determine how
    much of the read data should be consumed.
 
-   psDst
+   @param psDst
       Pointer to the string that will receive the read data.
-   bOneLine
+   @param bOneLine
       If true, reading will stop at the first line terminator character.
-   return
+   @return
       true if a string could be read, or false if the end of the data was reached, in which case
       *psDst is left in an undetermined state.
    */
@@ -184,9 +184,9 @@ class ABACLADE_SYM writer : public virtual base {
 public:
    /*! Writes multiple values combined together in the specified format.
 
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
-   ts
+   @param ts
       Replacement values.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -249,7 +249,7 @@ public:
 
    /*! Writes a value using the default formatting for abc::to_str_backend().
 
-   t
+   @param t
       Value to write.
    */
    template <typename T>
@@ -261,11 +261,11 @@ public:
    /*! Writes the contents of a memory buffer, first translating them to the text writer’s character
    encoding, if necessary.
 
-   pSrc
+   @param pSrc
       Pointer to the buffer to write.
-   cbSrc
+   @param cbSrc
       Size of the buffer, in bytes.
-   enc
+   @param enc
       Encoding used by the buffer. If different from the writer’s encoding, a conversion will be
       performed on the fly.
    */
@@ -273,7 +273,7 @@ public:
 
    /*! Writes a string followed by a new-line.
 
-   s
+   @param s
       String to write.
    */
    void write_line(istr const & s = istr::empty);
@@ -300,9 +300,9 @@ class ABACLADE_SYM writer_print_helper_impl : public noncopyable {
 public:
    /*! Constructor.
 
-   ptw
+   @param ptw
       Text writer to use.
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
    */
    writer_print_helper_impl(writer * ptw, istr const & sFormat);
@@ -320,7 +320,7 @@ protected:
    and returns true, or writes the remaining characters of the format string and returns false if no
    more replacement are found.
 
-   return
+   @return
       true if another replacement was found and should be printed, or false otherwise.
    */
    bool write_format_up_to_next_repl();
@@ -328,9 +328,9 @@ protected:
 private:
    /*! Throws an instance of abc::syntax_error(), providing accurate context information.
 
-   sDescription
+   @param sDescription
       Error description.
-   it
+   @param it
       Position of the offending character in m_sFormat.
    */
    ABC_FUNC_NORETURN void throw_syntax_error(
@@ -340,7 +340,7 @@ private:
    /*! Writes the portion of format string between the first character to be written
    (m_itFormatToWriteBegin) and the specified one, and updates m_itFormatToWriteBegin.
 
-   itUpTo
+   @param itUpTo
       First character not to be written.
    */
    void write_format_up_to(istr::const_iterator itUpTo);
@@ -375,9 +375,9 @@ class writer_print_helper<> : public writer_print_helper_impl {
 public:
    /*! Constructor.
 
-   ptw
+   @param ptw
       Text writer to use.
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
    */
    writer_print_helper(writer * ptw, istr const & sFormat) :
@@ -387,7 +387,7 @@ public:
 protected:
    /*! Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
-   iArg
+   @param iArg
       0-based index of the template argument to write.
    */
    ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
@@ -407,13 +407,13 @@ private:
 public:
    /*! Constructor.
 
-   ptw
+   @param ptw
       Text writer to use.
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
-   t0
+   @param t0
       First replacement value.
-   ts
+   @param ts
       Remaining replacement values.
    */
    writer_print_helper(writer * ptw, istr const & sFormat, T0 const & t0, Ts const &... ts) :
@@ -466,29 +466,29 @@ private:
 public:
    /*! Constructor.
 
-   ptw
+   @param ptw
       Text writer to write to.
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
-   t0
+   @param t0
       First replacement value.
-   t1
+   @param t1
       Second replacement value.
-   t2
+   @param t2
       Third replacement value.
-   t3
+   @param t3
       Fourth replacement value.
-   t4
+   @param t4
       Fifth replacement value.
-   t5
+   @param t5
       Sixth replacement value.
-   t6
+   @param t6
       Seventh replacement value.
-   t7
+   @param t7
       Eighth replacement value.
-   t8
+   @param t8
       Ninth replacement value.
-   t9
+   @param t9
       Tenth replacement value.
    */
    template <typename U0>
@@ -623,9 +623,9 @@ class writer_print_helper<> : public writer_print_helper_impl {
 public:
    /*! Constructor.
 
-   ptw
+   @param ptw
       Text writer to write to.
-   sFormat
+   @param sFormat
       Format string to parse for replacements.
    */
    writer_print_helper(writer * ptw, istr const & sFormat) :
@@ -635,7 +635,7 @@ public:
 protected:
    /*! Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
 
-   iArg
+   @param iArg
       0-based index of the template argument to write.
    */
    ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
@@ -781,7 +781,7 @@ public:
 protected:
    /*! Constructor.
 
-   enc
+   @param enc
       Initial value for get_encoding().
    */
    binbuf_base(abc::text::encoding enc);
@@ -808,9 +808,9 @@ class ABACLADE_SYM binbuf_reader : public virtual binbuf_base, public virtual re
 public:
    /*! Constructor.
 
-   pbbr
+   @param pbbr
       Pointer to a binary buffered reader to work with.
-   enc
+   @param enc
       Initial value for get_encoding(). If omitted, an encoding will be automatically detected
       (guessed) on the first read from the underlying binary reader.
    */
@@ -831,11 +831,11 @@ public:
 private:
    /*! Detects the encoding used in the provided buffer.
 
-   pb
+   @param pb
       Pointer to a buffer with the initial contents of the file.
-   cb
+   @param cb
       Size of the buffer pointed to by pb.
-   return
+   @return
       Size of the BOM, if found in the source. If non-zero, the caller should discard this many
       bytes from the provided buffer.
    */
@@ -843,16 +843,16 @@ private:
 
    /*! Implementation of read_while() for the source encoding == host encoding.
 
-   pb
+   @param pb
       Pointer to a buffer with the initial contents of the file.
-   pcb
+   @param pcb
       Pointer to the size of the buffer pointed to by pb; on return it will contain the count of
       bytes remaining in the last peek buffer.
-   psDst
+   @param psDst
       Pointer to the string that will receive the read data.
-   bOneLine
+   @param bOneLine
       If true, reading will stop at the first line terminator character.
-   return
+   @return
       Count of characters read into *psDst.
    */
    std::size_t read_while_with_host_encoding(
@@ -861,16 +861,16 @@ private:
 
    /*! Implementation of read_while() for the source encoding != host encoding.
 
-   pb
+   @param pb
       Pointer to a buffer with the initial contents of the file.
-   pcb
+   @param pcb
       Pointer to the size of the buffer pointed to by pb; on return it will contain the count of
       bytes remaining in the last peek buffer.
-   psDst
+   @param psDst
       Pointer to the string that will receive the read data.
-   bOneLine
+   @param bOneLine
       If true, reading will stop at the first line terminator character.
-   return
+   @return
       Count of characters read into *psDst.
    */
    std::size_t read_while_with_transcode(
@@ -906,9 +906,9 @@ class ABACLADE_SYM binbuf_writer : public virtual binbuf_base, public virtual wr
 public:
    /*! Constructor.
 
-   pbbw
+   @param pbbw
       Pointer to a binary buffered writer to work with.
-   enc
+   @param enc
       Initial value for get_encoding(). If omitted and never explicitly set, on the first write it
       will default to abc::text::encoding::utf8.
    */

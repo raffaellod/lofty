@@ -67,47 +67,47 @@ class file_writer;
 
 /*! Returns the binary writer associated to the standard error output file (stderr).
 
-return
+@return
    Standard error file.
 */
 ABACLADE_SYM std::shared_ptr<file_writer> stderr();
 
 /*! Returns the binary reader associated to the standard input file (stdin).
 
-return
+@return
    Standard input file.
 */
 ABACLADE_SYM std::shared_ptr<file_reader> stdin();
 
 /*! Returns the binary writer associated to the standard output file (stdout).
 
-return
+@return
    Standard output file.
 */
 ABACLADE_SYM std::shared_ptr<file_writer> stdout();
 
 /*! Opens a file for binary access.
 
-op
+@param op
    Path to the file.
-am
+@param am
    Desired access mode.
-bBuffered
+@param bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
    unbuffered.
-return
+@return
    Pointer to a binary I/O object for the file.
 */
 std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffered = true);
 
 /*! Opens a file for binary reading.
 
-op
+@param op
    Path to the file.
-bBuffered
+@param bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
    unbuffered.
-return
+@return
    Pointer to a binary reader for the file.
 */
 inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBuffered = true) {
@@ -116,12 +116,12 @@ inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBuffe
 
 /*! Opens a file for binary writing.
 
-op
+@param op
    Path to the file.
-bBuffered
+@param bBuffered
    If true, access to the file will be buffered by the OS, if false, access to the file will be
    unbuffered.
-return
+@return
    Pointer to a binary writer for the file.
 */
 inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBuffered = true) {
@@ -144,9 +144,9 @@ class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, p
 public:
    /*! Constructor.
 
-   fd
+   @param fd
       Source file descriptor.
-   bOwn
+   @param bOwn
       If true, the filedesc object will take ownership of the raw descriptor (i.e. it will release
       it whenever appropriate); if false, the raw descriptor will never be closed by this instance.
    */
@@ -163,9 +163,9 @@ public:
 
    /*! Assignment operator.
 
-   fd
+   @param fd
       Source file descriptor.
-   return
+   @return
       *this.
    */
    filedesc & operator=(filedesc_t fd);
@@ -173,7 +173,7 @@ public:
 
    /*! Safe bool operator.
 
-   return
+   @return
       true if the object has a valid file descriptor, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -182,7 +182,7 @@ public:
 
    /*! Returns the wrapped raw file descriptor.
 
-   return
+   @return
       Wrapped raw file descriptor.
    */
    filedesc_t get() const {
@@ -191,7 +191,7 @@ public:
 
    /*! Yields ownership over the wrapped file descriptor, returning it.
 
-   return
+   @return
       Unowned raw file descriptor.
    */
    filedesc_t release() {
@@ -228,7 +228,7 @@ public:
 protected:
    /*! Constructor.
 
-   pfid
+   @param pfid
       Data used to initialize the object, as set by abc::io::open() and other functions.
    */
    file_base(detail::file_init_data * pfid);
@@ -266,11 +266,11 @@ public:
 
    /*! Detects EOF conditions and real errors.
 
-   cchRead
+   @param cchRead
       Count of bytes read by ::ReadFile().
-   iErr
+   @param iErr
       Value returned by ::GetLastError() if ::ReadFile() returned false, or ERROR_SUCCESS otherwise.
-   return
+   @return
       true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are
       thrown for all non-EOF error conditions.
    */
@@ -400,7 +400,7 @@ private:
 
    /* Determines whether output processing is enabled for the console pseudo-file.
 
-   return
+   @return
       true if the bytes written are to be parsed for special characters, or false otherwise.
    */
    bool processing_enabled() const;
@@ -422,9 +422,9 @@ private:
 
    /*! Writes a range of characters directly to the console, without any parsing.
 
-   pchBegin
+   @param pchBegin
       Start of the character array to write.
-   pchEnd
+   @param pchEnd
       End of the character array to write.
    */
    void write_range(char_t const * pchBegin, char_t const * pchEnd) const;

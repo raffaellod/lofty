@@ -46,7 +46,8 @@ class default_delete {
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   @param dd2
+      Source object.
    */
    /*constexpr*/ default_delete() {
    }
@@ -57,7 +58,8 @@ public:
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   @param pt
+      Pointer to the object to delete.
    */
    void operator()(T * pt) const {
       delete pt;
@@ -74,7 +76,8 @@ public:
 
    /*! Function call operator.
 
-   TODO: comment signature.
+   @param pt
+      Pointer to the array to delete.
    */
    void operator()(T * pt) const {
       delete[] pt;
@@ -125,9 +128,9 @@ public:
 public:
    /*! Constructor.
 
-   a
+   @param a
       Source allocator.
-   a2
+   @param a2
       Source allocator.
    */
    allocator() {
@@ -294,7 +297,7 @@ public:
 
    /*! Destructs the argument.
 
-   pt2
+   @param pt2
       Pointer to the object to destruct.
    */
    template <typename T2>
@@ -322,13 +325,13 @@ public:
 public:
    /*! Constructor.
 
-   pt
+   @param pt
       Pointer to acquire ownership of.
-   tdel
+   @param tdel
       Deleter to use to delete pt.
-   upt
+   @param upt
       Pointer to transfer ownership from.
-   upt2
+   @param upt2
       Pointer to transfer ownership from. T2 and TDel2 must be convertible to T and TDel,
       respectively.
    */
@@ -367,11 +370,11 @@ public:
 
    /*! Assignment operator.
 
-   upt
+   @param upt
       Source object.
-   upt2
+   @param upt2
       Source object.
-   return
+   @return
       *this.
    */
    unique_ptr & operator=(unique_ptr && upt) {
@@ -394,7 +397,7 @@ public:
 
    /*! Dereference operator.
 
-   return
+   @return
       Reference to the owned object.
    */
    typename add_lvalue_reference<T>::type operator*() const {
@@ -403,7 +406,7 @@ public:
 
    /*! Dereferencing member access operator.
 
-   return
+   @return
       Pointer to the owned object.
    */
    T * operator->() const {
@@ -412,7 +415,7 @@ public:
 
    /*! Boolean evaluation operator.
 
-   return
+   @return
       true if get() != nullptr, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -421,7 +424,7 @@ public:
 
    /*! Returns the wrapped pointer.
 
-   return
+   @return
       Pointer to the owned object.
    */
    T * get() const {
@@ -430,7 +433,7 @@ public:
 
    /*! Returns the stored deleter.
 
-   return
+   @return
       Reference to the deleter.
    */
    TDel & get_deleter() {
@@ -442,7 +445,7 @@ public:
 
    /*! Returns the wrapped pointer, and deassociates from it.
 
-   return
+   @return
       Pointer to the formerly-owned object.
    */
    T * release() {
@@ -454,7 +457,7 @@ public:
    /*! Deletes the object currently pointed to, if any, and optionally switches to pointing to a
    different object.
 
-   pt
+   @param pt
       Pointer to a new object to take ownership of.
    */
    void reset(T * pt = nullptr) {
@@ -484,11 +487,11 @@ public:
 public:
    /*! Constructor.
 
-   pt
+   @param pt
       Pointer to acquire ownership of.
-   tdel
+   @param tdel
       Deleter to use to delete pt.
-   upt
+   @param upt
       Pointer to transfer ownership from.
    */
    /*constexpr*/ unique_ptr() :
@@ -519,9 +522,9 @@ public:
 
    /*! Assignment operator.
 
-   upt
+   @param upt
       Source object.
-   return
+   @return
       *this.
    */
    unique_ptr & operator=(unique_ptr && upt) {
@@ -538,9 +541,9 @@ public:
 
    /*! Element access operator.
 
-   i
+   @param i
       Index of the element.
-   return
+   @return
       Reference to the requested element.
    */
    T & operator[](size_t i) const {
@@ -549,7 +552,7 @@ public:
 
    /*! Boolean evaluation operator.
 
-   return
+   @return
       true if get() != nullptr, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -558,7 +561,7 @@ public:
 
    /*! Returns the wrapped pointer.
 
-   return
+   @return
       Pointer to the owned array.
    */
    T * get() const {
@@ -567,7 +570,7 @@ public:
 
    /*! Returns the stored deleter.
 
-   return
+   @return
       Reference to the deleter.
    */
    TDel & get_deleter() {
@@ -579,7 +582,7 @@ public:
 
    /*! Returns the wrapped pointer, and deassociates from it.
 
-   return
+   @return
       Pointer to the formerly-owned array.
    */
    T * release() {
@@ -591,7 +594,7 @@ public:
    /*! Deletes the object currently pointed to, if any, and optionally switches to pointing to a
    different object.
 
-   pt
+   @param pt
       Pointer to a new array to take ownership of.
    */
    void reset(T * pt = nullptr) {
@@ -702,7 +705,7 @@ public:
 
    /*! Returns the number of strong references to this.
 
-   return
+   @return
       Reference count.
    */
    long use_count() const {
@@ -946,11 +949,11 @@ public:
 
    /*! Assignment operator.
 
-   spt
+   @param spt
       Source object.
-   spt2
+   @param spt2
       Source object.
-   return
+   @return
       *this.
    */
    shared_ptr & operator=(shared_ptr const & spt) {
@@ -1010,7 +1013,8 @@ public:
 
    /*! Boolean evaluation operator.
 
-   TODO: comment signature.
+   @return
+      true if *this points to a valid object, or false if it points to nullptr.
    */
    explicit_operator_bool() const {
       return m_pt != nullptr;
@@ -1039,7 +1043,7 @@ public:
 
    /*! Returns the wrapped pointer.
 
-   return
+   @return
       Pointer to the owned object.
    */
    T * get() const {
@@ -1054,7 +1058,7 @@ public:
 
    /*! Returns true if no other pointers are referring to the object pointed to.
 
-   return
+   @return
       true if *this is the only pointer to the owned object, or false otherwise.
    */
    bool unique() const {
@@ -1063,7 +1067,7 @@ public:
 
    /*! Returns the number of references to the object pointed to.
 
-   return
+   @return
       Reference count.
    */
    long use_count() const {
@@ -1086,7 +1090,8 @@ public:
 
    /*! Returns a pointer to the shared object owner. Non-standard.
 
-   TODO: comment signature.
+   @return
+      Pointer to the reference count shared with other pointers.
    */
    _shared_refcount * get_shared_refcount() const {
       return m_psr;
@@ -1163,11 +1168,11 @@ public:
 
    /*! Assignment operator.
 
-   wpt
+   @param wpt
       Source object.
-   wpt2
+   @param wpt2
       Source object.
-   return
+   @return
       *this.
    */
    weak_ptr & operator=(weak_ptr const & wpt) {
@@ -1208,7 +1213,7 @@ public:
 
    /*! Returns true if the object pointed to no longer exists.
 
-   return
+   @return
       true if the object pointed to has been deleted, or false otherwise.
    */
    bool expired() const {
@@ -1217,7 +1222,7 @@ public:
 
    /*! Returns a non-weak pointer to the object pointed to.
 
-   return
+   @return
       Shared pointer to the watched object.
    */
    shared_ptr<T> lock() const {
@@ -1241,7 +1246,7 @@ public:
 
    /*! Returns the number of strong references to the object pointed to.
 
-   return
+   @return
       Count of strong references to the watched object.
    */
    long use_count() const {
@@ -1315,7 +1320,7 @@ class enable_shared_from_this {
 public:
    /*! Returns a shared pointer to this.
 
-   return
+   @return
       Pointer to *this.
    */
    shared_ptr<T> shared_from_this() {
@@ -1328,7 +1333,7 @@ public:
 protected:
    /*! Constructor.
 
-   esft
+   @param esft
       Ignored.
    */
    enable_shared_from_this() {
@@ -1343,7 +1348,7 @@ protected:
 
    /*! Assignment operator.
 
-   esft
+   @param esft
       Ignored.
    */
    enable_shared_from_this & operator=(enable_shared_from_this const & esft) {

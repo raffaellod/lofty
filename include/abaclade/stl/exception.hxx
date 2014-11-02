@@ -44,7 +44,7 @@ public:
 
    /*! Returns information on the exception.
 
-   return
+   @return
       Description of the exception.
    */
    virtual char const * what() const override;
