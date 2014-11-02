@@ -240,7 +240,7 @@ private:
    */
    template <typename T>
    static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
-#if ABC_HOST_GCC >= 40800
+#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
       if (!std::is_trivially_destructible<T>::value) {
 #else
       if (!std::has_trivial_destructor<T>::value) {

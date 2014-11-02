@@ -286,8 +286,8 @@ constructor (N2346). */
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
-//! If defined, the STL implements C++11 type traits (as opposed to the early implementations).
-#if ABC_HOST_GCC >= 40700
+//! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
+#if ABC_HOST_GCC >= 40800
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
