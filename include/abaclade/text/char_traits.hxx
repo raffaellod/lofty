@@ -41,20 +41,20 @@ public:
 public:
    /*! Converts a char8_t array into a code point (UTF-32 character).
 
-   pchDstBegin
+   @param pchDstBegin
       Start of the character array to decode.
-   return
+   @return
       Decoded code point.
    */
    static char32_t chars_to_codepoint(char8_t const * pchSrcBegin);
 
    /*! Converts a code point (UTF-32 character) into a char8_t array.
 
-   cp
+   @param cp
       Code point to be encoded.
-   pchDstBegin
+   @param pchDstBegin
       Start of the character array that will receive the encoded version of cp.
-   return
+   @return
       Pointer to the character beyond the last one used in *pchDstBegin.
    */
    static char8_t * codepoint_to_chars(char32_t cp, char8_t * pchDstBegin);
@@ -62,18 +62,18 @@ public:
    /*! Return the number of characters needed to convert the specified code point into UTF-8
    characters.
 
-   cp
+   @param cp
       Source code point.
-   return
+   @return
       Length of the resulting character sequence.
    */
    static unsigned codepoint_size(char32_t cp);
 
    /*! Returns the sequence indicator bit mask suitable to precede a continuation of cbCont bytes.
 
-   cbCont
+   @param cbCont
       Length of the sequence, in bytes.
-   return
+   @return
       Sequence indicator bit mask.
    */
    static /*constexpr*/ char8_t cont_length_to_seq_indicator(unsigned cbCont) {
@@ -83,9 +83,9 @@ public:
 
    /*! Returns true if the specified character is a trail (non-lead) character.
 
-   ch
+   @param ch
       UTF-8 character.
-   return
+   @return
       true if ch is a trail character, or false if it’s a lead character.
    */
    static /*constexpr*/ bool is_trail_char(char8_t ch) {
@@ -95,11 +95,11 @@ public:
    /*! Returns the bits in a lead byte that are part of the encoded code point. Notice that the bits
    will need to be shifted in the right position to form a valid UTF-32 character.
 
-   ch
+   @param ch
       First byte of an UTF-8 code point.
-   cbCont
+   @param cbCont
       Length of the remainder of the UTF-8 byte sequence, in bytes.
-   return
+   @return
       Bits in ch that participate in the code point.
    */
    static /*constexpr*/ char32_t get_lead_char_codepoint_bits(char8_t ch, unsigned cbCont) {
@@ -108,9 +108,9 @@ public:
 
    /*! Checks if a character is a valid UTF-8 lead character.
 
-   ch
+   @param ch
       Character to validate.
-   return
+   @return
       true if ch is a valid UTF-8 lead character, or false otherwise.
    */
    static bool is_valid_lead_char(char8_t ch) {
@@ -120,9 +120,9 @@ public:
 
    /*! Returns the run length of an UTF-8 sequence, given its lead byte.
 
-   ch
+   @param ch
       First byte of an UTF-8 code point.
-   return
+   @return
       Length of the code point sequence, or 1 if the character is not a lead byte, i.e. it’s a code
       point encoded as a single byte or an invalid sequence.
    */
@@ -167,9 +167,9 @@ public:
 public:
    /*! Converts a char16_t array into a code point (UTF-32 character).
 
-   pchDstBegin
+   @param pchDstBegin
       Start of the character array to decode.
-   return
+   @return
       Decoded code point.
    */
    static char32_t chars_to_codepoint(char16_t const * pchSrcBegin);
@@ -177,29 +177,29 @@ public:
    /*! Return the number of characters needed to convert the specified code point into UTF-16
    characters.
 
-   cp
+   @param cp
       Source code point.
-   return
+   @return
       Length of the resulting character sequence.
    */
    static unsigned codepoint_size(char32_t cp);
 
    /*! Converts a code point (UTF-32 character) into a char16_t array.
 
-   cp
+   @param cp
       Code point to be encoded.
-   pchDstBegin
+   @param pchDstBegin
       Start of the character array that will receive the encoded version of cp.
-   return
+   @return
       Pointer to the character beyond the last one used in *pchDstBegin.
    */
    static char16_t * codepoint_to_chars(char32_t cp, char16_t * pchDstBegin);
 
    /*! Returns true if the specified character is a surrogate lead.
 
-   ch
+   @param ch
       UTF-16 character.
-   return
+   @return
       true if ch is a lead surrogate, or false if it’s a trail surrogate.
    */
    static /*constexpr*/ bool is_lead_surrogate(char16_t ch) {
@@ -208,9 +208,9 @@ public:
 
    /*! Returns true if the specified character is a surrogate (lead or trail).
 
-   ch
+   @param ch
       UTF-16 character.
-   return
+   @return
       true if ch is a surrogate, or false otherwise.
    */
    static /*constexpr*/ bool is_surrogate(char16_t ch) {
@@ -256,11 +256,11 @@ public:
 public:
    /*! Converts a code point (UTF-32 character) into a char_t array.
 
-   cp
+   @param cp
       Code point to be encoded.
-   achDst
+   @param achDst
       Character array that will receive the encoded version of cp.
-   return
+   @return
       Pointer to the character beyond the last one used in achDst.
    */
    static char_t * codepoint_to_chars(char32_t cp, char_t (& achDst)[max_codepoint_length]) {

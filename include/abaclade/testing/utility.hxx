@@ -41,9 +41,9 @@ class container_data_ptr_tracker;
 
 /*! Allows to declare a container_data_ptr_tracker instance using the auto keyword.
 
-t
+@param t
    Object to track.
-return
+@return
    Tracker instance.
 */
 template <class T>
@@ -65,7 +65,7 @@ class class_with_internal_pointer {
 public:
    /*! Constructor.
 
-   cwip
+   @param cwip
       Source object.
    */
    class_with_internal_pointer() :
@@ -83,7 +83,7 @@ public:
 
    /*! Validates that the object’s internal pointer has the expected value.
 
-   return
+   @return
       true if the internal pointer is valid, or false otherwise.
    */
    bool validate() {
@@ -116,7 +116,7 @@ class container_data_ptr_tracker {
 public:
    /*! Constructor. Starts tracking changes in the specified object.
 
-   t
+   @param t
       Object to track.
    */
    container_data_ptr_tracker(T const & t) :
@@ -126,7 +126,7 @@ public:
 
    /*! Checks if the monitored object’s data pointer has changed.
 
-   return
+   @return
       true if the data pointer has changed, or false otherwise.
    */
    bool changed() {
@@ -175,7 +175,7 @@ public:
    /*! Constructor. The copying overload doesn’t really use their argument, because the only non-
    static member (m_iUnique) is always generated.
 
-   ic
+   @param ic
       Source object.
    */
    instances_counter() :
@@ -195,7 +195,7 @@ public:
    /*! Assigment operator. The copying overload doesn’t really use its argument, because the only
    non-static member (m_iUnique) is always generated.
 
-   ic
+   @param ic
       Source object.
    */
    instances_counter & operator=(instances_counter const & ic) {
@@ -213,9 +213,9 @@ public:
    /*! Equality relational operator. Should always return false, since no two simultaneously-living
    instances should have the same unique value.
 
-   oc
+   @param oc
       Object to compare to *this.
-   return
+   @return
       true if *this has the same unique value as oc, or false otherwise.
    */
    bool operator==(instances_counter const & oc) const {
@@ -225,9 +225,9 @@ public:
    /*! Inequality relational operator. Should always return true, since no two simultaneously-living
    instances should have the same unique value.
 
-   oc
+   @param oc
       Object to compare to *this.
-   return
+   @return
       true if *this has a different unique value than oc, or false otherwise.
    */
    bool operator!=(instances_counter const & oc) const {
@@ -236,7 +236,7 @@ public:
 
    /*! Returns the count of instances created, excluding moved ones.
 
-   return
+   @return
       Count of instances.
    */
    static std::size_t copies() {
@@ -245,7 +245,7 @@ public:
 
    /*! Returns the count of moved instances.
 
-   return
+   @return
       Count of instances.
    */
    static std::size_t moves() {
@@ -256,7 +256,7 @@ public:
    instances have not been created from a source instance, perhaps only to be copy- or move-assigned
    later, which would be less efficient than just copy- or move-constructing, 
 
-   return
+   @return
       Count of instances.
    */
    static std::size_t new_insts() {
@@ -272,7 +272,7 @@ public:
 
    /*! Returns the unique value associated to this object.
 
-   return
+   @return
       Unique value.
    */
    int unique() const {

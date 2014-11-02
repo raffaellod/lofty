@@ -43,11 +43,11 @@ class codepoint_proxy<true> {
 public:
    /*! Constructor.
 
-   pch
+   @param pch
       Pointer to the character(s) that this proxy will present as char32_t.
-   ps
+   @param ps
       Pointer to the string that contains *pch.
-   cpp
+   @param cpp
       Source code point proxy to copy.
    */
    codepoint_proxy(char_t const * pch, str_base const * ps) :
@@ -61,7 +61,7 @@ public:
 
    /*! Implicit conversion to a code point.
 
-   return
+   @return
       Code point that the proxy is currently referencing.
    */
    operator char32_t() const {
@@ -82,14 +82,14 @@ class codepoint_proxy<false> : public codepoint_proxy<true> {
 public:
    /*! See codepoint_proxy<true>::codepoint_proxy().
 
-   pch
+   @param pch
       Pointer to the character(s) that this proxy will present as char32_t.
-   ps
+   @param ps
       Pointer to the string that contains *pch.
-   pcii
+   @param pcii
       Pointer to the instantiating iterator; *pcii will be updated in case of changes to *ps. If not
       instantiated by an iterator, this should be set to nullptr.
-   cpp
+   @param cpp
       Source code point proxy to copy.
    */
    codepoint_proxy(char_t * pch, str_base * ps, codepoint_iterator_impl<false> * pcii) :
@@ -105,11 +105,11 @@ public:
    the internal data members; this allows to write expressions like *itDst = *itSrc to copy code
    points from one iterator to another.
 
-   ch
+   @param ch
       Source character.
-   cpp
+   @param cpp
       Source code point proxy to copy a code point from.
-   return
+   @return
       *this.
    */
    codepoint_proxy & operator=(char_t ch);
@@ -208,7 +208,7 @@ class ABACLADE_SYM codepoint_iterator_impl<true> {
 public:
    /*! Dereferencing operator.
 
-   return
+   @return
       Reference to the current character.
    */
    codepoint_proxy<true> operator*() const {
@@ -217,10 +217,10 @@ public:
 
    /*! Element access operator.
 
-   i
+   @param i
       Index relative to *this. If the resulting index is outside of the string’s [begin, end) range,
       an index_error exception will be thrown.
-   return
+   @return
       Reference to the specified item.
    */
    codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
@@ -229,7 +229,7 @@ public:
 
    /*! Returns the underlying iterator type.
 
-   return
+   @return
       Pointer to the value pointed to by this iterator.
    */
    char_t const * base() const {
@@ -238,7 +238,7 @@ public:
 
    /*! Returns the string that created this iterator.
 
-   return
+   @return
       Pointer to the value pointed to by this iterator.
    */
    str_base const * _str() const {
@@ -248,9 +248,9 @@ public:
 protected:
    /*! Constructor.
 
-   pch
+   @param pch
       Pointer to set the iterator to.
-   ps
+   @param ps
       Pointer to the string that is creating the iterator.
    */
    codepoint_iterator_impl(char_t const * pch, str_base const * ps) :
@@ -263,16 +263,16 @@ protected:
 
    /*! Computes the distance from another iterator/pointer.
 
-   pch
+   @param pch
       Pointer from which to calculate the distance.
-   return
+   @return
       Distance between *this and pch, in code points.
    */
    std::ptrdiff_t distance(char_t const * pch) const;
 
    /*! Throws an iterator_error if the specified pointer is the end of the string.
 
-   pch
+   @param pch
       Pointer to validate.
    */
    char_t const * throw_if_end(char_t const * pch) const;
@@ -352,11 +352,11 @@ class codepoint_iterator :
 public:
    /*! Constructor.
 
-   pch
+   @param pch
       Pointer to set the iterator to.
-   ps
+   @param ps
       Pointer to the string that is creating the iterator.
-   it
+   @param it
       Source iterator.
    */
    /*constexpr*/ codepoint_iterator() :
@@ -376,10 +376,10 @@ public:
 
    /*! Addition-assignment operator.
 
-   i
+   @param i
       Count of positions by which to advance the iterator. If the resulting iterator is outside of
       the string’s [begin, end] range, an iterator_error exception will be thrown.
-   return
+   @return
       *this after it’s moved forward by i positions.
    */
    codepoint_iterator & operator+=(std::ptrdiff_t i) {
@@ -389,10 +389,10 @@ public:
 
    /*! Subtraction-assignment operator.
 
-   i
+   @param i
       Count of positions by which to rewind the iterator. If the resulting iterator is outside of
       the string’s [begin, end] range, an iterator_error exception will be thrown.
-   return
+   @return
       *this after it’s moved backwards by i positions.
    */
    codepoint_iterator & operator-=(std::ptrdiff_t i) {
@@ -402,10 +402,10 @@ public:
 
    /*! Addition operator.
 
-   i
+   @param i
       Count of positions by which to advance the iterator. If the resulting iterator is outside of
       the string’s [begin, end] range, an iterator_error exception will be thrown.
-   return
+   @return
       Iterator that’s i items ahead of *this.
    */
    codepoint_iterator operator+(std::ptrdiff_t i) const {
@@ -414,12 +414,12 @@ public:
 
    /*! Subtraction/difference operator.
 
-   i
+   @param i
       Count of positions by which to rewind the iterator. If the resulting iterator is outside of
       the string’s [begin, end] range, an iterator_error exception will be thrown.
-   it
+   @param it
       Iterator from which to calculate the distance.
-   return
+   @return
       Iterator that’s i items behind *this (subtraction) or distance between *this and it, in code
       points (difference).
    */
@@ -434,7 +434,7 @@ public:
    /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
 
-   return
+   @return
       *this after it’s moved to the value following the one currently pointed to by.
    */
    codepoint_iterator & operator++() {
@@ -445,7 +445,7 @@ public:
    /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
    iterator_error exception will be thrown.
 
-   return
+   @return
       Iterator pointing to the value following the one pointed to by this iterator.
    */
    codepoint_iterator operator++(int) {
@@ -457,7 +457,7 @@ public:
    /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
 
-   return
+   @return
       *this after it’s moved to the value preceding the one currently pointed to by.
    */
    codepoint_iterator & operator--() {
@@ -468,7 +468,7 @@ public:
    /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
    iterator_error exception will be thrown.
 
-   return
+   @return
       Iterator pointing to the value preceding the one pointed to by this iterator.
    */
    codepoint_iterator operator--(int) {

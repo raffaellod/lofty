@@ -93,9 +93,9 @@ public:
    therefore consumed by the parser. This is inline-able for performance reasons, since it will need
    to be called on each input character.
 
-   ch
+   @param ch
       Character to be analyzed.
-   return
+   @return
       true if the character was consumed, or false otherwise.
    */
    bool consume_char(char_t ch) {
@@ -118,24 +118,24 @@ protected:
 
    /*! Assigns a null character (e.g. a space) with the current attributes to the specified area.
 
-   iRow
+   @param iRow
       Starting row index.
-   iCol
+   @param iCol
       Starting column index.
-   cch
+   @param cch
       Count of characters to fill, starting from (iRow, iCol).
    */
    virtual void clear_display_area(std::int16_t iRow, std::int16_t iCol, std::size_t cch) = 0;
 
    /*! Invoked when the current cursor position or display size are requested.
 
-   piRow
+   @param piRow
       If not nullptr, it points to a variable to be set to the cursor row index.
-   piCol
+   @param piCol
       If not nullptr, it points to a variable to be set to the cursor column index.
-   pcRows
+   @param pcRows
       If not nullptr, it points to a variable to be set to the display rows count.
-   pcCols
+   @param pcCols
       If not nullptr, it points to a variable to be set to the display columns count.
    */
    virtual void get_cursor_pos_and_display_size(
@@ -144,9 +144,9 @@ protected:
 
    /*! Scrolls the displayed text, adding empty rows/columns as necessary.
 
-   cRows
+   @param cRows
       Count of rows the text should be moved up (if positive) or down (if negative).
-   cCols
+   @param cCols
       Count of columns the text should be moved left (if positive) or right (if negative).
    */
    virtual void scroll_text(std::int16_t cRows, std::int16_t cCols) = 0;
@@ -156,23 +156,23 @@ protected:
 
    /*! Invoked to set the current cursor position.
 
-   iRow
+   @param iRow
       Row index the cursor is required to be moved to.
-   iCol
+   @param iCol
       Column index the cursor is required to be moved to.
    */
    virtual void set_cursor_pos(std::int16_t iRow, std::int16_t iCol) = 0;
 
    /*! Invoked to change the visibility of the cursor.
 
-   bVisible
+   @param bVisible
       true if the cursor is to be made visible, or false it it’s to be hidden.
    */
    virtual void set_cursor_visibility(bool bVisible) = 0;
 
    /*! Invoked to change the terminal window title.
 
-   sTitle
+   @param sTitle
       New window title.
    */
    virtual void set_window_title(istr const & sTitle) = 0;
@@ -181,9 +181,9 @@ private:
    /*! Implementation of consume_char() for when the parser state is “in sequence”, i.e. while
    parsing an escape sequence.
 
-   ch
+   @param ch
       Character to be analyzed.
-   return
+   @return
       true if the character was consumed, or false otherwise.
    */
    bool consume_sequence_char(char_t ch);
@@ -202,7 +202,7 @@ private:
 
    /*! Executes the sequence as accumulated in the member variables.
 
-   chCmd
+   @param chCmd
       Last character of the sequence, indicating the command to execute.
    */
    void run_sequence(char_t chCmd);
@@ -212,14 +212,14 @@ private:
 
    /*! Set the current cursor position, keeping it constrained to the display size.
 
-   iRow
+   @param iRow
       New cursor row.
-   iCol
+   @param iCol
       New cursor column.
-   bAbsoluteRow
+   @param bAbsoluteRow
       If true, iRow is interpreted as an absolute 0-based row number; if false, it’s applied as a
       delta from the current row.
-   bAbsoluteCol
+   @param bAbsoluteCol
       If true, iCol is interpreted as an absolute 0-based column number; if false, it’s applied as a
       delta from the current column.
    */

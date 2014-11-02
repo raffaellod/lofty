@@ -65,9 +65,9 @@ class to_str_backend<text::detail::codepoint_proxy<t_bConst>> : public to_str_ba
 public:
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
-   cpp
+   @param cpp
       Code point to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(text::detail::codepoint_proxy<t_bConst> const & cpp, io::text::writer * ptwOut) {
@@ -88,9 +88,9 @@ class to_str_backend<text::codepoint_iterator<t_bConst>> :
 public:
    /*! Writes a code point iterator as a pointer, applying the formatting options.
 
-   it
+   @param it
       Iterator to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(text::codepoint_iterator<t_bConst> const & it, io::text::writer * ptwOut) {

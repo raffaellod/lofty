@@ -36,11 +36,11 @@ public:
    /*! Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
    [DOC:1502 KMP substring search] for how this is built and used.
 
-   pchNeedleBegin
+   @param pchNeedleBegin
       Pointer to the beginning of the search string.
-   pchNeedleEnd
+   @param pchNeedleEnd
       Pointer to the end of the search string.
-   pvcchFailNext
+   @param pvcchFailNext
       Pointer to a vector that will receive the failure restart indices.
    */
    static void _build_find_failure_restart_table(
@@ -50,15 +50,15 @@ public:
 
    /*! Compares two strings.
 
-   pch1Begin
+   @param pch1Begin
       Pointer to the first character of the first string to compare.
-   pch1End
+   @param pch1End
       Pointer to beyond the last character of the string to compare.
-   pch2Begin
+   @param pch2Begin
       Pointer to the first character of the second string to compare.
-   pch2End
+   @param pch2End
       Pointer to beyond the last character of the second string to compare.
-   return
+   @return
       Standard comparison result integer:
       •  > 0 if string 1 > string 2;
       •    0 if string 1 == string 2;
@@ -73,16 +73,16 @@ public:
    matches are found. The overload taking a char_t pointer allows to search for the encoded
    representation of any code point.
 
-   pchHaystackBegin
+   @param pchHaystackBegin
       Pointer to the first character of the string to be searched.
-   pchHaystackEnd
+   @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   chNeedle
+   @param chNeedle
       Code point to search for.
-   pchNeedle
+   @param pchNeedle
       Pointer to the encoded code point (UTF character sequence) to search for; its length is
       deduced automatically.
-   return
+   @return
       Pointer to the beginning of the first match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
@@ -108,13 +108,13 @@ public:
    /*! Returns a pointer to the last occurrence of a character in a string, or pchHaystackBegin if
    no matches are found.
 
-   pchHaystackBegin
+   @param pchHaystackBegin
       Pointer to the first character of the string to be searched.
-   pchHaystackEnd
+   @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   chNeedle
+   @param chNeedle
       Code point to search for.
-   return
+   @return
       Pointer to the beginning of the last match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
@@ -136,15 +136,15 @@ public:
 
    /*! Returns the character index of the first occurrence of a string into another.
 
-   pchHaystackBegin
+   @param pchHaystackBegin
       Pointer to the first character of the string to be searched.
-   pchHaystackEnd
+   @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   pchNeedleBegin
+   @param pchNeedleBegin
       Pointer to the first character of the string to search for.
-   pchNeedleEnd
+   @param pchNeedleEnd
       Pointer to beyond the last character of the string to search for.
-   return
+   @return
       Pointer to the beginning of the first match, in the string to be searched, of the string to
       search for, or nullptr if no matches are found.
    */
@@ -155,15 +155,15 @@ public:
 
    /*! Returns the character index of the last occurrence of a string into another.
 
-   pchHaystackBegin
+   @param pchHaystackBegin
       Pointer to the first character of the string to be searched.
-   pchHaystackEnd
+   @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   pchNeedleBegin
+   @param pchNeedleBegin
       Pointer to the first character of the string to search for.
-   pchNeedleEnd
+   @param pchNeedleEnd
       Pointer to beyond the last character of the string to search for.
-   return
+   @return
       Pointer to the beginning of the last match, in the string to be searched, of the string to
       search for, or nullptr if no matches are found.
    */
@@ -174,26 +174,26 @@ public:
 
    /*! Returns count of code points in a string.
 
-   pchBegin
+   @param pchBegin
       Pointer to the beginning of the string.
-   pchEnd
+   @param pchEnd
       Pointer to the end of the string.
-   return
+   @return
       Count of code points included in the string.
    */
    static std::size_t size_in_codepoints(char_t const * pchBegin, char_t const * pchEnd);
 
    /*! Validates the character in a string.
 
-   pchBegin
+   @param pchBegin
       Pointer to the first character of the string to validate.
-   pchEnd
+   @param pchEnd
       Pointer to beyond the last character of the string to validate.
-   bThrowOnErrors
+   @param bThrowOnErrors
       If true, an exception of type abc::text::decode_error will be thrown if any invalid characters
       are found; otherwise the presence of errors will be reported via the return value of the
       function.
-   return
+   @return
       true if the string is valid UTF-8, or false otherwise.
    */
    static bool validate(
