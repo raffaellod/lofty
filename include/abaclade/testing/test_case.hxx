@@ -471,13 +471,11 @@ instance.
    Test case class.
 */
 #define ABC_TESTING_REGISTER_TEST_CASE(cls) \
-   namespace abc { \
-   namespace testing { \
+   namespace { \
    \
-   static test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
+   ::abc::testing::test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
    \
-   } /*namespace testing*/ \
-   } /*namespace abc*/
+   } /*namespace*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
