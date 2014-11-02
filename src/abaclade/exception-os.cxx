@@ -1155,14 +1155,14 @@ exception::async_handler_manager::async_handler_manager() {
    saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
 
    // Setup handlers for the signals in g_aiHandledSignals.
-   for (std::ptrdiff_t i = ABC_COUNTOF(g_aiHandledSignals); --i >= 0; ) {
+   for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
       ::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
    }
 }
 
 exception::async_handler_manager::~async_handler_manager() {
    // Restore the saved signal handlers.
-   for (std::ptrdiff_t i = ABC_COUNTOF(g_aiHandledSignals); --i >= 0; ) {
+   for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
       ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], nullptr);
    }
 }
