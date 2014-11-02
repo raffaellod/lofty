@@ -176,7 +176,7 @@ private:
    std::size_t bucket_index_from_key(TKey const & key, std::size_t iHash) const {
       // Get a range of indices representing the neighborhood.
       std::size_t iNeighborhoodBegin = neighborhood_index_from_hash(iHash);
-      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + smc_cNeighborhoodBuckets;
+      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
       /* Determine if we’ll need to check any buckets at the beginning of the array due to the
       neighborhood wrapping. */
       std::size_t iWrappedNeighborhoodEnd;
@@ -213,6 +213,16 @@ private:
 
    TKey & get_key(std::size_t i) const {
       return reinterpret_cast<TKey *>(m_pkeys.get())[i];
+   }
+
+   /*! Returns the current neighborhood size.
+
+   @return
+      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
+   */
+   std::size_t get_neighborhood_size() const {
+      // Can’t have a neighborhood larger than the total count of buckets.
+      return std::min(smc_cNeighborhoodBuckets, m_cBuckets);
    }
 
    TValue & get_value(std::size_t i) const {
