@@ -40,6 +40,28 @@ public:
    //! Hash generator for TKey.
    typedef THasher hasher;
 
+   //! Iterator type.
+   class iterator {
+   public:
+      /*! Constructor.
+
+      @param pmap
+         Pointer to the map owning the iterated objects.
+      @param iBucket
+         Index of the current bucket.
+      */
+      iterator(map const * pmap, std::size_t iBucket) :
+         mc_pmap(pmap),
+         m_iBucket(iBucket) {
+      }
+
+   private:
+      //! Pointer to the map to iterate over.
+      map const * const mc_pmap;
+      //! Current bucket index.
+      std::size_t m_iBucket;
+   };
+
 public:
    /*! Constructor.
 
@@ -94,7 +116,15 @@ public:
       return m_pvalues[iBucket];
    }
 
-   void add(TKey key, TValue value) {
+   /*! Adds a key/value pair to the map.
+
+   @param key
+      Key to add.
+   @param value
+      Value to add.
+   */
+   iterator add(TKey key, TValue value) {
+      return iterator(this, 0);
    }
 
    //! Removes all elements from the map.
