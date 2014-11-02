@@ -45,42 +45,42 @@ struct type_void_adapter {
 public:
    /*! Prototype of a function that copies items from one array to another.
 
-   pDstBegin
+   @param pDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   pSrcBegin
+   @param pSrcBegin
       Pointer to the first item to copy.
-   pSrcEnd
+   @param pSrcEnd
       Pointer to beyond the last item to copy.
    */
    typedef void (* copy_fn)(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd);
 
    /*! Prototype of a function that destructs a range of items in an array.
 
-   pBegin
+   @param pBegin
       Pointer to the first item to destruct.
-   pEnd
+   @param pEnd
       Pointer to beyond the last item to destruct.
    */
    typedef void (* destr_fn)(void const * pBegin, void const * pEnd);
 
    /*! Prototype of a function that compares two values for equality.
 
-   p1
+   @param p1
       Pointer to the first item.
-   p2
+   @param p2
       Pointer to the second item.
-   return
+   @return
       true if the items are equal, or false otherwise.
    */
    typedef bool (* equal_fn)(void const * p1, void const * p2);
 
    /*! Prototype of a function that moves items from one array to another.
 
-   pDstBegin
+   @param pDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   pSrcBegin
+   @param pSrcBegin
       Pointer to the first item to move.
-   pSrcEnd
+   @param pSrcEnd
       Pointer to beyond the last item to move.
    */
    typedef void (* move_fn)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
@@ -165,17 +165,17 @@ private:
    /*! Copies a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   ptDstBegin
+   @param ptDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   ptSrcBegin
+   @param ptSrcBegin
       Pointer to the first item to copy.
-   ptSrcEnd
+   @param ptSrcEnd
       Pointer to beyond the last item to copy.
    */
 #if ABC_HOST_MSC
-   // MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
-   // version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
-   // saying it doesn’t know which one to choose.
+   /* MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
+   version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
+   saying it doesn’t know which one to choose. */
    template <typename T>
    static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
@@ -233,9 +233,9 @@ private:
 
    /*! Destructs a range of items in an array.
 
-   ptBegin
+   @param ptBegin
       Pointer to the first item to destruct.
-   ptEnd
+   @param ptEnd
       Pointer to beyond the last item to destruct.
    */
    template <typename T>
@@ -250,11 +250,11 @@ private:
 
    /*! Compares two values for equality.
 
-   pt1
+   @param pt1
       Pointer to the first item.
-   pt2
+   @param pt2
       Pointer to the second item.
-   return
+   @return
       true if the items are equal, or false otherwise.
    */
    template <typename T>
@@ -265,11 +265,11 @@ private:
    /*! Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
 
-   ptDstBegin
+   @param ptDstBegin
       Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   ptSrcBegin
+   @param ptSrcBegin
       Pointer to the first item to copy.
-   ptSrcEnd
+   @param ptSrcEnd
       Pointer to beyond the last item to copy.
    */
    template <typename T>

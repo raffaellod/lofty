@@ -67,7 +67,7 @@ class ABACLADE_SYM scope_trace_tuple : public noncopyable {
 public:
    /*! Returns a scope_trace_tuple containing references to the provided arguments.
 
-   ts
+   @param ts
       Arguments.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -128,7 +128,7 @@ public:
 
    /*! Writes the current value of the tuple’s variables.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    virtual void write(io::text::writer * ptwOut) const = 0;
@@ -136,7 +136,7 @@ public:
 protected:
    /*! Writes an argument separator.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    static void write_separator(io::text::writer * ptwOut);
@@ -353,11 +353,11 @@ class ABACLADE_SYM scope_trace : public noncopyable {
 public:
    /*! Constructor.
 
-   srcloc
+   @param srcloc
       Source location.
-   pszFunction
+   @param pszFunction
       Function name.
-   tplVars
+   @param tplVars
       Variables to capture.
    */
    scope_trace(scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars);
@@ -368,7 +368,7 @@ public:
    /*! Returns a writer to which the stack frame can be output. The writer is thread-local, which is
    why this can’t be just a static member variable.
 
-   return
+   @return
       Pointer to the string text writer containing the current stack trace.
    */
    static io::text::str_writer * get_trace_writer() {
@@ -403,7 +403,7 @@ public:
    /*! Walks the single-linked list of scope_trace instances for the current thread, writing each
    one to the specified writer.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    static void write_list(io::text::writer * ptwOut);
@@ -411,9 +411,9 @@ public:
 private:
    /*! Writes the scope trace to the specified writer.
 
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
-   iStackDepth
+   @param iStackDepth
       Stack index to print next to the trace.
    */
    void write(io::text::writer * ptwOut, unsigned iStackDepth) const;

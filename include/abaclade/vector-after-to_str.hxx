@@ -58,7 +58,7 @@ class to_str_backend<vector_base<T>> : public detail::vector_to_str_backend {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat) {
@@ -70,9 +70,9 @@ public:
 
    /*! Writes a vector, applying the formatting options.
 
-   v
+   @param v
       Vector to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(vector_base<T> const & v, io::text::writer * ptwOut) {

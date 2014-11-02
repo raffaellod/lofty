@@ -74,11 +74,11 @@ class ABACLADE_SYM path : public support_explicit_operator_bool<path> {
 public:
    /*! Constructor.
 
-   op
+   @param op
       Source path.
-   s
+   @param s
       Source string.
-   return
+   @return
       *this.
    */
    path() {
@@ -95,11 +95,11 @@ public:
 
    /*! Assignment operator.
 
-   op
+   @param op
       Source path.
-   s
+   @param s
       Source string.
-   return
+   @return
       *this.
    */
    path & operator=(path const & op) {
@@ -117,7 +117,7 @@ public:
 
    /*! Returns true if the path length is greater than 0.
 
-   return
+   @return
       true if the length of the path string is greater than 0, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -126,7 +126,7 @@ public:
 
    /*! Automatic cast to string.
 
-   return
+   @return
       An immutable, constant reference to the internal path string.
    */
    operator istr const &() const {
@@ -135,9 +135,9 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   s
+   @param s
       String to append.
-   return
+   @return
       *this.
    */
    path & operator+=(istr const & s) {
@@ -147,9 +147,9 @@ public:
 
    /*! Concatenation operator.
 
-   s
+   @param s
       String to append.
-   return
+   @return
       Resulting path.
    */
    path operator+(istr const & s) const {
@@ -159,18 +159,18 @@ public:
    /*! Path-correct concatenation-assignment operator. Joins the current path with the provided
    string, inserting a separator if necessary.
 
-   s
+   @param s
       Path component(s) to append.
-   return
+   @return
       *this.
    */
    path & operator/=(istr const & s);
 
    /*! Path-correct concatenation operator. See operator/=() for details.
 
-   s
+   @param s
       Path component(s) to append.
-   return
+   @return
       Resulting path.
    */
    path operator/(istr const & s) const {
@@ -182,21 +182,21 @@ public:
    current directory for each volume, so the base directory will be different depending on whether
    the path includes a volume designator and on which volume it identifies.
 
-   return
+   @return
       Absolute, normalized path.
    */
    path absolute() const;
 
    /*! Returns the base name of (last component in) the path.
 
-   return
+   @return
       Last component in the path.
    */
    path base_name() const;
 
    /*! Returns the current working directory (${PWD} in POSIX, %CD% in Windows).
 
-   return
+   @return
       Current directory.
    */
    static path current_dir();
@@ -204,9 +204,9 @@ public:
 #if ABC_HOST_API_WIN32
    /*! Returns the current directory for the specified volume.
 
-   chVolume
+   @param chVolume
       Volume designator.
-   return
+   @return
       Current directory in chVolume.
    */
    static path current_dir_for_volume(char_t chVolume);
@@ -223,7 +223,7 @@ public:
    /*! Returns true if the path is in absolute form. Under Win32, this means that the path is
    prefixed with “\\?\”, e.g. “\\?\C:\my\path”.
 
-   return
+   @return
       true if the path is absolute, or false otherwise.
    */
    bool is_absolute() const {
@@ -232,14 +232,14 @@ public:
 
    /*! Returns true if the path represents a directory.
 
-   return
+   @return
       true if the path represents a directory, of false otherwise.
    */
    bool is_dir() const;
 
    /*! Returns true if the path is absolute and this->parent_dir() == *this.
 
-   return
+   @return
       true if the path represents a root directory, of false otherwise.
    */
    bool is_root() const {
@@ -249,7 +249,7 @@ public:
    /*! Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
    resulting replacements may lead to a different path if the original path includes symbolic links.
 
-   return
+   @return
       Normalized path.
    */
    path normalize() const;
@@ -267,7 +267,7 @@ public:
       slashes to represent path separators, or a period to represent the current directory, or
       double dots to represent the parent directory.”
 
-   return
+   @return
       String representation of the path suitable for use with the OS’s file API.
    */
 #if ABC_HOST_API_POSIX
@@ -283,21 +283,21 @@ public:
 
    /*! Returns the directory containing the path.
 
-   return
+   @return
       Parent directory of the path.
    */
    path parent_dir() const;
 
    /*! Returns the root (POSIX) or the Win32 File Namespace root (Win32).
 
-   return
+   @return
       Root directory.
    */
    static path root();
 
    /*! Returns the platform-dependent path component separator.
 
-   return
+   @return
       Path component separator.
    */
    static istr separator() {
@@ -306,7 +306,7 @@ public:
 
    /*! Returns the count of characters in the path.
 
-   return
+   @return
       Count of characters.
    */
    std::size_t size() const {
@@ -318,7 +318,7 @@ private:
    “/a”, “/b/a” (POSIX), “\\?\UNC\a”, “\\?\UNC\b\a”, “\\?\X:\a”, “\\?\X:\b\a”, “\a”, “\b\a”, “X:a”
    “X:b\a” (Win32).
 
-   return
+   @return
       Iterator pointing to the first character of the final component in m_s, or the beginning of
       m_s if the path does not contain a root component/prefix.
    */
@@ -330,12 +330,12 @@ private:
    they represent relative paths in Win32: “\a” is relative to the current directory’s volume
    designator, “X:a” is relative to the current directory for volume designator X.
 
-   s
+   @param s
       Path to parse. Must comply with the rules set for abc::os::path’s internal representation.
-   bIncludeNonRoot
+   @param bIncludeNonRoot
       If true, non-absolute prefixes such as “\” and ”X:” (Win32) will be considered root prefixes;
       if false, they won’t.
-   return
+   @return
       Length of the root part in s, or 0 if s does not start with a root part.
    */
    static std::size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
@@ -345,9 +345,9 @@ private:
    volume designator (e.g. “C:\my\path”) is not considered absolute, as far as abc::os::path is
    concerned (and it will never be stored as-is in m_s either).
 
-   s
+   @param s
       Path to parse. Must comply with the rules set for abc::os::path’s internal representation.
-   return
+   @return
       true if s represents an absolute path, or false otherwise.
    */
    static bool is_absolute(istr const & s);
@@ -359,9 +359,9 @@ private:
    •  (Win32 only) Prefixes absolute paths (e.g. “C:\my\path”) with the Win32 File Namespace prefix
       (e.g. “\\?\C:\my\path”).
 
-   s
+   @param s
       Path to parse.
-   return
+   @return
       Path suitable for abc::os::path’s internal representation.
    */
    static dmstr validate_and_adjust(dmstr s);
@@ -426,16 +426,16 @@ class ABACLADE_SYM to_str_backend<os::path> : public to_str_backend<istr> {
 public:
    /*! Changes the output format.
 
-   sFormat
+   @param sFormat
       Formatting options.
    */
    void set_format(istr const & sFormat);
 
    /*! Writes a string, applying the formatting options.
 
-   op
+   @param op
       Path to write.
-   ptwOut
+   @param ptwOut
       Pointer to the writer to output to.
    */
    void write(os::path const & op, io::text::writer * ptwOut);
@@ -572,7 +572,7 @@ class ABACLADE_SYM file_not_found_error :
 public:
    /*! Constructor.
 
-   x
+   @param x
       Source error.
    */
    file_not_found_error();
@@ -583,7 +583,7 @@ public:
 
    /*! Returns the path that couldn’t be found.
 
-   return
+   @return
       Path that couldn’t be found at the moment it was accessed.
    */
    os::path const & path() const {
@@ -592,9 +592,9 @@ public:
 
    /*! See abc::environment_error::init().
 
-   opNotFound
+   @param opNotFound
       Path that couldn’t be found.
-   err
+   @param err
       OS-defined error number associated to the exception.
    */
    void init(abc::os::path const & opNotFound, errint_t err = 0);

@@ -301,7 +301,7 @@ public:
 
    /*! Returns a pointer to the start of the item array.
 
-   return
+   @return
       Pointer to the first item.
    */
    template <typename T>
@@ -315,7 +315,7 @@ public:
 
    /*! Returns the count of item slots in the current item array.
 
-   return
+   @return
       Size of the item array.
    */
    template <typename T>
@@ -326,7 +326,7 @@ public:
 
    /*! Returns a pointer to the end of the item array.
 
-   return
+   @return
       Pointer to beyond the last item.
    */
    template <typename T>
@@ -340,7 +340,7 @@ public:
 
    /*! Returns the count of items in the item array.
 
-   return
+   @return
       Size of the item array.
    */
    template <typename T>
@@ -366,13 +366,13 @@ protected:
    m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
    item array.
 
-   cbEmbeddedCapacity
+   @param cbEmbeddedCapacity
       Size of the embedded prefixed item array, in bytes, or 0 if no embedded item array is present.
-   pConstSrcBegin
+   @param pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
-   pConstSrcEnd
+   @param pConstSrcEnd
       Pointer to the end of the array.
-   bNulT
+   @param bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
    raw_vextr_impl_base(std::size_t cbEmbeddedCapacity);
@@ -396,7 +396,7 @@ protected:
 
    /*! Copies the data members of the source to *this.
 
-   rvib
+   @param rvib
       Source vextr.
    */
    void assign_shallow(raw_vextr_impl_base const & rvib) {
@@ -410,11 +410,11 @@ protected:
    /*! Calculates the new capacity for the item array for growing from cbOld to cbNew bytes while
    attempting to reduce future allocations for subsequent size increases.
 
-   cbOld
+   @param cbOld
       Previous (current) item array size, in bytes.
-   cbNew
+   @param cbNew
       New (future) item array size, in bytes.
-   return
+   @return
       New item array capacity, in bytes.
    */
    static std::size_t calculate_increased_capacity(std::size_t cbOld, std::size_t cbNew);
@@ -422,7 +422,7 @@ protected:
    /*! Returns a pointer to the current prefixed item array, or nullptr if the current item array is
    not prefixed.
 
-   return
+   @return
       Pointer to the prefixed item array, or nullptr if not applicable.
    */
    _prefixed_item_array * prefixed_item_array() {
@@ -443,7 +443,7 @@ protected:
 
    /*! Returns a pointer to the embedded prefixed item array that follows this object, if present.
 
-   return
+   @return
       Pointer to the embedded item array, or nullptr otherwise.
    */
    _prefixed_item_array * embedded_prefixed_item_array() {
@@ -473,10 +473,10 @@ protected:
    /*! Converts a possibly negative item byte offset into a pointer into the item array, throwing an
    index_error exception if the result is out of bounds for the item array.
 
-   ib
+   @param ib
       If positive, this is interpreted as a 0-based byte offset; if negative, it’s interpreted as a
       1-based byte offset from the end of the item array by adding this->size<std::int8_t>() to it.
-   return
+   @return
       Pointer to the item.
    */
    void const * translate_offset(std::ptrdiff_t ib) const;
@@ -484,15 +484,15 @@ protected:
    /*! Converts a left-closed, right-open interval with possibly negative byte offsets into one
    consisting of two pointers into the item array.
 
-   ibBegin
+   @param ibBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based byte
       offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
       by adding this->size<std::int8_t>() to it.
-   ibEnd
+   @param ibEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based byte
       offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
       by adding this->size<std::int8_t>() to it.
-   return
+   @return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
    */
@@ -504,7 +504,7 @@ protected:
    array, throwing an index_error exception if it doesn’t. Similar to validate_pointer_noend(), but
    it accepts a pointer to the end of the item array.
 
-   p
+   @param p
       Pointer to validate.
    */
    void validate_pointer(void const * p) const;
@@ -513,7 +513,7 @@ protected:
    index_error exception if it doesn’t. Similar to validate_pointer(), but it rejects a pointer to
    the end of the item array.
 
-   p
+   @param p
       Pointer to validate.
    */
    void validate_pointer_noend(void const * p) const;
@@ -547,15 +547,15 @@ class ABACLADE_SYM raw_vextr_transaction : public noncopyable {
 public:
    /*! Constructor.
 
-   prvib
+   @param prvib
       Subject of the transaction.
-   bTrivial
+   @param bTrivial
       If true, the items are of a trivial type; if false, they’re not.
-   cbNew
+   @param cbNew
       New item array size, in bytes.
-   cbAdd
+   @param cbAdd
       Item array size increase, in bytes.
-   cbRemove
+   @param cbRemove
       Item array size decrease, in bytes.
    */
    raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew);
@@ -578,7 +578,7 @@ public:
 
    /*! Returns the work item array.
 
-   return
+   @return
       Pointer to the working item array.
    */
    template <typename T>
@@ -590,7 +590,7 @@ public:
    switching item arrays. If the array was/will be only resized, the return value is false, because
    the reallocation did/will take care of moving the item array.
 
-   return
+   @return
       true if the pointer to the item array will be changed upon destruction, or false otherwise.
    */
    bool will_replace_item_array() const {
@@ -600,9 +600,9 @@ public:
 private:
    /*! Completes construction of the object.
 
-   bTrivial
+   @param bTrivial
       If true, the items are of a trivial type; if false, they’re not.
-   cbNew
+   @param cbNew
       New item array size, in bytes.
    */
    void _construct(bool bTrivial, std::size_t cbNew);
@@ -636,17 +636,17 @@ public:
    bMove{1,2} == true, the source items will be moved by having their const-ness cast away ‒ be
    careful.
 
-   type
+   @param type
       Adapter for the items’ type.
-   p1Begin
+   @param p1Begin
       Pointer to the start of the first source array.
-   p1End
+   @param p1End
       Pointer to the end of the first source array.
-   p2Begin
+   @param p2Begin
       Pointer to the start of the second source array.
-   p2End
+   @param p2End
       Pointer to the end of the second source array.
-   iMove
+   @param iMove
       Pass 1 to move the items from the first source array to the vextr’s item array, 2 to move the
       items from the second source array, or 3 to move both, or 0 to copy them all instead.
    */
@@ -657,11 +657,11 @@ public:
 
    /*! Copies the contents of the source to *this.
 
-   type
+   @param type
       Adapter for the items’ type.
-   pBegin
+   @param pBegin
       Pointer to the start of the source array.
-   pEnd
+   @param pEnd
       Pointer to the end of the source array.
    */
    void assign_copy(type_void_adapter const & type, void const * pBegin, void const * pEnd) {
@@ -676,9 +676,9 @@ public:
    /*! Moves the contents of the source to *this, taking ownership of the whole item array (items
    are not moved nor copied).
 
-   type
+   @param type
       Adapter for the items’ type.
-   rcvi
+   @param rcvi
       Source vextr.
    */
    void assign_move(type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
@@ -686,9 +686,9 @@ public:
    /*! Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
    items instead.
 
-   type
+   @param type
       Adapter for the items’ type.
-   rcvi
+   @param rcvi
       Source vextr.
    */
    void assign_move_dynamic_or_move_items(
@@ -697,7 +697,7 @@ public:
 
    /*! Destructs the item array. It does not deallocate the item array.
 
-   type
+   @param type
       Adapter for the items’ type.
    */
    void destruct_items(type_void_adapter const & type) {
@@ -706,15 +706,15 @@ public:
 
    /*! Inserts items at a specific position in the vextr.
 
-   type
+   @param type
       Adapter for the items’ type.
-   ibOffset
+   @param ibOffset
       Byte index at which the items should be inserted.
-   pInsert
+   @param pInsert
       Pointer to the first item to insert.
-   cbInsert
+   @param cbInsert
       Size of the array pointed to by pInsert, in bytes.
-   bMove
+   @param bMove
       true to move the items from pInsert to the vextr’s item array, or false to copy them instead.
    */
    void insert(
@@ -724,11 +724,11 @@ public:
 
    /*! Removes items from the vextr.
 
-   type
+   @param type
       Adapter for the items’ type.
-   ibOffset
+   @param ibOffset
       Byte index at which the items should be removed.
-   cbRemove
+   @param cbRemove
       Size of the array slice to remove, in bytes.
    */
    void remove(type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove);
@@ -737,11 +737,11 @@ public:
    switch to using a different item array, any data in the current one will be lost unless bPreserve
    == true.
 
-   type
+   @param type
       Adapter for the items’ type.
-   cbMin
+   @param cbMin
       Minimum size of items requested, in bytes.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
@@ -752,9 +752,9 @@ public:
    items are properly constructed, or problems will arise when the destructor will attempt to
    destruct these items.
 
-   type
+   @param type
       Adapter for the items’ type.
-   cb
+   @param cb
       New size of the items, in bytes.
    */
    void set_size(type_void_adapter const & type, std::size_t cb);
@@ -785,13 +785,13 @@ public:
    /*! Copies the contents of the two sources to *this. This method must never be called with p1 or
    p2 == m_pBegin.
 
-   p1Begin
+   @param p1Begin
       Pointer to the start of the first source array.
-   p1End
+   @param p1End
       Pointer to the end of the first source array.
-   p2Begin
+   @param p2Begin
       Pointer to the start of the second source array.
-   p2End
+   @param p2End
       Pointer to the end of the second source array.
    */
    void assign_concat(
@@ -800,9 +800,9 @@ public:
 
    /*! Copies the contents of the source array to *this.
 
-   pBegin
+   @param pBegin
       Pointer to the start of the source array.
-   pEnd
+   @param pEnd
       Pointer to the end of the source array.
    */
    void assign_copy(void const * pBegin, void const * pEnd) {
@@ -818,7 +818,7 @@ public:
    non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::*str and
    abc::*vector design] to see how str and vector ensure this.
 
-   rtvi
+   @param rtvi
       Source vextr.
    */
    void assign_move(raw_trivial_vextr_impl && rtvi);
@@ -826,7 +826,7 @@ public:
    /*! Moves the source’s item array if dynamically-allocated, else copies its items (not move –
    items are trivial) to *this.
 
-   rtvi
+   @param rtvi
       Source vextr.
    */
    void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi);
@@ -834,20 +834,20 @@ public:
    /*! Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
    prefixed item array for *this.
 
-   rtvi
+   @param rtvi
       Source vextr.
    */
    void assign_share_raw_or_copy_desc(raw_trivial_vextr_impl const & rtvi);
 
    /*! Inserts or removes items at a specific position in the vextr.
 
-   ibOffset
+   @param ibOffset
       Byte index at which the items should be inserted or removed.
-   pInsert
+   @param pInsert
       Pointer to the first item to insert.
-   cbInsert
+   @param cbInsert
       Size of the array pointed to be pInsert, in bytes.
-   cbRemove
+   @param cbRemove
       Size of the slice of item array to remove, in bytes.
    */
    void insert_remove(
@@ -862,9 +862,9 @@ public:
    switch to using a different item array, any data in the current one will be lost unless bPreserve
    == true.
 
-   cbMin
+   @param cbMin
       Minimum size of items requested, in bytes.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
@@ -873,7 +873,7 @@ public:
    /*! Changes the count of items in the vextr. If the item array needs to be lengthened, the added
    items will be left uninitialized.
 
-   cb
+   @param cb
       New size of the items, in bytes.
    */
    void set_size(std::size_t cb);

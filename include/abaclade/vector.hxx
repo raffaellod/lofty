@@ -46,13 +46,13 @@ public:
 
    /*! Moves the contents of the two sources to *this.
 
-   p1Begin
+   @param p1Begin
       Pointer to the start of the first source array.
-   p1End
+   @param p1End
       Pointer to the end of the first source array.
-   p2Begin
+   @param p2Begin
       Pointer to the start of the second source array.
-   p2End
+   @param p2End
       Pointer to the end of the second source array.
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
@@ -79,11 +79,11 @@ public:
 
    /*! Inserts elements at a specific position in the vector by moving them.
 
-   ptOffset
+   @param ptOffset
       Pointer to where the elements should be inserted.
-   ptInsert
+   @param ptInsert
       Pointer to the first element to insert.
-   ciInsert
+   @param ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
@@ -103,9 +103,9 @@ public:
 
    /*! Removes a slice from the vector.
 
-   ptRemoveBegin
+   @param ptRemoveBegin
       Pointer to the first element to remove.
-   ptRemoveEnd
+   @param ptRemoveEnd
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
@@ -125,9 +125,9 @@ public:
 
    /*! See raw_complex_vextr_impl::set_capacity().
 
-   ciMin
+   @param ciMin
       Minimum count of elements requested.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the vector will be preserved even if the reallocation causes
       the vector to switch to a different item array.
    */
@@ -143,7 +143,7 @@ public:
    TODO: destruct in raw_complex_vextr_impl::set_size() any elements being taken out, and default-
    construct the newly-created elements here.
 
-   ci
+   @param ci
       New element count, in bytes.
    */
    void set_size(std::size_t ci) {
@@ -194,11 +194,11 @@ public:
 
    /*! Inserts elements at a specific position in the vector by copying them.
 
-   ptOffset
+   @param ptOffset
       Pointer to where the elements should be inserted.
-   ptInsert
+   @param ptInsert
       Pointer to the first element to insert.
-   ciInsert
+   @param ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
@@ -248,13 +248,13 @@ public:
 
    /*! Moves the contents of the two sources to *this.
 
-   p1Begin
+   @param p1Begin
       Pointer to the start of the first source array.
-   p1End
+   @param p1End
       Pointer to the end of the first source array.
-   p2Begin
+   @param p2Begin
       Pointer to the start of the second source array.
-   p2End
+   @param p2End
       Pointer to the end of the second source array.
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
@@ -273,11 +273,11 @@ public:
 
    /*! Inserts elements at a specific position in the vector.
 
-   ptOffset
+   @param ptOffset
       Pointer to where the elements should be inserted.
-   ptInsert
+   @param ptInsert
       Pointer to the first element to insert.
-   ciInsert
+   @param ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
@@ -293,11 +293,11 @@ public:
    /*! Inserts one or more elements. Semantically this is supposed to move them, but for trivial
    types that’s the same as copying them.
 
-   ptOffset
+   @param ptOffset
       Pointer to where the elements should be inserted.
-   ptInsert
+   @param ptInsert
       Pointer to the first element to insert.
-   ciInsert
+   @param ciInsert
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
@@ -312,9 +312,9 @@ public:
 
    /*! Removes elements from the vector.
 
-   ptRemoveBegin
+   @param ptRemoveBegin
       Pointer to the first element to remove.
-   ptRemoveEnd
+   @param ptRemoveEnd
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
@@ -330,9 +330,9 @@ public:
 
    /*! See raw_trivial_vextr_impl::set_capacity().
 
-   ciMin
+   @param ciMin
       Minimum count of elements requested.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the vector will be preserved even if the reallocation causes
       the vector to switch to a different item array.
    */
@@ -345,7 +345,7 @@ public:
    TODO: maybe default-construct the newly-created elements here for consistency with the non-
    trivial specialization?
 
-   ci
+   @param ci
       New element count, in bytes.
    */
    void set_size(std::size_t ci) {
@@ -412,9 +412,9 @@ public:
 public:
    /*! Element access operator.
 
-   i
+   @param i
       Element index. See abc::vector_base::translate_index() for allowed index values.
-   return
+   @return
       Element at index i.
    */
    T const & operator[](std::ptrdiff_t i) const {
@@ -423,7 +423,7 @@ public:
 
    /*! Returns true if the length is greater than 0.
 
-   return
+   @return
       true if the vector is not empty, or false otherwise.
    */
    explicit_operator_bool() const {
@@ -434,9 +434,9 @@ public:
 
    /*! Equality relational operator.
 
-   v
+   @param v
       Object to compare to *this.
-   return
+   @return
       true if *this has the same count and value of elements as v, or false otherwise.
    */
    bool operator==(vector_base const & v) const {
@@ -466,9 +466,9 @@ public:
 
    /*! Inequality relational operator.
 
-   v
+   @param v
       Object to compare to *this.
-   return
+   @return
       true if *this has different count or value of elements as v, or false otherwise.
    */
    bool operator!=(vector_base const & v) const {
@@ -477,7 +477,7 @@ public:
 
    /*! Returns a forward iterator set to the first element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator begin() const {
@@ -486,7 +486,7 @@ public:
 
    /*! Returns the maximum number of elements the array can currently hold.
 
-   return
+   @return
       Current size of the item array storage, in elements.
    */
    std::size_t capacity() const {
@@ -495,7 +495,7 @@ public:
 
    /*! Returns a const forward iterator set to the first element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
@@ -504,7 +504,7 @@ public:
 
    /*! Returns a const forward iterator set beyond the last element.
 
-   return
+   @return
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
@@ -513,7 +513,7 @@ public:
 
    /*! Returns a const reverse iterator set to the last element.
 
-   return
+   @return
       Reverse iterator to the last element.
    */
    const_reverse_iterator crbegin() const {
@@ -522,7 +522,7 @@ public:
 
    /*! Returns a const reverse iterator set to before the first element.
 
-   return
+   @return
       Reverse iterator to before the first element.
    */
    const_reverse_iterator crend() const {
@@ -531,7 +531,7 @@ public:
 
    /*! Returns a forward iterator set beyond the last element.
 
-   return
+   @return
       Forward iterator to the first element.
    */
    const_iterator end() const {
@@ -540,7 +540,7 @@ public:
 
    /*! Returns the count of elements in the array.
 
-   return
+   @return
       Count of elements.
    */
    std::size_t size() const {
@@ -549,7 +549,7 @@ public:
 
    /*! Returns a reverse iterator set to the last element.
 
-   return
+   @return
       Reverse iterator to the last element.
    */
    const_reverse_iterator rbegin() const {
@@ -558,7 +558,7 @@ public:
 
    /*! Returns a reverse iterator set to before the first element.
 
-   return
+   @return
       Reverse iterator to before the first element.
    */
    const_reverse_iterator rend() const {
@@ -569,11 +569,11 @@ protected:
    /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
-   ciEmbedded
+   @param ciEmbedded
       Count of slots in the embedded item array, or 0 if no embedded item array is present.
-   pt
+   @param pt
       Pointer to an array that will be adopted by the vector as read-only.
-   ci
+   @param ci
       Count of items in the array pointed to by pt.
    */
    vector_base(std::size_t ciEmbedded) :
@@ -585,7 +585,7 @@ protected:
 
    /*! See detail::raw_vector<T>::assign_move().
 
-   v
+   @param v
       Source vector.
    */
    void assign_move(vector_base && v) {
@@ -596,7 +596,7 @@ protected:
 
    /*! See detail::raw_vector<T>::assign_move_dynamic_or_move_items().
 
-   v
+   @param v
       Source vector.
    */
    void assign_move_dynamic_or_move_items(vector_base && v) {
@@ -608,10 +608,10 @@ protected:
    /*! Converts a possibly negative item index into a pointer into the item array, throwing an
    exception if the result is out of bounds for the item array.
 
-   i
+   @param i
       If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
       1-based index from the end of the item array by adding this->size() to it.
-   return
+   @return
       Pointer to the element.
    */
    T const * translate_index(std::ptrdiff_t i) const {
@@ -623,15 +623,15 @@ protected:
    /*! Converts a left-closed, right-open interval with possibly negative element indices into one
    consisting of two pointers into the item array.
 
-   iBegin
+   @param iBegin
       Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
       if negative, it’s interpreted as a 1-based index from the end of the item array by adding
       this->size() to it.
-   iEnd
+   @param iEnd
       Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
       index; if negative, it’s interpreted as a 1-based index from the end of the item array by
       adding this->size() to it.
-   return
+   @return
       Left-closed, right-open interval such that return.first <= i < return.second, or the empty
       interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
    */
@@ -654,10 +654,10 @@ class vector_base<T, true> : public vector_base<T, false> {
 public:
    /*! Returns a slice of the vector.
 
-   iBegin
+   @param iBegin
       Index of the first element. See abc::vector_base::translate_range() for allowed begin index
       values.
-   iEnd
+   @param iEnd
       Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
       index values.
    */
@@ -673,11 +673,11 @@ protected:
    /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
    nullptr or an empty string; the overload with pt constructs the object assigning an item array.
 
-   ciEmbedded
+   @param ciEmbedded
       Count of slots in the embedded item array, or 0 if no embedded item array is present.
-   pt
+   @param pt
       Pointer to an array that will be adopted by the vector as read-only.
-   ci
+   @param ci
       Count of items in the array pointed to by pt.
    */
    vector_base(std::size_t ciEmbedded) :
@@ -726,9 +726,9 @@ public:
    /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    mvector & operator=(dmvector<T> && v) {
@@ -738,9 +738,9 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   v
+   @param v
       Vector to concatenate.
-   return
+   @return
       *this.
    */
    mvector & operator+=(mvector && v) {
@@ -758,7 +758,7 @@ public:
 
    /*! Adds elements at the end of the vector.
 
-   t
+   @param t
       Element to add.
    */
    void append(typename std::remove_const<T>::type && t) {
@@ -789,12 +789,12 @@ public:
 
    /*! Inserts elements at a specific position in the vector.
 
-   iOffset
+   @param iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
       allowed index values.
-   itOffset
+   @param itOffset
       Iterator at which the element should be inserted.
-   t
+   @param t
       Element to insert.
    */
    void insert(std::ptrdiff_t iOffset, typename std::remove_const<T>::type && t) {
@@ -815,10 +815,10 @@ public:
 
    /*! Removes a single element from the vector.
 
-   i
+   @param i
       Index of the element to remove. See abc::vector_base::translate_index() for allowed index
       values.
-   it
+   @param it
       Iterator to the element to remove.
    */
    void remove_at(std::ptrdiff_t i) {
@@ -840,15 +840,15 @@ public:
 
    /*! Removes a range of elements from the vector.
 
-   iBegin
+   @param iBegin
       Index of the first element. See abc::vector_base::translate_range() for allowed begin index
       values.
-   itBegin
+   @param itBegin
       Iterator to the first element to remove.
-   iEnd
+   @param iEnd
       Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
       index values.
-   itEnd
+   @param itEnd
       Iterator to beyond the last element to remove.
    */
    void remove_range(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) {
@@ -873,9 +873,9 @@ public:
    switch to using a different item array, any elements in the current one will be destructed unless
    bPreserve == true, which will cause them to be moved to the new item array.
 
-   ciMin
+   @param ciMin
       Minimum count of elements requested.
-   bPreserve
+   @param bPreserve
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vector to switch to a different item array.
    */
@@ -888,7 +888,7 @@ public:
    elements are properly constructed, or problems will arise when the destructor will attempt to
    destruct these elements.
 
-   ci
+   @param ci
       New vector size.
    */
    void set_size(std::size_t ci) {
@@ -903,7 +903,7 @@ public:
 protected:
    /*! Constructor. Constructs the object as empty, setting m_p to nullptr.
 
-   cbEmbeddedCapacity
+   @param cbEmbeddedCapacity
       Size of the embedded item array, in bytes, or 0 if no embedded item array is present.
    */
    mvector(std::size_t cbEmbeddedCapacity) :
@@ -928,9 +928,9 @@ public:
    /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    mvector & operator=(mvector const & v) {
@@ -944,9 +944,9 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   v
+   @param v
       Vector to concatenate.
-   return
+   @return
       *this.
    */
    mvector & operator+=(mvector const & v) {
@@ -960,11 +960,11 @@ public:
 
    /*! Adds elements at the end of the vector.
 
-   t
+   @param t
       Element to copy (const &) or move (&&) to the end of the vector.
-   pt
+   @param pt
       Pointer to an array of elements to copy to the end of the vector.
-   ci
+   @param ci
       Count of elements in the array pointed to by pt.
    */
    void append(T const & t) {
@@ -979,16 +979,16 @@ public:
 
    /*! Inserts elements at a specific position in the vector.
 
-   iOffset
+   @param iOffset
       Index at which the element should be inserted. See abc::vector_base::translate_index() for
       allowed index values.
-   itOffset
+   @param itOffset
       Iterator at which the element should be inserted.
-   t
+   @param t
       Element to insert.
-   pt
+   @param pt
       Pointer to the first element to insert.
-   ci
+   @param ci
       Count of elements in the array pointed to by pt.
    */
    void insert(std::ptrdiff_t iOffset, T const & t) {
@@ -1037,13 +1037,13 @@ class dmvector<T, false> : public mvector<T, false> {
 public:
    /*! Constructor. The individual items or the entire source item array will be moved to *this.
 
-   v
+   @param v
       Source vector.
-   v1
+   @param v1
       First source vector.
-   v2
+   @param v2
       Second source vector.
-   ci
+   @param ci
       Count of items in the array pointed to by pt.
    */
    dmvector() :
@@ -1066,9 +1066,9 @@ public:
    /*! Assignment operator. The individual items or the entire source item array will be moved to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    dmvector & operator=(dmvector && v) {
@@ -1089,25 +1089,25 @@ public:
    /*! Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
    *this.
 
-   v
+   @param v
       Source vector.
-   v1
+   @param v1
       First source vector.
-   v2
+   @param v2
       Second source vector.
-   at
+   @param at
       Source array whose elements should be copied.
-   pt
+   @param pt
       Pointer to an array whose elements should be copied.
-   ci
+   @param ci
       Count of items in the array pointed to by pt.
-   p1Begin
+   @param p1Begin
       Pointer to the start of the first source array, whose elements should be copied.
-   p1End
+   @param p1End
       Pointer to the end of the first source array.
-   p2Begin
+   @param p2Begin
       Pointer to the start of the second source array, whose elements should be copied.
-   p2End
+   @param p2End
       Pointer to the end of the second source array.
    */
    dmvector() :
@@ -1171,9 +1171,9 @@ public:
    /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    dmvector & operator=(dmvector const & v) {
@@ -1200,11 +1200,11 @@ public:
 
 /*! Concatenation operator.
 
-v1
+@param v1
    Left operand.
-v2
+@param v2
    Right operand.
-return
+@return
    Vector resulting from the concatenation of v1 and v2.
 */
 template <typename T>
@@ -1261,7 +1261,7 @@ private:
 public:
    /*! Constructor. The individual items or the entire source item array will be moved to *this.
 
-   v
+   @param v
       Source vector.
    */
    smvector() :
@@ -1297,9 +1297,9 @@ public:
    /*! Assignment operator. The individual items or the entire source item array will be moved to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    /* If the source is using its embedded item array, it will be copied without allocating a dynamic
@@ -1341,13 +1341,13 @@ private:
 public:
    /*! Constructor. R-value-reference arguments will have their contents transferred to *this.
 
-   v
+   @param v
       Source vector.
-   at
+   @param at
       Source array whose elements should be copied.
-   pt
+   @param pt
       Pointer to an array whose elements should be copied.
-   ci
+   @param ci
       Count of items in the array pointed to by pt.
    */
    smvector() :
@@ -1357,15 +1357,15 @@ public:
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
-   // If the source is using its embedded item array, it will be copied without allocating a dynamic
-   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
+   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
    smvector(smvector && v) :
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   // If the source is using its embedded item array, it will be copied without allocating a dynamic
-   // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   // way, this won’t throw.
+   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
+   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
+   way, this won’t throw. */
    template <std::size_t t_ciEmbeddedCapacity2>
    smvector(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
@@ -1400,24 +1400,24 @@ public:
    /*! Assignment operator. R-value-reference arguments will have their contents transferred to
    *this.
 
-   v
+   @param v
       Source vector.
-   return
+   @return
       *this.
    */
    smvector & operator=(smvector const & v) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
       return *this;
    }
-   // If the source is using its embedded item array, it will be copied without allocating a dynamic
-   // one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
+   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
    smvector & operator=(smvector && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   // If the source is using its embedded item array, it will be copied without allocating a dynamic
-   // one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   // way, this won’t throw.
+   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
+   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
+   way, this won’t throw. */
    template <std::size_t t_ciEmbeddedCapacity2>
    smvector & operator=(typename std::enable_if<
       (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
