@@ -174,27 +174,20 @@ private:
       return bucket_index_from_key(key, get_and_adjust_hash(key));
    }
    std::size_t bucket_index_from_key(TKey const & key, std::size_t iHash) const {
-      // Get a range of indices representing the neighborhood.
-      std::size_t iNeighborhoodBegin = neighborhood_index_from_hash(iHash);
-      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
-      /* Determine if we’ll need to check any buckets at the beginning of the array due to the
-      neighborhood wrapping. */
-      std::size_t iWrappedNeighborhoodEnd;
-      if (iNeighborhoodEnd > m_cBuckets) {
-         iWrappedNeighborhoodEnd = iNeighborhoodEnd - m_cBuckets;
-         iNeighborhoodEnd = m_cBuckets;
-      } else {
-         // Make the wrapped interval [0, 0), i.e. empty.
-         iWrappedNeighborhoodEnd = 0;
+      if (!m_cBuckets) {
+         // No buckets, so key/iHash cannot be in the map.
+         return smc_iNullIndex;
       }
+      auto pairRanges(get_neighborhood_ranges_from_hash(iHash));
       // Scan till the end of the neighborhood (clipped to the end of the array).
       std::size_t iBucket = bucket_index_from_key_and_bucket_range(
-         key, iHash, iNeighborhoodBegin, iNeighborhoodEnd
+         key, iHash, pairRanges.first.first, pairRanges.first.second
       );
-      if (iBucket == smc_iNullIndex && iWrappedNeighborhoodEnd) {
-         /* This neighborhood wraps back to the start of the array, so we have additional buckets to
-         scan. */
-         iBucket = bucket_index_from_key_and_bucket_range(key, iHash, 0, iWrappedNeighborhoodEnd);
+      if (iBucket == smc_iNullIndex && pairRanges.second.first < pairRanges.second.second) {
+         // This neighborhood wraps, so we have a second range of buckets to scan.
+         iBucket = bucket_index_from_key_and_bucket_range(
+            key, iHash, pairRanges.second.first, pairRanges.second.second
+         );
       }
       return iBucket;
    }
@@ -238,11 +231,39 @@ private:
       Index of the first bucket in the neighborhood.
    */
    std::size_t neighborhood_index_from_hash(std::size_t iHash) const {
-      if (!m_cBuckets) {
-         // No buckets, so iHash cannot be in the map.
-         return smc_iNullIndex;
-      }
       return iHash & (m_cBuckets - 1);
+   }
+
+   /*! Returns the neighborhood bucket index ranges for the given hash.
+
+   @param iHash
+      Hash to return the neighborhood of.
+   @return
+      The neighborhood bucket index range is expressed by [return.first.first, return.first.second);
+      if the neighborhood wraps from the end of the bucket array back to its start, the wrapped
+      portion is expressed by [return.second.first, return.second.second). The second interval will
+      be [0, 0) (i.e. empty) if the neighborhood doesn’t wrap.
+   */
+   std::pair<
+      std::pair<std::size_t, std::size_t>, std::pair<std::size_t, std::size_t>
+   > get_neighborhood_ranges_from_hash(std::size_t iHash) const {
+      // Get a range of indices representing the neighborhood.
+      std::size_t iNeighborhoodBegin = neighborhood_index_from_hash(iHash);
+      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
+      // Check if the neighborhood wraps around the end of the bucket array.
+      if (iNeighborhoodEnd > m_cBuckets) {
+         // Return two ranges.
+         return std::make_pair(
+            std::make_pair(iNeighborhoodBegin, m_cBuckets),
+            std::make_pair(0, iNeighborhoodEnd - m_cBuckets)
+         );
+      } else {
+         // Return a single range.
+         return std::make_pair(
+            std::make_pair(iNeighborhoodBegin, iNeighborhoodEnd),
+            std::make_pair(0, 0)
+         );
+      }
    }
 
    bool keys_equal(TKey const & key1, TKey const & key2) const {
