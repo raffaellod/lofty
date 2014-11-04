@@ -164,10 +164,20 @@ public:
 
 private:
    void create_empty_buckets(std::size_t cBuckets = smc_cBucketsMin) {
+      std::unique_ptr<std::size_t[]> piHashes(new std::size_t[cBuckets]);
+      std::unique_ptr<std::max_align_t[]> pkeys(
+         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * cBuckets)]
+      );
+      std::unique_ptr<std::max_align_t[]> pvalues(
+         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * cBuckets)]
+      );
+      // Assign the new arrays and set the remaining members in an exception-safe sequence.
+      m_piHashes = std::move(piHashes);
+      m_pkeys = std::move(pkeys);
+      m_pvalues = std::move(pvalues);
       m_cBuckets = cBuckets;
-      m_piHashes.reset(new std::size_t[m_cBuckets]);
-      m_pkeys.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * m_cBuckets)]);
-      m_pvalues.reset(new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * m_cBuckets)]);
+      m_cUsedBuckets = 0;
+      memory::clear(m_piHashes.get(), cBuckets);
    }
 
    std::size_t bucket_index_from_key(TKey const & key) const {
