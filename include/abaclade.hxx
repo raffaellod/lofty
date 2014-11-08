@@ -531,6 +531,8 @@ struct is_copy_constructible<T, typename enable_if<
       ABACLADE_SYM void bool_true() const;
    };
 
+   } //namespace detail
+
    /*! A class derived from this one receives support for C++11 explicit operator bool even on
    non-compliant compilers. */
    template <typename T>
@@ -541,9 +543,9 @@ struct is_copy_constructible<T, typename enable_if<
       @return
          A valid pointer if T::explicit_operator_bool() returns true, or nullptr otherwise.
       */
-      operator explob_helper::bool_type() const {
+      operator detail::explob_helper::bool_type() const {
          if (static_cast<T const *>(this)->_explicit_operator_bool()) {
-            return &explob_helper::bool_true;
+            return &detail::explob_helper::bool_true;
          } else {
             return nullptr;
          }
@@ -570,7 +572,6 @@ struct is_copy_constructible<T, typename enable_if<
    ABC_RELOP_IMPL(!=)
    #undef ABC_RELOP_IMPL
 
-   } //namespace detail
    } //namespace abc
 #endif //ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS … else
 
