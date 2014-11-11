@@ -33,6 +33,60 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
+//! Index range.
+struct index_range {
+public:
+   /*! Constructor.
+
+   @param iBegin
+      Index of the first index in the range.
+   @param iEnd
+      Index beyond the last index in the range.
+   */
+   index_range() :
+      m_iBegin(0),
+      m_iEnd(0) {
+   }
+   index_range(std::size_t iBegin, std::size_t iEnd) :
+      m_iBegin(iBegin),
+      m_iEnd(iEnd) {
+   }
+
+   /*! Returns the start of the range.
+
+   @return
+      First index in the range.
+   */
+   std::size_t begin() const {
+      return m_iBegin;
+   }
+
+   /*! Returns true if the range is empty.
+
+   @return
+      true if the range is empty, or false otherwise.
+   */
+   bool empty() const {
+      return m_iBegin >= m_iEnd;
+   }
+
+   /*! Returns the end of the range.
+
+   @return
+      Index beyond the last in the range.
+   */
+   std::size_t end() const {
+      return m_iEnd;
+   }
+
+private:
+   //! Index of the first index in the range.
+   std::size_t m_iBegin;
+   //! Index beyond the last index in the range.
+   std::size_t m_iEnd;
+};
+
+
 //! Key/value map using a simplified hopscotch hashing collision resolution algorithm.
 template <typename TKey, typename TValue, typename THasher = std::hash<TKey>>
 class map : public THasher {
@@ -63,27 +117,10 @@ public:
    };
 
 protected:
-   //! Bucket range.
-   struct bucket_range {
-      //! Index of the first bucket in the range.
-      std::size_t iBegin;
-      //! Index beyond the last bucket in the range.
-      std::size_t iEnd;
-
-      /*! Returns true if the range is empty.
-
-      @return
-         true if the range is empty, or false otherwise.
-      */
-      bool empty() const {
-         return iBegin >= iEnd;
-      }
-   };
-
-   //! Combines a bucket_range with its wrapped continuation.
-   struct neighborhood_ranges {
-      bucket_range brMain;
-      bucket_range brWrapped;
+   //! Combines a index_range with its wrapped continuation.
+   struct neighborhood_bucket_index_ranges {
+      index_range brMain;
+      index_range brWrapped;
    };
 
 public:
@@ -240,14 +277,14 @@ private:
          // The key cannot possibly be in the map.
          return smc_iNullIndex;
       }
-      auto nhranges(get_neighborhood_ranges_from_hash(iKeyHash));
+      auto nhranges(get_neighborhood_bucket_index_ranges_from_hash(iKeyHash));
       // Scan till the end of the neighborhood (clipped to the end of the array).
-      std::size_t iBucket = bucket_index_from_key_and_bucket_range(
+      std::size_t iBucket = bucket_index_from_key_and_bucket_index_range(
          &key, iKeyHash, nhranges.brMain, false
       );
       if (iBucket == smc_iNullIndex && !nhranges.brWrapped.empty()) {
          // This neighborhood wraps, so we have a second range of buckets to scan.
-         iBucket = bucket_index_from_key_and_bucket_range(
+         iBucket = bucket_index_from_key_and_bucket_index_range(
             &key, iKeyHash, nhranges.brWrapped, false
          );
       }
@@ -277,29 +314,30 @@ private:
       Index of the bucket for the specified key.
    */
    std::size_t get_key_bucket_index(TKey key, std::size_t iKeyHash) {
-      auto nhranges(get_neighborhood_ranges_from_hash(iKeyHash));
+      auto nhranges(get_neighborhood_bucket_index_ranges_from_hash(iKeyHash));
       /* Look for the key or an empty bucket till the end of the neighborhood (clipped to the end of
       the array). */
-      std::size_t iBucket = bucket_index_from_key_and_bucket_range(
+      std::size_t iBucket = bucket_index_from_key_and_bucket_index_range(
          &key, iKeyHash, nhranges.brMain, true
       );
       if (iBucket == smc_iNullIndex && !nhranges.brWrapped.empty()) {
          // Continue the search in the remainder of the neighborhood.
-         iBucket = bucket_index_from_key_and_bucket_range(
+         iBucket = bucket_index_from_key_and_bucket_index_range(
             &key, iKeyHash, nhranges.brWrapped, true
          );
       }
       if (iBucket == smc_iNullIndex) {
          /* Find a free bucket. If it’s not in the neighborhood, iteratively try to move it closer,
          starting from the end of the neighborhood till the end of the array. */
-         iBucket = bucket_index_from_key_and_bucket_range(
-            nullptr, smc_iEmptyBucketHash, nhranges.brMain.end, m_cBuckets, true
+         iBucket = bucket_index_from_key_and_bucket_index_range(
+            nullptr, smc_iEmptyBucketHash, nhranges.brMain.end(), m_cBuckets, true
          );
          if (iBucket == smc_iNullIndex && !nhranges.brWrapped.empty()) {
             /* Continue the search from the start of the array (or end of the wrapped neighborood)
             till the start of the neighborood. */
-            iBucket = bucket_index_from_key_and_bucket_range(
-               nullptr, smc_iEmptyBucketHash, nhranges.brWrapped.end, nhranges.brMain.begin, true
+            iBucket = bucket_index_from_key_and_bucket_index_range(
+               nullptr, smc_iEmptyBucketHash,
+               nhranges.brWrapped.end(), nhranges.brMain.begin(), true
             );
          }
          /* We have a free bucket, but it’s not in the neighborhood we need it in: iteratively try
@@ -350,17 +388,22 @@ private:
       the bucket array back to its start, the wrapped portion is expressed by return.brWrapped. The
       second range will be [0, 0) (i.e. empty) if the neighborhood doesn’t wrap.
    */
-   neighborhood_ranges get_neighborhood_ranges_from_hash(std::size_t iHash) const {
+   neighborhood_bucket_index_ranges get_neighborhood_bucket_index_ranges_from_hash(
+      std::size_t iHash
+   ) const {
       // Get a range of indices representing the neighborhood.
       std::size_t iNeighborhoodBegin = neighborhood_index_from_hash(iHash);
       std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
       // Check if the neighborhood wraps around the end of the bucket array.
       if (iNeighborhoodEnd > m_cBuckets) {
          // Return two ranges.
-         return { { iNeighborhoodBegin, m_cBuckets }, { 0, iNeighborhoodEnd - m_cBuckets } };
+         return {
+            index_range(iNeighborhoodBegin, m_cBuckets),
+            index_range(0, iNeighborhoodEnd - m_cBuckets)
+         };
       } else {
          // Return a single range.
-         return { { iNeighborhoodBegin, iNeighborhoodEnd }, { 0, 0 } };
+         return { index_range(iNeighborhoodBegin, iNeighborhoodEnd) };
       }
    }
 
@@ -392,14 +435,14 @@ private:
       Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
-   std::size_t bucket_index_from_key_and_bucket_range(
-      TKey const * pkey, std::size_t iKeyHash, bucket_range brange, bool bAcceptEmpty
+   std::size_t bucket_index_from_key_and_bucket_index_range(
+      TKey const * pkey, std::size_t iKeyHash, index_range brange, bool bAcceptEmpty
    ) const {
-      return bucket_index_from_key_and_bucket_range(
-         pkey, iKeyHash, brange.begin, brange.end, bAcceptEmpty
+      return bucket_index_from_key_and_bucket_index_range(
+         pkey, iKeyHash, brange.begin(), brange.end(), bAcceptEmpty
       );
    }
-   std::size_t bucket_index_from_key_and_bucket_range(
+   std::size_t bucket_index_from_key_and_bucket_index_range(
       TKey const * pkey, std::size_t iKeyHash, std::size_t iRangeBegin, std::size_t iRangeEnd,
       bool bAcceptEmpty
    ) const {
