@@ -127,7 +127,24 @@ public:
       Value to add.
    */
    iterator add(TKey key, TValue value) {
-      return iterator(this, 0);
+      std::size_t iKeyHash = get_and_adjust_hash(key);
+      /* This loop will continue to increase the table size until we’re able to find a free bucket
+      for the new element. */
+      std::size_t iBucket;
+      for (;;) {
+         iBucket = get_key_bucket_index(key, iKeyHash);
+         if (iBucket != smc_iNullIndex) {
+            break;
+         }
+         if (m_cBuckets) {
+            // TODO: resize the hash table.
+         } else {
+            create_empty_buckets();
+         }
+      }
+      /* TODO: write value at m_pvalues[iBucket]; get_key_bucket_index() took care of key and its
+      hash. */
+      return iterator(this, iBucket);
    }
 
    //! Removes all elements from the map.
@@ -180,23 +197,34 @@ private:
       memory::clear(m_piHashes.get(), cBuckets);
    }
 
+   /*! Searches for the specified key, returning the index of the bucket associated to it, or
+   smc_iNullIndex if the key is not in the map.
+
+   @param key
+      Key to lookup.
+   @param iKeyHash
+      Hash of key.
+   @return
+      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
+      found.
+   */
    std::size_t bucket_index_from_key(TKey const & key) const {
       return bucket_index_from_key(key, get_and_adjust_hash(key));
    }
-   std::size_t bucket_index_from_key(TKey const & key, std::size_t iHash) const {
-      if (!m_cBuckets) {
-         // No buckets, so key/iHash cannot be in the map.
+   std::size_t bucket_index_from_key(TKey const & key, std::size_t iKeyHash) const {
+      if (m_cBuckets == 0) {
+         // The key cannot possibly be in the map.
          return smc_iNullIndex;
       }
-      auto pairRanges(get_neighborhood_ranges_from_hash(iHash));
+      auto pairRanges(get_neighborhood_ranges_from_hash(iKeyHash));
       // Scan till the end of the neighborhood (clipped to the end of the array).
       std::size_t iBucket = bucket_index_from_key_and_bucket_range(
-         key, iHash, pairRanges.first.first, pairRanges.first.second
+         &key, iKeyHash, pairRanges.first.first, pairRanges.first.second, false
       );
       if (iBucket == smc_iNullIndex && pairRanges.second.first < pairRanges.second.second) {
          // This neighborhood wraps, so we have a second range of buckets to scan.
          iBucket = bucket_index_from_key_and_bucket_range(
-            key, iHash, pairRanges.second.first, pairRanges.second.second
+            &key, iKeyHash, pairRanges.second.first, pairRanges.second.second, false
          );
       }
       return iBucket;
@@ -212,6 +240,51 @@ private:
    std::size_t get_and_adjust_hash(TKey const & key) const {
       std::size_t iHash = hasher::operator()(key);
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
+   }
+
+   /*! Finds and returns the bucket index matching the specified key, allocating and initializing it
+   anew if none could be found.
+
+   @param pkey
+      Key to lookup.
+   @param iKeyHash
+      Hash of key.
+   @return
+      Index of the bucket for the specified key.
+   */
+   std::size_t get_key_bucket_index(TKey key, std::size_t iKeyHash) {
+      auto pairRanges(get_neighborhood_ranges_from_hash(iKeyHash));
+      /* Look for the key or an empty bucket till the end of the neighborhood (clipped to the end of
+      the array). */
+      std::size_t iBucket = bucket_index_from_key_and_bucket_range(
+         &key, iKeyHash, pairRanges.first.first, pairRanges.first.second, true
+      );
+      if (iBucket == smc_iNullIndex && pairRanges.second.first < pairRanges.second.second) {
+         // Continue the search in the remainder of the neighborhood.
+         iBucket = bucket_index_from_key_and_bucket_range(
+            &key, iKeyHash, pairRanges.second.first, pairRanges.second.second, true
+         );
+      }
+      if (iBucket == smc_iNullIndex) {
+         /* Find a free bucket. If it’s not in the neighborhood, iteratively try to move it closer,
+         starting from the end of the neighborhood till the end of the array. */
+         iBucket = bucket_index_from_key_and_bucket_range(
+            nullptr, smc_iEmptyBucketHash, pairRanges.first.second, m_cBuckets, true
+         );
+         if (iBucket == smc_iNullIndex && pairRanges.second.first < pairRanges.second.second) {
+            /* Continue the search from the start of the array (or end of the wrapped neighborood)
+            till the start of the neighborood. */
+            iBucket = bucket_index_from_key_and_bucket_range(
+               nullptr, smc_iEmptyBucketHash, pairRanges.second.second, pairRanges.first.first, true
+            );
+         }
+         /* We have a free bucket, but it’s not in the neighborhood we need it in: iteratively try
+         to move it closer. */
+         // TODO
+         /* Store the hash and move-construct m_pkey[iBucket] from the provided key. */
+         // TODO
+      }
+      return iBucket;
    }
 
    TKey & get_key(std::size_t i) const {
@@ -280,28 +353,49 @@ private:
       return key1 == key2;
    }
 
-   /*! Scans a range of buckets, looking for a specific key.
+   /*! Scans a range of buckets, looking for a specific key or an unused bucket (if bAcceptEmpty).
+   This method could be split in three different ones:
 
-   @param key
-      Key to scan for.
-   @param iHash
+   1. Search for an empty bucket while also checking for a matching key: this would be used when
+      looking for an add() insertion point while we’re still in the neighborhood of the key;
+   2. Search for an empty bucket: this would cover the rest of the search needed by add();
+   3. Search for a matching key: this would be used by bucket_index_from_key().
+
+   @param pkey
+      Pointer to the key to scan for.
+   @param iKeyHash
       Hash of key.
-   @param iBegin
+   @param iRangeBegin
       Start of the bucket range.
-   @param iEnd
+   @param iRangeEnd
       End of the bucket range.
+   @param bAcceptEmpty
+      If true, an empty bucket will be considered a match, and its index returned.
    @return
       Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
    std::size_t bucket_index_from_key_and_bucket_range(
-      TKey const & key, std::size_t iHash, std::size_t iBegin, std::size_t iEnd
+      TKey const * pkey, std::size_t iKeyHash, std::size_t iRangeBegin, std::size_t iRangeEnd,
+      bool bAcceptEmpty
    ) const {
-      std::size_t const * piHashesBegin = m_piHashes + iBegin, * piHashesEnd = m_piHashes + iEnd;
-      TKey const * pkey = m_pkeys + iBegin;
-      for (std::size_t const * piHash = piHashesBegin; piHash < piHashesEnd; ++piHash, ++pkey) {
-         if (*piHash == iHash && keys_equal(*pkey == key)) {
-            return static_cast<std::size_t>(piHash - piHashesBegin);
+      /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
+      the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
+      std::size_t iAcceptableEmptyHash = bAcceptEmpty ? smc_iEmptyBucketHash : iKeyHash;
+      std::size_t const;
+      for (
+         std::size_t const * piHash = m_piHashes + iRangeBegin, * piHashesEnd = piHash + iRangeEnd;
+         piHash < piHashesEnd;
+         ++piHash
+      ) {
+         if (
+            *piHash == iAcceptableEmptyHash ||
+            /* Hash collisions (calculating the 2nd operand of the &&) should be rare enough to make
+            recalculating the offset from m_pkeys cheaper than keeping a cursor over m_pkeys running
+            in parallel to piHash that would only dereferenced on collisions. */
+            (*piHash == iKeyHash && keys_equal(m_pkeys[piHash - m_piHashes] == *pkey))
+         ) {
+            return static_cast<std::size_t>(piHash - m_piHashes);
          }
       }
       return smc_iNullIndex;
@@ -337,4 +431,3 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif //ifndef _ABACLADE_MAP_HXX
-
