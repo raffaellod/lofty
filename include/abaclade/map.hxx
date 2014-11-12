@@ -236,8 +236,12 @@ public:
       Key to add.
    @param value
       Value to add.
+   @return
+      Pair containing an iterator to the newly added key/value, and a bool value that is true if the
+      key/value pair was just added, or false if the key already existed in the map and the
+      corresponding value was overwritten.
    */
-   iterator add(TKey key, TValue value) {
+   std::pair<iterator, bool> add(TKey key, TValue value) {
       std::size_t iKeyHash = get_and_adjust_hash(key);
       /* This loop will continue to increase the table size until we’re able to find a free bucket
       for the new element. */
@@ -253,9 +257,20 @@ public:
             create_empty_buckets();
          }
       }
-      /* TODO: write value at m_pvalues[iBucket]; get_key_bucket_index() took care of key and its
-      hash. */
-      return iterator(this, iBucket);
+
+      std::size_t * piHash = m_piHashes[iBucket];
+      TValue * pvalue = &get_value(iBucket);
+      bool bNew = (*piHash == smc_iEmptyBucketHash);
+      if (bNew) {
+         // The bucket is currently empty, so initialize it with key, iKeyHash and value.
+         new(&get_key(iBucket)) TKey(std::move(key));
+         *piHash = iKeyHash;
+         new(pvalue) TValue(std::move(value));
+      } else {
+         // The bucket already has a value, so overwrite it with the value argument.
+         *pvalue = std::move(value);
+      }
+      return std::make_pair(iterator(this, iBucket), bNew);
    }
 
    //! Removes all elements from the map.
@@ -353,17 +368,18 @@ private:
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
    }
 
-   /*! Finds and returns the bucket index matching the specified key, allocating and initializing it
-   anew if none could be found.
+   /*! Returns the bucket index matching the specified key, or locates an empty bucket and returns
+   its index after moving it in key’s neighborhood.
 
    @param pkey
       Key to lookup.
    @param iKeyHash
       Hash of key.
    @return
-      Index of the bucket for the specified key.
+      Index of the bucket for the specified key. If key is not already in the map and no free bucket
+      can be moved in key’s neighborhood, the returned index is smc_iNullIndex.
    */
-   std::size_t get_key_bucket_index(TKey key, std::size_t iKeyHash) {
+   std::size_t get_key_bucket_index(TKey const & key, std::size_t iKeyHash) {
       auto nhranges(get_neighborhood_bucket_index_ranges_from_hash(iKeyHash));
       /* Look for the key or an empty bucket till the end of the neighborhood (clipped to the end of
       the array). */
@@ -377,23 +393,27 @@ private:
          );
       }
       if (iBucket == smc_iNullIndex) {
-         /* Find a free bucket. If it’s not in the neighborhood, iteratively try to move it closer,
-         starting from the end of the neighborhood till the end of the array. */
+         /* Find a free bucket, scanning from the end of the neighborhood till the end of the array.
+         This range may be empty if nhranges.main().end() == m_cBuckets. */
          iBucket = bucket_index_from_key_and_bucket_index_range(
             nullptr, smc_iEmptyBucketHash, nhranges.main().end(), m_cBuckets, true
          );
-         if (iBucket == smc_iNullIndex && nhranges.wrapped()) {
-            /* Continue the search from the start of the array (or end of the wrapped neighborood)
-            till the start of the neighborood. */
+         if (iBucket == smc_iNullIndex) {
+            /* Still no available buckets? Wrap the search around, and continue until we reach the
+            start of the neighborhood again. nhranges.wrapped().end() == 0 if the neighborhood
+            didn’t wrap, which is what we want since the scan above ended at the end of the bucket
+            array. */
             iBucket = bucket_index_from_key_and_bucket_index_range(
                nullptr, smc_iEmptyBucketHash,
                nhranges.wrapped().end(), nhranges.main().begin(), true
             );
+            if (iBucket == smc_iNullIndex) {
+               // No luck, the hash table needs to be resized.
+               return smc_iNullIndex;
+            }
          }
          /* We have a free bucket, but it’s not in the neighborhood we need it in: iteratively try
          to move it closer. */
-         // TODO
-         /* Store the hash and move-construct m_pkey[iBucket] from the provided key. */
          // TODO
       }
       return iBucket;
