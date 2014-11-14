@@ -300,7 +300,7 @@ private:
          // The key cannot possibly be in the map.
          return smc_iNullIndex;
       }
-      return key_lookup(pkey, iKeyHash, get_hash_neighborhood(iKeyHash), false);
+      return key_lookup(pkey, iKeyHash, get_hash_neighborhood_range(iKeyHash), false);
    }
    /* This overload could be split in three different methods:
 
@@ -365,22 +365,36 @@ private:
       bucket can be moved in key’s neighborhood, the returned index is smc_iNullIndex.
    */
    std::size_t get_existing_or_empty_bucket_for_key(TKey const & key, std::size_t iKeyHash) {
-      auto irNeighborhood(get_hash_neighborhood(iKeyHash));
+      auto irNeighborhood(get_hash_neighborhood_range(iKeyHash));
       // Look for the key or an empty bucket in the neighborhood.
       std::size_t iBucket = key_lookup(&key, iKeyHash, irNeighborhood, true);
-      if (iBucket == smc_iNullIndex) {
-         // Find an empty bucket, scanning every bucket outside the neighborhood.
-         iBucket = key_lookup(nullptr, smc_iEmptyBucketHash, ~irNeighborhood, true);
-         if (iBucket == smc_iNullIndex) {
-            // No luck, the hash table needs to be resized.
+      if (iBucket != smc_iNullIndex) {
+         return iBucket;
+      }
+      // Find an empty bucket, scanning every bucket outside the neighborhood.
+      std::size_t iEmptyBucket = key_lookup(nullptr, smc_iEmptyBucketHash, ~irNeighborhood, true);
+      if (iEmptyBucket == smc_iNullIndex) {
+         // No luck, the hash table needs to be resized.
+         return smc_iNullIndex;
+      }
+      /* We have an empty bucket, but it’s not in the key’s neighborhood: try to move it in the
+      neighborhood. */
+      while (iEmptyBucket >= irNeighborhood.end()) {
+         // Calculate the index of the neighborhood that has iEmptyBucket as its last bucket.
+         std::size_t iEmptyBucketNeighborhood = iEmptyBucket + 1 - get_neighborhood_size();
+         /* Find the first non-empty bucket that’s part of the neighborhood. This means excluding
+         buckets occupied by h/k/v belonging to other overlapping neighborhoods. */
+         std::size_t iMovableHKV = find_first_movable_hkv_in_neighborhood(iEmptyBucketNeighborhood);
+         if (iMovableHKV == smc_iNullIndex) {
+            /* No buckets contain h/k/v that can be moved to iEmptyBucket; the hash table needs to
+            be resized. */
             return smc_iNullIndex;
          }
-         /* We have an empty bucket, but it’s not in the key’s neighborhood: try to move it in the
-         neighborhood. */
-         /*while (iBucket >= irNeighborhood.end()) {
-         }*/
+         // Move h/k/v from iMovableHKV to iEmptyBucket.
+         move_bucket_hkv(iMovableHKV, iEmptyBucket);
+         iEmptyBucket = iMovableHKV;
       }
-      return iBucket;
+      return iEmptyBucket;
    }
 
    TKey & get_key(std::size_t i) const {
@@ -409,7 +423,7 @@ private:
    @return
       Index of the first bucket in the neighborhood.
    */
-   std::size_t hash_to_neighborhood_index(std::size_t iHash) const {
+   std::size_t get_hash_neighborhood_index(std::size_t iHash) const {
       return iHash & (m_cBuckets - 1);
    }
 
@@ -420,8 +434,8 @@ private:
    @return
       Calculated range for the neighborhood bucket index.
    */
-   index_range get_hash_neighborhood(std::size_t iHash) const {
-      std::size_t iNeighborhoodBegin = hash_to_neighborhood_index(iHash);
+   index_range get_hash_neighborhood_range(std::size_t iHash) const {
+      std::size_t iNeighborhoodBegin = get_hash_neighborhood_index(iHash);
       std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
       // Wrap the end index back in the table.
       iNeighborhoodEnd &= m_cBuckets - 1;
