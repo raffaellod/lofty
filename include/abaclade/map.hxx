@@ -353,6 +353,44 @@ private:
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
    }
 
+   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
+
+   @param iEmptyBucket
+      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
+   @return
+      Index of the first bucket whose contents can be moved, or smc_iNullIndex if none of the
+      occupied buckets contain keys from the neighborhood ending at iEmptyBucket.
+   */
+   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
+      std::size_t cNeighborhoodBuckets = get_neighborhood_size();
+      // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
+      std::size_t const * piHashNhEnd = m_piHashes + iEmptyBucket + 1,
+                        * piHash      = piHashNhEnd - cNeighborhoodBuckets,
+                        * piHashesEnd = m_piHashes + m_cBuckets;
+      // If piHash moved to before m_piHashes, unwrap it around to the end of the bucket array.
+      if (piHash < m_piHashes) {
+         piHash += m_cBuckets;
+      }
+
+      /* The neighborhood may wrap, so we can only test for inequality and rely on the wrap-around
+      logic at the end of the loop body. */
+      while (piHash != piHashNhEnd) {
+         /* Get the end of the neighborhood for the key in this bucket; if the empty bucket is
+         closer than that, the contents of this bucket can be moved to it. */
+         std::size_t iCurrNhEnd = get_hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
+         if (iEmptyBucket < iCurrNhEnd) {
+            return static_cast<std::size_t>(piHash - m_piHashes);
+         }
+
+         // Move on to the next bucket, wrapping around to the first one if needed.
+         if (++piHash == piHashesEnd) {
+            piHash = m_piHashes;
+         }
+      }
+      // No luck, the hash table needs to be resized.
+      return smc_iNullIndex;
+   }
+
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
    returns its index after moving it in the key’s neighborhood.
 
@@ -380,19 +418,18 @@ private:
       /* We have an empty bucket, but it’s not in the key’s neighborhood: try to move it in the
       neighborhood. */
       while (iEmptyBucket >= irNeighborhood.end()) {
-         // Calculate the index of the neighborhood that has iEmptyBucket as its last bucket.
-         std::size_t iEmptyBucketNeighborhood = iEmptyBucket + 1 - get_neighborhood_size();
-         /* Find the first non-empty bucket that’s part of the neighborhood. This means excluding
-         buckets occupied by h/k/v belonging to other overlapping neighborhoods. */
-         std::size_t iMovableHKV = find_first_movable_hkv_in_neighborhood(iEmptyBucketNeighborhood);
-         if (iMovableHKV == smc_iNullIndex) {
-            /* No buckets contain h/k/v that can be moved to iEmptyBucket; the hash table needs to
+         /* Find the first non-empty bucket that’s part of the left-most neighborhood containing
+         iEmptyBucket, but excluding buckets occupied by keys belonging to other overlapping
+         neighborhoods. */
+         std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
+         if (iMovableBucket == smc_iNullIndex) {
+            /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to
             be resized. */
             return smc_iNullIndex;
          }
-         // Move h/k/v from iMovableHKV to iEmptyBucket.
-         move_bucket_hkv(iMovableHKV, iEmptyBucket);
-         iEmptyBucket = iMovableHKV;
+         // Move the contents of iMovableBucket to iEmptyBucket.
+         move_bucket_contents(iMovableBucket, iEmptyBucket);
+         iEmptyBucket = iMovableBucket;
       }
       return iEmptyBucket;
    }
@@ -446,6 +483,19 @@ private:
       return key1 == key2;
    }
 
+   /*! Moves the contents of one bucket to another bucket.
+
+   @param iSrcBucket
+      Index of the source bucket.
+   @param iDstBucket
+      Index of the destination bucket.
+   */
+   void move_bucket_contents(std::size_t iSrcBucket, std::size_t iDstBucket) {
+      m_piHashes[iDstBucket] = m_piHashes[iSrcBucket];
+      new(&get_key  (iDstBucket)) TKey  (std::move(get_key  (iSrcBucket)));
+      new(&get_value(iDstBucket)) TValue(std::move(get_value(iSrcBucket)));
+   }
+
 private:
    //! Array containing the hash of each key.
    std::unique_ptr<std::size_t[]> m_piHashes;
@@ -453,7 +503,7 @@ private:
    std::unique_ptr<std::max_align_t[]> m_pkeys;
    //! Array of buckets.
    std::unique_ptr<std::max_align_t[]> m_pvalues;
-   //! Count of total buckets.
+   //! Count of total buckets. Always a power of two.
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.
    std::size_t m_cUsedBuckets;
