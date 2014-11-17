@@ -1155,7 +1155,7 @@ public:
 
 #if ABC_HOST_MSC
    /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
-	str_base::operator istr const &(). */
+   str_base::operator istr const &(). */
    operator istr const &() const {
       return str_base::operator istr const &();
    }
@@ -1453,4 +1453,3 @@ struct hash<abc::smstr<t_cchEmbeddedCapacity>> : public hash<abc::str_base> {};
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-

@@ -185,4 +185,3 @@ protected:
 
 
 #endif //ifndef _ABACLADE_APP_HXX
-
