@@ -415,6 +415,11 @@ private:
          // No luck, the hash table needs to be resized.
          return smc_iNullIndex;
       }
+      /* For simplicity, if the empty bucket falls to the left of the neighborhood, unwrap it so it
+      appears to be on its right, so we have a single “out of neighborhood” condition. */
+      if (iEmptyBucket < irNeighborhood.begin()) {
+         iEmptyBucket += m_cBuckets;
+      }
       /* We have an empty bucket, but it’s not in the key’s neighborhood: try to move it in the
       neighborhood. */
       while (iEmptyBucket >= irNeighborhood.end()) {
