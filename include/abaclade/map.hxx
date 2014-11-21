@@ -363,21 +363,23 @@ private:
    */
    std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
       std::size_t cNeighborhoodBuckets = get_neighborhood_size();
-      // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
-      std::size_t const * piHashNhEnd = m_piHashes + iEmptyBucket + 1,
-                        * piHash      = piHashNhEnd - cNeighborhoodBuckets,
-                        * piHashesEnd = m_piHashes + m_cBuckets;
-      // If piHash moved to before m_piHashes, unwrap it around to the end of the bucket array.
-      if (piHash < m_piHashes) {
-         piHash += m_cBuckets;
+      std::size_t cBucketsRightOfEmpty = cNeighborhoodBuckets - 1;
+      // Ensure that iEmptyBucket will be on the right of any of the buckets we’re going to check.
+      if (iEmptyBucket < cBucketsRightOfEmpty) {
+         iEmptyBucket += m_cBuckets;
       }
-
+      // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
+      std::size_t const * piEmptyHash = m_piHashes + (iEmptyBucket & (m_cBuckets - 1)),
+                        * piHash      = piEmptyHash - cBucketsRightOfEmpty,
+                        * piHashesEnd = m_piHashes + m_cBuckets;
       /* The neighborhood may wrap, so we can only test for inequality and rely on the wrap-around
       logic at the end of the loop body. */
-      while (piHash != piHashNhEnd) {
-         /* Get the end of the neighborhood for the key in this bucket; if the empty bucket is
-         closer than that, the contents of this bucket can be moved to it. */
+      while (piHash != piEmptyHash) {
+         /* Get the end of the original neighborhood for the key in this bucket; if the empty bucket
+         is within that index, the contents of this bucket can be moved to the empty one. */
          std::size_t iCurrNhEnd = get_hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
+         /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is
+         always valid. */
          if (iEmptyBucket < iCurrNhEnd) {
             return static_cast<std::size_t>(piHash - m_piHashes);
          }
@@ -415,17 +417,12 @@ private:
          // No luck, the hash table needs to be resized.
          return smc_iNullIndex;
       }
-      /* For simplicity, if the empty bucket falls to the left of the neighborhood, unwrap it so it
-      appears to be on its right, so we have a single “out of neighborhood” condition. */
-      if (iEmptyBucket < irNeighborhood.begin()) {
-         iEmptyBucket += m_cBuckets;
-      }
-      /* We have an empty bucket, but it’s not in the key’s neighborhood: try to move it in the
-      neighborhood. */
-      while (iEmptyBucket >= irNeighborhood.end()) {
-         /* Find the first non-empty bucket that’s part of the left-most neighborhood containing
-         iEmptyBucket, but excluding buckets occupied by keys belonging to other overlapping
-         neighborhoods. */
+      /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
+      key’s neighborhood, so we have to try and move it in the neighborhood. */
+      for (iEmptyBucket < irNeighborhood.begin() || iEmptyBucket >= irNeighborhood.end()) {
+         /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
+         of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
+         keys belonging to other overlapping neighborhoods. */
          std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
          if (iMovableBucket == smc_iNullIndex) {
             /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to
