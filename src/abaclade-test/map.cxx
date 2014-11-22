@@ -52,10 +52,21 @@ public:
       ABC_TESTING_ASSERT_EQUAL(m[10], 100);
       ABC_TESTING_ASSERT_EQUAL(m[20], 200);
 
-      /*m.remove(1);
+      m.remove(10);
+      ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+
+      m.add(22, 220);
       ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(m[0], 2);
-      ABC_TESTING_ASSERT_EQUAL(m[1], 3);*/
+      ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+      ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+
+      m.clear();
+      ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+
+      m.add(11, 110);
+      ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(m[11], 110);
    }
 };
 
