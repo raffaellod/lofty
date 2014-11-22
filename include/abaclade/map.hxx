@@ -260,6 +260,15 @@ public:
       get_value(iBucket).~TValue();
    }
 
+   /*! Returns the count of elements in the map.
+
+   @return
+      Count of elements.
+   */
+   std::size_t size() const {
+      return m_cUsedBuckets;
+   }
+
 private:
    void create_empty_buckets(std::size_t cBuckets = smc_cBucketsMin) {
       std::unique_ptr<std::size_t[]> piHashes(new std::size_t[cBuckets]);
