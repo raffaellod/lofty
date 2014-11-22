@@ -107,12 +107,15 @@ public:
    public:
       /*! Constructor.
 
+      @param pnPrev
+         Pointer to the node preceding *pnCurr.
       @param pnCurr
          Pointer to the current node.
       @param pnNext
          Pointer to the node following *pnCurr.
       */
-      iterator(node * pnCurr, node * pnNext) :
+      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
+         m_pnPrev(pnPrev),
          m_pnCurr(pnCurr),
          m_pnNext(pnNext) {
       }
@@ -141,9 +144,9 @@ public:
          *this after it’s moved to the node following the one currently pointed to by.
       */
       iterator & operator++() {
-         node * pnNewPrev = m_pnCurr;
+         m_pnPrev = m_pnCurr;
          m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr->get_next(pnNewPrev);
+         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
          return *this;
       }
 
@@ -153,10 +156,9 @@ public:
          Iterator pointing to the node following the one pointed to by this iterator.
       */
       iterator operator++(int) {
-         node * pnNewPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr->get_next(pnNewPrev);
-         return iterator(pnNewPrev, m_pnCurr);
+         node * pnPrevPrev = m_pnPrev;
+         operator++();
+         return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
       }
 
       /*! Predecrement operator.
@@ -165,9 +167,9 @@ public:
          *this after it’s moved to the node preceding the one currently pointed to by.
       */
       iterator & operator--() {
-         node * pnNewNext = m_pnCurr;
-         m_pnCurr = m_pnCurr->get_prev(m_pnNext);
-         m_pnNext = pnNewNext;
+         m_pnNext = m_pnCurr;
+         m_pnCurr = m_pnPrev;
+         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
          return *this;
       }
 
@@ -177,10 +179,9 @@ public:
          Iterator pointing to the node preceding the one pointed to by this iterator.
       */
       iterator operator--(int) {
-         node * pnNewNextNext = m_pnNext;
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnCurr->get_prev(pnNewNextNext);
-         return iterator(m_pnNext, pnNewNextNext);
+         node * pnNextNext = m_pnNext;
+         operator--();
+         return iterator(m_pnCurr, m_pnNext, pnNextNext);
       }
 
 // Relational operators.
@@ -202,6 +203,8 @@ ABC_RELOP_IMPL(!=)
       }
 
    private:
+      //! Pointer to the previous node.
+      node * m_pnPrev;
       //! Pointer to the current node.
       node * m_pnCurr;
       //! Pointer to the next node.
@@ -218,7 +221,7 @@ public:
    */
    static iterator begin() {
       node * pnFirst = TContainer::sm_pnFirst;
-      return iterator(pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
+      return iterator(nullptr, pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
    }
 
    /*! Returns a forward iterator to the end of the list.
@@ -227,7 +230,7 @@ public:
       Iterator to the beyond the last node in the list.
    */
    static iterator end() {
-      return iterator(TContainer::sm_pnLast, nullptr);
+      return iterator(TContainer::sm_pnLast, nullptr, nullptr);
    }
 
    /*! Returns a reverse iterator to the end of the list.
