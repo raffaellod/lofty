@@ -333,8 +333,10 @@ private:
                         * piHashNhEnd = m_piHashes.get() + irNeighborhood.end(),
                         * piHashesEnd = m_piHashes.get() + m_cBuckets;
       /* irNeighborhood may be a wrapping range, so we can only test for inequality and rely on the
-      wrap-around logic at the end of the loop body. */
-      while (piHash != piHashNhEnd) {
+      wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
+      otherwise we won’t enter the loop at all if the start condition is the same as the end
+      condition, which is the case for get_neighborhood_size() == m_cBuckets. */
+      do {
          if (
             *piHash == iAcceptableEmptyHash ||
             /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
@@ -349,7 +351,7 @@ private:
          if (++piHash == piHashesEnd) {
             piHash = m_piHashes.get();
          }
-      }
+      } while (piHash != piHashNhEnd);
       return smc_iNullIndex;
    }
 
