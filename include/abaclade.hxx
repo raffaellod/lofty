@@ -291,11 +291,6 @@ constructor (N2346). */
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
-//! If defined, the compiler supports template friend declarations (N1791).
-#if ABC_HOST_GCC >= 40500 || ABC_HOST_MSC
-   #define ABC_CXX_TEMPLATE_FRIENDS
-#endif
-
 //! If defined, the compiler supports variadic templates (N2242).
 #if ABC_HOST_GCC
    #define ABC_CXX_VARIADIC_TEMPLATES

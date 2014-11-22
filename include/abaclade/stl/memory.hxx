@@ -1074,11 +1074,7 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-#ifdef ABC_CXX_TEMPLATE_FRIENDS
 protected:
-#else
-public:
-#endif
    /*! Constructor. Non-standard.
 
    TODO: comment signature.
@@ -1253,11 +1249,7 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-#ifdef ABC_CXX_TEMPLATE_FRIENDS
 protected:
-#else
-public:
-#endif
    /*! Constructor. Non-standard, used by make_shared().
 
    TODO: comment signature.
