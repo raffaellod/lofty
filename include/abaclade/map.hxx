@@ -79,6 +79,17 @@ public:
       return m_iBegin;
    }
 
+   /*! Returns true if the specified index is included in the range.
+
+   @param i
+      Index to check for inclusion.
+   @return
+      Inverted range.
+   */
+   bool contains(std::size_t i) const {
+      return i >= m_iBegin && i < m_iEnd;
+   }
+
    /*! Returns true if the range is empty.
 
    @return
@@ -236,7 +247,7 @@ public:
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
          if (*piHash != smc_iEmptyBucketHash) {
             *piHash = smc_iEmptyBucketHash;
-            pkey->~TKey();
+            pkey  ->~TKey  ();
             pvalue->~TValue();
          }
       }
@@ -432,7 +443,7 @@ private:
       }
       /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
       key’s neighborhood, so we have to try and move it in the neighborhood. */
-      while (iEmptyBucket < irNeighborhood.begin() || iEmptyBucket >= irNeighborhood.end()) {
+      while (!irNeighborhood.contains(iEmptyBucket)) {
          /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
          of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
          keys belonging to other overlapping neighborhoods. */
