@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_IO_BINARY_FILE_HXX
 
 #ifndef _ABACLADE_HXX
-   #error Please #include <abaclade.hxx> before this file
+   #error "Please #include <abaclade.hxx> before this file"
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
@@ -45,7 +45,7 @@ namespace io {
 #elif ABC_HOST_API_WIN32
    typedef HANDLE filedesc_t;
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 
 

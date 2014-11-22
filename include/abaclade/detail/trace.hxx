@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #ifndef _ABACLADE_HXX_INTERNAL
-   #error Please #include <abaclade.hxx> instead of this file
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 

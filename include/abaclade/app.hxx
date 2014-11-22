@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_APP_HXX
 
 #ifndef _ABACLADE_HXX
-   #error Please #include <abaclade.hxx> before this file
+   #error "Please #include <abaclade.hxx> before this file"
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
@@ -178,7 +178,7 @@ protected:
          }
    #endif
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error TODO-PORT: OUTPUT
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #ifndef _ABACLADE_HXX_INTERNAL
-   #error Please #include <abaclade.hxx> instead of this file
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 
@@ -76,7 +76,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #else //if ABC_HOST_GCC >= 40400
    #if ABC_HOST_MSC
       #if !defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED)
-         #error Please compile with /Zc:wchar_t
+         #error "Please compile with /Zc:wchar_t"
       #endif
 
       // char16_t is not a native type, but we can typedef it as wchar_t.
@@ -101,7 +101,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
 #endif //if ABC_HOST_GCC >= 40400 … else
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
-   #error ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic
+   #error "ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic"
 #endif
 
 

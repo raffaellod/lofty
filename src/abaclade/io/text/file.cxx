@@ -114,7 +114,7 @@ std::shared_ptr<binbuf_base> _construct_stdio(
          return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
       });
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       enc = abc::text::encoding::unknown;
       if (sEnc) {

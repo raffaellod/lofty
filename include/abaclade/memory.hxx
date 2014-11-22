@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #ifndef _ABACLADE_HXX_INTERNAL
-   #error Please #include <abaclade.hxx> instead of this file
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 #if ABC_HOST_API_POSIX
@@ -314,7 +314,7 @@ inline T * clear(T * ptDst, std::size_t c = 1) {
 #elif ABC_HOST_API_WIN32
    ::RtlZeroMemory(ptDst, sizeof(T) * c);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }
@@ -360,7 +360,7 @@ inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
 #elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }
@@ -383,7 +383,7 @@ inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
 #elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }

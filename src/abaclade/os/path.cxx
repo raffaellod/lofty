@@ -85,7 +85,7 @@ char_t const path::smc_aszSeparator[] =
 #elif ABC_HOST_API_WIN32
    ABC_SL("\\");
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 char_t const path::smc_aszRoot[] =
 #if ABC_HOST_API_POSIX
@@ -93,7 +93,7 @@ char_t const path::smc_aszRoot[] =
 #elif ABC_HOST_API_WIN32
    ABC_SL("\\\\?\\");
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 #if ABC_HOST_API_WIN32
 char_t const path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
@@ -144,7 +144,7 @@ path path::absolute() const {
          opAbsolute = current_dir() / *this;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    }
    // Make sure the path is normalized.
@@ -193,7 +193,7 @@ path path::base_name() const {
    // Now that the current directory has been retrieved, prepend the root prefix.
    memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    return std::move(s);
 }
@@ -235,7 +235,7 @@ bool path::is_dir() const {
 #elif ABC_HOST_API_WIN32
    return file_attrs(*this, FILE_ATTRIBUTE_DIRECTORY);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -414,7 +414,7 @@ dmstr::const_iterator path::base_name_start() const {
       }
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    return 0;
 }

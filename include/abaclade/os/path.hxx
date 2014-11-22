@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_FILE_PATH_HXX
 
 #ifndef _ABACLADE_HXX
-   #error Please #include <abaclade.hxx> before this file
+   #error "Please #include <abaclade.hxx> before this file"
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
@@ -276,7 +276,7 @@ public:
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    istr os_str() const;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
    /*! Returns the directory containing the path.
@@ -376,7 +376,7 @@ private:
 #elif ABC_HOST_API_WIN32
       4 /*"\\?\"*/ + 1 /*NUL*/
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    ];
 #if ABC_HOST_API_WIN32

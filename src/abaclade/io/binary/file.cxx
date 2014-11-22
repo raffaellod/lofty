@@ -184,7 +184,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
       }
    }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
    // If a file object was not returned in the code above, return a generic file.
@@ -242,7 +242,7 @@ std::shared_ptr<file_writer> stderr() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_ERROR_HANDLE),
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
          false
       ), access_mode::write));
@@ -266,7 +266,7 @@ std::shared_ptr<file_reader> stdin() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_INPUT_HANDLE),
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
          false
       ), access_mode::read));
@@ -290,7 +290,7 @@ std::shared_ptr<file_writer> stdout() {
 #elif ABC_HOST_API_WIN32
          ::GetStdHandle(STD_OUTPUT_HANDLE),
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
          false
       ), access_mode::write));
@@ -378,7 +378,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
       }
    }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    fid.am = am;
    fid.bBuffered = bBuffered;
@@ -401,7 +401,7 @@ filedesc_t const filedesc::smc_fdNull =
 #elif ABC_HOST_API_WIN32
    INVALID_HANDLE_VALUE;
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 
 filedesc::filedesc(filedesc && fd) :
@@ -422,7 +422,7 @@ filedesc::~filedesc() {
 #elif ABC_HOST_API_WIN32
       ::CloseHandle(m_fd);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
    }
 }
@@ -518,7 +518,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          break;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were read; prepare for the next attempt.
       pb += cbLastRead;
@@ -568,7 +568,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       throw_os_error();
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -601,7 +601,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          throw_os_error();
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       // Some bytes were written; prepare for the next attempt.
       pb += cbLastWritten;
@@ -1022,7 +1022,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
@@ -1094,7 +1094,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    return ibNewOffset.QuadPart;
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
@@ -1112,7 +1112,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    // descriptor, so casting the const-ness away is not semantically wrong.
    return const_cast<regular_file_base *>(this)->seek(0, seek_from::current);
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 

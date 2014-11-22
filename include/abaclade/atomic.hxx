@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #define _ABACLADE_ATOMIC_HXX
 
 #ifndef _ABACLADE_HXX
-   #error Please #include <abaclade.hxx> before this file
+   #error "Please #include <abaclade.hxx> before this file"
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
@@ -46,7 +46,7 @@ namespace atomic {
    // Win32 uses long to mean 32 bits, always.
    typedef long int_t;
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 
 #if ABC_HOST_API_POSIX
@@ -82,7 +82,7 @@ inline I add(I volatile * piDst, I iAddend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -123,7 +123,7 @@ inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -153,7 +153,7 @@ inline I decrement(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -183,7 +183,7 @@ inline I increment(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -220,7 +220,7 @@ inline I subtract(I volatile * piDst, I iSubtrahend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 }
 

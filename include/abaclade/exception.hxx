@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #ifndef _ABACLADE_HXX_INTERNAL
-   #error Please #include <abaclade.hxx> instead of this file
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 
@@ -492,7 +492,7 @@ namespace abc {
 #elif ABC_HOST_API_WIN32
    typedef DWORD errint_t;
 #else
-   #error HOST_API
+   #error "TODO: HOST_API"
 #endif
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32

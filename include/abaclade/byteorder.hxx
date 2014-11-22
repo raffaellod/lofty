@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #ifndef _ABACLADE_HXX_INTERNAL
-   #error Please #include <abaclade.hxx> instead of this file
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 
@@ -58,7 +58,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #if !ABC_HOST_LITTLE_ENDIAN && !ABC_HOST_BIG_ENDIAN
-   #error Unable to detect byte order (endianness)
+   #error "Unable to detect byte order (endianness)"
 #endif
 
 // Define byte reordering functions.

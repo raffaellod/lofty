@@ -170,7 +170,7 @@ namespace abc {
 #elif defined(__SIZEOF_POINTER__)
    #define ABC_HOST_WORD_SIZE (__SIZEOF_POINTER__ * 8)
 #else
-   #error Unable to determine the word size for this microarchitecture
+   #error "Unable to determine the word size for this microarchitecture"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ namespace abc {
 
 // Ensure RTTI support is enabled for MSC.
 #if ABC_HOST_MSC && !defined(_CPPRTTI)
-   #error Please compile with /GR
+   #error "Please compile with /GR"
 #endif
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
