@@ -230,7 +230,7 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      std::size_t * piHash = m_piHashes, * piHashesEnd = piHash + m_cBuckets;
+      std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
       TKey * pkey = &get_key(0);
       TValue * pvalue = &get_value(0);
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
@@ -284,6 +284,7 @@ private:
       m_pvalues = std::move(pvalues);
       m_cBuckets = cBuckets;
       m_cUsedBuckets = 0;
+      // Initialize m_piHashes[i] with smc_iEmptyBucketHash.
       memory::clear(m_piHashes.get(), cBuckets);
    }
 
@@ -326,9 +327,9 @@ private:
       /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
       the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
       std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
-      std::size_t const * piHash      = m_piHashes + irNeighborhood.begin(),
-                        * piHashNhEnd = m_piHashes + irNeighborhood.end(),
-                        * piHashesEnd = m_piHashes + m_cBuckets;
+      std::size_t const * piHash      = m_piHashes.get() + irNeighborhood.begin(),
+                        * piHashNhEnd = m_piHashes.get() + irNeighborhood.end(),
+                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
       /* irNeighborhood may be a wrapping range, so we can only test for inequality and rely on the
       wrap-around logic at the end of the loop body. */
       while (piHash != piHashNhEnd) {
@@ -337,14 +338,14 @@ private:
             /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
             match or hash collision) to make recalculating the offset from m_pkeys cheaper than
             keeping a cursor over m_pkeys running in parallel to piHash. */
-            (*piHash == iKeyHash && keys_equal(m_pkeys[piHash - m_piHashes] == *pkey))
+            (*piHash == iKeyHash && keys_equal(m_pkeys[piHash - m_piHashes.get()] == *pkey))
          ) {
-            return static_cast<std::size_t>(piHash - m_piHashes);
+            return static_cast<std::size_t>(piHash - m_piHashes.get());
          }
 
          // Move on to the next bucket, wrapping around to the first one if needed.
          if (++piHash == piHashesEnd) {
-            piHash = m_piHashes;
+            piHash = m_piHashes.get();
          }
       }
       return smc_iNullIndex;
@@ -378,9 +379,9 @@ private:
          iEmptyBucket += m_cBuckets;
       }
       // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
-      std::size_t const * piEmptyHash = m_piHashes + (iEmptyBucket & (m_cBuckets - 1)),
+      std::size_t const * piEmptyHash = m_piHashes.get() + (iEmptyBucket & (m_cBuckets - 1)),
                         * piHash      = piEmptyHash - cBucketsRightOfEmpty,
-                        * piHashesEnd = m_piHashes + m_cBuckets;
+                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
       /* The neighborhood may wrap, so we can only test for inequality and rely on the wrap-around
       logic at the end of the loop body. */
       while (piHash != piEmptyHash) {
@@ -390,12 +391,12 @@ private:
          /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is
          always valid. */
          if (iEmptyBucket < iCurrNhEnd) {
-            return static_cast<std::size_t>(piHash - m_piHashes);
+            return static_cast<std::size_t>(piHash - m_piHashes.get());
          }
 
          // Move on to the next bucket, wrapping around to the first one if needed.
          if (++piHash == piHashesEnd) {
-            piHash = m_piHashes;
+            piHash = m_piHashes.get();
          }
       }
       // No luck, the hash table needs to be resized.
@@ -428,7 +429,7 @@ private:
       }
       /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
       key’s neighborhood, so we have to try and move it in the neighborhood. */
-      for (iEmptyBucket < irNeighborhood.begin() || iEmptyBucket >= irNeighborhood.end()) {
+      while (iEmptyBucket < irNeighborhood.begin() || iEmptyBucket >= irNeighborhood.end()) {
          /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
          of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
          keys belonging to other overlapping neighborhoods. */
