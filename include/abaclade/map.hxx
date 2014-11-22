@@ -203,14 +203,13 @@ public:
    */
    std::pair<iterator, bool> add(TKey key, TValue value) {
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
+      if (!m_cBuckets) {
+         create_empty_buckets();
+      }
       /* Repeatedly resize the table until we’re able to find a empty bucket for the new element.
       This should really only happen at most once. */
       while ((iBucket = get_existing_or_empty_bucket_for_key(key, iKeyHash)) == smc_iNullIndex) {
-         if (m_cBuckets) {
-            // TODO: resize the hash table.
-         } else {
-            create_empty_buckets();
-         }
+         // TODO: resize the hash table.
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
