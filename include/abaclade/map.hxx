@@ -225,6 +225,7 @@ public:
          // The bucket already has a value, so overwrite it with the value argument.
          *pvalue = std::move(value);
       }
+      ++m_cUsedBuckets;
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
@@ -258,6 +259,7 @@ public:
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
       get_key(iBucket).~TKey();
       get_value(iBucket).~TValue();
+      --m_cUsedBuckets;
    }
 
    /*! Returns the count of elements in the map.
