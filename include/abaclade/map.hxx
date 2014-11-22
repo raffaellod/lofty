@@ -187,7 +187,7 @@ public:
          // TODO: throw proper exception.
          throw 0;
       }
-      return m_pvalues[iBucket];
+      return *get_value_ptr(iBucket);
    }
 
    /*! Adds a key/value pair to the map, overwriting the value if key is already associated to one.
@@ -214,11 +214,11 @@ public:
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
-      TValue * pvalue = &get_value(iBucket);
+      TValue * pvalue = get_value_ptr(iBucket);
       bool bNew = (*piHash == smc_iEmptyBucketHash);
       if (bNew) {
          // The bucket is currently empty, so initialize it with key, iKeyHash and value.
-         new(&get_key(iBucket)) TKey(std::move(key));
+         new(get_key_ptr(iBucket)) TKey(std::move(key));
          *piHash = iKeyHash;
          new(pvalue) TValue(std::move(value));
       } else {
@@ -232,8 +232,8 @@ public:
    //! Removes all elements from the map.
    void clear() {
       std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
-      TKey * pkey = &get_key(0);
-      TValue * pvalue = &get_value(0);
+      TKey   * pkey   = get_key_ptr  (0);
+      TValue * pvalue = get_value_ptr(0);
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
          if (*piHash != smc_iEmptyBucketHash) {
             *piHash = smc_iEmptyBucketHash;
@@ -257,8 +257,8 @@ public:
       }
       // Mark the bucket as empty and destruct the corresponding key and value.
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
-      get_key(iBucket).~TKey();
-      get_value(iBucket).~TValue();
+      get_key_ptr  (iBucket)->~TKey  ();
+      get_value_ptr(iBucket)->~TValue();
       --m_cUsedBuckets;
    }
 
@@ -340,7 +340,7 @@ private:
             /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
             match or hash collision) to make recalculating the offset from m_pkeys cheaper than
             keeping a cursor over m_pkeys running in parallel to piHash. */
-            (*piHash == iKeyHash && keys_equal(m_pkeys[piHash - m_piHashes.get()] == *pkey))
+            (*piHash == iKeyHash && keys_equal(get_key_ptr(piHash - m_piHashes.get()), pkey))
          ) {
             return static_cast<std::size_t>(piHash - m_piHashes.get());
          }
@@ -448,8 +448,8 @@ private:
       return iEmptyBucket;
    }
 
-   TKey & get_key(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pkeys.get())[i];
+   TKey * get_key_ptr(std::size_t i) const {
+      return reinterpret_cast<TKey *>(m_pkeys.get()) + i;
    }
 
    /*! Returns the current neighborhood size.
@@ -459,11 +459,11 @@ private:
    */
    std::size_t get_neighborhood_size() const {
       // Can’t have a neighborhood larger than the total count of buckets.
-      return std::min(smc_cNeighborhoodBuckets, m_cBuckets);
+      return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;
    }
 
-   TValue & get_value(std::size_t i) const {
-      return reinterpret_cast<TValue *>(m_pvalues.get())[i];
+   TValue * get_value_ptr(std::size_t i) const {
+      return reinterpret_cast<TValue *>(m_pvalues.get()) + i;
    }
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
@@ -493,8 +493,8 @@ private:
       return index_range(iNeighborhoodBegin, iNeighborhoodEnd);
    }
 
-   bool keys_equal(TKey const & key1, TKey const & key2) const {
-      return key1 == key2;
+   bool keys_equal(TKey const * key1, TKey const * key2) const {
+      return *key1 == *key2;
    }
 
    /*! Moves the contents of one bucket to another bucket.
@@ -506,8 +506,8 @@ private:
    */
    void move_bucket_contents(std::size_t iSrcBucket, std::size_t iDstBucket) {
       m_piHashes[iDstBucket] = m_piHashes[iSrcBucket];
-      new(&get_key  (iDstBucket)) TKey  (std::move(get_key  (iSrcBucket)));
-      new(&get_value(iDstBucket)) TValue(std::move(get_value(iSrcBucket)));
+      new(get_key_ptr  (iDstBucket)) TKey  (std::move(*get_key_ptr  (iSrcBucket)));
+      new(get_value_ptr(iDstBucket)) TValue(std::move(*get_value_ptr(iSrcBucket)));
    }
 
 private:
