@@ -78,12 +78,12 @@ namespace abc {
    #undef ABC_HOST_GCC
    #define ABC_HOST_GCC \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-   #if ABC_HOST_GCC < 40300
-      #error Unsupported version of GCC (>= 4.3.0 required)
+   #if ABC_HOST_GCC < 40400
+      #error "Unsupported version of GCC: >= 4.4 required, 4.6 suggested"
    #endif
 #elif defined(_MSC_VER)
    #if _MSC_VER < 1600
-      #error Unsupported version of MSC (>= MSC 16 / VC++ 10 / VS 2010 required)
+      #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
    #endif
    #undef ABC_HOST_MSC
    #define ABC_HOST_MSC _MSC_VER
