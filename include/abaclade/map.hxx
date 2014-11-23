@@ -115,8 +115,8 @@ public:
    TValue & operator[](TKey const & key) const {
       std::size_t iBucket = key_lookup(&key);
       if (iBucket == smc_iNullIndex) {
-         // TODO: throw proper exception.
-         throw 0;
+         // TODO: provide more information in the exception.
+         ABC_THROW(key_error, ());
       }
       return *get_value_ptr(iBucket);
    }
@@ -141,6 +141,7 @@ public:
       This should really only happen at most once. */
       while ((iBucket = get_existing_or_empty_bucket_for_key(key, iKeyHash)) == smc_iNullIndex) {
          // TODO: resize the hash table.
+         throw 0;
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
@@ -182,14 +183,14 @@ public:
    void remove(TKey const & key) {
       std::size_t iBucket = key_lookup(&key);
       if (iBucket == smc_iNullIndex) {
-         // TODO: throw proper exception.
-         throw 0;
+         // TODO: provide more information in the exception.
+         ABC_THROW(key_error, ());
       }
       // Mark the bucket as empty and destruct the corresponding key and value.
+      --m_cUsedBuckets;
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
       get_key_ptr  (iBucket)->~TKey  ();
       get_value_ptr(iBucket)->~TValue();
-      --m_cUsedBuckets;
    }
 
    /*! Returns the count of elements in the map.
