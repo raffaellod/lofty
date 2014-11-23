@@ -62,10 +62,13 @@ public:
       /*! Dereferencing member access operator.
 
       @return
-         Pointer to the current node.
+         Pointer to the current value.
       */
-      T operator->() const {
-         return m_t;
+      T * operator->() {
+         return &m_t;
+      }
+      T const * operator->() const {
+         return &m_t;
       }
 
       /*! Preincrement operator.
