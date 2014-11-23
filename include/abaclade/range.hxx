@@ -239,7 +239,7 @@ public:
       Count of values.
    */
    std::size_t size() const {
-      return m_tEnd - m_tBegin;
+      return m_tBegin < m_tEnd ? static_cast<std::size_t>(m_tEnd - m_tBegin) : 0;
    }
 
 private:
