@@ -27,93 +27,13 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/range.hxx>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::map
 
 namespace abc {
-
-//! Index range.
-class index_range : public support_explicit_operator_bool<index_range> {
-public:
-   /*! Constructor.
-
-   @param iBegin
-      Index of the first index in the range.
-   @param iEnd
-      Index beyond the last index in the range.
-   */
-   index_range() :
-      m_iBegin(0),
-      m_iEnd(0) {
-   }
-   index_range(std::size_t iBegin, std::size_t iEnd) :
-      m_iBegin(iBegin),
-      m_iEnd(iEnd) {
-   }
-
-   /*! Boolean evaluation operator.
-
-   @return
-      true if the range is non-empty, or false if it’s empty.
-   */
-   explicit_operator_bool() const {
-      return !empty();
-   }
-
-   /*! Returns the interval not included in the range, defined as [ end(), begin() ).
-
-   @return
-      Inverted range.
-   */
-   index_range operator~() const {
-      return index_range(m_iEnd, m_iBegin);
-   }
-
-   /*! Returns the start of the range.
-
-   @return
-      First index in the range.
-   */
-   std::size_t begin() const {
-      return m_iBegin;
-   }
-
-   /*! Returns true if the specified index is included in the range.
-
-   @param i
-      Index to check for inclusion.
-   @return
-      Inverted range.
-   */
-   bool contains(std::size_t i) const {
-      return i >= m_iBegin && i < m_iEnd;
-   }
-
-   /*! Returns true if the range is empty.
-
-   @return
-      true if the range is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_iBegin == m_iEnd;
-   }
-
-   /*! Returns the end of the range.
-
-   @return
-      Index beyond the last in the range.
-   */
-   std::size_t end() const {
-      return m_iEnd;
-   }
-
-private:
-   //! Index of the first index in the range.
-   std::size_t m_iBegin;
-   //! Index beyond the last index in the range.
-   std::size_t m_iEnd;
-};
 
 //! Key/value map using a simplified hopscotch hashing collision resolution algorithm.
 template <typename TKey, typename TValue, typename THasher = std::hash<TKey>>
@@ -143,6 +63,9 @@ public:
       //! Current bucket index.
       std::size_t m_iBucket;
    };
+
+private:
+   typedef range<std::size_t> index_range;
 
 public:
    /*! Constructor.
@@ -339,8 +262,8 @@ private:
       /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
       the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
       std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
-      std::size_t const * piHash      = m_piHashes.get() + irNeighborhood.begin(),
-                        * piHashNhEnd = m_piHashes.get() + irNeighborhood.end(),
+      std::size_t const * piHash      = m_piHashes.get() + *irNeighborhood.begin(),
+                        * piHashNhEnd = m_piHashes.get() + *irNeighborhood.end(),
                         * piHashesEnd = m_piHashes.get() + m_cBuckets;
       /* irNeighborhood may be a wrapping range, so we can only test for inequality and rely on the
       wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
