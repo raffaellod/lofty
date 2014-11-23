@@ -211,6 +211,15 @@ public:
       return iterator(m_tEnd);
    }
 
+   /*! Returns the count of values included in the range.
+
+   @return
+      Count of values.
+   */
+   std::size_t size() const {
+      return m_tEnd - m_tBegin;
+   }
+
 private:
    //! First value in the range.
    T m_tBegin;
