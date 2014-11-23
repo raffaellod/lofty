@@ -230,7 +230,7 @@ private:
    @param iKeyHash
       Hash of *pkey.
    @param irNeighborhood
-      Nighborhood bucket index range.
+      Neighborhood bucket index range.
    @param bAcceptEmptyBucket
       If true, an empty bucket will be considered a match, and its index returned.
    @return

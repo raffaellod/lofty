@@ -182,6 +182,28 @@ public:
       return range(m_tEnd, m_tBegin);
    }
 
+   /*! Equality relational operator.
+
+   @param r
+      Object to compare to *this.
+   @return
+      true if *this has the same begin and end as r, or false otherwise.
+   */
+   bool operator==(range const & r) const {
+      return m_tBegin == r.m_tBegin && m_tEnd == r.m_tEnd;
+   }
+
+   /*! Inequality relational operator.
+
+   @param r
+      Object to compare to *this.
+   @return
+      true if *this has a different begin and/or end than r, or false otherwise.
+   */
+   bool operator!=(range const & r) const {
+      return !operator==(r);
+   }
+
    /*! Returns an iterator to the start of the range.
 
    @return
