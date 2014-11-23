@@ -160,6 +160,15 @@ public:
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
+   /*! Returns the maximum number of key/value pairs the map can currently hold.
+
+   @return
+      Current size of the allocated storage, in elements.
+   */
+   std::size_t capacity() const {
+      return m_cBuckets;
+   }
+
    //! Removes all elements from the map.
    void clear() {
       std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
