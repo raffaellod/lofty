@@ -64,9 +64,6 @@ public:
       std::size_t m_iBucket;
    };
 
-private:
-   typedef range<std::size_t> index_range;
-
 public:
    /*! Constructor.
 
@@ -229,8 +226,10 @@ private:
       Pointer to the key to lookup.
    @param iKeyHash
       Hash of *pkey.
-   @param irNeighborhood
-      Neighborhood bucket index range.
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
    @param bAcceptEmptyBucket
       If true, an empty bucket will be considered a match, and its index returned.
    @return
@@ -245,7 +244,9 @@ private:
          // The key cannot possibly be in the map.
          return smc_iNullIndex;
       }
-      return key_lookup(pkey, iKeyHash, get_hash_neighborhood_range(iKeyHash), false);
+      std::size_t iNhBegin, iNhEnd;
+      std::tie(iNhBegin, iNhEnd) = get_hash_neighborhood_range(iKeyHash);
+      return key_lookup(pkey, iKeyHash, iNhBegin, iNhEnd, false);
    }
    /* This overload could be split in three different methods:
 
@@ -257,16 +258,17 @@ private:
    The reason it’s not split is that most of the code is shared among these operation modes, so its
    instruction cache footprint is reduced. */
    std::size_t key_lookup(
-      TKey const * pkey, std::size_t iKeyHash, index_range irNeighborhood, bool bAcceptEmptyBucket
+      TKey const * pkey, std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd,
+      bool bAcceptEmptyBucket
    ) const {
       /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
       the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
       std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
-      std::size_t const * piHash      = m_piHashes.get() + *irNeighborhood.begin(),
-                        * piHashNhEnd = m_piHashes.get() + *irNeighborhood.end(),
+      std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                        * piHashNhEnd = m_piHashes.get() + iNhEnd,
                         * piHashesEnd = m_piHashes.get() + m_cBuckets;
-      /* irNeighborhood may be a wrapping range, so we can only test for inequality and rely on the
-      wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
+      /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
+      the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
       otherwise we won’t enter the loop at all if the start condition is the same as the end
       condition, which is the case for get_neighborhood_size() == m_cBuckets. */
       do {
@@ -352,21 +354,26 @@ private:
       bucket can be moved in key’s neighborhood, the returned index is smc_iNullIndex.
    */
    std::size_t get_existing_or_empty_bucket_for_key(TKey const & key, std::size_t iKeyHash) {
-      auto irNeighborhood(get_hash_neighborhood_range(iKeyHash));
+      std::size_t iNhBegin, iNhEnd;
+      std::tie(iNhBegin, iNhEnd) = get_hash_neighborhood_range(iKeyHash);
       // Look for the key or an empty bucket in the neighborhood.
-      std::size_t iBucket = key_lookup(&key, iKeyHash, irNeighborhood, true);
+      std::size_t iBucket = key_lookup(&key, iKeyHash, iNhBegin, iNhEnd, true);
       if (iBucket != smc_iNullIndex) {
          return iBucket;
       }
       // Find an empty bucket, scanning every bucket outside the neighborhood.
-      std::size_t iEmptyBucket = key_lookup(nullptr, smc_iEmptyBucketHash, ~irNeighborhood, true);
+      std::size_t iEmptyBucket = key_lookup(nullptr, smc_iEmptyBucketHash, iNhEnd, iNhBegin, true);
       if (iEmptyBucket == smc_iNullIndex) {
          // No luck, the hash table needs to be resized.
          return smc_iNullIndex;
       }
       /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
-      key’s neighborhood, so we have to try and move it in the neighborhood. */
-      while (!irNeighborhood.contains(iEmptyBucket)) {
+      key’s neighborhood, so we have to try and move it in the neighborhood. The not-in-neighborhood
+      check is made more complicated by the fact the range may wrap. */
+      while (iNhBegin < iNhEnd
+         ? iEmptyBucket >= iNhEnd || iEmptyBucket < iNhBegin // Non-wrapping: |---[begin end)---|
+         : iEmptyBucket >= iNhEnd && iEmptyBucket < iNhBegin // Wrapping:     | end)-----[begin |
+      ) {
          /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
          of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
          keys belonging to other overlapping neighborhoods. */
@@ -420,12 +427,12 @@ private:
    @return
       Calculated range for the neighborhood bucket index.
    */
-   index_range get_hash_neighborhood_range(std::size_t iHash) const {
-      std::size_t iNeighborhoodBegin = get_hash_neighborhood_index(iHash);
-      std::size_t iNeighborhoodEnd = iNeighborhoodBegin + get_neighborhood_size();
+   std::tuple<std::size_t, std::size_t> get_hash_neighborhood_range(std::size_t iHash) const {
+      std::size_t iNhBegin = get_hash_neighborhood_index(iHash);
+      std::size_t iNhEnd = iNhBegin + get_neighborhood_size();
       // Wrap the end index back in the table.
-      iNeighborhoodEnd &= m_cBuckets - 1;
-      return index_range(iNeighborhoodBegin, iNeighborhoodEnd);
+      iNhEnd &= m_cBuckets - 1;
+      return std::make_tuple(iNhBegin, iNhEnd);
    }
 
    bool keys_equal(TKey const * key1, TKey const * key2) const {
