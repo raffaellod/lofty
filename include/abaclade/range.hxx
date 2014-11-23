@@ -109,14 +109,27 @@ public:
          return iterator(m_t--);
       }
 
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-      bool operator op(iterator const & it) const { \
-         return m_t op it.m_t; \
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this has the same value as it, or false otherwise.
+      */
+      bool operator==(iterator const & it) const {
+         return m_t == it.m_t;
       }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this has a different value than it, or false otherwise.
+      */
+      bool operator!=(iterator const & it) const {
+         return !operator==(it);
+      }
 
       /*! Returns the underlying iterator type.
 
