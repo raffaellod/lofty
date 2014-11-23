@@ -52,4 +52,3 @@ def fnv_hash_basis(cBits, iFNVPrime):
 
 if __name__ == '__main__':
    fnv_hash_basis(int(sys.argv[1], 0), int(sys.argv[2], 0))
-

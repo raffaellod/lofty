@@ -780,4 +780,3 @@ class writer;
 
 #undef _ABACLADE_HXX_INTERNAL
 #endif //ifndef _ABACLADE_HXX
-

@@ -554,4 +554,3 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::vector_move)
-

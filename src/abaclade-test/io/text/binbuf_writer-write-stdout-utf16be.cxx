@@ -39,4 +39,3 @@ public:
 };
 
 ABC_APP_CLASS(test_app)
-

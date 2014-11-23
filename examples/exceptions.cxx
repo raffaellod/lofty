@@ -100,4 +100,3 @@ public:
 };
 
 ABC_APP_CLASS(exceptions_app)
-

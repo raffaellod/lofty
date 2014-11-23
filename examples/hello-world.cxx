@@ -69,4 +69,3 @@ public:
 };
 
 ABC_APP_CLASS(hello_world_app)
-
