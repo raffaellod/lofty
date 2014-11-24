@@ -76,8 +76,8 @@ public:
    }
    map(map && m) :
       m_piHashes(std::move(m.m_piHashes)),
-      m_pkeys(std::move(m.m_pkeys)),
-      m_pvalues(std::move(m.m_pvalues)),
+      m_pKeys(std::move(m.m_pKeys)),
+      m_pValues(std::move(m.m_pValues)),
       m_cBuckets(m.m_cBuckets),
       m_cUsedBuckets(m.m_cUsedBuckets) {
       m.m_cBuckets = 0;
@@ -96,8 +96,8 @@ public:
    */
    map & operator=(map && m) {
       m_piHashes = std::move(m.m_piHashes);
-      m_pkeys = std::move(m.m_pkeys);
-      m_pvalues = std::move(m.m_pvalues);
+      m_pKeys = std::move(m.m_pKeys);
+      m_pValues = std::move(m.m_pValues);
       m_cBuckets = m.m_cBuckets;
       m.m_cBuckets = 0;
       m_cUsedBuckets = m.m_cUsedBuckets;
@@ -135,13 +135,12 @@ public:
    std::pair<iterator, bool> add(TKey key, TValue value) {
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       if (!m_cBuckets) {
-         create_empty_buckets();
+         grow_table();
       }
       /* Repeatedly resize the table until we’re able to find a empty bucket for the new element.
       This should really only happen at most once. */
       while ((iBucket = get_existing_or_empty_bucket_for_key(key, iKeyHash)) == smc_iNullIndex) {
-         // TODO: resize the hash table.
-         throw 0;
+         grow_table();
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
@@ -212,24 +211,6 @@ public:
    }
 
 private:
-   void create_empty_buckets(std::size_t cBuckets = smc_cBucketsMin) {
-      std::unique_ptr<std::size_t[]> piHashes(new std::size_t[cBuckets]);
-      std::unique_ptr<std::max_align_t[]> pkeys(
-         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * cBuckets)]
-      );
-      std::unique_ptr<std::max_align_t[]> pvalues(
-         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * cBuckets)]
-      );
-      // Assign the new arrays and set the remaining members in an exception-safe sequence.
-      m_piHashes = std::move(piHashes);
-      m_pkeys = std::move(pkeys);
-      m_pvalues = std::move(pvalues);
-      m_cBuckets = cBuckets;
-      m_cUsedBuckets = 0;
-      // Initialize m_piHashes[i] with smc_iEmptyBucketHash.
-      memory::clear(m_piHashes.get(), cBuckets);
-   }
-
    /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
 
    @param pkey
@@ -285,8 +266,8 @@ private:
          if (
             *piHash == iAcceptableEmptyHash ||
             /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
-            match or hash collision) to make recalculating the offset from m_pkeys cheaper than
-            keeping a cursor over m_pkeys running in parallel to piHash. */
+            match or hash collision) to make recalculating the offset from m_pKeys cheaper than
+            keeping a cursor over m_pKeys running in parallel to piHash. */
             (*piHash == iKeyHash && keys_equal(get_key_ptr(piHash - m_piHashes.get()), pkey))
          ) {
             return static_cast<std::size_t>(piHash - m_piHashes.get());
@@ -401,7 +382,7 @@ private:
    }
 
    TKey * get_key_ptr(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pkeys.get()) + i;
+      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
    }
 
    /*! Returns the current neighborhood size.
@@ -415,7 +396,7 @@ private:
    }
 
    TValue * get_value_ptr(std::size_t i) const {
-      return reinterpret_cast<TValue *>(m_pvalues.get()) + i;
+      return reinterpret_cast<TValue *>(m_pValues.get()) + i;
    }
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
@@ -445,6 +426,56 @@ private:
       return std::make_tuple(iNhBegin, iNhEnd);
    }
 
+   /*! Enlarges the hash table by a factor of smc_iGrowthFactor. The contents of each bucket are
+   moved from the old arrays to new temporary ones, and the two array sets are then swapped.
+
+   The bucket contents transfer work is done by reusing functions that obtain the arrays to
+   operate on via member variables. In the assumption that transferring the contents of a bucket
+   won’t throw because it only involves move-constructions and destructions, we optimistically
+   update the member variables as soon as all memory allocations are done; if anything were to go
+   wrong after that, we’d have no guaranteed-safe way of recovering from a half-transferred
+   scenario anyway. */
+   void grow_table() {
+      // The “old” names of these four variables will make sense in a moment…
+      std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
+      std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
+      std::unique_ptr<std::max_align_t[]> pOldKeys(
+         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TKey) * cOldBuckets)]
+      );
+      std::unique_ptr<std::max_align_t[]> pOldValues(
+         new std::max_align_t[ABC_ALIGNED_SIZE(sizeof(TValue) * cOldBuckets)]
+      );
+      // At this point we’re safe from exceptions, so we can update the member variables.
+      std::swap(m_cBuckets, cOldBuckets);
+      std::swap(m_piHashes, piOldHashes);
+      std::swap(m_pKeys,    pOldKeys);
+      std::swap(m_pValues,  pOldValues);
+      // Now the names of these variables make sense :)
+
+      // Initialize piNewHashes[i] with smc_iEmptyBucketHash.
+      memory::clear(m_piHashes.get(), m_cBuckets);
+      // Re-insert each hash/key/value triplet to move it from the old arrays to the new ones.
+      std::size_t * piOldHash = piOldHashes.get(), * piOldHashesEnd = piOldHash + cOldBuckets;
+      TKey   * pOldKey   = reinterpret_cast<TKey   *>(pOldKeys  .get());
+      TValue * pOldValue = reinterpret_cast<TValue *>(pOldValues.get());
+      for (; piOldHash < piOldHashesEnd; ++piOldHash, ++pOldKey, ++pOldValue) {
+         if (*piOldHash != smc_iEmptyBucketHash) {
+            std::size_t iNewBucket = get_existing_or_empty_bucket_for_key(*pOldKey, *piOldHash);
+            ABC_ASSERT(
+               iNewBucket != smc_iNullIndex,
+               ABC_SL("failed to find empty bucket while growing hash table")
+            );
+
+            // Move hash/key/value to the new bucket.
+            m_piHashes[iNewBucket] = *piOldHash;
+            new(get_key_ptr  (iNewBucket)) TKey  (std::move(*pOldKey  ));
+            new(get_value_ptr(iNewBucket)) TValue(std::move(*pOldValue));
+            pOldKey  ->~TKey  ();
+            pOldValue->~TValue();
+         }
+      }
+   }
+
    bool keys_equal(TKey const * key1, TKey const * key2) const {
       return *key1 == *key2;
    }
@@ -466,17 +497,19 @@ private:
    //! Array containing the hash of each key.
    std::unique_ptr<std::size_t[]> m_piHashes;
    //! Array of keys.
-   std::unique_ptr<std::max_align_t[]> m_pkeys;
+   std::unique_ptr<std::max_align_t[]> m_pKeys;
    //! Array of buckets.
-   std::unique_ptr<std::max_align_t[]> m_pvalues;
+   std::unique_ptr<std::max_align_t[]> m_pValues;
    //! Count of total buckets. Always a power of two.
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.
    std::size_t m_cUsedBuckets;
-   //! Minimum bucket count.
+   //! Minimum bucket count. Must be a power of 2.
    static std::size_t const smc_cBucketsMin = 8;
    //! Special hash value used to indicate that a bucket is empty.
    static std::size_t const smc_iEmptyBucketHash = 0;
+   //! Hash table growth factor. Must be a power of 2.
+   static std::size_t const smc_iGrowthFactor = 4;
    //! Neighborhood size.
    static std::size_t const smc_cNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
    //! Special index returned by several methods to indicate a logical “null index”.
