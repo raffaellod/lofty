@@ -67,6 +67,21 @@ public:
       m.add(11, 110);
       ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(m[11], 110);
+
+      // Add enough key/value pairs until a resize occurs.
+      int iKey = 11, iValue = 110;
+      std::size_t iInitialCapacity = m.capacity();
+      do {
+         iKey += 11;
+         iValue += 110;
+         m.add(iKey, iValue);
+      } while (m.capacity() == iInitialCapacity);
+      /* Verify that some values are still there. Can’t check them all because we don’t know exactly
+      how many we ended up adding. */
+      ABC_TESTING_ASSERT_EQUAL(m[11], 110);
+      ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+      ABC_TESTING_ASSERT_EQUAL(m[iKey - 11], iValue - 110);
+      ABC_TESTING_ASSERT_EQUAL(m[iKey], iValue);
    }
 };
 
