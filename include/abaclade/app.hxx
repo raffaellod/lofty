@@ -93,6 +93,8 @@ public:
       Module’s instance handle.
    @param iShowCmd
       Indication on how the application’s main window should be displayed; one of SW_* flags.
+   @return
+      Return code of the program.
    */
    template <class TApp>
    static int entry_point_win_exe(HINSTANCE hinst, int iShowCmd) {
