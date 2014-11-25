@@ -95,6 +95,56 @@ std::tuple<std::size_t, std::size_t> map_impl::hash_neighborhood_range(std::size
    return std::make_tuple(iNhBegin, iNhEnd);
 }
 
+std::size_t map_impl::key_lookup(
+   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
+) const {
+   if (m_cBuckets == 0) {
+      // The key cannot possibly be in the map.
+      return smc_iNullIndex;
+   }
+   std::size_t iNhBegin, iNhEnd;
+   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   return key_lookup(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd, false);
+}
+
+std::size_t map_impl::key_lookup(
+   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
+   std::size_t iNhBegin, std::size_t iNhEnd, bool bAcceptEmptyBucket
+) const {
+   /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which the
+   loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
+   std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
+   std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                     * piHashNhEnd = m_piHashes.get() + iNhEnd,
+                     * piHashesEnd = m_piHashes.get() + m_cBuckets;
+   /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
+   wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
+   we won’t enter the loop at all if the start condition is the same as the end condition, which is
+   the case for neighborhood_size() == m_cBuckets. */
+   do {
+      if (
+         *piHash == iAcceptableEmptyHash ||
+         /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
+         match or hash collision) to make recalculating the offset from m_pKeys cheaper than keeping
+         a cursor over m_pKeys running in parallel to piHash. */
+         (*piHash == iKeyHash && pfnKeysEqual(
+            this,
+            reinterpret_cast<std::int8_t const *>(m_pKeys.get()) +
+               cbKey * static_cast<std::size_t>(piHash - m_piHashes.get()),
+            pKey
+         ))
+      ) {
+         return static_cast<std::size_t>(piHash - m_piHashes.get());
+      }
+
+      // Move on to the next bucket, wrapping around to the first one if needed.
+      if (++piHash == piHashesEnd) {
+         piHash = m_piHashes.get();
+      }
+   } while (piHash != piHashNhEnd);
+   return smc_iNullIndex;
+}
+
 std::size_t map_impl::neighborhood_size() const {
    // Can’t have a neighborhood larger than the total count of buckets.
    return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;

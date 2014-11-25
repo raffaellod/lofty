@@ -38,6 +38,9 @@ namespace detail {
 
 //! Non-template implementation class for abc::map.
 class ABACLADE_SYM map_impl {
+protected:
+   typedef bool (* keys_equal_fn)(void const * pThis, void const * pKey1, void const * pKey2);
+
 public:
    /*! Constructor.
 
@@ -106,6 +109,41 @@ protected:
       Calculated range for the neighborhood bucket index.
    */
    std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const;
+
+   /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
+
+   @param pKey
+      Pointer to the key to lookup.
+   @param iKeyHash
+      Hash of *pKey.
+   @param pfnKeysEqual
+      Pointer to a function that returns true if two keys compare as equal.
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @param bAcceptEmptyBucket
+      If true, an empty bucket will be considered a match, and its index returned.
+   @return
+      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
+      found.
+   */
+   std::size_t key_lookup(
+      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
+   ) const;
+   /* This overload could be split in three different methods:
+
+   1. Search for an empty bucket while also checking for a matching key: this would be used when
+      looking for an add() insertion point while we’re still in the neighborhood of the key;
+   2. Search for an empty bucket: this would cover the rest of the search needed by add();
+   3. Search for a matching key: this would be used by the non-ranged key_lookup() overloads.
+
+   The reason it’s not split is that most of the code is shared among these operation modes, so its
+   instruction cache footprint is reduced. */
+   std::size_t key_lookup(
+      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
+      std::size_t iNhBegin, std::size_t iNhEnd, bool bAcceptEmptyBucket
+   ) const;
 
    /*! Returns the current neighborhood size.
 
@@ -327,12 +365,17 @@ private:
       std::size_t iNhBegin, iNhEnd;
       std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
       // Look for the key or an empty bucket in the neighborhood.
-      std::size_t iBucket = key_lookup(&key, iKeyHash, iNhBegin, iNhEnd, true);
+      std::size_t iBucket = key_lookup(
+         sizeof(TKey), &key, iKeyHash, &keys_equal, iNhBegin, iNhEnd, true
+      );
       if (iBucket != smc_iNullIndex) {
          return iBucket;
       }
-      // Find an empty bucket, scanning every bucket outside the neighborhood.
-      std::size_t iEmptyBucket = key_lookup(nullptr, smc_iEmptyBucketHash, iNhEnd, iNhBegin, true);
+      /* Find an empty bucket, scanning every bucket outside the neighborhood. This won’t perform
+      key comparisons or dereferences, so we can pass it a few dummy values. */
+      std::size_t iEmptyBucket = key_lookup(
+         0, nullptr, smc_iEmptyBucketHash, nullptr, iNhEnd, iNhBegin, true
+      );
       if (iEmptyBucket == smc_iNullIndex) {
          // No luck, the hash table needs to be resized.
          return smc_iNullIndex;
@@ -410,74 +453,17 @@ private:
       }
    }
 
-   /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
+   /*! See detail::map_impl::key_loopup(); here also available with a more concise signature.
 
    @param pkey
       Pointer to the key to lookup.
-   @param iKeyHash
-      Hash of *pkey.
-   @param iNhBegin
-      Beginning of the neighborhood bucket index range.
-   @param iNhEnd
-      End of the neighborhood bucket index range.
-   @param bAcceptEmptyBucket
-      If true, an empty bucket will be considered a match, and its index returned.
    @return
       Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
+   using detail::map_impl::key_lookup;
    std::size_t key_lookup(TKey const * pkey) const {
-      return key_lookup(pkey, calculate_and_adjust_hash(*pkey));
-   }
-   std::size_t key_lookup(TKey const * pkey, std::size_t iKeyHash) const {
-      if (m_cBuckets == 0) {
-         // The key cannot possibly be in the map.
-         return smc_iNullIndex;
-      }
-      std::size_t iNhBegin, iNhEnd;
-      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-      return key_lookup(pkey, iKeyHash, iNhBegin, iNhEnd, false);
-   }
-   /* This overload could be split in three different methods:
-
-   1. Search for an empty bucket while also checking for a matching key: this would be used when
-      looking for an add() insertion point while we’re still in the neighborhood of the key;
-   2. Search for an empty bucket: this would cover the rest of the search needed by add();
-   3. Search for a matching key: this would be used by the non-ranged key_lookup() overloads.
-
-   The reason it’s not split is that most of the code is shared among these operation modes, so its
-   instruction cache footprint is reduced. */
-   std::size_t key_lookup(
-      TKey const * pkey, std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd,
-      bool bAcceptEmptyBucket
-   ) const {
-      /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
-      the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
-      std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
-      std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
-                        * piHashNhEnd = m_piHashes.get() + iNhEnd,
-                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
-      /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
-      the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
-      otherwise we won’t enter the loop at all if the start condition is the same as the end
-      condition, which is the case for neighborhood_size() == m_cBuckets. */
-      do {
-         if (
-            *piHash == iAcceptableEmptyHash ||
-            /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
-            match or hash collision) to make recalculating the offset from m_pKeys cheaper than
-            keeping a cursor over m_pKeys running in parallel to piHash. */
-            (*piHash == iKeyHash && keys_equal(key_ptr(piHash - m_piHashes.get()), pkey))
-         ) {
-            return static_cast<std::size_t>(piHash - m_piHashes.get());
-         }
-
-         // Move on to the next bucket, wrapping around to the first one if needed.
-         if (++piHash == piHashesEnd) {
-            piHash = m_piHashes.get();
-         }
-      } while (piHash != piHashNhEnd);
-      return smc_iNullIndex;
+      return key_lookup(sizeof(TKey), pkey, calculate_and_adjust_hash(*pkey), &keys_equal);
    }
 
    /*! Returns a pointer to the key in the specified bucket index.
@@ -491,17 +477,21 @@ private:
       return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
    }
 
-   /*! Compares two keys for equality.
+   /*! Compares two keys for equality. Static helper used by detail::map_impl.
 
-   @param key1
+   @param pThis
+      Pointer to *this.
+   @param pKey1
       Pointer to the first key to compare.
-   @param key2
+   @param pKey2
       Pointer to the second key to compare.
    @return
-      true if the two keys compare equal, or false otherwise.
+      true if the two keys compare as equal, or false otherwise.
    */
-   bool keys_equal(TKey const * key1, TKey const * key2) const {
-      return key_equal::operator()(*key1, *key2);
+   static bool keys_equal(void const * pThis, void const * pKey1, void const * pKey2) {
+      return static_cast<map const *>(pThis)->key_equal::operator()(
+         *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
+      );
    }
 
    /*! Moves the contents of one bucket to another bucket.
