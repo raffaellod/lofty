@@ -480,10 +480,26 @@ private:
       return smc_iNullIndex;
    }
 
+   /*! Returns a pointer to the key in the specified bucket index.
+
+   @param i
+      Bucket index.
+   @return
+      Pointer to the key.
+   */
    TKey * key_ptr(std::size_t i) const {
       return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
    }
 
+   /*! Compares two keys for equality.
+
+   @param key1
+      Pointer to the first key to compare.
+   @param key2
+      Pointer to the second key to compare.
+   @return
+      true if the two keys compare equal, or false otherwise.
+   */
    bool keys_equal(TKey const * key1, TKey const * key2) const {
       return key_equal::operator()(*key1, *key2);
    }
@@ -501,6 +517,13 @@ private:
       new(value_ptr(iDstBucket)) TValue(std::move(*value_ptr(iSrcBucket)));
    }
 
+   /*! Returns a pointer to the value in the specified bucket index.
+
+   @param i
+      Bucket index.
+   @return
+      Pointer to the value.
+   */
    TValue * value_ptr(std::size_t i) const {
       return reinterpret_cast<TValue *>(m_pValues.get()) + i;
    }
