@@ -726,9 +726,11 @@ class writer;
 
 #ifdef ABC_STLIMPL
    #include <abaclade/stl/exception.hxx>
+   #include <abaclade/stl/functional.hxx>
    #include <abaclade/stl/iterator.hxx>
 #else
    #include <exception>
+   #include <functional>
    #include <iterator>
 #endif
 #include <abaclade/static_list.hxx>
@@ -745,11 +747,6 @@ class writer;
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
 #include <abaclade/text/codepoint_iterator.hxx>
-#ifdef ABC_STLIMPL
-   #include <abaclade/stl/functional.hxx>
-#else
-   #include <functional>
-#endif
 #include <abaclade/str.hxx>
 #include <abaclade/text-after-str.hxx>
 #include <abaclade/to_str.hxx>
