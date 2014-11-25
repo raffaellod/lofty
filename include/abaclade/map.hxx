@@ -125,7 +125,7 @@ public:
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      return *get_value_ptr(iBucket);
+      return *value_ptr(iBucket);
    }
 
    /*! Adds a key/value pair to the map, overwriting the value if key is already associated to one.
@@ -151,13 +151,13 @@ public:
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
-      TValue * pvalue = get_value_ptr(iBucket);
+      TValue * pvalue = value_ptr(iBucket);
       bool bNew = (*piHash == smc_iEmptyBucketHash);
       if (bNew) {
          // The bucket is currently empty, so initialize it with key, iKeyHash and value.
-         new(get_key_ptr(iBucket)) TKey(std::move(key));
          *piHash = iKeyHash;
-         new(pvalue) TValue(std::move(value));
+         new(key_ptr(iBucket)) TKey  (std::move(key  ));
+         new(pvalue)           TValue(std::move(value));
       } else {
          // The bucket already has a value, so overwrite it with the value argument.
          *pvalue = std::move(value);
@@ -178,8 +178,8 @@ public:
    //! Removes all elements from the map.
    void clear() {
       std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
-      TKey   * pkey   = get_key_ptr  (0);
-      TValue * pvalue = get_value_ptr(0);
+      TKey   * pkey   = key_ptr  (0);
+      TValue * pvalue = value_ptr(0);
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
          if (*piHash != smc_iEmptyBucketHash) {
             *piHash = smc_iEmptyBucketHash;
@@ -204,8 +204,8 @@ public:
       // Mark the bucket as empty and destruct the corresponding key and value.
       --m_cUsedBuckets;
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
-      get_key_ptr  (iBucket)->~TKey  ();
-      get_value_ptr(iBucket)->~TValue();
+      key_ptr  (iBucket)->~TKey  ();
+      value_ptr(iBucket)->~TValue();
    }
 
    /*! Returns the count of elements in the map.
@@ -218,76 +218,6 @@ public:
    }
 
 private:
-   /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
-
-   @param pkey
-      Pointer to the key to lookup.
-   @param iKeyHash
-      Hash of *pkey.
-   @param iNhBegin
-      Beginning of the neighborhood bucket index range.
-   @param iNhEnd
-      End of the neighborhood bucket index range.
-   @param bAcceptEmptyBucket
-      If true, an empty bucket will be considered a match, and its index returned.
-   @return
-      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
-      found.
-   */
-   std::size_t key_lookup(TKey const * pkey) const {
-      return key_lookup(pkey, calculate_and_adjust_hash(*pkey));
-   }
-   std::size_t key_lookup(TKey const * pkey, std::size_t iKeyHash) const {
-      if (m_cBuckets == 0) {
-         // The key cannot possibly be in the map.
-         return smc_iNullIndex;
-      }
-      std::size_t iNhBegin, iNhEnd;
-      std::tie(iNhBegin, iNhEnd) = get_hash_neighborhood_range(iKeyHash);
-      return key_lookup(pkey, iKeyHash, iNhBegin, iNhEnd, false);
-   }
-   /* This overload could be split in three different methods:
-
-   1. Search for an empty bucket while also checking for a matching key: this would be used when
-      looking for an add() insertion point while we’re still in the neighborhood of the key;
-   2. Search for an empty bucket: this would cover the rest of the search needed by add();
-   3. Search for a matching key: this would be used by the non-ranged key_lookup() overloads.
-
-   The reason it’s not split is that most of the code is shared among these operation modes, so its
-   instruction cache footprint is reduced. */
-   std::size_t key_lookup(
-      TKey const * pkey, std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd,
-      bool bAcceptEmptyBucket
-   ) const {
-      /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
-      the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
-      std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
-      std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
-                        * piHashNhEnd = m_piHashes.get() + iNhEnd,
-                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
-      /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
-      the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
-      otherwise we won’t enter the loop at all if the start condition is the same as the end
-      condition, which is the case for get_neighborhood_size() == m_cBuckets. */
-      do {
-         if (
-            *piHash == iAcceptableEmptyHash ||
-            /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
-            match or hash collision) to make recalculating the offset from m_pKeys cheaper than
-            keeping a cursor over m_pKeys running in parallel to piHash. */
-            (*piHash == iKeyHash && keys_equal(get_key_ptr(piHash - m_piHashes.get()), pkey))
-         ) {
-            return static_cast<std::size_t>(piHash - m_piHashes.get());
-         }
-
-         // Move on to the next bucket, wrapping around to the first one if needed.
-         if (++piHash == piHashesEnd) {
-            piHash = m_piHashes.get();
-         }
-      } while (piHash != piHashNhEnd);
-      return smc_iNullIndex;
-   }
-
    /*! Calculates, adjusts and returns the hash value for the specified key.
 
    @param key
@@ -309,7 +239,7 @@ private:
       occupied buckets contain keys from the neighborhood ending at iEmptyBucket.
    */
    std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
-      std::size_t cNeighborhoodBuckets = get_neighborhood_size();
+      std::size_t cNeighborhoodBuckets = neighborhood_size();
       std::size_t cBucketsRightOfEmpty = cNeighborhoodBuckets - 1;
       // Ensure that iEmptyBucket will be on the right of any of the buckets we’re going to check.
       if (iEmptyBucket < cBucketsRightOfEmpty) {
@@ -324,7 +254,7 @@ private:
       while (piHash != piEmptyHash) {
          /* Get the end of the original neighborhood for the key in this bucket; if the empty bucket
          is within that index, the contents of this bucket can be moved to the empty one. */
-         std::size_t iCurrNhEnd = get_hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
+         std::size_t iCurrNhEnd = hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
          /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is
          always valid. */
          if (iEmptyBucket < iCurrNhEnd) {
@@ -353,7 +283,7 @@ private:
    */
    std::size_t get_existing_or_empty_bucket_for_key(TKey const & key, std::size_t iKeyHash) {
       std::size_t iNhBegin, iNhEnd;
-      std::tie(iNhBegin, iNhEnd) = get_hash_neighborhood_range(iKeyHash);
+      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
       // Look for the key or an empty bucket in the neighborhood.
       std::size_t iBucket = key_lookup(&key, iKeyHash, iNhBegin, iNhEnd, true);
       if (iBucket != smc_iNullIndex) {
@@ -386,51 +316,6 @@ private:
          iEmptyBucket = iMovableBucket;
       }
       return iEmptyBucket;
-   }
-
-   TKey * get_key_ptr(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
-   }
-
-   /*! Returns the current neighborhood size.
-
-   @return
-      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
-   */
-   std::size_t get_neighborhood_size() const {
-      // Can’t have a neighborhood larger than the total count of buckets.
-      return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;
-   }
-
-   TValue * get_value_ptr(std::size_t i) const {
-      return reinterpret_cast<TValue *>(m_pValues.get()) + i;
-   }
-
-   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
-   hash.
-
-   @param iHash
-      Hash to get the neighborhood index for.
-   @return
-      Index of the first bucket in the neighborhood.
-   */
-   std::size_t get_hash_neighborhood_index(std::size_t iHash) const {
-      return iHash & (m_cBuckets - 1);
-   }
-
-   /*! Returns the bucket index ranges for the neighborhood of the given hash.
-
-   @param iHash
-      Hash to return the neighborhood of.
-   @return
-      Calculated range for the neighborhood bucket index.
-   */
-   std::tuple<std::size_t, std::size_t> get_hash_neighborhood_range(std::size_t iHash) const {
-      std::size_t iNhBegin = get_hash_neighborhood_index(iHash);
-      std::size_t iNhEnd = iNhBegin + get_neighborhood_size();
-      // Wrap the end index back in the table.
-      iNhEnd &= m_cBuckets - 1;
-      return std::make_tuple(iNhBegin, iNhEnd);
    }
 
    /*! Enlarges the hash table by a factor of smc_iGrowthFactor. The contents of each bucket are
@@ -475,12 +360,113 @@ private:
 
             // Move hash/key/value to the new bucket.
             m_piHashes[iNewBucket] = *piOldHash;
-            new(get_key_ptr  (iNewBucket)) TKey  (std::move(*pOldKey  ));
-            new(get_value_ptr(iNewBucket)) TValue(std::move(*pOldValue));
+            new(key_ptr  (iNewBucket)) TKey  (std::move(*pOldKey  ));
+            new(value_ptr(iNewBucket)) TValue(std::move(*pOldValue));
             pOldKey  ->~TKey  ();
             pOldValue->~TValue();
          }
       }
+   }
+
+   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
+   hash.
+
+   @param iHash
+      Hash to get the neighborhood index for.
+   @return
+      Index of the first bucket in the neighborhood.
+   */
+   std::size_t hash_neighborhood_index(std::size_t iHash) const {
+      return iHash & (m_cBuckets - 1);
+   }
+
+   /*! Returns the bucket index ranges for the neighborhood of the given hash.
+
+   @param iHash
+      Hash to return the neighborhood of.
+   @return
+      Calculated range for the neighborhood bucket index.
+   */
+   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
+      std::size_t iNhBegin = hash_neighborhood_index(iHash);
+      std::size_t iNhEnd = iNhBegin + neighborhood_size();
+      // Wrap the end index back in the table.
+      iNhEnd &= m_cBuckets - 1;
+      return std::make_tuple(iNhBegin, iNhEnd);
+   }
+
+   /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
+
+   @param pkey
+      Pointer to the key to lookup.
+   @param iKeyHash
+      Hash of *pkey.
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @param bAcceptEmptyBucket
+      If true, an empty bucket will be considered a match, and its index returned.
+   @return
+      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
+      found.
+   */
+   std::size_t key_lookup(TKey const * pkey) const {
+      return key_lookup(pkey, calculate_and_adjust_hash(*pkey));
+   }
+   std::size_t key_lookup(TKey const * pkey, std::size_t iKeyHash) const {
+      if (m_cBuckets == 0) {
+         // The key cannot possibly be in the map.
+         return smc_iNullIndex;
+      }
+      std::size_t iNhBegin, iNhEnd;
+      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+      return key_lookup(pkey, iKeyHash, iNhBegin, iNhEnd, false);
+   }
+   /* This overload could be split in three different methods:
+
+   1. Search for an empty bucket while also checking for a matching key: this would be used when
+      looking for an add() insertion point while we’re still in the neighborhood of the key;
+   2. Search for an empty bucket: this would cover the rest of the search needed by add();
+   3. Search for a matching key: this would be used by the non-ranged key_lookup() overloads.
+
+   The reason it’s not split is that most of the code is shared among these operation modes, so its
+   instruction cache footprint is reduced. */
+   std::size_t key_lookup(
+      TKey const * pkey, std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd,
+      bool bAcceptEmptyBucket
+   ) const {
+      /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which
+      the loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
+      std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
+      std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                        * piHashNhEnd = m_piHashes.get() + iNhEnd,
+                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
+      /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
+      the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
+      otherwise we won’t enter the loop at all if the start condition is the same as the end
+      condition, which is the case for neighborhood_size() == m_cBuckets. */
+      do {
+         if (
+            *piHash == iAcceptableEmptyHash ||
+            /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
+            match or hash collision) to make recalculating the offset from m_pKeys cheaper than
+            keeping a cursor over m_pKeys running in parallel to piHash. */
+            (*piHash == iKeyHash && keys_equal(key_ptr(piHash - m_piHashes.get()), pkey))
+         ) {
+            return static_cast<std::size_t>(piHash - m_piHashes.get());
+         }
+
+         // Move on to the next bucket, wrapping around to the first one if needed.
+         if (++piHash == piHashesEnd) {
+            piHash = m_piHashes.get();
+         }
+      } while (piHash != piHashNhEnd);
+      return smc_iNullIndex;
+   }
+
+   TKey * key_ptr(std::size_t i) const {
+      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
    }
 
    bool keys_equal(TKey const * key1, TKey const * key2) const {
@@ -496,8 +482,22 @@ private:
    */
    void move_bucket_contents(std::size_t iSrcBucket, std::size_t iDstBucket) {
       m_piHashes[iDstBucket] = m_piHashes[iSrcBucket];
-      new(get_key_ptr  (iDstBucket)) TKey  (std::move(*get_key_ptr  (iSrcBucket)));
-      new(get_value_ptr(iDstBucket)) TValue(std::move(*get_value_ptr(iSrcBucket)));
+      new(key_ptr  (iDstBucket)) TKey  (std::move(*key_ptr  (iSrcBucket)));
+      new(value_ptr(iDstBucket)) TValue(std::move(*value_ptr(iSrcBucket)));
+   }
+
+   /*! Returns the current neighborhood size.
+
+   @return
+      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
+   */
+   std::size_t neighborhood_size() const {
+      // Can’t have a neighborhood larger than the total count of buckets.
+      return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;
+   }
+
+   TValue * value_ptr(std::size_t i) const {
+      return reinterpret_cast<TValue *>(m_pValues.get()) + i;
    }
 
 private:
