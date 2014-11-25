@@ -31,6 +31,120 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::detail::map_impl
+
+namespace abc {
+namespace detail {
+
+//! Non-template implementation class for abc::map.
+class ABACLADE_SYM map_impl {
+public:
+   /*! Constructor.
+
+   @param m
+      Source object.
+   */
+   map_impl();
+   map_impl(map_impl && m);
+
+   //! Destructor.
+   ~map_impl();
+
+   /*! Assignment operator.
+
+   @param m
+      Source object.
+   */
+   map_impl & operator=(map_impl && m);
+
+   /*! Returns the maximum number of key/value pairs the map can currently hold.
+
+   @return
+      Current size of the allocated storage, in elements.
+   */
+   std::size_t capacity() const {
+      return m_cBuckets;
+   }
+
+   /*! Returns the count of elements in the map.
+
+   @return
+      Count of elements.
+   */
+   std::size_t size() const {
+      return m_cUsedBuckets;
+   }
+
+protected:
+   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
+
+   @param iEmptyBucket
+      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
+   @return
+      Index of the first bucket whose contents can be moved, or smc_iNullIndex if none of the
+      occupied buckets contain keys from the neighborhood ending at iEmptyBucket.
+   */
+   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
+
+   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
+   hash.
+
+   @param iHash
+      Hash to get the neighborhood index for.
+   @return
+      Index of the first bucket in the neighborhood.
+   */
+   std::size_t hash_neighborhood_index(std::size_t iHash) const {
+      return iHash & (m_cBuckets - 1);
+   }
+
+   /*! Returns the bucket index ranges for the neighborhood of the given hash.
+
+   @param iHash
+      Hash to return the neighborhood of.
+   @return
+      Calculated range for the neighborhood bucket index.
+   */
+   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const;
+
+   /*! Returns the current neighborhood size.
+
+   @return
+      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
+   */
+   std::size_t neighborhood_size() const;
+
+protected:
+   //! Array containing the hash of each key.
+   std::unique_ptr<std::size_t[]> m_piHashes;
+   //! Array of keys.
+   std::unique_ptr<std::max_align_t[]> m_pKeys;
+   //! Array of buckets.
+   std::unique_ptr<std::max_align_t[]> m_pValues;
+   //! Count of total buckets. Always a power of two.
+   std::size_t m_cBuckets;
+   //! Count of elements / occupied buckets.
+   std::size_t m_cUsedBuckets;
+   //! Minimum bucket count. Must be a power of 2.
+   static std::size_t const smc_cBucketsMin = 8;
+   //! Special hash value used to indicate that a bucket is empty.
+   static std::size_t const smc_iEmptyBucketHash = 0;
+   //! Hash table growth factor. Must be a power of 2.
+   static std::size_t const smc_iGrowthFactor = 4;
+   //! Neighborhood size.
+   static std::size_t const smc_cNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
+   //! Special index returned by several methods to indicate a logical “null index”.
+   static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
+   /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
+   smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
+   that will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */
+   static std::size_t const smc_iZeroHash = 65521;
+};
+
+} //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::map
 
 namespace abc {
@@ -42,7 +156,7 @@ template <
    typename THasher = std::hash<TKey>,
    typename TKeyEqual = std::equal_to<TKey>
 >
-class map : private THasher, private TKeyEqual {
+class map : public detail::map_impl, private THasher, private TKeyEqual {
 public:
    //! Hash generator for TKey.
    typedef THasher hasher;
@@ -77,18 +191,10 @@ public:
    @param m
       Source object.
    */
-   map() :
-      m_cBuckets(0),
-      m_cUsedBuckets(0) {
+   map() {
    }
    map(map && m) :
-      m_piHashes(std::move(m.m_piHashes)),
-      m_pKeys(std::move(m.m_pKeys)),
-      m_pValues(std::move(m.m_pValues)),
-      m_cBuckets(m.m_cBuckets),
-      m_cUsedBuckets(m.m_cUsedBuckets) {
-      m.m_cBuckets = 0;
-      m.m_cUsedBuckets = 0;
+      detail::map_impl(std::move(m)) {
    }
 
    //! Destructor.
@@ -102,13 +208,7 @@ public:
       Source object.
    */
    map & operator=(map && m) {
-      m_piHashes = std::move(m.m_piHashes);
-      m_pKeys = std::move(m.m_pKeys);
-      m_pValues = std::move(m.m_pValues);
-      m_cBuckets = m.m_cBuckets;
-      m.m_cBuckets = 0;
-      m_cUsedBuckets = m.m_cUsedBuckets;
-      m.m_cUsedBuckets = 0;
+      detail::map_impl::operator=(std::move(m));
       return *this;
    }
 
@@ -166,15 +266,6 @@ public:
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
-   /*! Returns the maximum number of key/value pairs the map can currently hold.
-
-   @return
-      Current size of the allocated storage, in elements.
-   */
-   std::size_t capacity() const {
-      return m_cBuckets;
-   }
-
    //! Removes all elements from the map.
    void clear() {
       std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
@@ -208,15 +299,6 @@ public:
       value_ptr(iBucket)->~TValue();
    }
 
-   /*! Returns the count of elements in the map.
-
-   @return
-      Count of elements.
-   */
-   std::size_t size() const {
-      return m_cUsedBuckets;
-   }
-
 private:
    /*! Calculates, adjusts and returns the hash value for the specified key.
 
@@ -228,46 +310,6 @@ private:
    std::size_t calculate_and_adjust_hash(TKey const & key) const {
       std::size_t iHash = hasher::operator()(key);
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
-   }
-
-   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
-
-   @param iEmptyBucket
-      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
-   @return
-      Index of the first bucket whose contents can be moved, or smc_iNullIndex if none of the
-      occupied buckets contain keys from the neighborhood ending at iEmptyBucket.
-   */
-   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
-      std::size_t cNeighborhoodBuckets = neighborhood_size();
-      std::size_t cBucketsRightOfEmpty = cNeighborhoodBuckets - 1;
-      // Ensure that iEmptyBucket will be on the right of any of the buckets we’re going to check.
-      if (iEmptyBucket < cBucketsRightOfEmpty) {
-         iEmptyBucket += m_cBuckets;
-      }
-      // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
-      std::size_t const * piEmptyHash = m_piHashes.get() + (iEmptyBucket & (m_cBuckets - 1)),
-                        * piHash      = piEmptyHash - cBucketsRightOfEmpty,
-                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
-      /* The neighborhood may wrap, so we can only test for inequality and rely on the wrap-around
-      logic at the end of the loop body. */
-      while (piHash != piEmptyHash) {
-         /* Get the end of the original neighborhood for the key in this bucket; if the empty bucket
-         is within that index, the contents of this bucket can be moved to the empty one. */
-         std::size_t iCurrNhEnd = hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
-         /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is
-         always valid. */
-         if (iEmptyBucket < iCurrNhEnd) {
-            return static_cast<std::size_t>(piHash - m_piHashes.get());
-         }
-
-         // Move on to the next bucket, wrapping around to the first one if needed.
-         if (++piHash == piHashesEnd) {
-            piHash = m_piHashes.get();
-         }
-      }
-      // No luck, the hash table needs to be resized.
-      return smc_iNullIndex;
    }
 
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
@@ -368,33 +410,6 @@ private:
       }
    }
 
-   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
-   hash.
-
-   @param iHash
-      Hash to get the neighborhood index for.
-   @return
-      Index of the first bucket in the neighborhood.
-   */
-   std::size_t hash_neighborhood_index(std::size_t iHash) const {
-      return iHash & (m_cBuckets - 1);
-   }
-
-   /*! Returns the bucket index ranges for the neighborhood of the given hash.
-
-   @param iHash
-      Hash to return the neighborhood of.
-   @return
-      Calculated range for the neighborhood bucket index.
-   */
-   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
-      std::size_t iNhBegin = hash_neighborhood_index(iHash);
-      std::size_t iNhEnd = iNhBegin + neighborhood_size();
-      // Wrap the end index back in the table.
-      iNhEnd &= m_cBuckets - 1;
-      return std::make_tuple(iNhBegin, iNhEnd);
-   }
-
    /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
 
    @param pkey
@@ -486,45 +501,9 @@ private:
       new(value_ptr(iDstBucket)) TValue(std::move(*value_ptr(iSrcBucket)));
    }
 
-   /*! Returns the current neighborhood size.
-
-   @return
-      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
-   */
-   std::size_t neighborhood_size() const {
-      // Can’t have a neighborhood larger than the total count of buckets.
-      return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;
-   }
-
    TValue * value_ptr(std::size_t i) const {
       return reinterpret_cast<TValue *>(m_pValues.get()) + i;
    }
-
-private:
-   //! Array containing the hash of each key.
-   std::unique_ptr<std::size_t[]> m_piHashes;
-   //! Array of keys.
-   std::unique_ptr<std::max_align_t[]> m_pKeys;
-   //! Array of buckets.
-   std::unique_ptr<std::max_align_t[]> m_pValues;
-   //! Count of total buckets. Always a power of two.
-   std::size_t m_cBuckets;
-   //! Count of elements / occupied buckets.
-   std::size_t m_cUsedBuckets;
-   //! Minimum bucket count. Must be a power of 2.
-   static std::size_t const smc_cBucketsMin = 8;
-   //! Special hash value used to indicate that a bucket is empty.
-   static std::size_t const smc_iEmptyBucketHash = 0;
-   //! Hash table growth factor. Must be a power of 2.
-   static std::size_t const smc_iGrowthFactor = 4;
-   //! Neighborhood size.
-   static std::size_t const smc_cNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
-   //! Special index returned by several methods to indicate a logical “null index”.
-   static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
-   /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
-   smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
-   that will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */
-   static std::size_t const smc_iZeroHash = 65521;
 };
 
 } //namespace abc

@@ -39,6 +39,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/file.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
+      <source path="src/abaclade/map.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/stl/exception.cxx"/>
