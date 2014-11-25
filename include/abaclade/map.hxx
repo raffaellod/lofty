@@ -36,11 +36,18 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 //! Key/value map using a simplified hopscotch hashing collision resolution algorithm.
-template <typename TKey, typename TValue, typename THasher = std::hash<TKey>>
-class map : public THasher {
+template <
+   typename TKey,
+   typename TValue,
+   typename THasher = std::hash<TKey>,
+   typename TKeyEqual = std::equal_to<TKey>
+>
+class map : private THasher, private TKeyEqual {
 public:
    //! Hash generator for TKey.
    typedef THasher hasher;
+   //! Functor that can compare two TKey instances for equality.
+   typedef TKeyEqual key_equal;
 
    //! Iterator type.
    class iterator {
@@ -477,7 +484,7 @@ private:
    }
 
    bool keys_equal(TKey const * key1, TKey const * key2) const {
-      return *key1 == *key2;
+      return key_equal::operator()(*key1, *key2);
    }
 
    /*! Moves the contents of one bucket to another bucket.
