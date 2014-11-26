@@ -39,9 +39,9 @@ namespace detail {
 //! Non-template implementation class for abc::map.
 class ABACLADE_SYM map_impl {
 protected:
-   typedef bool (* keys_equal_fn)(void const * pThis, void const * pKey1, void const * pKey2);
+   typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
    typedef void (* move_key_value_to_bucket_fn)(
-      void * pThis, void * pKey, void * pValue, std::size_t iBucket
+      map_impl * pmapi, void * pKey, void * pValue, std::size_t iBucket
    );
 
 public:
@@ -470,8 +470,8 @@ private:
    @return
       true if the two keys compare as equal, or false otherwise.
    */
-   static bool keys_equal(void const * pThis, void const * pKey1, void const * pKey2) {
-      map const * pmap = static_cast<map const *>(pThis);
+   static bool keys_equal(map_impl const * pmapi, void const * pKey1, void const * pKey2) {
+      map const * pmap = static_cast<map const *>(pmapi);
       return pmap->key_equal::operator()(
          *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
       );
@@ -489,9 +489,9 @@ private:
       Index of the destination bucket.
    */
    static void move_key_value_to_bucket(
-      void * pThis, void * pKey, void * pValue, std::size_t iBucket
+      map_impl * pmapi, void * pKey, void * pValue, std::size_t iBucket
    ) {
-      map * pmap = static_cast<map *>(pThis);
+      map * pmap = static_cast<map *>(pmapi);
       new(pmap->  key_ptr(iBucket)) TKey  (std::move(*static_cast<TKey   *>(pKey  )));
       new(pmap->value_ptr(iBucket)) TValue(std::move(*static_cast<TValue *>(pValue)));
    }
