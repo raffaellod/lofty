@@ -387,12 +387,11 @@ private:
    /*! Enlarges the hash table by a factor of smc_iGrowthFactor. The contents of each bucket are
    moved from the old arrays to new temporary ones, and the two array sets are then swapped.
 
-   The bucket contents transfer work is done by reusing functions that obtain the arrays to
-   operate on via member variables. In the assumption that transferring the contents of a bucket
-   won’t throw because it only involves move-constructions and destructions, we optimistically
-   update the member variables as soon as all memory allocations are done; if anything were to go
-   wrong after that, we’d have no guaranteed-safe way of recovering from a half-transferred
-   scenario anyway. */
+   The bucket contents transfer work is done by reusing functions that obtain the arrays to operate
+   on via member variables. In the assumption that transferring the contents of a bucket won’t throw
+   because it only involves move-constructions and destructions, we optimistically update the member
+   variables as soon as all memory allocations are done; if anything were to go wrong after that,
+   we’d have no guaranteed-safe way of recovering from a half-transferred scenario anyway. */
    void grow_table() {
       // The “old” names of these four variables will make sense in a moment…
       std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
