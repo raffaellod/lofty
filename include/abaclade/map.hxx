@@ -40,6 +40,9 @@ namespace detail {
 class ABACLADE_SYM map_impl {
 protected:
    typedef bool (* keys_equal_fn)(void const * pThis, void const * pKey1, void const * pKey2);
+   typedef void (* move_key_value_to_bucket_fn)(
+      void * pThis, void * pKey, void * pValue, std::size_t iBucket
+   );
 
 public:
    /*! Constructor.
@@ -89,6 +92,31 @@ protected:
    */
    std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
 
+   /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
+   returns its index after moving it in the key’s neighborhood.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param cbValue
+      Size of a value, in bytes.
+   @param pfnKeysEqual
+      Pointer to a function that returns true if two keys compare as equal.
+   @param pfnMoveKeyValueToBucket
+      Pointer to a function that move-constructs the key and value of a bucket using the provided
+      pointers.
+   @param pKey
+      Pointer to the key to lookup.
+   @param iKeyHash
+      Hash of key.
+   @return
+      Index of the bucket for the specified key. If key is not already in the map and no empty
+      bucket can be moved in key’s neighborhood, the returned index is smc_iNullIndex.
+   */
+   std::size_t get_existing_or_empty_bucket_for_key(
+      std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
+      move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
+   );
+
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
    hash.
 
@@ -112,6 +140,8 @@ protected:
 
    /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
 
+   @param cbKey
+      Size of a key, in bytes.
    @param pKey
       Pointer to the key to lookup.
    @param iKeyHash
@@ -284,21 +314,25 @@ public:
       }
       /* Repeatedly resize the table until we’re able to find a empty bucket for the new element.
       This should really only happen at most once. */
-      while ((iBucket = get_existing_or_empty_bucket_for_key(key, iKeyHash)) == smc_iNullIndex) {
+      for (;;) {
+         iBucket = get_existing_or_empty_bucket_for_key(
+            sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket, &key, iKeyHash
+         );
+         if (iBucket != smc_iNullIndex) {
+            break;
+         }
          grow_table();
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
-      TValue * pvalue = value_ptr(iBucket);
       bool bNew = (*piHash == smc_iEmptyBucketHash);
       if (bNew) {
-         // The bucket is currently empty, so initialize it with key, iKeyHash and value.
+         // The bucket is currently empty, so initialize it with hash/key/value.
+         move_key_value_to_bucket(this, &key, &value, iBucket);
          *piHash = iKeyHash;
-         new(key_ptr(iBucket)) TKey  (std::move(key  ));
-         new(pvalue)           TValue(std::move(value));
       } else {
-         // The bucket already has a value, so overwrite it with the value argument.
-         *pvalue = std::move(value);
+         // The bucket already has a value, so overwrite that with the value argument.
+         *value_ptr(iBucket) = std::move(value);
       }
       ++m_cUsedBuckets;
       return std::make_pair(iterator(this, iBucket), bNew);
@@ -350,59 +384,6 @@ private:
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
    }
 
-   /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
-   returns its index after moving it in the key’s neighborhood.
-
-   @param key
-      Key to lookup.
-   @param iKeyHash
-      Hash of key.
-   @return
-      Index of the bucket for the specified key. If key is not already in the map and no empty
-      bucket can be moved in key’s neighborhood, the returned index is smc_iNullIndex.
-   */
-   std::size_t get_existing_or_empty_bucket_for_key(TKey const & key, std::size_t iKeyHash) {
-      std::size_t iNhBegin, iNhEnd;
-      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-      // Look for the key or an empty bucket in the neighborhood.
-      std::size_t iBucket = key_lookup(
-         sizeof(TKey), &key, iKeyHash, &keys_equal, iNhBegin, iNhEnd, true
-      );
-      if (iBucket != smc_iNullIndex) {
-         return iBucket;
-      }
-      /* Find an empty bucket, scanning every bucket outside the neighborhood. This won’t perform
-      key comparisons or dereferences, so we can pass it a few dummy values. */
-      std::size_t iEmptyBucket = key_lookup(
-         0, nullptr, smc_iEmptyBucketHash, nullptr, iNhEnd, iNhBegin, true
-      );
-      if (iEmptyBucket == smc_iNullIndex) {
-         // No luck, the hash table needs to be resized.
-         return smc_iNullIndex;
-      }
-      /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
-      key’s neighborhood, so we have to try and move it in the neighborhood. The not-in-neighborhood
-      check is made more complicated by the fact the range may wrap. */
-      while (iNhBegin < iNhEnd
-         ? iEmptyBucket >= iNhEnd || iEmptyBucket < iNhBegin // Non-wrapping: |---[begin end)---|
-         : iEmptyBucket >= iNhEnd && iEmptyBucket < iNhBegin // Wrapping:     | end)-----[begin |
-      ) {
-         /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
-         of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
-         keys belonging to other overlapping neighborhoods. */
-         std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
-         if (iMovableBucket == smc_iNullIndex) {
-            /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to
-            be resized. */
-            return smc_iNullIndex;
-         }
-         // Move the contents of iMovableBucket to iEmptyBucket.
-         move_bucket_contents(iMovableBucket, iEmptyBucket);
-         iEmptyBucket = iMovableBucket;
-      }
-      return iEmptyBucket;
-   }
-
    /*! Enlarges the hash table by a factor of smc_iGrowthFactor. The contents of each bucket are
    moved from the old arrays to new temporary ones, and the two array sets are then swapped.
 
@@ -437,16 +418,18 @@ private:
       TValue * pOldValue = reinterpret_cast<TValue *>(pOldValues.get());
       for (; piOldHash < piOldHashesEnd; ++piOldHash, ++pOldKey, ++pOldValue) {
          if (*piOldHash != smc_iEmptyBucketHash) {
-            std::size_t iNewBucket = get_existing_or_empty_bucket_for_key(*pOldKey, *piOldHash);
+            std::size_t iNewBucket = get_existing_or_empty_bucket_for_key(
+               sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket,
+               pOldKey, *piOldHash
+            );
             ABC_ASSERT(
                iNewBucket != smc_iNullIndex,
                ABC_SL("failed to find empty bucket while growing hash table")
             );
 
             // Move hash/key/value to the new bucket.
+            move_key_value_to_bucket(this, pOldKey, pOldValue, iNewBucket);
             m_piHashes[iNewBucket] = *piOldHash;
-            new(key_ptr  (iNewBucket)) TKey  (std::move(*pOldKey  ));
-            new(value_ptr(iNewBucket)) TValue(std::move(*pOldValue));
             pOldKey  ->~TKey  ();
             pOldValue->~TValue();
          }
@@ -489,22 +472,29 @@ private:
       true if the two keys compare as equal, or false otherwise.
    */
    static bool keys_equal(void const * pThis, void const * pKey1, void const * pKey2) {
-      return static_cast<map const *>(pThis)->key_equal::operator()(
+      map const * pmap = static_cast<map const *>(pThis);
+      return pmap->key_equal::operator()(
          *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
       );
    }
 
-   /*! Moves the contents of one bucket to another bucket.
+   /*! Moves a key and a value to the specified bucket.
 
-   @param iSrcBucket
-      Index of the source bucket.
-   @param iDstBucket
+   @param pThis
+      Pointer to *this.
+   @param pKey
+      Pointer to the key to move to the destination bucket.
+   @param pValue
+      Pointer to the value to move to the destination bucket.
+   @param iBucket
       Index of the destination bucket.
    */
-   void move_bucket_contents(std::size_t iSrcBucket, std::size_t iDstBucket) {
-      m_piHashes[iDstBucket] = m_piHashes[iSrcBucket];
-      new(key_ptr  (iDstBucket)) TKey  (std::move(*key_ptr  (iSrcBucket)));
-      new(value_ptr(iDstBucket)) TValue(std::move(*value_ptr(iSrcBucket)));
+   static void move_key_value_to_bucket(
+      void * pThis, void * pKey, void * pValue, std::size_t iBucket
+   ) {
+      map * pmap = static_cast<map *>(pThis);
+      new(pmap->  key_ptr(iBucket)) TKey  (std::move(*static_cast<TKey   *>(pKey  )));
+      new(pmap->value_ptr(iBucket)) TValue(std::move(*static_cast<TValue *>(pValue)));
    }
 
    /*! Returns a pointer to the value in the specified bucket index.

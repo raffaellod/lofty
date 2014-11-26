@@ -87,6 +87,55 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    return smc_iNullIndex;
 }
 
+std::size_t map_impl::get_existing_or_empty_bucket_for_key(
+   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
+   move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
+) {
+   std::size_t iNhBegin, iNhEnd;
+   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   // Look for the key or an empty bucket in the neighborhood.
+   std::size_t iBucket = key_lookup(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd, true);
+   if (iBucket != smc_iNullIndex) {
+      return iBucket;
+   }
+   /* Find an empty bucket, scanning every bucket outside the neighborhood. This won’t perform
+   key comparisons or dereferences, so we can pass it a few dummy arguments. */
+   std::size_t iEmptyBucket = key_lookup(
+      0, nullptr, smc_iEmptyBucketHash, nullptr, iNhEnd, iNhBegin, true
+   );
+   if (iEmptyBucket == smc_iNullIndex) {
+      // No luck, the hash table needs to be resized.
+      return smc_iNullIndex;
+   }
+   /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
+   key’s neighborhood, so we have to try and move it in the neighborhood. The not-in-neighborhood
+   check is made more complicated by the fact the range may wrap. */
+   while (iNhBegin < iNhEnd
+      ? iEmptyBucket >= iNhEnd || iEmptyBucket < iNhBegin // Non-wrapping: |---[begin end)---|
+      : iEmptyBucket >= iNhEnd && iEmptyBucket < iNhBegin // Wrapping:     | end)-----[begin |
+   ) {
+      /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
+      of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
+      keys belonging to other overlapping neighborhoods. */
+      std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
+      if (iMovableBucket == smc_iNullIndex) {
+         /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to
+         be resized. */
+         return smc_iNullIndex;
+      }
+      // Move the contents of iMovableBucket to iEmptyBucket.
+      pfnMoveKeyValueToBucket(
+         this,
+         reinterpret_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iMovableBucket,
+         reinterpret_cast<std::int8_t *>(m_pValues.get()) + cbValue * iMovableBucket,
+         iEmptyBucket
+      );
+      m_piHashes[iEmptyBucket] = m_piHashes[iMovableBucket];
+      iEmptyBucket = iMovableBucket;
+   }
+   return iEmptyBucket;
+}
+
 std::tuple<std::size_t, std::size_t> map_impl::hash_neighborhood_range(std::size_t iHash) const {
    std::size_t iNhBegin = hash_neighborhood_index(iHash);
    std::size_t iNhEnd = iNhBegin + neighborhood_size();
