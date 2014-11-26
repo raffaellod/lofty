@@ -28,64 +28,53 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class map_basic : public testing::test_case {
-public:
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return istr(ABC_SL("abc::map – basic operations"));
-   }
+ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::map – basic operations") {
+   ABC_TRACE_FUNC(this);
 
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
+   map<int, int> m;
 
-      map<int, int> m;
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
 
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   m.add(10, 100);
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(m[10], 100);
 
-      m.add(10, 100);
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(m[10], 100);
+   m.add(20, 200);
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(m[10], 100);
+   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
 
-      m.add(20, 200);
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(m[10], 100);
-      ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   m.remove(10);
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
 
-      m.remove(10);
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   m.add(22, 220);
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   ABC_TESTING_ASSERT_EQUAL(m[22], 220);
 
-      m.add(22, 220);
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
-      ABC_TESTING_ASSERT_EQUAL(m[20], 200);
-      ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+   m.clear();
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
 
-      m.clear();
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   m.add(11, 110);
+   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(m[11], 110);
 
-      m.add(11, 110);
-      ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(m[11], 110);
-
-      // Add enough key/value pairs until a resize occurs.
-      int iKey = 11, iValue = 110;
-      std::size_t iInitialCapacity = m.capacity();
-      do {
-         iKey += 11;
-         iValue += 110;
-         m.add(iKey, iValue);
-      } while (m.capacity() == iInitialCapacity);
-      /* Verify that some values are still there. Can’t check them all because we don’t know exactly
-      how many we ended up adding. */
-      ABC_TESTING_ASSERT_EQUAL(m[11], 110);
-      ABC_TESTING_ASSERT_EQUAL(m[22], 220);
-      ABC_TESTING_ASSERT_EQUAL(m[iKey - 11], iValue - 110);
-      ABC_TESTING_ASSERT_EQUAL(m[iKey], iValue);
-   }
-};
+   // Add enough key/value pairs until a resize occurs.
+   int iKey = 11, iValue = 110;
+   std::size_t iInitialCapacity = m.capacity();
+   do {
+      iKey += 11;
+      iValue += 110;
+      m.add(iKey, iValue);
+   } while (m.capacity() == iInitialCapacity);
+   /* Verify that some values are still there. Can’t check them all because we don’t know exactly
+   how many we ended up adding. */
+   ABC_TESTING_ASSERT_EQUAL(m[11], 110);
+   ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+   ABC_TESTING_ASSERT_EQUAL(m[iKey - 11], iValue - 110);
+   ABC_TESTING_ASSERT_EQUAL(m[iKey], iValue);
+}
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::map_basic)
