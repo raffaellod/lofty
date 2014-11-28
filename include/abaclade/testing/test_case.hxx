@@ -267,9 +267,18 @@ protected:
    */
    void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
 
+   void timer_start(istr const & sTimerTitle);
+
+   void timer_stop();
+
 protected:
    //! Runner executing this test.
    runner * m_prunner;
+   //! Name of the current timed session.
+   istr m_sTimer;
+   /*! Start time of the current timed session. The type is just a placeholder that is cast to the
+   appropriate type in test_case.cxx. */
+   std::unique_ptr<void, memory::freeing_deleter<void>> m_pStartTime;
 };
 
 } //namespace testing
