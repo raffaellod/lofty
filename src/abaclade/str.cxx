@@ -126,11 +126,10 @@ detail::c_str_ptr str_base::c_str() const {
    } else if (std::size_t cch = size_in_chars()) {
       // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       // NUL, and return it.
-      detail::c_str_ptr psz(memory::alloc<char_t const []>(cch + 1 /*NUL*/).release(), true);
-      char_t * pch = const_cast<char_t *>(static_cast<char_t const *>(psz));
-      memory::copy(pch, chars_begin(), cch);
-      memory::clear(pch + cch);
-      return std::move(psz);
+      auto psz(memory::alloc<char_t[]>(cch + 1 /*NUL*/));
+      memory::copy(psz.get(), chars_begin(), cch);
+      psz[cch] = '\0';
+      return detail::c_str_ptr(psz.release(), true);
    } else {
       // The string is empty, so a static NUL character will suffice.
       return detail::c_str_ptr(&::gc_chNul, false);
