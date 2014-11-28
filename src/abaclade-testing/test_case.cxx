@@ -127,7 +127,7 @@ void test_case::timer_start(istr const & sTimerTitle) {
       m_pStartTime = memory::alloc< ::FILETIME>();
    }
    ::FILETIME ftUnused, * pftStartTime = static_cast< ::FILETIME *>(m_pStartTime.get());
-   ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, &pftStartTime);
+   ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, pftStartTime);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    // We could probably just use std::chrono here.
    #error "TODO: HOST_API"
