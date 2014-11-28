@@ -135,10 +135,27 @@ namespace memory {
 //! Deleter that deallocates memory using memory::free().
 template <typename T>
 struct freeing_deleter {
+   //! Constructor.
+   freeing_deleter() {
+   }
+   template <typename T2>
+   freeing_deleter(freeing_deleter<T2> const &) {
+   }
+
+   /*! Copy-assignment operator.
+
+   @return
+      *this.
+   */
+   template <typename T2>
+   freeing_deleter & operator=(freeing_deleter<T2> const &) {
+      return *this;
+   }
+
    /*! Deallocates the specified memory block.
 
    @param pt
-      Pointer to the object to delete.
+      Pointer to the object to deallocate.
    */
    void operator()(T * pt) const {
       _raw_free(pt);
@@ -147,15 +164,31 @@ struct freeing_deleter {
 
 // Specialization for arrays.
 template <typename T>
-struct freeing_deleter<T[]> : public freeing_deleter<T> {
-   /*! Deallocates the specified array. See also freeing_deleter<T>::operator()().
+struct freeing_deleter<T[]> {
+   //! Constructor.
+   freeing_deleter() {
+   }
+   template <typename T2>
+   freeing_deleter(freeing_deleter<T2> const &) {
+   }
+
+   /*! Copy-assignment operator.
+
+   @return
+      *this.
+   */
+   template <typename T2>
+   freeing_deleter & operator=(freeing_deleter<T2> const &) {
+      return *this;
+   }
+
+   /*! Deallocates the specified array.
 
    @param pt
       Pointer to the array to deallocate.
    */
-   template <typename T2>
-   void operator()(T2 * pt) const {
-      freeing_deleter<T>::operator()(pt);
+   void operator()(T * pt) const {
+      _raw_free(pt);
    }
 };
 
