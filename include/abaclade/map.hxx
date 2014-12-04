@@ -312,7 +312,7 @@ public:
       if (!m_cBuckets) {
          grow_table();
       }
-      /* Repeatedly resize the table until we’re able to find a empty bucket for the new element.
+      /* Repeatedly resize the table until we’re able to find an empty bucket for the new element.
       This should really only happen at most once. */
       for (;;) {
          iBucket = get_existing_or_empty_bucket_for_key(

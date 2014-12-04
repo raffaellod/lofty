@@ -31,6 +31,53 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
+namespace {
+
+#if ABC_HOST_API_POSIX
+
+std::pair<bool, ::clockid_t> get_timer_clock() {
+   ::clockid_t clkid;
+   // Try and get a timer specific to this process.
+   if (::clock_getcpuclockid(0, &clkid) == 0) {
+      return std::make_pair(true, std::move(clkid));
+   }
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+   return std::make_pair(true, CLOCK_PROCESS_CPUTIME_ID);
+#endif //if defined(CLOCK_PROCESS_CPUTIME_ID)
+   // No suitable timer to use.
+   return std::make_pair(false, ::clockid_t());
+}
+
+::timespec get_time_point() {
+   auto clkidTimer = get_timer_clock();
+   if (!clkidTimer.first) {
+      // No suitable timer to use.
+      // TODO: do something other than throw.
+      throw 0;
+   }
+   ::timespec tsRet;
+   ::clock_gettime(clkidTimer.second, &tsRet);
+   return std::move(tsRet);
+}
+
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+
+::FILETIME get_time_point() {
+   ::FILETIME ftRet, ftUnused;
+   ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, &ftRet);
+   return std::move(ftRet);
+}
+
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+
+   // We could probably just use std::chrono here.
+   #error "TODO: HOST_API"
+
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+
+} //namespace
+
+
 test_case::test_case() {
 }
 
@@ -107,31 +154,12 @@ void test_case::timer_start(istr const & sTimerTitle) {
    ABC_TRACE_FUNC(this, sTimerTitle);
 
    m_sTimer = sTimerTitle;
-#if ABC_HOST_API_POSIX
+   auto timepoint(get_time_point());
+   typedef decltype(timepoint) timepoint_t;
    if (!m_pStartTime) {
-      m_pStartTime = memory::alloc< ::timespec>();
+      m_pStartTime = memory::alloc<timepoint_t>();
    }
-   ::clockid_t clkidTimer;
-   // Try and get a timer specific to this process.
-   if (::clock_getcpuclockid(0, &clkidTimer) != 0) {
-#if defined(CLOCK_PROCESS_CPUTIME_ID)
-      clkidTimer = CLOCK_PROCESS_CPUTIME_ID;
-#else //if defined(CLOCK_PROCESS_CPUTIME_ID)
-      // No suitable timer to use.
-      return;
-#endif //if defined(CLOCK_PROCESS_CPUTIME_ID) … else
-   }
-   ::clock_gettime(clkidTimer, static_cast< ::timespec *>(m_pStartTime.get()));
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   if (!m_pStartTime) {
-      m_pStartTime = memory::alloc< ::FILETIME>();
-   }
-   ::FILETIME ftUnused, * pftStartTime = static_cast< ::FILETIME *>(m_pStartTime.get());
-   ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, pftStartTime);
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   // We could probably just use std::chrono here.
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   *static_cast<timepoint_t *>(m_pStartTime.get()) = timepoint;
 }
 
 void test_case::timer_stop() {
