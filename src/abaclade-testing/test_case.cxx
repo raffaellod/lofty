@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
+#include <abaclade/io/text/file.hxx>
 
 #if ABC_HOST_API_POSIX
 #include <time.h>
@@ -60,12 +61,33 @@ std::pair<bool, ::clockid_t> get_timer_clock() {
    return std::move(tsRet);
 }
 
+std::uint64_t get_time_diff_ns(::timespec const & tsBegin, ::timespec const & tsEnd) {
+   ABC_TRACE_FUNC();
+
+   std::int64_t iInterval = (tsEnd.tv_sec - tsBegin.tv_sec) * 1000000;
+   iInterval = iInterval + tsEnd.tv_nsec - tsBegin.tv_nsec;
+   return static_cast<std::uint64_t>(iInterval);
+}
+
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
    ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, &ftRet);
    return std::move(ftRet);
+}
+
+std::uint64_t get_time_diff_ns(::FILETIME const & ftBegin, ::FILETIME const & ftEnd) {
+   ABC_TRACE_FUNC();
+
+   // Compose the FILETIME arguments into 64-bit integers.
+   ULARGE_INTEGER iBegin, iEnd;
+   iBegin.LowPart = ftBegin.dwLowDateTime;
+   iBegin.HighPart = ftBegin.dwHighDateTime;
+   iEnd.LowPart = ftEnd.dwLowDateTime;
+   iEnd.HighPart = ftEnd.dwHighDateTime;
+   // FILETIME is in units of 100 ns, so scale it to 1 ns.
+   return (iEnd.QuadPart - iBegin.QuadPart) * 100;
 }
 
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -155,25 +177,22 @@ void test_case::timer_start(istr const & sTimerTitle) {
 
    m_sTimer = sTimerTitle;
    auto timepoint(get_time_point());
-   typedef decltype(timepoint) timepoint_t;
    if (!m_pStartTime) {
-      m_pStartTime = memory::alloc<timepoint_t>();
+      m_pStartTime = memory::alloc<decltype(timepoint)>();
    }
-   *static_cast<timepoint_t *>(m_pStartTime.get()) = timepoint;
+   *static_cast<decltype(timepoint) *>(m_pStartTime.get()) = timepoint;
 }
 
 void test_case::timer_stop() {
-#if ABC_HOST_API_POSIX
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   // We could probably just use std::chrono here.
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   auto timepoint(get_time_point());
 
    // We do this here to avoid adding ABC_TRACE_FUNC() to the timed execution.
    ABC_TRACE_FUNC(this);
 
-
+   std::uint64_t iTimeDiff = get_time_diff_ns(
+      *static_cast<decltype(timepoint) *>(m_pStartTime.get()), timepoint
+   );
+   io::text::stderr()->print(ABC_SL("timer[{}]: {} ns\n"), m_sTimer, iTimeDiff);
 }
 
 } //namespace testing
