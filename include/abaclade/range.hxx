@@ -240,6 +240,20 @@ private:
    T m_tEnd;
 };
 
+/*! Creates an abc::range by inferring the range type from its arguments.
+
+@param tBegin
+   First value in the range.
+@param tEnd
+   Value beyond the last one in the range.
+@return
+   Range covering [begin, end).
+*/
+template <typename T>
+range<T> make_range(T tBegin, T tEnd) {
+   return range<T>(std::move(tBegin), std::move(tEnd));
+}
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
