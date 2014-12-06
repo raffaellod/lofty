@@ -160,8 +160,8 @@ public:
       m_tEnd() {
    }
    range(T tBegin, T tEnd) :
-      m_tBegin(tBegin),
-      m_tEnd(tEnd) {
+      m_tBegin(std::move(tBegin)),
+      m_tEnd(std::move(tEnd)) {
    }
 
    /*! Boolean evaluation operator.
