@@ -47,7 +47,7 @@ public:
          Current value.
       */
       explicit iterator(T t) :
-         m_t(t) {
+         m_t(std::move(t)) {
       }
 
       /*! Dereferencing operator.
