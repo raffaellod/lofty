@@ -173,15 +173,6 @@ public:
       return m_tBegin != m_tEnd;
    }
 
-   /*! Returns the interval not included in the range, defined as [end(), begin()).
-
-   @return
-      Inverted range.
-   */
-   range operator~() const {
-      return range(m_tEnd, m_tBegin);
-   }
-
    /*! Equality relational operator.
 
    @param r
