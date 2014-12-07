@@ -99,7 +99,8 @@ std::uint64_t get_duration_ns(::FILETIME const & ftBegin, ::FILETIME const & ftE
 } //namespace
 
 
-stopwatch::stopwatch() {
+stopwatch::stopwatch() :
+   m_iTotalDuration(0) {
 }
 
 stopwatch::~stopwatch() {
@@ -117,7 +118,11 @@ std::uint64_t stopwatch::stop() {
    // We do this here to avoid adding ABC_TRACE_FUNC() to the timed execution.
    ABC_TRACE_FUNC(this);
 
-   return get_duration_ns(*reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), timepoint);
+   std::uint64_t iPartialDuration = get_duration_ns(
+      *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), timepoint
+   );
+   m_iTotalDuration += iPartialDuration;
+   return iPartialDuration;
 }
 
 } //namespace perf
