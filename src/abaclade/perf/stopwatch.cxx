@@ -63,8 +63,9 @@ std::pair<bool, ::clockid_t> get_timer_clock() {
 std::uint64_t get_duration_ns(::timespec const & tsBegin, ::timespec const & tsEnd) {
    ABC_TRACE_FUNC();
 
-   std::int64_t iInterval = (tsEnd.tv_sec - tsBegin.tv_sec) * 1000000;
-   iInterval = iInterval + tsEnd.tv_nsec - tsBegin.tv_nsec;
+   std::uint64_t iInterval = static_cast<std::uint64_t>(tsEnd.tv_sec - tsBegin.tv_sec) * 1000000000;
+   iInterval += static_cast<std::uint64_t>(tsEnd.tv_nsec);
+   iInterval -= static_cast<std::uint64_t>(tsBegin.tv_nsec);
    return static_cast<std::uint64_t>(iInterval);
 }
 
