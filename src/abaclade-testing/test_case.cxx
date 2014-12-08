@@ -104,14 +104,6 @@ void test_case::assert_throws(
    );
 }
 
-void test_case::log_duration(std::uint64_t iDuration, istr const & sDescription /*= istr::empty*/) {
-   ABC_TRACE_FUNC(this, iDuration, sDescription);
-
-   io::text::stderr()->print(
-      ABC_SL("{}: {} ns\n"), sDescription ? sDescription : ABC_SL("timer"), iDuration
-   );
-}
-
 } //namespace testing
 } //namespace abc
 

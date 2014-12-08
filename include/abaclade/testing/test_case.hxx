@@ -267,8 +267,6 @@ protected:
    */
    void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
 
-   void log_duration(std::uint64_t iDuration, istr const & sDescription = istr::empty);
-
 protected:
    //! Runner executing this test.
    runner * m_prunner;

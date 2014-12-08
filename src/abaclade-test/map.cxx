@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
-#include <abaclade/perf/stopwatch.hxx>
 #include <abaclade/map.hxx>
 
 
@@ -62,8 +61,6 @@ ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m[11], 110);
 
    // Add enough key/value pairs until a resize occurs.
-   perf::stopwatch sw;
-   sw.start();
    int iKey = 11, iValue = 110;
    std::size_t iInitialCapacity = m.capacity();
    do {
@@ -71,7 +68,6 @@ ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::map – basic operations") {
       iValue += 110;
       m.add(iKey, iValue);
    } while (m.capacity() == iInitialCapacity);
-   log_duration(sw.stop());
    /* Verify that some values are still there. Can’t check them all because we don’t know exactly
    how many we ended up adding. */
    ABC_TESTING_ASSERT_EQUAL(m[11], 110);
