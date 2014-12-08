@@ -110,7 +110,8 @@ stopwatch::~stopwatch() {
 void stopwatch::start() {
    ABC_TRACE_FUNC(this);
 
-   *reinterpret_cast<decltype(get_time_point()) *>(&m_abStartTime) = get_time_point();
+   auto timepoint(get_time_point());
+   *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime) = std::move(timepoint);
 }
 
 std::uint64_t stopwatch::stop() {
@@ -120,7 +121,7 @@ std::uint64_t stopwatch::stop() {
    ABC_TRACE_FUNC(this);
 
    std::uint64_t iPartialDuration = get_duration_ns(
-      *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), timepoint
+      *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), std::move(timepoint)
    );
    m_iTotalDuration += iPartialDuration;
    return iPartialDuration;
