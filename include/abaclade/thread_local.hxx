@@ -275,7 +275,7 @@ class thread_local_ptr :
 private:
    //! Contains a T and a bool to track whether the T has been constructed.
    struct value_t {
-      std::int8_t t[sizeof(T)];
+      T t;
       bool bConstructed;
    };
 
@@ -319,7 +319,7 @@ public:
    */
    T * get() const {
       value_t * pValue = get_ptr<value_t>();
-      return pValue->bConstructed ? reinterpret_cast<T *>(&pValue->t) : nullptr;
+      return pValue->bConstructed ? &pValue->t : nullptr;
    }
 
    /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
@@ -330,7 +330,7 @@ public:
    void reset() {
       value_t * pValue = get_ptr<value_t>();
       if (pValue->bConstructed) {
-         reinterpret_cast<T *>(&pValue->t)->~T();
+         pValue->t.~T();
          pValue->bConstructed = false;
       }
    }
@@ -351,18 +351,17 @@ public:
 private:
    //! See detail::thread_local_var_impl::construct().
    virtual void construct(void * p) const override {
-      value_t * pValue = new(p) value_t;
+      value_t * pValue = static_cast<value_t *>(p);
       pValue->bConstructed = false;
+      // Note that pValue.t is left uninitialized.
    }
 
    //! See detail::thread_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
       value_t * pValue = static_cast<value_t *>(p);
       if (pValue->bConstructed) {
-         reinterpret_cast<T *>(&pValue->t)->~T();
+         pValue->t.~T();
       }
-      // This is technically a no-op, but keeps destruct() symmetric with construct().
-      pValue->~value_t();
    }
 };
 
