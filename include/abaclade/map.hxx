@@ -39,6 +39,7 @@ namespace detail {
 //! Non-template implementation class for abc::map.
 class ABACLADE_SYM map_impl {
 protected:
+   typedef void (* destruct_key_value_fn)(void * pKey, void * pValue);
    typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
    typedef void (* move_key_value_to_bucket_fn)(
       map_impl * pmapi, void * pKey, void * pValue, std::size_t iBucket
@@ -371,8 +372,7 @@ public:
       for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
          if (*piHash != smc_iEmptyBucketHash) {
             *piHash = smc_iEmptyBucketHash;
-            pkey  ->~TKey  ();
-            pvalue->~TValue();
+            destruct_key_value(pkey, pvalue);
          }
       }
       m_cUsedBuckets = 0;
@@ -392,8 +392,7 @@ public:
       // Mark the bucket as empty and destruct the corresponding key and value.
       --m_cUsedBuckets;
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
-      key_ptr  (iBucket)->~TKey  ();
-      value_ptr(iBucket)->~TValue();
+      destruct_key_value(key_ptr(iBucket), value_ptr(iBucket));
    }
 
 private:
@@ -407,6 +406,18 @@ private:
    std::size_t calculate_and_adjust_hash(TKey const & key) const {
       std::size_t iHash = hasher::operator()(key);
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
+   }
+
+   /*! Destructs a key and a value.
+
+   @param pKey
+      Pointer to the key to destruct.
+   @param pValue
+      Pointer to the value to destruct.
+   */
+   static void destruct_key_value(void * pKey, void * pValue) {
+      static_cast<TKey   *>(pKey  )->~TKey  ();
+      static_cast<TValue *>(pValue)->~TValue();
    }
 
    /*! Enlarges the hash table by a factor of smc_iGrowthFactor. The contents of each bucket are
@@ -454,8 +465,7 @@ private:
             // Move hash/key/value to the new bucket.
             move_key_value_to_bucket(this, pOldKey, pOldValue, iNewBucket);
             m_piHashes[iNewBucket] = *piOldHash;
-            pOldKey  ->~TKey  ();
-            pOldValue->~TValue();
+            destruct_key_value(pOldKey, pOldValue);
          }
       }
    }
