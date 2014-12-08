@@ -363,6 +363,15 @@ public:
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
+   /*! Returns a forward iterator set to the first key/value pair.
+
+   @return
+      Forward iterator to the first key/value pair.
+   */
+   iterator begin() {
+      return iterator(this, 0);
+   }
+
    //! Removes all elements from the map.
    void clear() {
       std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
@@ -375,6 +384,15 @@ public:
          }
       }
       m_cUsedBuckets = 0;
+   }
+
+   /*! Returns a forward iterator set beyond the last key/value pair.
+
+   @return
+      Forward iterator to the first key/value pair.
+   */
+   iterator end() {
+      return iterator(this, m_cBuckets);
    }
 
    /*! Removes a key/value pair given the key, which must be in the map.
