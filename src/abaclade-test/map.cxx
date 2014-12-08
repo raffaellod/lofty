@@ -87,7 +87,7 @@ namespace test {
 
 namespace {
 
-/*! Inefficient hash functor that results in 50% hash collisions. This also checks that hash 0
+/*! Inefficient hash functor that results in near-100% hash collisions. This also checks that hash 0
 (which has a special meaning internally to abc::map) behaves no differently than any other value.
 
 @param i
