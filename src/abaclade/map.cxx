@@ -87,6 +87,27 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    return smc_iNullIndex;
 }
 
+std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const {
+   std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                     * piHashNhEnd = m_piHashes.get() + iNhEnd,
+                     * piHashesEnd = m_piHashes.get() + m_cBuckets;
+   /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
+   wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
+   we won’t enter the loop at all if the start condition is the same as the end condition, which is
+   the case for neighborhood_size() == m_cBuckets. */
+   do {
+      if (*piHash == smc_iEmptyBucketHash) {
+         return static_cast<std::size_t>(piHash - m_piHashes.get());
+      }
+
+      // Move on to the next bucket, wrapping around to the first one if needed.
+      if (++piHash == piHashesEnd) {
+         piHash = m_piHashes.get();
+      }
+   } while (piHash != piHashNhEnd);
+   return smc_iNullIndex;
+}
+
 std::size_t map_impl::get_existing_or_empty_bucket_for_key(
    std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
    move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
@@ -94,15 +115,14 @@ std::size_t map_impl::get_existing_or_empty_bucket_for_key(
    std::size_t iNhBegin, iNhEnd;
    std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
    // Look for the key or an empty bucket in the neighborhood.
-   std::size_t iBucket = key_lookup(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd, true);
+   std::size_t iBucket = lookup_key_or_find_empty_bucket(
+      cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd
+   );
    if (iBucket != smc_iNullIndex) {
       return iBucket;
    }
-   /* Find an empty bucket, scanning every bucket outside the neighborhood. This won’t perform
-   key comparisons or dereferences, so we can pass it a few dummy arguments. */
-   std::size_t iEmptyBucket = key_lookup(
-      0, nullptr, smc_iEmptyBucketHash, nullptr, iNhEnd, iNhBegin, true
-   );
+   // Find an empty bucket, scanning every bucket outside the neighborhood.
+   std::size_t iEmptyBucket = find_empty_bucket(iNhEnd, iNhBegin);
    if (iEmptyBucket == smc_iNullIndex) {
       // No luck, the hash table needs to be resized.
       return smc_iNullIndex;
@@ -144,7 +164,7 @@ std::tuple<std::size_t, std::size_t> map_impl::hash_neighborhood_range(std::size
    return std::make_tuple(iNhBegin, iNhEnd);
 }
 
-std::size_t map_impl::key_lookup(
+std::size_t map_impl::lookup_key(
    std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
 ) const {
    if (m_cBuckets == 0) {
@@ -153,16 +173,44 @@ std::size_t map_impl::key_lookup(
    }
    std::size_t iNhBegin, iNhEnd;
    std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-   return key_lookup(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd, false);
+   return lookup_key(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd);
+}
+std::size_t map_impl::lookup_key(
+   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
+   std::size_t iNhBegin, std::size_t iNhEnd
+) const {
+   std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                     * piHashNhEnd = m_piHashes.get() + iNhEnd,
+                     * piHashesEnd = m_piHashes.get() + m_cBuckets;
+   /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
+   wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
+   we won’t enter the loop at all if the start condition is the same as the end condition, which is
+   the case for neighborhood_size() == m_cBuckets. */
+   do {
+      /* Multiple calculations of the second condition should be rare enough (exact key match or
+      hash collision) to make recalculating the offset from m_pKeys cheaper than keeping a cursor
+      over m_pKeys running in parallel to piHash. */
+      if (*piHash == iKeyHash && pfnKeysEqual(
+         this,
+         reinterpret_cast<std::int8_t const *>(m_pKeys.get()) +
+            cbKey * static_cast<std::size_t>(piHash - m_piHashes.get()),
+         pKey
+      )) {
+         return static_cast<std::size_t>(piHash - m_piHashes.get());
+      }
+
+      // Move on to the next bucket, wrapping around to the first one if needed.
+      if (++piHash == piHashesEnd) {
+         piHash = m_piHashes.get();
+      }
+   } while (piHash != piHashNhEnd);
+   return smc_iNullIndex;
 }
 
-std::size_t map_impl::key_lookup(
+std::size_t map_impl::lookup_key_or_find_empty_bucket(
    std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-   std::size_t iNhBegin, std::size_t iNhEnd, bool bAcceptEmptyBucket
+   std::size_t iNhBegin, std::size_t iNhEnd
 ) const {
-   /* Optimize away the check for bAcceptEmpty in the loop by comparing against iKeyHash (which the
-   loop already does) if the caller desn’t want smc_iEmptyBucketHash. */
-   std::size_t iAcceptableEmptyHash = bAcceptEmptyBucket ? smc_iEmptyBucketHash : iKeyHash;
    std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
                      * piHashNhEnd = m_piHashes.get() + iNhEnd,
                      * piHashesEnd = m_piHashes.get() + m_cBuckets;
@@ -172,8 +220,8 @@ std::size_t map_impl::key_lookup(
    the case for neighborhood_size() == m_cBuckets. */
    do {
       if (
-         *piHash == iAcceptableEmptyHash ||
-         /* Multiple calculations of the 2nd operand of the && should be rare enough (exact key
+         *piHash == smc_iEmptyBucketHash ||
+         /* Multiple calculations of the second half of the && should be rare enough (exact key
          match or hash collision) to make recalculating the offset from m_pKeys cheaper than keeping
          a cursor over m_pKeys running in parallel to piHash. */
          (*piHash == iKeyHash && pfnKeysEqual(

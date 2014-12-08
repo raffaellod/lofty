@@ -138,7 +138,7 @@ protected:
    */
    std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const;
 
-   /*! Looks for a specific key or an unused bucket (if bAcceptEmptyBucket is true) in the map.
+   /*! Looks for a specific key in the map.
 
    @param cbKey
       Size of a key, in bytes.
@@ -152,27 +152,16 @@ protected:
       Beginning of the neighborhood bucket index range.
    @param iNhEnd
       End of the neighborhood bucket index range.
-   @param bAcceptEmptyBucket
-      If true, an empty bucket will be considered a match, and its index returned.
    @return
       Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
-   std::size_t key_lookup(
+   std::size_t lookup_key(
       std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
    ) const;
-   /* This overload could be split in three different methods:
-
-   1. Search for an empty bucket while also checking for a matching key: this would be used when
-      looking for an add() insertion point while we’re still in the neighborhood of the key;
-   2. Search for an empty bucket: this would cover the rest of the search needed by add();
-   3. Search for a matching key: this would be used by the non-ranged key_lookup() overloads.
-
-   The reason it’s not split is that most of the code is shared among these operation modes, so its
-   instruction cache footprint is reduced. */
-   std::size_t key_lookup(
+   std::size_t lookup_key(
       std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-      std::size_t iNhBegin, std::size_t iNhEnd, bool bAcceptEmptyBucket
+      std::size_t iNhBegin, std::size_t iNhEnd
    ) const;
 
    /*! Returns the current neighborhood size.
@@ -181,6 +170,41 @@ protected:
       Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
    */
    std::size_t neighborhood_size() const;
+
+private:
+   /*! Looks for an empty bucket in the specified bucket range.
+
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @return
+      Index of the first empty bucket found, or smc_iNullIndex if no empty buckets were found.
+   */
+   std::size_t find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const;
+
+   /*! Looks for a specific key or an unused bucket in the map.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param pKey
+      Pointer to the key to lookup.
+   @param iKeyHash
+      Hash of *pKey.
+   @param pfnKeysEqual
+      Pointer to a function that returns true if two keys compare as equal.
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @return
+      Index of the bucket at which the key could be found, or index of the first empty bucket found,
+      or smc_iNullIndex if neither could be found.
+   */
+   std::size_t lookup_key_or_find_empty_bucket(
+      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
+      std::size_t iNhBegin, std::size_t iNhEnd
+   ) const;
 
 protected:
    //! Array containing the hash of each key.
@@ -288,11 +312,12 @@ public:
       Value corresponding to key. If key is not in the map, an exception will be thrown.
    */
    TValue & operator[](TKey const & key) const {
-      std::size_t iBucket = key_lookup(&key);
+      std::size_t iBucket = lookup_key(&key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
+      ABC_ASSERT(*key_ptr(iBucket) == key, ABC_SL("lookup_key() returned wrong key"));
       return *value_ptr(iBucket);
    }
 
@@ -359,7 +384,7 @@ public:
       Key associated to the value to remove.
    */
    void remove(TKey const & key) {
-      std::size_t iBucket = key_lookup(&key);
+      std::size_t iBucket = lookup_key(&key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
@@ -443,9 +468,9 @@ private:
       Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
       found.
    */
-   using detail::map_impl::key_lookup;
-   std::size_t key_lookup(TKey const * pkey) const {
-      return key_lookup(sizeof(TKey), pkey, calculate_and_adjust_hash(*pkey), &keys_equal);
+   using detail::map_impl::lookup_key;
+   std::size_t lookup_key(TKey const * pkey) const {
+      return lookup_key(sizeof(TKey), pkey, calculate_and_adjust_hash(*pkey), &keys_equal);
    }
 
    /*! Returns a pointer to the key in the specified bucket index.
