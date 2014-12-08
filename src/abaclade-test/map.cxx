@@ -78,3 +78,49 @@ ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::map – basic operations") {
 
 } //namespace test
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::map_collisions
+
+namespace abc {
+namespace test {
+
+namespace {
+
+/*! Inefficient hash functor that results in 50% hash collisions. This also checks that hash 0
+(which has a special meaning internally to abc::map) behaves no differently than any other value.
+
+@param i
+   Value to hash.
+@return
+   Hash of i.
+*/
+struct poor_hash {
+   std::size_t operator()(int i) const {
+      return i & 1;
+   }
+};
+
+} //namespace
+
+ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – using collision-prone hash function") {
+   ABC_TRACE_FUNC(this);
+
+   static int const sc_iMax = 50;
+
+   map<int, int, poor_hash> m;
+
+   // Verify that values are inserted correctly.
+   for (int i = 0; i < sc_iMax; ++i) {
+      m.add(i, i);
+      ABC_TESTING_ASSERT_EQUAL(m[i], i);
+   }
+
+   // Verify that the insertion of later values did not break previously-inserted values.
+   for (int i = 0; i < sc_iMax; ++i) {
+      ABC_TESTING_ASSERT_EQUAL(m[i], i);
+   }
+}
+
+} //namespace test
+} //namespace abc
