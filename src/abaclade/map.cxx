@@ -156,57 +156,6 @@ std::size_t map_impl::get_existing_or_empty_bucket_for_key(
    return iEmptyBucket;
 }
 
-std::tuple<std::size_t, std::size_t> map_impl::hash_neighborhood_range(std::size_t iHash) const {
-   std::size_t iNhBegin = hash_neighborhood_index(iHash);
-   std::size_t iNhEnd = iNhBegin + neighborhood_size();
-   // Wrap the end index back in the table.
-   iNhEnd &= m_cBuckets - 1;
-   return std::make_tuple(iNhBegin, iNhEnd);
-}
-
-std::size_t map_impl::lookup_key(
-   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
-) const {
-   if (m_cBuckets == 0) {
-      // The key cannot possibly be in the map.
-      return smc_iNullIndex;
-   }
-   std::size_t iNhBegin, iNhEnd;
-   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-   return lookup_key(cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd);
-}
-std::size_t map_impl::lookup_key(
-   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-   std::size_t iNhBegin, std::size_t iNhEnd
-) const {
-   std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
-                     * piHashNhEnd = m_piHashes.get() + iNhEnd,
-                     * piHashesEnd = m_piHashes.get() + m_cBuckets;
-   /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
-   wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
-   we won’t enter the loop at all if the start condition is the same as the end condition, which is
-   the case for neighborhood_size() == m_cBuckets. */
-   do {
-      /* Multiple calculations of the second condition should be rare enough (exact key match or
-      hash collision) to make recalculating the offset from m_pKeys cheaper than keeping a cursor
-      over m_pKeys running in parallel to piHash. */
-      if (*piHash == iKeyHash && pfnKeysEqual(
-         this,
-         reinterpret_cast<std::int8_t const *>(m_pKeys.get()) +
-            cbKey * static_cast<std::size_t>(piHash - m_piHashes.get()),
-         pKey
-      )) {
-         return static_cast<std::size_t>(piHash - m_piHashes.get());
-      }
-
-      // Move on to the next bucket, wrapping around to the first one if needed.
-      if (++piHash == piHashesEnd) {
-         piHash = m_piHashes.get();
-      }
-   } while (piHash != piHashNhEnd);
-   return smc_iNullIndex;
-}
-
 std::size_t map_impl::lookup_key_or_find_empty_bucket(
    std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
    std::size_t iNhBegin, std::size_t iNhEnd

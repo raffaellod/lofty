@@ -137,33 +137,14 @@ protected:
    @return
       Calculated range for the neighborhood bucket index.
    */
-   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const;
+   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
+      std::size_t iNhBegin = hash_neighborhood_index(iHash);
+      std::size_t iNhEnd = iNhBegin + neighborhood_size();
+      // Wrap the end index back in the table.
+      iNhEnd &= m_cBuckets - 1;
+      return std::make_tuple(iNhBegin, iNhEnd);
+   }
 
-   /*! Looks for a specific key in the map.
-
-   @param cbKey
-      Size of a key, in bytes.
-   @param pKey
-      Pointer to the key to lookup.
-   @param iKeyHash
-      Hash of *pKey.
-   @param pfnKeysEqual
-      Pointer to a function that returns true if two keys compare as equal.
-   @param iNhBegin
-      Beginning of the neighborhood bucket index range.
-   @param iNhEnd
-      End of the neighborhood bucket index range.
-   @return
-      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
-      found.
-   */
-   std::size_t lookup_key(
-      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual
-   ) const;
-   std::size_t lookup_key(
-      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-      std::size_t iNhBegin, std::size_t iNhEnd
-   ) const;
 
    /*! Returns the current neighborhood size.
 
@@ -313,7 +294,7 @@ public:
       Value corresponding to key. If key is not in the map, an exception will be thrown.
    */
    TValue & operator[](TKey const & key) const {
-      std::size_t iBucket = lookup_key(&key);
+      std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
@@ -401,7 +382,7 @@ public:
       Key associated to the value to remove.
    */
    void remove(TKey const & key) {
-      std::size_t iBucket = lookup_key(&key);
+      std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
@@ -487,17 +468,47 @@ private:
       }
    }
 
-   /*! See detail::map_impl::key_loopup(); here also available with a more concise signature.
+   /*! Looks for a specific key in the map.
 
-   @param pkey
-      Pointer to the key to lookup.
+   @param key
+      Key to lookup.
    @return
-      Index of the bucket at which the key could be found, or smc_iNullIndex if the key was not
+      Index of the bucket at which the key could be found, or smc_iNullIndex if the key could not be
       found.
    */
-   using detail::map_impl::lookup_key;
-   std::size_t lookup_key(TKey const * pkey) const {
-      return lookup_key(sizeof(TKey), pkey, calculate_and_adjust_hash(*pkey), &keys_equal);
+   std::size_t lookup_key(TKey const & key) const {
+      std::size_t iKeyHash = calculate_and_adjust_hash(key);
+      if (m_cBuckets == 0) {
+         // The key cannot possibly be in the map.
+         return smc_iNullIndex;
+      }
+      std::size_t iNhBegin, iNhEnd;
+      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+
+      std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
+                        * piHashNhEnd = m_piHashes.get() + iNhEnd,
+                        * piHashesEnd = m_piHashes.get() + m_cBuckets;
+      /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
+      the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
+      otherwise we won’t enter the loop at all if the start condition is the same as the end
+      condition, which is the case for neighborhood_size() == m_cBuckets. */
+      do {
+         /* Multiple calculations of the second condition should be rare enough (exact key match or
+         hash collision) to make recalculating the offset from m_pKeys cheaper than keeping a cursor
+         over m_pKeys running in parallel to piHash. */
+         if (*piHash == iKeyHash) {
+            std::size_t iBucket = static_cast<std::size_t>(piHash - m_piHashes.get());
+            if (key_equal::operator()(*key_ptr(iBucket), key)) {
+               return iBucket;
+            }
+         }
+
+         // Move on to the next bucket, wrapping around to the first one if needed.
+         if (++piHash == piHashesEnd) {
+            piHash = m_piHashes.get();
+         }
+      } while (piHash != piHashNhEnd);
+      return smc_iNullIndex;
    }
 
    /*! Returns a pointer to the key in the specified bucket index.
