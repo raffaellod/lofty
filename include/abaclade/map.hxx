@@ -318,7 +318,6 @@ public:
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      ABC_ASSERT(*key_ptr(iBucket) == key, ABC_SL("lookup_key() returned wrong key"));
       return *value_ptr(iBucket);
    }
 
