@@ -29,16 +29,19 @@ namespace detail {
 
 map_impl::map_impl() :
    m_cBuckets(0),
-   m_cUsedBuckets(0) {
+   m_cUsedBuckets(0),
+   m_cNeighborhoodBuckets(0) {
 }
 map_impl::map_impl(map_impl && m) :
    m_piHashes(std::move(m.m_piHashes)),
    m_pKeys(std::move(m.m_pKeys)),
    m_pValues(std::move(m.m_pValues)),
    m_cBuckets(m.m_cBuckets),
-   m_cUsedBuckets(m.m_cUsedBuckets) {
+   m_cUsedBuckets(m.m_cUsedBuckets),
+   m_cNeighborhoodBuckets(m.m_cNeighborhoodBuckets) {
    m.m_cBuckets = 0;
    m.m_cUsedBuckets = 0;
+   m.m_cNeighborhoodBuckets = 0;
 }
 
 map_impl::~map_impl() {
@@ -52,12 +55,15 @@ map_impl & map_impl::operator=(map_impl && m) {
    m.m_cBuckets = 0;
    m_cUsedBuckets = m.m_cUsedBuckets;
    m.m_cUsedBuckets = 0;
+   m_cNeighborhoodBuckets = m.m_cNeighborhoodBuckets;
+   m.m_cNeighborhoodBuckets = 0;
    return *this;
 }
 
 std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
-   std::size_t cNeighborhoodBuckets = neighborhood_size();
-   std::size_t cBucketsRightOfEmpty = cNeighborhoodBuckets - 1;
+   /* Minimum number of buckets on the right of iEmptyBucket that we need in order to have a full
+   neighborhood to scan. */
+   std::size_t cBucketsRightOfEmpty = m_cNeighborhoodBuckets - 1;
    // Ensure that iEmptyBucket will be on the right of any of the buckets we’re going to check.
    if (iEmptyBucket < cBucketsRightOfEmpty) {
       iEmptyBucket += m_cBuckets;
@@ -71,7 +77,7 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    while (piHash != piEmptyHash) {
       /* Get the end of the original neighborhood for the key in this bucket; if the empty bucket is
       within that index, the contents of this bucket can be moved to the empty one. */
-      std::size_t iCurrNhEnd = hash_neighborhood_index(*piHash) + cNeighborhoodBuckets;
+      std::size_t iCurrNhEnd = hash_neighborhood_index(*piHash) + m_cNeighborhoodBuckets;
       /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is always
       valid. */
       if (iEmptyBucket < iCurrNhEnd) {
@@ -94,7 +100,7 @@ std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd
    /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
    wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
    we won’t enter the loop at all if the start condition is the same as the end condition, which is
-   the case for neighborhood_size() == m_cBuckets. */
+   the case for m_cNeighborhoodBuckets == m_cBuckets. */
    do {
       if (*piHash == smc_iEmptyBucketHash) {
          return static_cast<std::size_t>(piHash - m_piHashes.get());
@@ -166,7 +172,7 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
    /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on the
    wrap-around logic at the end of the loop body. Also, we need to iterate at least once, otherwise
    we won’t enter the loop at all if the start condition is the same as the end condition, which is
-   the case for neighborhood_size() == m_cBuckets. */
+   the case for m_cNeighborhoodBuckets == m_cBuckets. */
    do {
       if (
          *piHash == smc_iEmptyBucketHash ||
@@ -189,11 +195,6 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
       }
    } while (piHash != piHashNhEnd);
    return smc_iNullIndex;
-}
-
-std::size_t map_impl::neighborhood_size() const {
-   // Can’t have a neighborhood larger than the total count of buckets.
-   return m_cBuckets < smc_cNeighborhoodBuckets ? m_cBuckets : smc_cNeighborhoodBuckets;
 }
 
 } //namespace detail

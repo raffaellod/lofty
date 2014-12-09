@@ -139,7 +139,7 @@ protected:
    */
    std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
       std::size_t iNhBegin = hash_neighborhood_index(iHash);
-      std::size_t iNhEnd = iNhBegin + neighborhood_size();
+      std::size_t iNhEnd = iNhBegin + m_cNeighborhoodBuckets;
       // Wrap the end index back in the table.
       iNhEnd &= m_cBuckets - 1;
       return std::make_tuple(iNhBegin, iNhEnd);
@@ -149,9 +149,11 @@ protected:
    /*! Returns the current neighborhood size.
 
    @return
-      Current neighborhood size, which is not necessarily the same as smc_cNeighborhoodBuckets.
+      Current neighborhood size.
    */
-   std::size_t neighborhood_size() const;
+   std::size_t neighborhood_size() const {
+      return m_cNeighborhoodBuckets;
+   }
 
 private:
    /*! Looks for an empty bucket in the specified bucket range.
@@ -199,6 +201,10 @@ protected:
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.
    std::size_t m_cUsedBuckets;
+   /*! Neighborhood size. The map will try to keep this to smc_cIdealNeighborhoodBuckets, but the
+   actual value may be smaller if the table is too small, or larger if the hash function results in
+   too many collisions. In the worst case, this will be the same as m_cBuckets. */
+   std::size_t m_cNeighborhoodBuckets;
    //! Minimum bucket count. Must be a power of 2.
    static std::size_t const smc_cBucketsMin = 8;
    //! Special hash value used to indicate that a bucket is empty.
@@ -206,7 +212,7 @@ protected:
    //! Hash table growth factor. Must be a power of 2.
    static std::size_t const smc_iGrowthFactor = 4;
    //! Neighborhood size.
-   static std::size_t const smc_cNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
+   static std::size_t const smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
    //! Special index returned by several methods to indicate a logical “null index”.
    static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
    /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
@@ -443,6 +449,23 @@ private:
       std::swap(m_pValues,  pOldValues);
       // Now the names of these variables make sense :)
 
+
+      /* Recalculate the neighborhood size. The (missing) “else” to this “if” is for when the actual
+      neighborhood size is greater than the ideal, which can happen when dealing with a subpar hash
+      function that resulted in more collisions than smc_cIdealNeighborhoodBuckets. In that
+      scenario, the table size increase doesn’t change anything, since the fix has already been
+      applied to m_cNeighborhoodBuckets, which we won’t change here. */
+      if (m_cNeighborhoodBuckets < smc_cIdealNeighborhoodBuckets) {
+         if (m_cBuckets < smc_cIdealNeighborhoodBuckets) {
+            /* m_cNeighborhoodBuckets has not yet reached smc_cIdealNeighborhoodBuckets, but it
+            can’t exceed m_cBuckets, so set it to the latter. */
+            m_cNeighborhoodBuckets = m_cBuckets;
+         } else {
+            // Fix m_cNeighborhoodBuckets to its ideal value.
+            m_cNeighborhoodBuckets = smc_cIdealNeighborhoodBuckets;
+         }
+      }
+
       // Initialize piNewHashes[i] with smc_iEmptyBucketHash.
       memory::clear(m_piHashes.get(), m_cBuckets);
       // Re-insert each hash/key/value triplet to move it from the old arrays to the new ones.
@@ -491,7 +514,7 @@ private:
       /* iNhBegin - iNhEnd may be a wrapping range, so we can only test for inequality and rely on
       the wrap-around logic at the end of the loop body. Also, we need to iterate at least once,
       otherwise we won’t enter the loop at all if the start condition is the same as the end
-      condition, which is the case for neighborhood_size() == m_cBuckets. */
+      condition, which is the case for m_cNeighborhoodBuckets == m_cBuckets. */
       do {
          /* Multiple calculations of the second condition should be rare enough (exact key match or
          hash collision) to make recalculating the offset from m_pKeys cheaper than keeping a cursor
