@@ -477,10 +477,10 @@ private:
                sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket,
                pOldKey, *piOldHash
             );
-            ABC_ASSERT(
-               iNewBucket != smc_iNullIndex,
-               ABC_SL("failed to find empty bucket while growing hash table")
-            );
+            ABC_ASSERT(iNewBucket != smc_iNullIndex, ABC_SL(
+               "failed to find empty bucket while growing hash table; "
+               "if it could be found before, why not now when there are more buckets?"
+            ));
 
             // Move hash/key/value to the new bucket.
             move_key_value_to_bucket(this, pOldKey, pOldValue, iNewBucket);
