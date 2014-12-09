@@ -133,20 +133,20 @@ std::size_t map_impl::get_existing_or_empty_bucket_for_key(
       // No luck, the hash table needs to be resized.
       return smc_iNullIndex;
    }
-   /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the
-   key’s neighborhood, so we have to try and move it in the neighborhood. The not-in-neighborhood
-   check is made more complicated by the fact the range may wrap. */
+   /* This loop will enter (and maybe repeat) if we have an empty bucket, but it’s not in the key’s
+   neighborhood, so we have to try and move it in the neighborhood. The not-in-neighborhood check is
+   made more complicated by the fact the range may wrap. */
    while (iNhBegin < iNhEnd
       ? iEmptyBucket >= iNhEnd || iEmptyBucket < iNhBegin // Non-wrapping: |---[begin end)---|
       : iEmptyBucket >= iNhEnd && iEmptyBucket < iNhBegin // Wrapping:     | end)-----[begin |
    ) {
-      /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part
-      of the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by
-      keys belonging to other overlapping neighborhoods. */
+      /* The empty bucket is out of the neighborhood. Find the first non-empty bucket that’s part of
+      the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by keys
+      belonging to other overlapping neighborhoods. */
       std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
       if (iMovableBucket == smc_iNullIndex) {
-         /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to
-         be resized. */
+         /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to be
+         resized. */
          return smc_iNullIndex;
       }
       // Move the contents of iMovableBucket to iEmptyBucket.

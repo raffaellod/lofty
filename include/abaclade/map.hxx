@@ -449,7 +449,6 @@ private:
       std::swap(m_pValues,  pOldValues);
       // Now the names of these variables make sense :)
 
-
       /* Recalculate the neighborhood size. The (missing) “else” to this “if” is for when the actual
       neighborhood size is greater than the ideal, which can happen when dealing with a subpar hash
       function that resulted in more collisions than smc_cIdealNeighborhoodBuckets. In that
