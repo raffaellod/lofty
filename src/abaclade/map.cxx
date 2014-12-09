@@ -72,6 +72,8 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    std::size_t const * piEmptyHash = m_piHashes.get() + (iEmptyBucket & (m_cBuckets - 1)),
                      * piHash      = piEmptyHash - cBucketsRightOfEmpty,
                      * piHashesEnd = m_piHashes.get() + m_cBuckets;
+   // Prepare to track the count of collisions (identical hashes) in the selected neighborhood.
+   std::size_t iSampleHash = *piHash, cCollisions = 0;
    /* The neighborhood may wrap, so we can only test for inequality and rely on the wrap-around
    logic at the end of the loop body. */
    while (piHash != piEmptyHash) {
@@ -84,13 +86,23 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
          return static_cast<std::size_t>(piHash - m_piHashes.get());
       }
 
+      if (iSampleHash == *piHash) {
+         ++cCollisions;
+      }
+
       // Move on to the next bucket, wrapping around to the first one if needed.
       if (++piHash == piHashesEnd) {
          piHash = m_piHashes.get();
       }
    }
-   // No luck, the hash table needs to be resized.
-   return smc_iNullIndex;
+   // No luck.
+   if (cCollisions < cBucketsRightOfEmpty) {
+      /* Resizing the hash table will redistribute the hashes in the scanned neighborhood into
+      multiple neighborhoods, so repeating this algorithm will find a movable bucket. */
+      return smc_iNullIndex;
+   } else {
+      ABC_ASSERT(false, ABC_SL("lousy hash function"));
+   }
 }
 
 std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const {
