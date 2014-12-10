@@ -87,7 +87,7 @@ namespace test {
 
 namespace {
 
-/*! Inefficient hash functor that results in near-100% hash collisions. This also checks that hash 0
+/*! Inefficient hash function that results in 100% hash collisions. This also checks that hash 0
 (which has a special meaning internally to abc::map) behaves no differently than any other value.
 
 @param i
@@ -97,29 +97,38 @@ namespace {
 */
 struct poor_hash {
    std::size_t operator()(int i) const {
-      return i & 1;
+      ABC_UNUSED_ARG(i);
+      return 0;
    }
 };
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – using collision-prone hash function") {
+ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – stress test with 100% collisions") {
    ABC_TRACE_FUNC(this);
 
-   static int const sc_iMax = 50;
-
+   static int const sc_iMax = 1000;
+   unsigned cErrors;
    map<int, int, poor_hash> m;
 
    // Verify that values are inserted correctly.
+   cErrors = 0;
    for (int i = 0; i < sc_iMax; ++i) {
       m.add(i, i);
-      ABC_TESTING_ASSERT_EQUAL(m[i], i);
+      if (m[i] != i) {
+         ++cErrors;
+      }
    }
+   ABC_TESTING_ASSERT_EQUAL(cErrors, 0);
 
    // Verify that the insertion of later values did not break previously-inserted values.
+   cErrors = 0;
    for (int i = 0; i < sc_iMax; ++i) {
-      ABC_TESTING_ASSERT_EQUAL(m[i], i);
+      if (m[i] != i) {
+         ++cErrors;
+      }
    }
+   ABC_TESTING_ASSERT_EQUAL(cErrors, 0);
 }
 
 } //namespace test
