@@ -243,7 +243,11 @@ protected:
 
 namespace abc {
 
-//! Key/value map using a simplified hopscotch hashing collision resolution algorithm.
+/*! Key/value map using a derivative of the hopscotch hashing collision resolution algorithm.
+
+This implementation uses a variable hash table size (number of buckets) to deal with varying item
+counts, as well as a variable neighborhood size (number of buckets sharing the same logical index)
+in order to tolerate high-collision hash functions. */
 template <
    typename TKey,
    typename TValue,
