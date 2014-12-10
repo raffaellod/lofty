@@ -217,7 +217,7 @@ protected:
    //! Hash table or neighborhood growth factor. Must be a power of 2.
    static std::size_t const smc_iGrowthFactor = 4;
    //! Neighborhood size.
-   static std::size_t const smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
+   static std::size_t const smc_cIdealNeighborhoodBuckets;
    /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
    smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
    that will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */

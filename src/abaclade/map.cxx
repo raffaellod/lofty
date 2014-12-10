@@ -27,6 +27,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
+std::size_t const map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
+
 map_impl::map_impl() :
    m_cBuckets(0),
    m_cUsedBuckets(0),
