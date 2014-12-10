@@ -276,6 +276,29 @@ public:
          m_iBucket(iBucket) {
       }
 
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this is an iterator to the same key/value pair as it, or false otherwise.
+      */
+      bool operator==(iterator const & it) const {
+         // TODO: maybe also check mc_pmap for equality.
+         return m_iBucket == it.m_iBucket;
+      }
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this has a different key/value pair than it, or false otherwise.
+      */
+      bool operator!=(iterator const & it) const {
+         return !operator==(it);
+      }
+
    private:
       //! Pointer to the map to iterate over.
       map const * const mc_pmap;
@@ -401,6 +424,22 @@ public:
    */
    iterator end() {
       return iterator(this, m_cBuckets);
+   }
+
+   /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
+   pair if found.
+
+   @param key
+      Key to search for.
+   @return
+      Iterator to the matching key/value, or cend() if the key could not be found.
+   */
+   iterator find(TKey const & key) {
+      std::size_t iBucket = lookup_key(key);
+      if (iBucket == smc_iNullIndex) {
+         return end();
+      }
+      return iterator(this, iBucket);
    }
 
    /*! Removes a key/value pair given the key, which must be in the map.
