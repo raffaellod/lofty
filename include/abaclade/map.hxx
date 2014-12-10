@@ -507,6 +507,35 @@ private:
       }
    }
 
+   /*! Returns a pointer to the key in the specified bucket index.
+
+   @param i
+      Bucket index.
+   @return
+      Pointer to the key.
+   */
+   TKey * key_ptr(std::size_t i) const {
+      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
+   }
+
+   /*! Compares two keys for equality. Static helper used by detail::map_impl.
+
+   @param pThis
+      Pointer to *this.
+   @param pKey1
+      Pointer to the first key to compare.
+   @param pKey2
+      Pointer to the second key to compare.
+   @return
+      true if the two keys compare as equal, or false otherwise.
+   */
+   static bool keys_equal(map_impl const * pmapi, void const * pKey1, void const * pKey2) {
+      map const * pmap = static_cast<map const *>(pmapi);
+      return pmap->key_equal::operator()(
+         *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
+      );
+   }
+
    /*! Looks for a specific key in the map.
 
    @param key
@@ -548,35 +577,6 @@ private:
          }
       } while (piHash != piHashNhEnd);
       return smc_iNullIndex;
-   }
-
-   /*! Returns a pointer to the key in the specified bucket index.
-
-   @param i
-      Bucket index.
-   @return
-      Pointer to the key.
-   */
-   TKey * key_ptr(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
-   }
-
-   /*! Compares two keys for equality. Static helper used by detail::map_impl.
-
-   @param pThis
-      Pointer to *this.
-   @param pKey1
-      Pointer to the first key to compare.
-   @param pKey2
-      Pointer to the second key to compare.
-   @return
-      true if the two keys compare as equal, or false otherwise.
-   */
-   static bool keys_equal(map_impl const * pmapi, void const * pKey1, void const * pKey2) {
-      map const * pmap = static_cast<map const *>(pmapi);
-      return pmap->key_equal::operator()(
-         *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
-      );
    }
 
    /*! Moves a key and a value to the specified bucket.
