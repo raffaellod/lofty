@@ -99,9 +99,9 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    if (cCollisions < cBucketsRightOfEmpty) {
       /* Resizing the hash table will redistribute the hashes in the scanned neighborhood into
       multiple neighborhoods, so repeating this algorithm will find a movable bucket. */
-      return smc_iNullIndex;
+      return smc_iNeedLargerTable;
    } else {
-      ABC_ASSERT(false, ABC_SL("lousy hash function"));
+      return smc_iNeedLargerNeighborhoods;
    }
 }
 
@@ -156,10 +156,10 @@ std::size_t map_impl::get_existing_or_empty_bucket_for_key(
       the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by keys
       belonging to other overlapping neighborhoods. */
       std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
-      if (iMovableBucket == smc_iNullIndex) {
-         /* No buckets have contents that can be moved to iEmptyBucket; the hash table needs to be
-         resized. */
-         return smc_iNullIndex;
+      if (iMovableBucket >= smc_iSpecialIndex) {
+         /* No buckets have contents that can be moved to iEmptyBucket; the hash table or the
+         neighborhoods need to be resized. */
+         return iMovableBucket;
       }
       // Move the contents of iMovableBucket to iEmptyBucket.
       pfnMoveKeyValueToBucket(

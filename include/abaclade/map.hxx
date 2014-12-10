@@ -73,6 +73,15 @@ public:
       return m_cBuckets;
    }
 
+   /*! Returns the current neighborhood size.
+
+   @return
+      Current neighborhood size.
+   */
+   std::size_t neighborhood_size() const {
+      return m_cNeighborhoodBuckets;
+   }
+
    /*! Returns the count of elements in the map.
 
    @return
@@ -83,16 +92,6 @@ public:
    }
 
 protected:
-   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
-
-   @param iEmptyBucket
-      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
-   @return
-      Index of the first bucket whose contents can be moved, or smc_iNullIndex if none of the
-      occupied buckets contain keys from the neighborhood ending at iEmptyBucket.
-   */
-   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
-
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
    returns its index after moving it in the key’s neighborhood.
 
@@ -117,6 +116,12 @@ protected:
       std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
       move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
    );
+
+   /*! Enlarges the neighborhood size by a factor of smc_iGrowthFactor. This does not require moving
+   the contents of any buckets, since buckets will still be part of the correct neighborhood. */
+   void grow_neighborhoods() {
+      m_cNeighborhoodBuckets *= smc_iGrowthFactor;
+   }
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
    hash.
@@ -145,17 +150,17 @@ protected:
       return std::make_tuple(iNhBegin, iNhEnd);
    }
 
-
-   /*! Returns the current neighborhood size.
-
-   @return
-      Current neighborhood size.
-   */
-   std::size_t neighborhood_size() const {
-      return m_cNeighborhoodBuckets;
-   }
-
 private:
+   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
+
+   @param iEmptyBucket
+      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
+   @return
+      Index of the first bucket whose contents can be moved, or a special value if none of the
+      occupied buckets contains a key from the neighborhood ending at iEmptyBucket.
+   */
+   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
+
    /*! Looks for an empty bucket in the specified bucket range.
 
    @param iNhBegin
@@ -209,16 +214,25 @@ protected:
    static std::size_t const smc_cBucketsMin = 8;
    //! Special hash value used to indicate that a bucket is empty.
    static std::size_t const smc_iEmptyBucketHash = 0;
-   //! Hash table growth factor. Must be a power of 2.
+   //! Hash table or neighborhood growth factor. Must be a power of 2.
    static std::size_t const smc_iGrowthFactor = 4;
    //! Neighborhood size.
    static std::size_t const smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT;
-   //! Special index returned by several methods to indicate a logical “null index”.
-   static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
    /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
    smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
    that will fit in 2^16, which is the (future, if ever) minimum word size supported by Abaclade. */
    static std::size_t const smc_iZeroHash = 65521;
+
+   //! First special index value.
+   static std::size_t const smc_iSpecialIndex = numeric::max<std::size_t>::value - 8;
+   /*! Special value returned by find_bucket_movable_to_empty() to indicate that the neighborhood
+   size needs to be increased before trying again. */
+   static std::size_t const smc_iNeedLargerNeighborhoods = numeric::max<std::size_t>::value - 2;
+   /*! Special value returned by find_bucket_movable_to_empty() to indicate that the hash table size
+   needs to be increased before trying again. */
+   static std::size_t const smc_iNeedLargerTable = numeric::max<std::size_t>::value - 1;
+   //! Special index returned by several methods to indicate a logical “null index”.
+   static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
 };
 
 } //namespace detail
@@ -325,15 +339,18 @@ public:
          grow_table();
       }
       /* Repeatedly resize the table until we’re able to find an empty bucket for the new element.
-      This should really only happen at most once. */
+      This should typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
       for (;;) {
          iBucket = get_existing_or_empty_bucket_for_key(
             sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket, &key, iKeyHash
          );
-         if (iBucket != smc_iNullIndex) {
+         if (iBucket < smc_iSpecialIndex) {
             break;
+         } else if (iBucket == smc_iNeedLargerNeighborhoods) {
+            grow_neighborhoods();
+         } else {
+            grow_table();
          }
-         grow_table();
       }
 
       std::size_t * piHash = &m_piHashes[iBucket];
@@ -477,7 +494,7 @@ private:
                sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket,
                pOldKey, *piOldHash
             );
-            ABC_ASSERT(iNewBucket != smc_iNullIndex, ABC_SL(
+            ABC_ASSERT(iNewBucket < smc_iSpecialIndex, ABC_SL(
                "failed to find empty bucket while growing hash table; "
                "if it could be found before, why not now when there are more buckets?"
             ));
