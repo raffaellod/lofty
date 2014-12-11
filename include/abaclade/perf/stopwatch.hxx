@@ -37,24 +37,28 @@ namespace perf {
 //! Base class for test cases.
 class ABACLADE_TESTING_SYM stopwatch {
 public:
+   //! Integer type used to measure durations.
+   typedef std::uint64_t duration_type;
+
+public:
    stopwatch();
 
    ~stopwatch();
 
-   std::uint64_t duration() const {
+   duration_type duration() const {
       return m_iTotalDuration;
    }
 
    void start();
 
-   std::uint64_t stop();
+   duration_type stop();
 
 protected:
    /*! Start time of the current timed session. Large enough to accommodate the real type, defined
    in stopwatch.cxx. */
    std::max_align_t m_abStartTime[ABC_ALIGNED_SIZE(8)];
    //! Total measured time duration, in nanoseconds. Precision is not guaranteed on all platforms.
-   std::uint64_t m_iTotalDuration;
+   duration_type m_iTotalDuration;
 };
 
 } //namespace perf

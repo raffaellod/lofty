@@ -60,13 +60,14 @@ std::pair<bool, ::clockid_t> get_timer_clock() {
    return std::move(tsRet);
 }
 
-std::uint64_t get_duration_ns(::timespec const & tsBegin, ::timespec const & tsEnd) {
+stopwatch::duration_type get_duration_ns(::timespec const & tsBegin, ::timespec const & tsEnd) {
    ABC_TRACE_FUNC();
 
-   std::uint64_t iInterval = static_cast<std::uint64_t>(tsEnd.tv_sec - tsBegin.tv_sec) * 1000000000;
-   iInterval += static_cast<std::uint64_t>(tsEnd.tv_nsec);
-   iInterval -= static_cast<std::uint64_t>(tsBegin.tv_nsec);
-   return static_cast<std::uint64_t>(iInterval);
+   typedef stopwatch::duration_type duration_type;
+   duration_type iInterval = static_cast<duration_type>(tsEnd.tv_sec - tsBegin.tv_sec) * 1000000000;
+   iInterval += static_cast<duration_type>(tsEnd.tv_nsec);
+   iInterval -= static_cast<duration_type>(tsBegin.tv_nsec);
+   return static_cast<duration_type>(iInterval);
 }
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
@@ -77,7 +78,7 @@ std::uint64_t get_duration_ns(::timespec const & tsBegin, ::timespec const & tsE
    return std::move(ftRet);
 }
 
-std::uint64_t get_duration_ns(::FILETIME const & ftBegin, ::FILETIME const & ftEnd) {
+stopwatch::duration_type get_duration_ns(::FILETIME const & ftBegin, ::FILETIME const & ftEnd) {
    ABC_TRACE_FUNC();
 
    // Compose the FILETIME arguments into 64-bit integers.
@@ -114,13 +115,13 @@ void stopwatch::start() {
    *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime) = std::move(timepoint);
 }
 
-std::uint64_t stopwatch::stop() {
+stopwatch::duration_type stopwatch::stop() {
    auto timepoint(get_time_point());
 
    // We do this here to avoid adding ABC_TRACE_FUNC() to the timed execution.
    ABC_TRACE_FUNC(this);
 
-   std::uint64_t iPartialDuration = get_duration_ns(
+   duration_type iPartialDuration = get_duration_ns(
       *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), std::move(timepoint)
    );
    m_iTotalDuration += iPartialDuration;
