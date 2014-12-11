@@ -136,6 +136,7 @@ public:
       T m_t;
    };
 
+   typedef iterator const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
 
 public:
@@ -241,6 +242,24 @@ public:
    */
    iterator begin() const {
       return iterator(m_tBegin);
+   }
+
+   /*! Returns an iterator to the start of the range. Same as begin().
+
+   @return
+      Iterator to the first value in the range.
+   */
+   iterator cbegin() const {
+      return begin();
+   }
+
+   /*! Returns an iterator to the end of the range. Same as end().
+
+   @return
+      Value beyond the last in the range.
+   */
+   iterator cend() const {
+      return end();
    }
 
    /*! Returns true if the specified value is included in the range.
