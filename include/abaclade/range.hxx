@@ -211,7 +211,7 @@ public:
    @return
       true if t is included in [begin(), end()), or false otherwise.
    */
-   bool contains(T t) const {
+   bool contains(T const & t) const {
       return t >= m_tBegin && t < m_tEnd;
    }
 
