@@ -54,6 +54,9 @@ namespace abc {
    //! Provides facilities to interact with the underlying OS.
    namespace os {}
 
+   //! Support for performance tracking.
+   namespace perf {}
+
    /*! abc::_std contains STL implementation bits from ABC_STLIMPL that we may want to use when
    ABC_STLIMPL is not defined, as Abaclade-only alternatives to lacking/buggy host STL
    implementations. */
