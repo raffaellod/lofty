@@ -113,4 +113,10 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="examples/exceptions.cxx"/>
       <dynlib name="abaclade"/>
    </exe>
+
+   <exe name="maps-comparison">
+      <!-- Comparison of map implementations. -->
+      <source path="examples/maps-comparison.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
 </abcmk>
