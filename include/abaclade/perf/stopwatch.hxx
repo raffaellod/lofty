@@ -38,7 +38,7 @@ namespace perf {
 precision. */
 class ABACLADE_TESTING_SYM stopwatch {
 public:
-   //! Integer type used to measure durations.
+   //! Integer type used to measure durations in nanoseconds.
    typedef std::uint64_t duration_type;
 
 public:
@@ -51,7 +51,7 @@ public:
    /*! Returns the total tracked time.
 
    @return
-      Cumulative time counted by start()/stop() call pairs.
+      Cumulative time counted by start()/stop() call pairs, in nanoseconds.
    */
    duration_type duration() const {
       return m_iTotalDuration;
@@ -63,7 +63,7 @@ public:
    /*! Stops tracking time.
 
    @return
-      Time elapsed since the last call to start().
+      Time elapsed since the last call to start(), in nanoseconds.
    */
    duration_type stop();
 
