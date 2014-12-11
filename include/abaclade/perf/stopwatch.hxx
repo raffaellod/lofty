@@ -65,5 +65,27 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for abc::perf::stopwatch
+
+namespace abc {
+
+template <>
+class to_str_backend<perf::stopwatch> : public to_str_backend<perf::stopwatch::duration_type> {
+public:
+   /*! Writes a stopwatch by its duration in ns, applying the formatting options.
+
+   @param sw
+      Stopwatch to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(perf::stopwatch const & sw, io::text::writer * ptwOut) {
+      to_str_backend<perf::stopwatch::duration_type>::write(sw.duration(), ptwOut);
+   }
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif //ifndef _ABACLADE_PERF_STOPWATCH_HXX
