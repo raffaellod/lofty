@@ -34,23 +34,37 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace perf {
 
-//! Base class for test cases.
+/*! Measures processing time intervals for the current process at a high platform-dependent
+precision. */
 class ABACLADE_TESTING_SYM stopwatch {
 public:
    //! Integer type used to measure durations.
    typedef std::uint64_t duration_type;
 
 public:
+   //! Constructor.
    stopwatch();
 
+   //! Destructor.
    ~stopwatch();
 
+   /*! Returns the total tracked time.
+
+   @return
+      Cumulative time counted by start()/stop() call pairs.
+   */
    duration_type duration() const {
       return m_iTotalDuration;
    }
 
+   //! Starts tracking time.
    void start();
 
+   /*! Stops tracking time.
+
+   @return
+      Time elapsed since the last call to start().
+   */
    duration_type stop();
 
 protected:
