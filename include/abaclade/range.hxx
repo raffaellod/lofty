@@ -131,12 +131,15 @@ public:
          return !operator==(it);
       }
 
-      /*! Returns the underlying iterator type.
+      /*! Returns the underlying value.
 
       @return
-         Pointer to the current node.
+         Reference to the current value.
       */
-      T base() const {
+      T & base() {
+         return m_t;
+      }
+      T const & base() const {
          return m_t;
       }
 
