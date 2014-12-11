@@ -176,6 +176,54 @@ public:
       return m_tBegin != m_tEnd;
    }
 
+   /*! Right-shift-assignment operator.
+
+   @param t
+      Amount by which to shift/translate the range towards positive infinity.
+   @return
+      *this after its begin() and end() have been increased by t.
+   */
+   range & operator>>=(T const & t) {
+      m_tBegin += t;
+      m_tEnd += t;
+      return *this;
+   }
+
+   /*! Left-shift-assignment operator.
+
+   @param t
+      Amount by which to shift/translate the range towards negative infinity.
+   @return
+      *this after its begin() and end() have been decreased by t.
+   */
+   range & operator<<=(T const & t) {
+      m_tBegin -= t;
+      m_tEnd -= t;
+      return *this;
+   }
+
+   /*! Right-shift operator.
+
+   @param t
+      Amount by which to shift/translate the range towards positive infinity.
+   @return
+      Range covering *this with begin() and end() increased by t.
+   */
+   range operator>>(T const & t) const {
+      return range(*this) >>= t;
+   }
+
+   /*! Left-shift operator.
+
+   @param t
+      Amount by which to shift/translate the range towards negative infinity.
+   @return
+      Range covering *this with begin() and end() decreased by t.
+   */
+   range operator<<(T const & t) const {
+      return range(*this) <<= t;
+   }
+
    /*! Equality relational operator.
 
    @param r
