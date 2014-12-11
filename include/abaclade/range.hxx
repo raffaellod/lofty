@@ -131,18 +131,6 @@ public:
          return !operator==(it);
       }
 
-      /*! Returns the underlying value.
-
-      @return
-         Reference to the current value.
-      */
-      T & base() {
-         return m_t;
-      }
-      T const & base() const {
-         return m_t;
-      }
-
    private:
       //! Current value.
       T m_t;
