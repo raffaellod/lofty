@@ -92,6 +92,37 @@ public:
    }
 
 protected:
+   /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
+   returns its index after moving it in the key’s neighborhood.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param cbValue
+      Size of a value, in bytes.
+   @param pfnKeysEqual
+      Pointer to a function that returns true if two keys compare as equal.
+   @param pfnMoveKeyValueToBucket
+      Pointer to a function that move-constructs the key and value of a bucket using the provided
+      pointers.
+   @param pfnDestructKeyValue
+      Pointer to a function that destructs the specified key and value.
+   @param pKey
+      Pointer to the key to add.
+   @param iKeyHash
+      Hash of *pKey.
+   @param pValue
+      Pointer to the value to add.
+   @return
+      Pair containing the index of the newly-occupied bucket and a bool value that is true if the
+      key/value pair was just added, or false if the key already existed in the map and the
+      corresponding value was overwritten.
+   */
+   std::pair<std::size_t, bool> add(
+      std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
+      move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
+      destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue
+   );
+
    /*! Locates an empty bucket where the specified key may be stored, and returns its index after
    moving it in the key’s neighborhood.
 
@@ -105,7 +136,7 @@ protected:
    @param pKey
       Pointer to the key to lookup.
    @param iKeyHash
-      Hash of key.
+      Hash of *pKey.
    @return
       Index of the bucket for the specified key. If key no empty bucket can be found or moved in the
       key’s neighborhood, the returned index is smc_iNullIndex.
@@ -130,7 +161,7 @@ protected:
    @param pKey
       Pointer to the key to lookup.
    @param iKeyHash
-      Hash of key.
+      Hash of *pKey.
    @return
       Index of the bucket for the specified key. If key is not already in the map and no empty
       bucket can be moved in the key’s neighborhood, the returned index is smc_iNullIndex.
@@ -431,35 +462,11 @@ public:
    */
    std::pair<iterator, bool> add(TKey key, TValue value) {
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
-      if (!m_cBuckets) {
-         grow_table(sizeof(TKey), sizeof(TValue), move_key_value_to_bucket, destruct_key_value);
-      }
-      /* Repeatedly resize the table until we’re able to find an empty bucket for the new element.
-      This should typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
-      for (;;) {
-         iBucket = get_existing_or_empty_bucket_for_key(
-            sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket, &key, iKeyHash
-         );
-         if (iBucket < smc_iSpecialIndex) {
-            break;
-         } else if (iBucket == smc_iNeedLargerNeighborhoods) {
-            grow_neighborhoods();
-         } else {
-            grow_table(sizeof(TKey), sizeof(TValue), move_key_value_to_bucket, destruct_key_value);
-         }
-      }
-
-      std::size_t * piHash = &m_piHashes[iBucket];
-      bool bNew = (*piHash == smc_iEmptyBucketHash);
-      if (bNew) {
-         // The bucket is currently empty, so initialize it with hash/key/value.
-         move_key_value_to_bucket(this, &key, &value, iBucket);
-         *piHash = iKeyHash;
-      } else {
-         // The bucket already has a value, so overwrite that with the value argument.
-         *value_ptr(iBucket) = std::move(value);
-      }
-      ++m_cUsedBuckets;
+      bool bNew;
+      std::tie(iBucket, bNew) = map_impl::add(
+         sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket, &destruct_key_value,
+         &key, iKeyHash, &value
+      );
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
@@ -630,7 +637,8 @@ private:
    @param pThis
       Pointer to *this.
    @param pKey
-      Pointer to the key to move to the destination bucket.
+      Pointer to the key to move to the destination bucket. May be nullptr if the key doesn’t need
+      to change because it’s already correct.
    @param pValue
       Pointer to the value to move to the destination bucket.
    @param iBucket
@@ -640,7 +648,9 @@ private:
       map_impl * pmapi, void * pKey, void * pValue, std::size_t iBucket
    ) {
       map * pmap = static_cast<map *>(pmapi);
-      new(pmap->  key_ptr(iBucket)) TKey  (std::move(*static_cast<TKey   *>(pKey  )));
+      if (pKey) {
+         new(pmap->key_ptr(iBucket)) TKey(std::move(*static_cast<TKey *>(pKey)));
+      }
       new(pmap->value_ptr(iBucket)) TValue(std::move(*static_cast<TValue *>(pValue)));
    }
 

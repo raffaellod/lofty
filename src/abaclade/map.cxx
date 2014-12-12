@@ -62,6 +62,44 @@ map_impl & map_impl::operator=(map_impl && m) {
    return *this;
 }
 
+std::pair<std::size_t, bool> map_impl::add(
+   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
+   move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
+   destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue
+) {
+   if (!m_cBuckets) {
+      grow_table(cbKey, cbValue, pfnMoveKeyValueToBucket, pfnDestructKeyValue);
+   }
+   /* Repeatedly resize the table until we’re able to find an empty bucket for the new element. This
+   should typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
+   std::size_t iBucket;
+   for (;;) {
+      iBucket = get_existing_or_empty_bucket_for_key(
+         cbKey, cbValue, pfnKeysEqual, pfnMoveKeyValueToBucket, pKey, iKeyHash
+      );
+      if (iBucket < smc_iSpecialIndex) {
+         break;
+      } else if (iBucket == smc_iNeedLargerNeighborhoods) {
+         grow_neighborhoods();
+      } else {
+         grow_table(cbKey, cbValue, pfnMoveKeyValueToBucket, pfnDestructKeyValue);
+      }
+   }
+
+   std::size_t * piHash = &m_piHashes[iBucket];
+   bool bNew = (*piHash == smc_iEmptyBucketHash);
+   if (bNew) {
+      // The bucket is currently empty, so initialize it with hash/key/value.
+      pfnMoveKeyValueToBucket(this, pKey, pValue, iBucket);
+      *piHash = iKeyHash;
+   } else {
+      // The bucket already has a value, so overwrite that with the value argument.
+      pfnMoveKeyValueToBucket(this, nullptr, pValue, iBucket);
+   }
+   ++m_cUsedBuckets;
+   return std::make_pair(iBucket, bNew);
+}
+
 std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
    /* Minimum number of buckets on the right of iEmptyBucket that we need in order to have a full
    neighborhood to scan. */
