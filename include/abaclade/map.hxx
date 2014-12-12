@@ -123,6 +123,77 @@ protected:
       destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue
    );
 
+   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
+   hash.
+
+   @param iHash
+      Hash to get the neighborhood index for.
+   @return
+      Index of the first bucket in the neighborhood.
+   */
+   std::size_t hash_neighborhood_index(std::size_t iHash) const {
+      return iHash & (m_cBuckets - 1);
+   }
+
+   /*! Returns the bucket index ranges for the neighborhood of the given hash.
+
+   @param iHash
+      Hash to return the neighborhood of.
+   @return
+      Calculated range for the neighborhood bucket index.
+   */
+   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
+      std::size_t iNhBegin = hash_neighborhood_index(iHash);
+      std::size_t iNhEnd = iNhBegin + m_cNeighborhoodBuckets;
+      // Wrap the end index back in the table.
+      iNhEnd &= m_cBuckets - 1;
+      return std::make_tuple(iNhBegin, iNhEnd);
+   }
+
+private:
+   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
+
+   @param iEmptyBucket
+      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
+   @return
+      Index of the first bucket whose contents can be moved, or a special value if none of the
+      occupied buckets contains a key from the neighborhood ending at iEmptyBucket.
+   */
+   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
+
+   /*! Looks for an empty bucket in the specified bucket range.
+
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @return
+      Index of the first empty bucket found, or smc_iNullIndex if no empty buckets were found.
+   */
+   std::size_t find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const;
+
+   /*! Looks for an empty bucket outsize the specified bucket range.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param cbValue
+      Size of a value, in bytes.
+   @param pfnMoveKeyValueToBucket
+      Pointer to a function that move-constructs the key and value of a bucket using the provided
+      pointers.
+   @param iNhBegin
+      Beginning of the neighborhood bucket index range.
+   @param iNhEnd
+      End of the neighborhood bucket index range.
+   @return
+      Index of a bucket that has been emptied by moving its contents outside the neighborhood, or
+      smc_iNullIndex if no movable buckets could be found.
+   */
+   std::size_t find_empty_bucket_outside_neighborhood(
+      std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
+      std::size_t iNhBegin, std::size_t iNhEnd
+   );
+
    /*! Locates an empty bucket where the specified key may be stored, and returns its index after
    moving it in the key’s neighborhood.
 
@@ -199,77 +270,6 @@ protected:
    void grow_table(
       std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
       destruct_key_value_fn pfnDestructKeyValue
-   );
-
-   /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
-   hash.
-
-   @param iHash
-      Hash to get the neighborhood index for.
-   @return
-      Index of the first bucket in the neighborhood.
-   */
-   std::size_t hash_neighborhood_index(std::size_t iHash) const {
-      return iHash & (m_cBuckets - 1);
-   }
-
-   /*! Returns the bucket index ranges for the neighborhood of the given hash.
-
-   @param iHash
-      Hash to return the neighborhood of.
-   @return
-      Calculated range for the neighborhood bucket index.
-   */
-   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
-      std::size_t iNhBegin = hash_neighborhood_index(iHash);
-      std::size_t iNhEnd = iNhBegin + m_cNeighborhoodBuckets;
-      // Wrap the end index back in the table.
-      iNhEnd &= m_cBuckets - 1;
-      return std::make_tuple(iNhBegin, iNhEnd);
-   }
-
-private:
-   /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
-
-   @param iEmptyBucket
-      Index of the empty bucket, which is also the last bucket of the neighborhood to scan.
-   @return
-      Index of the first bucket whose contents can be moved, or a special value if none of the
-      occupied buckets contains a key from the neighborhood ending at iEmptyBucket.
-   */
-   std::size_t find_bucket_movable_to_empty(std::size_t iEmptyBucket) const;
-
-   /*! Looks for an empty bucket in the specified bucket range.
-
-   @param iNhBegin
-      Beginning of the neighborhood bucket index range.
-   @param iNhEnd
-      End of the neighborhood bucket index range.
-   @return
-      Index of the first empty bucket found, or smc_iNullIndex if no empty buckets were found.
-   */
-   std::size_t find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const;
-
-   /*! Looks for an empty bucket outsize the specified bucket range.
-
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnMoveKeyValueToBucket
-      Pointer to a function that move-constructs the key and value of a bucket using the provided
-      pointers.
-   @param iNhBegin
-      Beginning of the neighborhood bucket index range.
-   @param iNhEnd
-      End of the neighborhood bucket index range.
-   @return
-      Index of a bucket that has been emptied by moving its contents outside the neighborhood, or
-      smc_iNullIndex if no movable buckets could be found.
-   */
-   std::size_t find_empty_bucket_outside_neighborhood(
-      std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
-      std::size_t iNhBegin, std::size_t iNhEnd
    );
 
    /*! Looks for a specific key or an unused bucket in the map.
