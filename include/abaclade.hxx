@@ -85,11 +85,11 @@ namespace abc {
       #error "Unsupported version of GCC: >= 4.4 required, 4.6 suggested"
    #endif
 #elif defined(_MSC_VER)
-   #if _MSC_VER < 1600
-      #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
-   #endif
    #undef ABC_HOST_MSC
    #define ABC_HOST_MSC _MSC_VER
+   #if ABC_HOST_MSC < 1600
+      #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
+   #endif
 #endif
 
 #if ABC_HOST_MSC
