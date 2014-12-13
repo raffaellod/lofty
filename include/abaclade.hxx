@@ -72,12 +72,18 @@ namespace abc {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_HOST_*
 
+//! Version of Clang if building with it, or 0 otherwise.
+#define ABC_HOST_CLANG 0
 //! Version of GCC if building with it, or 0 otherwise.
 #define ABC_HOST_GCC 0
 //! Version of MSC if building with it, or 0 otherwise.
 #define ABC_HOST_MSC 0
 
-#if defined(__GNUC__)
+#if defined(__clang__)
+   #undef ABC_HOST_CLANG
+   #define ABC_HOST_CLANG \
+      (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+#elif defined(__GNUC__)
    #undef ABC_HOST_GCC
    #define ABC_HOST_GCC \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
@@ -90,6 +96,12 @@ namespace abc {
    #if ABC_HOST_MSC < 1600
       #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
    #endif
+#endif
+
+// Compatibility with compilers that don’t support feature checking.
+#ifndef __has_feature
+   #define __has_feature(x) \
+      0
 #endif
 
 #if ABC_HOST_MSC
@@ -269,33 +281,33 @@ namespace abc {
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
-#if ABC_HOST_GCC >= 40500
+#if (ABC_HOST_CLANG && __has_feature(cxx_explicit_conversions)) || ABC_HOST_GCC >= 40500
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /*! If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
-#if ABC_HOST_GCC >= 40400
+#if (ABC_HOST_CLANG && __has_feature(cxx_deleted_functions)) || ABC_HOST_GCC >= 40400
    #define ABC_CXX_FUNC_DELETE
 #endif
 
 //! If defined, the compiler supports the noexcept exception specification.
-#if ABC_HOST_GCC >= 40600
+#if (ABC_HOST_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_GCC >= 40600
    #define ABC_CXX_NOEXCEPT
 #endif
 
 //! If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
-#if ABC_HOST_GCC >= 40700
+#if (ABC_HOST_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_GCC >= 40700
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
 //! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
-#if ABC_HOST_GCC >= 40800
+#if ABC_HOST_CLANG || ABC_HOST_GCC >= 40800
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
 //! If defined, the compiler supports variadic templates (N2242).
-#if ABC_HOST_GCC
+#if (ABC_HOST_CLANG && __has_feature(cxx_variadic_templates)) || ABC_HOST_GCC
    #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
@@ -311,7 +323,7 @@ rangedecl
 expr
    Expression of a type for which std::begin() and std::end() are defined.
 */
-#if ABC_HOST_GCC || ABC_HOST_MSC >= 1700
+#if (ABC_HOST_CLANG && __has_feature(cxx_range_for)) || ABC_HOST_GCC || ABC_HOST_MSC >= 1700
    #define ABC_FOR_EACH(rangedecl, expr) \
       for (rangedecl : expr)
 #elif ABC_HOST_MSC
@@ -323,13 +335,15 @@ expr
       for each (rangedecl in expr)
 #endif
 
-#if ABC_HOST_GCC && ABC_HOST_GCC < 0x40700
-   // GCC only supports override since version 4.7.
-   #define override
+#if (ABC_HOST_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_GCC >= 0x40700
+   // Good, no need for fixes.
 #elif ABC_HOST_MSC
    // MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
    #define override \
-      __pragma(warning(suppress:4481)) override
+      __pragma(warning(suppress: 4481)) override
+#else
+   // For everybody else, just disable override control.
+   #define override
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +359,7 @@ implementation. */
 
 /*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CLANG || ABC_HOST_GCC || ABC_HOST_MSC
    #define ABC_CXX_PRAGMA_ONCE
    // Use it now for this file.
    #pragma once
@@ -354,7 +368,7 @@ implementation. */
 /*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
 reached. */
-#if ABC_HOST_GCC
+#if ABC_HOST_CLANG || ABC_HOST_GCC
    #define ABC_FUNC_NORETURN \
       __attribute__((noreturn))
 #elif ABC_HOST_MSC
@@ -366,6 +380,7 @@ reached. */
 
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
 #if ABC_HOST_API_WIN32
+   // TODO: how does Clang declare dllexport?
    #if ABC_HOST_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((dllexport))
@@ -374,7 +389,7 @@ reached. */
          __declspec(dllexport)
    #endif
 #else
-   #if ABC_HOST_GCC
+   #if ABC_HOST_CLANG || ABC_HOST_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((visibility("default")))
    #endif
@@ -382,6 +397,7 @@ reached. */
 
 //! Declares a symbol to be imported from a shared library.
 #if ABC_HOST_API_WIN32
+   // TODO: how does Clang declare dllimport?
    #if ABC_HOST_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((dllimport))
@@ -390,7 +406,7 @@ reached. */
          __declspec(dllimport)
    #endif
 #else
-   #if ABC_HOST_GCC
+   #if ABC_HOST_CLANG || ABC_HOST_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((visibility("default")))
    #endif
