@@ -448,7 +448,7 @@ to be incorrect.
          } \
       } while (false)
 #else
-   #define ABC_ASSERT(expr) \
+   #define ABC_ASSERT(expr, sMsg) \
       static_cast<void>(0)
 #endif
 
