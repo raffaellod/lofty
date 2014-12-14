@@ -28,7 +28,6 @@ import sys
 # String the hash of which is the FNV basis number.
 FNV_BASIS_SOURCE = b'chongo <Landon Curt Noll> /\\../\\'
 
-
 def fnv_hash_basis(cBits, iFNVPrime):
    """Calculates the basis number for the FNV-1a hash algorithm.
 
@@ -48,7 +47,6 @@ def fnv_hash_basis(cBits, iFNVPrime):
    print('Using prime = {0} ({0:#x}), {1}-bit basis = {2} ({2:#x})'.format(
       iFNVPrime, cBits, iFNVBasis
    ))
-
 
 if __name__ == '__main__':
    fnv_hash_basis(int(sys.argv[1], 0), int(sys.argv[2], 0))
