@@ -31,9 +31,9 @@ FNV_BASIS_SOURCE = b'chongo <Landon Curt Noll> /\\../\\'
 def fnv_hash_basis(cBits, iFNVPrime):
    """Calculates the basis number for the FNV-1a hash algorithm.
 
-   cBits
+   int cBits
       Size of the hash, in bits.
-   iFNVPrime
+   int iFNVPrime
       FNV Prime adequate for hashes of cBits size.
    """
 
