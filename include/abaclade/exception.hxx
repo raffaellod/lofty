@@ -274,6 +274,8 @@ since this file is included in virtually every file whereas trace.hxx is not.
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
+   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
+   works just fine. */
    #define _ABC_THIS_FUNC \
       ABC_SL(__FUNCSIG__)
 #else
