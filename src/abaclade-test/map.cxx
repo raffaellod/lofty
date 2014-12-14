@@ -119,7 +119,7 @@ ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – stress test with 100% c
          ++cErrors;
       }
    }
-   ABC_TESTING_ASSERT_EQUAL(cErrors, 0);
+   ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
 
    // Verify that the insertion of later values did not break previously-inserted values.
    cErrors = 0;
@@ -128,7 +128,7 @@ ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – stress test with 100% c
          ++cErrors;
       }
    }
-   ABC_TESTING_ASSERT_EQUAL(cErrors, 0);
+   ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
 }
 
 } //namespace test
