@@ -265,7 +265,7 @@ since this file is included in virtually every file whereas trace.hxx is not.
 */
 
 //! Pretty-printed name of the current function.
-#if ABC_HOST_GCC
+#if ABC_HOST_CLANG || ABC_HOST_GCC
    /* With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by
    the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t know what scope
    even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to u8__PRETTY_FUNCTION__. However,
