@@ -220,7 +220,6 @@ public:
       ABC_TRACE_FUNC(this);
 
       dmstr s;
-      auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
 
       // No accessible characters.
       ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
