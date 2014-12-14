@@ -99,7 +99,11 @@ private:
 namespace abc {
 
 //! See abc::external_buffer.
-struct external_buffer_t {};
+struct external_buffer_t {
+   //! Constructor. Required to instantiate a const instance.
+   external_buffer_t() {
+   }
+};
 
 /*! Constant similar in use to std::nothrow; when specified as extra argument for abc::*str
 constructors, it indicates that the string should use an external buffer that is guaranteed by the
