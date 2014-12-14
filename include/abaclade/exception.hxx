@@ -275,7 +275,7 @@ since this file is included in virtually every file whereas trace.hxx is not.
       __PRETTY_FUNCTION__
 #elif ABC_HOST_MSC
    #define _ABC_THIS_FUNC \
-      ABC_SL(__FUNCTION__)
+      ABC_SL(__FUNCSIG__)
 #else
    #define _ABC_THIS_FUNC \
       nullptr
