@@ -129,7 +129,7 @@ private:
 
       perf::stopwatch sw;
       sw.start();
-      for (auto i : r) {
+      ABC_FOR_EACH(auto i, r) {
          // Consume m[i] in some way.
          if (m[i] != i) {
             io::text::stdout()->print(ABC_SL("ERROR for i={}\n"), i);
@@ -146,7 +146,7 @@ private:
       perf::stopwatch sw;
       auto end(m.end());
       sw.start();
-      for (auto i : r >> *r.end()) {
+      ABC_FOR_EACH(auto i, r >> *r.end()) {
          // Consume m[i] in some way.
          if (m.find(i) != end) {
             io::text::stdout()->print(ABC_SL("ERROR for i={}\n"), i);
@@ -163,7 +163,7 @@ private:
       perf::stopwatch swAdd;
       {
          swAdd.start();
-         for (auto i : r) {
+         ABC_FOR_EACH(auto i, r) {
             pm->insert(std::make_pair(i, i));
          }
          swAdd.stop();
@@ -181,7 +181,7 @@ private:
       perf::stopwatch swAdd;
       {
          swAdd.start();
-         for (auto i : r) {
+         ABC_FOR_EACH(auto i, r) {
             pm->insert(std::make_pair(i, i));
          }
          swAdd.stop();
@@ -199,7 +199,7 @@ private:
       perf::stopwatch swAdd;
       {
          swAdd.start();
-         for (auto i : r) {
+         ABC_FOR_EACH(auto i, r) {
             pm->add(i, i);
          }
          swAdd.stop();
