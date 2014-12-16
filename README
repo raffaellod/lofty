@@ -84,6 +84,10 @@ time (hopefully expanding).
 
 Supported build systems:
 
+•  Clang + GNU LD
+   •  Clang 3.3 (later versions to be tested)
+   •  binutils (version to be determined – anything from 2010 on should work)
+
 •  GNU toolchain
    •  GCC 4.6 to 4.9
    •  binutils (version to be determined – anything from 2010 on should work)
@@ -93,16 +97,15 @@ Supported build systems:
 
 Supported operating systems:
 
-•  GNU/Linux – specifically GCC/glibc/GNU/Linux, due to some necessary
-   exception handling-related features;
+•  GNU/Linux using glibc 2.17 or later;
 •  Microsoft Windows – temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
 the build host system.
 
-Future plans include support for Clang, FreeBSD, OSX and removal of the
-dependency on Python.
+Future plans include support for FreeBSD, OSX and removal of the dependency on
+Python.
 
 
 4. Building Abaclade
