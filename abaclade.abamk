@@ -58,7 +58,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
 
-      <unittest name="abaclade-test">
+      <exeunittest name="abaclade-test">
          <!-- Main unit test for Abaclade. -->
          <source path="src/abaclade-test/abaclade-test.cxx"/>
          <source path="src/abaclade-test/enum.cxx"/>
@@ -73,24 +73,24 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/to_str.cxx"/>
          <source path="src/abaclade-test/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
-      </unittest>
+      </exeunittest>
 
-      <unittest name="abaclade-test-cppmacros">
+      <toolunittest name="abaclade-test-cppmacros">
          <!-- Unit test for Abaclade’s preprocessor macros. -->
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
          <source tool="preproc" path="src/abaclade-test-cppmacros/cppmacros.cxx"/>
          <expected-output path="src/abaclade-test-cppmacros/cppmacros.cxx.i"/>
-      </unittest>
+      </toolunittest>
 
-      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
+      <!-- exeunittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
          <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
          <expected-output path="src/abaclade-test/io/text/data/utf8.txt"/>
-      </unittest -->
+      </exeunittest -->
 
-      <!-- unittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
+      <!-- exeunittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
          <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
          <expected-output path="src/abaclade-test/io/text/data/utf16be.txt"/>
-      </unittest -->
+      </exeunittest -->
    </dynlib>
 
    <dynlib name="abaclade-testing">
