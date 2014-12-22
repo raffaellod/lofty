@@ -20,6 +20,9 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/io/text/file.hxx>
 #include <abaclade/io/binary/file.hxx>
+#if ABC_HOST_API_POSIX
+   #include <cstdlib> // std::getenv()
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +106,7 @@ std::shared_ptr<binbuf_base> _construct_stdio(
       // In all other cases, allow selecting the encoding via environment variable.
 #if ABC_HOST_API_POSIX
       istr sEnc;
-      if (char_t const * pszEnvVarValue = ::getenv(pszEnvVarName)) {
+      if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
          sEnc = istr(external_buffer, pszEnvVarValue);
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
