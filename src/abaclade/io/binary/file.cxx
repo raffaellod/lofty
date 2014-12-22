@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <algorithm>
 #if ABC_HOST_API_POSIX
-   #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
+   #include <errno.h> // errno
    #include <fcntl.h> // O_*
    #include <sys/stat.h> // S_*, stat()
+   #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
 #endif
 
 
