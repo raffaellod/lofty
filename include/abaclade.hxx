@@ -669,7 +669,6 @@ this purpose, but this is noticeably shorter :)
 @return
    Count of items in array.
 */
-#undef ABC_COUNTOF
 #define ABC_COUNTOF(array) \
    (sizeof(array) / sizeof((array)[0]))
 
