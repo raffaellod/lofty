@@ -150,10 +150,11 @@ namespace abc {
    #pragma warning(disable: 4820)
 #endif //if ABC_HOST_MSC
 
-#define ABC_HOST_API_WIN32 0
-#define ABC_HOST_API_WIN64 0
+#define ABC_HOST_API_DARWIN 0
 #define ABC_HOST_API_LINUX 0
 #define ABC_HOST_API_POSIX 0
+#define ABC_HOST_API_WIN32 0
+#define ABC_HOST_API_WIN64 0
 
 #if defined(_WIN32)
    // Compiling for Win32.
@@ -168,6 +169,12 @@ namespace abc {
    // Compiling for Linux.
    #undef ABC_HOST_API_LINUX
    #define ABC_HOST_API_LINUX 1
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+#elif defined(__MACH__) && defined(__APPLE__)
+   // Compiling for Darwin (OSX/iOS)
+   #undef ABC_HOST_API_DARWIN
+   #define ABC_HOST_API_DARWIN 1
    #undef ABC_HOST_API_POSIX
    #define ABC_HOST_API_POSIX 1
 #elif defined(__posix__)
