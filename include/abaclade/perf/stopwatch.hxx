@@ -70,7 +70,7 @@ public:
 protected:
    /*! Start time of the current timed session. Large enough to accommodate the real type, defined
    in stopwatch.cxx. */
-   std::max_align_t m_abStartTime[ABC_ALIGNED_SIZE(8)];
+   abc::max_align_t m_abStartTime[ABC_ALIGNED_SIZE(8)];
    //! Total measured time duration, in nanoseconds. Precision is not guaranteed on all platforms.
    duration_type m_iTotalDuration;
 };

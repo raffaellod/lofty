@@ -241,7 +241,7 @@ public:
    std::size_t m_cbCapacity;
    /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
    destructed automatically, and because the count may be greater than what’s declared here. */
-   std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
+   abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
 } //namespace detail

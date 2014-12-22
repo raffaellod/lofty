@@ -637,9 +637,13 @@ Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifica
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – other
 
-#ifndef ABC_STLIMPL
+namespace abc {
 
-namespace std {
+#ifdef ABC_STLIMPL
+
+typedef _std::max_align_t max_align_t;
+
+#else //ifdef ABC_STLIMPL
 
 /*! Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
 18.2 “<cstddef>”). */
@@ -649,9 +653,9 @@ union max_align_t {
    long long ll;
 };
 
-} //namespace std
+#endif //ifdef ABC_STLIMPL … else
 
-#endif //ifndef ABC_STLIMPL
+} //namespace abc
 
 /*! Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
 this purpose, but this is noticeably shorter :)
@@ -672,17 +676,17 @@ this purpose, but this is noticeably shorter :)
 #define ABC_COUNTOF(array) \
    (sizeof(array) / sizeof((array)[0]))
 
-/*! Returns a size rounded (ceiling) to a count of std::max_align_t units. This allows to declare
+/*! Returns a size rounded (ceiling) to a count of abc::max_align_t units. This allows to declare
 storage with alignment suitable for any type, just like std::malloc() does. Identical to
-bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t)).
+bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 
 @param cb
-   Size to be aligned to sizeof(std::max_align_t).
+   Size to be aligned to sizeof(abc::max_align_t).
 @return
-   Multiple of sizeof(std::max_align_t) not smaller than cb.
+   Multiple of sizeof(abc::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
-   ((static_cast<std::size_t>(cb) + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t))
+   ((static_cast<std::size_t>(cb) + sizeof(::abc::max_align_t) - 1) / sizeof(::abc::max_align_t))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // #include other core header files that require a special order

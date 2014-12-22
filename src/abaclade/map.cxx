@@ -246,11 +246,11 @@ void map_impl::grow_table(
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
    std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
-   std::unique_ptr<std::max_align_t[]> pOldKeys(
-      new std::max_align_t[ABC_ALIGNED_SIZE(cbKey * cOldBuckets)]
+   std::unique_ptr<abc::max_align_t[]> pOldKeys(
+      new abc::max_align_t[ABC_ALIGNED_SIZE(cbKey * cOldBuckets)]
    );
-   std::unique_ptr<std::max_align_t[]> pOldValues(
-      new std::max_align_t[ABC_ALIGNED_SIZE(cbValue * cOldBuckets)]
+   std::unique_ptr<abc::max_align_t[]> pOldValues(
+      new abc::max_align_t[ABC_ALIGNED_SIZE(cbValue * cOldBuckets)]
    );
    // At this point we’re safe from exceptions, so we can update the member variables.
    std::swap(m_cBuckets, cOldBuckets);

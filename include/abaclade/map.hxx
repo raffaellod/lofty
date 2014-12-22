@@ -299,9 +299,9 @@ protected:
    //! Array containing the hash of each key.
    std::unique_ptr<std::size_t[]> m_piHashes;
    //! Array of keys.
-   std::unique_ptr<std::max_align_t[]> m_pKeys;
+   std::unique_ptr<abc::max_align_t[]> m_pKeys;
    //! Array of buckets.
-   std::unique_ptr<std::max_align_t[]> m_pValues;
+   std::unique_ptr<abc::max_align_t[]> m_pValues;
    //! Count of total buckets. Always a power of two.
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.

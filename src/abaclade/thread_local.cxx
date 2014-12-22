@@ -61,7 +61,7 @@ thread_local_storage::~thread_local_storage() {
 /*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
    // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
    ptlvi->m_ibTlsOffset = sm_cb;
-   sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(std::max_align_t));
+   sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
 }
 
 /*static*/ void thread_local_storage::alloc_slot() {
