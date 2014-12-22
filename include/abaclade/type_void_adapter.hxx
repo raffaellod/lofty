@@ -202,8 +202,13 @@ private:
    // Only enabled if the copy constructor is trivial.
    template <typename T>
    static void _typed_copy_constr(
-      typename std::enable_if<std::has_trivial_copy_constructor<T>::value, T *>::type ptDstBegin,
-      T const * ptSrcBegin, T const * ptSrcEnd
+      typename std::enable_if<
+#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+         std::is_trivially_copy_constructible<T>::value,
+#else
+         std::has_trivial_copy_constructor<T>::value,
+#endif
+      T *>::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       // No constructor, fastest copy possible.
       memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
@@ -211,8 +216,13 @@ private:
    // Only enabled if the copy constructor is not trivial.
    template <typename T>
    static void _typed_copy_constr(
-      typename std::enable_if<!std::has_trivial_copy_constructor<T>::value, T *>::type ptDstBegin,
-      T const * ptSrcBegin, T const * ptSrcEnd
+      typename std::enable_if<
+#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+         !std::is_trivially_copy_constructible<T>::value,
+#else
+         !std::has_trivial_copy_constructor<T>::value,
+#endif
+      T * >::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
       // copy.
