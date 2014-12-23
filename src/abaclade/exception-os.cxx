@@ -1137,7 +1137,7 @@ void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
    /* Handle all unrecognized cases here. Since here we only handle signals for which the default
    actions is a core dump, calling abort (which sends SIGABRT, also causing a core dump) is the same
    as invoking the default action. */
-   ::abort();
+   std::abort();
 }
 
 } //namespace
@@ -1146,7 +1146,7 @@ void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
 exception::async_handler_manager::async_handler_manager() {
    struct ::sigaction saNew;
    saNew.sa_sigaction = eahm_sigaction;
-   ::sigemptyset(&saNew.sa_mask);
+   sigemptyset(&saNew.sa_mask);
    /* Without SA_NODEFER (POSIX.1-2001), the handler would be disabled during its own execution,
    only to be restored when the handler returns. Since we’ll throw a C++ exception from within the
    handler, the restoration would be skipped, and if the signal were raised again, we’d just crash.
