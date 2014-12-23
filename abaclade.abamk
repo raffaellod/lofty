@@ -21,8 +21,10 @@ You should have received a copy of the GNU General Public License along with Aba
 <!-- Abaclade Make makefile for Abaclade itself. -->
 <abcmk>
 
-   <dynlib name="abaclade">
-      <!-- Main Abaclade dynamic shared library. -->
+   <dynlib
+      name="abaclade"
+      brief="Main Abaclade dynamic shared library."
+   >
       <source path="src/abaclade/abaclade.cxx"/>
       <source path="src/abaclade/app.cxx"/>
       <source path="src/abaclade/atomic.cxx"/>
@@ -58,8 +60,10 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
 
-      <exeunittest name="abaclade-test">
-         <!-- Main unit test for Abaclade. -->
+      <exeunittest
+         name="abaclade-test"
+         brief="Main unit test for Abaclade."
+      >
          <source path="src/abaclade-test/abaclade-test.cxx"/>
          <source path="src/abaclade-test/enum.cxx"/>
          <source path="src/abaclade-test/exception.cxx"/>
@@ -75,8 +79,10 @@ You should have received a copy of the GNU General Public License along with Aba
          <dynlib name="abaclade-testing"/>
       </exeunittest>
 
-      <toolunittest name="abaclade-test-cppmacros">
-         <!-- Unit test for Abaclade’s preprocessor macros. -->
+      <toolunittest
+         name="abaclade-test-cppmacros"
+         brief="Unit test for Abaclade’s preprocessor macros."
+      >
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
          <source tool="preproc" path="src/abaclade-test-cppmacros/cppmacros.cxx"/>
          <expected-output path="src/abaclade-test-cppmacros/cppmacros.cxx.i"/>
@@ -93,8 +99,10 @@ You should have received a copy of the GNU General Public License along with Aba
       </exeunittest -->
    </dynlib>
 
-   <dynlib name="abaclade-testing">
-      <!-- Testing support library. -->
+   <dynlib
+      name="abaclade-testing"
+      brief="Testing support library."
+   >
       <source path="src/abaclade-testing/app.cxx"/>
       <source path="src/abaclade-testing/runner.cxx"/>
       <source path="src/abaclade-testing/test_case.cxx"/>
@@ -102,20 +110,26 @@ You should have received a copy of the GNU General Public License along with Aba
       <dynlib name="abaclade"/>
    </dynlib>
 
-   <exe name="hello-world">
-      <!-- “Hello World” example. -->
+   <exe
+      name="hello-world"
+      brief="Example: “Hello World”."
+   >
       <source path="examples/hello-world.cxx"/>
       <dynlib name="abaclade"/>
    </exe>
 
-   <exe name="exceptions">
-      <!-- Exceptions and stack traces example. -->
+   <exe
+      name="exceptions"
+      brief="Example: exceptions and stack traces."
+   >
       <source path="examples/exceptions.cxx"/>
       <dynlib name="abaclade"/>
    </exe>
 
-   <exe name="maps-comparison">
-      <!-- Comparison of map implementations. -->
+   <exe
+      name="maps-comparison"
+      brief="Comparison of map implementations."
+   >
       <source path="examples/maps-comparison.cxx"/>
       <dynlib name="abaclade"/>
    </exe>
