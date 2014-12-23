@@ -233,11 +233,12 @@ namespace abc {
    #ifndef WINVER
       // Pick a default Windows version.
       #if ABC_HOST_API_WIN64
-         // The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
-         // Edition (5.2).
+         /* The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
+         Edition (5.2). */
          #define WINVER 0x0502
       #else
-         // The earliest Win32 implementations are Windows 95 (4.0) and Windows NT 4 (4.0).
+         /* The earliest supported Win32 implementations are Windows 95 (4.0) and Windows NT 4
+         (4.0). */
          #define WINVER 0x0400
       #endif
    #endif
@@ -251,8 +252,8 @@ namespace abc {
    #if ABC_HOST_MSC
       // Silence warnings from system header files.
 
-      // “Unreferenced inline function has been removed” ‒ must be disabled until the end of the
-      // compilation unit, because that’s when it’s raised.
+      /* “Unreferenced inline function has been removed” ‒ must be disabled until the end of the
+      compilation unit, because that’s when it’s raised. */
       #pragma warning(disable: 4514)
       // These can be restored after including header files.
       #pragma warning(push)
