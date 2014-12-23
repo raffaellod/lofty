@@ -21,7 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/perf/stopwatch.hxx>
 
 #if ABC_HOST_API_POSIX
-#include <time.h>
+   #include <time.h>
+   #include <unistd.h>
 #endif
 
 
@@ -33,7 +34,7 @@ namespace perf {
 
 namespace {
 
-#if ABC_HOST_API_POSIX
+#if ABC_HOST_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 
 std::pair<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
