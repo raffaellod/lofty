@@ -1023,7 +1023,7 @@ void throw_os_error(errint_t err) {
 
 namespace abc {
 
-#if ABC_HOST_API_LINUX
+#if ABC_HOST_API_POSIX
 
 // These should be member variables of exception::async_handler_manager, but they’re not due to
 // their header file requirements.
@@ -1170,7 +1170,7 @@ exception::async_handler_manager::~async_handler_manager() {
    }
 }
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_LINUX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 // These should be member variables of exception::async_handler_manager, but they’re not due to
 // their header file requirements.
@@ -1281,7 +1281,7 @@ exception::async_handler_manager::~async_handler_manager() {
    ::_set_se_translator(g_sefDefault);
 }
 
-#endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 } //namespace abc
 

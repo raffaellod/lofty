@@ -402,7 +402,7 @@ public:
    variables, since their types cannot be specified without #including a lot of files into this one.
    */
    class ABACLADE_SYM async_handler_manager : public noncopyable {
-#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    public:
 
       //! Constructor.
