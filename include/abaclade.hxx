@@ -310,8 +310,15 @@ constructor (N2346). */
 #endif
 
 //! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
-#if ABC_HOST_CLANG || ABC_HOST_GCC >= 40800
+#if ABC_HOST_CLANG && !defined(__GLIBCXX__)
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
+#endif
+
+/*! If defined, the STL implements part of the C++11 type traits. This is a special case for the GNU
+libc++; see <https://gcc.gnu.org/onlinedocs/gcc-4.9.2/libstdc++/manual/manual/status.html> for the
+supported type traits. */
+#if (ABC_HOST_CLANG && defined(__GLIBCXX__)) || ABC_HOST_GCC >= 40800
+   #define ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS
 #endif
 
 //! If defined, the compiler supports variadic templates (N2242).

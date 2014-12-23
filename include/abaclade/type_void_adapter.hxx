@@ -250,7 +250,7 @@ private:
    */
    template <typename T>
    static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
-#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
       if (!std::is_trivially_destructible<T>::value) {
 #else
       if (!std::has_trivial_destructor<T>::value) {
