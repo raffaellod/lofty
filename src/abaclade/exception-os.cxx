@@ -19,6 +19,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/io/text/file.hxx>
+
+#include <cstdlib> // std::abort()
+
 #if ABC_HOST_API_POSIX
    #include <errno.h> // errno E*
    #include <signal.h> // sigaction sig*()
