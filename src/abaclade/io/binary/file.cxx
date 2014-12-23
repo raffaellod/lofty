@@ -23,8 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <algorithm>
 #if ABC_HOST_API_POSIX
    #include <errno.h> // errno
-   #include <fcntl.h> // O_*
-   #include <sys/stat.h> // S_*, stat()
+   #include <fcntl.h> // O_* fcntl()
+   #include <sys/stat.h> // S_* stat()
    #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
 #endif
 
@@ -322,9 +322,11 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
          fi = O_APPEND;
          break;
    }
+#ifdef O_DIRECT
    if (!bBuffered) {
       fi |= O_DIRECT;
    }
+#endif
    fid.fd = ::open(op.os_str().c_str(), fi, 0666);
    if (!fid.fd) {
       switch (errno) {
@@ -335,6 +337,18 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
             throw_os_error(errno);
       }
    }
+#ifndef O_DIRECT
+#if ABC_HOST_API_DARWIN
+   if (!bBuffered) {
+      if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
+         throw_os_error();
+      }
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+#endif //ifndef O_DIRECT
+
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    DWORD fiAccess, fiShareMode, iAction, fi = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
