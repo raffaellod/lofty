@@ -24,6 +24,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <time.h>
    #include <unistd.h>
 #endif
+#if ABC_HOST_API_DARWIN
+   #include <mach/mach_time.h>
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +74,19 @@ stopwatch::duration_type get_duration_ns(::timespec const & tsBegin, ::timespec 
    return static_cast<duration_type>(iInterval);
 }
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_DARWIN //if ABC_HOST_API_POSIX
+
+std::uint64_t get_time_point() {
+   return ::mach_absolute_time();
+}
+
+stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint64_t iEnd) {
+   ::mach_timebase_info_data_t mtid;
+   ::mach_timebase_info(&mtid);
+   return (iEnd - iBegin) * mtid.numer / mtid.denom;
+}
+
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX … elif ABC_HOST_DARWIN
 
 ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
@@ -92,12 +107,12 @@ stopwatch::duration_type get_duration_ns(::FILETIME const & ftBegin, ::FILETIME 
    return (iEnd.QuadPart - iBegin.QuadPart) * 100;
 }
 
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_DARWIN … elif ABC_HOST_API_WIN32
 
    // We could probably just use std::chrono here.
    #error "TODO: HOST_API"
 
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_DARWIN … elif ABC_HOST_API_WIN32 … else
 
 } //namespace
 
