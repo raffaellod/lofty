@@ -36,7 +36,7 @@ namespace perf {
 
 /*! Measures processing time intervals for the current process at a high platform-dependent
 precision. */
-class ABACLADE_TESTING_SYM stopwatch {
+class ABACLADE_SYM stopwatch {
 public:
    //! Integer type used to measure durations in nanoseconds.
    typedef std::uint64_t duration_type;
