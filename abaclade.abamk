@@ -18,9 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
 
-<!-- Abaclade Make makefile for Abaclade itself. -->
-<abcmk>
-
+<abcmk
+   brief="Abaclade Make makefile for Abaclade itself."
+>
    <dynlib
       name="abaclade"
       brief="Main Abaclade dynamic shared library."
