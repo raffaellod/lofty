@@ -286,10 +286,10 @@ void map_impl::grow_table(
          std::size_t iNewBucket = get_empty_bucket_for_key(
             cbKey, cbValue, pfnMoveKeyValueToBucket, *piOldHash
          );
-         ABC_ASSERT(iNewBucket < smc_iSpecialIndex, ABC_SL(
-            "failed to find empty bucket while growing hash table; "
-            "if it could be found before, why not now when there are more buckets?"
-         ));
+         ABC_ASSERT(iNewBucket < smc_iSpecialIndex,
+            ABC_SL("failed to find empty bucket while growing hash table; ")
+            ABC_SL("if it could be found before, why not now when there are more buckets?")
+         );
 
          // Move hash/key/value to the new bucket.
          pfnMoveKeyValueToBucket(this, pbOldKey, pbOldValue, iNewBucket);
