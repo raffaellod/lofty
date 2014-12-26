@@ -150,44 +150,44 @@ namespace abc {
    #pragma warning(disable: 4820)
 #endif //if ABC_HOST_MSC
 
-#define ABC_HOST_API_DARWIN 0
-#define ABC_HOST_API_LINUX 0
-#define ABC_HOST_API_POSIX 0
-#define ABC_HOST_API_WIN32 0
-#define ABC_HOST_API_WIN64 0
+#define ABC_TARGET_API_DARWIN 0
+#define ABC_TARGET_API_LINUX 0
+#define ABC_TARGET_API_POSIX 0
+#define ABC_TARGET_API_WIN32 0
+#define ABC_TARGET_API_WIN64 0
 
 #if defined(_WIN32)
    // Compiling for Win32.
-   #undef ABC_HOST_API_WIN32
-   #define ABC_HOST_API_WIN32 1
+   #undef ABC_TARGET_API_WIN32
+   #define ABC_TARGET_API_WIN32 1
    #ifdef _WIN64
-      // Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
-      #undef ABC_HOST_API_WIN64
-      #define ABC_HOST_API_WIN64 1
+      // Compiling for Win64 (coexists with ABC_TARGET_API_WIN32).
+      #undef ABC_TARGET_API_WIN64
+      #define ABC_TARGET_API_WIN64 1
    #endif
 #elif defined(__linux__)
    // Compiling for Linux.
-   #undef ABC_HOST_API_LINUX
-   #define ABC_HOST_API_LINUX 1
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
+   #undef ABC_TARGET_API_LINUX
+   #define ABC_TARGET_API_LINUX 1
+   #undef ABC_TARGET_API_POSIX
+   #define ABC_TARGET_API_POSIX 1
 #elif defined(__MACH__) && defined(__APPLE__)
    // Compiling for Darwin (OSX/iOS)
-   #undef ABC_HOST_API_DARWIN
-   #define ABC_HOST_API_DARWIN 1
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
+   #undef ABC_TARGET_API_DARWIN
+   #define ABC_TARGET_API_DARWIN 1
+   #undef ABC_TARGET_API_POSIX
+   #define ABC_TARGET_API_POSIX 1
 #elif defined(__posix__)
    // Compiling for POSIX.
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
+   #undef ABC_TARGET_API_POSIX
+   #define ABC_TARGET_API_POSIX 1
 #endif
 
 //! Machine word size for this microarchitecture.
 // TODO: the word/pointer size is much more easily detected by a configure program.
-#if ABC_HOST_API_WIN64
+#if ABC_TARGET_API_WIN64
    #define ABC_HOST_WORD_SIZE 64
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    #define ABC_HOST_WORD_SIZE 32
 #elif defined(__SIZEOF_POINTER__)
    #define ABC_HOST_WORD_SIZE (__SIZEOF_POINTER__ * 8)
@@ -225,14 +225,14 @@ namespace abc {
 // This defines our “real” char16_t.
 #include <abaclade/char.hxx>
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    // This prevents stat() from failing for files bigger than 2 GiB.
    #define _FILE_OFFSET_BITS 64
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
    // Make sure WINVER is defined.
    #ifndef WINVER
       // Pick a default Windows version.
-      #if ABC_HOST_API_WIN64
+      #if ABC_TARGET_API_WIN64
          /* The earliest Win64 implementations are Windows Server 2003 (5.2) and Windows XP x64
          Edition (5.2). */
          #define WINVER 0x0502
@@ -277,7 +277,7 @@ namespace abc {
       #undef min
       #undef max
    #endif
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – C++11 compiler features detection
@@ -366,7 +366,7 @@ expr
 
 /*! Declares a function as using the same calling convention as the host C library/STL
 implementation. */
-#if ABC_HOST_API_WIN32 && !ABC_HOST_API_WIN64
+#if ABC_TARGET_API_WIN32 && !ABC_TARGET_API_WIN64
    #define ABC_STL_CALLCONV __cdecl
 #else
    #define ABC_STL_CALLCONV
@@ -394,7 +394,7 @@ reached. */
 #endif
 
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
    // TODO: how does Clang declare dllexport?
    #if ABC_HOST_GCC
       #define ABC_SYM_EXPORT \
@@ -411,7 +411,7 @@ reached. */
 #endif
 
 //! Declares a symbol to be imported from a shared library.
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
    // TODO: how does Clang declare dllimport?
    #if ABC_HOST_GCC
       #define ABC_SYM_IMPORT \
@@ -770,7 +770,7 @@ class writer;
    #include <functional>
    #include <iterator>
 #endif
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    #include <pthread.h>
 #endif
 #include <abaclade/static_list.hxx>

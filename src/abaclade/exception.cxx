@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/io/text/file.hxx>
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    #include <errno.h> // E*
 #endif
 
@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 // Default translations between exception class to OS-specific error code.
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    ABC_MAP_ERROR_CLASS_TO_ERRINT(argument_error, EINVAL);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(domain_error, EDOM);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(file_not_found_error, ENOENT);
@@ -38,7 +38,7 @@ namespace abc {
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, EFAULT);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(overflow_error, EOVERFLOW);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, EFAULT);
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    ABC_MAP_ERROR_CLASS_TO_ERRINT(file_not_found_error, ERROR_PATH_NOT_FOUND);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(invalid_path_error, ERROR_BAD_PATHNAME);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, ERROR_INVALID_ADDRESS);

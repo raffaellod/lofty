@@ -49,7 +49,7 @@ app::app() {
       pvsRet->append(istr(external_buffer, ppszArgs[i]));
    }
 }
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*static*/ void app::_build_args(mvector<istr const> * pvsRet) {
    ABC_TRACE_FUNC(pvsRet);
 

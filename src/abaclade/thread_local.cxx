@@ -28,10 +28,10 @@ namespace abc {
 namespace detail {
 
 ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 pthread_once_t thread_local_storage::sm_pthonce = PTHREAD_ONCE_INIT;
 pthread_key_t thread_local_storage::sm_pthkey;
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
 DWORD thread_local_storage::sm_iTls = TLS_OUT_OF_INDEXES;
 #endif
 std::size_t thread_local_storage::sm_cb = 0;
@@ -44,9 +44,9 @@ thread_local_storage::thread_local_storage() :
       it->construct(get_storage(it->m_ibTlsOffset));
    }
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    pthread_setspecific(sm_pthkey, this);
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    ::TlsSetValue(sm_iTls, this);
 #endif
 }
@@ -65,12 +65,12 @@ thread_local_storage::~thread_local_storage() {
 }
 
 /*static*/ void thread_local_storage::alloc_slot() {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    if (int iErr = pthread_key_create(&sm_pthkey, destruct)) {
       ABC_UNUSED_ARG(iErr);
       // throw an exception (iErr).
    }
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    sm_iTls = ::TlsAlloc();
    if (sm_iTls == TLS_OUT_OF_INDEXES) {
       // throw an exception (::GetLastError()).
@@ -78,13 +78,13 @@ thread_local_storage::~thread_local_storage() {
 #endif
 }
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 /*static*/ void thread_local_storage::destruct(void * pThis /*= get()*/) {
    delete static_cast<thread_local_storage *>(pThis);
 }
 #endif
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*static*/ bool thread_local_storage::dllmain_hook(unsigned iReason) {
    if (iReason == DLL_PROCESS_ATTACH || iReason == DLL_THREAD_ATTACH) {
       if (iReason == DLL_PROCESS_ATTACH) {
@@ -102,24 +102,24 @@ thread_local_storage::~thread_local_storage() {
    // TODO: handle errors and return false in case.
    return true;
 }
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 
 /*static*/ void thread_local_storage::free_slot() {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    pthread_key_delete(sm_pthkey);
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    ::TlsFree(sm_iTls);
 #endif
 }
 
 /*static*/ thread_local_storage * thread_local_storage::get(bool bCreateNewIfNull /*= true*/) {
    void * pThis;
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    // With POSIX Threads we need a one-time call to alloc_slot().
    pthread_once(&sm_pthonce, alloc_slot);
    pThis = pthread_getspecific(sm_pthkey);
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    // Under Win32, alloc_slot() has already been called by dllmain_hook().
    pThis = ::TlsGetValue(sm_iTls);
 #endif

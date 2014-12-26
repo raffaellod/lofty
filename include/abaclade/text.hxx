@@ -97,7 +97,7 @@ ABC_ENUM(line_terminator,
    //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
    (cr_lf,             4),
    //! Default host line terminator.
-   (host,              (ABC_HOST_API_WIN32 ? cr_lf : lf))
+   (host,              (ABC_TARGET_API_WIN32 ? cr_lf : lf))
 );
 
 //! This should be used to replace any invalid char32_t value.

@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <cstdlib> // std::abort()
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    #include <errno.h> // errno E*
    #include <signal.h> // sigaction sig*()
 #endif
@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 
 void throw_os_error() {
    throw_os_error(errno);
@@ -212,7 +212,7 @@ void throw_os_error(errint_t err) {
    }
 }
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
 
 void throw_os_error() {
    throw_os_error(::GetLastError());
@@ -1014,7 +1014,7 @@ void throw_os_error(errint_t err) {
    }
 }
 
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
 
 } //namespace abc
 
@@ -1023,7 +1023,7 @@ void throw_os_error(errint_t err) {
 
 namespace abc {
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 
 // These should be member variables of exception::async_handler_manager, but they’re not due to
 // their header file requirements.
@@ -1170,7 +1170,7 @@ exception::async_handler_manager::~async_handler_manager() {
    }
 }
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
 
 // These should be member variables of exception::async_handler_manager, but they’re not due to
 // their header file requirements.
@@ -1281,7 +1281,7 @@ exception::async_handler_manager::~async_handler_manager() {
    ::_set_se_translator(g_sefDefault);
 }
 
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
 
 } //namespace abc
 

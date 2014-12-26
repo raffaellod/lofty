@@ -402,7 +402,7 @@ public:
    variables, since their types cannot be specified without #including a lot of files into this one.
    */
    class ABACLADE_SYM async_handler_manager : public noncopyable {
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+#if ABC_TARGET_API_POSIX || ABC_TARGET_API_WIN32
    public:
 
       //! Constructor.
@@ -489,15 +489,15 @@ public:
 namespace abc {
 
 //! Integer type used by the OS to represent error numbers.
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    typedef int errint_t;
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    typedef DWORD errint_t;
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+#if ABC_TARGET_API_POSIX || ABC_TARGET_API_WIN32
 /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
 
 @param err

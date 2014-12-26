@@ -29,17 +29,17 @@ namespace abc {
 namespace io {
 
 //! Unsigned integer wide enough to express an I/O-related size.
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+#if ABC_TARGET_API_POSIX || ABC_TARGET_API_WIN32
    typedef std::uint64_t full_size_t;
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 
 //! Integer wide enough to express an I/O-related offset.
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+#if ABC_TARGET_API_POSIX || ABC_TARGET_API_WIN32
    typedef std::int64_t offset_t;
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 
 //! File access modes.

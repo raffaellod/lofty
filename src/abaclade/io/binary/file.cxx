@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/binary/file.hxx>
 
 #include <algorithm>
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    #include <errno.h> // errno
    #include <fcntl.h> // O_* fcntl()
    #include <sys/stat.h> // S_* stat()
@@ -39,7 +39,7 @@ namespace binary {
 namespace detail {
 
 struct file_init_data {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    //! Set by _construct().
    struct ::stat statFile;
 #endif
@@ -71,7 +71,7 @@ return
 std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    if (::fstat(pfid->fd.get(), &pfid->statFile)) {
       throw_os_error();
    }
@@ -117,7 +117,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             ABC_THROW(argument_error, ());
       }
    }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
    switch (::GetFileType(pfid->fd.get())) {
       case FILE_TYPE_CHAR: {
          /* Serial line or console.
@@ -186,9 +186,9 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          break;
       }
    }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
 
    // If a file object was not returned in the code above, return a generic file.
    switch (pfid->am.base()) {
@@ -240,12 +240,12 @@ std::shared_ptr<file_writer> stderr() {
    // TODO: mutex!
    if (!g_pbfwStdErr) {
       g_pbfwStdErr = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
          STDERR_FILENO,
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
          ::GetStdHandle(STD_ERROR_HANDLE),
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
          false
       ), access_mode::write));
@@ -264,12 +264,12 @@ std::shared_ptr<file_reader> stdin() {
    // TODO: mutex!
    if (!g_pbfrStdIn) {
       g_pbfrStdIn = std::dynamic_pointer_cast<file_reader>(_attach(filedesc(
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
          STDIN_FILENO,
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
          ::GetStdHandle(STD_INPUT_HANDLE),
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
          false
       ), access_mode::read));
@@ -288,12 +288,12 @@ std::shared_ptr<file_writer> stdout() {
    // TODO: mutex!
    if (!g_pbfwStdOut) {
       g_pbfwStdOut = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
          STDOUT_FILENO,
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
          ::GetStdHandle(STD_OUTPUT_HANDLE),
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
          false
       ), access_mode::write));
@@ -305,7 +305,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
    ABC_TRACE_FUNC(op, am, bBuffered);
 
    detail::file_init_data fid;
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    int fi;
    switch (am.base()) {
       default:
@@ -338,18 +338,18 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
       }
    }
 #ifndef O_DIRECT
-#if ABC_HOST_API_DARWIN
+#if ABC_TARGET_API_DARWIN
    if (!bBuffered) {
       if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
          throw_os_error();
       }
    }
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 #endif //ifndef O_DIRECT
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
    DWORD fiAccess, fiShareMode, iAction, fi = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
       default:
@@ -394,9 +394,9 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
             throw_os_error(iErr);
       }
    }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
    fid.am = am;
    fid.bBuffered = bBuffered;
    return _construct(&fid);
@@ -413,12 +413,12 @@ namespace abc {
 namespace io {
 
 filedesc_t const filedesc::smc_fdNull =
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    -1;
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    INVALID_HANDLE_VALUE;
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 
 filedesc::filedesc(filedesc && fd) :
@@ -434,12 +434,12 @@ filedesc::~filedesc() {
    ABC_TRACE_FUNC(this);
 
    if (m_bOwn && m_fd != smc_fdNull) {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
       ::close(m_fd);
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
       ::CloseHandle(m_fd);
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
    }
 }
@@ -509,7 +509,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    read()-equivalent function is invoked at least once, so we give it a chance to report any errors,
    instead of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
    do {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
       ::ssize_t cbLastRead = ::read(
@@ -522,7 +522,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       if (cbLastRead < 0) {
          throw_os_error();
       }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
       // This will be repeated at least once, and as long as we still have some bytes to read, and
       // reading them does not fail.
       DWORD cbLastRead;
@@ -534,9 +534,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       if (readfile_returned_eof(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
          break;
       }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
       // Some bytes were read; prepare for the next attempt.
       pb += cbLastRead;
       cbMax -= static_cast<std::size_t>(cbLastRead);
@@ -545,14 +545,14 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*virtual*/ bool file_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
       throw_os_error(iErr);
    }
    return cchRead == 0;
 }
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -575,17 +575,17 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
    // TODO: investigate fdatasync().
    if (::fsync(m_fd.get())) {
       throw_os_error();
    }
-#elif ABC_HOST_API_WIN32
+#elif ABC_TARGET_API_WIN32
    if (!::FlushFileBuffers(m_fd.get())) {
       throw_os_error();
    }
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 }
 
@@ -598,7 +598,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    write()-equivalent function is invoked at least once, so we give it a chance to report any
    errors, instead of masking them by skipping the call (e.g. due to cb == 0 on input). */
    do {
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
       // ssize_t-sized blocks.
       ::ssize_t cbLastWritten = ::write(
@@ -607,7 +607,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       if (cbLastWritten < 0) {
          throw_os_error();
       }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
       // This will be repeated at least once, and as long as we still have some bytes to write, and
       // writing them does not fail.
       DWORD cbLastWritten;
@@ -617,9 +617,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       )) {
          throw_os_error();
       }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
       // Some bytes were written; prepare for the next attempt.
       pb += cbLastWritten;
       cb -= static_cast<std::size_t>(cbLastWritten);
@@ -666,7 +666,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 /*virtual*/ console_reader::~console_reader() {
 }
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
@@ -702,7 +702,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 
    return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -715,7 +715,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
    /* black   */ 0,
    /* red     */ FOREGROUND_RED,
@@ -742,7 +742,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    file_base(pfid),
    console_file_base(pfid),
    file_writer(pfid) {
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
    ABC_TRACE_FUNC(this, pfid);
 
    ::CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -774,7 +774,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 /*virtual*/ console_writer::~console_writer() {
 }
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*virtual*/ void console_writer::clear_display_area(
    std::int16_t iRow, std::int16_t iCol, std::size_t cch
 ) /*override*/ {
@@ -928,7 +928,7 @@ void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd)
       pchBegin += cchLastWritten;
    }
 }
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -949,7 +949,7 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 /*virtual*/ pipe_reader::~pipe_reader() {
 }
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 
 /*virtual*/ bool pipe_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/ {
    ABC_UNUSED_ARG(cchRead);
@@ -963,7 +963,7 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
    }
 }
 
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -999,7 +999,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
    ABC_TRACE_FUNC(this, pfid);
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 
    m_cb = static_cast<std::size_t>(pfid->statFile.st_size);
 #if 0
@@ -1009,7 +1009,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    }
 #endif
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
 
 #if _WIN32_WINNT >= 0x0500
    static_assert(
@@ -1038,9 +1038,9 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    }
 #endif
 
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
 }
 
 /*virtual*/ regular_file_base::~regular_file_base() {
@@ -1049,7 +1049,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 /*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) /*override*/ {
    ABC_TRACE_FUNC(this, ibOffset, sfWhence);
 
-#if ABC_HOST_API_POSIX
+#if ABC_TARGET_API_POSIX
 
    int iWhence;
    switch (sfWhence.base()) {
@@ -1071,7 +1071,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    }
    return ibNewOffset;
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
 
    static_assert(
       sizeof(ibOffset) == sizeof(LARGE_INTEGER),
@@ -1110,9 +1110,9 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if _WIN32_WINNT >= 0x0500 … else
    return ibNewOffset.QuadPart;
 
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
 }
 
 /*virtual*/ full_size_t regular_file_base::size() const /*override*/ {
@@ -1124,12 +1124,12 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 /*virtual*/ offset_t regular_file_base::tell() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+#if ABC_TARGET_API_POSIX || ABC_TARGET_API_WIN32
    // Seeking 0 bytes from the current position won’t change the internal status of the file
    // descriptor, so casting the const-ness away is not semantically wrong.
    return const_cast<regular_file_base *>(this)->seek(0, seek_from::current);
 #else
-   #error "TODO: HOST_API"
+   #error "TODO: TARGET_API"
 #endif
 }
 
@@ -1170,7 +1170,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    file_writer(pfid) {
    ABC_TRACE_FUNC(this, pfid);
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
    m_bAppend = (pfid->am == access_mode::append);
 #endif
 }
@@ -1178,7 +1178,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 /*virtual*/ regular_file_writer::~regular_file_writer() {
 }
 
-#if ABC_HOST_API_WIN32
+#if ABC_TARGET_API_WIN32
 /*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
@@ -1274,7 +1274,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 
    return file_writer::write(p, cb);
 }
-#endif //if ABC_HOST_API_WIN32
+#endif //if ABC_TARGET_API_WIN32
 
 } //namespace binary
 } //namespace io
