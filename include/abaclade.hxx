@@ -150,6 +150,7 @@ namespace abc {
    #pragma warning(disable: 4820)
 #endif //if ABC_HOST_MSC
 
+#define ABC_TARGET_API_BSD 0
 #define ABC_TARGET_API_DARWIN 0
 #define ABC_TARGET_API_LINUX 0
 #define ABC_TARGET_API_POSIX 0
@@ -177,8 +178,15 @@ namespace abc {
    #define ABC_TARGET_API_DARWIN 1
    #undef ABC_TARGET_API_POSIX
    #define ABC_TARGET_API_POSIX 1
-#elif defined(__posix__)
-   // Compiling for POSIX.
+#elif defined(__unix__)
+   #include <sys/param.h> // BSD
+   #ifdef BSD
+      // Compiling for *BSD.
+      #undef ABC_TARGET_API_BSD
+      #define ABC_TARGET_API_BSD 1
+   #endif
+
+   // In any case, approximate UNIX as POSIX.
    #undef ABC_TARGET_API_POSIX
    #define ABC_TARGET_API_POSIX 1
 #endif
