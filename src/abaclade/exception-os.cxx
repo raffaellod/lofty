@@ -119,7 +119,9 @@ void throw_os_error(errint_t err) {
       case EMFILE: // Too many open files (POSIX.1-2001)
       case EMLINK: // Too many links (POSIX.1-2001)
       case ENFILE: // Too many open files in system (POSIX.1-2001)
+#ifdef ENODATA
       case ENODATA: // No data available (POSIX.1-2001)
+#endif
 #ifdef ENOMEDIUM
       case ENOMEDIUM: // No medium found (Linux)
 #endif
