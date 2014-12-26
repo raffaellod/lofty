@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/io/text/file.hxx>
 
-#if ABC_TARGET_API_POSIX
-#include <time.h>
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::test_case
