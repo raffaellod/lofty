@@ -154,6 +154,7 @@ namespace abc {
 #define ABC_TARGET_API_DARWIN 0
 #define ABC_TARGET_API_LINUX 0
 #define ABC_TARGET_API_POSIX 0
+#define ABC_TARGET_API_MACH 0
 #define ABC_TARGET_API_WIN32 0
 #define ABC_TARGET_API_WIN64 0
 
@@ -176,6 +177,8 @@ namespace abc {
    // Compiling for Darwin (OSX/iOS)
    #undef ABC_TARGET_API_DARWIN
    #define ABC_TARGET_API_DARWIN 1
+   #undef ABC_TARGET_API_MACH
+   #define ABC_TARGET_API_MACH 1
    #undef ABC_TARGET_API_POSIX
    #define ABC_TARGET_API_POSIX 1
 #elif defined(__unix__)
