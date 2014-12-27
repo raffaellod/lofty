@@ -26,29 +26,32 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifndef ABC_HAVE_BSWAP
 
 std::uint16_t bswap_16(std::uint16_t i) {
-   return
-      ((i & 0xff00u) >> 8) |
-      ((i & 0x00ffu) << 8);
+   return std::uint16_t(
+      ((i & std::uint16_t(0xff00u)) >> 8) |
+      ((i & std::uint16_t(0x00ffu)) << 8)
+   );
 }
 
 std::uint32_t bswap_32(std::uint32_t i) {
-   return
-      ((i & 0xff000000u) >> 24) |
-      ((i & 0x00ff0000u) >>  8) |
-      ((i & 0x0000ff00u) <<  8) |
-      ((i & 0x000000ffu) << 24);
+   return std::uint32_t(
+      ((i & std::uint32_t(0xff000000u)) >> 24) |
+      ((i & std::uint32_t(0x00ff0000u)) >>  8) |
+      ((i & std::uint32_t(0x0000ff00u)) <<  8) |
+      ((i & std::uint32_t(0x000000ffu)) << 24)
+   );
 }
 
 std::uint64_t bswap_64(std::uint64_t i) {
-   return
-      ((i & 0xff00000000000000ull) >> 56) |
-      ((i & 0x00ff000000000000ull) >> 40) |
-      ((i & 0x0000ff0000000000ull) >> 24) |
-      ((i & 0x000000ff00000000ull) >>  8) |
-      ((i & 0x00000000ff000000ull) <<  8) |
-      ((i & 0x0000000000ff0000ull) << 24) |
-      ((i & 0x000000000000ff00ull) << 40) |
-      ((i & 0x00000000000000ffull) << 56);
+   return std::uint64_t(
+      ((i & std::uint64_t(0xff00000000000000u)) >> 56) |
+      ((i & std::uint64_t(0x00ff000000000000u)) >> 40) |
+      ((i & std::uint64_t(0x0000ff0000000000u)) >> 24) |
+      ((i & std::uint64_t(0x000000ff00000000u)) >>  8) |
+      ((i & std::uint64_t(0x00000000ff000000u)) <<  8) |
+      ((i & std::uint64_t(0x0000000000ff0000u)) << 24) |
+      ((i & std::uint64_t(0x000000000000ff00u)) << 40) |
+      ((i & std::uint64_t(0x00000000000000ffu)) << 56)
+   );
 }
 
 #endif //ifndef ABC_HAVE_BSWAP
