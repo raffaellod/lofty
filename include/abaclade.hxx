@@ -831,9 +831,6 @@ class writer;
    #include <functional>
    #include <iterator>
 #endif
-#if ABC_HOST_API_POSIX
-   #include <pthread.h>
-#endif
 #include <abaclade/static_list.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/exception.hxx>

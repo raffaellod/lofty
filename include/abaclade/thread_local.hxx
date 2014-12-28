@@ -118,16 +118,6 @@ public:
 private:
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
-   //! OS-defined TLS key.
-#if ABC_HOST_API_POSIX
-   static pthread_key_t sm_pthkey;
-#elif ABC_HOST_API_WIN32
-   static DWORD sm_iTls;
-#endif
-#if ABC_HOST_API_POSIX
-   //! One-time initializer for sm_pthkey.
-   static pthread_once_t sm_pthonce;
-#endif
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
 };
