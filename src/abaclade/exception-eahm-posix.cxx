@@ -29,8 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-// These should be member variables of exception::async_handler_manager, but they’re not due to
-// their header file requirements.
+/* These should be members of exception::fault_converter, but they’re not due to their header file
+requirements. */
 
 namespace {
 
@@ -61,7 +61,7 @@ int const g_aiHandledSignals[] = {
 //! Default handler for each of the signals above.
 struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
-//! Possible exception types thrown by throw_after_fault().
+//! Possible exception types thrown by throw_after_fault_signal().
 ABC_ENUM_AUTO_VALUES(fault_exception_types,
    arithmetic_error,
    division_by_zero_error,
@@ -72,22 +72,22 @@ ABC_ENUM_AUTO_VALUES(fault_exception_types,
    overflow_error
 );
 
-//! Type of arguments to to throw_after_fault(); see g_ptafa.
-struct throw_after_fault_args {
+//! Type of arguments to to throw_after_fault_signal(); see g_ptafsa.
+struct throw_after_fault_signal_args {
    //! Type of exception to be throw.
-   fault_exception_types::enum_type fet;
+   fault_exception_types::enum_type fxt;
    //! Exception type-specific argument 0.
    void * pArg0;
 };
 
-/*! Arguments to throw_after_fault(). Defining this as thread-local instead of real arguments
+/*! Arguments to throw_after_fault_signal(). Defining this as thread-local instead of real arguments
 greatly reduces the amount of processor architecture-specific subroutine call code that needs to be
-emulated (and maintained) in fault_handler(). */
-thread_local_ptr<throw_after_fault_args> g_ptafa;
+emulated (and maintained) in fault_signal_handler(). */
+thread_local_ptr<throw_after_fault_signal_args> g_ptafsa;
 
-void throw_after_fault() {
-   throw_after_fault_args * ptafa = g_ptafa.get();
-   switch (ptafa->fet) {
+void throw_after_fault_signal() {
+   throw_after_fault_signal_args * ptafsa = g_ptafsa.get();
+   switch (ptafsa->fxt) {
       case fault_exception_types::arithmetic_error:
          ABC_THROW(abc::arithmetic_error, ());
       case fault_exception_types::division_by_zero_error:
@@ -95,9 +95,9 @@ void throw_after_fault() {
       case fault_exception_types::floating_point_error:
          ABC_THROW(abc::floating_point_error, ());
       case fault_exception_types::memory_access_error:
-         ABC_THROW(abc::memory_access_error, (ptafa->pArg0));
+         ABC_THROW(abc::memory_access_error, (ptafsa->pArg0));
       case fault_exception_types::memory_address_error:
-         ABC_THROW(abc::memory_address_error, (ptafa->pArg0));
+         ABC_THROW(abc::memory_address_error, (ptafsa->pArg0));
       case fault_exception_types::null_pointer_error:
          ABC_THROW(abc::null_pointer_error, ());
       case fault_exception_types::overflow_error:
@@ -106,10 +106,10 @@ void throw_after_fault() {
 }
 
 /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
-stack frame of a call to throw_after_fault(), and then returning, ending processing of the signal.
-Execution will resume from throw_after_fault(), which creates the appearance of an C++ exception
-being thrown at the location of the offending instruction, without calling any of the (many)
-functions that are forbidden in a signal handler.
+stack frame of a call to throw_after_fault_signal(), and then returning, ending processing of the
+signal. Execution will resume from throw_after_fault_signal(), which creates the appearance of a C++
+exception being thrown at the location of the offending instruction, without calling any of the
+(many) functions that are forbidden in a signal handler.
 
 @param iSignal
    Signal number for which the function is being called.
@@ -118,7 +118,7 @@ functions that are forbidden in a signal handler.
 @param pctx
    Thread context. This is used to manipulate the stack of the thread to inject a call frame.
 */
-void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
+void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    /* Don’t let external programs mess with us: if the source is not the kernel, ignore the error.
    POSIX.1-2008 states that:
       “Historically, an si_code value of less than or equal to zero indicated that the signal was
@@ -136,7 +136,7 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       return;
    }
 
-   throw_after_fault_args * ptafa = g_ptafa.get();
+   throw_after_fault_signal_args * ptafsa = g_ptafsa.get();
    switch (iSignal) {
       case SIGBUS:
          /* TODO: this is the only way we can test SIGBUS on x86, otherwise the program will get
@@ -165,8 +165,8 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          going – even the code to throw an exception could be compromised. */
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
-               ptafa->fet = fault_exception_types::memory_access_error;
-               ptafa->pArg0 = psi->si_addr;
+               ptafsa->fxt = fault_exception_types::memory_access_error;
+               ptafsa->pArg0 = psi->si_addr;
                break;
             default:
                std::abort();
@@ -176,10 +176,10 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       case SIGFPE:
          switch (psi->si_code) {
             case FPE_INTDIV: // Integer divide by zero.
-               ptafa->fet = fault_exception_types::division_by_zero_error;
+               ptafsa->fxt = fault_exception_types::division_by_zero_error;
                break;
             case FPE_INTOVF: // Integer overflow.
-               ptafa->fet = fault_exception_types::overflow_error;
+               ptafsa->fxt = fault_exception_types::overflow_error;
                break;
             case FPE_FLTDIV: // Floating-point divide by zero.
             case FPE_FLTOVF: // Floating-point overflow.
@@ -187,22 +187,22 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
             case FPE_FLTRES: // Floating-point inexact result.
             case FPE_FLTINV: // Floating-point invalid operation.
             case FPE_FLTSUB: // Subscript out of range.
-               ptafa->fet = fault_exception_types::floating_point_error;
+               ptafsa->fxt = fault_exception_types::floating_point_error;
                break;
             default:
                /* At the time of writing, the above case labels don’t leave out any values, but
                that’s not necessarily going to be true in 5 years, so… */
-               ptafa->fet = fault_exception_types::arithmetic_error;
+               ptafsa->fxt = fault_exception_types::arithmetic_error;
                break;
          }
          break;
 
       case SIGSEGV:
          if (psi->si_addr == nullptr) {
-            ptafa->fet = fault_exception_types::null_pointer_error;
+            ptafsa->fxt = fault_exception_types::null_pointer_error;
          } else {
-            ptafa->fet = fault_exception_types::memory_address_error;
-            ptafa->pArg0 = psi->si_addr;
+            ptafsa->fxt = fault_exception_types::memory_address_error;
+            ptafsa->pArg0 = psi->si_addr;
          }
          break;
 
@@ -241,21 +241,21 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD … else
    /* Push the address of the current (failing) instruction, then set the next instruction to the
-   start of throw_after_fault. These two steps emulate a subroutine call. */
+   start of throw_after_fault_signal(). These two steps emulate a subroutine call. */
    *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
-   *ppCode = reinterpret_cast<void *>(&throw_after_fault);
+   *ppCode = reinterpret_cast<void *>(&throw_after_fault_signal);
 }
 
 } //namespace
 
 
-exception::async_handler_manager::async_handler_manager() {
-   // Initialize the arguments for fault_handler().
-   g_ptafa.reset_new();
+exception::fault_converter::fault_converter() {
+   // Initialize the arguments for fault_signal_handler().
+   g_ptafsa.reset_new();
 
    // Setup handlers for the signals in g_aiHandledSignals.
    struct ::sigaction saNew;
-   saNew.sa_sigaction = &fault_handler;
+   saNew.sa_sigaction = &fault_signal_handler;
    sigemptyset(&saNew.sa_mask);
    /* SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal, which
    we use to generate more precise exceptions. */
@@ -265,7 +265,7 @@ exception::async_handler_manager::async_handler_manager() {
    }
 }
 
-exception::async_handler_manager::~async_handler_manager() {
+exception::fault_converter::~fault_converter() {
    // Restore the saved signal handlers.
    for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
       ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], nullptr);

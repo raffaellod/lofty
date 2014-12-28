@@ -68,7 +68,7 @@ public:
    template <class TApp>
    static int entry_point_main(int cArgs, char_t ** ppszArgs) {
       // Establish this as early as possible.
-      exception::async_handler_manager eahm;
+      exception::fault_converter xfc;
       try {
          // Create and initialize the app.
          TApp app;
@@ -101,7 +101,7 @@ public:
       ABC_UNUSED_ARG(iShowCmd);
 
       // Establish this as early as possible.
-      exception::async_handler_manager eahm;
+      exception::fault_converter xfc;
       try {
          // Create and initialize the app.
          TApp app;

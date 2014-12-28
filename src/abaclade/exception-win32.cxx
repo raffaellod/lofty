@@ -833,18 +833,16 @@ void throw_os_error(errint_t err) {
 
 namespace abc {
 
-// These should be member variables of exception::async_handler_manager, but they’re not due to
-// their header file requirements.
+/* These should be members of exception::fault_converter, but they’re not due to their header file
+requirements. */
 
 namespace {
 
 //! Structured Exception translator on program startup.
-::_se_translator_function g_sefDefault;
+::_se_translator_function g_setfDefault;
 
 //! Translates Win32 Structured Exceptions into C++ exceptions, whenever possible.
-void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
-   ABC_TRACE_FUNC(iCode, pxpInfo);
-
+void ABC_STL_CALLCONV fault_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo) {
    switch (iCode) {
       case EXCEPTION_ACCESS_VIOLATION: {
          /* Attempt to read from or write to an inaccessible address.
@@ -870,8 +868,7 @@ void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS *
 //       break;
 
       case EXCEPTION_DATATYPE_MISALIGNMENT:
-         /* Attempt to read or write data that is misaligned on hardware that does not provide
-         alignment. */
+         // Attempt to read or write data that is misaligned on hardware that requires alignment.
          ABC_THROW(abc::memory_access_error, (nullptr));
 
       case EXCEPTION_FLT_DENORMAL_OPERAND:
@@ -933,13 +930,13 @@ void ABC_STL_CALLCONV eahm_se_translator(unsigned iCode, ::_EXCEPTION_POINTERS *
 } //namespace
 
 
-exception::async_handler_manager::async_handler_manager() {
+exception::fault_converter::fault_converter() {
    // Install the translator of Win32 structured exceptions into C++ exceptions.
-   g_sefDefault = ::_set_se_translator(eahm_se_translator);
+   g_setfDefault = ::_set_se_translator(&fault_se_translator);
 }
 
-exception::async_handler_manager::~async_handler_manager() {
-   ::_set_se_translator(g_sefDefault);
+exception::fault_converter::~fault_converter() {
+   ::_set_se_translator(g_setfDefault);
 }
 
 } //namespace abc

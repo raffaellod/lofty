@@ -391,26 +391,18 @@ public:
    );
 
 public:
-
    /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++
-   asynchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
+   synchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
 
-   For unsupported OSes, this class is empty. A little silly, but avoids conditional code in other
-   files that shouldn’t care whether the target OS is supported in this respect or not.
-
-   Note: this class uses global or thread-local variables (OS-dependent) for all its member
-   variables, since their types cannot be specified without #including a lot of files into this one.
-   */
-   class ABACLADE_SYM async_handler_manager : public noncopyable {
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+   Note: this class uses global or thread-local variables for all its member variables, since their
+   types cannot be specified without #including a lot of files into this one. */
+   class ABACLADE_SYM fault_converter {
    public:
-
       //! Constructor.
-      async_handler_manager();
+      fault_converter();
 
       //! Destructor.
-      ~async_handler_manager();
-#endif
+      ~fault_converter();
    };
 
 protected:
