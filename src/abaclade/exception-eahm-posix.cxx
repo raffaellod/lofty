@@ -253,17 +253,13 @@ exception::async_handler_manager::async_handler_manager() {
    // Initialize the arguments for fault_handler().
    g_ptafa.reset_new();
 
+   // Setup handlers for the signals in g_aiHandledSignals.
    struct ::sigaction saNew;
    saNew.sa_sigaction = &fault_handler;
    sigemptyset(&saNew.sa_mask);
-   /* Without SA_NODEFER (POSIX.1-2001), the handler would be disabled during its own execution,
-   only to be restored when the handler returns. Since we’ll throw a C++ exception from within the
-   handler, the restoration would be skipped, and if the signal were raised again, we’d just crash.
-   SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal, which we
-   use to generate more precise exceptions. */
-   saNew.sa_flags = SA_NODEFER | SA_SIGINFO;
-
-   // Setup handlers for the signals in g_aiHandledSignals.
+   /* SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal, which
+   we use to generate more precise exceptions. */
+   saNew.sa_flags = SA_SIGINFO;
    for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
       ::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
    }
