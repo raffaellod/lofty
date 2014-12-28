@@ -70,7 +70,7 @@ namespace abc {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_*
+// abc globals – ABC_HOST_CXX_*
 
 //! Version of Clang if building with it, or 0 otherwise.
 #define ABC_HOST_CXX_CLANG 0
@@ -97,6 +97,70 @@ namespace abc {
       #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
    #endif
 #endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_HOST_API_*
+
+#define ABC_HOST_API_DARWIN 0
+#define ABC_HOST_API_FREEBSD 0
+#define ABC_HOST_API_LINUX 0
+#define ABC_HOST_API_POSIX 0
+#define ABC_HOST_API_MACH 0
+#define ABC_HOST_API_WIN32 0
+#define ABC_HOST_API_WIN64 0
+
+#if defined(_WIN32)
+   // Compiling for Win32.
+   #undef ABC_HOST_API_WIN32
+   #define ABC_HOST_API_WIN32 1
+   #ifdef _WIN64
+      // Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
+      #undef ABC_HOST_API_WIN64
+      #define ABC_HOST_API_WIN64 1
+   #endif
+#elif defined(__linux__)
+   // Compiling for Linux.
+   #undef ABC_HOST_API_LINUX
+   #define ABC_HOST_API_LINUX 1
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+#elif defined(__MACH__) && defined(__APPLE__)
+   // Compiling for Darwin (OSX/iOS)
+   #undef ABC_HOST_API_DARWIN
+   #define ABC_HOST_API_DARWIN 1
+   #undef ABC_HOST_API_MACH
+   #define ABC_HOST_API_MACH 1
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+#elif defined(__unix__)
+   #ifdef __FreeBSD__
+      // Compiling for FreeBSD.
+      #undef ABC_HOST_API_FREEBSD
+      #define ABC_HOST_API_FREEBSD 1
+   #endif
+
+   // In any case, approximate UNIX as POSIX.
+   #undef ABC_HOST_API_POSIX
+   #define ABC_HOST_API_POSIX 1
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_HOST_WORD_SIZE
+
+//! Machine word size for this microarchitecture.
+// TODO: the word/pointer size is much more easily detected by a configure program.
+#if ABC_HOST_API_WIN64
+   #define ABC_HOST_WORD_SIZE 64
+#elif ABC_HOST_API_WIN32
+   #define ABC_HOST_WORD_SIZE 32
+#elif defined(__SIZEOF_POINTER__)
+   #define ABC_HOST_WORD_SIZE (__SIZEOF_POINTER__ * 8)
+#else
+   #error "Unable to determine the word size for this microarchitecture"
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – platform-dependent fixes
 
 #if ABC_HOST_CXX_MSC
    // Suppress unnecessary warnings.
@@ -143,64 +207,6 @@ namespace abc {
    // “'struct' : 'n' bytes padding added after data member 'member'”
    #pragma warning(disable: 4820)
 #endif //if ABC_HOST_CXX_MSC
-
-#define ABC_HOST_API_DARWIN 0
-#define ABC_HOST_API_FREEBSD 0
-#define ABC_HOST_API_LINUX 0
-#define ABC_HOST_API_POSIX 0
-#define ABC_HOST_API_MACH 0
-#define ABC_HOST_API_WIN32 0
-#define ABC_HOST_API_WIN64 0
-
-#if defined(_WIN32)
-   // Compiling for Win32.
-   #undef ABC_HOST_API_WIN32
-   #define ABC_HOST_API_WIN32 1
-   #ifdef _WIN64
-      // Compiling for Win64 (coexists with ABC_HOST_API_WIN32).
-      #undef ABC_HOST_API_WIN64
-      #define ABC_HOST_API_WIN64 1
-   #endif
-#elif defined(__linux__)
-   // Compiling for Linux.
-   #undef ABC_HOST_API_LINUX
-   #define ABC_HOST_API_LINUX 1
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
-#elif defined(__MACH__) && defined(__APPLE__)
-   // Compiling for Darwin (OSX/iOS)
-   #undef ABC_HOST_API_DARWIN
-   #define ABC_HOST_API_DARWIN 1
-   #undef ABC_HOST_API_MACH
-   #define ABC_HOST_API_MACH 1
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
-#elif defined(__unix__)
-   #ifdef __FreeBSD__
-      // Compiling for FreeBSD.
-      #undef ABC_HOST_API_FREEBSD
-      #define ABC_HOST_API_FREEBSD 1
-   #endif
-
-   // In any case, approximate UNIX as POSIX.
-   #undef ABC_HOST_API_POSIX
-   #define ABC_HOST_API_POSIX 1
-#endif
-
-//! Machine word size for this microarchitecture.
-// TODO: the word/pointer size is much more easily detected by a configure program.
-#if ABC_HOST_API_WIN64
-   #define ABC_HOST_WORD_SIZE 64
-#elif ABC_HOST_API_WIN32
-   #define ABC_HOST_WORD_SIZE 32
-#elif defined(__SIZEOF_POINTER__)
-   #define ABC_HOST_WORD_SIZE (__SIZEOF_POINTER__ * 8)
-#else
-   #error "Unable to determine the word size for this microarchitecture"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – platform-dependent fixes
 
 // Make sure DEBUG and _DEBUG are coherent; DEBUG wins.
 #if defined(DEBUG) && !defined(_DEBUG)
