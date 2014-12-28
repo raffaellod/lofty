@@ -18,23 +18,24 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/text/ansi_escape_parser.hxx>
+#include <abaclade/text/parsers/ansi_escape_sequences.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::ansi_escape_parser
+// abc::text::parsers::ansi_escape_sequences
 
 namespace abc {
 namespace text {
+namespace parsers {
 
-ansi_escape_parser::ansi_escape_parser() :
+ansi_escape_sequences::ansi_escape_sequences() :
    m_state(state::not_in_sequence) {
 }
 
-ansi_escape_parser::~ansi_escape_parser() {
+ansi_escape_sequences::~ansi_escape_sequences() {
 }
 
-bool ansi_escape_parser::got_one_argument(std::int16_t iDefault0) {
+bool ansi_escape_sequences::got_one_argument(std::int16_t iDefault0) {
    ABC_TRACE_FUNC(this, iDefault0);
 
    if (m_viCmdArgs.size() == 0) {
@@ -43,7 +44,7 @@ bool ansi_escape_parser::got_one_argument(std::int16_t iDefault0) {
    return m_viCmdArgs.size() == 1;
 }
 
-bool ansi_escape_parser::got_two_arguments(std::int16_t iDefault0, std::int16_t iDefault1) {
+bool ansi_escape_sequences::got_two_arguments(std::int16_t iDefault0, std::int16_t iDefault1) {
    ABC_TRACE_FUNC(this, iDefault0, iDefault1);
 
    if (m_viCmdArgs.size() == 0) {
@@ -55,7 +56,7 @@ bool ansi_escape_parser::got_two_arguments(std::int16_t iDefault0, std::int16_t 
    return m_viCmdArgs.size() == 2;
 }
 
-bool ansi_escape_parser::consume_sequence_char(char_t ch) {
+bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
    ABC_TRACE_FUNC(this, ch);
 
    switch (m_state.base()) {
@@ -127,7 +128,7 @@ bool ansi_escape_parser::consume_sequence_char(char_t ch) {
    return true;
 }
 
-void ansi_escape_parser::run_erase_display_sequence(int iMode) {
+void ansi_escape_sequences::run_erase_display_sequence(int iMode) {
    ABC_TRACE_FUNC(this, iMode);
 
    std::int16_t iRow, iCol, cRows, cCols;
@@ -150,7 +151,7 @@ void ansi_escape_parser::run_erase_display_sequence(int iMode) {
    }
 }
 
-void ansi_escape_parser::run_erase_row_sequence(int iMode) {
+void ansi_escape_sequences::run_erase_row_sequence(int iMode) {
    ABC_TRACE_FUNC(this, iMode);
 
    std::int16_t iRow, iCol, cRows, cCols;
@@ -167,7 +168,7 @@ void ansi_escape_parser::run_erase_row_sequence(int iMode) {
    }
 }
 
-void ansi_escape_parser::run_sequence(char_t chCmd) {
+void ansi_escape_sequences::run_sequence(char_t chCmd) {
    ABC_TRACE_FUNC(this, chCmd);
 
    if (m_chSeqStart == '[') {
@@ -264,7 +265,7 @@ void ansi_escape_parser::run_sequence(char_t chCmd) {
    }
 }
 
-void ansi_escape_parser::run_set_char_attributes_sequence() {
+void ansi_escape_sequences::run_set_char_attributes_sequence() {
    ABC_TRACE_FUNC(this);
 
    for (auto it(m_viCmdArgs.cbegin()); it != m_viCmdArgs.cend(); ++it) {
@@ -318,7 +319,7 @@ void ansi_escape_parser::run_set_char_attributes_sequence() {
    set_char_attributes();
 }
 
-void ansi_escape_parser::safe_set_cursor_pos(
+void ansi_escape_sequences::safe_set_cursor_pos(
    int iRow, int iCol, bool bAbsoluteRow /*= false*/, bool bAbsoluteCol /*= false*/
 ) {
    ABC_TRACE_FUNC(this, iRow, iCol, bAbsoluteRow, bAbsoluteCol);
@@ -359,6 +360,7 @@ void ansi_escape_parser::safe_set_cursor_pos(
    set_cursor_pos(static_cast<std::int16_t>(iRow), static_cast<std::int16_t>(iCol));
 }
 
+} //namespace parsers
 } //namespace text
 } //namespace abc
 

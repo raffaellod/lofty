@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_TEXT_ANSI_ESCAPE_PARSER_HXX
-#define _ABACLADE_TEXT_ANSI_ESCAPE_PARSER_HXX
+#ifndef _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
+#define _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -29,15 +29,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::ansi_escape_parser
+// abc::text::parsers::ansi_escape_sequences
 
 namespace abc {
 namespace text {
+namespace parsers {
 
 namespace detail {
 
-//! Internal automaton states for ansi_escape_parser.
-ABC_ENUM_AUTO_VALUES(ansi_escape_parser_state,
+//! Internal automaton states for ansi_escape_sequences.
+ABC_ENUM_AUTO_VALUES(ansi_escape_sequences_state,
    not_in_sequence, //! Not in an ANSI escape sequence.
    escape,          //! Control Sequence Introducer found.
    bracket,         //! Read a bracket following the CSI.
@@ -61,7 +62,7 @@ ABC_ENUM(ansi_terminal_color,
 );
 
 //! Parses ANSI escape sequences into data packets.
-class ABACLADE_SYM ansi_escape_parser {
+class ABACLADE_SYM ansi_escape_sequences {
 public:
    //! Groups together attributes used for graphic rendition (color and other attributes).
    struct char_attributes {
@@ -86,7 +87,7 @@ public:
    };
 
    //! Shortcut.
-   typedef detail::ansi_escape_parser_state state;
+   typedef detail::ansi_escape_sequences_state state;
 
 public:
    /*! Analyzes a character, returning true if it’s part of an ANSI escape sequence and was
@@ -111,10 +112,10 @@ public:
 
 protected:
    //! Constructor.
-   ansi_escape_parser();
+   ansi_escape_sequences();
 
    //! Destructor.
-   ~ansi_escape_parser();
+   ~ansi_escape_sequences();
 
    /*! Assigns a null character (e.g. a space) with the current attributes to the specified area.
 
@@ -248,9 +249,10 @@ private:
    std::int16_t m_iSavedCol;
 };
 
+} //namespace parsers
 } //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_TEXT_ANSI_ESCAPE_PARSER_HXX
+#endif //ifndef _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
