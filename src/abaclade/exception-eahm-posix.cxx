@@ -77,7 +77,7 @@ struct throw_after_fault_args {
    //! Type of exception to be throw.
    fault_exception_types::enum_type fet;
    //! Exception type-specific argument 0.
-   void * pArg;
+   void * pArg0;
 };
 
 /*! Arguments to throw_after_fault(). Defining this as thread-local instead of real arguments
@@ -95,9 +95,9 @@ void throw_after_fault() {
       case fault_exception_types::floating_point_error:
          ABC_THROW(abc::floating_point_error, ());
       case fault_exception_types::memory_access_error:
-         ABC_THROW(abc::memory_access_error, (ptafa->pArg));
+         ABC_THROW(abc::memory_access_error, (ptafa->pArg0));
       case fault_exception_types::memory_address_error:
-         ABC_THROW(abc::memory_address_error, (ptafa->pArg));
+         ABC_THROW(abc::memory_address_error, (ptafa->pArg0));
       case fault_exception_types::null_pointer_error:
          ABC_THROW(abc::null_pointer_error, ());
       case fault_exception_types::overflow_error:
@@ -166,7 +166,7 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
                ptafa->fet = fault_exception_types::memory_access_error;
-               ptafa->pArg = psi->si_addr;
+               ptafa->pArg0 = psi->si_addr;
                break;
             default:
                std::abort();
@@ -202,7 +202,7 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
             ptafa->fet = fault_exception_types::null_pointer_error;
          } else {
             ptafa->fet = fault_exception_types::memory_address_error;
-            ptafa->pArg = psi->si_addr;
+            ptafa->pArg0 = psi->si_addr;
          }
          break;
 
