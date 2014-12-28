@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <cstdlib> // std::abort()
 #include <signal.h> // sigaction sig*()
+#include <ucontext.h> // ::ucontext_t
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,9 +214,9 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    }
 
    // Obtain the faulting thread’s context and the instruction and stack pointers.
-   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
    void ** ppCode;
    std::intptr_t ** ppiStack;
+   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
 #if defined(__i386__)
    ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
    ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
