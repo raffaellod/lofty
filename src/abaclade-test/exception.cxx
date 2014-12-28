@@ -136,9 +136,9 @@ public:
       {
          int * p = nullptr;
          ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
+         // Check that the handler is still in place after its first activation above.
+         ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 2);
 
-         // Under POSIX, this also counts as second test for SIGSEGV, checking that the handler is
-         // still in place after its first activation above.
          ABC_TESTING_ASSERT_THROWS(memory_address_error, *++p = 1);
       }
 
