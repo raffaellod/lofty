@@ -123,7 +123,7 @@ typedef char char8_t;
 #endif
 
 //! UTF-* encoding supported by the host.
-#if ABC_TARGET_API_WIN32 && defined(UNICODE)
+#if ABC_HOST_API_WIN32 && defined(UNICODE)
    #define ABC_HOST_UTF 16
 #else
    #define ABC_HOST_UTF 8

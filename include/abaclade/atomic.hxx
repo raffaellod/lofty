@@ -35,17 +35,17 @@ namespace abc {
 namespace atomic {
 
 //! Integer type of optimal size for atomic operations (usually the machine’s word size).
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    // No preference really, since we use don’t use atomic intrinsics.
    typedef int int_t;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    // Win32 uses long to mean 32 bits, always.
    typedef long int_t;
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
 extern ABACLADE_SYM pthread_mutex_t g_mtx;
 #endif
 
@@ -62,13 +62,13 @@ result in *piDst and returning it.
 */
 template <typename I>
 inline I add(I volatile * piDst, I iAddend) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
    iRet = (*piDst += iAddend);
    pthread_mutex_unlock(&g_mtx);
    return iRet;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    switch (sizeof(I)) {
       case sizeof(long):
          return ::InterlockedAdd(reinterpret_cast<long volatile *>(piDst), iAddend);
@@ -78,7 +78,7 @@ inline I add(I volatile * piDst, I iAddend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -97,7 +97,7 @@ result in *pi and returning it.
 */
 template <typename I>
 inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    I iOldValue;
    pthread_mutex_lock(&g_mtx);
    if ((iOldValue = *piDst) == iComparand) {
@@ -105,7 +105,7 @@ inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
    }
    pthread_mutex_unlock(&g_mtx);
    return iOldValue;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    switch (sizeof(I)) {
       case sizeof(long):
          return ::InterlockedCompareExchange(
@@ -119,7 +119,7 @@ inline I compare_and_swap(I volatile * piDst, I iNewValue, I iComparand) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -133,13 +133,13 @@ returning it.
 */
 template <typename I>
 inline I decrement(I volatile * pi) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
    iRet = --*pi;
    pthread_mutex_unlock(&g_mtx);
    return iRet;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    switch (sizeof(I)) {
       case sizeof(long):
          return I(::InterlockedDecrement(reinterpret_cast<long volatile *>(pi)));
@@ -149,7 +149,7 @@ inline I decrement(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -163,13 +163,13 @@ returning it.
 */
 template <typename I>
 inline I increment(I volatile * pi) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
    iRet = ++*pi;
    pthread_mutex_unlock(&g_mtx);
    return iRet;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    switch (sizeof(I)) {
       case sizeof(long):
          return I(::InterlockedIncrement(reinterpret_cast<long volatile *>(pi)));
@@ -179,7 +179,7 @@ inline I increment(I volatile * pi) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -196,13 +196,13 @@ storing the result in *pi and returning it.
 */
 template <typename I>
 inline I subtract(I volatile * piDst, I iSubtrahend) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    I iRet;
    pthread_mutex_lock(&g_mtx);
    iRet = (*piDst -= iSubtrahend);
    pthread_mutex_unlock(&g_mtx);
    return iRet;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    switch (sizeof(I)) {
       case sizeof(long):
          return ::InterlockedAdd(
@@ -216,7 +216,7 @@ inline I subtract(I volatile * piDst, I iSubtrahend) {
 #endif //if _WIN32_WINNT >= 0x0502
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 

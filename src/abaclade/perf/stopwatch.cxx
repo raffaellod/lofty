@@ -20,11 +20,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/perf/stopwatch.hxx>
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #include <time.h>
    #include <unistd.h>
 #endif
-#if ABC_TARGET_API_DARWIN
+#if ABC_HOST_API_DARWIN
    #include <mach/mach_time.h>
 #endif
 
@@ -37,7 +37,7 @@ namespace perf {
 
 namespace {
 
-#if ABC_TARGET_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+#if ABC_HOST_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 
 std::pair<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
@@ -74,7 +74,7 @@ stopwatch::duration_type get_duration_ns(::timespec const & tsBegin, ::timespec 
    return static_cast<duration_type>(iInterval);
 }
 
-#elif ABC_TARGET_API_DARWIN //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_DARWIN //if ABC_HOST_API_POSIX
 
 std::uint64_t get_time_point() {
    return ::mach_absolute_time();
@@ -86,7 +86,7 @@ stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint64_t iEn
    return (iEnd - iBegin) * mtid.numer / mtid.denom;
 }
 
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX … elif ABC_HOST_DARWIN
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN
 
 ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
@@ -107,12 +107,12 @@ stopwatch::duration_type get_duration_ns(::FILETIME const & ftBegin, ::FILETIME 
    return (iEnd.QuadPart - iBegin.QuadPart) * 100;
 }
 
-#else //if ABC_TARGET_API_POSIX … elif ABC_HOST_DARWIN … elif ABC_TARGET_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN … elif ABC_HOST_API_WIN32
 
    // We could probably just use std::chrono here.
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 
-#endif //if ABC_TARGET_API_POSIX … elif ABC_HOST_DARWIN … elif ABC_TARGET_API_WIN32 … else
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN … elif ABC_HOST_API_WIN32 … else
 
 } //namespace
 

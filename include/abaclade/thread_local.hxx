@@ -56,7 +56,7 @@ public:
    */
    static void add_var(thread_local_var_impl * ptlvi, std::size_t cb);
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
 
    @param iReason
@@ -98,7 +98,7 @@ private:
    //! Allocates the TLS slot for the process.
    static void alloc_slot();
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    /*! Destructs the storage instance for the current thread. Invoked by pthread_key_create() when a
    thread terminates.
 
@@ -119,12 +119,12 @@ private:
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
    //! OS-defined TLS key.
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    static pthread_key_t sm_pthkey;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    static DWORD sm_iTls;
 #endif
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    //! One-time initializer for sm_pthkey.
    static pthread_once_t sm_pthonce;
 #endif

@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/os/path.hxx>
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    #include <abaclade/text/ansi_escape_parser.hxx>
 #endif
 
@@ -40,12 +40,12 @@ namespace abc {
 namespace io {
 
 //! Native OS file descriptor/handle.
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    typedef int filedesc_t;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    typedef HANDLE filedesc_t;
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 
 
@@ -261,7 +261,7 @@ public:
    //! See reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Under Win32 there are major differences in detection of EOF depending on the file type.
 
    /*! Detects EOF conditions and real errors.
@@ -275,7 +275,7 @@ public:
       thrown for all non-EOF error conditions.
    */
    virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const;
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 };
 
 } //namespace binary
@@ -347,13 +347,13 @@ public:
    //! Destructor.
    virtual ~console_reader();
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
    //! See file_reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 };
 
 } //namespace binary
@@ -371,7 +371,7 @@ namespace binary {
 class ABACLADE_SYM console_writer :
    public virtual console_file_base,
    public file_writer
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    , private abc::text::ansi_escape_parser
 #endif
    {
@@ -382,7 +382,7 @@ public:
    //! Destructor.
    virtual ~console_writer();
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Under Win32, console files must use a dedicated API in order to support the native character
    // type.
 
@@ -457,7 +457,7 @@ public:
    //! Destructor.
    virtual ~pipe_reader();
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! See file_reader::readfile_returned_eof(). Pipes report EOF in a completely different way than
    regular files. */
    virtual bool readfile_returned_eof(DWORD cchRead, DWORD iErr) const override;
@@ -565,7 +565,7 @@ public:
    //! Destructor.
    virtual ~regular_file_writer();
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
    virtual std::size_t write(void const * p, std::size_t cb) override;
 

@@ -199,7 +199,7 @@ public:
    */
    static path current_dir();
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! Returns the current directory for the specified volume.
 
    @param chVolume
@@ -208,7 +208,7 @@ public:
       Current directory in chVolume.
    */
    static path current_dir_for_volume(char_t chVolume);
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
 #if 0
    /*! Returns an iterator over entries in the path matching the specified pattern.
@@ -268,16 +268,16 @@ public:
    @return
       String representation of the path suitable for use with the OS’s file API.
    */
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    // Under POSIX we don’t need an intermediate string, so the return type can be istr const &.
    istr const & os_str() const {
       return m_s;
    }
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    istr os_str() const;
-#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
    /*! Returns the directory containing the path.
 
@@ -371,15 +371,15 @@ private:
    static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
    //! Platform-specific root path.
    static char_t const smc_aszRoot[
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
       1 /*"/"*/ + 1 /*NUL*/
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
       4 /*"\\?\"*/ + 1 /*NUL*/
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
    ];
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    //! Root for UNC paths in the Win32 File Namespace.
    static char_t const smc_aszUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
 #endif

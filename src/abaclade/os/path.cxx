@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/os/path.hxx>
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #include <errno.h> // errno E*
    #include <sys/stat.h> // S_*, stat()
    #include <unistd.h> // getcwd()
@@ -34,7 +34,7 @@ namespace os {
 
 namespace {
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
 
 //! Wrapper for a stat structure that self-loads with information on the file.
 class file_stat : public ::stat {
@@ -53,7 +53,7 @@ public:
    }
 };
 
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
 /*! Checks whether a path has the specified attribute(s) set.
 
@@ -74,28 +74,28 @@ bool file_attrs(path const & op, DWORD fi) {
    return (fiAttrs & fi) == fi;
 }
 
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 } //namespace
 
 
 char_t const path::smc_aszSeparator[] =
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    ABC_SL("/");
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    ABC_SL("\\");
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 char_t const path::smc_aszRoot[] =
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    ABC_SL("/");
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    ABC_SL("\\\\?\\");
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
 char_t const path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
@@ -114,10 +114,10 @@ path path::absolute() const {
    if (is_absolute()) {
       opAbsolute = *this;
    } else {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
       // Prepend the current directory to make the path absolute, then proceed to normalize.
       opAbsolute = current_dir() / *this;
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       static std::size_t const sc_ichVolume      = 0; // “X” in “X:”.
       static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”.
       static std::size_t const sc_ichLeadingSep  = 0; // “\” in “\”.
@@ -143,9 +143,9 @@ path path::absolute() const {
          // absolute.
          opAbsolute = current_dir() / *this;
       }
-#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    }
    // Make sure the path is normalized.
    return opAbsolute.normalize();
@@ -161,7 +161,7 @@ path path::base_name() const {
    ABC_TRACE_FUNC();
 
    dmstr s;
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    s.set_from([] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (::getcwd(pch, cchMax)) {
          // The length will be necessarily less than cchMax, so set_from() will stop.
@@ -173,7 +173,7 @@ path path::base_name() const {
       // Report that the provided buffer was too small.
       return cchMax;
    });
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    // Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
    // mstr::set_from() allocate space for that too, by adding the size of the root to the buffer
    // size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
@@ -192,13 +192,13 @@ path path::base_name() const {
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
    memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
-#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    return std::move(s);
 }
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
 /*static*/ path path::current_dir_for_volume(char_t chVolume) {
    ABC_TRACE_FUNC(chVolume);
 
@@ -225,17 +225,17 @@ path path::base_name() const {
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
    return std::move(s);
 }
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
 bool path::is_dir() const {
    ABC_TRACE_FUNC(this);
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    return S_ISDIR(file_stat(*this).st_mode);
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    return file_attrs(*this, FILE_ATTRIBUTE_DIRECTORY);
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
 }
 
@@ -314,13 +314,13 @@ path path::normalize() const {
    return std::move(s);
 }
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
 istr path::os_str() const {
    ABC_TRACE_FUNC(this);
 
    return std::move(absolute().m_s);
 }
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
 path path::parent_dir() const {
    ABC_TRACE_FUNC(this);
@@ -352,7 +352,7 @@ dmstr::const_iterator path::base_name_start() const {
    if (itBaseNameStart == m_s.cend()) {
       itBaseNameStart = m_s.cbegin();
    }
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Special case for the non-absolute “X:a”, in which case only “a” is the base name.
    static std::size_t const sc_ichVolumeColon = 1; //“:” in “X:”.
 
@@ -374,12 +374,12 @@ dmstr::const_iterator path::base_name_start() const {
 
    static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    if (s.starts_with(smc_aszRoot)) {
       // Return the index of “a” in “/a”.
       return sc_cchRoot;
    }
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    static std::size_t const sc_cchUNCRoot = ABC_COUNTOF(smc_aszUNCRoot) - 1 /*NUL*/;
    static std::size_t const sc_cchVolumeRoot = sc_cchRoot + 3; //“X:\”
    static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”
@@ -414,7 +414,7 @@ dmstr::const_iterator path::base_name_start() const {
       }
    }
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
    return 0;
 }
@@ -428,7 +428,7 @@ dmstr::const_iterator path::base_name_start() const {
 /*static*/ dmstr path::validate_and_adjust(dmstr s) {
    ABC_TRACE_FUNC(s);
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
    s.replace('/', '\\');
 
@@ -461,7 +461,7 @@ dmstr::const_iterator path::base_name_start() const {
          }
       }
    }
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
    auto itBegin(s.begin()), itEnd(s.end());
    // Save an iterator to the end of the root prefix.

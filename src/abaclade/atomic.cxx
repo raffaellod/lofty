@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace atomic {
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
 pthread_mutex_t g_mtx(PTHREAD_MUTEX_INITIALIZER);
 #endif
 

@@ -21,9 +21,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #include <memory.h> // memcpy() memmove() memset()
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    // Clean up pollution caused by previous headers.
    extern "C" {
 
@@ -50,7 +50,7 @@ You should have received a copy of the GNU General Public License along with Aba
    );
 
    } //extern "C"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 //! TODO: comment or remove.
 #if ABC_HOST_GCC
@@ -342,12 +342,12 @@ namespace memory {
 */
 template <typename T>
 inline T * clear(T * ptDst, std::size_t c = 1) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    ::memset(ptDst, 0, sizeof(T) * c);
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    ::RtlZeroMemory(ptDst, sizeof(T) * c);
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }
@@ -388,12 +388,12 @@ inline T * copy(T * ptDst, T const * ptSrc) {
 }
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    ::memcpy(ptDst, ptSrc, sizeof(T) * c);
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }
@@ -411,12 +411,12 @@ inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
 */
 template <typename T>
 inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    ::memmove(ptDst, ptSrc, sizeof(T) * c);
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    ::RtlMoveMemory(ptDst, ptSrc, sizeof(T) * c);
 #else
-   #error "TODO: TARGET_API"
+   #error "TODO: HOST_API"
 #endif
    return ptDst;
 }
@@ -435,11 +435,11 @@ inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
 template <typename T>
 inline T * set(T * ptDst, T const & tValue, std::size_t c) {
    switch (sizeof(T)) {
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
       case sizeof(std::int8_t):
          ::memset(ptDst, tValue, c);
          break;
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
       case sizeof(UCHAR):
          ::RtlFillMemory(ptDst, c, tValue);
          break;

@@ -19,9 +19,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #include "exception-errno-posix.cxx"
    #include "exception-eahm-posix.cxx"
-#elif ABC_TARGET_API_WIN32
+#elif ABC_HOST_API_WIN32
    #include "exception-win32.cxx"
 #endif

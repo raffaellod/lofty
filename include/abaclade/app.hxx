@@ -86,7 +86,7 @@ public:
       }
    }
 
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! Entry point for Windows executables.
 
    @param hinst
@@ -117,7 +117,7 @@ public:
          return 123;
       }
    }
-#endif //if ABC_TARGET_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
    /*! Entry point of the application.
 
@@ -140,7 +140,7 @@ protected:
       argument.
    */
    static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
-#if ABC_TARGET_API_WIN32
+#if ABC_HOST_API_WIN32
    // Overload that uses ::GetCommandLine() internally.
    static void _build_args(mvector<istr const> * pvsRet);
 #endif
@@ -158,14 +158,14 @@ protected:
 @param cls
    Main abc::app-derived class.
 */
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #define ABC_APP_CLASS(cls) \
       extern "C" int main(int cArgs, char ** ppszArgs) { \
          return ::abc::app::entry_point_main<cls>(cArgs, ppszArgs); \
       }
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
-   // TODO: find a way to define ABC_TARGET_API_WIN32_GUI, and maybe come up with a better name.
-   #ifdef ABC_TARGET_API_WIN32_GUI
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
+   #ifdef ABC_HOST_API_WIN32_GUI
       #define ABC_APP_CLASS(cls) \
          extern "C" int WINAPI wWinMain( \
             HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
@@ -179,9 +179,9 @@ protected:
             return ::abc::app::entry_point_main<cls>(cArgs, ppszArgs); \
          }
    #endif
-#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <cstdlib> // std::abort()
 #include <signal.h> // sigaction sig*()
-#include <ucontext.h> // ::ucontext_t
+#include <ucontext.h> // ucontext_t
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    void ** ppCode;
    std::intptr_t ** ppiStack;
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
-#if ABC_TARGET_API_LINUX
+#if ABC_HOST_API_LINUX
    #if defined(__i386__)
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
@@ -225,9 +225,9 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
    #else
-      #error "TODO: TARGET_ARCH"
+      #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_TARGET_API_FREEBSD //if ABC_TARGET_API_LINUX
+#elif ABC_HOST_API_FREEBSD //if ABC_HOST_API_LINUX
    #if defined(__i386__)
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_eip);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_esp);
@@ -235,11 +235,11 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_rip);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_rsp);
    #else
-      #error "TODO: TARGET_ARCH"
+      #error "TODO: HOST_ARCH"
    #endif
-#else //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_FREEBSD
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_FREEBSD … else
+#else //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD … else
    /* Push the address of the current (failing) instruction, then jump to the address of the
    appropriate thrower function. This emulates a subroutine call. */
    *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);

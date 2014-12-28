@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/io/text/file.hxx>
 #include <abaclade/io/binary/file.hxx>
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
    #include <cstdlib> // std::getenv()
 #endif
 
@@ -104,21 +104,21 @@ std::shared_ptr<binbuf_base> _construct_stdio(
       enc = abc::text::encoding::host;
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
-#if ABC_TARGET_API_POSIX
+#if ABC_HOST_API_POSIX
       istr sEnc;
       if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
          sEnc = istr(external_buffer, pszEnvVarValue);
       }
-#elif ABC_TARGET_API_WIN32 //if ABC_TARGET_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       smstr<64> sEnc;
       sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
          // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
          // enough, or the required size (length including NUL) otherwise.
          return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
       });
-#else //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32
-   #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_POSIX … elif ABC_TARGET_API_WIN32 … else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       enc = abc::text::encoding::unknown;
       if (sEnc) {
          try {
