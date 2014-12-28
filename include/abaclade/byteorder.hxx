@@ -25,42 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::byteorder globals
 
-#define ABC_HOST_LITTLE_ENDIAN 0
-#define ABC_HOST_BIG_ENDIAN 0
-
-#if ABC_HOST_CXX_GCC
-   #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-      #undef ABC_HOST_LITTLE_ENDIAN
-      #define ABC_HOST_LITTLE_ENDIAN 1
-   #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-      #undef ABC_HOST_BIG_ENDIAN
-      #define ABC_HOST_BIG_ENDIAN 1
-   #endif
-#elif defined(__GLIBC__)
-   #include <endian.h> // BYTE_ORDER *_ENDIAN
-
-   #if __BYTE_ORDER == __LITTLE_ENDIAN
-      #undef ABC_HOST_LITTLE_ENDIAN
-      #define ABC_HOST_LITTLE_ENDIAN 1
-   #elif __BYTE_ORDER == __BIG_ENDIAN
-      #undef ABC_HOST_BIG_ENDIAN
-      #define ABC_HOST_BIG_ENDIAN 1
-   #endif
-#elif defined(__i386__)   || defined(_M_IX86)  || \
-      defined(__x86_64__) || defined(_M_X64)   || defined(_M_AMD64) || \
-      defined(__ia64__)   || defined(_M_IA64)  || \
-      defined(__alpha__)  || defined(_M_ALPHA)
-   #undef ABC_HOST_LITTLE_ENDIAN
-   #define ABC_HOST_LITTLE_ENDIAN 1
-#elif defined(__powerpc__) || defined(_M_PPC) || defined(_M_MPPC)
-   #undef ABC_HOST_BIG_ENDIAN
-   #define ABC_HOST_BIG_ENDIAN 1
-#endif
-
-#if !ABC_HOST_LITTLE_ENDIAN && !ABC_HOST_BIG_ENDIAN
-   #error "Unable to detect byte order (endianness)"
-#endif
-
 // Define byte reordering functions.
 
 #if defined(__GLIBC__)

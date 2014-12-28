@@ -186,6 +186,22 @@ namespace abc {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_HOST_*_ENDIAN
+
+#define ABC_HOST_LITTLE_ENDIAN 0
+#define ABC_HOST_BIG_ENDIAN    0
+
+#if ABC_HOST_ARCH_ALPHA || ABC_HOST_ARCH_I386 || ABC_HOST_ARCH_IA64 || ABC_HOST_ARCH_X86_64
+   #undef ABC_HOST_LITTLE_ENDIAN
+   #define ABC_HOST_LITTLE_ENDIAN 1
+#elif ABC_HOST_ARCH_PPC
+   #undef ABC_HOST_BIG_ENDIAN
+   #define ABC_HOST_BIG_ENDIAN 1
+#else
+   #error "TODO: HOST_ARCH"
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – platform-dependent fixes
 
 #if ABC_HOST_CXX_MSC
