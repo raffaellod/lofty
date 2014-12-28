@@ -60,10 +60,64 @@ int const g_aiHandledSignals[] = {
 //! Default handler for each of the signals above.
 struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
-//! Translates POSIX signals into C++ exceptions, whenever possible.
-void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
-   ABC_TRACE_FUNC(iSignal, psi, pctx);
+//! Possible exception types thrown by throw_after_fault().
+ABC_ENUM_AUTO_VALUES(fault_exception_types,
+   arithmetic_error,
+   division_by_zero_error,
+   floating_point_error,
+   memory_access_error,
+   memory_address_error,
+   null_pointer_error,
+   overflow_error
+);
 
+//! Type of arguments to to throw_after_fault(); see g_ptafa.
+struct throw_after_fault_args {
+   //! Type of exception to be throw.
+   fault_exception_types::enum_type fet;
+   //! Exception type-specific argument 0.
+   void * pArg;
+};
+
+/*! Arguments to throw_after_fault(). Defining this as thread-local instead of real arguments
+greatly reduces the amount of processor architecture-specific subroutine call code that needs to be
+emulated (and maintained) in fault_handler(). */
+thread_local_ptr<throw_after_fault_args> g_ptafa;
+
+void throw_after_fault() {
+   throw_after_fault_args * ptafa = g_ptafa.get();
+   switch (ptafa->fet) {
+      case fault_exception_types::arithmetic_error:
+         ABC_THROW(abc::arithmetic_error, ());
+      case fault_exception_types::division_by_zero_error:
+         ABC_THROW(abc::division_by_zero_error, ());
+      case fault_exception_types::floating_point_error:
+         ABC_THROW(abc::floating_point_error, ());
+      case fault_exception_types::memory_access_error:
+         ABC_THROW(abc::memory_access_error, (ptafa->pArg));
+      case fault_exception_types::memory_address_error:
+         ABC_THROW(abc::memory_address_error, (ptafa->pArg));
+      case fault_exception_types::null_pointer_error:
+         ABC_THROW(abc::null_pointer_error, ());
+      case fault_exception_types::overflow_error:
+         ABC_THROW(abc::overflow_error, ());
+   }
+}
+
+/*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
+stack frame of a call to throw_after_fault(), and then returning, ending processing of the signal.
+Execution will resume from throw_after_fault(), which creates the appearance of an C++ exception
+being thrown at the location of the offending instruction, without calling any of the (many)
+functions that are forbidden in a signal handler.
+
+@param iSignal
+   Signal number for which the function is being called.
+@param psi
+   Additional information on the signal.
+@param pctx
+   Thread context. This is used to manipulate the stack of the thread to inject a call frame.
+*/
+void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    /* Don’t let external programs mess with us: if the source is not the kernel, ignore the error.
    POSIX.1-2008 states that:
       “Historically, an si_code value of less than or equal to zero indicated that the signal was
@@ -81,6 +135,7 @@ void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
       return;
    }
 
+   throw_after_fault_args * ptafa = g_ptafa.get();
    switch (iSignal) {
       case SIGBUS:
          /* TODO: this is the only way we can test SIGBUS on x86, otherwise the program will get
@@ -109,49 +164,80 @@ void eahm_sigaction(int iSignal, ::siginfo_t * psi, void * pctx) {
          going – even the code to throw an exception could be compromised. */
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
-               ABC_THROW(abc::memory_access_error, (psi->si_addr));
+               ptafa->fet = fault_exception_types::memory_access_error;
+               ptafa->pArg = psi->si_addr;
+               break;
+            default:
+               std::abort();
          }
          break;
 
       case SIGFPE:
          switch (psi->si_code) {
             case FPE_INTDIV: // Integer divide by zero.
-               ABC_THROW(abc::division_by_zero_error, ());
-
+               ptafa->fet = fault_exception_types::division_by_zero_error;
+               break;
             case FPE_INTOVF: // Integer overflow.
-               ABC_THROW(abc::overflow_error, ());
-
+               ptafa->fet = fault_exception_types::overflow_error;
+               break;
             case FPE_FLTDIV: // Floating-point divide by zero.
             case FPE_FLTOVF: // Floating-point overflow.
             case FPE_FLTUND: // Floating-point underflow.
             case FPE_FLTRES: // Floating-point inexact result.
             case FPE_FLTINV: // Floating-point invalid operation.
             case FPE_FLTSUB: // Subscript out of range.
-               ABC_THROW(abc::floating_point_error, ());
+               ptafa->fet = fault_exception_types::floating_point_error;
+               break;
+            default:
+               /* At the time of writing, the above case labels don’t leave out any values, but
+               that’s not necessarily going to be true in 5 years, so… */
+               ptafa->fet = fault_exception_types::arithmetic_error;
+               break;
          }
-         /* At the time of writing, the above case labels don’t leave out any values, but that’s not
-         necessarily going to be true in 5 years, so… */
-         ABC_THROW(abc::arithmetic_error, ());
+         break;
 
       case SIGSEGV:
          if (psi->si_addr == nullptr) {
-            ABC_THROW(abc::null_pointer_error, ());
+            ptafa->fet = fault_exception_types::null_pointer_error;
          } else {
-            ABC_THROW(abc::memory_address_error, (psi->si_addr));
+            ptafa->fet = fault_exception_types::memory_address_error;
+            ptafa->pArg = psi->si_addr;
          }
+         break;
+
+      default:
+         /* Handle all unrecognized cases here. Since here we only handle signals for which the
+         default actions is a core dump, calling abort (which sends SIGABRT, also causing a core
+         dump) is the same as invoking the default action. */
+         std::abort();
    }
-   /* Handle all unrecognized cases here. Since here we only handle signals for which the default
-   actions is a core dump, calling abort (which sends SIGABRT, also causing a core dump) is the same
-   as invoking the default action. */
-   std::abort();
+
+   // Obtain the faulting thread’s context and the instruction and stack pointers.
+   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
+   void ** ppCode;
+   std::intptr_t ** ppiStack;
+#if defined(__i386__)
+   ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
+   ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
+#elif defined(__x86_64__)
+   ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
+   ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
+#endif
+   /* Push the address of the current (failing) instruction, then jump to the address of the
+   appropriate thrower function. This emulates a subroutine call. */
+   *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
+   *ppCode = reinterpret_cast<void *>(&throw_after_fault);
 }
 
 } //namespace
 
 
 exception::async_handler_manager::async_handler_manager() {
+   // Initialize the arguments for fault_handler().
+   g_ptafa.reset_new();
+
    struct ::sigaction saNew;
-   saNew.sa_sigaction = eahm_sigaction;
+   saNew.sa_sigaction = &fault_handler;
    sigemptyset(&saNew.sa_mask);
    /* Without SA_NODEFER (POSIX.1-2001), the handler would be disabled during its own execution,
    only to be restored when the handler returns. Since we’ll throw a C++ exception from within the
