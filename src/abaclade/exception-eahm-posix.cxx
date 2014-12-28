@@ -227,7 +227,7 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    #else
       #error "TODO: TARGET_ARCH"
    #endif
-#elif ABC_TARGET_API_BSD //if ABC_TARGET_API_LINUX
+#elif ABC_TARGET_API_FREEBSD //if ABC_TARGET_API_LINUX
    #if defined(__i386__)
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_eip);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_esp);
@@ -237,9 +237,9 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    #else
       #error "TODO: TARGET_ARCH"
    #endif
-#else
+#else //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_FREEBSD
    #error "TODO: TARGET_API"
-#endif //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_BSD
+#endif //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_FREEBSD … else
    /* Push the address of the current (failing) instruction, then jump to the address of the
    appropriate thrower function. This emulates a subroutine call. */
    *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
