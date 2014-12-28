@@ -53,10 +53,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 //! TODO: comment or remove.
-#if ABC_HOST_GCC
+#if ABC_HOST_CXX_GCC
    #define _abc_alloca(cb) \
       __builtin_alloca((cb))
-#elif ABC_HOST_MSC
+#elif ABC_HOST_CXX_MSC
    extern "C" void * ABC_STL_CALLCONV _alloca(std::size_t cb);
    #define _abc_alloca(cb) \
       _alloca(cb)
@@ -66,7 +66,7 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – standard new/delete operators
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(push)
    // “'operator': exception specification does not match previous declaration”
    #pragma warning(disable: 4986)
@@ -86,7 +86,7 @@ void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
 void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 

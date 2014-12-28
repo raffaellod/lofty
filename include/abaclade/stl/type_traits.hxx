@@ -137,7 +137,7 @@ struct has_virtual_destructor
 //! True if T::operator=(T const &) is declared as throw().
 template <typename T>
 struct has_nothrow_assign : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_nothrow_assign(T)
 #endif
 > {};
@@ -145,7 +145,7 @@ struct has_nothrow_assign : public integral_constant<bool, false
 //! True if T::T(T const &) is declared as throw().
 template <typename T>
 struct has_nothrow_copy_constructor : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_nothrow_copy(T)
 #endif
 > {};
@@ -153,7 +153,7 @@ struct has_nothrow_copy_constructor : public integral_constant<bool, false
 //! True if T::T() is declared as throw().
 template <typename T>
 struct has_nothrow_default_constructor : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_nothrow_constructor(T)
 #endif
 > {};
@@ -161,7 +161,7 @@ struct has_nothrow_default_constructor : public integral_constant<bool, false
 //! True if T::operator=(T const &) is just a memcpy().
 template <typename T>
 struct has_trivial_assign : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_assign(T)
 #endif
 > {};
@@ -169,7 +169,7 @@ struct has_trivial_assign : public integral_constant<bool, false
 //! True if T::T(T const &) is just a memcpy().
 template <typename T>
 struct has_trivial_copy_constructor : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_copy(T)
 #endif
 > {};
@@ -177,7 +177,7 @@ struct has_trivial_copy_constructor : public integral_constant<bool, false
 //! True if T::T() is a no-op.
 template <typename T>
 struct has_trivial_default_constructor : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_constructor(T)
 #endif
 > {};
@@ -185,7 +185,7 @@ struct has_trivial_default_constructor : public integral_constant<bool, false
 //! True if T::~T() is a no-op.
 template <typename T>
 struct has_trivial_destructor : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_destructor(T)
 #endif
 > {};
@@ -193,7 +193,7 @@ struct has_trivial_destructor : public integral_constant<bool, false
 //! True if T has no members or base classes of size > 0 (C++11 20.9.4.3 “Type properties”).
 template <typename T>
 struct is_empty : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __is_empty(T)
 #endif
 > {};
@@ -221,7 +221,7 @@ struct is_reference : public integral_constant<
 */
 template <typename T>
 struct is_trivial : public integral_constant<bool, false
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __is_trivial(T)
 #endif
 > {};

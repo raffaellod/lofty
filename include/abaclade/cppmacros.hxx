@@ -187,7 +187,7 @@ guaranteed on all platforms.
 @return
    Unique identifier.
 */
-#if ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    #define ABC_CPP_APPEND_UID(s) \
       ABC_CPP_CAT2(s, __COUNTER__)
 #else

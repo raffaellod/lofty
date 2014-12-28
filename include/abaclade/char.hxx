@@ -60,7 +60,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #undef _UNICODE
 #endif
 
-#if ABC_HOST_CLANG || ABC_HOST_GCC >= 40400
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC >= 40400
    // char16_t is a native type, different than std::uint16_t.
    #undef ABC_CXX_CHAR16
    #define ABC_CXX_CHAR16 2
@@ -68,13 +68,13 @@ You should have received a copy of the GNU General Public License along with Aba
    #undef ABC_CXX_CHAR32
    #define ABC_CXX_CHAR32 2
 
-   #if (ABC_HOST_CLANG && __has_feature(cxx_unicode_literals)) || ABC_HOST_GCC >= 40500
+   #if (ABC_HOST_CXX_CLANG && __has_feature(cxx_unicode_literals)) || ABC_HOST_CXX_GCC >= 40500
       // UTF-8 string literals are supported.
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 2
    #endif
-#else //if ABC_HOST_GCC >= 40400
-   #if ABC_HOST_MSC
+#else //if ABC_HOST_CXX_GCC >= 40400
+   #if ABC_HOST_CXX_MSC
       #if !defined(_WCHAR_T_DEFINED) || !defined(_NATIVE_WCHAR_T_DEFINED)
          #error "Please compile with /Zc:wchar_t"
       #endif
@@ -99,7 +99,7 @@ You should have received a copy of the GNU General Public License along with Aba
       #undef ABC_CXX_CHAR32
       #define ABC_CXX_CHAR32 1
    #endif
-#endif //if ABC_HOST_GCC >= 40400 … else
+#endif //if ABC_HOST_CXX_GCC >= 40400 … else
 #if ABC_CXX_CHAR16 == 0 && ABC_CXX_CHAR32 == 0
    #error "ABC_CXX_CHAR16 and/or ABC_CXX_CHAR32 must be > 0; please fix detection logic"
 #endif

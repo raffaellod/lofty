@@ -73,32 +73,32 @@ namespace abc {
 // abc globals – ABC_HOST_*
 
 //! Version of Clang if building with it, or 0 otherwise.
-#define ABC_HOST_CLANG 0
+#define ABC_HOST_CXX_CLANG 0
 //! Version of GCC if building with it, or 0 otherwise.
-#define ABC_HOST_GCC 0
+#define ABC_HOST_CXX_GCC 0
 //! Version of MSC if building with it, or 0 otherwise.
-#define ABC_HOST_MSC 0
+#define ABC_HOST_CXX_MSC 0
 
 #if defined(__clang__)
-   #undef ABC_HOST_CLANG
-   #define ABC_HOST_CLANG \
+   #undef ABC_HOST_CXX_CLANG
+   #define ABC_HOST_CXX_CLANG \
       (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #elif defined(__GNUC__)
-   #undef ABC_HOST_GCC
-   #define ABC_HOST_GCC \
+   #undef ABC_HOST_CXX_GCC
+   #define ABC_HOST_CXX_GCC \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-   #if ABC_HOST_GCC < 40400
+   #if ABC_HOST_CXX_GCC < 40400
       #error "Unsupported version of GCC: >= 4.4 required, 4.6 suggested"
    #endif
 #elif defined(_MSC_VER)
-   #undef ABC_HOST_MSC
-   #define ABC_HOST_MSC _MSC_VER
-   #if ABC_HOST_MSC < 1600
+   #undef ABC_HOST_CXX_MSC
+   #define ABC_HOST_CXX_MSC _MSC_VER
+   #if ABC_HOST_CXX_MSC < 1600
       #error "Unsupported version of MSC: >= MSC 16 / VC++ 10 / VS 2010 required"
    #endif
 #endif
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    // Suppress unnecessary warnings.
 
    // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
@@ -142,7 +142,7 @@ namespace abc {
    #pragma warning(disable: 4711)
    // “'struct' : 'n' bytes padding added after data member 'member'”
    #pragma warning(disable: 4820)
-#endif //if ABC_HOST_MSC
+#endif //if ABC_HOST_CXX_MSC
 
 #define ABC_HOST_API_DARWIN 0
 #define ABC_HOST_API_FREEBSD 0
@@ -211,7 +211,7 @@ namespace abc {
 
 #include <abaclade/cppmacros.hxx>
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    // Prevent MSC16’s yvals.h from typedef’ing char16_t as unsigned short.
    #define char16_t _ABC_MSC16_char16_t
    #include <yvals.h>
@@ -221,9 +221,9 @@ namespace abc {
    #pragma warning(push)
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
-#endif //if ABC_HOST_MSC
+#endif //if ABC_HOST_CXX_MSC
 #include <cstdint> // std::*int*_t
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 // This defines our “real” char16_t.
@@ -253,7 +253,7 @@ namespace abc {
       #define _WIN32_WINNT WINVER
    #endif
 
-   #if ABC_HOST_MSC
+   #if ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
 
       /* “Unreferenced inline function has been removed” ‒ must be disabled until the end of the
@@ -268,7 +268,7 @@ namespace abc {
    #define WIN32_LEAN_AND_MEAN
    #include <windows.h>
 
-   #if ABC_HOST_MSC
+   #if ABC_HOST_CXX_MSC
       #pragma warning(pop)
    #endif
 
@@ -293,46 +293,46 @@ namespace abc {
 #endif
 
 // Ensure RTTI support is enabled for MSC.
-#if ABC_HOST_MSC && !defined(_CPPRTTI)
+#if ABC_HOST_CXX_MSC && !defined(_CPPRTTI)
    #error "Please compile with /GR"
 #endif
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
-#if (ABC_HOST_CLANG && __has_feature(cxx_explicit_conversions)) || ABC_HOST_GCC >= 40500
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_explicit_conversions)) || ABC_HOST_CXX_GCC >= 40500
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /*! If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
-#if (ABC_HOST_CLANG && __has_feature(cxx_deleted_functions)) || ABC_HOST_GCC >= 40400
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_deleted_functions)) || ABC_HOST_CXX_GCC >= 40400
    #define ABC_CXX_FUNC_DELETE
 #endif
 
 //! If defined, the compiler supports the noexcept exception specification.
-#if (ABC_HOST_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_GCC >= 40600
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_CXX_GCC >= 40600
    #define ABC_CXX_NOEXCEPT
 #endif
 
 //! If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
-#if (ABC_HOST_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_GCC >= 40700
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_noexcept)) || ABC_HOST_CXX_GCC >= 40700
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
 //! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
-#if ABC_HOST_CLANG && !defined(__GLIBCXX__)
+#if ABC_HOST_CXX_CLANG && !defined(__GLIBCXX__)
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
 /*! If defined, the STL implements part of the C++11 type traits. This is a special case for the GNU
 libc++; see <https://gcc.gnu.org/onlinedocs/gcc-4.9.2/libstdc++/manual/manual/status.html> for the
 supported type traits. */
-#if (ABC_HOST_CLANG && defined(__GLIBCXX__)) || ABC_HOST_GCC >= 40800
+#if (ABC_HOST_CXX_CLANG && defined(__GLIBCXX__)) || ABC_HOST_CXX_GCC >= 40800
    #define ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS
 #endif
 
 //! If defined, the compiler supports variadic templates (N2242).
-#if (ABC_HOST_CLANG && __has_feature(cxx_variadic_templates)) || ABC_HOST_GCC
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_variadic_templates)) || ABC_HOST_CXX_GCC
    #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
@@ -348,10 +348,12 @@ rangedecl
 expr
    Expression of a type for which std::begin() and std::end() are defined.
 */
-#if (ABC_HOST_CLANG && __has_feature(cxx_range_for)) || ABC_HOST_GCC || ABC_HOST_MSC >= 1700
+#if ( \
+   ABC_HOST_CXX_CLANG && __has_feature(cxx_range_for) \
+) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1700
    #define ABC_FOR_EACH(rangedecl, expr) \
       for (rangedecl : expr)
-#elif ABC_HOST_MSC
+#elif ABC_HOST_CXX_MSC
    /* MSC16 has a pre-C++11 syntax that expects to assign expr to a non-const l-value reference; if
    expr is an r-value, an MSC non-standard extension allows to reference expr from the non-const
    l-value reference, raising warning C4239; here we suppress this possible warning. */
@@ -360,9 +362,9 @@ expr
       for each (rangedecl in expr)
 #endif
 
-#if (ABC_HOST_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_GCC >= 0x40700
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_CXX_GCC >= 0x40700
    // Good, no need for fixes.
-#elif ABC_HOST_MSC
+#elif ABC_HOST_CXX_MSC
    // MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
    #define override \
       __pragma(warning(suppress: 4481)) override
@@ -384,7 +386,7 @@ implementation. */
 
 /*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
-#if ABC_HOST_CLANG || ABC_HOST_GCC || ABC_HOST_MSC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    #define ABC_CXX_PRAGMA_ONCE
    // Use it now for this file.
    #pragma once
@@ -393,10 +395,10 @@ implementation. */
 /*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
 an exception). This allows optimizations based on the fact that code following its call cannot be
 reached. */
-#if ABC_HOST_CLANG || ABC_HOST_GCC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
    #define ABC_FUNC_NORETURN \
       __attribute__((noreturn))
-#elif ABC_HOST_MSC
+#elif ABC_HOST_CXX_MSC
    #define ABC_FUNC_NORETURN \
       __declspec(noreturn)
 #else
@@ -406,15 +408,15 @@ reached. */
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
 #if ABC_HOST_API_WIN32
    // TODO: how does Clang declare dllexport?
-   #if ABC_HOST_GCC
+   #if ABC_HOST_CXX_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((dllexport))
-   #elif ABC_HOST_MSC
+   #elif ABC_HOST_CXX_MSC
       #define ABC_SYM_EXPORT \
          __declspec(dllexport)
    #endif
 #else
-   #if ABC_HOST_CLANG || ABC_HOST_GCC
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
       #define ABC_SYM_EXPORT \
          __attribute__((visibility("default")))
    #endif
@@ -423,15 +425,15 @@ reached. */
 //! Declares a symbol to be imported from a shared library.
 #if ABC_HOST_API_WIN32
    // TODO: how does Clang declare dllimport?
-   #if ABC_HOST_GCC
+   #if ABC_HOST_CXX_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((dllimport))
-   #elif ABC_HOST_MSC
+   #elif ABC_HOST_CXX_MSC
       #define ABC_SYM_IMPORT \
          __declspec(dllimport)
    #endif
 #else
-   #if ABC_HOST_CLANG || ABC_HOST_GCC
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
       #define ABC_SYM_IMPORT \
          __attribute__((visibility("default")))
    #endif
@@ -494,17 +496,18 @@ private:
    #include <type_traits>
 #endif
 
-#if ((ABC_HOST_GCC && ABC_HOST_GCC < 40700) || (ABC_HOST_MSC && ABC_HOST_MSC < 1800)) \
-   && !defined(ABC_STLIMPL)
+#if ( \
+   (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800) \
+) && !defined(ABC_STLIMPL)
 
 namespace std {
 
-#if !ABC_HOST_GCC
+#if !ABC_HOST_CXX_GCC
 // GCC does have a definition of std::declval, but MSC does not.
 template <typename T>
 typename add_rvalue_reference<T>::type declval();
 #endif
-#if ABC_HOST_GCC
+#if ABC_HOST_CXX_GCC
 // On the other hand, GCC lacks a definition of std::add_reference.
 template <typename T>
 struct add_reference {
@@ -537,8 +540,8 @@ struct is_copy_constructible<T, typename enable_if<
 
 } //namespace std
 
-#endif //if ((ABC_HOST_GCC && ABC_HOST_GCC < 40700) || (ABC_HOST_MSC && ABC_HOST_MSC < 1800)
-       //   && !defined(ABC_STLIMPL)
+#endif //if ((ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) ||
+       //   (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800) && !defined(ABC_STLIMPL)
 
 //! Declares an explicit conversion operator to bool.
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
@@ -709,17 +712,17 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // #include other core header files that require a special order
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    // Silence warnings from system header files.
    #pragma warning(push)
    // “expression before comma has no effect; expected expression with side-effect”
    #pragma warning(disable: 4548)
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
-#endif //if ABC_HOST_MSC
+#endif //if ABC_HOST_CXX_MSC
 #include <climits> // CHAR_BIT *_MAX *_MIN
 #include <cstddef> // std::ptrdiff_t std::size_t
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 
@@ -730,18 +733,18 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
    #include <abaclade/stl/memory.hxx>
 #else //ifdef ABC_STLIMPL
    #include <tuple>
-   #if ABC_HOST_MSC
+   #if ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
       // “expression before comma has no effect; expected expression with side-effect”
       #pragma warning(disable: 4548)
       // “'function': exception specification does not match previous declaration”
       #pragma warning(disable: 4986)
-   #endif //if ABC_HOST_MSC
+   #endif //if ABC_HOST_CXX_MSC
    #include <memory>
-   #if ABC_HOST_MSC
+   #if ABC_HOST_CXX_MSC
       #pragma warning(pop)
-   #endif //if ABC_HOST_MSC
+   #endif
    #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
       namespace std {
 

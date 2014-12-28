@@ -450,7 +450,7 @@ protected:
       if (mc_bEmbeddedPrefixedItemArray) {
          // Allows to obtain the pointer to an embedded prefixed item array in non-template code
          // without resorting to manual pointer arithmetics.
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(push)
    // “'class' : default constructor could not be generated because a base class default constructor
    // is inaccessible”
@@ -460,7 +460,7 @@ protected:
             public raw_vextr_impl_base,
             public raw_vextr_impl_base::_prefixed_item_array {
          };
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 

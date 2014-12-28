@@ -111,7 +111,7 @@ public:
    template <typename T>
    void set_copy_fn() {
       copy_constr = reinterpret_cast<copy_fn>(_typed_copy_constr<typename std::remove_cv<T>::type>);
-#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!copy_constr) {
          _typed_copy_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
@@ -123,7 +123,7 @@ public:
    template <typename T>
    void set_destr_fn() {
       destruct = reinterpret_cast<destr_fn>(_typed_destruct<typename std::remove_cv<T>::type>);
-#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!destruct) {
          _typed_destruct<typename std::remove_cv<T>::type>(nullptr, nullptr);
@@ -135,7 +135,7 @@ public:
    template <typename T>
    void set_equal_fn() {
       equal = reinterpret_cast<equal_fn>(_typed_equal<typename std::remove_cv<T>::type>);
-#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!equal) {
          _typed_equal<typename std::remove_cv<T>::type>(nullptr, nullptr);
@@ -147,7 +147,7 @@ public:
    template <typename T>
    void set_move_fn() {
       move_constr = reinterpret_cast<move_fn>(_typed_move_constr<typename std::remove_cv<T>::type>);
-#if ABC_HOST_GCC && ABC_HOST_GCC < 40700
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!move_constr) {
          _typed_move_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
@@ -172,7 +172,7 @@ private:
    @param ptSrcEnd
       Pointer to beyond the last item to copy.
    */
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    /* MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
    version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
    saying it doesn’t know which one to choose. */
@@ -198,7 +198,7 @@ private:
          }
       }
    }
-#else //if ABC_HOST_MSC
+#else //if ABC_HOST_CXX_MSC
    // Only enabled if the copy constructor is trivial.
    template <typename T>
    static void _typed_copy_constr(
@@ -239,7 +239,7 @@ private:
          throw;
       }
    }
-#endif //if ABC_HOST_MSC … else
+#endif //if ABC_HOST_CXX_MSC … else
 
    /*! Destructs a range of items in an array.
 

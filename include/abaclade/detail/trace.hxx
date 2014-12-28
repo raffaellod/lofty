@@ -212,7 +212,7 @@ public:
 private:
    // This overload prints a variable followed by a comma and recurses.
    template <std::size_t t_i>
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    // “'<' : expression is always false”.
    #pragma warning(suppress: 4296) 
 #endif

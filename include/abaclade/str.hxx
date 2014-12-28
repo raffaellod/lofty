@@ -1157,13 +1157,13 @@ public:
       return *this;
    }
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
    str_base::operator istr const &(). */
    operator istr const &() const {
       return str_base::operator istr const &();
    }
-#endif //if ABC_HOST_MSC
+#endif //if ABC_HOST_CXX_MSC
 };
 
 

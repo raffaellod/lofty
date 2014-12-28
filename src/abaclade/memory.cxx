@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // :: globals – standard new/delete operators
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(push)
    // “'operator': exception specification does not match previous declaration”
    #pragma warning(disable: 4986)
@@ -60,7 +60,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
    std::free(p);
 }
 
-#if ABC_HOST_MSC
+#if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 
