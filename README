@@ -11,8 +11,8 @@ Abaclade is a C++11 framework featuring:
    trace that includes the actual values of arguments and local variables ‒
    you’ll always know what went wrong! (see [DOC:8503 Stack tracing]);
 
-•  Testing framework integrated in the library and in the included cross-
-   platform make utility (see [DOC:6931 Abamake]);
+•  Testing framework integrated in the library with full support from the
+   recommended built, Abamake (see <https://github.com/raffaellod/abamake>);
 
 •  Approachable and intuitive programming style, similar to Python’s; a good
    example is its modern I/O class hierarchy inspired by Python 3.x’s library,
@@ -111,24 +111,15 @@ Future plans include support for OSX and removal of the dependency on Python.
 4. Building Abaclade
 --------------------
 
-Abaclade comes with a built-in cross-platform make utility, Abamake (see also
-[DOC:6931 Abamake]); the way it works is very similar to the common UNIX make
-utility, but Abamakefiles are written in an XML syntax inspired by MSBuild
-format.
-
-TODO: document Abamakefile syntax and link to it from here.
-
-Abamake is currently written in Python, so it can be run prior to building
-Abaclade.
+Building Abaclade requires Abamake (see <https://github.com/raffaellod/
+abamake>), which works as an improved make utility.
 
 To build Abaclade, run Abamake from its base directory:
 
-   src/abamake.py
+   abamake.py
 
 
 This will create outputs in the bin/ and lib/ folders.
-
-TODO: expand on Abamake arguments.
 
 
 5. Installing Abaclade
