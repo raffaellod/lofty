@@ -20,8 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 #if ABC_HOST_API_POSIX
-   #include "exception-errno-posix.cxx"
-   #include "exception-eahm-posix.cxx"
+   #include "exception-os_error-posix.cxx"
+   #include "exception-fault_converter-posix.cxx"
 #elif ABC_HOST_API_WIN32
    #include "exception-win32.cxx"
 #endif
