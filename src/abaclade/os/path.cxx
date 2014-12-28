@@ -122,25 +122,25 @@ path path::absolute() const {
       static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”.
       static std::size_t const sc_ichLeadingSep  = 0; // “\” in “\”.
 
-      // Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
-      // and be relative to the current directory in that volume. Either way, these two formats
-      // don’t qualify as absolute (which is why we’re here), and can be recognized as follows.
+      /* Under Win32, a path can be absolute but relative to a volume, or it can specify a volume
+      and be relative to the current directory in that volume. Either way, these two formats don’t
+      qualify as absolute (which is why we’re here), and can be recognized as follows. */
       std::size_t cch = m_s.size_in_chars();
       char_t const * pch = m_s.chars_begin();
       if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
-         // The path is in the form “X:a”: get the current directory for that volume and prepend it
-         // to the path to make it absolute.
+         /* The path is in the form “X:a”: get the current directory for that volume and prepend it
+         to the path to make it absolute. */
          opAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
                       m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
       } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
-         // The path is in the form “\a”: make it absolute by prepending to it the volume designator
-         // of the current directory.
+         /* The path is in the form “\a”: make it absolute by prepending to it the volume designator
+         of the current directory. */
          opAbsolute = current_dir().m_s.substr(
             0, ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/ + 2 /*"X:"*/
          ) + m_s;
       } else {
-         // None of the above patterns applies: prepend the current directory to make the path
-         // absolute.
+         /* None of the above patterns applies: prepend the current directory to make the path
+         absolute. */
          opAbsolute = current_dir() / *this;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -174,10 +174,10 @@ path path::base_name() const {
       return cchMax;
    });
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   // Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
-   // mstr::set_from() allocate space for that too, by adding the size of the root to the buffer
-   // size while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to
-   // reserve space for the root prefix.
+   /* Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
+   mstr::set_from() allocate space for that too, by adding the size of the root to the buffer size
+   while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to reserve space
+   for the root prefix. */
    std::size_t const c_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
    s.set_from([c_cchRoot] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (c_cchRoot >= cchMax) {
@@ -273,8 +273,8 @@ path path::normalize() const {
                      vitSeps.remove_at(itPrevSep + 1);
                   }
                } else {
-                  // We don’t have enough separators in vitSeps; resume from the end of the root or
-                  // the start of the path.
+                  /* We don’t have enough separators in vitSeps; resume from the end of the root or
+                  the start of the path. */
                   itDst = itRootEnd;
                   vitSeps.clear();
                }
@@ -300,8 +300,8 @@ path path::normalize() const {
          // Place itDst on the separator, so we don’t end up with a traling separator.
          itDst = *itPrevSep;
       } else {
-         // We don’t have enough separators in vitSeps; resume from the end of the root or
-         // the start of the path.
+         /* We don’t have enough separators in vitSeps; resume from the end of the root or the start
+         of the path. */
          itDst = itRootEnd;
       }
    } else if (itDst > itRootEnd && *(itDst - 1) == smc_aszSeparator[0]) {
@@ -331,8 +331,8 @@ path path::parent_dir() const {
       // This path only contains a base name, so there’s no parent directory part.
       return path();
    }
-   // If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
-   // separator; advance the iterator instead.
+   /* If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
+   separator; advance the iterator instead. */
    if (itLastSep - itBegin < static_cast<std::ptrdiff_t>(get_root_length(m_s, true))) {
       ++itLastSep;
    }
@@ -359,8 +359,8 @@ dmstr::const_iterator path::base_name_start() const {
    std::size_t cch = m_s.size_in_chars();
    if (cch > sc_ichVolumeColon) {
       auto itVolumeColon(m_s.cbegin() + sc_ichVolumeColon);
-      // If the path is in the form “X:a” and so far we considered “X” the start of the base name,
-      // reconsider the character after the colon as the start of the base name.
+      /* If the path is in the form “X:a” and so far we considered “X” the start of the base name,
+      reconsider the character after the colon as the start of the base name. */
       if (*itVolumeColon == ':' && itBaseNameStart <= itVolumeColon) {
          itBaseNameStart = itVolumeColon + 1 /*“:”*/;
       }
@@ -433,10 +433,10 @@ dmstr::const_iterator path::base_name_start() const {
    s.replace('/', '\\');
 
    if (!is_absolute(s)) {
-      // abc::os::path::is_absolute() is very strict and does not return true for DOS-style or UNC
-      // paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
-      // “\\server\share”, so we have to detect them here and prefix them with the Win32 File
-      // Namespace prefix.
+      /* abc::os::path::is_absolute() is very strict and does not return true for DOS-style or UNC
+      paths, i.e. those without the Win32 File Namespace prefix “\\?\”, such as “C:\my\path” or
+      “\\server\share”, so we have to detect them here and prefix them with the Win32 File Namespace
+      prefix. */
 
       if (s.starts_with(ABC_SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
@@ -474,8 +474,8 @@ dmstr::const_iterator path::base_name_start() const {
       char32_t ch = *itSrc;
       bool bCurrIsSeparator = ch == text::codepoint(smc_aszSeparator[0]);
       if (bCurrIsSeparator && bPrevIsSeparator) {
-         // Collapse consecutive separators by advancing itSrc (as part of the for loop) without
-         // advancing itDst.
+         /* Collapse consecutive separators by advancing itSrc (as part of the for loop) without
+         advancing itDst. */
          continue;
       }
       // Remember whether this character is a separator.
@@ -486,8 +486,8 @@ dmstr::const_iterator path::base_name_start() const {
       }
       ++itDst;
    }
-   // If the last character written is a separator and it wouldn’t leave an empty string (other than
-   // any prefix), move itDst back.
+   /* If the last character written is a separator and it wouldn’t leave an empty string (other than
+   any prefix), move itDst back. */
    if (bPrevIsSeparator && itDst > itRootEnd) {
       --itDst;
    }
