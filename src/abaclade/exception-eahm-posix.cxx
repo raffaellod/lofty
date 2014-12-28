@@ -217,13 +217,29 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    void ** ppCode;
    std::intptr_t ** ppiStack;
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
-#if defined(__i386__)
-   ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
-   ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
-#elif defined(__x86_64__)
-   ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
-   ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
-#endif
+#if ABC_TARGET_API_LINUX
+   #if defined(__i386__)
+      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
+      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
+   #elif defined(__x86_64__)
+      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
+      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
+   #else
+      #error "TODO: TARGET_ARCH"
+   #endif
+#elif ABC_TARGET_API_BSD //if ABC_TARGET_API_LINUX
+   #if defined(__i386__)
+      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_eip);
+      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_esp);
+   #elif defined(__x86_64__)
+      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_rip);
+      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_rsp);
+   #else
+      #error "TODO: TARGET_ARCH"
+   #endif
+#else
+   #error "TODO: TARGET_API"
+#endif //if ABC_TARGET_API_LINUX … elif ABC_TARGET_API_BSD
    /* Push the address of the current (failing) instruction, then jump to the address of the
    appropriate thrower function. This emulates a subroutine call. */
    *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
