@@ -98,12 +98,6 @@ namespace abc {
    #endif
 #endif
 
-// Compatibility with compilers that don’t support feature checking.
-#ifndef __has_feature
-   #define __has_feature(x) \
-      0
-#endif
-
 #if ABC_HOST_MSC
    // Suppress unnecessary warnings.
 
@@ -291,6 +285,12 @@ namespace abc {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – C++11 compiler features detection
+
+// Compatibility with compilers that don’t support feature checking.
+#ifndef __has_feature
+   #define __has_feature(x) \
+      0
+#endif
 
 // Ensure RTTI support is enabled for MSC.
 #if ABC_HOST_MSC && !defined(_CPPRTTI)
