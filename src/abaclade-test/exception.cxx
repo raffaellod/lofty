@@ -143,24 +143,7 @@ public:
       }
 
       // Enable alignment checking if the architecture supports it.
-//#define ABC_ALIGN_CHECK
-#ifdef ABC_ALIGN_CHECK
-#ifdef __GNUC__
-   #if ABC_HOST_ARCH_I386
-      __asm__(
-         "pushf\n"
-         "orl $0x00040000,(%esp)\n"
-         "popf"
-      );
-   #elif ABC_HOST_ARCH_X86_64
-      __asm__(
-         "pushf\n"
-         "orl $0x0000000000040000,(%rsp)\n"
-         "popf"
-      );
-   #endif
-#endif
-
+#if 0 // ABC_HOST_ARCH_???
       {
          // Create an int (with another one following it) and a pointer to it.
          int i[2];
@@ -169,24 +152,7 @@ public:
          p = static_cast<std::int8_t *>(p) + 1;
          ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
       }
-
-      // Disable alignment checking back.
-#ifdef __GNUC__
-   #if ABC_HOST_ARCH_I386
-      __asm__(
-         "pushf\n"
-         "andl $0xfffbffff,(%esp)\n"
-         "popf"
-      );
-   #elif ABC_HOST_ARCH_X86_64
-      __asm__(
-         "pushf\n"
-         "andl $0xfffffffffffbffff,(%rsp)\n"
-         "popf"
-      );
-   #endif
 #endif
-#endif //ifdef ABC_ALIGN_CHECK
 
       {
          // Non-obvious division by zero that can’t be detected at compile time.

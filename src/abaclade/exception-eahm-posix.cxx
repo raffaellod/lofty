@@ -139,27 +139,6 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    throw_after_fault_signal_args * ptafsa = g_ptafsa.get();
    switch (iSignal) {
       case SIGBUS:
-         /* TODO: this is the only way we can test SIGBUS on x86, otherwise the program will get
-         stuck in an endless memory-allocating loop. How can this be made to only execute when
-         running that one test? */
-
-         // Disable alignment checking if the architecture supports it.
-#ifdef __GNUC__
-   #if ABC_HOST_ARCH_I386
-         __asm__(
-            "pushf\n"
-            "andl $0xfffbffff,(%esp)\n"
-            "popf"
-         );
-   #elif ABC_HOST_ARCH_X86_64
-         __asm__(
-            "pushf\n"
-            "andl $0xfffffffffffbffff,(%rsp)\n"
-            "popf"
-         );
-   #endif
-#endif //ifdef __GNUC__
-
          /* There aren’t many codes here that are safe to handle; most of them indicate that there
          is some major memory corruption going on, and in that case we really don’t want to keep on
          going – even the code to throw an exception could be compromised. */
