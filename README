@@ -3,8 +3,8 @@
 
 Abaclade is a C++11 framework featuring:
 
-•  Multiple platform compatibility (currently Linux and Windows, planned FreeBSD
-   and OSX) and seamless integration with the C++11 STL;
+•  Multiple platform compatibility (currently Linux, FreeBSD and Windows;
+   planned OSX) and seamless integration with the C++11 STL;
 
 •  Integrated self-diagnosis: programs don’t just crash; every error condition
    (including dereferencing a null pointer) results in an exception and a stack
@@ -98,14 +98,14 @@ Supported build systems:
 Supported operating systems:
 
 •  GNU/Linux using glibc 2.17 or later;
+•  FreeBSD – officially only the latest -RELEASE is supported;
 •  Microsoft Windows – temporarily only via Visual C++ 10, which means only
    Windows XP and later versions are supported.
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
 the build host system.
 
-Future plans include support for FreeBSD, OSX and removal of the dependency on
-Python.
+Future plans include support for OSX and removal of the dependency on Python.
 
 
 4. Building Abaclade
@@ -151,7 +151,7 @@ will fail to run due to being unable to load Abaclade shared libraries. This can
 be worked around by adding the output lib/ folder to the shared library search
 path.
 
-On glibc/Linux:
+On glibc/Linux and FreeBSD:
 
    env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
