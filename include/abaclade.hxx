@@ -145,6 +145,32 @@ namespace abc {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_HOST_ARCH_*
+
+#define ABC_HOST_ARCH_ALPHA  0
+#define ABC_HOST_ARCH_I386   0
+#define ABC_HOST_ARCH_IA64   0
+#define ABC_HOST_ARCH_PPC    0
+#define ABC_HOST_ARCH_X86_64 0
+
+#if defined(__alpha__) || defined(_M_ALPHA)
+   #undef ABC_HOST_ARCH_ALPHA
+   #define ABC_HOST_ARCH_ALPHA 1
+#elif defined(__i386__) || defined(_M_IX86)
+   #undef ABC_HOST_ARCH_I386
+   #define ABC_HOST_ARCH_I386 1
+#elif defined(__ia64__) || defined(_M_IA64)
+   #undef ABC_HOST_ARCH_IA64
+   #define ABC_HOST_ARCH_IA64 1
+#elif defined(__powerpc__) || defined(_M_PPC) || defined(_M_MPPC)
+   #undef ABC_HOST_ARCH_PPC
+   #define ABC_HOST_ARCH_PPC 1
+#elif defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64)
+   #undef ABC_HOST_ARCH_X86_64
+   #define ABC_HOST_ARCH_X86_64 1
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_HOST_WORD_SIZE
 
 //! Machine word size for this microarchitecture.
