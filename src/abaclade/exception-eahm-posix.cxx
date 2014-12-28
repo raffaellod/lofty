@@ -240,8 +240,8 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
 #else //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD … else
-   /* Push the address of the current (failing) instruction, then jump to the address of the
-   appropriate thrower function. This emulates a subroutine call. */
+   /* Push the address of the current (failing) instruction, then set the next instruction to the
+   start of throw_after_fault. These two steps emulate a subroutine call. */
    *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
    *ppCode = reinterpret_cast<void *>(&throw_after_fault);
 }
