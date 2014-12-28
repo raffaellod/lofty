@@ -143,6 +143,7 @@ public:
       }
 
       // Enable alignment checking if the architecture supports it.
+//#define ABC_ALIGN_CHECK
 #ifdef ABC_ALIGN_CHECK
 #ifdef __GNUC__
    #if ABC_HOST_ARCH_I386
@@ -151,14 +152,12 @@ public:
          "orl $0x00040000,(%esp)\n"
          "popf"
       );
-      #define ABC_ALIGN_CHECK
    #elif ABC_HOST_ARCH_X86_64
       __asm__(
          "pushf\n"
          "orl $0x0000000000040000,(%rsp)\n"
          "popf"
       );
-      #define ABC_ALIGN_CHECK
    #endif
 #endif
 
