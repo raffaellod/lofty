@@ -145,13 +145,13 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
 
          // Disable alignment checking if the architecture supports it.
 #ifdef __GNUC__
-   #if defined(__i386__)
+   #if ABC_HOST_ARCH_I386
          __asm__(
             "pushf\n"
             "andl $0xfffbffff,(%esp)\n"
             "popf"
          );
-   #elif defined(__x86_64__)
+   #elif ABC_HOST_ARCH_X86_64
          __asm__(
             "pushf\n"
             "andl $0xfffffffffffbffff,(%rsp)\n"
@@ -218,20 +218,20 @@ void fault_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    std::intptr_t ** ppiStack;
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
 #if ABC_HOST_API_LINUX
-   #if defined(__i386__)
+   #if ABC_HOST_ARCH_I386
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
-   #elif defined(__x86_64__)
+   #elif ABC_HOST_ARCH_X86_64
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
    #else
       #error "TODO: HOST_ARCH"
    #endif
 #elif ABC_HOST_API_FREEBSD //if ABC_HOST_API_LINUX
-   #if defined(__i386__)
+   #if ABC_HOST_ARCH_I386
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_eip);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_esp);
-   #elif defined(__x86_64__)
+   #elif ABC_HOST_ARCH_X86_64
       ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_rip);
       ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_rsp);
    #else

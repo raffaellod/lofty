@@ -145,14 +145,14 @@ public:
       // Enable alignment checking if the architecture supports it.
 #ifdef ABC_ALIGN_CHECK
 #ifdef __GNUC__
-   #if defined(__i386__)
+   #if ABC_HOST_ARCH_I386
       __asm__(
          "pushf\n"
          "orl $0x00040000,(%esp)\n"
          "popf"
       );
       #define ABC_ALIGN_CHECK
-   #elif defined(__x86_64__)
+   #elif ABC_HOST_ARCH_X86_64
       __asm__(
          "pushf\n"
          "orl $0x0000000000040000,(%rsp)\n"
@@ -173,13 +173,13 @@ public:
 
       // Disable alignment checking back.
 #ifdef __GNUC__
-   #if defined(__i386__)
+   #if ABC_HOST_ARCH_I386
       __asm__(
          "pushf\n"
          "andl $0xfffbffff,(%esp)\n"
          "popf"
       );
-   #elif defined(__x86_64__)
+   #elif ABC_HOST_ARCH_X86_64
       __asm__(
          "pushf\n"
          "andl $0xfffffffffffbffff,(%rsp)\n"
