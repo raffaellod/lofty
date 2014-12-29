@@ -21,7 +21,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include "exception-os_error-posix.cxx"
-   #include "exception-fault_converter-posix.cxx"
+   #if ABC_HOST_API_MACH
+      #include "exception-fault_converter-mach.cxx"
+   #else
+      #include "exception-fault_converter-posix.cxx"
+   #endif
 #elif ABC_HOST_API_WIN32
    #include "exception-win32.cxx"
 #endif
