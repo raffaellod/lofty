@@ -101,6 +101,7 @@ namespace abc {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_HOST_API_*
 
+#define ABC_HOST_API_BSD 0
 #define ABC_HOST_API_DARWIN 0
 #define ABC_HOST_API_FREEBSD 0
 #define ABC_HOST_API_LINUX 0
@@ -125,7 +126,9 @@ namespace abc {
    #undef ABC_HOST_API_POSIX
    #define ABC_HOST_API_POSIX 1
 #elif defined(__MACH__) && defined(__APPLE__)
-   // Compiling for Darwin (OSX/iOS)
+   // Compiling for Darwin (OSX/iOS), which looks like a BSD on top of a Mach kernel (XNU).
+   #undef ABC_HOST_API_BSD
+   #define ABC_HOST_API_BSD 1
    #undef ABC_HOST_API_DARWIN
    #define ABC_HOST_API_DARWIN 1
    #undef ABC_HOST_API_MACH
@@ -135,6 +138,8 @@ namespace abc {
 #elif defined(__unix__)
    #ifdef __FreeBSD__
       // Compiling for FreeBSD.
+      #undef ABC_HOST_API_BSD
+      #define ABC_HOST_API_BSD 1
       #undef ABC_HOST_API_FREEBSD
       #define ABC_HOST_API_FREEBSD 1
    #endif
