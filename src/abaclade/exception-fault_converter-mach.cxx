@@ -137,7 +137,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
 
    // Read the exception and convert it into a known C++ type.
    fault_exception_types::enum_type fxt;
-   std::uintptr_t iArg0 = 0, iArg1 = 0;
+   std::intptr_t iArg0 = 0, iArg1 = 0;
    {
       arch_exception_state_t excst;
       // On input this is a word count, but on output it’s an element count.
@@ -152,7 +152,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
       switch (exctype) {
          case EXC_BAD_ACCESS:
 #if ABC_HOST_ARCH_X86_64
-            iArg0 = excst.__faultvaddr;
+            iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
 #else
    #error "TODO: HOST_ARCH"
 #endif
@@ -165,7 +165,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
 
          case EXC_BAD_INSTRUCTION:
 #if ABC_HOST_ARCH_X86_64
-            iArg0 = excst.__faultvaddr;
+            iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
 #else
    #error "TODO: HOST_ARCH"
 #endif
@@ -233,18 +233,16 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
 
    // Manipulate the thread state to emulate a call to throw_after_fault.
 #if ABC_HOST_ARCH_X86_64
-   /* Push the address of the current (failing) instruction, then set rip to the start of
-   throw_after_fault() and load its arguments in rdi, rsi and rdx. These steps emulate a 3-argument
-   subroutine call. */
-   typedef decltype(thrst.__rip) codereg_t;
-   typedef decltype(thrst.__rsp) datareg_t;
-   thrst.__rsp -= sizeof(codereg_t);
-   // TODO: align the stack to 16 bytes?
-   *reinterpret_cast<codereg_t *>(thrst.__rsp) = thrst.__rip;
-   thrst.__rip = reinterpret_cast<codereg_t>(&throw_after_fault);
-   thrst.__rdi = static_cast<datareg_t>(fxt);
-   thrst.__rsi = iArg0;
-   thrst.__rdx = iArg1;
+   /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
+   (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
+   3-argument subroutine call. */
+   typedef std::uint64_t reg_t;
+   thrst.__rdi = static_cast<reg_t>(fxt);
+   thrst.__rsi = static_cast<reg_t>(iArg0);
+   thrst.__rdx = static_cast<reg_t>(iArg1);
+   // TODO: validate that stack alignment to 16 bytes is done by the called with push rbp.
+   *reinterpret_cast<reg_t *>(thrst.__rsp -= 8) = thrst.__rip;
+   thrst.__rip = reinterpret_cast<reg_t>(&throw_after_fault);
 #else
    #error "TODO: HOST_ARCH"
 #endif
