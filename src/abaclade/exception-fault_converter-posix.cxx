@@ -27,11 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
 
-namespace abc {
-
-/* These should be members of exception::fault_converter, but they’re not due to their header file
-requirements. */
-
 namespace {
 
 //! Signals that we can translate into C++ exceptions.
@@ -61,7 +56,7 @@ int const g_aiHandledSignals[] = {
 //! Default handler for each of the signals above.
 struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
-//! Possible exception types thrown by throw_after_fault_signal().
+//! Possible exception types thrown by throw_after_fault().
 ABC_ENUM_AUTO_VALUES(fault_exception_types,
    arithmetic_error,
    division_by_zero_error,
@@ -72,22 +67,21 @@ ABC_ENUM_AUTO_VALUES(fault_exception_types,
    overflow_error
 );
 
-//! Type of arguments to to throw_after_fault_signal(); see g_ptafsa.
-struct throw_after_fault_signal_args {
-   //! Type of exception to be throw.
-   fault_exception_types::enum_type fxt;
-   //! Exception type-specific argument 0.
-   void * pArg0;
-};
+/*! Throws an exception of the specified type.
 
-/*! Arguments to throw_after_fault_signal(). Defining this as thread-local instead of real arguments
-greatly reduces the amount of processor architecture-specific subroutine call code that needs to be
-emulated (and maintained) in fault_signal_handler(). */
-thread_local_ptr<throw_after_fault_signal_args> g_ptafsa;
-
-void throw_after_fault_signal() {
-   throw_after_fault_signal_args * ptafsa = g_ptafsa.get();
-   switch (ptafsa->fxt) {
+@param fxt
+   Type of exception to be throw.
+@param iArg0
+   Exception type-specific argument 0.
+@param iArg1
+   Exception type-specific argument 1.
+*/
+void throw_after_fault(
+   fault_exception_types::enum_type fxt, std::intptr_t iArg0, std::intptr_t iArg1
+) {
+//printf("throw_after_fault: %d %p %p\n", fxt, iArg0, iArg1);
+   ABC_UNUSED_ARG(iArg1);
+   switch (fxt) {
       case fault_exception_types::arithmetic_error:
          ABC_THROW(abc::arithmetic_error, ());
       case fault_exception_types::division_by_zero_error:
@@ -95,21 +89,24 @@ void throw_after_fault_signal() {
       case fault_exception_types::floating_point_error:
          ABC_THROW(abc::floating_point_error, ());
       case fault_exception_types::memory_access_error:
-         ABC_THROW(abc::memory_access_error, (ptafsa->pArg0));
+         ABC_THROW(abc::memory_access_error, (reinterpret_cast<void const *>(iArg0)));
       case fault_exception_types::memory_address_error:
-         ABC_THROW(abc::memory_address_error, (ptafsa->pArg0));
+         ABC_THROW(abc::memory_address_error, (reinterpret_cast<void const *>(iArg0)));
       case fault_exception_types::null_pointer_error:
          ABC_THROW(abc::null_pointer_error, ());
       case fault_exception_types::overflow_error:
          ABC_THROW(abc::overflow_error, ());
+      default:
+         // Unexpected exception type. Should never happen.
+         std::abort();
    }
 }
 
 /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
-stack frame of a call to throw_after_fault_signal(), and then returning, ending processing of the
-signal. Execution will resume from throw_after_fault_signal(), which creates the appearance of a C++
-exception being thrown at the location of the offending instruction, without calling any of the
-(many) functions that are forbidden in a signal handler.
+stack frame of a call to throw_after_fault(), and then returning, ending processing of the signal.
+Execution will resume from throw_after_fault(), which creates the appearance of a C++ exception
+being thrown at the location of the offending instruction, without calling any of the (many)
+functions that are forbidden in a signal handler.
 
 @param iSignal
    Signal number for which the function is being called.
@@ -136,7 +133,8 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       return;
    }
 
-   throw_after_fault_signal_args * ptafsa = g_ptafsa.get();
+   fault_exception_types::enum_type fxt;
+   std::intptr_t iArg0 = 0, iArg1 = 0;
    switch (iSignal) {
       case SIGBUS:
          /* There aren’t many codes here that are safe to handle; most of them indicate that there
@@ -144,8 +142,8 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          going – even the code to throw an exception could be compromised. */
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
-               ptafsa->fxt = fault_exception_types::memory_access_error;
-               ptafsa->pArg0 = psi->si_addr;
+               fxt = fault_exception_types::memory_access_error;
+               iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                break;
             default:
                std::abort();
@@ -155,10 +153,10 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       case SIGFPE:
          switch (psi->si_code) {
             case FPE_INTDIV: // Integer divide by zero.
-               ptafsa->fxt = fault_exception_types::division_by_zero_error;
+               fxt = fault_exception_types::division_by_zero_error;
                break;
             case FPE_INTOVF: // Integer overflow.
-               ptafsa->fxt = fault_exception_types::overflow_error;
+               fxt = fault_exception_types::overflow_error;
                break;
             case FPE_FLTDIV: // Floating-point divide by zero.
             case FPE_FLTOVF: // Floating-point overflow.
@@ -166,22 +164,22 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
             case FPE_FLTRES: // Floating-point inexact result.
             case FPE_FLTINV: // Floating-point invalid operation.
             case FPE_FLTSUB: // Subscript out of range.
-               ptafsa->fxt = fault_exception_types::floating_point_error;
+               fxt = fault_exception_types::floating_point_error;
                break;
             default:
                /* At the time of writing, the above case labels don’t leave out any values, but
                that’s not necessarily going to be true in 5 years, so… */
-               ptafsa->fxt = fault_exception_types::arithmetic_error;
+               fxt = fault_exception_types::arithmetic_error;
                break;
          }
          break;
 
       case SIGSEGV:
          if (psi->si_addr == nullptr) {
-            ptafsa->fxt = fault_exception_types::null_pointer_error;
+            fxt = fault_exception_types::null_pointer_error;
          } else {
-            ptafsa->fxt = fault_exception_types::memory_address_error;
-            ptafsa->pArg0 = psi->si_addr;
+            fxt = fault_exception_types::memory_address_error;
+            iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
          }
          break;
 
@@ -192,46 +190,67 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          std::abort();
    }
 
-   // Obtain the faulting thread’s context and the instruction and stack pointers.
-   void ** ppCode;
-   std::intptr_t ** ppiStack;
+   /* Change the address at which the thread will resume execution: manipulate the thread context
+   to emulate a function call to throw_after_fault(). */
+
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
-#if ABC_HOST_API_LINUX
    #if ABC_HOST_ARCH_I386
-      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_EIP]);
-      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_ESP]);
+      #if ABC_HOST_API_LINUX
+         typedef std::int32_t reg_t;
+         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
+         reg_t & esp = puctx->uc_mcontext.gregs[REG_ESP];
+      #elif ABC_HOST_API_FREEBSD
+         typedef std::int32_t reg_t;
+         reg_t & eip = puctx->uc_mcontext.mc_eip;
+         reg_t & esp = puctx->uc_mcontext.mc_esp;
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Push the arguments to throw_after_fault() onto the stack, push the address of the current
+      (failing) instruction, then set eip to the start of throw_after_fault(). These steps emulate a
+      3-argument subroutine call. */
+      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(iArg1);
+      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(iArg0);
+      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(fxt);
+      reinterpret_cast<reg_t *>(esp -= 4) = eip;
+      eip = reinterpret_cast<reg_t>(&throw_after_fault);
    #elif ABC_HOST_ARCH_X86_64
-      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.gregs[REG_RIP]);
-      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.gregs[REG_RSP]);
+      #if ABC_HOST_API_LINUX
+         typedef std::int64_t reg_t;
+         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
+         reg_t & rsp = puctx->uc_mcontext.gregs[REG_RSP];
+         reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
+         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
+         reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
+      #elif ABC_HOST_API_FREEBSD
+         typedef std::int64_t reg_t;
+         reg_t & rip = puctx->uc_mcontext.mc_rip;
+         reg_t & rsp = puctx->uc_mcontext.mc_rsp;
+         reg_t & rdi = puctx->uc_mcontext.mc_rdi;
+         reg_t & rsi = puctx->uc_mcontext.mc_rsi;
+         reg_t & rdx = puctx->uc_mcontext.mc_rdx;
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
+      (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
+      3-argument subroutine call. */
+      rdi = static_cast<reg_t>(fxt);
+      rsi = static_cast<reg_t>(iArg0);
+      rdx = static_cast<reg_t>(iArg1);
+      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
+      *reinterpret_cast<reg_t *>(rsp -= 8) = rip;
+      rip = reinterpret_cast<reg_t>(&throw_after_fault);
    #else
       #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_HOST_API_FREEBSD //if ABC_HOST_API_LINUX
-   #if ABC_HOST_ARCH_I386
-      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_eip);
-      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_esp);
-   #elif ABC_HOST_ARCH_X86_64
-      ppCode = reinterpret_cast<void **>(&puctx->uc_mcontext.mc_rip);
-      ppiStack = reinterpret_cast<std::intptr_t **>(&puctx->uc_mcontext.mc_rsp);
-   #else
-      #error "TODO: HOST_ARCH"
-   #endif
-#else //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_LINUX … elif ABC_HOST_API_FREEBSD … else
-   /* Push the address of the current (failing) instruction, then set the next instruction to the
-   start of throw_after_fault_signal(). These two steps emulate a subroutine call. */
-   *--*ppiStack = reinterpret_cast<std::intptr_t>(*ppCode);
-   *ppCode = reinterpret_cast<void *>(&throw_after_fault_signal);
 }
 
 } //namespace
 
+namespace abc {
 
 exception::fault_converter::fault_converter() {
-   // Initialize the arguments for fault_signal_handler().
-   g_ptafsa.reset_new();
-
    // Setup handlers for the signals in g_aiHandledSignals.
    struct ::sigaction saNew;
    saNew.sa_sigaction = &fault_signal_handler;
