@@ -196,11 +196,13 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
    #if ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
-         typedef std::int32_t reg_t;
+         typedef typename std::remove_reference<
+            decltype(puctx->uc_mcontext.gregs[REG_ESP])
+         >::type reg_t;
          reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
          reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
       #elif ABC_HOST_API_FREEBSD
-         typedef std::int32_t reg_t;
+         typedef decltype(puctx->uc_mcontext.mc_esp) reg_t;
          reg_t & eip = puctx->uc_mcontext.mc_eip;
          reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
       #else
@@ -216,14 +218,16 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       eip = reinterpret_cast<reg_t>(&throw_after_fault);
    #elif ABC_HOST_ARCH_X86_64
       #if ABC_HOST_API_LINUX
-         typedef std::int64_t reg_t;
+         typedef typename std::remove_reference<
+            decltype(puctx->uc_mcontext.gregs[REG_RSP])
+         >::type reg_t;
          reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
          reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
          reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
          reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
          reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
       #elif ABC_HOST_API_FREEBSD
-         typedef std::int64_t reg_t;
+         typedef decltype(puctx->uc_mcontext.mc_rsp) reg_t;
          reg_t & rip = puctx->uc_mcontext.mc_rip;
          reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
          reg_t & rdi = puctx->uc_mcontext.mc_rdi;

@@ -236,7 +236,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
    (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
    3-argument subroutine call. */
-   typedef std::uint64_t reg_t;
+   typedef decltype(thrst.__rsp) reg_t;
    reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
    thrst.__rdi = static_cast<reg_t>(fxt);
    thrst.__rsi = static_cast<reg_t>(iArg0);
