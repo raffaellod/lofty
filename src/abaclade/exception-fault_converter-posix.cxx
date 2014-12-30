@@ -190,42 +190,42 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          std::abort();
    }
 
-   /* Change the address at which the thread will resume execution: manipulate the thread context
-   to emulate a function call to throw_after_fault(). */
+   /* Change the address at which the thread will resume execution: manipulate the thread context to
+   emulate a function call to throw_after_fault(). */
 
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
    #if ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
          typedef std::int32_t reg_t;
          reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
-         reg_t & esp = puctx->uc_mcontext.gregs[REG_ESP];
+         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
       #elif ABC_HOST_API_FREEBSD
          typedef std::int32_t reg_t;
          reg_t & eip = puctx->uc_mcontext.mc_eip;
-         reg_t & esp = puctx->uc_mcontext.mc_esp;
+         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
       #else
          #error "TODO: HOST_API"
       #endif
       /* Push the arguments to throw_after_fault() onto the stack, push the address of the current
       (failing) instruction, then set eip to the start of throw_after_fault(). These steps emulate a
       3-argument subroutine call. */
-      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(iArg1);
-      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(iArg0);
-      reinterpret_cast<reg_t *>(esp -= 4) = static_cast<reg_t>(fxt);
-      reinterpret_cast<reg_t *>(esp -= 4) = eip;
+      *--esp = static_cast<reg_t>(iArg1);
+      *--esp = static_cast<reg_t>(iArg0);
+      *--esp = static_cast<reg_t>(fxt);
+      *--esp = eip;
       eip = reinterpret_cast<reg_t>(&throw_after_fault);
    #elif ABC_HOST_ARCH_X86_64
       #if ABC_HOST_API_LINUX
          typedef std::int64_t reg_t;
          reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
-         reg_t & rsp = puctx->uc_mcontext.gregs[REG_RSP];
+         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
          reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
          reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
          reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
       #elif ABC_HOST_API_FREEBSD
          typedef std::int64_t reg_t;
          reg_t & rip = puctx->uc_mcontext.mc_rip;
-         reg_t & rsp = puctx->uc_mcontext.mc_rsp;
+         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
          reg_t & rdi = puctx->uc_mcontext.mc_rdi;
          reg_t & rsi = puctx->uc_mcontext.mc_rsi;
          reg_t & rdx = puctx->uc_mcontext.mc_rdx;
@@ -239,7 +239,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
       // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
-      *reinterpret_cast<reg_t *>(rsp -= 8) = rip;
+      *--rsp = rip;
       rip = reinterpret_cast<reg_t>(&throw_after_fault);
    #else
       #error "TODO: HOST_ARCH"
