@@ -237,11 +237,12 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
    3-argument subroutine call. */
    typedef std::uint64_t reg_t;
+   reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
    thrst.__rdi = static_cast<reg_t>(fxt);
    thrst.__rsi = static_cast<reg_t>(iArg0);
    thrst.__rdx = static_cast<reg_t>(iArg1);
-   // TODO: validate that stack alignment to 16 bytes is done by the called with push rbp.
-   *reinterpret_cast<reg_t *>(thrst.__rsp -= 8) = thrst.__rip;
+   // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
+   *--rsp = thrst.__rip;
    thrst.__rip = reinterpret_cast<reg_t>(&throw_after_fault);
 #else
    #error "TODO: HOST_ARCH"
