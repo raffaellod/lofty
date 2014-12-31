@@ -471,6 +471,12 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v3[15], 11);
       ABC_TESTING_ASSERT_EQUAL(v3[16], 12);
       ABC_TESTING_ASSERT_EQUAL(v3[17], 13);
+
+      // Ensure that the vector doesn’t automatically shrink to fit when downsized.
+      std::size_t iHighestCapacity = v3.capacity();
+      v3.set_size(0);
+      ABC_TESTING_ASSERT_EQUAL(v3.size(), 0u);
+      ABC_TESTING_ASSERT_EQUAL(v3.capacity(), iHighestCapacity);
    }
 };
 
