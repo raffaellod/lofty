@@ -159,7 +159,7 @@ void event_loop::run() {
 
 #if ABC_HOST_API_BSD
 
-   smvector< ::kevent, 16> vkeReady;
+   smvector<struct ::kevent, 16> vkeReady;
    pimpl->bChanged = true;
    for (;;) {
       // TODO: compare & swap bChanged.
@@ -182,7 +182,7 @@ void event_loop::run() {
       }
       // Resize the vector to include only elements written by epoll_wait().
       vkeReady.set_size(static_cast<std::size_t>(cReadyEvents));
-      ABC_FOR_EACH(::kevent const & ke, vkeReady) {
+      ABC_FOR_EACH(struct ::kevent const & ke, vkeReady) {
          // TODO: consume the event.
          ABC_UNUSED_ARG(ke);
       }
