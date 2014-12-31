@@ -33,6 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/detail/vextr.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
+      <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
       <source path="src/abaclade/exception-os.cxx"/>
       <source path="src/abaclade/io/binary.cxx"/>
@@ -45,6 +46,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/perf/stopwatch.cxx"/>
+      <source path="src/abaclade/process.cxx"/>
       <source path="src/abaclade/stl/exception.cxx"/>
       <source path="src/abaclade/stl/memory.cxx"/>
       <source path="src/abaclade/stl/new.cxx"/>
@@ -56,6 +58,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/text/codepoint_iterator.cxx"/>
       <source path="src/abaclade/text/parsers/ansi_escape_sequences.cxx"/>
       <source path="src/abaclade/text/str_traits.cxx"/>
+      <source path="src/abaclade/thread.cxx"/>
       <source path="src/abaclade/thread_local.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
