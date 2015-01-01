@@ -1285,7 +1285,7 @@ protected:
 };
 
 
-// Now these can be implemented.
+// Now these can be defined.
 
 template <typename T>
 template <typename T2>

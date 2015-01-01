@@ -323,7 +323,7 @@ public:
 
 namespace detail {
 
-// Now this can be implemented.
+// Now this can be defined.
 
 template <class TTuple, typename T0, typename... Ts>
 inline void tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
@@ -414,7 +414,7 @@ public:
 };
 
 
-// Now this can be implemented.
+// Now this can be defined.
 
 template <
    class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,

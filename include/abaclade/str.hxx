@@ -761,7 +761,7 @@ public:
 };
 
 
-// Now these can be implemented.
+// Now this can be defined.
 
 inline str_base::operator istr const &() const {
    return *static_cast<istr const *>(this);
@@ -1020,7 +1020,7 @@ protected:
 };
 
 
-// Now these can be implemented.
+// Now these can be defined.
 
 inline istr::istr(mstr && s) :
    str_base(0) {
@@ -1167,7 +1167,7 @@ public:
 };
 
 
-// Now these can be implemented.
+// Now these can be defined.
 
 inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
    return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));

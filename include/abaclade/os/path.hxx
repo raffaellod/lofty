@@ -548,7 +548,7 @@ private:
 };
 
 
-// Now this can be implemented.
+// Now this can be defined.
 
 inline _path_iterator path::find(istr const & sPattern) const {
    return _path_iterator(*this, sPattern);

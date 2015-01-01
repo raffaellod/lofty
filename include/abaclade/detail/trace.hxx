@@ -248,7 +248,7 @@ private:
 };
 
 
-// Now this can be implemented.
+// Now this can be defined.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <typename... Ts>
 inline /*static*/ scope_trace_tuple_impl<Ts ...> scope_trace_tuple::make(Ts const &... ts) {

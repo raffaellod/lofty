@@ -151,7 +151,7 @@ private:
 };
 
 
-// Now this can be implemented.
+// Now this can be defined.
 template <class T>
 inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t) {
    return container_data_ptr_tracker<T>(t);
