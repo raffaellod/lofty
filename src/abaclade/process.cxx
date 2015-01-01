@@ -31,17 +31,18 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-process::process() :
+process::native_handle_type const process::smc_hNull =
 #if ABC_HOST_API_POSIX
-   m_h(0) {
+   0;
 #elif ABC_HOST_API_WIN32
-   m_h(nullptr) {
+   nullptr;
 #else
    #error "TODO: HOST_API"
 #endif
-}
 
 process::~process() {
+   ABC_TRACE_FUNC(this);
+
    if (joinable()) {
       // TODO: std::abort() or something similar.
    }
@@ -52,15 +53,33 @@ process::~process() {
 #endif
 }
 
+void process::detach() {
+   ABC_TRACE_FUNC(this);
+
 #if ABC_HOST_API_WIN32
-id_type process::id() const {
+   if (m_h) {
+      ::CloseHandle(m_h);
+   }
+#endif
+   m_h = smc_hNull;
+}
+
+process::id_type process::id() const {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   // ID == native handle.
+   return m_h;
+#elif ABC_HOST_API_WIN32
    DWORD iPid = ::GetProcessId(m_h);
    if (iPid == 0) {
       throw_os_error();
    }
    return iPid;
-}
+#else
+   #error "TODO: HOST_API"
 #endif
+}
 
 void process::join() {
    ABC_TRACE_FUNC(this);
@@ -75,6 +94,33 @@ void process::join() {
    if (iRet == WAIT_FAILED) {
       throw_os_error();
    }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+bool process::joinable() const {
+   ABC_TRACE_FUNC(this);
+
+   if (m_h == smc_hNull) {
+      return false;
+   }
+#if ABC_HOST_API_POSIX
+   ::siginfo_t si;
+   /* waitid() will not touch this field if m_h is not in a waitable (“joinable”) state, so we have
+   to in order to check it after the call. */
+   si.si_pid = 0;
+   if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED | WNOHANG | WNOWAIT) == -1) {
+      throw_os_error();
+   }
+   // waitid() sets this to m_h if the child is in the requested state (WEXITED).
+   return si.si_pid != 0;
+#elif ABC_HOST_API_WIN32
+   DWORD iRet = ::WaitForSingleObject(m_h, 0);
+   if (iRet == WAIT_FAILED) {
+      throw_os_error();
+   }
+   return iRet == WAIT_TIMEOUT;
 #else
    #error "TODO: HOST_API"
 #endif

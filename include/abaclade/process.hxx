@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 //! Process (“task” on some platforms), typically a child spawned by the current process.
-class ABACLADE_SYM process {
+class ABACLADE_SYM process : public noncopyable {
 public:
    //! Underlying OS-dependent ID/handle type.
 #if ABC_HOST_API_POSIX
@@ -55,11 +55,38 @@ public:
 #endif
 
 public:
-   //! Constructor.
-   process();
+   /*! Constructor.
+
+   @param proc
+      Source process.
+   */
+   process() :
+      m_h(smc_hNull) {
+   }
+   process(process && proc) :
+      m_h(proc.m_h) {
+      proc.m_h = smc_hNull;
+   }
 
    //! Destructor.
    ~process();
+
+   /*! Assignment operator.
+
+   @param proc
+      Source process.
+   @return
+      *this.
+   */
+   process & operator=(process && proc) {
+      ABC_TRACE_FUNC(this/*, proc*/);
+
+      native_handle_type h(proc.m_h);
+      detach();
+      m_h = h;
+      proc.m_h = smc_hNull;
+      return *this;
+   }
 
    /*! Equality relational operator.
 
@@ -69,6 +96,8 @@ public:
       true if *this has the same id() as proc, or false otherwise.
    */
    bool operator==(process const & proc) const {
+      ABC_TRACE_FUNC(this/*, proc*/);
+
       return id() == proc.id();
    }
 
@@ -80,27 +109,23 @@ public:
       true if *this has a different id() than proc, or false otherwise.
    */
    bool operator!=(process const & proc) const {
+      ABC_TRACE_FUNC(this/*, proc*/);
+
       return !operator==(proc);
    }
+
+   /*! Releases the OS-dependent ID/handle, making *this reference no process and invalidating the
+   value returned by native_handle(). */
+   void detach();
 
    /*! Returns a system-wide unique ID for the process handle.
 
    @return
       Unique ID representing the process.
    */
-   id_type id() const
-#if ABC_HOST_API_POSIX
-   {
-      // ID == native handle.
-      return m_h;
-   }
-#elif ABC_HOST_API_WIN32
-   // Defined in the .cxx file.
-   ;
-#else
-   #error "TODO: HOST_API"
-#endif
+   id_type id() const;
 
+   //! Waits for the process to terminate.
    void join();
 
    /*! Returns true if calling join() on the object is allowed.
@@ -108,15 +133,7 @@ public:
    @return
       true if the object is in a joinable state, or false otherwise.
    */
-   bool joinable() const {
-#if ABC_HOST_API_POSIX
-      return m_h != 0;
-#elif ABC_HOST_API_WIN32
-      return m_h != nullptr;
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
+   bool joinable() const;
 
    /*! Returns the underlying ID/handle type.
 
@@ -124,12 +141,16 @@ public:
       OS-dependent ID/handle.
    */
    native_handle_type native_handle() const {
+      ABC_TRACE_FUNC(this);
+
       return m_h;
    }
 
 private:
    //! OS-dependent ID/handle.
    native_handle_type m_h;
+   //! Logically null ID/handle.
+   static native_handle_type const smc_hNull;
 };
 
 } //namespace abc
