@@ -205,9 +205,6 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    return KERN_SUCCESS;
 }
 
-
-namespace abc {
-
 namespace {
 
 //! Thread in charge of handling exceptions for all the other threads.
@@ -252,6 +249,8 @@ void * exception_handler_thread(void *) {
 }
 
 } //namespace
+
+namespace abc {
 
 exception::fault_converter::fault_converter() {
    ::mach_port_t mpThisProc = ::mach_task_self();
