@@ -40,6 +40,24 @@ process::native_handle_type const process::smc_hNull =
    #error "TODO: HOST_API"
 #endif
 
+/*explicit*/ process::process(id_type id) :
+#if ABC_HOST_API_POSIX
+   // ID == native handle.
+   m_h(id) {
+#elif ABC_HOST_API_WIN32
+   m_h(smc_hNull) {
+   ABC_TRACE_FUNC(this);
+
+   // For now, only get a minimum access level.
+   m_h = ::OpenProcess(SYNCHRONIZE, false, id);
+   if (!m_h) {
+      throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
 process::~process() {
    ABC_TRACE_FUNC(this);
 

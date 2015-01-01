@@ -57,12 +57,15 @@ public:
 public:
    /*! Constructor.
 
+   @param id
+      ID of a running process to associate this abc::process instance with.
    @param proc
       Source process.
    */
    process() :
       m_h(smc_hNull) {
    }
+   explicit process(id_type id);
    process(process && proc) :
       m_h(proc.m_h) {
       proc.m_h = smc_hNull;
