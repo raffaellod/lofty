@@ -116,6 +116,18 @@ public:
       }
    }
 
+   //! Destructor.
+   ~const_pointer() {
+      // Ensure that m_thr is not joinable, so its destructor won’t abort this process.
+#if ABC_HOST_API_POSIX
+      m_thr.m_bJoinable = false;
+#elif ABC_HOST_API_WIN32
+      m_thr.m_h = nullptr;
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
    /*! Dereferencing member access operator.
 
    @return
