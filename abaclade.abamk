@@ -35,7 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
-      <source path="src/abaclade/exception-os.cxx"/>
+      <source path="src/abaclade/exception-fault_converter.cxx"/>
       <source path="src/abaclade/io/binary.cxx"/>
       <source path="src/abaclade/io/binary/buffered.cxx"/>
       <source path="src/abaclade/io/binary/file.cxx"/>
@@ -60,6 +60,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/text/str_traits.cxx"/>
       <source path="src/abaclade/thread.cxx"/>
       <source path="src/abaclade/thread_local.cxx"/>
+      <source path="src/abaclade/throw_os_error.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/vector.cxx"/>
 

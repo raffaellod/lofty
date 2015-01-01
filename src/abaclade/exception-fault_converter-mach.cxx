@@ -17,9 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-// #include <abaclade.hxx> already done in exception-os.cxx.
-
-#include <cstdlib> // std::abort()
+// #include <abaclade.hxx> already done in exception-fault_converter.cxx.
 
 // TODO: use Mach threads instead of pthreads for the exception-catching thread.
 #include <pthread.h> // pthread_create()
@@ -30,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception
+// abc::exception::fault_converter
 
 /*! Handles a kernel-reported thread exception. This is exposed by Mach, but for some reason not
 declared in any system headers. See <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/

@@ -21,9 +21,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception
+// abc::exception::fault_converter
 
 #if ABC_HOST_API_POSIX
+   #include <cstdlib> // std::abort()
 
 namespace {
 
@@ -74,15 +75,13 @@ void throw_after_fault(
 
 } //namespace
 
-#include "exception-os_error-posix.cxx"
-#if ABC_HOST_API_MACH
-   #include "exception-fault_converter-mach.cxx"
-#else
-   #include "exception-fault_converter-posix.cxx"
-#endif
-
+   #if ABC_HOST_API_MACH
+      #include "exception-fault_converter-mach.cxx"
+   #else
+      #include "exception-fault_converter-posix.cxx"
+   #endif
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   #include "exception-win32.cxx"
+   #include "exception-fault_converter-win32.cxx"
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else

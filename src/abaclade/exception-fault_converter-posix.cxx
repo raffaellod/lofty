@@ -17,15 +17,14 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-// #include <abaclade.hxx> already done in exception-os.cxx.
+// #include <abaclade.hxx> already done in exception-fault_converter.cxx.
 
-#include <cstdlib> // std::abort()
 #include <signal.h> // sigaction sig*()
 #include <ucontext.h> // ucontext_t
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception
+// abc::exception::fault_converter
 
 namespace {
 

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-// #include <abaclade.hxx> already done in exception-os.cxx.
+// #include <abaclade.hxx> already done in throw_os_error.cxx.
 #include <abaclade/io/text/file.hxx>
 
 #include <errno.h> // errno E*
