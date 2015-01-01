@@ -37,7 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*! Models a thread of execution. Replacement for std::thread supporting cooperation with
+/*! Thread of program execution. Replacement for std::thread supporting cooperation with
 abc::event_loop. */
 class ABACLADE_SYM thread {
 public:
@@ -50,18 +50,42 @@ public:
    #error "TODO: HOST_API"
 #endif
 
-   //! Pointer to a thread. Unlike abc::thread, instances of this class may be copied.
-   class ABACLADE_SYM const_pointer;
-
-   //! Pointer to a non-const thread.
-   class ABACLADE_SYM pointer;
-
 public:
    //! Constructor.
    thread();
 
    //! Destructor.
    ~thread();
+
+   /*! Equality relational operator.
+
+   @param thr
+      Object to compare to *this.
+   @return
+      true if *this refers to the same thread as thr, or false otherwise.
+   */
+   bool operator==(thread const & thr) const
+#if ABC_HOST_API_POSIX
+   {
+      return ::pthread_equal(m_h, thr.m_h);
+   }
+#elif ABC_HOST_API_WIN32
+   // Defined in the .cxx file.
+   ;
+#else
+   #error "TODO: HOST_API"
+#endif
+
+   /*! Inequality relational operator.
+
+   @param thr
+      Object to compare to *this.
+   @return
+      true if *this refers to a different thread than thr, or false otherwise.
+   */
+   bool operator!=(thread const & thr) const {
+      return !operator==(thr);
+   }
 
    void join();
 
@@ -80,13 +104,14 @@ public:
 #endif
    }
 
-   /*! Returns a pointer to the thread.
+   /*! Returns the underlying ID/handle type.
 
    @return
-      Thread pointer.
+      OS-dependent ID/handle.
    */
-   pointer ptr();
-   const_pointer ptr() const;
+   native_handle_type native_handle() const {
+      return m_h;
+   }
 
 private:
    //! OS-dependent ID/handle.
@@ -97,104 +122,6 @@ private:
    bool m_bJoinable;
 #endif
 };
-
-// Now these can be defined.
-
-//! Pointer to a thread. Unlike abc::thread, instances of this class may be copied.
-class ABACLADE_SYM thread::const_pointer {
-public:
-   /*! Constructor.
-
-   @param pthr
-      Thread pointer to wrap.
-   */
-   const_pointer() {
-   }
-   const_pointer(thread const * pthr) {
-      if (pthr) {
-         m_thr.m_h = pthr->m_h;
-      }
-   }
-
-   //! Destructor.
-   ~const_pointer() {
-      // Ensure that m_thr is not joinable, so its destructor won’t abort this process.
-#if ABC_HOST_API_POSIX
-      m_thr.m_bJoinable = false;
-#elif ABC_HOST_API_WIN32
-      m_thr.m_h = nullptr;
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-
-   /*! Dereferencing member access operator.
-
-   @return
-      Raw pointer to the thread.
-   */
-   thread const * operator->() const {
-      return &m_thr;
-   }
-
-   bool operator==(const_pointer const & p) const
-#if ABC_HOST_API_POSIX
-   {
-      return ::pthread_equal(m_thr.m_h, p.m_thr.m_h);
-   }
-#elif ABC_HOST_API_WIN32
-   // Defined in the .cxx file.
-   ;
-#else
-   #error "TODO: HOST_API"
-#endif
-
-   bool operator!=(const_pointer const & p) const {
-      return !operator==(p);
-   }
-
-   /*! Returns the underlying ID/handle type.
-
-   @return
-      OS-dependent ID/handle.
-   */
-   native_handle_type native() const {
-      return m_thr.m_h;
-   }
-
-protected:
-   //! Thread wrapper.
-   thread mutable m_thr;
-};
-
-class ABACLADE_SYM thread::pointer : public const_pointer {
-public:
-   /*! Constructor.
-   */
-   pointer() {
-   }
-   pointer(thread * pthr) :
-      const_pointer(pthr) {
-   }
-
-   /*! Dereferencing member access operator.
-
-   @return
-      Raw pointer to the thread.
-   */
-   thread * operator->() const {
-      return &m_thr;
-   }
-};
-
-// Now these can be implemented.
-
-inline thread::pointer thread::ptr() {
-   return pointer(this);
-}
-inline thread::const_pointer thread::ptr() const {
-   return const_pointer(this);
-}
 
 } //namespace abc
 

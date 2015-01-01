@@ -51,6 +51,19 @@ thread::~thread() {
 #endif
 }
 
+#if ABC_HOST_API_WIN32
+bool thread::operator==(thread const & thr) const {
+   ABC_TRACE_FUNC(this/*, thr*/);
+
+   if (DWORD iThisTid = ::GetThreadId(m_thr.m_h)) {
+      if (DWORD iOtherTid = ::GetThreadId(p.m_thr.m_h)) {
+         return iThisTid == iOtherTid;
+      }
+   }
+   throw_os_error();
+}
+#endif
+
 void thread::join() {
    ABC_TRACE_FUNC(this);
 
@@ -75,19 +88,6 @@ void thread::join() {
    #error "TODO: HOST_API"
 #endif
 }
-
-#if ABC_HOST_API_WIN32
-bool thread::const_pointer::operator==(const_pointer const & p) const {
-   ABC_TRACE_FUNC(this/*, p*/);
-
-   if (DWORD iThisTid = ::GetThreadId(m_thr.m_h)) {
-      if (DWORD iOtherTid = ::GetThreadId(p.m_thr.m_h)) {
-         return iThisTid == iOtherTid;
-      }
-   }
-   throw_os_error();
-}
-#endif
 
 } //namespace abc
 

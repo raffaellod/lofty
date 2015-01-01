@@ -125,7 +125,7 @@ void event_loop::add_file_source(
 }
 
 void event_loop::add_process_source(
-   process::pointer pproc, std::function<void (process::pointer)> fnHandler
+   std::shared_ptr<process> pproc, std::function<void (std::shared_ptr<process>)> fnHandler
 ) {
    ABC_TRACE_FUNC(this, m_pImpl);
 
@@ -134,7 +134,7 @@ void event_loop::add_process_source(
 }
 
 void event_loop::add_thread_source(
-   thread::pointer pthr, std::function<void (thread::pointer)> fnHandler
+   std::shared_ptr<thread> pthr, std::function<void (std::shared_ptr<thread>)> fnHandler
 ) {
    ABC_TRACE_FUNC(this, m_pImpl);
 

@@ -124,10 +124,12 @@ public:
    }
 
    void add_process_source(
-      process::pointer pproc, std::function<void (process::pointer)> fnHandler
+      std::shared_ptr<process> pproc, std::function<void (std::shared_ptr<process>)> fnHandler
    );
 
-   void add_thread_source(thread::pointer pthr, std::function<void (thread::pointer)> fnHandler);
+   void add_thread_source(
+      std::shared_ptr<thread> pthr, std::function<void (std::shared_ptr<thread>)> fnHandler
+   );
 
    timer add_timer_source(
       std::uint32_t iMilliseconds, std::function<void (timer)> fnHandler

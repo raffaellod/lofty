@@ -33,8 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*! Models a process (“task” on some platforms), typically a child process. Supports cooperation
-with abc::event_loop. */
+//! Process (“task” on some platforms), typically a child spawned by the current process.
 class ABACLADE_SYM process {
 public:
    //! Underlying OS-dependent ID/handle type.
@@ -55,18 +54,34 @@ public:
    #error "TODO: HOST_API"
 #endif
 
-   //! Pointer to a process.
-   class ABACLADE_SYM const_pointer;
-
-   //! Pointer to a non-const process.
-   class ABACLADE_SYM pointer;
-
 public:
    //! Constructor.
    process();
 
    //! Destructor.
    ~process();
+
+   /*! Equality relational operator.
+
+   @param proc
+      Object to compare to *this.
+   @return
+      true if *this has the same id() as proc, or false otherwise.
+   */
+   bool operator==(process const & proc) const {
+      return id() == proc.id();
+   }
+
+   /*! Inequality relational operator.
+
+   @param proc
+      Object to compare to *this.
+   @return
+      true if *this has a different id() than proc, or false otherwise.
+   */
+   bool operator!=(process const & proc) const {
+      return !operator==(proc);
+   }
 
    /*! Returns a system-wide unique ID for the process handle.
 
@@ -76,7 +91,7 @@ public:
    id_type id() const
 #if ABC_HOST_API_POSIX
    {
-      // ID == “pointer”.
+      // ID == native handle.
       return m_h;
    }
 #elif ABC_HOST_API_WIN32
@@ -103,110 +118,19 @@ public:
 #endif
    }
 
-   /*! Returns a pointer to the process.
-
-   @return
-      Process pointer.
-   */
-   pointer ptr();
-   const_pointer ptr() const;
-
-private:
-   //! OS-dependent ID/handle.
-   native_handle_type m_h;
-};
-
-// Now these can be defined.
-
-class ABACLADE_SYM process::const_pointer {
-public:
-   /*! Constructor.
-
-   @param pthr
-      Thread pointer to wrap.
-   */
-   const_pointer() {
-   }
-   const_pointer(process const * pproc) {
-      if (pproc) {
-         m_proc.m_h = pproc->m_h;
-      }
-   }
-
-   //! Destructor.
-   ~const_pointer() {
-      // Ensure that m_proc is not joinable, so its destructor won’t abort this process.
-#if ABC_HOST_API_POSIX
-      m_proc.m_h = 0;
-#elif ABC_HOST_API_WIN32
-      m_proc.m_h = nullptr;
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-
-   /*! Dereferencing member access operator.
-
-   @return
-      Raw pointer to the process.
-   */
-   process const * operator->() const {
-      return &m_proc;
-   }
-
-   bool operator==(const_pointer const & p) const {
-      /* Make both processes const to avoid using the non-const id() which requires pointer to be
-      defined ‒ it isn’t yet at this point. */
-      return const_cast<process const &>(m_proc).id() == const_cast<process const &>(p.m_proc).id();
-   }
-
-   bool operator!=(const_pointer const & p) const {
-      return !operator==(p);
-   }
-
    /*! Returns the underlying ID/handle type.
 
    @return
       OS-dependent ID/handle.
    */
-   native_handle_type native() const {
-      return m_proc.m_h;
+   native_handle_type native_handle() const {
+      return m_h;
    }
 
-protected:
-   //! Process wrapper.
-   process mutable m_proc;
+private:
+   //! OS-dependent ID/handle.
+   native_handle_type m_h;
 };
-
-//! Pointer to a non-const process.
-class ABACLADE_SYM process::pointer : public const_pointer {
-public:
-   /*! Constructor.
-   */
-   pointer() {
-   }
-   pointer(process * pproc) :
-      const_pointer(pproc) {
-   }
-
-   /*! Dereferencing member access operator.
-
-   @return
-      Raw pointer to the process.
-   */
-   process * operator->() const {
-      return &m_proc;
-   }
-};
-
-// Now these can be implemented.
-
-inline process::pointer process::ptr() {
-   return pointer(this);
-}
-inline process::const_pointer process::ptr() const {
-   return const_pointer(this);
-}
 
 } //namespace abc
 
