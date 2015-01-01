@@ -32,7 +32,7 @@ namespace abc {
 
 thread::thread() :
 #if ABC_HOST_API_POSIX
-   m_bJoinable(false) {
+   m_id(0) {
 #elif ABC_HOST_API_WIN32
    m_h(nullptr) {
 #else
@@ -41,6 +41,8 @@ thread::thread() :
 }
 
 thread::~thread() {
+   ABC_TRACE_FUNC(this);
+
    if (joinable()) {
       // TODO: std::abort() or something similar.
    }
@@ -51,18 +53,54 @@ thread::~thread() {
 #endif
 }
 
-#if ABC_HOST_API_WIN32
 bool thread::operator==(thread const & thr) const {
    ABC_TRACE_FUNC(this/*, thr*/);
 
+#if ABC_HOST_API_POSIX
+   return ::pthread_equal(m_h, thr.m_h);
+#elif ABC_HOST_API_WIN32
    if (DWORD iThisTid = ::GetThreadId(m_thr.m_h)) {
       if (DWORD iOtherTid = ::GetThreadId(p.m_thr.m_h)) {
          return iThisTid == iOtherTid;
       }
    }
    throw_os_error();
-}
+#else
+   #error "TODO: HOST_API"
 #endif
+}
+
+void thread::detach() {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   m_id = 0;
+   // pthreads does not provide a way to release m_h.
+#elif ABC_HOST_API_WIN32
+   if (m_h) {
+      ::CloseHandle(m_h);
+   }
+   m_h = nullptr;
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+thread::id_type thread::id() const {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   return m_id;
+#elif ABC_HOST_API_WIN32
+   DWORD iTid = ::GetThreadId(m_h);
+   if (iTid == 0) {
+      throw_os_error();
+   }
+   return iTid;
+#else
+   #error "TODO: HOST_API"
+#endif
+}
 
 void thread::join() {
    ABC_TRACE_FUNC(this);
@@ -71,19 +109,38 @@ void thread::join() {
    /* pthread_join() would return EINVAL if passed a non-joinable thread ID. Since there’s no such
    thing as an “invalid thread ID” in pthreads that can be trusted to always be non-joinable, we
    duplicate that sanity check here. */
-   if (!m_bJoinable) {
+   if (!m_id) {
       ABC_THROW(argument_error, (EINVAL));
    }
    int iErr = ::pthread_join(m_h, nullptr);
    if (iErr != 0) {
       throw_os_error(iErr);
    }
-   m_bJoinable = false;
+   m_id = 0;
 #elif ABC_HOST_API_WIN32
    DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
    if (iRet == WAIT_FAILED) {
       throw_os_error();
    }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+bool thread::joinable() const {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   return m_id != 0;
+#elif ABC_HOST_API_WIN32
+   if (!m_h) {
+      return false;
+   }
+   DWORD iRet = ::WaitForSingleObject(m_h, 0);
+   if (iRet == WAIT_FAILED) {
+      throw_os_error();
+   }
+   return iRet == WAIT_TIMEOUT;
 #else
    #error "TODO: HOST_API"
 #endif

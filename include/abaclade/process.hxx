@@ -122,7 +122,7 @@ public:
    value returned by native_handle(). */
    void detach();
 
-   /*! Returns a system-wide unique ID for the process handle.
+   /*! Returns a system-wide unique ID for the process.
 
    @return
       Unique ID representing the process.
