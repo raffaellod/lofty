@@ -67,7 +67,7 @@ void process::join() {
 
 #if ABC_HOST_API_POSIX
    ::siginfo_t si;
-   if (::waitid(P_PID, static_cast< ::pid_t>(m_h), &si, WEXITED) == -1) {
+   if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED) == -1) {
       throw_os_error();
    }
 #elif ABC_HOST_API_WIN32
