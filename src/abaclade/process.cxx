@@ -21,8 +21,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/process.hxx>
 
 #if ABC_HOST_API_POSIX
-   #include <sys/types.h>
-   #include <sys/wait.h>
+   #include <sys/types.h> // id_t pid_t
+   #include <sys/wait.h> // waitid() W*
+   #if ABC_HOST_API_BSD
+      #include <sys/signal.h> // siginfo_t
+   #endif
 #endif
 
 
