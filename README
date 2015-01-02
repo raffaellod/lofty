@@ -109,7 +109,26 @@ Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
 the build host system. This is expected to not be needed in the future.
 
 
-4. Building Abaclade
+4. Getting Abaclade
+-------------------
+
+Abaclade is available at https://github.com/raffaellod/abaclade via git; to
+download it, just clone the repository:
+
+   git clone https://github.com/raffaellod/abaclade.git
+   cd abaclade
+
+The default branch, master, is where all Linux development occurs; platform-
+specific branches are regularly merged to and from it, and guarantee a stable
+base for each platform, so you’ll probably want to switch to the one matching
+yours if you’re not targeting Linux:
+
+•  OS X:    git checkout osx
+•  Windows: git checkout vs2010
+•  FreeBSD: git checkout freebsd
+
+
+5. Building Abaclade
 --------------------
 
 Building Abaclade requires Abamake (see <https://github.com/raffaellod/
@@ -123,7 +142,7 @@ To build Abaclade, run Abamake from its base directory:
 This will create outputs in the bin/ and lib/ folders.
 
 
-5. Installing Abaclade
+6. Installing Abaclade
 ----------------------
 
 At the moment, Abaclade lacks any means for installation.
@@ -131,14 +150,14 @@ At the moment, Abaclade lacks any means for installation.
 TODO: make Abaclade installable.
 
 
-6. Using Abaclade
+7. Using Abaclade
 -----------------
 
 For usage examples, please see the source files in the examples/ folder.
-Examples are built as part of Abaclade (see § 4. Building Abaclade), and the
+Examples are built as part of Abaclade (see § 5. Building Abaclade), and the
 generated executables can be found in the bin/ output folder.
 
-If Abaclade is not installed (see § 5. Installing Abaclade), example programs
+If Abaclade is not installed (see § 6. Installing Abaclade), example programs
 will fail to run due to being unable to load Abaclade shared libraries. This can
 be worked around by adding the output lib/ folder to the shared library search
 path.
