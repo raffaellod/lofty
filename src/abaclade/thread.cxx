@@ -151,17 +151,13 @@ bool thread::joinable() const {
    std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
    #if ABC_HOST_API_BSD
       static_assert(
-         sizeof(id_type) == sizeof(decltype(::pthread_getthreadid_np())),
-         "return value of pthread_getthreadid_np() must be the same size as native_handle_type"
+         sizeof pma->pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
+         "return value of pthread_getthreadid_np() must be the same size as thread::m_id"
       );
       pma->pthr->m_id = ::pthread_getthreadid_np();
    #elif ABC_HOST_API_LINUX
-      static_assert(
-         sizeof(id_type) == sizeof(::pid_t),
-         "pid_t must be the same size as native_handle_type"
-      );
-      // This is a raw call to ::gettid().
-      pma->pthr->m_id = static_cast<int>(::syscall(SYS_gettid));
+      // This is a call to ::gettid().
+      pma->pthr->m_id = static_cast< ::pid_t>(::syscall(SYS_gettid));
    #else
       #error "TODO: HOST_API"
    #endif
