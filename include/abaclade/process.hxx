@@ -38,7 +38,7 @@ class ABACLADE_SYM process : public noncopyable {
 public:
    //! Underlying OS-dependent ID/handle type.
 #if ABC_HOST_API_POSIX
-   typedef int native_handle_type;
+   typedef ::pid_t native_handle_type;
 #elif ABC_HOST_API_WIN32
    typedef HANDLE native_handle_type;
 #else

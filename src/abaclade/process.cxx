@@ -46,7 +46,7 @@ process::native_handle_type const process::smc_hNull =
    m_h(id) {
    static_assert(
       sizeof(native_handle_type) == sizeof(::pid_t),
-      "pid_t must not be larger than native_handle_type"
+      "pid_t must be the same size as native_handle_type"
    );
 #elif ABC_HOST_API_WIN32
    m_h(smc_hNull) {

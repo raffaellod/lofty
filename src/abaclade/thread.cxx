@@ -22,6 +22,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL
+   #if ABC_HOST_API_BSD
+      #include <pthread_np.h> // pthread_getthreadid_np()
+   #elif ABC_HOST_API_LINUX
+      #include <sys/syscall.h> // SYS_*
+      #include <unistd.h> // syscall()
+   #endif
 #endif
 
 
@@ -30,15 +36,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-thread::thread() :
-#if ABC_HOST_API_POSIX
-   m_id(0) {
-#elif ABC_HOST_API_WIN32
-   m_h(nullptr) {
-#else
-   #error "TODO: HOST_API"
-#endif
+/*virtual*/ thread::main_args::~main_args() {
 }
+
 
 thread::~thread() {
    ABC_TRACE_FUNC(this);
@@ -144,6 +144,73 @@ bool thread::joinable() const {
 #else
    #error "TODO: HOST_API"
 #endif
+}
+
+#if ABC_HOST_API_POSIX
+/*static*/ void * thread::main(void * p) {
+   std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
+   #if ABC_HOST_API_BSD
+      static_assert(
+         sizeof(id_type) == sizeof(decltype(::pthread_getthreadid_np())),
+         "return value of pthread_getthreadid_np() must be the same size as native_handle_type"
+      );
+      pma->pthr->m_id = ::pthread_getthreadid_np();
+   #elif ABC_HOST_API_LINUX
+      static_assert(
+         sizeof(id_type) == sizeof(::pid_t),
+         "pid_t must be the same size as native_handle_type"
+      );
+      // This is a raw call to ::gettid().
+      pma->pthr->m_id = static_cast<int>(::syscall(SYS_gettid));
+   #else
+      #error "TODO: HOST_API"
+   #endif
+   // Report that this thread is done with writing to *pma->pthr.
+   ::sem_post(&pma->semReady);
+
+   // TODO: exception handling similar to the process-wide main().
+   pma->run_callback();
+   return nullptr;
+}
+#elif ABC_HOST_API_WIN32
+/*static*/ DWORD WINAPI thread::main(void * p) {
+   std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
+
+   // TODO: exception handling similar to the process-wide main().
+   pma->run_callback();
+   return 0;
+}
+#else
+   #error "TODO: HOST_API"
+#endif
+
+void thread::start(std::unique_ptr<main_args> pma) {
+   ABC_TRACE_FUNC(this, pma);
+
+#if ABC_HOST_API_POSIX
+   pma->pthr = this;
+   if (::sem_init(&pma->semReady, 0, 0)) {
+      throw_os_error();
+   }
+   int iRet = ::pthread_create(&m_h, nullptr, &main, pma.get());
+   if (iRet) {
+      throw_os_error(iRet);
+   }
+   // Block until the new thread is finished updating *this.
+   if (::sem_wait(&pma->semReady)) {
+      // TODO: clarify who owns *pma at this point. Currently, this thread (pma non-nullptr).
+      throw_os_error();
+   }
+#elif ABC_HOST_API_WIN32
+   m_h = ::CreateThread(nullptr, 0, &main, pma.get(), 0, nullptr);
+   if (!m_h) {
+      throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+   // The new thread has now taken ownership of *pma.
+   pma.release();
 }
 
 } //namespace abc
