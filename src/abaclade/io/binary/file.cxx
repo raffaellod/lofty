@@ -748,15 +748,16 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    ::CONSOLE_SCREEN_BUFFER_INFO csbi;
    ::GetConsoleScreenBufferInfo(m_fd.get(), &csbi);
    for (unsigned i = 0; i < ABC_COUNTOF(smc_aiAnsiColorToForegroundColor); ++i) {
+      using abc::text::parsers::ansi_terminal_color;
       if ((
          csbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
       )) == smc_aiAnsiColorToBackgroundColor[i]) {
-         m_chattrDefault.clrBackground = static_cast<abc::text::ansi_terminal_color::enum_type>(i);
+         m_chattrDefault.clrBackground = static_cast<ansi_terminal_color::enum_type>(i);
       }
       if ((
          csbi.wAttributes & (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
       )) == smc_aiAnsiColorToForegroundColor[i]) {
-         m_chattrDefault.clrForeground = static_cast<abc::text::ansi_terminal_color::enum_type>(i);
+         m_chattrDefault.clrForeground = static_cast<ansi_terminal_color::enum_type>(i);
       }
    }
    m_chattrDefault.iBlinkSpeed   = 0;
