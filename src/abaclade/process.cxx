@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <sys/types.h> // id_t pid_t
-   #include <sys/wait.h> // waitid() W*
+   #include <sys/wait.h> // waitid() waitpid() W*
    #if ABC_HOST_API_BSD
       #include <sys/signal.h> // siginfo_t
    #endif
@@ -86,6 +86,32 @@ void process::detach() {
    }
 #endif
    m_h = smc_hNull;
+}
+
+int process::exit_code() const {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   int iStatus;
+   if (::waitpid(m_h, &iStatus, WNOHANG) == -1) {
+      throw_os_error();
+   }
+   if (!WIFEXITED(iStatus)) {
+       // TODO: throw “not joined” exception.
+   }
+   return WEXITSTATUS(iStatus);
+#elif ABC_HOST_API_WIN32
+   DWORD iExitCode;
+   if (!::GetExitCodeProcess(m_h, &iExitCode)) {
+      throw_os_error();
+   }
+   if (iExitCode == STILL_ACTIVE) {
+      // TODO: throw “not joined” exception.
+   }
+   return static_cast<int>(iExitCode);
+#else
+   #error "TODO: HOST_API"
+#endif
 }
 
 process::id_type process::id() const {
