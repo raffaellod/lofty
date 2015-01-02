@@ -231,7 +231,7 @@ void event_loop::run() {
          if (pimpl->hIocp) {
             vhSources.append(pimpl->hIocp);
          }
-         cSources = cSources.size();
+         cSources = vhSources.size();
          if (!cSources) {
             return;
          }
