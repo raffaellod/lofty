@@ -52,7 +52,9 @@ public:
 #endif
 
    //! OS-dependent type for unique thread IDs.
-#if ABC_HOST_API_BSD
+#if ABC_HOST_API_DARWIN
+   typedef std::uint64_t id_type;
+#elif ABC_HOST_API_FREEBSD
    typedef int id_type;
 #elif ABC_HOST_API_LINUX
    typedef int id_type;

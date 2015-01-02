@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL
-   #if ABC_HOST_API_BSD
+   #if ABC_HOST_API_FREEBSD
       #include <pthread_np.h> // pthread_getthreadid_np()
    #elif ABC_HOST_API_LINUX
       #include <sys/syscall.h> // SYS_*
@@ -149,7 +149,10 @@ bool thread::joinable() const {
 #if ABC_HOST_API_POSIX
 /*static*/ void * thread::main(void * p) {
    std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
-   #if ABC_HOST_API_BSD
+   #if ABC_HOST_API_DARWIN
+      // ID already retrieved by the creating thread.
+      ::pthread_threadid_np(nullptr, &pma->pthr->m_id);
+   #elif ABC_HOST_API_FREEBSD
       static_assert(
          sizeof pma->pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
          "return value of pthread_getthreadid_np() must be the same size as thread::m_id"
