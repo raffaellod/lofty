@@ -59,8 +59,8 @@ bool thread::operator==(thread const & thr) const {
 #if ABC_HOST_API_POSIX
    return ::pthread_equal(m_h, thr.m_h);
 #elif ABC_HOST_API_WIN32
-   if (DWORD iThisTid = ::GetThreadId(m_thr.m_h)) {
-      if (DWORD iOtherTid = ::GetThreadId(p.m_thr.m_h)) {
+   if (DWORD iThisTid = ::GetThreadId(m_h)) {
+      if (DWORD iOtherTid = ::GetThreadId(thr.m_h)) {
          return iThisTid == iOtherTid;
       }
    }
