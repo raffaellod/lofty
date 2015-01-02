@@ -156,6 +156,10 @@ bool thread::joinable() const {
       );
       pma->pthr->m_id = ::pthread_getthreadid_np();
    #elif ABC_HOST_API_LINUX
+      static_assert(
+         sizeof pma->pthr->m_id == sizeof(::pid_t),
+         "pid_t must be the same size as native_handle_type"
+      );
       // This is a call to ::gettid().
       pma->pthr->m_id = static_cast< ::pid_t>(::syscall(SYS_gettid));
    #else

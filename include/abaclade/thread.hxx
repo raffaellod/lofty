@@ -55,7 +55,7 @@ public:
 #if ABC_HOST_API_BSD
    typedef int id_type;
 #elif ABC_HOST_API_LINUX
-   typedef ::pid_t id_type;
+   typedef int id_type;
 #elif ABC_HOST_API_WIN32
    typedef DWORD id_type;
 #else
