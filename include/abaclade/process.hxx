@@ -122,11 +122,6 @@ public:
    value returned by native_handle(). */
    void detach();
 
-   /*! Returns the exit code of the process, which must be non-joinable at the time of calling this
-   method. On POSIX, a negative value -N indicates that the process was terminated by signal N.
-   */
-   int exit_code() const;
-
    /*! Returns a system-wide unique ID for the process.
 
    @return
@@ -134,8 +129,13 @@ public:
    */
    id_type id() const;
 
-   //! Waits for the process to terminate.
-   void join();
+   /*! Waits for the process to terminate, returning its exit code.
+
+   @return
+      Exit code of the process. On POSIX, a negative value -N indicates that the process was
+      terminated by signal N.
+   */
+   int join();
 
    /*! Returns true if calling join() on the object is allowed.
 

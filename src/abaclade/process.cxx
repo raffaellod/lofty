@@ -89,32 +89,6 @@ void process::detach() {
    m_h = smc_hNull;
 }
 
-int process::exit_code() const {
-   ABC_TRACE_FUNC(this);
-
-#if ABC_HOST_API_POSIX
-   int iStatus;
-   if (::waitpid(m_h, &iStatus, WNOHANG) == -1) {
-      throw_os_error();
-   }
-   if (!WIFEXITED(iStatus)) {
-       // TODO: throw “not joined” exception.
-   }
-   return WEXITSTATUS(iStatus);
-#elif ABC_HOST_API_WIN32
-   DWORD iExitCode;
-   if (!::GetExitCodeProcess(m_h, &iExitCode)) {
-      throw_os_error();
-   }
-   if (iExitCode == STILL_ACTIVE) {
-      // TODO: throw “not joined” exception.
-   }
-   return static_cast<int>(iExitCode);
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
 process::id_type process::id() const {
    ABC_TRACE_FUNC(this);
 
@@ -132,22 +106,34 @@ process::id_type process::id() const {
 #endif
 }
 
-void process::join() {
+int process::join() {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
-   ::siginfo_t si;
-   while (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED)) {
+   int iStatus;
+   while (::waitpid(static_cast< ::pid_t>(m_h), &iStatus, 0) != static_cast< ::pid_t>(m_h)) {
       int iErr = errno;
       if (iErr != EINTR) {
          throw_os_error(iErr);
       }
    }
+   if (WIFEXITED(iStatus)) {
+      return WEXITSTATUS(iStatus);
+   } else if (WIFSIGNALED(iStatus)) {
+      return -WTERMSIG(iStatus);
+   } else {
+      // Should never happen.
+      return -1;
+   }
 #elif ABC_HOST_API_WIN32
-   DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
-   if (iRet == WAIT_FAILED) {
+   if (::WaitForSingleObject(m_h, INFINITE) == WAIT_FAILED) {
       throw_os_error();
    }
+   DWORD iExitCode;
+   if (!::GetExitCodeProcess(m_h, &iExitCode)) {
+      throw_os_error();
+   }
+   return static_cast<int>(iExitCode);
 #else
    #error "TODO: HOST_API"
 #endif
