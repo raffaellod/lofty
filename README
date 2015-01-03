@@ -124,7 +124,7 @@ base for each platform, so you’ll probably want to switch to the one matching
 yours if you’re not targeting Linux:
 
 •  OS X:    git checkout osx
-•  Windows: git checkout vs2010
+•  Windows: git checkout win
 •  FreeBSD: git checkout freebsd
 
 
