@@ -36,7 +36,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*virtual*/ thread::main_args::~main_args() {
+/*virtual*/ thread::shared_data::~shared_data() {
 }
 
 
@@ -145,48 +145,50 @@ bool thread::joinable() const {
 #endif
 }
 
+/*static*/
 #if ABC_HOST_API_POSIX
-/*static*/ void * thread::main(void * p) {
-   std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
+   void *
+#elif ABC_HOST_API_WIN32
+   DWORD WINAPI
+#else
+   #error "TODO: HOST_API"
+#endif
+thread::outer_main(void * p) {
+   std::shared_ptr<shared_data> psd;
+   {
+      thread * pthr = static_cast<thread *>(p);
+      psd = pthr->m_psd;
+#if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN
       // ID already retrieved by the creating thread.
-      ::pthread_threadid_np(nullptr, &pma->pthr->m_id);
+      ::pthread_threadid_np(nullptr, &pthr->m_id);
    #elif ABC_HOST_API_FREEBSD
       static_assert(
-         sizeof pma->pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
+         sizeof pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
          "return value of pthread_getthreadid_np() must be the same size as thread::m_id"
       );
-      pma->pthr->m_id = ::pthread_getthreadid_np();
+      pthr->m_id = ::pthread_getthreadid_np();
    #elif ABC_HOST_API_LINUX
       static_assert(
-         sizeof pma->pthr->m_id == sizeof(::pid_t),
-         "pid_t must be the same size as native_handle_type"
+         sizeof pthr->m_id == sizeof(::pid_t), "pid_t must be the same size as native_handle_type"
       );
       // This is a call to ::gettid().
-      pma->pthr->m_id = static_cast< ::pid_t>(::syscall(SYS_gettid));
+      pthr->m_id = static_cast< ::pid_t>(::syscall(SYS_gettid));
    #else
       #error "TODO: HOST_API"
    #endif
-   // Report that this thread is done with writing to *pma->pthr.
-   ::sem_post(&pma->semReady);
-
-   try {
-      pma->run_callback();
-   } catch (std::exception const & x) {
-      exception::write_with_scope_trace(nullptr, &x);
-      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
-   } catch (...) {
-      exception::write_with_scope_trace();
-      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
-   }
-   return nullptr;
-}
+      // Report that this thread is done with writing to *pthr.
+      ::sem_post(&psd->semReady);
 #elif ABC_HOST_API_WIN32
-/*static*/ DWORD WINAPI thread::main(void * p) {
-   std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
+      // Report that this thread is done with writing to *pthr.
+      ::SetEvent(psd->hReadyEvent);
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
 
    try {
-      pma->run_callback();
+      psd->inner_main();
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
@@ -196,37 +198,34 @@ bool thread::joinable() const {
    }
    return 0;
 }
-#else
-   #error "TODO: HOST_API"
-#endif
 
-void thread::start(std::unique_ptr<main_args> pma) {
-   ABC_TRACE_FUNC(this, pma);
+void thread::start() {
+   ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
-   pma->pthr = this;
-   if (::sem_init(&pma->semReady, 0, 0)) {
+   if (::sem_init(&m_psd->semReady, 0, 0)) {
       throw_os_error();
    }
-   if (int iErr = ::pthread_create(&m_h, nullptr, &main, pma.get())) {
+   if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
+      ::sem_destroy(&m_psd->semReady);
       throw_os_error(iErr);
    }
-   // The new thread has now taken ownership of *pma.
-   pma.release();
-   // Block until the new thread is finished updating *this.
-   while (::sem_wait(&pma->semReady)) {
-      int iErr = errno;
-      if (iErr != EINTR) {
-         throw_os_error(iErr);
-      }
+   // Block until the new thread is finished updating *this. The only possible failure is EINTR.
+   while (::sem_wait(&m_psd->semReady)) {
+      ;
    }
+   ::sem_destroy(&m_psd->semReady);
 #elif ABC_HOST_API_WIN32
-   m_h = ::CreateThread(nullptr, 0, &main, pma.get(), 0, nullptr);
+   m_psd->hReadyEvent = ::CreateEvent(nullptr, true, false, nullptr);
+   m_h = ::CreateThread(nullptr, 0, &outer_main, this, 0, nullptr);
    if (!m_h) {
-      throw_os_error();
+      DWORD iErr = ::GetLastError();
+      ::CloseHandle(m_psd->hReadyEvent);
+      throw_os_error(iErr);
    }
-   // The new thread has now taken ownership of *pma.
-   pma.release();
+   // Block until the new thread is finished updating *this. Must not fail.
+   ::WaitForSingleObject(m_psd->hReadyEvent, INFINITE);
+   ::CloseHandle(m_psd->hReadyEvent);
 #else
    #error "TODO: HOST_API"
 #endif

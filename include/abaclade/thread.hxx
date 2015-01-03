@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <memory>
 #if ABC_HOST_API_POSIX
    #include <pthread.h>
    #include <semaphore.h>
@@ -40,7 +41,7 @@ namespace abc {
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
 abc::event_loop. */
-class ABACLADE_SYM thread : public noncopyable {
+class ABACLADE_SYM thread : public noncopyable, public std::enable_shared_from_this<thread> {
 public:
    //! Underlying OS-dependent ID/handle type.
 #if ABC_HOST_API_POSIX
@@ -65,42 +66,47 @@ public:
 #endif
 
 private:
-   //! Type used to pass arguments to the thread start routine main().
-   struct ABACLADE_SYM main_args {
-      virtual ~main_args();
-      virtual void run_callback() = 0;
+   /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
+   owned by the abc::thread instance. */
+   struct ABACLADE_SYM shared_data {
+      virtual ~shared_data();
+      virtual void inner_main() = 0;
 
-#if ABC_HOST_API_POSIX
       //! abc::thread instance to be updated with the thread’s ID.
-      thread * pthr;
+      std::shared_ptr<thread> pthr;
+#if ABC_HOST_API_POSIX
       //! Semaphore used by the new thread to report that writing to *pthr has finished.
       ::sem_t semReady;
+#elif ABC_HOST_API_WIN32
+      HANDLE hReadyEvent;
+#else
+   #error "TODO: HOST_API"
 #endif
    };
 
-   //! Provides an implementation for run_callback based on the template argument.
+   //! Provides an implementation for inner_main() based on the template argument.
    template <typename F>
-   struct main_args_impl : public main_args {
+   struct shared_data_impl : public shared_data {
       /*! Constructor
 
       @param fn
-         Initial value for this->fnCallback.
+         Initial value for this->fnInnerMain.
       */
-      main_args_impl(F fn) :
-         fnCallback(std::move(fn)) {
+      shared_data_impl(F fnMain) :
+         fnInnerMain(std::move(fnMain)) {
       }
 
       //! Destructor.
-      virtual ~main_args_impl() {
+      virtual ~shared_data_impl() {
       }
 
-      //! See main_args::run_callback().
-      virtual void run_callback() override {
-         fnCallback();
+      //! See shared_data::inner_main().
+      virtual void inner_main() override {
+         fnInnerMain();
       }
 
       //! Function to be executed in the thread.
-      F fnCallback;
+      F fnInnerMain;
    };
 
 public:
@@ -123,20 +129,21 @@ public:
    template <typename F>
    explicit thread(F fnMain) :
 #if ABC_HOST_API_POSIX
-      m_id(0) {
+      m_id(0),
 #elif ABC_HOST_API_WIN32
-      m_h(nullptr) {
+      m_h(nullptr),
 #else
    #error "TODO: HOST_API"
 #endif
-      start(std::unique_ptr<main_args>(new main_args_impl<F>(std::move(fnMain))));
+      m_psd(std::make_shared<shared_data_impl<F>>(std::move(fnMain))) {
+      start();
    }
    thread(thread && thr) :
-      m_h(thr.m_h)
+      m_h(thr.m_h),
 #if ABC_HOST_API_POSIX
-      , m_id(thr.m_id)
+      m_id(thr.m_id),
 #endif
-   {
+      m_psd(std::move(thr.m_psd)) {
 #if ABC_HOST_API_POSIX
       thr.m_id = 0;
       // pthreads does not provide a way to clear thr.m_h.
@@ -227,27 +234,21 @@ public:
    }
 
 private:
-   /*! Creates a thread to run main(), passing it the specified main_args pointer.
-
-   @param pma
-      Pointer to a main_args_impl instance of which only the fn member has been initialized. If the
-      thread is started successfully, ownership of the object is transferred to the newly-started
-      thread.
-   */
-   void start(std::unique_ptr<main_args> pma);
+   //! Creates a thread to run outer_main(), with inner_main() available in m_psd.
+   void start();
 
    /*! Lower-level wrapper for the thread function passed to the constructor. Under Linux, this is
    also needed to assign the thread ID to the owning abc::thread instance.
 
    @param p
-      Pointer to a main_args object.
+      *this, be used to acquire a pointer to m_psd and, under POSIX, to set m_id.
    @return
       Unused.
    */
 #if ABC_HOST_API_POSIX
-   static void * main(void * p);
+   static void * outer_main(void * p);
 #elif ABC_HOST_API_WIN32
-   static DWORD WINAPI main(void * p);
+   static DWORD WINAPI outer_main(void * p);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -260,6 +261,9 @@ private:
    Since there’s no “uninitialized” pthread_t value, also use this to track whether m_h is valid. */
    id_type m_id;
 #endif
+   /*! Pointer to data that is shared between the thread owned by the abc::thread instance and the
+   thread owning the abc::thread instance. */
+   std::shared_ptr<shared_data> m_psd;
 };
 
 } //namespace abc
