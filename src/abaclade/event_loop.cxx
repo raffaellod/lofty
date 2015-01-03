@@ -179,10 +179,11 @@ void event_loop::run() {
          static_cast<int>(vkeReady.capacity()), nullptr
       );
       if (cReadyEvents == -1) {
-         if (errno == EINTR) {
+         int iErr = errno;
+         if (iErr == EINTR) {
             continue;
          }
-         throw_os_error();
+         throw_os_error(iErr);
       }
       // Resize the vector to include only elements written by epoll_wait().
       vkeReady.set_size(static_cast<std::size_t>(cReadyEvents));
@@ -212,10 +213,11 @@ void event_loop::run() {
          pimpl->fdEpoll, veeReady.begin().base(), static_cast<int>(veeReady.capacity()), -1
       );
       if (cReadyFds == -1) {
-         if (errno == EINTR) {
+         int iErr = errno;
+         if (iErr == EINTR) {
             continue;
          }
-         throw_os_error();
+         throw_os_error(iErr);
       }
       // Resize the vector to include only elements written by epoll_wait().
       veeReady.set_size(static_cast<std::size_t>(cReadyFds));

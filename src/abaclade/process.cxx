@@ -137,8 +137,9 @@ void process::join() {
 #if ABC_HOST_API_POSIX
    ::siginfo_t si;
    while (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED)) {
-      if (errno != EINTR) {
-         throw_os_error();
+      int iErr = errno;
+      if (iErr != EINTR) {
+         throw_os_error(iErr);
       }
    }
 #elif ABC_HOST_API_WIN32

@@ -167,8 +167,9 @@ path path::base_name() const {
          // The length will be necessarily less than cchMax, so set_from() will stop.
          return text::size_in_chars(pch);
       }
-      if (errno != ERANGE) {
-         throw_os_error(errno);
+      int iErr = errno;
+      if (iErr != ERANGE) {
+         throw_os_error(iErr);
       }
       // Report that the provided buffer was too small.
       return cchMax;

@@ -201,8 +201,9 @@ void thread::start(std::unique_ptr<main_args> pma) {
    pma.release();
    // Block until the new thread is finished updating *this.
    while (::sem_wait(&pma->semReady)) {
-      if (errno != EINTR) {
-         throw_os_error();
+      int iErr = errno;
+      if (iErr != EINTR) {
+         throw_os_error(iErr);
       }
    }
 #elif ABC_HOST_API_WIN32
