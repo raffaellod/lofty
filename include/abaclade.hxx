@@ -231,6 +231,8 @@ namespace abc {
    #pragma warning(disable: 4251)
    // “'class' : class has virtual functions, but destructor is not virtual”
    #pragma warning(disable: 4265)
+   // “non dll-interface class 'class1' used as base for dll-interface class 'class2'”
+   #pragma warning(disable: 4275)
    // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
    #pragma warning(disable: 4290)
    // “cast truncates constant value” – would be useful, but it’s raised too easily by MSC16.
