@@ -170,16 +170,30 @@ bool thread::joinable() const {
    // Report that this thread is done with writing to *pma->pthr.
    ::sem_post(&pma->semReady);
 
-   // TODO: exception handling similar to the process-wide main().
-   pma->run_callback();
+   try {
+      pma->run_callback();
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(nullptr, &x);
+      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
+   } catch (...) {
+      exception::write_with_scope_trace();
+      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
+   }
    return nullptr;
 }
 #elif ABC_HOST_API_WIN32
 /*static*/ DWORD WINAPI thread::main(void * p) {
    std::unique_ptr<main_args> pma(static_cast<main_args *>(p));
 
-   // TODO: exception handling similar to the process-wide main().
-   pma->run_callback();
+   try {
+      pma->run_callback();
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(nullptr, &x);
+      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
+   } catch (...) {
+      exception::write_with_scope_trace();
+      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
+   }
    return 0;
 }
 #else
