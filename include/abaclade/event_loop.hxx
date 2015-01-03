@@ -76,6 +76,20 @@ namespace abc {
 //! Generic event loop for a single thread.
 class ABACLADE_SYM event_loop : public noncopyable {
 public:
+   typedef std::function<
+      void (event_loop * pel, std::shared_ptr<io::binary::file_base> pfile, std::exception_ptr px)
+   > file_event_handler_t;
+   typedef std::function<
+      void (event_loop * pel, std::shared_ptr<thread> pthr, std::exception_ptr px)
+   > thread_event_handler_t;
+   typedef std::function<
+      void (event_loop * pel, std::shared_ptr<process> pproc)
+   > process_event_handler_t;
+   typedef std::function<
+      void (event_loop * pel, timer tmr)
+   > timer_event_handler_t;
+
+public:
    /*! Constructor.
 
    @param lpSrc
@@ -105,8 +119,7 @@ public:
    }
 
    void add_file_source(
-      std::shared_ptr<io::binary::file_base> pfile,
-      std::function<void (std::shared_ptr<io::binary::file_base>)> fnHandler
+      std::shared_ptr<io::binary::file_base> pfile, file_event_handler_t fnHandler
    );
    template <typename T>
    void add_file_source(
@@ -117,23 +130,19 @@ public:
    ) {
       add_file_source(
          std::static_pointer_cast<io::binary::file_base>(pfile),
-         [pfile, fnHandler] (std::shared_ptr<io::binary::file_base>) {
-            fnHandler(pfile);
+         [pfile, fnHandler] (
+            event_loop * pel, std::shared_ptr<io::binary::file_base>, std::exception_ptr px
+         ) {
+            fnHandler(pel, pfile, px);
          }
       );
    }
 
-   void add_process_source(
-      std::shared_ptr<process> pproc, std::function<void (std::shared_ptr<process>)> fnHandler
-   );
+   void add_process_source(std::shared_ptr<process> pproc, process_event_handler_t fnHandler);
 
-   void add_thread_source(
-      std::shared_ptr<thread> pthr, std::function<void (std::shared_ptr<thread>)> fnHandler
-   );
+   void add_thread_source(std::shared_ptr<thread> pthr, thread_event_handler_t fnHandler);
 
-   timer add_timer_source(
-      std::uint32_t iMilliseconds, std::function<void (timer)> fnHandler
-   );
+   timer add_timer_source(std::uint32_t iMilliseconds, timer_event_handler_t fnHandler);
 
    void run();
 

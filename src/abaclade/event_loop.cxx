@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/event_loop.hxx>
+#include <abaclade/map.hxx>
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINTR errno
@@ -116,38 +117,41 @@ event_loop::~event_loop() {
 }
 
 void event_loop::add_file_source(
-   std::shared_ptr<io::binary::file_base> pfile,
-   std::function<void (std::shared_ptr<io::binary::file_base>)> fnHandler
+   std::shared_ptr<io::binary::file_base> pfile, file_event_handler_t fnHandler
 ) {
-   ABC_TRACE_FUNC(this, m_pImpl);
+   ABC_TRACE_FUNC(this, m_pImpl, pfile/*, fnHandler*/);
 
+   event_loop_impl_t * pimpl = static_cast<event_loop_impl_t *>(m_pImpl);
+   ABC_UNUSED_ARG(pimpl);
    ABC_UNUSED_ARG(pfile);
    ABC_UNUSED_ARG(fnHandler);
 }
 
 void event_loop::add_process_source(
-   std::shared_ptr<process> pproc, std::function<void (std::shared_ptr<process>)> fnHandler
+   std::shared_ptr<process> pproc, process_event_handler_t fnHandler
 ) {
-   ABC_TRACE_FUNC(this, m_pImpl);
+   ABC_TRACE_FUNC(this, m_pImpl, pproc/*, fnHandler*/);
 
+   event_loop_impl_t * pimpl = static_cast<event_loop_impl_t *>(m_pImpl);
+   ABC_UNUSED_ARG(pimpl);
    ABC_UNUSED_ARG(pproc);
    ABC_UNUSED_ARG(fnHandler);
 }
 
-void event_loop::add_thread_source(
-   std::shared_ptr<thread> pthr, std::function<void (std::shared_ptr<thread>)> fnHandler
-) {
-   ABC_TRACE_FUNC(this, m_pImpl);
+void event_loop::add_thread_source(std::shared_ptr<thread> pthr, thread_event_handler_t fnHandler) {
+   ABC_TRACE_FUNC(this, m_pImpl, pthr/*, fnHandler*/);
 
+   event_loop_impl_t * pimpl = static_cast<event_loop_impl_t *>(m_pImpl);
+   ABC_UNUSED_ARG(pimpl);
    ABC_UNUSED_ARG(pthr);
    ABC_UNUSED_ARG(fnHandler);
 }
 
-timer event_loop::add_timer_source(
-   std::uint32_t iMilliseconds, std::function<void (timer)> fnHandler
-) {
-   ABC_TRACE_FUNC(this, m_pImpl, iMilliseconds);
+timer event_loop::add_timer_source(std::uint32_t iMilliseconds, timer_event_handler_t fnHandler) {
+   ABC_TRACE_FUNC(this, m_pImpl, iMilliseconds/*, fnHandler*/);
 
+   event_loop_impl_t * pimpl = static_cast<event_loop_impl_t *>(m_pImpl);
+   ABC_UNUSED_ARG(pimpl);
    ABC_UNUSED_ARG(iMilliseconds);
    ABC_UNUSED_ARG(fnHandler);
    return timer();
