@@ -199,9 +199,10 @@ void thread::start(std::unique_ptr<main_args> pma) {
    if (iRet) {
       throw_os_error(iRet);
    }
+   // The new thread has now taken ownership of *pma.
+   pma.release();
    // Block until the new thread is finished updating *this.
    if (::sem_wait(&pma->semReady)) {
-      // TODO: clarify who owns *pma at this point. Currently, this thread (pma non-nullptr).
       throw_os_error();
    }
 #elif ABC_HOST_API_WIN32
@@ -209,11 +210,11 @@ void thread::start(std::unique_ptr<main_args> pma) {
    if (!m_h) {
       throw_os_error();
    }
+   // The new thread has now taken ownership of *pma.
+   pma.release();
 #else
    #error "TODO: HOST_API"
 #endif
-   // The new thread has now taken ownership of *pma.
-   pma.release();
 }
 
 } //namespace abc
