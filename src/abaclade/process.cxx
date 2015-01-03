@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/process.hxx>
 
 #if ABC_HOST_API_POSIX
+   #include <errno.h> // EINVAL errno
    #include <sys/types.h> // id_t pid_t
    #include <sys/wait.h> // waitid() waitpid() W*
    #if ABC_HOST_API_BSD
