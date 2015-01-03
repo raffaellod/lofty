@@ -69,7 +69,10 @@ private:
    /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
    owned by the abc::thread instance. */
    struct ABACLADE_SYM shared_data {
+      //! Destructor.
       virtual ~shared_data();
+
+      //! Invokes the user-provided thread function.
       virtual void inner_main() = 0;
 
       //! abc::thread instance to be updated with the thread’s ID.
@@ -78,6 +81,7 @@ private:
       //! Semaphore used by the new thread to report that writing to *pthr has finished.
       ::sem_t semReady;
 #elif ABC_HOST_API_WIN32
+      //! Event used by the new thread to report that writing to *pthr has finished.
       HANDLE hReadyEvent;
 #else
    #error "TODO: HOST_API"
@@ -89,7 +93,7 @@ private:
    struct shared_data_impl : public shared_data {
       /*! Constructor
 
-      @param fn
+      @param fnMain
          Initial value for this->fnInnerMain.
       */
       shared_data_impl(F fnMain) :
