@@ -230,7 +230,7 @@ void event_loop::run() {
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
 
    smvector<HANDLE, 64> vhSources;
-   std::size_t cSources;
+   DWORD cSources;
    pimpl->bChanged = true;
    for (;;) {
       // TODO: compare & swap bChanged.
@@ -240,7 +240,7 @@ void event_loop::run() {
          if (pimpl->hIocp) {
             vhSources.append(pimpl->hIocp);
          }
-         cSources = vhSources.size();
+         cSources = static_cast<DWORD>(vhSources.size());
          if (!cSources) {
             return;
          }
