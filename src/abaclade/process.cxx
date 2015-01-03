@@ -136,8 +136,10 @@ void process::join() {
 
 #if ABC_HOST_API_POSIX
    ::siginfo_t si;
-   if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED) == -1) {
-      throw_os_error();
+   while (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED)) {
+      if (errno != EINTR) {
+         throw_os_error();
+      }
    }
 #elif ABC_HOST_API_WIN32
    DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
@@ -160,7 +162,7 @@ bool process::joinable() const {
    /* waitid() will not touch this field if m_h is not in a waitable (“joinable”) state, so we have
    to in order to check it after the call. */
    si.si_pid = 0;
-   if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED | WNOHANG | WNOWAIT) == -1) {
+   if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED | WNOHANG | WNOWAIT)) {
       throw_os_error();
    }
    // waitid() sets this to m_h if the child is in the requested state (WEXITED).

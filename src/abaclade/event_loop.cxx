@@ -21,14 +21,15 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/event_loop.hxx>
 
 #if ABC_HOST_API_POSIX
+   #include <errno.h> // EINTR errno
    #include <unistd.h> // close()
-#endif
-#if ABC_HOST_API_BSD
-   #include <sys/event.h>
-   #include <sys/time.h>
-   #include <sys/types.h>
-#elif ABC_HOST_API_LINUX
-   #include <sys/epoll.h>
+   #if ABC_HOST_API_BSD
+      #include <sys/event.h>
+      #include <sys/time.h>
+      #include <sys/types.h>
+   #elif ABC_HOST_API_LINUX
+      #include <sys/epoll.h>
+   #endif
 #endif
 
 
@@ -178,6 +179,9 @@ void event_loop::run() {
          static_cast<int>(vkeReady.capacity()), nullptr
       );
       if (cReadyEvents == -1) {
+         if (errno == EINTR) {
+            continue;
+         }
          throw_os_error();
       }
       // Resize the vector to include only elements written by epoll_wait().
@@ -208,6 +212,9 @@ void event_loop::run() {
          pimpl->fdEpoll, veeReady.begin().base(), static_cast<int>(veeReady.capacity()), -1
       );
       if (cReadyFds == -1) {
+         if (errno == EINTR) {
+            continue;
+         }
          throw_os_error();
       }
       // Resize the vector to include only elements written by epoll_wait().

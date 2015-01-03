@@ -112,8 +112,7 @@ void thread::join() {
    if (!m_id) {
       ABC_THROW(argument_error, (EINVAL));
    }
-   int iErr = ::pthread_join(m_h, nullptr);
-   if (iErr != 0) {
+   if (int iErr = ::pthread_join(m_h, nullptr)) {
       throw_os_error(iErr);
    }
    m_id = 0;
@@ -195,15 +194,16 @@ void thread::start(std::unique_ptr<main_args> pma) {
    if (::sem_init(&pma->semReady, 0, 0)) {
       throw_os_error();
    }
-   int iRet = ::pthread_create(&m_h, nullptr, &main, pma.get());
-   if (iRet) {
-      throw_os_error(iRet);
+   if (int iErr = ::pthread_create(&m_h, nullptr, &main, pma.get())) {
+      throw_os_error(iErr);
    }
    // The new thread has now taken ownership of *pma.
    pma.release();
    // Block until the new thread is finished updating *this.
-   if (::sem_wait(&pma->semReady)) {
-      throw_os_error();
+   while (::sem_wait(&pma->semReady)) {
+      if (errno != EINTR) {
+         throw_os_error();
+      }
    }
 #elif ABC_HOST_API_WIN32
    m_h = ::CreateThread(nullptr, 0, &main, pma.get(), 0, nullptr);

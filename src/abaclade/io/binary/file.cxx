@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <algorithm>
 #if ABC_HOST_API_POSIX
-   #include <errno.h> // errno
+   #include <errno.h> // E* errno
    #include <fcntl.h> // O_* fcntl()
    #include <sys/stat.h> // S_* stat()
    #include <unistd.h> // *_FILENO ssize_t close() isatty() open() read() write()
@@ -327,9 +327,10 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
       fi |= O_DIRECT;
    }
 #endif
-   fid.fd = ::open(op.os_str().c_str(), fi, 0666);
-   if (!fid.fd) {
+   while (!(fid.fd = ::open(op.os_str().c_str(), fi, 0666))) {
       switch (errno) {
+         case EINTR:
+            break;
          case ENODEV: // No such device (POSIX.1-2001)
          case ENOENT: // No such file or directory (POSIX.1-2001)
             ABC_THROW(file_not_found_error, (op, errno));
@@ -511,16 +512,19 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    do {
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
-      // ssize_t-sized blocks.
+      // ssize_t-sized blocks. EINTR may also cause this to repeat.
       ::ssize_t cbLastRead = ::read(
          m_fd.get(), pb, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
       );
+      if (cbLastRead == -1) {
+         if (errno == EINTR) {
+            continue;
+         }
+         throw_os_error();
+      }
       if (cbLastRead == 0) {
          // EOF.
          break;
-      }
-      if (cbLastRead < 0) {
-         throw_os_error();
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       // This will be repeated at least once, and as long as we still have some bytes to read, and
@@ -600,11 +604,14 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    do {
 #if ABC_HOST_API_POSIX
       // This will be repeated at most three times, just to break a size_t-sized block down into
-      // ssize_t-sized blocks.
+      // ssize_t-sized blocks. EINTR may also cause this to repeat.
       ::ssize_t cbLastWritten = ::write(
          m_fd.get(), pb, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
       );
-      if (cbLastWritten < 0) {
+      if (cbLastWritten == -1) {
+         if (errno == EINTR) {
+            continue;
+         }
          throw_os_error();
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
