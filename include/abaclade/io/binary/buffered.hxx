@@ -80,12 +80,23 @@ namespace binary {
 //! Interface for buffering objects that wrap binary::* instances.
 class ABACLADE_SYM buffered_base : public virtual base {
 public:
-   /*! Returns a pointer to the wrapper unbuffered binary I/O object.
+   /*! Returns a pointer to the wrapped unbuffered binary I/O object.
 
    @return
       Pointer to a unbuffered binary I/O object.
    */
-   virtual std::shared_ptr<base> unbuffered() const = 0;
+   std::shared_ptr<base> unbuffered() const {
+      return _unbuffered_base();
+   }
+
+protected:
+   /*! Implementation of unbuffered(). This enabled unbuffered() to be non-virtual, which in turn
+   allows derived classes to override it changing its return type to be more specific.
+
+   @return
+      Pointer to a unbuffered binary I/O object.
+   */
+   virtual std::shared_ptr<base> _unbuffered_base() const = 0;
 };
 
 } //namespace binary
@@ -155,6 +166,11 @@ public:
    preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer. */
    virtual std::size_t read(void * p, std::size_t cbMax) override;
+
+   //! See buffered_base::unbuffered().
+   std::shared_ptr<reader> unbuffered() const {
+      return std::dynamic_pointer_cast<reader>(_unbuffered_base());
+   }
 };
 
 } //namespace binary
@@ -211,6 +227,11 @@ public:
    */
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
 
+   //! See buffered_base::unbuffered().
+   std::shared_ptr<writer> unbuffered() const {
+      return std::dynamic_pointer_cast<writer>(_unbuffered_base());
+   }
+
    /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
    is preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer. */
@@ -247,8 +268,9 @@ public:
    //! See buffered_reader::peek_bytes().
    virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) override;
 
-   //! See buffered_reader::unbuffered().
-   virtual std::shared_ptr<base> unbuffered() const override;
+protected:
+   //! See buffered_reader::_unbuffered_base().
+   virtual std::shared_ptr<base> _unbuffered_base() const override;
 
 protected:
    //! Wrapped binary reader.
@@ -303,12 +325,12 @@ public:
    */
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
-   //! See buffered_writer::unbuffered().
-   virtual std::shared_ptr<base> unbuffered() const override;
-
 protected:
    //! Flushes the internal write buffer.
    void flush_buffer();
+
+   //! See buffered_writer::_unbuffered_base().
+   virtual std::shared_ptr<base> _unbuffered_base() const override;
 
 protected:
    //! Wrapped binary writer.
