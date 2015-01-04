@@ -41,7 +41,7 @@ namespace abc {
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
 abc::event_loop. */
-class ABACLADE_SYM thread : public noncopyable, public std::enable_shared_from_this<thread> {
+class ABACLADE_SYM thread : public noncopyable {
 public:
    //! Underlying OS-dependent ID/handle type.
 #if ABC_HOST_API_POSIX
