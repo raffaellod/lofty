@@ -33,7 +33,8 @@ namespace abc {
    //! Byte-ordering functions.
    namespace byteorder {}
 
-   //! I/O classes and functions.
+   /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see [IMG:4872
+   I/O class hierarchy] */
    namespace io {
       //! Classes and functions to perform I/O in binary mode (raw bytes).
       namespace binary {}
