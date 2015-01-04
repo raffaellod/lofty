@@ -179,7 +179,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 /*virtual*/ std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return std::dynamic_pointer_cast<base>(m_pbr);
+   return std::static_pointer_cast<base>(m_pbr);
 }
 
 } //namespace binary
@@ -262,7 +262,7 @@ void default_buffered_writer::flush_buffer() {
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return std::dynamic_pointer_cast<base>(m_pbw);
+   return std::static_pointer_cast<base>(m_pbw);
 }
 
 } //namespace binary
