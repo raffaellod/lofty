@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -90,7 +90,7 @@ public:
    }
 
 protected:
-   /*! Implementation of unbuffered(). This enabled unbuffered() to be non-virtual, which in turn
+   /*! Implementation of unbuffered(). This enables unbuffered() to be non-virtual, which in turn
    allows derived classes to override it changing its return type to be more specific.
 
    @return

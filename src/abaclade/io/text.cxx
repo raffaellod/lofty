@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -321,7 +321,7 @@ binbuf_reader::binbuf_reader(
 /*virtual*/ binbuf_reader::~binbuf_reader() {
 }
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::buffered_base(
+/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::_binary_buffered_base(
 ) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
@@ -632,7 +632,7 @@ binbuf_writer::binbuf_writer(
 /*virtual*/ binbuf_writer::~binbuf_writer() {
 }
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::buffered_base(
+/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::_binary_buffered_base(
 ) const /*override*/ {
    ABC_TRACE_FUNC(this);
 

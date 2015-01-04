@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -772,8 +772,14 @@ public:
    //! Destructor.
    virtual ~binbuf_base();
 
-   //! Returns a pointer to the underlying buffered binary I/O object.
-   virtual std::shared_ptr<binary::buffered_base> buffered_base() const = 0;
+   /*! Returns a pointer to the underlying buffered binary I/O object.
+
+   @return
+      Pointer to a buffered binary I/O object.
+   */
+   std::shared_ptr<binary::buffered_base> binary_buffered() const {
+      return _binary_buffered_base();
+   }
 
    //! See base::get_encoding().
    virtual abc::text::encoding get_encoding() const override;
@@ -785,6 +791,14 @@ protected:
       Initial value for get_encoding().
    */
    binbuf_base(abc::text::encoding enc);
+
+   /*! Implementation of binary_buffered(). This enables binary_buffered() to be non-virtual, which
+   in turn allows derived classes to override it changing its return type to be more specific.
+
+   @return
+      Pointer to a buffered binary I/O object.
+   */
+   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const = 0;
 
 protected:
    /*! Encoding used for I/O to/from the underlying buffered_base. If not explicitly set, it will be
@@ -822,11 +836,17 @@ public:
    //! Destructor.
    virtual ~binbuf_reader();
 
-   //! See binbuf_base::buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> buffered_base() const override;
+   //! See binbuf_base::binary_buffered().
+   std::shared_ptr<binary::buffered_reader> binary_buffered() const {
+      return m_pbbr;
+   }
 
    //! See reader::read_while().
    virtual bool read_while(mstr * psDst, bool bOneLine) override;
+
+protected:
+   //! See binbuf_base::_binary_buffered_base().
+   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
 private:
    /*! Detects the encoding used in the provided buffer.
@@ -920,13 +940,19 @@ public:
    //! Destructor.
    virtual ~binbuf_writer();
 
-   //! See binbuf_base::buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> buffered_base() const override;
+   //! See binbuf_base::binary_buffered().
+   std::shared_ptr<binary::buffered_writer> binary_buffered() const {
+      return m_pbbw;
+   }
 
    //! See writer::write_binary().
    virtual void write_binary(
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
    ) override;
+
+protected:
+   //! See binbuf_base::_binary_buffered_base().
+   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
 protected:
    //! Underlying binary buffered writer.
