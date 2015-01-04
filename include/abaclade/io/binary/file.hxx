@@ -348,8 +348,8 @@ public:
    virtual ~console_reader();
 
 #if ABC_HOST_API_WIN32
-   // Under Win32, console files must use a dedicated API in order to support the native character
-   // type.
+   /* Under Win32, console files must use a dedicated API in order to support the native character
+   type. */
 
    //! See file_reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
@@ -372,6 +372,7 @@ class ABACLADE_SYM console_writer :
    public virtual console_file_base,
    public file_writer
 #if ABC_HOST_API_WIN32
+   // Under Win32, ANSI escape sequences parsing is up to us.
    , private abc::text::parsers::ansi_escape_sequences
 #endif
    {
@@ -383,8 +384,8 @@ public:
    virtual ~console_writer();
 
 #if ABC_HOST_API_WIN32
-   // Under Win32, console files must use a dedicated API in order to support the native character
-   // type.
+   /* Under Win32, console files must use a dedicated API in order to support the native character
+   type. */
 
    //! See file_writer::write().
    virtual std::size_t write(void const * p, std::size_t cb) override;
@@ -434,7 +435,7 @@ private:
    static WORD const smc_aiAnsiColorToBackgroundColor[];
    //! Mapping table from ANSI terminal colors to Win32 console foreground colors.
    static WORD const smc_aiAnsiColorToForegroundColor[];
-#endif
+#endif //if ABC_HOST_API_WIN32
 };
 
 } //namespace binary
