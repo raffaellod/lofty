@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -28,9 +28,6 @@ then it terminates. See the source code for line-by-line comments.
 // This needs to be included in the .cxx file that defines the application class for the program –
 // see below.
 #include <abaclade/app.hxx>
-// This provides abc::io::text::stdout() and stdin(), which allow basic text interactivity for the
-// program.
-#include <abaclade/io/text/file.hxx>
 // Abaclade does not use “using” directives in its sources or header files; if you want such
 // convenience, you have to write it yourself in your own source files.
 using namespace abc;

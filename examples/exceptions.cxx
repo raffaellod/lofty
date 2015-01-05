@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -26,7 +26,6 @@ code for more comments.
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
-#include <abaclade/io/text/file.hxx>
 using namespace abc;
 
 

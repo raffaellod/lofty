@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -17,14 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_FILE_PATH_HXX
-#define _ABACLADE_FILE_PATH_HXX
-
-#ifndef _ABACLADE_HXX
-   #error "Please #include <abaclade.hxx> before this file"
-#endif
-#ifdef ABC_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _ABACLADE_HXX_INTERNAL
+   #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
 
@@ -609,5 +603,3 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif //ifndef _ABACLADE_FILE_PATH_HXX

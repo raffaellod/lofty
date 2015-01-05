@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -152,6 +152,7 @@ private:
 
 
 // Now this can be defined.
+
 template <class T>
 inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t) {
    return container_data_ptr_tracker<T>(t);

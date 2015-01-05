@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -866,6 +866,7 @@ class writer;
 #include <abaclade/text/codepoint_iterator-after-to_str.hxx>
 #include <abaclade/vector-after-to_str.hxx>
 
+#include <abaclade/os/path.hxx>
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
 #include <abaclade/io/binary/buffered.hxx>
