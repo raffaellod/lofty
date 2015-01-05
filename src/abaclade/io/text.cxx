@@ -52,6 +52,13 @@ reader::reader() :
    base() {
 }
 
+dmstr reader::read_all() {
+   ABC_TRACE_FUNC(this);
+
+   dmstr sDst;
+   read_while(&sDst, false);
+   return std::move(sDst);
+}
 void reader::read_all(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 

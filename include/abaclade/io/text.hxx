@@ -97,7 +97,10 @@ public:
 
    @param psDst
       Pointer to the string that will receive the data.
+   @return
+      Content of the source, if psDst is omitted.
    */
+   dmstr read_all();
    void read_all(mstr * psDst);
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.
