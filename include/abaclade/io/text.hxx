@@ -106,64 +106,128 @@ public:
          friend class _lines_proxy;
 
       public:
+         //! Constructor.
          iterator() :
             mc_ptr(nullptr),
             m_bEof(true) {
          }
 
+         /*! Dereferencing operator.
+
+         @return
+            Reference to the current line.
+         */
          dmstr & operator*() const {
             return m_s;
          }
 
+         /*! Dereferencing member access operator.
+
+         @return
+            Pointer to the current line.
+         */
          dmstr * operator->() const {
             return &m_s;
          }
 
+         /*! Preincrement operator.
+
+         @return
+            *this after it’s moved to the next line in the source.
+         */
          iterator & operator++() {
             m_bEof = mc_ptr->read_line(&m_s);
             return *this;
          }
 
+         /*! Postincrement operator.
+
+         @return
+            Iterator to the line following the one read by this iterator.
+         */
          iterator operator++(int) const {
             return ++iterator(*this);
          }
 
+         /*! Equality relational operator.
+
+         @param it
+            Object to compare to *this.
+         @return
+            true if *this has the same source and status as it, or false otherwise.
+         */
          bool operator==(iterator const & it) const {
             return mc_ptr == it.mc_ptr && m_bEof == it.m_bEof;
          }
 
+         /*! Inequality relational operator.
+
+         @param it
+            Object to compare to *this.
+         @return
+            true if *this has a different source or status than it, or false otherwise.
+         */
          bool operator!=(iterator const & it) const {
             return !operator==(it);
          }
 
       private:
+         /*! Constructor for use by reader::_lines_proxy. When invoked it will attempt to prefetch a
+         line from the source text::reader.
+
+         @param ptr
+            See mc_ptr.
+         @param bEof
+            See m_bEof.
+         */
          iterator(reader * ptr, bool bEof) :
             mc_ptr(ptr),
+            /* If not already at EOF, begin fetching a new line. This may make *this == end(), which
+            is desirable. */
             m_bEof(bEof || ptr->read_line(&m_s)) {
          }
 
       private:
+         //! Pointer to the container from which lines are read.
          reader * const mc_ptr;
+         //! Last line read.
          dmstr mutable m_s;
+         //! If true, the iterator is at the end() of its container.
          bool m_bEof:1;
       };
 
    public:
+      /*! Returns an iterator to the first read line.
+
+      @return
+         Iterator to the available line.
+      */
       iterator begin() const {
          // TODO: maybe m_ptr should cache its EOF status and pass it here?
          return iterator(m_ptr, false);
       }
 
+      /*! Returns an iterator to the end of the source.
+
+      @return
+         Line beyond the last in the source: EOF.
+      */
       iterator end() const {
          return iterator(m_ptr, true);
       }
 
    private:
+      /*! Constructor for use by text::reader.
+
+      @param ptr
+         See m_ptr.
+      */
       explicit _lines_proxy(reader * ptr) :
          m_ptr(ptr) {
       }
 
    private:
+      //! Pointer to the container from which lines are read.
       reader * m_ptr;
    };
 
