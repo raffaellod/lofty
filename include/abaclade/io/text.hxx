@@ -136,7 +136,7 @@ public:
             *this after it’s moved to the next line in the source.
          */
          iterator & operator++() {
-            m_bEof = mc_ptr->read_line(&m_s);
+            m_bEof = !mc_ptr->read_line(&m_s);
             return *this;
          }
 
@@ -184,7 +184,7 @@ public:
             mc_ptr(ptr),
             /* If not already at EOF, begin fetching a new line. This may make *this == end(), which
             is desirable. */
-            m_bEof(bEof || ptr->read_line(&m_s)) {
+            m_bEof(bEof || !ptr->read_line(&m_s)) {
          }
 
       private:
