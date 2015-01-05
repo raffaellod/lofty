@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -86,9 +86,6 @@ struct event_loop_impl_t {
    }
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
-   //! Handle to the internal I/O completion port, which is used for all file-like event sources.
-   HANDLE hIocp;
-
    //! Constructor.
    event_loop_impl_t() :
       hIocp(nullptr) {
