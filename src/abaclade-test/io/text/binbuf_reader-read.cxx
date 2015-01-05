@@ -45,9 +45,8 @@ public:
       T const * t = static_cast<T const *>(this);
       os::path op(ABC_SL("src/abaclade-test/io/text/data/") + t->get_test_data_file_name());
       auto ptrIn(io::text::open_reader(op));
-      dmstr sLine;
       unsigned i = 1;
-      while (ptrIn->read_line(&sLine)) {
+      ABC_FOR_EACH(auto & sLine, ptrIn->lines()) {
          ABC_TESTING_ASSERT_EQUAL(sLine.size(), i++);
       }
    }
