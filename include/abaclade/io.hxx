@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -42,6 +42,15 @@ namespace io {
    #error "TODO: HOST_API"
 #endif
 
+//! Native OS file descriptor/handle.
+#if ABC_HOST_API_POSIX
+   typedef int filedesc_t;
+#elif ABC_HOST_API_WIN32
+   typedef HANDLE filedesc_t;
+#else
+   #error "TODO: HOST_API"
+#endif
+
 //! File access modes.
 ABC_ENUM_AUTO_VALUES(access_mode,
    read,       //! Read-only access.
@@ -70,6 +79,86 @@ ABC_ENUM_AUTO_VALUES(stdfile,
    stdout, //! Internal identifier for stdout.
    stderr  //! Internal identifier for stderr.
 );
+
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::filedesc
+
+namespace abc {
+namespace io {
+
+/*! Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
+doesn’t always own the wrapped filedesc_t (e.g. for standard files). */
+class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
+public:
+   /*! Constructor.
+
+   @param fd
+      Source file descriptor.
+   @param bOwn
+      If true, the filedesc object will take ownership of the raw descriptor (i.e. it will release
+      it whenever appropriate); if false, the raw descriptor will never be closed by this instance.
+   */
+   filedesc() :
+      m_fd(smc_fdNull), m_bOwn(false) {
+   }
+   filedesc(filedesc_t fd, bool bOwn = true) :
+      m_fd(fd), m_bOwn(bOwn) {
+   }
+   filedesc(filedesc && fd);
+
+   //! Destructor.
+   ~filedesc();
+
+   /*! Assignment operator.
+
+   @param fd
+      Source file descriptor.
+   @return
+      *this.
+   */
+   filedesc & operator=(filedesc_t fd);
+   filedesc & operator=(filedesc && fd);
+
+   /*! Safe bool operator.
+
+   @return
+      true if the object has a valid file descriptor, or false otherwise.
+   */
+   explicit_operator_bool() const {
+      return m_fd != smc_fdNull;
+   }
+
+   /*! Returns the wrapped raw file descriptor.
+
+   @return
+      Wrapped raw file descriptor.
+   */
+   filedesc_t get() const {
+      return m_fd;
+   }
+
+   /*! Yields ownership over the wrapped file descriptor, returning it.
+
+   @return
+      Unowned raw file descriptor.
+   */
+   filedesc_t release() {
+      filedesc_t fd = m_fd;
+      m_fd = smc_fdNull;
+      return fd;
+   }
+
+private:
+   //! The actual descriptor.
+   filedesc_t m_fd;
+   //! If true, the wrapper will close the file on destruction.
+   bool m_bOwn;
+   //! Logically null file descriptor.
+   static filedesc_t const smc_fdNull;
+};
 
 } //namespace io
 } //namespace abc

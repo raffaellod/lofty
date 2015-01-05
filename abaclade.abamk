@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- -*- coding: utf-8; mode: xml; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013, 2014
+Copyright 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -36,9 +36,9 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
       <source path="src/abaclade/exception-fault_converter.cxx"/>
+      <source path="src/abaclade/io.cxx"/>
       <source path="src/abaclade/io/binary.cxx"/>
       <source path="src/abaclade/io/binary/buffered.cxx"/>
-      <source path="src/abaclade/io/binary/file.cxx"/>
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/file.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
