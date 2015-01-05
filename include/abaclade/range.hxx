@@ -53,7 +53,7 @@ public:
       /*! Dereferencing operator.
 
       @return
-         Reference to the current node.
+         Reference to the current value.
       */
       T operator*() const {
          return m_t;
