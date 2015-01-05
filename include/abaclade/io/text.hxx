@@ -93,6 +93,90 @@ namespace text {
 //! Interface for text (character-based) input.
 class ABACLADE_SYM reader : public virtual base {
 public:
+   //! Proxy class that allows to iterate over lines of text.
+   class ABACLADE_SYM _lines_proxy {
+   private:
+      friend class reader;
+
+   public:
+      //! Lines iterator.
+      class ABACLADE_SYM iterator :
+         public std::iterator<std::forward_iterator_tag, dmstr> {
+      private:
+         friend class _lines_proxy;
+
+      public:
+         iterator() :
+            mc_ptr(nullptr),
+            m_bEof(true) {
+         }
+
+         dmstr & operator*() const {
+            return m_s;
+         }
+
+         dmstr * operator->() const {
+            return &m_s;
+         }
+
+         iterator & operator++() {
+            m_bEof = mc_ptr->read_line(&m_s);
+            return *this;
+         }
+
+         iterator operator++(int) const {
+            return ++iterator(*this);
+         }
+
+         bool operator==(iterator const & it) const {
+            return mc_ptr == it.mc_ptr && m_bEof == it.m_bEof;
+         }
+
+         bool operator!=(iterator const & it) const {
+            return !operator==(it);
+         }
+
+      private:
+         iterator(reader * ptr, bool bEof) :
+            mc_ptr(ptr),
+            m_bEof(bEof || ptr->read_line(&m_s)) {
+         }
+
+      private:
+         reader * const mc_ptr;
+         dmstr mutable m_s;
+         bool m_bEof:1;
+      };
+
+   public:
+      iterator begin() const {
+         // TODO: maybe m_ptr should cache its EOF status and pass it here?
+         return iterator(m_ptr, false);
+      }
+
+      iterator end() const {
+         return iterator(m_ptr, true);
+      }
+
+   private:
+      explicit _lines_proxy(reader * ptr) :
+         m_ptr(ptr) {
+      }
+
+   private:
+      reader * m_ptr;
+   };
+
+public:
+   /*! Returns a pseudo-object that allows to iterate over lines of text.
+
+   @return
+      Accessor to the lines in the source.
+   */
+   _lines_proxy lines() {
+      return _lines_proxy(this);
+   }
+
    /*! Reads the entire source into the specified mutable string.
 
    @param psDst
