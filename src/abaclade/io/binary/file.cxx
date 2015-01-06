@@ -99,7 +99,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
          &cbLastRead, nullptr
       );
-      if (readfile_returned_eof(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
+      if (check_if_eof_or_throw_os_error(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
          break;
       }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -114,7 +114,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ bool file_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const {
+/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cchRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
       throw_os_error(iErr);
    }
@@ -523,8 +523,9 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
-
-/*virtual*/ bool pipe_reader::readfile_returned_eof(DWORD cchRead, DWORD iErr) const /*override*/ {
+/*virtual*/ bool pipe_reader::check_if_eof_or_throw_os_error(
+   DWORD cchRead, DWORD iErr
+) const /*override*/ {
    ABC_UNUSED_ARG(cchRead);
    switch (iErr) {
       case ERROR_SUCCESS:
@@ -535,7 +536,6 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
          throw_os_error(iErr);
    }
 }
-
 #endif //if ABC_HOST_API_WIN32
 
 } //namespace binary
