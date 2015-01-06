@@ -79,9 +79,11 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
 @return
    Pointer to a text reader for the file.
 */
-std::shared_ptr<binbuf_reader> open_reader(
+inline std::shared_ptr<binbuf_reader> open_reader(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::unknown
-);
+) {
+   return std::dynamic_pointer_cast<binbuf_reader>(open(op, access_mode::read, enc));
+}
 
 /*! Opens a file for text-mode writing.
 
@@ -92,9 +94,11 @@ std::shared_ptr<binbuf_reader> open_reader(
 @return
    Pointer to a text writer for the file.
 */
-std::shared_ptr<binbuf_writer> open_writer(
+inline std::shared_ptr<binbuf_writer> open_writer(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::utf8
-);
+) {
+   return std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
+}
 
 } //namespace text
 } //namespace io
@@ -1139,14 +1143,6 @@ private:
    bool m_bDiscardNextLF:1;
 };
 
-// Now this can be defined.
-
-inline std::shared_ptr<binbuf_reader> open_reader(
-   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
-) {
-   return std::dynamic_pointer_cast<binbuf_reader>(open(op, access_mode::read, enc));
-}
-
 } //namespace text
 } //namespace io
 } //namespace abc
@@ -1195,14 +1191,6 @@ protected:
    //! Underlying binary buffered writer.
    std::shared_ptr<binary::buffered_writer> m_pbbw;
 };
-
-// Now this can be defined.
-
-inline std::shared_ptr<binbuf_writer> open_writer(
-   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::utf8*/
-) {
-   return std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
-}
 
 } //namespace text
 } //namespace io
