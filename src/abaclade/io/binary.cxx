@@ -384,8 +384,9 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
       iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
       iFlags |= FILE_FLAG_NO_BUFFERING;
    }
-   fid.fd = ::CreateFile(op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, fi, nullptr);
-   if (!fid.fd) {
+   if (!(fid.fd = ::CreateFile(
+      op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, iFlags, nullptr
+   ))) {
       DWORD iErr = ::GetLastError();
       switch (iErr) {
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
