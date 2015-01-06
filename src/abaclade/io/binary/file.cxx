@@ -114,11 +114,11 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cchRead, DWORD iErr) const {
+/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
       throw_os_error(iErr);
    }
-   return cchRead == 0;
+   return cbRead == 0;
 }
 #endif //if ABC_HOST_API_WIN32
 
@@ -524,9 +524,9 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 /*virtual*/ bool pipe_reader::check_if_eof_or_throw_os_error(
-   DWORD cchRead, DWORD iErr
+   DWORD cbRead, DWORD iErr
 ) const /*override*/ {
-   ABC_UNUSED_ARG(cchRead);
+   ABC_UNUSED_ARG(cbRead);
    switch (iErr) {
       case ERROR_SUCCESS:
          return false;

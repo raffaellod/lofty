@@ -84,7 +84,7 @@ public:
 
    /*! Detects EOF conditions and real errors.
 
-   @param cchRead
+   @param cbRead
       Count of bytes read by ::ReadFile().
    @param iErr
       Value returned by ::GetLastError() if ::ReadFile() returned false, or ERROR_SUCCESS otherwise.
@@ -92,7 +92,7 @@ public:
       true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are
       thrown for all non-EOF error conditions.
    */
-   virtual bool check_if_eof_or_throw_os_error(DWORD cchRead, DWORD iErr) const;
+   virtual bool check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const;
 #endif //if ABC_HOST_API_WIN32
 };
 
@@ -279,7 +279,7 @@ public:
 #if ABC_HOST_API_WIN32
    /*! See file_reader::check_if_eof_or_throw_os_error(). Pipes report EOF in a completely different
    way than regular files. */
-   virtual bool check_if_eof_or_throw_os_error(DWORD cchRead, DWORD iErr) const override;
+   virtual bool check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const override;
 #endif
 };
 
