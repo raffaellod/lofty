@@ -189,7 +189,7 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    fid.am = am;
    // Since this method is supposed to be used only for standard descriptors, assume that OS
    // buffering is on.
-   fid.bBypassCache = true;
+   fid.bBypassCache = false;
    return _construct(&fid);
 }
 
