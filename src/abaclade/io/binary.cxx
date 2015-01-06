@@ -80,7 +80,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          case access_mode::read:
             return std::make_shared<regular_file_reader>(pfid);
          case access_mode::write:
-         case access_mode::append:
+         case access_mode::write_append:
             return std::make_shared<regular_file_writer>(pfid);
          case access_mode::read_write:
          // default is here just to silence compiler warnings.
@@ -95,8 +95,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             return std::make_shared<console_reader>(pfid);
          case access_mode::write:
             return std::make_shared<console_writer>(pfid);
-         case access_mode::append:
          case access_mode::read_write:
+         case access_mode::write_append:
          // default is here just to silence compiler warnings.
          default:
             // TODO: use a better exception class.
@@ -109,8 +109,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             return std::make_shared<pipe_reader>(pfid);
          case access_mode::write:
             return std::make_shared<pipe_writer>(pfid);
-         case access_mode::append:
          case access_mode::read_write:
+         case access_mode::write_append:
          // default is here just to silence compiler warnings.
          default:
             // TODO: use a better exception class.
@@ -135,8 +135,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
                   return std::make_shared<console_reader>(pfid);
                case access_mode::write:
                   return std::make_shared<console_writer>(pfid);
-               case access_mode::append:
                case access_mode::read_write:
+               case access_mode::write_append:
                // default is here just to silence compiler warnings.
                default:
                   // TODO: use a better exception class.
@@ -151,7 +151,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             case access_mode::read:
                return std::make_shared<regular_file_reader>(pfid);
             case access_mode::write:
-            case access_mode::append:
+            case access_mode::write_append:
                return std::make_shared<regular_file_writer>(pfid);
             case access_mode::read_write:
             // default is here just to silence compiler warnings.
@@ -168,8 +168,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
                return std::make_shared<pipe_reader>(pfid);
             case access_mode::write:
                return std::make_shared<pipe_writer>(pfid);
-            case access_mode::append:
             case access_mode::read_write:
+            case access_mode::write_append:
             // default is here just to silence compiler warnings.
             default:
                // TODO: use a better exception class.
@@ -196,8 +196,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          return std::make_shared<file_reader>(pfid);
       case access_mode::write:
          return std::make_shared<file_writer>(pfid);
-      case access_mode::append:
       case access_mode::read_write:
+      case access_mode::write_append:
       // default is here just to silence compiler warnings.
       default:
          // TODO: use a better exception class.
@@ -314,13 +314,13 @@ std::shared_ptr<file_base> open(
       case access_mode::read:
          iFlags = O_RDONLY;
          break;
-      case access_mode::write:
-         iFlags = O_WRONLY | O_CREAT | O_TRUNC;
-         break;
       case access_mode::read_write:
          iFlags = O_RDWR | O_CREAT;
          break;
-      case access_mode::append:
+      case access_mode::write:
+         iFlags = O_WRONLY | O_CREAT | O_TRUNC;
+         break;
+      case access_mode::write_append:
          iFlags = O_APPEND;
          break;
    }
@@ -363,17 +363,17 @@ std::shared_ptr<file_base> open(
          iShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
          iAction = OPEN_EXISTING;
          break;
-      case access_mode::write:
-         iAccess = GENERIC_WRITE;
-         iShareMode = FILE_SHARE_READ;
-         iAction = CREATE_ALWAYS;
-         break;
       case access_mode::read_write:
          iAccess = GENERIC_READ | GENERIC_WRITE;
          iShareMode = FILE_SHARE_READ;
          iAction = OPEN_ALWAYS;
          break;
-      case access_mode::append:
+      case access_mode::write:
+         iAccess = GENERIC_WRITE;
+         iShareMode = FILE_SHARE_READ;
+         iAction = CREATE_ALWAYS;
+         break;
+      case access_mode::write_append:
          /* This iAccess combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for
          local files, write operations will not overwrite existing data”. Requiring fewer
          permissions, this also allows ::CreateFile() to succeed on files with stricter ACLs. */
@@ -1136,7 +1136,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_WIN32
-   m_bAppend = (pfid->am == access_mode::append);
+   m_bAppend = (pfid->am == access_mode::write_append);
 #endif
 }
 

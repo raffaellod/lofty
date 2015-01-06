@@ -53,10 +53,10 @@ namespace io {
 
 //! File access modes.
 ABC_ENUM_AUTO_VALUES(access_mode,
-   read,       //! Read-only access.
-   write,      //! Write-only access.
-   read_write, //! Read/write access.
-   append      //! Append-only access.
+   read,        //! Read-only access.
+   read_write,  //! Read/write access.
+   write,       //! Write-only access.
+   write_append //! Append-only access.
 );
 
 //! Position indicators to which offsets may be relative.
