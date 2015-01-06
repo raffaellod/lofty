@@ -869,6 +869,7 @@ class writer;
 #include <abaclade/os/path.hxx>
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
+#include <abaclade/io/binary/file.hxx>
 #include <abaclade/io/binary/buffered.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/io/text/str.hxx>
