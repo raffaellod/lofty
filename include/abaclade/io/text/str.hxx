@@ -81,9 +81,6 @@ public:
    //! Destructor.
    virtual ~str_reader();
 
-   //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, bool bOneLine) override;
-
    /*! Returns the count of characters (char_t units) still available for reading.
 
    @return
@@ -92,6 +89,10 @@ public:
    std::size_t remaining_size_in_chars() const {
       return m_psReadBuf->size_in_chars() - m_ichOffset;
    }
+
+protected:
+   //! See reader::read_while().
+   virtual bool read_while(mstr * psDst, bool bOneLine) override;
 
 protected:
    //! Pointer to the source string, which is m_sReadBuf or an external string.

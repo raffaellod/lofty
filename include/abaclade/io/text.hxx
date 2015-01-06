@@ -339,6 +339,10 @@ public:
    */
    bool read_line(mstr * psDst);
 
+protected:
+   //! See base::base().
+   reader();
+
    /*! Reads data into the specified mutable string, invoking a callback function to determine how
    much of the read data should be consumed.
 
@@ -351,10 +355,6 @@ public:
       *psDst is left in an undetermined state.
    */
    virtual bool read_while(mstr * psDst, bool bOneLine) = 0;
-
-protected:
-   //! See base::base().
-   reader();
 };
 
 } //namespace text
@@ -1070,12 +1070,12 @@ public:
       return m_pbbr;
    }
 
-   //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, bool bOneLine) override;
-
 protected:
    //! See binbuf_base::_binary_buffered_base().
    virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
+
+   //! See reader::read_while().
+   virtual bool read_while(mstr * psDst, bool bOneLine) override;
 
 private:
    /*! Detects the encoding used in the provided buffer.
