@@ -19,6 +19,168 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 
+#if ABC_HOST_API_POSIX
+   #include <cstdlib> // std::getenv()
+#endif
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::text globals
+
+namespace abc {
+namespace io {
+namespace text {
+
+namespace {
+
+std::shared_ptr<binbuf_writer> g_ptwStdErr;
+std::shared_ptr<binbuf_reader> g_ptrStdIn;
+std::shared_ptr<binbuf_writer> g_ptwStdOut;
+
+/*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
+returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
+I/O wrapper is instanciated as well.
+
+pbb
+   Pointer to a binary I/O object.
+return
+   Shared pointer to the newly created object.
+*/
+std::shared_ptr<binbuf_base> _construct(
+   std::shared_ptr<binary::base> pbb, abc::text::encoding enc
+) {
+   ABC_TRACE_FUNC(pbb, enc);
+
+   // Choose what type of text I/O object to create based on what type of binary I/O object we got.
+
+   // Check if it’s a buffered I/O object.
+   auto pbbr(std::dynamic_pointer_cast<binary::buffered_reader>(pbb));
+   auto pbbw(std::dynamic_pointer_cast<binary::buffered_writer>(pbb));
+   if (!pbbr && !pbbw) {
+      // Not a buffered I/O object? Get one then, and try again with the casts.
+      auto pbbb(binary::buffer(pbb));
+      pbbr = std::dynamic_pointer_cast<binary::buffered_reader>(pbbb);
+      pbbw = std::dynamic_pointer_cast<binary::buffered_writer>(pbbb);
+   }
+
+   // Now we must have a buffered reader or writer, or pbb is not something we can use.
+   if (pbbr) {
+      return std::make_shared<binbuf_reader>(std::move(pbbr), enc);
+   }
+   if (pbbw) {
+      return std::make_shared<binbuf_writer>(std::move(pbbw), enc);
+   }
+   // TODO: use a better exception class.
+   ABC_THROW(argument_error, ());
+}
+
+/*! Detects the encoding to use for a standard text I/O file, with the help of an optional
+environment variable.
+
+TODO: document this behavior and the related enviroment variables.
+
+TODO: change to use a global “environment” map object instead of this ad-hoc code.
+
+TODO: make the below code only pick up variables meant for this PID. This should eventually be made
+more general, as a way for an Abaclade-based parent process to communicate with an Abaclade-based
+child process. Thought maybe a better way is to pass a command-line argument that triggers Abaclade-
+specific behavior, so that it’s inherently PID-specific.
+
+pszEnvVarName
+   Environment variable name that, if set, specifies the encoding to be used.
+return
+   Encoding appropriate for the requested standard I/O file.
+*/
+std::shared_ptr<binbuf_base> _construct_stdio(
+   std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
+) {
+   ABC_TRACE_FUNC(pbb, pszEnvVarName);
+
+   abc::text::encoding enc;
+   if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
+      // Console files can only perform I/O in the host platform’s encoding, so force the correct
+      // encoding here.
+      enc = abc::text::encoding::host;
+   } else {
+      // In all other cases, allow selecting the encoding via environment variable.
+#if ABC_HOST_API_POSIX
+      istr sEnc;
+      if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
+         sEnc = istr(external_buffer, pszEnvVarValue);
+      }
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+      smstr<64> sEnc;
+      sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
+         // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
+         // enough, or the required size (length including NUL) otherwise.
+         return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
+      });
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+      enc = abc::text::encoding::unknown;
+      if (sEnc) {
+         try {
+            enc = abc::text::encoding(sEnc);
+         } catch (domain_error const &) {
+            // Ignore this invalid encoding setting, and default to auto-detection.
+            // TODO: display a warning about ABC_STD*_ENCODING being ignored.
+         }
+      }
+   }
+   return _construct(std::move(pbb), enc);
+}
+
+} //namespace
+
+
+std::shared_ptr<binbuf_writer> stderr() {
+   ABC_TRACE_FUNC();
+
+   // TODO: mutex!
+   if (!g_ptwStdErr) {
+      g_ptwStdErr = std::dynamic_pointer_cast<binbuf_writer>(
+         _construct_stdio(binary::stderr(), ABC_SL("ABC_STDERR_ENCODING"))
+      );
+   }
+   return g_ptwStdErr;
+}
+
+std::shared_ptr<binbuf_reader> stdin() {
+   ABC_TRACE_FUNC();
+
+   // TODO: mutex!
+   if (!g_ptrStdIn) {
+      g_ptrStdIn = std::dynamic_pointer_cast<binbuf_reader>(
+         _construct_stdio(binary::stdin(), ABC_SL("ABC_STDIN_ENCODING"))
+      );
+   }
+   return g_ptrStdIn;
+}
+
+std::shared_ptr<binbuf_writer> stdout() {
+   ABC_TRACE_FUNC();
+
+   // TODO: mutex!
+   if (!g_ptwStdOut) {
+      g_ptwStdOut = std::dynamic_pointer_cast<binbuf_writer>(
+         _construct_stdio(binary::stdout(), ABC_SL("ABC_STDOUT_ENCODING"))
+      );
+   }
+   return g_ptwStdOut;
+}
+
+std::shared_ptr<binbuf_base> open(
+   os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(op, am, enc);
+
+   return _construct(binary::open(op, am), enc);
+}
+
+} //namespace text
+} //namespace io
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::text::base
