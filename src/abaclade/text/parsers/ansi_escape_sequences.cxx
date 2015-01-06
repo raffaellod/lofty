@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -60,6 +60,10 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
    ABC_TRACE_FUNC(this, ch);
 
    switch (m_state.base()) {
+      case state::not_in_sequence:
+         // Cannot happen, but here to make the compiler happy.
+         break;
+
       case state::escape:
          if (ch == '[' || ch == ']') {
             // Reinitialize the argument storage, preparing to parse the rest of the sequence.
@@ -120,9 +124,6 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 
       case state::ignore:
          m_state = state::not_in_sequence;
-         break;
-
-      default:
          break;
    }
    return true;

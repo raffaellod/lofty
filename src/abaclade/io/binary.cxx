@@ -83,8 +83,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          case access_mode::write_append:
             return std::make_shared<regular_file_writer>(pfid);
          case access_mode::read_write:
-         // default is here just to silence compiler warnings.
-         default:
             // TODO: regular_file_random
             break;
       }
@@ -97,8 +95,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             return std::make_shared<console_writer>(pfid);
          case access_mode::read_write:
          case access_mode::write_append:
-         // default is here just to silence compiler warnings.
-         default:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
       }
@@ -111,8 +107,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             return std::make_shared<pipe_writer>(pfid);
          case access_mode::read_write:
          case access_mode::write_append:
-         // default is here just to silence compiler warnings.
-         default:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
       }
@@ -137,8 +131,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
                   return std::make_shared<console_writer>(pfid);
                case access_mode::read_write:
                case access_mode::write_append:
-               // default is here just to silence compiler warnings.
-               default:
                   // TODO: use a better exception class.
                   ABC_THROW(argument_error, ());
             }
@@ -154,8 +146,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             case access_mode::write_append:
                return std::make_shared<regular_file_writer>(pfid);
             case access_mode::read_write:
-            // default is here just to silence compiler warnings.
-            default:
                // TODO: regular_file_random
                break;
          }
@@ -170,8 +160,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
                return std::make_shared<pipe_writer>(pfid);
             case access_mode::read_write:
             case access_mode::write_append:
-            // default is here just to silence compiler warnings.
-            default:
                // TODO: use a better exception class.
                ABC_THROW(argument_error, ());
          }
@@ -198,8 +186,6 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          return std::make_shared<file_writer>(pfid);
       case access_mode::read_write:
       case access_mode::write_append:
-      // default is here just to silence compiler warnings.
-      default:
          // TODO: use a better exception class.
          ABC_THROW(argument_error, ());
    }
@@ -310,7 +296,6 @@ std::shared_ptr<file_base> open(
 #if ABC_HOST_API_POSIX
    int iFlags;
    switch (am.base()) {
-      default:
       case access_mode::read:
          iFlags = O_RDONLY;
          break;
@@ -357,7 +342,6 @@ std::shared_ptr<file_base> open(
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
-      default:
       case access_mode::read:
          iAccess = GENERIC_READ;
          iShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
@@ -1018,8 +1002,6 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 
    int iWhence;
    switch (sfWhence.base()) {
-      // default is here just to silence compiler warnings.
-      default:
       case seek_from::start:
          iWhence = SEEK_SET;
          break;
@@ -1044,8 +1026,6 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    );
    DWORD iWhence;
    switch (sfWhence.base()) {
-      // default is here just to silence compiler warnings.
-      default:
       case seek_from::start:
          iWhence = FILE_BEGIN;
          break;
