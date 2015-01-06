@@ -47,8 +47,9 @@ struct file_init_data {
    /*! Determines what type of I/O object will be instantiated. To be set before calling
    _construct(). */
    access_mode am;
-   //! See file_base::m_bBuffered. To be set before calling _construct().
-   bool bBuffered:1;
+   /*! If true, causes the file to be opened with flags to the effect of disabling OS cache for the
+   file. To be set before calling _construct(). */
+   bool bBypassCache:1;
 };
 
 } //namespace detail
@@ -221,7 +222,7 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    fid.am = am;
    // Since this method is supposed to be used only for standard descriptors, assume that OS
    // buffering is on.
-   fid.bBuffered = true;
+   fid.bBypassCache = true;
    return _construct(&fid);
 }
 
@@ -300,8 +301,10 @@ std::shared_ptr<file_writer> stdout() {
    return g_pbfwStdOut;
 }
 
-std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffered /*= true*/) {
-   ABC_TRACE_FUNC(op, am, bBuffered);
+std::shared_ptr<file_base> open(
+   os::path const & op, access_mode am, bool bBypassCache /*= false*/
+) {
+   ABC_TRACE_FUNC(op, am, bBypassCache);
 
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
@@ -323,7 +326,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
    }
    iFlags |= O_CLOEXEC;
    #ifdef O_DIRECT
-      if (!bBuffered) {
+      if (bBypassCache) {
          iFlags |= O_DIRECT;
       }
    #endif
@@ -342,7 +345,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
    }
    #ifndef O_DIRECT
       #if ABC_HOST_API_DARWIN
-         if (!bBuffered) {
+         if (bBypassCache) {
             if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
                throw_os_error();
             }
@@ -379,7 +382,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
          iAction = OPEN_ALWAYS;
          break;
    }
-   if (!bBuffered) {
+   if (bBypassCache) {
       // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
       iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
       iFlags |= FILE_FLAG_NO_BUFFERING;
@@ -400,7 +403,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    fid.am = am;
-   fid.bBuffered = bBuffered;
+   fid.bBypassCache = bBypassCache;
    return _construct(&fid);
 }
 
@@ -965,7 +968,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 
    m_cb = static_cast<std::size_t>(pfid->statFile.st_size);
 #if 0
-   if (!m_bBuffered) {
+   if (pfid->bBypassCache) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
       m_cbPhysAlign = static_cast<unsigned>(pfid->statFile.st_blksize);
    }
@@ -992,7 +995,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    m_cb = (static_cast<full_size_t>(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
 #endif //if _WIN32_WINNT >= 0x0500 … else
 #if 0
-   if (!m_bBuffered) {
+   if (pfid->bBypassCache) {
       /* Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
       file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical sector
       size. */

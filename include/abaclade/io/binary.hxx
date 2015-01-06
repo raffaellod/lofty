@@ -73,40 +73,40 @@ ABACLADE_SYM std::shared_ptr<file_writer> stdout();
    Path to the file.
 @param am
    Desired access mode.
-@param bBuffered
-   If true, access to the file will be buffered by the OS, if false, access to the file will be
-   unbuffered.
+@param bBypassCache
+   If true, the OS will not cache any portion of the file; if false, accesses to the file will be
+   backed by the OS file cache subsystem.
 @return
    Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffered = true);
+std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBypassCache = false);
 
 /*! Opens a file for binary reading.
 
 @param op
    Path to the file.
-@param bBuffered
-   If true, access to the file will be buffered by the OS, if false, access to the file will be
-   unbuffered.
+@param bBypassCache
+   If true, the OS will not cache any portion of the file; if false, accesses to the file will be
+   backed by the OS file cache subsystem.
 @return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBuffered = true) {
-   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBuffered));
+inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypassCache = false) {
+   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBypassCache));
 }
 
 /*! Opens a file for binary writing.
 
 @param op
    Path to the file.
-@param bBuffered
-   If true, access to the file will be buffered by the OS, if false, access to the file will be
-   unbuffered.
+@param bBypassCache
+   If true, the OS will not cache any portion of the file; if false, accesses to the file will be
+   backed by the OS file cache subsystem.
 @return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBuffered = true) {
-   return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBuffered));
+inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
+   return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
 }
 
 } //namespace binary
