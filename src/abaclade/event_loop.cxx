@@ -87,15 +87,11 @@ struct event_loop_impl_t {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
    //! Constructor.
-   event_loop_impl_t() :
-      hIocp(nullptr) {
+   event_loop_impl_t() {
    }
 
    //! Destructor.
    ~event_loop_impl_t() {
-      if (hIocp) {
-         ::CloseHandle(hIocp);
-      }
    }
 
 #else //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
@@ -238,9 +234,6 @@ void event_loop::run() {
       if (pimpl->bChanged) {
          pimpl->bChanged = false;
          // TODO: rebuild vhSources.
-         if (pimpl->hIocp) {
-            vhSources.append(pimpl->hIocp);
-         }
          cSources = static_cast<DWORD>(vhSources.size());
          if (!cSources) {
             return;
@@ -257,11 +250,7 @@ void event_loop::run() {
          throw_os_error();
       } else if (iRet >= WAIT_OBJECT_0 && iRet < WAIT_OBJECT_0 + cSources) {
          HANDLE hReady = vhSources[iRet - WAIT_OBJECT_0];
-         if (hReady == pimpl->hIocp) {
-            // TODO: consume the IOCP event.
-         } else {
-            // TODO: consume the event.
-         }
+         // TODO: consume the event.
       } else if (iRet >= WAIT_ABANDONED_0 && iRet < WAIT_ABANDONED_0 + cSources) {
          HANDLE hReady = vhSources[iRet - WAIT_ABANDONED_0];
          // TODO: do something about the abandoned event ‒ but what?!
