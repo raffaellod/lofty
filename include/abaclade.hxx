@@ -872,6 +872,7 @@ class writer;
 #include <abaclade/io/binary/file.hxx>
 #include <abaclade/io/binary/buffered.hxx>
 #include <abaclade/io/text.hxx>
+#include <abaclade/io/text/binbuf.hxx>
 #include <abaclade/io/text/str.hxx>
 
 #include <abaclade/str-after-str_writer.hxx>
