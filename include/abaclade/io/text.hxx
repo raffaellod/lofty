@@ -187,7 +187,7 @@ public:
          //! Constructor.
          iterator() :
             mc_ptr(nullptr),
-            m_bEof(true) {
+            m_bEOF(true) {
          }
 
          /*! Dereferencing operator.
@@ -214,7 +214,7 @@ public:
             *this after it’s moved to the next line in the source.
          */
          iterator & operator++() {
-            m_bEof = !mc_ptr->read_line(&m_s);
+            m_bEOF = !mc_ptr->read_line(&m_s);
             return *this;
          }
 
@@ -235,7 +235,7 @@ public:
             true if *this has the same source and status as it, or false otherwise.
          */
          bool operator==(iterator const & it) const {
-            return mc_ptr == it.mc_ptr && m_bEof == it.m_bEof;
+            return mc_ptr == it.mc_ptr && m_bEOF == it.m_bEOF;
          }
 
          /*! Inequality relational operator.
@@ -255,14 +255,14 @@ public:
 
          @param ptr
             See mc_ptr.
-         @param bEof
-            See m_bEof.
+         @param bEOF
+            See m_bEOF.
          */
-         iterator(reader * ptr, bool bEof) :
+         iterator(reader * ptr, bool bEOF) :
             mc_ptr(ptr),
             /* If not already at EOF, begin fetching a new line. This may make *this == end(), which
             is desirable. */
-            m_bEof(bEof || !ptr->read_line(&m_s)) {
+            m_bEOF(bEOF || !ptr->read_line(&m_s)) {
          }
 
       private:
@@ -271,7 +271,7 @@ public:
          //! Last line read.
          dmstr mutable m_s;
          //! If true, the iterator is at the end() of its container.
-         bool m_bEof:1;
+         bool m_bEOF:1;
       };
 
    public:
