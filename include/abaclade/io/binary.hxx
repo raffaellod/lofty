@@ -166,7 +166,7 @@ public:
       Size of the destination buffer, in bytes.
    @return
       Count of bytes read. For non-zero values of cbMax, a return value of 0 indicates that the end
-      of the data was reached.
+      of the data (EOF) was reached.
    */
    virtual std::size_t read(void * p, std::size_t cbMax) = 0;
 };

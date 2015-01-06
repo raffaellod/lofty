@@ -68,49 +68,35 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   std::int8_t * pb = static_cast<std::int8_t *>(p);
-   /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
-   read()-equivalent function is invoked at least once, so we give it a chance to report any errors,
-   instead of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
-   do {
 #if ABC_HOST_API_POSIX
-      // This will be repeated at most three times, just to break a size_t-sized block down into
-      // ssize_t-sized blocks. EINTR may also cause this to repeat.
-      ::ssize_t cbLastRead = ::read(
-         m_fd.get(), pb, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
+   // This may repeat in case of EINTR.
+   for (;;) {
+      static_assert(sizeof(std::size_t) >= sizeof(::ssize_t), "fix read size calculation");
+      ::ssize_t cbRead = ::read(
+         m_fd.get(), p, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
       );
-      if (cbLastRead == -1) {
-         int iErr = errno;
-         if (iErr == EINTR) {
-            continue;
-         }
+      if (cbRead >= 0) {
+         return static_cast<std::size_t>(cbRead);
+      }
+      int iErr = errno;
+      if (iErr != EINTR) {
          throw_os_error(iErr);
       }
-      if (cbLastRead == 0) {
-         // EOF.
-         break;
-      }
+   }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      // This will be repeated at least once, and as long as we still have some bytes to read, and
-      // reading them does not fail.
-      DWORD cbLastRead;
-      BOOL bRet = ::ReadFile(
-         m_fd.get(), pb,
-         static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
-         &cbLastRead, nullptr
-      );
-      if (check_if_eof_or_throw_os_error(cbLastRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
-         break;
-      }
+   static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix read size calculation");
+   DWORD cbRead;
+   BOOL bRet = ::ReadFile(
+      m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
+      &cbRead, nullptr
+   );
+   if (check_if_eof_or_throw_os_error(cbRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
+      return 0;
+   }
+   return static_cast<std::size_t>(cbRead);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-      // Some bytes were read; prepare for the next attempt.
-      pb += cbLastRead;
-      cbMax -= static_cast<std::size_t>(cbLastRead);
-   } while (cbMax);
-
-   return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
 }
 
 #if ABC_HOST_API_WIN32
