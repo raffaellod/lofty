@@ -305,29 +305,30 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
 
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
-   int fi = O_CLOEXEC;
+   int iFlags;
    switch (am.base()) {
       default:
       case access_mode::read:
-         fi |= O_RDONLY;
+         iFlags = O_RDONLY;
          break;
       case access_mode::write:
-         fi |= O_WRONLY | O_CREAT | O_TRUNC;
+         iFlags = O_WRONLY | O_CREAT | O_TRUNC;
          break;
       case access_mode::read_write:
-         fi |= O_RDWR | O_CREAT;
+         iFlags = O_RDWR | O_CREAT;
          break;
       case access_mode::append:
-         fi |= O_APPEND;
+         iFlags = O_APPEND;
          break;
    }
-#ifdef O_DIRECT
-   if (!bBuffered) {
-      fi |= O_DIRECT;
-   }
-#endif
+   iFlags |= O_CLOEXEC;
+   #ifdef O_DIRECT
+      if (!bBuffered) {
+         iFlags |= O_DIRECT;
+      }
+   #endif
    // Note: this does not compare the new fd against 0; instead it calls fid.fd.operator bool().
-   while (!(fid.fd = ::open(op.os_str().c_str(), fi, 0666))) {
+   while (!(fid.fd = ::open(op.os_str().c_str(), iFlags, 0666))) {
       int iErr = errno;
       switch (iErr) {
          case EINTR:
@@ -339,53 +340,51 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
             throw_os_error(iErr);
       }
    }
-#ifndef O_DIRECT
-#if ABC_HOST_API_DARWIN
-   if (!bBuffered) {
-      if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
-         throw_os_error();
-      }
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
-#endif //ifndef O_DIRECT
-
+   #ifndef O_DIRECT
+      #if ABC_HOST_API_DARWIN
+         if (!bBuffered) {
+            if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
+               throw_os_error();
+            }
+         }
+      #else
+         #error "TODO: HOST_API"
+      #endif
+   #endif //ifndef O_DIRECT
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD fiAccess, fiShareMode, iAction, fi = FILE_ATTRIBUTE_NORMAL;
+   DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
       default:
       case access_mode::read:
-         fiAccess = GENERIC_READ;
-         fiShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+         iAccess = GENERIC_READ;
+         iShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
          iAction = OPEN_EXISTING;
          break;
       case access_mode::write:
-         fiAccess = GENERIC_WRITE;
-         fiShareMode = FILE_SHARE_READ;
+         iAccess = GENERIC_WRITE;
+         iShareMode = FILE_SHARE_READ;
          iAction = CREATE_ALWAYS;
          break;
       case access_mode::read_write:
-         fiAccess = GENERIC_READ | GENERIC_WRITE;
-         fiShareMode = FILE_SHARE_READ;
+         iAccess = GENERIC_READ | GENERIC_WRITE;
+         iShareMode = FILE_SHARE_READ;
          iAction = OPEN_ALWAYS;
          break;
       case access_mode::append:
-         /* This combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for local
-         files, write operations will not overwrite existing data”. Requiring fewer permissions,
-         this also allows ::CreateFile() to succeed on files with stricter ACLs. */
-
-         fiAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
-         fiShareMode = FILE_SHARE_READ;
+         /* This iAccess combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for
+         local files, write operations will not overwrite existing data”. Requiring fewer
+         permissions, this also allows ::CreateFile() to succeed on files with stricter ACLs. */
+         iAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
+         iShareMode = FILE_SHARE_READ;
          iAction = OPEN_ALWAYS;
          break;
    }
    if (!bBuffered) {
-      fi |= FILE_FLAG_NO_BUFFERING;
-   } else if (fiAccess & GENERIC_READ) {
-      fi |= FILE_FLAG_SEQUENTIAL_SCAN;
+      // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
+      iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
+      iFlags |= FILE_FLAG_NO_BUFFERING;
    }
-   fid.fd = ::CreateFile(op.os_str().c_str(), fiAccess, fiShareMode, nullptr, iAction, fi, nullptr);
+   fid.fd = ::CreateFile(op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, fi, nullptr);
    if (!fid.fd) {
       DWORD iErr = ::GetLastError();
       switch (iErr) {
