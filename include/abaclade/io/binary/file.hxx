@@ -50,6 +50,10 @@ protected:
 protected:
    //! Descriptor of the underlying file.
    filedesc m_fd;
+#if ABC_HOST_API_WIN32
+   ::OVERLAPPED m_ovl;
+#endif
+   bool m_bAsync:1;
 };
 
 } //namespace binary

@@ -269,9 +269,9 @@ std::shared_ptr<file_writer> stdout() {
 }
 
 std::shared_ptr<file_base> open(
-   os::path const & op, access_mode am, bool bBypassCache /*= false*/
+   os::path const & op, access_mode am, bool bAsync /*= false*/, bool bBypassCache /*= false*/
 ) {
-   ABC_TRACE_FUNC(op, am, bBypassCache);
+   ABC_TRACE_FUNC(op, am, bAsync, bBypassCache);
 
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
@@ -291,6 +291,9 @@ std::shared_ptr<file_base> open(
          break;
    }
    iFlags |= O_CLOEXEC;
+   if (bAsync) {
+      iFlags |= O_NONBLOCK;
+   }
    #ifdef O_DIRECT
       if (bBypassCache) {
          iFlags |= O_DIRECT;
@@ -347,6 +350,9 @@ std::shared_ptr<file_base> open(
          iAction = OPEN_ALWAYS;
          break;
    }
+   if (bAsync) {
+      iFlags |= FILE_FLAG_OVERLAPPED;
+   }
    if (bBypassCache) {
       // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
       iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
@@ -368,6 +374,7 @@ std::shared_ptr<file_base> open(
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    fid.am = am;
+   fid.bAsync = bAsync;
    fid.bBypassCache = bBypassCache;
    return _construct(&fid);
 }
