@@ -184,8 +184,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          return std::make_shared<file_reader>(pfid);
       case access_mode::write:
          return std::make_shared<file_writer>(pfid);
-      case access_mode::read_write:
-      case access_mode::write_append:
+      default:
          // TODO: use a better exception class.
          ABC_THROW(argument_error, ());
    }
