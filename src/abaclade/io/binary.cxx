@@ -305,20 +305,20 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
 
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
-   int fi;
+   int fi = O_CLOEXEC;
    switch (am.base()) {
       default:
       case access_mode::read:
-         fi = O_RDONLY;
+         fi |= O_RDONLY;
          break;
       case access_mode::write:
-         fi = O_WRONLY | O_CREAT | O_TRUNC;
+         fi |= O_WRONLY | O_CREAT | O_TRUNC;
          break;
       case access_mode::read_write:
-         fi = O_RDWR | O_CREAT;
+         fi |= O_RDWR | O_CREAT;
          break;
       case access_mode::append:
-         fi = O_APPEND;
+         fi |= O_APPEND;
          break;
    }
 #ifdef O_DIRECT
@@ -326,6 +326,7 @@ std::shared_ptr<file_base> open(os::path const & op, access_mode am, bool bBuffe
       fi |= O_DIRECT;
    }
 #endif
+   // Note: this does not compare the new fd against 0; instead it calls fid.fd.operator bool().
    while (!(fid.fd = ::open(op.os_str().c_str(), fi, 0666))) {
       int iErr = errno;
       switch (iErr) {
