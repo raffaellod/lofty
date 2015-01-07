@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -761,7 +761,7 @@ public:
    @param t
       Element to add.
    */
-   void append(typename std::remove_const<T>::type && t) {
+   void push_back(typename std::remove_const<T>::type && t) {
       insert(this->cend(), std::move(t));
    }
 
@@ -967,13 +967,13 @@ public:
    @param ci
       Count of elements in the array pointed to by pt.
    */
-   void append(T const & t) {
+   void push_back(T const & t) {
       this->insert_copy(this->cend().base(), &t, 1);
    }
-   void append(typename std::remove_const<T>::type && t) {
+   void push_back(typename std::remove_const<T>::type && t) {
       this->insert_move(this->cend().base(), &t, 1);
    }
-   void append(T const * pt, std::size_t ci) {
+   void push_back(T const * pt, std::size_t ci) {
       this->insert_copy(this->cend().base(), pt, ci);
    }
 

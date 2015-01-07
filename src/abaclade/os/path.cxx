@@ -283,7 +283,7 @@ path path::normalize() const {
                continue;
             }
             // Remember this separator.
-            vitSeps.append(itSrc);
+            vitSeps.push_back(itSrc);
          }
          cDots = 0;
       }

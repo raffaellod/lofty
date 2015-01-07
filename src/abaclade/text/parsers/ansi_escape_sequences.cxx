@@ -39,7 +39,7 @@ bool ansi_escape_sequences::got_one_argument(std::int16_t iDefault0) {
    ABC_TRACE_FUNC(this, iDefault0);
 
    if (m_viCmdArgs.size() == 0) {
-      m_viCmdArgs.append(iDefault0);
+      m_viCmdArgs.push_back(iDefault0);
    }
    return m_viCmdArgs.size() == 1;
 }
@@ -48,10 +48,10 @@ bool ansi_escape_sequences::got_two_arguments(std::int16_t iDefault0, std::int16
    ABC_TRACE_FUNC(this, iDefault0, iDefault1);
 
    if (m_viCmdArgs.size() == 0) {
-      m_viCmdArgs.append(iDefault0);
+      m_viCmdArgs.push_back(iDefault0);
    }
    if (m_viCmdArgs.size() == 1) {
-      m_viCmdArgs.append(iDefault1);
+      m_viCmdArgs.push_back(iDefault1);
    }
    return m_viCmdArgs.size() == 2;
 }
@@ -82,10 +82,10 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 
       case state::bracket:
          if (ch >= '0' && ch <= '9') {
-            m_viCmdArgs.append(static_cast<std::int16_t>(ch - '0'));
+            m_viCmdArgs.push_back(static_cast<std::int16_t>(ch - '0'));
             m_state = state::numeric_arg;
          } else if (ch == ';') {
-            m_viCmdArgs.append(0);
+            m_viCmdArgs.push_back(0);
          } else if (ch == '?') {
             m_chSeqStart = ch;
          } else {
@@ -102,7 +102,7 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
                *piLastCmdArg * std::int16_t(10) + (ch - '0')
             );
          } else if (ch == ';') {
-            m_viCmdArgs.append(0);
+            m_viCmdArgs.push_back(0);
             if (m_chSeqStart == ']') {
                m_state = state::string_arg;
             }

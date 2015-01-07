@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -240,54 +240,54 @@ ABC_TESTING_TEST_CASE_FUNC(str_encode, "abc::*str classes – conversion to diff
    vb = s.encode(text::encoding::utf8, false);
    {
       smvector<std::uint8_t, 16> vbUtf8;
-      vbUtf8.append(0x24);
-      vbUtf8.append(0xc2);
-      vbUtf8.append(0xa2);
-      vbUtf8.append(0xe2);
-      vbUtf8.append(0x82);
-      vbUtf8.append(0xac);
-      vbUtf8.append(0xf0);
-      vbUtf8.append(0xa4);
-      vbUtf8.append(0xad);
-      vbUtf8.append(0xa2);
+      vbUtf8.push_back(0x24);
+      vbUtf8.push_back(0xc2);
+      vbUtf8.push_back(0xa2);
+      vbUtf8.push_back(0xe2);
+      vbUtf8.push_back(0x82);
+      vbUtf8.push_back(0xac);
+      vbUtf8.push_back(0xf0);
+      vbUtf8.push_back(0xa4);
+      vbUtf8.push_back(0xad);
+      vbUtf8.push_back(0xa2);
       ABC_TESTING_ASSERT_EQUAL(vb, vbUtf8);
    }
 
    vb = s.encode(text::encoding::utf16be, false);
    {
       smvector<std::uint8_t, 16> vbUtf16;
-      vbUtf16.append(0x00);
-      vbUtf16.append(0x24);
-      vbUtf16.append(0x00);
-      vbUtf16.append(0xa2);
-      vbUtf16.append(0x20);
-      vbUtf16.append(0xac);
-      vbUtf16.append(0xd8);
-      vbUtf16.append(0x52);
-      vbUtf16.append(0xdf);
-      vbUtf16.append(0x62);
+      vbUtf16.push_back(0x00);
+      vbUtf16.push_back(0x24);
+      vbUtf16.push_back(0x00);
+      vbUtf16.push_back(0xa2);
+      vbUtf16.push_back(0x20);
+      vbUtf16.push_back(0xac);
+      vbUtf16.push_back(0xd8);
+      vbUtf16.push_back(0x52);
+      vbUtf16.push_back(0xdf);
+      vbUtf16.push_back(0x62);
       ABC_TESTING_ASSERT_EQUAL(vb, vbUtf16);
    }
 
    vb = s.encode(text::encoding::utf32le, false);
    {
       smvector<std::uint8_t, 16> vbUtf32;
-      vbUtf32.append(0x24);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0xa2);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0xac);
-      vbUtf32.append(0x20);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x00);
-      vbUtf32.append(0x62);
-      vbUtf32.append(0x4b);
-      vbUtf32.append(0x02);
-      vbUtf32.append(0x00);
+      vbUtf32.push_back(0x24);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0xa2);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0xac);
+      vbUtf32.push_back(0x20);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x00);
+      vbUtf32.push_back(0x62);
+      vbUtf32.push_back(0x4b);
+      vbUtf32.push_back(0x02);
+      vbUtf32.push_back(0x00);
       ABC_TESTING_ASSERT_EQUAL(vb, vbUtf32);
    }
 }

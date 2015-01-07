@@ -48,8 +48,8 @@ public:
       istr s(ABC_SL("Test String"));
 
       smvector<int, 5> vi;
-      vi.append(101);
-      vi.append(102);
+      vi.push_back(101);
+      vi.push_back(102);
 
       auto out(io::text::stdout());
       out->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);

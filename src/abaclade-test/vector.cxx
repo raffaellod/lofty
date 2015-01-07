@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -47,20 +47,20 @@ public:
       // vector. For example:
       //
       //    dmvector<int> v1, v2;
-      //    v1.append(1);
-      //    v1.append(2);
-      //    v2.append(1);
-      //    v2.append(1);
+      //    v1.push_back(1);
+      //    v1.push_back(2);
+      //    v2.push_back(1);
+      //    v2.push_back(1);
       //    ABC_TESTING_ASSERT_EQUAL(v1, v2);
       //
       // The assertion above will succeed if any of these error conditions is true:
       // •  dmvector<int>::operator==() always returns true;
-      // •  dmvector<int>::append() never appends any elements;
-      // •  dmvector<int>::append() always appends more elements than it should.
+      // •  dmvector<int>::push_back() never appends any elements;
+      // •  dmvector<int>::push_back() always appends more elements than it should.
 
       ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
 
-      v.append(1);
+      v.push_back(1);
       ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v[0], 1);
 
@@ -80,7 +80,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v[0], 2);
       ABC_TESTING_ASSERT_EQUAL(v[1], 1);
 
-      v.append(3);
+      v.push_back(3);
       ABC_TESTING_ASSERT_EQUAL(v.size(), 3u);
       ABC_TESTING_ASSERT_EQUAL(v[0], 2);
       ABC_TESTING_ASSERT_EQUAL(v[1], 1);
@@ -116,13 +116,13 @@ public:
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v1a, v1b, v2, v3;
-      v1a.append(1);
-      v1a.append(2);
-      v1b.append(1);
-      v1b.append(2);
-      v2.append(2);
-      v2.append(3);
-      v3.append(1);
+      v1a.push_back(1);
+      v1a.push_back(2);
+      v1b.push_back(1);
+      v1b.push_back(2);
+      v2.push_back(2);
+      v2.push_back(3);
+      v3.push_back(1);
 
       ABC_TESTING_ASSERT_EQUAL(v1a, v1a);
       ABC_TESTING_ASSERT_EQUAL(v1a, v1b);
@@ -166,9 +166,9 @@ public:
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v;
-      v.append(1);
-      v.append(2);
-      v.append(3);
+      v.push_back(1);
+      v.push_back(2);
+      v.push_back(3);
 
       // Remove an element by iterator.
       v.remove_at(std::find(v.cbegin(), v.cend(), 2));
@@ -205,10 +205,10 @@ public:
       ABC_TRACE_FUNC(this);
 
       dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
-      vOne.append(1);
-      vTwo.append(2);
-      vOneTwo.append(1);
-      vOneTwo.append(2);
+      vOne.push_back(1);
+      vTwo.push_back(2);
+      vOneTwo.push_back(1);
+      vOneTwo.push_back(2);
 
       v = vZero;
 
@@ -330,20 +330,20 @@ public:
       // own embedded one.
 
       // Should allocate a new item array.
-      v1.append(10);
+      v1.push_back(10);
       ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
       ABC_TESTING_ASSERT_EQUAL(v1.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v1[0], 10);
 
       // Should begin using the embedded item array.
-      v2.append(20);
+      v2.push_back(20);
       ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
       ABC_TESTING_ASSERT_EQUAL(v2.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
       int const * const p2Static(v2.cbegin().base());
 
       // Should begin using the embedded item array.
-      v3.append(30);
+      v3.push_back(30);
       ABC_TESTING_ASSERT_TRUE(cdpt3.changed());
       ABC_TESTING_ASSERT_EQUAL(v3.size(), 1u);
       ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
@@ -352,15 +352,15 @@ public:
       // Add more elements to each vector.
 
       // These are too many for the newly-allocated item array, so a new one should be allocated.
-      v1.append(11);
-      v1.append(12);
-      v1.append(13);
-      v1.append(14);
-      v1.append(15);
-      v1.append(16);
-      v1.append(17);
-      v1.append(18);
-      v1.append(19);
+      v1.push_back(11);
+      v1.push_back(12);
+      v1.push_back(13);
+      v1.push_back(14);
+      v1.push_back(15);
+      v1.push_back(16);
+      v1.push_back(17);
+      v1.push_back(18);
+      v1.push_back(19);
       // Cannot ASSERT_TRUE on this change, because the item array may be resized in place.
       cdpt1.changed();
       ABC_TESTING_ASSERT_EQUAL(v1.size(), 10u);
@@ -376,15 +376,15 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v1[9], 19);
 
       // These are too many for the embedded item array, so a new item array should be allocated.
-      v2.append(21);
-      v2.append(22);
-      v2.append(23);
-      v2.append(24);
-      v2.append(25);
-      v2.append(26);
-      v2.append(27);
-      v2.append(28);
-      v2.append(29);
+      v2.push_back(21);
+      v2.push_back(22);
+      v2.push_back(23);
+      v2.push_back(24);
+      v2.push_back(25);
+      v2.push_back(26);
+      v2.push_back(27);
+      v2.push_back(28);
+      v2.push_back(29);
       ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
       ABC_TESTING_ASSERT_EQUAL(v2.size(), 10u);
       ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
@@ -399,7 +399,7 @@ public:
       ABC_TESTING_ASSERT_EQUAL(v2[9], 29);
 
       // The embedded item array has room for this, so no reallocation is needed.
-      v3.append(31);
+      v3.push_back(31);
       ABC_TESTING_ASSERT_EQUAL(v3.cbegin().base(), p3Static);
       ABC_TESTING_ASSERT_FALSE(cdpt3.changed());
       ABC_TESTING_ASSERT_EQUAL(v3.size(), 2u);
@@ -516,7 +516,7 @@ public:
 
          /* This should create a new copy, with no intermediate moves because all passages are by
          reference or pointer. */
-         v.append(v[0]);
+         v.push_back(v[0]);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
@@ -549,7 +549,7 @@ public:
 
       dmvector<instances_counter> v;
       // New instance, immediately moved.
-      v.append(instances_counter());
+      v.push_back(instances_counter());
       // This will move the item array or the items in it, depending on the destination type
       // (embedded or dynamic item array).
       return std::move(v);

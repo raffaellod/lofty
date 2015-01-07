@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013, 2014
+Copyright 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -59,7 +59,7 @@ void runner::load_registered_test_cases() {
       ++it
    ) {
       // Instantiate the test case.
-      m_vptc.append(it->factory(this));
+      m_vptc.push_back(it->factory(this));
    }
 }
 

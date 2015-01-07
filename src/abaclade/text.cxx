@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -727,7 +727,7 @@ void decode_error::init(
 ) {
    error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
    m_sDescription = sDescription;
-   m_viInvalid.append(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
+   m_viInvalid.push_back(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
 }
 
 /*virtual*/ void decode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {

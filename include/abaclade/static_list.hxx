@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -40,11 +40,11 @@ public:
    protected:
       //! Constructor.
       node() {
-         static_list::append(this);
+         static_list::push_back(this);
       }
       node(node const &) {
          // Skip copying the source’s links.
-         static_list::append(this);
+         static_list::push_back(this);
       }
 
       //! Destructor.
@@ -252,12 +252,12 @@ public:
    }
 
 private:
-   /*! Add a node to the end of the list.
+   /*! Adds a node to the end of the list.
 
    @param pn
-      Pointer to the node to append.
+      Pointer to the node to add.
    */
-   static void append(node * pn) {
+   static void push_back(node * pn) {
       pn->set_prev_next(nullptr, TContainer::sm_pnLast);
       if (!TContainer::sm_pnFirst) {
          TContainer::sm_pnFirst = pn;

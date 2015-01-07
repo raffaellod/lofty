@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -46,7 +46,7 @@ app::app() {
    pvsRet->set_capacity(static_cast<std::size_t>(cArgs), false);
    // Make each string not allocate a new character array.
    for (int i = 0; i < cArgs; ++i) {
-      pvsRet->append(istr(external_buffer, ppszArgs[i]));
+      pvsRet->push_back(istr(external_buffer, ppszArgs[i]));
    }
 }
 #if ABC_HOST_API_WIN32
