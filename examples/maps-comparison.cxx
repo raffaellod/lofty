@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/app.hxx>
 #include <abaclade/map.hxx>
 #include <abaclade/perf/stopwatch.hxx>
+#include <abaclade/range.hxx>
 
 #include <map>
 #include <unordered_map>
