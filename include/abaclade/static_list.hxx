@@ -27,7 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-//! Base for classes containing static lists of other (node) classes.
+/*! Allows a subclass (which must be a singleton, operating mostly via static members) to contain a
+list of nodes (instances of a static_list::node subclass). Nodes are typically added to the
+singleton at program startup, and this class ensures that they are removed when the program
+terminates. */
 template <class TContainer, class TValue>
 class static_list {
 public:
