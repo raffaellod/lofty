@@ -279,7 +279,7 @@ private:
       // Find pn in the list.
       for (
          node * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
-         pnCurr != TContainer::sm_pnLast;
+         pnCurr;
          pnPrev = pnCurr, pnCurr = pnNext
       ) {
          pnNext = pnCurr->get_next(pnPrev);
