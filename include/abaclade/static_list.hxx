@@ -309,7 +309,9 @@ private:
    Class derived from abc::static_list.
 */
 #define ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
+   /*! Pointer to the first node. */ \
    static node * sm_pnFirst; \
+   /*! Pointer to the last node. */ \
    static node * sm_pnLast;
 
 /*! Defines the static member variables for the specified abc::static_list-derived class.
