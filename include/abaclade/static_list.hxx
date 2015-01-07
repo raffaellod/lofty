@@ -278,23 +278,23 @@ private:
    static void remove(node * pn) {
       // Find pn in the list.
       for (
-         node * pnCurr = TContainer::sm_pnFirst, * pnPrev = nullptr;
+         node * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
          pnCurr != TContainer::sm_pnLast;
-         std::tie(pnPrev, pnCurr) = std::make_tuple(pnCurr, pnCurr->get_next(pnPrev))
+         pnPrev = pnCurr, pnCurr = pnNext
       ) {
+         pnNext = pnCurr->get_next(pnPrev);
          if (pnCurr == pn) {
-            node * pnNext = pn->get_next(pnPrev);
             if (pnPrev) {
-               pnPrev->set_prev_next(pnPrev->get_prev(pn), pnNext);
-            } else if (TContainer::sm_pnFirst == pn) {
+               pnPrev->set_prev_next(pnPrev->get_prev(pnCurr), pnNext);
+            } else if (TContainer::sm_pnFirst == pnCurr) {
                TContainer::sm_pnFirst = pnNext;
             }
             if (pnNext) {
-               pnNext->set_prev_next(pnPrev, pnNext->get_next(pn));
-            } else if (TContainer::sm_pnLast == pn) {
+               pnNext->set_prev_next(pnPrev, pnNext->get_next(pnCurr));
+            } else if (TContainer::sm_pnLast == pnCurr) {
                TContainer::sm_pnLast = pnPrev;
             }
-            pn->set_prev_next(nullptr, nullptr);
+            pnCurr->set_prev_next(nullptr, nullptr);
             break;
          }
       }
