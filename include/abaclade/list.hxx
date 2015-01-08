@@ -112,19 +112,7 @@ public:
    @param l
       Source object.
    */
-   list_impl & operator=(list_impl && l) {
-      ABC_TRACE_FUNC(this);
-
-      /* Assume that the subclass has already made a copy of m_pn{First,Last} to be able to release
-      them after calling this operator. */
-      m_pnFirst = l.m_pnFirst;
-      l.m_pnFirst = nullptr;
-      m_pnLast = l.m_pnLast;
-      l.m_pnLast = nullptr;
-      m_cNodes = l.m_cNodes;
-      l.m_cNodes = 0;
-      return *this;
-   }
+   list_impl & operator=(list_impl && l);
 
    /*! Returns the count of elements in the list.
 
@@ -141,76 +129,28 @@ protected:
    @param pn
       Pointer to the node to become the first in the list.
    */
-   void link_back(node_impl * pn) {
-      ABC_TRACE_FUNC(this, pn);
-
-      pn->set_prev_next(nullptr, m_pnLast);
-      if (!m_pnFirst) {
-         m_pnFirst = pn;
-      } else if (node_impl * pnLast = m_pnLast) {
-         pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
-      }
-      m_pnLast = pn;
-      ++m_cNodes;
-   }
+   void link_back(node_impl * pn);
 
    /*! Inserts a node to the start of the list.
 
    @param pn
       Pointer to the node to become the last in the list.
    */
-   void link_front(node_impl * pn) {
-      ABC_TRACE_FUNC(this, pn);
-
-      pn->set_prev_next(m_pnFirst, nullptr);
-      if (!m_pnLast) {
-         m_pnLast = pn;
-      } else if (node_impl * pnFirst = m_pnFirst) {
-         pnFirst->set_prev_next(pnFirst->get_prev(nullptr), pn);
-      }
-      m_pnFirst = pn;
-      ++m_cNodes;
-   }
+   void link_front(node_impl * pn);
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   node_impl * unlink_back() {
-      ABC_TRACE_FUNC(this);
-
-      node_impl * pn = m_pnLast, * pnPrev = pn->get_prev(nullptr);
-      m_pnLast = pnPrev;
-      if (pnPrev) {
-         pnPrev->set_prev_next(pnPrev->get_prev(pn), nullptr);
-      } else if (m_pnFirst == pn) {
-         m_pnFirst = nullptr;
-      }
-      --m_cNodes;
-      // Now the subclass must delete pn.
-      return pn;
-   }
+   node_impl * unlink_back();
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   node_impl * unlink_front() {
-      ABC_TRACE_FUNC(this);
-
-      node_impl * pn = m_pnFirst, * pnNext = pn->get_next(nullptr);
-      m_pnFirst = pnNext;
-      if (pnNext) {
-         pnNext->set_prev_next(nullptr, pnNext->get_next(pn));
-      } else if (m_pnLast == pn) {
-         m_pnLast = nullptr;
-      }
-      --m_cNodes;
-      // Now the subclass must delete pn.
-      return pn;
-   }
+   node_impl * unlink_front();
 
 protected:
    //! Pointer to the first node.
