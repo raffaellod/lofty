@@ -23,14 +23,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::xor_list_iterator
+// abc::detail::xor_list_iterator_impl
 
 namespace abc {
 namespace detail {
 
 //! Iterator for XOR doubly-linked list node classes.
 template <typename TIterator, typename TNode, typename TValue>
-class xor_list_iterator : public std::iterator<std::bidirectional_iterator_tag, TValue> {
+class xor_list_iterator_impl : public std::iterator<std::bidirectional_iterator_tag, TValue> {
 public:
    /*! Constructor.
 
@@ -41,7 +41,7 @@ public:
    @param pnNext
       Pointer to the node following *pnCurr.
    */
-   xor_list_iterator(TNode * pnPrev, TNode * pnCurr, TNode * pnNext) :
+   xor_list_iterator_impl(TNode * pnPrev, TNode * pnCurr, TNode * pnNext) :
       m_pnPrev(pnPrev),
       m_pnCurr(pnCurr),
       m_pnNext(pnNext) {
@@ -95,7 +95,7 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(xor_list_iterator const & it) const { \
+   bool operator op(xor_list_iterator_impl const & it) const { \
       return m_pnCurr op it.m_pnCurr; \
    }
 ABC_RELOP_IMPL(==)

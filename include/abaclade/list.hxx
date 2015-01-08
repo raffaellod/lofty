@@ -201,11 +201,14 @@ protected:
 
    //! Iterator for list::node subclasses.
    template <typename TValue>
-   class iterator_impl : public detail::xor_list_iterator<iterator_impl<TValue>, node, TValue> {
+   class iterator_impl :
+      public detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue> {
    public:
-      //! See detail::xor_list_iterator::xor_list_iterator().
+      //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
       iterator_impl(node * pnPrev, node * pnCurr, node * pnNext) :
-         detail::xor_list_iterator<iterator_impl<TValue>, node, TValue>(pnPrev, pnCurr, pnNext) {
+         detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue>(
+            pnPrev, pnCurr, pnNext
+         ) {
       }
 
       /*! Dereferencing operator.

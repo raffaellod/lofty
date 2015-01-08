@@ -102,11 +102,11 @@ public:
    };
 
    //! Iterator for static_list::node subclasses.
-   class iterator : public detail::xor_list_iterator<iterator, node, TValue> {
+   class iterator : public detail::xor_list_iterator_impl<iterator, node, TValue> {
    public:
-      //! See detail::xor_list_iterator::xor_list_iterator().
+      //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
       iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         detail::xor_list_iterator<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
+         detail::xor_list_iterator_impl<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
