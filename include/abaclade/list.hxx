@@ -27,8 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/range.hxx>
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::list_impl
@@ -201,117 +199,39 @@ protected:
       T m_t;
    };
 
-public:
    //! Iterator for list::node subclasses.
-   class iterator : public std::iterator<std::bidirectional_iterator_tag, T> {
+   template <typename TValue>
+   class iterator_impl : public detail::xor_list_iterator<iterator_impl<TValue>, node, TValue> {
    public:
-      /*! Constructor.
-
-      @param pnPrev
-         Pointer to the node preceding *pnCurr.
-      @param pnCurr
-         Pointer to the current node.
-      @param pnNext
-         Pointer to the node following *pnCurr.
-      */
-      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         m_pnPrev(pnPrev),
-         m_pnCurr(pnCurr),
-         m_pnNext(pnNext) {
+      //! See detail::xor_list_iterator::xor_list_iterator().
+      iterator_impl(node * pnPrev, node * pnCurr, node * pnNext) :
+         detail::xor_list_iterator<iterator_impl<TValue>, node, TValue>(pnPrev, pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
 
       @return
-         Reference to the current node.
+         Reference to the current value.
       */
-      T & operator*() const {
-         return *static_cast<T *>(m_pnCurr);
+      TValue & operator*() const {
+         return this->m_pnCurr->m_t;
       }
 
       /*! Dereferencing member access operator.
 
       @return
-         Pointer to the current node.
+         Pointer to the current value.
       */
-      T * operator->() const {
-         return static_cast<T *>(m_pnCurr);
+      TValue * operator->() const {
+         return &this->m_pnCurr->m_t;
       }
-
-      /*! Preincrement operator.
-
-      @return
-         *this after it’s moved to the node following the one currently pointed to by.
-      */
-      iterator & operator++() {
-         m_pnPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
-         return *this;
-      }
-
-      /*! Postincrement operator.
-
-      @return
-         Iterator pointing to the node following the one pointed to by this iterator.
-      */
-      iterator operator++(int) {
-         node * pnPrevPrev = m_pnPrev;
-         operator++();
-         return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
-      }
-
-      /*! Predecrement operator.
-
-      @return
-         *this after it’s moved to the node preceding the one currently pointed to by.
-      */
-      iterator & operator--() {
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnPrev;
-         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
-         return *this;
-      }
-
-      /*! Postdecrement operator.
-
-      @return
-         Iterator pointing to the node preceding the one pointed to by this iterator.
-      */
-      iterator operator--(int) {
-         node * pnNextNext = m_pnNext;
-         operator--();
-         return iterator(m_pnCurr, m_pnNext, pnNextNext);
-      }
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-      bool operator op(iterator const & it) const { \
-         return m_pnCurr op it.m_pnCurr; \
-      }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
-
-      /*! Returns the underlying iterator type.
-
-      @return
-         Pointer to the current node.
-      */
-      node * base() const {
-         return m_pnCurr;
-      }
-
-   private:
-      //! Pointer to the previous node.
-      node * m_pnPrev;
-      //! Pointer to the current node.
-      node * m_pnCurr;
-      //! Pointer to the next node.
-      node * m_pnNext;
    };
 
+public:
+   typedef iterator_impl<T> iterator;
+   typedef iterator_impl<T const> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
+   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
    /*! Constructor.

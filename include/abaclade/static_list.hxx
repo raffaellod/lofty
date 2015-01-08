@@ -36,36 +36,7 @@ class static_list {
 public:
    //! Base class for nodes of static_list.
    class node {
-   private:
-      friend class static_list;
-      friend class iterator;
-
-   protected:
-      //! Constructor.
-      node() {
-         static_list::push_back(this);
-      }
-      node(node const &) {
-         // Skip copying the source’s links.
-         static_list::push_back(this);
-      }
-
-      //! Destructor.
-      ~node() {
-         static_list::remove(this);
-      }
-
-      /*! Assignment operator.
-
-      @return
-         *this.
-      */
-      node & operator=(node const &) {
-         // Skip copying the source’s links.
-         return *this;
-      }
-
-   private:
+   public:
       /*! Returns a pointer to the next node.
 
       @param pnPrev
@@ -100,27 +71,42 @@ public:
                           reinterpret_cast<std::uintptr_t>(pnNext);
       }
 
+   protected:
+      //! Constructor.
+      node() {
+         static_list::push_back(this);
+      }
+      node(node const &) {
+         // Skip copying the source’s links.
+         static_list::push_back(this);
+      }
+
+      //! Destructor.
+      ~node() {
+         static_list::remove(this);
+      }
+
+      /*! Assignment operator.
+
+      @return
+         *this.
+      */
+      node & operator=(node const &) {
+         // Skip copying the source’s links.
+         return *this;
+      }
+
    private:
       //! Pointer to the previous node XOR pointer to the next node.
       std::uintptr_t m_iPrevXorNext;
    };
 
    //! Iterator for static_list::node subclasses.
-   class iterator : public std::iterator<std::bidirectional_iterator_tag, TValue> {
+   class iterator : public detail::xor_list_iterator<iterator, node, TValue> {
    public:
-      /*! Constructor.
-
-      @param pnPrev
-         Pointer to the node preceding *pnCurr.
-      @param pnCurr
-         Pointer to the current node.
-      @param pnNext
-         Pointer to the node following *pnCurr.
-      */
+      //! See detail::xor_list_iterator::xor_list_iterator().
       iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         m_pnPrev(pnPrev),
-         m_pnCurr(pnCurr),
-         m_pnNext(pnNext) {
+         detail::xor_list_iterator<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
@@ -129,7 +115,7 @@ public:
          Reference to the current node.
       */
       TValue & operator*() const {
-         return *static_cast<TValue *>(m_pnCurr);
+         return *static_cast<TValue *>(this->m_pnCurr);
       }
 
       /*! Dereferencing member access operator.
@@ -138,80 +124,8 @@ public:
          Pointer to the current node.
       */
       TValue * operator->() const {
-         return static_cast<TValue *>(m_pnCurr);
+         return static_cast<TValue *>(this->m_pnCurr);
       }
-
-      /*! Preincrement operator.
-
-      @return
-         *this after it’s moved to the node following the one currently pointed to by.
-      */
-      iterator & operator++() {
-         m_pnPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
-         return *this;
-      }
-
-      /*! Postincrement operator.
-
-      @return
-         Iterator pointing to the node following the one pointed to by this iterator.
-      */
-      iterator operator++(int) {
-         node * pnPrevPrev = m_pnPrev;
-         operator++();
-         return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
-      }
-
-      /*! Predecrement operator.
-
-      @return
-         *this after it’s moved to the node preceding the one currently pointed to by.
-      */
-      iterator & operator--() {
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnPrev;
-         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
-         return *this;
-      }
-
-      /*! Postdecrement operator.
-
-      @return
-         Iterator pointing to the node preceding the one pointed to by this iterator.
-      */
-      iterator operator--(int) {
-         node * pnNextNext = m_pnNext;
-         operator--();
-         return iterator(m_pnCurr, m_pnNext, pnNextNext);
-      }
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-      bool operator op(iterator const & it) const { \
-         return m_pnCurr op it.m_pnCurr; \
-      }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
-
-      /*! Returns the underlying iterator type.
-
-      @return
-         Pointer to the current node.
-      */
-      node * base() const {
-         return m_pnCurr;
-      }
-
-   private:
-      //! Pointer to the previous node.
-      node * m_pnPrev;
-      //! Pointer to the current node.
-      node * m_pnCurr;
-      //! Pointer to the next node.
-      node * m_pnNext;
    };
 
    typedef std::reverse_iterator<iterator> reverse_iterator;
