@@ -137,16 +137,6 @@ protected:
          m_t(std::move(t)) {
       }
 
-      //! See detail::xor_list_node_impl::get_next().
-      node * get_next(node * pnPrev) {
-         return static_cast<node *>(node_impl::get_next(static_cast<xor_list_node_impl *>(pnPrev)));
-      }
-
-      //! See detail::xor_list_node_impl::get_prev().
-      node * get_prev(node * pnNext) {
-         return static_cast<node *>(node_impl::get_prev(static_cast<xor_list_node_impl *>(pnNext)));
-      }
-
       /*! Returns a pointer to the contained T.
 
       @return
@@ -164,7 +154,7 @@ protected:
       T m_t;
    };
 
-   //! Iterator for list::node subclasses.
+   //! Nodes iterator.
    template <typename TValue>
    class iterator_impl :
       public detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue> {
@@ -336,9 +326,9 @@ private:
    void destruct_list(node * pnFirst) {
       ABC_TRACE_FUNC(this);
 
-      for (node * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
-         node * pnNext = pnCurr->get_next(pnPrev);
-         delete pnCurr;
+      for (node_impl * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
+         node_impl * pnNext = pnCurr->get_next(pnPrev);
+         delete static_cast<node *>(pnCurr);
          pnPrev = pnCurr;
          pnCurr = pnNext;
       }
