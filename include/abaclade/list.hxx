@@ -211,6 +211,27 @@ public:
    iterator begin() {
       return iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
    }
+   const_iterator begin() const {
+      return const_iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
+   }
+
+   /*! Returns a const forward iterator to the start of the list.
+
+   @return
+      Iterator to the first node in the list.
+   */
+   const_iterator cbegin() const {
+      return const_iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
+   }
+
+   /*! Returns a const forward iterator to the end of the list.
+
+   @return
+      Iterator to the beyond the last node in the list.
+   */
+   const_iterator cend() const {
+      return const_iterator(m_pnLast, nullptr, nullptr);
+   }
 
    //! Removes all elements from the list.
    void clear() {
@@ -220,6 +241,24 @@ public:
       m_cNodes = 0;
    }
 
+   /*! Returns a const reverse iterator to the end of the list.
+
+   @return
+      Reverse iterator to the last node in the list.
+   */
+   const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+   }
+
+   /*! Returns a const reverse iterator to the start of the list.
+
+   @return
+      Reverse iterator to the before the first node in the list.
+   */
+   const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
+   }
+
    /*! Returns a forward iterator to the end of the list.
 
    @return
@@ -227,6 +266,9 @@ public:
    */
    iterator end() {
       return iterator(m_pnLast, nullptr, nullptr);
+   }
+   const_iterator end() const {
+      return const_iterator(m_pnLast, nullptr, nullptr);
    }
 
    /*! Removes and returns the last element in the list.
@@ -288,10 +330,13 @@ public:
    /*! Returns a reverse iterator to the end of the list.
 
    @return
-      Reverse Iterator to the last node in the list.
+      Reverse iterator to the last node in the list.
    */
    reverse_iterator rbegin() {
       return reverse_iterator(end());
+   }
+   const_reverse_iterator rbegin() const {
+      return const_reverse_iterator(end());
    }
 
    //! Removes the last element in the list.
@@ -315,6 +360,9 @@ public:
    */
    reverse_iterator rend() {
       return reverse_iterator(begin());
+   }
+   const_reverse_iterator rend() const {
+      return const_reverse_iterator(begin());
    }
 
 private:
