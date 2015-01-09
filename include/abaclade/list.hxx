@@ -36,51 +36,6 @@ namespace detail {
 
 //! Non-template implementation class for abc::list.
 class ABACLADE_SYM list_impl {
-protected:
-   /*! Internal node representation. This is lacking the actual data, which is provided by
-   list::node. */
-   class node_impl {
-   public:
-      /*! Returns a pointer to the next node.
-
-      @param pnPrev
-         Pointer to the previous node.
-      */
-      node_impl * get_next(node_impl * pnPrev) {
-         return reinterpret_cast<node_impl *>(
-            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnPrev)
-         );
-      }
-
-      /*! Returns a pointer to the previous node.
-
-      @param pnNext
-         Pointer to the next node.
-      */
-      node_impl * get_prev(node_impl * pnNext) {
-         return reinterpret_cast<node_impl *>(
-            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnNext)
-         );
-      }
-
-      /*! Updates the previous/next pointer.
-
-      @param pnPrev
-         Pointer to the previous node.
-      @param pnNext
-         Pointer to the next node.
-      */
-      void set_prev_next(node_impl * pnPrev, node_impl * pnNext) {
-         m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
-                          reinterpret_cast<std::uintptr_t>(pnNext);
-      }
-
-   private:
-      //! Pointer to the previous node XOR pointer to the next node.
-      std::uintptr_t m_iPrevXorNext;
-   };
-
-
 public:
    /*! Constructor.
 
@@ -127,34 +82,34 @@ protected:
    @param pn
       Pointer to the node to become the first in the list.
    */
-   void link_back(node_impl * pn);
+   void link_back(xor_list_node_impl * pn);
 
    /*! Inserts a node to the start of the list.
 
    @param pn
       Pointer to the node to become the last in the list.
    */
-   void link_front(node_impl * pn);
+   void link_front(xor_list_node_impl * pn);
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   node_impl * unlink_back();
+   xor_list_node_impl * unlink_back();
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   node_impl * unlink_front();
+   xor_list_node_impl * unlink_front();
 
 protected:
    //! Pointer to the first node.
-   node_impl * m_pnFirst;
+   xor_list_node_impl * m_pnFirst;
    //! Pointer to the last node.
-   node_impl * m_pnLast;
+   xor_list_node_impl * m_pnLast;
    //! Count of nodes.
    std::size_t m_cNodes;
 };
@@ -170,28 +125,38 @@ namespace abc {
 //! Doubly-linked list.
 template <typename T>
 class list : public detail::list_impl {
+private:
+   typedef detail::xor_list_node_impl node_impl;
+
 protected:
-   //! Base class for nodes of list.
-   class node : public detail::list_impl::node_impl {
+   //! List node.
+   class node : public node_impl {
    public:
       //! Constructor.
       node(T t) :
          m_t(std::move(t)) {
       }
 
-      //! See node_impl::get_next().
+      //! See detail::xor_list_node_impl::get_next().
       node * get_next(node * pnPrev) {
-         return static_cast<node *>(node_impl::get_next(pnPrev));
+         return static_cast<node *>(node_impl::get_next(static_cast<xor_list_node_impl *>(pnPrev)));
       }
 
-      //! See node_impl::get_prev().
+      //! See detail::xor_list_node_impl::get_prev().
       node * get_prev(node * pnNext) {
-         return static_cast<node *>(node_impl::get_prev(pnNext));
+         return static_cast<node *>(node_impl::get_prev(static_cast<xor_list_node_impl *>(pnNext)));
       }
 
-      //! See node_impl::set_prev_next().
-      void set_prev_next(node * pnPrev, node * pnNext) {
-         node_impl::set_prev_next(pnPrev, pnNext);
+      /*! Returns a pointer to the contained T.
+
+      @return
+         Pointer to the contained value.
+      */
+      T * value_ptr() {
+         return &m_t;
+      }
+      T const * value_ptr() const {
+         return &m_t;
       }
 
    public:
@@ -209,24 +174,6 @@ protected:
          detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue>(
             pnPrev, pnCurr, pnNext
          ) {
-      }
-
-      /*! Dereferencing operator.
-
-      @return
-         Reference to the current value.
-      */
-      TValue & operator*() const {
-         return this->m_pnCurr->m_t;
-      }
-
-      /*! Dereferencing member access operator.
-
-      @return
-         Pointer to the current value.
-      */
-      TValue * operator->() const {
-         return &this->m_pnCurr->m_t;
       }
    };
 

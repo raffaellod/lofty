@@ -33,42 +33,24 @@ singleton at program startup, and this class ensures that they are removed when 
 terminates. */
 template <class TContainer, class TValue>
 class static_list {
+private:
+   typedef detail::xor_list_node_impl node_impl;
+
 public:
-   //! Base class for nodes of static_list.
-   class node {
+   /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
+   static_list subclass singleton. */
+   class node : public node_impl {
    public:
-      /*! Returns a pointer to the next node.
+      /*! Returns a pointer to the contained TValue.
 
-      @param pnPrev
-         Pointer to the previous node.
+      @return
+         Pointer to the contained value.
       */
-      node * get_next(node * pnPrev) {
-         return reinterpret_cast<node *>(
-            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnPrev)
-         );
+      TValue * value_ptr() {
+         return static_cast<TValue *>(this);
       }
-
-      /*! Returns a pointer to the previous node.
-
-      @param pnNext
-         Pointer to the next node.
-      */
-      node * get_prev(node * pnNext) {
-         return reinterpret_cast<node *>(
-            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnNext)
-         );
-      }
-
-      /*! Updates the previous/next pointer.
-
-      @param pnPrev
-         Pointer to the previous node.
-      @param pnNext
-         Pointer to the next node.
-      */
-      void set_prev_next(node * pnPrev, node * pnNext) {
-         m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
-                          reinterpret_cast<std::uintptr_t>(pnNext);
+      TValue const * get_value() const {
+         return static_cast<TValue const *>(this);
       }
 
    protected:
@@ -77,7 +59,6 @@ public:
          static_list::push_back(this);
       }
       node(node const &) {
-         // Skip copying the source’s links.
          static_list::push_back(this);
       }
 
@@ -85,46 +66,14 @@ public:
       ~node() {
          static_list::remove(this);
       }
-
-      /*! Assignment operator.
-
-      @return
-         *this.
-      */
-      node & operator=(node const &) {
-         // Skip copying the source’s links.
-         return *this;
-      }
-
-   private:
-      //! Pointer to the previous node XOR pointer to the next node.
-      std::uintptr_t m_iPrevXorNext;
    };
 
    //! Iterator for static_list::node subclasses.
    class iterator : public detail::xor_list_iterator_impl<iterator, node, TValue> {
    public:
       //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
-      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
+      iterator(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
          detail::xor_list_iterator_impl<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
-      }
-
-      /*! Dereferencing operator.
-
-      @return
-         Reference to the current node.
-      */
-      TValue & operator*() const {
-         return *static_cast<TValue *>(this->m_pnCurr);
-      }
-
-      /*! Dereferencing member access operator.
-
-      @return
-         Pointer to the current node.
-      */
-      TValue * operator->() const {
-         return static_cast<TValue *>(this->m_pnCurr);
       }
    };
 
@@ -137,7 +86,7 @@ public:
       Iterator to the first node in the list.
    */
    static iterator begin() {
-      node * pnFirst = TContainer::sm_pnFirst;
+      node_impl * pnFirst = TContainer::sm_pnFirst;
       return iterator(nullptr, pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
    }
 
@@ -174,11 +123,11 @@ private:
    @param pn
       Pointer to the node to add.
    */
-   static void push_back(node * pn) {
+   static void push_back(node_impl * pn) {
       pn->set_prev_next(nullptr, TContainer::sm_pnLast);
       if (!TContainer::sm_pnFirst) {
          TContainer::sm_pnFirst = pn;
-      } else if (node * pnLast = TContainer::sm_pnLast) {
+      } else if (node_impl * pnLast = TContainer::sm_pnLast) {
          pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
       }
       TContainer::sm_pnLast = pn;
@@ -189,10 +138,10 @@ private:
    @param pn
       Pointer to the node to remove.
    */
-   static void remove(node * pn) {
+   static void remove(node_impl * pn) {
       // Find pn in the list.
       for (
-         node * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
+         node_impl * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
          pnCurr;
          pnPrev = pnCurr, pnCurr = pnNext
       ) {
@@ -224,9 +173,9 @@ private:
 */
 #define ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
    /*! Pointer to the first node. */ \
-   static node * sm_pnFirst; \
+   static ::abc::detail::xor_list_node_impl * sm_pnFirst; \
    /*! Pointer to the last node. */ \
-   static node * sm_pnLast;
+   static ::abc::detail::xor_list_node_impl * sm_pnLast;
 
 /*! Defines the static member variables for the specified abc::static_list-derived class.
 
@@ -234,7 +183,7 @@ private:
    Class derived from abc::static_list.
 */
 #define ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   container::node * container::sm_pnFirst = nullptr; \
-   container::node * container::sm_pnLast = nullptr;
+   ::abc::detail::xor_list_node_impl * container::sm_pnFirst = nullptr; \
+   ::abc::detail::xor_list_node_impl * container::sm_pnLast = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

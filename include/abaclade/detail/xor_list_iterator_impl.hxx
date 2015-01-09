@@ -41,10 +41,30 @@ public:
    @param pnNext
       Pointer to the node following *pnCurr.
    */
-   xor_list_iterator_impl(TNode * pnPrev, TNode * pnCurr, TNode * pnNext) :
-      m_pnPrev(pnPrev),
-      m_pnCurr(pnCurr),
-      m_pnNext(pnNext) {
+   xor_list_iterator_impl(
+      xor_list_node_impl * pnPrev, xor_list_node_impl * pnCurr, xor_list_node_impl * pnNext
+   ) :
+      m_pnPrev(static_cast<TNode *>(pnPrev)),
+      m_pnCurr(static_cast<TNode *>(pnCurr)),
+      m_pnNext(static_cast<TNode *>(pnNext)) {
+   }
+
+   /*! Dereferencing operator.
+
+   @return
+      Reference to the current node.
+   */
+   TValue & operator*() const {
+      return *m_pnCurr->value_ptr();
+   }
+
+   /*! Dereferencing member access operator.
+
+   @return
+      Pointer to the current node.
+   */
+   TValue * operator->() const {
+      return m_pnCurr->value_ptr();
    }
 
    /*! Preincrement operator.
@@ -55,7 +75,7 @@ public:
    TIterator & operator++() {
       m_pnPrev = m_pnCurr;
       m_pnCurr = m_pnNext;
-      m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
+      m_pnNext = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_next(m_pnPrev)) : nullptr;
       return *static_cast<TIterator *>(this);
    }
 
@@ -78,7 +98,7 @@ public:
    TIterator & operator--() {
       m_pnNext = m_pnCurr;
       m_pnCurr = m_pnPrev;
-      m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
+      m_pnPrev = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_prev(m_pnNext)) : nullptr;
       return *static_cast<TIterator *>(this);
    }
 

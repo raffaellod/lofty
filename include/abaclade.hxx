@@ -839,6 +839,7 @@ class writer;
    #include <functional>
    #include <iterator>
 #endif
+#include <abaclade/detail/xor_list_node_impl.hxx>
 #include <abaclade/detail/xor_list_iterator_impl.hxx>
 #include <abaclade/static_list.hxx>
 #include <abaclade/thread_local.hxx>

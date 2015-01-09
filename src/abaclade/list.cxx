@@ -41,36 +41,36 @@ list_impl & list_impl::operator=(list_impl && l) {
    return *this;
 }
 
-void list_impl::link_back(node_impl * pn) {
+void list_impl::link_back(xor_list_node_impl * pn) {
    ABC_TRACE_FUNC(this, pn);
 
    pn->set_prev_next(nullptr, m_pnLast);
    if (!m_pnFirst) {
       m_pnFirst = pn;
-   } else if (node_impl * pnLast = m_pnLast) {
+   } else if (xor_list_node_impl * pnLast = m_pnLast) {
       pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
    }
    m_pnLast = pn;
    ++m_cNodes;
 }
 
-void list_impl::link_front(node_impl * pn) {
+void list_impl::link_front(xor_list_node_impl * pn) {
    ABC_TRACE_FUNC(this, pn);
 
    pn->set_prev_next(m_pnFirst, nullptr);
    if (!m_pnLast) {
       m_pnLast = pn;
-   } else if (node_impl * pnFirst = m_pnFirst) {
+   } else if (xor_list_node_impl * pnFirst = m_pnFirst) {
       pnFirst->set_prev_next(pnFirst->get_prev(nullptr), pn);
    }
    m_pnFirst = pn;
    ++m_cNodes;
 }
 
-list_impl::node_impl * list_impl::unlink_back() {
+xor_list_node_impl * list_impl::unlink_back() {
    ABC_TRACE_FUNC(this);
 
-   node_impl * pn = m_pnLast, * pnPrev = pn->get_prev(nullptr);
+   xor_list_node_impl * pn = m_pnLast, * pnPrev = pn->get_prev(nullptr);
    m_pnLast = pnPrev;
    if (pnPrev) {
       pnPrev->set_prev_next(pnPrev->get_prev(pn), nullptr);
@@ -82,10 +82,10 @@ list_impl::node_impl * list_impl::unlink_back() {
    return pn;
 }
 
-list_impl::node_impl * list_impl::unlink_front() {
+xor_list_node_impl * list_impl::unlink_front() {
    ABC_TRACE_FUNC(this);
 
-   node_impl * pn = m_pnFirst, * pnNext = pn->get_next(nullptr);
+   xor_list_node_impl * pn = m_pnFirst, * pnNext = pn->get_next(nullptr);
    m_pnFirst = pnNext;
    if (pnNext) {
       pnNext->set_prev_next(nullptr, pnNext->get_next(pn));
