@@ -34,19 +34,51 @@ ABC_TESTING_TEST_CASE_FUNC(list_basic, "abc::list – basic operations") {
    list<int> l;
 
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
-   ABC_TESTING_ASSERT_TRUE(l.begin() == l.end());
+   // These assertions target const begin/end.
+   ABC_TESTING_ASSERT_TRUE(l.cbegin() == l.cend());
+   ABC_TESTING_ASSERT_TRUE(l.crbegin() == l.crend());
 
    l.push_front(10);
    ABC_TESTING_ASSERT_EQUAL(l.size(), 1u);
+   {
+      /* This uses begin(), not cbegin(), so we can test equality comparison between const/non-const
+      iterators. */
+      auto it(l.begin());
+      ABC_TESTING_ASSERT_EQUAL(*it, 10);
+      ++it;
+      ABC_TESTING_ASSERT_TRUE(it == l.cend());
+   }
 
    l.push_back(20);
    ABC_TESTING_ASSERT_EQUAL(l.size(), 2u);
+   {
+      // This iterates backwards and is longer than, but symmetrical to, the block above.
+      auto it(l.rbegin());
+      ABC_TESTING_ASSERT_EQUAL(*it, 20);
+      ++it;
+      ABC_TESTING_ASSERT_EQUAL(*it, 10);
+      ++it;
+      ABC_TESTING_ASSERT_TRUE(it == l.crend());
+   }
 
    l.pop_front();
    ABC_TESTING_ASSERT_EQUAL(l.size(), 1u);
+   {
+      // Now iterate backwards using a forward iterator.
+      auto it(l.end());
+      --it;
+      ABC_TESTING_ASSERT_EQUAL(*it, 20);
+      ABC_TESTING_ASSERT_TRUE(it == l.cbegin());
+   }
 
    l.pop_back();
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
+   // These assertions target non-const begin/end.
+   ABC_TESTING_ASSERT_TRUE(l.begin() == l.end());
+   ABC_TESTING_ASSERT_TRUE(l.rbegin() == l.rend());
+
+   l.push_front(30);
+   ABC_TESTING_ASSERT_EQUAL(l.size(), 1u);
 
    l.clear();
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
