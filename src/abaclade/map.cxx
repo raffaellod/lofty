@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -101,16 +101,18 @@ std::pair<std::size_t, bool> map_impl::add(
 }
 
 std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
+   std::size_t const * piEmptyHash = m_piHashes.get() + iEmptyBucket;
    /* Minimum number of buckets on the right of iEmptyBucket that we need in order to have a full
    neighborhood to scan. */
    std::size_t cBucketsRightOfEmpty = m_cNeighborhoodBuckets - 1;
-   // Ensure that iEmptyBucket will be on the right of any of the buckets we’re going to check.
+   /* Ensure that the heighborhood ending with iEmptyBucket doesn’t wrap. Always having iEmptyBucket
+   on the right of any of the buckets we’re going to check simplifies the calculation of piHash and
+   the range checks in the loop. */
    if (iEmptyBucket < cBucketsRightOfEmpty) {
       iEmptyBucket += m_cBuckets;
    }
    // Calculate the bucket index range of the neighborhood that ends with iEmptyBucket.
-   std::size_t const * piEmptyHash = m_piHashes.get() + (iEmptyBucket & (m_cBuckets - 1)),
-                     * piHash      = piEmptyHash - cBucketsRightOfEmpty,
+   std::size_t const * piHash      = m_piHashes.get() + iEmptyBucket - cBucketsRightOfEmpty,
                      * piHashesEnd = m_piHashes.get() + m_cBuckets;
    // Prepare to track the count of collisions (identical hashes) in the selected neighborhood.
    std::size_t iSampleHash = *piHash, cCollisions = 0;
@@ -120,7 +122,7 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
       /* Get the end of the original neighborhood for the key in this bucket; if the empty bucket is
       within that index, the contents of this bucket can be moved to the empty one. */
       std::size_t iCurrNhEnd = hash_neighborhood_index(*piHash) + m_cNeighborhoodBuckets;
-      /* Both indices are allowed to be >m_cBuckets (see earlier if), so this comparison is always
+      /* Both indices are allowed to be >m_cBuckets (see above if), so this comparison is always
       valid. */
       if (iEmptyBucket < iCurrNhEnd) {
          return static_cast<std::size_t>(piHash - m_piHashes.get());
