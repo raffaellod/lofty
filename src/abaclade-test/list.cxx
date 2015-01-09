@@ -34,6 +34,7 @@ ABC_TESTING_TEST_CASE_FUNC(list_basic, "abc::list – basic operations") {
    list<int> l;
 
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
+   ABC_TESTING_ASSERT_TRUE(l.begin() == l.end());
 
    l.push_front(10);
    ABC_TESTING_ASSERT_EQUAL(l.size(), 1u);

@@ -160,7 +160,7 @@ protected:
       public detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue> {
    public:
       //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
-      iterator_impl(node * pnPrev, node * pnCurr, node * pnNext) :
+      iterator_impl(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
          detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue>(
             pnPrev, pnCurr, pnNext
          ) {
