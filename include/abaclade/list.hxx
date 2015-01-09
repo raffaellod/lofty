@@ -238,6 +238,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       destruct_list(static_cast<node *>(m_pnFirst));
+      m_pnFirst = m_pnLast = nullptr;
       m_cNodes = 0;
    }
 
