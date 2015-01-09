@@ -115,12 +115,31 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   bool operator op(xor_list_iterator_impl const & it) const { \
-      return m_pnCurr op it.m_pnCurr; \
+   template <typename TIterator2> \
+   bool operator op( \
+      xor_list_iterator_impl<TIterator2, TNode, typename std::add_const<TValue>::type> const & it \
+   ) const { \
+      return base() op it.base(); \
+   } \
+   template <typename TIterator2> \
+   bool operator op( \
+      xor_list_iterator_impl<TIterator2, TNode, \
+      typename std::remove_const<TValue>::type> const & it \
+   ) const { \
+      return base() op it.base(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
 #undef ABC_RELOP_IMPL
+
+   /*! Returns the underlying pointer to the node.
+
+   @return
+      Pointer to the current node.
+   */
+   TNode const * base() const {
+      return m_pnCurr;
+   }
 
 protected:
    //! Pointer to the previous node.
