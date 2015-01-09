@@ -381,7 +381,6 @@ private:
          pnPrev = pnCurr;
          pnCurr = pnNext;
       }
-      m_cNodes = 0;
    }
 };
 
