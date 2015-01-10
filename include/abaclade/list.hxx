@@ -67,6 +67,15 @@ public:
    */
    list_impl & operator=(list_impl && l);
 
+   /*! Returns true if the list contains no elements.
+
+   @return
+      true if the list is empty, or false otherwise.
+   */
+   bool empty() const {
+      return !m_cNodes;
+   }
+
    /*! Returns the count of elements in the list.
 
    @return
