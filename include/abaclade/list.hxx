@@ -86,6 +86,20 @@ public:
    }
 
 protected:
+   /*! Returns a pointer to the last node in the list, throwing an exception if the list is empty.
+
+   @return
+      Pointer to the last node.
+   */
+   xor_list_node_impl * back();
+
+   /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
+
+   @return
+      Pointer to the first node.
+   */
+   xor_list_node_impl * front();
+
    /*! Inserts a node to the end of the list.
 
    @param pn
@@ -212,6 +226,22 @@ public:
       return *this;
    }
 
+   /*! Returns a reference to the first element in the list.
+
+   @return
+      Reference to the first element in the list.
+   */
+   T & back() {
+      ABC_TRACE_FUNC(this);
+
+      return *static_cast<node *>(detail::list_impl::back())->value_ptr();
+   }
+   T const & back() const {
+      ABC_TRACE_FUNC(this);
+
+      return *static_cast<node *>(detail::list_impl::back())->value_ptr();
+   }
+
    /*! Returns a forward iterator to the start of the list.
 
    @return
@@ -279,6 +309,22 @@ public:
    }
    const_iterator end() const {
       return const_iterator(m_pnLast, nullptr, nullptr);
+   }
+
+   /*! Returns a reference to the last element in the list.
+
+   @return
+      Reference to the last element in the list.
+   */
+   T & front() {
+      ABC_TRACE_FUNC(this);
+
+      return *static_cast<node *>(detail::list_impl::front())->value_ptr();
+   }
+   T const & front() const {
+      ABC_TRACE_FUNC(this);
+
+      return *static_cast<node *>(detail::list_impl::front())->value_ptr();
    }
 
    /*! Removes and returns the last element in the list.

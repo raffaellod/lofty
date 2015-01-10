@@ -41,6 +41,24 @@ list_impl & list_impl::operator=(list_impl && l) {
    return *this;
 }
 
+xor_list_node_impl * list_impl::back() {
+   ABC_TRACE_FUNC(this);
+
+   if (m_pnLast) {
+      ABC_THROW(null_pointer_error, ());
+   }
+   return m_pnLast;
+}
+
+xor_list_node_impl * list_impl::front() {
+   ABC_TRACE_FUNC(this);
+
+   if (m_pnFirst) {
+      ABC_THROW(null_pointer_error, ());
+   }
+   return m_pnFirst;
+}
+
 void list_impl::link_back(xor_list_node_impl * pn) {
    ABC_TRACE_FUNC(this, pn);
 
