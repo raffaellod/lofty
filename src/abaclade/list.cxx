@@ -41,7 +41,7 @@ list_impl & list_impl::operator=(list_impl && l) {
    return *this;
 }
 
-xor_list_node_impl * list_impl::back() {
+xor_list_node_impl * list_impl::back() const {
    ABC_TRACE_FUNC(this);
 
    if (m_pnLast) {
@@ -50,7 +50,7 @@ xor_list_node_impl * list_impl::back() {
    return m_pnLast;
 }
 
-xor_list_node_impl * list_impl::front() {
+xor_list_node_impl * list_impl::front() const {
    ABC_TRACE_FUNC(this);
 
    if (m_pnFirst) {

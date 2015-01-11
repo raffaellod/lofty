@@ -91,14 +91,14 @@ protected:
    @return
       Pointer to the last node.
    */
-   xor_list_node_impl * back();
+   xor_list_node_impl * back() const;
 
    /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
 
    @return
       Pointer to the first node.
    */
-   xor_list_node_impl * front();
+   xor_list_node_impl * front() const;
 
    /*! Inserts a node to the end of the list.
 
