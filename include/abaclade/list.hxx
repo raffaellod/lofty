@@ -232,12 +232,12 @@ public:
       Reference to the first element in the list.
    */
    T & back() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       return *static_cast<node *>(detail::list_impl::back())->value_ptr();
    }
    T const & back() const {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       return *static_cast<node *>(detail::list_impl::back())->value_ptr();
    }
@@ -274,7 +274,7 @@ public:
 
    //! Removes all elements from the list.
    void clear() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       destruct_list(static_cast<node *>(m_pnFirst));
       m_pnFirst = m_pnLast = nullptr;
@@ -317,12 +317,12 @@ public:
       Reference to the last element in the list.
    */
    T & front() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       return *static_cast<node *>(detail::list_impl::front())->value_ptr();
    }
    T const & front() const {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       return *static_cast<node *>(detail::list_impl::front())->value_ptr();
    }
@@ -333,7 +333,7 @@ public:
       Former last element in the list.
    */
    T pop_back() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       std::unique_ptr<node> pn(static_cast<node *>(unlink_back()));
       return std::move(pn->m_t);
@@ -345,7 +345,7 @@ public:
       Former first element in the list.
    */
    T pop_front() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       std::unique_ptr<node> pn(static_cast<node *>(unlink_front()));
       return std::move(pn->m_t);
@@ -357,7 +357,7 @@ public:
       Element to add.
    */
    void push_front(T t) {
-      ABC_TRACE_FUNC(this/*, t*/);
+//      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
       node, since node_impl doesn’t have a virtual destructor. */
@@ -373,7 +373,7 @@ public:
       Element to add.
    */
    void push_back(T t) {
-      ABC_TRACE_FUNC(this/*, t*/);
+//      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
       node, since node_impl doesn’t have a virtual destructor. */
@@ -397,14 +397,14 @@ public:
 
    //! Removes the last element in the list.
    void remove_back() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       delete static_cast<node *>(unlink_back());
    }
 
    //! Removes the first element in the list.
    void remove_front() {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       delete static_cast<node *>(unlink_front());
    }
@@ -428,7 +428,7 @@ private:
       Pointer to the first node to destruct.
    */
    void destruct_list(node * pnFirst) {
-      ABC_TRACE_FUNC(this);
+//      ABC_TRACE_FUNC(this);
 
       for (node_impl * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
          node_impl * pnNext = pnCurr->get_next(pnPrev);
