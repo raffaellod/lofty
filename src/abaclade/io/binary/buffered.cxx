@@ -122,6 +122,9 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 /*virtual*/ default_buffered_reader::~default_buffered_reader() {
+   /* TODO: if async read in progress, block to avoid segfault (from the buffer going away) and warn
+   that this is a bug because read errors are not being checked for (the read bytes will be
+   discarded too, but that may be on purpose). */
 }
 
 /*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
@@ -171,6 +174,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
          m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
       );
       // Account for the additional data.
+      // TODO: don’t do this if async read in progress.
       m_cbReadBufUsed += cbRead;
    }
    // Return the “used window” of the buffer.
@@ -194,49 +198,98 @@ namespace abc {
 namespace io {
 namespace binary {
 
+default_buffered_writer::buffer::buffer(std::size_t cb) :
+   m_p(memory::_raw_alloc(cb)),
+   m_cb(cb),
+   m_cbUsed(0) {
+}
+
+default_buffered_writer::buffer::~buffer() {
+   if (m_p) {
+      memory::_raw_free(m_p);
+   }
+}
+
+void default_buffered_writer::buffer::mark_as_available(std::size_t cb) {
+   memory::move(get(), get() + cb, m_cbUsed);
+   m_cbUsed -= cb;
+}
+
+
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
-   m_pbw(std::move(pbw)),
-   m_cbWriteBuf(0),
-   m_cbWriteBufUsed(0) {
+   m_pbw(std::move(pbw)) {
 }
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
    ABC_TRACE_FUNC(this);
 
-   flush_buffer();
+   bool bAsyncPending;
+   if (any_buffered_data()) {
+      bAsyncPending = flush_buffer();
+   } else {
+      bAsyncPending = false /*TODO: m_pbw->async_pending()*/;
+   }
+   if (bAsyncPending) {
+      /* TODO: block to avoid segfault (from the buffer going away) and warn that this is a bug
+      because write errors are not being checked for. */
+   }
 }
 
-/*virtual*/ void default_buffered_writer::flush() /*override*/ {
+bool default_buffered_writer::any_buffered_data() const {
    ABC_TRACE_FUNC(this);
 
-   // Flush both the write buffer and any lower-level buffers.
-   flush_buffer();
-   m_pbw->flush();
+   return !m_lbufWriteBufs.empty() && m_lbufWriteBufs.front().used_size() > 0;
 }
 
 /*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb > m_cbWriteBuf - m_cbWriteBufUsed) {
+   if (!cb) {
+      return;
+   }
+   if (m_lbufWriteBufs.empty()) {
+      // Can’t commit any bytes without a write buffer.
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   buffer & buf = m_lbufWriteBufs.front();
+   if (cb > buf.available_size()) {
       // Can’t commit more bytes than are available in the write buffer.
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
    // Increase the count of used bytes in the buffer. If that makes the buffer full, flush it.
-   m_cbWriteBufUsed += cb;
-   if (m_cbWriteBufUsed == m_cbWriteBuf) {
+   buf.mark_as_used(cb);
+   if (!buf.available_size()) {
       flush_buffer();
    }
 }
 
-void default_buffered_writer::flush_buffer() {
+/*virtual*/ void default_buffered_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   if (m_cbWriteBufUsed) {
-      std::size_t cbWritten = m_pbw->write(m_pbWriteBuf.get(), m_cbWriteBufUsed);
-      ABC_ASSERT(cbWritten == m_cbWriteBufUsed, ABC_SL("the entire buffer must have been written"));
-      m_cbWriteBufUsed = 0;
+   if (!flush_buffer()) {
+      // TODO: the write is async, so block to make the raw flush (below) effective.
    }
+   // Flush any lower-level buffers.
+   m_pbw->flush();
+}
+
+bool default_buffered_writer::flush_buffer() {
+   ABC_TRACE_FUNC(this);
+
+   if (!m_lbufWriteBufs.empty()) {
+      buffer & buf = m_lbufWriteBufs.front();
+      if (buf.used_size()) {
+         // TODO: block if an earlier async write is still in progress.
+         std::size_t cbWritten = m_pbw->write(buf.get(), buf.used_size());
+         if (false /* TODO: async write in progress */) {
+            return false;
+         }
+         buf.mark_as_available(cbWritten);
+      }
+   }
+   return true;
 }
 
 /*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
@@ -244,20 +297,47 @@ void default_buffered_writer::flush_buffer() {
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   std::size_t cbWriteBufAvail = m_cbWriteBuf - m_cbWriteBufUsed;
-   // If the requested buffer size is more that is currently available, flush the buffer.
-   if (cb > cbWriteBufAvail) {
-      flush_buffer();
-      // If the buffer is still too small, enlarge it.
-      if (cb > m_cbWriteBuf) {
-         std::size_t cbWriteBufNew = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault);
-         memory::realloc(&m_pbWriteBuf, cbWriteBufNew);
-         m_cbWriteBuf = cbWriteBufNew;
+   bool bCreateNewBuffer = false;
+   buffer * pbuf;
+   if (m_lbufWriteBufs.empty()) {
+      // No buffer available: create one of sufficient size.
+      bCreateNewBuffer = true;
+   } else {
+      if (false /*TODO: m_pbw->async_pending()*/) {
+         /* This is a good time to discard any buffers that have been written asynchronously and are
+         now idle, since only one at a time may be in the process of being written asynchronously.
+         TODO: discard old buffers in more spots (and move to a separate method). */
+         while (m_lbufWriteBufs.size() > 1) {
+            m_lbufWriteBufs.remove_back();
+         }
       }
-      cbWriteBufAvail = m_cbWriteBuf;
+      pbuf = &m_lbufWriteBufs.front();
+      // If the requested size is more than is currently available in *pbuf, flush the buffer.
+      if (cb > pbuf->available_size()) {
+         /* TODO: flushing before the buffer is full is a mistake if *m_pbw wants writes of an
+         integer multiple of its block size. The only fix is implementing aligned_buffered_writer
+         that regroups writes in blocks of the correct size, without trying to solve too many issues
+         here ‒ divide et impera. */
+         if (flush_buffer()) {
+            if (cb > pbuf->size()) {
+               /* Flushing completed synchronously but the buffer is too small anyway, so throw it
+               away and create a new one. */
+               m_lbufWriteBufs.remove_front();
+               bCreateNewBuffer = true;
+            }
+         } else {
+            // Flushing did not complete synchronously, need a new buffer.
+            bCreateNewBuffer = true;
+         }
+      }
+   }
+   if (bCreateNewBuffer) {
+      std::size_t cbWriteBuf = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault);
+      m_lbufWriteBufs.push_front(buffer(cbWriteBuf));
+      pbuf = &m_lbufWriteBufs.front();
    }
    // Return the available portion of the buffer.
-   return std::pair<void *, std::size_t>(m_pbWriteBuf.get() + m_cbWriteBufUsed, cbWriteBufAvail);
+   return std::make_pair(pbuf->get() + pbuf->used_size(), pbuf->available_size());
 }
 
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {

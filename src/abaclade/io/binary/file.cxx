@@ -63,6 +63,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_reader::~file_reader() {
+   /* TODO: if async read in progress, block to avoid segfault and warn that this is a bug because
+   read errors are not being checked for (the read bytes will be discarded too, but that may be on
+   purpose). */
 }
 
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
@@ -124,6 +127,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_writer::~file_writer() {
+   /* TODO: if async write in progress, block to avoid segfault and warn that this is a bug because
+   write errors are not being checked for. */
 }
 
 /*virtual*/ void file_writer::flush() /*override*/ {
