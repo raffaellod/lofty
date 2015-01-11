@@ -86,7 +86,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          throw_os_error(iErr);
       }
    }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
    static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix read size calculation");
    DWORD cbRead;
    BOOL bRet = ::ReadFile(
@@ -97,9 +97,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       return 0;
    }
    return static_cast<std::size_t>(cbRead);
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
 }
 
 #if ABC_HOST_API_WIN32
@@ -151,44 +151,34 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   std::int8_t const * pb = static_cast<std::int8_t const *>(p);
-
-   /* The top half of this loop is OS-specific; the rest is generalized. As a guideline, the OS
-   write()-equivalent function is invoked at least once, so we give it a chance to report any
-   errors, instead of masking them by skipping the call (e.g. due to cb == 0 on input). */
-   do {
 #if ABC_HOST_API_POSIX
-      // This will be repeated at most three times, just to break a size_t-sized block down into
-      // ssize_t-sized blocks. EINTR may also cause this to repeat.
-      ::ssize_t cbLastWritten = ::write(
-         m_fd.get(), pb, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
+   // This may repeat in case of EINTR.
+   for (;;) {
+      static_assert(sizeof(std::size_t) >= sizeof(::ssize_t), "fix write size calculation");
+      ::ssize_t cbWritten = ::write(
+         m_fd.get(), p, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
       );
-      if (cbLastWritten == -1) {
-         int iErr = errno;
-         if (iErr == EINTR) {
-            continue;
-         }
+      if (cbWritten >= 0) {
+         return static_cast<std::size_t>(cbWritten);
+      }
+      int iErr = errno;
+      if (iErr != EINTR) {
          throw_os_error(iErr);
       }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      // This will be repeated at least once, and as long as we still have some bytes to write, and
-      // writing them does not fail.
-      DWORD cbLastWritten;
-      if (!::WriteFile(
-         m_fd.get(), pb, static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value)),
-         &cbLastWritten, nullptr
-      )) {
-         throw_os_error();
-      }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   }
+#elif ABC_HOST_API_WIN32
+   static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix write size calculation");
+   DWORD cbWritten;
+   if (!::WriteFile(
+      m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value)),
+      &cbWritten, nullptr
+   )) {
+      throw_os_error();
+   }
+   return static_cast<std::size_t>(cbWritten);
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-      // Some bytes were written; prepare for the next attempt.
-      pb += cbLastWritten;
-      cb -= static_cast<std::size_t>(cbLastWritten);
-   } while (cb);
-
-   return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
+#endif
 }
 
 } //namespace binary
