@@ -44,7 +44,7 @@ list_impl & list_impl::operator=(list_impl && l) {
 xor_list_node_impl * list_impl::back() const {
    ABC_TRACE_FUNC(this);
 
-   if (m_pnLast) {
+   if (!m_pnLast) {
       ABC_THROW(null_pointer_error, ());
    }
    return m_pnLast;
@@ -53,7 +53,7 @@ xor_list_node_impl * list_impl::back() const {
 xor_list_node_impl * list_impl::front() const {
    ABC_TRACE_FUNC(this);
 
-   if (m_pnFirst) {
+   if (!m_pnFirst) {
       ABC_THROW(null_pointer_error, ());
    }
    return m_pnFirst;
