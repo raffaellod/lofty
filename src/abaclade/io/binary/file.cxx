@@ -39,7 +39,7 @@ file_base::file_base(detail::file_init_data * pfid) :
    m_bAllowAsync(pfid->bAllowAsync) {
 #if ABC_HOST_API_WIN32
    if (m_bAllowAsync) {
-      m_ovl.hEvent = nullptr;
+      memory::clear(&m_ovl);
    }
 #endif
 }
@@ -71,6 +71,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
+   if (m_bAllowAsync) {
+      // TODO: block to ensure no async I/O is pending.
+   }
 #if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR.
    for (;;) {
@@ -82,18 +85,43 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          return static_cast<std::size_t>(cbRead);
       }
       int iErr = errno;
-      if (iErr != EINTR) {
-         throw_os_error(iErr);
+      switch (iErr) {
+         case EINTR:
+            break;
+         case EAGAIN: // Try again (POSIX.1-2001)
+   // These two values may or may not be different.
+   #if EWOULDBLOCK != EAGAIN
+         case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
+   #endif
+            // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+            return 0;
+         default:
+            throw_os_error(iErr);
       }
    }
 #elif ABC_HOST_API_WIN32
    static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix read size calculation");
+   ::OVERLAPPED * povl;
+   if (m_bAllowAsync) {
+      // Obtain the current file offset and set m_ovl to start there.
+      m_ovl.OffsetHigh = 0;
+      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &m_ovl.OffsetHigh, FILE_CURRENT);
+      // Ignore errors; if m_fd is not a seekable file, ::ReadFile() will ignore Offset* anyway.
+      povl = &m_ovl;
+   } else {
+      povl = nullptr;
+   }
    DWORD cbRead;
    BOOL bRet = ::ReadFile(
       m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
-      &cbRead, nullptr
+      &cbRead, povl
    );
-   if (check_if_eof_or_throw_os_error(cbRead, bRet ? ERROR_SUCCESS : ::GetLastError())) {
+   DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
+   if (iErr == ERROR_IO_PENDING) {
+      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+      return 0;
+   }
+   if (check_if_eof_or_throw_os_error(cbRead, iErr)) {
       return 0;
    }
    return static_cast<std::size_t>(cbRead);
@@ -134,6 +162,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
+   if (m_bAllowAsync) {
+      // TODO: block to ensure no async I/O is pending.
+   }
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
    if (::fsync(m_fd.get())) {
@@ -151,6 +182,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
+   if (m_bAllowAsync) {
+      // TODO: block to ensure no async I/O is pending.
+   }
 #if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR.
    for (;;) {
@@ -162,18 +196,43 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          return static_cast<std::size_t>(cbWritten);
       }
       int iErr = errno;
-      if (iErr != EINTR) {
-         throw_os_error(iErr);
+      switch (iErr) {
+         case EINTR:
+            break;
+         case EAGAIN: // Try again (POSIX.1-2001)
+   // These two values may or may not be different.
+   #if EWOULDBLOCK != EAGAIN
+         case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
+   #endif
+            // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+            return 0;
+         default:
+            throw_os_error(iErr);
       }
    }
 #elif ABC_HOST_API_WIN32
    static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix write size calculation");
+   ::OVERLAPPED * povl;
+   if (m_bAllowAsync) {
+      // Obtain the current file offset and set m_ovl to start there.
+      m_ovl.OffsetHigh = 0;
+      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &m_ovl.OffsetHigh, FILE_CURRENT);
+      // Ignore errors; if m_fd is not a seekable file, ::WriteFile() will ignore Offset* anyway.
+      povl = &m_ovl;
+   } else {
+      povl = nullptr;
+   }
    DWORD cbWritten;
    if (!::WriteFile(
       m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value)),
       &cbWritten, nullptr
    )) {
-      throw_os_error();
+      DWORD iErr = ::GetLastError();
+      if (iErr == ERROR_IO_PENDING) {
+         // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+         return 0;
+      }
+      throw_os_error(iErr);
    }
    return static_cast<std::size_t>(cbWritten);
 #else

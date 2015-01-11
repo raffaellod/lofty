@@ -268,10 +268,11 @@ bool default_buffered_writer::any_buffered_data() const {
 /*virtual*/ void default_buffered_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   if (!flush_buffer()) {
-      // TODO: the write is async, so block to make the raw flush (below) effective.
-   }
-   // Flush any lower-level buffers.
+   /* Flush any buffered bytes in m_lbufWriteBufs.front(). This will block if a previous write is
+   still pending. */
+   flush_buffer();
+   /* Flush any lower-level buffers. This will block if flush_buffer() resulted in a new pending
+   write, or if there was already one and flush_buffer() didn’t need to wait for it. */
    m_pbw->flush();
 }
 
