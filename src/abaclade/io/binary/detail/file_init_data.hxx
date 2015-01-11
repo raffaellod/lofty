@@ -42,9 +42,9 @@ struct file_init_data {
    /*! Determines what type of I/O object will be instantiated. To be set before calling
    _construct(). */
    access_mode am;
-   /*! If true, causes reads/writes to the file to not necessarily complete by the time the OS’s I/O
-   function returns. */
-   bool bAsync:1;
+   /* If true, asynchronous I/O is allowed for this file. To understand why “allowed” instead of
+   “enforced”, abc::io::binary::file_base::m_bAllowAsync. */
+   bool bAllowAsync:1;
    /*! If true, causes the file to be opened with flags to the effect of disabling OS cache for the
    file. To be set before calling _construct(). */
    bool bBypassCache:1;

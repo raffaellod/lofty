@@ -36,10 +36,10 @@ namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd)),
-   m_bAsync(pfid->bAsync) {
+   m_bAllowAsync(pfid->bAllowAsync) {
 #if ABC_HOST_API_WIN32
-   if (m_bAsync) {
-      memory::clear(m_ovl.hEvent);
+   if (m_bAllowAsync) {
+      m_ovl.hEvent = nullptr;
    }
 #endif
 }

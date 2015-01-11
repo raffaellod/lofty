@@ -53,7 +53,10 @@ protected:
 #if ABC_HOST_API_WIN32
    ::OVERLAPPED m_ovl;
 #endif
-   bool m_bAsync:1;
+   /* If true, asynchronous I/O is allowed for this file. Only false if Abaclade can be certain that
+   the file doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not
+   when the file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
+   bool m_bAllowAsync:1;
 };
 
 } //namespace binary

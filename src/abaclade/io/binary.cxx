@@ -187,8 +187,11 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = am;
-   // Since this method is supposed to be used only for standard descriptors, assume that OS
-   // buffering is on.
+   /* There’s no way of knowing (in Win32 or in POSIX, at least) whether a file has been opened with
+   asynchronous I/O enabled, so for safety assume it has. */
+   fid.bAllowAsync = true;
+   /* Since this method is supposed to be used only for standard descriptors, assume that OS
+   buffering is on. */
    fid.bBypassCache = false;
    return _construct(&fid);
 }
@@ -374,7 +377,7 @@ std::shared_ptr<file_base> open(
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    fid.am = am;
-   fid.bAsync = bAsync;
+   fid.bAllowAsync = bAsync;
    fid.bBypassCache = bBypassCache;
    return _construct(&fid);
 }
