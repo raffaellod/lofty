@@ -262,6 +262,12 @@ public:
    //! Destructor.
    virtual ~default_buffered_reader();
 
+   //! See buffered_reader::async_join().
+   virtual void async_join() override;
+
+   //! See buffered_reader::async_pending().
+   virtual bool async_pending() const override;
+
    //! See buffered_reader::consume_bytes().
    virtual void consume_bytes(std::size_t cb) override;
 
@@ -398,6 +404,12 @@ public:
 
    //! Destructor.
    virtual ~default_buffered_writer();
+
+   //! See buffered_writer::async_join().
+   virtual void async_join() override;
+
+   //! See buffered_writer::async_pending().
+   virtual bool async_pending() const override;
 
    //! See buffered_writer::commit_bytes().
    virtual void commit_bytes(std::size_t cb) override;

@@ -122,9 +122,28 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 }
 
 /*virtual*/ default_buffered_reader::~default_buffered_reader() {
-   /* TODO: if async read in progress, block to avoid segfault (from the buffer going away) and warn
-   that this is a bug because read errors are not being checked for (the read bytes will be
-   discarded too, but that may be on purpose). */
+   if (m_pbr->async_pending()) {
+      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
+      m_pbr->async_join();
+      /* TODO: warn that this is a bug because I/O errors are not being checked for. Also, the read
+      bytes will be discarded, but that may be intentional. */
+   }
+}
+
+/*virtual*/ void default_buffered_reader::async_join() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   if (m_pbr->async_pending()) {
+      m_pbr->async_join();
+      // TODO: under Win32, do this:
+      //m_cbReadBufUsed += cbRead;
+   }
+}
+
+/*virtual*/ bool default_buffered_reader::async_pending() const /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   return m_pbr->async_pending();
 }
 
 /*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
@@ -174,7 +193,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
          m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
       );
       // Account for the additional data.
-      // TODO: don’t do this if async read in progress.
+      // TODO: under Win32, don’t do this if async read in progress.
       m_cbReadBufUsed += cbRead;
    }
    // Return the “used window” of the buffer.
@@ -227,11 +246,12 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    if (any_buffered_data()) {
       bAsyncPending = flush_buffer();
    } else {
-      bAsyncPending = false /*TODO: m_pbw->async_pending()*/;
+      bAsyncPending = m_pbw->async_pending();
    }
    if (bAsyncPending) {
-      /* TODO: block to avoid segfault (from the buffer going away) and warn that this is a bug
-      because write errors are not being checked for. */
+      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
+      m_pbw->async_join();
+      // TODO: warn that this is a bug because I/O errors are not being checked for.
    }
 }
 
@@ -239,6 +259,26 @@ bool default_buffered_writer::any_buffered_data() const {
    ABC_TRACE_FUNC(this);
 
    return !m_lbufWriteBufs.empty() && m_lbufWriteBufs.front().used_size() > 0;
+}
+
+/*virtual*/ void default_buffered_writer::async_join() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   if (m_pbw->async_pending()) {
+      m_pbw->async_join();
+      /* This is a good time to discard any buffers that have been written asynchronously and are
+      now idle, since only one at a time may be in the process of being written asynchronously.
+      TODO: discard old buffers in more spots (and move to a separate method). */
+      while (m_lbufWriteBufs.size() > 1) {
+         m_lbufWriteBufs.remove_back();
+      }
+   }
+}
+
+/*virtual*/ bool default_buffered_writer::async_pending() const /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   return m_pbw->async_pending();
 }
 
 /*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {

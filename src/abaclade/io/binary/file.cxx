@@ -36,7 +36,8 @@ namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd)),
-   m_bAllowAsync(pfid->bAllowAsync) {
+   m_bAllowAsync(pfid->bAllowAsync),
+   m_bAsyncPending(false) {
 #if ABC_HOST_API_WIN32
    if (m_bAllowAsync) {
       memory::clear(&m_ovl);
@@ -45,6 +46,31 @@ file_base::file_base(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_base::~file_base() {
+   ABC_ASSERT(
+      !m_bAsyncPending,
+      ABC_SL("abc::io::binary::file_base subclass’s destructor must block for completion of ")
+      ABC_SL("pending asynchronous I/O")
+   );
+}
+
+/*virtual*/ void file_base::async_join() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   if (m_bAsyncPending) {
+      // TODO: block.
+#if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
+#else
+   #error "TODO: HOST_API"
+#endif
+      m_bAsyncPending = false;
+   }
+}
+
+/*virtual*/ bool file_base::async_pending() const /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   return m_bAsyncPending;
 }
 
 } //namespace binary
@@ -63,16 +89,18 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_reader::~file_reader() {
-   /* TODO: if async read in progress, block to avoid segfault and warn that this is a bug because
-   read errors are not being checked for (the read bytes will be discarded too, but that may be on
-   purpose). */
+   if (m_bAsyncPending) {
+      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
+      async_join();
+      // TODO: warn that this is a bug because I/O errors are not being checked for.
+   }
 }
 
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   if (m_bAllowAsync) {
-      // TODO: block to ensure no async I/O is pending.
+   if (m_bAsyncPending) {
+      async_join();
    }
 #if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR.
@@ -94,6 +122,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
             // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+            m_bAsyncPending = true;
             return 0;
          default:
             throw_os_error(iErr);
@@ -119,6 +148,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
    if (iErr == ERROR_IO_PENDING) {
       // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+      m_bAsyncPending = true;
       return 0;
    }
    if (check_if_eof_or_throw_os_error(cbRead, iErr)) {
@@ -155,15 +185,18 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_writer::~file_writer() {
-   /* TODO: if async write in progress, block to avoid segfault and warn that this is a bug because
-   write errors are not being checked for. */
+   if (m_bAsyncPending) {
+      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
+      async_join();
+      // TODO: warn that this is a bug because I/O errors are not being checked for.
+   }
 }
 
 /*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   if (m_bAllowAsync) {
-      // TODO: block to ensure no async I/O is pending.
+   if (m_bAsyncPending) {
+      async_join();
    }
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
@@ -182,8 +215,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   if (m_bAllowAsync) {
-      // TODO: block to ensure no async I/O is pending.
+   if (m_bAsyncPending) {
+      async_join();
    }
 #if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR.
@@ -205,6 +238,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
             // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+            m_bAsyncPending = true;
             return 0;
          default:
             throw_os_error(iErr);
@@ -230,6 +264,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       DWORD iErr = ::GetLastError();
       if (iErr == ERROR_IO_PENDING) {
          // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+         m_bAsyncPending = true;
          return 0;
       }
       throw_os_error(iErr);

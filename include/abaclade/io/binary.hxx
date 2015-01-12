@@ -138,7 +138,7 @@ namespace io {
 namespace binary {
 
 //! Base interface for binary (non-text) I/O.
-class ABACLADE_SYM base {
+class ABACLADE_SYM base : public async {
 public:
    //! Destructor. Also needed to make the class polymorphic (have a vtable).
    virtual ~base();

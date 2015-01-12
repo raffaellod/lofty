@@ -39,6 +39,12 @@ public:
    //! Destructor.
    virtual ~file_base();
 
+   //! See binary::base::async_join().
+   virtual void async_join() override;
+
+   //! See binary::base::async_pending().
+   virtual bool async_pending() const override;
+
 protected:
    /*! Constructor.
 
@@ -53,10 +59,12 @@ protected:
 #if ABC_HOST_API_WIN32
    ::OVERLAPPED m_ovl;
 #endif
-   /* If true, asynchronous I/O is allowed for this file. Only false if Abaclade can be certain that
-   the file doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not
-   when the file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
+   /*! If true, asynchronous I/O is allowed. Only false if Abaclade can be certain that the file
+   doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not when the
+   file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
    bool m_bAllowAsync:1;
+   //! If true, the last I/O operation did not complete. This is reset to false by async_join().
+   bool m_bAsyncPending:1;
 };
 
 } //namespace binary
