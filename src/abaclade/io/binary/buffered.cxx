@@ -168,7 +168,6 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
          /* No more room in the buffer. If the “used window” is at an offset (m_ibReadBufUsed > 0),
          shift it backwards to offset 0, and we’ll use the resulting free space (m_ibReadBufUsed
          bytes); otherwise just enlarge the buffer. */
-
          if (m_ibReadBufUsed > 0) {
             if (m_cbReadBufUsed) {
                memory::move(
@@ -190,8 +189,8 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
       std::size_t cbRead = m_pbr->read(
          m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
       );
-      // Account for the additional data.
-      // TODO: under Win32, don’t do this if async read in progress.
+      // Account for the additional data read.
+      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
       m_cbReadBufUsed += cbRead;
    }
    // Return the “used window” of the buffer.
@@ -264,10 +263,10 @@ bool default_buffered_writer::any_buffered_data() const {
 
    if (m_pbw->async_pending()) {
       m_pbw->async_join();
-      /* This is a good time to discard any buffers that have been written asynchronously and are
-      now idle, since only one at a time may be in the process of being written asynchronously.
-      TODO: discard old buffers in more spots (and move to a separate method). */
+      /* Discard any buffers that have been written asynchronously and are now idle, only keeping
+      the first one (front). */
       while (m_lbufWriteBufs.size() > 1) {
+         // TODO: recycle buffers by using a class-level buffer pool.
          m_lbufWriteBufs.remove_back();
       }
    }
@@ -320,9 +319,13 @@ bool default_buffered_writer::flush_buffer() {
    if (!m_lbufWriteBufs.empty()) {
       buffer & buf = m_lbufWriteBufs.front();
       if (buf.used_size()) {
-         // TODO: block if an earlier async write is still in progress.
+         // Block if an earlier I/O operation is still in progress.
+         if (m_pbw->async_pending()) {
+            m_pbw->async_join();
+         }
          std::size_t cbWritten = m_pbw->write(buf.get(), buf.used_size());
-         if (false /* TODO: async write in progress */) {
+         if (m_pbw->async_pending()) {
+            // Flushing is still in progress.
             return false;
          }
          buf.mark_as_available(cbWritten);
@@ -342,14 +345,6 @@ bool default_buffered_writer::flush_buffer() {
       // No buffer available: create one of sufficient size.
       bCreateNewBuffer = true;
    } else {
-      if (false /*TODO: m_pbw->async_pending()*/) {
-         /* This is a good time to discard any buffers that have been written asynchronously and are
-         now idle, since only one at a time may be in the process of being written asynchronously.
-         TODO: discard old buffers in more spots (and move to a separate method). */
-         while (m_lbufWriteBufs.size() > 1) {
-            m_lbufWriteBufs.remove_back();
-         }
-      }
       pbuf = &m_lbufWriteBufs.front();
       // If the requested size is more than is currently available in *pbuf, flush the buffer.
       if (cb > pbuf->available_size()) {
