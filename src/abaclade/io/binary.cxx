@@ -181,7 +181,7 @@ return
    Pointer to a binary I/O object controlling fd.
 */
 std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
-   ABC_TRACE_FUNC(/*fd*/);
+   ABC_TRACE_FUNC(/*fd, */am);
 
    detail::file_init_data fid;
    fid.fd = std::move(fd);
