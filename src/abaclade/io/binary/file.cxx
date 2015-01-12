@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include "detail/file_init_data.hxx"
 
-#include <algorithm>
+#include <algorithm> // std::min()
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
    #include <unistd.h> // ssize_t read() write()
