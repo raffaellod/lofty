@@ -55,11 +55,11 @@ file_base::file_base(detail::file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
 
 bool file_base::async_poll(bool bWrite, bool bWait) const {
+   ::pollfd pfd;
+   pfd.fd = m_fd.get();
+   pfd.events = (bWrite ? POLLOUT : POLLIN) | POLLPRI;
    // This may repeat in case of EINTR.
    for (;;) {
-      ::pollfd pfd;
-      pfd.fd = m_fd.get();
-      pfd.events = (bWrite ? POLLOUT : POLLIN) | POLLPRI;
       int iRet = ::poll(&pfd, 1, bWait ? -1 : 0);
       if (iRet >= 0) {
          if (iRet > 0) {
