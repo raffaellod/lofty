@@ -128,7 +128,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    }
 }
 
-/*virtual*/ void default_buffered_reader::async_join() /*override*/ {
+/*virtual*/ std::size_t default_buffered_reader::async_join() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (m_pbr->async_pending()) {
@@ -258,7 +258,7 @@ bool default_buffered_writer::any_buffered_data() const {
    return !m_lbufWriteBufs.empty() && m_lbufWriteBufs.front().used_size() > 0;
 }
 
-/*virtual*/ void default_buffered_writer::async_join() /*override*/ {
+/*virtual*/ std::size_t default_buffered_writer::async_join() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (m_pbw->async_pending()) {

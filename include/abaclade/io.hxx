@@ -169,11 +169,15 @@ private:
 namespace abc {
 namespace io {
 
-//! Interface to operate I/O classes asychronously.
+//! Interface to operate I/O classes asynchronously.
 class ABACLADE_SYM async {
 public:
-   //! Waits for the completion of any pending I/O.
-   virtual void async_join() = 0;
+   /*! Waits for the completion of any pending I/O.
+
+   @return
+      Size of the transferred data, in bytes.
+   */
+   virtual std::size_t async_join() = 0;
 
    /*! Returns true if the object has any pending I/O operations.
 
