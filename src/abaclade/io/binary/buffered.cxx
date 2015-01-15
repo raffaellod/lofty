@@ -48,6 +48,38 @@ std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::detail::buffer
+
+namespace abc {
+namespace io {
+namespace binary {
+namespace detail {
+
+buffer::buffer(std::size_t cb) :
+   m_p(memory::_raw_alloc(cb)),
+   m_cb(cb),
+   m_cbUsed(0) {
+}
+
+buffer::~buffer() {
+   if (m_p) {
+      memory::_raw_free(m_p);
+   }
+}
+
+void buffer::mark_as_available(std::size_t cb) {
+   ABC_TRACE_FUNC(this, cb);
+
+   m_cbUsed -= cb;
+   memory::move(get(), get() + cb, m_cbUsed);
+}
+
+} //namespace detail
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_reader
 
 namespace abc {
@@ -214,24 +246,6 @@ namespace abc {
 namespace io {
 namespace binary {
 
-default_buffered_writer::buffer::buffer(std::size_t cb) :
-   m_p(memory::_raw_alloc(cb)),
-   m_cb(cb),
-   m_cbUsed(0) {
-}
-
-default_buffered_writer::buffer::~buffer() {
-   if (m_p) {
-      memory::_raw_free(m_p);
-   }
-}
-
-void default_buffered_writer::buffer::mark_as_available(std::size_t cb) {
-   m_cbUsed -= cb;
-   memory::move(get(), get() + cb, m_cbUsed);
-}
-
-
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    m_pbw(std::move(pbw)) {
 }
@@ -275,7 +289,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 void default_buffered_writer::buffer_write_complete(std::size_t cbWritten) {
    ABC_TRACE_FUNC(this, cbWritten);
 
-   buffer * pbuf = &m_lbufWriteBufs.back();
+   detail::buffer * pbuf = &m_lbufWriteBufs.back();
    pbuf->mark_as_available(cbWritten);
    if (!pbuf->used_size()) {
       // Discard this now-unnecessary extra buffer.
@@ -295,7 +309,7 @@ void default_buffered_writer::buffer_write_complete(std::size_t cbWritten) {
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-   buffer * pbuf = &m_lbufWriteBufs.front();
+   detail::buffer * pbuf = &m_lbufWriteBufs.front();
    if (cb > pbuf->available_size()) {
       // Can’t commit more bytes than are available in the write buffer.
       // TODO: use a better exception class.
@@ -321,7 +335,7 @@ void default_buffered_writer::flush_all_buffers() {
    }
    // Flush any remaining buffers.
    while (!m_lbufWriteBufs.empty()) {
-      buffer * pbuf = &m_lbufWriteBufs.back();
+      detail::buffer * pbuf = &m_lbufWriteBufs.back();
       // *pbuf must have used_size() > 0, otherwise it wouldn’t exist.
       /* TODO: if *m_pbw expects writes of an integer multiple of its block size but the buffer is
       not 100% full, do something ‒ maybe truncate m_pbw afterwards if possible? */
@@ -342,13 +356,11 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
    }
    std::size_t cbWrittenTotal = 0;
    while (!m_lbufWriteBufs.empty()) {
-      buffer * pbuf = &m_lbufWriteBufs.back();
+      detail::buffer * pbuf = &m_lbufWriteBufs.back();
       // *pbuf must have used_size() > 0, otherwise it wouldn’t exist.
-
       /* TODO: if *m_pbw expects writes of an integer multiple of its block size and there’s no
       following buffer than can be partially moved into *pbuf to make *pbuf full, stop here; this
       method doesn’t have to flush all buffers. */
-
       std::size_t cbWritten = m_pbw->write(pbuf->get(), pbuf->used_size());
       // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
       if (m_pbw->async_pending()) {
@@ -368,7 +380,7 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
    flush_nonblocking_full_buffers();
 
    // Use the front() buffer if it has enough space available, or add a new buffer.
-   buffer * pbuf;
+   detail::buffer * pbuf;
    if (m_lbufWriteBufs.empty()) {
       pbuf = nullptr;
    } else {
@@ -379,7 +391,7 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
    }
    if (!pbuf) {
       std::size_t cbWriteBuf = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbWriteBufDefault);
-      m_lbufWriteBufs.push_front(buffer(cbWriteBuf));
+      m_lbufWriteBufs.push_front(detail::buffer(cbWriteBuf));
       pbuf = &m_lbufWriteBufs.front();
    }
    // Return the available portion of the buffer.

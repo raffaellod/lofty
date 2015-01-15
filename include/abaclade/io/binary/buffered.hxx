@@ -71,6 +71,103 @@ inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pb
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::detail::buffer
+
+namespace abc {
+namespace io {
+namespace binary {
+namespace detail {
+
+//! Single buffer.
+class ABACLADE_SYM buffer : public noncopyable {
+public:
+   /*! Constructor.
+
+   @param cb
+      Size of the buffer to allocate, in bytes.
+   @param buf
+      Source object.
+   */
+   buffer(std::size_t cb);
+   buffer(buffer && buf) :
+      m_p(buf.m_p),
+      m_cb(buf.m_cb),
+      m_cbUsed(buf.m_cbUsed) {
+      buf.m_p = nullptr;
+      buf.m_cb = 0;
+      buf.m_cbUsed = 0;
+   }
+
+   //! Destructor.
+   ~buffer();
+
+   /*! Returns the amount of available buffer space.
+
+   @return
+      Size of available buffer space, in bytes.
+   */
+   std::size_t available_size() const {
+      return m_cb - m_cbUsed;
+   }
+
+   /*! Returns a pointer to the buffer memory.
+
+   @return
+      Pointer to the buffer memory block.
+   */
+   std::int8_t * get() const {
+      return static_cast<std::int8_t *>(m_p);
+   }
+
+   /*! Decreases the used bytes count, shifting the used part of the buffer towards the start.
+
+   @param cb
+      Bytes to count as used.
+   */
+   void mark_as_available(std::size_t cb);
+
+   /*! Increases the used bytes count.
+
+   @param cb
+      Bytes to count as used.
+   */
+   void mark_as_used(std::size_t cb) {
+      m_cbUsed += cb;
+   }
+
+   /*! Returns the size of the buffer.
+
+   @return
+      Size of the buffer space, in bytes.
+   */
+   std::size_t size() const {
+      return m_cb;
+   }
+
+   /*! Returns the amount of used buffer space.
+
+   @return
+      Size of used buffer space, in bytes.
+   */
+   std::size_t used_size() const {
+      return m_cbUsed;
+   }
+
+private:
+   //! Pointer to the allocated memory block.
+   void * m_p;
+   //! Size of *m_p.
+   std::size_t m_cb;
+   //! Count of used bytes.
+   std::size_t m_cbUsed;
+};
+
+} //namespace detail
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::buffered_base
 
 namespace abc {
@@ -309,91 +406,6 @@ namespace binary {
 synchronous, a single buffer will be used; if asynchronous, multiple buffers may be used if the rate
 of writes to buffer exceeds the rate at which the binary::writer can complete buffer flushes. */
 class ABACLADE_SYM default_buffered_writer : public buffered_writer, public noncopyable {
-protected:
-   //! Single buffer.
-   class ABACLADE_SYM buffer : public noncopyable {
-   public:
-      /*! Constructor.
-
-      @param cb
-         Size of the buffer to allocate, in bytes.
-      @param buf
-         Source object.
-      */
-      buffer(std::size_t cb);
-      buffer(buffer && buf) :
-         m_p(buf.m_p),
-         m_cb(buf.m_cb),
-         m_cbUsed(buf.m_cbUsed) {
-         buf.m_p = nullptr;
-         buf.m_cb = 0;
-         buf.m_cbUsed = 0;
-      }
-
-      //! Destructor.
-      ~buffer();
-
-      /*! Returns the amount of available buffer space.
-
-      @return
-         Size of available buffer space, in bytes.
-      */
-      std::size_t available_size() const {
-         return m_cb - m_cbUsed;
-      }
-
-      /*! Returns a pointer to the buffer memory.
-
-      @return
-         Pointer to the buffer memory block.
-      */
-      std::int8_t * get() const {
-         return static_cast<std::int8_t *>(m_p);
-      }
-
-      /*! Decreases the used bytes count, shifting the used part of the buffer towards the start.
-
-      @param cb
-         Bytes to count as used.
-      */
-      void mark_as_available(std::size_t cb);
-
-      /*! Increases the used bytes count.
-
-      @param cb
-         Bytes to count as used.
-      */
-      void mark_as_used(std::size_t cb) {
-         m_cbUsed += cb;
-      }
-
-      /*! Returns the size of the buffer.
-
-      @return
-         Size of the buffer space, in bytes.
-      */
-      std::size_t size() const {
-         return m_cb;
-      }
-
-      /*! Returns the amount of used buffer space.
-
-      @return
-         Size of used buffer space, in bytes.
-      */
-      std::size_t used_size() const {
-         return m_cbUsed;
-      }
-
-   private:
-      //! Pointer to the allocated memory block.
-      void * m_p;
-      //! Size of *m_p.
-      std::size_t m_cb;
-      //! Count of used bytes.
-      std::size_t m_cbUsed;
-   };
-
 public:
    /*! Constructor.
 
@@ -448,7 +460,7 @@ protected:
    /*! List of write buffers. May contain more than one in case *m_pbw is asynchronous and slow, in
    which case front() is the one to be used first, and the others are held until their respective
    I/O async operations complete. */
-   list<buffer> m_lbufWriteBufs;
+   list<detail::buffer> m_lbufWriteBufs;
    //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbWriteBufDefault = 0x1000;
