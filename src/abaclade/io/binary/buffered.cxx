@@ -239,69 +239,49 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
    ABC_TRACE_FUNC(this);
 
-   bool bAsyncPending;
-   if (any_buffered_data()) {
-      bAsyncPending = flush_buffer();
-   } else {
-      bAsyncPending = m_pbw->async_pending();
-   }
-   if (bAsyncPending) {
-      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
-      m_pbw->async_join();
+   if (m_pbw->async_pending()) {
       // TODO: warn that this is a bug because I/O errors are not being checked for.
    }
-}
-
-bool default_buffered_writer::any_buffered_data() const {
-   ABC_TRACE_FUNC(this);
-
-   return !m_lbufWriteBufs.empty() && m_lbufWriteBufs.front().used_size() > 0;
+   flush_all_buffers();
 }
 
 /*virtual*/ std::size_t default_buffered_writer::async_join() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (m_lbufWriteBufs.empty()) {
-      // No buffer, so certainly no pending I/O.
+      // No buffers, so certainly no pending I/O.
       return 0;
-   }
-   // Flush all buffers.
-   std::size_t cbWrittenTotal = 0;
-   buffer * pbufBack = &m_lbufWriteBufs.back();
-   // If there was a pending I/O operation, get its result now.
-   if (std::size_t cbWritten = m_pbw->async_join()) {
-      pbufBack->mark_as_available(cbWritten);
-      cbWrittenTotal += cbWritten;
-   }
-   do {
-      if (!pbufBack->used_size()) {
-         // The buffer is empty; if it’s the only buffer, keep it but quit the loop.
-         if (m_lbufWriteBufs.size() == 1) {
-            break;
-         }
-         // Discard this now-unnecessary extra buffer, and move to the next one.
-         // TODO: recycle buffers by using a class-level buffer pool.
-         m_lbufWriteBufs.remove_back();
-         pbufBack = &m_lbufWriteBufs.back();
-         // *pbufBack must have used_size() > 0, otherwise it wouldn’t exist.
+   } else {
+      std::size_t cbWrittenTotal;
+      // If there was a pending I/O operation, get its result now.
+      if (std::size_t cbWritten = m_pbw->async_join()) {
+         buffer_write_complete(cbWritten);
+         cbWrittenTotal = cbWritten;
+      } else {
+         cbWrittenTotal = 0;
       }
-      /* TODO: flushing before the buffer is full (used_size() == size()) is a mistake if *m_pbw
-      wants writes of an integer multiple of its block size. The only fix is implementing
-      aligned_buffered_writer that regroups writes in blocks of the correct size, without trying to
-      solve too many issues here ‒ divide et impera. */
-      std::size_t cbWritten = m_pbw->write(pbufBack->get(), pbufBack->used_size());
-      // cbWritten may be 0.
-      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-      pbufFront->mark_as_available(cbWritten);
-      cbWrittenTotal += cbWritten;
-   } while (!m_lbufWriteBufs.empty() && !m_pbw->async_pending());
-   return cbWrittenTotal;
+      // Now that no I/O is pending, see if we can flush more buffers.
+      cbWrittenTotal += flush_nonblocking_full_buffers();
+      return cbWrittenTotal;
+   }
 }
 
 /*virtual*/ bool default_buffered_writer::async_pending() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_pbw->async_pending();
+}
+
+void default_buffered_writer::buffer_write_complete(std::size_t cbWritten) {
+   ABC_TRACE_FUNC(this, cbWritten);
+
+   buffer * pbuf = &m_lbufWriteBufs.back();
+   pbuf->mark_as_available(cbWritten);
+   if (!pbuf->used_size()) {
+      // Discard this now-unnecessary extra buffer.
+      // TODO: recycle buffers by using a class-level buffer pool.
+      m_lbufWriteBufs.remove_back();
+   }
 }
 
 /*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
@@ -315,56 +295,69 @@ bool default_buffered_writer::any_buffered_data() const {
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-   buffer & buf = m_lbufWriteBufs.front();
-   if (cb > buf.available_size()) {
+   buffer * pbuf = &m_lbufWriteBufs.front();
+   if (cb > pbuf->available_size()) {
       // Can’t commit more bytes than are available in the write buffer.
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-   // Increase the count of used bytes in the buffer. If that makes the buffer full, flush it.
-   buf.mark_as_used(cb);
-   if (!buf.available_size()) {
-      flush_buffer();
-   }
+   pbuf->mark_as_used(cb);
+   flush_nonblocking_full_buffers();
 }
 
-// Flushes all buffers, blocking as necessary, then proceeds to flushing the underlying I/O object.
 /*virtual*/ void default_buffered_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   /* Flush any buffered bytes in m_lbufWriteBufs.front(). This will block if a previous write is
-   still pending. */
-   flush_buffer();
-   /* Flush any lower-level buffers. This will block if flush_buffer() resulted in a new pending
-   write, or if there was already one and flush_buffer() didn’t need to wait for it. */
+   flush_all_buffers();
    m_pbw->flush();
 }
 
-bool default_buffered_writer::flush_buffer() {
+void default_buffered_writer::flush_all_buffers() {
    ABC_TRACE_FUNC(this);
 
-   if (!m_lbufWriteBufs.empty()) {
-      /* If still waiting on an earlier flush, complete it now. back() could be the same as front(),
-      but that doesn’t matter; what’s important is that if *pbufBack shifts its contents as part of
-      mark_as_available(), it does it before we pass a portion of the same buffer (via *pbufFront)
-      to m_pbw->write(). */
-      buffer * pbufBack = &m_lbufWriteBufs.back();
-      if (std::size_t cbWritten = m_pbw->async_join()) {
-         pbufBack->mark_as_available(cbWritten);
-      }
-
-      buffer * pbufFront = &m_lbufWriteBufs.front();
-      // Check only at this point, since the above mark_as_available() may have emptied the buffer.
-      if (pbufFront->used_size()) {
-         std::size_t cbWritten = m_pbw->write(pbufFront->get(), pbufFront->used_size());
-         if (m_pbw->async_pending()) {
-            // Flushing is still in progress.
-            return false;
-         }
-         pbufFront->mark_as_available(cbWritten);
-      }
+   // If there was a pending I/O operation, get its result now.
+   if (std::size_t cbWritten = m_pbw->async_join()) {
+      buffer_write_complete(cbWritten);
    }
-   return true;
+   // Flush any remaining buffers.
+   while (!m_lbufWriteBufs.empty()) {
+      buffer * pbuf = &m_lbufWriteBufs.back();
+      // *pbuf must have used_size() > 0, otherwise it wouldn’t exist.
+      /* TODO: if *m_pbw expects writes of an integer multiple of its block size but the buffer is
+      not 100% full, do something ‒ maybe truncate m_pbw afterwards if possible? */
+      std::size_t cbWritten = m_pbw->write(pbuf->get(), pbuf->used_size());
+      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+      if (m_pbw->async_pending()) {
+         cbWritten = m_pbw->async_join();
+      }
+      buffer_write_complete(cbWritten);
+   }
+}
+
+std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
+   ABC_TRACE_FUNC(this);
+
+   if (m_pbw->async_pending()) {
+      return 0;
+   }
+   std::size_t cbWrittenTotal = 0;
+   while (!m_lbufWriteBufs.empty()) {
+      buffer * pbuf = &m_lbufWriteBufs.back();
+      // *pbuf must have used_size() > 0, otherwise it wouldn’t exist.
+
+      /* TODO: if *m_pbw expects writes of an integer multiple of its block size and there’s no
+      following buffer than can be partially moved into *pbuf to make *pbuf full, stop here; this
+      method doesn’t have to flush all buffers. */
+
+      std::size_t cbWritten = m_pbw->write(pbuf->get(), pbuf->used_size());
+      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
+      if (m_pbw->async_pending()) {
+         break;
+      }
+      buffer_write_complete(cbWritten);
+      cbWrittenTotal += cbWritten;
+   }
+   return cbWrittenTotal;
 }
 
 /*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
@@ -372,38 +365,10 @@ bool default_buffered_writer::flush_buffer() {
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   // Flush buffer(s) as long as flushing doesn’t block.
-   if (!m_lbufWriteBufs.empty() && !m_pbw->async_pending()) {
-      buffer * pbufBack = &m_lbufWriteBufs.back();
-      // If there was a pending I/O operation, get its result now.
-      if (std::size_t cbWritten = m_pbw->async_join()) {
-         pbufBack->mark_as_available(cbWritten);
-      }
-      do {
-         if (!pbufBack->used_size()) {
-            // The buffer is empty; if it’s the only buffer, keep it but quit the loop.
-            if (m_lbufWriteBufs.size() == 1) {
-               break;
-            }
-            // Discard this now-unnecessary extra buffer, and move to the next one.
-            // TODO: recycle buffers by using a class-level buffer pool.
-            m_lbufWriteBufs.remove_back();
-            pbufBack = &m_lbufWriteBufs.back();
-            // *pbufBack must have used_size() > 0, otherwise it wouldn’t exist.
-         }
-         /* TODO: flushing before the buffer is full (used_size() == size()) is a mistake if *m_pbw
-         wants writes of an integer multiple of its block size. The only fix is implementing
-         aligned_buffered_writer that regroups writes in blocks of the correct size, without trying
-         to solve too many issues here ‒ divide et impera. */
-         std::size_t cbWritten = m_pbw->write(pbufBack->get(), pbufBack->used_size());
-         // cbWritten may be 0.
-         // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-         pbufFront->mark_as_available(cbWritten);
-      } while (!m_lbufWriteBufs.empty() && !m_pbw->async_pending());
-   }
+   flush_nonblocking_full_buffers();
 
    // Use the front() buffer if it has enough space available, or add a new buffer.
-   buffer * pbuf = nullptr;
+   buffer * pbuf;
    if (m_lbufWriteBufs.empty()) {
       pbuf = nullptr;
    } else {

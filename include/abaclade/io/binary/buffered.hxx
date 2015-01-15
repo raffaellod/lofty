@@ -405,7 +405,8 @@ public:
    //! Destructor.
    virtual ~default_buffered_writer();
 
-   //! See buffered_writer::async_join().
+   /*! See buffered_writer::async_join(). It invokes async_join() on the underlying binary I/O, and
+   flushes as much of the internal buffer as possible without blocking. */
    virtual std::size_t async_join() override;
 
    //! See buffered_writer::async_pending().
@@ -421,27 +422,22 @@ public:
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
 protected:
-   /*! Returns true if there’s any buffered data that may be flushed.
+   /*! Finalizes a data write, possibly releasing the involved buffer if now empty.
+
+   @param cbWritten
+      Amount of data written in the last transfer, in bytes.
+   */
+   void buffer_write_complete(std::size_t cbWritten);
+
+   //! Flushes all internal write buffers, blocking as necessary.
+   void flush_all_buffers();
+
+   /*! Flushes any internal full write buffers as it’s possible without blocking.
 
    @return
-      true if flush_buffer() can be called, or false otherwise.
+      Amount of data flushed, in bytes.
    */
-   bool any_buffered_data() const;
-
-   /*! Returns the size of the available space in the first buffer.
-
-   @return
-      Available space in the first buffer, or 0 if no buffers have been allocated.
-   */
-   std::size_t available_buffer() const;
-
-   /*! Flushes the internal write buffer. If an asynchronous write was already in progress, this
-   will block until it’s able to begin a new write.
-
-   @return
-      true if the write completed immediately, or false if it will be completed asynchronously.
-   */
-   bool flush_buffer();
+   std::size_t flush_nonblocking_full_buffers();
 
    //! See buffered_writer::_unbuffered_base().
    virtual std::shared_ptr<base> _unbuffered_base() const override;
