@@ -83,9 +83,13 @@ specification, an instance can convert to a string any number of T instances. */
 template <typename T>
 class to_str_backend;
 
-// Partial specialization for const.
+// Partial specializations for cv-qualified T.
 template <typename T>
 class to_str_backend<T const> : public to_str_backend<T> {};
+template <typename T>
+class to_str_backend<T volatile> : public to_str_backend<T> {};
+template <typename T>
+class to_str_backend<T const volatile> : public to_str_backend<T> {};
 
 } //namespace abc
 
