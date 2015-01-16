@@ -88,18 +88,26 @@ public:
    @param buf
       Source object.
    */
-   buffer(std::size_t cb);
-   buffer(buffer && buf) :
-      m_p(buf.m_p),
-      m_cb(buf.m_cb),
-      m_cbUsed(buf.m_cbUsed) {
-      buf.m_p = nullptr;
-      buf.m_cb = 0;
-      buf.m_cbUsed = 0;
+   buffer() :
+      m_p(nullptr),
+      m_cb(0),
+      m_ibAvailableOffset(0),
+      m_ibUsedOffset(0) {
    }
+   buffer(std::size_t cb);
+   buffer(buffer && buf);
 
    //! Destructor.
    ~buffer();
+
+   /*! Assignment operator.
+
+   @param buf
+      Source object.
+   @return
+      *this.
+   */
+   buffer & operator=(buffer && buf);
 
    /*! Returns the amount of available buffer space.
 
@@ -107,24 +115,39 @@ public:
       Size of available buffer space, in bytes.
    */
    std::size_t available_size() const {
-      return m_cb - m_cbUsed;
+      return m_cb - m_ibAvailableOffset;
    }
 
-   /*! Returns a pointer to the buffer memory.
+   /*! Returns a pointer to the buffer memory. TODO
 
    @return
       Pointer to the buffer memory block.
    */
-   std::int8_t * get() const {
-      return static_cast<std::int8_t *>(m_p);
+   std::int8_t * get_available() const {
+      return static_cast<std::int8_t *>(m_p) + m_ibAvailableOffset;
    }
 
-   /*! Decreases the used bytes count, shifting the used part of the buffer towards the start.
+   /*! Returns a pointer to the buffer memory. TODO
+
+   @return
+      Pointer to the buffer memory block.
+   */
+   std::int8_t * get_used() const {
+      return static_cast<std::int8_t *>(m_p) + m_ibUsedOffset;
+   }
+
+   /*! Shifts the used pertion of the buffer to completely cover the unused portion, resulting in an
+   increase in available space. */
+   void make_unused_available();
+
+   /*! Increases the used bytes count. TODO
 
    @param cb
       Bytes to count as used.
    */
-   void mark_as_available(std::size_t cb);
+   void mark_as_unused(std::size_t cb) {
+      m_ibUsedOffset += cb;
+   }
 
    /*! Increases the used bytes count.
 
@@ -132,7 +155,7 @@ public:
       Bytes to count as used.
    */
    void mark_as_used(std::size_t cb) {
-      m_cbUsed += cb;
+      m_ibAvailableOffset += cb;
    }
 
    /*! Returns the size of the buffer.
@@ -150,7 +173,16 @@ public:
       Size of used buffer space, in bytes.
    */
    std::size_t used_size() const {
-      return m_cbUsed;
+      return m_ibAvailableOffset - m_ibUsedOffset;
+   }
+
+   /*! Returns the amount of used buffer space. TODO
+
+   @return
+      Size of used buffer space, in bytes.
+   */
+   std::size_t unused_size() const {
+      return m_ibAvailableOffset;
    }
 
 private:
@@ -159,7 +191,10 @@ private:
    //! Size of *m_p.
    std::size_t m_cb;
    //! Count of used bytes.
-   std::size_t m_cbUsed;
+   std::size_t m_ibAvailableOffset;
+   /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported
+   as available. */
+   std::size_t m_ibUsedOffset;
 };
 
 } //namespace detail
@@ -378,14 +413,10 @@ protected:
 protected:
    //! Wrapped binary reader.
    std::shared_ptr<reader> m_pbr;
-   //! Read buffer.
-   std::unique_ptr<std::int8_t[], memory::freeing_deleter<std::int8_t[]>> m_pbReadBuf;
-   //! Size of m_pbReadBuf.
-   std::size_t m_cbReadBuf;
-   //! Offset of the first used byte in m_pbReadBuf.
-   std::size_t m_ibReadBufUsed;
-   //! Number of bytes used in m_pbReadBuf.
-   std::size_t m_cbReadBufUsed;
+   //! Main read buffer.
+   detail::buffer m_bufReadMain;
+   //! Secondary read buffer. This is used as target for reads if m_bufReadMain
+   //detail::buffer m_bufReadMain;
    //! Default/increment size of m_pbReadBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbReadBufDefault = 0x1000;

@@ -58,20 +58,51 @@ namespace detail {
 buffer::buffer(std::size_t cb) :
    m_p(memory::_raw_alloc(cb)),
    m_cb(cb),
-   m_cbUsed(0) {
+   m_ibAvailableOffset(0),
+   m_ibUsedOffset(0) {
+}
+buffer::buffer(buffer && buf) :
+   m_p(buf.m_p),
+   m_cb(buf.m_cb),
+   m_ibAvailableOffset(buf.m_ibAvailableOffset),
+   m_ibUsedOffset(buf.m_ibUsedOffset) {
+   buf.m_p = nullptr;
+   buf.m_cb = 0;
+   buf.m_ibAvailableOffset = 0;
+   buf.m_ibUsedOffset = 0;
 }
 
 buffer::~buffer() {
+   // TODO: pool the buffer memory blocks.
    if (m_p) {
       memory::_raw_free(m_p);
    }
 }
 
-void buffer::mark_as_available(std::size_t cb) {
-   ABC_TRACE_FUNC(this, cb);
+buffer & buffer::operator=(buffer && buf) {
+   ABC_TRACE_FUNC(this/*, buf*/);
 
-   m_cbUsed -= cb;
-   memory::move(get(), get() + cb, m_cbUsed);
+   // TODO: pool the buffer memory blocks.
+   if (m_p) {
+      memory::_raw_free(m_p);
+   }
+
+   m_p = buf.m_p;
+   buf.m_p = nullptr;
+   m_cb = buf.m_cb;
+   buf.m_cb = 0;
+   m_ibAvailableOffset = buf.m_ibAvailableOffset;
+   buf.m_ibAvailableOffset = 0;
+   m_ibUsedOffset = buf.m_ibUsedOffset;
+   buf.m_ibUsedOffset = 0;
+   return *this;
+}
+
+void buffer::make_unused_available() {
+   ABC_TRACE_FUNC(this);
+
+   memory::move(static_cast<std::int8_t *>(m_p), get_used(), used_size());
+   m_ibAvailableOffset = 0;
 }
 
 } //namespace detail
@@ -145,10 +176,7 @@ namespace io {
 namespace binary {
 
 default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
-   m_pbr(std::move(pbr)),
-   m_cbReadBuf(0),
-   m_ibReadBufUsed(0),
-   m_cbReadBufUsed(0) {
+   m_pbr(std::move(pbr)) {
 }
 
 /*virtual*/ default_buffered_reader::~default_buffered_reader() {
@@ -163,11 +191,9 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 /*virtual*/ std::size_t default_buffered_reader::async_join() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   if (m_pbr->async_pending()) {
-      m_pbr->async_join();
-      // TODO: under Win32, do this:
-      //m_cbReadBufUsed += cbRead;
-   }
+   std::size_t cbRead = m_pbr->async_join();
+   m_bufReadMain.mark_as_used(cbRead);
+   return cbRead;
 }
 
 /*virtual*/ bool default_buffered_reader::async_pending() const /*override*/ {
@@ -179,14 +205,13 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 /*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb > m_cbReadBufUsed) {
+   if (cb > m_bufReadMain.used_size()) {
       // Can’t consume more bytes than are available in the read buffer.
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
    // Shift the “used window” of the read buffer by cb bytes.
-   m_ibReadBufUsed += cb;
-   m_cbReadBufUsed -= cb;
+   m_bufReadMain.mark_as_unused(cb);
 }
 
 /*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
@@ -194,39 +219,37 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb > m_cbReadBufUsed) {
+   if (cb > m_bufReadMain.used_size()) {
+      if (m_pbr->async_pending()) {
+         // TODO: decide whether pending I/O should return (nullptr, 0) or tuple<(nullptr, 0), bool>.
+         return std::make_pair(nullptr, 0);
+      }
       // The caller wants more data than what’s currently in the buffer: try to load more.
-      if (m_ibReadBufUsed + m_cbReadBufUsed == m_cbReadBuf) {
-         /* No more room in the buffer. If the “used window” is at an offset (m_ibReadBufUsed > 0),
-         shift it backwards to offset 0, and we’ll use the resulting free space (m_ibReadBufUsed
-         bytes); otherwise just enlarge the buffer. */
-         if (m_ibReadBufUsed > 0) {
-            if (m_cbReadBufUsed) {
-               memory::move(
-                  m_pbReadBuf.get(), m_pbReadBuf.get() + m_ibReadBufUsed, m_cbReadBufUsed
-               );
-            }
-            m_ibReadBufUsed = 0;
+      std::size_t cbReadMin = cb - m_bufReadMain.used_size();
+      if (cbReadMin > m_bufReadMain.available_size()) {
+         /* The buffer does’t have enough available space to hold the data that needs to be read;
+         see if compacting it would create enough room. */
+         if (m_bufReadMain.unused_size() + m_bufReadMain.available_size() >= cbReadMin) {
+            m_bufReadMain.make_unused_available();
          } else {
-            std::size_t cbReadBufNew = m_cbReadBuf + smc_cbReadBufDefault;
-            // Check for overflow.
-            if (cbReadBufNew < m_cbReadBuf) {
-               cbReadBufNew = numeric::max<std::size_t>::value;
-            }
-            memory::realloc(&m_pbReadBuf, cbReadBufNew);
-            m_cbReadBuf = cbReadBufNew;
+            // Not enough room; create a new buffer, making sure it’s large enough.
+            std::size_t cbReadBuf = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbReadBufDefault);
+            m_bufReadMain = detail::buffer(cbReadBuf);
          }
       }
-      // Try to fill the buffer.
+      // Try to fill the available part of the buffer.
       std::size_t cbRead = m_pbr->read(
-         m_pbReadBuf.get(), m_cbReadBuf - (m_ibReadBufUsed + m_cbReadBufUsed)
+         m_bufReadMain.get_available(), m_bufReadMain.available_size()
       );
+      // TODO: decide whether pending I/O should return (nullptr, 0) or tuple<(nullptr, 0), bool>.
+      if (m_pbr->async_pending()) {
+         return std::make_pair(nullptr, 0);
+      }
       // Account for the additional data read.
-      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-      m_cbReadBufUsed += cbRead;
+      m_bufReadMain.mark_as_used(cbRead);
    }
    // Return the “used window” of the buffer.
-   return std::make_pair(m_pbReadBuf.get() + m_ibReadBufUsed, m_cbReadBufUsed);
+   return std::make_pair(m_bufReadMain.get_used(), m_bufReadMain.used_size());
 }
 
 /*virtual*/ std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {
@@ -290,7 +313,7 @@ void default_buffered_writer::buffer_write_complete(std::size_t cbWritten) {
    ABC_TRACE_FUNC(this, cbWritten);
 
    detail::buffer * pbuf = &m_lbufWriteBufs.back();
-   pbuf->mark_as_available(cbWritten);
+   pbuf->mark_as_unused(cbWritten);
    if (!pbuf->used_size()) {
       // Discard this now-unnecessary extra buffer.
       // TODO: recycle buffers by using a class-level buffer pool.
@@ -339,7 +362,7 @@ void default_buffered_writer::flush_all_buffers() {
       // *pbuf must have used_size() > 0, otherwise it wouldn’t exist.
       /* TODO: if *m_pbw expects writes of an integer multiple of its block size but the buffer is
       not 100% full, do something ‒ maybe truncate m_pbw afterwards if possible? */
-      std::size_t cbWritten = m_pbw->write(pbuf->get(), pbuf->used_size());
+      std::size_t cbWritten = m_pbw->write(pbuf->get_used(), pbuf->used_size());
       // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
       if (m_pbw->async_pending()) {
          cbWritten = m_pbw->async_join();
@@ -361,7 +384,7 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
       /* TODO: if *m_pbw expects writes of an integer multiple of its block size and there’s no
       following buffer than can be partially moved into *pbuf to make *pbuf full, stop here; this
       method doesn’t have to flush all buffers. */
-      std::size_t cbWritten = m_pbw->write(pbuf->get(), pbuf->used_size());
+      std::size_t cbWritten = m_pbw->write(pbuf->get_used(), pbuf->used_size());
       // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
       if (m_pbw->async_pending()) {
          break;
@@ -386,7 +409,14 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
    } else {
       pbuf = &m_lbufWriteBufs.front();
       if (cb > pbuf->available_size()) {
-         pbuf = nullptr;
+         /* If the buffer is not being used for an asynchronous write, see if compacting it would
+         create enough room. */
+         // TODO: does async_pending() imply that *pbuf is in use? Could it be a different buffer?
+         if (!m_pbw->async_pending() && pbuf->unused_size() + pbuf->available_size() >= cb) {
+            pbuf->make_unused_available();
+         } else {
+            pbuf = nullptr;
+         }
       }
    }
    if (!pbuf) {
@@ -395,7 +425,7 @@ std::size_t default_buffered_writer::flush_nonblocking_full_buffers() {
       pbuf = &m_lbufWriteBufs.front();
    }
    // Return the available portion of the buffer.
-   return std::make_pair(pbuf->get() + pbuf->used_size(), pbuf->available_size());
+   return std::make_pair(pbuf->get_available(), pbuf->available_size());
 }
 
 /*virtual*/ std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {
