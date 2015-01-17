@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -30,7 +30,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <memory>
 #if ABC_HOST_API_POSIX
    #include <pthread.h>
-   #include <semaphore.h>
+   #if ABC_HOST_API_DARWIN
+      #include <dispatch/dispatch.h>
+   #else
+      #include <semaphore.h>
+   #endif
 #endif
 
 
@@ -77,7 +81,10 @@ private:
 
       //! abc::thread instance to be updated with the thread’s ID.
       std::shared_ptr<thread> pthr;
-#if ABC_HOST_API_POSIX
+#if ABC_HOST_API_DARWIN
+      //! Dispatch semaphore used by the new thread to report that writing to *pthr has finished.
+      ::dispatch_semaphore_t dsemReady;
+#elif ABC_HOST_API_POSIX
       //! Semaphore used by the new thread to report that writing to *pthr has finished.
       ::sem_t semReady;
 #elif ABC_HOST_API_WIN32

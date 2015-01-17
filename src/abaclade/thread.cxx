@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -158,11 +158,11 @@ thread::outer_main(void * p) {
    {
       thread * pthr = static_cast<thread *>(p);
       psd = pthr->m_psd;
-#if ABC_HOST_API_POSIX
-   #if ABC_HOST_API_DARWIN
-      // ID already retrieved by the creating thread.
+#if ABC_HOST_API_DARWIN
       ::pthread_threadid_np(nullptr, &pthr->m_id);
-   #elif ABC_HOST_API_FREEBSD
+      ::dispatch_semaphore_signal(psd->dsemReady);
+#elif ABC_HOST_API_POSIX
+   #if ABC_HOST_API_FREEBSD
       static_assert(
          sizeof pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
          "return value of pthread_getthreadid_np() must be the same size as thread::m_id"
@@ -202,7 +202,19 @@ thread::outer_main(void * p) {
 void thread::start() {
    ABC_TRACE_FUNC(this);
 
-#if ABC_HOST_API_POSIX
+#if ABC_HOST_API_DARWIN
+   m_psd->dsemReady = ::dispatch_semaphore_create(0);
+   if (!m_psd->dsemReady) {
+      throw_os_error();
+   }
+   if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
+      ::dispatch_release(m_psd->dsemReady);
+      throw_os_error(iErr);
+   }
+   // Block until the new thread is finished updating *this.
+   ::dispatch_semaphore_wait(m_psd->dsemReady, DISPATCH_TIME_FOREVER);
+   ::dispatch_release(m_psd->dsemReady);
+#elif ABC_HOST_API_POSIX
    if (::sem_init(&m_psd->semReady, 0, 0)) {
       throw_os_error();
    }
