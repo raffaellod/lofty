@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
-   #include <fcntl.h> // O_* fcntl()
+   #include <fcntl.h> // F_* O_* fcntl()
    #include <sys/stat.h> // S_* stat()
    #include <unistd.h> // *_FILENO isatty() open() pipe()
 #endif
@@ -204,19 +204,43 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    ABC_TRACE_FUNC(bAsync);
 
    detail::file_init_data fidReader, fidWriter;
-#if ABC_HOST_API_POSIX
-   int iFds[2], iFlags = O_CLOEXEC;
-   if (bAsync) {
-      iFlags |= O_NONBLOCK;
-   }
-   while (::pipe2(iFds, iFlags)) {
+#if ABC_HOST_API_DARWIN
+   int fds[2];
+   // pipe2() is not available, so emulate it with pipe() + fcntl().
+   while (::pipe(fds)) {
       int iErr = errno;
       if (iErr != EINTR) {
          throw_os_error(iErr);
       }
    }
-   fidReader.fd = iFds[0];
-   fidWriter.fd = iFds[1];
+   // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
+   fidReader.fd = fds[0];
+   fidWriter.fd = fds[1];
+   /* Note that at this point there’s no hack that will ensure a fork() from another thread
+   won’t leak the two file descriptors. That’s the whole point of pipe2(). */
+   ABC_FOR_EACH(int fd, fds) {
+      if (::fcntl(fd, F_SETFD, 1) == -1) {
+         throw_os_error();
+      }
+      if (bAsync) {
+         if (::fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+            throw_os_error();
+         }
+      }
+   }
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_FREEBSD
+   int fds[2], iFlags = O_CLOEXEC;
+   if (bAsync) {
+      iFlags |= O_NONBLOCK;
+   }
+   while (::pipe2(fds, iFlags)) {
+      int iErr = errno;
+      if (iErr != EINTR) {
+         throw_os_error(iErr);
+      }
+   }
+   fidReader.fd = fds[0];
+   fidWriter.fd = fds[1];
 #elif ABC_HOST_API_WIN32
    HANDLE hRead, hWrite;
    if (bAsync) {
