@@ -184,7 +184,7 @@ public:
    @return
       true if there are pending I/O operations on the object, or false otherwise.
    */
-   virtual bool async_pending() const = 0;
+   virtual bool async_pending() = 0;
 };
 
 } //namespace io

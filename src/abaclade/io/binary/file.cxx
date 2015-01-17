@@ -103,7 +103,7 @@ bool file_base::async_poll(bool bWrite, bool bWait) const {
    return cbTransferred;
 }
 
-/*virtual*/ bool file_base::async_pending() const /*override*/ {
+/*virtual*/ bool file_base::async_pending() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (!m_bAllowAsync) {
@@ -172,7 +172,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    }
 }
 
-/*virtual*/ bool file_reader::async_pending() const /*override*/ {
+/*virtual*/ bool file_reader::async_pending() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (m_pAsyncBuf) {
@@ -315,7 +315,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    }
 }
 
-/*virtual*/ bool file_writer::async_pending() const /*override*/ {
+/*virtual*/ bool file_writer::async_pending() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    if (m_pAsyncBuf) {

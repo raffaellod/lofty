@@ -44,7 +44,7 @@ public:
    virtual std::size_t async_join() override;
 
    //! See binary::base::async_pending().
-   virtual bool async_pending() const override;
+   virtual bool async_pending() override;
 #endif
 
 protected:
@@ -109,7 +109,7 @@ public:
    virtual std::size_t async_join() override;
 
    //! See file_base::async_pending().
-   virtual bool async_pending() const override;
+   virtual bool async_pending() override;
 #endif
 
    //! See reader::read().
@@ -168,7 +168,7 @@ public:
    virtual std::size_t async_join() override;
 
    //! See file_base::async_pending().
-   virtual bool async_pending() const override;
+   virtual bool async_pending() override;
 #endif
 
    //! See writer::flush().

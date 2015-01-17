@@ -196,7 +196,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    return cbRead;
 }
 
-/*virtual*/ bool default_buffered_reader::async_pending() const /*override*/ {
+/*virtual*/ bool default_buffered_reader::async_pending() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_pbr->async_pending();
@@ -303,7 +303,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    }
 }
 
-/*virtual*/ bool default_buffered_writer::async_pending() const /*override*/ {
+/*virtual*/ bool default_buffered_writer::async_pending() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_pbw->async_pending();

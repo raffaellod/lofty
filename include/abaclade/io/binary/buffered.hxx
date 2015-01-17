@@ -398,7 +398,7 @@ public:
    virtual std::size_t async_join() override;
 
    //! See buffered_reader::async_pending().
-   virtual bool async_pending() const override;
+   virtual bool async_pending() override;
 
    //! See buffered_reader::consume_bytes().
    virtual void consume_bytes(std::size_t cb) override;
@@ -453,7 +453,7 @@ public:
    virtual std::size_t async_join() override;
 
    //! See buffered_writer::async_pending().
-   virtual bool async_pending() const override;
+   virtual bool async_pending() override;
 
    //! See buffered_writer::commit_bytes().
    virtual void commit_bytes(std::size_t cb) override;
