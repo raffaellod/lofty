@@ -205,8 +205,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    ::OVERLAPPED * povl;
    if (m_bAllowAsync) {
       // Obtain the current file offset and set m_ovl to start there.
-      m_ovl.OffsetHigh = 0;
-      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &m_ovl.OffsetHigh, FILE_CURRENT);
+      long ibOffsetHigh = 0;
+      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+      m_ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
       // Ignore errors; if m_fd is not a seekable file, ::ReadFile() will ignore Offset* anyway.
       povl = &m_ovl;
    } else {
@@ -366,8 +367,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    ::OVERLAPPED * povl;
    if (m_bAllowAsync) {
       // Obtain the current file offset and set m_ovl to start there.
-      m_ovl.OffsetHigh = 0;
-      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &m_ovl.OffsetHigh, FILE_CURRENT);
+      long ibOffsetHigh = 0;
+      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+      m_ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
       // Ignore errors; if m_fd is not a seekable file, ::WriteFile() will ignore Offset* anyway.
       povl = &m_ovl;
    } else {
