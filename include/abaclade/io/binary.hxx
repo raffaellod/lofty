@@ -45,6 +45,17 @@ struct file_init_data;
 class file_base;
 class file_reader;
 class file_writer;
+class pipe_reader;
+class pipe_writer;
+
+/*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
+
+@return
+   A pair containing the reader end and the writer end of the pipe.
+*/
+ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
+   bool bAsync = false
+);
 
 /*! Returns the binary writer associated to the standard error output file (stderr).
 

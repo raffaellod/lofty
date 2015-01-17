@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <errno.h> // E* errno
    #include <fcntl.h> // O_* fcntl()
    #include <sys/stat.h> // S_* stat()
-   #include <unistd.h> // *_FILENO isatty() open()
+   #include <unistd.h> // *_FILENO isatty() open() pipe()
 #endif
 
 
@@ -197,6 +197,51 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 
 } //namespace
 
+
+std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
+   bool bAsync /*= false*/
+) {
+   ABC_TRACE_FUNC(bAsync);
+
+   detail::file_init_data fidReader, fidWriter;
+#if ABC_HOST_API_POSIX
+   int iFds[2], iFlags = O_CLOEXEC;
+   if (bAsync) {
+      iFlags |= O_NONBLOCK;
+   }
+   while (::pipe2(iFds, iFlags)) {
+      int iErr = errno;
+      if (iErr != EINTR) {
+         throw_os_error(iErr);
+      }
+   }
+   fidReader.fd = iFds[0];
+   fidWriter.fd = iFds[1];
+#elif ABC_HOST_API_WIN32
+   HANDLE hRead, hWrite;
+   if (bAsync) {
+      // TODO: Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
+      return std::make_pair(nullptr, nullptr);
+   } else {
+      if (!::CreatePipe(&hRead, &hWrite, nullptr, 0)) {
+         throw_os_error();
+      }
+   }
+   fidReader.fd = hRead;
+   fidWriter.fd = hWrite;
+#else
+   #error "TODO: HOST_API"
+#endif
+   fidReader.am = access_mode::read;
+   fidReader.bAllowAsync = bAsync;
+   fidReader.bBypassCache = false;
+   fidWriter.am = access_mode::write;
+   fidWriter.bAllowAsync = bAsync;
+   fidWriter.bBypassCache = false;
+   return std::make_pair(
+      std::make_shared<pipe_reader>(&fidReader), std::make_shared<pipe_writer>(&fidWriter)
+   );
+}
 
 std::shared_ptr<file_writer> stderr() {
    ABC_TRACE_FUNC();
