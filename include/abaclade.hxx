@@ -274,10 +274,9 @@ namespace abc {
 #include <abaclade/cppmacros.hxx>
 
 #if ABC_HOST_CXX_MSC
-   // Prevent MSC16’s yvals.h from typedef’ing char16_t as unsigned short.
-   #define char16_t _ABC_MSC16_char16_t
-   #include <yvals.h>
-   #undef char16_t
+   /* Prevent MSC headers from typedef-ining char16_t as unsigned short. This will also prevent
+   char32_t from being typedef-ined to unsigned int, but we’ll do that anyway in char.hxx. */
+   #define _CHAR16T
 
    // Silence warnings from system header files.
    #pragma warning(push)
