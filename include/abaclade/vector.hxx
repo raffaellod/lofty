@@ -426,7 +426,7 @@ public:
    @return
       true if the vector is not empty, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       // Use std::int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
       return detail::raw_vextr_impl_base::end<std::int8_t>() >
          detail::raw_vextr_impl_base::begin<std::int8_t>();

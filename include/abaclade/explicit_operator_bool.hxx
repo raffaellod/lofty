@@ -23,15 +23,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// explicit_operator_bool – support for explicit operator bool() for compilers that don’t support
-// C++11 explicit conversion operators
+// ABC_EXPLICIT_OPERATOR_BOOL – support for explicit operator bool() for compilers that don’t
+// support C++11 explicit conversion operators
 
 //! Declares an explicit conversion operator to bool.
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-   #define explicit_operator_bool \
+   #define ABC_EXPLICIT_OPERATOR_BOOL \
       explicit operator bool
 #else
-   #define explicit_operator_bool \
+   #define ABC_EXPLICIT_OPERATOR_BOOL \
       bool _explicit_operator_bool
 #endif
 
@@ -63,7 +63,7 @@ struct support_explicit_operator_bool {
    explicit operator bool().
 
    @return
-      A valid pointer if T::explicit_operator_bool() returns true, or nullptr otherwise.
+      A valid pointer if T::_explicit_operator_bool() returns true, or nullptr otherwise.
    */
    operator detail::explob_helper::bool_type() const {
       if (static_cast<T const *>(this)->_explicit_operator_bool()) {

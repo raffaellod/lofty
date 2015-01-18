@@ -298,7 +298,7 @@ public:
    @return
       true if get() != nullptr, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return get_ptr<value_t>()->bConstructed;
    }
 

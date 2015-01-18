@@ -112,7 +112,7 @@ public:
    @return
       true if the length of the path string is greater than 0, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return bool(m_s);
    }
 

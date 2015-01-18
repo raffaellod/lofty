@@ -418,7 +418,7 @@ public:
    @return
       true if get() != nullptr, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return get() != nullptr;
    }
 
@@ -555,7 +555,7 @@ public:
    @return
       true if get() != nullptr, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return get() != nullptr;
    }
 
@@ -1016,7 +1016,7 @@ public:
    @return
       true if *this points to a valid object, or false if it points to nullptr.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return m_pt != nullptr;
    }
 

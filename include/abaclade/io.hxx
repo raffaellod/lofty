@@ -127,7 +127,7 @@ public:
    @return
       true if the object has a valid file descriptor, or false otherwise.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return m_fd != smc_fdNull;
    }
 

@@ -162,7 +162,7 @@ public:
    @return
       true if the range is non-empty, or false if it’s empty.
    */
-   explicit_operator_bool() const {
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
       return m_tBegin != m_tEnd;
    }
 
