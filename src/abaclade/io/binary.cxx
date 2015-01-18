@@ -216,8 +216,8 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
    fidReader.fd = fds[0];
    fidWriter.fd = fds[1];
-   /* Note that at this point there’s no hack that will ensure a fork() from another thread
-   won’t leak the two file descriptors. That’s the whole point of pipe2(). */
+   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
+   leak the two file descriptors. That’s the whole point of pipe2(). */
    ABC_FOR_EACH(int fd, fds) {
       if (::fcntl(fd, F_SETFD, 1) == -1) {
          throw_os_error();
@@ -242,17 +242,45 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    fidReader.fd = fds[0];
    fidWriter.fd = fds[1];
 #elif ABC_HOST_API_WIN32
-   HANDLE hRead, hWrite;
    if (bAsync) {
-      // TODO: Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
-      return std::make_pair(nullptr, nullptr);
+      // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
+      static long s_iSerial = 0;
+      /* This amount will be taken from kernel the non-paged memory pool, so it should be small, so
+      make it a single memory page. */
+      static DWORD const sc_cbBuffer = 4096;
+      /* Default timeout for WaitNamedPipe(), in milliseconds. Irrelevant in this case, since the
+      client won’t even know that this is a named pipe. */
+      static DWORD const sc_iDefaultTimeout = 1000;
+      wchar_t achPipeName[128];
+      // Generate the pipe name.
+      ::wsprintf(
+         achPipeName, L"\\\\.\\pipe\\abc::io::binary::pipe\\%08x\\%08x",
+         ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
+      );
+      fidReader.fd = ::CreateNamedPipe(
+         achPipeName,
+         GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_WAIT,
+         1, sc_cbBuffer, sc_cbBuffer, sc_iDefaultTimeout, nullptr
+      );
+      if (!fidReader.fd) {
+         throw_os_error();
+      }
+      fidWriter.fd = ::CreateFile(
+         achPipeName, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
+      );
+      if (!fidWriter.fd) {
+         // fidReader.fd is closed automatically.
+         throw_os_error();
+      }
    } else {
+      HANDLE hRead, hWrite;
       if (!::CreatePipe(&hRead, &hWrite, nullptr, 0)) {
          throw_os_error();
       }
+      fidReader.fd = hRead;
+      fidWriter.fd = hWrite;
    }
-   fidReader.fd = hRead;
-   fidWriter.fd = hWrite;
 #else
    #error "TODO: HOST_API"
 #endif
