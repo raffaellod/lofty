@@ -232,12 +232,16 @@ namespace abc {
    #pragma warning(disable: 4251)
    // “'class' : class has virtual functions, but destructor is not virtual”
    #pragma warning(disable: 4265)
-   // “non dll-interface class 'class1' used as base for dll-interface class 'class2'”
+   // “non dll-interface class 'base_class' used as base for dll-interface class 'derived_class'”
    #pragma warning(disable: 4275)
    // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
    #pragma warning(disable: 4290)
-   // “cast truncates constant value” – would be useful, but it’s raised too easily by MSC16.
+   // “cast truncates constant value”: would be useful, but it’s raised too easily by MSC16.
    #pragma warning(disable: 4310)
+   /* “'derived_class' : Object layout under / vd2 will change due to virtual base 'base_class'”:
+   yet another problem stemming from calling virtual methods from a constructor. This warning could
+   be used to detect the latter situation, but it’s raised unconditionally, so just turn it off. */
+   #pragma warning(disable: 4435)
    // “'class' : default constructor could not be generated”
    #pragma warning(disable: 4510)
    // “'class' : assignment operator could not be generated”
@@ -253,8 +257,8 @@ namespace abc {
    // “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
    // catch site”
    #pragma warning(disable: 4673)
-   // “potentially uninitialized local variable 'var' used” – would be useful, but it’s raised too
-   // easily by MSC16.
+   /* “potentially uninitialized local variable 'var' used”: would be useful, but it’s raised too
+   easily by MSC16. */
    #pragma warning(disable: 4701)
    // “'function' : function not inlined”
    #pragma warning(disable: 4710)
