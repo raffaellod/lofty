@@ -363,13 +363,15 @@ namespace abc {
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_explicit_conversions)) || ABC_HOST_CXX_GCC >= 40500
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_explicit_conversions)) || \
+      ABC_HOST_CXX_GCC >= 40500 || ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /*! If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_deleted_functions)) || ABC_HOST_CXX_GCC >= 40400
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_deleted_functions)) || ABC_HOST_CXX_GCC >= 40400 || \
+      ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_FUNC_DELETE
 #endif
 
@@ -396,7 +398,8 @@ supported type traits. */
 #endif
 
 //! If defined, the compiler supports variadic templates (N2242).
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_variadic_templates)) || ABC_HOST_CXX_GCC
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_variadic_templates)) || ABC_HOST_CXX_GCC || \
+      ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_VARIADIC_TEMPLATES
 #endif
 
@@ -412,9 +415,8 @@ rangedecl
 expr
    Expression of a type for which std::begin() and std::end() are defined.
 */
-#if ( \
-   ABC_HOST_CXX_CLANG && __has_feature(cxx_range_for) \
-) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1700
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_range_for)) || ABC_HOST_CXX_GCC || \
+      ABC_HOST_CXX_MSC >= 1700
    #define ABC_FOR_EACH(rangedecl, expr) \
       for (rangedecl : expr)
 #elif ABC_HOST_CXX_MSC
@@ -426,7 +428,8 @@ expr
       for each (rangedecl in expr)
 #endif
 
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_CXX_GCC >= 0x40700
+#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_CXX_GCC >= 0x40700 || \
+      ABC_HOST_CXX_MSC >= 1800
    // Good, no need for fixes.
 #elif ABC_HOST_CXX_MSC
    // MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
@@ -557,30 +560,49 @@ private:
 #ifdef ABC_STLIMPL
    #include <abaclade/stl/type_traits.hxx>
 #else
+   #if ABC_HOST_CXX_MSC == 1800
+      /*! DOC:1082 std::is_copy_constructible MSC18 bugs
+
+      With VS2013, Microsoft introduced a completely broken std::is_copy_constructible that makes
+      one wish they didn’t: it returns true for classes with private copy constructors[1], classes
+      with deleted constructors[2], and classes composed by non-copyable classes[2].
+      [1] <https://connect.microsoft.com/VisualStudio/feedback/details/799732/is-copy-constructible-
+         always-returns-true-for-private-copy-constructors>
+      [2] <https://connect.microsoft.com/VisualStudio/feedback/details/800328/std-is-copy-
+         constructible-is-broken>
+
+      The only way of fixing it for both Abaclade without breaking MSC’s STL implementation is to
+      override to enhance it with Abaclade’s version, making the latter fall back to MSC’s broken
+      implementation. In the worst case, this might make it report classes as non-copyable when they
+      are, but it will (hopefully) not report non-copyable classes as copyable. */
+      #define is_copy_constructible _ABC_MSC18_is_copy_constructible
+   #endif
    #include <type_traits>
+   #if ABC_HOST_CXX_MSC == 1800
+      #undef is_copy_constructible
+   #endif
 #endif
 
 #if ( \
-   (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800) \
+   (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) \
 ) && !defined(ABC_STLIMPL)
 
 namespace std {
 
-#if !ABC_HOST_CXX_GCC
-// GCC does have a definition of std::declval, but MSC does not.
-template <typename T>
-typename add_rvalue_reference<T>::type declval();
-#endif
 #if ABC_HOST_CXX_GCC
-// On the other hand, GCC lacks a definition of std::add_reference.
-template <typename T>
-struct add_reference {
-   typedef T & type;
-};
-template <typename T>
-struct add_reference<T &> {
-   typedef T & type;
-};
+   // GCC lacks a definition of std::add_reference.
+   template <typename T>
+   struct add_reference {
+      typedef T & type;
+   };
+   template <typename T>
+   struct add_reference<T &> {
+      typedef T & type;
+   };
+#elif ABC_HOST_CXX_MSC < 1800
+   // MSC16 lacks a definition of std::declval.
+   template <typename T>
+   typename add_rvalue_reference<T>::type declval();
 #endif
 
 template <typename T, typename = void>
@@ -592,7 +614,13 @@ private:
    typedef typename add_reference<T>::type TRef;
 
 public:
-   static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int));
+   static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int))
+#if ABC_HOST_CXX_MSC == 1800
+      /* MSC18 does provide an implementation which, while severely flawed (see [DOC:1082
+      std::is_copy_constructible MSC18 bugs]), may be stricter than this, so && its return value. */
+      && _ABC_MSC18_is_copy_constructible<T>::value
+#endif
+   ;
 };
 
 template <typename T>
