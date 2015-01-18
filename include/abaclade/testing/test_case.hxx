@@ -156,7 +156,7 @@ protected:
       source_location const & srcloc,
       TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
    ) {
-      bool bPass = (tActual > tLBound);
+      bool bPass = (tActual >= tLBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL(">= "),
          bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr::empty : istr(to_str(tActual))
