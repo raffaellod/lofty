@@ -243,10 +243,13 @@ namespace abc {
    VisualStudio/feedback/details/767960/warning-c4350-behavior-change-when-including-string-and-no-
    precompiled-header>. */
    #pragma warning(disable: 4350)
-   /* “'derived_class' : Object layout under / vd2 will change due to virtual base 'base_class'”:
-   yet another problem stemming from calling virtual methods from a constructor. This warning could
-   be used to detect the latter situation, but it’s raised unconditionally, so just turn it off. */
-   #pragma warning(disable: 4435)
+   #if ABC_HOST_CXX_MSC >= 1700
+      /* “'derived_class' : Object layout under / vd2 will change due to virtual base 'base_class'”:
+      yet another problem related to calling virtual methods from a constructor. This warning could
+      be used to detect the latter situation, but MSC raises it unconditionally, so just turn it
+      off. */
+      #pragma warning(disable: 4435)
+   #endif
    // “'class' : default constructor could not be generated”
    #pragma warning(disable: 4510)
    // “'class' : assignment operator could not be generated”
