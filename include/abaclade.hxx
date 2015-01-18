@@ -238,6 +238,11 @@ namespace abc {
    #pragma warning(disable: 4290)
    // “cast truncates constant value”: would be useful, but it’s raised too easily by MSC16.
    #pragma warning(disable: 4310)
+   /* “behavior change : 'stl_internal1' called instead of 'stl_internal2': this is raised by MSC’s
+   STL header files, and Microsoft suggests to just ignore it; see <https://connect.microsoft.com/
+   VisualStudio/feedback/details/767960/warning-c4350-behavior-change-when-including-string-and-no-
+   precompiled-header>. */
+   #pragma warning(disable: 4350)
    /* “'derived_class' : Object layout under / vd2 will change due to virtual base 'base_class'”:
    yet another problem stemming from calling virtual methods from a constructor. This warning could
    be used to detect the latter situation, but it’s raised unconditionally, so just turn it off. */
