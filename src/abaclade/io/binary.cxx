@@ -251,14 +251,14 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
       /* Default timeout for WaitNamedPipe(), in milliseconds. Irrelevant in this case, since the
       client won’t even know that this is a named pipe. */
       static DWORD const sc_iDefaultTimeout = 1000;
-      wchar_t achPipeName[128];
       // Generate the pipe name.
-      ::wsprintf(
-         achPipeName, L"\\\\.\\pipe\\abc::io::binary::pipe\\%08x\\%08x",
+      smstr<128> sPipeName;
+      io::text::str_writer(external_buffer, &sPipeName).print(
+         ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
       );
       fidReader.fd = ::CreateNamedPipe(
-         achPipeName,
+         sPipeName.c_str(),
          GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_WAIT,
          1, sc_cbBuffer, sc_cbBuffer, sc_iDefaultTimeout, nullptr
       );
@@ -266,7 +266,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
          throw_os_error();
       }
       fidWriter.fd = ::CreateFile(
-         achPipeName, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+         sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
          FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
       );
       if (!fidWriter.fd) {
