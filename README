@@ -86,7 +86,7 @@ time (hopefully expanding).
 Supported build systems:
 
 •  Clang + GNU LD
-   •  Clang 3.3 (later versions to be tested)
+   •  Clang 3.5
    •  binutils (version to be determined – anything from 2010 on should work)
 
 •  GNU toolchain
