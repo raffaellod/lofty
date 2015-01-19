@@ -13,7 +13,7 @@ Abaclade is a C++11 framework featuring:
    you’ll always know what went wrong! (see [DOC:8503 Stack tracing]);
 
 •  Testing framework integrated in the library with full support from the
-   recommended built, Abamake (see <https://github.com/raffaellod/abamake>);
+   recommended build tool, Abamake (<https://github.com/raffaellod/abamake>);
 
 •  Approachable and intuitive programming style, similar to Python’s; a good
    example is its modern I/O class hierarchy inspired by Python 3.x’s library,
