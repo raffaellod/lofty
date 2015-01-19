@@ -49,11 +49,11 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/perf/stopwatch.cxx"/>
       <source path="src/abaclade/process.cxx"/>
-      <source path="src/abaclade/stl/exception.cxx"/>
-      <source path="src/abaclade/stl/memory.cxx"/>
-      <source path="src/abaclade/stl/new.cxx"/>
-      <source path="src/abaclade/stl/tuple.cxx"/>
-      <source path="src/abaclade/stl/typeinfo.cxx"/>
+      <source path="src/abaclade/_std/exception.cxx"/>
+      <source path="src/abaclade/_std/memory.cxx"/>
+      <source path="src/abaclade/_std/new.cxx"/>
+      <source path="src/abaclade/_std/tuple.cxx"/>
+      <source path="src/abaclade/_std/typeinfo.cxx"/>
       <source path="src/abaclade/str.cxx"/>
       <source path="src/abaclade/text.cxx"/>
       <source path="src/abaclade/text/char_traits.cxx"/>

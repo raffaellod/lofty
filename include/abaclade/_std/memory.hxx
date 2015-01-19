@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -27,12 +27,12 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/stl/new.hxx>
-#include <abaclade/stl/type_traits.hxx>
-#include <abaclade/stl/tuple.hxx>
-#include <abaclade/stl/exception.hxx>
-#include <abaclade/stl/typeinfo.hxx>
 #include <abaclade/atomic.hxx>
+#include <abaclade/_std/new.hxx>
+#include <abaclade/_std/type_traits.hxx>
+#include <abaclade/_std/tuple.hxx>
+#include <abaclade/_std/exception.hxx>
+#include <abaclade/_std/typeinfo.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

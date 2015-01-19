@@ -517,10 +517,10 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 #endif
 
 #if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
-   #include <abaclade/stl/tuple.hxx>
+   #include <abaclade/_std/tuple.hxx>
 #endif
 #ifdef ABC_STLIMPL
-   #include <abaclade/stl/memory.hxx>
+   #include <abaclade/_std/memory.hxx>
 #else //ifdef ABC_STLIMPL
    #include <tuple>
    #if ABC_HOST_CXX_MSC
@@ -565,9 +565,9 @@ class writer;
 } //namespace abc
 
 #ifdef ABC_STLIMPL
-   #include <abaclade/stl/exception.hxx>
-   #include <abaclade/stl/functional.hxx>
-   #include <abaclade/stl/iterator.hxx>
+   #include <abaclade/_std/exception.hxx>
+   #include <abaclade/_std/functional.hxx>
+   #include <abaclade/_std/iterator.hxx>
 #else
    #include <exception>
    #include <functional>

@@ -47,7 +47,7 @@ private:
 } //namespace abc
 
 #ifdef ABC_STLIMPL
-   #include <abaclade/stl/type_traits.hxx>
+   #include <abaclade/_std/type_traits.hxx>
 #else
    #if ABC_HOST_CXX_MSC == 1800
       /*! DOC:1082 std::is_copy_constructible MSC18 bugs
