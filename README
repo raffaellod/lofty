@@ -101,8 +101,8 @@ Supported operating systems:
 
 •  GNU/Linux using glibc 2.17 or later;
 •  OS X 10.9 Mavericks or later;
-•  Microsoft Windows – temporarily only via Visual C++ 10, which means only
-   Windows XP and later versions are supported.
+•  Microsoft Windows – currently only via Visual C++ 10 or later, which means
+   only Windows XP and later versions are supported.
 •  FreeBSD – officially only the latest -RELEASE is supported;
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
