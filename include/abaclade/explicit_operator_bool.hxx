@@ -39,13 +39,14 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-//! Non-template helper for support_explicit_operator_bool.
+//! Non-template helper providing definitions for support_explicit_operator_bool.
 struct explob_helper {
    //! Non-bool boolean type.
    typedef void (explob_helper::* bool_type)() const;
 
-   //! A pointer to this method is used as a boolean true by support_explicit_operator_bool.
-   ABACLADE_SYM void bool_true() const;
+   //! A pointer to this method is used as a Boolean “true” by support_explicit_operator_bool.
+   void bool_true() const {
+   }
 };
 
 } //namespace detail
@@ -86,7 +87,7 @@ struct support_explicit_operator_bool {
    #else //ifdef ABC_CXX_FUNC_DELETE
       #define ABC_RELOP_IMPL(op) \
          template <typename T1, typename T2> \
-         inline bool operator op( \
+         bool operator op( \
             support_explicit_operator_bool<T1> const & lhs, \
             support_explicit_operator_bool<T2> const & rhs \
          );

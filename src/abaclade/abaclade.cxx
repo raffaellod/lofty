@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -42,19 +42,5 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved)
    return true;
 }
 #endif //if ABC_HOST_API_WIN32
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::explob_helper
-
-namespace abc {
-namespace detail {
-
-#ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-void explob_helper::bool_true() const {
-}
-#endif
-
-} //namespace detail
-} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
