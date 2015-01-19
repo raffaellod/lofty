@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #if ABC_HOST_API_WIN32
-   #include <abaclade/text/parsers/ansi_escape_sequences.hxx>
+   #include <abaclade/text/parser/ansi_escape_sequences.hxx>
 #endif
 
 
@@ -260,7 +260,7 @@ class ABACLADE_SYM console_writer :
    public file_writer
 #if ABC_HOST_API_WIN32
    // Under Win32, ANSI escape sequences parsing is up to us.
-   , private abc::text::parsers::ansi_escape_sequences
+   , private abc::text::parser::ansi_escape_sequences
 #endif
    {
 public:
@@ -278,10 +278,10 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 private:
-   //! See abc::text::parsers::ansi_escape_sequences::clear_display_area().
+   //! See abc::text::parser::ansi_escape_sequences::clear_display_area().
    virtual void clear_display_area(std::int16_t iRow, std::int16_t iCol, std::size_t cch) override;
 
-   //! See abc::text::parsers::ansi_escape_sequences::get_cursor_pos_and_display_size().
+   //! See abc::text::parser::ansi_escape_sequences::get_cursor_pos_and_display_size().
    virtual void get_cursor_pos_and_display_size(
       std::int16_t * piRow, std::int16_t * piCol, std::int16_t * pcRows, std::int16_t * pcCols
    ) override;
@@ -293,19 +293,19 @@ private:
    */
    bool processing_enabled() const;
 
-   //! See abc::text::parsers::ansi_escape_sequences::scroll_text().
+   //! See abc::text::parser::ansi_escape_sequences::scroll_text().
    virtual void scroll_text(std::int16_t cRows, std::int16_t cCols) override;
 
-   //! See abc::text::parsers::ansi_escape_sequences::set_char_attributes().
+   //! See abc::text::parser::ansi_escape_sequences::set_char_attributes().
    virtual void set_char_attributes() override;
 
-   //! See abc::text::parsers::ansi_escape_sequences::set_cursor_pos().
+   //! See abc::text::parser::ansi_escape_sequences::set_cursor_pos().
    virtual void set_cursor_pos(std::int16_t iRow, std::int16_t iCol) override;
 
-   //! See abc::text::parsers::ansi_escape_sequences::set_cursor_visibility().
+   //! See abc::text::parser::ansi_escape_sequences::set_cursor_visibility().
    virtual void set_cursor_visibility(bool bVisible) override;
 
-   //! See abc::text::parsers::ansi_escape_sequences::set_window_title().
+   //! See abc::text::parser::ansi_escape_sequences::set_window_title().
    virtual void set_window_title(istr const & sTitle) override;
 
    /*! Writes a range of characters directly to the console, without any parsing.
