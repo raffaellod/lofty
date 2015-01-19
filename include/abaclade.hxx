@@ -345,13 +345,13 @@ reached. */
 
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
 #if ABC_HOST_API_WIN32
-   // TODO: how does Clang declare dllexport?
-   #if ABC_HOST_CXX_GCC
-      #define ABC_SYM_EXPORT \
-         __attribute__((dllexport))
-   #elif ABC_HOST_CXX_MSC
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_MSC
+      // TODO: needs testing; Clang claims to need -fms-extensions to enable dllexport.
       #define ABC_SYM_EXPORT \
          __declspec(dllexport)
+   #elif ABC_HOST_CXX_GCC
+      #define ABC_SYM_EXPORT \
+         __attribute__((dllexport))
    #endif
 #else
    #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
@@ -362,13 +362,13 @@ reached. */
 
 //! Declares a symbol to be imported from a shared library.
 #if ABC_HOST_API_WIN32
-   // TODO: how does Clang declare dllimport?
-   #if ABC_HOST_CXX_GCC
-      #define ABC_SYM_IMPORT \
-         __attribute__((dllimport))
-   #elif ABC_HOST_CXX_MSC
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_MSC
+      // TODO: needs testing; Clang claims to need -fms-extensions to enable dllimport.
       #define ABC_SYM_IMPORT \
          __declspec(dllimport)
+   #elif ABC_HOST_CXX_GCC
+      #define ABC_SYM_IMPORT \
+         __attribute__((dllimport))
    #endif
 #else
    #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
