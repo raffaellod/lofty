@@ -95,7 +95,7 @@ Supported build systems:
 
 •  Apple SDK for OS X 10.10 Yosemite and 10.9 Mavericks (included in Xcode 6)
 
-•  Microsoft Visual Studio 2010 (Visual C++ 10 / MSC 16) or later
+•  Microsoft Visual Studio 2010/2012/2013 (Visual C++ 10-12 / MSC 16-18)
 
 Supported operating systems:
 
@@ -179,7 +179,7 @@ path.
 
 
 --------------------------------------------------------------------------------
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
