@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/list.hxx>
+#include <abaclade/container/list.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

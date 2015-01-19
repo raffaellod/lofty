@@ -573,17 +573,17 @@ class writer;
    #include <functional>
    #include <iterator>
 #endif
-#include <abaclade/detail/xor_list_node_impl.hxx>
-#include <abaclade/detail/xor_list_iterator_impl.hxx>
-#include <abaclade/static_list.hxx>
+#include <abaclade/container/detail/xor_list_node_impl.hxx>
+#include <abaclade/container/detail/xor_list_iterator_impl.hxx>
+#include <abaclade/container/static_list.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/exception.hxx>
 #include <abaclade/enum.hxx>
-#include <abaclade/pointer_iterator.hxx>
+#include <abaclade/container/pointer_iterator.hxx>
 #include <abaclade/numeric.hxx>
-#include <abaclade/type_void_adapter.hxx>
-#include <abaclade/detail/vextr.hxx>
-#include <abaclade/vector.hxx>
+#include <abaclade/container/type_void_adapter.hxx>
+#include <abaclade/container/detail/vextr.hxx>
+#include <abaclade/container/vector.hxx>
 #include <abaclade/byteorder.hxx>
 #include <abaclade/text.hxx>
 #include <abaclade/text/char_traits.hxx>
@@ -598,15 +598,15 @@ class writer;
 #include <abaclade/exception-after-to_str.hxx>
 #include <abaclade/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
-#include <abaclade/pointer_iterator-after-to_str.hxx>
+#include <abaclade/container/pointer_iterator-after-to_str.hxx>
 #include <abaclade/text/codepoint_iterator-after-to_str.hxx>
-#include <abaclade/vector-after-to_str.hxx>
+#include <abaclade/container/vector-after-to_str.hxx>
 
 #include <abaclade/os/path.hxx>
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
 #include <abaclade/io/binary/file.hxx>
-#include <abaclade/list.hxx>
+#include <abaclade/container/list.hxx>
 #include <abaclade/io/binary/buffered.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/io/text/binbuf.hxx>
