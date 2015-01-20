@@ -31,7 +31,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
       <source path="src/abaclade/detail/trace.cxx"/>
-      <source path="src/abaclade/container/detail/vextr.cxx"/>
+      <source path="src/abaclade/collections/detail/vextr.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
@@ -43,8 +43,8 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/binbuf.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
-      <source path="src/abaclade/container/list.cxx"/>
-      <source path="src/abaclade/container/map.cxx"/>
+      <source path="src/abaclade/collections/list.cxx"/>
+      <source path="src/abaclade/collections/map.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/perf/stopwatch.cxx"/>
@@ -64,7 +64,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/thread_local.cxx"/>
       <source path="src/abaclade/throw_os_error.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
-      <source path="src/abaclade/container/vector.cxx"/>
+      <source path="src/abaclade/collections/vector.cxx"/>
 
       <exeunittest
          name="abaclade-test"
@@ -75,15 +75,15 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/exception.cxx"/>
          <source path="src/abaclade-test/io/text/binbuf_reader-read.cxx"/>
          <source path="src/abaclade-test/io/text/writer-print.cxx"/>
-         <source path="src/abaclade-test/container/list.cxx"/>
-         <source path="src/abaclade-test/container/map.cxx"/>
+         <source path="src/abaclade-test/collections/list.cxx"/>
+         <source path="src/abaclade-test/collections/map.cxx"/>
          <source path="src/abaclade-test/os/path.cxx"/>
          <source path="src/abaclade-test/range.cxx"/>
          <source path="src/abaclade-test/str.cxx"/>
          <source path="src/abaclade-test/text/str_traits.cxx"/>
          <source path="src/abaclade-test/thread.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>
-         <source path="src/abaclade-test/container/vector.cxx"/>
+         <source path="src/abaclade-test/collections/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
       </exeunittest>
 
