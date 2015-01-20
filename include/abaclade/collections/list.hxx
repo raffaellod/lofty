@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_LIST_HXX
-#define _ABACLADE_LIST_HXX
+#ifndef _ABACLADE_COLLECTIONS_LIST_HXX
+#define _ABACLADE_COLLECTIONS_LIST_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -29,12 +29,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::list_impl
+// abc::collections::detail::list_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
-//! Non-template implementation class for abc::list.
+//! Non-template implementation class for abc::collections::list.
 class ABACLADE_SYM list_impl {
 public:
    /*! Constructor.
@@ -138,12 +139,14 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::list
+// abc::collections::list
 
 namespace abc {
+namespace collections {
 
 //! Doubly-linked list.
 template <typename T>
@@ -439,8 +442,9 @@ private:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_LIST_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS_LIST_HXX

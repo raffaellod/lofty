@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::list_impl
+// abc::collections::detail::list_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 list_impl & list_impl::operator=(list_impl && l) {
@@ -116,6 +117,7 @@ xor_list_node_impl * list_impl::unlink_front() {
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

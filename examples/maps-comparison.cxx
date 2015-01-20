@@ -64,13 +64,13 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(mvector<istr const> const & vsArgs) override {
+   virtual int main(collections::mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       using std::get;
 
       io::text::stdout()->print(ABC_SL(
-         "                               Add   Hit lookup  Miss lookup  [ns]\n"
+         "                                            Add   Hit lookup  Miss lookup  [ns]\n"
       ));
 
       auto rGoodHash(make_range(0, 10000000));
@@ -79,7 +79,7 @@ public:
          std::map<int, int> m;
          auto ret(run_test(&m, rGoodHash));
          io::text::stdout()->print(
-            ABC_SL("  std::map             {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::map                          {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
@@ -87,15 +87,15 @@ public:
          std::unordered_map<int, int, std::hash<int>> m;
          auto ret(run_test(&m, rGoodHash));
          io::text::stdout()->print(
-            ABC_SL("  std::unordered_map   {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::map<int, int, std::hash<int>> m;
+         abc::collections::map<int, int, std::hash<int>> m;
          auto ret(run_test(&m, rGoodHash));
          io::text::stdout()->print(
-            ABC_SL("  abc::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
             m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
@@ -106,15 +106,15 @@ public:
          std::unordered_map<int, int, poor_hash<int>> m;
          auto ret(run_test(&m, rPoorHash));
          io::text::stdout()->print(
-            ABC_SL("  std::unordered_map   {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::map<int, int, poor_hash<int>> m;
+         abc::collections::map<int, int, poor_hash<int>> m;
          auto ret(run_test(&m, rPoorHash));
          io::text::stdout()->print(
-            ABC_SL("  abc::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
             m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
@@ -193,7 +193,7 @@ private:
    }
 
    template <typename TValue, typename THash>
-   run_test_ret run_test(map<TValue, TValue, THash> * pm, range<TValue> const & r) {
+   run_test_ret run_test(collections::map<TValue, TValue, THash> * pm, range<TValue> const & r) {
       ABC_TRACE_FUNC(this, pm/*, r*/);
 
       perf::stopwatch swAdd;

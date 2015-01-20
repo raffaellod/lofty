@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::xor_list_iterator_impl
+// abc::collections::detail::xor_list_iterator_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 //! Iterator for XOR doubly-linked list node classes.
@@ -151,6 +152,7 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

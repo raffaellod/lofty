@@ -491,7 +491,7 @@ protected:
    /*! List of write buffers. May contain more than one in case *m_pbw is asynchronous and slow, in
    which case front() is the one to be used first, and the others are held until their respective
    I/O async operations complete. */
-   list<detail::buffer> m_lbufWriteBufs;
+   collections::list<detail::buffer> m_lbufWriteBufs;
    //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbWriteBufDefault = 0x1000;

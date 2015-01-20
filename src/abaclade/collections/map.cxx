@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::map_impl
+// abc::collections::detail::map_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 std::size_t const map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
@@ -337,6 +338,7 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

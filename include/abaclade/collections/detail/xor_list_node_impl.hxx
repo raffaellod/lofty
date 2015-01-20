@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::xor_list_node_impl
+// abc::collections::detail::xor_list_node_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 //! Node for XOR doubly-linked list classes.
@@ -88,6 +89,7 @@ private:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

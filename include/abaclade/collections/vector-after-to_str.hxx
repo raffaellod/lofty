@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -23,14 +23,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::vector_to_str_backend
+// abc::collections::detail::vector_to_str_backend
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file. */
-class ABACLADE_SYM vector_to_str_backend : public detail::sequence_to_str_backend {
+class ABACLADE_SYM vector_to_str_backend : public abc::detail::sequence_to_str_backend {
 public:
    //! Constructor.
    vector_to_str_backend();
@@ -45,16 +46,18 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::vector_base
+// abc::to_str_backend – specialization for abc::collections::vector_base
 
 namespace abc {
 
 // Specialization of to_str_backend.
 template <typename T>
-class to_str_backend<vector_base<T>> : public detail::vector_to_str_backend {
+class to_str_backend<collections::vector_base<T>> :
+   public collections::detail::vector_to_str_backend {
 public:
    /*! Changes the output format.
 
@@ -64,7 +67,7 @@ public:
    void set_format(istr const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
-      detail::vector_to_str_backend::set_format(sFormat);
+      collections::detail::vector_to_str_backend::set_format(sFormat);
       m_tsbElt.set_format(m_sEltFormat);
    }
 
@@ -75,7 +78,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(vector_base<T> const & v, io::text::writer * ptwOut) {
+   void write(collections::vector_base<T> const & v, io::text::writer * ptwOut) {
 //    ABC_TRACE_FUNC(this, v, ptwOut);
 
       _write_start(ptwOut);
@@ -103,13 +106,18 @@ protected:
 namespace abc {
 
 template <typename T>
-class to_str_backend<mvector<T>> : public to_str_backend<vector_base<T>> {};
+class to_str_backend<collections::mvector<T>> : public to_str_backend<collections::vector_base<T>> {
+};
 
 template <typename T>
-class to_str_backend<dmvector<T>> : public to_str_backend<vector_base<T>> {};
+class to_str_backend<collections::dmvector<T>> :
+   public to_str_backend<collections::vector_base<T>> {
+};
 
 template <typename T, std::size_t t_ciStatic>
-class to_str_backend<smvector<T, t_ciStatic>> : public to_str_backend<vector_base<T>> {};
+class to_str_backend<collections::smvector<T, t_ciStatic>> :
+   public to_str_backend<collections::vector_base<T>> {
+};
 
 } //namespace abc
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013, 2014
+Copyright 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -114,7 +114,7 @@ public:
 
 private:
    //! Vector of loaded test test cases to be executed.
-   dmvector<std::unique_ptr<test_case>> m_vptc;
+   collections::dmvector<std::unique_ptr<test_case>> m_vptc;
    //! Output writer.
    std::shared_ptr<io::text::writer> m_ptwOut;
    //! Total count of failed assertions.

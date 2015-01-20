@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -83,7 +83,7 @@ private:
    //! Description of the encountered problem.
    istr m_sDescription;
    //! Bytes that caused the error.
-   smvector<std::uint8_t, 16> m_viInvalid;
+   collections::smvector<std::uint8_t, 16> m_viInvalid;
 };
 
 } //namespace text

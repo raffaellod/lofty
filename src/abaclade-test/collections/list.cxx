@@ -28,10 +28,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(list_basic, "abc::list – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(list_basic, "abc::collections::list – basic operations") {
    ABC_TRACE_FUNC(this);
 
-   list<int> l;
+   collections::list<int> l;
 
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
    // These assertions target const begin/end.

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013, 2014
+Copyright 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -41,7 +41,7 @@ allowing for the execution of test cases. */
 class ABACLADE_TESTING_SYM app : public abc::app {
 public:
    //! See abc::app::main().
-   virtual int main(mvector<istr const> const & vsArgs) override;
+   virtual int main(collections::mvector<istr const> const & vsArgs) override;
 };
 
 } //namespace testing

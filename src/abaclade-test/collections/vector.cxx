@@ -33,20 +33,20 @@ class vector_basic : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – basic operations"));
+      return istr(ABC_SL("abc::collections::*vector classes – basic operations"));
    }
 
    //! See testing::test_case::run().
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      dmvector<int> v;
+      collections::dmvector<int> v;
 
       // Note: do not replace the item-by-item assertions with comparisons against manually-
       // populated vectors as here we’re also guaranteeing that we can prepare a manually-populated
       // vector. For example:
       //
-      //    dmvector<int> v1, v2;
+      //    collections::dmvector<int> v1, v2;
       //    v1.push_back(1);
       //    v1.push_back(2);
       //    v2.push_back(1);
@@ -115,7 +115,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      dmvector<int> v1a, v1b, v2, v3;
+      collections::dmvector<int> v1a, v1b, v2, v3;
       v1a.push_back(1);
       v1a.push_back(2);
       v1b.push_back(1);
@@ -165,7 +165,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      dmvector<int> v;
+      collections::dmvector<int> v;
       v.push_back(1);
       v.push_back(2);
       v.push_back(3);
@@ -204,7 +204,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
+      collections::dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
       vOne.push_back(1);
       vTwo.push_back(2);
       vOneTwo.push_back(1);
@@ -317,13 +317,13 @@ public:
 
       using testing::utility::make_container_data_ptr_tracker;
 
-      dmvector<int> v1;
+      collections::dmvector<int> v1;
       auto cdpt1(make_container_data_ptr_tracker(v1));
       // Note: the embedded item array size will probably be > 2.
-      smvector<int, 2> v2;
+      collections::smvector<int, 2> v2;
       auto cdpt2(make_container_data_ptr_tracker(v2));
       // Note: the embedded item array size will probably be > 10.
-      smvector<int, 10> v3;
+      collections::smvector<int, 10> v3;
       auto cdpt3(make_container_data_ptr_tracker(v3));
 
       // Add one element to each vector, so they all allocate a new item array or begin using their
@@ -508,7 +508,7 @@ public:
       {
          /* This will move the item array from the returned vector to v1, so no item copies or moves
          will occur other than the ones in return_dmvector(). */
-         dmvector<instances_counter> v(return_dmvector());
+         collections::dmvector<instances_counter> v(return_dmvector());
          ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
          ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
@@ -524,7 +524,7 @@ public:
       }
 
       {
-         smvector<instances_counter, 9> v;
+         collections::smvector<instances_counter, 9> v;
          /* This will move the individual items from the returned vector to v2’s embedded item array.
          Can’t just construct v2 with return_dmvector() because v2 would just use that item array
          instead of its own embedded one, resulting in no additional moves other than the one in
@@ -544,10 +544,10 @@ public:
    return
       Newly-instantiated dynamic vector.
    */
-   dmvector<instances_counter> return_dmvector() {
+   collections::dmvector<instances_counter> return_dmvector() {
       ABC_TRACE_FUNC(this);
 
-      dmvector<instances_counter> v;
+      collections::dmvector<instances_counter> v;
       // New instance, immediately moved.
       v.push_back(instances_counter());
       // This will move the item array or the items in it, depending on the destination type

@@ -42,12 +42,12 @@ public:
    return
       Return value of this program.
    */
-   virtual int main(mvector<istr const> const & vsArgs) override {
+   virtual int main(collections::mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       istr s(ABC_SL("Test String"));
 
-      smvector<int, 5> vi;
+      collections::smvector<int, 5> vi;
       vi.push_back(101);
       vi.push_back(102);
 
@@ -74,7 +74,7 @@ public:
       (four,  4)
    );
 
-   void first_function(istr const & s, mvector<int> const & vi) const {
+   void first_function(istr const & s, collections::mvector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
 
       auto out(io::text::stdout());

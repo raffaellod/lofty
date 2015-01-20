@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013, 2014
+Copyright 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -415,9 +415,9 @@ class test_case_factory_impl;
 /*! List of abc::testing::test_case-derived classes that can be used by an abc::testing::runner
 instance to instantiate and execute each test case. */
 class ABACLADE_TESTING_SYM test_case_factory_list :
-   public static_list<test_case_factory_list, test_case_factory_impl> {
+   public collections::static_list<test_case_factory_list, test_case_factory_impl> {
 public:
-   ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
+   ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
 };
 
 } //namespace testing
@@ -431,7 +431,7 @@ namespace testing {
 
 //! Non-template base class for test_case_factory.
 class ABACLADE_TESTING_SYM test_case_factory_impl :
-   public static_list<test_case_factory_list, test_case_factory_impl>::node {
+   public collections::static_list<test_case_factory_list, test_case_factory_impl>::node {
 public:
    /*! Constructor.
 

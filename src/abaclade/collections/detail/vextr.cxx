@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -21,9 +21,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_impl_base
+// abc::collections::detail::raw_vextr_impl_base
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
@@ -134,12 +135,14 @@ void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_transaction
+// abc::collections::detail::raw_vextr_transaction
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 raw_vextr_transaction::raw_vextr_transaction(
@@ -236,12 +239,14 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_complex_vextr_impl
+// abc::collections::detail::raw_complex_vextr_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 void raw_complex_vextr_impl::assign_concat(
@@ -549,12 +554,14 @@ void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_trivial_vextr_impl
+// abc::collections::detail::raw_trivial_vextr_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 void raw_trivial_vextr_impl::assign_concat(
@@ -687,6 +694,7 @@ void raw_trivial_vextr_impl::set_size(std::size_t cb) {
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

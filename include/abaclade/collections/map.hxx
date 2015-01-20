@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_MAP_HXX
-#define _ABACLADE_MAP_HXX
+#ifndef _ABACLADE_COLLECTIONS_MAP_HXX
+#define _ABACLADE_COLLECTIONS_MAP_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -29,12 +29,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::map_impl
+// abc::collections::detail::map_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
-//! Non-template implementation class for abc::map.
+//! Non-template implementation class for abc::collections::map.
 class ABACLADE_SYM map_impl {
 protected:
    typedef void (* destruct_key_value_fn)(void * pKey, void * pValue);
@@ -334,12 +335,14 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::map
+// abc::collections::map
 
 namespace abc {
+namespace collections {
 
 /*! Key/value map using a derivative of the hopscotch hashing collision resolution algorithm.
 
@@ -664,8 +667,9 @@ private:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_MAP_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS_MAP_HXX

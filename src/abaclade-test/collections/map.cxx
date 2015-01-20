@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -28,10 +28,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::map – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::collections::map – basic operations") {
    ABC_TRACE_FUNC(this);
 
-   map<int, int> m;
+   collections::map<int, int> m;
 
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
 
@@ -88,7 +88,8 @@ namespace test {
 namespace {
 
 /*! Inefficient hash function that results in 100% hash collisions. This also checks that hash 0
-(which has a special meaning internally to abc::map) behaves no differently than any other value.
+(which has a special meaning internally to abc::collections::map) behaves no differently than any
+other value.
 
 @param i
    Value to hash.
@@ -104,12 +105,14 @@ struct poor_hash {
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(map_collisions, "abc::map – stress test with 100% collisions") {
+ABC_TESTING_TEST_CASE_FUNC(
+   map_collisions, "abc::collections::map – stress test with 100% collisions"
+) {
    ABC_TRACE_FUNC(this);
 
    static int const sc_iMax = 1000;
    unsigned cErrors;
-   map<int, int, poor_hash> m;
+   collections::map<int, int, poor_hash> m;
 
    // Verify that values are inserted correctly.
    cErrors = 0;

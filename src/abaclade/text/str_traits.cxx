@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -27,7 +27,8 @@ namespace abc {
 namespace text {
 
 /*static*/ void str_traits::_build_find_failure_restart_table(
-   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd, mvector<std::size_t> * pvcchFailNext
+   char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
+   collections::mvector<std::size_t> * pvcchFailNext
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
 
@@ -211,7 +212,7 @@ namespace text {
       */
 
       // Build the failure restart table.
-      smvector<std::size_t, 64> vcchFailNext;
+      collections::smvector<std::size_t, 64> vcchFailNext;
       _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
 
       std::size_t iFailNext = 0;

@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::static_list
+// abc::collections::static_list
 
 namespace abc {
+namespace collections {
 
 /*! Allows a subclass (which must be a singleton, operating mostly via static members) to contain a
 list of nodes (instances of a static_list::node subclass). Nodes are typically added to the
@@ -164,26 +165,27 @@ private:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
-/*! Declares the static member variables for the specified abc::static_list-derived class.
+/*! Declares the static member variables for the specified abc::collections::static_list subclass.
 
 @param container
-   Class derived from abc::static_list.
+   Class derived from abc::collections::static_list.
 */
-#define ABC_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
+#define ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
    /*! Pointer to the first node. */ \
-   static ::abc::detail::xor_list_node_impl * sm_pnFirst; \
+   static ::abc::collections::detail::xor_list_node_impl * sm_pnFirst; \
    /*! Pointer to the last node. */ \
-   static ::abc::detail::xor_list_node_impl * sm_pnLast;
+   static ::abc::collections::detail::xor_list_node_impl * sm_pnLast;
 
-/*! Defines the static member variables for the specified abc::static_list-derived class.
+/*! Defines the static member variables for the specified abc::collections::static_list subclass.
 
 @param container
-   Class derived from abc::static_list.
+   Class derived from abc::collections::static_list.
 */
-#define ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   ::abc::detail::xor_list_node_impl * container::sm_pnFirst = nullptr; \
-   ::abc::detail::xor_list_node_impl * container::sm_pnLast = nullptr;
+#define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
+   ::abc::collections::detail::xor_list_node_impl * container::sm_pnFirst = nullptr; \
+   ::abc::collections::detail::xor_list_node_impl * container::sm_pnLast = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

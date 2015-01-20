@@ -108,7 +108,7 @@ void test_case::assert_throws(
 namespace abc {
 namespace testing {
 
-ABC_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
+ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
 
 } //namespace testing
 } //namespace abc

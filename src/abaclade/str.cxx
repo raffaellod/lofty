@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -69,7 +69,7 @@ namespace {
 //! Single NUL terminator.
 abc::char_t const gc_chNul('\0');
 
-abc::detail::raw_vextr_impl_data const gc_rvidEmpty = {
+abc::collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
    /*m_pBegin*/ const_cast<abc::char_t *>(&gc_chNul),
    /*m_pEnd*/ const_cast<abc::char_t *>(&gc_chNul),
    /*mc_bEmbeddedPrefixedItemArray*/ false,
@@ -136,17 +136,21 @@ detail::c_str_ptr str_base::c_str() const {
    }
 }
 
-dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
+collections::dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
-   dmvector<std::uint8_t> vb;
+   collections::dmvector<std::uint8_t> vb;
    std::size_t cbChar, cbUsed, cbStr = size_in_bytes();
    if (enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(vb.begin().base(), detail::raw_trivial_vextr_impl::begin<std::uint8_t>(), cbStr);
+      memory::copy(
+         vb.begin().base(),
+         collections::detail::raw_trivial_vextr_impl::begin<std::uint8_t>(),
+         cbStr
+      );
       cbUsed = cbStr;
    } else {
       cbChar = text::get_encoding_size(enc);
@@ -350,7 +354,9 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    std::size_t cbRemove =
       sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
    std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
-   detail::raw_trivial_vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
+   collections::detail::raw_trivial_vextr_impl::insert_remove(
+      ich, nullptr, sizeof(char_t), cbRemove
+   );
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch.
@@ -363,7 +369,9 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    std::size_t cbRemove =
       sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
    std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
-   detail::raw_trivial_vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
+   collections::detail::raw_trivial_vextr_impl::insert_remove(
+      sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
+   );
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means

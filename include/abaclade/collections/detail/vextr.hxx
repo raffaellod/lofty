@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -22,20 +22,20 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-/*! DOC:4019 abc::*str and abc::*vector design
+/*! DOC:4019 abc::*str and abc::collections::*vector design
 
-abc::*str and abc::*vectors are intelligent wrappers around C arrays; they are able to dynamically
-adjust the size of the underlying array, while also taking advantage of an optional fixed-size array
-embedded into the string/vector object.
+abc::*str and abc::collections::*vectors are intelligent wrappers around C arrays; they are able to
+dynamically adjust the size of the underlying array, while also taking advantage of an optional
+fixed-size array embedded into the string/vector object.
 
 Data-wise, the implementation stores two pointers, one to the first item and one to beyond the last
 item, instead of the more common start pointer/length pair of variables. This makes checking an
 iterator against the end of the array a matter of a simple load/compare in terms of machine level
 instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair. The
 item array pointed to by the begin/end pointers can be part of a prefixed item array
-(abc::detail::raw_vextr_prefixed_item_array), which includes information such as the total capacity
-of the item array, which is used to find out when the item array needs to be reallocated to make
-room for more items.
+(abc::collections::detail::raw_vextr_prefixed_item_array), which includes information such as the
+total capacity of the item array, which is used to find out when the item array needs to be
+reallocated to make room for more items.
 
 While there are several implementations of these classes, they can all be grouped in two clades:
 immutable and mutable/modifiable. The firsts behave much like Python’s strings or tuples, in that
@@ -74,18 +74,19 @@ Note: vextr is a portmanteau of vector and str(ing), because most of the above c
 both.
 
 For vectors, the two leaf classes above are wrapped by an additional template layer,
-abc::detail::raw_vector, that eliminates any differences between the two interfaces caused by the
-need for abc::detail::raw_trivial_vextr_impl to also double as implementation of the string classes.
+abc::collections::detail::raw_vector, that eliminates any differences between the two interfaces
+caused by the need for abc::collections::detail::raw_trivial_vextr_impl to also double as
+implementation of the string classes.
 The complete lower-level class hierarchy is therefore:
 
 •  detail::raw_vextr_impl_base
 
    •  detail::raw_complex_vextr_impl / detail::raw_trivial_vextr_impl
 
-      •  detail::raw_vector: consolidates the trivial and complex interfaces into a single one by
-         having two distinct specializations (trivial/non-trivial).
+      •  collections::detail::raw_vector: consolidates the trivial and complex interfaces into a
+         single one by having two distinct specializations (trivial/non-trivial).
 
-         •  vector_base: base for the upper-level vector class hierarchy.
+         •  collections::vector_base: base for the upper-level vector class hierarchy.
 
       •  str_base: always derives from detail::raw_trivial_vextr_impl, it’s the base for the upper-
          level string class hierarchy.
@@ -93,24 +94,26 @@ The complete lower-level class hierarchy is therefore:
 
 The upper-level class hierarchies consist in these classes:
 
-•  vector_base/str_base
+•  collections::vector_base/str_base
 
-   •  ivector (TODO: if the need arises)/istr: immutable (assign-only) vector/string; uses a read-
-      only (possibly shared) or dynamically-allocated item array, and as a consequence does not
-      offer any modifier methods or operators beyond operator==(). Only class in its hierarchy that
-      can be constructed from a C++ literal without creating a copy of the constructor argument.
+   •  collections::ivector (TODO: if the need arises)/istr: immutable (assign-only) vector/string;
+      uses a read-only (possibly shared) or dynamically-allocated item array, and as a consequence
+      does not offer any modifier methods or operators beyond operator==(). Only class in its
+      hierarchy that can be constructed from a C++ literal without creating a copy of the
+      constructor argument.
 
-   •  mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable, embedded or
-      dynamically-allocated prefixed item array (never a non-prefixed, read-only item array), and
-      provides an abstraction for its derived classes.
+   •  collections::mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable,
+      embedded or dynamically-allocated prefixed item array (never a non-prefixed, read-only item
+      array), and provides an abstraction for its derived classes.
 
-      •  dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated item array.
+      •  collections::dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated
+         item array.
 
-      •  smvector/smstr: mutable vector/string that can use an internal embedded prefixed item array
-         and will switch to a dynamically-allocated one only if necessary. Nearly as fast as the
-         C-style direct manipulation of an array, only wasting a very small amount of space, and
-         providing the ability to switch to a dynamically-allocated item array on-the-fly in case
-         the client needs to store in it more items than are available.
+      •  collections::smvector/smstr: mutable vector/string that can use an internal embedded
+         prefixed item array and will switch to a dynamically-allocated one only if necessary.
+         Nearly as fast as the C-style direct manipulation of an array, only wasting a very small
+         amount of space, and providing the ability to switch to a dynamically-allocated item array
+         on-the-fly in case the client needs to store in it more items than are available.
 
 The upper-level class hierarchy is arranged so that the compiler will prevent implicit cast of mstr
 or smstr to istr &/dmstr &; allowing this would allow the istr/dmstr move constructor/assignment
@@ -125,10 +128,10 @@ istr const & can be using an embedded prefixed item array (because it can be a s
 other istr will always use either a read-only, non-prefixed item array or a dynamic prefixed item
 array.
 
-mvector/mstr cannot have a “nothrow” move constructor or assignment operator from itself, because
-the two underlying objects might have embedded item arrays of different sizes. This isn’t a huge
-deal-breaker because of the intended limited usage for mstr and smstr, but it’s something to watch
-out for, and it means that mstr should not be used in container classes.
+collections::mvector/mstr cannot have a “nothrow” move constructor or assignment operator from
+itself, because the two underlying objects might have embedded item arrays of different sizes. This
+isn’t a huge deal-breaker because of the intended limited usage for mstr and smstr, but it’s
+something to watch out for, and it means that mstr should not be used in container classes.
 
 This table illustrates the best type of string to use for each use scenario:
 
@@ -222,15 +225,16 @@ Key:
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_prefixed_item_array
+// abc::collections::detail::raw_vextr_prefixed_item_array
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::*vector design]), and used
-with template capacity == 1 for all non-template-driven manipulations in non-template code in the
-“lower-level” hierarchy, which relies on m_cbCapacity instead. */
+array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::collections::*vector
+design]), and used with template capacity == 1 for all non-template-driven manipulations in non-
+template code in the “lower-level” hierarchy, which relies on m_cbCapacity instead. */
 template <typename T, std::size_t t_ciEmbeddedCapacity>
 class raw_vextr_prefixed_item_array {
 public:
@@ -245,12 +249,14 @@ public:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_impl_data
+// abc::collections::detail::raw_vextr_impl_data
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 //! Data members of raw_vextr_impl_base, as a plain old struct.
@@ -271,12 +277,14 @@ struct raw_vextr_impl_data {
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_impl_base
+// abc::collections::detail::raw_vextr_impl_base
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Template-independent members of detail::raw_*_vextr_impl that are identical for trivial and non-
@@ -527,12 +535,14 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vextr_transaction
+// abc::collections::detail::raw_vextr_transaction
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Allows to get a temporary item array from a pool of options, then work with it, and upon
@@ -621,12 +631,14 @@ private:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_complex_vextr_impl
+// abc::collections::detail::raw_complex_vextr_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 //! Template-independent implementation of a vector for non-trivial contained types.
@@ -770,12 +782,14 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_trivial_vextr_impl
+// abc::collections::detail::raw_trivial_vextr_impl
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Template-independent implementation of a vector for trivial contained types. This is the most
@@ -816,7 +830,7 @@ public:
 
    /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
    non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::*str and
-   abc::*vector design] to see how str and vector ensure this.
+   abc::collections::*vector design] to see how str and vector ensure this.
 
    @param rtvi
       Source vextr.
@@ -897,6 +911,7 @@ private:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

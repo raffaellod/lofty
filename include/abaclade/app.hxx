@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -72,8 +72,7 @@ public:
       try {
          // Create and initialize the app.
          TApp app;
-         // Use a smvector to avoid dynamic allocation for just a few arguments.
-         smvector<istr const, 8> vsArgs;
+         collections::smvector<istr const, 8> vsArgs;
          app._build_args(cArgs, ppszArgs, &vsArgs);
          // Invoke the program-defined main().
          return app.main(vsArgs);
@@ -105,7 +104,7 @@ public:
       try {
          // Create and initialize the app.
          TApp app;
-         smvector<istr const, 8> vsArgs;
+         collections::smvector<istr const, 8> vsArgs;
 //       app._build_args(&vsArgs);
          // Invoke the program-defined main().
          return app.main(vsArgs);
@@ -126,7 +125,7 @@ public:
    @return
       Return code of the program.
    */
-   virtual int main(mvector<istr const> const & vsArgs) = 0;
+   virtual int main(collections::mvector<istr const> const & vsArgs) = 0;
 
 protected:
    /*! Fills up a string vector from the command-line arguments.
@@ -139,10 +138,12 @@ protected:
       Vector to receive istr instances (using external buffers from *ppszArgs) containing each
       argument.
    */
-   static void _build_args(int cArgs, char_t ** ppszArgs, mvector<istr const> * pvsRet);
+   static void _build_args(
+      int cArgs, char_t ** ppszArgs, collections::mvector<istr const> * pvsRet
+   );
 #if ABC_HOST_API_WIN32
    // Overload that uses ::GetCommandLine() internally.
-   static void _build_args(mvector<istr const> * pvsRet);
+   static void _build_args(collections::mvector<istr const> * pvsRet);
 #endif
 
 protected:

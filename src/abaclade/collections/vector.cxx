@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -21,19 +21,21 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::vector_to_str_backend
+// abc::collections::detail::vector_to_str_backend
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 vector_to_str_backend::vector_to_str_backend() :
-   detail::sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
+   abc::detail::sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
 }
 
 vector_to_str_backend::~vector_to_str_backend() {
 }
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

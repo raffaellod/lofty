@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::raw_vector
+// abc::collections::detail::raw_vector
 
 namespace abc {
+namespace collections {
 namespace detail {
 
 /*! Thin templated wrapper for raw_*_vextr_impl to make the interface of those two classes
@@ -363,12 +364,14 @@ protected:
 };
 
 } //namespace detail
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::vector_base
+// abc::collections::vector_base
 
 namespace abc {
+namespace collections {
 
 // Forward declarations.
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
@@ -378,8 +381,8 @@ class dmvector;
 
 /*! Base class for vectors.
 
-See [DOC:4019 abc::*str and abc::*vector design] for implementation details for this and all the
-*vector classes. */
+See [DOC:4019 abc::*str and abc::collections::*vector design] for implementation details for this
+and all the collections::*vector classes. */
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class vector_base;
 
@@ -413,7 +416,7 @@ public:
    /*! Element access operator.
 
    @param i
-      Element index. See abc::vector_base::translate_index() for allowed index values.
+      Element index. See abc::collections::vector_base::translate_index() for allowed index values.
    @return
       Element at index i.
    */
@@ -655,11 +658,11 @@ public:
    /*! Returns a slice of the vector.
 
    @param iBegin
-      Index of the first element. See abc::vector_base::translate_range() for allowed begin index
-      values.
+      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
+      begin index values.
    @param iEnd
-      Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
-      index values.
+      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
+      allowed end index values.
    */
    dmvector<T, true> slice(std::ptrdiff_t iBegin) const {
       return slice(iBegin, this->size());
@@ -688,12 +691,14 @@ protected:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::mvector
+// abc::collections::mvector
 
 namespace abc {
+namespace collections {
 
 /*! vector_base-derived class, to be used as argument type for functions that want to modify a
 vector argument, since this allows for in-place alterations to the vector. Both smvector and
@@ -790,8 +795,8 @@ public:
    /*! Inserts elements at a specific position in the vector.
 
    @param iOffset
-      Index at which the element should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
+      Index at which the element should be inserted. See
+      abc::collections::vector_base::translate_index() for allowed index values.
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -816,8 +821,8 @@ public:
    /*! Removes a single element from the vector.
 
    @param i
-      Index of the element to remove. See abc::vector_base::translate_index() for allowed index
-      values.
+      Index of the element to remove. See abc::collections::vector_base::translate_index() for
+      allowed index values.
    @param it
       Iterator to the element to remove.
    */
@@ -841,13 +846,13 @@ public:
    /*! Removes a range of elements from the vector.
 
    @param iBegin
-      Index of the first element. See abc::vector_base::translate_range() for allowed begin index
-      values.
+      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
+      begin index values.
    @param itBegin
       Iterator to the first element to remove.
    @param iEnd
-      Index of the last element, exclusive. See abc::vector_base::translate_range() for allowed end
-      index values.
+      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
+      allowed end index values.
    @param itEnd
       Iterator to beyond the last element to remove.
    */
@@ -980,8 +985,8 @@ public:
    /*! Inserts elements at a specific position in the vector.
 
    @param iOffset
-      Index at which the element should be inserted. See abc::vector_base::translate_index() for
-      allowed index values.
+      Index at which the element should be inserted. See
+      abc::collections::vector_base::translate_index() for allowed index values.
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -1020,12 +1025,14 @@ protected:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::dmvector
+// abc::collections::dmvector
 
 namespace abc {
+namespace collections {
 
 //! Dynamically-allocated mutable vector.
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
@@ -1195,8 +1202,6 @@ public:
    }
 };
 
-} //namespace abc
-
 
 /*! Concatenation operator.
 
@@ -1208,39 +1213,39 @@ public:
    Vector resulting from the concatenation of v1 and v2.
 */
 template <typename T>
-inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
-operator+(abc::vector_base<T, true> const & v1, abc::vector_base<T, true> const & v2) {
-   return abc::dmvector<T, true>(
-      static_cast<abc::mvector<T, true> const &>(v1), static_cast<abc::mvector<T, true> const &>(v2)
+inline typename std::enable_if<std::is_copy_constructible<T>::value, dmvector<T, true>>::type
+operator+(vector_base<T, true> const & v1, vector_base<T, true> const & v2) {
+   return dmvector<T, true>(
+      static_cast<mvector<T, true> const &>(v1), static_cast<mvector<T, true> const &>(v2)
    );
 }
 /* Overloads taking an mvector r-value-reference as either or both operands; they can avoid creating
 intermediate copies of the elements from one or both source vectors. */
 template <typename T>
-inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
-operator+(
-   abc::mvector<T, true> && v1, abc::mvector<T, true> const & v2
-) {
-   return abc::dmvector<T, true>(std::move(v1), v2);
+inline typename std::enable_if<std::is_copy_constructible<T>::value, dmvector<T, true>>::type
+operator+(mvector<T, true> && v1, mvector<T, true> const & v2) {
+   return dmvector<T, true>(std::move(v1), v2);
 }
 template <typename T>
-inline typename std::enable_if<std::is_copy_constructible<T>::value, abc::dmvector<T, true>>::type
-operator+(
-   abc::mvector<T, true> const & v1, abc::mvector<T, true> && v2
-) {
-   return abc::dmvector<T, true>(v1, std::move(v2));
+inline typename std::enable_if<std::is_copy_constructible<T>::value, dmvector<T, true>>::type
+operator+(mvector<T, true> const & v1, mvector<T, true> && v2) {
+   return dmvector<T, true>(v1, std::move(v2));
 }
 template <typename T, bool t_bCopyConstructible>
-inline abc::dmvector<T, t_bCopyConstructible> operator+(
-   abc::mvector<T, t_bCopyConstructible> && v1, abc::mvector<T, t_bCopyConstructible> && v2
+inline dmvector<T, t_bCopyConstructible> operator+(
+   mvector<T, t_bCopyConstructible> && v1, mvector<T, t_bCopyConstructible> && v2
 ) {
-   return abc::dmvector<T, t_bCopyConstructible>(std::move(v1), std::move(v2));
+   return dmvector<T, t_bCopyConstructible>(std::move(v1), std::move(v2));
 }
 
+} //namespace collections
+} //namespace abc
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::smvector
+// abc::collections::smvector
 
 namespace abc {
+namespace collections {
 
 /*! mvector_-derived class, good for clients that need in-place manipulation of vectors that are
 most likely to be shorter than a known small size. */
@@ -1441,6 +1446,7 @@ public:
    }
 };
 
+} //namespace collections
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

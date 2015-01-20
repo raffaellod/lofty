@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -45,7 +45,7 @@ public:
    */
    static void _build_find_failure_restart_table(
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
-      mvector<std::size_t> * pvcchFailNext
+      collections::mvector<std::size_t> * pvcchFailNext
    );
 
    /*! Compares two strings.

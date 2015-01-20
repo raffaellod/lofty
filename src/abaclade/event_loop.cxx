@@ -67,7 +67,7 @@ struct event_loop_impl_t {
    int fdEpoll;
    /*! Array of eventfd file descriptors, used to receive exit notifications from threads and
    processes. */
-   dmvector<int> vfdEvents;
+   collections::dmvector<int> vfdEvents;
 
    //! Constructor.
    event_loop_impl_t() :
@@ -157,7 +157,7 @@ void event_loop::run() {
 
 #if ABC_HOST_API_BSD
 
-   smvector<struct ::kevent, 16> vkeReady;
+   collections::smvector<struct ::kevent, 16> vkeReady;
    pimpl->bChanged = true;
    for (;;) {
       // TODO: compare & swap bChanged.
@@ -192,7 +192,7 @@ void event_loop::run() {
 
 #elif ABC_HOST_API_LINUX //if ABC_HOST_API_BSD
 
-   smvector< ::epoll_event, 16> veeReady;
+   collections::smvector< ::epoll_event, 16> veeReady;
    pimpl->bChanged = true;
    for (;;) {
       // TODO: compare & swap bChanged.
@@ -226,7 +226,7 @@ void event_loop::run() {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
 
-   smvector<HANDLE, 64> vhSources;
+   collections::smvector<HANDLE, 64> vhSources;
    DWORD cSources;
    pimpl->bChanged = true;
    for (;;) {
