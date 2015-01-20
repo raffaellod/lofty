@@ -368,7 +368,7 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::vector_base
+// abc::collections::detail::vector_base
 
 namespace abc {
 namespace collections {
@@ -379,6 +379,8 @@ class mvector;
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class dmvector;
 
+namespace detail {
+
 /*! Base class for vectors.
 
 See [DOC:4019 abc::*str and abc::collections::*vector design] for implementation details for this
@@ -387,11 +389,11 @@ template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>:
 class vector_base;
 
 /* Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
-false on detail::raw_vector, so that vector_base<T, true> can inherit from this and still get all
-the copyable-only members of detail::raw_vector<T, true>. */
+false on raw_vector, so that vector_base<T, true> can inherit from this and still get all the
+copyable-only members of raw_vector<T, true>. */
 template <typename T>
 class vector_base<T, false> :
-   protected detail::raw_vector<T, std::is_copy_constructible<T>::value>,
+   protected raw_vector<T, std::is_copy_constructible<T>::value>,
    public support_explicit_operator_bool<vector_base<T, std::is_copy_constructible<T>::value>> {
 private:
    //! true if T is copy constructible, or false otherwise.
@@ -431,8 +433,7 @@ public:
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       // Use std::int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
-      return detail::raw_vextr_impl_base::end<std::int8_t>() >
-         detail::raw_vextr_impl_base::begin<std::int8_t>();
+      return raw_vextr_impl_base::end<std::int8_t>() > raw_vextr_impl_base::begin<std::int8_t>();
    }
 
    /*! Equality relational operator.
@@ -484,7 +485,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator begin() const {
-      return const_iterator(detail::raw_vextr_impl_base::begin<T>());
+      return const_iterator(raw_vextr_impl_base::begin<T>());
    }
 
    /*! Returns the maximum number of elements the array can currently hold.
@@ -493,7 +494,7 @@ public:
       Current size of the item array storage, in elements.
    */
    std::size_t capacity() const {
-      return detail::raw_vextr_impl_base::capacity<T>();
+      return raw_vextr_impl_base::capacity<T>();
    }
 
    /*! Returns a const forward iterator set to the first element.
@@ -502,7 +503,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
-      return const_iterator(detail::raw_vextr_impl_base::begin<T>());
+      return const_iterator(raw_vextr_impl_base::begin<T>());
    }
 
    /*! Returns a const forward iterator set beyond the last element.
@@ -511,7 +512,7 @@ public:
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
-      return const_iterator(detail::raw_vextr_impl_base::end<T>());
+      return const_iterator(raw_vextr_impl_base::end<T>());
    }
 
    /*! Returns a const reverse iterator set to the last element.
@@ -538,7 +539,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(detail::raw_vextr_impl_base::end<T>());
+      return const_iterator(raw_vextr_impl_base::end<T>());
    }
 
    /*! Returns the count of elements in the array.
@@ -547,7 +548,7 @@ public:
       Count of elements.
    */
    std::size_t size() const {
-      return detail::raw_vextr_impl_base::size<T>();
+      return raw_vextr_impl_base::size<T>();
    }
 
    /*! Returns a reverse iterator set to the last element.
@@ -580,31 +581,31 @@ protected:
       Count of items in the array pointed to by pt.
    */
    vector_base(std::size_t ciEmbedded) :
-      detail::raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
+      raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
    }
    vector_base(T const * pt, std::size_t ci) :
-      detail::raw_vector<T, smc_bCopyConstructible>(pt, ci) {
+      raw_vector<T, smc_bCopyConstructible>(pt, ci) {
    }
 
-   /*! See detail::raw_vector<T>::assign_move().
+   /*! See raw_vector<T>::assign_move().
 
    @param v
       Source vector.
    */
    void assign_move(vector_base && v) {
-      detail::raw_vector<T, smc_bCopyConstructible>::assign_move(
-         static_cast<detail::raw_vector<T, smc_bCopyConstructible> &&>(v)
+      raw_vector<T, smc_bCopyConstructible>::assign_move(
+         static_cast<raw_vector<T, smc_bCopyConstructible> &&>(v)
       );
    }
 
-   /*! See detail::raw_vector<T>::assign_move_dynamic_or_move_items().
+   /*! See raw_vector<T>::assign_move_dynamic_or_move_items().
 
    @param v
       Source vector.
    */
    void assign_move_dynamic_or_move_items(vector_base && v) {
-      detail::raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
-         static_cast<detail::raw_vector<T, smc_bCopyConstructible> &&>(v)
+      raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
+         static_cast<raw_vector<T, smc_bCopyConstructible> &&>(v)
       );
    }
 
@@ -618,7 +619,7 @@ protected:
       Pointer to the element.
    */
    T const * translate_index(std::ptrdiff_t i) const {
-      return static_cast<T const *>(detail::raw_vector<T, smc_bCopyConstructible>::translate_offset(
+      return static_cast<T const *>(raw_vector<T, smc_bCopyConstructible>::translate_offset(
          static_cast<std::ptrdiff_t>(sizeof(T)) * i
       ));
    }
@@ -641,7 +642,7 @@ protected:
    std::pair<T const *, T const *> translate_range(
       std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
    ) const {
-      auto range(detail::raw_trivial_vextr_impl::translate_byte_range(
+      auto range(raw_trivial_vextr_impl::translate_byte_range(
          static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
          static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
       ));
@@ -691,6 +692,7 @@ protected:
    }
 };
 
+} //namespace detail
 } //namespace collections
 } //namespace abc
 
@@ -700,9 +702,9 @@ protected:
 namespace abc {
 namespace collections {
 
-/*! vector_base-derived class, to be used as argument type for functions that want to modify a
-vector argument, since this allows for in-place alterations to the vector. Both smvector and
-dmvector are automatically converted to this. */
+/*! Class to be used as argument type for functions that want to modify a vector argument, since
+this allows for in-place alterations to the vector. Both smvector and dmvector are automatically
+converted to this. */
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
 class mvector;
 
@@ -710,21 +712,21 @@ class mvector;
 false on vector_base, so that mvector<T, true> can inherit from this and still get all the copyable-
 only members of vector_base<T, true>. */
 template <typename T>
-class mvector<T, false> : public vector_base<T, std::is_copy_constructible<T>::value> {
+class mvector<T, false> : public detail::vector_base<T, std::is_copy_constructible<T>::value> {
 private:
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = std::is_copy_constructible<T>::value;
    //! Shortcut to access the base class.
-   typedef vector_base<T, smc_bCopyConstructible> vector_base_;
+   typedef detail::vector_base<T, smc_bCopyConstructible> vector_base_;
 
 public:
-   //! See vector_base::iterator.
+   //! See detail::vector_base::iterator.
    typedef typename vector_base_::iterator iterator;
-   //! See vector_base::const_iterator.
+   //! See detail::vector_base::const_iterator.
    typedef typename vector_base_::const_iterator const_iterator;
-   //! See vector_base::reverse_iterator.
+   //! See detail::vector_base::reverse_iterator.
    typedef typename vector_base_::reverse_iterator reverse_iterator;
-   //! See vector_base::const_reverse_iterator.
+   //! See detail::vector_base::const_reverse_iterator.
    typedef typename vector_base_::const_reverse_iterator const_reverse_iterator;
 
 public:
@@ -753,7 +755,7 @@ public:
       return *this;
    }
 
-   //! See vector_base::operator[]().
+   //! See detail::vector_base::operator[]().
    T & operator[](std::ptrdiff_t i) {
       return const_cast<T &>(vector_base_::operator[](i));
    }
@@ -770,7 +772,7 @@ public:
       insert(this->cend(), std::move(t));
    }
 
-   //! See vector_base::begin(). Here also available in non-const overload.
+   //! See detail::vector_base::begin(). Here also available in non-const overload.
    iterator begin() {
       return iterator(detail::raw_vextr_impl_base::begin<T>());
    }
@@ -784,7 +786,7 @@ public:
       this->assign_empty();
    }
 
-   //! See vector_base::end(). Here also available in non-const overload.
+   //! See detail::vector_base::end(). Here also available in non-const overload.
    iterator end() {
       return iterator(detail::raw_vextr_impl_base::end<T>());
    }
@@ -795,8 +797,8 @@ public:
    /*! Inserts elements at a specific position in the vector.
 
    @param iOffset
-      Index at which the element should be inserted. See
-      abc::collections::vector_base::translate_index() for allowed index values.
+      Index at which the element should be inserted. See detail::vector_base::translate_index() for
+      allowed index values.
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -810,7 +812,7 @@ public:
       this->insert_move(itOffset.base(), &t, 1);
    }
 
-   //! See vector_base::rbegin(). Here also available in non-const overload.
+   //! See detail::vector_base::rbegin(). Here also available in non-const overload.
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
    }
@@ -821,8 +823,8 @@ public:
    /*! Removes a single element from the vector.
 
    @param i
-      Index of the element to remove. See abc::collections::vector_base::translate_index() for
-      allowed index values.
+      Index of the element to remove. See detail::vector_base::translate_index() for allowed index
+      values.
    @param it
       Iterator to the element to remove.
    */
@@ -835,7 +837,7 @@ public:
       this->remove(it.base(), (it + 1).base());
    }
 
-   //! See vector_base::rend(). Here also available in non-const overload.
+   //! See detail::vector_base::rend(). Here also available in non-const overload.
    reverse_iterator rend() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::begin<T>()));
    }
@@ -846,13 +848,13 @@ public:
    /*! Removes a range of elements from the vector.
 
    @param iBegin
-      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
-      begin index values.
+      Index of the first element. See detail::vector_base::translate_range() for allowed begin index
+      values.
    @param itBegin
       Iterator to the first element to remove.
    @param iEnd
-      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
-      allowed end index values.
+      Index of the last element, exclusive. See detail::vector_base::translate_range() for allowed
+      end index values.
    @param itEnd
       Iterator to beyond the last element to remove.
    */
@@ -920,13 +922,13 @@ protected:
 template <typename T>
 class mvector<T, true> : public mvector<T, false> {
 public:
-   //! See vector_base::iterator.
+   //! See detail::vector_base::iterator.
    typedef typename mvector<T, false>::iterator iterator;
-   //! See vector_base::const_iterator.
+   //! See detail::vector_base::const_iterator.
    typedef typename mvector<T, false>::const_iterator const_iterator;
-   //! See vector_base::reverse_iterator.
+   //! See detail::vector_base::reverse_iterator.
    typedef typename mvector<T, false>::reverse_iterator reverse_iterator;
-   //! See vector_base::const_reverse_iterator.
+   //! See detail::vector_base::const_reverse_iterator.
    typedef typename mvector<T, false>::const_reverse_iterator const_reverse_iterator;
 
 public:
@@ -985,8 +987,8 @@ public:
    /*! Inserts elements at a specific position in the vector.
 
    @param iOffset
-      Index at which the element should be inserted. See
-      abc::collections::vector_base::translate_index() for allowed index values.
+      Index at which the element should be inserted. See detail::vector_base::translate_index() for
+      allowed index values.
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -1214,7 +1216,7 @@ public:
 */
 template <typename T>
 inline typename std::enable_if<std::is_copy_constructible<T>::value, dmvector<T, true>>::type
-operator+(vector_base<T, true> const & v1, vector_base<T, true> const & v2) {
+operator+(detail::vector_base<T, true> const & v1, detail::vector_base<T, true> const & v2) {
    return dmvector<T, true>(
       static_cast<mvector<T, true> const &>(v1), static_cast<mvector<T, true> const &>(v2)
    );

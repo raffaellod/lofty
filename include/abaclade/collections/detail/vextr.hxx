@@ -86,7 +86,7 @@ The complete lower-level class hierarchy is therefore:
       •  collections::detail::raw_vector: consolidates the trivial and complex interfaces into a
          single one by having two distinct specializations (trivial/non-trivial).
 
-         •  collections::vector_base: base for the upper-level vector class hierarchy.
+         •  collections::detail::vector_base: base for the upper-level vector class hierarchy.
 
       •  str_base: always derives from detail::raw_trivial_vextr_impl, it’s the base for the upper-
          level string class hierarchy.
@@ -94,7 +94,7 @@ The complete lower-level class hierarchy is therefore:
 
 The upper-level class hierarchies consist in these classes:
 
-•  collections::vector_base/str_base
+•  collections::detail::vector_base/str_base
 
    •  collections::ivector (TODO: if the need arises)/istr: immutable (assign-only) vector/string;
       uses a read-only (possibly shared) or dynamically-allocated item array, and as a consequence

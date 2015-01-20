@@ -50,13 +50,13 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::collections::vector_base
+// abc::to_str_backend – specialization for abc::collections::detail::vector_base
 
 namespace abc {
 
 // Specialization of to_str_backend.
 template <typename T>
-class to_str_backend<collections::vector_base<T>> :
+class to_str_backend<collections::detail::vector_base<T>> :
    public collections::detail::vector_to_str_backend {
 public:
    /*! Changes the output format.
@@ -78,7 +78,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(collections::vector_base<T> const & v, io::text::writer * ptwOut) {
+   void write(collections::detail::vector_base<T> const & v, io::text::writer * ptwOut) {
 //    ABC_TRACE_FUNC(this, v, ptwOut);
 
       _write_start(ptwOut);
@@ -106,17 +106,18 @@ protected:
 namespace abc {
 
 template <typename T>
-class to_str_backend<collections::mvector<T>> : public to_str_backend<collections::vector_base<T>> {
+class to_str_backend<collections::mvector<T>> :
+   public to_str_backend<collections::detail::vector_base<T>> {
 };
 
 template <typename T>
 class to_str_backend<collections::dmvector<T>> :
-   public to_str_backend<collections::vector_base<T>> {
+   public to_str_backend<collections::detail::vector_base<T>> {
 };
 
 template <typename T, std::size_t t_ciStatic>
 class to_str_backend<collections::smvector<T, t_ciStatic>> :
-   public to_str_backend<collections::vector_base<T>> {
+   public to_str_backend<collections::detail::vector_base<T>> {
 };
 
 } //namespace abc
