@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_TEXT_PARSER_ANSI_ESCAPE_SEQUENCES_HXX
-#define _ABACLADE_TEXT_PARSER_ANSI_ESCAPE_SEQUENCES_HXX
+#ifndef _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
+#define _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -30,11 +30,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::parser::ansi_escape_sequences
+// abc::text::parsers::ansi_escape_sequences
 
 namespace abc {
 namespace text {
-namespace parser {
+namespace parsers {
 
 namespace detail {
 
@@ -250,10 +250,10 @@ private:
    std::int16_t m_iSavedCol;
 };
 
-} //namespace parser
+} //namespace parsers
 } //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_TEXT_PARSER_ANSI_ESCAPE_SEQUENCES_HXX
+#endif //ifndef _ABACLADE_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX

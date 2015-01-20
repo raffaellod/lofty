@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #if ABC_HOST_API_WIN32
-   #include <abaclade/text/parser/ansi_escape_sequences.hxx>
+   #include <abaclade/text/parsers/ansi_escape_sequences.hxx>
 #endif
 
 

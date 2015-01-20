@@ -541,7 +541,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    ::CONSOLE_SCREEN_BUFFER_INFO csbi;
    ::GetConsoleScreenBufferInfo(m_fd.get(), &csbi);
    for (unsigned i = 0; i < ABC_COUNTOF(smc_aiAnsiColorToForegroundColor); ++i) {
-      using abc::text::parser::ansi_terminal_color;
+      using abc::text::parsers::ansi_terminal_color;
       if ((
          csbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
       )) == smc_aiAnsiColorToBackgroundColor[i]) {

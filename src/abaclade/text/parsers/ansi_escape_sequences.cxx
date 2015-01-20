@@ -18,15 +18,15 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/text/parser/ansi_escape_sequences.hxx>
+#include <abaclade/text/parsers/ansi_escape_sequences.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::parser::ansi_escape_sequences
+// abc::text::parsers::ansi_escape_sequences
 
 namespace abc {
 namespace text {
-namespace parser {
+namespace parsers {
 
 ansi_escape_sequences::ansi_escape_sequences() :
    m_state(state::not_in_sequence) {
@@ -361,7 +361,7 @@ void ansi_escape_sequences::safe_set_cursor_pos(
    set_cursor_pos(static_cast<std::int16_t>(iRow), static_cast<std::int16_t>(iCol));
 }
 
-} //namespace parser
+} //namespace parsers
 } //namespace text
 } //namespace abc
 
