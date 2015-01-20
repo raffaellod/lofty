@@ -23,202 +23,188 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::xor_list_node_impl
+// abc::collections::detail::xor_list
 
 namespace abc {
 namespace collections {
 namespace detail {
 
-//! Node for XOR doubly-linked list classes.
-class xor_list_node_impl {
+//! Defines classes useful to implement XOR-linked list classes.
+class xor_list {
 public:
-   //! Constructor.
-   xor_list_node_impl() {
-   }
-   xor_list_node_impl(xor_list_node_impl const &) {
-      // Skip copying the source’s links.
-   }
+   //! Node for XOR doubly-linked list classes.
+   class node {
+   public:
+      //! Constructor.
+      node() {
+      }
+      node(node const &) {
+         // Skip copying the source’s links.
+      }
 
-   /*! Assignment operator.
+      /*! Assignment operator.
 
-   @return
-      *this.
-   */
-   xor_list_node_impl & operator=(xor_list_node_impl const &) {
-      // Skip copying the source’s links.
-      return *this;
-   }
+      @return
+         *this.
+      */
+      node & operator=(node const &) {
+         // Skip copying the source’s links.
+         return *this;
+      }
 
-   /*! Returns a pointer to the next node.
+      /*! Returns a pointer to the next node.
 
-   @param pnPrev
-      Pointer to the previous node.
-   */
-   xor_list_node_impl * get_next(xor_list_node_impl * pnPrev) {
-      return reinterpret_cast<xor_list_node_impl *>(
-         m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnPrev)
-      );
-   }
+      @param pnPrev
+         Pointer to the previous node.
+      */
+      node * get_next(node * pnPrev) {
+         return reinterpret_cast<node *>(m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnPrev));
+      }
 
-   /*! Returns a pointer to the previous node.
+      /*! Returns a pointer to the previous node.
 
-   @param pnNext
-      Pointer to the next node.
-   */
-   xor_list_node_impl * get_prev(xor_list_node_impl * pnNext) {
-      return reinterpret_cast<xor_list_node_impl *>(
-         m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnNext)
-      );
-   }
+      @param pnNext
+         Pointer to the next node.
+      */
+      node * get_prev(node * pnNext) {
+         return reinterpret_cast<node *>(m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnNext));
+      }
 
-   /*! Updates the previous/next pointer.
+      /*! Updates the previous/next pointer.
 
-   @param pnPrev
-      Pointer to the previous node.
-   @param pnNext
-      Pointer to the next node.
-   */
-   void set_prev_next(xor_list_node_impl * pnPrev, xor_list_node_impl * pnNext) {
-      m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
-                       reinterpret_cast<std::uintptr_t>(pnNext);
-   }
+      @param pnPrev
+         Pointer to the previous node.
+      @param pnNext
+         Pointer to the next node.
+      */
+      void set_prev_next(node * pnPrev, node * pnNext) {
+         m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
+                          reinterpret_cast<std::uintptr_t>(pnNext);
+      }
 
-private:
-   //! Pointer to the previous node XOR pointer to the next node.
-   std::uintptr_t m_iPrevXorNext;
-};
+   private:
+      //! Pointer to the previous node XOR pointer to the next node.
+      std::uintptr_t m_iPrevXorNext;
+   };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+   //! Iterator for XOR doubly-linked list node classes.
+   template <typename TIterator, typename TNode, typename TValue>
+   class iterator : public std::iterator<std::bidirectional_iterator_tag, TValue> {
+   public:
+      /*! Constructor.
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::xor_list_iterator_impl
+      @param pnPrev
+         Pointer to the node preceding *pnCurr.
+      @param pnCurr
+         Pointer to the current node.
+      @param pnNext
+         Pointer to the node following *pnCurr.
+      */
+      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
+         m_pnPrev(static_cast<TNode *>(pnPrev)),
+         m_pnCurr(static_cast<TNode *>(pnCurr)),
+         m_pnNext(static_cast<TNode *>(pnNext)) {
+      }
 
-namespace abc {
-namespace collections {
-namespace detail {
+      /*! Dereferencing operator.
 
-//! Iterator for XOR doubly-linked list node classes.
-template <typename TIterator, typename TNode, typename TValue>
-class xor_list_iterator_impl : public std::iterator<std::bidirectional_iterator_tag, TValue> {
-public:
-   /*! Constructor.
+      @return
+         Reference to the current node.
+      */
+      TValue & operator*() const {
+         return *m_pnCurr->value_ptr();
+      }
 
-   @param pnPrev
-      Pointer to the node preceding *pnCurr.
-   @param pnCurr
-      Pointer to the current node.
-   @param pnNext
-      Pointer to the node following *pnCurr.
-   */
-   xor_list_iterator_impl(
-      xor_list_node_impl * pnPrev, xor_list_node_impl * pnCurr, xor_list_node_impl * pnNext
-   ) :
-      m_pnPrev(static_cast<TNode *>(pnPrev)),
-      m_pnCurr(static_cast<TNode *>(pnCurr)),
-      m_pnNext(static_cast<TNode *>(pnNext)) {
-   }
+      /*! Dereferencing member access operator.
 
-   /*! Dereferencing operator.
+      @return
+         Pointer to the current node.
+      */
+      TValue * operator->() const {
+         return m_pnCurr->value_ptr();
+      }
 
-   @return
-      Reference to the current node.
-   */
-   TValue & operator*() const {
-      return *m_pnCurr->value_ptr();
-   }
+      /*! Preincrement operator.
 
-   /*! Dereferencing member access operator.
+      @return
+         *this after it’s moved to the node following the one currently pointed to by.
+      */
+      TIterator & operator++() {
+         m_pnPrev = m_pnCurr;
+         m_pnCurr = m_pnNext;
+         m_pnNext = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_next(m_pnPrev)) : nullptr;
+         return *static_cast<TIterator *>(this);
+      }
 
-   @return
-      Pointer to the current node.
-   */
-   TValue * operator->() const {
-      return m_pnCurr->value_ptr();
-   }
+      /*! Postincrement operator.
 
-   /*! Preincrement operator.
+      @return
+         Iterator pointing to the node following the one pointed to by this iterator.
+      */
+      TIterator operator++(int) {
+         TNode * pnPrevPrev = m_pnPrev;
+         operator++();
+         return TIterator(pnPrevPrev, m_pnPrev, m_pnCurr);
+      }
 
-   @return
-      *this after it’s moved to the node following the one currently pointed to by.
-   */
-   TIterator & operator++() {
-      m_pnPrev = m_pnCurr;
-      m_pnCurr = m_pnNext;
-      m_pnNext = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_next(m_pnPrev)) : nullptr;
-      return *static_cast<TIterator *>(this);
-   }
+      /*! Predecrement operator.
 
-   /*! Postincrement operator.
+      @return
+         *this after it’s moved to the node preceding the one currently pointed to by.
+      */
+      TIterator & operator--() {
+         m_pnNext = m_pnCurr;
+         m_pnCurr = m_pnPrev;
+         m_pnPrev = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_prev(m_pnNext)) : nullptr;
+         return *static_cast<TIterator *>(this);
+      }
 
-   @return
-      Iterator pointing to the node following the one pointed to by this iterator.
-   */
-   TIterator operator++(int) {
-      TNode * pnPrevPrev = m_pnPrev;
-      operator++();
-      return TIterator(pnPrevPrev, m_pnPrev, m_pnCurr);
-   }
+      /*! Postdecrement operator.
 
-   /*! Predecrement operator.
-
-   @return
-      *this after it’s moved to the node preceding the one currently pointed to by.
-   */
-   TIterator & operator--() {
-      m_pnNext = m_pnCurr;
-      m_pnCurr = m_pnPrev;
-      m_pnPrev = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_prev(m_pnNext)) : nullptr;
-      return *static_cast<TIterator *>(this);
-   }
-
-   /*! Postdecrement operator.
-
-   @return
-      Iterator pointing to the node preceding the one pointed to by this iterator.
-   */
-   TIterator operator--(int) {
-      TNode * pnNextNext = m_pnNext;
-      operator--();
-      return TIterator(m_pnCurr, m_pnNext, pnNextNext);
-   }
+      @return
+         Iterator pointing to the node preceding the one pointed to by this iterator.
+      */
+      TIterator operator--(int) {
+         TNode * pnNextNext = m_pnNext;
+         operator--();
+         return TIterator(m_pnCurr, m_pnNext, pnNextNext);
+      }
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   template <typename TIterator2> \
-   bool operator op( \
-      xor_list_iterator_impl<TIterator2, TNode, typename std::add_const<TValue>::type> const & it \
-   ) const { \
-      return base() op it.base(); \
-   } \
-   template <typename TIterator2> \
-   bool operator op( \
-      xor_list_iterator_impl<TIterator2, TNode, \
-      typename std::remove_const<TValue>::type> const & it \
-   ) const { \
-      return base() op it.base(); \
-   }
+      template <typename TIterator2> \
+      bool operator op( \
+         iterator<TIterator2, TNode, typename std::add_const<TValue>::type> const & it \
+      ) const { \
+         return base() op it.base(); \
+      } \
+      template <typename TIterator2> \
+      bool operator op( \
+         iterator<TIterator2, TNode, typename std::remove_const<TValue>::type> const & it \
+      ) const { \
+         return base() op it.base(); \
+      }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
 #undef ABC_RELOP_IMPL
 
-   /*! Returns the underlying pointer to the node.
+      /*! Returns the underlying pointer to the node.
 
-   @return
-      Pointer to the current node.
-   */
-   TNode const * base() const {
-      return m_pnCurr;
-   }
+      @return
+         Pointer to the current node.
+      */
+      TNode const * base() const {
+         return m_pnCurr;
+      }
 
-protected:
-   //! Pointer to the previous node.
-   TNode * m_pnPrev;
-   //! Pointer to the current node.
-   TNode * m_pnCurr;
-   //! Pointer to the next node.
-   TNode * m_pnNext;
+   protected:
+      //! Pointer to the previous node.
+      TNode * m_pnPrev;
+      //! Pointer to the current node.
+      TNode * m_pnCurr;
+      //! Pointer to the next node.
+      TNode * m_pnNext;
+   };
 };
 
 } //namespace detail

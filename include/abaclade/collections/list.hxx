@@ -92,48 +92,48 @@ protected:
    @return
       Pointer to the last node.
    */
-   xor_list_node_impl * back() const;
+   xor_list::node * back() const;
 
    /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
 
    @return
       Pointer to the first node.
    */
-   xor_list_node_impl * front() const;
+   xor_list::node * front() const;
 
    /*! Inserts a node to the end of the list.
 
    @param pn
       Pointer to the node to become the first in the list.
    */
-   void link_back(xor_list_node_impl * pn);
+   void link_back(xor_list::node * pn);
 
    /*! Inserts a node to the start of the list.
 
    @param pn
       Pointer to the node to become the last in the list.
    */
-   void link_front(xor_list_node_impl * pn);
+   void link_front(xor_list::node * pn);
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   xor_list_node_impl * unlink_back();
+   xor_list::node * unlink_back();
 
    /*! Unlinks and returns the first node in the list.
 
    @return
       Former first node.
    */
-   xor_list_node_impl * unlink_front();
+   xor_list::node * unlink_front();
 
 protected:
    //! Pointer to the first node.
-   xor_list_node_impl * m_pnFirst;
+   xor_list::node * m_pnFirst;
    //! Pointer to the last node.
-   xor_list_node_impl * m_pnLast;
+   xor_list::node * m_pnLast;
    //! Count of nodes.
    std::size_t m_cNodes;
 };
@@ -152,7 +152,7 @@ namespace collections {
 template <typename T>
 class list : public detail::list_impl {
 private:
-   typedef detail::xor_list_node_impl node_impl;
+   typedef detail::xor_list::node node_impl;
 
 protected:
    //! List node.
@@ -183,13 +183,11 @@ protected:
    //! Nodes iterator.
    template <typename TValue>
    class iterator_impl :
-      public detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue> {
+      public detail::xor_list::iterator<iterator_impl<TValue>, node, TValue> {
    public:
-      //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
+      //! See detail::xor_list::iterator::iterator().
       iterator_impl(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
-         detail::xor_list_iterator_impl<iterator_impl<TValue>, node, TValue>(
-            pnPrev, pnCurr, pnNext
-         ) {
+         detail::xor_list::iterator<iterator_impl<TValue>, node, TValue>(pnPrev, pnCurr, pnNext) {
       }
    };
 

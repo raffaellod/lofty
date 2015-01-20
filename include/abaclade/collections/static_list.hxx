@@ -35,7 +35,7 @@ terminates. */
 template <class TContainer, class TValue>
 class static_list {
 private:
-   typedef detail::xor_list_node_impl node_impl;
+   typedef detail::xor_list::node node_impl;
 
 public:
    /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
@@ -70,11 +70,11 @@ public:
    };
 
    //! Iterator for static_list::node subclasses.
-   class iterator : public detail::xor_list_iterator_impl<iterator, node, TValue> {
+   class iterator : public detail::xor_list::iterator<iterator, node, TValue> {
    public:
-      //! See detail::xor_list_iterator_impl::xor_list_iterator_impl().
+      //! See detail::xor_list::iterator::iterator().
       iterator(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
-         detail::xor_list_iterator_impl<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
+         detail::xor_list::iterator<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
       }
    };
 
@@ -175,9 +175,9 @@ private:
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
    /*! Pointer to the first node. */ \
-   static ::abc::collections::detail::xor_list_node_impl * sm_pnFirst; \
+   static ::abc::collections::detail::xor_list::node * sm_pnFirst; \
    /*! Pointer to the last node. */ \
-   static ::abc::collections::detail::xor_list_node_impl * sm_pnLast;
+   static ::abc::collections::detail::xor_list::node * sm_pnLast;
 
 /*! Defines the static member variables for the specified abc::collections::static_list subclass.
 
@@ -185,7 +185,7 @@ private:
    Class derived from abc::collections::static_list.
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   ::abc::collections::detail::xor_list_node_impl * container::sm_pnFirst = nullptr; \
-   ::abc::collections::detail::xor_list_node_impl * container::sm_pnLast = nullptr;
+   ::abc::collections::detail::xor_list::node * container::sm_pnFirst = nullptr; \
+   ::abc::collections::detail::xor_list::node * container::sm_pnLast = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
