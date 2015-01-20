@@ -574,7 +574,7 @@ class writer;
    #include <iterator>
 #endif
 #include <abaclade/collections/detail/xor_list_node_impl.hxx>
-#include <abaclade/collections/detail/xor_list_iterator_impl.hxx>
+#include <abaclade/collections/detail/xor_list.hxx>
 #include <abaclade/collections/static_list.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/exception.hxx>
