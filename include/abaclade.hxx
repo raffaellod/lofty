@@ -583,7 +583,6 @@ class writer;
 #include <abaclade/collections/detail/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr.hxx>
 #include <abaclade/collections/vector.hxx>
-#include <abaclade/byteorder.hxx>
 #include <abaclade/text.hxx>
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
