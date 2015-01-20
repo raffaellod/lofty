@@ -23,10 +23,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::type_void_adapter
+// abc::collections::detail::type_void_adapter
 
 namespace abc {
 namespace collections {
+namespace detail {
 
 /*! DOC:3395 Move constructors and exceptions
 
@@ -295,6 +296,7 @@ private:
    }
 };
 
+} //namespace detail
 } //namespace collections
 } //namespace abc
 

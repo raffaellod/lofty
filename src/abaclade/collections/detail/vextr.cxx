@@ -250,8 +250,8 @@ namespace collections {
 namespace detail {
 
 void raw_complex_vextr_impl::assign_concat(
-   type_void_adapter const & type, void const * p1Begin, void const * p1End, void const * p2Begin,
-   void const * p2End, std::uint8_t iMove
+   detail::type_void_adapter const & type, void const * p1Begin, void const * p1End,
+   void const * p2Begin, void const * p2End, std::uint8_t iMove
 ) {
    ABC_TRACE_FUNC(this, /*type, */p1Begin, p1End, p2Begin, p2End, iMove);
 
@@ -319,7 +319,7 @@ void raw_complex_vextr_impl::assign_concat(
 }
 
 void raw_complex_vextr_impl::assign_move(
-   type_void_adapter const & type, raw_complex_vextr_impl && rcvi
+   detail::type_void_adapter const & type, raw_complex_vextr_impl && rcvi
 ) {
    ABC_TRACE_FUNC(this/*, type, rcvi*/);
 
@@ -337,7 +337,7 @@ void raw_complex_vextr_impl::assign_move(
 }
 
 void raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
-   type_void_adapter const & type, raw_complex_vextr_impl && rcvi
+   detail::type_void_adapter const & type, raw_complex_vextr_impl && rcvi
 ) {
    ABC_TRACE_FUNC(this/*, type, rcvi*/);
 
@@ -373,7 +373,7 @@ pSrcEnd
    Pointer to beyond the last item to move.
 */
 void overlapping_move_constr(
-   type_void_adapter const & type, void * pDstBegin, void * pSrcBegin, void * pSrcEnd
+   detail::type_void_adapter const & type, void * pDstBegin, void * pSrcBegin, void * pSrcEnd
 ) {
    ABC_TRACE_FUNC(/*type, */pDstBegin, pSrcBegin, pSrcEnd);
 
@@ -451,8 +451,8 @@ void overlapping_move_constr(
 
 
 void raw_complex_vextr_impl::insert(
-   type_void_adapter const & type, std::size_t ibOffset, void const * pInsert, std::size_t cbInsert,
-   bool bMove
+   detail::type_void_adapter const & type, std::size_t ibOffset, void const * pInsert,
+   std::size_t cbInsert, bool bMove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, pInsert, cbInsert, bMove);
 
@@ -494,7 +494,7 @@ void raw_complex_vextr_impl::insert(
 }
 
 void raw_complex_vextr_impl::remove(
-   type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove
+   detail::type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove
 ) {
    ABC_TRACE_FUNC(this, /*type, */ibOffset, cbRemove);
 
@@ -523,7 +523,7 @@ void raw_complex_vextr_impl::remove(
 }
 
 void raw_complex_vextr_impl::set_capacity(
-   type_void_adapter const & type, std::size_t cbMin, bool bPreserve
+   detail::type_void_adapter const & type, std::size_t cbMin, bool bPreserve
 ) {
    ABC_TRACE_FUNC(this, /*type, */cbMin, bPreserve);
 
@@ -546,7 +546,7 @@ void raw_complex_vextr_impl::set_capacity(
    m_pEnd = begin<std::int8_t>() + cbOrig;
 }
 
-void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_t cb) {
+void raw_complex_vextr_impl::set_size(detail::type_void_adapter const & type, std::size_t cb) {
    ABC_TRACE_FUNC(this, /*type, */cb);
 
    ABC_UNUSED_ARG(type);
