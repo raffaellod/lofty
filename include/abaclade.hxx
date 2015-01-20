@@ -580,7 +580,6 @@ class writer;
 #include <abaclade/exception.hxx>
 #include <abaclade/enum.hxx>
 #include <abaclade/collections/pointer_iterator.hxx>
-#include <abaclade/numeric.hxx>
 #include <abaclade/collections/detail/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr.hxx>
 #include <abaclade/collections/vector.hxx>
