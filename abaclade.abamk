@@ -54,11 +54,11 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/_std/new.cxx"/>
       <source path="src/abaclade/_std/tuple.cxx"/>
       <source path="src/abaclade/_std/typeinfo.cxx"/>
-      <source path="src/abaclade/str.cxx"/>
       <source path="src/abaclade/text.cxx"/>
       <source path="src/abaclade/text/char_traits.cxx"/>
       <source path="src/abaclade/text/codepoint_iterator.cxx"/>
       <source path="src/abaclade/text/parsers/ansi_escape_sequences.cxx"/>
+      <source path="src/abaclade/text/str.cxx"/>
       <source path="src/abaclade/text/str_traits.cxx"/>
       <source path="src/abaclade/thread.cxx"/>
       <source path="src/abaclade/thread_local.cxx"/>
@@ -79,7 +79,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="src/abaclade-test/collections/map.cxx"/>
          <source path="src/abaclade-test/os/path.cxx"/>
          <source path="src/abaclade-test/range.cxx"/>
-         <source path="src/abaclade-test/str.cxx"/>
+         <source path="src/abaclade-test/text/str.cxx"/>
          <source path="src/abaclade-test/text/str_traits.cxx"/>
          <source path="src/abaclade-test/thread.cxx"/>
          <source path="src/abaclade-test/to_str.cxx"/>

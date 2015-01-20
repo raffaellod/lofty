@@ -586,14 +586,14 @@ class writer;
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
 #include <abaclade/text/codepoint_iterator.hxx>
-#include <abaclade/str.hxx>
+#include <abaclade/text/str.hxx>
 #include <abaclade/text-after-str.hxx>
 #include <abaclade/to_str.hxx>
 #include <abaclade/from_str.hxx>
 
 #include <abaclade/enum-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
-#include <abaclade/str-after-to_str.hxx>
+#include <abaclade/text/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/collections/pointer_iterator-after-to_str.hxx>
 #include <abaclade/text/codepoint_iterator-after-to_str.hxx>
@@ -609,7 +609,7 @@ class writer;
 #include <abaclade/io/text/binbuf.hxx>
 #include <abaclade/io/text/str.hxx>
 
-#include <abaclade/str-after-str_writer.hxx>
+#include <abaclade/text/str-after-str_writer.hxx>
 #include <abaclade/to_str-after-str_writer.hxx>
 #include <abaclade/from_str-after-str_reader.hxx>
 
