@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -32,7 +32,7 @@ class range_basic : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::range – basic operations"));
+      return ABC_SL("abc::range – basic operations");
    }
 
    //! See testing::test_case::run().

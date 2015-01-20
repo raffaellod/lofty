@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -78,7 +78,7 @@ class str_traits_validity : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::text::str_traits – validity of counted strings"));
+      return ABC_SL("abc::text::str_traits – validity of counted strings");
    }
 
    //! See testing::test_case::run().

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -63,7 +63,7 @@ protected:
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::exception – polymorphism"));
+      return ABC_SL("abc::exception – polymorphism");
    }
 
    //! See testing::test_case::run().
@@ -126,7 +126,7 @@ class exception_from_os_hard_error : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
+      return ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions");
    }
 
    //! See testing::test_case::run().
@@ -180,7 +180,7 @@ class exception_scope_trace : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::exception – scope/stack trace generation"));
+      return ABC_SL("abc::exception – scope/stack trace generation");
    }
 
    //! See testing::test_case::run().

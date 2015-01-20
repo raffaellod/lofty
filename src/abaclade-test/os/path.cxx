@@ -31,7 +31,7 @@ class os_path_normalization : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::os::path – normalization of relative and absolute paths"));
+      return ABC_SL("abc::os::path – normalization of relative and absolute paths");
    }
 
    //! See testing::test_case::run().
@@ -160,7 +160,7 @@ class os_path_normalization_joined : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::os::path – normalization of joined paths"));
+      return ABC_SL("abc::os::path – normalization of joined paths");
    }
 
    //! See testing::test_case::run().

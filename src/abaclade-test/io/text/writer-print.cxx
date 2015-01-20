@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -31,7 +31,7 @@ class text_writer_print_no_replacements : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::io::text::writer::print() – no replacements"));
+      return ABC_SL("abc::io::text::writer::print() – no replacements");
    }
 
    //! See testing::test_case::run().
@@ -82,7 +82,7 @@ class text_writer_print_one_replacement : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::io::text_writer::print() – one replacement"));
+      return ABC_SL("abc::io::text_writer::print() – one replacement");
    }
 
    //! See testing::test_case::run().
@@ -157,7 +157,7 @@ class text_writer_print_two_replacements : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::io::text_writer::print() – two replacements"));
+      return ABC_SL("abc::io::text_writer::print() – two replacements");
    }
 
    //! See testing::test_case::run().

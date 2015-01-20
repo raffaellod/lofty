@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -74,7 +74,7 @@ class to_str_int : public to_str_test_case_base {
 public:
    //! See to_str_test_case_base::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::to_str – int"));
+      return ABC_SL("abc::to_str – int");
    }
 
    //! See to_str_test_case_base::run().
@@ -121,7 +121,7 @@ class to_str_int8 : public to_str_test_case_base {
 public:
    //! See to_str_test_case_base::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::to_str – int8_t"));
+      return ABC_SL("abc::to_str – int8_t");
    }
 
    //! See to_str_test_case_base::run().
@@ -168,7 +168,7 @@ class to_str_raw_pointers : public to_str_test_case_base {
 public:
    //! See to_str_test_case_base::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::to_str – raw pointers"));
+      return ABC_SL("abc::to_str – raw pointers");
    }
 
    //! See to_str_test_case_base::run().
@@ -221,7 +221,7 @@ class to_str_smart_pointers : public to_str_test_case_base {
 public:
    //! See to_str_test_case_base::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::to_str – smart pointers"));
+      return ABC_SL("abc::to_str – smart pointers");
    }
 
    //! See to_str_test_case_base::run().
@@ -276,7 +276,7 @@ class to_str_tuples : public to_str_test_case_base {
 public:
    //! See to_str_test_case_base::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::to_str – STL tuple types"));
+      return ABC_SL("abc::to_str – STL tuple types");
    }
 
    //! See to_str_test_case_base::run().

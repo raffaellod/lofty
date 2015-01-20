@@ -33,7 +33,7 @@ class vector_basic : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::collections::*vector classes – basic operations"));
+      return ABC_SL("abc::collections::*vector classes – basic operations");
    }
 
    //! See testing::test_case::run().
@@ -108,7 +108,7 @@ class vector_relops : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – relational operators"));
+      return ABC_SL("abc::*vector classes – relational operators");
    }
 
    //! See testing::test_case::run().
@@ -158,7 +158,7 @@ class vector_iterators : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – operations with iterators"));
+      return ABC_SL("abc::*vector classes – operations with iterators");
    }
 
    //! See testing::test_case::run().
@@ -197,7 +197,7 @@ class vector_remove_trivial : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – removal of trivial elements"));
+      return ABC_SL("abc::*vector classes – removal of trivial elements");
    }
 
    //! See testing::test_case::run().
@@ -308,7 +308,7 @@ class vector_memory_mgmt : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – memory management"));
+      return ABC_SL("abc::*vector classes – memory management");
    }
 
    //! See testing::test_case::run().
@@ -498,7 +498,7 @@ private:
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::*vector classes – item and item array movement"));
+      return ABC_SL("abc::*vector classes – item and item array movement");
    }
 
    //! See testing::test_case::run().

@@ -38,7 +38,7 @@ public:
 
    //! See testing::test_case::title().
    virtual istr title() override {
-      return istr(ABC_SL("abc::thread – concurrent operation"));
+      return ABC_SL("abc::thread – concurrent operation");
    }
 
    //! See testing::test_case::run().
