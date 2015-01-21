@@ -167,8 +167,8 @@ namespace abc {
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
-// This defines our “real” char16_t.
-#include <abaclade/char.hxx>
+// Under Win32, this also defines char16_t to be wchar_t, which is more appropriate.
+#include <abaclade/text/char.hxx>
 
 #if ABC_HOST_API_POSIX
    // This prevents stat() from failing for files bigger than 2 GiB.
