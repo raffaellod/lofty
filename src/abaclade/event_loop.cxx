@@ -53,7 +53,7 @@ struct event_loop_impl_t {
    event_loop_impl_t() :
       fdKqueue(::kqueue()) {
       if (fdKqueue == -1) {
-         throw_os_error();
+         exception::throw_os_error();
       }
    }
 
@@ -73,7 +73,7 @@ struct event_loop_impl_t {
    event_loop_impl_t() :
       fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
       if (fdEpoll == -1) {
-         throw_os_error();
+         exception::throw_os_error();
       }
    }
 
@@ -180,7 +180,7 @@ void event_loop::run() {
          if (iErr == EINTR) {
             continue;
          }
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
       // Resize the vector to include only elements written by epoll_wait().
       vkeReady.set_size(static_cast<std::size_t>(cReadyEvents));
@@ -214,7 +214,7 @@ void event_loop::run() {
          if (iErr == EINTR) {
             continue;
          }
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
       // Resize the vector to include only elements written by epoll_wait().
       veeReady.set_size(static_cast<std::size_t>(cReadyFds));
@@ -247,7 +247,7 @@ void event_loop::run() {
 
       DWORD iRet = ::WaitForMultipleObjects(cSources, vhSources.begin().base(), false, INFINITE);
       if (iRet == WAIT_FAILED) {
-         throw_os_error();
+         exception::throw_os_error();
       } else if (iRet >= WAIT_OBJECT_0 && iRet < WAIT_OBJECT_0 + cSources) {
          HANDLE hReady = vhSources[iRet - WAIT_OBJECT_0];
          // TODO: consume the event.

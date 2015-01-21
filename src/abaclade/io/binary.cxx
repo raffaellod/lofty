@@ -54,7 +54,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
 
 #if ABC_HOST_API_POSIX
    if (::fstat(pfid->fd.get(), &pfid->statFile)) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    if (S_ISREG(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
@@ -150,7 +150,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          // Unknown or error.
          DWORD iErr = ::GetLastError();
          if (iErr != ERROR_SUCCESS) {
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
          }
          break;
       }
@@ -210,7 +210,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    while (::pipe(fds)) {
       int iErr = errno;
       if (iErr != EINTR) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
    // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
@@ -220,11 +220,11 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    leak the two file descriptors. That’s the whole point of pipe2(). */
    ABC_FOR_EACH(int fd, fds) {
       if (::fcntl(fd, F_SETFD, 1) == -1) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       if (bAsync) {
          if (::fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-            throw_os_error();
+            exception::throw_os_error();
          }
       }
    }
@@ -236,7 +236,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    while (::pipe2(fds, iFlags)) {
       int iErr = errno;
       if (iErr != EINTR) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
    fidReader.fd = fds[0];
@@ -263,7 +263,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
          1, sc_cbBuffer, sc_cbBuffer, sc_iDefaultTimeout, nullptr
       );
       if (!fidReader.fd) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       fidWriter.fd = ::CreateFile(
          sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
@@ -271,12 +271,12 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
       );
       if (!fidWriter.fd) {
          // fidReader.fd is closed automatically.
-         throw_os_error();
+         exception::throw_os_error();
       }
    } else {
       HANDLE hRead, hWrite;
       if (!::CreatePipe(&hRead, &hWrite, nullptr, 0)) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       fidReader.fd = hRead;
       fidWriter.fd = hWrite;
@@ -408,14 +408,14 @@ std::shared_ptr<file_base> open(
          case ENOENT: // No such file or directory (POSIX.1-2001)
             ABC_THROW(file_not_found_error, (op, iErr));
          default:
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
       }
    }
    #ifndef O_DIRECT
       #if ABC_HOST_API_DARWIN
          if (bBypassCache) {
             if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
-               throw_os_error();
+               exception::throw_os_error();
             }
          }
       #else
@@ -466,7 +466,7 @@ std::shared_ptr<file_base> open(
          case ERROR_UNKNOWN_PORT: // The specified port is unknown.
             ABC_THROW(file_not_found_error, (op, iErr));
          default:
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
       }
    }
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32

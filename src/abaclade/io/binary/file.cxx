@@ -82,7 +82,7 @@ bool file_base::async_poll(bool bWrite, bool bWait) const {
       }
       int iErr = errno;
       if (iErr != EINTR) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
 }
@@ -99,7 +99,7 @@ bool file_base::async_poll(bool bWrite, bool bWait) const {
    DWORD cbTransferred;
    if (!::GetOverlappedResult(m_fd.get(), &m_ovl, &cbTransferred, true)) {
       // TODO: how should async_join() return I/O errors?
-      throw_os_error();
+      exception::throw_os_error();
    }
    return cbTransferred;
 }
@@ -120,7 +120,7 @@ bool file_base::async_poll(bool bWrite, bool bWait) const {
       return true;
    }
    // TODO: how should async_pending() return I/O errors?
-   throw_os_error();
+   exception::throw_os_error();
 }
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -255,7 +255,7 @@ std::ptrdiff_t file_reader::read_impl(void * p, std::size_t cbMax) {
    #endif
             return -1;
          default:
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
       }
    }
 }
@@ -264,7 +264,7 @@ std::ptrdiff_t file_reader::read_impl(void * p, std::size_t cbMax) {
 #if ABC_HOST_API_WIN32
 /*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    return cbRead == 0;
 }
@@ -335,11 +335,11 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
    if (::fsync(m_fd.get())) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #elif ABC_HOST_API_WIN32
    if (!::FlushFileBuffers(m_fd.get())) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #else
    #error "TODO: HOST_API"
@@ -386,7 +386,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
          return 0;
       }
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    return static_cast<std::size_t>(cbWritten);
 #else
@@ -416,7 +416,7 @@ std::ptrdiff_t file_writer::write_impl(void const * p, std::size_t cb) {
    #endif
             return -1;
          default:
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
       }
    }
 }
@@ -484,7 +484,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
          if (iErr == ERROR_HANDLE_EOF) {
             break;
          }
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
       if (!cchLastRead) {
          break;
@@ -717,7 +717,7 @@ void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd)
             std::min<std::size_t>(cch, numeric::max<DWORD>::value)
          ), &cchLastWritten, nullptr
       )) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       // Some bytes were written; prepare for the next attempt.
       pchBegin += cchLastWritten;
@@ -755,7 +755,7 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
       case ERROR_BROKEN_PIPE:
          return true;
       default:
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
    }
 }
 #endif //if ABC_HOST_API_WIN32
@@ -812,14 +812,14 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       "abc::io::full_size_t must be the same size as LARGE_INTEGER"
    );
    if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #else //if _WIN32_WINNT >= 0x0500
    DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
    if (cbLow == INVALID_FILE_SIZE) {
       DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
    m_cb = (static_cast<full_size_t>(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
@@ -860,7 +860,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    }
    offset_t ibNewOffset = ::lseek(m_fd.get(), ibOffset, iWhence);
    if (ibNewOffset == -1) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return ibNewOffset;
 
@@ -886,7 +886,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    ibNewOffset.QuadPart = ibOffset;
 #if _WIN32_WINNT >= 0x0500
    if (!::SetFilePointerEx(m_fd.get(), ibNewOffset, &ibNewOffset, iWhence)) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #else //if _WIN32_WINNT >= 0x0500
    ibNewOffset.LowPart = ::SetFilePointer(
@@ -895,7 +895,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    if (ibNewOffset.LowPart == INVALID_SET_FILE_POINTER) {
       DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
 #endif //if _WIN32_WINNT >= 0x0500 … else
@@ -1022,7 +1022,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
             if (iErr == ERROR_LOCK_VIOLATION) {
                return false;
             }
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
          }
          return true;
       }
@@ -1033,7 +1033,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
             m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
             static_cast<DWORD>(m_cb.HighPart)
          )) {
-            throw_os_error();
+            exception::throw_os_error();
          }
       }
 

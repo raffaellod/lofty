@@ -47,7 +47,7 @@ public:
       ABC_TRACE_FUNC(this, op);
 
       if (::stat(op.os_str().c_str(), this)) {
-         throw_os_error();
+         exception::throw_os_error();
       }
    }
 };
@@ -68,7 +68,7 @@ bool file_attrs(path const & op, DWORD fi) {
 
    DWORD fiAttrs = ::GetFileAttributes(op.os_str().c_str());
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return (fiAttrs & fi) == fi;
 }
@@ -168,7 +168,7 @@ path path::base_name() const {
       }
       int iErr = errno;
       if (iErr != ERANGE) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
       // Report that the provided buffer was too small.
       return cchMax;
@@ -186,7 +186,7 @@ path path::base_name() const {
       }
       DWORD cch = ::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot);
       if (!cch) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       return cch + c_cchRoot;
    });
@@ -215,7 +215,7 @@ path path::base_name() const {
          achDummyPath, static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
       );
       if (!cch) {
-         throw_os_error();
+         exception::throw_os_error();
       }
       return cch + c_cchRoot;
    });
@@ -452,7 +452,8 @@ dmstr::const_iterator path::base_name_start() const {
                *pch = chVolume;
             } else if (chVolume < 'A' || chVolume > 'Z') {
                // Avoid keeping a path that can’t be valid.
-               throw_os_error(ERROR_INVALID_DRIVE);
+               // TODO: use a better exception class, or maybe just explcitly pass the invalid path.
+               exception::throw_os_error(ERROR_INVALID_DRIVE);
             }
             if (cch >= 3 /*“X:\”*/ && *(pch + 2) == '\\') {
                // This is a DOS-style absolute path; prepend to it the Win32 File Namespace prefix.

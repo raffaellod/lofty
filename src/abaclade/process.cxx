@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -58,7 +58,7 @@ process::native_handle_type const process::smc_hNull =
    // For now, only get a minimum access level.
    m_h = ::OpenProcess(SYNCHRONIZE, false, id);
    if (!m_h) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #else
    #error "TODO: HOST_API"
@@ -98,7 +98,7 @@ process::id_type process::id() const {
 #elif ABC_HOST_API_WIN32
    DWORD iPid = ::GetProcessId(m_h);
    if (iPid == 0) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return iPid;
 #else
@@ -114,7 +114,7 @@ int process::join() {
    while (::waitpid(static_cast< ::pid_t>(m_h), &iStatus, 0) != static_cast< ::pid_t>(m_h)) {
       int iErr = errno;
       if (iErr != EINTR) {
-         throw_os_error(iErr);
+         exception::throw_os_error(iErr);
       }
    }
    if (WIFEXITED(iStatus)) {
@@ -127,11 +127,11 @@ int process::join() {
    }
 #elif ABC_HOST_API_WIN32
    if (::WaitForSingleObject(m_h, INFINITE) == WAIT_FAILED) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    DWORD iExitCode;
    if (!::GetExitCodeProcess(m_h, &iExitCode)) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return static_cast<int>(iExitCode);
 #else
@@ -151,14 +151,14 @@ bool process::joinable() const {
    to in order to check it after the call. */
    si.si_pid = 0;
    if (::waitid(P_PID, static_cast< ::id_t>(m_h), &si, WEXITED | WNOHANG | WNOWAIT)) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    // waitid() sets this to m_h if the child is in the requested state (WEXITED).
    return si.si_pid != 0;
 #elif ABC_HOST_API_WIN32
    DWORD iRet = ::WaitForSingleObject(m_h, 0);
    if (iRet == WAIT_FAILED) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return iRet == WAIT_TIMEOUT;
 #else

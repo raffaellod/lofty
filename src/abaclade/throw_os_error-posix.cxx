@@ -23,14 +23,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
+// abc::exception
 
 namespace abc {
 
-void throw_os_error() {
+void exception::throw_os_error() {
    throw_os_error(errno);
 }
-void throw_os_error(errint_t err) {
+void exception::throw_os_error(errint_t err) {
    ABC_ASSERT(err != 0, ABC_SL("cannot throw an exception for a success"));
    switch (err) {
       case E2BIG: // Argument list too long (POSIX.1-2001)

@@ -64,7 +64,7 @@ bool thread::operator==(thread const & thr) const {
          return iThisTid == iOtherTid;
       }
    }
-   throw_os_error();
+   exception::throw_os_error();
 #else
    #error "TODO: HOST_API"
 #endif
@@ -94,7 +94,7 @@ thread::id_type thread::id() const {
 #elif ABC_HOST_API_WIN32
    DWORD iTid = ::GetThreadId(m_h);
    if (iTid == 0) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return iTid;
 #else
@@ -113,13 +113,13 @@ void thread::join() {
       ABC_THROW(argument_error, (EINVAL));
    }
    if (int iErr = ::pthread_join(m_h, nullptr)) {
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    m_id = 0;
 #elif ABC_HOST_API_WIN32
    DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
    if (iRet == WAIT_FAILED) {
-      throw_os_error();
+      exception::throw_os_error();
    }
 #else
    #error "TODO: HOST_API"
@@ -137,7 +137,7 @@ bool thread::joinable() const {
    }
    DWORD iRet = ::WaitForSingleObject(m_h, 0);
    if (iRet == WAIT_FAILED) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    return iRet == WAIT_TIMEOUT;
 #else
@@ -205,22 +205,22 @@ void thread::start() {
 #if ABC_HOST_API_DARWIN
    m_psd->dsemReady = ::dispatch_semaphore_create(0);
    if (!m_psd->dsemReady) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
       ::dispatch_release(m_psd->dsemReady);
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    // Block until the new thread is finished updating *this.
    ::dispatch_semaphore_wait(m_psd->dsemReady, DISPATCH_TIME_FOREVER);
    ::dispatch_release(m_psd->dsemReady);
 #elif ABC_HOST_API_POSIX
    if (::sem_init(&m_psd->semReady, 0, 0)) {
-      throw_os_error();
+      exception::throw_os_error();
    }
    if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
       ::sem_destroy(&m_psd->semReady);
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    // Block until the new thread is finished updating *this. The only possible failure is EINTR.
    while (::sem_wait(&m_psd->semReady)) {
@@ -233,7 +233,7 @@ void thread::start() {
    if (!m_h) {
       DWORD iErr = ::GetLastError();
       ::CloseHandle(m_psd->hReadyEvent);
-      throw_os_error(iErr);
+      exception::throw_os_error(iErr);
    }
    // Block until the new thread is finished updating *this. Must not fail.
    ::WaitForSingleObject(m_psd->hReadyEvent, INFINITE);

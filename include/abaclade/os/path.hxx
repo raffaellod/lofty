@@ -494,7 +494,7 @@ public:
       } else {
          DWORD iErr = ::GetLastError();
          if (iErr != ERROR_NO_MORE_FILES) {
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
          }
          // Remember we hit the bottom.
          m_bEOF = true;
@@ -514,7 +514,7 @@ private:
       if (h == INVALID_HANDLE_VALUE) {
          DWORD iErr = ::GetLastError();
          if (iErr != ERROR_FILE_NOT_FOUND) {
-            throw_os_error(iErr);
+            exception::throw_os_error(iErr);
          }
       }
       return h;

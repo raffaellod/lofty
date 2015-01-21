@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -308,6 +308,15 @@ public:
 
 } //namespace detail
 
+//! Integer type used by the OS to represent error numbers.
+#if ABC_HOST_API_POSIX
+   typedef int errint_t;
+#elif ABC_HOST_API_WIN32
+   typedef DWORD errint_t;
+#else
+   #error "TODO: HOST_API"
+#endif
+
 /*! Throws the specified object, after providing it with debug information.
 
 @param x
@@ -367,6 +376,16 @@ public:
    //! Initializes the information associated to the exception.
    void init() {
    }
+
+#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
+   /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
+
+   @param err
+      OS-defined error number.
+   */
+   static ABC_FUNC_NORETURN void throw_os_error();
+   static ABC_FUNC_NORETURN void throw_os_error(errint_t err);
+#endif
 
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
    to override it; only abc::detail::exception_aggregator will define this as a virtual, to override
@@ -479,25 +498,6 @@ public:
 // abc::generic_error
 
 namespace abc {
-
-//! Integer type used by the OS to represent error numbers.
-#if ABC_HOST_API_POSIX
-   typedef int errint_t;
-#elif ABC_HOST_API_WIN32
-   typedef DWORD errint_t;
-#else
-   #error "TODO: HOST_API"
-#endif
-
-#if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-/*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
-
-@param err
-   OS-defined error number.
-*/
-ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error();
-ABACLADE_SYM ABC_FUNC_NORETURN void throw_os_error(errint_t err);
-#endif
 
 //! Base for all error-related exceptions classes.
 class ABACLADE_SYM generic_error : public exception {

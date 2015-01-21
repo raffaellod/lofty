@@ -167,7 +167,7 @@ namespace abc {
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
-// Under Win32, this also defines char16_t to be wchar_t, which is more appropriate.
+// Under Win32, this also defines char16_t to be wchar_t, which is quite appropriate.
 #include <abaclade/text/char.hxx>
 
 #if ABC_HOST_API_POSIX

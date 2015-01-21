@@ -21,14 +21,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
+// abc::exception globals
 
 namespace abc {
 
-void throw_os_error() {
+void exception::throw_os_error() {
    throw_os_error(::GetLastError());
 }
-void throw_os_error(errint_t err) {
+void exception::throw_os_error(errint_t err) {
    ABC_ASSERT(err != ERROR_SUCCESS, ABC_SL("cannot throw an exception for a success"));
    switch (err) {
       // TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
