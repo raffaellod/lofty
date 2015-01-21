@@ -397,12 +397,12 @@ ABC_RELOP_IMPL(<=)
 
 namespace std {
 
-// Specialization of std::hash.
+// Specialization of std::hash for abc::os::path.
 template <>
-struct hash<abc::os::path>  {
+struct hash<abc::os::path> : public hash<abc::text::istr> {
    //! See std::hash::operator()().
    std::size_t operator()(abc::os::path const & op) const {
-      return std::hash<abc::istr>()(static_cast<abc::istr const &>(op));
+      return hash<abc::text::istr>::operator()(op);
    }
 };
 
