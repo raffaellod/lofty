@@ -378,25 +378,6 @@ reached. */
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – symbol visibility
-
-/*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
-Abaclade’s shared library (into another library/executable). */
-#ifdef ABAMAKE_BUILD_ABACLADE
-   #define ABACLADE_SYM ABC_SYM_EXPORT
-#else
-   #define ABACLADE_SYM ABC_SYM_IMPORT
-#endif
-
-/*! Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
-from Abaclade’s testing shared library (into another library/executable). */
-#ifdef ABAMAKE_BUILD_ABACLADE_TESTING
-   #define ABACLADE_TESTING_SYM ABC_SYM_EXPORT
-#else
-   #define ABACLADE_TESTING_SYM ABC_SYM_IMPORT
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives, plus a few compiler-specific STL fixes
 
@@ -498,6 +479,25 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 */
 #define ABC_ALIGNED_SIZE(cb) \
    ((static_cast<std::size_t>(cb) + sizeof(::abc::max_align_t) - 1) / sizeof(::abc::max_align_t))
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – symbol visibility
+
+/*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
+Abaclade’s shared library (into another library/executable). */
+#ifdef ABAMAKE_BUILD_ABACLADE
+   #define ABACLADE_SYM ABC_SYM_EXPORT
+#else
+   #define ABACLADE_SYM ABC_SYM_IMPORT
+#endif
+
+/*! Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
+from Abaclade’s testing shared library (into another library/executable). */
+#ifdef ABAMAKE_BUILD_ABACLADE_TESTING
+   #define ABACLADE_TESTING_SYM ABC_SYM_EXPORT
+#else
+   #define ABACLADE_TESTING_SYM ABC_SYM_IMPORT
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // #include other core header files that require a special order
