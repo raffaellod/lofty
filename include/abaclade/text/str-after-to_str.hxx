@@ -107,8 +107,8 @@ namespace abc {
    template <std::size_t t_cch> \
    class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char, text::encoding::utf8)
-// Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if
-// they’re native types.
+/* Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if
+they’re native types. */
 #if ABC_CXX_CHAR16 == 2
 ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t, text::encoding::utf16_host)
 #elif ABC_CXX_CHAR16 == 1

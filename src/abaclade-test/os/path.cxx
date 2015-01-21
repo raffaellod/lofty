@@ -38,8 +38,8 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      // Note that under Win32, paths that start with “/” are still relative to the current volume;
-      // nonetheless, the assertions should still be valid.
+      /* Note that under Win32, paths that start with “/” are still relative to the current volume;
+      nonetheless, the assertions should still be valid. */
 
       istr sSep(os::path::separator());
 #define norm_path(s)   istr(os::path(ABC_SL(s)).normalize())

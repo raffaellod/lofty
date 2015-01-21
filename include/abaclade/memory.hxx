@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -365,8 +365,8 @@ inline T * clear(T * ptDst, std::size_t c = 1) {
 */
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc) {
-   // Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
-   // that the compiler can inline the copy.
+   /* Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so
+   that the compiler can inline the copy. */
    switch (sizeof(T)) {
       case sizeof(std::int8_t):
          *reinterpret_cast<std::int8_t *>(ptDst) = *reinterpret_cast<std::int8_t const *>(ptSrc);

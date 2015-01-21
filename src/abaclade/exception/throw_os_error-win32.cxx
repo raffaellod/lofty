@@ -31,8 +31,8 @@ void exception::throw_os_error() {
 void exception::throw_os_error(errint_t err) {
    ABC_ASSERT(err != ERROR_SUCCESS, ABC_SL("cannot throw an exception for a success"));
    switch (err) {
-      // TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
-      // we shouldn’t throw due to them.
+      /* TODO: Win32 defines these “positive failures”: what to do? They’re not generic_error’s, so
+      we shouldn’t throw due to them. */
       case ERROR_SUCCESS_REBOOT_REQUIRED: // The requested operation is successful. Changes will not
          // be effective until the system is rebooted.
       case ERROR_SUCCESS_RESTART_REQUIRED: // The requested operation is successful. Changes will

@@ -98,8 +98,8 @@ std::shared_ptr<binbuf_base> _construct_stdio(
 
    abc::text::encoding enc;
    if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
-      // Console files can only perform I/O in the host platform’s encoding, so force the correct
-      // encoding here.
+      /* Console files can only perform I/O in the host platform’s encoding, so force the correct
+      encoding here. */
       enc = abc::text::encoding::host;
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
@@ -111,8 +111,8 @@ std::shared_ptr<binbuf_base> _construct_stdio(
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
       smstr<64> sEnc;
       sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
-         // ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
-         // enough, or the required size (length including NUL) otherwise.
+         /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
+         enough, or the required size (length including NUL) otherwise. */
          return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
       });
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -235,8 +235,8 @@ bool reader::read_line(mstr * psDst) {
       m_lterm == abc::text::line_terminator::any ||
       m_lterm == abc::text::line_terminator::convert_any_to_lf
    ) {
-      // Reading stopped at the first CR or LF, so removing either from its end will cause it to
-      // contain none.
+      /* Reading stopped at the first CR or LF, so removing either from its end will cause it to
+      contain none. */
       char_t const * pch = psDst->chars_end() - 1, * pchBegin = psDst->chars_begin();
       if (pch != pchBegin) {
          char_t ch = *pch;
@@ -245,8 +245,8 @@ bool reader::read_line(mstr * psDst) {
          }
       }
    } else {
-      // Pick the appropriate line terminator string; if the string ends in that, strip it off
-      // before returning.
+      /* Pick the appropriate line terminator string; if the string ends in that, strip it off
+      before returning. */
       istr const sLTerm(abc::text::get_line_terminator_str(m_lterm));
       if (psDst->ends_with(sLTerm)) {
          cchLTerm = sLTerm.size_in_chars();
@@ -311,8 +311,8 @@ writer_print_helper_impl::writer_print_helper_impl(writer * ptw, istr const & sF
 }
 
 void writer_print_helper_impl::run() {
-   // Since this specialization has no replacements, verify that the format string doesn’t specify
-   // any either.
+   /* Since this specialization has no replacements, verify that the format string doesn’t specify
+   any either. */
    if (write_format_up_to_next_repl()) {
       ABC_THROW(index_error, (static_cast<std::ptrdiff_t>(m_iSubstArg)));
    }

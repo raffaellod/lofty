@@ -132,8 +132,8 @@ exception & exception::operator=(exception const & x) {
 void exception::_before_throw(source_location const & srcloc, char_t const * pszFunction) {
    m_pszSourceFunction = pszFunction;
    m_srcloc = srcloc;
-   // Clear any old trace writer buffer and create a new one with *this as its only reference. See
-   // [DOC:8503 Stack tracing].
+   /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
+   [DOC:8503 Stack tracing]. */
    detail::scope_trace::trace_writer_clear();
    detail::scope_trace::trace_writer_addref();
    m_bInFlight = true;

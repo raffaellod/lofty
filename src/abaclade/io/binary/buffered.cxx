@@ -133,8 +133,8 @@ namespace binary {
       // Copy whatever was read into the caller-supplied buffer.
       memory::copy(static_cast<std::int8_t *>(p), pbBuf, cbBuf);
       cbReadTotal += cbBuf;
-      // Advance the pointer and decrease the count of bytes to read, so that the next call will
-      // attempt to fill in the remaining buffer space.
+      /* Advance the pointer and decrease the count of bytes to read, so that the next call will
+      attempt to fill in the remaining buffer space. */
       p = static_cast<std::int8_t *>(p) + cbBuf;
       cbMax -= cbBuf;
    }

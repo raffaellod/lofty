@@ -124,9 +124,9 @@ public:
       ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xf9, 0x81, 0x81, 0x81, 0x81);
       ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfd, 0x81, 0x81, 0x81, 0x81, 0x81);
 
-      // Technically possible, but not valid UTF-8. Here the string continues with a few more valid
-      // characters, so we can detect if the invalid byte was interpreted as the lead byte of some
-      // UTF-8 sequence.
+      /* Technically possible, but not valid UTF-8. Here the string continues with a few more valid
+      characters, so we can detect if the invalid byte was interpreted as the lead byte of some
+      UTF-8 sequence. */
       ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfe, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
       ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
 

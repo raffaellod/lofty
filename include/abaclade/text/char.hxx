@@ -159,8 +159,8 @@ TODO: document Unicode support in Abaclade.
    Unicode character literal.
 */
 #if ABC_CXX_CHAR32 == 2
-   // Use U so that the resulting literal is of type char32_t, which cuts down the number of
-   // overloads we need.
+   /* Use U so that the resulting literal is of type char32_t, which cuts down the number of
+   overloads we need. */
    #define ABC_CHAR(ch) U ## ch
 #else
    // Everybody else can only use wchar_t has the largest character literal type, so here it goes.

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -28,8 +28,8 @@ namespace text {
 namespace detail {
 
 codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
-   // Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
-   // can recalculate the pointers from these offsets.
+   /* Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
+   can recalculate the pointers from these offsets. */
    std::size_t ichThis = static_cast<std::size_t>(m_pch - mc_ps->chars_begin());
    std::size_t ichIter;
    if (mc_pcii) {
@@ -38,8 +38,8 @@ codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
    static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
       const_cast<char_t *>(m_pch), ch
    );
-   // If _replace_codepoint() switched string buffer, recalculate the internal pointers from the
-   // offsets saved above.
+   /* If _replace_codepoint() switched string buffer, recalculate the internal pointers from the
+   offsets saved above. */
    m_pch = mc_ps->chars_begin() + ichThis;
    if (mc_pcii) {
       mc_pcii->m_pch = mc_ps->chars_begin() + ichIter;

@@ -1290,8 +1290,8 @@ public:
       mvector<T, false>(smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
+   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
    smvector(mvector<T, false> && v) :
       mvector<T, false>(smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
@@ -1325,8 +1325,8 @@ public:
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
+   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
    smvector & operator=(mvector<T, false> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1384,8 +1384,8 @@ public:
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
+   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
    smvector(mvector<T, true> && v) :
       mvector<T, true>(smc_cbEmbeddedCapacity) {
       this->assign_move_dynamic_or_move_items(std::move(v));
@@ -1436,8 +1436,8 @@ public:
       this->assign_copy(v.cbegin().base(), v.cend().base());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smvector && overload.
-   // This also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
+   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
    smvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;

@@ -35,17 +35,17 @@ namespace text {
    pvcchFailNext->set_size(static_cast<std::size_t>(pchNeedleEnd - pchNeedleBegin));
    auto itNextFailNext(pvcchFailNext->begin());
 
-   // The earliest repetition of a non-first character can only occur on the fourth character, so
-   // start by skipping two characters and storing two zeros for them, then the first iteration will
-   // also always store an additional zero and consume one more character.
+   /* The earliest repetition of a non-first character can only occur on the fourth character, so
+   start by skipping two characters and storing two zeros for them, then the first iteration will
+   also always store an additional zero and consume one more character. */
    char_t const * pchNeedle = pchNeedleBegin + 2;
    char_t const * pchRestart = pchNeedleBegin;
    *itNextFailNext++ = 0;
    *itNextFailNext++ = 0;
    std::size_t ichRestart = 0;
    while (pchNeedle < pchNeedleEnd) {
-      // Store the current failure restart index, or 0 if the previous character was the third or
-      // was not a match.
+      /* Store the current failure restart index, or 0 if the previous character was the third or
+      was not a match. */
       *itNextFailNext++ = ichRestart;
       if (*pchNeedle++ == *pchRestart) {
          // Another match: move the restart to the next character.
@@ -86,8 +86,8 @@ namespace text {
             return -1;
          }
       }
-      // The characters are both regular or surrogates. Since a difference in lead surrogate
-      // generates bias, we only get to compare trails if the leads were equal.
+      /* The characters are both regular or surrogates. Since a difference in lead surrogate
+      generates bias, we only get to compare trails if the leads were equal. */
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
       if (ch1 > ch2) {
          return +1;
@@ -150,12 +150,12 @@ namespace text {
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
    // In UTF-16, there’s always at most two characters per code point.
    char16_t chNeedle0(pchNeedle[0]);
-   // We only have a second character if the first is a lead surrogate. Using NUL as a special value
-   // is safe, because if this is a surrogate, the tail surrogate cannot be NUL.
+   /* We only have a second character if the first is a lead surrogate. Using NUL as a special value
+   is safe, because if this is a surrogate, the tail surrogate cannot be NUL. */
    char16_t chNeedle1 =
       host_char_traits::is_lead_surrogate(chNeedle0) ? pchNeedle[1] : host_char(0);
-   // The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
-   // pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible.
+   /* The bounds of this loop are safe: since we assume that both strings are valid UTF-16, if
+   pch[0] == chNeedle0 and chNeedle1 != NUL then pch[1] must be accessible. */
    for (char16_t const * pch = pchHaystackBegin; pch < pchHaystackEnd; ++pch) {
       if (pch[0] == chNeedle0 && (!chNeedle1 || pch[1] == chNeedle1)) {
          return pch;
@@ -174,8 +174,8 @@ namespace text {
       // The needle can be encoded as a single character, so this faster search can be used.
       return find_char_last(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(chNeedle));
    } else {
-      // The needle is two or more characters; this means that we can’t do the fast backwards scan
-      // above, so just do a regular substring reverse search.
+      /* The needle is two or more characters; this means that we can’t do the fast backwards scan
+      above, so just do a regular substring reverse search. */
       char_t achNeedle[host_char_traits::max_codepoint_length];
       return find_substr_last(
          pchHaystackBegin, pchHaystackEnd,
@@ -220,27 +220,27 @@ namespace text {
          if (*pchHaystack == *pchNeedle) {
             ++pchNeedle;
             if (pchNeedle == pchNeedleEnd) {
-               // The needle was exhausted, which means that all its characters were matched in the
-               // haystack: we found the needle.
+               /* The needle was exhausted, which means that all its characters were matched in the
+               haystack: we found the needle. */
                return pchHaystack - iFailNext;
             }
             // Move to the next character and advance the index in vcchFailNext.
             ++pchHaystack;
             ++iFailNext;
          } else if (iFailNext > 0) {
-            // The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
-            // much into the needle we can retry matching characters.
+            /* The current character ends the match sequence; use vcchFailNext[iFailNext] to see how
+            much into the needle we can retry matching characters. */
             iFailNext = vcchFailNext[static_cast<std::ptrdiff_t>(iFailNext)];
             pchNeedle = pchNeedleBegin + iFailNext;
          } else {
-            // Not a match, and no restart point: we’re out of options to match this character, so
-            // consider it not-a-match and move past it.
+            /* Not a match, and no restart point: we’re out of options to match this character, so
+            consider it not-a-match and move past it. */
             ++pchHaystack;
          }
       }
    } catch (std::bad_alloc const &) {
-      // Could not allocate enough memory for the failure restart table: fall back to a trivial (and
-      // potentially slower) substring search.
+      /* Could not allocate enough memory for the failure restart table: fall back to a trivial (and
+      potentially slower) substring search. */
       char_t chFirst = *pchNeedleBegin;
       for (; pchHaystack < pchHaystackEnd; ++pchHaystack) {
          if (*pchHaystack == chFirst) {
@@ -250,8 +250,8 @@ namespace text {
                ;
             }
             if (pchNeedle >= pchNeedleEnd) {
-               // The needle was exhausted, which means that all its characters were matched in the
-               // haystack: we found the needle.
+               /* The needle was exhausted, which means that all its characters were matched in the
+               haystack: we found the needle. */
                return pchHaystack;
             }
          }
@@ -306,19 +306,19 @@ namespace text {
          }
       }
 
-      // If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
-      // nested for loop; see below for more info.
+      /* If the lead byte is 111?0000, activate the detection logic for overlong encodings in the
+      nested for loop; see below for more info. */
       bool bValidateOnBitsInFirstTrailByte = (ch & 0xef) == 0xe0;
 
-      // Ensure that these bits are 0 to detect encoded code points above
-      // (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
-      // 10000 xxxxyyyy yyzzzzzz.
+      /* Ensure that these bits are 0 to detect encoded code points above
+      (11110)100 (10)00xxxx (10)yyyyyy (10)zzzzzz, which is the highest valid code point
+      10000 xxxxyyyy yyzzzzzz. */
       char8_t iFirstTrailByteOffValidityMask = ch == '\xf4' ? 0x30 : 0x00;
 
       for (unsigned cbTrail = utf8_char_traits::lead_char_to_codepoint_size(ch); --cbTrail; ) {
          if (pch == pchEnd || !utf8_char_traits::is_trail_char(ch = *pch++)) {
-            // The string ended prematurely when we were expecting more trail characters, or this is
-            // not a trail character.
+            /* The string ended prematurely when we were expecting more trail characters, or this is
+            not a trail character. */
             if (bThrowOnErrors) {
                ABC_THROW(decode_error, (
                   ABC_SL("unexpected end of UTF-8 sequence"),
@@ -340,8 +340,8 @@ namespace text {
                /* 3 */ 0x20,
                // Detect 11110000 1000xxxx …, overlong for 1110xxxx ….
                /* 4 */ 0x30
-               // Longer overlongs are possible, but they require a lead byte that is filtered out
-               // by utf8_char_traits::is_valid_lead_char().
+               /* Longer overlongs are possible, but they require a lead byte that is filtered out
+               by utf8_char_traits::is_valid_lead_char(). */
             };
             if (!(ch & sc_aiOverlongDetectionMasks[cbTrail])) {
                if (bThrowOnErrors) {
@@ -380,8 +380,8 @@ namespace text {
       bool bSurrogate = utf16_char_traits::is_surrogate(ch);
       if (bSurrogate) {
          bool bTrailSurrogate = utf16_char_traits::is_trail_char(ch);
-         // If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
-         // but we’re not in a surrogate, this character is invalid.
+         /* If this is a lead surrogate and we were expecting a trail, or this is a trail surrogate
+         but we’re not in a surrogate, this character is invalid. */
          if (bTrailSurrogate != bExpectTrailSurrogate) {
             if (bThrowOnErrors) {
                ABC_THROW(decode_error, (

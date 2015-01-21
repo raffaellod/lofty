@@ -364,8 +364,8 @@ private:
    */
    raw_vextr_impl_base() {
       mc_bEmbeddedPrefixedItemArray = false;
-      // This is needed to disable the destructor, so we won’t try to release an invalid pointer in
-      // case anything goes wrong before the rest of the object is initialized.
+      /* This is needed to disable the destructor, so we won’t try to release an invalid pointer in
+      case anything goes wrong before the rest of the object is initialized. */
       m_bDynamic = false;
    }
 
@@ -456,12 +456,12 @@ protected:
    */
    _prefixed_item_array * embedded_prefixed_item_array() {
       if (mc_bEmbeddedPrefixedItemArray) {
-         // Allows to obtain the pointer to an embedded prefixed item array in non-template code
-         // without resorting to manual pointer arithmetics.
+         /* Allows to obtain the pointer to an embedded prefixed item array in non-template code
+         without resorting to manual pointer arithmetics. */
 #if ABC_HOST_CXX_MSC
    #pragma warning(push)
-   // “'class' : default constructor could not be generated because a base class default constructor
-   // is inaccessible”
+   /* “'class' : default constructor could not be generated because a base class default constructor
+   is inaccessible” */
    #pragma warning(disable: 4623)
 #endif
          class raw_vextr_impl_base_with_embedded_prefixed_item_array :
@@ -575,8 +575,8 @@ public:
 
    //! Destructor.
    ~raw_vextr_transaction() {
-      // Only allow m_rvibWork to release its item array if we allocated it for the transaction and
-      // commit() was never called.
+      /* Only allow m_rvibWork to release its item array if we allocated it for the transaction and
+      commit() was never called. */
       m_rvibWork.m_bDynamic = m_bFree;
    }
 
@@ -682,8 +682,8 @@ public:
       if (pBegin == m_pBegin) {
          return;
       }
-      // assign_concat() is fast enough; pass the source as the second argument pair, because its
-      // code path is faster.
+      /* assign_concat() is fast enough; pass the source as the second argument pair, because its
+      code path is faster. */
       assign_concat(type, nullptr, nullptr, pBegin, pEnd, 0);
    }
 
@@ -825,8 +825,8 @@ public:
       if (pBegin == m_pBegin) {
          return;
       }
-      // assign_concat() is fast enough. Pass the source as the second argument pair, because its
-      // code path is faster.
+      /* assign_concat() is fast enough. Pass the source as the second argument pair, because its
+      code path is faster. */
       assign_concat(nullptr, nullptr, pBegin, pEnd);
    }
 

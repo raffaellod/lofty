@@ -135,8 +135,8 @@ protected:
    codepoint_iterator_impl<false> * const mc_pcii;
 };
 
-// Relational operators. Provided so that comparisons between char32_t (from codepoint_proxy) and
-// char{,8,16}_t don’t raise warnings.
+/* Relational operators. Provided so that comparisons between char32_t (from codepoint_proxy) and
+char{,8,16}_t don’t raise warnings. */
 #define ABC_RELOP_IMPL(op) \
    template <bool t_bConst1, bool t_bConst2> \
    inline bool operator op( \

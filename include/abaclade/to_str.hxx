@@ -193,8 +193,8 @@ protected:
       if (m_iBaseOrShift == 10) {
          write_s16(i, ptwOut);
       } else {
-         // Avoid extending the sign, as it would generate too many digits in any notation except
-         // decimal.
+         /* Avoid extending the sign, as it would generate too many digits in any notation except
+         decimal. */
          write_s16(static_cast<std::uint8_t>(i), ptwOut);
       }
    }
@@ -239,8 +239,8 @@ inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer 
    if (m_iBaseOrShift == 10) {
       write_s64(i, ptwOut);
    } else {
-      // Avoid extending the sign in any notation except decimal, as it would generate too many
-      // digits.
+      /* Avoid extending the sign in any notation except decimal, as it would generate too many
+      digits. */
       write_s64(static_cast<std::uint32_t>(i), ptwOut);
    }
 }
@@ -258,8 +258,8 @@ inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer 
    if (m_iBaseOrShift == 10) {
       write_s32(i, ptwOut);
    } else {
-      // Avoid extending the sign in any notation except decimal, as it would generate too many
-      // digits.
+      /* Avoid extending the sign in any notation except decimal, as it would generate too many
+      digits. */
       write_s32(static_cast<std::uint16_t>(i), ptwOut);
    }
 }

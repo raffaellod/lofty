@@ -123,8 +123,8 @@ void int_to_str_backend_base::set_format(istr const & sFormat) {
    }
    // “Width” - minimum number of digits.
    if (ch >= '1' && ch <= '9') {
-      // Undo the default; the following loop will yield at least 1 anyway (because we don’t get
-      // here for a 0 – see if above).
+      /* Undo the default; the following loop will yield at least 1 anyway (because we don’t get
+      here for a 0 – see if above). */
       m_cchWidth = 0;
       do {
          m_cchWidth = m_cchWidth * 10 + static_cast<unsigned>(ch - '0');
@@ -135,16 +135,16 @@ void int_to_str_backend_base::set_format(istr const & sFormat) {
       } while (ch >= '0' && ch <= '9');
    }
 
-   // We jump in this impossible if to set the default notation when we run out of characters in any
-   // of the above blocks. If we do get here without jumping, the last character retrieved and
-   // stored in is the requested notation.
+   /* We jump in this impossible if to set the default notation when we run out of characters in any
+   of the above blocks. If we do get here without jumping, the last character retrieved and stored
+   in is the requested notation. */
    if (false) {
 default_notation:
       ch = 'd';
    }
 
-   // Determine which notation to use, which will also yield the approximate number of characters
-   // per byte.
+   /* Determine which notation to use, which will also yield the approximate number of characters
+   per byte. */
    unsigned cchByte;
    switch (ch) {
       case 'b':
@@ -206,8 +206,8 @@ void int_to_str_backend_base::add_prefixes_and_write(
    if (it == itEnd) {
       *--it = '0';
    }
-   // Determine the sign character: only if in decimal notation, and make it a minus sign if the
-   // number is negative.
+   /* Determine the sign character: only if in decimal notation, and make it a minus sign if the
+   number is negative. */
    char chSign = m_iBaseOrShift == 10 ? bNegative ? '-' : m_chSign : '\0';
    // Decide whether we’ll put a sign last, after the padding.
    bool bSignLast = chSign && m_chPad == '0';
@@ -242,8 +242,8 @@ inline void int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) 
 
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
-   // Use bClear = true since we need to iterate backwards on sBuf, which requires reading its
-   // otherwise uninitialized charactes.
+   /* Use bClear = true since we need to iterate backwards on sBuf, which requires reading its
+   otherwise uninitialized charactes. */
    sBuf.set_size_in_chars(m_cchBuf, true);
    auto it(sBuf.end());
 

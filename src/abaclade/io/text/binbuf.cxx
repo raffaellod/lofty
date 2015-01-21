@@ -81,8 +81,8 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
 
    std::size_t cbFile, cbBom;
    if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
-      // This special value prevents guess_encoding() from dismissing char16/32_t as impossible
-      // just because the need to clip cbFile to a std::size_t resulted in an odd count of bytes.
+      /* This special value prevents guess_encoding() from dismissing char16/32_t as impossible just
+      because the need to clip cbFile to a std::size_t resulted in an odd count of bytes. */
       static std::size_t const sc_cbAlignedMax =
          numeric::max<std::size_t>::value & ~sizeof(char32_t);
       cbFile = static_cast<std::size_t>(
@@ -143,8 +143,8 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
 
    // Truncate the string.
    psDst->set_size_in_chars(cchReadTotal);
-   // If the loop terminated because it run out of data and read no data at all, we reached the end
-   // of the data; otherwise, return true.
+   /* If the loop terminated because it run out of data and read no data at all, we reached the end
+   of the data; otherwise, return true. */
    return cbSrc || cchReadTotal;
 }
 
@@ -176,9 +176,9 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
       char_t * pchDstBegin = psDst->chars_begin();
       char_t * pchDstOffset = pchDstBegin + cchReadTotal;
       // Validate the characters in the source buffer before appending them to *psDst.
-      // TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
-      // into a special character, in which case we switch to using read_while_with_transcode()
-      // (abc::text:transcode can fix errors if told so).
+      /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
+      into a special character, in which case we switch to using read_while_with_transcode()
+      (abc::text:transcode can fix errors if told so). */
       abc::text::str_traits::validate(pchSrcBegin, pchSrcEnd, true);
 
       /* This loop copies one line at a time from the peek buffer into the destination string, at an
@@ -189,8 +189,8 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
       char_t const * pchSrc = pchSrcBegin;
       char_t * pchDst = pchDstOffset;
       do {
-         // If the first character is a CR that’s part of a CR+LF terminator we already presented as
-         // a LF, make it disappear.
+         /* If the first character is a CR that’s part of a CR+LF terminator we already presented as
+         a LF, make it disappear. */
          if (m_bDiscardNextLF) {
             if (*pchSrc == '\n') {
                ++pchSrc;
@@ -290,8 +290,8 @@ std::size_t binbuf_reader::read_while_with_transcode(
       char_t const * pchDstUntranslated = pchDstOffset;
       char_t * pchDstTranslated = pchDstOffset;
       do {
-         // If the first character is a CR that’s part of a CR+LF terminator we already presented as
-         // a LF, make it disappear.
+         /* If the first character is a CR that’s part of a CR+LF terminator we already presented as
+         a LF, make it disappear. */
          if (m_bDiscardNextLF) {
             if (*pchDstUntranslated == '\n') {
                ++pchDstUntranslated;
@@ -330,8 +330,8 @@ std::size_t binbuf_reader::read_while_with_transcode(
             destination size to the consumed range of characters; this will yield the count of bytes
             to consume. */
 
-            // Restore the arguments for transcode(), keeping in mind we don’t want back the LF we
-            // discarded earlier due to m_bDiscardNextLF.
+            /* Restore the arguments for transcode(), keeping in mind we don’t want back the LF we
+            discarded earlier due to m_bDiscardNextLF. */
             pSrc = static_cast<std::int8_t const *>(pbSrc);
             cbSrcRemaining = cbSrc;
             cbDst = reinterpret_cast<std::size_t>(pchDstUntranslated) -

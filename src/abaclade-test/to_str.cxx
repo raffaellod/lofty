@@ -198,8 +198,8 @@ public:
          get_to_str_output(reinterpret_cast<void (*)(int)>(iBad), istr::empty), ABC_SL("0xbad")
       );
 
-      // Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
-      // by abc::to_str().
+      /* Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
+      by abc::to_str(). */
       ABC_TESTING_ASSERT_EQUAL(
          get_to_str_output(reinterpret_cast<char_t const *>(iBad), istr::empty), ABC_SL("0xbad")
       );

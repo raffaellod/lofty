@@ -107,8 +107,8 @@ char_t const * str_base::_advance_char_ptr(
       }
    }
 
-   // Verify that the pointer is still within range: that’s not the case if we left either for loop
-   // before i reached 0, or if the pointer was invalid on entry (e.g. accessing istr()[0]).
+   /* Verify that the pointer is still within range: that’s not the case if we left either for loop
+   before i reached 0, or if the pointer was invalid on entry (e.g. accessing istr()[0]). */
    if (i != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
       if (bIndex) {
          ABC_THROW(index_error, (iOrig));
@@ -128,8 +128,8 @@ detail::c_str_ptr str_base::c_str() const {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return detail::c_str_ptr(chars_begin(), false);
    } else if (std::size_t cch = size_in_chars()) {
-      // The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
-      // NUL, and return it.
+      /* The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
+      NUL, and return it. */
       auto psz(memory::alloc<char_t[]>(cch + 1 /*NUL*/));
       memory::copy(psz.get(), chars_begin(), cch);
       psz[cch] = '\0';
@@ -246,14 +246,14 @@ str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    const_iterator it, itLoopEnd;
    int iDelta;
    if (ich >= 0) {
-      // The character index is non-negative: assume it’s faster to reach the corresponding code
-      // point index by starting from the beginning.
+      /* The character index is non-negative: assume it’s faster to reach the corresponding code
+      point index by starting from the beginning. */
       it = begin();
       itLoopEnd = end();
       iDelta = 1;
    } else {
-      // The character index is negative: assume it’s faster to reach the corresponding code point
-      // index by starting from the end.
+      /* The character index is negative: assume it’s faster to reach the corresponding code point
+      index by starting from the end. */
       it = end();
       itLoopEnd = begin();
       iDelta = -1;
@@ -381,17 +381,17 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    );
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
-   // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
-   // that there’s nothing that could go wrong here leaving us in an inconsistent state.
+   /* At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
+   that there’s nothing that could go wrong here leaving us in an inconsistent state. */
    host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
 }
 
 void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
    ABC_TRACE_FUNC(this/*, fnRead*/);
 
-   // The initial size avoids a few reallocations (* smc_iGrowthRate ** 2).
-   // Multiplying by smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the
-   // requested number of characters, eliminating the need to query back with capacity().
+   /* The initial size avoids a few reallocations (* smc_iGrowthRate ** 2). Multiplying by
+   smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the requested number
+   of characters, eliminating the need to query back with capacity(). */
    std::size_t cchRet, cchMax = smc_cbCapacityMin * smc_iGrowthRate;
    do {
       cchMax *= smc_iGrowthRate;

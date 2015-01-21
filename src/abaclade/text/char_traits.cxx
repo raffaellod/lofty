@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -85,8 +85,8 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    /* 0xc? */ 0x3f, 0xff,
    /* 0xd? */ 0xff, 0xff,
    /* 0xe? */ 0xff, 0xff,
-   // Encodings 11110101 10xxxxxx 10yyyyyy 10zzzzzz and higher lead to code points greater than
-   // 10000 11111111 11111111
+   /* Encodings 11110101 10xxxxxx 10yyyyyy 10zzzzzz and higher lead to code points greater than
+   10000 11111111 11111111 */
    /* 0xf? */ 0xf8, 0x00
 };
 

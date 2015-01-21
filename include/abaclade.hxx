@@ -95,8 +95,8 @@ namespace abc {
    #pragma warning(disable: 4127)
    // “'class' : inherits 'base::member' via dominance” – it points out the obvious and intended.
    #pragma warning(disable: 4250)
-   // “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
-   // of class 'class1'”
+   /* “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
+   of class 'class1'” */
    #pragma warning(disable: 4251)
    // “'class' : class has virtual functions, but destructor is not virtual”
    #pragma warning(disable: 4265)
@@ -124,14 +124,14 @@ namespace abc {
    #pragma warning(disable: 4512)
    // “class 'class' can never be instantiated - user defined constructor required”
    #pragma warning(disable: 4610)
-   // “'class' : copy constructor could not be generated because a base class copy constructor is
-   // inaccessible”
+   /* “'class' : copy constructor could not be generated because a base class copy constructor is
+   inaccessible” */
    #pragma warning(disable: 4625)
-   // “'class' : assignment operator could not be generated because a base class assignment operator
-   // is inaccessible”
+   /* “'class' : assignment operator could not be generated because a base class assignment operator
+   is inaccessible” */
    #pragma warning(disable: 4626)
-   // “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
-   // catch site”
+   /* “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
+   catch site” */
    #pragma warning(disable: 4673)
    /* “potentially uninitialized local variable 'var' used”: would be useful, but it’s raised too
    easily by MSC16. */

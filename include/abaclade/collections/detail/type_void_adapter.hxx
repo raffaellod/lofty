@@ -184,8 +184,8 @@ private:
          // No constructor, fastest copy possible.
          memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
       } else {
-         // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
-         // copy.
+         /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
+         copy. */
          T * ptDst = ptDstBegin;
          try {
             for (T const * ptSrc = ptSrcBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
@@ -226,8 +226,8 @@ private:
 #endif
       T * >::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
-      // Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
-      // copy.
+      /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
+      copy. */
       T * ptDst = ptDstBegin;
       try {
          for (T const * ptSrc = ptSrcBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {

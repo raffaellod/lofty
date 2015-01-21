@@ -474,8 +474,8 @@ protected:
    tuple<T *, TDel> m_pt_and_tdel;
 };
 
-// Specialization for dynamically-allocated arrays (C++11 § 20.7.1.3 “unique_ptr for array objects
-// with a runtime length”).
+/* Specialization for dynamically-allocated arrays (C++11 § 20.7.1.3 “unique_ptr for array objects
+with a runtime length”). */
 template <typename T, typename TDel>
 class unique_ptr<T[], TDel> : public ::abc::noncopyable {
 public:
@@ -687,8 +687,8 @@ public:
    //! Records the release of a strong reference to this.
    void release_strong() {
       if (::abc::atomic::decrement(&m_cStrongRefs) == 0) {
-         // All the strong references are gone: release the owned object and the weak link hold by
-         // the strong references.
+         /* All the strong references are gone: release the owned object and the weak link hold by
+         the strong references. */
          delete_owned();
          release_weak();
       }
@@ -697,8 +697,8 @@ public:
    //! Records the release of a weak reference to this.
    void release_weak() {
       if (::abc::atomic::decrement(&m_cWeakRefs) == 0) {
-         // All references are gone, including the one held by all the strong references together:
-         // this object can go away as well.
+         /* All references are gone, including the one held by all the strong references together:
+         this object can go away as well. */
          delete_this();
       }
    }
@@ -1367,17 +1367,17 @@ TODO: comment signature. */
 
 template <typename T, class TAllocator, typename... TArgs>
 inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs &&... targs) {
-   // Allocate a block of memory large enough to contain a refcount object and a T instance, making
-   // sure the T has proper alignment.
+   /* Allocate a block of memory large enough to contain a refcount object and a T instance, making
+   sure the T has proper alignment. */
    max_align_t * p = new max_align_t[
       ABC_ALIGNED_SIZE(sizeof(_prefix_shared_refcount<T>)) + ABC_ALIGNED_SIZE(sizeof(T))
    ];
    T * pt = p + ABC_ALIGNED_SIZE(sizeof(_prefix_shared_refcount<T>));
-   // Construct and return a raw shared_ptr, also constructing the refcount object on the fly.
-   // Note that we’ll only call set_owned_constructed() on the refcount after T::T() succeeds; in
-   // case this throws, shared_ptr::~shared_ptr() will call m_psr->release_strong(), but this won’t
-   // attempt to destruct the unconstructed T object because it hasn’t been told that the object was
-   // constructed. This also avoids the need for exception handling.
+   /* Construct and return a raw shared_ptr, also constructing the refcount object on the fly.
+   Note that we’ll only call set_owned_constructed() on the refcount after T::T() succeeds; in case
+   this throws, shared_ptr::~shared_ptr() will call m_psr->release_strong(), but this won’t attempt
+   to destruct the unconstructed T object because it hasn’t been told that the object was
+   constructed. This also avoids the need for exception handling. */
    shared_ptr<T> spt(::new(p) _prefix_shared_refcount<T>(), pt);
    // Read comments in _make_unconstructed_shared() to see why this is really exception-proof.
    ::new(spt.get()) T(forward(targs) ...);

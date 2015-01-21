@@ -42,21 +42,21 @@ public:
 
       collections::dmvector<int> v;
 
-      // Note: do not replace the item-by-item assertions with comparisons against manually-
-      // populated vectors as here we’re also guaranteeing that we can prepare a manually-populated
-      // vector. For example:
-      //
-      //    collections::dmvector<int> v1, v2;
-      //    v1.push_back(1);
-      //    v1.push_back(2);
-      //    v2.push_back(1);
-      //    v2.push_back(1);
-      //    ABC_TESTING_ASSERT_EQUAL(v1, v2);
-      //
-      // The assertion above will succeed if any of these error conditions is true:
-      // •  dmvector<int>::operator==() always returns true;
-      // •  dmvector<int>::push_back() never appends any elements;
-      // •  dmvector<int>::push_back() always appends more elements than it should.
+      /* Note: do not replace the item-by-item assertions with comparisons against manually-
+      populated vectors as here we’re also guaranteeing that we can prepare a manually-populated
+      vector. For example:
+
+         collections::dmvector<int> v1, v2;
+         v1.push_back(1);
+         v1.push_back(2);
+         v2.push_back(1);
+         v2.push_back(1);
+         ABC_TESTING_ASSERT_EQUAL(v1, v2);
+
+      The assertion above will succeed if any of these error conditions is true:
+      •  dmvector<int>::operator==() always returns true;
+      •  dmvector<int>::push_back() never appends any elements;
+      •  dmvector<int>::push_back() always appends more elements than it should. */
 
       ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
 
@@ -326,8 +326,8 @@ public:
       collections::smvector<int, 10> v3;
       auto cdpt3(make_container_data_ptr_tracker(v3));
 
-      // Add one element to each vector, so they all allocate a new item array or begin using their
-      // own embedded one.
+      /* Add one element to each vector, so they all allocate a new item array or begin using their
+      own embedded one. */
 
       // Should allocate a new item array.
       v1.push_back(10);
@@ -434,8 +434,8 @@ public:
       v2[0] = 20;
       v2[1] = 21;
 
-      // The current item array should still be large enough, but this should drop it to use the
-      // temporary one created by operator+().
+      /* The current item array should still be large enough, but this should drop it to use the
+      temporary one created by operator+(). */
       v1 = v2 + v3;
       ABC_TESTING_ASSERT_TRUE(cdpt1.changed());
       ABC_TESTING_ASSERT_EQUAL(v1.size(), 4u);
@@ -550,8 +550,8 @@ public:
       collections::dmvector<instances_counter> v;
       // New instance, immediately moved.
       v.push_back(instances_counter());
-      // This will move the item array or the items in it, depending on the destination type
-      // (embedded or dynamic item array).
+      /* This will move the item array or the items in it, depending on the destination type
+      (embedded or dynamic item array). */
       return std::move(v);
    }
 };

@@ -239,8 +239,8 @@ private:
       ptwOut->write(_std::get<t_i>(*this));
 #endif
    }
-   // This overload does nothing. Only needed because the tuple may be empty, but write() will call
-   // write_vars<0>() unconditionally.
+   /* This overload does nothing. Only needed because the tuple may be empty, but write() will call
+   write_vars<0>() unconditionally. */
    template <std::size_t t_i>
    void write_vars(typename std::enable_if<t_i == smc_cTs, io::text::writer *>::type ptwOut) const {
       ABC_UNUSED_ARG(ptwOut);

@@ -89,8 +89,8 @@ encoding guess_encoding(
       cbSrcTotal = static_cast<std::size_t>(pbBufEnd - pbBufBegin);
    }
 
-   // Statuses for the scanner. Each BOM status must be 1 bit to the right of its resulting
-   // encoding; LE variants must be 2 bits to the right of their BE counterparts.
+   /* Statuses for the scanner. Each BOM status must be 1 bit to the right of its resulting
+   encoding; LE variants must be 2 bits to the right of their BE counterparts. */
    enum enc_scan_status {
       ESS_UTF8_BOM     = 0x0001,
       ESS_UTF8         = 0x0002,
@@ -170,16 +170,16 @@ encoding guess_encoding(
       }
    }
 
-   // Parse every byte, gradually excluding more and more possibilities, hopefully ending with
-   // exactly one guess.
+   /* Parse every byte, gradually excluding more and more possibilities, hopefully ending with
+   exactly one guess. */
    unsigned cbUtf8Cont = 0;
    std::size_t ib = 0;
    for (std::uint8_t const * pbBuf = pbBufBegin; pbBuf < pbBufEnd; ++pbBuf, ++ib) {
       std::uint8_t b = *pbBuf;
 
       if (fess & ESS_UTF8) {
-         // Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
-         // here.
+         /* Check for UTF-8 validity. Checking for overlongs or invalid code points is out of scope
+         here. */
          if (cbUtf8Cont) {
             if (!utf8_char_traits::is_trail_char(static_cast<char8_t>(b))) {
                // This byte should be part of a sequence, but it’s not.
@@ -196,8 +196,8 @@ encoding guess_encoding(
                   static_cast<char8_t>(b)
                ) - 1;
                if ((b & 0x80) && cbUtf8Cont == 0) {
-                  // By utf8_char_traits::lead_char_to_codepoint_size(), a non-ASCII byte that
-                  // doesn’t have a continuation is an invalid one.
+                  /* By utf8_char_traits::lead_char_to_codepoint_size(), a non-ASCII byte that
+                  doesn’t have a continuation is an invalid one. */
                   fess &= ~static_cast<unsigned>(ESS_UTF8);
                }
             }
@@ -205,11 +205,11 @@ encoding guess_encoding(
       }
 
       if (fess & (ESS_UTF16LE | ESS_UTF16BE)) {
-         // Check for UTF-16 validity. The only check possible is proper ordering of surrogates;
-         // everything else is allowed.
+         /* Check for UTF-16 validity. The only check possible is proper ordering of surrogates;
+         everything else is allowed. */
          for (unsigned ess = ESS_UTF16LE; ess <= ESS_UTF16BE; ess <<= 2) {
-            // This will go ahead with the check if ib is indexing the most significant byte, i.e.
-            // odd for LE and even for BE.
+            /* This will go ahead with the check if ib is indexing the most significant byte, i.e.
+            odd for LE and even for BE. */
             if ((fess & ess) && ((ib & sizeof(char16_t)) != 0) == (ess != ESS_UTF16LE)) {
                switch (b & 0xfc) {
                   case 0xd8: {
@@ -249,16 +249,16 @@ encoding guess_encoding(
       }
 
       if (fess & ESS_ISO_8859_1) {
-         // Check for ISO-8859-1 validity. This is more of a guess, since there’s a big many other
-         // encodings that would pass this check.
+         /* Check for ISO-8859-1 validity. This is more of a guess, since there’s a big many other
+         encodings that would pass this check. */
          if ((sc_abValidISO88591[b >> 3] & (1 << (b & 7))) == 0) {
             fess &= ~static_cast<unsigned>(ESS_ISO_8859_1);
          }
       }
 
       if (fess & ESS_WINDOWS_1252) {
-         // Check for Windows-1252 validity. Even more of a guess, since this considers valid even
-         // more characters.
+         /* Check for Windows-1252 validity. Even more of a guess, since this considers valid even
+         more characters. */
          if ((sc_abValidWindows1252[b >> 3] & (1 << (b & 7))) == 0) {
             fess &= ~static_cast<unsigned>(ESS_WINDOWS_1252);
          }
@@ -275,8 +275,8 @@ encoding guess_encoding(
                   // This byte doesn’t match: stop checking for this BOM.
                   fess &= ~essBom;
                } else if (ib == sc_absd[iBsd].cbBom - 1u) {
-                  // This was the last BOM byte, which means that the whole BOM was matched: stop
-                  // checking for the BOM, and enable checking for the encoding itself.
+                  /* This was the last BOM byte, which means that the whole BOM was matched: stop
+                  checking for the BOM, and enable checking for the encoding itself. */
                   fess &= ~essBom;
                   fess |= essBom << 1;
                   /* Return the BOM length to the caller, if requested. This will be overwritten in
@@ -317,10 +317,10 @@ line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pc
    for (char_t const * pch = pchBegin; pch < pchEnd; ++pch) {
       char_t ch = *pch;
       if (ch == '\r') {
-         // CR can be followed by a LF to form the sequence CRLF, so check the following character
-         // (if we have one). If we found a CR as the very last character in the buffer, we can’t
-         // check the following one; at this point, we have to guess, so we’ll consider CRLF more
-         // likely than CR.
+         /* CR can be followed by a LF to form the sequence CRLF, so check the following character
+         (if we have one). If we found a CR as the very last character in the buffer, we can’t check
+         the following one; at this point, we have to guess, so we’ll consider CRLF more likely than
+         CR. */
          if (++pch < pchEnd && *pch != '\n') {
             return line_terminator::cr;
          } else {
@@ -422,15 +422,15 @@ std::size_t transcode(
 
          case encoding::utf16le:
          case encoding::utf16be: {
-            // Note: this decoder could be changed to accept a single lead or trail surrogate; this
-            // however opens up for the possibility of not knowing, should we encounter a lead
-            // surrogate at the end of the buffer, whether we should consume it, or leave it alone
-            // and ask the caller to try again with more characters. By using the lead surrogate as
-            // a lone character, we may be corrupting the source by decoding lead and trail
-            // surrogates as separate characters should they be split in two separate reads; on the
-            // other hand, by refusing to decode a lead surrogate at the end of the buffer, we’d
-            // potentially cause the caller to enter an endless loop, as it may not be able to ever
-            // provide the trail surrogate we ask for.
+            /* Note: this decoder could be changed to accept a single lead or trail surrogate; this
+            however opens up for the possibility of not knowing, should we encounter a lead
+            surrogate at the end of the buffer, whether we should consume it, or leave it alone and
+            ask the caller to try again with more characters. By using the lead surrogate as a lone
+            character, we may be corrupting the source by decoding lead and trail surrogates as
+            separate characters should they be split in two separate reads; on the other hand, by
+            refusing to decode a lead surrogate at the end of the buffer, we’d potentially cause the
+            caller to enter an endless loop, as it may not be able to ever provide the trail
+            surrogate we ask for. */
 
             if (pbSrc + sizeof(char16_t) > pbSrcEnd) {
                goto break_for;
@@ -522,8 +522,8 @@ std::size_t transcode(
       // Encode the code point in ch32 into the destination.
       switch (encDst.base()) {
          case encoding::utf8: {
-            // Compute the length of this sequence. Technically this could throw if ch32 is not a
-            // valid Unicode code point, but we made sure above that that cannot happen.
+            /* Compute the length of this sequence. Technically this could throw if ch32 is not a
+            valid Unicode code point, but we made sure above that that cannot happen. */
             std::size_t cbSeq = sizeof(char8_t) * utf8_char_traits::codepoint_size(ch32);
             if (pbDst + cbSeq > pbDstEnd) {
                goto break_for;

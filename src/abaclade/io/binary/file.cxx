@@ -465,16 +465,16 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   // Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
-   // divided by sizeof(char_t).
+   /* Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
+   divided by sizeof(char_t). */
    std::size_t cchMax = cbMax / sizeof(char_t);
 
    std::int8_t * pb = static_cast<std::int8_t *>(p);
-   // ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
-   // of masking them by skipping the call (e.g. due to cbMax == 0 on input).
+   /* ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
+   of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
    do {
-      // This will be repeated at least once, and as long as we still have some bytes to read, and
-      // reading them does not fail.
+      /* This will be repeated at least once, and as long as we still have some bytes to read, and
+      reading them does not fail. */
       DWORD cchLastRead;
       if (!::ReadConsole(
          m_fd.get(), pb,
@@ -917,8 +917,8 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   // Seeking 0 bytes from the current position won’t change the internal status of the file
-   // descriptor, so casting the const-ness away is not semantically wrong.
+   /* Seeking 0 bytes from the current position won’t change the internal status of the file
+   descriptor, so casting the const-ness away is not semantically wrong. */
    return const_cast<regular_file_base *>(this)->seek(0, seek_from::current);
 #else
    #error "TODO: HOST_API"
@@ -974,8 +974,8 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   // Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
-   // write-protect the bytes we’re going to add, and then release the write protection.
+   /* Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
+   write-protect the bytes we’re going to add, and then release the write protection. */
 
    /*! Win32 ::LockFile() / ::UnlockFile() helper.
 

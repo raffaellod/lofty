@@ -624,8 +624,8 @@ protected:
       0-based index of the template argument to write.
    */
    ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
-      // This is the last recursion stage, with no replacements available, so if we got here
-      // writer::print() was called with insufficient replacements for the given format string.
+      /* This is the last recursion stage, with no replacements available, so if we got here
+      writer::print() was called with insufficient replacements for the given format string. */
       ABC_UNUSED_ARG(iArg);
       writer_print_helper_impl::throw_index_error();
    }
@@ -872,8 +872,8 @@ protected:
       0-based index of the template argument to write.
    */
    ABC_FUNC_NORETURN void write_repl(unsigned iArg) {
-      // This is the last recursion stage, with no replacements available, so if we got here
-      // writer::print() was called with insufficient replacements for the given format string.
+      /* This is the last recursion stage, with no replacements available, so if we got here
+      writer::print() was called with insufficient replacements for the given format string. */
       ABC_UNUSED_ARG(iArg);
       writer_print_helper_impl::throw_index_error();
    }

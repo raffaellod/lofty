@@ -30,14 +30,14 @@ namespace test {
 
 char32_t const gc_chP0(ABC_CHAR('\x20ac'));
 char32_t const gc_chP2(0x024b62);
-// The string “acabaabca” has the following properties:
-// •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
-//    “aba” instead), to catch incorrect skip-last comparisons;
-// •  first and last characters match 'a', but other inner ones do too;
-// •  would match “abcd” were it not for the last character;
-// •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
-// The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
-// above and ‘c’ with the BMP (Plane 0) character above.
+/* The string “acabaabca” has the following properties:
+•  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
+   “aba” instead), to catch incorrect skip-last comparisons;
+•  first and last characters match 'a', but other inner ones do too;
+•  would match “abcd” were it not for the last character;
+•  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
+The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
+above and ‘c’ with the BMP (Plane 0) character above. */
 istr const gc_sAcabaabca(
    istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
 );
@@ -137,8 +137,8 @@ ABC_TESTING_TEST_CASE_FUNC(str_basic, "abc::text::*str classes – basic operati
    ABC_TESTING_ASSERT_EQUAL(s[3], 'd');
 
    s += ABC_SL("efghijklmnopqrstuvwxyz");
-   // Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
-   // character array may or may not change depending on heap reallocation strategy.
+   /* Cannot assert (ABC_TESTING_ASSERT_*) on this to behave in any specific way, since the
+   character array may or may not change depending on heap reallocation strategy. */
    cdpt.changed();
    ABC_TESTING_ASSERT_EQUAL(s.size(), 26u);
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 26u);
@@ -154,15 +154,15 @@ ABC_TESTING_TEST_CASE_FUNC(str_basic, "abc::text::*str classes – basic operati
    ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("a\0b\0ç"));
    ABC_TESTING_ASSERT_EQUAL(ABC_SL("a\0b\0ç"), s);
 
-   // Now that the string is not empty, validate that clear() truncates it without freeing its
-   // buffer.
+   /* Now that the string is not empty, validate that clear() truncates it without freeing its
+   buffer. */
    s.clear();
    ABC_TESTING_ASSERT_EQUAL(s.size(), 0u);
    ABC_TESTING_ASSERT_GREATER(s.capacity(), 0u);
 
    {
-      // Note: all string operations here must involve as few characters as possible to avoid
-      // triggering a reallocation, which would break these tests.
+      /* Note: all string operations here must involve as few characters as possible to avoid
+      triggering a reallocation, which would break these tests. */
 
       dmstr s1, s2(ABC_SL("a"));
       char_t const * pchCheck = s2.cbegin().base();
@@ -418,8 +418,8 @@ ABC_TESTING_TEST_CASE_FUNC(istr_c_str, "abc::text::istr – C string extraction"
 
    s = ABC_SL("");
    psz = s.c_str();
-   // s should have adopted the literal and therefore have a trailing NUL, so it should have
-   // returned its own character array.
+   /* s should have adopted the literal and therefore have a trailing NUL, so it should have
+   returned its own character array. */
    ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
    ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
@@ -427,8 +427,8 @@ ABC_TESTING_TEST_CASE_FUNC(istr_c_str, "abc::text::istr – C string extraction"
 
    s = ABC_SL("a");
    psz = s.c_str();
-   // s should have adopted the literal and therefore have a trailing NUL, so it should have
-   // returned its own character array.
+   /* s should have adopted the literal and therefore have a trailing NUL, so it should have
+   returned its own character array. */
    ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
    ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
@@ -467,8 +467,8 @@ ABC_TESTING_TEST_CASE_FUNC(mstr_c_str, "abc::text::mstr – C string extraction"
 
    s = ABC_SL("a");
    psz = s.c_str();
-   // s should have copied the literal but dropped its trailing NUL, so it must’ve returned a
-   // distinct character array.
+   /* s should have copied the literal but dropped its trailing NUL, so it must’ve returned a
+   distinct character array. */
    ABC_TESTING_ASSERT_NOT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
    ABC_TESTING_ASSERT_TRUE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
@@ -501,8 +501,8 @@ ABC_TESTING_TEST_CASE_FUNC(str_find, "abc::text::*str classes – character and 
    // Special characters.
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
-   // See gc_sAcabaabca for more information on its pattern. To make it more interesting, here we
-   // also duplicate it.
+   /* See gc_sAcabaabca for more information on its pattern. To make it more interesting, here we
+   also duplicate it. */
    istr const s(gc_sAcabaabca + gc_sAcabaabca);
 
    ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);

@@ -173,8 +173,8 @@ public:
       true if the string is not empty, or false otherwise.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
-      // Use std::int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than
-      // check.
+      /* Use std::int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than
+      check. */
       return collections::detail::raw_vextr_impl_base::end<std::int8_t>() >
          collections::detail::raw_vextr_impl_base::begin<std::int8_t>();
    }
@@ -1269,8 +1269,8 @@ inline dmstr operator+(char32_t chL, istr const & sR) {
       sR.chars_begin(), sR.chars_end()
    );
 }
-// Overloads taking a temporary string as left or right operand; they can avoid creating an
-// intermediate string.
+/* Overloads taking a temporary string as left or right operand; they can avoid creating an
+intermediate string. */
 inline dmstr operator+(istr && sL, char_t chR) {
    dmstr dmsL(std::move(sL));
    dmsL += chR;
@@ -1391,8 +1391,8 @@ public:
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(s.chars_begin(), s.chars_end());
    }
-   // If the source is using its embedded character array, it will be copied without allocating a
-   // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   /* If the source is using its embedded character array, it will be copied without allocating a
+   dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
    smstr(smstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
@@ -1406,8 +1406,8 @@ public:
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
-   // This also covers smstr of different template arguments.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smstr && overload. This also
+   covers smstr of different template arguments. */
    smstr(mstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
@@ -1435,8 +1435,8 @@ public:
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   // If the source is using its embedded character array, it will be copied without allocating a
-   // dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw.
+   /* If the source is using its embedded character array, it will be copied without allocating a
+   dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
    smstr & operator=(smstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
@@ -1450,8 +1450,8 @@ public:
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
-   // This also covers smstr of different template arguments.
+   /* This can throw exceptions, but it’s allowed to since it’s not the smstr && overload. This also
+   covers smstr of different template arguments. */
    smstr & operator=(mstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
