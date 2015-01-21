@@ -115,7 +115,7 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::str_base
+// abc::text::detail::str_base
 
 namespace abc {
 namespace text {
@@ -123,6 +123,8 @@ namespace text {
 // Forward declarations.
 class istr;
 class dmstr;
+
+namespace detail {
 
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
@@ -661,6 +663,7 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
@@ -668,8 +671,8 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct ABACLADE_SYM hash<abc::text::str_base> {
-   std::size_t operator()(abc::text::str_base const & s) const;
+struct ABACLADE_SYM hash<abc::text::detail::str_base> {
+   std::size_t operator()(abc::text::detail::str_base const & s) const;
 };
 
 } //namespace std
@@ -683,10 +686,10 @@ namespace text {
 // Forward declaration.
 class mstr;
 
-/*! str_base-derived class, to be used as “the” string class in most cases. It cannot be modified
-in-place, which means that it shouldn’t be used in code performing intensive string manipulations.
+/*! Class to be used as “the” string class in most cases. It cannot be modified in-place, which
+means that it shouldn’t be used in code performing intensive string manipulations.
 */
-class ABACLADE_SYM istr : public str_base {
+class ABACLADE_SYM istr : public detail::str_base {
 public:
    /*! Constructor.
 
@@ -704,14 +707,14 @@ public:
       Count of characters in the array pointed to be psz.
    */
    istr() :
-      str_base(0) {
+      detail::str_base(0) {
    }
    istr(istr const & s) :
-      str_base(0) {
+      detail::str_base(0) {
       assign_share_raw_or_copy_desc(s);
    }
    istr(istr && s) :
-      str_base(0) {
+      detail::str_base(0) {
       // Non-const, so it can’t be anything but a real istr, so it owns its character array.
       assign_move(std::move(s));
    }
@@ -720,17 +723,19 @@ public:
    istr(dmstr && s);
    template <std::size_t t_cch>
    istr(char_t const (& ach)[t_cch]) :
-      str_base(ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0') {
+      detail::str_base(
+         ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0'
+      ) {
    }
    istr(char_t const * pchBegin, char_t const * pchEnd) :
-      str_base(0) {
+      detail::str_base(0) {
       assign_copy(pchBegin, pchEnd);
    }
    istr(external_buffer_t const &, char_t const * psz) :
-      str_base(psz, text::size_in_chars(psz), true) {
+      detail::str_base(psz, text::size_in_chars(psz), true) {
    }
    istr(external_buffer_t const &, char_t const * psz, std::size_t cch) :
-      str_base(psz, cch, false) {
+      detail::str_base(psz, cch, false) {
    }
 
    /*! Assignment operator.
@@ -770,9 +775,13 @@ public:
 
 // Now this can be defined.
 
+namespace detail {
+
 inline str_base::operator istr const &() const {
    return *static_cast<istr const *>(this);
 }
+
+} //namespace detail
 
 } //namespace text
 } //namespace abc
@@ -781,7 +790,7 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::text::istr> : public hash<abc::text::str_base> {};
+struct hash<abc::text::istr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
@@ -791,10 +800,10 @@ struct hash<abc::text::istr> : public hash<abc::text::str_base> {};
 namespace abc {
 namespace text {
 
-/*! str_base-derived class, to be used as argument type for functions that want to modify a string
+/*! Class to be used as “the“ string class for arguments of functions that want to modify a string
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
 are automatically converted to this. */
-class ABACLADE_SYM mstr : public str_base {
+class ABACLADE_SYM mstr : public detail::str_base {
 private:
    friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
    friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
@@ -864,12 +873,12 @@ public:
       );
    }
 
-   //! See str_base::begin(). Here also available in non-const overload.
+   //! See detail::str_base::begin(). Here also available in non-const overload.
    iterator begin() {
       return iterator(chars_begin(), this);
    }
    const_iterator begin() const {
-      return str_base::begin();
+      return detail::str_base::begin();
    }
 
    //! Truncates the string to zero length, without deallocating the internal buffer.
@@ -877,12 +886,12 @@ public:
       set_size(0);
    }
 
-   //! See str_base::end(). Here also available in non-const overload.
+   //! See detail::str_base::end(). Here also available in non-const overload.
    iterator end() {
       return iterator(chars_end(), this);
    }
    const_iterator end() const {
-      return str_base::end();
+      return detail::str_base::end();
    }
 
    /*! Inserts characters into the string at a specific character (not code point) offset.
@@ -922,20 +931,20 @@ public:
       );
    }
 
-   //! See str_base::rbegin(). Here also available in non-const overload.
+   //! See detail::str_base::rbegin(). Here also available in non-const overload.
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(chars_end(), this));
    }
    const_reverse_iterator rbegin() const {
-      return str_base::rbegin();
+      return detail::str_base::rbegin();
    }
 
-   //! See str_base::rend(). Here also available in non-const overload.
+   //! See detail::str_base::rend(). Here also available in non-const overload.
    reverse_iterator rend() {
       return reverse_iterator(iterator(chars_begin(), this));
    }
    const_reverse_iterator rend() const {
-      return str_base::rend();
+      return detail::str_base::rend();
    }
 
    /*! Replaces all occurrences of a character with another character.
@@ -1004,9 +1013,9 @@ public:
    }
 
 protected:
-   //! See str_base::str_base().
+   //! See detail::str_base::str_base().
    mstr(std::size_t cbEmbeddedCapacity) :
-      str_base(cbEmbeddedCapacity) {
+      detail::str_base(cbEmbeddedCapacity) {
    }
 
    /*! Replaces a single code point with another single code point.
@@ -1029,7 +1038,7 @@ protected:
 // Now these can be defined.
 
 inline istr::istr(mstr && s) :
-   str_base(0) {
+   detail::str_base(0) {
    assign_move_dynamic_or_move_items(std::move(s));
 }
 
@@ -1045,7 +1054,7 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::text::mstr> : public hash<abc::text::str_base> {};
+struct hash<abc::text::mstr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
@@ -1166,16 +1175,18 @@ public:
    }
 
 #if ABC_HOST_CXX_MSC
-   /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in str_base. See
-   str_base::operator istr const &(). */
+   /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in
+   detail::str_base. See detail::str_base::operator istr const &(). */
    operator istr const &() const {
-      return str_base::operator istr const &();
+      return detail::str_base::operator istr const &();
    }
 #endif //if ABC_HOST_CXX_MSC
 };
 
 
 // Now these can be defined.
+
+namespace detail {
 
 inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
    return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
@@ -1194,8 +1205,10 @@ inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) cons
    return dmstr(itBegin.base(), itEnd.base());
 }
 
+} //namespace detail
+
 inline istr::istr(dmstr && s) :
-   str_base(0) {
+   detail::str_base(0) {
    assign_move(std::move(s));
 }
 
@@ -1342,7 +1355,7 @@ namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::text::dmstr> : public hash<abc::text::str_base> {};
+struct hash<abc::text::dmstr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
@@ -1461,7 +1474,7 @@ namespace std {
 
 // Specialization of std::hash.
 template <std::size_t t_cchEmbeddedCapacity>
-struct hash<abc::text::smstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str_base> {};
+struct hash<abc::text::smstr<t_cchEmbeddedCapacity>> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 

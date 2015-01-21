@@ -558,7 +558,6 @@ class istr;
 class mstr;
 template <std::size_t t_cchEmbeddedCapacity>
 class smstr;
-class str_base;
 
 } //namespace text
 

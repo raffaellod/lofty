@@ -64,7 +64,7 @@ void str_to_str_backend::write(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::str_base
+// abc::text::detail::str_base
 
 namespace {
 
@@ -84,6 +84,7 @@ abc::collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
 
 namespace abc {
 namespace text {
+namespace detail {
 
 char_t const * str_base::_advance_char_ptr(
    char_t const * pch, std::ptrdiff_t i, bool bIndex
@@ -279,6 +280,7 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
    return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
 }
 
+} //namespace detail
 } //namespace text
 } //namespace abc
 
@@ -288,7 +290,9 @@ namespace std {
 <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 
 The bases are calculated by src/fnv_hash_basis.py. */
-std::size_t hash<abc::text::str_base>::operator()(abc::text::str_base const & s) const {
+std::size_t hash<abc::text::detail::str_base>::operator()(
+   abc::text::detail::str_base const & s
+) const {
    ABC_TRACE_FUNC(this, s);
 
    static_assert(

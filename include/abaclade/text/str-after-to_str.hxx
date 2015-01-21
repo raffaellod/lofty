@@ -124,12 +124,13 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::str_base
+// abc::to_str_backend – specialization for abc::text::detail::str_base
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<text::str_base> : public text::detail::str_to_str_backend {
+class ABACLADE_SYM to_str_backend<text::detail::str_base> :
+   public text::detail::str_to_str_backend {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -138,7 +139,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(text::str_base const & s, io::text::writer * ptwOut) {
+   void write(text::detail::str_base const & s, io::text::writer * ptwOut) {
       text::detail::str_to_str_backend::write(
          s.chars_begin(),
          reinterpret_cast<std::size_t>(s.chars_end()) -
@@ -156,16 +157,16 @@ public:
 namespace abc {
 
 template <>
-class to_str_backend<text::istr> : public to_str_backend<text::str_base> {};
+class to_str_backend<text::istr> : public to_str_backend<text::detail::str_base> {};
 
 template <>
-class to_str_backend<text::mstr> : public to_str_backend<text::str_base> {};
+class to_str_backend<text::mstr> : public to_str_backend<text::detail::str_base> {};
 
 template <>
-class to_str_backend<text::dmstr> : public to_str_backend<text::str_base> {};
+class to_str_backend<text::dmstr> : public to_str_backend<text::detail::str_base> {};
 
 template <std::size_t t_cchStatic>
-class to_str_backend<text::smstr<t_cchStatic>> : public to_str_backend<text::str_base> {};
+class to_str_backend<text::smstr<t_cchStatic>> : public to_str_backend<text::detail::str_base> {};
 
 } //namespace abc
 

@@ -29,7 +29,9 @@ namespace abc {
 namespace text {
 namespace detail {
 
-// Forward declaration.
+// Forward declarations.
+class str_base;
+
 template <bool t_bConst>
 class codepoint_iterator_impl;
 
@@ -258,7 +260,7 @@ protected:
       m_ps(ps) {
    }
 
-   //! Invokes m_ps->_advance_char_ptr(). See abc::text::str_base::_advance_char_ptr().
+   //! Invokes m_ps->_advance_char_ptr(). See str_base::_advance_char_ptr().
    char_t const * advance(std::ptrdiff_t i, bool bIndex) const;
 
    /*! Computes the distance from another iterator/pointer.
@@ -364,7 +366,7 @@ public:
    }
    codepoint_iterator(
       typename std::conditional<t_bConst, char_t const, char_t>::type * pch,
-      typename std::conditional<t_bConst, str_base const, str_base>::type * ps
+      typename std::conditional<t_bConst, detail::str_base const, detail::str_base>::type * ps
    ) :
       detail::codepoint_iterator_impl<t_bConst>(pch, ps) {
    }
