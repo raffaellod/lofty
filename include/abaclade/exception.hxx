@@ -346,6 +346,20 @@ public:
       virtual void write_extended_info(io::text::writer * ptwOut) const = 0;
    };
 
+   /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++
+   synchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
+
+   Note: this class uses global or thread-local variables for all its member variables, since their
+   types cannot be specified without #including a lot of files into this one. */
+   class ABACLADE_SYM fault_converter {
+   public:
+      //! Constructor.
+      fault_converter();
+
+      //! Destructor.
+      ~fault_converter();
+   };
+
 public:
    //! Related STL exception class.
    typedef std::exception related_std;
@@ -408,21 +422,6 @@ public:
    static void write_with_scope_trace(
       io::text::writer * ptwOut = nullptr, std::exception const * pstdx = nullptr
    );
-
-public:
-   /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++
-   synchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
-
-   Note: this class uses global or thread-local variables for all its member variables, since their
-   types cannot be specified without #including a lot of files into this one. */
-   class ABACLADE_SYM fault_converter {
-   public:
-      //! Constructor.
-      fault_converter();
-
-      //! Destructor.
-      ~fault_converter();
-   };
 
 protected:
    /*! String to be returned by what(). Derived classes can overwrite this instead of overriding the

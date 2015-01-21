@@ -76,12 +76,12 @@ void throw_after_fault(
 } //namespace
 
    #if ABC_HOST_API_MACH
-      #include "exception-fault_converter-mach.cxx"
+      #include "fault_converter-mach.cxx"
    #else
-      #include "exception-fault_converter-posix.cxx"
+      #include "fault_converter-posix.cxx"
    #endif
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   #include "exception-fault_converter-win32.cxx"
+   #include "fault_converter-win32.cxx"
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
