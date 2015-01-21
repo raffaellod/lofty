@@ -510,7 +510,6 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
 #endif //if ABC_HOST_CXX_MSC
-#include <climits> // CHAR_BIT *_MAX *_MIN
 #include <cstddef> // std::ptrdiff_t std::size_t
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)

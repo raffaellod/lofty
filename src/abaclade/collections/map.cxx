@@ -20,6 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/collections/map.hxx>
 
+#include <climits> // CHAR_BIT
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::collections::detail::map_impl

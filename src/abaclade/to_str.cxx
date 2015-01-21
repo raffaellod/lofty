@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/numeric.hxx>
 
 #include <algorithm>
+#include <climits> // CHAR_BIT
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

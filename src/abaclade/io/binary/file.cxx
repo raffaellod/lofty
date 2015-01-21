@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include "detail/file_init_data.hxx"
 
 #include <algorithm> // std::min()
+#include <climits> // CHAR_BIT
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
    #include <sys/poll.h> // pollfd poll()
