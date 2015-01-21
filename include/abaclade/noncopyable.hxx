@@ -28,13 +28,17 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 //! Makes a derived class not copyable.
-class ABACLADE_SYM noncopyable {
+class noncopyable {
 protected:
+   //! Constructor. Protected to prevent instantiations of this class as-is.
    noncopyable() {
    }
 
+   //! Destructor. Protected to deter using this class as a polymorphic base.
+   ~noncopyable() {
+   }
+
 #ifdef ABC_CXX_FUNC_DELETE
-protected:
    noncopyable(noncopyable const &) = delete;
    noncopyable & operator=(noncopyable const &) = delete;
 #else //ifdef ABC_CXX_FUNC_DELETE
