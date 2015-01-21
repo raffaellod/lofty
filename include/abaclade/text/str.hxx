@@ -30,7 +30,7 @@ namespace text {
 namespace detail {
 
 /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
-abc::*str instance. */
+abc::text::*str instance. */
 class c_str_ptr {
 private:
    //! Internal conditionally-deleting pointer type.
@@ -107,7 +107,7 @@ struct external_buffer_t {
    }
 };
 
-/*! Constant similar in use to std::nothrow; when specified as extra argument for abc::*str
+/*! Constant similar in use to std::nothrow; when specified as extra argument for abc::text::*str
 constructors, it indicates that the string should use an external buffer that is guaranteed by the
 caller to have a scope lifetime equal or longer than that of the string. */
 extern ABACLADE_SYM external_buffer_t const external_buffer;
@@ -127,8 +127,8 @@ class dmstr;
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
 
-See [DOC:4019 abc::*str and abc::collections::*vector design] for implementation details for this
-and all the abc::*str classes. */
+See [DOC:4019 abc::text::*str and abc::collections::*vector design] for implementation details for
+this and all the abc::text::*str classes. */
 class ABACLADE_SYM str_base :
    protected collections::detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str_base> {
@@ -508,11 +508,11 @@ public:
    /*! Returns a portion of the string.
 
    @param ichBegin
-      Index of the first character of the substring. See abc::str_base::translate_range() for
-      allowed begin index values.
+      Index of the first character of the substring. See str_base::translate_range() for allowed
+      begin index values.
    @param ichEnd
-      Index of the last character of the substring, exclusive. See abc::str_base::translate_range()
-      for allowed end index values.
+      Index of the last character of the substring, exclusive. See str_base::translate_range() for
+      allowed end index values.
    @param itBegin
       Iterator to the first character of the substring.
    @param itEnd

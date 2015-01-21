@@ -314,9 +314,9 @@ ABC_TESTING_TEST_CASE_FUNC(str_replace, "abc::text::*str classes – character r
    ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('b', 'c'), s), ABC_SL("aaa"));
    // Simple ASCII-to-ASCII replacement: no size change.
    ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('a', 'b'), s), ABC_SL("bbb"));
-   // Complex ASCII-to-char32_t replacement: size will increase beyond the embedded capacity, so
-   // the iterator used in abc::mstr::replace() must be intelligent enough to self-refresh with
-   // the new descriptor.
+   /* Complex ASCII-to-char32_t replacement: size will increase beyond the embedded capacity, so the
+   iterator used in abc::text::mstr::replace() must be intelligent enough to self-refresh with the
+   new descriptor. */
    ABC_TESTING_ASSERT_EQUAL(
       ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
       istr::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
@@ -404,7 +404,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(istr_c_str, "abc::istr – C string extraction") {
+ABC_TESTING_TEST_CASE_FUNC(istr_c_str, "abc::text::istr – C string extraction") {
    ABC_TRACE_FUNC(this);
 
    istr s;
@@ -445,7 +445,7 @@ ABC_TESTING_TEST_CASE_FUNC(istr_c_str, "abc::istr – C string extraction") {
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(mstr_c_str, "abc::mstr – C string extraction") {
+ABC_TESTING_TEST_CASE_FUNC(mstr_c_str, "abc::text::mstr – C string extraction") {
    ABC_TRACE_FUNC(this);
 
    dmstr s;

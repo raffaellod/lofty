@@ -101,7 +101,7 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::*vector
+// abc::to_str_backend – specialization for abc::collections::*vector
 
 namespace abc {
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -33,7 +33,7 @@ namespace detail {
 template <bool t_bConst>
 class codepoint_iterator_impl;
 
-//! Exposes a abc::char_t * as a char32_t &.
+//! Exposes a abc::text::char_t * as a char32_t &.
 template <bool t_bConst>
 class codepoint_proxy;
 
@@ -258,7 +258,7 @@ protected:
       m_ps(ps) {
    }
 
-   //! Invokes m_ps->_advance_char_ptr(). See abc::str_base::_advance_char_ptr().
+   //! Invokes m_ps->_advance_char_ptr(). See abc::text::str_base::_advance_char_ptr().
    char_t const * advance(std::ptrdiff_t i, bool bIndex) const;
 
    /*! Computes the distance from another iterator/pointer.

@@ -22,11 +22,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-/*! DOC:4019 abc::*str and abc::collections::*vector design
+/*! DOC:4019 abc::text::*str and abc::collections::*vector design
 
-abc::*str and abc::collections::*vectors are intelligent wrappers around C arrays; they are able to
-dynamically adjust the size of the underlying array, while also taking advantage of an optional
-fixed-size array embedded into the string/vector object.
+The classes abc::text::*str and abc::collections::*vectors are intelligent wrappers around C arrays;
+they are able to dynamically adjust the size of the underlying array, while also taking advantage of
+an optional fixed-size array embedded into the string/vector object.
 
 Data-wise, the implementation stores two pointers, one to the first item and one to beyond the last
 item, instead of the more common start pointer/length pair of variables. This makes checking an
@@ -232,7 +232,7 @@ namespace collections {
 namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see [DOC:4019 abc::*str and abc::collections::*vector
+array in the “upper level” hierarchy (see [DOC:4019 abc::text::*str and abc::collections::*vector
 design]), and used with template capacity == 1 for all non-template-driven manipulations in non-
 template code in the “lower-level” hierarchy, which relies on m_cbCapacity instead. */
 template <typename T, std::size_t t_ciEmbeddedCapacity>
@@ -831,7 +831,7 @@ public:
    }
 
    /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::*str and
+   non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::text::*str and
    abc::collections::*vector design] to see how str and vector ensure this.
 
    @param rtvi

@@ -69,11 +69,11 @@ void str_to_str_backend::write(
 namespace {
 
 //! Single NUL terminator.
-abc::char_t const gc_chNul('\0');
+abc::text::char_t const gc_chNul('\0');
 
 abc::collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
-   /*m_pBegin*/ const_cast<abc::char_t *>(&gc_chNul),
-   /*m_pEnd*/ const_cast<abc::char_t *>(&gc_chNul),
+   /*m_pBegin*/ const_cast<abc::text::char_t *>(&gc_chNul),
+   /*m_pEnd*/ const_cast<abc::text::char_t *>(&gc_chNul),
    /*mc_bEmbeddedPrefixedItemArray*/ false,
    /*m_bPrefixedItemArray*/ false,
    /*m_bDynamic*/ false,

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -32,14 +32,15 @@ Abaclade on non-compliant compilers such as MSC16) is the preferred character ty
 this means that the full range of valid Unicode code points is supported through the entire
 framework.
 
-Abaclade-based code should use one of the abc::*str string classes; these appear as arrays of
+Abaclade-based code should use one of the abc::text::*str string classes; these appear as arrays of
 char32_t characters and can be manipulated as such. The internal representation is in reality either
 UTF-8 or UTF-16, but this is for the most part abstracted away from Abaclade-based code.
 
 While char32_t is the preferred character type, many functions/methods are available with overloads
 accepting C++ single-byte character literals, both for convenience and performance reasons. The
-character type used internally by the abc::*str classes is available as abc::char_t, and the class
-abc::text::str_traits allows lower-level manipulation of abc::char_t character arrays.
+character type used internally by the abc::text::*str classes is available as abc::text::char_t, and
+the class abc::text::str_traits allows lower-level manipulation of abc::text::char_t character
+arrays.
 
 
 Abaclade supports two ways of specifying character literals: strictly ASCII, via regular single-

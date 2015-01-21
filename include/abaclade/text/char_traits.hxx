@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -237,8 +237,8 @@ public:
 namespace abc {
 namespace text {
 
-/*! String traits for the host character type, abc::char_t. Derives from either utf8_char_traits or
-utf16_char_traits. */
+/*! String traits for the host character type, abc::text::char_t. Derives from either
+utf8_char_traits or utf16_char_traits. */
 class ABACLADE_SYM host_char_traits :
 #if ABC_HOST_UTF == 8
    public utf8_char_traits {
