@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -310,7 +310,7 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 ) {
    std::size_t cch = text::size_in_chars(cs.m_psz);
    text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
-   detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
+   text::detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
 }
 
 } //namespace abc

@@ -551,9 +551,22 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 
 namespace abc {
 
-class str_base;
-class istr;
+namespace text {
+
 class dmstr;
+class istr;
+class mstr;
+template <std::size_t t_cchEmbeddedCapacity>
+class smstr;
+class str_base;
+
+} //namespace text
+
+using text::char_t;
+using text::dmstr;
+using text::istr;
+using text::mstr;
+using text::smstr;
 
 namespace io {
 namespace text {
@@ -562,6 +575,7 @@ class writer;
 
 } //namespace text
 } //namespace io
+
 } //namespace abc
 
 #ifdef ABC_STLIMPL

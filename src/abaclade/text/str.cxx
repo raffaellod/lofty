@@ -30,9 +30,10 @@ external_buffer_t const external_buffer;
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::str_to_str_backend
+// abc::text::detail::str_to_str_backend
 
 namespace abc {
+namespace text {
 namespace detail {
 
 void str_to_str_backend::set_format(istr const & sFormat) {
@@ -51,7 +52,7 @@ void str_to_str_backend::set_format(istr const & sFormat) {
 }
 
 void str_to_str_backend::write(
-   void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut
+   void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut
 ) {
    ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
 
@@ -59,10 +60,11 @@ void str_to_str_backend::write(
 }
 
 } //namespace detail
+} //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_base
+// abc::text::str_base
 
 namespace {
 
@@ -81,6 +83,7 @@ abc::collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
 } //namespace
 
 namespace abc {
+namespace text {
 
 char_t const * str_base::_advance_char_ptr(
    char_t const * pch, std::ptrdiff_t i, bool bIndex
@@ -93,12 +96,12 @@ char_t const * str_base::_advance_char_ptr(
    // If i is positive, move forward.
    for (; i > 0 && pch < pchEnd; --i) {
       // Find the next code point start, skipping any trail characters.
-      pch += text::host_char_traits::lead_char_to_codepoint_size(*pch);
+      pch += host_char_traits::lead_char_to_codepoint_size(*pch);
    }
    // If i is negative, move backwards.
    for (; i < 0 && pch > pchBegin; ++i) {
       // Moving to the previous code point requires finding the previous non-trail character.
-      while (text::host_char_traits::is_trail_char(*--pch)) {
+      while (host_char_traits::is_trail_char(*--pch)) {
          ;
       }
    }
@@ -136,12 +139,12 @@ detail::c_str_ptr str_base::c_str() const {
    }
 }
 
-collections::dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bNulT) const {
+collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
    collections::dmvector<std::uint8_t> vb;
    std::size_t cbChar, cbUsed, cbStr = size_in_bytes();
-   if (enc == abc::text::encoding::host) {
+   if (enc == encoding::host) {
       // Optimal case: no transcoding necessary.
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
@@ -153,17 +156,15 @@ collections::dmvector<std::uint8_t> str_base::encode(text::encoding enc, bool bN
       );
       cbUsed = cbStr;
    } else {
-      cbChar = text::get_encoding_size(enc);
+      cbChar = get_encoding_size(enc);
       void const * pStr = chars_begin();
       // Calculate the size required, then resize vb accorgingly.
-      cbUsed = abc::text::transcode(true, abc::text::encoding::host, &pStr, &cbStr, enc);
+      cbUsed = transcode(true, encoding::host, &pStr, &cbStr, enc);
       vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
       // Transcode the string into vb.
       void * pBuf = vb.begin().base();
       // Re-assign to cbUsed because transcode() will set *(&cbUsed) to 0.
-      cbUsed = abc::text::transcode(
-         true, abc::text::encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed
-      );
+      cbUsed = transcode(true, encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed);
    }
    if (bNulT) {
       memory::clear(vb.begin().base() + cbUsed, cbChar);
@@ -178,7 +179,7 @@ bool str_base::ends_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchStart = chars_end() - s.size_in_chars();
-   return pchStart >= chars_begin() && text::str_traits::compare(
+   return pchStart >= chars_begin() && str_traits::compare(
       pchStart, chars_end(), s.chars_begin(), s.chars_end()
    ) == 0;
 }
@@ -187,19 +188,19 @@ str_base::const_iterator str_base::find(char_t chNeedle, const_iterator itWhence
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
+   return const_iterator(str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
 }
 str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
+   return const_iterator(str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
 }
 str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_substr(
+   return const_iterator(str_traits::find_substr(
       itWhence.base(), chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
    ), this);
 }
@@ -208,7 +209,7 @@ str_base::const_iterator str_base::find_last(char_t chNeedle, const_iterator itW
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_char_last(
+   return const_iterator(str_traits::find_char_last(
       chars_begin(), itWhence.base(), chNeedle
    ), this);
 }
@@ -216,7 +217,7 @@ str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator i
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_char_last(
+   return const_iterator(str_traits::find_char_last(
       chars_begin(), itWhence.base(), chNeedle
    ), this);
 }
@@ -224,7 +225,7 @@ str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterato
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(text::str_traits::find_substr_last(
+   return const_iterator(str_traits::find_substr_last(
       chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
    ), this);
 }
@@ -233,7 +234,7 @@ bool str_base::starts_with(istr const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchEnd = chars_begin() + s.size_in_chars();
-   return pchEnd <= chars_end() && text::str_traits::compare(
+   return pchEnd <= chars_end() && str_traits::compare(
       chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
    ) == 0;
 }
@@ -278,6 +279,7 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
    return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
 }
 
+} //namespace text
 } //namespace abc
 
 namespace std {
@@ -286,7 +288,7 @@ namespace std {
 <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 
 The bases are calculated by src/fnv_hash_basis.py. */
-std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
+std::size_t hash<abc::text::str_base>::operator()(abc::text::str_base const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    static_assert(
@@ -314,19 +316,22 @@ std::size_t hash<abc::str_base>::operator()(abc::str_base const & s) const {
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::istr
+// abc::text::istr
 
 namespace abc {
+namespace text {
 
 // Can’t use static_cast<>() due to str_base being a protected base.
 istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
 
+} //namespace text
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::mstr
+// abc::text::mstr
 
 namespace abc {
+namespace text {
 
 void mstr::replace(char_t chSearch, char_t chReplacement) {
    ABC_TRACE_FUNC(this, chSearch, chReplacement);
@@ -351,8 +356,7 @@ void mstr::replace(char32_t chSearch, char32_t chReplacement) {
 void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   std::size_t cbRemove =
-      sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
    std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
    collections::detail::raw_trivial_vextr_impl::insert_remove(
       ich, nullptr, sizeof(char_t), cbRemove
@@ -365,9 +369,8 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
 void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
-   std::size_t cbInsert = sizeof(char_t) * text::host_char_traits::codepoint_size(chNew);
-   std::size_t cbRemove =
-      sizeof(char_t) * text::host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(chNew);
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
    std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
    collections::detail::raw_trivial_vextr_impl::insert_remove(
       sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
@@ -376,7 +379,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    pch = chars_begin() + ich;
    // At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
    // that there’s nothing that could go wrong here leaving us in an inconsistent state.
-   text::host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
+   host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
 }
 
 void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
@@ -395,6 +398,7 @@ void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)
    set_size_in_chars(cchRet);
 }
 
+} //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

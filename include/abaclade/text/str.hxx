@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::c_str_ptr
+// abc::text::detail::c_str_ptr
 
 namespace abc {
+namespace text {
 namespace detail {
 
 /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
@@ -91,6 +92,7 @@ private:
 };
 
 } //namespace detail
+} //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +115,10 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::str_base
+// abc::text::str_base
 
 namespace abc {
+namespace text {
 
 // Forward declarations.
 class istr;
@@ -137,8 +140,8 @@ public:
    typedef char_t const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-   typedef text::codepoint_iterator<false> iterator;
-   typedef text::codepoint_iterator<true> const_iterator;
+   typedef codepoint_iterator<false> iterator;
+   typedef codepoint_iterator<true> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -158,8 +161,8 @@ public:
    @return
       Character at index i.
    */
-   text::detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
-      return text::detail::codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
+   detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
+      return detail::codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
    /*! Returns true if the length is greater than 0.
@@ -287,7 +290,7 @@ public:
    @return
       Resulting byte vector.
    */
-   collections::dmvector<std::uint8_t> encode(text::encoding enc, bool bNulT) const;
+   collections::dmvector<std::uint8_t> encode(encoding enc, bool bNulT) const;
 
    /*! Returns a forward iterator set beyond the last element.
 
@@ -324,7 +327,7 @@ public:
    }
 #if ABC_HOST_UTF > 8
    const_iterator find(char chNeedle) const {
-      return find(text::host_char(chNeedle));
+      return find(host_char(chNeedle));
    }
 #endif
    const_iterator find(char32_t chNeedle) const {
@@ -333,7 +336,7 @@ public:
    const_iterator find(char_t chNeedle, const_iterator itWhence) const;
 #if ABC_HOST_UTF > 8
    const_iterator find(char chNeedle, const_iterator itWhence) const {
-      return find(text::host_char(chNeedle), itWhence);
+      return find(host_char(chNeedle), itWhence);
    }
 #endif
    const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
@@ -359,7 +362,7 @@ public:
    }
 #if ABC_HOST_UTF > 8
    const_iterator find_last(char chNeedle) const {
-      return find_last(text::host_char(chNeedle));
+      return find_last(host_char(chNeedle));
    }
 #endif
    const_iterator find_last(char32_t chNeedle) const {
@@ -368,7 +371,7 @@ public:
    const_iterator find_last(char_t chNeedle, const_iterator itWhence) const;
 #if ABC_HOST_UTF > 8
    const_iterator find_last(char chNeedle, const_iterator itWhence) const {
-      return find_last(text::host_char(chNeedle), itWhence);
+      return find_last(host_char(chNeedle), itWhence);
    }
 #endif
    const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
@@ -445,7 +448,7 @@ public:
       undefined.
    */
    std::size_t index_from_char_index(std::size_t ich) const {
-      return text::str_traits::size_in_codepoints(chars_begin(), chars_begin() + ich);
+      return str_traits::size_in_codepoints(chars_begin(), chars_begin() + ich);
    }
 
    /*! Returns a reverse iterator set to the last element.
@@ -472,7 +475,7 @@ public:
       Size of the string.
    */
    std::size_t size() const {
-      return text::str_traits::size_in_codepoints(chars_begin(), chars_end());
+      return str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
 
    /*! Returns size of the string, in bytes.
@@ -636,19 +639,19 @@ protected:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    inline bool operator op(str_base const & s1, str_base const & s2) { \
-      return text::str_traits::compare( \
+      return str_traits::compare( \
          s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
       ) op 0; \
    } \
    template <std::size_t t_cch> \
    inline bool operator op(str_base const & s, char_t const (& ach)[t_cch]) { \
       char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return text::str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
+      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
    } \
    template <std::size_t t_cch> \
    inline bool operator op(char_t const (& ach)[t_cch], str_base const & s) { \
       char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return text::str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
+      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -658,22 +661,24 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
+} //namespace text
 } //namespace abc
 
 namespace std {
 
 // Specialization of std::hash.
 template <>
-struct ABACLADE_SYM hash<abc::str_base> {
-   std::size_t operator()(abc::str_base const & s) const;
+struct ABACLADE_SYM hash<abc::text::str_base> {
+   std::size_t operator()(abc::text::str_base const & s) const;
 };
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::istr
+// abc::text::istr
 
 namespace abc {
+namespace text {
 
 // Forward declaration.
 class mstr;
@@ -769,30 +774,30 @@ inline str_base::operator istr const &() const {
    return *static_cast<istr const *>(this);
 }
 
+} //namespace text
 } //namespace abc
 
 namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::istr> : public hash<abc::str_base> {};
+struct hash<abc::text::istr> : public hash<abc::text::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::mstr
+// abc::text::mstr
 
 namespace abc {
+namespace text {
 
 /*! str_base-derived class, to be used as argument type for functions that want to modify a string
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
 are automatically converted to this. */
 class ABACLADE_SYM mstr : public str_base {
 private:
-   friend text::detail::codepoint_proxy<false> &
-      text::detail::codepoint_proxy<false>::operator=(char_t ch);
-   friend text::detail::codepoint_proxy<false> &
-      text::detail::codepoint_proxy<false>::operator=(char32_t ch);
+   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
+   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
    /*! Assignment operator.
@@ -832,14 +837,12 @@ public:
    }
 #if ABC_HOST_UTF > 8
    mstr & operator+=(char ch) {
-      return operator+=(text::host_char(ch));
+      return operator+=(host_char(ch));
    }
 #endif
    mstr & operator+=(char32_t ch) {
-      char_t ach[text::host_char_traits::max_codepoint_length];
-      append(ach, static_cast<std::size_t>(
-         text::host_char_traits::codepoint_to_chars(ch, ach) - ach
-      ));
+      char_t ach[host_char_traits::max_codepoint_length];
+      append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
    mstr & operator+=(istr const & s) {
@@ -900,14 +903,14 @@ public:
    }
 #if ABC_HOST_UTF > 8
    void insert(std::size_t ichOffset, char ch) {
-      insert(ichOffset, text::host_char(ch));
+      insert(ichOffset, host_char(ch));
    }
 #endif
    void insert(std::size_t ichOffset, char32_t ch) {
-      char_t ach[text::host_char_traits::max_codepoint_length];
+      char_t ach[host_char_traits::max_codepoint_length];
       insert(
          ichOffset, ach,
-         static_cast<std::size_t>(text::host_char_traits::codepoint_to_chars(ch, ach) - ach)
+         static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach)
       );
    }
    void insert(std::size_t ichOffset, istr const & s) {
@@ -945,7 +948,7 @@ public:
    void replace(char_t chSearch, char_t chReplacement);
 #if ABC_HOST_UTF > 8
    void replace(char chSearch, char chReplacement) {
-      replace(text::host_char(chSearch), text::host_char(chReplacement));
+      replace(host_char(chSearch), host_char(chReplacement));
    }
 #endif
    void replace(char32_t chSearch, char32_t chReplacement);
@@ -1016,7 +1019,7 @@ protected:
    void _replace_codepoint(char_t * pch, char_t chNew);
 #if ABC_HOST_UTF > 8
    void _replace_codepoint(char_t * pch, char chNew) {
-      _replace_codepoint(pch, text::host_char(chNew));
+      _replace_codepoint(pch, host_char(chNew));
    }
 #endif
    void _replace_codepoint(char_t * pch, char32_t chNew);
@@ -1035,20 +1038,22 @@ inline istr & istr::operator=(mstr && s) {
    return *this;
 }
 
+} //namespace text
 } //namespace abc
 
 namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::mstr> : public hash<abc::str_base> {};
+struct hash<abc::text::mstr> : public hash<abc::text::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::dmstr
+// abc::text::dmstr
 
 namespace abc {
+namespace text {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings whose length is
 unknown at design time. */
@@ -1204,8 +1209,6 @@ inline mstr & mstr::operator=(dmstr && s) {
    return *this;
 }
 
-} //namespace abc
-
 
 /*! Concatenation operator.
 
@@ -1220,132 +1223,134 @@ inline mstr & mstr::operator=(dmstr && s) {
 @return
    Resulting string.
 */
-inline abc::dmstr operator+(abc::istr const & sL, abc::istr const & sR) {
-   return abc::dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
+inline dmstr operator+(istr const & sL, istr const & sR) {
+   return dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
 // Overloads taking a character literal.
-inline abc::dmstr operator+(abc::istr const & sL, abc::char_t chR) {
-   return abc::dmstr(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
+inline dmstr operator+(istr const & sL, char_t chR) {
+   return dmstr(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
 }
 #if ABC_HOST_UTF > 8
-inline abc::dmstr operator+(abc::istr const & sL, char chR) {
-   return operator+(sL, abc::text::host_char(chR));
+inline dmstr operator+(istr const & sL, char chR) {
+   return operator+(sL, host_char(chR));
 }
 #endif
-inline abc::dmstr operator+(abc::istr const & sL, char32_t chR) {
-   abc::char_t achR[abc::text::host_char_traits::max_codepoint_length];
-   return abc::dmstr(
-      sL.chars_begin(), sL.chars_end(),
-      achR, abc::text::host_char_traits::codepoint_to_chars(chR, achR)
+inline dmstr operator+(istr const & sL, char32_t chR) {
+   char_t achR[host_char_traits::max_codepoint_length];
+   return dmstr(
+      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
    );
 }
-inline abc::dmstr operator+(abc::char_t chL, abc::istr const & sR) {
-   return abc::dmstr(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
+inline dmstr operator+(char_t chL, istr const & sR) {
+   return dmstr(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
 }
 #if ABC_HOST_UTF > 8
-inline abc::dmstr operator+(char chL, abc::istr const & sR) {
-   return operator+(abc::text::host_char(chL), sR);
+inline dmstr operator+(char chL, istr const & sR) {
+   return operator+(host_char(chL), sR);
 }
 #endif
-inline abc::dmstr operator+(char32_t chL, abc::istr const & sR) {
-   abc::char_t achL[abc::text::host_char_traits::max_codepoint_length];
-   return abc::dmstr(
-      achL, abc::text::host_char_traits::codepoint_to_chars(chL, achL),
+inline dmstr operator+(char32_t chL, istr const & sR) {
+   char_t achL[host_char_traits::max_codepoint_length];
+   return dmstr(
+      achL, host_char_traits::codepoint_to_chars(chL, achL),
       sR.chars_begin(), sR.chars_end()
    );
 }
 // Overloads taking a temporary string as left or right operand; they can avoid creating an
 // intermediate string.
-inline abc::dmstr operator+(abc::istr && sL, abc::char_t chR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(istr && sL, char_t chR) {
+   dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(abc::char_t chL, abc::istr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(char_t chL, istr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, chL);
    return std::move(dmsR);
 }*/
 #if ABC_HOST_UTF > 8
-inline abc::dmstr operator+(abc::istr && sL, char chR) {
-   return operator+(std::move(sL), abc::text::host_char(chR));
+inline dmstr operator+(istr && sL, char chR) {
+   return operator+(std::move(sL), host_char(chR));
 }
-/*inline abc::dmstr operator+(char chL, abc::istr && sR) {
-   return operator+(abc::text::host_char(chL), std::move(sR));
+/*inline dmstr operator+(char chL, istr && sR) {
+   return operator+(host_char(chL), std::move(sR));
 }*/
 #endif
-inline abc::dmstr operator+(abc::istr && sL, char32_t chR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(istr && sL, char32_t chR) {
+   dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(char32_t chL, abc::istr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(char32_t chL, istr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, chL);
    return std::move(dmsR);
 }*/
-inline abc::dmstr operator+(abc::istr && sL, abc::istr const & sR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(istr && sL, istr const & sR) {
+   dmstr dmsL(std::move(sL));
    dmsL += sR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(abc::istr const & sL, abc::istr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(istr const & sL, istr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, sL);
    return std::move(dmsR);
 }*/
-inline abc::dmstr operator+(abc::mstr && sL, abc::char_t chR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(mstr && sL, char_t chR) {
+   dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(abc::char_t chL, abc::mstr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(char_t chL, mstr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, chL);
    return std::move(dmsR);
 }*/
 #if ABC_HOST_UTF > 8
-inline abc::dmstr operator+(abc::mstr && sL, char chR) {
-   return operator+(std::move(sL), abc::text::host_char(chR));
+inline dmstr operator+(mstr && sL, char chR) {
+   return operator+(std::move(sL), host_char(chR));
 }
-/*inline abc::dmstr operator+(char chL, abc::mstr && sR) {
-   return operator+(abc::text::host_char(chL), std::move(sR));
+/*inline dmstr operator+(char chL, mstr && sR) {
+   return operator+(host_char(chL), std::move(sR));
 }*/
 #endif
-inline abc::dmstr operator+(abc::mstr && sL, char32_t chR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(mstr && sL, char32_t chR) {
+   dmstr dmsL(std::move(sL));
    dmsL += chR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(char32_t chL, abc::mstr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(char32_t chL, mstr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, chL);
    return std::move(dmsR);
 }*/
-inline abc::dmstr operator+(abc::mstr && sL, abc::istr const & sR) {
-   abc::dmstr dmsL(std::move(sL));
+inline dmstr operator+(mstr && sL, istr const & sR) {
+   dmstr dmsL(std::move(sL));
    dmsL += sR;
    return std::move(dmsL);
 }
-/*inline abc::dmstr operator+(abc::istr const & sL, abc::mstr && sR) {
-   abc::dmstr dmsR(std::move(sR));
+/*inline dmstr operator+(istr const & sL, mstr && sR) {
+   dmstr dmsR(std::move(sR));
    dmsR.insert(0, sL);
    return std::move(dmsR);
 }*/
 
+} //namespace text
+} //namespace abc
 
 namespace std {
 
 // Specialization of std::hash.
 template <>
-struct hash<abc::dmstr> : public hash<abc::str_base> {};
+struct hash<abc::text::dmstr> : public hash<abc::text::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::smstr
+// abc::text::smstr
 
 namespace abc {
+namespace text {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size. */
@@ -1449,13 +1454,14 @@ public:
    }
 };
 
+} //namespace text
 } //namespace abc
 
 namespace std {
 
 // Specialization of std::hash.
 template <std::size_t t_cchEmbeddedCapacity>
-struct hash<abc::smstr<t_cchEmbeddedCapacity>> : public hash<abc::str_base> {};
+struct hash<abc::text::smstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str_base> {};
 
 } //namespace std
 

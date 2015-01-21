@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -130,6 +130,7 @@ typedef char char8_t;
 #endif
 
 namespace abc {
+namespace text {
 
 /*! Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
 characters types.
@@ -142,6 +143,7 @@ selection logic for abc::text::encoding::host to provide the corresponding UTF e
    typedef char16_t char_t;
 #endif
 
+} //namespace text
 } //namespace abc
 
 

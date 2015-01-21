@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -23,9 +23,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::str_to_str_backend
+// abc::text::detail::str_to_str_backend
 
 namespace abc {
+namespace text {
 namespace detail {
 
 /*! Base class for the specializations of to_str_backend for string types. Not using templates, so
@@ -52,10 +53,11 @@ protected:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(void const * p, std::size_t cb, text::encoding enc, io::text::writer * ptwOut);
+   void write(void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut);
 };
 
 } //namespace detail
+} //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +68,7 @@ namespace abc {
 #define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
    /*! Character literal. */ \
    template <> \
-   class to_str_backend<C> : public detail::str_to_str_backend { \
+   class to_str_backend<C> : public text::detail::str_to_str_backend { \
    public: \
       /*! Writes a character, applying the formatting options.
 
@@ -76,13 +78,13 @@ namespace abc {
          Pointer to the writer to output to.
       */ \
       void write(C ch, io::text::writer * ptwOut) { \
-         detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
+         text::detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
       } \
    }; \
    \
    /*! String literal. */ \
    template <std::size_t t_cch> \
-   class to_str_backend<C [t_cch]> : public detail::str_to_str_backend { \
+   class to_str_backend<C [t_cch]> : public text::detail::str_to_str_backend { \
    public: \
       /*! Writes a string, applying the formatting options.
 
@@ -95,7 +97,9 @@ namespace abc {
          ABC_ASSERT( \
             ach[t_cch - 1 /*NUL*/] == '\0', ABC_SL("string literal must be NUL-terminated") \
          ); \
-         detail::str_to_str_backend::write(ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut); \
+         text::detail::str_to_str_backend::write( \
+            ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut \
+         ); \
       } \
    }; \
    \
@@ -120,12 +124,12 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::str_base
+// abc::to_str_backend – specialization for abc::text::str_base
 
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<str_base> : public detail::str_to_str_backend {
+class ABACLADE_SYM to_str_backend<text::str_base> : public text::detail::str_to_str_backend {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -134,8 +138,8 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(str_base const & s, io::text::writer * ptwOut) {
-      detail::str_to_str_backend::write(
+   void write(text::str_base const & s, io::text::writer * ptwOut) {
+      text::detail::str_to_str_backend::write(
          s.chars_begin(),
          reinterpret_cast<std::size_t>(s.chars_end()) -
             reinterpret_cast<std::size_t>(s.chars_begin()),
@@ -147,21 +151,21 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::*str
+// abc::to_str_backend – specialization for abc::text::*str
 
 namespace abc {
 
 template <>
-class to_str_backend<istr> : public to_str_backend<str_base> {};
+class to_str_backend<text::istr> : public to_str_backend<text::str_base> {};
 
 template <>
-class to_str_backend<mstr> : public to_str_backend<str_base> {};
+class to_str_backend<text::mstr> : public to_str_backend<text::str_base> {};
 
 template <>
-class to_str_backend<dmstr> : public to_str_backend<str_base> {};
+class to_str_backend<text::dmstr> : public to_str_backend<text::str_base> {};
 
 template <std::size_t t_cchStatic>
-class to_str_backend<smstr<t_cchStatic>> : public to_str_backend<str_base> {};
+class to_str_backend<text::smstr<t_cchStatic>> : public to_str_backend<text::str_base> {};
 
 } //namespace abc
 
