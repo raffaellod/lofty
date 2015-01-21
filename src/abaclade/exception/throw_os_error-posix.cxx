@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception
+// abc::exception::throw_os_error()
 
 namespace abc {
 
