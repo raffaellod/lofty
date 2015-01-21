@@ -71,8 +71,6 @@ implementation. */
 (header) file more than once, speeding up compilation. */
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    #define ABC_CXX_PRAGMA_ONCE
-   // Use it now for this file.
-   #pragma once
 #endif
 
 /*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing

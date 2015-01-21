@@ -280,6 +280,11 @@ supported type traits. */
 
 #include <abaclade/detail/host-cxx-compat.hxx>
 
+// If #pragma once is supported, use it now for this file.
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – extended features that can take advantage of C++11 or fallback to still-functional
 // alternatives, plus a few compiler-specific STL fixes
