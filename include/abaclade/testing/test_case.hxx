@@ -64,7 +64,7 @@ public:
    virtual istr title() = 0;
 
 protected:
-   /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW.
+   /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW().
 
    @param srcloc
       Location of the expression.
@@ -77,7 +77,7 @@ protected:
       source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
    );
 
-   /*! Implementation of ABC_TESTING_ASSERT_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_EQUAL().
 
    @param srcloc
       Location of the expression.
@@ -102,7 +102,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_FALSE.
+   /*! Implementation of ABC_TESTING_ASSERT_FALSE().
 
    @param srcloc
       Location of the expression.
@@ -113,7 +113,7 @@ protected:
    */
    void assert_false(source_location const & srcloc, bool bActual, istr const & sExpr);
 
-   /*! Implementation of ABC_TESTING_ASSERT_GREATER.
+   /*! Implementation of ABC_TESTING_ASSERT_GREATER().
 
    @param srcloc
       Location of the expression.
@@ -138,7 +138,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL().
 
    @param srcloc
       Location of the expression.
@@ -163,7 +163,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_LESS.
+   /*! Implementation of ABC_TESTING_ASSERT_LESS().
 
    @param srcloc
       Location of the expression.
@@ -188,7 +188,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_LESS_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_LESS_EQUAL().
 
    @param srcloc
       Location of the expression.
@@ -213,7 +213,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_NOT_EQUAL.
+   /*! Implementation of ABC_TESTING_ASSERT_NOT_EQUAL().
 
    @param srcloc
       Location of the expression.
@@ -238,7 +238,7 @@ protected:
       );
    }
 
-   /*! Implementation of ABC_TESTING_ASSERT_THROWS.
+   /*! Implementation of ABC_TESTING_ASSERT_THROWS().
 
    @param srcloc
       Location of the expression.
@@ -256,7 +256,7 @@ protected:
       std::function<bool (std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
    );
 
-   /*! Implementation of ABC_TESTING_ASSERT_TRUE.
+   /*! Implementation of ABC_TESTING_ASSERT_TRUE().
 
    @param srcloc
       Location of the expression.
