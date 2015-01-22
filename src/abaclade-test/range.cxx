@@ -28,33 +28,22 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class range_basic : public testing::test_case {
-public:
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return ABC_SL("abc::range – basic operations");
-   }
+ABC_TESTING_TEST_CASE_FUNC(range_basic, "abc::range – basic operations") {
+   ABC_TRACE_FUNC(this);
 
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
+   range<int> r1;
+   ABC_TESTING_ASSERT_EQUAL(r1.size(), 0u);
+   ABC_TESTING_ASSERT_FALSE(r1.contains(-1));
+   ABC_TESTING_ASSERT_FALSE(r1.contains(0));
+   ABC_TESTING_ASSERT_FALSE(r1.contains(1));
 
-      range<int> r1;
-      ABC_TESTING_ASSERT_EQUAL(r1.size(), 0u);
-      ABC_TESTING_ASSERT_FALSE(r1.contains(-1));
-      ABC_TESTING_ASSERT_FALSE(r1.contains(0));
-      ABC_TESTING_ASSERT_FALSE(r1.contains(1));
-
-      range<int> r2(1, 2);
-      ABC_TESTING_ASSERT_EQUAL(r2.size(), 1u);
-      ABC_TESTING_ASSERT_EQUAL(*r2.begin(), 1);
-      ABC_TESTING_ASSERT_FALSE(r2.contains(0));
-      ABC_TESTING_ASSERT_TRUE(r2.contains(1));
-      ABC_TESTING_ASSERT_FALSE(r2.contains(2));
-   }
-};
+   range<int> r2(1, 2);
+   ABC_TESTING_ASSERT_EQUAL(r2.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(*r2.begin(), 1);
+   ABC_TESTING_ASSERT_FALSE(r2.contains(0));
+   ABC_TESTING_ASSERT_TRUE(r2.contains(1));
+   ABC_TESTING_ASSERT_FALSE(r2.contains(2));
+}
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::range_basic)

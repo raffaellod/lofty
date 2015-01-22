@@ -122,53 +122,44 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 namespace abc {
 namespace test {
 
-class exception_from_os_hard_error : public testing::test_case {
-public:
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions");
+ABC_TESTING_TEST_CASE_FUNC(
+   exception_from_os_hard_error, "abc::exception – conversion of hard OS errors into C++ exceptions"
+) {
+   ABC_TRACE_FUNC(this);
+
+   {
+      int * p = nullptr;
+      ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
+      // Check that the handler is still in place after its first activation above.
+      ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 2);
+
+      ABC_TESTING_ASSERT_THROWS(memory_address_error, *++p = 1);
    }
 
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
-
-      {
-         int * p = nullptr;
-         ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
-         // Check that the handler is still in place after its first activation above.
-         ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 2);
-
-         ABC_TESTING_ASSERT_THROWS(memory_address_error, *++p = 1);
-      }
-
-      // Enable alignment checking if the architecture supports it.
+   // Enable alignment checking if the architecture supports it.
 #if 0 // ABC_HOST_ARCH_???
-      {
-         // Create an int (with another one following it) and a pointer to it.
-         int i[2];
-         void * p = &i[0];
-         // Misalign the pointer, partly entering the second int.
-         p = static_cast<std::int8_t *>(p) + 1;
-         ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
-      }
+   {
+      // Create an int (with another one following it) and a pointer to it.
+      int i[2];
+      void * p = &i[0];
+      // Misalign the pointer, partly entering the second int.
+      p = static_cast<std::int8_t *>(p) + 1;
+      ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
+   }
 #endif
 
-      {
-         // Non-obvious division by zero that can’t be detected at compile time.
-         istr sEmpty;
-         int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
-         ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
-         // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
-         istr(ABC_SL("{}")).format(iOne);
-      }
+   {
+      // Non-obvious division by zero that can’t be detected at compile time.
+      istr sEmpty;
+      int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
+      ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
+      // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
+      istr(ABC_SL("{}")).format(iOne);
    }
-};
+}
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_from_os_hard_error)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::exception_scope_trace

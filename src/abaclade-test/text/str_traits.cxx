@@ -74,81 +74,74 @@ namespace test {
 #define ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(...) \
    ABC_TESTING_ASSERT_text_str_traits_validate(false, __VA_ARGS__)
 
-class str_traits_validity : public testing::test_case {
-public:
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return ABC_SL("abc::text::str_traits – validity of counted strings");
-   }
-
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
+ABC_TESTING_TEST_CASE_FUNC(
+   str_traits_validity, "abc::text::str_traits – validity of counted strings"
+) {
+   ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_UTF == 8
 
-      // Valid single character.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x01);
-      // Increasing run lengths.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(
-         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
-      );
-      // Decreasing run lengths.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(
-         0xf0, 0xa4, 0xad, 0xa2, 0xe2, 0x82, 0xac, 0xc2, 0xa2, 0x01
-      );
+   // Valid single character.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x01);
+   // Increasing run lengths.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(
+      0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
+   );
+   // Decreasing run lengths.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(
+      0xf0, 0xa4, 0xad, 0xa2, 0xe2, 0x82, 0xac, 0xc2, 0xa2, 0x01
+   );
 
-      // Invalid single character.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0x81);
-      // Invalid single character in the beginning of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
-         0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
-      );
-      // Invalid single character at the end of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
-         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x81
-      );
+   // Invalid single character.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0x81);
+   // Invalid single character in the beginning of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
+      0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
+   );
+   // Invalid single character at the end of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
+      0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0x81
+   );
 
-      // Invalid single overlong.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xc0, 0x81);
-      // Invalid single overlong in the beginning of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
-         0xc0, 0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
-      );
-      // Invalid single overlong at the end of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
-         0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0xc0, 0x81
-      );
+   // Invalid single overlong.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xc0, 0x81);
+   // Invalid single overlong in the beginning of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
+      0xc0, 0x81, 0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2
+   );
+   // Invalid single overlong at the end of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(
+      0x01, 0xc2, 0xa2, 0xe2, 0x82, 0xac, 0xf0, 0xa4, 0xad, 0xa2, 0xc0, 0x81
+   );
 
-      // Technically possible, but not valid UTF-8.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xf9, 0x81, 0x81, 0x81, 0x81);
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfd, 0x81, 0x81, 0x81, 0x81, 0x81);
+   // Technically possible, but not valid UTF-8.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xf9, 0x81, 0x81, 0x81, 0x81);
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfd, 0x81, 0x81, 0x81, 0x81, 0x81);
 
-      /* Technically possible, but not valid UTF-8. Here the string continues with a few more valid
-      characters, so we can detect if the invalid byte was interpreted as the lead byte of some
-      UTF-8 sequence. */
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfe, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
+   /* Technically possible, but not valid UTF-8. Here the string continues with a few more valid
+   characters, so we can detect if the invalid byte was interpreted as the lead byte of some
+   UTF-8 sequence. */
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xfe, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
 
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
 
-      // Valid single character.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x007a);
-      // Valid single character and surrogate pair.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x007a, 0xd834, 0xdd1e);
-      // Valid surrogate pair and single character.
-      ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0xd834, 0xdd1e, 0x007a);
+   // Valid single character.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x007a);
+   // Valid single character and surrogate pair.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0x007a, 0xd834, 0xdd1e);
+   // Valid surrogate pair and single character.
+   ABC_TESTING_ASSERT_TRUE_text_str_traits_validate(0xd834, 0xdd1e, 0x007a);
 
-      // Invalid lead surrogate.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xd834);
-      // Invalid lead surrogate in the beginning of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xd834, 0x0079, 0x007a);
-      // Invalid lead surrogate at the end of a valid string.
-      ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0x0079, 0x007a, 0xd834);
+   // Invalid lead surrogate.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xd834);
+   // Invalid lead surrogate in the beginning of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0xd834, 0x0079, 0x007a);
+   // Invalid lead surrogate at the end of a valid string.
+   ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(0x0079, 0x007a, 0xd834);
 
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
-   }
-};
+}
 
 #undef ABC_TESTING_ASSERT_text_str_traits_validate
 #undef ABC_TESTING_ASSERT_TRUE_text_str_traits_validate
@@ -156,7 +149,5 @@ public:
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::str_traits_validity)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

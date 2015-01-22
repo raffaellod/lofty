@@ -27,33 +27,26 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
+namespace {
+   
 ABC_ENUM(test_enum,
    (value1, 15),
    (value2, 56),
    (value3, 91)
 );
 
-class enum_basic : public testing::test_case {
-public:
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return ABC_SL("abc::enum-derived classes – basic operations");
-   }
+} //namespace
 
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
+ABC_TESTING_TEST_CASE_FUNC(enum_basic, "abc::enum-derived classes – basic operations") {
+   ABC_TRACE_FUNC(this);
 
-      test_enum e(test_enum::value2);
+   test_enum e(test_enum::value2);
 
-      ABC_TESTING_ASSERT_TRUE(e == test_enum::value2);
-      ABC_TESTING_ASSERT_EQUAL(to_str(e), ABC_SL("value2"));
-   }
-};
+   ABC_TESTING_ASSERT_TRUE(e == test_enum::value2);
+   ABC_TESTING_ASSERT_EQUAL(to_str(e), ABC_SL("value2"));
+}
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::enum_basic)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
