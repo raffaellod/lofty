@@ -53,23 +53,18 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 
 @param name
    Name of the enumeration type.
-@param iBaseValue
-   Value of __COUNTER__ prior to the expansion of the member values; used to dynamically generate
-   values in sequence for the enum members.
 @param cMembers
    Count of members of the enumeration.
 @param members
    C++ enum members.
 @param arrayitems
    Internal name/value array items.
-@param ...
-   Sequence of (name, value) pairs; these will be the members of the underlying C++ enum,
-   name::enum_type.
+@param othermembers
+   Additional members to be injected as-is at the beginning of the class.
 */
-#define _ABC_ENUM_IMPL(name, iBaseValue, cMembers, members, arrayitems) \
+#define _ABC_ENUM_IMPL(name, cMembers, members, arrayitems, othermembers) \
    class ABC_CPP_CAT(_, name, _e) { \
-   private: \
-      static int const smc_iBase = iBaseValue + 1; \
+   othermembers \
    \
    public: \
       /*! Publicly-accessible enumerated constants. */ \
@@ -148,10 +143,11 @@ etc.
 #define ABC_ENUM(name, ...) \
    _ABC_ENUM_IMPL( \
       name, \
-      __COUNTER__, \
       ABC_CPP_LIST_COUNT(__VA_ARGS__), \
       ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR, __VA_ARGS__), \
-      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__) \
+      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__), \
+      \
+      public: \
    )
 
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
@@ -169,10 +165,12 @@ their values cannot be explicitly specified; for example:
 #define ABC_ENUM_AUTO_VALUES(name, ...) \
    _ABC_ENUM_IMPL( \
       name, \
-      __COUNTER__, \
       ABC_CPP_LIST_COUNT(__VA_ARGS__), \
       ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER, __VA_ARGS__), \
-      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
+      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__), \
+      \
+      private: \
+         static int const smc_iBase = __COUNTER__ + 1; \
    )
 
 } //namespace abc
