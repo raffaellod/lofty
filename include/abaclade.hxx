@@ -33,6 +33,9 @@ namespace abc {
    //! Byte-ordering functions.
    namespace byteorder {}
 
+   //! Templated container data structures.
+   namespace collections {}
+
    /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see [IMG:4872
    I/O class hierarchy] */
    namespace io {
