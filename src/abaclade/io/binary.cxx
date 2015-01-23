@@ -198,6 +198,117 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 } //namespace
 
 
+std::shared_ptr<file_base> open(
+   os::path const & op, access_mode am, bool bAsync /*= false*/, bool bBypassCache /*= false*/
+) {
+   ABC_TRACE_FUNC(op, am, bAsync, bBypassCache);
+
+   detail::file_init_data fid;
+#if ABC_HOST_API_POSIX
+   int iFlags;
+   switch (am.base()) {
+      case access_mode::read:
+         iFlags = O_RDONLY;
+         break;
+      case access_mode::read_write:
+         iFlags = O_RDWR | O_CREAT;
+         break;
+      case access_mode::write:
+         iFlags = O_WRONLY | O_CREAT | O_TRUNC;
+         break;
+      case access_mode::write_append:
+         iFlags = O_APPEND;
+         break;
+   }
+   iFlags |= O_CLOEXEC;
+   if (bAsync) {
+      iFlags |= O_NONBLOCK;
+   }
+   #ifdef O_DIRECT
+      if (bBypassCache) {
+         iFlags |= O_DIRECT;
+      }
+   #endif
+   // Note: this does not compare the new fd against 0; instead it calls fid.fd.operator bool().
+   while (!(fid.fd = ::open(op.os_str().c_str(), iFlags, 0666))) {
+      int iErr = errno;
+      switch (iErr) {
+         case EINTR:
+            break;
+         case ENODEV: // No such device (POSIX.1-2001)
+         case ENOENT: // No such file or directory (POSIX.1-2001)
+            ABC_THROW(file_not_found_error, (op, iErr));
+         default:
+            exception::throw_os_error(iErr);
+      }
+   }
+   #ifndef O_DIRECT
+      #if ABC_HOST_API_DARWIN
+         if (bBypassCache) {
+            if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
+               exception::throw_os_error();
+            }
+         }
+      #else
+         #error "TODO: HOST_API"
+      #endif
+   #endif //ifndef O_DIRECT
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
+   switch (am.base()) {
+      case access_mode::read:
+         iAccess = GENERIC_READ;
+         iShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+         iAction = OPEN_EXISTING;
+         break;
+      case access_mode::read_write:
+         iAccess = GENERIC_READ | GENERIC_WRITE;
+         iShareMode = FILE_SHARE_READ;
+         iAction = OPEN_ALWAYS;
+         break;
+      case access_mode::write:
+         iAccess = GENERIC_WRITE;
+         iShareMode = FILE_SHARE_READ;
+         iAction = CREATE_ALWAYS;
+         break;
+      case access_mode::write_append:
+         /* This iAccess combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for
+         local files, write operations will not overwrite existing data”. Requiring fewer
+         permissions, this also allows ::CreateFile() to succeed on files with stricter ACLs. */
+         iAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
+         iShareMode = FILE_SHARE_READ;
+         iAction = OPEN_ALWAYS;
+         break;
+   }
+   if (bAsync) {
+      iFlags |= FILE_FLAG_OVERLAPPED;
+   }
+   if (bBypassCache) {
+      // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
+      iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
+      iFlags |= FILE_FLAG_NO_BUFFERING;
+   }
+   if (!(fid.fd = ::CreateFile(
+      op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, iFlags, nullptr
+   ))) {
+      DWORD iErr = ::GetLastError();
+      switch (iErr) {
+         case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
+         case ERROR_UNKNOWN_PORT: // The specified port is unknown.
+            ABC_THROW(file_not_found_error, (op, iErr));
+         default:
+            exception::throw_os_error(iErr);
+      }
+   }
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   fid.am = am;
+   fid.bAllowAsync = bAsync;
+   fid.bBypassCache = bBypassCache;
+   return _construct(&fid);
+}
+
 std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    bool bAsync /*= false*/
 ) {
@@ -365,117 +476,6 @@ std::shared_ptr<file_writer> stdout() {
       ), access_mode::write));
    }
    return g_pbfwStdOut;
-}
-
-std::shared_ptr<file_base> open(
-   os::path const & op, access_mode am, bool bAsync /*= false*/, bool bBypassCache /*= false*/
-) {
-   ABC_TRACE_FUNC(op, am, bAsync, bBypassCache);
-
-   detail::file_init_data fid;
-#if ABC_HOST_API_POSIX
-   int iFlags;
-   switch (am.base()) {
-      case access_mode::read:
-         iFlags = O_RDONLY;
-         break;
-      case access_mode::read_write:
-         iFlags = O_RDWR | O_CREAT;
-         break;
-      case access_mode::write:
-         iFlags = O_WRONLY | O_CREAT | O_TRUNC;
-         break;
-      case access_mode::write_append:
-         iFlags = O_APPEND;
-         break;
-   }
-   iFlags |= O_CLOEXEC;
-   if (bAsync) {
-      iFlags |= O_NONBLOCK;
-   }
-   #ifdef O_DIRECT
-      if (bBypassCache) {
-         iFlags |= O_DIRECT;
-      }
-   #endif
-   // Note: this does not compare the new fd against 0; instead it calls fid.fd.operator bool().
-   while (!(fid.fd = ::open(op.os_str().c_str(), iFlags, 0666))) {
-      int iErr = errno;
-      switch (iErr) {
-         case EINTR:
-            break;
-         case ENODEV: // No such device (POSIX.1-2001)
-         case ENOENT: // No such file or directory (POSIX.1-2001)
-            ABC_THROW(file_not_found_error, (op, iErr));
-         default:
-            exception::throw_os_error(iErr);
-      }
-   }
-   #ifndef O_DIRECT
-      #if ABC_HOST_API_DARWIN
-         if (bBypassCache) {
-            if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
-               exception::throw_os_error();
-            }
-         }
-      #else
-         #error "TODO: HOST_API"
-      #endif
-   #endif //ifndef O_DIRECT
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
-   switch (am.base()) {
-      case access_mode::read:
-         iAccess = GENERIC_READ;
-         iShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
-         iAction = OPEN_EXISTING;
-         break;
-      case access_mode::read_write:
-         iAccess = GENERIC_READ | GENERIC_WRITE;
-         iShareMode = FILE_SHARE_READ;
-         iAction = OPEN_ALWAYS;
-         break;
-      case access_mode::write:
-         iAccess = GENERIC_WRITE;
-         iShareMode = FILE_SHARE_READ;
-         iAction = CREATE_ALWAYS;
-         break;
-      case access_mode::write_append:
-         /* This iAccess combination is FILE_GENERIC_WRITE & ~FILE_WRITE_DATA; MSDN states that “for
-         local files, write operations will not overwrite existing data”. Requiring fewer
-         permissions, this also allows ::CreateFile() to succeed on files with stricter ACLs. */
-         iAccess = FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES | STANDARD_RIGHTS_WRITE | SYNCHRONIZE;
-         iShareMode = FILE_SHARE_READ;
-         iAction = OPEN_ALWAYS;
-         break;
-   }
-   if (bAsync) {
-      iFlags |= FILE_FLAG_OVERLAPPED;
-   }
-   if (bBypassCache) {
-      // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
-      iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
-      iFlags |= FILE_FLAG_NO_BUFFERING;
-   }
-   if (!(fid.fd = ::CreateFile(
-      op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, iFlags, nullptr
-   ))) {
-      DWORD iErr = ::GetLastError();
-      switch (iErr) {
-         case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
-         case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-            ABC_THROW(file_not_found_error, (op, iErr));
-         default:
-            exception::throw_os_error(iErr);
-      }
-   }
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   fid.am = am;
-   fid.bAllowAsync = bAsync;
-   fid.bBypassCache = bBypassCache;
-   return _construct(&fid);
 }
 
 } //namespace binary
