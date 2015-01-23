@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -29,11 +29,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::exception
+// abc::_std::exception
 
-namespace std {
+namespace abc {
+namespace _std {
 
-//! Base class for standard exceptions (18.8.1).
+//! Base class for standard exceptions (C++ § 18.8.1 “Class exception”).
 class ABACLADE_SYM exception {
 public:
    //! Constructor.
@@ -47,10 +48,11 @@ public:
    @return
       Description of the exception.
    */
-   virtual char const * what() const override;
+   virtual char const * what() const;
 };
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

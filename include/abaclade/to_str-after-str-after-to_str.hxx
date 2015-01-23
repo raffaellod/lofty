@@ -350,7 +350,7 @@ template <
 >
 class tuple_to_str_backend_element_writer :
    public tuple_to_str_backend_element_writer<
-      TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+      TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::detail::tuple_void
    > {
 public:
    //! See tuple_to_str_backend_element_writer<TTuple>::_write_elements().
@@ -364,9 +364,10 @@ protected:
 // Base case for the template recursion.
 template <class TTuple>
 class tuple_to_str_backend_element_writer<
-   TTuple, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
-   _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void, _std::_tuple_void,
-   _std::_tuple_void
+   TTuple, _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
+   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
+   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
+   _std::detail::tuple_void
 > {
 public:
    /*! Writes the current element to the specified text writer, then recurses to write the rest.
@@ -432,7 +433,7 @@ inline void tuple_to_str_backend_element_writer<
    if (sc_cTs) {
       static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
       tuple_to_str_backend_element_writer<
-         TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_tuple_void
+         TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::detail::tuple_void
       >::_write_elements(tpl, ptwOut);
    }
 }

@@ -35,36 +35,38 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::_tuple_void
+// abc::_std::detail::tuple_void
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 namespace abc {
 namespace _std {
+namespace detail {
 
-//! Null type, used to reduce the number of tuple items from the preset maximum.
-struct _tuple_void {
-};
+//! “Null” type used to reduce the number of tuple items from the preset maximum.
+struct tuple_void {};
 
+} //namespace detail
 } //namespace _std
 } //namespace abc
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::_tuple_head
+// abc::_std::tuple_head
 
 namespace abc {
 namespace _std {
+namespace detail {
 
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough. */
 template <std::size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
-class _tuple_head;
+class tuple_head;
 
 // Specialization for empty types: enable EBO.
 template <std::size_t t_i, typename T>
-class _tuple_head<t_i, T, true> : private T {
+class tuple_head<t_i, T, true> : private T {
 public:
    /*! Constructor.
 
@@ -73,20 +75,20 @@ public:
    @param t
       Source element.
    */
-   _tuple_head() :
+   tuple_head() :
       T() {
    }
-   _tuple_head(T const & t) :
+   tuple_head(T const & t) :
       T(t) {
    }
    template <typename Tr>
-   _tuple_head(Tr && t) :
+   tuple_head(Tr && t) :
       T(std::forward<Tr>(t)) {
    }
-   _tuple_head(_tuple_head const & th) :
+   tuple_head(tuple_head const & th) :
       T(static_cast<T const &>(th)) {
    }
-   _tuple_head(_tuple_head && th) :
+   tuple_head(tuple_head && th) :
       T(static_cast<T &&>(th)) {
    }
 
@@ -97,11 +99,11 @@ public:
    @return
       *this.
    */
-   _tuple_head & operator=(_tuple_head const & th) {
+   tuple_head & operator=(tuple_head const & th) {
       get() = th.get();
       return *this;
    }
-   _tuple_head & operator=(_tuple_head && th) {
+   tuple_head & operator=(tuple_head && th) {
       get() = std::move(th.get());
       return *this;
    }
@@ -121,7 +123,7 @@ public:
 
 // Specialization non non-empty types.
 template <std::size_t t_i, typename T>
-class _tuple_head<t_i, T, false> {
+class tuple_head<t_i, T, false> {
 public:
    /*! Constructor.
 
@@ -130,20 +132,20 @@ public:
    @param t
       Source element.
    */
-   _tuple_head() :
+   tuple_head() :
       m_t() {
    }
-   _tuple_head(T const & t) :
+   tuple_head(T const & t) :
       m_t(t) {
    }
    template <typename Tr>
-   _tuple_head(Tr && t) :
+   tuple_head(Tr && t) :
       m_t(std::forward<Tr>(t)) {
    }
-   _tuple_head(_tuple_head const & th) :
+   tuple_head(tuple_head const & th) :
       m_t(th.m_t) {
    }
-   _tuple_head(_tuple_head && th) :
+   tuple_head(tuple_head && th) :
       m_t(std::move(th.m_t)) {
    }
 
@@ -154,11 +156,11 @@ public:
    @return
       *this.
    */
-   _tuple_head & operator=(_tuple_head const & th) {
+   tuple_head & operator=(tuple_head const & th) {
       get() = th.get();
       return *this;
    }
-   _tuple_head & operator=(_tuple_head && th) {
+   tuple_head & operator=(tuple_head && th) {
       get() = std::move(th.get());
       return *this;
    }
@@ -180,34 +182,36 @@ private:
    T m_t;
 };
 
+} //namespace detail
 } //namespace _std
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::_tuple_tail
+// abc::_std::detail::tuple_tail
 
 namespace abc {
 namespace _std {
+namespace detail {
 
 //! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <std::size_t t_i, typename... Ts>
-class _tuple_tail;
+class tuple_tail;
 
 // Base case for the template recursion.
 template <std::size_t t_i>
-class _tuple_tail<t_i> {
+class tuple_tail<t_i> {
 };
 
 // Template recursion step.
 template <std::size_t t_i, typename T0, typename... Ts>
-class _tuple_tail<t_i, T0, Ts ...> :
-   public _tuple_head<t_i, T0>,
-   public _tuple_tail<t_i + 1, Ts ...> {
+class tuple_tail<t_i, T0, Ts ...> :
+   public tuple_head<t_i, T0>,
+   public tuple_tail<t_i + 1, Ts ...> {
 private:
-   typedef _tuple_head<t_i, T0> _thead;
-   typedef _tuple_tail<t_i + 1, Ts ...> _ttail;
+   typedef tuple_head<t_i, T0> _thead;
+   typedef tuple_tail<t_i + 1, Ts ...> _ttail;
 
 public:
    /*! Constructor.
@@ -219,20 +223,20 @@ public:
    @param tt
       Source tuple tail.
    */
-   _tuple_tail() :
+   tuple_tail() :
       _thead(), _ttail() {
    }
-   explicit _tuple_tail(T0 const & thead, Ts const &... ts) :
+   explicit tuple_tail(T0 const & thead, Ts const &... ts) :
       _thead(thead), _ttail(ts ...) {
    }
    template <typename Tr0, typename... Trs>
-   explicit _tuple_tail(Tr0 && thead, Trs &&... ts) :
+   explicit tuple_tail(Tr0 && thead, Trs &&... ts) :
       _thead(std::forward<Tr0>(thead)), _ttail(std::forward<Trs>(ts) ...) {
    }
-   _tuple_tail(_tuple_tail const & tt) :
+   tuple_tail(tuple_tail const & tt) :
       _thead(tt.get_thead()), _ttail(tt.get_ttail()) {
    }
-   _tuple_tail(_tuple_tail && tt) :
+   tuple_tail(tuple_tail && tt) :
       _thead(std::move(tt.get_thead())), _ttail(std::move(tt.get_ttail())) {
    }
 
@@ -243,18 +247,18 @@ public:
    @return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const & tt) {
+   tuple_tail & operator=(tuple_tail const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
       return *this;
    }
-   _tuple_tail & operator=(_tuple_tail && tt) {
+   tuple_tail & operator=(tuple_tail && tt) {
       get_thead() = std::move(tt.get_thead());
       get_ttail() = std::move(tt.get_ttail());
       return *this;
    }
 
-   /*! Returns the embedded _tuple_head.
+   /*! Returns the embedded tuple_head.
 
    @return
       Reference to the embedded tuple head.
@@ -266,7 +270,7 @@ public:
       return static_cast<_thead const &>(*this);
    }
 
-   /*! Returns the embedded _tuple_tail.
+   /*! Returns the embedded tuple_tail.
 
    @return
       Reference to the embedded tuple tail.
@@ -282,17 +286,19 @@ public:
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   std::size_t t_i, typename T0 = _tuple_void, typename T1 = _tuple_void, typename T2 = _tuple_void,
-   typename T3 = _tuple_void, typename T4 = _tuple_void, typename T5 = _tuple_void,
-   typename T6 = _tuple_void, typename T7 = _tuple_void, typename T8 = _tuple_void,
-   typename T9 = _tuple_void
+   std::size_t t_i,
+   typename T0 = detail::tuple_void, typename T1 = detail::tuple_void,
+   typename T2 = detail::tuple_void, typename T3 = detail::tuple_void,
+   typename T4 = detail::tuple_void, typename T5 = detail::tuple_void,
+   typename T6 = detail::tuple_void, typename T7 = detail::tuple_void,
+   typename T8 = detail::tuple_void, typename T9 = detail::tuple_void
 >
-class _tuple_tail :
-   public _tuple_head<t_i, T0>,
-   public _tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _tuple_void> {
+class tuple_tail :
+   public tuple_head<t_i, T0>,
+   public tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, detail::tuple_void> {
 private:
-   typedef _tuple_head<t_i, T0> _thead;
-   typedef _tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _tuple_void> _ttail;
+   typedef tuple_head<t_i, T0> _thead;
+   typedef tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, detail::tuple_void> _ttail;
 
 public:
    /*! Constructor.
@@ -302,21 +308,21 @@ public:
    @param t0...t9
       Source elements.
    */
-   _tuple_tail() :
+   tuple_tail() :
       _thead(), _ttail() {
    }
-   _tuple_tail(
+   tuple_tail(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) :
       _thead(t0),
-      _ttail(t1, t2, t3, t4, t5, t6, t7, t8, t9, _tuple_void()) {
+      _ttail(t1, t2, t3, t4, t5, t6, t7, t8, t9, detail::tuple_void()) {
    }
    template <
       typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
       typename Tr6, typename Tr7, typename Tr8, typename Tr9
    >
-   _tuple_tail(
+   tuple_tail(
       Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6, Tr7 && t7,
       Tr8 && t8, Tr9 && t9
    ) :
@@ -324,14 +330,14 @@ public:
       _ttail(
          std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3), std::forward<Tr4>(t4),
          std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7), std::forward<Tr8>(t8),
-         std::forward<Tr9>(t9), _tuple_void()
+         std::forward<Tr9>(t9), detail::tuple_void()
       ) {
    }
-   _tuple_tail(_tuple_tail const & tt) :
+   tuple_tail(tuple_tail const & tt) :
       _thead(tt.get_thead()),
       _ttail(tt.get_ttail()) {
    }
-   _tuple_tail(_tuple_tail && tt) :
+   tuple_tail(tuple_tail && tt) :
       _thead(std::move(tt.get_thead())),
       _ttail(std::move(tt.get_ttail())) {
    }
@@ -343,18 +349,18 @@ public:
    @return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const & tt) {
+   tuple_tail & operator=(tuple_tail const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
       return *this;
    }
-   _tuple_tail & operator=(_tuple_tail && tt) {
+   tuple_tail & operator=(tuple_tail && tt) {
       get_thead() = std::move(tt.get_thead());
       get_ttail() = std::move(tt.get_ttail());
       return *this;
    }
 
-   /*! Returns the embedded _tuple_head.
+   /*! Returns the embedded tuple_head.
 
    @return
       Reference to the embedded tuple head.
@@ -366,7 +372,7 @@ public:
       return *static_cast<_thead const *>(this);
    }
 
-   /*! Returns the embedded _tuple_tail.
+   /*! Returns the embedded tuple_tail.
 
    @return
       Reference to the embedded tuple tail.
@@ -381,9 +387,11 @@ public:
 
 // Base case for the template recursion.
 template <std::size_t t_i>
-class _tuple_tail<
-   t_i, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
-   _tuple_void, _tuple_void, _tuple_void
+class tuple_tail<
+   t_i,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void
 > {
 public:
    /*! Constructor.
@@ -391,14 +399,15 @@ public:
    @param tt
       Source tuple tail.
    */
-   _tuple_tail() {
+   tuple_tail() {
    }
-   _tuple_tail(_tuple_tail const &) {
+   tuple_tail(tuple_tail const &) {
    }
-   _tuple_tail(
-      _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
-      _tuple_void const &, _tuple_void const &, _tuple_void const &, _tuple_void const &,
-      _tuple_void const &, _tuple_void const &
+   tuple_tail(
+      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
+      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
+      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
+      detail::tuple_void const &
    ) {
    }
 
@@ -407,13 +416,14 @@ public:
    @return
       *this.
    */
-   _tuple_tail & operator=(_tuple_tail const &) {
+   tuple_tail & operator=(tuple_tail const &) {
       return *this;
    }
 };
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
+} //namespace detail
 } //namespace _std
 } //namespace abc
 
@@ -427,9 +437,9 @@ namespace _std {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-class tuple : public _tuple_tail<0, Ts ...> {
+class tuple : public detail::tuple_tail<0, Ts ...> {
 private:
-   typedef _tuple_tail<0, Ts ...> _timpl;
+   typedef detail::tuple_tail<0, Ts ...> _timpl;
 
 public:
    /*! Constructor.
@@ -476,14 +486,16 @@ public:
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   typename T0 = _tuple_void, typename T1 = _tuple_void, typename T2 = _tuple_void,
-   typename T3 = _tuple_void, typename T4 = _tuple_void, typename T5 = _tuple_void,
-   typename T6 = _tuple_void, typename T7 = _tuple_void, typename T8 = _tuple_void,
-   typename T9 = _tuple_void
+   typename T0 = detail::tuple_void, typename T1 = detail::tuple_void,
+   typename T2 = detail::tuple_void, typename T3 = detail::tuple_void,
+   typename T4 = detail::tuple_void, typename T5 = detail::tuple_void,
+   typename T6 = detail::tuple_void, typename T7 = detail::tuple_void,
+   typename T8 = detail::tuple_void, typename T9 = detail::tuple_void
 >
-class tuple : public _tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+class tuple : public detail::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
 private:
-   typedef _tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
+   typedef detail::tuple_void _tvoid;
+   typedef detail::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
 
 public:
    /*! Constructor.
@@ -495,91 +507,85 @@ public:
    */
    /*constexpr*/ tuple() :
       _timpl(
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid()
       ) {
    }
    // Overloads for tuple of 1.
    explicit tuple(T0 const & t0) :
       _timpl(
-         t0, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         t0, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid()
       ) {
    }
    template <typename Tr0>
    explicit tuple(Tr0 && t0) :
       _timpl(
-         std::forward<Tr0>(t0), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         std::forward<Tr0>(t0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 2.
    tuple(T0 const & t0, T1 const & t1) :
       _timpl(
-         t0, t1, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void()
+         t0, t1, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename Tr0, typename Tr1>
    tuple(Tr0 && t0, Tr1 && t1) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         std::forward<Tr0>(t0), std::forward<Tr1>(t1), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 3.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2) :
       _timpl(
-         t0, t1, t2, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void(), _tuple_void()
+         t0, t1, t2, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename Tr0, typename Tr1, typename Tr2>
    tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), _tuple_void(),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 4.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) :
       _timpl(
-         t0, t1, t2, t3, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void()
+         t0, t1, t2, t3, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename Tr0, typename Tr1, typename Tr2, typename Tr3>
    tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3) :
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()
+         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 5.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) :
       _timpl(
-         t0, t1, t2, t3, t4, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void()
+         t0, t1, t2, t3, t4, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4>
    tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4) :
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void()
+         std::forward<Tr4>(t4), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 6.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5) :
-      _timpl(t0, t1, t2, t3, t4, t5, _tuple_void(), _tuple_void(), _tuple_void(), _tuple_void()) {
+      _timpl(t0, t1, t2, t3, t4, t5, _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
    }
    template <typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5>
    tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5) :
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), _tuple_void(), _tuple_void(), _tuple_void(),
-         _tuple_void()
+         std::forward<Tr4>(t4), std::forward<Tr5>(t5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 7.
@@ -587,7 +593,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6
    ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, _tuple_void(), _tuple_void(), _tuple_void()) {
+      _timpl(t0, t1, t2, t3, t4, t5, t6, _tvoid(), _tvoid(), _tvoid()) {
    }
    template <
       typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
@@ -596,8 +602,8 @@ public:
    tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6) :
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), _tuple_void(),
-         _tuple_void(), _tuple_void()
+         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), _tvoid(), _tvoid(),
+         _tvoid()
       ) {
    }
    // Overloads for tuple of 8.
@@ -605,7 +611,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7
    ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, _tuple_void(), _tuple_void()) {
+      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, _tvoid(), _tvoid()) {
    }
    template <
       typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
@@ -615,7 +621,7 @@ public:
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
          std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7),
-         _tuple_void(), _tuple_void()
+         _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 9.
@@ -623,7 +629,7 @@ public:
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8
    ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, _tuple_void()) {
+      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, _tvoid()) {
    }
    template <
       typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
@@ -636,7 +642,7 @@ public:
       _timpl(
          std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
          std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7),
-         std::forward<Tr8>(t8), _tuple_void()
+         std::forward<Tr8>(t8), _tvoid()
       ) {
    }
    // Overloads for tuple of 10.
@@ -751,29 +757,31 @@ namespace _std {
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
+namespace detail {
+
 /*! Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
 make it work. */
 template <
    std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
    typename T6, typename T7, typename T8, typename T9
 >
-struct _tuple_get_helper;
+struct tuple_get_helper;
 
 #define ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(i) \
    template < \
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, \
       typename T7, typename T8, typename T9 \
    > \
-   struct _tuple_get_helper<i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> { \
+   struct tuple_get_helper<i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> { \
       inline static T ## i & get( \
          tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl \
       ) { \
-         return static_cast<_tuple_head<i, T ## i> &>(tpl).get(); \
+         return static_cast<tuple_head<i, T ## i> &>(tpl).get(); \
       } \
       inline static T ## i const & get( \
          tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl \
       ) { \
-         return static_cast<_tuple_head<i, T ## i> const &>(tpl).get(); \
+         return static_cast<tuple_head<i, T ## i> const &>(tpl).get(); \
       } \
    };
 ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(0)
@@ -788,6 +796,8 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(8)
 ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #undef ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX
 
+} //namespace detail
+
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 /*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
@@ -801,13 +811,13 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 
 template <std::size_t t_i, typename... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) {
-   return static_cast<_tuple_head<
+   return static_cast<tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > &>(tpl).get();
 }
 template <std::size_t t_i, typename... Ts>
 inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...> const & tpl) {
-   return static_cast<_tuple_head<
+   return static_cast<tuple_head<
       t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
    > const &>(tpl).get();
 }
@@ -821,7 +831,7 @@ template <
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl
 ) {
-   return _tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
+   return detail::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 template <
    std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -830,7 +840,7 @@ template <
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type const & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl
 ) {
-   return _tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
+   return detail::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -866,48 +876,55 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8
 >
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, _tuple_void>> :
+struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, detail::tuple_void>> :
    std::integral_constant<std::size_t, 9> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7
 >
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, _tuple_void, _tuple_void>> :
+struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, detail::tuple_void, detail::tuple_void>> :
    std::integral_constant<std::size_t, 8> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, _tuple_void, _tuple_void, _tuple_void>> :
+struct tuple_size<tuple<
+   T0, T1, T2, T3, T4, T5, T6, detail::tuple_void, detail::tuple_void, detail::tuple_void
+>> :
    std::integral_constant<std::size_t, 7> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, T4, T5, _tuple_void, _tuple_void, _tuple_void, _tuple_void
+   T0, T1, T2, T3, T4, T5, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void
 >> : std::integral_constant<std::size_t, 6> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, T4, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void
+   T0, T1, T2, T3, T4, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void
 >> : std::integral_constant<std::size_t, 5> {};
 template <typename T0, typename T1, typename T2, typename T3>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void
+   T0, T1, T2, T3, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void
 >> : std::integral_constant<std::size_t, 4> {};
 template <typename T0, typename T1, typename T2>
 struct tuple_size<tuple<
-   T0, T1, T2, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
-   _tuple_void
+   T0, T1, T2, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void
 >> : std::integral_constant<std::size_t, 3> {};
 template <typename T0, typename T1>
 struct tuple_size<tuple<
-   T0, T1, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
-   _tuple_void, _tuple_void
+   T0, T1, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void
 >> : std::integral_constant<std::size_t, 2> {};
 template <typename T0>
 struct tuple_size<tuple<
-   T0, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
-   _tuple_void, _tuple_void
+   T0, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void
 >> : std::integral_constant<std::size_t, 1> {};
 template <>
 struct tuple_size<tuple<
-   _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void, _tuple_void,
-   _tuple_void, _tuple_void, _tuple_void
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
+   detail::tuple_void, detail::tuple_void
 >> : std::integral_constant<std::size_t, 0> {};
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -921,32 +938,36 @@ struct tuple_size<tuple<
 namespace abc {
 namespace _std {
 
+namespace detail {
+
 /*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
 any type, and silently discards everything. */
-class __ignore_t {
+class ignore_t {
 public:
    //! Constructor.
-   __ignore_t() {
+   ignore_t() {
    }
-   __ignore_t(__ignore_t const &) {
+   ignore_t(ignore_t const &) {
    }
    template <typename T>
-   __ignore_t(T const &) {
+   ignore_t(T const &) {
    }
 
    //! Assignment operator.
-   __ignore_t const & operator=(__ignore_t const &) const {
+   ignore_t const & operator=(ignore_t const &) const {
       return *this;
    }
    template <typename T>
-   __ignore_t const & operator=(T const &) const {
+   ignore_t const & operator=(T const &) const {
       return *this;
    }
 };
 
+} //namespace detail
+
 /*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
 “Tuples”). */
-extern __ignore_t const ignore;
+extern detail::ignore_t const ignore;
 
 } //namespace _std
 } //namespace abc

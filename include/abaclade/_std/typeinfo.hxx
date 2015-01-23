@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011, 2012, 2013, 2014
+Copyright 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -29,12 +29,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::type_info
+// abc::_std::type_info
 
-namespace std {
+namespace abc {
+namespace _std {
 
 //! Runtime type information (C++11 § 18.7.1 “Class type_info”).
-class type_info : public ::abc::noncopyable {
+class type_info : public noncopyable {
 public:
    //! Destructor.
    virtual ~type_info();
@@ -73,12 +74,14 @@ public:
    char const * name() const;
 };
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_alloc
+// abc::_std::bad_alloc
 
-namespace std {
+namespace abc {
+namespace _std {
 
 //! Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
 class ABACLADE_SYM bad_cast : public exception {
@@ -93,12 +96,14 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_typeid
+// abc::_std::bad_typeid
 
-namespace std {
+namespace abc {
+namespace _std {
 
 //! Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
 class ABACLADE_SYM bad_typeid : public exception {
@@ -113,7 +118,8 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -22,18 +22,21 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::nothrow_t and std::nothrow
+// abc::_std::nothrow_t and abc::_std::nothrow
 
-namespace std {
+namespace abc {
+namespace _std {
 
 nothrow_t const nothrow;
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_alloc
+// abc::_std::bad_alloc
 
-namespace std {
+namespace abc {
+namespace _std {
 
 bad_alloc::bad_alloc() {
 }
@@ -42,10 +45,11 @@ bad_alloc::bad_alloc() {
 }
 
 /*virtual*/ char const * bad_alloc::what() const /*override*/ {
-   return "std::bad_alloc";
+   return "abc::_std::bad_alloc";
 }
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -53,11 +53,11 @@ template <typename... Ts>
 class scope_trace_tuple_impl;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <
-   typename T0 = _std::_tuple_void, typename T1 = _std::_tuple_void,
-   typename T2 = _std::_tuple_void, typename T3 = _std::_tuple_void,
-   typename T4 = _std::_tuple_void, typename T5 = _std::_tuple_void,
-   typename T6 = _std::_tuple_void, typename T7 = _std::_tuple_void,
-   typename T8 = _std::_tuple_void, typename T9 = _std::_tuple_void
+   typename T0 = _std::detail::tuple_void, typename T1 = _std::detail::tuple_void,
+   typename T2 = _std::detail::tuple_void, typename T3 = _std::detail::tuple_void,
+   typename T4 = _std::detail::tuple_void, typename T5 = _std::detail::tuple_void,
+   typename T6 = _std::detail::tuple_void, typename T7 = _std::detail::tuple_void,
+   typename T8 = _std::detail::tuple_void, typename T9 = _std::detail::tuple_void
 >
 class scope_trace_tuple_impl;
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -161,11 +161,11 @@ private:
    static std::size_t const smc_cTs = std::tuple_size<tuple_type>::value;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <
-   typename T0 /*= _std::_tuple_void*/, typename T1 /*= _std::_tuple_void*/,
-   typename T2 /*= _std::_tuple_void*/, typename T3 /*= _std::_tuple_void*/,
-   typename T4 /*= _std::_tuple_void*/, typename T5 /*= _std::_tuple_void*/,
-   typename T6 /*= _std::_tuple_void*/, typename T7 /*= _std::_tuple_void*/,
-   typename T8 /*= _std::_tuple_void*/, typename T9 /*= _std::_tuple_void*/
+   typename T0 /*= _std::detail::tuple_void*/, typename T1 /*= _std::detail::tuple_void*/,
+   typename T2 /*= _std::detail::tuple_void*/, typename T3 /*= _std::detail::tuple_void*/,
+   typename T4 /*= _std::detail::tuple_void*/, typename T5 /*= _std::detail::tuple_void*/,
+   typename T6 /*= _std::detail::tuple_void*/, typename T7 /*= _std::detail::tuple_void*/,
+   typename T8 /*= _std::detail::tuple_void*/, typename T9 /*= _std::detail::tuple_void*/
 >
 class scope_trace_tuple_impl :
    public scope_trace_tuple,
@@ -191,11 +191,11 @@ public:
    }
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
    explicit scope_trace_tuple_impl(
-      T0 const & t0 = _std::_tuple_void(), T1 const & t1 = _std::_tuple_void(),
-      T2 const & t2 = _std::_tuple_void(), T3 const & t3 = _std::_tuple_void(),
-      T4 const & t4 = _std::_tuple_void(), T5 const & t5 = _std::_tuple_void(),
-      T6 const & t6 = _std::_tuple_void(), T7 const & t7 = _std::_tuple_void(),
-      T8 const & t8 = _std::_tuple_void(), T9 const & t9 = _std::_tuple_void()
+      T0 const & t0 = _std::detail::tuple_void(), T1 const & t1 = _std::detail::tuple_void(),
+      T2 const & t2 = _std::detail::tuple_void(), T3 const & t3 = _std::detail::tuple_void(),
+      T4 const & t4 = _std::detail::tuple_void(), T5 const & t5 = _std::detail::tuple_void(),
+      T6 const & t6 = _std::detail::tuple_void(), T7 const & t7 = _std::detail::tuple_void(),
+      T8 const & t8 = _std::detail::tuple_void(), T9 const & t9 = _std::detail::tuple_void()
    ) :
       tuple_type(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }

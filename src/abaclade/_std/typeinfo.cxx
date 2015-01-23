@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_alloc
+// abc::_std::bad_alloc
 
-namespace std {
+namespace abc {
+namespace _std {
 
 bad_cast::bad_cast() {
 }
@@ -33,15 +34,17 @@ bad_cast::bad_cast() {
 }
 
 /*virtual*/ char const * bad_cast::what() const /*override*/ {
-   return "std::bad_cast";
+   return "abc::_std::bad_cast";
 }
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_typeid
+// abc::_std::bad_typeid
 
-namespace std {
+namespace abc {
+namespace _std {
 
 bad_typeid::bad_typeid() {
 }
@@ -50,10 +53,11 @@ bad_typeid::bad_typeid() {
 }
 
 /*virtual*/ char const * bad_typeid::what() const /*override*/ {
-   return "std::bad_typeid";
+   return "abc::_std::bad_typeid";
 }
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

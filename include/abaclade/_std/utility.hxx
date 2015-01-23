@@ -33,7 +33,8 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Declarations and implementations
 
-namespace std {
+namespace abc {
+namespace _std {
 
 //! Defines a member named type as T.
 template <typename T>
@@ -112,7 +113,8 @@ inline void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
    }
 }
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

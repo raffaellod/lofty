@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::bad_weak_ptr
+// abc::_std::bad_weak_ptr
 
-namespace std {
+namespace abc {
+namespace _std {
 
 bad_weak_ptr::bad_weak_ptr() {
 }
@@ -33,29 +34,32 @@ bad_weak_ptr::bad_weak_ptr() {
 }
 
 /*virtual*/ char const * bad_weak_ptr::what() const /*override*/ {
-   return "std::bad_weak_ptr";
+   return "abc::_std::bad_weak_ptr";
 }
 
-} //namespace std
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// std::_shared_refcount
+// abc::_std::detail::shared_refcount
 
-namespace std {
+namespace abc {
+namespace _std {
+namespace detail {
 
-_shared_refcount::_shared_refcount(
+shared_refcount::shared_refcount(
    ::abc::atomic::int_t cStrongRefs, ::abc::atomic::int_t cWeakRefs
 ) :
    m_cStrongRefs(cStrongRefs),
    m_cWeakRefs(cWeakRefs + (cStrongRefs > 0 ? 1 : 0)) {
 }
 
-/*virtual*/ _shared_refcount::~_shared_refcount() {
+/*virtual*/ shared_refcount::~shared_refcount() {
    ABC_ASSERT(m_cStrongRefs == 0);
    ABC_ASSERT(m_cWeakRefs == 0);
 }
 
-void _shared_refcount::add_strong_ref() {
+void shared_refcount::add_strong_ref() {
    // Increment the count of strong references if non-zero; it it’s zero, the owned object is gone.
    ::abc::atomic::int_t cStrongRefsOld;
    do {
@@ -68,16 +72,18 @@ void _shared_refcount::add_strong_ref() {
    ) != cStrongRefsOld);
 }
 
-/*virtual*/ void * _shared_refcount::get_deleter(type_info const & ti) const {
+/*virtual*/ void * shared_refcount::get_deleter(type_info const & ti) const {
    ABC_UNUSED_ARG(ti);
    return nullptr;
 }
 
-/*virtual*/ void _shared_refcount::delete_this() {
+/*virtual*/ void shared_refcount::delete_this() {
    delete this;
 }
 
-} //namespace std
+} //namespace detail
+} //namespace _std
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
