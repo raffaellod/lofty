@@ -157,6 +157,11 @@ namespace abc {
 #include <abaclade/cppmacros.hxx>
 
 #if ABC_HOST_CXX_MSC
+   /* Prevent crtdefs.h from raising #error “Compiling Desktop applications for the ARM platform is
+   not supported.”, which seems to be an artificial restriction added to the SDK files to match the
+   fact that Microsoft ended up requiring desktop apps to be digitally signed in order to be run on
+   Windows RT (“Windows on ARM”). */
+   #define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
    /* Prevent MSC headers from typedef-ining char16_t as unsigned short. This will also prevent
    char32_t from being typedef-ined to unsigned int, but we’ll do that anyway in char.hxx. */
    #define _CHAR16T
