@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -18,12 +18,16 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/byteorder.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals – helpers for abc::byteorder globals
+// abc globals – helpers for abc::byteorder globals
 
 #ifndef ABC_HAVE_BSWAP
+
+namespace abc {
+namespace detail {
 
 std::uint16_t bswap_16(std::uint16_t i) {
    return std::uint16_t(
@@ -53,6 +57,9 @@ std::uint64_t bswap_64(std::uint64_t i) {
       ((i & std::uint64_t(0x00000000000000ffu)) << 56)
    );
 }
+
+} //namespace detail
+} //namespace abc
 
 #endif //ifndef ABC_HAVE_BSWAP
 

@@ -36,14 +36,21 @@ You should have received a copy of the GNU General Public License along with Aba
 #if defined(__GLIBC__)
    #include <byteswap.h> // bswap_*()
    #define ABC_HAVE_BSWAP
-#else
-   ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
-   ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
-   ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 #endif
 
 
 namespace abc {
+
+#ifndef ABC_HAVE_BSWAP
+   namespace detail {
+
+   ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
+   ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
+   ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
+
+   } //namespace detail
+#endif
+
 namespace byteorder {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
@@ -67,6 +74,7 @@ struct _swap_impl<2> {
    typedef std::uint16_t type;
 
    type operator()(type i) {
+      using namespace detail;
       return bswap_16(i);
    }
 };
@@ -77,6 +85,7 @@ struct _swap_impl<4> {
    typedef std::uint32_t type;
 
    type operator()(type i) {
+      using namespace detail;
       return bswap_32(i);
    }
 };
@@ -87,6 +96,7 @@ struct _swap_impl<8> {
    typedef std::uint64_t type;
 
    type operator()(type i) {
+      using namespace detail;
       return bswap_64(i);
    }
 };
