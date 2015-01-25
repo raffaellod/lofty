@@ -65,11 +65,11 @@ istr get_line_terminator_str(line_terminator lterm) {
    }
    switch (lterm.base()) {
       case abc::text::line_terminator::cr:
-         return ABC_SL("\r");
+         return istr(ABC_SL("\r"));
       case abc::text::line_terminator::lf:
-         return ABC_SL("\n");
+         return istr(ABC_SL("\n"));
       case abc::text::line_terminator::cr_lf:
-         return ABC_SL("\r\n");
+         return istr(ABC_SL("\r\n"));
       default:
          // TODO: provide more information in the exception.
          ABC_THROW(domain_error, ());

@@ -63,7 +63,7 @@ protected:
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return ABC_SL("abc::exception – polymorphism");
+      return istr(ABC_SL("abc::exception – polymorphism"));
    }
 
    //! See testing::test_case::run().
@@ -171,7 +171,7 @@ class exception_scope_trace : public testing::test_case {
 public:
    //! See testing::test_case::title().
    virtual istr title() override {
-      return ABC_SL("abc::exception – scope/stack trace generation");
+      return istr(ABC_SL("abc::exception – scope/stack trace generation"));
    }
 
    //! See testing::test_case::run().
