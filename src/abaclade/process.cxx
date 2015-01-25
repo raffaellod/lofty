@@ -44,10 +44,10 @@ process::native_handle_type const process::smc_hNull =
    #error "TODO: HOST_API"
 #endif
 
-/*explicit*/ process::process(id_type id) :
+/*explicit*/ process::process(id_type pid) :
 #if ABC_HOST_API_POSIX
    // ID == native handle.
-   m_h(id) {
+   m_h(pid) {
    static_assert(
       sizeof(id_type) == sizeof(::pid_t), "pid_t must be the same size as native_handle_type"
    );
@@ -56,7 +56,7 @@ process::native_handle_type const process::smc_hNull =
    ABC_TRACE_FUNC(this);
 
    // For now, only get a minimum access level.
-   m_h = ::OpenProcess(SYNCHRONIZE, false, id);
+   m_h = ::OpenProcess(SYNCHRONIZE, false, pid);
    if (!m_h) {
       exception::throw_os_error();
    }

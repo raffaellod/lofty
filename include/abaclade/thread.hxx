@@ -178,13 +178,13 @@ public:
 
       native_handle_type h(thr.m_h);
 #if ABC_HOST_API_POSIX
-      id_type id(thr.m_id);
+      id_type tid(thr.m_id);
 #endif
       detach();
       m_h = h;
 #if ABC_HOST_API_POSIX
       // pthreads does not provide a way to clear thr.m_h.
-      m_id = id;
+      m_id = tid;
       thr.m_id = 0;
 #else
       thr.m_h = nullptr;

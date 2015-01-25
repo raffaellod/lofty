@@ -66,7 +66,7 @@ public:
    process() :
       m_h(smc_hNull) {
    }
-   explicit process(id_type id);
+   explicit process(id_type pid);
    process(process && proc) :
       m_h(proc.m_h) {
       proc.m_h = smc_hNull;
