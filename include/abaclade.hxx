@@ -156,6 +156,10 @@ namespace abc {
 
 #include <abaclade/cppmacros.hxx>
 
+#if ABC_HOST_API_POSIX
+   // Enable 64-bit offsets in file functions, and prevent stat() from failing for 2+ GiB files.
+   #define _FILE_OFFSET_BITS 64
+#endif
 #if ABC_HOST_CXX_MSC
    /* Prevent crtdefs.h from raising #error “Compiling Desktop applications for the ARM platform is
    not supported.”, which seems to be an artificial restriction added to the SDK files to match the
@@ -178,10 +182,7 @@ namespace abc {
 // Under Win32, this also defines char16_t to be wchar_t, which is quite appropriate.
 #include <abaclade/text/char.hxx>
 
-#if ABC_HOST_API_POSIX
-   // This prevents stat() from failing for files bigger than 2 GiB.
-   #define _FILE_OFFSET_BITS 64
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#if ABC_HOST_API_WIN32
    // Make sure WINVER is defined.
    #ifndef WINVER
       // Pick a default Windows version.
@@ -230,7 +231,7 @@ namespace abc {
       #undef min
       #undef max
    #endif
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#endif //if ABC_HOST_API_WIN32
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – C++11 compiler features detection
