@@ -159,13 +159,15 @@ namespace abc {
 #if ABC_HOST_API_POSIX
    // Enable 64-bit offsets in file functions, and prevent stat() from failing for 2+ GiB files.
    #define _FILE_OFFSET_BITS 64
-#endif
-#if ABC_HOST_CXX_MSC
+#elif ABC_HOST_API_WIN32 && ABC_HOST_ARCH_ARM
    /* Prevent crtdefs.h from raising #error “Compiling Desktop applications for the ARM platform is
    not supported.”, which seems to be an artificial restriction added to the SDK files to match the
    fact that Microsoft ended up requiring desktop apps to be digitally signed in order to be run on
-   Windows RT (“Windows on ARM”). */
+   Windows RT (“Windows on ARM”, WOA). */
    #define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+#endif
+
+#if ABC_HOST_CXX_MSC
    /* Prevent MSC headers from typedef-ining char16_t as unsigned short. This will also prevent
    char32_t from being typedef-ined to unsigned int, but we’ll do that anyway in char.hxx. */
    #define _CHAR16T
@@ -174,7 +176,7 @@ namespace abc {
    #pragma warning(push)
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
-#endif //if ABC_HOST_CXX_MSC
+#endif
 #include <cstdint> // std::*int*_t
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)
