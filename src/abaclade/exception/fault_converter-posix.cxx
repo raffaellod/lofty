@@ -147,7 +147,30 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    emulate a function call to throw_after_fault(). */
 
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
-   #if ABC_HOST_ARCH_I386
+   #if ABC_HOST_ARCH_ARM
+      #if ABC_HOST_API_LINUX
+         typedef typename std::remove_reference<
+            decltype(puctx->uc_mcontext.arm_r0)
+         >::type reg_t;
+         reg_t & r0 = puctx->uc_mcontext.arm_r0;
+         reg_t & r1 = puctx->uc_mcontext.arm_r1;
+         reg_t & r2 = puctx->uc_mcontext.arm_r2;
+         reg_t *& sp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.arm_sp);
+         reg_t & lr = puctx->uc_mcontext.arm_lr;
+         reg_t & pc = puctx->uc_mcontext.arm_pc;
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Load the arguments to throw_after_fault() in r0-2, push lr and replace it with the address
+      of the current (failing) instruction, then set pc to the start of throw_after_fault(). These
+      steps emulate a 3-argument subroutine call. */
+      r0 = static_cast<reg_t>(fxt);
+      r1 = static_cast<reg_t>(iArg0);
+      r2 = static_cast<reg_t>(iArg1);
+      *--sp = lr;
+      lr = pc;
+      pc = reinterpret_cast<reg_t>(&throw_after_fault);
+   #elif ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
          typedef typename std::remove_reference<
             decltype(puctx->uc_mcontext.gregs[REG_ESP])
