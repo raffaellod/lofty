@@ -24,12 +24,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_basic
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(vector_basic, "abc::collections::*vector classes – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – basic operations") {
    ABC_TRACE_FUNC(this);
 
    collections::dmvector<int> v;
@@ -88,14 +87,11 @@ ABC_TESTING_TEST_CASE_FUNC(vector_basic, "abc::collections::*vector classes – 
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_relops
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   vector_relops, "abc::collections::*vector classes – relational operators"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – relational operators") {
    ABC_TRACE_FUNC(this);
 
    collections::dmvector<int> v1a, v1b, v2, v3;
@@ -129,14 +125,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_iterators
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   vector_iterators, "abc::collections::*vector classes – operations with iterators"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – operations with iterators") {
    ABC_TRACE_FUNC(this);
 
    collections::dmvector<int> v;
@@ -159,14 +152,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_remove_trivial
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   vector_remove_trivial, "abc::collections::*vector classes – removal of trivial elements"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – removal of trivial elements") {
    ABC_TRACE_FUNC(this);
 
    collections::dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
@@ -261,14 +251,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_memory_mgmt
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   vector_memory_mgmt, "abc::collections::*vector classes – memory management"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – memory management") {
    ABC_TRACE_FUNC(this);
 
    using testing::utility::make_container_data_ptr_tracker;
@@ -439,7 +426,6 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::vector_move
 
 namespace abc {
 namespace test {
@@ -466,9 +452,7 @@ collections::dmvector<testing::utility::instances_counter> return_dmvector() {
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(
-   vector_move, "abc::collections::*vector classes – item and item array movement"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – item and item array movement") {
    ABC_TRACE_FUNC(this);
 
    typedef testing::utility::instances_counter instances_counter;

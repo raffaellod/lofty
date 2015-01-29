@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::static_list_basic
 
 namespace abc {
 namespace test {
@@ -70,7 +69,7 @@ ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(static_list_test)
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(static_list_basic, "abc::collections::static_list – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations") {
    ABC_TRACE_FUNC(this);
 
    /* Since by design static_list elements are added automatically on instantiation and removed on

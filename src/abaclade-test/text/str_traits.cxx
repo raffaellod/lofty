@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::str_traits_validity
 
 namespace abc {
 namespace test {
@@ -74,9 +73,7 @@ namespace test {
 #define ABC_TESTING_ASSERT_FALSE_text_str_traits_validate(...) \
    ABC_TESTING_ASSERT_text_str_traits_validate(false, __VA_ARGS__)
 
-ABC_TESTING_TEST_CASE_FUNC(
-   str_traits_validity, "abc::text::str_traits – validity of counted strings"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::text::str_traits – validity of counted strings") {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_UTF == 8

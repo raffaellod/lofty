@@ -379,15 +379,16 @@ protected:
 #define ABC_TESTING_ASSERT_TRUE(expr) \
    this->assert_true(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
 
-/*! Declares and defines a simple test case, consisting of a single function the body of which must
-follow the invocation of this macro.
+/*! Implementation of ABC_TESTING_TEST_CASE_FUNC().
 
 @param name
    Name of the abc::testing::test_case subclass.
 @param test_title
    Title of the test, as a string literal.
 */
-#define ABC_TESTING_TEST_CASE_FUNC(name, test_title) \
+#define _ABC_TESTING_TEST_CASE_FUNC_IMPL(name, test_title) \
+   namespace { \
+   \
    class name : public ::abc::testing::test_case { \
    public: \
       /*! See abc::testing::test_case::title(). */ \
@@ -399,9 +400,20 @@ follow the invocation of this macro.
       virtual void run() override; \
    }; \
    \
+   } /*namespace*/ \
+   \
    ABC_TESTING_REGISTER_TEST_CASE(name) \
    \
    /*virtual*/ void name::run() /*override*/
+
+/*! Declares and opens the definition of a simple test case, consisting in a single function with a
+unique name.
+
+@param test_title
+   Title of the test, as a string literal.
+*/
+#define ABC_TESTING_TEST_CASE_FUNC(test_title) \
+   _ABC_TESTING_TEST_CASE_FUNC_IMPL(ABC_CPP_APPEND_UID(g__test_case_func_), test_title)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::testing::test_case_factory_list

@@ -22,14 +22,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::text_writer_print_no_replacements
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   text_writer_print_no_replacements, "abc::io::text::writer::print() – no replacements"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::io::text::writer::print() – no replacements") {
    ABC_TRACE_FUNC(this);
 
    smstr<128> sWriterBuffer;
@@ -64,14 +61,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::text_writer_print_one_replacement
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   text_writer_print_one_replacement, "abc::io::text_writer::print() – one replacement"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – one replacement") {
    ABC_TRACE_FUNC(this);
 
    smstr<128> sWriterBuffer;
@@ -130,14 +124,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::text_writer_print_two_replacements
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   text_writer_print_two_replacements, "abc::io::text_writer::print() – two replacements"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – two replacements") {
    ABC_TRACE_FUNC(this);
 
    smstr<128> sWriterBuffer;

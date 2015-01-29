@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::enum_basic
 
 namespace abc {
 namespace test {
@@ -37,7 +36,7 @@ ABC_ENUM(test_enum,
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(enum_basic, "abc::enum-derived classes – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::enum-derived classes – basic operations") {
    ABC_TRACE_FUNC(this);
 
    test_enum e(test_enum::value2);

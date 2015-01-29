@@ -23,12 +23,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::range_basic
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(range_basic, "abc::range – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::range – basic operations") {
    ABC_TRACE_FUNC(this);
 
    range<int> r1;

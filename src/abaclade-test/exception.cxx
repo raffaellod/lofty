@@ -117,14 +117,11 @@ public:
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::exception_from_os_hard_error
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(
-   exception_from_os_hard_error, "abc::exception – conversion of hard OS errors into C++ exceptions"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::exception – conversion of hard OS errors into C++ exceptions") {
    ABC_TRACE_FUNC(this);
 
    {

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -149,9 +149,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<
-            decltype(puctx->uc_mcontext.arm_r0)
-         >::type reg_t;
+         typedef typename std::remove_reference<decltype(puctx->uc_mcontext.arm_r0)>::type reg_t;
          reg_t & r0 = puctx->uc_mcontext.arm_r0;
          reg_t & r1 = puctx->uc_mcontext.arm_r1;
          reg_t & r2 = puctx->uc_mcontext.arm_r2;

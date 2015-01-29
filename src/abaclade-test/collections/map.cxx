@@ -23,12 +23,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::map_basic
 
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::collections::map – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TRACE_FUNC(this);
 
    collections::map<int, int> m;
@@ -80,7 +79,6 @@ ABC_TESTING_TEST_CASE_FUNC(map_basic, "abc::collections::map – basic operation
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::map_collisions
 
 namespace abc {
 namespace test {
@@ -105,9 +103,7 @@ struct poor_hash {
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC(
-   map_collisions, "abc::collections::map – stress test with 100% collisions"
-) {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% collisions") {
    ABC_TRACE_FUNC(this);
 
    static int const sc_iMax = 1000;
