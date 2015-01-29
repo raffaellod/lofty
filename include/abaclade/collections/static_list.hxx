@@ -91,6 +91,15 @@ public:
       return iterator(nullptr, pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
    }
 
+   /*! Returns true if the list contains no elements.
+
+   @return
+      true if the list is empty, or false otherwise.
+   */
+   static bool empty() {
+      return !TContainer::sm_pnFirst && !TContainer::sm_pnLast;
+   }
+
    /*! Returns a forward iterator to the end of the list.
 
    @return
@@ -116,6 +125,15 @@ public:
    */
    static reverse_iterator rend() {
       return reverse_iterator(begin());
+   }
+
+   /*! Returns the count of elements in the list.
+
+   @return
+      Count of elements.
+   */
+   static std::size_t size() {
+      return static_cast<std::size_t>(std::distance(begin(), end()));
    }
 
 private:
