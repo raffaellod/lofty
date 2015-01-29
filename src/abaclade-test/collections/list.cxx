@@ -18,8 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/testing/test_case.hxx>
 #include <abaclade/collections/list.hxx>
+#include <abaclade/testing/test_case.hxx>
+#include <abaclade/testing/utility.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +89,57 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
    l.clear();
    ABC_TESTING_ASSERT_TRUE(l.empty());
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
+}
+
+} //namespace test
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+namespace test {
+
+namespace {
+
+/*! Instantiates and returns a list. The list will contain one node, added in a way that should
+cause only one new instance of instances_counter to be created, one moved and none copied.
+
+return
+   Newly-instantiated list.
+*/
+collections::list<testing::utility::instances_counter> return_list() {
+   ABC_TRACE_FUNC();
+
+   collections::list<testing::utility::instances_counter> l;
+   // New instance, immediately moved.
+   l.push_back(testing::utility::instances_counter());
+   // This will move the entire list, not each node individually.
+   return std::move(l);
+}
+
+} //namespace
+
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
+   ABC_TRACE_FUNC(this);
+
+   typedef testing::utility::instances_counter instances_counter;
+   {
+      /* This will move the elements from the returned list to l1, so no node copies or moves
+      will occur other than the ones in return_list(). */
+      collections::list<instances_counter> l(return_list());
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+      instances_counter::reset_counts();
+
+      /* This should create a new copy, with no intermediate moves because all passages are by
+      reference or pointer. */
+      l.push_back(l.front());
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
+      ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
+      instances_counter::reset_counts();
+   }
 }
 
 } //namespace test
