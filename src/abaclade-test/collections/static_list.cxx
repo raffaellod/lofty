@@ -75,13 +75,15 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
    /* Since by design static_list elements are added automatically on instantiation and removed on
    destruction, additions and removals are governed by nested scopes. */
 
-// ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
+   ABC_TESTING_ASSERT_TRUE(static_list_test::empty());
+   ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
    ABC_TESTING_ASSERT_TRUE(static_list_test::begin() == static_list_test::end());
    ABC_TESTING_ASSERT_TRUE(static_list_test::rbegin() == static_list_test::rend());
 
    {
       static_list_node_test n10(10);
-//    ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
+      ABC_TESTING_ASSERT_FALSE(static_list_test::empty());
+      ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
       {
          // Simple forward iteration.
          auto it(static_list_test::begin());
@@ -92,7 +94,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
 
       {
          static_list_node_test n20(20);
-//       ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 2u);
+         ABC_TESTING_ASSERT_FALSE(static_list_test::empty());
+         ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 2u);
          {
             // Backwards iteration.
             auto it(static_list_test::rbegin());
@@ -104,7 +107,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
          }
       }
 
-//    ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
+      ABC_TESTING_ASSERT_FALSE(static_list_test::empty());
+      ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
       {
          // Backwards iteration using a forward iterator.
          auto it(static_list_test::end());
@@ -114,18 +118,21 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
       }
    }
 
-// ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
+   ABC_TESTING_ASSERT_TRUE(static_list_test::empty());
+   ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
    ABC_TESTING_ASSERT_TRUE(static_list_test::begin() == static_list_test::end());
    ABC_TESTING_ASSERT_TRUE(static_list_test::rbegin() == static_list_test::rend());
 
    {
       static_list_node_test n30(30);
-//    ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
+      ABC_TESTING_ASSERT_FALSE(static_list_test::empty());
+      ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
       ABC_TESTING_ASSERT_TRUE(static_list_test::begin() != static_list_test::end());
       ABC_TESTING_ASSERT_TRUE(static_list_test::rbegin() != static_list_test::rend());
    }
 
-// ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
+   ABC_TESTING_ASSERT_TRUE(static_list_test::empty());
+   ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 0u);
    ABC_TESTING_ASSERT_TRUE(static_list_test::begin() == static_list_test::end());
 }
 

@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::io::binary::pipe – alternating writes and reads") {
+ABC_TESTING_TEST_CASE_FUNC("abc::io::binary::pipe – alternating symmetrical writes and reads") {
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_ciBuffer = 1024;
