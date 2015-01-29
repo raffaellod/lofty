@@ -159,7 +159,10 @@ protected:
    class node : public node_impl {
    public:
       //! Constructor.
-      node(T t) :
+      node(T const & t) :
+         m_t(t) {
+      }
+      node(T && t) :
          m_t(std::move(t)) {
       }
 
@@ -357,7 +360,17 @@ public:
    @param t
       Element to add.
    */
-   void push_front(T t) {
+   void push_front(T const & t) {
+//      ABC_TRACE_FUNC(this/*, t*/);
+
+      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
+      node, since node_impl doesn’t have a virtual destructor. */
+      std::unique_ptr<node> pn(new node(t));
+      link_front(pn.get());
+      // No exceptions, so the node is managed as part of the list.
+      pn.release();
+   }
+   void push_front(T && t) {
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
@@ -373,7 +386,17 @@ public:
    @param t
       Element to add.
    */
-   void push_back(T t) {
+   void push_back(T const & t) {
+//      ABC_TRACE_FUNC(this/*, t*/);
+
+      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
+      node, since node_impl doesn’t have a virtual destructor. */
+      std::unique_ptr<node> pn(new node(t));
+      link_back(pn.get());
+      // No exceptions, so the node is managed as part of the list.
+      pn.release();
+   }
+   void push_back(T && t) {
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
