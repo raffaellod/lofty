@@ -428,7 +428,7 @@ private:
    @param pnFirst
       Pointer to the first node to destruct.
    */
-   void destruct_list(node * pnFirst) {
+   static void destruct_list(node * pnFirst) {
 //      ABC_TRACE_FUNC(this);
 
       for (node_impl * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
