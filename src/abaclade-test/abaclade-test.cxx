@@ -25,5 +25,3 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::testing::app
 
 ABC_APP_CLASS(abc::testing::app)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
