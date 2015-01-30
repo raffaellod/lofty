@@ -252,7 +252,9 @@ namespace memory {
 plus additional cbExtra bytes.
 
 @param c
-   Count of items to allocate memory for.
+   Count of items to allocate memory for (non-void case).
+@param cb
+   Amount of memory to allocate, in bytes (void case).
 @param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 @return
@@ -266,6 +268,12 @@ inline std::unique_ptr<T, freeing_deleter> alloc(std::size_t c = 1, std::size_t 
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
+template <>
+inline std::unique_ptr<void, freeing_deleter> alloc<void>(
+   std::size_t cb, std::size_t cbExtra /*= 0*/
+) {
+   return std::unique_ptr<void, freeing_deleter>(_raw_alloc(cb + cbExtra));
+}
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
 it in case a new memory block is needed.
@@ -273,7 +281,9 @@ it in case a new memory block is needed.
 @param ppt
    Pointer to a smart pointer to the memory block to resize.
 @param c
-   Count of items to allocate memory for.
+   Count of items to allocate memory for (non-void case).
+@param cb
+   Amount of memory to allocate, in bytes (void case).
 @param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
@@ -283,6 +293,14 @@ inline void realloc(
 ) {
    typedef typename std::unique_ptr<T, freeing_deleter>::element_type TElt;
    TElt * pt = static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra));
+   ppt->release();
+   ppt->reset(pt);
+}
+template <>
+inline void realloc(
+   std::unique_ptr<void, freeing_deleter> * ppt, std::size_t cb, std::size_t cbExtra /*= 0*/
+) {
+   void * pt = _raw_realloc(ppt->get(), cb + cbExtra);
    ppt->release();
    ppt->reset(pt);
 }
