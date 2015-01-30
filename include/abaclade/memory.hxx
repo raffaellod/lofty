@@ -133,13 +133,9 @@ namespace abc {
 namespace memory {
 
 //! Deleter that deallocates memory using memory::free().
-template <typename T>
 struct freeing_deleter {
    //! Constructor.
    freeing_deleter() {
-   }
-   template <typename T2>
-   freeing_deleter(freeing_deleter<T2> const &) {
    }
 
    /*! Copy-assignment operator.
@@ -147,48 +143,17 @@ struct freeing_deleter {
    @return
       *this.
    */
-   template <typename T2>
-   freeing_deleter & operator=(freeing_deleter<T2> const &) {
+   freeing_deleter & operator=(freeing_deleter const &) {
       return *this;
    }
 
    /*! Deallocates the specified memory block.
 
-   @param pt
+   @param p
       Pointer to the object to deallocate.
    */
-   void operator()(T * pt) const {
-      _raw_free(pt);
-   }
-};
-
-// Specialization for arrays.
-template <typename T>
-struct freeing_deleter<T[]> {
-   //! Constructor.
-   freeing_deleter() {
-   }
-   template <typename T2>
-   freeing_deleter(freeing_deleter<T2> const &) {
-   }
-
-   /*! Copy-assignment operator.
-
-   @return
-      *this.
-   */
-   template <typename T2>
-   freeing_deleter & operator=(freeing_deleter<T2> const &) {
-      return *this;
-   }
-
-   /*! Deallocates the specified array.
-
-   @param pt
-      Pointer to the array to deallocate.
-   */
-   void operator()(T * pt) const {
-      _raw_free(pt);
+   void operator()(void const * p) const {
+      _raw_free(p);
    }
 };
 
@@ -295,9 +260,9 @@ plus additional cbExtra bytes.
    the pointer is destructed.
 */
 template <typename T>
-inline std::unique_ptr<T, freeing_deleter<T>> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
-   typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
-   return std::unique_ptr<T, freeing_deleter<T>>(
+inline std::unique_ptr<T, freeing_deleter> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
+   typedef typename std::unique_ptr<T, freeing_deleter>::element_type TElt;
+   return std::unique_ptr<T, freeing_deleter>(
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
@@ -314,9 +279,9 @@ it in case a new memory block is needed.
 */
 template <typename T>
 inline void realloc(
-   std::unique_ptr<T, freeing_deleter<T>> * ppt, std::size_t c, std::size_t cbExtra = 0
+   std::unique_ptr<T, freeing_deleter> * ppt, std::size_t c, std::size_t cbExtra = 0
 ) {
-   typedef typename std::unique_ptr<T, freeing_deleter<T>>::element_type TElt;
+   typedef typename std::unique_ptr<T, freeing_deleter>::element_type TElt;
    TElt * pt = static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra));
    ppt->release();
    ppt->reset(pt);

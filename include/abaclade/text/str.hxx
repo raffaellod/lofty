@@ -35,8 +35,7 @@ class c_str_ptr {
 private:
    //! Internal conditionally-deleting pointer type.
    typedef std::unique_ptr<
-      char_t const [],
-      memory::conditional_deleter<char_t const [], memory::freeing_deleter<char_t const []>>
+      char_t const [], memory::conditional_deleter<char_t const [], memory::freeing_deleter>
    > pointer;
 
 public:
