@@ -34,11 +34,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
 
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
 
-   m.add(10, 100);
+   m.add_or_assign(10, 100);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
 
-   m.add(20, 200);
+   m.add_or_assign(20, 200);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
@@ -47,7 +47,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
 
-   m.add(22, 220);
+   m.add_or_assign(22, 220);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
    ABC_TESTING_ASSERT_EQUAL(m[22], 220);
@@ -55,7 +55,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    m.clear();
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
 
-   m.add(11, 110);
+   m.add_or_assign(11, 110);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(m[11], 110);
 
@@ -65,7 +65,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    do {
       iKey += 11;
       iValue += 110;
-      m.add(iKey, iValue);
+      m.add_or_assign(iKey, iValue);
    } while (m.capacity() == iInitialCapacity);
    /* Verify that some values are still there. Can’t check them all because we don’t know exactly
    how many we ended up adding. */
@@ -113,7 +113,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% coll
    // Verify that values are inserted correctly.
    cErrors = 0;
    for (int i = 0; i < sc_iMax; ++i) {
-      m.add(i, i);
+      m.add_or_assign(i, i);
       if (m[i] != i) {
          ++cErrors;
       }

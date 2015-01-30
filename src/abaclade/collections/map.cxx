@@ -65,7 +65,7 @@ map_impl & map_impl::operator=(map_impl && m) {
    return *this;
 }
 
-std::pair<std::size_t, bool> map_impl::add(
+std::pair<std::size_t, bool> map_impl::add_or_assign(
    std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
    move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
    destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue

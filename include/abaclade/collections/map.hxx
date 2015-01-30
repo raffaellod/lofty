@@ -118,7 +118,7 @@ protected:
       key/value pair was just added, or false if the key already existed in the map and the
       corresponding value was overwritten.
    */
-   std::pair<std::size_t, bool> add(
+   std::pair<std::size_t, bool> add_or_assign(
       std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
       move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
       destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue
@@ -463,10 +463,10 @@ public:
       key/value pair was just added, or false if the key already existed in the map and the
       corresponding value was overwritten.
    */
-   std::pair<iterator, bool> add(TKey key, TValue value) {
+   std::pair<iterator, bool> add_or_assign(TKey key, TValue value) {
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       bool bNew;
-      std::tie(iBucket, bNew) = map_impl::add(
+      std::tie(iBucket, bNew) = map_impl::add_or_assign(
          sizeof(TKey), sizeof(TValue), &keys_equal, &move_key_value_to_bucket, &destruct_key_value,
          &key, iKeyHash, &value
       );

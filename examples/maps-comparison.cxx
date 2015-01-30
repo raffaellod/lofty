@@ -200,7 +200,7 @@ private:
       {
          swAdd.start();
          ABC_FOR_EACH(auto i, r) {
-            pm->add(i, i);
+            pm->add_or_assign(i, i);
          }
          swAdd.stop();
       }
