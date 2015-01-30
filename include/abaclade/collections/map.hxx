@@ -300,9 +300,9 @@ protected:
    //! Array containing the hash of each key.
    std::unique_ptr<std::size_t[]> m_piHashes;
    //! Array of keys.
-   std::unique_ptr<abc::max_align_t[]> m_pKeys;
+   std::unique_ptr<void, memory::freeing_deleter> m_pKeys;
    //! Array of buckets.
-   std::unique_ptr<abc::max_align_t[]> m_pValues;
+   std::unique_ptr<void, memory::freeing_deleter> m_pValues;
    //! Count of total buckets. Always a power of two.
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.
@@ -571,7 +571,7 @@ private:
       Pointer to the key.
    */
    TKey * key_ptr(std::size_t i) const {
-      return reinterpret_cast<TKey *>(m_pKeys.get()) + i;
+      return static_cast<TKey *>(m_pKeys.get()) + i;
    }
 
    /*! Compares two keys for equality. Static helper used by detail::map_impl.
@@ -665,7 +665,7 @@ private:
       Pointer to the value.
    */
    TValue * value_ptr(std::size_t i) const {
-      return reinterpret_cast<TValue *>(m_pValues.get()) + i;
+      return static_cast<TValue *>(m_pValues.get()) + i;
    }
 };
 

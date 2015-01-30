@@ -234,8 +234,8 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
       // Move the contents of iMovableBucket to iEmptyBucket.
       pfnMoveKeyValueToBucket(
          this,
-         reinterpret_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iMovableBucket,
-         reinterpret_cast<std::int8_t *>(m_pValues.get()) + cbValue * iMovableBucket,
+         static_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iMovableBucket,
+         static_cast<std::int8_t *>(m_pValues.get()) + cbValue * iMovableBucket,
          iEmptyBucket
       );
       m_piHashes[iEmptyBucket] = m_piHashes[iMovableBucket];
@@ -251,12 +251,8 @@ void map_impl::grow_table(
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
    std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
-   std::unique_ptr<abc::max_align_t[]> pOldKeys(
-      new abc::max_align_t[ABC_ALIGNED_SIZE(cbKey * cOldBuckets)]
-   );
-   std::unique_ptr<abc::max_align_t[]> pOldValues(
-      new abc::max_align_t[ABC_ALIGNED_SIZE(cbValue * cOldBuckets)]
-   );
+   auto pOldKeys  (memory::alloc<void>(cbKey   * cOldBuckets));
+   auto pOldValues(memory::alloc<void>(cbValue * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.
    std::swap(m_cBuckets, cOldBuckets);
    std::swap(m_piHashes, piOldHashes);
@@ -267,8 +263,8 @@ void map_impl::grow_table(
    /* Recalculate the neighborhood size. The (missing) “else” to this “if” is for when the actual
    neighborhood size is greater than the ideal, which can happen when dealing with a subpar hash
    function that resulted in more collisions than smc_cIdealNeighborhoodBuckets. In that scenario,
-   the table size increase doesn’t change anything, since the fix has already been applied to
-   m_cNeighborhoodBuckets, which we won’t change here. */
+   the table size increase doesn’t change anything, since the fix has already been applied with a
+   change in m_cNeighborhoodBuckets which happened bwfore this method was called. */
    if (m_cNeighborhoodBuckets < smc_cIdealNeighborhoodBuckets) {
       if (m_cBuckets < smc_cIdealNeighborhoodBuckets) {
          /* m_cNeighborhoodBuckets has not yet reached smc_cIdealNeighborhoodBuckets, but it can’t
@@ -284,8 +280,8 @@ void map_impl::grow_table(
    memory::clear(m_piHashes.get(), m_cBuckets);
    // Re-insert each hash/key/value triplet to move it from the old arrays to the new ones.
    std::size_t * piOldHash = piOldHashes.get(), * piOldHashesEnd = piOldHash + cOldBuckets;
-   std::int8_t * pbOldKey   = reinterpret_cast<std::int8_t *>(pOldKeys  .get());
-   std::int8_t * pbOldValue = reinterpret_cast<std::int8_t *>(pOldValues.get());
+   std::int8_t * pbOldKey   = static_cast<std::int8_t *>(pOldKeys  .get());
+   std::int8_t * pbOldValue = static_cast<std::int8_t *>(pOldValues.get());
    for (; piOldHash < piOldHashesEnd; ++piOldHash, pbOldKey += cbKey, pbOldValue += cbValue) {
       if (*piOldHash != smc_iEmptyBucketHash) {
          std::size_t iNewBucket = get_empty_bucket_for_key(
@@ -323,7 +319,7 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
          a cursor over m_pKeys running in parallel to piHash. */
          (*piHash == iKeyHash && pfnKeysEqual(
             this,
-            reinterpret_cast<std::int8_t const *>(m_pKeys.get()) +
+            static_cast<std::int8_t const *>(m_pKeys.get()) +
                cbKey * static_cast<std::size_t>(piHash - m_piHashes.get()),
             pKey
          ))
