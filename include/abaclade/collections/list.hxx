@@ -151,12 +151,9 @@ namespace collections {
 //! Doubly-linked list.
 template <typename T>
 class list : public detail::list_impl {
-private:
-   typedef detail::xor_list::node node_impl;
-
 protected:
    //! List node.
-   class node : public node_impl {
+   class node : public detail::xor_list::node {
    public:
       //! Constructor.
       node(T const & t) :
@@ -183,20 +180,9 @@ protected:
       T m_t;
    };
 
-   //! Nodes iterator.
-   template <typename TValue>
-   class iterator_impl :
-      public detail::xor_list::iterator<iterator_impl<TValue>, node, TValue> {
-   public:
-      //! See detail::xor_list::iterator::iterator().
-      iterator_impl(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
-         detail::xor_list::iterator<iterator_impl<TValue>, node, TValue>(pnPrev, pnCurr, pnNext) {
-      }
-   };
-
 public:
-   typedef iterator_impl<T> iterator;
-   typedef iterator_impl<T const> const_iterator;
+   typedef detail::xor_list::iterator<node, T> iterator;
+   typedef detail::xor_list::iterator<node, T const> const_iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -364,7 +350,7 @@ public:
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since node_impl doesn’t have a virtual destructor. */
+      node, since detail::xor_list::node doesn’t have a virtual destructor. */
       std::unique_ptr<node> pn(new node(t));
       link_front(pn.get());
       // No exceptions, so the node is managed as part of the list.
@@ -374,7 +360,7 @@ public:
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since node_impl doesn’t have a virtual destructor. */
+      node, since detail::xor_list::node doesn’t have a virtual destructor. */
       std::unique_ptr<node> pn(new node(std::move(t)));
       link_front(pn.get());
       // No exceptions, so the node is managed as part of the list.
@@ -390,7 +376,7 @@ public:
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since node_impl doesn’t have a virtual destructor. */
+      node, since detail::xor_list::node doesn’t have a virtual destructor. */
       std::unique_ptr<node> pn(new node(t));
       link_back(pn.get());
       // No exceptions, so the node is managed as part of the list.
@@ -400,7 +386,7 @@ public:
 //      ABC_TRACE_FUNC(this/*, t*/);
 
       /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since node_impl doesn’t have a virtual destructor. */
+      node, since detail::xor_list::node doesn’t have a virtual destructor. */
       std::unique_ptr<node> pn(new node(std::move(t)));
       link_back(pn.get());
       // No exceptions, so the node is managed as part of the list.
@@ -454,8 +440,8 @@ private:
    static void destruct_list(node * pnFirst) {
 //      ABC_TRACE_FUNC(this);
 
-      for (node_impl * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
-         node_impl * pnNext = pnCurr->get_next(pnPrev);
+      for (detail::xor_list::node * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
+         detail::xor_list::node * pnNext = pnCurr->get_next(pnPrev);
          delete static_cast<node *>(pnCurr);
          pnPrev = pnCurr;
          pnCurr = pnNext;

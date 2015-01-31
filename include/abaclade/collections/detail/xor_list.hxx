@@ -87,10 +87,33 @@ public:
       std::uintptr_t m_iPrevXorNext;
    };
 
-   //! Iterator for XOR doubly-linked list node classes.
-   template <typename TIterator, typename TNode, typename TValue>
-   class iterator : public std::iterator<std::bidirectional_iterator_tag, TValue> {
+protected:
+   //! Non-template base for iterator.
+   class iterator_base {
    public:
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this refers to the same element as it, or false otherwise.
+      */
+      bool operator==(iterator_base const & it) const {
+         return m_pnCurr == it.m_pnCurr;
+      }
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this refers to a different element than it, or false otherwise.
+      */
+      bool operator!=(iterator_base const & it) const {
+         return !operator==(it);
+      }
+
+   protected:
       /*! Constructor.
 
       @param pnPrev
@@ -100,10 +123,49 @@ public:
       @param pnNext
          Pointer to the node following *pnCurr.
       */
+      iterator_base(node * pnPrev, node * pnCurr, node * pnNext) :
+         m_pnPrev(pnPrev),
+         m_pnCurr(pnCurr),
+         m_pnNext(pnNext) {
+      }
+
+      //! Moves the iterator backwards.
+      void decrement() {
+         m_pnNext = m_pnCurr;
+         m_pnCurr = m_pnPrev;
+         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
+      }
+
+      //! Moves the iterator forwards.
+      void increment() {
+         m_pnPrev = m_pnCurr;
+         m_pnCurr = m_pnNext;
+         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
+      }
+
+   protected:
+      //! Pointer to the previous node.
+      node * m_pnPrev;
+      //! Pointer to the current node.
+      node * m_pnCurr;
+      //! Pointer to the next node.
+      node * m_pnNext;
+   };
+
+public:
+   //! Iterator for XOR doubly-linked list node classes.
+   template <typename TNode, typename TValue, bool t_bConst = std::is_const<TValue>::value>
+   class iterator;
+
+   // Partial specialization for const TValue.
+   template <typename TNode, typename TValue>
+   class iterator<TNode, TValue, true> :
+      public iterator_base,
+      public std::iterator<std::bidirectional_iterator_tag, TValue> {
+   public:
+      //! See iterator_base::iterator_base().
       iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         m_pnPrev(static_cast<TNode *>(pnPrev)),
-         m_pnCurr(static_cast<TNode *>(pnCurr)),
-         m_pnNext(static_cast<TNode *>(pnNext)) {
+         iterator_base(pnPrev, pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
@@ -112,7 +174,7 @@ public:
          Reference to the current node.
       */
       TValue & operator*() const {
-         return *m_pnCurr->value_ptr();
+         return *static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
       /*! Dereferencing member access operator.
@@ -121,19 +183,17 @@ public:
          Pointer to the current node.
       */
       TValue * operator->() const {
-         return m_pnCurr->value_ptr();
+         return static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
       /*! Preincrement operator.
 
       @return
-         *this after it’s moved to the node following the one currently pointed to by.
+         *this.
       */
-      TIterator & operator++() {
-         m_pnPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_next(m_pnPrev)) : nullptr;
-         return *static_cast<TIterator *>(this);
+      iterator & operator++() {
+         increment();
+         return *this;
       }
 
       /*! Postincrement operator.
@@ -141,22 +201,20 @@ public:
       @return
          Iterator pointing to the node following the one pointed to by this iterator.
       */
-      TIterator operator++(int) {
-         TNode * pnPrevPrev = m_pnPrev;
-         operator++();
-         return TIterator(pnPrevPrev, m_pnPrev, m_pnCurr);
+      iterator operator++(int) {
+         node * pnPrevPrev = m_pnPrev;
+         increment();
+         return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
       }
 
       /*! Predecrement operator.
 
       @return
-         *this after it’s moved to the node preceding the one currently pointed to by.
+         *this.
       */
-      TIterator & operator--() {
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnPrev;
-         m_pnPrev = m_pnCurr ? static_cast<TNode *>(m_pnCurr->get_prev(m_pnNext)) : nullptr;
-         return *static_cast<TIterator *>(this);
+      iterator & operator--() {
+         decrement();
+         return *this;
       }
 
       /*! Postdecrement operator.
@@ -164,29 +222,11 @@ public:
       @return
          Iterator pointing to the node preceding the one pointed to by this iterator.
       */
-      TIterator operator--(int) {
-         TNode * pnNextNext = m_pnNext;
-         operator--();
-         return TIterator(m_pnCurr, m_pnNext, pnNextNext);
+      iterator operator--(int) {
+         node * pnNextNext = m_pnNext;
+         decrement();
+         return iterator(m_pnCurr, m_pnNext, pnNextNext);
       }
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-      template <typename TIterator2> \
-      bool operator op( \
-         iterator<TIterator2, TNode, typename std::add_const<TValue>::type> const & it \
-      ) const { \
-         return base() op it.base(); \
-      } \
-      template <typename TIterator2> \
-      bool operator op( \
-         iterator<TIterator2, TNode, typename std::remove_const<TValue>::type> const & it \
-      ) const { \
-         return base() op it.base(); \
-      }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-#undef ABC_RELOP_IMPL
 
       /*! Returns the underlying pointer to the node.
 
@@ -194,16 +234,105 @@ ABC_RELOP_IMPL(!=)
          Pointer to the current node.
       */
       TNode const * base() const {
-         return m_pnCurr;
+         return static_cast<TNode *>(m_pnCurr);
       }
 
-   protected:
-      //! Pointer to the previous node.
-      TNode * m_pnPrev;
-      //! Pointer to the current node.
-      TNode * m_pnCurr;
-      //! Pointer to the next node.
-      TNode * m_pnNext;
+      /*! Returns a pointer to the next node.
+
+      @return
+         Pointer to the next node.
+      */
+      TNode const * next_base() const {
+         return static_cast<TNode *>(m_pnNext);
+      }
+
+      /*! Returns a pointer to the previous node.
+
+      @return
+         Pointer to the previous node.
+      */
+      TNode const * prev_base() const {
+         return static_cast<TNode *>(m_pnPrev);
+      }
+   };
+
+   // Partial specialization for non-const TValue.
+   template <typename TNode, typename TValue>
+   class iterator<TNode, TValue, false> :
+      public iterator<TNode, typename std::add_const<TValue>::type, true>,
+      public std::iterator<std::bidirectional_iterator_tag, TValue> {
+   private:
+      // Shortcuts.
+      typedef iterator<TNode, typename std::add_const<TValue>::type, true> const_iterator;
+      typedef std::iterator<std::bidirectional_iterator_tag, TValue> std_iterator;
+
+   public:
+      // These are inherited from both base classes, so resolve the ambiguity.
+      using typename std_iterator::difference_type;
+      using typename std_iterator::iterator_category;
+      using typename std_iterator::pointer;
+      using typename std_iterator::reference;
+      using typename std_iterator::value_type;
+
+   public:
+      //! See const_iterator::const_iterator().
+      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
+         const_iterator(pnPrev, pnCurr, pnNext) {
+      }
+
+      /*! Dereferencing operator.
+
+      @return
+         Reference to the current node.
+      */
+      TValue & operator*() const {
+         return const_cast<TValue &>(const_iterator::operator*());
+      }
+
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current node.
+      */
+      TValue * operator->() const {
+         return const_cast<TValue *>(const_iterator::operator->());
+      }
+
+      /*! Preincrement operator.
+
+      @return
+         *this.
+      */
+      iterator & operator++() {
+         return static_cast<iterator &>(const_iterator::operator++());
+      }
+
+      /*! Postincrement operator.
+
+      @return
+         Iterator pointing to the node following the one pointed to by this iterator.
+      */
+      iterator operator++(int) {
+         return static_cast<iterator &>(const_iterator::operator++(0));
+      }
+
+      /*! Predecrement operator.
+
+      @return
+         *this.
+      */
+      iterator & operator--() {
+         return static_cast<iterator &>(const_iterator::operator--());
+      }
+
+      /*! Postdecrement operator.
+
+      @return
+         Iterator pointing to the node preceding the one pointed to by this iterator.
+      */
+      iterator operator--(int) {
+         return static_cast<iterator &>(const_iterator::operator--(0));
+      }
    };
 };
 

@@ -34,13 +34,10 @@ singleton at program startup, and this class ensures that they are removed when 
 terminates. */
 template <class TContainer, class TValue>
 class static_list {
-private:
-   typedef detail::xor_list::node node_impl;
-
 public:
    /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
    static_list subclass singleton. */
-   class node : public node_impl {
+   class node : public detail::xor_list::node {
    public:
       /*! Returns a pointer to the contained TValue.
 
@@ -69,15 +66,7 @@ public:
       }
    };
 
-   //! Iterator for static_list::node subclasses.
-   class iterator : public detail::xor_list::iterator<iterator, node, TValue> {
-   public:
-      //! See detail::xor_list::iterator::iterator().
-      iterator(node_impl * pnPrev, node_impl * pnCurr, node_impl * pnNext) :
-         detail::xor_list::iterator<iterator, node, TValue>(pnPrev, pnCurr, pnNext) {
-      }
-   };
-
+   typedef detail::xor_list::iterator<node, TValue> iterator;
    typedef std::reverse_iterator<iterator> reverse_iterator;
 
 public:
@@ -87,7 +76,7 @@ public:
       Iterator to the first node in the list.
    */
    static iterator begin() {
-      node_impl * pnFirst = TContainer::sm_pnFirst;
+      detail::xor_list::node * pnFirst = TContainer::sm_pnFirst;
       return iterator(nullptr, pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
    }
 
@@ -142,11 +131,11 @@ private:
    @param pn
       Pointer to the node to add.
    */
-   static void push_back(node_impl * pn) {
+   static void push_back(detail::xor_list::node * pn) {
       pn->set_prev_next(nullptr, TContainer::sm_pnLast);
       if (!TContainer::sm_pnFirst) {
          TContainer::sm_pnFirst = pn;
-      } else if (node_impl * pnLast = TContainer::sm_pnLast) {
+      } else if (detail::xor_list::node * pnLast = TContainer::sm_pnLast) {
          pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
       }
       TContainer::sm_pnLast = pn;
@@ -157,10 +146,10 @@ private:
    @param pn
       Pointer to the node to remove.
    */
-   static void remove(node_impl * pn) {
+   static void remove(detail::xor_list::node * pn) {
       // Find pn in the list.
       for (
-         node_impl * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
+         detail::xor_list::node * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
          pnCurr;
          pnPrev = pnCurr, pnCurr = pnNext
       ) {
