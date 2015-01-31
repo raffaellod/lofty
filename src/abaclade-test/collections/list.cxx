@@ -22,6 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/testing/utility.hxx>
 
+#include <algorithm>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -124,8 +126,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
 
    typedef testing::utility::instances_counter instances_counter;
    {
-      /* This will move the elements from the returned list to l1, so no node copies or moves
-      will occur other than the ones in return_list(). */
+      /* This will move the elements from the returned list to l1, so no node copies or moves will
+      occur other than the ones in return_list(). */
       collections::list<instances_counter> l(return_list());
       ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
       ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
@@ -140,6 +142,29 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
       ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
       instances_counter::reset_counts();
    }
+}
+
+} //namespace test
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators") {
+   ABC_TRACE_FUNC(this);
+
+   collections::list<int> v;
+   v.push_back(1);
+   v.push_back(2);
+   v.push_back(3);
+
+   // Remove an element by iterator.
+   v.remove_at(std::find(v.cbegin(), v.cend(), 2));
+   ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(v.front(), 1);
+   ABC_TESTING_ASSERT_EQUAL(v.back(), 3);
 }
 
 } //namespace test
