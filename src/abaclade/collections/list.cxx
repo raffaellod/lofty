@@ -86,34 +86,36 @@ void list_impl::link_front(xor_list::node * pn) {
    ++m_cNodes;
 }
 
-xor_list::node * list_impl::unlink_back() {
-   ABC_TRACE_FUNC(this);
+xor_list::node * list_impl::unlink(
+   xor_list::node * pn, xor_list::node * pnPrev, xor_list::node * pnNext
+) {
+   ABC_TRACE_FUNC(this, pn, pnPrev, pnNext);
 
-   xor_list::node * pn = m_pnLast, * pnPrev = pn->get_prev(nullptr);
-   m_pnLast = pnPrev;
    if (pnPrev) {
-      pnPrev->set_prev_next(pnPrev->get_prev(pn), nullptr);
+      pnPrev->set_prev_next(pnPrev->get_prev(pn), pnNext);
    } else if (m_pnFirst == pn) {
-      m_pnFirst = nullptr;
+      m_pnFirst = pnNext;
+   }
+   if (pnNext) {
+      pnNext->set_prev_next(pnPrev, pnNext->get_next(pn));
+   } else if (m_pnLast == pn) {
+      m_pnLast = pnPrev;
    }
    --m_cNodes;
    // Now the subclass must delete pn.
    return pn;
 }
 
+xor_list::node * list_impl::unlink_back() {
+   ABC_TRACE_FUNC(this);
+
+   return unlink(m_pnLast, m_pnLast->get_prev(nullptr), nullptr);
+}
+
 xor_list::node * list_impl::unlink_front() {
    ABC_TRACE_FUNC(this);
 
-   xor_list::node * pn = m_pnFirst, * pnNext = pn->get_next(nullptr);
-   m_pnFirst = pnNext;
-   if (pnNext) {
-      pnNext->set_prev_next(nullptr, pnNext->get_next(pn));
-   } else if (m_pnLast == pn) {
-      m_pnLast = nullptr;
-   }
-   --m_cNodes;
-   // Now the subclass must delete pn.
-   return pn;
+   return unlink(m_pnFirst, nullptr, m_pnFirst->get_next(nullptr));
 }
 
 } //namespace detail

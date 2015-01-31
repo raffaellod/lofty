@@ -115,6 +115,19 @@ protected:
    */
    void link_front(xor_list::node * pn);
 
+   /*! Unlinks and returns a node in the list.
+
+   @param pn
+      Pointer to the node to unlink.
+   @param pnPrev
+      Pointer to the node preceding *pn.
+   @param pnNext
+      Pointer to the node following *pn.
+   @return
+      Now-unlinked node.
+   */
+   xor_list::node * unlink(xor_list::node * pn, xor_list::node * pnPrev, xor_list::node * pnNext);
+
    /*! Unlinks and returns the first node in the list.
 
    @return
@@ -403,6 +416,21 @@ public:
    }
    const_reverse_iterator rbegin() const {
       return const_reverse_iterator(end());
+   }
+
+   /*! Removes the element at the specified position.
+
+   @param it
+      Iterator to the element to remove.
+   */
+   void remove_at(const_iterator const & it) {
+//      ABC_TRACE_FUNC(this);
+
+      delete static_cast<node *>(unlink(
+         const_cast<node *>(it.base()),
+         const_cast<node *>(it.prev_base()),
+         const_cast<node *>(it.next_base())
+      ));
    }
 
    //! Removes the last element in the list.
