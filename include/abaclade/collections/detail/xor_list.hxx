@@ -89,7 +89,7 @@ public:
 
 protected:
    //! Non-template base for iterator.
-   class iterator_base {
+   class ABACLADE_SYM iterator_base {
    public:
       /*! Equality relational operator.
 
@@ -130,18 +130,10 @@ protected:
       }
 
       //! Moves the iterator backwards.
-      void decrement() {
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnPrev;
-         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
-      }
+      void decrement();
 
       //! Moves the iterator forwards.
-      void increment() {
-         m_pnPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
-      }
+      void increment();
 
    protected:
       //! Pointer to the previous node.
