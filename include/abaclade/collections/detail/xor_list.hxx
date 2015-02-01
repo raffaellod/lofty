@@ -135,6 +135,9 @@ protected:
       //! Moves the iterator forwards.
       void increment();
 
+      //! Throws an iterator_error if the iterator is at the end of the container.
+      void throw_if_end() const;
+
    protected:
       //! Pointer to the previous node.
       node * m_pnPrev;
@@ -166,6 +169,7 @@ public:
          Reference to the current node.
       */
       TValue & operator*() const {
+         throw_if_end();
          return *static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
@@ -175,6 +179,7 @@ public:
          Pointer to the current node.
       */
       TValue * operator->() const {
+         throw_if_end();
          return static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
