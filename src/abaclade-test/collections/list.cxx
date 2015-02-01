@@ -155,16 +155,28 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators") {
    ABC_TRACE_FUNC(this);
 
-   collections::list<int> v;
-   v.push_back(1);
-   v.push_back(2);
-   v.push_back(3);
+   collections::list<int> l;
+
+   // Should not allow to move an iterator to outside [begin, end].
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cend());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, --l.cbegin());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cbegin());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, --l.cend());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cend());
+
+   // Should not allow to dereference end().
+   ABC_TESTING_ASSERT_THROWS(iterator_error, *l.cend());
+
+   l.push_back(1);
+   l.push_back(2);
+   l.push_back(3);
 
    // Remove an element by iterator.
-   v.remove_at(std::find(v.cbegin(), v.cend(), 2));
-   ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   ABC_TESTING_ASSERT_EQUAL(v.front(), 1);
-   ABC_TESTING_ASSERT_EQUAL(v.back(), 3);
+   l.remove_at(std::find(l.cbegin(), l.cend(), 2));
+   ABC_TESTING_ASSERT_EQUAL(l.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(l.front(), 1);
+   ABC_TESTING_ASSERT_EQUAL(l.back(), 3);
 }
 
 } //namespace test
