@@ -398,7 +398,7 @@ public:
       *this after it’s moved backwards by i positions.
    */
    codepoint_iterator & operator-=(std::ptrdiff_t i) {
-      this->m_pch = this->advance(i, false);
+      this->m_pch = this->advance(-i, false);
       return *this;
    }
 
