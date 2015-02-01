@@ -129,11 +129,12 @@ protected:
          m_pnNext(pnNext) {
       }
 
-      //! Moves the iterator backwards.
-      void decrement();
+      /*! Moves the iterator by the specified signed amount.
 
-      //! Moves the iterator forwards.
-      void increment();
+      @param i
+         Count of positions by which to advance the iterator.
+      */
+      void advance(std::ptrdiff_t i);
 
       //! Throws an iterator_error if the iterator is at the end of the container.
       void throw_if_end() const;
@@ -183,24 +184,74 @@ public:
          return static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
+      /*! Addition-assignment operator.
+
+      @param i
+         Count of positions by which to advance the iterator.
+      @return
+         *this.
+      */
+      iterator & operator+=(std::ptrdiff_t i) {
+         advance(i);
+         return *this;
+      }
+
+      /*! Subtraction-assignment operator.
+
+      @param i
+         Count of positions by which to rewind the iterator.
+      @return
+         *this.
+      */
+      iterator & operator-=(std::ptrdiff_t i) {
+         advance(-i);
+         return *this;
+      }
+
+      /*! Addition operator.
+
+      @param i
+         Count of positions by which to advance the iterator.
+      @return
+         Resulting iterator.
+      */
+      iterator operator+(std::ptrdiff_t i) const {
+         iterator it(*this);
+         it.advance(i);
+         return std::move(it);
+      }
+
+      /*! Subtraction operator.
+
+      @param i
+         Count of positions by which to rewind the iterator.
+      @return
+         Resulting iterator.
+      */
+      iterator operator-(std::ptrdiff_t i) const {
+         iterator it(*this);
+         it.advance(-i);
+         return std::move(it);
+      }
+
       /*! Preincrement operator.
 
       @return
          *this.
       */
       iterator & operator++() {
-         increment();
+         advance(1);
          return *this;
       }
 
       /*! Postincrement operator.
 
       @return
-         Iterator pointing to the node following the one pointed to by this iterator.
+         Iterator pointing to the node following the one referenced by this iterator.
       */
       iterator operator++(int) {
          node * pnPrevPrev = m_pnPrev;
-         increment();
+         advance(1);
          return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
       }
 
@@ -210,18 +261,18 @@ public:
          *this.
       */
       iterator & operator--() {
-         decrement();
+         advance(-1);
          return *this;
       }
 
       /*! Postdecrement operator.
 
       @return
-         Iterator pointing to the node preceding the one pointed to by this iterator.
+         Iterator pointing to the node preceding the one referenced by this iterator.
       */
       iterator operator--(int) {
          node * pnNextNext = m_pnNext;
-         decrement();
+         advance(-1);
          return iterator(m_pnCurr, m_pnNext, pnNextNext);
       }
 
@@ -277,58 +328,54 @@ public:
          const_iterator(pnPrev, pnCurr, pnNext) {
       }
 
-      /*! Dereferencing operator.
-
-      @return
-         Reference to the current node.
-      */
+      //! See const_iterator::operator*().
       TValue & operator*() const {
          return const_cast<TValue &>(const_iterator::operator*());
       }
 
-      /*! Dereferencing member access operator.
-
-      @return
-         Pointer to the current node.
-      */
+      //! See const_iterator::operator->().
       TValue * operator->() const {
          return const_cast<TValue *>(const_iterator::operator->());
       }
 
-      /*! Preincrement operator.
+      //! See const_iterator::operator+=().
+      iterator & operator+=(std::ptrdiff_t i) {
+         return static_cast<iterator &>(const_iterator::operator+=(i));
+      }
 
-      @return
-         *this.
-      */
+      //! See const_iterator::operator-=().
+      iterator & operator-=(std::ptrdiff_t i) {
+         return static_cast<iterator &>(const_iterator::operator-=(i));
+      }
+
+      //! See const_iterator::operator+().
+      iterator operator+(std::ptrdiff_t i) const {
+         return iterator(const_iterator::operator+(i));
+      }
+
+      //! See const_iterator::operator-().
+      iterator operator-(std::ptrdiff_t i) const {
+         return iterator(const_iterator::operator-(i));
+      }
+
+      //! See const_iterator.operator++().
       iterator & operator++() {
          return static_cast<iterator &>(const_iterator::operator++());
       }
 
-      /*! Postincrement operator.
-
-      @return
-         Iterator pointing to the node following the one pointed to by this iterator.
-      */
+      //! See const_iterator::operator++(int).
       iterator operator++(int) {
-         return static_cast<iterator &>(const_iterator::operator++(0));
+         return iterator(const_iterator::operator++());
       }
 
-      /*! Predecrement operator.
-
-      @return
-         *this.
-      */
+      //! See const_iterator::operator--().
       iterator & operator--() {
          return static_cast<iterator &>(const_iterator::operator--());
       }
 
-      /*! Postdecrement operator.
-
-      @return
-         Iterator pointing to the node preceding the one pointed to by this iterator.
-      */
+      //! See const_iterator::operator--().
       iterator operator--(int) {
-         return static_cast<iterator &>(const_iterator::operator--(0));
+         return iterator(const_iterator::operator--());
       }
    };
 };

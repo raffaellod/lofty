@@ -27,26 +27,28 @@ namespace abc {
 namespace collections {
 namespace detail {
 
-void xor_list::iterator_base::decrement() {
-   // TODO: enable use ABC_TRACE_FUNC(this) in spite of reentrancy.
+void xor_list::iterator_base::advance(std::ptrdiff_t i) {
+   // TODO: enable use ABC_TRACE_FUNC(this, i) in spite of reentrancy.
 
-   if (!m_pnPrev) {
-      ABC_THROW(iterator_error, ());
+   if (i > 0) {
+      do {
+         if (!m_pnCurr) {
+            ABC_THROW(iterator_error, ());
+         }
+         m_pnPrev = m_pnCurr;
+         m_pnCurr = m_pnNext;
+         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
+      } while (--i > 0);
+   } else if (i < 0) {
+      do {
+         if (!m_pnPrev) {
+            ABC_THROW(iterator_error, ());
+         }
+         m_pnNext = m_pnCurr;
+         m_pnCurr = m_pnPrev;
+         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
+      } while (++i < 0);
    }
-   m_pnNext = m_pnCurr;
-   m_pnCurr = m_pnPrev;
-   m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
-}
-
-void xor_list::iterator_base::increment() {
-   // TODO: enable use ABC_TRACE_FUNC(this) in spite of reentrancy.
-
-   if (!m_pnCurr) {
-      ABC_THROW(iterator_error, ());
-   }
-   m_pnPrev = m_pnCurr;
-   m_pnCurr = m_pnNext;
-   m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
 }
 
 void xor_list::iterator_base::throw_if_end() const {
