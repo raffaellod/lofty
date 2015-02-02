@@ -377,6 +377,16 @@ public:
       iterator operator--(int) {
          return iterator(const_iterator::operator--());
       }
+
+   private:
+      /*! Constructor used for cv-removing promotions from const_iterator to iterator.
+
+      @param it
+         Source object.
+      */
+      iterator(const_iterator const & it) :
+         const_iterator(it) {
+      }
    };
 };
 
