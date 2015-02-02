@@ -48,7 +48,7 @@ void test_case::assert_does_not_throw(
    try {
       fnExpr();
    } catch (::std::exception const & x) {
-      sCaughtWhat = istr(ABC_SL("throws {}")).format(x.what());
+      sCaughtWhat = istr(ABC_SL("throws {}")).format(char_ptr_to_str_adapter(x.what()));
    } catch (...) {
       sCaughtWhat = ABC_SL("unknown type");
    }
