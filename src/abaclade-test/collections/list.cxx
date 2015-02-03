@@ -171,12 +171,43 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
    l.push_back(1);
    l.push_back(2);
    l.push_back(3);
+   l.push_back(4);
 
-   // Remove an element by iterator.
-   l.remove_at(std::find(l.cbegin(), l.cend(), 2));
-   ABC_TESTING_ASSERT_EQUAL(l.size(), 2u);
-   ABC_TESTING_ASSERT_EQUAL(l.front(), 1);
-   ABC_TESTING_ASSERT_EQUAL(l.back(), 3);
+   {
+      /* Remove an element by iterator while holding that iterator itself and the two following
+      ones. */
+      auto it1(l.begin());
+      auto it2(std::find(l.cbegin(), l.cend(), 2)), it3(it2);
+      ++it3;
+      auto it4(it3);
+      ++it4;
+      /* This invalidates it2 and partially it1 and it3 (because they hold a pointer to *it2), but
+      not it4. */
+      l.remove_at(it2);
+
+      // it1 cannot go forwards, and it never could go backwards.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it1);
+//    ABC_TESTING_ASSERT_THROWS(iterator_error, it1 + 1);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, it1 - 1);
+      ABC_TESTING_ASSERT_EQUAL(*it1, 1);
+
+      // it2 is completely invalidated.
+//    ABC_TESTING_ASSERT_THROWS(iterator_error, *it2);
+//    ABC_TESTING_ASSERT_THROWS(iterator_error, it2 + 1);
+//    ABC_TESTING_ASSERT_THROWS(iterator_error, it2 - 1);
+
+      // it3 cannot go backwards.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it3);
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(it3 + 1);
+//    ABC_TESTING_ASSERT_THROWS(iterator_error, it3 - 1);
+      ABC_TESTING_ASSERT_EQUAL(*it3, 3);
+
+      // it4 is unaffected.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it4);
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(it4 + 1);
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(it4 - 1);
+      ABC_TESTING_ASSERT_EQUAL(*it4, 4);
+   }
 }
 
 } //namespace test
