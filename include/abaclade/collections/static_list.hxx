@@ -78,8 +78,7 @@ public:
    static iterator begin() {
       detail::xor_list::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
       return iterator(
-         pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr,
-         &TContainer::sm_xldm.m_iRev
+         &TContainer::sm_xldm, pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr
       );
    }
 
@@ -109,8 +108,7 @@ public:
    static reverse_iterator rbegin() {
       detail::xor_list::node * pnLast = TContainer::sm_xldm.m_pnLast;
       return reverse_iterator(
-         pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr,
-         &TContainer::sm_xldm.m_iRev
+         &TContainer::sm_xldm, pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr
       );
    }
 

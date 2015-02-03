@@ -82,14 +82,14 @@ namespace detail {
 xor_list::iterator_base::iterator_base() :
    m_pnCurr(nullptr),
    m_pnNext(nullptr),
-   m_piRev(nullptr),
+   m_pxldm(nullptr),
    m_iRev(0) {
 }
-xor_list::iterator_base::iterator_base(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
+xor_list::iterator_base::iterator_base(data_members const * pxldm, node * pnCurr, node * pnNext) :
    m_pnCurr(pnCurr),
    m_pnNext(pnNext),
-   m_piRev(piRev),
-   m_iRev(*m_piRev) {
+   m_pxldm(pxldm),
+   m_iRev(pxldm->m_iRev) {
 }
 
 void xor_list::iterator_base::increment() {

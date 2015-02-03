@@ -240,13 +240,11 @@ public:
       Iterator to the first node in the list.
    */
    iterator begin() {
-      return iterator(
-         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
-      );
+      return iterator(this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr);
    }
    const_iterator begin() const {
       return const_iterator(
-         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
+         this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr
       );
    }
 
@@ -257,7 +255,7 @@ public:
    */
    const_iterator cbegin() const {
       return const_iterator(
-         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
+         this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr
       );
    }
 
@@ -286,7 +284,7 @@ public:
    */
    const_reverse_iterator crbegin() const {
       return const_reverse_iterator(
-         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
       );
    }
 
@@ -410,12 +408,12 @@ public:
    */
    reverse_iterator rbegin() {
       return reverse_iterator(
-         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
       );
    }
    const_reverse_iterator rbegin() const {
       return const_reverse_iterator(
-         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
       );
    }
 

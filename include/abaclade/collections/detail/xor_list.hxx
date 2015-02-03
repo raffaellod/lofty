@@ -122,15 +122,15 @@ protected:
    protected:
       /*! Constructor.
 
+      @param pxldm
+         Pointer to the container’s data members.
       @param pnCurr
          Pointer to the current node.
       @param pnNext
          Pointer to the node following *pnCurr.
-      @param piRev
-         Pointer to the caontainer’s revision number.
       */
       iterator_base();
-      iterator_base(node * pnCurr, node * pnNext, rev_int_t const * piRev);
+      iterator_base(data_members const * pxldm, node * pnCurr, node * pnNext);
 
       //! Moves the iterator to next node.
       void increment();
@@ -143,8 +143,8 @@ protected:
       node * m_pnCurr;
       //! Pointer to the next node.
       node * m_pnNext;
-      //! Pointer to the container’s revision number.
-      rev_int_t const * m_piRev;
+      //! Pointer to the container’s data members.
+      data_members const * m_pxldm;
       //! Last container revision number known to the iterator.
       rev_int_t m_iRev;
    };
@@ -163,8 +163,8 @@ public:
       //! See iterator_base::iterator_base().
       iterator() {
       }
-      iterator(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
-         iterator_base(pnCurr, pnNext, piRev) {
+      iterator(data_members const * pxldm, node * pnCurr, node * pnNext) :
+         iterator_base(pxldm, pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
@@ -205,7 +205,7 @@ public:
       iterator operator++(int) {
          node * pnPrev = m_pnCurr;
          increment();
-         return iterator(pnPrev, m_pnCurr, m_piRev);
+         return iterator(m_pxldm, pnPrev, m_pnCurr);
       }
 
       /*! Returns the underlying pointer to the node.
@@ -249,8 +249,8 @@ public:
       //! See const_iterator::const_iterator().
       iterator() {
       }
-      iterator(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
-         const_iterator(pnCurr, pnNext, piRev) {
+      iterator(data_members const * pxldm, node * pnCurr, node * pnNext) :
+         const_iterator(pxldm, pnCurr, pnNext) {
       }
 
       //! See const_iterator::operator*().
