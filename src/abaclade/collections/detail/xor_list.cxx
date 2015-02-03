@@ -93,12 +93,14 @@ xor_list::iterator_base::iterator_base(node * pnCurr, node * pnNext, rev_int_t c
 }
 
 void xor_list::iterator_base::increment() {
-   // TODO: enable use ABC_TRACE_FUNC(this, i) by handling reentrancy.
+   // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
-   // TODO: validate that *m_piRev == m_iRev.
+   /* Detect attempts to increment past the end() of the container or increment a default-
+   constructed iterator. */
    if (!m_pnCurr) {
       ABC_THROW(iterator_error, ());
    }
+
    node * pnPrev = m_pnCurr;
    m_pnCurr = m_pnNext;
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;

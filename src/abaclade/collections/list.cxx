@@ -28,6 +28,24 @@ namespace abc {
 namespace collections {
 namespace detail {
 
+list_impl::list_impl() {
+   m_pnFirst = nullptr;
+   m_pnLast = nullptr;
+   m_cNodes = 0;
+   m_iRev = 0;
+}
+list_impl::list_impl(list_impl && l) {
+   m_pnFirst = l.m_pnFirst;
+   l.m_pnFirst = nullptr;
+   m_pnLast = l.m_pnLast;
+   l.m_pnLast = nullptr;
+   m_cNodes = l.m_cNodes;
+   l.m_cNodes = 0;
+   m_iRev = 0;
+   // Invalidate all iterators for l.
+   l.m_iRev += 2;
+}
+
 list_impl & list_impl::operator=(list_impl && l) {
    ABC_TRACE_FUNC(this);
 

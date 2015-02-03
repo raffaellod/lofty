@@ -76,9 +76,10 @@ public:
       Iterator to the first node in the list.
    */
    static iterator begin() {
-      detail::xor_list::node * pnFirst = TContainer::sm_pnFirst;
+      detail::xor_list::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
       return iterator(
-         pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr, &TContainer::sm_iRev
+         pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr,
+         &TContainer::sm_xldm.m_iRev
       );
    }
 
@@ -88,7 +89,7 @@ public:
       true if the list is empty, or false otherwise.
    */
    static bool empty() {
-      return !TContainer::sm_pnFirst && !TContainer::sm_pnLast;
+      return !TContainer::sm_xldm.m_pnFirst && !TContainer::sm_xldm.m_pnLast;
    }
 
    /*! Returns a forward iterator to the end of the list.
@@ -106,9 +107,10 @@ public:
       Reverse iterator to the last node in the list.
    */
    static reverse_iterator rbegin() {
-      detail::xor_list::node * pnLast = TContainer::sm_pnLast;
+      detail::xor_list::node * pnLast = TContainer::sm_xldm.m_pnLast;
       return reverse_iterator(
-         pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr, &TContainer::sm_iRev
+         pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr,
+         &TContainer::sm_xldm.m_iRev
       );
    }
 
@@ -138,7 +140,8 @@ private:
    */
    static void push_back(detail::xor_list::node * pn) {
       detail::xor_list::link_back(
-         pn, &TContainer::sm_pnFirst, &TContainer::sm_pnLast, &TContainer::sm_iRev
+         pn, &TContainer::sm_xldm.m_pnFirst, &TContainer::sm_xldm.m_pnLast,
+         &TContainer::sm_xldm.m_iRev
       );
    }
 
@@ -153,8 +156,8 @@ private:
       for (auto it(begin()); it != end(); ++it) {
          if (it.base() == pn) {
             detail::xor_list::unlink(
-               pn, const_cast<node *>(it.next_base()),
-               &TContainer::sm_pnFirst, &TContainer::sm_pnLast, &TContainer::sm_iRev
+               pn, const_cast<node *>(it.next_base()), &TContainer::sm_xldm.m_pnFirst,
+               &TContainer::sm_xldm.m_pnLast, &TContainer::sm_xldm.m_iRev
             );
             break;
          }
@@ -171,12 +174,8 @@ private:
    Class derived from abc::collections::static_list.
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
-   /*! Pointer to the first node. */ \
-   static ::abc::collections::detail::xor_list::node * sm_pnFirst; \
-   /*! Pointer to the last node. */ \
-   static ::abc::collections::detail::xor_list::node * sm_pnLast; \
-   /*! Indicates the revision number of the list contents. */ \
-   static ::abc::collections::detail::xor_list::rev_int_t sm_iRev;
+   /*! Data members for xor_list. */ \
+   static ::abc::collections::detail::xor_list::data_members sm_xldm;
 
 /*! Defines the static member variables for the specified abc::collections::static_list subclass.
 
@@ -184,8 +183,8 @@ private:
    Class derived from abc::collections::static_list.
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   ::abc::collections::detail::xor_list::node * container::sm_pnFirst = nullptr; \
-   ::abc::collections::detail::xor_list::node * container::sm_pnLast = nullptr; \
-   ::abc::collections::detail::xor_list::rev_int_t container::sm_iRev = 0;
+   ::abc::collections::detail::xor_list::data_members container::sm_xldm = { \
+      nullptr, nullptr, 0 \
+   };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -83,6 +83,16 @@ public:
       std::uintptr_t m_iPrevXorNext;
    };
 
+   //! Defines the minimal data members needed to implement a xor_list subclass.
+   struct data_members {
+      //! Pointer to the first node.
+      node * m_pnFirst;
+      //! Pointer to the last node.
+      node * m_pnLast;
+      //! Indicates the revision number of the list contents.
+      rev_int_t m_iRev;
+   };
+
 protected:
    //! Non-template base for iterator.
    class ABACLADE_SYM iterator_base {

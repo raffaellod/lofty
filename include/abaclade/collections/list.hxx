@@ -36,30 +36,15 @@ namespace collections {
 namespace detail {
 
 //! Non-template implementation class for abc::collections::list.
-class ABACLADE_SYM list_impl {
+class ABACLADE_SYM list_impl : public xor_list::data_members {
 public:
    /*! Constructor.
 
    @param l
       Source object.
    */
-   list_impl() :
-      m_pnFirst(nullptr),
-      m_pnLast(nullptr),
-      m_cNodes(0),
-      m_iRev(0) {
-   }
-   list_impl(list_impl && l) :
-      m_pnFirst(l.m_pnFirst),
-      m_pnLast(l.m_pnLast),
-      m_cNodes(l.m_cNodes),
-      m_iRev(0) {
-      l.m_pnFirst = nullptr;
-      l.m_pnLast = nullptr;
-      l.m_cNodes = 0;
-      // Invalidate all iterators for l.
-      l.m_iRev += 2;
-   }
+   list_impl();
+   list_impl(list_impl && l);
 
    //! Destructor.
    ~list_impl() {
