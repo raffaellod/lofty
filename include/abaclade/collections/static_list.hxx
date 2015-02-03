@@ -149,15 +149,11 @@ private:
    */
    static void remove(detail::xor_list::node * pn) {
       // Find pn in the list.
-      for (
-         detail::xor_list::node * pnPrev = nullptr, * pnCurr = TContainer::sm_pnFirst, * pnNext;
-         pnCurr;
-         pnPrev = pnCurr, pnCurr = pnNext
-      ) {
-         pnNext = pnCurr->get_other_sibling(pnPrev);
-         if (pnCurr == pn) {
+      // TODO: this should be de-templated in xor_list for the most part.
+      for (auto it(begin()); it != end(); ++it) {
+         if (it.base() == pn) {
             detail::xor_list::unlink(
-               pnCurr, pnNext,
+               pn, const_cast<node *>(it.next_base()),
                &TContainer::sm_pnFirst, &TContainer::sm_pnLast, &TContainer::sm_iRev
             );
             break;
