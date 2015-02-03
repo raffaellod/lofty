@@ -32,6 +32,9 @@ namespace detail {
 //! Defines classes useful to implement XOR-linked list classes.
 class ABACLADE_SYM xor_list {
 public:
+   //! Integer type used to track changes in the list.
+   typedef std::uint16_t rev_int_t;
+
    //! Node for XOR doubly-linked list classes.
    class node {
    public:
@@ -52,22 +55,15 @@ public:
          return *this;
       }
 
-      /*! Returns a pointer to the next node.
+      /*! Returns a pointer to the next or previous node given the opposite one.
 
-      @param pnPrev
-         Pointer to the previous node.
+      @param pnSibling
+         Pointer to the previous or next node.
       */
-      node * get_next(node * pnPrev) {
-         return reinterpret_cast<node *>(m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnPrev));
-      }
-
-      /*! Returns a pointer to the previous node.
-
-      @param pnNext
-         Pointer to the next node.
-      */
-      node * get_prev(node * pnNext) {
-         return reinterpret_cast<node *>(m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnNext));
+      node * get_other_sibling(node * pnSibling) {
+         return reinterpret_cast<node *>(
+            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnSibling)
+         );
       }
 
       /*! Updates the previous/next pointer.
@@ -77,7 +73,7 @@ public:
       @param pnNext
          Pointer to the next node.
       */
-      void set_prev_next(node * pnPrev, node * pnNext) {
+      void set_siblings(node * pnPrev, node * pnNext) {
          m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
                           reinterpret_cast<std::uintptr_t>(pnNext);
       }
@@ -116,36 +112,31 @@ protected:
    protected:
       /*! Constructor.
 
-      @param pnPrev
-         Pointer to the node preceding *pnCurr.
       @param pnCurr
          Pointer to the current node.
       @param pnNext
          Pointer to the node following *pnCurr.
+      @param piRev
+         Pointer to the caontainer’s revision number.
       */
-      iterator_base(node * pnPrev, node * pnCurr, node * pnNext) :
-         m_pnPrev(pnPrev),
-         m_pnCurr(pnCurr),
-         m_pnNext(pnNext) {
-      }
+      iterator_base();
+      iterator_base(node * pnCurr, node * pnNext, rev_int_t const * piRev);
 
-      /*! Moves the iterator by the specified signed amount.
-
-      @param i
-         Count of positions by which to advance the iterator.
-      */
-      void advance(std::ptrdiff_t i);
+      //! Moves the iterator to next node.
+      void increment();
 
       //! Throws an iterator_error if the iterator is at the end of the container.
       void throw_if_end() const;
 
    protected:
-      //! Pointer to the previous node.
-      node * m_pnPrev;
       //! Pointer to the current node.
       node * m_pnCurr;
       //! Pointer to the next node.
       node * m_pnNext;
+      //! Pointer to the container’s revision number.
+      rev_int_t const * m_piRev;
+      //! Last container revision number known to the iterator.
+      rev_int_t m_iRev;
    };
 
 public:
@@ -157,11 +148,13 @@ public:
    template <typename TNode, typename TValue>
    class iterator<TNode, TValue, true> :
       public iterator_base,
-      public std::iterator<std::bidirectional_iterator_tag, TValue> {
+      public std::iterator<std::forward_iterator_tag, TValue> {
    public:
       //! See iterator_base::iterator_base().
-      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         iterator_base(pnPrev, pnCurr, pnNext) {
+      iterator() {
+      }
+      iterator(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
+         iterator_base(pnCurr, pnNext, piRev) {
       }
 
       /*! Dereferencing operator.
@@ -184,96 +177,25 @@ public:
          return static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
-      /*! Addition-assignment operator.
-
-      @param i
-         Count of positions by which to advance the iterator.
-      @return
-         *this.
-      */
-      iterator & operator+=(std::ptrdiff_t i) {
-         advance(i);
-         return *this;
-      }
-
-      /*! Subtraction-assignment operator.
-
-      @param i
-         Count of positions by which to rewind the iterator.
-      @return
-         *this.
-      */
-      iterator & operator-=(std::ptrdiff_t i) {
-         advance(-i);
-         return *this;
-      }
-
-      /*! Addition operator.
-
-      @param i
-         Count of positions by which to advance the iterator.
-      @return
-         Resulting iterator.
-      */
-      iterator operator+(std::ptrdiff_t i) const {
-         iterator it(*this);
-         it.advance(i);
-         return std::move(it);
-      }
-
-      /*! Subtraction operator.
-
-      @param i
-         Count of positions by which to rewind the iterator.
-      @return
-         Resulting iterator.
-      */
-      iterator operator-(std::ptrdiff_t i) const {
-         iterator it(*this);
-         it.advance(-i);
-         return std::move(it);
-      }
-
       /*! Preincrement operator.
 
       @return
          *this.
       */
       iterator & operator++() {
-         advance(1);
+         increment();
          return *this;
       }
 
       /*! Postincrement operator.
 
       @return
-         Iterator pointing to the node following the one referenced by this iterator.
-      */
-      iterator operator++(int) {
-         node * pnPrevPrev = m_pnPrev;
-         advance(1);
-         return iterator(pnPrevPrev, m_pnPrev, m_pnCurr);
-      }
-
-      /*! Predecrement operator.
-
-      @return
-         *this.
-      */
-      iterator & operator--() {
-         advance(-1);
-         return *this;
-      }
-
-      /*! Postdecrement operator.
-
-      @return
          Iterator pointing to the node preceding the one referenced by this iterator.
       */
-      iterator operator--(int) {
-         node * pnNextNext = m_pnNext;
-         advance(-1);
-         return iterator(m_pnCurr, m_pnNext, pnNextNext);
+      iterator operator++(int) {
+         node * pnPrev = m_pnCurr;
+         increment();
+         return iterator(pnPrev, m_pnCurr, m_piRev);
       }
 
       /*! Returns the underlying pointer to the node.
@@ -293,26 +215,17 @@ public:
       TNode const * next_base() const {
          return static_cast<TNode *>(m_pnNext);
       }
-
-      /*! Returns a pointer to the previous node.
-
-      @return
-         Pointer to the previous node.
-      */
-      TNode const * prev_base() const {
-         return static_cast<TNode *>(m_pnPrev);
-      }
    };
 
    // Partial specialization for non-const TValue.
    template <typename TNode, typename TValue>
    class iterator<TNode, TValue, false> :
       public iterator<TNode, typename std::add_const<TValue>::type, true>,
-      public std::iterator<std::bidirectional_iterator_tag, TValue> {
+      public std::iterator<std::forward_iterator_tag, TValue> {
    private:
       // Shortcuts.
       typedef iterator<TNode, typename std::add_const<TValue>::type, true> const_iterator;
-      typedef std::iterator<std::bidirectional_iterator_tag, TValue> std_iterator;
+      typedef std::iterator<std::forward_iterator_tag, TValue> std_iterator;
 
    public:
       // These are inherited from both base classes, so resolve the ambiguity.
@@ -324,8 +237,10 @@ public:
 
    public:
       //! See const_iterator::const_iterator().
-      iterator(node * pnPrev, node * pnCurr, node * pnNext) :
-         const_iterator(pnPrev, pnCurr, pnNext) {
+      iterator() {
+      }
+      iterator(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
+         const_iterator(pnCurr, pnNext, piRev) {
       }
 
       //! See const_iterator::operator*().
@@ -338,26 +253,6 @@ public:
          return const_cast<TValue *>(const_iterator::operator->());
       }
 
-      //! See const_iterator::operator+=().
-      iterator & operator+=(std::ptrdiff_t i) {
-         return static_cast<iterator &>(const_iterator::operator+=(i));
-      }
-
-      //! See const_iterator::operator-=().
-      iterator & operator-=(std::ptrdiff_t i) {
-         return static_cast<iterator &>(const_iterator::operator-=(i));
-      }
-
-      //! See const_iterator::operator+().
-      iterator operator+(std::ptrdiff_t i) const {
-         return iterator(const_iterator::operator+(i));
-      }
-
-      //! See const_iterator::operator-().
-      iterator operator-(std::ptrdiff_t i) const {
-         return iterator(const_iterator::operator-(i));
-      }
-
       //! See const_iterator.operator++().
       iterator & operator++() {
          return static_cast<iterator &>(const_iterator::operator++());
@@ -366,16 +261,6 @@ public:
       //! See const_iterator::operator++(int).
       iterator operator++(int) {
          return iterator(const_iterator::operator++());
-      }
-
-      //! See const_iterator::operator--().
-      iterator & operator--() {
-         return static_cast<iterator &>(const_iterator::operator--());
-      }
-
-      //! See const_iterator::operator--().
-      iterator operator--(int) {
-         return iterator(const_iterator::operator--());
       }
 
    private:
@@ -398,8 +283,10 @@ public:
       Address of the pointer to the first node.
    @param ppnLast
       Address of the pointer to the last node.
+   @param piRev
+      Pointer to the container’s revision number.
    */
-   static void link_back(node * pn, node ** ppnFirst, node ** ppnLast);
+   static void link_back(node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev);
 
    /*! Inserts a node to the start of the list.
 
@@ -409,23 +296,27 @@ public:
       Address of the pointer to the first node.
    @param ppnLast
       Address of the pointer to the last node.
+   @param piRev
+      Pointer to the container’s revision number.
    */
-   static void link_front(node * pn, node ** ppnFirst, node ** ppnLast);
+   static void link_front(node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev);
 
    /*! Unlinks a node from the list.
 
    @param pn
       Pointer to the node to unlink.
-   @param pnPrev
-      Pointer to the node preceding *pn.
    @param pnNext
       Pointer to the node following *pn.
    @param ppnFirst
       Address of the pointer to the first node.
    @param ppnLast
       Address of the pointer to the last node.
+   @param piRev
+      Pointer to the container’s revision number.
    */
-   static void unlink(node * pn, node * pnPrev, node * pnNext, node ** ppnFirst, node ** ppnLast);
+   static void unlink(
+      node * pn, node * pnNext, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
+   );
 };
 
 } //namespace detail

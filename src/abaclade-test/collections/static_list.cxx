@@ -109,13 +109,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
 
       ABC_TESTING_ASSERT_FALSE(static_list_test::empty());
       ABC_TESTING_ASSERT_EQUAL(static_list_test::size(), 1u);
-      {
-         // Backwards iteration using a forward iterator.
-         auto it(static_list_test::end());
-         --it;
-         ABC_TESTING_ASSERT_EQUAL(it->get(), 10);
-         ABC_TESTING_ASSERT_TRUE(it == static_list_test::begin());
-      }
    }
 
    ABC_TESTING_ASSERT_TRUE(static_list_test::empty());

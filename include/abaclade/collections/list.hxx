@@ -46,15 +46,19 @@ public:
    list_impl() :
       m_pnFirst(nullptr),
       m_pnLast(nullptr),
-      m_cNodes(0) {
+      m_cNodes(0),
+      m_iRev(0) {
    }
    list_impl(list_impl && l) :
       m_pnFirst(l.m_pnFirst),
       m_pnLast(l.m_pnLast),
-      m_cNodes(l.m_cNodes) {
+      m_cNodes(l.m_cNodes),
+      m_iRev(0) {
       l.m_pnFirst = nullptr;
       l.m_pnLast = nullptr;
       l.m_cNodes = 0;
+      // Invalidate all iterators for l.
+      l.m_iRev += 2;
    }
 
    //! Destructor.
@@ -119,14 +123,12 @@ protected:
 
    @param pn
       Pointer to the node to unlink.
-   @param pnPrev
-      Pointer to the node preceding *pn.
    @param pnNext
       Pointer to the node following *pn.
    @return
       Now-unlinked node.
    */
-   xor_list::node * unlink(xor_list::node * pn, xor_list::node * pnPrev, xor_list::node * pnNext);
+   xor_list::node * unlink(xor_list::node * pn, xor_list::node * pnNext);
 
    /*! Unlinks and returns the first node in the list.
 
@@ -149,6 +151,8 @@ protected:
    xor_list::node * m_pnLast;
    //! Count of nodes.
    std::size_t m_cNodes;
+   //! Indicates the revision number of the list contents.
+   xor_list::rev_int_t m_iRev;
 };
 
 } //namespace detail
@@ -196,8 +200,8 @@ protected:
 public:
    typedef detail::xor_list::iterator<node, T> iterator;
    typedef detail::xor_list::iterator<node, T const> const_iterator;
-   typedef std::reverse_iterator<iterator> reverse_iterator;
-   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+   typedef iterator reverse_iterator;
+   typedef const_iterator const_reverse_iterator;
 
 public:
    /*! Constructor.
@@ -251,10 +255,14 @@ public:
       Iterator to the first node in the list.
    */
    iterator begin() {
-      return iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
+      return iterator(
+         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
    const_iterator begin() const {
-      return const_iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
+      return const_iterator(
+         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
 
    /*! Returns a const forward iterator to the start of the list.
@@ -263,7 +271,9 @@ public:
       Iterator to the first node in the list.
    */
    const_iterator cbegin() const {
-      return const_iterator(nullptr, m_pnFirst, m_pnFirst ? m_pnFirst->get_next(nullptr) : nullptr);
+      return const_iterator(
+         m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
 
    /*! Returns a const forward iterator to the end of the list.
@@ -272,7 +282,7 @@ public:
       Iterator to the beyond the last node in the list.
    */
    const_iterator cend() const {
-      return const_iterator(m_pnLast, nullptr, nullptr);
+      return const_iterator();
    }
 
    //! Removes all elements from the list.
@@ -290,7 +300,9 @@ public:
       Reverse iterator to the last node in the list.
    */
    const_reverse_iterator crbegin() const {
-      return const_reverse_iterator(cend());
+      return const_reverse_iterator(
+         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
 
    /*! Returns a const reverse iterator to the start of the list.
@@ -299,7 +311,7 @@ public:
       Reverse iterator to the before the first node in the list.
    */
    const_reverse_iterator crend() const {
-      return const_reverse_iterator(cbegin());
+      return const_reverse_iterator();
    }
 
    /*! Returns a forward iterator to the end of the list.
@@ -308,10 +320,10 @@ public:
       Iterator to the beyond the last node in the list.
    */
    iterator end() {
-      return iterator(m_pnLast, nullptr, nullptr);
+      return iterator();
    }
    const_iterator end() const {
-      return const_iterator(m_pnLast, nullptr, nullptr);
+      return const_iterator();
    }
 
    /*! Returns a reference to the last element in the list.
@@ -412,10 +424,14 @@ public:
       Reverse iterator to the last node in the list.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(end());
+      return reverse_iterator(
+         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
    const_reverse_iterator rbegin() const {
-      return const_reverse_iterator(end());
+      return const_reverse_iterator(
+         m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr, &m_iRev
+      );
    }
 
    /*! Removes the element at the specified position.
@@ -428,7 +444,6 @@ public:
 
       delete static_cast<node *>(unlink(
          const_cast<node *>(it.base()),
-         const_cast<node *>(it.prev_base()),
          const_cast<node *>(it.next_base())
       ));
    }
@@ -453,10 +468,10 @@ public:
       Reverse iterator to the before the first node in the list.
    */
    reverse_iterator rend() {
-      return reverse_iterator(begin());
+      return reverse_iterator();
    }
    const_reverse_iterator rend() const {
-      return const_reverse_iterator(begin());
+      return const_reverse_iterator();
    }
 
 private:
@@ -469,7 +484,7 @@ private:
 //      ABC_TRACE_FUNC(this);
 
       for (detail::xor_list::node * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
-         detail::xor_list::node * pnNext = pnCurr->get_next(pnPrev);
+         detail::xor_list::node * pnNext = pnCurr->get_other_sibling(pnPrev);
          delete static_cast<node *>(pnCurr);
          pnPrev = pnCurr;
          pnCurr = pnNext;

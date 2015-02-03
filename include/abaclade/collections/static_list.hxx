@@ -67,7 +67,7 @@ public:
    };
 
    typedef detail::xor_list::iterator<node, TValue> iterator;
-   typedef std::reverse_iterator<iterator> reverse_iterator;
+   typedef iterator reverse_iterator;
 
 public:
    /*! Returns a forward iterator to the start of the list.
@@ -77,7 +77,9 @@ public:
    */
    static iterator begin() {
       detail::xor_list::node * pnFirst = TContainer::sm_pnFirst;
-      return iterator(nullptr, pnFirst, pnFirst ? pnFirst->get_next(nullptr) : nullptr);
+      return iterator(
+         pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr, &TContainer::sm_iRev
+      );
    }
 
    /*! Returns true if the list contains no elements.
@@ -95,16 +97,19 @@ public:
       Iterator to the beyond the last node in the list.
    */
    static iterator end() {
-      return iterator(TContainer::sm_pnLast, nullptr, nullptr);
+      return iterator();
    }
 
    /*! Returns a reverse iterator to the end of the list.
 
    @return
-      Reverse Iterator to the last node in the list.
+      Reverse iterator to the last node in the list.
    */
    static reverse_iterator rbegin() {
-      return reverse_iterator(end());
+      detail::xor_list::node * pnLast = TContainer::sm_pnLast;
+      return reverse_iterator(
+         pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr, &TContainer::sm_iRev
+      );
    }
 
    /*! Returns a reverse iterator to the start of the list.
@@ -113,7 +118,7 @@ public:
       Reverse iterator to the before the first node in the list.
    */
    static reverse_iterator rend() {
-      return reverse_iterator(begin());
+      return reverse_iterator();
    }
 
    /*! Returns the count of elements in the list.
@@ -132,7 +137,9 @@ private:
       Pointer to the node to add.
    */
    static void push_back(detail::xor_list::node * pn) {
-      detail::xor_list::link_back(pn, &TContainer::sm_pnFirst, &TContainer::sm_pnLast);
+      detail::xor_list::link_back(
+         pn, &TContainer::sm_pnFirst, &TContainer::sm_pnLast, &TContainer::sm_iRev
+      );
    }
 
    /*! Removes a node from the list.
@@ -147,10 +154,11 @@ private:
          pnCurr;
          pnPrev = pnCurr, pnCurr = pnNext
       ) {
-         pnNext = pnCurr->get_next(pnPrev);
+         pnNext = pnCurr->get_other_sibling(pnPrev);
          if (pnCurr == pn) {
             detail::xor_list::unlink(
-               pnCurr, pnPrev, pnNext, &TContainer::sm_pnFirst, &TContainer::sm_pnLast
+               pnCurr, pnNext,
+               &TContainer::sm_pnFirst, &TContainer::sm_pnLast, &TContainer::sm_iRev
             );
             break;
          }
@@ -170,7 +178,9 @@ private:
    /*! Pointer to the first node. */ \
    static ::abc::collections::detail::xor_list::node * sm_pnFirst; \
    /*! Pointer to the last node. */ \
-   static ::abc::collections::detail::xor_list::node * sm_pnLast;
+   static ::abc::collections::detail::xor_list::node * sm_pnLast; \
+   /*! Indicates the revision number of the list contents. */ \
+   static ::abc::collections::detail::xor_list::rev_int_t sm_iRev;
 
 /*! Defines the static member variables for the specified abc::collections::static_list subclass.
 
@@ -179,6 +189,7 @@ private:
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
    ::abc::collections::detail::xor_list::node * container::sm_pnFirst = nullptr; \
-   ::abc::collections::detail::xor_list::node * container::sm_pnLast = nullptr;
+   ::abc::collections::detail::xor_list::node * container::sm_pnLast = nullptr; \
+   ::abc::collections::detail::xor_list::rev_int_t container::sm_iRev = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

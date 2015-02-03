@@ -69,13 +69,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
    l.pop_front();
    ABC_TESTING_ASSERT_FALSE(l.empty());
    ABC_TESTING_ASSERT_EQUAL(l.size(), 1u);
-   {
-      // Now iterate backwards using a forward iterator.
-      auto it(l.end());
-      --it;
-      ABC_TESTING_ASSERT_EQUAL(*it, 20);
-      ABC_TESTING_ASSERT_TRUE(it == l.cbegin());
-   }
 
    l.pop_back();
    ABC_TESTING_ASSERT_TRUE(l.empty());
@@ -160,9 +153,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
    // Should not allow to move an iterator to outside [begin, end].
    ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, --l.cbegin());
    ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, --l.cend());
    ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cend());
 
    // Should not allow to dereference end().
@@ -174,39 +165,30 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
    l.push_back(4);
 
    {
-      /* Remove an element by iterator while holding that iterator itself and the two following
-      ones. */
+      // Remove an element by iterator while holding iterators to all the elements in the list.
       auto it1(l.begin());
       auto it2(std::find(l.cbegin(), l.cend(), 2)), it3(it2);
       ++it3;
       auto it4(it3);
       ++it4;
-      /* This invalidates it2 and partially it1 and it3 (because they hold a pointer to *it2), but
-      not it4. */
       l.remove_at(it2);
 
-      // it1 cannot go forwards, and it never could go backwards.
+      // it1 updates its “next” pointer and continues seamlessly.
       ABC_TESTING_ASSERT_DOES_NOT_THROW(*it1);
-//    ABC_TESTING_ASSERT_THROWS(iterator_error, it1 + 1);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, it1 - 1);
-      ABC_TESTING_ASSERT_EQUAL(*it1, 1);
-
-      // it2 is completely invalidated.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it1);
+//    ABC_TESTING_ASSERT_EQUAL(*it1, 3);
+      // it2 cannot be dereferenced, but it’s able to continues from the next element.
 //    ABC_TESTING_ASSERT_THROWS(iterator_error, *it2);
-//    ABC_TESTING_ASSERT_THROWS(iterator_error, it2 + 1);
-//    ABC_TESTING_ASSERT_THROWS(iterator_error, it2 - 1);
-
-      // it3 cannot go backwards.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it2);
+      ABC_TESTING_ASSERT_EQUAL(*it2, 3);
+      // it3 is unaffected.
       ABC_TESTING_ASSERT_DOES_NOT_THROW(*it3);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(it3 + 1);
-//    ABC_TESTING_ASSERT_THROWS(iterator_error, it3 - 1);
-      ABC_TESTING_ASSERT_EQUAL(*it3, 3);
-
-      // it4 is unaffected.
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it3);
+      ABC_TESTING_ASSERT_EQUAL(*it3, 4);
+      // it3 is unaffected, and reaches the end of the list.
       ABC_TESTING_ASSERT_DOES_NOT_THROW(*it4);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(it4 + 1);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(it4 - 1);
-      ABC_TESTING_ASSERT_EQUAL(*it4, 4);
+      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it4);
+      ABC_TESTING_ASSERT_TRUE(it4 == l.end());
    }
 }
 

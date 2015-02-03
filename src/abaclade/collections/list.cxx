@@ -39,6 +39,9 @@ list_impl & list_impl::operator=(list_impl && l) {
    l.m_pnLast = nullptr;
    m_cNodes = l.m_cNodes;
    l.m_cNodes = 0;
+   // Invalidate all iterators for *this and for l.
+   m_iRev += 2;
+   l.m_iRev += 2;
    return *this;
 }
 
@@ -63,23 +66,21 @@ xor_list::node * list_impl::front() const {
 void list_impl::link_back(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   xor_list::link_back(pn, &m_pnFirst, &m_pnLast);
+   xor_list::link_back(pn, &m_pnFirst, &m_pnLast, &m_iRev);
    ++m_cNodes;
 }
 
 void list_impl::link_front(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   xor_list::link_front(pn, &m_pnFirst, &m_pnLast);
+   xor_list::link_front(pn, &m_pnFirst, &m_pnLast, &m_iRev);
    ++m_cNodes;
 }
 
-xor_list::node * list_impl::unlink(
-   xor_list::node * pn, xor_list::node * pnPrev, xor_list::node * pnNext
-) {
-   ABC_TRACE_FUNC(this, pn, pnPrev, pnNext);
+xor_list::node * list_impl::unlink(xor_list::node * pn, xor_list::node * pnNext) {
+   ABC_TRACE_FUNC(this, pn, pnNext);
 
-   xor_list::unlink(pn, pnPrev, pnNext, &m_pnFirst, &m_pnLast);
+   xor_list::unlink(pn, pnNext, &m_pnFirst, &m_pnLast, &m_iRev);
    --m_cNodes;
    // Now the subclass must delete pn.
    return pn;
@@ -88,13 +89,13 @@ xor_list::node * list_impl::unlink(
 xor_list::node * list_impl::unlink_back() {
    ABC_TRACE_FUNC(this);
 
-   return unlink(m_pnLast, m_pnLast->get_prev(nullptr), nullptr);
+   return unlink(m_pnLast, nullptr);
 }
 
 xor_list::node * list_impl::unlink_front() {
    ABC_TRACE_FUNC(this);
 
-   return unlink(m_pnFirst, nullptr, m_pnFirst->get_next(nullptr));
+   return unlink(m_pnFirst, m_pnFirst->get_other_sibling(nullptr));
 }
 
 } //namespace detail

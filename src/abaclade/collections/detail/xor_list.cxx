@@ -27,72 +27,81 @@ namespace abc {
 namespace collections {
 namespace detail {
 
-/*static*/ void xor_list::link_back(node * pn, node ** ppnFirst, node ** ppnLast) {
+/*static*/ void xor_list::link_back(
+   node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
+) {
    // TODO: enable use ABC_TRACE_FUNC(pn, ppnFirst, ppnLast) by handling reentrancy.
 
    node * pnLast = *ppnLast;
-   pn->set_prev_next(nullptr, pnLast);
+   pn->set_siblings(nullptr, pnLast);
    if (!*ppnFirst) {
       *ppnFirst = pn;
    } else if (pnLast) {
-      pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
+      pnLast->set_siblings(pn, pnLast->get_other_sibling(nullptr));
    }
    *ppnLast = pn;
+   ++*piRev;
 }
 
-/*static*/ void xor_list::link_front(node * pn, node ** ppnFirst, node ** ppnLast) {
+/*static*/ void xor_list::link_front(
+   node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
+) {
    // TODO: enable use ABC_TRACE_FUNC(pn, ppnFirst, ppnLast) by handling reentrancy.
 
    node * pnFirst = *ppnFirst;
-   pn->set_prev_next(pnFirst, nullptr);
+   pn->set_siblings(pnFirst, nullptr);
    if (!*ppnLast) {
       *ppnLast = pn;
    } else if (pnFirst) {
-      pnFirst->set_prev_next(pnFirst->get_prev(nullptr), pn);
+      pnFirst->set_siblings(pnFirst->get_other_sibling(nullptr), pn);
    }
    *ppnFirst = pn;
+   ++*piRev;
 }
 
 /*static*/ void xor_list::unlink(
-   node * pn, node * pnPrev, node * pnNext, node ** ppnFirst, node ** ppnLast
+   node * pn, node * pnNext, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
 ) {
    // TODO: enable use ABC_TRACE_FUNC(pn, pnPrev, pnNext, ppnFirst, ppnLast) by handling reentrancy.
 
+   node * pnPrev = pn->get_other_sibling(pnNext);
    if (pnPrev) {
-      pnPrev->set_prev_next(pnPrev->get_prev(pn), pnNext);
+      pnPrev->set_siblings(pnPrev->get_other_sibling(pn), pnNext);
    } else if (*ppnFirst == pn) {
       *ppnFirst = pnNext;
    }
    if (pnNext) {
-      pnNext->set_prev_next(pnPrev, pnNext->get_next(pn));
+      pnNext->set_siblings(pnPrev, pnNext->get_other_sibling(pn));
    } else if (*ppnLast == pn) {
       *ppnLast = pnPrev;
    }
+   ++*piRev;
 }
 
 
-void xor_list::iterator_base::advance(std::ptrdiff_t i) {
+xor_list::iterator_base::iterator_base() :
+   m_pnCurr(nullptr),
+   m_pnNext(nullptr),
+   m_piRev(nullptr),
+   m_iRev(0) {
+}
+xor_list::iterator_base::iterator_base(node * pnCurr, node * pnNext, rev_int_t const * piRev) :
+   m_pnCurr(pnCurr),
+   m_pnNext(pnNext),
+   m_piRev(piRev),
+   m_iRev(*m_piRev) {
+}
+
+void xor_list::iterator_base::increment() {
    // TODO: enable use ABC_TRACE_FUNC(this, i) by handling reentrancy.
 
-   if (i > 0) {
-      do {
-         if (!m_pnCurr) {
-            ABC_THROW(iterator_error, ());
-         }
-         m_pnPrev = m_pnCurr;
-         m_pnCurr = m_pnNext;
-         m_pnNext = m_pnCurr ? m_pnCurr->get_next(m_pnPrev) : nullptr;
-      } while (--i > 0);
-   } else if (i < 0) {
-      do {
-         if (!m_pnPrev) {
-            ABC_THROW(iterator_error, ());
-         }
-         m_pnNext = m_pnCurr;
-         m_pnCurr = m_pnPrev;
-         m_pnPrev = m_pnCurr ? m_pnCurr->get_prev(m_pnNext) : nullptr;
-      } while (++i < 0);
+   // TODO: validate that *m_piRev == m_iRev.
+   if (!m_pnCurr) {
+      ABC_THROW(iterator_error, ());
    }
+   node * pnPrev = m_pnCurr;
+   m_pnCurr = m_pnNext;
+   m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }
 
 void xor_list::iterator_base::throw_if_end() const {
