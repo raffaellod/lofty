@@ -30,7 +30,7 @@ namespace collections {
 namespace detail {
 
 //! Defines classes useful to implement XOR-linked list classes.
-class xor_list {
+class ABACLADE_SYM xor_list {
 public:
    //! Node for XOR doubly-linked list classes.
    class node {
