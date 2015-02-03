@@ -388,6 +388,44 @@ public:
          const_iterator(it) {
       }
    };
+
+public:
+   /*! Inserts a node to the end of the list.
+
+   @param pn
+      Pointer to the node to become the last in the list.
+   @param ppnFirst
+      Address of the pointer to the first node.
+   @param ppnLast
+      Address of the pointer to the last node.
+   */
+   static void link_back(node * pn, node ** ppnFirst, node ** ppnLast);
+
+   /*! Inserts a node to the start of the list.
+
+   @param pn
+      Pointer to the node to become the first in the list.
+   @param ppnFirst
+      Address of the pointer to the first node.
+   @param ppnLast
+      Address of the pointer to the last node.
+   */
+   static void link_front(node * pn, node ** ppnFirst, node ** ppnLast);
+
+   /*! Unlinks a node from the list.
+
+   @param pn
+      Pointer to the node to unlink.
+   @param pnPrev
+      Pointer to the node preceding *pn.
+   @param pnNext
+      Pointer to the node following *pn.
+   @param ppnFirst
+      Address of the pointer to the first node.
+   @param ppnLast
+      Address of the pointer to the last node.
+   */
+   static void unlink(node * pn, node * pnPrev, node * pnNext, node ** ppnFirst, node ** ppnLast);
 };
 
 } //namespace detail

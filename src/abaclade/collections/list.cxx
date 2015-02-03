@@ -63,26 +63,14 @@ xor_list::node * list_impl::front() const {
 void list_impl::link_back(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   pn->set_prev_next(nullptr, m_pnLast);
-   if (!m_pnFirst) {
-      m_pnFirst = pn;
-   } else if (xor_list::node * pnLast = m_pnLast) {
-      pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
-   }
-   m_pnLast = pn;
+   xor_list::link_back(pn, &m_pnFirst, &m_pnLast);
    ++m_cNodes;
 }
 
 void list_impl::link_front(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   pn->set_prev_next(m_pnFirst, nullptr);
-   if (!m_pnLast) {
-      m_pnLast = pn;
-   } else if (xor_list::node * pnFirst = m_pnFirst) {
-      pnFirst->set_prev_next(pnFirst->get_prev(nullptr), pn);
-   }
-   m_pnFirst = pn;
+   xor_list::link_front(pn, &m_pnFirst, &m_pnLast);
    ++m_cNodes;
 }
 
@@ -91,16 +79,7 @@ xor_list::node * list_impl::unlink(
 ) {
    ABC_TRACE_FUNC(this, pn, pnPrev, pnNext);
 
-   if (pnPrev) {
-      pnPrev->set_prev_next(pnPrev->get_prev(pn), pnNext);
-   } else if (m_pnFirst == pn) {
-      m_pnFirst = pnNext;
-   }
-   if (pnNext) {
-      pnNext->set_prev_next(pnPrev, pnNext->get_next(pn));
-   } else if (m_pnLast == pn) {
-      m_pnLast = pnPrev;
-   }
+   xor_list::unlink(pn, pnPrev, pnNext, &m_pnFirst, &m_pnLast);
    --m_cNodes;
    // Now the subclass must delete pn.
    return pn;

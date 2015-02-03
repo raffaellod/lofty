@@ -104,14 +104,14 @@ protected:
    /*! Inserts a node to the end of the list.
 
    @param pn
-      Pointer to the node to become the first in the list.
+      Pointer to the node to become the last in the list.
    */
    void link_back(xor_list::node * pn);
 
    /*! Inserts a node to the start of the list.
 
    @param pn
-      Pointer to the node to become the last in the list.
+      Pointer to the node to become the first in the list.
    */
    void link_front(xor_list::node * pn);
 
