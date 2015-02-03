@@ -132,13 +132,7 @@ private:
       Pointer to the node to add.
    */
    static void push_back(detail::xor_list::node * pn) {
-      pn->set_prev_next(nullptr, TContainer::sm_pnLast);
-      if (!TContainer::sm_pnFirst) {
-         TContainer::sm_pnFirst = pn;
-      } else if (detail::xor_list::node * pnLast = TContainer::sm_pnLast) {
-         pnLast->set_prev_next(pn, pnLast->get_next(nullptr));
-      }
-      TContainer::sm_pnLast = pn;
+      detail::xor_list::link_back(pn, &TContainer::sm_pnFirst, &TContainer::sm_pnLast);
    }
 
    /*! Removes a node from the list.
@@ -155,17 +149,9 @@ private:
       ) {
          pnNext = pnCurr->get_next(pnPrev);
          if (pnCurr == pn) {
-            if (pnPrev) {
-               pnPrev->set_prev_next(pnPrev->get_prev(pnCurr), pnNext);
-            } else if (TContainer::sm_pnFirst == pnCurr) {
-               TContainer::sm_pnFirst = pnNext;
-            }
-            if (pnNext) {
-               pnNext->set_prev_next(pnPrev, pnNext->get_next(pnCurr));
-            } else if (TContainer::sm_pnLast == pnCurr) {
-               TContainer::sm_pnLast = pnPrev;
-            }
-            pnCurr->set_prev_next(nullptr, nullptr);
+            detail::xor_list::unlink(
+               pnCurr, pnPrev, pnNext, &TContainer::sm_pnFirst, &TContainer::sm_pnLast
+            );
             break;
          }
       }
