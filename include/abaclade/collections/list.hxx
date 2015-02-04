@@ -36,7 +36,7 @@ namespace collections {
 namespace detail {
 
 //! Non-template implementation class for abc::collections::list.
-class ABACLADE_SYM list_impl : public xor_list::data_members {
+class ABACLADE_SYM list_impl : protected xor_list::data_members {
 public:
    /*! Constructor.
 
@@ -130,14 +130,8 @@ protected:
    xor_list::node * unlink_front();
 
 protected:
-   //! Pointer to the first node.
-   xor_list::node * m_pnFirst;
-   //! Pointer to the last node.
-   xor_list::node * m_pnLast;
    //! Count of nodes.
    std::size_t m_cNodes;
-   //! Indicates the revision number of the list contents.
-   xor_list::rev_int_t m_iRev;
 };
 
 } //namespace detail

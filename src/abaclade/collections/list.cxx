@@ -28,19 +28,19 @@ namespace abc {
 namespace collections {
 namespace detail {
 
-list_impl::list_impl() {
+list_impl::list_impl() :
+   m_cNodes(0) {
    m_pnFirst = nullptr;
    m_pnLast = nullptr;
-   m_cNodes = 0;
    m_iRev = 0;
 }
-list_impl::list_impl(list_impl && l) {
+list_impl::list_impl(list_impl && l) :
+   m_cNodes(l.m_cNodes) {
+   l.m_cNodes = 0;
    m_pnFirst = l.m_pnFirst;
    l.m_pnFirst = nullptr;
    m_pnLast = l.m_pnLast;
    l.m_pnLast = nullptr;
-   m_cNodes = l.m_cNodes;
-   l.m_cNodes = 0;
    m_iRev = 0;
    // Invalidate all iterators for l.
    l.m_iRev += 2;
@@ -49,14 +49,14 @@ list_impl::list_impl(list_impl && l) {
 list_impl & list_impl::operator=(list_impl && l) {
    ABC_TRACE_FUNC(this);
 
+   m_cNodes = l.m_cNodes;
+   l.m_cNodes = 0;
    /* Assume that the subclass has already made a copy of m_pn{First,Last} to be able to release
    them after calling this operator. */
    m_pnFirst = l.m_pnFirst;
    l.m_pnFirst = nullptr;
    m_pnLast = l.m_pnLast;
    l.m_pnLast = nullptr;
-   m_cNodes = l.m_cNodes;
-   l.m_cNodes = 0;
    // Invalidate all iterators for *this and for l.
    m_iRev += 2;
    l.m_iRev += 2;
