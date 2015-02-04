@@ -27,55 +27,49 @@ namespace abc {
 namespace collections {
 namespace detail {
 
-/*static*/ void xor_list::link_back(
-   node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
-) {
-   // TODO: enable use ABC_TRACE_FUNC(pn, ppnFirst, ppnLast) by handling reentrancy.
+/*static*/ void xor_list::link_back(data_members * plxdm, node * pn) {
+   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
 
-   node * pnLast = *ppnLast;
+   node * pnLast = plxdm->m_pnLast;
    pn->set_siblings(nullptr, pnLast);
-   if (!*ppnFirst) {
-      *ppnFirst = pn;
+   if (!plxdm->m_pnFirst) {
+      plxdm->m_pnFirst = pn;
    } else if (pnLast) {
       pnLast->set_siblings(pn, pnLast->get_other_sibling(nullptr));
    }
-   *ppnLast = pn;
-   ++*piRev;
+   plxdm->m_pnLast = pn;
+   ++plxdm->m_iRev;
 }
 
-/*static*/ void xor_list::link_front(
-   node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
-) {
-   // TODO: enable use ABC_TRACE_FUNC(pn, ppnFirst, ppnLast) by handling reentrancy.
+/*static*/ void xor_list::link_front(data_members * plxdm, node * pn) {
+   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
 
-   node * pnFirst = *ppnFirst;
+   node * pnFirst = plxdm->m_pnFirst;
    pn->set_siblings(pnFirst, nullptr);
-   if (!*ppnLast) {
-      *ppnLast = pn;
+   if (!plxdm->m_pnLast) {
+      plxdm->m_pnLast = pn;
    } else if (pnFirst) {
       pnFirst->set_siblings(pnFirst->get_other_sibling(nullptr), pn);
    }
-   *ppnFirst = pn;
-   ++*piRev;
+   plxdm->m_pnFirst = pn;
+   ++plxdm->m_iRev;
 }
 
-/*static*/ void xor_list::unlink(
-   node * pn, node * pnNext, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
-) {
-   // TODO: enable use ABC_TRACE_FUNC(pn, pnPrev, pnNext, ppnFirst, ppnLast) by handling reentrancy.
+/*static*/ void xor_list::unlink(data_members * plxdm, node * pn, node * pnNext) {
+   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn, pnPrev, pnNext) by handling reentrancy.
 
    node * pnPrev = pn->get_other_sibling(pnNext);
    if (pnPrev) {
       pnPrev->set_siblings(pnPrev->get_other_sibling(pn), pnNext);
-   } else if (*ppnFirst == pn) {
-      *ppnFirst = pnNext;
+   } else if (plxdm->m_pnFirst == pn) {
+      plxdm->m_pnFirst = pnNext;
    }
    if (pnNext) {
       pnNext->set_siblings(pnPrev, pnNext->get_other_sibling(pn));
-   } else if (*ppnLast == pn) {
-      *ppnLast = pnPrev;
+   } else if (plxdm->m_pnLast == pn) {
+      plxdm->m_pnLast = pnPrev;
    }
-   ++*piRev;
+   ++plxdm->m_iRev;
 }
 
 

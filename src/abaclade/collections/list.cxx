@@ -84,21 +84,21 @@ xor_list::node * list_impl::front() const {
 void list_impl::link_back(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   xor_list::link_back(pn, &m_pnFirst, &m_pnLast, &m_iRev);
+   xor_list::link_back(this, pn);
    ++m_cNodes;
 }
 
 void list_impl::link_front(xor_list::node * pn) {
    ABC_TRACE_FUNC(this, pn);
 
-   xor_list::link_front(pn, &m_pnFirst, &m_pnLast, &m_iRev);
+   xor_list::link_front(this, pn);
    ++m_cNodes;
 }
 
 xor_list::node * list_impl::unlink(xor_list::node * pn, xor_list::node * pnNext) {
    ABC_TRACE_FUNC(this, pn, pnNext);
 
-   xor_list::unlink(pn, pnNext, &m_pnFirst, &m_pnLast, &m_iRev);
+   xor_list::unlink(this, pn, pnNext);
    --m_cNodes;
    // Now the subclass must delete pn.
    return pn;

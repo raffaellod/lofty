@@ -287,46 +287,32 @@ public:
 public:
    /*! Inserts a node to the end of the list.
 
+   @param plxdm
+      Pointer to the list data members.
    @param pn
       Pointer to the node to become the last in the list.
-   @param ppnFirst
-      Address of the pointer to the first node.
-   @param ppnLast
-      Address of the pointer to the last node.
-   @param piRev
-      Pointer to the container’s revision number.
    */
-   static void link_back(node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev);
+   static void link_back(data_members * plxdm, node * pn);
 
    /*! Inserts a node to the start of the list.
 
+   @param plxdm
+      Pointer to the list data members.
    @param pn
       Pointer to the node to become the first in the list.
-   @param ppnFirst
-      Address of the pointer to the first node.
-   @param ppnLast
-      Address of the pointer to the last node.
-   @param piRev
-      Pointer to the container’s revision number.
    */
-   static void link_front(node * pn, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev);
+   static void link_front(data_members * plxdm, node * pn);
 
    /*! Unlinks a node from the list.
 
+   @param plxdm
+      Pointer to the list data members.
    @param pn
       Pointer to the node to unlink.
    @param pnNext
       Pointer to the node following *pn.
-   @param ppnFirst
-      Address of the pointer to the first node.
-   @param ppnLast
-      Address of the pointer to the last node.
-   @param piRev
-      Pointer to the container’s revision number.
    */
-   static void unlink(
-      node * pn, node * pnNext, node ** ppnFirst, node ** ppnLast, rev_int_t * piRev
-   );
+   static void unlink(data_members * plxdm, node * pn, node * pnNext);
 };
 
 } //namespace detail

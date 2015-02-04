@@ -137,10 +137,7 @@ private:
       Pointer to the node to add.
    */
    static void push_back(detail::xor_list::node * pn) {
-      detail::xor_list::link_back(
-         pn, &TContainer::sm_xldm.m_pnFirst, &TContainer::sm_xldm.m_pnLast,
-         &TContainer::sm_xldm.m_iRev
-      );
+      detail::xor_list::link_back(&TContainer::sm_xldm, pn);
    }
 
    /*! Removes a node from the list.
@@ -153,10 +150,7 @@ private:
       // TODO: this should be de-templated in xor_list for the most part.
       for (auto it(begin()); it != end(); ++it) {
          if (it.base() == pn) {
-            detail::xor_list::unlink(
-               pn, const_cast<node *>(it.next_base()), &TContainer::sm_xldm.m_pnFirst,
-               &TContainer::sm_xldm.m_pnLast, &TContainer::sm_xldm.m_iRev
-            );
+            detail::xor_list::unlink(&TContainer::sm_xldm, pn, const_cast<node *>(it.next_base()));
             break;
          }
       }
