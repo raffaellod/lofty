@@ -173,22 +173,14 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
       ++it4;
       l.remove_at(it2);
 
-      // it1 updates its “next” pointer and continues seamlessly.
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it1);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it1);
-//    ABC_TESTING_ASSERT_EQUAL(*it1, 3);
-      // it2 cannot be dereferenced, but it’s able to continues from the next element.
-//    ABC_TESTING_ASSERT_THROWS(iterator_error, *it2);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it2);
-      ABC_TESTING_ASSERT_EQUAL(*it2, 3);
-      // it3 is unaffected.
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it3);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it3);
-      ABC_TESTING_ASSERT_EQUAL(*it3, 4);
-      // it3 is unaffected, and reaches the end of the list.
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(*it4);
-      ABC_TESTING_ASSERT_DOES_NOT_THROW(++it4);
-      ABC_TESTING_ASSERT_TRUE(it4 == l.end());
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it1);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it1);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it2);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it2);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it3);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it3);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it4);
+      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it4);
    }
 }
 

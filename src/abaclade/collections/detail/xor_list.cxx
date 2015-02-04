@@ -95,9 +95,9 @@ xor_list::iterator_base::iterator_base(data_members const * pxldm, node * pnCurr
 void xor_list::iterator_base::increment() {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
-   /* Detect attempts to increment past the end() of the container or increment a default-
-   constructed iterator. */
-   if (!m_pnCurr) {
+   /* Detect attempts to increment past the end() of the container, or increment a default-
+   constructed iterator, or dereference an iterator after the list has invalidated them all. */
+   if (!m_pnCurr || m_iRev != m_pxldm->m_iRev) {
       ABC_THROW(iterator_error, ());
    }
 
@@ -109,7 +109,7 @@ void xor_list::iterator_base::increment() {
 void xor_list::iterator_base::throw_if_end() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
-   if (!m_pnCurr) {
+   if (!m_pnCurr || m_iRev != m_pxldm->m_iRev) {
       ABC_THROW(iterator_error, ());
    }
 }
