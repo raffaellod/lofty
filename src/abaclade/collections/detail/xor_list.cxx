@@ -101,7 +101,7 @@ void xor_list::iterator_base::increment() {
       ABC_THROW(iterator_error, ());
    }
 
-   node * pnPrev = m_pnCurr;
+   node const * pnPrev = m_pnCurr;
    m_pnCurr = m_pnNext;
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }

@@ -60,7 +60,7 @@ public:
       @param pnSibling
          Pointer to the previous or next node.
       */
-      node * get_other_sibling(node * pnSibling) {
+      node * get_other_sibling(node const * pnSibling) {
          return reinterpret_cast<node *>(
             m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnSibling)
          );
@@ -73,7 +73,7 @@ public:
       @param pnNext
          Pointer to the next node.
       */
-      void set_siblings(node * pnPrev, node * pnNext) {
+      void set_siblings(node const * pnPrev, node const * pnNext) {
          m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
                           reinterpret_cast<std::uintptr_t>(pnNext);
       }
