@@ -46,6 +46,9 @@ protected:
       map_impl * pmapi, void * pKey, void * pValue, std::size_t iBucket
    );
 
+   //! Integer type used to track changes in the map.
+   typedef std::uint16_t rev_int_t;
+
 public:
    /*! Constructor.
 
@@ -311,6 +314,8 @@ protected:
    actual value may be smaller if the table is too small, or larger if the hash function results in
    too many collisions. In the worst case, this will be the same as m_cBuckets. */
    std::size_t m_cNeighborhoodBuckets;
+   //! Indicates the revision number of the map contents.
+   rev_int_t m_iRev;
 
    //! Minimum bucket count. Must be a power of 2.
    static std::size_t const smc_cBucketsMin = 8;
@@ -495,6 +500,7 @@ public:
          }
       }
       m_cUsedBuckets = 0;
+      ++m_iRev;
    }
 
    /*! Returns a forward iterator set beyond the last key/value pair.
@@ -534,9 +540,10 @@ public:
          ABC_THROW(key_error, ());
       }
       // Mark the bucket as empty and destruct the corresponding key and value.
-      --m_cUsedBuckets;
       m_piHashes[iBucket] = smc_iEmptyBucketHash;
       destruct_key_value(key_ptr(iBucket), value_ptr(iBucket));
+      --m_cUsedBuckets;
+      ++m_iRev;
    }
 
 private:

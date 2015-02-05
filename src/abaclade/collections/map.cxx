@@ -35,7 +35,8 @@ std::size_t const map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) 
 map_impl::map_impl() :
    m_cBuckets(0),
    m_cUsedBuckets(0),
-   m_cNeighborhoodBuckets(0) {
+   m_cNeighborhoodBuckets(0),
+   m_iRev(0) {
 }
 map_impl::map_impl(map_impl && m) :
    m_piHashes(std::move(m.m_piHashes)),
@@ -43,10 +44,13 @@ map_impl::map_impl(map_impl && m) :
    m_pValues(std::move(m.m_pValues)),
    m_cBuckets(m.m_cBuckets),
    m_cUsedBuckets(m.m_cUsedBuckets),
-   m_cNeighborhoodBuckets(m.m_cNeighborhoodBuckets) {
+   m_cNeighborhoodBuckets(m.m_cNeighborhoodBuckets),
+   m_iRev(0) {
    m.m_cBuckets = 0;
    m.m_cUsedBuckets = 0;
    m.m_cNeighborhoodBuckets = 0;
+   // Invalidate all iterators for m.
+   ++m.m_iRev;
 }
 
 map_impl::~map_impl() {
@@ -62,6 +66,9 @@ map_impl & map_impl::operator=(map_impl && m) {
    m.m_cUsedBuckets = 0;
    m_cNeighborhoodBuckets = m.m_cNeighborhoodBuckets;
    m.m_cNeighborhoodBuckets = 0;
+   // Invalidate all iterators for *this and for m.
+   ++m_iRev;
+   ++m.m_iRev;
    return *this;
 }
 
@@ -73,16 +80,13 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
    if (!m_cBuckets) {
       grow_table(cbKey, cbValue, pfnMoveKeyValueToBucket, pfnDestructKeyValue);
    }
-   /* Repeatedly resize the table until we’re able to find an empty bucket for the new element. This
-   should typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
+   /* Repeatedly resize the table until we’re able to find a bucket for the key. This should
+   typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
    std::size_t iBucket;
-   for (;;) {
-      iBucket = get_existing_or_empty_bucket_for_key(
-         cbKey, cbValue, pfnKeysEqual, pfnMoveKeyValueToBucket, pKey, iKeyHash
-      );
-      if (iBucket < smc_iFirstSpecialIndex) {
-         break;
-      } else if (iBucket == smc_iNeedLargerNeighborhoods) {
+   while ((iBucket = get_existing_or_empty_bucket_for_key(
+      cbKey, cbValue, pfnKeysEqual, pfnMoveKeyValueToBucket, pKey, iKeyHash
+   )) >= smc_iFirstSpecialIndex) {
+      if (iBucket == smc_iNeedLargerNeighborhoods) {
          grow_neighborhoods();
       } else {
          grow_table(cbKey, cbValue, pfnMoveKeyValueToBucket, pfnDestructKeyValue);
@@ -100,6 +104,7 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
       pfnMoveKeyValueToBucket(this, nullptr, pValue, iBucket);
    }
    ++m_cUsedBuckets;
+   ++m_iRev;
    return std::make_pair(iBucket, bNew);
 }
 
