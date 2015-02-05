@@ -311,6 +311,7 @@ protected:
    actual value may be smaller if the table is too small, or larger if the hash function results in
    too many collisions. In the worst case, this will be the same as m_cBuckets. */
    std::size_t m_cNeighborhoodBuckets;
+
    //! Minimum bucket count. Must be a power of 2.
    static std::size_t const smc_cBucketsMin = 8;
    //! Special hash value used to indicate that a bucket is empty.
@@ -325,7 +326,7 @@ protected:
    static std::size_t const smc_iZeroHash = 65521;
 
    //! First special index value.
-   static std::size_t const smc_iSpecialIndex = numeric::max<std::size_t>::value - 8;
+   static std::size_t const smc_iFirstSpecialIndex = numeric::max<std::size_t>::value - 8;
    /*! Special value returned by find_bucket_movable_to_empty() to indicate that the neighborhood
    size needs to be increased before trying again. */
    static std::size_t const smc_iNeedLargerNeighborhoods = numeric::max<std::size_t>::value - 2;

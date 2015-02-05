@@ -80,7 +80,7 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
       iBucket = get_existing_or_empty_bucket_for_key(
          cbKey, cbValue, pfnKeysEqual, pfnMoveKeyValueToBucket, pKey, iKeyHash
       );
-      if (iBucket < smc_iSpecialIndex) {
+      if (iBucket < smc_iFirstSpecialIndex) {
          break;
       } else if (iBucket == smc_iNeedLargerNeighborhoods) {
          grow_neighborhoods();
@@ -226,7 +226,7 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
       the left-most neighborhood containing iEmptyBucket, but excluding buckets occupied by keys
       belonging to other overlapping neighborhoods. */
       std::size_t iMovableBucket = find_bucket_movable_to_empty(iEmptyBucket);
-      if (iMovableBucket >= smc_iSpecialIndex) {
+      if (iMovableBucket >= smc_iFirstSpecialIndex) {
          /* No buckets have contents that can be moved to iEmptyBucket; the hash table or the
          neighborhoods need to be resized. */
          return iMovableBucket;
@@ -264,7 +264,7 @@ void map_impl::grow_table(
    neighborhood size is greater than the ideal, which can happen when dealing with a subpar hash
    function that resulted in more collisions than smc_cIdealNeighborhoodBuckets. In that scenario,
    the table size increase doesn’t change anything, since the fix has already been applied with a
-   change in m_cNeighborhoodBuckets which happened bwfore this method was called. */
+   change in m_cNeighborhoodBuckets which happened before this method was called. */
    if (m_cNeighborhoodBuckets < smc_cIdealNeighborhoodBuckets) {
       if (m_cBuckets < smc_cIdealNeighborhoodBuckets) {
          /* m_cNeighborhoodBuckets has not yet reached smc_cIdealNeighborhoodBuckets, but it can’t
@@ -287,7 +287,7 @@ void map_impl::grow_table(
          std::size_t iNewBucket = get_empty_bucket_for_key(
             cbKey, cbValue, pfnMoveKeyValueToBucket, *piOldHash
          );
-         ABC_ASSERT(iNewBucket < smc_iSpecialIndex,
+         ABC_ASSERT(iNewBucket < smc_iFirstSpecialIndex,
             ABC_SL("failed to find empty bucket while growing hash table; ")
             ABC_SL("if it could be found before, why not now when there are more buckets?")
          );
