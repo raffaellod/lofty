@@ -49,6 +49,110 @@ protected:
    //! Integer type used to track changes in the map.
    typedef std::uint16_t rev_int_t;
 
+   //! Provides access to a key and value in a map.
+   template <typename TKey, typename TValue>
+   struct key_value_pair {
+      TKey   & key;
+      TValue & value;
+   };
+
+   //! Iterator type.
+   template <typename TPair, bool t_bConst = std::is_const<TPair>::value>
+   class iterator;
+
+   // Partial specialization for const TPair.
+   template <typename TPair>
+   class iterator<TPair, true> : public std::iterator<std::bidirectional_iterator_tag, TPair> {
+   public:
+      /*! Constructor.
+
+      @param pmap
+         Pointer to the map owning the iterated objects.
+      @param iBucket
+         Index of the current bucket.
+      */
+      iterator() :
+         m_pmap(nullptr),
+         m_iBucket(0) {
+      }
+      iterator(map_impl const * pmap, std::size_t iBucket) :
+         m_pmap(pmap),
+         m_iBucket(iBucket),
+         m_iRev(pmap->m_iRev) {
+      }
+
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this is an iterator to the same key/value pair as it, or false otherwise.
+      */
+      bool operator==(iterator const & it) const {
+         return m_pmap == it.m_pmap && m_iBucket == it.m_iBucket;
+      }
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this has a different key/value pair than it, or false otherwise.
+      */
+      bool operator!=(iterator const & it) const {
+         return !operator==(it);
+      }
+
+   protected:
+      //! Pointer to the map to iterate over.
+      map_impl const * m_pmap;
+      //! Current bucket index.
+      std::size_t m_iBucket;
+      //! Last container revision number known to the iterator.
+      rev_int_t m_iRev;
+   };
+
+   // Partial specialization for non-const TPair.
+   template <typename TPair>
+   class iterator<TPair, false> : public iterator<TPair, true> {
+   private:
+      // Shortcuts.
+      typedef iterator<TPair, true> const_iterator;
+      typedef std::iterator<std::bidirectional_iterator_tag, TPair> std_iterator;
+
+   public:
+      // These are inherited from both base classes, so resolve the ambiguity.
+      using typename std_iterator::difference_type;
+      using typename std_iterator::iterator_category;
+      using typename std_iterator::pointer;
+      using typename std_iterator::reference;
+      using typename std_iterator::value_type;
+
+   public:
+      /*! Constructor.
+
+      @param pmap
+         Pointer to the map owning the iterated objects.
+      @param iBucket
+         Index of the current bucket.
+      */
+      iterator() {
+      }
+      iterator(map_impl const * pmap, std::size_t iBucket) :
+         const_iterator(pmap, iBucket) {
+      }
+
+   private:
+      /*! Constructor used for cv-removing promotions from const_iterator to iterator.
+
+      @param it
+         Source object.
+      */
+      iterator(const_iterator const & it) :
+         const_iterator(it) {
+      }
+   };
+
 public:
    /*! Constructor.
 
@@ -392,55 +496,22 @@ template <
 >
 class map : public detail::map_impl, private THasher, private TKeyEqual {
 public:
+   //! Key type.
+   typedef TKey key_type;
+   //! Mapped value type.
+   typedef TValue mapped_type;
    //! Hash generator for TKey.
    typedef THasher hasher;
    //! Functor that can compare two TKey instances for equality.
    typedef TKeyEqual key_equal;
-
+   //! Key/value type.
+   typedef map_impl::key_value_pair<TKey, TValue> value_type;
+   //! Const key/value type.
+   typedef map_impl::key_value_pair<TKey const, TValue const> const const_value_type;
    //! Iterator type.
-   class iterator {
-   public:
-      /*! Constructor.
-
-      @param pmap
-         Pointer to the map owning the iterated objects.
-      @param iBucket
-         Index of the current bucket.
-      */
-      iterator(map const * pmap, std::size_t iBucket) :
-         mc_pmap(pmap),
-         m_iBucket(iBucket) {
-      }
-
-      /*! Equality relational operator.
-
-      @param it
-         Object to compare to *this.
-      @return
-         true if *this is an iterator to the same key/value pair as it, or false otherwise.
-      */
-      bool operator==(iterator const & it) const {
-         // TODO: maybe also check mc_pmap for equality.
-         return m_iBucket == it.m_iBucket;
-      }
-
-      /*! Inequality relational operator.
-
-      @param it
-         Object to compare to *this.
-      @return
-         true if *this has a different key/value pair than it, or false otherwise.
-      */
-      bool operator!=(iterator const & it) const {
-         return !operator==(it);
-      }
-
-   private:
-      //! Pointer to the map to iterate over.
-      map const * const mc_pmap;
-      //! Current bucket index.
-      std::size_t m_iBucket;
-   };
+   typedef map_impl::iterator<value_type> iterator;
+   //! Const iterator type.
+   typedef map_impl::iterator<const_value_type> const_iterator;
 
 public:
    /*! Constructor.
