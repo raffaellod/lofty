@@ -205,40 +205,6 @@ std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd
    return smc_iNullIndex;
 }
 
-std::size_t map_impl::get_empty_bucket_for_key(
-   std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
-   std::size_t iKeyHash
-) {
-   std::size_t iNhBegin, iNhEnd;
-   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-   // Search for an empty bucket in the neighborhood.
-   std::size_t iBucket = find_empty_bucket(iNhBegin, iNhEnd);
-   if (iBucket != smc_iNullIndex) {
-      return iBucket;
-   }
-   return find_empty_bucket_outside_neighborhood(
-      cbKey, cbValue, pfnMoveKeyValueToBucket, iNhBegin, iNhEnd
-   );
-}
-
-std::size_t map_impl::get_existing_or_empty_bucket_for_key(
-   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
-   move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
-) {
-   std::size_t iNhBegin, iNhEnd;
-   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
-   // Look for the key or an empty bucket in the neighborhood.
-   std::size_t iBucket = lookup_key_or_find_empty_bucket(
-      cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd
-   );
-   if (iBucket != smc_iNullIndex) {
-      return iBucket;
-   }
-   return find_empty_bucket_outside_neighborhood(
-      cbKey, cbValue, pfnMoveKeyValueToBucket, iNhBegin, iNhEnd
-   );
-}
-
 std::size_t map_impl::find_empty_bucket_outside_neighborhood(
    std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
    std::size_t iNhBegin, std::size_t iNhEnd
@@ -276,6 +242,40 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
       iEmptyBucket = iMovableBucket;
    }
    return iEmptyBucket;
+}
+
+std::size_t map_impl::get_empty_bucket_for_key(
+   std::size_t cbKey, std::size_t cbValue, move_key_value_to_bucket_fn pfnMoveKeyValueToBucket,
+   std::size_t iKeyHash
+) {
+   std::size_t iNhBegin, iNhEnd;
+   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   // Search for an empty bucket in the neighborhood.
+   std::size_t iBucket = find_empty_bucket(iNhBegin, iNhEnd);
+   if (iBucket != smc_iNullIndex) {
+      return iBucket;
+   }
+   return find_empty_bucket_outside_neighborhood(
+      cbKey, cbValue, pfnMoveKeyValueToBucket, iNhBegin, iNhEnd
+   );
+}
+
+std::size_t map_impl::get_existing_or_empty_bucket_for_key(
+   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
+   move_key_value_to_bucket_fn pfnMoveKeyValueToBucket, void const * pKey, std::size_t iKeyHash
+) {
+   std::size_t iNhBegin, iNhEnd;
+   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   // Look for the key or an empty bucket in the neighborhood.
+   std::size_t iBucket = lookup_key_or_find_empty_bucket(
+      cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd
+   );
+   if (iBucket != smc_iNullIndex) {
+      return iBucket;
+   }
+   return find_empty_bucket_outside_neighborhood(
+      cbKey, cbValue, pfnMoveKeyValueToBucket, iNhBegin, iNhEnd
+   );
 }
 
 void map_impl::grow_table(
