@@ -135,8 +135,9 @@ protected:
       //! Moves the iterator to next node.
       void increment();
 
-      //! Throws an iterator_error if the iterator is at the end of the container.
-      void throw_if_end() const;
+      /*! Throws an iterator_error exception if the iterator is at the end of the container or has
+      been invalidated by a change in the container. */
+      void validate() const;
 
    protected:
       //! Pointer to the current node.
@@ -173,7 +174,7 @@ public:
          Reference to the current node.
       */
       TValue & operator*() const {
-         throw_if_end();
+         validate();
          return *static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 
@@ -183,7 +184,7 @@ public:
          Pointer to the current node.
       */
       TValue * operator->() const {
-         throw_if_end();
+         validate();
          return static_cast<TNode *>(m_pnCurr)->value_ptr();
       }
 

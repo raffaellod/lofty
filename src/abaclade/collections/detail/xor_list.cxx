@@ -100,7 +100,7 @@ void xor_list::iterator_base::increment() {
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }
 
-void xor_list::iterator_base::throw_if_end() const {
+void xor_list::iterator_base::validate() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    if (!m_pnCurr || m_iRev != m_pxldm->m_iRev) {
