@@ -127,6 +127,17 @@ protected:
       destruct_key_value_fn pfnDestructKeyValue, void * pKey, std::size_t iKeyHash, void * pValue
    );
 
+   /*! Removes all elements from the map.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param cbValue
+      Size of a value, in bytes.
+   @param pfnDestructKeyValue
+      Pointer to a function that destructs the specified key and value.
+   */
+   void clear(std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue);
+
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
    hash.
 
@@ -490,17 +501,7 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
-      TKey   * pkey   = key_ptr  (0);
-      TValue * pvalue = value_ptr(0);
-      for (; piHash < piHashesEnd; ++piHash, ++pkey, ++pvalue) {
-         if (*piHash != smc_iEmptyBucketHash) {
-            *piHash = smc_iEmptyBucketHash;
-            destruct_key_value(pkey, pvalue);
-         }
-      }
-      m_cUsedBuckets = 0;
-      ++m_iRev;
+      map_impl::clear(sizeof(TKey), sizeof(TValue), &destruct_key_value);
    }
 
    /*! Returns a forward iterator set beyond the last key/value pair.

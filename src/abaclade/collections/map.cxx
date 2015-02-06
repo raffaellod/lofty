@@ -108,6 +108,22 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
    return std::make_pair(iBucket, bNew);
 }
 
+void map_impl::clear(
+   std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue
+) {
+   std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
+   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get());
+   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get());
+   for (; piHash < piHashesEnd; ++piHash, pbKey += cbKey, pbValue += cbValue) {
+      if (*piHash != smc_iEmptyBucketHash) {
+         *piHash = smc_iEmptyBucketHash;
+         pfnDestructKeyValue(pbKey, pbValue);
+      }
+   }
+   m_cUsedBuckets = 0;
+   ++m_iRev;
+}
+
 std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
    std::size_t const * piEmptyHash = m_piHashes.get() + iEmptyBucket;
    /* Minimum number of buckets on the right of iEmptyBucket that we need in order to have a full
