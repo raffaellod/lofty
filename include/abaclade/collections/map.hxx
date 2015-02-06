@@ -165,6 +165,22 @@ protected:
       return std::make_tuple(iNhBegin, iNhEnd);
    }
 
+   /*! Marks a bucket as empty and destruct the corresponding key and value.
+
+   @param cbKey
+      Size of a key, in bytes.
+   @param cbValue
+      Size of a value, in bytes.
+   @param pfnDestructKeyValue
+      Pointer to a function that destructs the specified key and value.
+   @param iBucket
+      Index of the bucket to empty.
+   */
+   void empty_bucket(
+      std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue,
+      std::size_t iBucket
+   );
+
 private:
    /*! Finds the first (non-empty) bucket whose contents can be moved to the specified bucket.
 
@@ -540,11 +556,7 @@ public:
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      // Mark the bucket as empty and destruct the corresponding key and value.
-      m_piHashes[iBucket] = smc_iEmptyBucketHash;
-      destruct_key_value(key_ptr(iBucket), value_ptr(iBucket));
-      --m_cUsedBuckets;
-      ++m_iRev;
+      empty_bucket(sizeof(TKey), sizeof(TValue), &destruct_key_value, iBucket);
    }
 
 private:

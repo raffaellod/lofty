@@ -124,6 +124,19 @@ void map_impl::clear(
    ++m_iRev;
 }
 
+void map_impl::empty_bucket(
+   std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue,
+   std::size_t iBucket
+) {
+   m_piHashes[iBucket] = smc_iEmptyBucketHash;
+   pfnDestructKeyValue(
+      static_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iBucket,
+      static_cast<std::int8_t *>(m_pValues.get()) + cbValue * iBucket
+   );
+   --m_cUsedBuckets;
+   ++m_iRev;
+}
+
 std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
    std::size_t const * piEmptyHash = m_piHashes.get() + iEmptyBucket;
    /* Minimum number of buckets on the right of iEmptyBucket that we need in order to have a full
