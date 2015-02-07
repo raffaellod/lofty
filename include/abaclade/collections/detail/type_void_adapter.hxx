@@ -67,6 +67,8 @@ public:
 
    /*! Prototype of a function that compares two values for equality.
 
+   @param pComparator
+      Pointer to an object able to compare the two values.
    @param p1
       Pointer to the first item.
    @param p2
@@ -74,7 +76,7 @@ public:
    @return
       true if the items are equal, or false otherwise.
    */
-   typedef bool (* equal_fn)(void const * p1, void const * p2);
+   typedef bool (* equal_fn)(void const * pComparator, void const * p1, void const * p2);
 
    /*! Prototype of a function that moves items from one array to another.
 
@@ -140,7 +142,7 @@ public:
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!equal) {
-         _typed_equal<typename std::remove_cv<T>::type>(nullptr, nullptr);
+         _typed_equal<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
@@ -266,6 +268,8 @@ private:
 
    /*! Compares two values for equality.
 
+   @param pcomparator
+      Pointer to an object able to compare the two values.
    @param pt1
       Pointer to the first item.
    @param pt2
@@ -273,9 +277,9 @@ private:
    @return
       true if the items are equal, or false otherwise.
    */
-   template <typename T>
-   static bool _typed_equal(T const * pt1, T const * pt2) {
-      return *pt1 == *pt2;
+   template <typename TComparator, typename T>
+   static bool _typed_equal(TComparator const * pcomparator, T const * pt1, T const * pt2) {
+      return pcomparator->_compare(*pt1, *pt2);
    }
 
    /*! Moves a range of items from one array to another, overwriting any existing contents in the
