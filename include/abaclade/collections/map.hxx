@@ -40,11 +40,7 @@ namespace detail {
 //! Non-template implementation class for abc::collections::map.
 class ABACLADE_SYM map_impl {
 protected:
-   typedef void (* destruct_key_value_fn)(void * pKey, void * pValue);
    typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
-   typedef void (* set_bucket_key_value_fn)(
-      map_impl * pmapi, std::size_t iBucket, void * pKey, void * pValue, unsigned iMove
-   );
 
    //! Integer type used to track changes in the map.
    typedef std::uint16_t rev_int_t;
@@ -203,16 +199,12 @@ protected:
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
    returns its index after moving it in the key’s neighborhood.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    @param pfnKeysEqual
       Pointer to a function that returns true if two keys compare as equal.
-   @param pfnSetBucketKeyValue
-      Pointer to a function that sets a bucket’s key and value using the provided pointers.
-   @param pfnDestructKeyValue
-      Pointer to a function that destructs the specified key and value.
    @param pKey
       Pointer to the key to add.
    @param iKeyHash
@@ -228,21 +220,18 @@ protected:
       corresponding value was overwritten.
    */
    std::pair<std::size_t, bool> add_or_assign(
-      std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
-      set_bucket_key_value_fn pfnSetBucketKeyValue, destruct_key_value_fn pfnDestructKeyValue,
-      void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue,
+      keys_equal_fn pfnKeysEqual, void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
    );
 
    /*! Removes all elements from the map.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnDestructKeyValue
-      Pointer to a function that destructs the specified key and value.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    */
-   void clear(std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue);
+   void clear(type_void_adapter const & typeKey, type_void_adapter const & typeValue);
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given
    hash.
@@ -273,18 +262,15 @@ protected:
 
    /*! Marks a bucket as empty and destruct the corresponding key and value.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnDestructKeyValue
-      Pointer to a function that destructs the specified key and value.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    @param iBucket
       Index of the bucket to empty.
    */
    void empty_bucket(
-      std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue,
-      std::size_t iBucket
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket
    );
 
 private:
@@ -311,13 +297,10 @@ private:
 
    /*! Looks for an empty bucket outsize the specified bucket range.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnSetBucketKeyValue
-      Pointer to a function that move-constructs the key and value of a bucket using the provided
-      pointers.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    @param iNhBegin
       Beginning of the neighborhood bucket index range.
    @param iNhEnd
@@ -327,21 +310,17 @@ private:
       smc_iNullIndex if no movable buckets could be found.
    */
    std::size_t find_empty_bucket_outside_neighborhood(
-      std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-      std::size_t iNhBegin, std::size_t iNhEnd
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iNhBegin,
+      std::size_t iNhEnd
    );
 
    /*! Locates an empty bucket where the specified key may be stored, and returns its index after
    moving it in the key’s neighborhood.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnSetBucketKeyValue
-      Pointer to a function that sets a bucket’s key and value using the provided pointers.
-   @param pKey
-      Pointer to the key to lookup.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    @param iKeyHash
       Hash of *pKey.
    @return
@@ -349,21 +328,18 @@ private:
       key’s neighborhood, the returned index is smc_iNullIndex.
    */
    std::size_t get_empty_bucket_for_key(
-      std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-      std::size_t iKeyHash
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iKeyHash
    );
 
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and
    returns its index after moving it in the key’s neighborhood.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    @param pfnKeysEqual
       Pointer to a function that returns true if two keys compare as equal.
-   @param pfnSetBucketKeyValue
-      Pointer to a function that sets a bucket’s key and value using the provided pointers.
    @param pKey
       Pointer to the key to lookup.
    @param iKeyHash
@@ -373,8 +349,8 @@ private:
       bucket can be moved in the key’s neighborhood, the returned index is smc_iNullIndex.
    */
    std::size_t get_existing_or_empty_bucket_for_key(
-      std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
-      set_bucket_key_value_fn pfnSetBucketKeyValue, void const * pKey, std::size_t iKeyHash
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue,
+      keys_equal_fn pfnKeysEqual, void const * pKey, std::size_t iKeyHash
    );
 
    /*! Enlarges the neighborhood size by a factor of smc_iGrowthFactor. This does not require moving
@@ -392,30 +368,23 @@ private:
    variables as soon as all memory allocations are done; if anything were to go wrong after that,
    we’d have no guaranteed-safe way of recovering from a half-transferred scenario anyway.
 
-   @param cbKey
-      Size of a key, in bytes.
-   @param cbValue
-      Size of a value, in bytes.
-   @param pfnSetBucketKeyValue
-      Pointer to a function that sets a bucket’s key and value using the provided pointers.
-   @param pfnDestructKeyValue
-      Pointer to a function that destructs the specified key and value.
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
    */
-   void grow_table(
-      std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-      destruct_key_value_fn pfnDestructKeyValue
-   );
+   void grow_table(type_void_adapter const & typeKey, type_void_adapter const & typeValue);
 
    /*! Looks for a specific key or an unused bucket in the map.
 
-   @param cbKey
-      Size of a key, in bytes.
+   @param typeKey
+      Adapter for the key types.
+   @param pfnKeysEqual
+      Pointer to a function that returns true if two keys compare as equal.
    @param pKey
       Pointer to the key to lookup.
    @param iKeyHash
       Hash of *pKey.
-   @param pfnKeysEqual
-      Pointer to a function that returns true if two keys compare as equal.
    @param iNhBegin
       Beginning of the neighborhood bucket index range.
    @param iNhEnd
@@ -425,9 +394,31 @@ private:
       or smc_iNullIndex if neither could be found.
    */
    std::size_t lookup_key_or_find_empty_bucket(
-      std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-      std::size_t iNhBegin, std::size_t iNhEnd
+      type_void_adapter const & typeKey, keys_equal_fn pfnKeysEqual, void const * pKey,
+      std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd
    ) const;
+
+   /*! Copies or moves a value, and optionally a key, to the specified bucket.
+
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
+   @param iBucket
+      Index of the destination bucket.
+   @param pKey
+      Pointer to the key to move to the destination bucket. May be nullptr if the key doesn’t need
+      to be changed because it’s already correct.
+   @param pValue
+      Pointer to the value to move to the destination bucket.
+   @param iMove
+      Bitmask; 1 (bit 0) indicates that *pKey should be moved, while 2 (bit 1) indicates that
+      *pValue should be moved.
+   */
+   void set_bucket_key_value(
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket,
+      void * pKey, void * pValue, unsigned iMove
+   );
 
 protected:
    //! Array containing the hash of each key.
@@ -567,11 +558,19 @@ public:
       corresponding value was overwritten.
    */
    std::pair<iterator, bool> add_or_assign(TKey key, TValue value) {
+      detail::type_void_adapter typeKey, typeValue;
+//      typeKey.set_copy_fn<TKey>();
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_move_fn<TKey>();
+      typeKey.set_size<TKey>();
+//      typeValue.set_copy_fn<TValue>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_move_fn<TValue>();
+      typeValue.set_size<TValue>();
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       bool bNew;
       std::tie(iBucket, bNew) = map_impl::add_or_assign(
-         sizeof(TKey), sizeof(TValue), &keys_equal, &set_bucket_key_value, &destruct_key_value,
-         &key, iKeyHash, &value, 1 | 2
+         typeKey, typeValue, &keys_equal, &key, iKeyHash, &value, 1 | 2
       );
       return std::make_pair(iterator(this, iBucket), bNew);
    }
@@ -587,7 +586,12 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      map_impl::clear(sizeof(TKey), sizeof(TValue), &destruct_key_value);
+      detail::type_void_adapter typeKey, typeValue;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_size<TValue>();
+      map_impl::clear(typeKey, typeValue);
    }
 
    /*! Returns a forward iterator set beyond the last key/value pair.
@@ -626,7 +630,12 @@ public:
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      empty_bucket(sizeof(TKey), sizeof(TValue), &destruct_key_value, iBucket);
+      detail::type_void_adapter typeKey, typeValue;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_size<TValue>();
+      empty_bucket(typeKey, typeValue, iBucket);
    }
 
 private:
@@ -642,18 +651,6 @@ private:
       return iHash == smc_iEmptyBucketHash ? smc_iZeroHash : iHash;
    }
 
-   /*! Destructs a key and a value.
-
-   @param pKey
-      Pointer to the key to destruct.
-   @param pValue
-      Pointer to the value to destruct.
-   */
-   static void destruct_key_value(void * pKey, void * pValue) {
-      static_cast<TKey   *>(pKey  )->~TKey  ();
-      static_cast<TValue *>(pValue)->~TValue();
-   }
-
    /*! Returns a pointer to the key in the specified bucket index.
 
    @param i
@@ -667,7 +664,7 @@ private:
 
    /*! Compares two keys for equality. Static helper used by detail::map_impl.
 
-   @param pThis
+   @param pmapi
       Pointer to *this.
    @param pKey1
       Pointer to the first key to compare.
@@ -724,32 +721,6 @@ private:
          }
       } while (piHash != piHashNhEnd);
       return smc_iNullIndex;
-   }
-
-   /*! Moves a key and a value to the specified bucket.
-
-   @param pThis
-      Pointer to *this.
-   @param iBucket
-      Index of the destination bucket.
-   @param pKey
-      Pointer to the key to move to the destination bucket. May be nullptr if the key doesn’t need
-      to change because it’s already correct.
-   @param pValue
-      Pointer to the value to move to the destination bucket.
-   @param iMove
-      Bitmask; 1 (bit 0) indicates that *pKey should be moved, while 2 (bit 1) indicates that
-      *pValue should be moved.
-   */
-   static void set_bucket_key_value(
-      map_impl * pmapi, std::size_t iBucket, void * pKey, void * pValue, unsigned iMove
-   ) {
-      ABC_UNUSED_ARG(iMove);
-      map * pmap = static_cast<map *>(pmapi);
-      if (pKey) {
-         new(pmap->key_ptr(iBucket)) TKey(std::move(*static_cast<TKey *>(pKey)));
-      }
-      new(pmap->value_ptr(iBucket)) TValue(std::move(*static_cast<TValue *>(pValue)));
    }
 
    /*! Returns a pointer to the value in the specified bucket index.

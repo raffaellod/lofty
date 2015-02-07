@@ -73,23 +73,22 @@ map_impl & map_impl::operator=(map_impl && m) {
 }
 
 std::pair<std::size_t, bool> map_impl::add_or_assign(
-   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
-   set_bucket_key_value_fn pfnSetBucketKeyValue, destruct_key_value_fn pfnDestructKeyValue,
-   void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue,
+   keys_equal_fn pfnKeysEqual, void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
 ) {
    if (!m_cBuckets) {
-      grow_table(cbKey, cbValue, pfnSetBucketKeyValue, pfnDestructKeyValue);
+      grow_table(typeKey, typeValue);
    }
    /* Repeatedly resize the table until we’re able to find a bucket for the key. This should
    typically loop at most once, but smc_iNeedLargerNeighborhoods may need more. */
    std::size_t iBucket;
    while ((iBucket = get_existing_or_empty_bucket_for_key(
-      cbKey, cbValue, pfnKeysEqual, pfnSetBucketKeyValue, pKey, iKeyHash
+      typeKey, typeValue, pfnKeysEqual, pKey, iKeyHash
    )) >= smc_iFirstSpecialIndex) {
       if (iBucket == smc_iNeedLargerNeighborhoods) {
          grow_neighborhoods();
       } else {
-         grow_table(cbKey, cbValue, pfnSetBucketKeyValue, pfnDestructKeyValue);
+         grow_table(typeKey, typeValue);
       }
    }
 
@@ -97,27 +96,28 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
    bool bNew = (*piHash == smc_iEmptyBucketHash);
    if (bNew) {
       // The bucket is currently empty, so initialize it with hash/key/value.
-      pfnSetBucketKeyValue(this, iBucket, pKey, pValue, iMove);
+      set_bucket_key_value(typeKey, typeValue, iBucket, pKey, pValue, iMove);
       *piHash = iKeyHash;
    } else {
       // The bucket already has a value, so overwrite that with the value argument.
-      pfnSetBucketKeyValue(this, iBucket, nullptr, pValue, iMove);
+      set_bucket_key_value(typeKey, typeValue, iBucket, nullptr, pValue, iMove);
    }
    ++m_cUsedBuckets;
    ++m_iRev;
    return std::make_pair(iBucket, bNew);
 }
 
-void map_impl::clear(
-   std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue
-) {
+void map_impl::clear(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
    std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
-   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get());
-   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get());
-   for (; piHash < piHashesEnd; ++piHash, pbKey += cbKey, pbValue += cbValue) {
+   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get()), * pbNextKey;
+   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get()), * pbNextValue;
+   for (; piHash < piHashesEnd; ++piHash, pbKey = pbNextKey, pbValue = pbNextValue) {
+      pbNextKey   = pbKey   + typeKey  .cb;
+      pbNextValue = pbValue + typeValue.cb;
       if (*piHash != smc_iEmptyBucketHash) {
          *piHash = smc_iEmptyBucketHash;
-         pfnDestructKeyValue(pbKey, pbValue);
+         typeKey  .destruct(pbKey,   pbNextKey  );
+         typeValue.destruct(pbValue, pbNextValue);
       }
    }
    m_cUsedBuckets = 0;
@@ -125,14 +125,13 @@ void map_impl::clear(
 }
 
 void map_impl::empty_bucket(
-   std::size_t cbKey, std::size_t cbValue, destruct_key_value_fn pfnDestructKeyValue,
-   std::size_t iBucket
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket
 ) {
    m_piHashes[iBucket] = smc_iEmptyBucketHash;
-   pfnDestructKeyValue(
-      static_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iBucket,
-      static_cast<std::int8_t *>(m_pValues.get()) + cbValue * iBucket
-   );
+   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .cb * iBucket;
+   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iBucket;
+   typeKey  .destruct(pbKey,   pbKey   + typeKey  .cb);
+   typeValue.destruct(pbValue, pbValue + typeValue.cb);
    --m_cUsedBuckets;
    ++m_iRev;
 }
@@ -206,8 +205,8 @@ std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd
 }
 
 std::size_t map_impl::find_empty_bucket_outside_neighborhood(
-   std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-   std::size_t iNhBegin, std::size_t iNhEnd
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iNhBegin,
+   std::size_t iNhEnd
 ) {
    // Find an empty bucket, scanning every bucket outside the neighborhood.
    std::size_t iEmptyBucket = find_empty_bucket(iNhEnd, iNhBegin);
@@ -232,11 +231,10 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
          return iMovableBucket;
       }
       // Move the contents of iMovableBucket to iEmptyBucket.
-      pfnSetBucketKeyValue(
-         this,
-         iEmptyBucket,
-         static_cast<std::int8_t *>(m_pKeys  .get()) + cbKey   * iMovableBucket,
-         static_cast<std::int8_t *>(m_pValues.get()) + cbValue * iMovableBucket,
+      set_bucket_key_value(
+         typeKey, typeValue, iEmptyBucket,
+         static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .cb * iMovableBucket,
+         static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iMovableBucket,
          1 | 2
       );
       m_piHashes[iEmptyBucket] = m_piHashes[iMovableBucket];
@@ -246,8 +244,7 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
 }
 
 std::size_t map_impl::get_empty_bucket_for_key(
-   std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-   std::size_t iKeyHash
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iKeyHash
 ) {
    std::size_t iNhBegin, iNhEnd;
    std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
@@ -256,38 +253,31 @@ std::size_t map_impl::get_empty_bucket_for_key(
    if (iBucket != smc_iNullIndex) {
       return iBucket;
    }
-   return find_empty_bucket_outside_neighborhood(
-      cbKey, cbValue, pfnSetBucketKeyValue, iNhBegin, iNhEnd
-   );
+   return find_empty_bucket_outside_neighborhood(typeKey, typeValue, iNhBegin, iNhEnd);
 }
 
 std::size_t map_impl::get_existing_or_empty_bucket_for_key(
-   std::size_t cbKey, std::size_t cbValue, keys_equal_fn pfnKeysEqual,
-   set_bucket_key_value_fn pfnSetBucketKeyValue, void const * pKey, std::size_t iKeyHash
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue,
+   keys_equal_fn pfnKeysEqual, void const * pKey, std::size_t iKeyHash
 ) {
    std::size_t iNhBegin, iNhEnd;
    std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
    // Look for the key or an empty bucket in the neighborhood.
    std::size_t iBucket = lookup_key_or_find_empty_bucket(
-      cbKey, pKey, iKeyHash, pfnKeysEqual, iNhBegin, iNhEnd
+      typeKey, pfnKeysEqual, pKey, iKeyHash, iNhBegin, iNhEnd
    );
    if (iBucket != smc_iNullIndex) {
       return iBucket;
    }
-   return find_empty_bucket_outside_neighborhood(
-      cbKey, cbValue, pfnSetBucketKeyValue, iNhBegin, iNhEnd
-   );
+   return find_empty_bucket_outside_neighborhood(typeKey, typeValue, iNhBegin, iNhEnd);
 }
 
-void map_impl::grow_table(
-   std::size_t cbKey, std::size_t cbValue, set_bucket_key_value_fn pfnSetBucketKeyValue,
-   destruct_key_value_fn pfnDestructKeyValue
-) {
+void map_impl::grow_table(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
    std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
-   auto pOldKeys  (memory::alloc<void>(cbKey   * cOldBuckets));
-   auto pOldValues(memory::alloc<void>(cbValue * cOldBuckets));
+   auto pOldKeys  (memory::alloc<void>(typeKey  .cb * cOldBuckets));
+   auto pOldValues(memory::alloc<void>(typeValue.cb * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.
    std::swap(m_cBuckets, cOldBuckets);
    std::swap(m_piHashes, piOldHashes);
@@ -315,29 +305,34 @@ void map_impl::grow_table(
    memory::clear(m_piHashes.get(), m_cBuckets);
    // Re-insert each hash/key/value triplet to move it from the old arrays to the new ones.
    std::size_t * piOldHash = piOldHashes.get(), * piOldHashesEnd = piOldHash + cOldBuckets;
-   std::int8_t * pbOldKey   = static_cast<std::int8_t *>(pOldKeys  .get());
-   std::int8_t * pbOldValue = static_cast<std::int8_t *>(pOldValues.get());
-   for (; piOldHash < piOldHashesEnd; ++piOldHash, pbOldKey += cbKey, pbOldValue += cbValue) {
+   std::int8_t * pbOldKey   = static_cast<std::int8_t *>(pOldKeys  .get()), * pbNextOldKey;
+   std::int8_t * pbOldValue = static_cast<std::int8_t *>(pOldValues.get()), * pbNextOldValue;
+   for (
+      ;
+      piOldHash < piOldHashesEnd;
+      ++piOldHash, pbOldKey = pbNextOldKey, pbOldValue = pbNextOldValue
+   ) {
+      pbNextOldKey   = pbOldKey   + typeKey  .cb;
+      pbNextOldValue = pbOldValue + typeValue.cb;
       if (*piOldHash != smc_iEmptyBucketHash) {
-         std::size_t iNewBucket = get_empty_bucket_for_key(
-            cbKey, cbValue, pfnSetBucketKeyValue, *piOldHash
-         );
+         std::size_t iNewBucket = get_empty_bucket_for_key(typeKey, typeValue, *piOldHash);
          ABC_ASSERT(iNewBucket < smc_iFirstSpecialIndex,
             ABC_SL("failed to find empty bucket while growing hash table; ")
             ABC_SL("if it could be found before, why not now when there are more buckets?")
          );
 
          // Move hash/key/value to the new bucket.
-         pfnSetBucketKeyValue(this, iNewBucket, pbOldKey, pbOldValue, 1 | 2);
+         set_bucket_key_value(typeKey, typeValue, iNewBucket, pbOldKey, pbOldValue, 1 | 2);
          m_piHashes[iNewBucket] = *piOldHash;
-         pfnDestructKeyValue(pbOldKey, pbOldValue);
+         typeKey  .destruct(pbOldKey,   pbNextOldKey  );
+         typeValue.destruct(pbOldValue, pbNextOldValue);
       }
    }
 }
 
 std::size_t map_impl::lookup_key_or_find_empty_bucket(
-   std::size_t cbKey, void const * pKey, std::size_t iKeyHash, keys_equal_fn pfnKeysEqual,
-   std::size_t iNhBegin, std::size_t iNhEnd
+   type_void_adapter const & typeKey, keys_equal_fn pfnKeysEqual, void const * pKey,
+   std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd
 ) const {
    std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
                      * piHashNhEnd = m_piHashes.get() + iNhEnd,
@@ -355,7 +350,7 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
          (*piHash == iKeyHash && pfnKeysEqual(
             this,
             static_cast<std::int8_t const *>(m_pKeys.get()) +
-               cbKey * static_cast<std::size_t>(piHash - m_piHashes.get()),
+               typeKey.cb * static_cast<std::size_t>(piHash - m_piHashes.get()),
             pKey
          ))
       ) {
@@ -368,6 +363,30 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
       }
    } while (piHash != piHashNhEnd);
    return smc_iNullIndex;
+}
+
+void map_impl::set_bucket_key_value(
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket,
+   void * pKey, void * pValue, unsigned iMove
+) {
+   if (pKey) {
+      void * pDst = static_cast<std::int8_t *>(m_pKeys.get()) + typeKey.cb * iBucket;
+      void * pSrcEnd = static_cast<std::int8_t *>(pKey) + typeKey.cb;
+      if (iMove & 1) {
+         typeKey.move_constr(pDst, pKey, pSrcEnd);
+      } else {
+         typeKey.copy_constr(pDst, pKey, pSrcEnd);
+      }
+   }
+   {
+      void * pDst = static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iBucket;
+      void * pSrcEnd = static_cast<std::int8_t *>(pValue) + typeValue.cb;
+      if (iMove & 2) {
+         typeValue.move_constr(pDst, pValue, pSrcEnd);
+      } else {
+         typeValue.copy_constr(pDst, pValue, pSrcEnd);
+      }
+   }
 }
 
 } //namespace detail
