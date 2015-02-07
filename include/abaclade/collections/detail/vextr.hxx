@@ -663,7 +663,7 @@ public:
       items from the second source array, or 3 to move both, or 0 to copy them all instead.
    */
    void assign_concat(
-      detail::type_void_adapter const & type, void const * p1Begin, void const * p1End,
+      type_void_adapter const & type, void const * p1Begin, void const * p1End,
       void const * p2Begin, void const * p2End, std::uint8_t iMove
    );
 
@@ -676,9 +676,7 @@ public:
    @param pEnd
       Pointer to the end of the source array.
    */
-   void assign_copy(
-      detail::type_void_adapter const & type, void const * pBegin, void const * pEnd
-   ) {
+   void assign_copy(type_void_adapter const & type, void const * pBegin, void const * pEnd) {
       if (pBegin == m_pBegin) {
          return;
       }
@@ -695,7 +693,7 @@ public:
    @param rcvi
       Source vextr.
    */
-   void assign_move(detail::type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
+   void assign_move(type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
 
    /*! Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
    items instead.
@@ -706,7 +704,7 @@ public:
       Source vextr.
    */
    void assign_move_dynamic_or_move_items(
-      detail::type_void_adapter const & type, raw_complex_vextr_impl && rcvi
+      type_void_adapter const & type, raw_complex_vextr_impl && rcvi
    );
 
    /*! Destructs the item array. It does not deallocate the item array.
@@ -714,7 +712,7 @@ public:
    @param type
       Adapter for the items’ type.
    */
-   void destruct_items(detail::type_void_adapter const & type) {
+   void destruct_items(type_void_adapter const & type) {
       type.destruct(m_pBegin, m_pEnd);
    }
 
@@ -732,7 +730,7 @@ public:
       true to move the items from pInsert to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      detail::type_void_adapter const & type, std::size_t ibOffset, void const * pInsert,
+      type_void_adapter const & type, std::size_t ibOffset, void const * pInsert,
       std::size_t cbInsert, bool bMove
    );
 
@@ -745,7 +743,7 @@ public:
    @param cbRemove
       Size of the array slice to remove, in bytes.
    */
-   void remove(detail::type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove);
+   void remove(type_void_adapter const & type, std::size_t ibOffset, std::size_t cbRemove);
 
    /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
    switch to using a different item array, any data in the current one will be lost unless bPreserve
@@ -759,7 +757,7 @@ public:
       If true, the previous contents of the item array will be preserved even if the reallocation
       causes the vextr to switch to a different item array.
    */
-   void set_capacity(detail::type_void_adapter const & type, std::size_t cbMin, bool bPreserve);
+   void set_capacity(type_void_adapter const & type, std::size_t cbMin, bool bPreserve);
 
    /*! Changes the count of items in the vextr. If the new item count is greater than the current
    one, the added items will be left uninitialized; it’s up to the caller to make sure that these
@@ -771,7 +769,7 @@ public:
    @param cb
       New size of the items, in bytes.
    */
-   void set_size(detail::type_void_adapter const & type, std::size_t cb);
+   void set_size(type_void_adapter const & type, std::size_t cb);
 
 protected:
    //! See raw_vextr_impl_base::raw_vextr_impl_base().

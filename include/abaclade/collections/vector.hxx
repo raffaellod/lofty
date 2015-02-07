@@ -40,7 +40,7 @@ class raw_vector<T, false, false> : public raw_complex_vextr_impl, public noncop
 public:
    //! Destructor.
    ~raw_vector() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       destruct_items(type);
    }
@@ -57,7 +57,7 @@ public:
       Pointer to the end of the second source array.
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
@@ -65,14 +65,14 @@ public:
 
    //! See raw_complex_vextr_impl::assign_move().
    void assign_move(raw_complex_vextr_impl && rcvi) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
    //! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
@@ -88,7 +88,7 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
@@ -110,7 +110,7 @@ public:
       Pointer to beyond the last element to remove.
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       type.set_size<T>();
@@ -133,7 +133,7 @@ public:
       the vector to switch to a different item array.
    */
    void set_capacity(std::size_t ciMin, bool bPreserve) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
@@ -148,7 +148,7 @@ public:
       New element count, in bytes.
    */
    void set_size(std::size_t ci) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
       raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
@@ -166,7 +166,7 @@ protected:
 private:
    // Hide these raw_complex_vextr_impl methods to trigger errors as a debugging aid.
 
-   void assign_copy(detail::type_void_adapter const & type, T const * ptBegin, T const * ptEnd);
+   void assign_copy(type_void_adapter const & type, T const * ptBegin, T const * ptEnd);
 };
 
 // Partial specialization for copyable, non-trivial types.
@@ -175,7 +175,7 @@ class raw_vector<T, true, false> : public raw_vector<T, false, false> {
 public:
    //! See raw_complex_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -186,7 +186,7 @@ public:
    void assign_concat(
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, std::uint8_t iMove
    ) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
@@ -203,7 +203,7 @@ public:
       Count of elements in the array pointed to by ptInsert.
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_copy_fn<T>();
       type.set_destr_fn<T>();
       type.set_move_fn<T>();
