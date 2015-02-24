@@ -77,7 +77,8 @@ public:
    typedef void (* move_fn)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
 
 public:
-   //! Size of a variable of this type, in bytes.
+   /*! Size of a variable of this type, in bytes. First member because it’s the most frequently
+   used, and having it at offset 0 may lead to faster or more compact code. */
    std::size_t cb;
    //! Function to copy items from one array to another.
    copy_fn copy_constr;
