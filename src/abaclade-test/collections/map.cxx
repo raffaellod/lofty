@@ -73,6 +73,12 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m[22], 220);
    ABC_TESTING_ASSERT_EQUAL(m[iKey - 11], iValue - 110);
    ABC_TESTING_ASSERT_EQUAL(m[iKey], iValue);
+
+   // Validate that non-copyable types can be stored in a map.
+   {
+      collections::map<int, std::unique_ptr<int>> m2;
+      m2.add_or_assign(1, std::unique_ptr<int>(new int(10)));
+   }
 }
 
 } //namespace test

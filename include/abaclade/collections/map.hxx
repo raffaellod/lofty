@@ -548,6 +548,9 @@ public:
 
    /*! Adds a key/value pair to the map, overwriting the value if key is already associated to one.
 
+   TODO: make four copies of this method, taking const &/const&, &&/&&, const &/&&, &&/const &; this
+   requires more work to avoid the commented-out set_copy_fn() below for non-copiable types.
+
    @param key
       Key to add.
    @param value
