@@ -459,9 +459,46 @@ public:
       TKey   const & key;
       TValue const & value;
 
+      //! Constructor. See value_type::value_type().
       const_value_type(TKey const * pkey, TValue const * pvalue) :
          key(*pkey), value(*pvalue) {
       }
+   };
+
+   /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact
+   includes the object it points to.
+
+   Needed because iterator::operator->() must return a pointer-like type to a key/value pair
+   (value_type), but key/value pairs are never stored anywhere in the map. */
+   template <typename TPair>
+   class pair_ptr {
+   public:
+      //! Constructor. See value_type::value_type().
+      pair_ptr(TKey * pkey, TValue * pvalue) :
+         m_pair(pkey, pvalue) {
+      }
+
+      /*! Dereferencing operator.
+
+      @return
+         Reference to the current key/value pair.
+      */
+      TPair const & operator*() const {
+         return m_pair;
+      }
+
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current key/value pair.
+      */
+      TPair const * operator->() const {
+         return &m_pair;
+      }
+
+   private:
+      //! Internal pair returned by operator->().
+      TPair const m_pair;
    };
 
    //! Const iterator type.
@@ -479,12 +516,23 @@ public:
       /*! Dereferencing operator.
 
       @return
-         Reference to the current node.
+         Reference to the current key/value pair.
       */
       const_value_type operator*() const {
          validate();
          map const * pmap = static_cast<map const *>(m_pmap);
          return const_value_type(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
+      }
+
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current key/value pair.
+      */
+      pair_ptr<const_value_type> operator->() const {
+         validate();
+         map const * pmap = static_cast<map const *>(m_pmap);
+         return pair_ptr<const_value_type>(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
       }
 
       /*! Preincrement operator.
@@ -501,7 +549,7 @@ public:
       /*! Postincrement operator.
 
       @return
-         Iterator pointing to the node preceding the one referenced by this iterator.
+         Iterator pointing to the previous key/value pair.
       */
       const_iterator operator++(int) {
          validate();
