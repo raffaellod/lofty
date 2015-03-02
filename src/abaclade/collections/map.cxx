@@ -405,7 +405,7 @@ void map_impl::iterator_base::increment() {
 
    for (;;) {
       ++m_iBucket;
-      if (m_iBucket >= m_pmap->m_cUsedBuckets) {
+      if (m_iBucket >= m_pmap->m_cBuckets) {
          m_iBucket = smc_iNullIndex;
          return;
       }
