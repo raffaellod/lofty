@@ -485,7 +485,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator begin() const {
-      return const_iterator(raw_vextr_impl_base::begin<T>());
+      return cbegin();
    }
 
    /*! Returns the maximum number of elements the array can currently hold.
@@ -539,7 +539,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(raw_vextr_impl_base::end<T>());
+      return cend();
    }
 
    /*! Returns the count of elements in the array.
@@ -557,7 +557,7 @@ public:
       Reverse iterator to the last element.
    */
    const_reverse_iterator rbegin() const {
-      return const_reverse_iterator(end());
+      return crbegin();
    }
 
    /*! Returns a reverse iterator set to before the first element.
@@ -566,7 +566,7 @@ public:
       Reverse iterator to before the first element.
    */
    const_reverse_iterator rend() const {
-      return const_reverse_iterator(begin());
+      return crend();
    }
 
 protected:
@@ -776,9 +776,7 @@ public:
    iterator begin() {
       return iterator(detail::raw_vextr_impl_base::begin<T>());
    }
-   const_iterator begin() const {
-      return vector_base_::begin();
-   }
+   using vector_base_::begin;
 
    //! Removes all elements from the vector.
    void clear() {
@@ -790,9 +788,7 @@ public:
    iterator end() {
       return iterator(detail::raw_vextr_impl_base::end<T>());
    }
-   const_iterator end() const {
-      return vector_base_::end();
-   }
+   using vector_base_::end;
 
    /*! Inserts elements at a specific position in the vector.
 
@@ -816,9 +812,7 @@ public:
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
    }
-   const_reverse_iterator rbegin() const {
-      return vector_base_::rbegin();
-   }
+   using vector_base_::rbegin;
 
    /*! Removes a single element from the vector.
 
@@ -841,9 +835,7 @@ public:
    reverse_iterator rend() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::begin<T>()));
    }
-   const_reverse_iterator rend() const {
-      return vector_base_::rend();
-   }
+   using vector_base_::rend;
 
    /*! Removes a range of elements from the vector.
 
