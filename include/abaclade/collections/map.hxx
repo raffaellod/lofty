@@ -392,7 +392,7 @@ protected:
    static std::size_t const smc_iEmptyBucketHash = 0;
    //! Hash table or neighborhood growth factor. Must be a power of 2.
    static std::size_t const smc_iGrowthFactor = 4;
-   //! Neighborhood size.
+   //! Default/ideal neighborhood size.
    static std::size_t const smc_cIdealNeighborhoodBuckets;
    /*! Hash value substituted when the hash function returns 0; this is so we can use 0 (aliased by
    smc_iEmptyBucketHash) as a special value. This specific value is merely the largest prime number
