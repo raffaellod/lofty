@@ -389,6 +389,40 @@ void map_impl::set_bucket_key_value(
    }
 }
 
+
+map_impl::iterator_base::iterator_base() :
+   m_pmap(nullptr),
+   m_iBucket(smc_iNullIndex) {
+}
+map_impl::iterator_base::iterator_base(map_impl const * pmap, std::size_t iBucket) :
+   m_pmap(pmap),
+   m_iBucket(iBucket),
+   m_iRev(pmap->m_iRev) {
+}
+
+void map_impl::iterator_base::increment() {
+   ABC_TRACE_FUNC(this);
+
+   for (;;) {
+      ++m_iBucket;
+      if (m_iBucket >= m_pmap->m_cUsedBuckets) {
+         m_iBucket = smc_iNullIndex;
+         return;
+      }
+      if (m_pmap->m_piHashes[m_iBucket] != smc_iEmptyBucketHash) {
+         return;
+      }
+   }
+}
+
+void map_impl::iterator_base::validate() const {
+   ABC_TRACE_FUNC(this);
+
+   if (m_iBucket == smc_iNullIndex || m_iRev != m_pmap->m_iRev) {
+      ABC_THROW(iterator_error, ());
+   }
+}
+
 } //namespace detail
 } //namespace collections
 } //namespace abc
