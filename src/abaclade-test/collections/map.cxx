@@ -35,7 +35,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
    // These assertions target const begin/end.
    ABC_TESTING_ASSERT_TRUE(m.cbegin() == m.cend());
-   //ABC_TESTING_ASSERT_TRUE(m.crbegin() == m.crend());
 
    m.add_or_assign(10, 100);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
@@ -54,17 +53,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
-   /*{
-      // This iterates backwards and is longer than, but symmetrical to, the block above.
-      auto it(m.rbegin());
-      ABC_TESTING_ASSERT_EQUAL(it->key, 10);
-      ABC_TESTING_ASSERT_EQUAL(it->value, 100);
-      ++it;
-      ABC_TESTING_ASSERT_EQUAL(it->key, 20);
-      ABC_TESTING_ASSERT_EQUAL(it->value, 200);
-      ++it;
-      ABC_TESTING_ASSERT_TRUE(it == m.crend());
-   }*/
 
    m.remove(10);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
@@ -74,12 +62,29 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
    ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+   {
+      // A little clunky, but neecessary since the order is not guaranteed.
+      bool bFound20 = false, bFound22 = false;
+      for (auto it(m.begin()); it != m.cend(); ++it) {
+         ABC_TESTING_ASSERT_TRUE(it->key == 20 || it->key == 22);
+         if (it->key == 20) {
+            ABC_TESTING_ASSERT_FALSE(bFound20);
+            ABC_TESTING_ASSERT_EQUAL(it->value, 200);
+            bFound20 = true;
+         } else if (it->key == 22) {
+            ABC_TESTING_ASSERT_FALSE(bFound22);
+            ABC_TESTING_ASSERT_EQUAL(it->value, 220);
+            bFound22 = true;
+         }
+      }
+      ABC_TESTING_ASSERT_TRUE(bFound20);
+      ABC_TESTING_ASSERT_TRUE(bFound22);
+   }
 
    m.clear();
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
    // These assertions target non-const begin/end.
    ABC_TESTING_ASSERT_TRUE(m.begin() == m.end());
-   //ABC_TESTING_ASSERT_TRUE(m.rbegin() == m.rend());
 
    m.add_or_assign(11, 110);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
