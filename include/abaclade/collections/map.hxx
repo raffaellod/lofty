@@ -658,6 +658,29 @@ public:
       it.increment();
       return std::move(it);
    }
+   const_iterator begin() const {
+      return cbegin();
+   }
+
+   /*! Returns a const forward iterator set to the first key/value pair.
+
+   @return
+      Forward iterator to the first key/value pair.
+   */
+   const_iterator cbegin() const {
+      const_iterator it(this, smc_iNullIndex);
+      it.increment();
+      return std::move(it);
+   }
+
+   /*! Returns a const forward iterator set beyond the last key/value pair.
+
+   @return
+      Forward iterator to the last key/value pair.
+   */
+   iterator cend() {
+      return const_iterator(this, smc_iNullIndex);
+   }
 
    //! Removes all elements from the map.
    void clear() {
@@ -672,10 +695,13 @@ public:
    /*! Returns a forward iterator set beyond the last key/value pair.
 
    @return
-      Forward iterator to the first key/value pair.
+      Forward iterator to the last key/value pair.
    */
    iterator end() {
       return iterator(this, smc_iNullIndex);
+   }
+   const_iterator end() const {
+      return cend();
    }
 
    /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
