@@ -504,7 +504,7 @@ public:
    //! Const iterator type.
    class const_iterator :
       public map_impl::iterator_base,
-      public std::iterator<std::bidirectional_iterator_tag, const_value_type> {
+      public std::iterator<std::forward_iterator_tag, const_value_type> {
    private:
       friend class map;
 
@@ -568,11 +568,11 @@ public:
    //! Iterator type.
    class iterator :
       public const_iterator,
-      public std::iterator<std::bidirectional_iterator_tag, value_type> {
+      public std::iterator<std::forward_iterator_tag, value_type> {
    private:
       friend class map;
       // Shortcut.
-      typedef std::iterator<std::bidirectional_iterator_tag, const_value_type> std_iterator;
+      typedef std::iterator<std::forward_iterator_tag, const_value_type> std_iterator;
 
    public:
       // These are inherited from both base classes, so resolve the ambiguity.
