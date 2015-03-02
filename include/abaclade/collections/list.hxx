@@ -237,9 +237,7 @@ public:
       return iterator(this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr);
    }
    const_iterator begin() const {
-      return const_iterator(
-         this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr
-      );
+      return cbegin();
    }
 
    /*! Returns a const forward iterator to the start of the list.
@@ -300,7 +298,7 @@ public:
       return iterator();
    }
    const_iterator end() const {
-      return const_iterator();
+      return cend();
    }
 
    /*! Returns a reference to the last element in the list.
@@ -406,9 +404,7 @@ public:
       );
    }
    const_reverse_iterator rbegin() const {
-      return const_reverse_iterator(
-         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
-      );
+      return crbegin();
    }
 
    /*! Removes the element at the specified position.
@@ -448,7 +444,7 @@ public:
       return reverse_iterator();
    }
    const_reverse_iterator rend() const {
-      return const_reverse_iterator();
+      return crend();
    }
 
 private:
