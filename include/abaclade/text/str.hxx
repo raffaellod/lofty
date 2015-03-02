@@ -200,7 +200,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator begin() const {
-      return const_iterator(chars_begin(), this);
+      return cbegin();
    }
 
    /*! Returns a pointer to a NUL-terminated version of the string.
@@ -299,7 +299,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator end() const {
-      return const_iterator(chars_end(), this);
+      return cend();
    }
 
    /*! Returns true if the string ends with a specified suffix.
@@ -458,7 +458,7 @@ public:
       Reverse iterator to the last element.
    */
    const_reverse_iterator rbegin() const {
-      return const_reverse_iterator(end());
+      return crbegin();
    }
 
    /*! Returns a reverse iterator set to before the first element.
@@ -467,7 +467,7 @@ public:
       Reverse iterator to before the first element.
    */
    const_reverse_iterator rend() const {
-      return const_reverse_iterator(begin());
+      return crend();
    }
 
    /*! Returns size of the string, in code points.
@@ -876,9 +876,7 @@ public:
    iterator begin() {
       return iterator(chars_begin(), this);
    }
-   const_iterator begin() const {
-      return detail::str_base::begin();
-   }
+   using detail::str_base::begin;
 
    //! Truncates the string to zero length, without deallocating the internal buffer.
    void clear() {
@@ -889,9 +887,7 @@ public:
    iterator end() {
       return iterator(chars_end(), this);
    }
-   const_iterator end() const {
-      return detail::str_base::end();
-   }
+   using detail::str_base::end;
 
    /*! Inserts characters into the string at a specific character (not code point) offset.
 
@@ -934,17 +930,13 @@ public:
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(chars_end(), this));
    }
-   const_reverse_iterator rbegin() const {
-      return detail::str_base::rbegin();
-   }
+   using detail::str_base::rbegin;
 
    //! See detail::str_base::rend(). Here also available in non-const overload.
    reverse_iterator rend() {
       return reverse_iterator(iterator(chars_begin(), this));
    }
-   const_reverse_iterator rend() const {
-      return detail::str_base::rend();
-   }
+   using detail::str_base::rend;
 
    /*! Replaces all occurrences of a character with another character.
 
