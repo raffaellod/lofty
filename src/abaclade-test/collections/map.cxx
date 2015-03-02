@@ -33,15 +33,38 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    collections::map<int, int> m;
 
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   // These assertions target const begin/end.
+   ABC_TESTING_ASSERT_TRUE(m.cbegin() == m.cend());
+   //ABC_TESTING_ASSERT_TRUE(m.crbegin() == m.crend());
 
    m.add_or_assign(10, 100);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
+   {
+      /* This uses begin(), not cbegin(), so we can test equality comparison between const/non-const
+      iterators. */
+      auto it(m.begin());
+      ABC_TESTING_ASSERT_EQUAL(it->key, 10);
+      ABC_TESTING_ASSERT_EQUAL(it->value, 100);
+      ++it;
+      ABC_TESTING_ASSERT_TRUE(it == m.cend());
+   }
 
    m.add_or_assign(20, 200);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   /*{
+      // This iterates backwards and is longer than, but symmetrical to, the block above.
+      auto it(m.rbegin());
+      ABC_TESTING_ASSERT_EQUAL(it->key, 10);
+      ABC_TESTING_ASSERT_EQUAL(it->value, 100);
+      ++it;
+      ABC_TESTING_ASSERT_EQUAL(it->key, 20);
+      ABC_TESTING_ASSERT_EQUAL(it->value, 200);
+      ++it;
+      ABC_TESTING_ASSERT_TRUE(it == m.crend());
+   }*/
 
    m.remove(10);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
@@ -54,6 +77,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
 
    m.clear();
    ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   // These assertions target non-const begin/end.
+   ABC_TESTING_ASSERT_TRUE(m.begin() == m.end());
+   //ABC_TESTING_ASSERT_TRUE(m.rbegin() == m.rend());
 
    m.add_or_assign(11, 110);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
@@ -134,6 +160,26 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% coll
       }
    }
    ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
+}
+
+} //namespace test
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – operations with iterators") {
+   ABC_TRACE_FUNC(this);
+
+   collections::map<int, int> m;
+
+   m.add_or_assign(10, 100);
+   ABC_FOR_EACH(auto kv, m) {
+      ABC_TESTING_ASSERT_EQUAL(kv.key, 10);
+      ABC_TESTING_ASSERT_EQUAL(kv.value, 100);
+   }
 }
 
 } //namespace test
