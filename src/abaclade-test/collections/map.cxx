@@ -180,10 +180,32 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – operations with iterators"
 
    collections::map<int, int> m;
 
-   m.add_or_assign(10, 100);
+   // Should not allow to move an iterator to outside [begin, end].
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(m.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(m.cend());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++m.cbegin());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++m.cend());
+
+   // Should not allow to dereference end().
+   ABC_TESTING_ASSERT_THROWS(iterator_error, *m.cend());
+
+   {
+      auto it(m.cbegin());
+      m.add_or_assign(10, 100);
+      // it has been invalidated by add_or_assign().
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
+   }
+
    ABC_FOR_EACH(auto kv, m) {
       ABC_TESTING_ASSERT_EQUAL(kv.key, 10);
       ABC_TESTING_ASSERT_EQUAL(kv.value, 100);
+   }
+
+   {
+      auto it(m.cbegin());
+      m.remove(10);
+      // it has been invalidated by remove().
+      ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
    }
 }
 
