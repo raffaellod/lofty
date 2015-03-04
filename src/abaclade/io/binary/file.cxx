@@ -57,6 +57,8 @@ file_base::file_base(detail::file_init_data * pfid) :
 #if ABC_HOST_API_POSIX
 
 bool file_base::async_poll(bool bWrite, bool bWait) const {
+   ABC_TRACE_FUNC(this, bWrite, bWait);
+
    ::pollfd pfd;
    pfd.fd = m_fd.get();
    pfd.events = (bWrite ? POLLOUT : POLLIN) | POLLPRI;
@@ -1009,6 +1011,8 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
          true if the specified range could be locked, or false if the range has already been locked.
       */
       bool lock(filedesc_t fd, offset_t ibOffset, full_size_t cb) {
+         ABC_TRACE_FUNC(this, /*fd, */, ibOffset, cb);
+
          if (m_fd != INVALID_HANDLE_VALUE) {
             unlock();
          }
@@ -1030,6 +1034,8 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 
       //! Releases the lock acquired by lock().
       void unlock() {
+         ABC_TRACE_FUNC(this);
+
          if (!::UnlockFile(
             m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
             static_cast<DWORD>(m_cb.HighPart)
