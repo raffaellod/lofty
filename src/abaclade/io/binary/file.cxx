@@ -547,13 +547,13 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    for (unsigned i = 0; i < ABC_COUNTOF(smc_aiAnsiColorToForegroundColor); ++i) {
       using abc::text::parsers::ansi_terminal_color;
       if ((
-         csbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
-      )) == smc_aiAnsiColorToBackgroundColor[i]) {
+         csbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE)
+      ) == smc_aiAnsiColorToBackgroundColor[i]) {
          m_chattrDefault.clrBackground = static_cast<ansi_terminal_color::enum_type>(i);
       }
       if ((
-         csbi.wAttributes & (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
-      )) == smc_aiAnsiColorToForegroundColor[i]) {
+         csbi.wAttributes & (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)
+      ) == smc_aiAnsiColorToForegroundColor[i]) {
          m_chattrDefault.clrForeground = static_cast<ansi_terminal_color::enum_type>(i);
       }
    }
