@@ -36,7 +36,9 @@ namespace collections {
 namespace detail {
 
 //! Non-template implementation class for abc::collections::list.
-class ABACLADE_SYM list_impl : protected xor_list::data_members {
+class ABACLADE_SYM list_impl :
+   protected xor_list::data_members,
+   public support_explicit_operator_bool<list_impl> {
 public:
    /*! Constructor.
 
@@ -56,6 +58,15 @@ public:
       Source object.
    */
    list_impl & operator=(list_impl && l);
+
+   /*! Returns true if the list size is greater than 0.
+
+   @return
+      true if the list is not empty, or false otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return m_cNodes > 0;
+   }
 
    /*! Returns true if the list contains no elements.
 
