@@ -55,6 +55,7 @@ struct event_loop_impl_t {
       if (fdKqueue == -1) {
          exception::throw_os_error();
       }
+      // TODO: set close-on-exec. ::kqueue1() may be available on some systems; investigate that.
    }
 
    //! Destructor.
@@ -226,6 +227,8 @@ void event_loop::run() {
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
 
+   /* 64 is the current value for MAXIMUM_WAIT_OBJECTS; this makes vhSources always use its static
+   storage instead of a dynamically-allocated one. */
    collections::smvector<HANDLE, 64> vhSources;
    DWORD cSources;
    pimpl->bChanged = true;
