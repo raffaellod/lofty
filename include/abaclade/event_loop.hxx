@@ -91,7 +91,7 @@ public:
 public:
    /*! Constructor.
 
-   @param lpSrc
+   @param elSrc
       Source event loop.
    */
    event_loop();
@@ -105,7 +105,7 @@ public:
 
    /*! Assignment operator.
 
-   @param lpSrc
+   @param elSrc
       Source event loop.
    @return
       *this.
