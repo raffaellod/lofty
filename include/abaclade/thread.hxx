@@ -97,14 +97,15 @@ private:
 
    //! Provides an implementation for inner_main() based on the template argument.
    template <typename F>
-   struct shared_data_impl : public shared_data {
+   class shared_data_impl : public shared_data {
+   public:
       /*! Constructor
 
       @param fnMain
-         Initial value for this->fnInnerMain.
+         Initial value for m_fnInnerMain.
       */
       shared_data_impl(F fnMain) :
-         fnInnerMain(std::move(fnMain)) {
+         m_fnInnerMain(std::move(fnMain)) {
       }
 
       //! Destructor.
@@ -113,11 +114,12 @@ private:
 
       //! See shared_data::inner_main().
       virtual void inner_main() override {
-         fnInnerMain();
+         m_fnInnerMain();
       }
 
+   private:
       //! Function to be executed in the thread.
-      F fnInnerMain;
+      F m_fnInnerMain;
    };
 
 public:
