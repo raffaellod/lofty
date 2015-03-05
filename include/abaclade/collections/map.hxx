@@ -38,7 +38,8 @@ namespace collections {
 namespace detail {
 
 //! Non-template implementation class for abc::collections::map.
-class ABACLADE_SYM map_impl {
+class ABACLADE_SYM map_impl,
+   public support_explicit_operator_bool<list_impl> {
 protected:
    typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
 
@@ -116,6 +117,15 @@ public:
    */
    map_impl & operator=(map_impl && m);
 
+   /*! Returns true if the map size is greater than 0.
+
+   @return
+      true if the map is not empty, or false otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return m_cUsedBuckets > 0;
+   }
+
    /*! Returns the maximum number of key/value pairs the map can currently hold.
 
    @return
@@ -123,6 +133,15 @@ public:
    */
    std::size_t capacity() const {
       return m_cBuckets;
+   }
+
+   /*! Returns true if the map contains no elements.
+
+   @return
+      true if the map is empty, or false otherwise.
+   */
+   bool empty() const {
+      return !m_cUsedBuckets;
    }
 
    /*! Returns the current neighborhood size.
