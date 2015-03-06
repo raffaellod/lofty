@@ -328,7 +328,7 @@ public:
    /*! Destructs the object currently pointed to, if any, and constructs a new object.
 
    @param tSrc
-      Source object to be move-construct the new object from.
+      Source object to move-construct the new object from.
    */
    void reset_new(T tSrc = T()) {
       reset();
