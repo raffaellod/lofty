@@ -624,6 +624,19 @@ public:
          return value_type(pmap->key_ptr(this->m_iBucket), pmap->value_ptr(this->m_iBucket));
       }
 
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current key/value pair.
+      */
+      pair_ptr<value_type> operator->() const {
+         this->validate();
+         map const * pmap = static_cast<map const *>(this->m_pmap);
+         return pair_ptr<value_type>(
+            pmap->key_ptr(this->m_iBucket), pmap->value_ptr(this->m_iBucket)
+         );
+      }
+
       //! See const_iterator.operator++().
       iterator & operator++() {
          return static_cast<iterator &>(const_iterator::operator++());
