@@ -48,6 +48,9 @@ protected:
 
    //! Iterator type for const key/value pairs.
    class ABACLADE_SYM iterator_base {
+   private:
+      friend class map_impl;
+
    public:
       /*! Constructor.
 
@@ -227,15 +230,23 @@ protected:
       return std::make_tuple(iNhBegin, iNhEnd);
    }
 
-   /*! Marks a bucket as empty and destruct the corresponding key and value.
+   /*! Marks a bucket as empty and destructs the corresponding key and value.
 
    @param typeKey
       Adapter for the key type.
    @param typeValue
       Adapter for the value type.
+   @param it
+      Iterator to the bucket to empty.
    @param iBucket
       Index of the bucket to empty.
    */
+   void empty_bucket(
+      type_void_adapter const & typeKey, type_void_adapter const & typeValue, iterator_base it
+   ) {
+      it.validate();
+      empty_bucket(typeKey, typeValue, it.m_iBucket);
+   }
    void empty_bucket(
       type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket
    );
@@ -786,9 +797,19 @@ public:
 
    /*! Removes a key/value pair given the key, which must be in the map.
 
+   @param it
+      Iterator to the key/value to remove.
    @param key
       Key associated to the value to remove.
    */
+   void remove(const_iterator it) {
+      detail::type_void_adapter typeKey, typeValue;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_size<TValue>();
+      empty_bucket(typeKey, typeValue, it);
+   }
    void remove(TKey const & key) {
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {

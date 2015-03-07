@@ -133,6 +133,7 @@ void map_impl::empty_bucket(
    typeKey  .destruct(pbKey,   pbKey   + typeKey  .cb);
    typeValue.destruct(pbValue, pbValue + typeValue.cb);
    --m_cUsedBuckets;
+   // TODO: don’t increment m_iRev; nothing else has changed, no need to invalidate interators.
    ++m_iRev;
 }
 
