@@ -602,7 +602,7 @@ public:
    private:
       friend class map;
       // Shortcut.
-      typedef std::iterator<std::forward_iterator_tag, const_value_type> std_iterator;
+      typedef std::iterator<std::forward_iterator_tag, value_type> std_iterator;
 
    public:
       // These are inherited from both base classes, so resolve the ambiguity.
