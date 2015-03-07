@@ -38,7 +38,7 @@ namespace collections {
 namespace detail {
 
 //! Non-template implementation class for abc::collections::map.
-class ABACLADE_SYM map_impl,
+class ABACLADE_SYM map_impl :
    public support_explicit_operator_bool<list_impl> {
 protected:
    typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
