@@ -33,6 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/collections/detail/vextr.cxx"/>
       <source path="src/abaclade/collections/detail/xor_list.cxx"/>
+      <source path="src/abaclade/coroutine.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
@@ -134,6 +135,14 @@ You should have received a copy of the GNU General Public License along with Aba
       brief="Example: exceptions and stack traces."
    >
       <source path="examples/exceptions.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
+
+   <exe
+      name="coroutines"
+      brief="Example: using coroutines."
+   >
+      <source path="examples/coroutines.cxx"/>
       <dynlib name="abaclade"/>
    </exe>
 
