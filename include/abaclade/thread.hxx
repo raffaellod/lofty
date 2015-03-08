@@ -72,7 +72,8 @@ public:
 private:
    /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
    owned by the abc::thread instance. */
-   struct ABACLADE_SYM shared_data {
+   class ABACLADE_SYM shared_data {
+   public:
       //! Destructor.
       virtual ~shared_data();
 
