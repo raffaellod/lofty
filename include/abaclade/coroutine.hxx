@@ -197,7 +197,7 @@ private:
             ::epoll_event eeReady;
             int cReadyFds = ::epoll_wait(m_fdEpoll.get(), &eeReady, 1, -1);
             // 0 won’t really be returned; possible values are either 1 or -1.
-            if (cReadyFds >= 0) {
+            if (cReadyFds < 0) {
                int iErr = errno;
                if (iErr == EINTR) {
                   continue;
