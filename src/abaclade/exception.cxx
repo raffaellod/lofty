@@ -350,6 +350,13 @@ generic_error & generic_error::operator=(generic_error const & x) {
    return *this;
 }
 
+/*virtual*/ void generic_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
+   exception::write_extended_info(ptwOut);
+   if (m_err) {
+      ptwOut->print(ABC_SL(" OS error={}"), m_err);
+   }
+}
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

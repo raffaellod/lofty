@@ -530,6 +530,10 @@ public:
    }
 
 protected:
+   //! See exception::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+protected:
    //! OS-specific error wrapped by this exception.
    errint_t m_err;
 };
