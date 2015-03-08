@@ -135,17 +135,19 @@ public:
       ).operator std::shared_ptr<coroutine_scheduler> const &();
    }
 
+   static std::shared_ptr<coroutine_scheduler> const & get_for_current_thread() {
+      return sm_pcorosched;
+   }
+
    void run() {
-      while (
-         std::unique_ptr<coroutine::shared_data> pcorodToActivate = find_coroutine_to_activate()
-      ) {
-         if (::swapcontext(&m_uctxReturn, &pcorodToActivate->m_uctx) < 0) {
+      while ((m_pcorodActive = find_coroutine_to_activate())) {
+         if (::swapcontext(&m_uctxReturn, &m_pcorodActive->m_uctx) < 0) {
             /* TODO: in case of errors, which should never happen here since all coroutines have the
             same stack size, inject a stack overflow exception in *m_pcorodActive. */
          }
-         // The last coroutine we switched to (m_pcorodActive) terminated; release its resources.
-         m_pcorodActive.reset();
       }
+      // Release the last coroutine.
+      m_pcorodActive.reset();
    }
 
    void yield_while_async_pending(io::filedesc const & fd, bool bWrite) {
@@ -160,7 +162,7 @@ public:
          exception::throw_os_error();
       }
       // Deactivate the current coroutine and find one to activate instead.
-      ::ucontext_t * uctxActive = &m_pcorodActive->m_uctx;
+      ::ucontext_t * puctxActive = &m_pcorodActive->m_uctx;
       auto itBlockedCoro(
          m_mapBlockedCoros.add_or_assign(ee.data.fd, std::move(m_pcorodActive)).first
       );
@@ -175,8 +177,8 @@ public:
       }
       /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
       active, switch to it. */
-      if (&m_pcorodActive->m_uctx != uctxActive) {
-         if (::swapcontext(uctxActive, &m_pcorodActive->m_uctx) < 0) {
+      if (&m_pcorodActive->m_uctx != puctxActive) {
+         if (::swapcontext(puctxActive, &m_pcorodActive->m_uctx) < 0) {
             /* TODO: in case of errors, which should never happen here since all coroutines have the
             same stack size, inject a stack overflow exception in *m_pcorodActive. */
          }
