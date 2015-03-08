@@ -558,9 +558,7 @@ inline _path_iterator path::find(istr const & sPattern) const {
 namespace abc {
 
 //! A file could not be found.
-class ABACLADE_SYM file_not_found_error :
-   public virtual environment_error,
-   public exception::extended_info {
+class ABACLADE_SYM file_not_found_error : public virtual environment_error {
 public:
    /*! Constructor.
 
@@ -592,7 +590,7 @@ public:
    void init(abc::os::path const & opNotFound, errint_t err = 0);
 
 protected:
-   //! See exception::extended_info::write_extended_info().
+   //! See environment_error::write_extended_info().
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:

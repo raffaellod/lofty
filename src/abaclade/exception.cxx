@@ -143,6 +143,10 @@ char const * exception::what() const {
    return m_pszWhat;
 }
 
+/*virtual*/ void exception::write_extended_info(io::text::writer * ptwOut) const {
+   ABC_UNUSED_ARG(ptwOut);
+}
+
 /*static*/ void exception::write_with_scope_trace(
    io::text::writer * ptwOut /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
@@ -154,12 +158,10 @@ char const * exception::what() const {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
       ptwOut->print(ABC_SL("Exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
-
-      if (extended_info const * pxextinfo = dynamic_cast<extended_info const *>(pstdx)) {
-         // The exception implements exception::extended_info; use it to get the additional info.
+      if (pabcx) {
          try {
-            ptwOut->write(ABC_SL("Extended information: "));
-            pxextinfo->write_extended_info(ptwOut);
+            ptwOut->write(ABC_SL("Extended information:"));
+            pabcx->write_extended_info(ptwOut);
             ptwOut->write_line();
          } catch (...) {
             /* The exception is not rethrown because we don’t want exception details to interfere
@@ -379,7 +381,8 @@ void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
 }
 
 /*virtual*/ void index_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   ptwOut->print(ABC_SL("invalid index: {}"), m_iInvalid);
+   lookup_error::write_extended_info(ptwOut);
+   ptwOut->print(ABC_SL(" invalid index: {}"), m_iInvalid);
 }
 
 } //namespace abc
@@ -487,7 +490,7 @@ void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 namespace abc {
 
-char_t const memory_address_error::smc_achUnknownAddress[] = ABC_SL("unknown memory address");
+char_t const memory_address_error::smc_achUnknownAddress[] = ABC_SL(" unknown memory address");
 
 memory_address_error::memory_address_error() :
    generic_error() {
@@ -514,8 +517,9 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 /*virtual*/ void memory_address_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
    if (m_pInvalid != smc_achUnknownAddress) {
-      ptwOut->print(ABC_SL("invalid address: {}"), m_pInvalid);
+      ptwOut->print(ABC_SL(" invalid address: {}"), m_pInvalid);
    } else {
       ptwOut->write(smc_achUnknownAddress);
    }
@@ -665,8 +669,9 @@ void pointer_iterator_error::init(
 /*virtual*/ void pointer_iterator_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
+   iterator_error::write_extended_info(ptwOut);
    ptwOut->print(
-      ABC_SL("invalid iterator: {} (container begin/end range: [{}, {}])"),
+      ABC_SL(" invalid iterator: {} (container begin/end range: [{}, {}])"),
       m_pInvalid, m_pContBegin, m_pContEnd
    );
 }
@@ -729,33 +734,34 @@ void syntax_error::init(
 }
 
 /*virtual*/ void syntax_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
    istr sFormat;
    if (m_sSource) {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in {1}:{2}:{3}");
+            sFormat = ABC_SL(" {0} in {1}:{2}:{3}");
          } else {
-            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}");
+            sFormat = ABC_SL(" {0} in expression \"{1}\", character {3}");
          }
       } else {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in {1}:{2}");
+            sFormat = ABC_SL(" {0} in {1}:{2}");
          } else {
-            sFormat = ABC_SL("{0} in expression \"{1}\"");
+            sFormat = ABC_SL(" {0} in expression \"{1}\"");
          }
       }
    } else {
       if (m_iChar) {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in <input>:{2}:{3}");
+            sFormat = ABC_SL(" {0} in <input>:{2}:{3}");
          } else {
-            sFormat = ABC_SL("{0} in <expression>, character {3}");
+            sFormat = ABC_SL(" {0} in <expression>, character {3}");
          }
       } else {
          if (m_iLine) {
-            sFormat = ABC_SL("{0} in <input>:{2}");
+            sFormat = ABC_SL(" {0} in <input>:{2}");
          } else {
-            sFormat = ABC_SL("{0}");
+            sFormat = ABC_SL(" {0}");
          }
       }
    }

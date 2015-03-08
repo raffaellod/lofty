@@ -559,6 +559,7 @@ void file_not_found_error::init(os::path const & opNotFound, errint_t err /*= 0*
 /*virtual*/ void file_not_found_error::write_extended_info(
    io::text::writer * ptwOut
 ) const /*override*/ {
+   environment_error::write_extended_info(ptwOut);
    ptwOut->print(ABC_SL("couldn’t find path: “{}”"), m_opNotFound);
 }
 

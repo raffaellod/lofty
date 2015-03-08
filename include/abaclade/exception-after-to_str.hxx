@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 //! The syntax for the specified expression is invalid.
-class ABACLADE_SYM syntax_error : public virtual generic_error, public exception::extended_info {
+class ABACLADE_SYM syntax_error : public virtual generic_error {
 public:
    /*! Constructor.
 
@@ -73,7 +73,7 @@ public:
    );
 
 protected:
-   //! See exception::extended_info::write_extended_info().
+   //! See generic_error::write_extended_info().
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:

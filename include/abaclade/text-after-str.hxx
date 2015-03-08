@@ -48,7 +48,7 @@ namespace abc {
 namespace text {
 
 //! A text decoding error occurred.
-class ABACLADE_SYM decode_error : public virtual error, public exception::extended_info {
+class ABACLADE_SYM decode_error : public virtual error {
 public:
    /*! Constructor.
 
@@ -76,7 +76,7 @@ public:
    );
 
 protected:
-   //! See exception::extended_info::write_extended_info().
+   //! See error::write_extended_info().
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
@@ -96,7 +96,7 @@ namespace abc {
 namespace text {
 
 //! A text encoding error occurred.
-class ABACLADE_SYM encode_error : public virtual error, public exception::extended_info {
+class ABACLADE_SYM encode_error : public virtual error {
 public:
    /*! Constructor.
 
@@ -121,7 +121,7 @@ public:
    );
 
 protected:
-   //! See exception::extended_info::write_extended_info().
+   //! See error::write_extended_info().
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:

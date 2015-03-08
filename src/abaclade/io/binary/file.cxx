@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/coroutine.hxx>
 #include <abaclade/numeric.hxx>
 #include "detail/file_init_data.hxx"
 
@@ -256,7 +257,13 @@ std::ptrdiff_t file_reader::read_impl(void * p, std::size_t cbMax) {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
-            return -1;
+            if (auto corosched = coroutine_scheduler::get_for_current_thread()) {
+               // Give other coroutines a chance to run while we wait for m_fd.
+               corosched->yield_while_async_pending(m_fd, false);
+               break;
+            } else {
+               return -1;
+            }
          default:
             exception::throw_os_error(iErr);
       }
@@ -417,7 +424,13 @@ std::ptrdiff_t file_writer::write_impl(void const * p, std::size_t cb) {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
-            return -1;
+            if (auto corosched = coroutine_scheduler::get_for_current_thread()) {
+               // Give other coroutines a chance to run while we wait for m_fd.
+               corosched->yield_while_async_pending(m_fd, true);
+               break;
+            } else {
+               return -1;
+            }
          default:
             exception::throw_os_error(iErr);
       }
