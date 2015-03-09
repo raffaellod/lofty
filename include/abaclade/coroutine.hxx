@@ -46,6 +46,13 @@ public:
    class context;
 
 public:
+   /*! Constructor.
+
+   @param fnMain
+      Function to invoke once the coroutine is first scheduled.
+   @param coro
+      Source object.
+   */
    coroutine();
    explicit coroutine(std::function<void ()> fnMain);
    coroutine(coroutine && coro) :
@@ -67,6 +74,7 @@ private:
 
 namespace abc {
 
+//! Schedules coroutine execution.
 class ABACLADE_SYM coroutine_scheduler : public noncopyable {
 public:
    //! Constructor.
@@ -85,8 +93,18 @@ public:
       return sm_pcorosched;
    }
 
+   /*! Begins scheduling and running coroutines on the current thread. Only returns after every
+   coroutine added with add_coroutine() returns. */
    virtual void run() = 0;
 
+   /*! Allows other coroutines to run while the asynchronous I/O operation completes, as an
+   alternative to blocking while waiting for its completion.
+
+   @param fd
+      File descriptor that the calling coroutine is waiting for I/O on.
+   @param bWrite
+      true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+   */
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) = 0;
 
 protected:

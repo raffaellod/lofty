@@ -108,6 +108,7 @@ public:
       // TODO: verify that m_listStartingCoros and m_mapBlockedCoros are empty.
    }
 
+   //! See coroutine_scheduler::run().
    virtual void run() override {
       while ((m_pcoroctxActive = find_coroutine_to_activate())) {
          if (::swapcontext(&m_uctxReturn, &m_pcoroctxActive->m_uctx) < 0) {
@@ -119,6 +120,7 @@ public:
       m_pcoroctxActive.reset();
    }
 
+   //! See coroutine_scheduler::yield_while_async_pending().
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) override {
       // Add fd to the epoll as a new event source.
       ::epoll_event ee;
