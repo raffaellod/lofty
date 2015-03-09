@@ -257,9 +257,9 @@ std::ptrdiff_t file_reader::read_impl(void * p, std::size_t cbMax) {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
-            if (auto corosched = coroutine_scheduler::get_for_current_thread()) {
+            if (auto pcorosched = coroutine_scheduler::get_for_current_thread()) {
                // Give other coroutines a chance to run while we wait for m_fd.
-               corosched->yield_while_async_pending(m_fd, false);
+               pcorosched->yield_while_async_pending(m_fd, false);
                break;
             } else {
                return -1;
@@ -424,9 +424,9 @@ std::ptrdiff_t file_writer::write_impl(void const * p, std::size_t cb) {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
    #endif
-            if (auto corosched = coroutine_scheduler::get_for_current_thread()) {
+            if (auto pcorosched = coroutine_scheduler::get_for_current_thread()) {
                // Give other coroutines a chance to run while we wait for m_fd.
-               corosched->yield_while_async_pending(m_fd, true);
+               pcorosched->yield_while_async_pending(m_fd, true);
                break;
             } else {
                return -1;
