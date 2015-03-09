@@ -47,7 +47,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-class ABACLADE_SYM coroutine {
+class ABACLADE_SYM coroutine : public noncopyable {
 private:
    friend class coroutine_scheduler;
 
@@ -95,7 +95,7 @@ private:
 
 namespace abc {
 
-class ABACLADE_SYM coroutine_scheduler {
+class ABACLADE_SYM coroutine_scheduler : public noncopyable {
 public:
    //! Constructor.
    coroutine_scheduler() :
