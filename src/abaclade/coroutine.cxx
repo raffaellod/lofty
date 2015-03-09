@@ -180,7 +180,7 @@ void coroutine_scheduler::yield_while_async_pending(io::filedesc const & fd, boo
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   ::ucontext_t * puctxActive = &m_pcoroctxActive->m_uctx;
+   coroutine::context * pcoroctxActive = m_pcoroctxActive.get();
    auto itBlockedCoro(
       m_mapBlockedCoros.add_or_assign(ee.data.fd, std::move(m_pcoroctxActive)).first
    );
@@ -195,8 +195,8 @@ void coroutine_scheduler::yield_while_async_pending(io::filedesc const & fd, boo
    }
    /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was active,
    switch to it. */
-   if (&m_pcoroctxActive->m_uctx != puctxActive) {
-      if (::swapcontext(puctxActive, &m_pcoroctxActive->m_uctx) < 0) {
+   if (m_pcoroctxActive.get() != pcoroctxActive) {
+      if (::swapcontext(&pcoroctxActive->m_uctx, &m_pcoroctxActive->m_uctx) < 0) {
          /* TODO: in case of errors, which should never happen here since all coroutines have the
          same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
       }
