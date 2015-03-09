@@ -31,12 +31,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINTR errno
-   #if ABC_HOST_API_BSD
-      #include <sys/event.h>
-      #include <sys/time.h>
-      #include <sys/types.h>
-   #elif ABC_HOST_API_LINUX
-      #include <sys/epoll.h>
+   #if ABC_HOST_API_LINUX
       #include <ucontext.h>
    #endif
 #endif

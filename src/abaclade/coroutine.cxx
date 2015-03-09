@@ -20,6 +20,17 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
 
+#if ABC_HOST_API_POSIX
+   #include <errno.h> // EINTR errno
+   #if ABC_HOST_API_BSD
+      #include <sys/event.h>
+      #include <sys/time.h>
+      #include <sys/types.h>
+   #elif ABC_HOST_API_LINUX
+      #include <sys/epoll.h>
+   #endif
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
