@@ -37,28 +37,51 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-coroutine::shared_data::shared_data(::ucontext_t * puctxReturn, std::function<void ()> fnMain) :
-   m_fnInnerMain(std::move(fnMain)) {
-   if (::getcontext(&m_uctx) < 0) {
-      exception::throw_os_error();
+class coroutine::context : public noncopyable {
+public:
+   context(std::unique_ptr<shared_data> psd) :
+      m_psd(std::move(psd)) {
    }
-   m_uctx.uc_stack.ss_sp = &m_aiStack;
-   m_uctx.uc_stack.ss_size = sizeof m_aiStack;
-   m_uctx.uc_link = puctxReturn;
-   ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
+
+   void reset(::ucontext_t * puctxReturn) {
+      if (::getcontext(&m_uctx) < 0) {
+         exception::throw_os_error();
+      }
+      m_uctx.uc_stack.ss_sp = &m_aiStack;
+      m_uctx.uc_stack.ss_size = sizeof m_aiStack;
+      m_uctx.uc_link = puctxReturn;
+      ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
+   }
+
+private:
+   static void outer_main(void * p) {
+      context * pctx = static_cast<context *>(p);
+      try {
+         pctx->m_psd->inner_main();
+      } catch (std::exception const & x) {
+         exception::write_with_scope_trace(nullptr, &x);
+         // TODO: maybe support “moving” the exception to the return coroutine context?
+      } catch (...) {
+         exception::write_with_scope_trace();
+         // TODO: maybe support “moving” the exception to the return coroutine context?
+      }
+   }
+
+public:
+   ::ucontext_t m_uctx;
+private:
+   std::unique_ptr<shared_data> m_psd;
+   // TODO: use MINSIGSTKSZ.
+   abc::max_align_t m_aiStack[1024];
+};
+
+coroutine::~coroutine() {
 }
 
-/*static*/ void coroutine::shared_data::outer_main(void * p) {
-   shared_data * pcorod = static_cast<shared_data *>(p);
-   try {
-      pcorod->m_fnInnerMain();
-   } catch (std::exception const & x) {
-      exception::write_with_scope_trace(nullptr, &x);
-      // TODO: maybe support “moving” the exception to the return coroutine context?
-   } catch (...) {
-      exception::write_with_scope_trace();
-      // TODO: maybe support “moving” the exception to the return coroutine context?
-   }
+/*static*/ std::shared_ptr<coroutine::context> coroutine::create_context(
+   std::unique_ptr<shared_data> psd
+) {
+   return std::make_shared<coroutine::context>(std::move(psd));
 }
 
 } //namespace abc
@@ -71,7 +94,7 @@ namespace abc {
 thread_local_value<std::shared_ptr<coroutine_scheduler>> coroutine_scheduler::sm_pcorosched;
 
 coroutine_scheduler::coroutine_scheduler() :
-   m_pcorodActive(nullptr),
+   m_pcoroctxActive(nullptr),
    m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
    if (!m_fdEpoll) {
       exception::throw_os_error();
@@ -98,12 +121,15 @@ coroutine_scheduler::~coroutine_scheduler() {
    ).operator std::shared_ptr<coroutine_scheduler> const &();
 }
 
-std::unique_ptr<coroutine::shared_data> coroutine_scheduler::find_coroutine_to_activate() {
+std::shared_ptr<coroutine::context> coroutine_scheduler::find_coroutine_to_activate() {
    // This loop will only repeat in case of EINTR during ::epoll_wait().
    for (;;) {
       if (m_listStartingCoros) {
          // There are coroutines that haven’t had a chance to run; remove and schedule the first.
-         return m_listStartingCoros.pop_front();
+         auto pcoroctx(m_listStartingCoros.pop_front());
+         // TODO: verify how this behaves in a multithreaded scenario.
+         pcoroctx->reset(&m_uctxReturn);
+         return std::move(pcoroctx);
       } else if (m_mapBlockedCoros) {
          // There are blocked coroutines; wait for the first one to become ready again.
          ::epoll_event eeReady;
@@ -122,11 +148,9 @@ std::unique_ptr<coroutine::shared_data> coroutine_scheduler::find_coroutine_to_a
          // Find which coroutine was waiting for eeReady and remove it from m_mapBlockedCoros.
          // TODO: need map::pop().
          auto itBlockedCoro(m_mapBlockedCoros.find(eeReady.data.fd));
-         std::unique_ptr<coroutine::shared_data> pcorodToActivate(
-            std::move(itBlockedCoro->value)
-         );
+         std::shared_ptr<coroutine::context> pcoroctxToActivate(std::move(itBlockedCoro->value));
          m_mapBlockedCoros.remove(itBlockedCoro);
-         return std::move(pcorodToActivate);
+         return std::move(pcoroctxToActivate);
       } else {
          return nullptr;
       }
@@ -134,14 +158,14 @@ std::unique_ptr<coroutine::shared_data> coroutine_scheduler::find_coroutine_to_a
 }
 
 void coroutine_scheduler::run() {
-   while ((m_pcorodActive = find_coroutine_to_activate())) {
-      if (::swapcontext(&m_uctxReturn, &m_pcorodActive->m_uctx) < 0) {
+   while ((m_pcoroctxActive = find_coroutine_to_activate())) {
+      if (::swapcontext(&m_uctxReturn, &m_pcoroctxActive->m_uctx) < 0) {
          /* TODO: in case of errors, which should never happen here since all coroutines have the
-         same stack size, inject a stack overflow exception in *m_pcorodActive. */
+         same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
       }
    }
    // Release the last coroutine.
-   m_pcorodActive.reset();
+   m_pcoroctxActive.reset();
 }
 
 void coroutine_scheduler::yield_while_async_pending(io::filedesc const & fd, bool bWrite) {
@@ -156,25 +180,25 @@ void coroutine_scheduler::yield_while_async_pending(io::filedesc const & fd, boo
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   ::ucontext_t * puctxActive = &m_pcorodActive->m_uctx;
+   ::ucontext_t * puctxActive = &m_pcoroctxActive->m_uctx;
    auto itBlockedCoro(
-      m_mapBlockedCoros.add_or_assign(ee.data.fd, std::move(m_pcorodActive)).first
+      m_mapBlockedCoros.add_or_assign(ee.data.fd, std::move(m_pcoroctxActive)).first
    );
    try {
-      m_pcorodActive = find_coroutine_to_activate();
+      m_pcoroctxActive = find_coroutine_to_activate();
    } catch (...) {
       // If anything went wrong, restore the coroutine that was active.
       // TODO: need map::pop().
-      m_pcorodActive = std::move(itBlockedCoro->value);
+      m_pcoroctxActive = std::move(itBlockedCoro->value);
       m_mapBlockedCoros.remove(itBlockedCoro);
       throw;
    }
    /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was active,
    switch to it. */
-   if (&m_pcorodActive->m_uctx != puctxActive) {
-      if (::swapcontext(puctxActive, &m_pcorodActive->m_uctx) < 0) {
+   if (&m_pcoroctxActive->m_uctx != puctxActive) {
+      if (::swapcontext(puctxActive, &m_pcoroctxActive->m_uctx) < 0) {
          /* TODO: in case of errors, which should never happen here since all coroutines have the
-         same stack size, inject a stack overflow exception in *m_pcorodActive. */
+         same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
       }
    }
 }

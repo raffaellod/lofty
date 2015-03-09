@@ -29,38 +29,61 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade/collections/map.hxx>
 
-#if ABC_HOST_API_POSIX
-   #include <errno.h> // EINTR errno
-   #if ABC_HOST_API_LINUX
-      #include <ucontext.h>
-   #endif
+#if ABC_HOST_API_LINUX
+   #include <ucontext.h>
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::timer
+// abc::coroutine
 
 namespace abc {
 
+/*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io
+classes. */
 class ABACLADE_SYM coroutine : public noncopyable {
 private:
    friend class coroutine_scheduler;
 
+   //! OS-dependent execution context for the coroutine.
+   class context;
+
    class ABACLADE_SYM shared_data : public noncopyable {
    public:
-      shared_data(::ucontext_t * puctxReturn, std::function<void ()> fnMain);
+      shared_data(std::function<void ()> fnMain) :
+         m_fnInnerMain(std::move(fnMain)) {
+      }
+
+      //! See shared_data::inner_main().
+      void inner_main() {
+         m_fnInnerMain();
+      }
 
    private:
-      static void outer_main(void * p);
-
-   public:
-      ::ucontext_t m_uctx;
-   private:
-      // TODO: use MINSIGSTKSZ.
-      abc::max_align_t m_aiStack[1024];
-      // TODO: copy abc::thread callback patterh.
+      // TODO: copy abc::thread callback pattern.
       std::function<void ()> m_fnInnerMain;
    };
+
+public:
+   coroutine() {
+   }
+   template <typename F>
+   explicit coroutine(F fnMain) :
+      m_pctx(create_context(std::unique_ptr<shared_data>(new shared_data(std::move(fnMain))))) {
+   }
+   coroutine(coroutine && coro) :
+      m_pctx(std::move(coro.m_pctx)) {
+   }
+
+   //! Destructor.
+   ~coroutine();
+
+private:
+   static std::shared_ptr<context> create_context(std::unique_ptr<shared_data> psd);
+
+private:
+   //! Pointer to the coroutine’s execution context.
+   std::shared_ptr<context> m_pctx;
 };
 
 } //namespace abc
@@ -78,12 +101,9 @@ public:
    //! Destructor.
    ~coroutine_scheduler();
 
-   void add_coroutine(std::function<void ()> fnMain) {
-      std::unique_ptr<coroutine::shared_data> pcorod(
-         new coroutine::shared_data(&m_uctxReturn, std::move(fnMain))
-      );
+   void add_coroutine(coroutine const & coro) {
       // Add the coroutine to those ready to start.
-      m_listStartingCoros.push_back(std::move(pcorod));
+      m_listStartingCoros.push_back(coro.m_pctx);
    }
 
    static coroutine_scheduler & attach_to_current_thread(
@@ -99,13 +119,13 @@ public:
    void yield_while_async_pending(io::filedesc const & fd, bool bWrite);
 
 private:
-   std::unique_ptr<coroutine::shared_data> find_coroutine_to_activate();
+   std::shared_ptr<coroutine::context> find_coroutine_to_activate();
 
 private:
    // Pointer to the active (current) coroutine, if not the main one (the thread’s original code).
-   std::unique_ptr<coroutine::shared_data> m_pcorodActive;
+   std::shared_ptr<coroutine::context> m_pcoroctxActive;
    //! List of coroutines that have been scheduled, but have not been started yet.
-   collections::list<std::unique_ptr<coroutine::shared_data>> m_listStartingCoros;
+   collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
    //! Pointer to the coroutine_scheduler for the current thread.
    static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
 
@@ -114,7 +134,7 @@ private:
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
    //! Coroutines that are blocked on a fd wait.
-   collections::map<int, std::unique_ptr<coroutine::shared_data>> m_mapBlockedCoros;
+   collections::map<int, std::shared_ptr<coroutine::context>> m_mapBlockedCoros;
    // Coroutine context that every coroutine eventually returns to.
    ::ucontext_t m_uctxReturn;
 };

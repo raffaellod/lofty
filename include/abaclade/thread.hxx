@@ -255,7 +255,7 @@ private:
    also needed to assign the thread ID to the owning abc::thread instance.
 
    @param p
-      *this, be used to acquire a pointer to m_psd and, under POSIX, to set m_id.
+      *this, to be used to acquire a pointer to m_psd and, under POSIX, to set m_id.
    @return
       Unused.
    */

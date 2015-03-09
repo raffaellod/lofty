@@ -45,7 +45,7 @@ public:
       // Open a pipe in asynchronous I/O mode.
       auto pair(io::binary::pipe(true));
       // Schedule the reader.
-      corosched.add_coroutine([this, &pair] () -> void {
+      corosched.add_coroutine(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          for (;;) {
@@ -61,9 +61,10 @@ public:
             }
             // Consume i.
          }
-      });
+         io::text::stdout()->write_line(ABC_SL("reader terminating"));
+      }));
       // Schedule the writer.
-      corosched.add_coroutine([this, &pair] () -> void {
+      corosched.add_coroutine(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          ABC_FOR_EACH(int i, make_range(1, 10)) {
@@ -74,9 +75,11 @@ public:
          }
          // Close the writing end of the pipe to report EOF on the reading end.
          pair.second.reset();
-      });
+         io::text::stdout()->write_line(ABC_SL("writer terminating"));
+      }));
       // Switch this thread to run coroutines, until they all terminate.
       corosched.run();
+      io::text::stdout()->write_line(ABC_SL("main terminating"));
       return 0;
    }
 };
