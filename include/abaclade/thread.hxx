@@ -80,16 +80,14 @@ private:
       //! Invokes the user-provided thread function.
       virtual void inner_main() = 0;
 
-      //! abc::thread instance to be updated with the thread’s ID.
-      std::shared_ptr<thread> pthr;
 #if ABC_HOST_API_DARWIN
-      //! Dispatch semaphore used by the new thread to report that writing to *pthr has finished.
+      //! Dispatch semaphore used by the new thread to report to its parent that it has started.
       ::dispatch_semaphore_t dsemReady;
 #elif ABC_HOST_API_POSIX
-      //! Semaphore used by the new thread to report that writing to *pthr has finished.
+      //! Semaphore used by the new thread to report to its parent that it has started.
       ::sem_t semReady;
 #elif ABC_HOST_API_WIN32
-      //! Event used by the new thread to report that writing to *pthr has finished.
+      //! Event used by the new thread to report to its parent that it has started.
       HANDLE hReadyEvent;
 #else
    #error "TODO: HOST_API"
