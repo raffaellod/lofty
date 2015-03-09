@@ -29,10 +29,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade/collections/map.hxx>
 
-#if ABC_HOST_API_LINUX
-   #include <ucontext.h>
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
@@ -45,6 +41,7 @@ class ABACLADE_SYM coroutine : public noncopyable {
 private:
    friend class coroutine_scheduler;
 
+public:
    //! OS-dependent execution context for the coroutine.
    class context;
 
@@ -76,12 +73,9 @@ public:
    coroutine_scheduler();
 
    //! Destructor.
-   ~coroutine_scheduler();
+   virtual ~coroutine_scheduler();
 
-   void add_coroutine(coroutine const & coro) {
-      // Add the coroutine to those ready to start.
-      m_listStartingCoros.push_back(coro.m_pctx);
-   }
+   void add_coroutine(coroutine const & coro);
 
    static coroutine_scheduler & attach_to_current_thread(
       std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
@@ -91,29 +85,17 @@ public:
       return sm_pcorosched;
    }
 
-   void run();
+   virtual void run() = 0;
 
-   void yield_while_async_pending(io::filedesc const & fd, bool bWrite);
+   virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) = 0;
 
-private:
-   std::shared_ptr<coroutine::context> find_coroutine_to_activate();
-
-private:
-   // Pointer to the active (current) coroutine, if not the main one (the thread’s original code).
+protected:
+   //! Pointer to the active (current) coroutine, or nullptr if none is active.
    std::shared_ptr<coroutine::context> m_pcoroctxActive;
    //! List of coroutines that have been scheduled, but have not been started yet.
    collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
    //! Pointer to the coroutine_scheduler for the current thread.
    static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
-
-   // TODO: move the following members to an “impl” subclass.
-
-   //! File descriptor of the internal epoll.
-   io::filedesc m_fdEpoll;
-   //! Coroutines that are blocked on a fd wait.
-   collections::map<int, std::shared_ptr<coroutine::context>> m_mapBlockedCoros;
-   // Coroutine context that every coroutine eventually returns to.
-   ::ucontext_t m_uctxReturn;
 };
 
 } //namespace abc
