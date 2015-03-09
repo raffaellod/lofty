@@ -48,38 +48,15 @@ private:
    //! OS-dependent execution context for the coroutine.
    class context;
 
-   class ABACLADE_SYM shared_data : public noncopyable {
-   public:
-      shared_data(std::function<void ()> fnMain) :
-         m_fnInnerMain(std::move(fnMain)) {
-      }
-
-      //! See shared_data::inner_main().
-      void inner_main() {
-         m_fnInnerMain();
-      }
-
-   private:
-      // TODO: copy abc::thread callback pattern.
-      std::function<void ()> m_fnInnerMain;
-   };
-
 public:
-   coroutine() {
-   }
-   template <typename F>
-   explicit coroutine(F fnMain) :
-      m_pctx(create_context(std::unique_ptr<shared_data>(new shared_data(std::move(fnMain))))) {
-   }
+   coroutine();
+   explicit coroutine(std::function<void ()> fnMain);
    coroutine(coroutine && coro) :
       m_pctx(std::move(coro.m_pctx)) {
    }
 
    //! Destructor.
    ~coroutine();
-
-private:
-   static std::shared_ptr<context> create_context(std::unique_ptr<shared_data> psd);
 
 private:
    //! Pointer to the coroutine’s execution context.

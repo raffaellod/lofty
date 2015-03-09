@@ -39,8 +39,8 @@ namespace abc {
 
 class coroutine::context : public noncopyable {
 public:
-   context(std::unique_ptr<shared_data> psd) :
-      m_psd(std::move(psd)) {
+   context(std::function<void ()> fnMain) :
+      m_fnInnerMain(std::move(fnMain)) {
    }
 
    void reset(::ucontext_t * puctxReturn) {
@@ -57,7 +57,7 @@ private:
    static void outer_main(void * p) {
       context * pctx = static_cast<context *>(p);
       try {
-         pctx->m_psd->inner_main();
+         pctx->m_fnInnerMain();
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
          // TODO: maybe support “moving” the exception to the return coroutine context?
@@ -70,18 +70,18 @@ private:
 public:
    ::ucontext_t m_uctx;
 private:
-   std::unique_ptr<shared_data> m_psd;
+   std::function<void ()> m_fnInnerMain;
    // TODO: use MINSIGSTKSZ.
    abc::max_align_t m_aiStack[1024];
 };
 
-coroutine::~coroutine() {
+coroutine::coroutine() {
+}
+/*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
+   m_pctx(std::make_shared<coroutine::context>(std::move(fnMain))) {
 }
 
-/*static*/ std::shared_ptr<coroutine::context> coroutine::create_context(
-   std::unique_ptr<shared_data> psd
-) {
-   return std::make_shared<coroutine::context>(std::move(psd));
+coroutine::~coroutine() {
 }
 
 } //namespace abc
