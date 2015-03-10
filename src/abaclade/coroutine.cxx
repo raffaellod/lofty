@@ -311,6 +311,9 @@ private:
                if (iErr == EINTR) {
                   continue;
                }
+               /* TODO: no other errors should really be possible, but if they do occur we should
+               probably kill all coroutines. This also applies to exceptions thrown elsewhere in
+               this method */
                exception::throw_os_error(iErr);
             }
             /* Remove this event source from the epoll. Ignore errors, since we wouldn’t know what
