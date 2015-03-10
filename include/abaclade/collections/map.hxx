@@ -795,6 +795,40 @@ public:
       return cend();
    }
 
+   /*! Removes and returns a value given an iterator or a key, which must be in the map.
+
+   @param it
+      Iterator to the key/value to extract.
+   @param key
+      Key associated to the value to extract.
+   */
+   TValue extract(const_iterator it) {
+      it.validate();
+      TValue value(std::move(*value_ptr(it.m_iBucket)));
+      detail::type_void_adapter typeKey, typeValue;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_size<TValue>();
+      empty_bucket(typeKey, typeValue, it.m_iBucket);
+      return std::move(value);
+   }
+   TValue extract(TKey const & key) {
+      std::size_t iBucket = lookup_key(key);
+      if (iBucket == smc_iNullIndex) {
+         // TODO: provide more information in the exception.
+         ABC_THROW(key_error, ());
+      }
+      TValue value(std::move(*value_ptr(iBucket)));
+      detail::type_void_adapter typeKey, typeValue;
+      typeKey.set_destr_fn<TKey>();
+      typeKey.set_size<TKey>();
+      typeValue.set_destr_fn<TValue>();
+      typeValue.set_size<TValue>();
+      empty_bucket(typeKey, typeValue, iBucket);
+      return std::move(value);
+   }
+
    /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
    pair if found.
 
