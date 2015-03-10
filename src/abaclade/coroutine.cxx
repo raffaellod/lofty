@@ -218,7 +218,8 @@ private:
          if (m_listStartingCoros) {
             // There are coroutines that haven’t had a chance to run; remove and schedule the first.
             auto pcoroctx(m_listStartingCoros.pop_front());
-            // TODO: verify how this behaves in a multithreaded scenario.
+            /* TODO: verify how this behaves in a multithreaded scenario: which thread should this
+            coroutine return to? */
             pcoroctx->reset(&m_uctxReturn);
             return std::move(pcoroctx);
          } else if (m_mapBlockedCoros) {
