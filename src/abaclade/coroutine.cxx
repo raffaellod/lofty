@@ -236,13 +236,11 @@ private:
 #if ABC_HOST_API_BSD
             fd = static_cast<int>(ke.ident);
 #elif ABC_HOST_API_LINUX
-            fd = static_cast<int>(ee.data.fd);
-            /* Remove this event source from the epoll. Ignore errors, since we wouldn’t know what
-            to do aobut them. */
+            fd = ee.data.fd;
+            // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do aobut them.
             ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
 #endif
-            /* Find which coroutine was waiting for ke, remove it from m_mapBlockedCoros, and return
-            it. */
+            // Remove from m_mapBlockedCoros and return the coroutine that was waiting for fd.
             return m_mapBlockedCoros.extract(fd);
          } else {
             return nullptr;
@@ -262,7 +260,7 @@ private:
 #endif
    //! Coroutines that are blocked on a fd wait.
    collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapBlockedCoros;
-   // Coroutine context that every coroutine eventually returns to.
+   //! Coroutine context that every coroutine eventually returns to.
    ::ucontext_t m_uctxReturn;
 };
 
@@ -271,6 +269,7 @@ private:
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+
 
 thread_local_value<std::shared_ptr<coroutine_scheduler>> coroutine_scheduler::sm_pcorosched;
 
