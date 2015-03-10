@@ -47,7 +47,7 @@ public:
       m_fnInnerMain(std::move(fnMain)) {
    }
 
-#if ABC_HOST_API_BSD
+#if ABC_HOST_API_POSIX
    void reset(::ucontext_t * puctxReturn) {
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
@@ -57,21 +57,11 @@ public:
       m_uctx.uc_link = puctxReturn;
       ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
    }
-#elif ABC_HOST_API_LINUX //if ABC_HOST_API_BSD
-   void reset(::ucontext_t * puctxReturn) {
-      if (::getcontext(&m_uctx) < 0) {
-         exception::throw_os_error();
-      }
-      m_uctx.uc_stack.ss_sp = &m_aiStack;
-      m_uctx.uc_stack.ss_size = sizeof m_aiStack;
-      m_uctx.uc_link = puctxReturn;
-      ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
-   }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 #if ABC_HOST_API_POSIX
    /*! Returns a pointer to the internal ::ucontext_t.
@@ -99,19 +89,15 @@ private:
    }
 
 private:
-#if ABC_HOST_API_BSD
+#if ABC_HOST_API_POSIX
    ::ucontext_t m_uctx;
    // TODO: use MINSIGSTKSZ.
    abc::max_align_t m_aiStack[1024];
-#elif ABC_HOST_API_LINUX //if ABC_HOST_API_BSD
-   ::ucontext_t m_uctx;
-   // TODO: use MINSIGSTKSZ.
-   abc::max_align_t m_aiStack[1024];
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    std::function<void ()> m_fnInnerMain;
 };
 
@@ -280,11 +266,11 @@ private:
    ::ucontext_t m_uctxReturn;
 };
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 thread_local_value<std::shared_ptr<coroutine_scheduler>> coroutine_scheduler::sm_pcorosched;
 
