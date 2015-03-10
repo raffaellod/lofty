@@ -73,6 +73,17 @@ public:
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX … elif ABC_HOST_API_WIN32 … else
 
+#if ABC_HOST_API_POSIX
+   /*! Returns a pointer to the internal ::ucontext_t.
+
+   @return
+      Pointer to the context’s ::ucontext_t member.
+   */
+   ::ucontext_t * ucontext_ptr() {
+      return &m_uctx;
+   }
+#endif
+
 private:
    static void outer_main(void * p) {
       context * pctx = static_cast<context *>(p);
@@ -89,15 +100,11 @@ private:
 
 private:
 #if ABC_HOST_API_BSD
-public:
    ::ucontext_t m_uctx;
-private:
    // TODO: use MINSIGSTKSZ.
    abc::max_align_t m_aiStack[1024];
 #elif ABC_HOST_API_LINUX //if ABC_HOST_API_BSD
-public:
    ::ucontext_t m_uctx;
-private:
    // TODO: use MINSIGSTKSZ.
    abc::max_align_t m_aiStack[1024];
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_BSD … elif ABC_HOST_API_LINUX
@@ -155,7 +162,7 @@ public:
    //! See coroutine_scheduler::run().
    virtual void run() override {
       while ((m_pcoroctxActive = find_coroutine_to_activate())) {
-         if (::swapcontext(&m_uctxReturn, &m_pcoroctxActive->m_uctx) < 0) {
+         if (::swapcontext(&m_uctxReturn, m_pcoroctxActive->ucontext_ptr()) < 0) {
             /* TODO: in case of errors, which should never happen here since all coroutines have the
             same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
          }
@@ -204,7 +211,7 @@ public:
       /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
       active, switch to it. */
       if (m_pcoroctxActive.get() != pcoroctxActive) {
-         if (::swapcontext(&pcoroctxActive->m_uctx, &m_pcoroctxActive->m_uctx) < 0) {
+         if (::swapcontext(pcoroctxActive->ucontext_ptr(), m_pcoroctxActive->ucontext_ptr()) < 0) {
             /* TODO: in case of errors, which should never happen here since all coroutines have the
             same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
          }
