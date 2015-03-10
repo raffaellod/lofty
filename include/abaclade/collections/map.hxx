@@ -808,7 +808,7 @@ public:
       return iterator(this, iBucket);
    }
 
-   /*! Removes a key/value pair given the key, which must be in the map.
+   /*! Removes a value given an iterator or a key, which must be in the map.
 
    @param it
       Iterator to the key/value to remove.
