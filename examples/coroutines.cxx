@@ -44,17 +44,18 @@ public:
 
       // Open a pipe in asynchronous I/O mode.
       auto pair(io::binary::pipe(true));
+
       // Schedule the reader.
       corosched.add_coroutine(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          for (;;) {
-            // This will cause a context switch if the read would block.
             int i;
             io::text::stdout()->print(ABC_SL("reading\n"));
+            // This will cause a context switch if the read would block.
             std::size_t cbRead = pair.first->read(&i, sizeof i);
-            io::text::stdout()->print(ABC_SL("read {}\n"), i);
             // Execution resumes here, after other coroutines have received CPU time.
+            io::text::stdout()->print(ABC_SL("read {}\n"), i);
             if (!cbRead) {
                // Detect EOF.
                break;
@@ -63,6 +64,7 @@ public:
          }
          io::text::stdout()->write_line(ABC_SL("reader terminating"));
       }));
+
       // Schedule the writer.
       corosched.add_coroutine(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
@@ -77,8 +79,10 @@ public:
          pair.second.reset();
          io::text::stdout()->write_line(ABC_SL("writer terminating"));
       }));
+
       // Switch this thread to run coroutines, until they all terminate.
       corosched.run();
+      // Execution resumes here, after all coroutines have terminated.
       io::text::stdout()->write_line(ABC_SL("main terminating"));
       return 0;
    }
