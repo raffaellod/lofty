@@ -27,9 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
    #include <ucontext.h>
    #if ABC_HOST_API_BSD
+      #include <sys/types.h>
       #include <sys/event.h>
       #include <sys/time.h>
-      #include <sys/types.h>
    #elif ABC_HOST_API_LINUX
       #include <sys/epoll.h>
    #endif
@@ -52,7 +52,7 @@ public:
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
       }
-      m_uctx.uc_stack.ss_sp = &m_aiStack;
+      m_uctx.uc_stack.ss_sp = reinterpret_cast<char *>(&m_aiStack);
       m_uctx.uc_stack.ss_size = sizeof m_aiStack;
       m_uctx.uc_link = puctxReturn;
       ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
@@ -159,7 +159,7 @@ public:
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) override {
       // Add fd to the epoll as a new event source.
       struct ::kevent ke;
-      ke.ident = fd.get();
+      ke.ident = static_cast<std::uintptr_t>(fd.get());
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       ke.flags = EV_ADD | EV_ONESHOT | EV_EOF ;
       ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
