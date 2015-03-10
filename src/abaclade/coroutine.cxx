@@ -265,7 +265,7 @@ public:
       /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This
       means we’d need to then rearm it in find_coroutine_to_activate() when it becomes ready, but
       we’ll remove it instead. */
-      ee.events = EPOLLONESHOT | (bWrite ? EPOLLOUT : EPOLLIN) | EPOLLPRI;
+      ee.events = EPOLLONESHOT | EPOLLPRI | (bWrite ? EPOLLOUT : EPOLLIN);
       if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd.get(), &ee) < 0) {
          exception::throw_os_error();
       }
@@ -303,8 +303,8 @@ private:
             return std::move(pcoroctx);
          } else if (m_mapBlockedCoros) {
             // There are blocked coroutines; wait for the first one to become ready again.
-            ::epoll_event eeReady;
-            int cReadyFds = ::epoll_wait(m_fdEpoll.get(), &eeReady, 1, -1);
+            ::epoll_event ee;
+            int cReadyFds = ::epoll_wait(m_fdEpoll.get(), &ee, 1, -1);
             // 0 won’t really be returned; possible values are either 1 or -1.
             if (cReadyFds < 0) {
                int iErr = errno;
@@ -315,10 +315,10 @@ private:
             }
             /* Remove this event source from the epoll. Ignore errors, since we wouldn’t know what
             to do aobut them. */
-            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, eeReady.data.fd, nullptr);
+            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, ee.data.fd, nullptr);
             /* Find which coroutine was waiting for ke, remove it from m_mapBlockedCoros, and return
             it. */
-            return m_mapBlockedCoros.extract(static_cast<int>(eeReady.data.fd));
+            return m_mapBlockedCoros.extract(ee.data.fd);
          } else {
             return nullptr;
          }
