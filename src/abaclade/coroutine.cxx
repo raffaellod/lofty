@@ -25,6 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #if ABC_HOST_API_DARWIN
       #define _XOPEN_SOURCE
    #endif
+   #include <signal.h> // MINSIGSTKSZ
    #include <ucontext.h>
    #if ABC_HOST_API_BSD
       #include <sys/types.h>
@@ -91,8 +92,7 @@ private:
 private:
 #if ABC_HOST_API_POSIX
    ::ucontext_t m_uctx;
-   // TODO: use MINSIGSTKSZ.
-   abc::max_align_t m_aiStack[1024];
+   abc::max_align_t m_aiStack[ABC_ALIGNED_SIZE(MINSIGSTKSZ)];
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
