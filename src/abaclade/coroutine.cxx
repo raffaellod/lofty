@@ -175,9 +175,7 @@ public:
          m_pcoroctxActive = find_coroutine_to_activate();
       } catch (...) {
          // If anything went wrong, restore the coroutine that was active.
-         // TODO: need map::pop().
-         m_pcoroctxActive = std::move(itBlockedCoro->value);
-         m_mapBlockedCoros.remove(itBlockedCoro);
+         m_pcoroctxActive = m_mapBlockedCoros.extract(itBlockedCoro);
          throw;
       }
       /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
@@ -212,12 +210,9 @@ private:
                }
                exception::throw_os_error(iErr);
             }
-            // Find which coroutine was waiting for eeReady and remove it from m_mapBlockedCoros.
-            // TODO: need map::pop().
-            auto itBlockedCoro(m_mapBlockedCoros.find(static_cast<int>(ke.ident)));
-            std::shared_ptr<coroutine::context> pcoroctxToActivate(std::move(itBlockedCoro->value));
-            m_mapBlockedCoros.remove(itBlockedCoro);
-            return std::move(pcoroctxToActivate);
+            /* Find which coroutine was waiting for ke, remove it from m_mapBlockedCoros, and return
+            it. */
+            return m_mapBlockedCoros.extract(static_cast<int>(ke.ident));
          } else {
             return nullptr;
          }
@@ -283,9 +278,7 @@ public:
          m_pcoroctxActive = find_coroutine_to_activate();
       } catch (...) {
          // If anything went wrong, restore the coroutine that was active.
-         // TODO: need map::pop().
-         m_pcoroctxActive = std::move(itBlockedCoro->value);
-         m_mapBlockedCoros.remove(itBlockedCoro);
+         m_pcoroctxActive = m_mapBlockedCoros.extract(itBlockedCoro);
          throw;
       }
       /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
@@ -323,12 +316,9 @@ private:
             /* Remove this event source from the epoll. Ignore errors, since we wouldn’t know what
             to do aobut them. */
             ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, eeReady.data.fd, nullptr);
-            // Find which coroutine was waiting for eeReady and remove it from m_mapBlockedCoros.
-            // TODO: need map::pop().
-            auto itBlockedCoro(m_mapBlockedCoros.find(eeReady.data.fd));
-            std::shared_ptr<coroutine::context> pcoroctxToActivate(std::move(itBlockedCoro->value));
-            m_mapBlockedCoros.remove(itBlockedCoro);
-            return std::move(pcoroctxToActivate);
+            /* Find which coroutine was waiting for ke, remove it from m_mapBlockedCoros, and return
+            it. */
+            return m_mapBlockedCoros.extract(static_cast<int>(eeReady.data.fd));
          } else {
             return nullptr;
          }
