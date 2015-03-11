@@ -22,11 +22,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
-   #if ABC_HOST_API_FREEBSD
-      #include <pthread_np.h> // pthread_getthreadid_np()
-   #elif ABC_HOST_API_LINUX
-      #include <sys/syscall.h> // SYS_*
-      #include <unistd.h> // syscall()
+   #if ABC_HOST_API_DARWIN
+      #include <dispatch/dispatch.h>
+   #else
+      #include <semaphore.h>
+      #if ABC_HOST_API_FREEBSD
+         #include <pthread_np.h> // pthread_getthreadid_np()
+      #elif ABC_HOST_API_LINUX
+         #include <sys/syscall.h> // SYS_*
+         #include <unistd.h> // syscall()
+      #endif
    #endif
 #endif
 

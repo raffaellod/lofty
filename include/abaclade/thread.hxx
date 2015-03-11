@@ -30,11 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <memory>
 #if ABC_HOST_API_POSIX
    #include <pthread.h>
-   #if ABC_HOST_API_DARWIN
-      #include <dispatch/dispatch.h>
-   #else
-      #include <semaphore.h>
-   #endif
 #endif
 
 
