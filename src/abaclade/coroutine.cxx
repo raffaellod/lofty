@@ -44,11 +44,21 @@ namespace abc {
 
 class coroutine::context : public noncopyable {
 public:
+   /*! Constructor
+
+   @param fnMain
+      Initial value for m_fnInnerMain.
+   */
    context(std::function<void ()> fnMain) :
       m_fnInnerMain(std::move(fnMain)) {
    }
 
 #if ABC_HOST_API_POSIX
+   /*! Reinitializes the context for execution.
+
+   @param puctxReturn
+      Context to return to upon termination.
+   */
    void reset(::ucontext_t * puctxReturn) {
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
@@ -76,6 +86,11 @@ public:
 #endif
 
 private:
+   /*! Lower-level wrapper for the coroutine function passed to coroutine::coroutine().
+
+   @param p
+      *this.
+   */
    static void outer_main(void * p) {
       context * pctx = static_cast<context *>(p);
       try {
@@ -91,13 +106,16 @@ private:
 
 private:
 #if ABC_HOST_API_POSIX
+   //! Low-level context for the coroutine.
    ::ucontext_t m_uctx;
+   //! Memory chunk used as stack.
    abc::max_align_t m_aiStack[ABC_ALIGNED_SIZE(SIGSTKSZ)];
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
 };
 
@@ -205,6 +223,12 @@ public:
    }
 
 private:
+   /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks
+   the current thread until one of them becomes ready.
+
+   @return
+      Pointer to the context of a coroutine that’s ready to execute.
+   */
    std::shared_ptr<coroutine::context> find_coroutine_to_activate() {
       // This loop will only repeat in case of EINTR from the blocking-wait API.
       for (;;) {
