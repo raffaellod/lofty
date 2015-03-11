@@ -36,16 +36,45 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-thread::shared_data::shared_data(std::function<void ()> fnMain) :
-   m_fnInnerMain(std::move(fnMain)) {
-}
+class thread::shared_data {
+private:
+   friend class thread;
 
-thread::shared_data::~shared_data() {
-}
+public:
+   /*! Constructor
 
-void thread::shared_data::inner_main() {
-   m_fnInnerMain();
-}
+   @param fnMain
+      Initial value for m_fnInnerMain.
+   */
+   shared_data(std::function<void ()> fnMain) :
+      m_fnInnerMain(std::move(fnMain)) {
+   }
+
+   //! Destructor.
+   ~shared_data() {
+   }
+
+   //! Invokes the user-provided thread function.
+   void inner_main() {
+      m_fnInnerMain();
+   }
+
+private:
+#if ABC_HOST_API_DARWIN
+   //! Dispatch semaphore used by the new thread to report to its parent that it has started.
+   ::dispatch_semaphore_t m_dsemReady;
+#elif ABC_HOST_API_POSIX
+   //! Semaphore used by the new thread to report to its parent that it has started.
+   ::sem_t m_semReady;
+#elif ABC_HOST_API_WIN32
+   //! Event used by the new thread to report to its parent that it has started.
+   HANDLE m_hReadyEvent;
+#else
+   #error "TODO: HOST_API"
+#endif
+   //! Function to be executed in the thread.
+   std::function<void ()> m_fnInnerMain;
+};
 
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :
@@ -86,6 +115,25 @@ thread::~thread() {
       ::CloseHandle(m_h);
    }
 #endif
+}
+
+thread & thread::operator=(thread && thr) {
+   ABC_TRACE_FUNC(this/*, thr*/);
+
+   native_handle_type h(thr.m_h);
+#if ABC_HOST_API_POSIX
+   id_type tid(thr.m_id);
+#endif
+   detach();
+   m_h = h;
+#if ABC_HOST_API_POSIX
+   // pthreads does not provide a way to clear thr.m_h.
+   m_id = tid;
+   thr.m_id = 0;
+#else
+   thr.m_h = nullptr;
+#endif
+   return *this;
 }
 
 bool thread::operator==(thread const & thr) const {

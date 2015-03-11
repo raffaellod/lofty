@@ -72,40 +72,7 @@ public:
 private:
    /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
    owned by the abc::thread instance. */
-   class ABACLADE_SYM shared_data {
-   private:
-      friend class thread;
-
-   public:
-      /*! Constructor
-
-      @param fnMain
-         Initial value for m_fnInnerMain.
-      */
-      shared_data(std::function<void ()> fnMain);
-
-      //! Destructor.
-      ~shared_data();
-
-      //! Invokes the user-provided thread function.
-      void inner_main();
-
-   private:
-#if ABC_HOST_API_DARWIN
-      //! Dispatch semaphore used by the new thread to report to its parent that it has started.
-      ::dispatch_semaphore_t m_dsemReady;
-#elif ABC_HOST_API_POSIX
-      //! Semaphore used by the new thread to report to its parent that it has started.
-      ::sem_t m_semReady;
-#elif ABC_HOST_API_WIN32
-      //! Event used by the new thread to report to its parent that it has started.
-      HANDLE m_hReadyEvent;
-#else
-   #error "TODO: HOST_API"
-#endif
-      //! Function to be executed in the thread.
-      std::function<void ()> m_fnInnerMain;
-   };
+   class shared_data;
 
 public:
    /*! Constructor.
@@ -137,24 +104,7 @@ public:
    @return
       *this.
    */
-   thread & operator=(thread && thr) {
-      ABC_TRACE_FUNC(this/*, thr*/);
-
-      native_handle_type h(thr.m_h);
-#if ABC_HOST_API_POSIX
-      id_type tid(thr.m_id);
-#endif
-      detach();
-      m_h = h;
-#if ABC_HOST_API_POSIX
-      // pthreads does not provide a way to clear thr.m_h.
-      m_id = tid;
-      thr.m_id = 0;
-#else
-      thr.m_h = nullptr;
-#endif
-      return *this;
-   }
+   thread & operator=(thread && thr);
 
    /*! Equality relational operator.
 
