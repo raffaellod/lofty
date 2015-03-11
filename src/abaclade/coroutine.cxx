@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/map.hxx>
 
 #if ABC_HOST_API_POSIX
-   #include <errno.h> // EINTR errno
    #if ABC_HOST_API_DARWIN
       #define _XOPEN_SOURCE
    #endif
+   #include <errno.h> // EINTR errno
    #include <signal.h> // SIGSTKSZ
    #include <ucontext.h>
    #if ABC_HOST_API_BSD
