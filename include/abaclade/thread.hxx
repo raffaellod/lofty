@@ -73,6 +73,9 @@ private:
    /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
    owned by the abc::thread instance. */
    class ABACLADE_SYM shared_data {
+   private:
+      friend class thread;
+
    public:
       /*! Constructor
 
@@ -87,20 +90,19 @@ private:
       //! Invokes the user-provided thread function.
       void inner_main();
 
-   public:
+   private:
 #if ABC_HOST_API_DARWIN
       //! Dispatch semaphore used by the new thread to report to its parent that it has started.
-      ::dispatch_semaphore_t dsemReady;
+      ::dispatch_semaphore_t m_dsemReady;
 #elif ABC_HOST_API_POSIX
       //! Semaphore used by the new thread to report to its parent that it has started.
-      ::sem_t semReady;
+      ::sem_t m_semReady;
 #elif ABC_HOST_API_WIN32
       //! Event used by the new thread to report to its parent that it has started.
-      HANDLE hReadyEvent;
+      HANDLE m_hReadyEvent;
 #else
    #error "TODO: HOST_API"
 #endif
-   private:
       //! Function to be executed in the thread.
       std::function<void ()> m_fnInnerMain;
    };

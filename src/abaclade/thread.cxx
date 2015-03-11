@@ -195,7 +195,7 @@ thread::outer_main(void * p) {
       psd = pthr->m_psd;
 #if ABC_HOST_API_DARWIN
       ::pthread_threadid_np(nullptr, &pthr->m_id);
-      ::dispatch_semaphore_signal(psd->dsemReady);
+      ::dispatch_semaphore_signal(psd->m_dsemReady);
 #elif ABC_HOST_API_POSIX
    #if ABC_HOST_API_FREEBSD
       static_assert(
@@ -213,10 +213,10 @@ thread::outer_main(void * p) {
       #error "TODO: HOST_API"
    #endif
       // Report that this thread is done with writing to *pthr.
-      ::sem_post(&psd->semReady);
+      ::sem_post(&psd->m_semReady);
 #elif ABC_HOST_API_WIN32
       // Report that this thread is done with writing to *pthr.
-      ::SetEvent(psd->hReadyEvent);
+      ::SetEvent(psd->m_hReadyEvent);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -238,41 +238,42 @@ void thread::start() {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_DARWIN
-   m_psd->dsemReady = ::dispatch_semaphore_create(0);
-   if (!m_psd->dsemReady) {
+   m_psd->m_dsemReady = ::dispatch_semaphore_create(0);
+   if (!m_psd->m_dsemReady) {
       exception::throw_os_error();
    }
    if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
-      ::dispatch_release(m_psd->dsemReady);
+      ::dispatch_release(m_psd->m_dsemReady);
       exception::throw_os_error(iErr);
    }
    // Block until the new thread is finished updating *this.
-   ::dispatch_semaphore_wait(m_psd->dsemReady, DISPATCH_TIME_FOREVER);
-   ::dispatch_release(m_psd->dsemReady);
+   ::dispatch_semaphore_wait(m_psd->m_dsemReady, DISPATCH_TIME_FOREVER);
+   ::dispatch_release(m_psd->m_dsemReady);
 #elif ABC_HOST_API_POSIX
-   if (::sem_init(&m_psd->semReady, 0, 0)) {
+   if (::sem_init(&m_psd->m_semReady, 0, 0)) {
       exception::throw_os_error();
    }
    if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
-      ::sem_destroy(&m_psd->semReady);
+      ::sem_destroy(&m_psd->m_semReady);
       exception::throw_os_error(iErr);
    }
-   // Block until the new thread is finished updating *this. The only possible failure is EINTR.
-   while (::sem_wait(&m_psd->semReady)) {
+   /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so
+   we just keep on retrying. */
+   while (::sem_wait(&m_psd->m_semReady)) {
       ;
    }
-   ::sem_destroy(&m_psd->semReady);
+   ::sem_destroy(&m_psd->m_semReady);
 #elif ABC_HOST_API_WIN32
-   m_psd->hReadyEvent = ::CreateEvent(nullptr, true, false, nullptr);
+   m_psd->m_hReadyEvent = ::CreateEvent(nullptr, true, false, nullptr);
    m_h = ::CreateThread(nullptr, 0, &outer_main, this, 0, nullptr);
    if (!m_h) {
       DWORD iErr = ::GetLastError();
-      ::CloseHandle(m_psd->hReadyEvent);
+      ::CloseHandle(m_psd->m_hReadyEvent);
       exception::throw_os_error(iErr);
    }
    // Block until the new thread is finished updating *this. Must not fail.
-   ::WaitForSingleObject(m_psd->hReadyEvent, INFINITE);
-   ::CloseHandle(m_psd->hReadyEvent);
+   ::WaitForSingleObject(m_psd->m_hReadyEvent, INFINITE);
+   ::CloseHandle(m_psd->m_hReadyEvent);
 #else
    #error "TODO: HOST_API"
 #endif
