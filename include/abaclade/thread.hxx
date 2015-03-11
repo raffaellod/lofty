@@ -74,12 +74,20 @@ private:
    owned by the abc::thread instance. */
    class ABACLADE_SYM shared_data {
    public:
+      /*! Constructor
+
+      @param fnMain
+         Initial value for m_fnInnerMain.
+      */
+      shared_data(std::function<void ()> fnMain);
+
       //! Destructor.
-      virtual ~shared_data();
+      ~shared_data();
 
       //! Invokes the user-provided thread function.
-      virtual void inner_main() = 0;
+      void inner_main();
 
+   public:
 #if ABC_HOST_API_DARWIN
       //! Dispatch semaphore used by the new thread to report to its parent that it has started.
       ::dispatch_semaphore_t dsemReady;
@@ -92,33 +100,9 @@ private:
 #else
    #error "TODO: HOST_API"
 #endif
-   };
-
-   //! Provides an implementation for inner_main() based on the template argument.
-   template <typename F>
-   class shared_data_impl : public shared_data {
-   public:
-      /*! Constructor
-
-      @param fnMain
-         Initial value for m_fnInnerMain.
-      */
-      shared_data_impl(F fnMain) :
-         m_fnInnerMain(std::move(fnMain)) {
-      }
-
-      //! Destructor.
-      virtual ~shared_data_impl() {
-      }
-
-      //! See shared_data::inner_main().
-      virtual void inner_main() override {
-         m_fnInnerMain();
-      }
-
    private:
       //! Function to be executed in the thread.
-      F m_fnInnerMain;
+      std::function<void ()> m_fnInnerMain;
    };
 
 public:
@@ -138,31 +122,8 @@ public:
    #error "TODO: HOST_API"
 #endif
    }
-   template <typename F>
-   explicit thread(F fnMain) :
-#if ABC_HOST_API_POSIX
-      m_id(0),
-#elif ABC_HOST_API_WIN32
-      m_h(nullptr),
-#else
-   #error "TODO: HOST_API"
-#endif
-      m_psd(std::make_shared<shared_data_impl<F>>(std::move(fnMain))) {
-      start();
-   }
-   thread(thread && thr) :
-      m_h(thr.m_h),
-#if ABC_HOST_API_POSIX
-      m_id(thr.m_id),
-#endif
-      m_psd(std::move(thr.m_psd)) {
-#if ABC_HOST_API_POSIX
-      thr.m_id = 0;
-      // pthreads does not provide a way to clear thr.m_h.
-#else
-      thr.m_h = nullptr;
-#endif
-   }
+   explicit thread(std::function<void ()> fnMain);
+   thread(thread && thr);
 
    //! Destructor.
    ~thread();

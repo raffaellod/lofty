@@ -36,9 +36,44 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*virtual*/ thread::shared_data::~shared_data() {
+thread::shared_data::shared_data(std::function<void ()> fnMain) :
+   m_fnInnerMain(std::move(fnMain)) {
 }
 
+thread::shared_data::~shared_data() {
+}
+
+void thread::shared_data::inner_main() {
+   m_fnInnerMain();
+}
+
+
+/*explicit*/ thread::thread(std::function<void ()> fnMain) :
+#if ABC_HOST_API_POSIX
+   m_id(0),
+#elif ABC_HOST_API_WIN32
+   m_h(nullptr),
+#else
+   #error "TODO: HOST_API"
+#endif
+   m_psd(std::make_shared<shared_data>(std::move(fnMain))) {
+   ABC_TRACE_FUNC(this);
+
+   start();
+}
+thread::thread(thread && thr) :
+   m_h(thr.m_h),
+#if ABC_HOST_API_POSIX
+   m_id(thr.m_id),
+#endif
+   m_psd(std::move(thr.m_psd)) {
+#if ABC_HOST_API_POSIX
+   thr.m_id = 0;
+   // pthreads does not provide a way to clear thr.m_h.
+#else
+   thr.m_h = nullptr;
+#endif
+}
 
 thread::~thread() {
    ABC_TRACE_FUNC(this);
