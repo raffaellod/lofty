@@ -27,8 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/map.hxx>
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
