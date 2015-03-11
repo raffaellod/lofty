@@ -60,6 +60,8 @@ public:
       Context to return to upon termination.
    */
    void reset(::ucontext_t * puctxReturn) {
+      ABC_TRACE_FUNC(this, puctxReturn);
+
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
       }
@@ -144,12 +146,16 @@ public:
    coroutine_scheduler_impl() :
 #if ABC_HOST_API_BSD
       m_fdKqueue(::kqueue()) {
+      ABC_TRACE_FUNC(this);
+
       if (!m_fdKqueue) {
          exception::throw_os_error();
       }
       // TODO: set close-on-exec. ::kqueue1() may be available on some systems; investigate that.
 #elif ABC_HOST_API_LINUX
       m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
+      ABC_TRACE_FUNC(this);
+
       if (!m_fdEpoll) {
          exception::throw_os_error();
       }
@@ -165,6 +171,8 @@ public:
 
    //! See coroutine_scheduler::run().
    virtual void run() override {
+      ABC_TRACE_FUNC(this);
+
       while ((m_pcoroctxActive = find_coroutine_to_activate())) {
          if (::swapcontext(&m_uctxReturn, m_pcoroctxActive->ucontext_ptr()) < 0) {
             /* TODO: in case of errors, which should never happen here since all coroutines have the
@@ -177,6 +185,8 @@ public:
 
    //! See coroutine_scheduler::yield_while_async_pending().
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) override {
+      ABC_TRACE_FUNC(this, /*fd, */bWrite);
+
       // Add fd as a new event source.
 #if ABC_HOST_API_BSD
       struct ::kevent ke;
@@ -230,6 +240,8 @@ private:
       Pointer to the context of a coroutine that’s ready to execute.
    */
    std::shared_ptr<coroutine::context> find_coroutine_to_activate() {
+      ABC_TRACE_FUNC(this);
+
       // This loop will only repeat in case of EINTR from the blocking-wait API.
       for (;;) {
          if (m_listStartingCoros) {
@@ -305,6 +317,8 @@ coroutine_scheduler::~coroutine_scheduler() {
 }
 
 void coroutine_scheduler::add_coroutine(coroutine const & coro) {
+   ABC_TRACE_FUNC(this);
+
    // Add the coroutine to those ready to start.
    m_listStartingCoros.push_back(coro.m_pctx);
 }
@@ -312,6 +326,8 @@ void coroutine_scheduler::add_coroutine(coroutine const & coro) {
 /*static*/ coroutine_scheduler & coroutine_scheduler::attach_to_current_thread(
    std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
 ) {
+   ABC_TRACE_FUNC(pcorosched);
+
    if (sm_pcorosched.operator std::shared_ptr<coroutine_scheduler> const &()) {
       // The current thread already has a coroutine scheduler.
       // TODO: use a better exception class.
