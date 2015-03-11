@@ -70,6 +70,8 @@ protected:
          true if *this is an iterator to the same key/value pair as it, or false otherwise.
       */
       bool operator==(iterator_base const & it) const {
+         ABC_TRACE_FUNC(this/*, it*/);
+
          return m_pmap == it.m_pmap && m_iBucket == it.m_iBucket;
       }
 
@@ -81,6 +83,8 @@ protected:
          true if *this has a different key/value pair than it, or false otherwise.
       */
       bool operator!=(iterator_base const & it) const {
+         ABC_TRACE_FUNC(this/*, it*/);
+
          return !operator==(it);
       }
 
@@ -244,6 +248,8 @@ protected:
    void empty_bucket(
       type_void_adapter const & typeKey, type_void_adapter const & typeValue, iterator_base it
    ) {
+      ABC_TRACE_FUNC(this/*, typeKey, typeValue, it*/);
+
       it.validate();
       empty_bucket(typeKey, typeValue, it.m_iBucket);
    }
@@ -549,6 +555,8 @@ public:
          Reference to the current key/value pair.
       */
       const_value_type operator*() const {
+         ABC_TRACE_FUNC(this);
+
          validate();
          map const * pmap = static_cast<map const *>(m_pmap);
          return const_value_type(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
@@ -560,6 +568,8 @@ public:
          Pointer to the current key/value pair.
       */
       pair_ptr<const_value_type> operator->() const {
+         ABC_TRACE_FUNC(this);
+
          validate();
          map const * pmap = static_cast<map const *>(m_pmap);
          return pair_ptr<const_value_type>(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
@@ -571,6 +581,8 @@ public:
          *this.
       */
       const_iterator & operator++() {
+         ABC_TRACE_FUNC(this);
+
          validate();
          increment();
          return *this;
@@ -582,6 +594,8 @@ public:
          Iterator pointing to the previous key/value pair.
       */
       const_iterator operator++(int) {
+         ABC_TRACE_FUNC(this);
+
          validate();
          std::size_t iBucketPrev = m_iBucket;
          increment();
@@ -619,6 +633,8 @@ public:
 
       //! See const_iterator::operator*().
       value_type operator*() const {
+         ABC_TRACE_FUNC(this);
+
          this->validate();
          map const * pmap = static_cast<map const *>(this->m_pmap);
          return value_type(pmap->key_ptr(this->m_iBucket), pmap->value_ptr(this->m_iBucket));
@@ -630,6 +646,8 @@ public:
          Pointer to the current key/value pair.
       */
       pair_ptr<value_type> operator->() const {
+         ABC_TRACE_FUNC(this);
+
          this->validate();
          map const * pmap = static_cast<map const *>(this->m_pmap);
          return pair_ptr<value_type>(
@@ -699,6 +717,8 @@ public:
       Value corresponding to key. If key is not in the map, an exception will be thrown.
    */
    TValue & operator[](TKey const & key) const {
+      ABC_TRACE_FUNC(this/*, key*/);
+
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
@@ -722,6 +742,8 @@ public:
       corresponding value was overwritten.
    */
    std::pair<iterator, bool> add_or_assign(TKey key, TValue value) {
+      ABC_TRACE_FUNC(this/*, key, value*/);
+
       detail::type_void_adapter typeKey, typeValue;
 //      typeKey.set_copy_fn<TKey>();
       typeKey.set_destr_fn<TKey>();
@@ -775,6 +797,8 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
+      ABC_TRACE_FUNC(this);
+
       detail::type_void_adapter typeKey, typeValue;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_size<TKey>();
@@ -803,6 +827,8 @@ public:
       Key associated to the value to extract.
    */
    TValue extract(const_iterator it) {
+      ABC_TRACE_FUNC(this/*, it*/);
+
       it.validate();
       TValue value(std::move(*value_ptr(it.m_iBucket)));
       detail::type_void_adapter typeKey, typeValue;
@@ -814,6 +840,8 @@ public:
       return std::move(value);
    }
    TValue extract(TKey const & key) {
+      ABC_TRACE_FUNC(this/*, key*/);
+
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
@@ -838,6 +866,8 @@ public:
       Iterator to the matching key/value, or cend() if the key could not be found.
    */
    iterator find(TKey const & key) {
+      ABC_TRACE_FUNC(this/*, key*/);
+
       std::size_t iBucket = lookup_key(key);
       return iterator(this, iBucket);
    }
@@ -850,6 +880,8 @@ public:
       Key associated to the value to remove.
    */
    void remove(const_iterator it) {
+      ABC_TRACE_FUNC(this/*, it*/);
+
       detail::type_void_adapter typeKey, typeValue;
       typeKey.set_destr_fn<TKey>();
       typeKey.set_size<TKey>();
@@ -858,6 +890,8 @@ public:
       empty_bucket(typeKey, typeValue, it);
    }
    void remove(TKey const & key) {
+      ABC_TRACE_FUNC(this/*, key*/);
+
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
