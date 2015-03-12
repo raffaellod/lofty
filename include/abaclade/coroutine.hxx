@@ -118,6 +118,14 @@ public:
    coroutine added with add_coroutine() returns. */
    virtual void run() = 0;
 
+   /*! Allows other coroutines to run, preventing this coroutine from being rescheduled until at
+   least iMillisecs milliseconds have passed.
+
+   @param iMillisecs
+      Minimum duration for which to yield to other coroutines.
+   */
+   virtual void yield_for(unsigned iMillisecs) = 0;
+
    /*! Allows other coroutines to run while the asynchronous I/O operation completes, as an
    alternative to blocking while waiting for its completion.
 

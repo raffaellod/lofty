@@ -34,6 +34,7 @@ You should have received a copy of the GNU General Public License along with Aba
       #include <sys/time.h>
    #elif ABC_HOST_API_LINUX
       #include <sys/epoll.h>
+      #include <sys/timerfd.h>
    #endif
 #endif
 
@@ -167,7 +168,7 @@ public:
 
    //! Destructor.
    virtual ~coroutine_scheduler_impl() {
-      // TODO: verify that m_listStartingCoros and m_mapBlockedCoros are empty.
+      // TODO: verify that m_listStartingCoros and m_mapCorosBlockedByFD are empty.
    }
 
    //! See coroutine_scheduler::run().
@@ -184,6 +185,75 @@ public:
       m_pcoroctxActive.reset();
    }
 
+   //! See coroutine_scheduler::yield_for().
+   virtual void yield_for(unsigned iMillisecs) override {
+      ABC_TRACE_FUNC(this, iMillisecs);
+
+      // TODO: handle iMillisecs == 0 as a timer-less yield.
+
+#if ABC_HOST_API_BSD
+      coroutine::context * pcoroctxActive = m_pcoroctxActive.get();
+      struct ::kevent ke;
+      ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
+      // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
+      ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
+      ke.filter = EVFILT_TIMER;
+      ke.data = iMillisecs;
+      if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+         exception::throw_os_error();
+      }
+      // Deactivate the current coroutine and find one to activate instead.
+      auto itBlockedCoro(
+         m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(m_pcoroctxActive)).first
+      );
+      try {
+         m_pcoroctxActive = find_coroutine_to_activate();
+      } catch (...) {
+         // If anything went wrong, restore the coroutine that was active.
+         m_pcoroctxActive = m_mapCorosBlockedByTimer.extract(itBlockedCoro);
+         throw;
+      }
+      /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
+      active, switch to it. */
+      if (m_pcoroctxActive.get() != pcoroctxActive) {
+         if (::swapcontext(pcoroctxActive->ucontext_ptr(), m_pcoroctxActive->ucontext_ptr()) < 0) {
+            /* TODO: in case of errors, which should never happen here since all coroutines have the
+            same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
+         }
+      }
+#elif ABC_HOST_API_LINUX
+      // TODO: use a pool of inactive timers instead of creating and destroying them each time.
+      io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
+      if (!fd) {
+         exception::throw_os_error();
+      }
+      // Arm the timer.
+      ::itimerspec its;
+      its.it_interval.tv_sec = 0;
+      its.it_interval.tv_nsec = 0;
+      its.it_value.tv_sec = static_cast< ::time_t>(iMillisecs / 1000u);
+      its.it_value.tv_nsec = static_cast<long>(
+         static_cast<unsigned long>(iMillisecs % 1000u) * 1000000u
+      );
+      if (::timerfd_settime(fd.get(), 0, &its, nullptr) < 0) {
+         exception::throw_os_error();
+      }
+      // This timer is now active (save exceptions ‒ see catch (...) below).
+      auto itActiveTimer(m_mapActiveTimers.add_or_assign(fd.get(), std::move(fd)).first);
+      // At this point the timer is just a file descriptor that we’ll be waiting to read from.
+      try {
+         yield_while_async_pending(itActiveTimer->value.get(), false);
+      } catch (...) {
+         // Remove the timer from the set of active ones.
+         // TODO: recycle the timer, putting it back in the pool of inactive timers.
+         m_mapActiveTimers.remove(itActiveTimer);
+         throw;
+      }
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
    //! See coroutine_scheduler::yield_while_async_pending().
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) override {
       ABC_TRACE_FUNC(this, /*fd, */bWrite);
@@ -193,7 +263,7 @@ public:
       struct ::kevent ke;
       ke.ident = static_cast<std::uintptr_t>(fd.get());
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-      ke.flags = EV_ADD | EV_ONESHOT | EV_EOF ;
+      ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
       if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
@@ -214,13 +284,13 @@ public:
       // Deactivate the current coroutine and find one to activate instead.
       coroutine::context * pcoroctxActive = m_pcoroctxActive.get();
       auto itBlockedCoro(
-         m_mapBlockedCoros.add_or_assign(fd.get(), std::move(m_pcoroctxActive)).first
+         m_mapCorosBlockedByFD.add_or_assign(fd.get(), std::move(m_pcoroctxActive)).first
       );
       try {
          m_pcoroctxActive = find_coroutine_to_activate();
       } catch (...) {
          // If anything went wrong, restore the coroutine that was active.
-         m_pcoroctxActive = m_mapBlockedCoros.extract(itBlockedCoro);
+         m_pcoroctxActive = m_mapCorosBlockedByFD.extract(itBlockedCoro);
          throw;
       }
       /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
@@ -252,7 +322,7 @@ private:
             coroutine return to? */
             pcoroctx->reset(&m_uctxReturn);
             return std::move(pcoroctx);
-         } else if (m_mapBlockedCoros) {
+         } else if (m_mapCorosBlockedByFD) {
             // There are blocked coroutines; wait for the first one to become ready again.
 #if ABC_HOST_API_BSD
             struct ::kevent ke;
@@ -269,16 +339,25 @@ private:
                }
                exception::throw_os_error(iErr);
             }
-            io::filedesc_t fd;
 #if ABC_HOST_API_BSD
-            fd = static_cast<int>(ke.ident);
+            if (ke.filter == EVFILT_TIMER) {
+               // Remove and return the coroutine that was waiting for the timer.
+               return m_mapCorosBlockedByTimer.extract(ke.ident);
+            } else {
+               // Remove and return the coroutine that was waiting for the file descriptor.
+               return m_mapCorosBlockedByFD.extract(static_cast<int>(ke.ident));
+            }
 #elif ABC_HOST_API_LINUX
-            fd = ee.data.fd;
             // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do aobut them.
-            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
+            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, ee.data.fd, nullptr);
+            auto itActiveTimer(m_mapActiveTimers.find(ee.data.fd));
+            if (itActiveTimer != m_mapActiveTimers.cend()) {
+               // TODO: move the timer to the inactive timers pool.
+               m_mapActiveTimers.remove(itActiveTimer);
+            }
+            // Remove and return the coroutine that was waiting for the file descriptor.
+            return m_mapCorosBlockedByFD.extract(ee.data.fd);
 #endif
-            // Remove from m_mapBlockedCoros and return the coroutine that was waiting for fd.
-            return m_mapBlockedCoros.extract(fd);
          } else {
             return nullptr;
          }
@@ -289,14 +368,21 @@ private:
 #if ABC_HOST_API_BSD
    //! File descriptor of the internal kqueue.
    io::filedesc m_fdKqueue;
+   /*! Coroutines that are blocked on a timer wait. The key is the same as the value, but this can’t
+   be changed into a set<shared_ptr<context>> because we need it to hold a strong reference to the
+   coroutine context while allowing lookups without having a shared_ptr. */
+   collections::map<std::uintptr_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
+   /*! Timers currently being waited for. The key is the same as the value, but this can’t be
+   changed into a set<io::filedesc> until io::filedesc is hashable. */
+   collections::map<io::filedesc_t, io::filedesc> m_mapActiveTimers;
 #else
    #error "TODO: HOST_API"
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapBlockedCoros;
+   collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByFD;
    //! Coroutine context that every coroutine eventually returns to.
    ::ucontext_t m_uctxReturn;
 };
