@@ -49,41 +49,49 @@ public:
       pcorosched->add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
+         io::text::stdout()->write_line(ABC_SL("reader: starting"));
          for (;;) {
             int i;
-            io::text::stdout()->print(ABC_SL("reading\n"));
+            io::text::stdout()->print(ABC_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
             std::size_t cbRead = pair.first->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
-            io::text::stdout()->print(ABC_SL("read {}\n"), i);
+            io::text::stdout()->print(ABC_SL("reader: read {}\n"), i);
             if (!cbRead) {
                // Detect EOF.
                break;
             }
             // Consume i.
          }
-         io::text::stdout()->write_line(ABC_SL("reader terminating"));
+         io::text::stdout()->write_line(ABC_SL("reader: terminating"));
       }));
 
       // Schedule the writer.
       pcorosched->add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
+         io::text::stdout()->write_line(ABC_SL("writer: starting"));
          ABC_FOR_EACH(int i, make_range(1, 10)) {
-            io::text::stdout()->print(ABC_SL("writing {}\n"), i);
+            io::text::stdout()->print(ABC_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
             pair.second->write(&i, sizeof i);
+            // Execution resumes here, after other coroutines have received CPU time.
+
+            /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
+            scheduled, as well as create a more realistic non-continuous data flow into the pipe. */
+            io::text::stdout()->write_line(ABC_SL("writer: yielding"));
+            this_thread::coroutine_scheduler()->yield_for(50);
             // Execution resumes here, after other coroutines have received CPU time.
          }
          // Close the writing end of the pipe to report EOF on the reading end.
          pair.second.reset();
-         io::text::stdout()->write_line(ABC_SL("writer terminating"));
+         io::text::stdout()->write_line(ABC_SL("writer: terminating"));
       }));
 
       // Switch this thread to run coroutines, until they all terminate.
       pcorosched->run();
       // Execution resumes here, after all coroutines have terminated.
-      io::text::stdout()->write_line(ABC_SL("main terminating"));
+      io::text::stdout()->write_line(ABC_SL("main: terminating"));
       return 0;
    }
 };
