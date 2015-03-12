@@ -324,7 +324,7 @@ void coroutine_scheduler::add(coroutine const & coro) {
    m_listStartingCoros.push_back(coro.m_pctx);
 }
 
-/*static*/ coroutine_scheduler & coroutine_scheduler::attach_to_current_thread(
+/*static*/ std::shared_ptr<coroutine_scheduler> const & coroutine_scheduler::attach_to_this_thread(
    std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
 ) {
    ABC_TRACE_FUNC(pcorosched);
@@ -337,9 +337,7 @@ void coroutine_scheduler::add(coroutine const & coro) {
    if (!pcorosched) {
       pcorosched = std::make_shared<coroutine_scheduler_impl>();
    }
-   return *(
-      sm_pcorosched = std::move(pcorosched)
-   ).operator std::shared_ptr<coroutine_scheduler> const &();
+   return (sm_pcorosched = std::move(pcorosched));
 }
 
 } //namespace abc

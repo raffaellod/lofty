@@ -83,7 +83,7 @@ public:
 
    void add(coroutine const & coro);
 
-   static coroutine_scheduler & attach_to_current_thread(
+   static std::shared_ptr<coroutine_scheduler> const & attach_to_this_thread(
       std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
    );
 

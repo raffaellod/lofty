@@ -40,13 +40,13 @@ public:
    virtual int main(collections::mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      coroutine_scheduler & corosched = coroutine_scheduler::attach_to_current_thread();
+      auto & pcorosched = coroutine_scheduler::attach_to_this_thread();
 
       // Open a pipe in asynchronous I/O mode.
       auto pair(io::binary::pipe(true));
 
       // Schedule the reader.
-      corosched.add(coroutine([this, &pair] () -> void {
+      pcorosched->add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          for (;;) {
@@ -66,7 +66,7 @@ public:
       }));
 
       // Schedule the writer.
-      corosched.add(coroutine([this, &pair] () -> void {
+      pcorosched->add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          ABC_FOR_EACH(int i, make_range(1, 10)) {
@@ -81,7 +81,7 @@ public:
       }));
 
       // Switch this thread to run coroutines, until they all terminate.
-      corosched.run();
+      pcorosched->run();
       // Execution resumes here, after all coroutines have terminated.
       io::text::stdout()->write_line(ABC_SL("main terminating"));
       return 0;
