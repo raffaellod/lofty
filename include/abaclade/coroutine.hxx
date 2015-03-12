@@ -75,9 +75,6 @@ namespace abc {
 //! Schedules coroutine execution.
 class ABACLADE_SYM coroutine_scheduler : public noncopyable {
 public:
-   //! Constructor.
-   coroutine_scheduler();
-
    //! Destructor.
    virtual ~coroutine_scheduler();
 
@@ -104,6 +101,10 @@ public:
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
    */
    virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) = 0;
+
+protected:
+   //! Constructor.
+   coroutine_scheduler();
 
 protected:
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
