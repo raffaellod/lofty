@@ -46,7 +46,7 @@ public:
       auto pair(io::binary::pipe(true));
 
       // Schedule the reader.
-      corosched.add_coroutine(coroutine([this, &pair] () -> void {
+      corosched.add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          for (;;) {
@@ -66,7 +66,7 @@ public:
       }));
 
       // Schedule the writer.
-      corosched.add_coroutine(coroutine([this, &pair] () -> void {
+      corosched.add(coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          ABC_FOR_EACH(int i, make_range(1, 10)) {

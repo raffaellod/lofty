@@ -81,7 +81,7 @@ public:
    //! Destructor.
    virtual ~coroutine_scheduler();
 
-   void add_coroutine(coroutine const & coro);
+   void add(coroutine const & coro);
 
    static coroutine_scheduler & attach_to_current_thread(
       std::shared_ptr<coroutine_scheduler> pcorosched = nullptr

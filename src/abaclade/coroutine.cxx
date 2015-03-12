@@ -317,7 +317,7 @@ coroutine_scheduler::coroutine_scheduler() :
 coroutine_scheduler::~coroutine_scheduler() {
 }
 
-void coroutine_scheduler::add_coroutine(coroutine const & coro) {
+void coroutine_scheduler::add(coroutine const & coro) {
    ABC_TRACE_FUNC(this);
 
    // Add the coroutine to those ready to start.
