@@ -198,7 +198,12 @@ public:
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       ke.filter = EVFILT_TIMER;
+   #if ABC_HOST_API_DARWIN
+      ke.fflags = NOTE_USECONDS;
+      ke.data = iMillisecs * 1000u;
+   #else
       ke.data = iMillisecs;
+   #endif
       if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
@@ -340,6 +345,10 @@ private:
                exception::throw_os_error(iErr);
             }
 #if ABC_HOST_API_BSD
+            // TODO: understand how EV_ERROR works.
+            /*if (ke.flags & EV_ERROR) {
+               exception::throw_os_error(ke.data);
+            }*/
             if (ke.filter == EVFILT_TIMER) {
                // Remove and return the coroutine that was waiting for the timer.
                return m_mapCorosBlockedByTimer.extract(ke.ident);
