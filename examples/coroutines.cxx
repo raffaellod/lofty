@@ -40,7 +40,7 @@ public:
    virtual int main(collections::mvector<istr const> const & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      auto & pcorosched = coroutine_scheduler::attach_to_this_thread();
+      auto & pcorosched = this_thread::attach_coroutine_scheduler();
 
       // Open a pipe in asynchronous I/O mode.
       auto pair(io::binary::pipe(true));

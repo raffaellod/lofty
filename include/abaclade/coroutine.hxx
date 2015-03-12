@@ -27,6 +27,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/thread.hxx>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
@@ -72,21 +74,45 @@ private:
 
 namespace abc {
 
+// Forward declaration.
+class coroutine_scheduler;
+
+namespace this_thread {
+
+/*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
+required for the current thread to run coroutines.
+
+@return
+   Coroutine scheduler associated to this thread. If pcorosched was non-nullptr, this is the same as
+   pcorosched.
+*/
+ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
+   std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
+);
+
+/*! Returns the coroutine scheduler associated to the current thread, if any.
+
+@return
+   Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was
+   never called for the current thread.
+*/
+ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & coroutine_scheduler();
+
+} //namespace this_thread
+
 //! Schedules coroutine execution.
 class ABACLADE_SYM coroutine_scheduler : public noncopyable {
+private:
+   friend std::shared_ptr<coroutine_scheduler> const & this_thread::attach_coroutine_scheduler(
+      std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
+   );
+   friend std::shared_ptr<coroutine_scheduler> const & this_thread::coroutine_scheduler();
+
 public:
    //! Destructor.
    virtual ~coroutine_scheduler();
 
    void add(coroutine const & coro);
-
-   static std::shared_ptr<coroutine_scheduler> const & attach_to_this_thread(
-      std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
-   );
-
-   static std::shared_ptr<coroutine_scheduler> const & get_for_current_thread() {
-      return sm_pcorosched;
-   }
 
    /*! Begins scheduling and running coroutines on the current thread. Only returns after every
    coroutine added with add_coroutine() returns. */
@@ -114,6 +140,16 @@ protected:
    //! Pointer to the coroutine_scheduler for the current thread.
    static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
 };
+
+
+// Now this can be defined.
+namespace this_thread {
+
+inline std::shared_ptr<class coroutine_scheduler> const & coroutine_scheduler() {
+   return coroutine_scheduler::sm_pcorosched;
+}
+
+} //namespace this_thread
 
 } //namespace abc
 
