@@ -61,7 +61,17 @@ public:
                // Detect EOF.
                break;
             }
+
             // Consume i.
+            if (i == 3) {
+               // Add a coroutine that will display a message in a quarter of a second.
+               this_thread::coroutine_scheduler()->add(coroutine([] () -> void {
+                  io::text::stdout()->write_line(ABC_SL("delayed message: starting"));
+                  this_thread::coroutine_scheduler()->yield_for(250);
+                  io::text::stdout()->write_line(ABC_SL("delayed message: this is it"));
+                  io::text::stdout()->write_line(ABC_SL("delayed message: terminating"));
+               }));
+            }
          }
          io::text::stdout()->write_line(ABC_SL("reader: terminating"));
       }));
