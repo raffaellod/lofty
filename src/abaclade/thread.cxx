@@ -246,25 +246,12 @@ thread::outer_main(void * p) {
    {
       thread * pthr = static_cast<thread *>(p);
       psd = pthr->m_psd;
+#if ABC_HOST_API_POSIX
+      pthr->m_id = this_thread::id();
+#endif
 #if ABC_HOST_API_DARWIN
-      ::pthread_threadid_np(nullptr, &pthr->m_id);
       ::dispatch_semaphore_signal(psd->m_dsemReady);
 #elif ABC_HOST_API_POSIX
-   #if ABC_HOST_API_FREEBSD
-      static_assert(
-         sizeof pthr->m_id == sizeof(decltype(::pthread_getthreadid_np())),
-         "return value of pthread_getthreadid_np() must be the same size as thread::m_id"
-      );
-      pthr->m_id = ::pthread_getthreadid_np();
-   #elif ABC_HOST_API_LINUX
-      static_assert(
-         sizeof pthr->m_id == sizeof(::pid_t), "pid_t must be the same size as native_handle_type"
-      );
-      // This is a call to ::gettid().
-      pthr->m_id = static_cast< ::pid_t>(::syscall(SYS_gettid));
-   #else
-      #error "TODO: HOST_API"
-   #endif
       // Report that this thread is done with writing to *pthr.
       ::sem_post(&psd->m_semReady);
 #elif ABC_HOST_API_WIN32
@@ -332,6 +319,39 @@ void thread::start() {
 #endif
 }
 
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::thread
+
+namespace abc {
+namespace this_thread {
+
+thread::id_type id() {
+#if ABC_HOST_API_DARWIN
+   thread::id_type id;
+   ::pthread_threadid_np(nullptr, &id);
+   return id;
+#elif ABC_HOST_API_FREEBSD
+   static_assert(
+      sizeof(thread::id_type) == sizeof(decltype(::pthread_getthreadid_np())),
+      "return type of ::pthread_getthreadid_np() must be the same size as thread::id_type"
+   );
+   return ::pthread_getthreadid_np();
+#elif ABC_HOST_API_LINUX
+   static_assert(
+      sizeof(thread::id_type) == sizeof(::pid_t), "::pid_t must be the same size as thread::id_type"
+   );
+   // This is a call to ::gettid().
+   return static_cast< ::pid_t>(::syscall(SYS_gettid));
+#elif ABC_HOST_API_WIN32
+   return ::GetCurrentThreadId();
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+} //namespace this_thread
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

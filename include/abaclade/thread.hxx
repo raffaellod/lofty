@@ -189,5 +189,22 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::this_thread
+
+namespace abc {
+//! Functions that can only affect the current thread. Replacement for std::this_thread.
+namespace this_thread {
+
+/*! Returns a process-wide unique ID for the current thread.
+
+@return
+   Unique ID representing the current thread.
+*/
+ABACLADE_SYM thread::id_type id();
+
+} //namespace this_thread
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif //ifndef _ABACLADE_THREAD_HXX
