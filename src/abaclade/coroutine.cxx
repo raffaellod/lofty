@@ -204,7 +204,8 @@ public:
    #else
       ke.data = iMillisecs;
    #endif
-      if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+      ::timespec ts = { 0, 0 };
+      if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
          exception::throw_os_error();
       }
       // Deactivate the current coroutine and find one to activate instead.
@@ -270,7 +271,8 @@ public:
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
-      if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+      ::timespec ts = { 0, 0 };
+      if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
          exception::throw_os_error();
       }
 #elif ABC_HOST_API_LINUX
