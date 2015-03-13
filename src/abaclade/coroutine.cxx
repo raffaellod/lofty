@@ -64,6 +64,10 @@ public:
    void reset(::ucontext_t * puctxReturn) {
       ABC_TRACE_FUNC(this, puctxReturn);
 
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
       }
@@ -71,6 +75,9 @@ public:
       m_uctx.uc_stack.ss_size = sizeof m_aiStack;
       m_uctx.uc_link = puctxReturn;
       ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
@@ -371,6 +378,10 @@ private:
       if (m_pcoroctxActive.get() == pcoroctxFormerActive) {
          return;
       }
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
       if (::swapcontext(
          pcoroctxFormerActive ? pcoroctxFormerActive->ucontext_ptr() : &m_uctxReturn,
          m_pcoroctxActive->ucontext_ptr()
@@ -379,6 +390,9 @@ private:
          same stack size, inject a stack overflow exception in *m_pcoroctxActive ‒ in a way that
          works when the stack has already overflowed. */
       }
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
    }
 
 private:
