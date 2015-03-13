@@ -319,7 +319,12 @@ private:
             coroutine return to? */
             pcoroctx->reset(&m_uctxReturn);
             return std::move(pcoroctx);
-         } else if (m_mapCorosBlockedByFD) {
+         } else if (
+            m_mapCorosBlockedByFD
+#if ABC_HOST_API_BSD
+            || m_mapCorosBlockedByTimer
+#endif
+         ) {
             // There are blocked coroutines; wait for the first one to become ready again.
 #if ABC_HOST_API_BSD
             struct ::kevent ke;
