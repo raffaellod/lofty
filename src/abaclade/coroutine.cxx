@@ -176,10 +176,7 @@ public:
       ABC_TRACE_FUNC(this);
 
       while ((m_pcoroctxActive = find_coroutine_to_activate())) {
-         if (::swapcontext(&m_uctxReturn, m_pcoroctxActive->ucontext_ptr()) < 0) {
-            /* TODO: in case of errors, which should never happen here since all coroutines have the
-            same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
-         }
+         switch_to_active(nullptr);
       }
       // Release the last coroutine.
       m_pcoroctxActive.reset();
@@ -219,14 +216,7 @@ public:
          m_pcoroctxActive = m_mapCorosBlockedByTimer.extract(itBlockedCoro);
          throw;
       }
-      /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
-      active, switch to it. */
-      if (m_pcoroctxActive.get() != pcoroctxActive) {
-         if (::swapcontext(pcoroctxActive->ucontext_ptr(), m_pcoroctxActive->ucontext_ptr()) < 0) {
-            /* TODO: in case of errors, which should never happen here since all coroutines have the
-            same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
-         }
-      }
+      switch_to_active(pcoroctxActive);
 #elif ABC_HOST_API_LINUX
       // TODO: use a pool of inactive timers instead of creating and destroying them each time.
       io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
@@ -300,14 +290,7 @@ public:
          m_pcoroctxActive = m_mapCorosBlockedByFD.extract(itBlockedCoro);
          throw;
       }
-      /* If the context changed, i.e. the coroutine that’s ready to run is not the one that was
-      active, switch to it. */
-      if (m_pcoroctxActive.get() != pcoroctxActive) {
-         if (::swapcontext(pcoroctxActive->ucontext_ptr(), m_pcoroctxActive->ucontext_ptr()) < 0) {
-            /* TODO: in case of errors, which should never happen here since all coroutines have the
-            same stack size, inject a stack overflow exception in *m_pcoroctxActive. */
-         }
-      }
+      switch_to_active(pcoroctxActive);
    }
 
 private:
@@ -375,13 +358,36 @@ private:
       }
    }
 
+   /*! Switches context to the coroutine context pointed to by m_pcoroctxActive, swapping the
+   current context out to *pcoroctxFormerActive or m_uctxReturn if no context was previously active.
+
+   @param pcoroctxFormerActive
+      Pointer to the formerly-active coroutine context; if nullptr, the internal return context will
+      be used.
+   */
+   void switch_to_active(coroutine::context * pcoroctxFormerActive) {
+      /* Nothing to do if the context hasn’t changed, i.e. the coroutine that’s ready to run is the
+      same that was active. */
+      if (m_pcoroctxActive.get() == pcoroctxFormerActive) {
+         return;
+      }
+      if (::swapcontext(
+         pcoroctxFormerActive ? pcoroctxFormerActive->ucontext_ptr() : &m_uctxReturn,
+         m_pcoroctxActive->ucontext_ptr()
+      ) < 0) {
+         /* TODO: in case of errors, which should never happen here since all coroutines have the
+         same stack size, inject a stack overflow exception in *m_pcoroctxActive ‒ in a way that
+         works when the stack has already overflowed. */
+      }
+   }
+
 private:
 #if ABC_HOST_API_BSD
    //! File descriptor of the internal kqueue.
    io::filedesc m_fdKqueue;
-   /*! Coroutines that are blocked on a timer wait. The key is the same as the value, but this can’t
-   be changed into a set<shared_ptr<context>> because we need it to hold a strong reference to the
-   coroutine context while allowing lookups without having a shared_ptr. */
+   /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this
+   can’t be changed into a set<shared_ptr<context>> because we need it to hold a strong reference to
+   the coroutine context while allowing lookups without having a shared_ptr. */
    collections::map<std::uintptr_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
