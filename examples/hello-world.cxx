@@ -25,11 +25,11 @@ then it terminates. See the source code for line-by-line comments.
 
 // This should always be the first file included in any C++ source using Abaclade.
 #include <abaclade.hxx>
-// This needs to be included in the .cxx file that defines the application class for the program –
-// see below.
+/* This needs to be included in the .cxx file that defines the application class for the program –
+see below. */
 #include <abaclade/app.hxx>
-// Abaclade does not use “using” directives in its sources or header files; if you want such
-// convenience, you have to write it yourself in your own source files.
+/* Abaclade does not use “using namespace” directives in its sources or header files; if you want
+such convenience, you have to write it yourself in your own source files. */
 using namespace abc;
 
 
@@ -44,20 +44,20 @@ public:
    /*! This method is invoked when the program starts; returning from this method causes the end of
    the program.
 
-   vsArgs
+   @param vsArgs
       This vector contains all the arguments that were provided to the program via command line.
-   return
+   @return
       The return value of this method will be available to the parent process as this program’s
       return value, accessible in a shell/command prompt as $? (Linux/POSIX) or %ERRORLEVEL%
       (Win32).
    */
    virtual int main(collections::mvector<istr const> const & vsArgs) override {
-      // This should be the first line of every function/method; it allows to inspect the values of
-      // the method’s arguments when an exception is raised during the execution of the method.
+      /* This should be the first line of every function/method; it allows to inspect the values of
+      the method’s arguments when an exception is raised during the execution of the method. */
       ABC_TRACE_FUNC(this, vsArgs);
 
-      // Write “Hello World” into the stdout text writer object. ABC_SL() indicates a string literal
-      // in the platform-specific Unicode Transformation Format (UTF-8 or UTF-16).
+      /* Write “Hello World” into the stdout text writer object. ABC_SL() indicates a string literal
+      in the platform-specific Unicode Transformation Format (UTF-8 or UTF-16). */
       io::text::stdout()->write_line(ABC_SL("Hello World"));
 
       // Make this program return 0 to the parent process.

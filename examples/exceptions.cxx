@@ -37,9 +37,9 @@ class exceptions_app : public app {
 public:
    /*! Main function of the program.
 
-   vsArgs
+   @param vsArgs
       Arguments that were provided to this program via command line.
-   return
+   @return
       Return value of this program.
    */
    virtual int main(collections::mvector<istr const> const & vsArgs) override {
