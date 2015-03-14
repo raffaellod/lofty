@@ -96,7 +96,7 @@ ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & attach_coroutine_sched
    Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was
    never called for the current thread.
 */
-ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & coroutine_scheduler();
+ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & get_coroutine_scheduler();
 
 } //namespace this_thread
 
@@ -106,7 +106,7 @@ private:
    friend std::shared_ptr<coroutine_scheduler> const & this_thread::attach_coroutine_scheduler(
       std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
    );
-   friend std::shared_ptr<coroutine_scheduler> const & this_thread::coroutine_scheduler();
+   friend std::shared_ptr<coroutine_scheduler> const & this_thread::get_coroutine_scheduler();
 
 public:
    //! Destructor.
@@ -153,7 +153,7 @@ protected:
 // Now this can be defined.
 namespace this_thread {
 
-inline std::shared_ptr<class coroutine_scheduler> const & coroutine_scheduler() {
+inline std::shared_ptr<class coroutine_scheduler> const & get_coroutine_scheduler() {
    return coroutine_scheduler::sm_pcorosched;
 }
 
