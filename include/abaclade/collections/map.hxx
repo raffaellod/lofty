@@ -480,27 +480,6 @@ public:
    //! Functor that can compare two TKey instances for equality.
    typedef TKeyEqual key_equal;
 
-   //! Key/value type.
-   struct value_type {
-      TKey   & key;
-      TValue & value;
-
-      value_type(TKey * pkey, TValue * pvalue) :
-         key(*pkey), value(*pvalue) {
-      }
-   };
-
-   //! Const key/value type.
-   struct const_value_type {
-      TKey   const & key;
-      TValue const & value;
-
-      //! Constructor. See value_type::value_type().
-      const_value_type(TKey const * pkey, TValue const * pvalue) :
-         key(*pkey), value(*pvalue) {
-      }
-   };
-
    /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact
    includes the object it points to.
 
@@ -539,10 +518,26 @@ public:
 
    //! Const iterator type.
    class const_iterator :
-      public map_impl::iterator_base,
-      public std::iterator<std::forward_iterator_tag, const_value_type> {
+      public map_impl::iterator_base {
    private:
       friend class map;
+
+   public:
+      //! Const key/value type.
+      struct value_type {
+         TKey   const & key;
+         TValue const & value;
+
+         //! Constructor. See value_type::value_type().
+         value_type(TKey const * pkey, TValue const * pvalue) :
+            key(*pkey), value(*pvalue) {
+         }
+      };
+
+      typedef std::ptrdiff_t difference_type;
+      typedef std::forward_iterator_tag iterator_category;
+      typedef value_type * pointer;
+      typedef value_type & reference;
 
    public:
       //! Constructor.
@@ -554,12 +549,12 @@ public:
       @return
          Reference to the current key/value pair.
       */
-      const_value_type operator*() const {
+      value_type operator*() const {
          ABC_TRACE_FUNC(this);
 
          validate();
          map const * pmap = static_cast<map const *>(m_pmap);
-         return const_value_type(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
+         return value_type(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
       }
 
       /*! Dereferencing member access operator.
@@ -567,12 +562,12 @@ public:
       @return
          Pointer to the current key/value pair.
       */
-      pair_ptr<const_value_type> operator->() const {
+      pair_ptr<value_type> operator->() const {
          ABC_TRACE_FUNC(this);
 
          validate();
          map const * pmap = static_cast<map const *>(m_pmap);
-         return pair_ptr<const_value_type>(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
+         return pair_ptr<value_type>(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
       }
 
       /*! Preincrement operator.
@@ -611,20 +606,23 @@ public:
 
    //! Iterator type.
    class iterator :
-      public const_iterator,
-      public std::iterator<std::forward_iterator_tag, value_type> {
+      public const_iterator {
    private:
       friend class map;
-      // Shortcut.
-      typedef std::iterator<std::forward_iterator_tag, value_type> std_iterator;
 
    public:
-      // These are inherited from both base classes, so resolve the ambiguity.
-      using typename std_iterator::difference_type;
-      using typename std_iterator::iterator_category;
-      using typename std_iterator::pointer;
-      using typename std_iterator::reference;
-      using typename std_iterator::value_type;
+      //! Key/value type.
+      struct value_type {
+         TKey   & key;
+         TValue & value;
+
+         value_type(TKey * pkey, TValue * pvalue) :
+            key(*pkey), value(*pvalue) {
+         }
+      };
+
+      typedef value_type * pointer;
+      typedef value_type & reference;
 
    public:
       //! Constructor.
@@ -681,6 +679,9 @@ public:
          const_iterator(it) {
       }
    };
+
+   typedef typename iterator::value_type value_type;
+   typedef typename const_iterator::value_type const_value_type;
 
 public:
    /*! Constructor.

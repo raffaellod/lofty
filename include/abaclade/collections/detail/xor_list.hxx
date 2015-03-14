@@ -231,20 +231,15 @@ public:
    // Partial specialization for non-const TValue.
    template <typename TNode, typename TValue>
    class iterator<TNode, TValue, false> :
-      public iterator<TNode, typename std::add_const<TValue>::type, true>,
-      public std::iterator<std::forward_iterator_tag, TValue> {
+      public iterator<TNode, typename std::add_const<TValue>::type, true> {
    private:
-      // Shortcuts.
+      // Shortcut.
       typedef iterator<TNode, typename std::add_const<TValue>::type, true> const_iterator;
-      typedef std::iterator<std::forward_iterator_tag, TValue> std_iterator;
 
    public:
-      // These are inherited from both base classes, so resolve the ambiguity.
-      using typename std_iterator::difference_type;
-      using typename std_iterator::iterator_category;
-      using typename std_iterator::pointer;
-      using typename std_iterator::reference;
-      using typename std_iterator::value_type;
+      typedef TValue * pointer;
+      typedef TValue & reference;
+      typedef TValue value_type;
 
    public:
       //! See const_iterator::const_iterator().

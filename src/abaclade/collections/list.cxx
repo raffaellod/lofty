@@ -43,7 +43,7 @@ list_impl::list_impl(list_impl && l) :
    l.m_pnLast = nullptr;
    m_iRev = 0;
    // Invalidate all iterators for l.
-   l.m_iRev += 2;
+   l.m_iRev = static_cast<xor_list::rev_int_t>(l.m_iRev + 2);
 }
 
 list_impl & list_impl::operator=(list_impl && l) {
@@ -58,8 +58,8 @@ list_impl & list_impl::operator=(list_impl && l) {
    m_pnLast = l.m_pnLast;
    l.m_pnLast = nullptr;
    // Invalidate all iterators for *this and for l.
-   m_iRev += 2;
-   l.m_iRev += 2;
+   m_iRev = static_cast<xor_list::rev_int_t>(m_iRev + 2);
+   l.m_iRev = static_cast<xor_list::rev_int_t>(l.m_iRev + 2);
    return *this;
 }
 
