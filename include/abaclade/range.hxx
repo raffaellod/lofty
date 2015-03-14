@@ -55,7 +55,10 @@ public:
       @return
          Reference to the current value.
       */
-      T operator*() const {
+      T & operator*() {
+         return m_t;
+      }
+      T const & operator*() const {
          return m_t;
       }
 
