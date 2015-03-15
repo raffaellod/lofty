@@ -525,7 +525,7 @@ public:
    public:
       //! Const key/value type.
       struct value_type {
-         TKey   const & key;
+         TKey const & key;
          TValue const & value;
 
          //! Constructor. See value_type::value_type().
@@ -613,10 +613,10 @@ public:
    public:
       //! Key/value type.
       struct value_type {
-         TKey   & key;
+         TKey const & key;
          TValue & value;
 
-         value_type(TKey * pkey, TValue * pvalue) :
+         value_type(TKey const * pkey, TValue * pvalue) :
             key(*pkey), value(*pvalue) {
          }
       };
