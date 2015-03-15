@@ -3,7 +3,8 @@
 
 Abaclade is a C++11 framework featuring:
 
-•  Multiple platform compatibility: Linux, OS X, Windows and FreeBSD;
+•  Multiple platform compatibility: Linux and Windows, with OS X and FreeBSD
+   “only” blocked by Clang/LLVM limitations (see § 3. Compatibility);
 
 •  Seamless integration with the C++11 STL;
 
@@ -85,24 +86,33 @@ time (hopefully expanding).
 
 Supported build systems:
 
-•  Clang + GNU LD
-   •  Clang 3.5
-   •  binutils (version to be determined – anything from 2010 on should work)
-
 •  GNU toolchain
    •  GCC 4.6 to 4.9
    •  binutils (version to be determined – anything from 2010 on should work)
 
-•  Apple SDK for OS X 10.10 Yosemite and 10.9 Mavericks (included in Xcode 6)
-
 •  Microsoft Visual Studio 2010/2012/2013 (Visual C++ 10-12 / MSC 16-18)
+
+Clang/LLVM is not supported at the moment, due to missing compiler features. If
+and when these will get integrated in LLVM, Abaclade will support these
+additional build systems:
+
+•  Clang + GNU LD
+   •  Clang 3.5
+   •  binutils (version to be determined – anything from 2010 on should work)
+
+•  Apple SDK for OS X 10.10 Yosemite and 10.9 Mavericks (included in Xcode 6)
 
 Supported operating systems:
 
 •  GNU/Linux using glibc 2.17 or later;
-•  OS X 10.9 Mavericks or later;
 •  Microsoft Windows – currently only via Visual C++ 10 or later, which means
    only Windows XP and later versions are supported.
+
+These operating systems are supported at the source code level, but binaries
+built for them are fundmentally flawed due to the above-mentioned LLVM
+limitations:
+
+•  OS X 10.9 Mavericks or later;
 •  FreeBSD – officially only the latest -RELEASE is supported;
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
