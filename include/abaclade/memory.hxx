@@ -440,3 +440,19 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory globals – miscellanea
+
+namespace abc {
+namespace memory {
+
+/*! Returns the size of a memory page.
+
+@return
+   Size of a memory page, in bytes.
+*/
+ABACLADE_SYM std::size_t page_size();
+
+} //namespace memory
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////

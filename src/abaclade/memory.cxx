@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -19,6 +19,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <cstdlib> // std::free() std::malloc() std::realloc()
+
+#if ABC_HOST_API_POSIX
+   #include <unistd.h> // _SC_* sysconf()
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +92,32 @@ void * _raw_realloc(void * p, std::size_t cb) {
       ABC_THROW(memory_allocation_error, ());
    }
    return p;
+}
+
+} //namespace memory
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory globals – miscellanea
+
+namespace abc {
+namespace memory {
+
+/*! Returns the size of a memory page.
+
+@return
+   Size of a memory page, in bytes.
+*/
+std::size_t page_size() {
+#if ABC_HOST_API_POSIX
+   return static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
+#elif ABC_HOST_API_WIN32
+   ::SYSTEM_INFO si;
+   ::GetSystemInfo(&si);
+   return si.dwPageSize;
+#else
+   #error "TODO: HOST_API"
+#endif
 }
 
 } //namespace memory
