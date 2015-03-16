@@ -293,6 +293,7 @@ public:
       }
 #elif ABC_HOST_API_LINUX
       ::epoll_event ee;
+      memory::clear(&ee.data);
       ee.data.fd = fd.get();
       /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This
       means we’d need to then rearm it in find_coroutine_to_activate() when it becomes ready, but
