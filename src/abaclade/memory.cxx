@@ -69,7 +69,7 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – management
+// abc::memory globals – manual memory management
 
 namespace abc {
 namespace memory {
@@ -109,15 +109,21 @@ namespace memory {
    Size of a memory page, in bytes.
 */
 std::size_t page_size() {
+   static std::size_t s_cb = 0;
+   /* The race condition here is harmless, since the page size will be the same for all the threads
+   that will concurrently execute the if block. */
+   if (!s_cb) {
 #if ABC_HOST_API_POSIX
-   return static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
+      s_cb = static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
 #elif ABC_HOST_API_WIN32
-   ::SYSTEM_INFO si;
-   ::GetSystemInfo(&si);
-   return si.dwPageSize;
+      ::SYSTEM_INFO si;
+      ::GetSystemInfo(&si);
+      s_cb = si.dwPageSize;
 #else
    #error "TODO: HOST_API"
 #endif
+   }
+   return s_cb;
 }
 
 } //namespace memory
