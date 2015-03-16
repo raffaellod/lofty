@@ -52,6 +52,9 @@ public:
       Initial value for m_fnInnerMain.
    */
    context(std::function<void ()> fnMain) :
+#if ABC_HOST_API_POSIX
+      m_pStack(SIGSTKSZ),
+#endif
       m_fnInnerMain(std::move(fnMain)) {
    }
 
@@ -71,8 +74,8 @@ public:
       if (::getcontext(&m_uctx) < 0) {
          exception::throw_os_error();
       }
-      m_uctx.uc_stack.ss_sp = reinterpret_cast<char *>(&m_aiStack);
-      m_uctx.uc_stack.ss_size = sizeof m_aiStack;
+      m_uctx.uc_stack.ss_sp = static_cast<char *>(m_pStack.get());
+      m_uctx.uc_stack.ss_size = m_pStack.size();
       m_uctx.uc_link = puctxReturn;
       ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
@@ -119,8 +122,8 @@ private:
 #if ABC_HOST_API_POSIX
    //! Low-level context for the coroutine.
    ::ucontext_t m_uctx;
-   //! Memory chunk used as stack.
-   abc::max_align_t m_aiStack[ABC_ALIGNED_SIZE(SIGSTKSZ)];
+   //! Pointer to the memory chunk used as stack.
+   memory::pages_ptr m_pStack;
 #elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #else
