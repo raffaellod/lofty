@@ -127,40 +127,6 @@ ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::freeing_deleter
-
-namespace abc {
-namespace memory {
-
-//! Deleter that deallocates memory using memory::free().
-struct freeing_deleter {
-   //! Constructor.
-   freeing_deleter() {
-   }
-
-   /*! Copy-assignment operator.
-
-   @return
-      *this.
-   */
-   freeing_deleter & operator=(freeing_deleter const &) {
-      return *this;
-   }
-
-   /*! Deallocates the specified memory block.
-
-   @param p
-      Pointer to the object to deallocate.
-   */
-   void operator()(void const * p) const {
-      _raw_free(p);
-   }
-};
-
-} //namespace memory
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory::conditional_deleter
 
 namespace abc {
@@ -236,6 +202,40 @@ public:
       if (this->m_bEnabled) {
          TDeleter::operator()(pt);
       }
+   }
+};
+
+} //namespace memory
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory::freeing_deleter
+
+namespace abc {
+namespace memory {
+
+//! Deleter that deallocates memory using memory::free().
+struct freeing_deleter {
+   //! Constructor.
+   freeing_deleter() {
+   }
+
+   /*! Copy-assignment operator.
+
+   @return
+      *this.
+   */
+   freeing_deleter & operator=(freeing_deleter const &) {
+      return *this;
+   }
+
+   /*! Deallocates the specified memory block.
+
+   @param p
+      Pointer to the object to deallocate.
+   */
+   void operator()(void const * p) const {
+      _raw_free(p);
    }
 };
 
