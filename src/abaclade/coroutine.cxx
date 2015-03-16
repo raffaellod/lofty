@@ -79,11 +79,11 @@ public:
       #pragma clang diagnostic pop
    #endif
    }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
 
 #if ABC_HOST_API_POSIX
    /*! Returns a pointer to the internal ::ucontext_t.
@@ -121,11 +121,11 @@ private:
    ::ucontext_t m_uctx;
    //! Memory chunk used as stack.
    abc::max_align_t m_aiStack[ABC_ALIGNED_SIZE(SIGSTKSZ)];
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
 };
