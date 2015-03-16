@@ -18,8 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <cstdlib> // std::free() std::malloc() std::realloc()
+#include <abaclade/bitmanip.hxx>
 
+#include <cstdlib> // std::free() std::malloc() std::realloc()
 #if ABC_HOST_API_POSIX
    #include <unistd.h> // _SC_* sysconf()
 #endif
@@ -92,6 +93,64 @@ void * _raw_realloc(void * p, std::size_t cb) {
       ABC_THROW(memory_allocation_error, ());
    }
    return p;
+}
+
+} //namespace memory
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory::pages_ptr
+
+namespace abc {
+namespace memory {
+
+pages_ptr::pages_ptr() :
+   m_p(nullptr),
+   m_cb(0) {
+}
+pages_ptr::pages_ptr(std::size_t cb) :
+   m_p(nullptr) {
+   std::size_t cbPage = page_size();
+   m_cb = bitmanip::ceiling_to_pow2_multiple(cb, cbPage);
+#if ABC_HOST_API_POSIX
+   if (int iRet = ::posix_memalign(&m_p, cbPage, m_cb)) {
+      exception::throw_os_error(iRet);
+   }
+#elif ABC_HOST_API_WIN32
+   m_p = ::VirtualAlloc(nullptr, m_cb, MEM_COMMIT | MEM_RESERVE);
+   if (!m_p) {
+      exception::throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+pages_ptr::pages_ptr(pages_ptr && pp) :
+   m_p(pp.m_p),
+   m_cb(pp.m_cb) {
+   pp.m_p = nullptr;
+   pp.m_cb = 0;
+}
+
+pages_ptr::~pages_ptr() {
+   if (m_p) {
+#if ABC_HOST_API_POSIX
+      ::free(m_p);
+#elif ABC_HOST_API_WIN32
+      ::VirtualFree(m_p, 0, MEM_RELEASE);
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+}
+
+pages_ptr & pages_ptr::operator=(pages_ptr && pp) {
+   pages_ptr ppOld(std::move(*this));
+   m_p = pp.m_p;
+   pp.m_p = nullptr;
+   m_cb = pp.m_cb;
+   pp.m_cb = 0;
+   return *this;
 }
 
 } //namespace memory

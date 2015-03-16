@@ -440,6 +440,67 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::memory::pages_ptr
+
+namespace abc {
+namespace memory {
+
+//! Pointer to a chunk of memory allocated by the page.
+class ABACLADE_SYM pages_ptr : public noncopyable {
+public:
+   /*! Constructor.
+
+   @param cb
+      Amount of memory to allocate, in bytes.
+   @param pp
+      Source object.
+   */
+   pages_ptr();
+   pages_ptr(std::size_t cb);
+   pages_ptr(pages_ptr && pp);
+
+   //! Destructor.
+   ~pages_ptr();
+
+   /*! Move-assignment operator.
+
+   @param pp
+      Source object.
+   @return
+      *this.
+   */
+   pages_ptr & operator=(pages_ptr && pp);
+
+   /*! Returns the raw pointer.
+
+   @return
+      Pointer to the start of the memory block.
+   */
+   void * get() const {
+      return m_p;
+   }
+
+   /*! Returns the allocated memory size. The size may be greater than originally requested to the
+   constructor.
+
+   @return
+      Size of the memory block, in bytes.
+   */
+   std::size_t size() const {
+      return m_cb;
+   }
+
+private:
+   //! Pointer to the memory block.
+   void * m_p;
+   //! Size of the memory block, in bytes.
+   std::size_t m_cb;
+};
+
+} //namespace memory
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::memory globals – miscellanea
 
 namespace abc {
