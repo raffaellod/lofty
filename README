@@ -87,7 +87,8 @@ time (hopefully expanding).
 Supported build systems:
 
 •  GNU toolchain
-   •  GCC 4.6 to 4.9
+   •  GCC 4.6 to 4.9; 4.6 incorrectly raises a few warnings, but the generated
+      code works just fine
    •  binutils (version to be determined – anything from 2010 on should work)
 
 •  Microsoft Visual Studio 2010/2012/2013 (Visual C++ 10-12 / MSC 16-18)
