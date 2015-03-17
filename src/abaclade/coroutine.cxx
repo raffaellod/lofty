@@ -64,6 +64,9 @@ public:
    #endif
 #endif
       m_fnInnerMain(std::move(fnMain)) {
+#if ABC_HOST_API_POSIX
+      // TODO: use ::mprotect() to setup a guard page for the stack.
+#endif
    }
    ~context() {
 #ifdef ABAMAKE_USING_VALGRIND
