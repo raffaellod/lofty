@@ -118,8 +118,8 @@ public:
    coroutine added with add_coroutine() returns. */
    virtual void run() = 0;
 
-   /*! Allows other coroutines to run, preventing this coroutine from being rescheduled until at
-   least iMillisecs milliseconds have passed.
+   /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
+   at least iMillisecs milliseconds have passed.
 
    @param iMillisecs
       Minimum duration for which to yield to other coroutines.
