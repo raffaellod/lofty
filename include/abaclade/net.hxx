@@ -55,6 +55,14 @@ public:
    ~tcp_server();
 
 private:
+   /*! Creates a socket for the server.
+
+   @return
+      New server socket.
+   */
+   static io::filedesc create_socket();
+
+private:
    io::filedesc m_fdSocket;
 };
 

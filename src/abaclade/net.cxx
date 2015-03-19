@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/coroutine.hxx>
 #include <abaclade/net.hxx>
 
 #if ABC_HOST_API_POSIX
@@ -34,13 +35,10 @@ namespace abc {
 namespace net {
 
 tcp_server::tcp_server(istr const & sAddress, std::uint16_t iPort, unsigned cBacklog /*= 5*/) :
-   m_fdSocket(::socket(AF_INET, SOCK_STREAM, 0)) {
+   m_fdSocket(create_socket()) {
    ABC_TRACE_FUNC(sAddress, iPort, cBacklog);
 
-   if (!m_fdSocket) {
-      exception::throw_os_error();
-   }
-
+#if ABC_HOST_API_POSIX
    ::sockaddr_in saServer;
    memory::clear(&saServer);
    saServer.sin_family = AF_INET;
@@ -61,9 +59,31 @@ tcp_server::tcp_server(istr const & sAddress, std::uint16_t iPort, unsigned cBac
    if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
       exception::throw_os_error();
    }
+#else //if ABC_HOST_API_POSIX
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … else
 }
 
 tcp_server::~tcp_server() {
+}
+
+/*static*/ io::filedesc tcp_server::create_socket() {
+   ABC_TRACE_FUNC();
+
+#if ABC_HOST_API_POSIX
+   int iType = SOCK_STREAM | SOCK_CLOEXEC;
+   if (this_thread::get_coroutine_scheduler()) {
+      // Using coroutines, so make this socket non-blocking.
+      iType |= SOCK_NONBLOCK;
+   }
+   io::filedesc fd(::socket(AF_INET, iType, 0));
+   if (!fd) {
+      exception::throw_os_error();
+   }
+#else //if ABC_HOST_API_POSIX
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … else
+   return std::move(fd);
 }
 
 } //namespace net
