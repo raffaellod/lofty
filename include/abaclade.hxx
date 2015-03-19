@@ -52,6 +52,9 @@ namespace abc {
    //! Memory management functions and classes. Mostly a templated approach to C’s mem* functions.
    namespace memory {}
 
+   //! Networking facilities.
+   namespace net {}
+
    //! Type traits and functions for numeric types.
    namespace numeric {}
 
