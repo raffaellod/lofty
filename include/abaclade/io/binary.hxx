@@ -48,6 +48,24 @@ class file_writer;
 class pipe_reader;
 class pipe_writer;
 
+/*! Creates and returns a binary reader for the specified file descriptor.
+
+@param fd
+   File descriptor.
+@return
+   Pointer to a binary reader for the file descriptor.
+*/
+ABACLADE_SYM std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
+
+/*! Creates and returns a binary writer for the specified file descriptor.
+
+@param fd
+   File descriptor.
+@return
+   Pointer to a binary writer for the file descriptor.
+*/
+ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
+
 /*! Opens a file for binary access.
 
 @param op

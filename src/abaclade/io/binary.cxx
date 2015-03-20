@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/coroutine.hxx>
 #include "binary/detail/file_init_data.hxx"
 
 #if ABC_HOST_API_POSIX
@@ -197,6 +198,28 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 
 } //namespace
 
+
+std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
+   ABC_TRACE_FUNC(/*fd*/);
+
+   detail::file_init_data fid;
+   fid.am = access_mode::read;
+   fid.bAllowAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   fid.bBypassCache = false;
+   fid.fd = std::move(fd);
+   return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
+}
+
+std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
+   ABC_TRACE_FUNC(/*fd*/);
+
+   detail::file_init_data fid;
+   fid.am = access_mode::write;
+   fid.bAllowAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   fid.bBypassCache = false;
+   fid.fd = std::move(fd);
+   return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
+}
 
 std::shared_ptr<file_base> open(
    os::path const & op, access_mode am, bool bAsync /*= false*/, bool bBypassCache /*= false*/
