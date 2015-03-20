@@ -63,7 +63,7 @@ class pipe_writer;
 @return
    Pointer to a binary I/O object for the file.
 */
-std::shared_ptr<file_base> open(
+ABACLADE_SYM std::shared_ptr<file_base> open(
    os::path const & op, access_mode am, bool bAsync = false, bool bBypassCache = false
 );
 
