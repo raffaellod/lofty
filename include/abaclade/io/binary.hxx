@@ -48,36 +48,6 @@ class file_writer;
 class pipe_reader;
 class pipe_writer;
 
-/*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
-
-@return
-   A pair containing the reader end and the writer end of the pipe.
-*/
-ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
-   bool bAsync = false
-);
-
-/*! Returns the binary writer associated to the standard error output file (stderr).
-
-@return
-   Standard error file.
-*/
-ABACLADE_SYM std::shared_ptr<file_writer> stderr();
-
-/*! Returns the binary reader associated to the standard input file (stdin).
-
-@return
-   Standard input file.
-*/
-ABACLADE_SYM std::shared_ptr<file_reader> stdin();
-
-/*! Returns the binary writer associated to the standard output file (stdout).
-
-@return
-   Standard output file.
-*/
-ABACLADE_SYM std::shared_ptr<file_writer> stdout();
-
 /*! Opens a file for binary access.
 
 @param op
@@ -136,6 +106,36 @@ inline std::shared_ptr<file_writer> open_writer(
       op, access_mode::write, bAsync, bBypassCache
    ));
 }
+
+/*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
+
+@return
+   A pair containing the reader end and the writer end of the pipe.
+*/
+ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
+   bool bAsync = false
+);
+
+/*! Returns the binary writer associated to the standard error output file (stderr).
+
+@return
+   Standard error file.
+*/
+ABACLADE_SYM std::shared_ptr<file_writer> stderr();
+
+/*! Returns the binary reader associated to the standard input file (stdin).
+
+@return
+   Standard input file.
+*/
+ABACLADE_SYM std::shared_ptr<file_reader> stdin();
+
+/*! Returns the binary writer associated to the standard output file (stdout).
+
+@return
+   Standard output file.
+*/
+ABACLADE_SYM std::shared_ptr<file_writer> stdout();
 
 } //namespace binary
 } //namespace io
