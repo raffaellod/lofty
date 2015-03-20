@@ -24,9 +24,27 @@ You should have received a copy of the GNU General Public License along with Aba
 #if ABC_HOST_API_POSIX
    #include <arpa/inet.h> // inet_addr()
    #include <sys/types.h> // sockaddr sockaddr_in
-   #include <sys/socket.h> // accept() bind() socket()
+   #include <sys/socket.h> // accept4() bind() socket()
 #endif
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::net::connection
+
+namespace abc {
+namespace net {
+
+connection::connection(io::filedesc fd, smstr<45> && sAddress) :
+   /*m_br(),
+   m_bw(),*/
+   m_sAddress(std::move(sAddress)) {
+}
+
+connection::~connection() {
+}
+
+} //namespace net
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::net::tcp_server
@@ -65,6 +83,55 @@ tcp_server::tcp_server(istr const & sAddress, std::uint16_t iPort, unsigned cBac
 }
 
 tcp_server::~tcp_server() {
+}
+
+std::shared_ptr<connection> tcp_server::accept() {
+   ABC_TRACE_FUNC(this);
+
+   auto & pcorosched(this_thread::get_coroutine_scheduler());
+#if ABC_HOST_API_POSIX
+   ::sockaddr_in saClient;
+   ::socklen_t cbClient;
+   int iFlags = SOCK_CLOEXEC, iFd;
+   if (pcorosched) {
+      // Using coroutines, so make the client socket non-blocking.
+      iFlags |= SOCK_NONBLOCK;
+   }
+   for (;;) {
+      cbClient = sizeof saClient;
+      iFd = ::accept4(
+         m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saClient), &cbClient, iFlags
+      );
+      if (iFd >= 0) {
+         break;
+      }
+      int iErr = errno;
+      switch (iErr) {
+         case EINTR:
+            break;
+         case EAGAIN:
+   #if EWOULDBLOCK != EAGAIN
+         case EWOULDBLOCK:
+   #endif
+            if (pcorosched) {
+               /* Give other coroutines a chance to run while we wait for m_fdSocket. Accepting a
+               connection is considered a read event. */
+               pcorosched->yield_while_async_pending(m_fdSocket, false);
+               break;
+            }
+            // Fall through.
+         default:
+            exception::throw_os_error(iErr);
+      }
+   }
+   io::filedesc fd(iFd);
+   smstr<45> sAddress;
+   // TODO: render (saClient, cbClient) into sAddress.
+   return std::make_shared<connection>(std::move(fd), std::move(sAddress));
+
+#else //if ABC_HOST_API_POSIX
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … else
 }
 
 /*static*/ io::filedesc tcp_server::create_socket() {

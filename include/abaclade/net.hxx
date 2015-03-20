@@ -29,6 +29,63 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::net::connection
+
+namespace abc {
+namespace net {
+
+/*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
+required for the current thread to run coroutines.
+*/
+class ABACLADE_SYM connection : public noncopyable {
+public:
+   /*! Constructor.
+
+   @param fd
+      Connected socket.
+   @param sAddress
+      Client address.
+   */
+   connection(io::filedesc fd, smstr<45> && sAddress);
+
+   //! Destructor.
+   ~connection();
+
+   istr const & address() const {
+      return m_sAddress;
+   }
+
+   /*! Returns a binary reader to receive data from the remote peer.
+
+   @return
+      Reader for the connection’s socket.
+   */
+   std::shared_ptr<io::binary::reader> const & reader() {
+      return m_br;
+   }
+
+   /*! Returns a binary writer to send data to the remote peer.
+
+   @return
+      Writer for the connection’s socket.
+   */
+   std::shared_ptr<io::binary::writer> const & writer() {
+      return m_bw;
+   }
+
+private:
+   //! Reader for the connection’s socket.
+   std::shared_ptr<io::binary::reader> m_br;
+   //! Writer for the connection’s socket.
+   std::shared_ptr<io::binary::writer> m_bw;
+   //! Address of the remote peer.
+   smstr<45> m_sAddress;
+};
+
+} //namespace net
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::net::tcp_server
 
 namespace abc {
@@ -53,6 +110,13 @@ public:
 
    //! Destructor.
    ~tcp_server();
+
+   /*! Accepts and returns a connection from a client.
+
+   @return
+      New client connection.
+   */
+   std::shared_ptr<connection> accept();
 
 private:
    /*! Creates a socket for the server.
