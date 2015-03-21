@@ -89,7 +89,6 @@ public:
       Source object.
    */
    buffer() :
-      m_p(nullptr),
       m_cb(0),
       m_ibAvailableOffset(0),
       m_ibUsedOffset(0) {
@@ -118,13 +117,20 @@ public:
       return m_cb - m_ibAvailableOffset;
    }
 
+   /*! Increases the size of the buffer.
+
+   @param cb
+      New size of the buffer, in bytes.
+   */
+   void expand(std::size_t cb);
+
    /*! Returns a pointer to the buffer memory. TODO
 
    @return
       Pointer to the buffer memory block.
    */
    std::int8_t * get_available() const {
-      return static_cast<std::int8_t *>(m_p) + m_ibAvailableOffset;
+      return static_cast<std::int8_t *>(m_p.get()) + m_ibAvailableOffset;
    }
 
    /*! Returns a pointer to the buffer memory. TODO
@@ -133,11 +139,11 @@ public:
       Pointer to the buffer memory block.
    */
    std::int8_t * get_used() const {
-      return static_cast<std::int8_t *>(m_p) + m_ibUsedOffset;
+      return static_cast<std::int8_t *>(m_p.get()) + m_ibUsedOffset;
    }
 
-   /*! Shifts the used pertion of the buffer to completely cover the unused portion, resulting in an
-   increase in available space. */
+   /*! Shifts the used portion of the buffer to completely obliterate the unused portion, resulting
+   in an increase in available space. */
    void make_unused_available();
 
    /*! Increases the used bytes count. TODO
@@ -182,12 +188,12 @@ public:
       Size of used buffer space, in bytes.
    */
    std::size_t unused_size() const {
-      return m_ibAvailableOffset;
+      return m_ibUsedOffset;
    }
 
 private:
    //! Pointer to the allocated memory block.
-   void * m_p;
+   std::unique_ptr<void, memory::freeing_deleter> m_p;
    //! Size of *m_p.
    std::size_t m_cb;
    //! Count of used bytes.
@@ -394,12 +400,6 @@ public:
    //! Destructor.
    virtual ~default_buffered_reader();
 
-   //! See buffered_reader::async_join().
-   virtual std::size_t async_join() override;
-
-   //! See buffered_reader::async_pending().
-   virtual bool async_pending() override;
-
    //! See buffered_reader::consume_bytes().
    virtual void consume_bytes(std::size_t cb) override;
 
@@ -433,9 +433,7 @@ namespace abc {
 namespace io {
 namespace binary {
 
-/*! Provides buffering on top of a binary::writer instance. If the underlying binary::writer is
-synchronous, a single buffer will be used; if asynchronous, multiple buffers may be used if the rate
-of writes to buffer exceeds the rate at which the binary::writer can complete buffer flushes. */
+//! Provides buffering on top of a binary::writer instance.
 class ABACLADE_SYM default_buffered_writer : public buffered_writer, public noncopyable {
 public:
    /*! Constructor.
@@ -448,13 +446,6 @@ public:
    //! Destructor.
    virtual ~default_buffered_writer();
 
-   /*! See buffered_writer::async_join(). It invokes async_join() on the underlying binary I/O, and
-   flushes as much of the internal buffer as possible without blocking. */
-   virtual std::size_t async_join() override;
-
-   //! See buffered_writer::async_pending().
-   virtual bool async_pending() override;
-
    //! See buffered_writer::commit_bytes().
    virtual void commit_bytes(std::size_t cb) override;
 
@@ -465,22 +456,8 @@ public:
    virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
 protected:
-   /*! Finalizes a data write, possibly releasing the involved buffer if now empty.
-
-   @param cbWritten
-      Amount of data written in the last transfer, in bytes.
-   */
-   void buffer_write_complete(std::size_t cbWritten);
-
-   //! Flushes all internal write buffers, blocking as necessary.
-   void flush_all_buffers();
-
-   /*! Flushes any internal full write buffers as it’s possible without blocking.
-
-   @return
-      Amount of data flushed, in bytes.
-   */
-   std::size_t flush_nonblocking_full_buffers();
+   //! Flushes the internal write buffer.
+   void flush_buffer();
 
    //! See buffered_writer::_unbuffered_base().
    virtual std::shared_ptr<base> _unbuffered_base() const override;
@@ -488,10 +465,8 @@ protected:
 protected:
    //! Wrapped binary writer.
    std::shared_ptr<writer> m_pbw;
-   /*! List of write buffers. May contain more than one in case *m_pbw is asynchronous and slow, in
-   which case front() is the one to be used first, and the others are held until their respective
-   I/O async operations complete. */
-   collections::list<detail::buffer> m_lbufWriteBufs;
+   //! Write buffer.
+   detail::buffer m_bufWrite;
    //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbWriteBufDefault = 0x1000;

@@ -34,7 +34,7 @@ namespace io {
 namespace binary {
 
 //! Base for file binary I/O classes.
-class ABACLADE_SYM file_base : public virtual base, public noncopyable {
+class ABACLADE_SYM file_base : public virtual base, public async, public noncopyable {
 public:
    //! Destructor.
    virtual ~file_base();
