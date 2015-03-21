@@ -182,13 +182,13 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 /*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb > m_bufReadMain.used_size()) {
+   if (cb > m_bufRead.used_size()) {
       // Can’t consume more bytes than are available in the read buffer.
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
    // Shift the “used window” of the read buffer by cb bytes.
-   m_bufReadMain.mark_as_unused(cb);
+   m_bufRead.mark_as_unused(cb);
 }
 
 /*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
@@ -196,29 +196,27 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
-   if (cb > m_bufReadMain.used_size()) {
+   if (cb > m_bufRead.used_size()) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
-      std::size_t cbReadMin = cb - m_bufReadMain.used_size();
-      if (cbReadMin > m_bufReadMain.available_size()) {
+      std::size_t cbReadMin = cb - m_bufRead.used_size();
+      if (cbReadMin > m_bufRead.available_size()) {
          /* The buffer doesn’t have enough available space to hold the data that needs to be read;
          see if compacting it would create enough room. */
-         if (m_bufReadMain.unused_size() + m_bufReadMain.available_size() >= cbReadMin) {
-            m_bufReadMain.make_unused_available();
+         if (m_bufRead.unused_size() + m_bufRead.available_size() >= cbReadMin) {
+            m_bufRead.make_unused_available();
          } else {
             // Not enough room; the buffer needs to be enlarged.
             std::size_t cbReadBuf = bitmanip::ceiling_to_pow2_multiple(cb, smc_cbReadBufDefault);
-            m_bufReadMain.expand(cbReadBuf);
+            m_bufRead.expand(cbReadBuf);
          }
       }
       // Try to fill the available part of the buffer.
-      std::size_t cbRead = m_pbr->read(
-         m_bufReadMain.get_available(), m_bufReadMain.available_size()
-      );
+      std::size_t cbRead = m_pbr->read(m_bufRead.get_available(), m_bufRead.available_size());
       // Account for the additional data read.
-      m_bufReadMain.mark_as_used(cbRead);
+      m_bufRead.mark_as_used(cbRead);
    }
    // Return the “used window” of the buffer.
-   return std::make_pair(m_bufReadMain.get_used(), m_bufReadMain.used_size());
+   return std::make_pair(m_bufRead.get_used(), m_bufRead.used_size());
 }
 
 /*virtual*/ std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {

@@ -414,9 +414,7 @@ protected:
    //! Wrapped binary reader.
    std::shared_ptr<reader> m_pbr;
    //! Main read buffer.
-   detail::buffer m_bufReadMain;
-   //! Secondary read buffer. This is used as target for reads if m_bufReadMain
-   //detail::buffer m_bufReadMain;
+   detail::buffer m_bufRead;
    //! Default/increment size of m_pbReadBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbReadBufDefault = 0x1000;
