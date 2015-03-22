@@ -42,8 +42,9 @@ public:
 
       auto & pcorosched = this_thread::attach_coroutine_scheduler();
 
-      // Open a pipe in asynchronous I/O mode.
-      auto pair(io::binary::pipe(true));
+      /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage
+      of it to avoid blocking on reads and writes. */
+      auto pair(io::binary::pipe());
 
       // Schedule the reader.
       pcorosched->add(coroutine([this, &pair] () -> void {

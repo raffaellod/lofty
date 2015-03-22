@@ -187,9 +187,12 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = am;
-   /* There’s no way of knowing (in Win32 or in POSIX, at least) whether a file has been opened with
-   asynchronous I/O enabled, so for safety assume it has. */
-   fid.bAllowAsync = true;
+#if ABC_HOST_API_WIN32
+   /* There’s no way of knowing whether a file has been opened with FILE_FLAG_OVERLAPPED, so for
+   safety assume it has. If the file is detected by _construct() to be a console handle, this will
+   be ignored anyway. */
+   fid.bAsync = true;
+#endif
    /* Since this method is supposed to be used only for standard descriptors, assume that OS
    buffering is on. */
    fid.bBypassCache = false;
@@ -204,7 +207,9 @@ std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
 
    detail::file_init_data fid;
    fid.am = access_mode::read;
-   fid.bAllowAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+#if ABC_HOST_API_WIN32
+   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+#endif
    fid.bBypassCache = false;
    fid.fd = std::move(fd);
    return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
@@ -215,17 +220,20 @@ std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
 
    detail::file_init_data fid;
    fid.am = access_mode::write;
-   fid.bAllowAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+#if ABC_HOST_API_WIN32
+   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+#endif
    fid.bBypassCache = false;
    fid.fd = std::move(fd);
    return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
 }
 
 std::shared_ptr<file_base> open(
-   os::path const & op, access_mode am, bool bAsync /*= false*/, bool bBypassCache /*= false*/
+   os::path const & op, access_mode am, bool bBypassCache /*= false*/
 ) {
-   ABC_TRACE_FUNC(op, am, bAsync, bBypassCache);
+   ABC_TRACE_FUNC(op, am, bBypassCache);
 
+   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
    int iFlags;
@@ -323,20 +331,19 @@ std::shared_ptr<file_base> open(
             exception::throw_os_error(iErr);
       }
    }
+   fid.bAsync = bAsync;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    fid.am = am;
-   fid.bAllowAsync = bAsync;
    fid.bBypassCache = bBypassCache;
    return _construct(&fid);
 }
 
-std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
-   bool bAsync /*= false*/
-) {
-   ABC_TRACE_FUNC(bAsync);
+std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
+   ABC_TRACE_FUNC();
 
+   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
    detail::file_init_data fidReader, fidWriter;
 #if ABC_HOST_API_DARWIN
    int fds[2];
@@ -415,14 +422,13 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
       fidReader.fd = hRead;
       fidWriter.fd = hWrite;
    }
+   fidReader.bAsync = fidWriter.bAsync = bAsync;
 #else
    #error "TODO: HOST_API"
 #endif
    fidReader.am = access_mode::read;
-   fidReader.bAllowAsync = bAsync;
    fidReader.bBypassCache = false;
    fidWriter.am = access_mode::write;
-   fidWriter.bAllowAsync = bAsync;
    fidWriter.bBypassCache = false;
    return std::make_pair(
       std::make_shared<pipe_reader>(&fidReader), std::make_shared<pipe_writer>(&fidWriter)

@@ -39,8 +39,11 @@ namespace io {
 namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
-   m_fd(std::move(pfid->fd)),
-   m_bAllowAsync(pfid->bAllowAsync) {
+   m_fd(std::move(pfid->fd))
+#if ABC_HOST_API_WIN32
+   , m_bAsync(pfid->bAsync)
+#endif
+   {
 }
 
 /*virtual*/ file_base::~file_base() {
@@ -123,7 +126,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    DWORD cbToRead = static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value));
    DWORD cbRead, iErr;
-   if (m_bAllowAsync) {
+   if (m_bAsync) {
       ::OVERLAPPED ovl;
       ovl.hEvent = nullptr;
       /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
@@ -263,7 +266,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    do {
       DWORD cbToWrite = static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value));
       DWORD cbWritten;
-      if (m_bAllowAsync) {
+      if (m_bAsync) {
          ::OVERLAPPED ovl;
          ovl.hEvent = nullptr;
          /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if

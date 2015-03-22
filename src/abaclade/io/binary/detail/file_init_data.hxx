@@ -42,12 +42,13 @@ struct file_init_data {
    /*! Determines what type of I/O object will be instantiated. To be set before calling
    _construct(). */
    access_mode am;
-   /* If true, asynchronous I/O is allowed for this file. To understand why “allowed” instead of
-   “enforced”, abc::io::binary::file_base::m_bAllowAsync. */
-   bool bAllowAsync:1;
    /*! If true, causes the file to be opened with flags to the effect of disabling OS cache for the
    file. To be set before calling _construct(). */
    bool bBypassCache:1;
+#if ABC_HOST_API_WIN32
+   // If true, I/O to the file should be asynchronous. To be set before calling _construct().
+   bool bAsync:1;
+#endif
 };
 
 } //namespace detail

@@ -50,10 +50,12 @@ protected:
 protected:
    //! Descriptor of the underlying file.
    filedesc m_fd;
-   /*! If true, asynchronous I/O is allowed. Only false if Abaclade can be certain that the file
-   doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not when the
-   file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
-   bool m_bAllowAsync:1;
+#if ABC_HOST_API_WIN32
+   /*! If true, I/O to the file should be asynchronous. Only false if Abaclade can be certain that
+   the file doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not
+   when the file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
+   bool m_bAsync:1;
+#endif
 };
 
 } //namespace binary

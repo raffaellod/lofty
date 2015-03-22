@@ -72,9 +72,6 @@ ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
    Path to the file.
 @param am
    Desired access mode.
-@param bAsync
-   If true, the returned object will allow for I/O calls that leave the object in a “asynchronous
-   operation pending” state.
 @param bBypassCache
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
@@ -82,47 +79,35 @@ ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
    Pointer to a binary I/O object for the file.
 */
 ABACLADE_SYM std::shared_ptr<file_base> open(
-   os::path const & op, access_mode am, bool bAsync = false, bool bBypassCache = false
+   os::path const & op, access_mode am, bool bBypassCache = false
 );
 
 /*! Opens a file for binary reading.
 
 @param op
    Path to the file.
-@param bAsync
-   If true, the returned object will allow for I/O calls that leave the object in a “asynchronous
-   operation pending” state.
 @param bBypassCache
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<file_reader> open_reader(
-   os::path const & op, bool bAsync = false, bool bBypassCache = false
-) {
-   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bAsync, bBypassCache));
+inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypassCache = false) {
+   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBypassCache));
 }
 
 /*! Opens a file for binary writing.
 
 @param op
    Path to the file.
-@param bAsync
-   If true, the returned object will allow for I/O calls that leave the object in a “asynchronous
-   operation pending” state.
 @param bBypassCache
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<file_writer> open_writer(
-   os::path const & op, bool bAsync = false, bool bBypassCache = false
-) {
-   return std::dynamic_pointer_cast<file_writer>(open(
-      op, access_mode::write, bAsync, bBypassCache
-   ));
+inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
+   return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
 }
 
 /*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
@@ -130,9 +115,7 @@ inline std::shared_ptr<file_writer> open_writer(
 @return
    A pair containing the reader end and the writer end of the pipe.
 */
-ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
-   bool bAsync = false
-);
+ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe();
 
 /*! Returns the binary writer associated to the standard error output file (stderr).
 
