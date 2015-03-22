@@ -89,7 +89,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
                pcorosched->yield_while_async_pending(m_fd, false);
                break;
             } else {
-               // No coroutine scheduler, so we have to wait for data to be available.
+               // No coroutine scheduler, so we have to block-wait for m_fd.
                ::pollfd pfd;
                pfd.fd = m_fd.get();
                pfd.events = POLLIN | POLLPRI;
@@ -120,36 +120,42 @@ file_reader::file_reader(detail::file_init_data * pfid) :
             exception::throw_os_error(iErr);
       }
    }
-#elif ABC_HOST_API_WIN32
-   static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix read size calculation");
-   ::OVERLAPPED * povl;
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   DWORD cbToRead = static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value));
+   DWORD cbRead, iErr;
    if (m_bAllowAsync) {
-      // Obtain the current file offset and set m_ovl to start there.
-      long ibOffsetHigh = 0;
-      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-      m_ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
-      // Ignore errors; if m_fd is not a seekable file, ::ReadFile() will ignore Offset* anyway.
-      povl = &m_ovl;
+      ::OVERLAPPED ovl;
+      ovl.hEvent = nullptr;
+      /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
+      is not a seekable file, ::ReadFile() will ignore Offset* anyway. */
+      {
+         long ibOffsetHigh = 0;
+         ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+         ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
+      }
+      BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
+      iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
+      if (iErr == ERROR_IO_PENDING) {
+         if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+            // Give other coroutines a chance to run while we wait for m_fd.
+            pcorosched->yield_while_async_pending(m_fd, false);
+         } else {
+            // No coroutine scheduler, so we have to block-wait for m_fd.
+            if (::WaitForSingleObject(m_fd.get(), INFINITE) != WAIT_OBJECT_0) {
+               exception::throw_os_error();
+            }
+         }
+         cbRead = ovl.InternalHigh;
+         iErr = ERROR_SUCCESS;
+      }
    } else {
-      povl = nullptr;
+      BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, nullptr);
+      iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
    }
-   DWORD cbRead;
-   BOOL bRet = ::ReadFile(
-      m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value)),
-      &cbRead, povl
-   );
-   DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
-   if (iErr == ERROR_IO_PENDING) {
-      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-      return 0;
-   }
-   if (check_if_eof_or_throw_os_error(cbRead, iErr)) {
-      return 0;
-   }
-   return static_cast<std::size_t>(cbRead);
-#else
+   return check_if_eof_or_throw_os_error(cbRead, iErr) ? 0 : cbRead;
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
 #if ABC_HOST_API_WIN32
@@ -159,7 +165,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    }
    return cbRead == 0;
 }
-#endif //if ABC_HOST_API_WIN32
+#endif
 
 } //namespace binary
 } //namespace io
@@ -199,9 +205,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-#if ABC_HOST_API_POSIX
    std::int8_t const * pb = static_cast<std::int8_t const *>(p);
    std::size_t cbWrittenTotal = 0;
+#if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.
    for (;;) {
       std::size_t cbToWrite = std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value);
@@ -210,7 +216,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          cbWrittenTotal += static_cast<std::size_t>(cbWritten);
          cb -= static_cast<std::size_t>(cbWritten);
          if (!cb) {
-            return cbWrittenTotal;
+            break;
          }
          pb += cbWritten;
       } else {
@@ -227,7 +233,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
                   pcorosched->yield_while_async_pending(m_fd, true);
                   break;
                } else {
-                  // No coroutine scheduler, so we have to wait for data to be available.
+                  // No coroutine scheduler, so we have to block-wait for m_fd.
                   ::pollfd pfd;
                   pfd.fd = m_fd.get();
                   pfd.events = POLLOUT | POLLPRI;
@@ -255,35 +261,52 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          }
       }
    }
-#elif ABC_HOST_API_WIN32
-   static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix write size calculation");
-   ::OVERLAPPED * povl;
-   if (m_bAllowAsync) {
-      // Obtain the current file offset and set m_ovl to start there.
-      long ibOffsetHigh = 0;
-      m_ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-      m_ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
-      // Ignore errors; if m_fd is not a seekable file, ::WriteFile() will ignore Offset* anyway.
-      povl = &m_ovl;
-   } else {
-      povl = nullptr;
-   }
-   DWORD cbWritten;
-   if (!::WriteFile(
-      m_fd.get(), p, static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value)),
-      &cbWritten, nullptr
-   )) {
-      DWORD iErr = ::GetLastError();
-      if (iErr == ERROR_IO_PENDING) {
-         // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-         return 0;
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   for (;;) {
+      DWORD cbToWrite = static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value));
+      DWORD cbWritten;
+      if (m_bAllowAsync) {
+         ::OVERLAPPED ovl;
+         ovl.hEvent = nullptr;
+         /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if
+         m_fd is not a seekable file, ::WriteFile() will ignore Offset* anyway. */
+         {
+            long ibOffsetHigh = 0;
+            ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+            ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
+         }
+         if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
+            DWORD iErr = ::GetLastError();
+            if (iErr != ERROR_IO_PENDING) {
+               exception::throw_os_error(iErr);
+            }
+            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+               // Give other coroutines a chance to run while we wait for m_fd.
+               pcorosched->yield_while_async_pending(m_fd, true);
+            } else {
+               // No coroutine scheduler, so we have to block-wait for m_fd.
+               if (::WaitForSingleObject(m_fd.get(), INFINITE) != WAIT_OBJECT_0) {
+                  exception::throw_os_error();
+               }
+            }
+            cbWritten = ovl.InternalHigh;
+         }
+      } else {
+         if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, nullptr)) {
+            exception::throw_os_error();
+         }
       }
-      exception::throw_os_error(iErr);
+      cbWrittenTotal += cbWritten;
+      cb -= cbWritten;
+      if (!cb) {
+         break;
+      }
+      pb += cbWritten;
    }
-   return static_cast<std::size_t>(cbWritten);
-#else
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+   return cbWrittenTotal;
 }
 
 } //namespace binary
