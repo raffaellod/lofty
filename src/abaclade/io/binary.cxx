@@ -400,7 +400,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       );
       fidReader.fd = ::CreateNamedPipe(
          sPipeName.c_str(),
-         GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_WAIT,
+         GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
          1, sc_cbBuffer, sc_cbBuffer, sc_iDefaultTimeout, nullptr
       );
       if (!fidReader.fd) {
