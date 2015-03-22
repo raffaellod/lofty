@@ -465,6 +465,8 @@ protected:
    std::shared_ptr<writer> m_pbw;
    //! Write buffer.
    detail::buffer m_bufWrite;
+   //! If true, every commit_bytes() call will flush the buffer.
+   bool m_bFlushAfterCommit:1;
    //! Default/increment size of m_pbWriteBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbWriteBufDefault = 0x1000;

@@ -237,7 +237,9 @@ namespace io {
 namespace binary {
 
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
-   m_pbw(std::move(pbw)) {
+   m_pbw(std::move(pbw)),
+   // Disable buffering for console (interactive) files.
+   m_bFlushAfterCommit(std::dynamic_pointer_cast<console_writer>(m_pbw) != nullptr) {
 }
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
@@ -256,7 +258,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    }
    // Increase the count of used bytes in the buffer; if that makes the buffer full, flush it.
    m_bufWrite.mark_as_used(cb);
-   if (!m_bufWrite.available_size()) {
+   if (m_bFlushAfterCommit || !m_bufWrite.available_size()) {
       flush_buffer();
    }
 }
