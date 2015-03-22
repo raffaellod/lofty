@@ -190,7 +190,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
-   if (::fsync(m_fd.get())) {
+   if (::fsync(m_fd.get()) < 0) {
       exception::throw_os_error();
    }
 #elif ABC_HOST_API_WIN32
