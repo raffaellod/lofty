@@ -164,30 +164,3 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::async
-
-namespace abc {
-namespace io {
-
-//! Interface to operate I/O classes asynchronously.
-class ABACLADE_SYM async {
-public:
-   /*! Waits for the completion of any pending I/O.
-
-   @return
-      Size of the transferred data, in bytes.
-   */
-   virtual std::size_t async_join() = 0;
-
-   /*! Returns true if the object has any pending I/O operations.
-
-   @return
-      true if there are pending I/O operations on the object, or false otherwise.
-   */
-   virtual bool async_pending() = 0;
-};
-
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
