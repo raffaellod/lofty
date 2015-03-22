@@ -187,15 +187,15 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = am;
+   /* Since this method is supposed to be used only for standard descriptors, assume that OS
+   buffering is on. */
+   fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
    /* There’s no way of knowing whether a file has been opened with FILE_FLAG_OVERLAPPED, so for
    safety assume it has. If the file is detected by _construct() to be a console handle, this will
    be ignored anyway. */
    fid.bAsync = true;
 #endif
-   /* Since this method is supposed to be used only for standard descriptors, assume that OS
-   buffering is on. */
-   fid.bBypassCache = false;
    return _construct(&fid);
 }
 
@@ -206,12 +206,12 @@ std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    ABC_TRACE_FUNC(/*fd*/);
 
    detail::file_init_data fid;
+   fid.fd = std::move(fd);
    fid.am = access_mode::read;
+   fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
    fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
 #endif
-   fid.bBypassCache = false;
-   fid.fd = std::move(fd);
    return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
 }
 
@@ -219,12 +219,12 @@ std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    ABC_TRACE_FUNC(/*fd*/);
 
    detail::file_init_data fid;
+   fid.fd = std::move(fd);
    fid.am = access_mode::write;
+   fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
    fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
 #endif
-   fid.bBypassCache = false;
-   fid.fd = std::move(fd);
    return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
 }
 
@@ -425,9 +425,8 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    #error "TODO: HOST_API"
 #endif
    fidReader.am = access_mode::read;
-   fidReader.bBypassCache = false;
    fidWriter.am = access_mode::write;
-   fidWriter.bBypassCache = false;
+   fidReader.bBypassCache = fidWriter.bBypassCache = false;
    return std::make_pair(
       std::make_shared<pipe_reader>(&fidReader), std::make_shared<pipe_writer>(&fidWriter)
    );
