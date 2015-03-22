@@ -40,94 +40,11 @@ namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd)),
-#if ABC_HOST_API_POSIX
-   m_pAsyncBuf(nullptr),
-   m_cbAsyncBuf(0),
-#endif
    m_bAllowAsync(pfid->bAllowAsync) {
-#if ABC_HOST_API_WIN32
-   if (m_bAllowAsync) {
-      memory::clear(&m_ovl);
-   }
-#endif
 }
 
 /*virtual*/ file_base::~file_base() {
 }
-
-#if ABC_HOST_API_POSIX
-
-bool file_base::async_poll(bool bWrite, bool bWait) const {
-   ABC_TRACE_FUNC(this, bWrite, bWait);
-
-   ::pollfd pfd;
-   pfd.fd = m_fd.get();
-   pfd.events = (bWrite ? POLLOUT : POLLIN) | POLLPRI;
-   // This may repeat in case of EINTR.
-   for (;;) {
-      int iRet = ::poll(&pfd, 1, bWait ? -1 : 0);
-      if (iRet >= 0) {
-         if (iRet > 0) {
-            if (pfd.revents & (POLLERR | POLLNVAL)) {
-               // TODO: how should async_join() return I/O errors?
-            }
-            /* Consider POLLHUP as input, so that ::read() can return 0 bytes. This helps mitigate
-            the considerable differences among poll(2) implementations documented at
-            <http://www.greenend.org.uk/rjk/tech/poll.html>, and Linux happens to be one of those
-            setting *only* POLLHUP on a pipe with no open write fds. */
-            if (pfd.revents & (bWrite ? POLLOUT : (POLLIN | POLLHUP))) {
-               if (pfd.revents & POLLPRI) {
-                  // TODO: anything special about “high priority data”?
-               }
-               return true;
-            }
-         }
-         return false;
-      }
-      int iErr = errno;
-      if (iErr != EINTR) {
-         exception::throw_os_error(iErr);
-      }
-   }
-}
-
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-
-/*virtual*/ std::size_t file_base::async_join() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (!m_bAllowAsync) {
-      // TODO: is async_join() on non-async file an error?
-      return 0;
-   }
-   DWORD cbTransferred;
-   if (!::GetOverlappedResult(m_fd.get(), &m_ovl, &cbTransferred, true)) {
-      // TODO: how should async_join() return I/O errors?
-      exception::throw_os_error();
-   }
-   return cbTransferred;
-}
-
-/*virtual*/ bool file_base::async_pending() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (!m_bAllowAsync) {
-      return false;
-   }
-   DWORD cbTransferred;
-   if (::GetOverlappedResult(m_fd.get(), &m_ovl, &cbTransferred, false)) {
-      // Discard cbTransferred; clients will need to call async_join() to get the byte count.
-      return false;
-   }
-   DWORD iErr = ::GetLastError();
-   if (iErr == ERROR_IO_INCOMPLETE) {
-      return true;
-   }
-   // TODO: how should async_pending() return I/O errors?
-   exception::throw_os_error();
-}
-
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
 } //namespace binary
 } //namespace io
@@ -145,65 +62,63 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_reader::~file_reader() {
-#if ABC_HOST_API_WIN32
-   if (m_bAllowAsync) {
-      /* TODO: cancel the I/O and block to wait the end of cancellation. This gives a behavior
-      similar to POSIX. */
-      // TODO: warn that this is a bug because I/O errors are not being checked for.
-   }
-#endif
 }
-
-#if ABC_HOST_API_POSIX
-/*virtual*/ std::size_t file_reader::async_join() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (!m_pAsyncBuf) {
-      // TODO: is async_join() on non-async file an error?
-      return 0;
-   }
-   async_poll(false /*poll reading*/, true /*wait*/);
-   std::ptrdiff_t cbRead = read_impl(m_pAsyncBuf, m_cbAsyncBuf);
-   // If no exceptions were thrown, the buffer no longer needs to be tracked.
-   m_pAsyncBuf = nullptr;
-   m_cbAsyncBuf = 0;
-   if (cbRead == -1) {
-      /* This is possible in spite of the earlier poll(2) call if the data that was available turned
-      out to be bad (e.g. CRC error) and had to be discarded. */
-      // TODO: FIXME: this *will* confuse callers, being the same value returned for EOF.
-      return 0;
-   } else {
-      return static_cast<std::size_t>(cbRead);
-   }
-}
-
-/*virtual*/ bool file_reader::async_pending() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (m_pAsyncBuf) {
-      return async_poll(false /*poll reading*/, false /*don’t wait*/);
-   } else {
-      return false;
-   }
-}
-#endif //if ABC_HOST_API_POSIX
 
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   async_join();
 #if ABC_HOST_API_POSIX
-   std::ptrdiff_t cbRead = read_impl(
-      p, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
-   );
-   if (cbRead >= 0) {
-      return static_cast<std::size_t>(cbRead);
-   } else {
-      // Remember the buffer for later attempts in async_join().
-      m_pAsyncBuf = p;
-      m_cbAsyncBuf = cbMax;
-      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-      return 0;
+   // This may repeat in case of EINTR.
+   for (;;) {
+      ::ssize_t cbRead = ::read(
+         m_fd.get(), p, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
+      );
+      if (cbRead >= 0) {
+         return static_cast<std::size_t>(cbRead);
+      }
+      int iErr = errno;
+      switch (iErr) {
+         case EINTR:
+            break;
+         case EAGAIN:
+   #if EWOULDBLOCK != EAGAIN
+         case EWOULDBLOCK:
+   #endif
+            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+               // Give other coroutines a chance to run while we wait for m_fd.
+               pcorosched->yield_while_async_pending(m_fd, false);
+               break;
+            } else {
+               // No coroutine scheduler, so we have to wait for data to be available.
+               ::pollfd pfd;
+               pfd.fd = m_fd.get();
+               pfd.events = POLLIN | POLLPRI;
+               int iRet = ::poll(&pfd, 1, -1);
+               if (iRet > 0) {
+                  if (pfd.revents & (POLLERR | POLLNVAL)) {
+                     // TODO: how should POLLERR and POLLNVAL be handled?
+                  }
+                  /* Consider POLLHUP as input, so that ::read() can return 0 bytes. This helps
+                  mitigate the considerable differences among poll(2) implementations documented at
+                  <http://www.greenend.org.uk/rjk/tech/poll.html>, and Linux happens to be one of
+                  those who set *only* POLLHUP on a pipe with no open write fds. */
+                  if (pfd.revents & (POLLIN | POLLHUP)) {
+                     if (pfd.revents & POLLPRI) {
+                        // TODO: anything special about “high priority data”?
+                     }
+                  }
+                  // Go back to the ::read() call.
+                  break;
+               }
+               iErr = errno;
+               if (iErr == EINTR) {
+                  break;
+               }
+               // Fall through.
+            }
+         default:
+            exception::throw_os_error(iErr);
+      }
    }
 #elif ABC_HOST_API_WIN32
    static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix read size calculation");
@@ -237,40 +152,6 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 #endif
 }
 
-#if ABC_HOST_API_POSIX
-std::ptrdiff_t file_reader::read_impl(void * p, std::size_t cbMax) {
-   ABC_TRACE_FUNC(this, p, cbMax);
-
-   static_assert(sizeof(std::ptrdiff_t) == sizeof(::ssize_t), "");
-   // This may repeat in case of EINTR.
-   for (;;) {
-      ::ssize_t cbRead = ::read(m_fd.get(), p, cbMax);
-      if (cbRead >= 0) {
-         return cbRead;
-      }
-      int iErr = errno;
-      switch (iErr) {
-         case EINTR:
-            break;
-         case EAGAIN: // Try again (POSIX.1-2001)
-   // These two values may or may not be different.
-   #if EWOULDBLOCK != EAGAIN
-         case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
-   #endif
-            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-               // Give other coroutines a chance to run while we wait for m_fd.
-               pcorosched->yield_while_async_pending(m_fd, false);
-               break;
-            } else {
-               return -1;
-            }
-         default:
-            exception::throw_os_error(iErr);
-      }
-   }
-}
-#endif
-
 #if ABC_HOST_API_WIN32
 /*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const {
    if (iErr != ERROR_SUCCESS) {
@@ -296,52 +177,11 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_writer::~file_writer() {
-#if ABC_HOST_API_WIN32
-   if (m_bAllowAsync) {
-      // Block to avoid segfaults due to the buffer being deallocated while in use by the kernel.
-      // TODO: NO, instead cancel the I/O and block to wait the end of cancellation.
-      async_join();
-      // TODO: warn that this is a bug because I/O errors are not being checked for.
-   }
-#endif
 }
-
-#if ABC_HOST_API_POSIX
-/*virtual*/ std::size_t file_writer::async_join() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (!m_pAsyncBuf) {
-      // TODO: is async_join() on non-async file an error?
-      return 0;
-   }
-   async_poll(true /*poll writing*/, true /*wait*/);
-   std::ptrdiff_t cbWritten = write_impl(m_pAsyncBuf, m_cbAsyncBuf);
-   // If no exceptions were thrown, the buffer no longer needs to be tracked.
-   m_pAsyncBuf = nullptr;
-   m_cbAsyncBuf = 0;
-   if (cbWritten == -1) {
-      // Should not be possible.
-      return 0;
-   } else {
-      return static_cast<std::size_t>(cbWritten);
-   }
-}
-
-/*virtual*/ bool file_writer::async_pending() /*override*/ {
-   ABC_TRACE_FUNC(this);
-
-   if (m_pAsyncBuf) {
-      return async_poll(true /*poll writing*/, false /*don’t wait*/);
-   } else {
-      return false;
-   }
-}
-#endif //if ABC_HOST_API_POSIX
 
 /*virtual*/ void file_writer::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   async_join();
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
    if (::fsync(m_fd.get())) {
@@ -359,19 +199,61 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
-   async_join();
 #if ABC_HOST_API_POSIX
-   std::ptrdiff_t cbWritten = write_impl(
-      p, std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value)
-   );
-   if (cbWritten >= 0) {
-      return static_cast<std::size_t>(cbWritten);
-   } else {
-      // Remember the buffer for later attempts in async_join().
-      m_pAsyncBuf = const_cast<void *>(p);
-      m_cbAsyncBuf = cb;
-      // TODO: decide whether pending I/O should return 0 or tuple<size_t, bool>.
-      return 0;
+   std::int8_t const * pb = static_cast<std::int8_t const *>(p);
+   std::size_t cbWrittenTotal = 0;
+   // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.
+   for (;;) {
+      std::size_t cbToWrite = std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value);
+      ::ssize_t cbWritten = ::write(m_fd.get(), pb, cbToWrite);
+      if (cbWritten >= 0) {
+         cbWrittenTotal += static_cast<std::size_t>(cbWritten);
+         cb -= static_cast<std::size_t>(cbWritten);
+         if (!cb) {
+            return cbWrittenTotal;
+         }
+         pb += cbWritten;
+      } else {
+         int iErr = errno;
+         switch (iErr) {
+            case EINTR:
+               break;
+            case EAGAIN:
+   #if EWOULDBLOCK != EAGAIN
+            case EWOULDBLOCK:
+   #endif
+               if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+                  // Give other coroutines a chance to run while we wait for m_fd.
+                  pcorosched->yield_while_async_pending(m_fd, true);
+                  break;
+               } else {
+                  // No coroutine scheduler, so we have to wait for data to be available.
+                  ::pollfd pfd;
+                  pfd.fd = m_fd.get();
+                  pfd.events = POLLOUT | POLLPRI;
+                  int iRet = ::poll(&pfd, 1, -1);
+                  if (iRet > 0) {
+                     if (pfd.revents & (POLLERR | POLLNVAL)) {
+                        // TODO: how should POLLERR and POLLNVAL be handled?
+                     }
+                     if (pfd.revents & POLLOUT) {
+                        if (pfd.revents & POLLPRI) {
+                           // TODO: anything special about “high priority data”?
+                        }
+                     }
+                     // Go back to the ::write() call.
+                     break;
+                  }
+                  iErr = errno;
+                  if (iErr == EINTR) {
+                     break;
+                  }
+                  // Fall through.
+               }
+            default:
+               exception::throw_os_error(iErr);
+         }
+      }
    }
 #elif ABC_HOST_API_WIN32
    static_assert(sizeof(std::size_t) >= sizeof(DWORD), "fix write size calculation");
@@ -403,40 +285,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    #error "TODO: HOST_API"
 #endif
 }
-
-#if ABC_HOST_API_POSIX
-std::ptrdiff_t file_writer::write_impl(void const * p, std::size_t cb) {
-   ABC_TRACE_FUNC(this, p, cb);
-
-   static_assert(sizeof(std::ptrdiff_t) == sizeof(::ssize_t), "");
-   // This may repeat in case of EINTR.
-   for (;;) {
-      ::ssize_t cbWritten = ::write(m_fd.get(), p, cb);
-      if (cbWritten >= 0) {
-         return cbWritten;
-      }
-      int iErr = errno;
-      switch (iErr) {
-         case EINTR:
-            break;
-         case EAGAIN: // Try again (POSIX.1-2001)
-   // These two values may or may not be different.
-   #if EWOULDBLOCK != EAGAIN
-         case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
-   #endif
-            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-               // Give other coroutines a chance to run while we wait for m_fd.
-               pcorosched->yield_while_async_pending(m_fd, true);
-               break;
-            } else {
-               return -1;
-            }
-         default:
-            exception::throw_os_error(iErr);
-      }
-   }
-}
-#endif
 
 } //namespace binary
 } //namespace io

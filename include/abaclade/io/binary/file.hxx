@@ -34,18 +34,10 @@ namespace io {
 namespace binary {
 
 //! Base for file binary I/O classes.
-class ABACLADE_SYM file_base : public virtual base, public async, public noncopyable {
+class ABACLADE_SYM file_base : public virtual base, public noncopyable {
 public:
    //! Destructor.
    virtual ~file_base();
-
-#if ABC_HOST_API_WIN32
-   //! See binary::base::async_join().
-   virtual std::size_t async_join() override;
-
-   //! See binary::base::async_pending().
-   virtual bool async_pending() override;
-#endif
 
 protected:
    /*! Constructor.
@@ -55,29 +47,9 @@ protected:
    */
    file_base(detail::file_init_data * pfid);
 
-#if ABC_HOST_API_POSIX
-   /*! Polls m_fd to determine whether I/O would block.
-
-   @param bWrite
-      If true, poll for writing; if false, poll for reading.
-   @param bWait
-      If true, block until the selected I/O mode is possible; if false, check without blocking.
-   @return
-      true if m_fd is ready, or false if the selected I/O mode would block.
-   */
-   bool async_poll(bool bWrite, bool bWait) const;
-#endif
-
 protected:
    //! Descriptor of the underlying file.
    filedesc m_fd;
-#if ABC_HOST_API_POSIX
-   void * m_pAsyncBuf;
-   std::size_t m_cbAsyncBuf;
-#elif ABC_HOST_API_WIN32
-   //! Stores information about a pending I/O operation.
-   ::OVERLAPPED m_ovl;
-#endif
    /*! If true, asynchronous I/O is allowed. Only false if Abaclade can be certain that the file
    doesn’t allow async I/O, for example when opened via abc::io::binary::open*(), but not when the
    file has been provided from the outside, as in the case of abc::io::binary::stdout(). */
@@ -104,30 +76,11 @@ public:
    //! Destructor.
    virtual ~file_reader();
 
-#if ABC_HOST_API_POSIX
-   //! See file_base::async_join().
-   virtual std::size_t async_join() override;
-
-   //! See file_base::async_pending().
-   virtual bool async_pending() override;
-#endif
-
    //! See reader::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
 protected:
-#if ABC_HOST_API_POSIX
-   /*! Implementation of read() and async_join().
-
-   @param p
-      Pointer to the buffer to read into.
-   @param cbMax
-      Size of *p.
-   @return
-      Non-negative integer if the read completed, or negative integer if the read would block.
-   */
-   std::ptrdiff_t read_impl(void * p, std::size_t cbMax);
-#elif ABC_HOST_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! Detects EOF conditions and real errors. Necessary because under Win32 there are major
    differences in detection of EOF depending on the file type.
 
@@ -163,33 +116,11 @@ public:
    //! Destructor.
    virtual ~file_writer();
 
-#if ABC_HOST_API_POSIX
-   //! See file_base::async_join().
-   virtual std::size_t async_join() override;
-
-   //! See file_base::async_pending().
-   virtual bool async_pending() override;
-#endif
-
    //! See writer::flush().
    virtual void flush() override;
 
    //! See writer::write().
    virtual std::size_t write(void const * p, std::size_t cb) override;
-
-protected:
-#if ABC_HOST_API_POSIX
-   /*! Implementation of write() and async_join().
-
-   @param p
-      Pointer to the buffer to write.
-   @param cb
-      Size of *p.
-   @return
-      Non-negative integer if the write completed, or negative integer if the write would block.
-   */
-   std::ptrdiff_t write_impl(void const * p, std::size_t cb);
-#endif
 };
 
 } //namespace binary
