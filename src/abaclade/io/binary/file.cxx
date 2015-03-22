@@ -206,19 +206,17 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    ABC_TRACE_FUNC(this, p, cb);
 
    std::int8_t const * pb = static_cast<std::int8_t const *>(p);
-   std::size_t cbWrittenTotal = 0;
 #if ABC_HOST_API_POSIX
    // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.
    for (;;) {
       std::size_t cbToWrite = std::min<std::size_t>(cb, numeric::max< ::ssize_t>::value);
       ::ssize_t cbWritten = ::write(m_fd.get(), pb, cbToWrite);
       if (cbWritten >= 0) {
-         cbWrittenTotal += static_cast<std::size_t>(cbWritten);
+         pb += cbWritten;
          cb -= static_cast<std::size_t>(cbWritten);
          if (!cb) {
             break;
          }
-         pb += cbWritten;
       } else {
          int iErr = errno;
          switch (iErr) {
@@ -262,7 +260,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       }
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   for (;;) {
+   do {
       DWORD cbToWrite = static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value));
       DWORD cbWritten;
       if (m_bAllowAsync) {
@@ -296,17 +294,13 @@ file_writer::file_writer(detail::file_init_data * pfid) :
             exception::throw_os_error();
          }
       }
-      cbWrittenTotal += cbWritten;
-      cb -= cbWritten;
-      if (!cb) {
-         break;
-      }
       pb += cbWritten;
-   }
+      cb -= cbWritten;
+   } while (cb);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   return cbWrittenTotal;
+   return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
 }
 
 } //namespace binary
