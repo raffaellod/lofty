@@ -268,7 +268,7 @@ std::shared_ptr<file_base> open(
    #ifndef O_DIRECT
       #if ABC_HOST_API_DARWIN
          if (bBypassCache) {
-            if (::fcntl(fid.fd.get(), F_NOCACHE, 1) == -1) {
+            if (::fcntl(fid.fd.get(), F_NOCACHE, 1) < 0) {
                exception::throw_os_error();
             }
          }
@@ -353,11 +353,11 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe(
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the two file descriptors. That’s the whole point of pipe2(). */
    ABC_FOR_EACH(int fd, fds) {
-      if (::fcntl(fd, F_SETFD, 1) == -1) {
+      if (::fcntl(fd, F_SETFD, 1) < 0) {
          exception::throw_os_error();
       }
       if (bAsync) {
-         if (::fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+         if (::fcntl(fd, F_SETFL, O_NONBLOCK) < 0) {
             exception::throw_os_error();
          }
       }

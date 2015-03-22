@@ -746,7 +746,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
          break;
    }
    offset_t ibNewOffset = ::lseek(m_fd.get(), ibOffset, iWhence);
-   if (ibNewOffset == -1) {
+   if (ibNewOffset < 0) {
       exception::throw_os_error();
    }
    return ibNewOffset;
