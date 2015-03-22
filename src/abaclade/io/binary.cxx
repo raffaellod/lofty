@@ -386,22 +386,20 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    if (bAsync) {
       // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
       static long s_iSerial = 0;
-      /* This amount will be taken from kernel the non-paged memory pool, so it should be small, so
-      make it a single memory page. */
-      static DWORD const sc_cbBuffer = 4096;
-      /* Default timeout for WaitNamedPipe(), in milliseconds. Irrelevant in this case, since the
-      client won’t even know that this is a named pipe. */
-      static DWORD const sc_iDefaultTimeout = 1000;
       // Generate the pipe name.
       smstr<128> sPipeName;
       io::text::str_writer(external_buffer, &sPipeName).print(
          ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
       );
+      /* Pipe buffers are allocated in the kernel’s non-paged memory pool, so this value should be
+      small; the smallest it can get is a single memory page. */
+      DWORD cbBuffer = static_cast<DWORD>(memory::page_size());
+      // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
       fidReader.fd = ::CreateNamedPipe(
          sPipeName.c_str(),
          GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
-         1, sc_cbBuffer, sc_cbBuffer, sc_iDefaultTimeout, nullptr
+         1, cbBuffer, cbBuffer, 0, nullptr
       );
       if (!fidReader.fd) {
          exception::throw_os_error();
