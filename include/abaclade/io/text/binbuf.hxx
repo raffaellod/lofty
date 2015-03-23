@@ -108,8 +108,8 @@ protected:
    //! See binbuf_base::_binary_buffered_base().
    virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
-   //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, bool bOneLine) override;
+   //! See reader::read_line_or_all().
+   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) override;
 
 private:
    /*! Detects the encoding used in the provided buffer.
@@ -124,7 +124,7 @@ private:
    */
    std::size_t detect_encoding(std::int8_t const * pb, std::size_t cb);
 
-   /*! Implementation of read_while() for the source encoding == host encoding.
+   /*! Implementation of read_line_or_all() for the source encoding == host encoding.
 
    @param pb
       Pointer to a buffer with the initial contents of the file.
@@ -138,11 +138,11 @@ private:
    @return
       Count of characters read into *psDst.
    */
-   std::size_t read_while_with_host_encoding(
+   std::size_t read_line_or_all_with_host_encoding(
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 
-   /*! Implementation of read_while() for the source encoding != host encoding.
+   /*! Implementation of read_line_or_all() for the source encoding != host encoding.
 
    @param pb
       Pointer to a buffer with the initial contents of the file.
@@ -156,7 +156,7 @@ private:
    @return
       Count of characters read into *psDst.
    */
-   std::size_t read_while_with_transcode(
+   std::size_t read_line_or_all_with_transcode(
       std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
    );
 

@@ -445,7 +445,7 @@
     </draw:connector>
     <draw:frame draw:style-name="gr4" draw:text-style-name="P4" draw:layer="layout" svg:width="4.2cm" svg:height="1.826cm" svg:x="22.8cm" svg:y="33.398cm">
      <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T4">read_while() +</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T4">read_line_or_all() +</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T4">remaining_size_in_chars()</text:span></text:p>
      </draw:text-box>
     </draw:frame>
@@ -479,7 +479,7 @@
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">binary_buffered() +</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T4">_binary_buffered_base() +</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T4">read_while() +</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T4">read_line_or_all() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
     <draw:connector draw:style-name="gr3" draw:text-style-name="P5" draw:layer="layout" draw:type="curve" svg:x1="22.8cm" svg:y1="23.408cm" svg:x2="19.7cm" svg:y2="22.754cm" draw:start-shape="id9" draw:start-glue-point="4" draw:end-shape="id8" draw:end-glue-point="4" svg:d="M22800 23408c-2325 0-775-654-3100-654" svg:viewBox="0 0 3101 655">
@@ -542,7 +542,7 @@
       <text:p text:style-name="P3"><text:span text:style-name="T4">lines()</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T4">read_all()</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T4">read_line()</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T5">read_while()</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T5">read_line_or_all()</text:span></text:p>
      </draw:text-box>
     </draw:frame>
     <draw:frame draw:style-name="gr9" draw:text-style-name="P4" draw:layer="layout" svg:width="4.2cm" svg:height="3.806cm" svg:x="22.8cm" svg:y="16.898cm">

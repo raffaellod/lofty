@@ -101,7 +101,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    return cbBom;
 }
 
-/*virtual*/ bool binbuf_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
+/*virtual*/ bool binbuf_reader::read_line_or_all(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    /* Start with trying to read enough bytes to have the certainty we can decode even the longest
@@ -135,10 +135,10 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    std::size_t cchReadTotal = 0;
    if (m_enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      cchReadTotal = read_while_with_host_encoding(pbSrc, &cbSrc, psDst, bOneLine);
+      cchReadTotal = read_line_or_all_with_host_encoding(pbSrc, &cbSrc, psDst, bOneLine);
    } else {
       // Sub-optimal case: transcoding is needed.
-      cchReadTotal = read_while_with_transcode(pbSrc, &cbSrc, psDst, bOneLine);
+      cchReadTotal = read_line_or_all_with_transcode(pbSrc, &cbSrc, psDst, bOneLine);
    }
 
    // Truncate the string.
@@ -148,7 +148,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    return cbSrc || cchReadTotal;
 }
 
-std::size_t binbuf_reader::read_while_with_host_encoding(
+std::size_t binbuf_reader::read_line_or_all_with_host_encoding(
    std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
 ) {
    ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);
@@ -177,7 +177,7 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
       char_t * pchDstOffset = pchDstBegin + cchReadTotal;
       // Validate the characters in the source buffer before appending them to *psDst.
       /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
-      into a special character, in which case we switch to using read_while_with_transcode()
+      into a special character, in which case we switch to using read_line_or_all_with_transcode()
       (abc::text:transcode can fix errors if told so). */
       abc::text::str_traits::validate(pchSrcBegin, pchSrcEnd, true);
 
@@ -234,7 +234,7 @@ std::size_t binbuf_reader::read_while_with_host_encoding(
    return cchReadTotal;
 }
 
-std::size_t binbuf_reader::read_while_with_transcode(
+std::size_t binbuf_reader::read_line_or_all_with_transcode(
    std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
 ) {
    ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);

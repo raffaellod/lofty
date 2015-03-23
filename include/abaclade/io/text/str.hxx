@@ -91,8 +91,8 @@ public:
    }
 
 protected:
-   //! See reader::read_while().
-   virtual bool read_while(mstr * psDst, bool bOneLine) override;
+   //! See reader::read_line_or_all().
+   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) override;
 
 protected:
    //! Pointer to the source string, which is m_sReadBuf or an external string.

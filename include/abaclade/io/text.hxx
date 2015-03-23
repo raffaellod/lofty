@@ -358,7 +358,7 @@ protected:
       true if a string could be read, or false if the end of the data was reached, in which case
       *psDst is left in an undetermined state.
    */
-   virtual bool read_while(mstr * psDst, bool bOneLine) = 0;
+   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) = 0;
 };
 
 } //namespace text

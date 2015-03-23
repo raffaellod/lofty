@@ -100,7 +100,7 @@ str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
 /*virtual*/ str_reader::~str_reader() {
 }
 
-/*virtual*/ bool str_reader::read_while(mstr * psDst, bool bOneLine) /*override*/ {
+/*virtual*/ bool str_reader::read_line_or_all(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    // TODO: implement this.

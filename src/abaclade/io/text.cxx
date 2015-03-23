@@ -215,19 +215,19 @@ dmstr reader::read_all() {
    ABC_TRACE_FUNC(this);
 
    dmstr sDst;
-   read_while(&sDst, false);
+   read_line_or_all(&sDst, false);
    return std::move(sDst);
 }
 void reader::read_all(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
-   read_while(psDst, false);
+   read_line_or_all(psDst, false);
 }
 
 bool reader::read_line(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
-   bool bEOF = read_while(psDst, true);
+   bool bEOF = read_line_or_all(psDst, true);
 
    // Strip the line terminator, if any.
    std::size_t cchLTerm = 0;
