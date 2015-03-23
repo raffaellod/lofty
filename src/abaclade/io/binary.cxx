@@ -432,7 +432,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    );
 }
 
-std::shared_ptr<file_writer> stderr() {
+std::shared_ptr<file_writer> const & stderr() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -456,7 +456,7 @@ std::shared_ptr<file_writer> stderr() {
    return g_pbfwStdErr;
 }
 
-std::shared_ptr<file_reader> stdin() {
+std::shared_ptr<file_reader> const & stdin() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -480,7 +480,7 @@ std::shared_ptr<file_reader> stdin() {
    return g_pbfrStdIn;
 }
 
-std::shared_ptr<file_writer> stdout() {
+std::shared_ptr<file_writer> const & stdout() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To

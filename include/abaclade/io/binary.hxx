@@ -122,21 +122,21 @@ ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer
 @return
    Standard error file.
 */
-ABACLADE_SYM std::shared_ptr<file_writer> stderr();
+ABACLADE_SYM std::shared_ptr<file_writer> const & stderr();
 
 /*! Returns the binary reader associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM std::shared_ptr<file_reader> stdin();
+ABACLADE_SYM std::shared_ptr<file_reader> const & stdin();
 
 /*! Returns the binary writer associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM std::shared_ptr<file_writer> stdout();
+ABACLADE_SYM std::shared_ptr<file_writer> const & stdout();
 
 } //namespace binary
 } //namespace io
