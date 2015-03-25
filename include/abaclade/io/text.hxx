@@ -264,8 +264,8 @@ public:
          */
          iterator(reader * ptr, bool bEOF) :
             mc_ptr(ptr),
-            /* If not already at EOF, begin fetching a new line. This may make *this == end(), which
-            is desirable. */
+            /* If not already at EOF, fetch a new line. This may make *this == end(), which is
+            desirable. */
             m_bEOF(bEOF || !ptr->read_line(&m_s)) {
          }
 
@@ -355,8 +355,7 @@ protected:
    @param bOneLine
       If true, reading will stop at the first line terminator character.
    @return
-      true if a string could be read, or false if the end of the data was reached, in which case
-      *psDst is left in an undetermined state.
+      true if a string could be read, or false if the reader was at EOF.
    */
    virtual bool read_line_or_all(mstr * psDst, bool bOneLine) = 0;
 };
