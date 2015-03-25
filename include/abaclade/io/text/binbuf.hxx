@@ -126,29 +126,28 @@ private:
 
    /*! Implementation of read_line_or_all() for the source encoding == host encoding.
 
-   @param pb
+   @param pchSrc
       Pointer to a buffer with the initial contents of the file.
-   @param pcb
-      Pointer to the size of the buffer pointed to by pb; on return it will contain the count of
-      bytes remaining in the last peek buffer.
+   @param cchSrc
+      Size of the buffer pointed to by pb.
    @param psDst
       Pointer to the string that will receive the read data.
    @param bOneLine
       If true, reading will stop at the first line terminator character.
    @return
-      Count of characters read into *psDst.
+      true if any characters could be read (not necessarily put into *psDst), or false if the reader
+      hit EOF immediately.
    */
-   std::size_t read_line_or_all_with_host_encoding(
-      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
+   bool read_line_or_all_with_host_encoding(
+      char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
    );
 
    /*! Implementation of read_line_or_all() for the source encoding != host encoding.
 
-   @param pb
+   @param pbSrc
       Pointer to a buffer with the initial contents of the file.
-   @param pcb
-      Pointer to the size of the buffer pointed to by pb; on return it will contain the count of
-      bytes remaining in the last peek buffer.
+   @param cbSrc
+      Size of the buffer pointed to by pb.
    @param psDst
       Pointer to the string that will receive the read data.
    @param bOneLine
@@ -157,7 +156,7 @@ private:
       Count of characters read into *psDst.
    */
    std::size_t read_line_or_all_with_transcode(
-      std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
+      std::int8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
    );
 
 protected:
@@ -165,6 +164,8 @@ protected:
    std::shared_ptr<binary::buffered_reader> m_pbbr;
 
 private:
+   //! true if a previous call to read*() got to EOF.
+   bool m_bEOF:1;
    /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
    next read operation encounters a leading ‘\n’, that character will not be considered as a line
    terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present

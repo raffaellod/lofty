@@ -63,6 +63,7 @@ binbuf_reader::binbuf_reader(
    binbuf_base(enc),
    reader(),
    m_pbbr(std::move(pbbr)),
+   m_bEOF(false),
    m_bDiscardNextLF(false) {
 }
 
@@ -97,61 +98,60 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
       // TODO: provide more information in the exception.
       ABC_THROW(abc::text::error, ());
    }
-   // If a BOM was read, consume and discard it.
    return cbBom;
 }
 
 /*virtual*/ bool binbuf_reader::read_line_or_all(mstr * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
+   // Only continue if we didn’t reach EOF in the past.
+   if (m_bEOF) {
+      return false;
+   }
+
    /* Start with trying to read enough bytes to have the certainty we can decode even the longest
    code point. This doesn’t necessarily mean that we’ll read as many, and this is fine because we
    just want to make sure that the following loops don’t get stuck, never being able to consume a
-   whole code point; this also doesn’t mean that we’ll only read as few, because the buffered reader
-   will probably read many more than this. */
+   whole code point; this also doesn’t mean that we’ll only read as few, because the buffered
+   reader will probably read many more than this. */
    std::int8_t const * pbSrc;
    std::size_t cbSrc;
    std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
    if (!cbSrc) {
       // If nothing was read, this is the end of the data.
+      m_bEOF = true;
       return false;
    }
 
    // If the encoding is still undefined, try to guess it now.
    if (m_enc == abc::text::encoding::unknown) {
       std::size_t cbBom = detect_encoding(pbSrc, cbSrc);
-      // If a BOM was read, consume and discard it.
+      // If a BOM was read, consume it.
       if (cbBom) {
          m_pbbr->consume_bytes(cbBom);
          pbSrc += cbBom;
          cbSrc -= cbBom;
-         // If we already run out of bytes, get some more.
-         if (!cbSrc) {
-            std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
-         }
       }
    }
 
-   std::size_t cchReadTotal = 0;
    if (m_enc == abc::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      cchReadTotal = read_line_or_all_with_host_encoding(pbSrc, &cbSrc, psDst, bOneLine);
+      return read_line_or_all_with_host_encoding(
+         reinterpret_cast<char_t const *>(pbSrc), cbSrc / sizeof(char_t), psDst, bOneLine
+      );
    } else {
       // Sub-optimal case: transcoding is needed.
-      cchReadTotal = read_line_or_all_with_transcode(pbSrc, &cbSrc, psDst, bOneLine);
+      std::size_t cchReadTotal = read_line_or_all_with_transcode(pbSrc, cbSrc, psDst, bOneLine);
+      // Truncate the string.
+      psDst->set_size_in_chars(cchReadTotal);
+      return cchReadTotal > 0;
    }
-
-   // Truncate the string.
-   psDst->set_size_in_chars(cchReadTotal);
-   /* If the loop terminated because it run out of data and read no data at all, we reached the end
-   of the data; otherwise, return true. */
-   return cbSrc || cchReadTotal;
 }
 
-std::size_t binbuf_reader::read_line_or_all_with_host_encoding(
-   std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
+bool binbuf_reader::read_line_or_all_with_host_encoding(
+   char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
 ) {
-   ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);
+   ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    bool bLineEndsOnCROrAny =
       m_lterm == abc::text::line_terminator::cr ||
@@ -161,83 +161,103 @@ std::size_t binbuf_reader::read_line_or_all_with_host_encoding(
       m_lterm == abc::text::line_terminator::lf ||
       m_lterm == abc::text::line_terminator::any ||
       m_lterm == abc::text::line_terminator::convert_any_to_lf;
-   // This loop consumes one peek buffer at a time; it may end prematurely if bOneLine == true.
-   std::size_t cchReadTotal = 0;
-   for (
-      ;
-      *pcbSrc;
-      std::tie(pbSrc, *pcbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length)
-   ) {
-      // Enlarge the destination string and append the read buffer contents to it.
-      char_t const * pchSrcBegin = reinterpret_cast<char_t const *>(pbSrc);
-      char_t const * pchSrcEnd = reinterpret_cast<char_t const *>(pbSrc + *pcbSrc);
-      std::size_t cchSrc = *pcbSrc / sizeof(char_t);
-      psDst->set_capacity(cchReadTotal + cchSrc, true);
-      char_t * pchDstBegin = psDst->chars_begin();
-      char_t * pchDstOffset = pchDstBegin + cchReadTotal;
-      // Validate the characters in the source buffer before appending them to *psDst.
-      /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted
-      into a special character, in which case we switch to using read_line_or_all_with_transcode()
-      (abc::text:transcode can fix errors if told so). */
-      abc::text::str_traits::validate(pchSrcBegin, pchSrcEnd, true);
-
-      /* This loop copies one line at a time from the peek buffer into the destination string, at an
-      increasing offset from its start (pchDstOffset). Each iteration ends on the first line
-      terminator matching m_lterm, and the line terminator is also translated on the fly if
-      appropriate. If not asked for just a single line, this continues until we exhaust the current
-      peek buffer. */
-      char_t const * pchSrc = pchSrcBegin;
-      char_t * pchDst = pchDstOffset;
+   /* The inner loop copies characters from the peek buffer into *psDst until it gets to the
+   appropriate line terminator, which gets translated on the fly if necessary; the outer loop
+   restarts the inner one if we’re not just reading a single line. */
+   std::size_t cchSrcTotal = 0, cchLTerm;
+   char_t const * pchSrcBegin, * pchSrcEnd = nullptr;
+   char_t * pchDst = psDst->chars_begin();
+   bool bRecalcSrcDst = true;
+   do {
+      cchLTerm = 0;
+      bool bLineEndsOnCRLFAndFoundCR = false;
       do {
-         /* If the first character is a CR that’s part of a CR+LF terminator we already presented as
-         a LF, make it disappear. */
-         if (m_bDiscardNextLF) {
-            if (*pchSrc == '\n') {
-               ++pchSrc;
-            }
-            m_bDiscardNextLF = false;
+         if (pchSrc == pchSrcEnd) {
+            // Run out of source characters; consume the ones we used and try to get more.
+            cchSrc = static_cast<std::size_t>(pchSrc - pchSrcBegin);
+            cchSrcTotal += cchSrc;
+            m_pbbr->consume<char_t>(cchSrc);
+            std::tie(pchSrcBegin, cchSrc) = m_pbbr->peek<char_t>(abc::text::max_codepoint_length);
+            bRecalcSrcDst = true;
          }
-         bool bLineEndsOnCRLFAndFoundCR = false;
-         while (pchSrc < pchSrcEnd) {
-            char_t ch = *pchSrc++;
-            *pchDst++ = ch;
-            if (ch == '\r') {
-               if (bLineEndsOnCROrAny) {
-                  if (m_lterm != abc::text::line_terminator::cr) {
-                     // Make sure we discard a possible following LF.
-                     m_bDiscardNextLF = true;
-                     if (m_lterm == abc::text::line_terminator::convert_any_to_lf) {
-                        // Convert this CR (possibly followed by LF) into a LF.
-                        *(pchDst - 1) = '\n';
-                     }
+         if (bRecalcSrcDst) {
+            /* Reset pchSrc before the possible break (below) to avoid subtracting two unrelated
+            pointers after the loops. */
+            pchSrcBegin = pchSrc;
+            if (!cchSrc) {
+               // Reached EOF. m_bEOF will break the outer loop after we break out of the inner one.
+               m_bEOF = true;
+               break;
+            }
+            // Enlarge the destination string and recalculate source and destination pointers.
+            pchSrcEnd = pchSrcBegin + cchSrc;
+            std::size_t cchDstTotal = static_cast<std::size_t>(pchDst - psDst->chars_begin());
+            psDst->set_capacity(cchDstTotal + cchSrc, true);
+            pchDst = psDst->chars_begin() + cchDstTotal;
+            // Validate the characters in the peek buffer before we start appending them to *psDst.
+            /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be.
+            Maybe only do the validation at the end of each line? */
+            /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be
+            converted into a special character, in which case we switch to using
+            read_line_or_all_with_transcode() (abc::text:transcode can fix errors if told so). */
+            /* TODO: improve this so we don’t re-validate the entire string on each read; validate
+            only the portion that was just read. */
+            abc::text::str_traits::validate(pchSrcBegin, pchSrcEnd, true);
+            bRecalcSrcDst = false;
+         }
+
+         char_t ch = *pchSrc++;
+         *pchDst++ = ch;
+         if (ch == '\r') {
+            if (bLineEndsOnCROrAny) {
+               if (m_lterm != abc::text::line_terminator::cr) {
+                  // Make sure we discard a possible following LF.
+                  m_bDiscardNextLF = true;
+                  if (m_lterm == abc::text::line_terminator::convert_any_to_lf) {
+                     // Convert this CR (possibly followed by LF) into a LF.
+                     *(pchDst - 1) = '\n';
                   }
-                  break;
-               } else if (m_lterm == abc::text::line_terminator::cr_lf) {
-                  // Only consider this CR if followed by a LF.
-                  bLineEndsOnCRLFAndFoundCR = true;
                }
-            } else if (ch == '\n') {
-               if (bLineEndsOnLFOrAny || bLineEndsOnCRLFAndFoundCR) {
-                  break;
-               }
+               cchLTerm = 1;
+            } else if (m_lterm == abc::text::line_terminator::cr_lf) {
+               // Only consider this CR if followed by a LF.
+               bLineEndsOnCRLFAndFoundCR = true;
+            }
+         } else if (ch == '\n') {
+            if (m_bDiscardNextLF) {
+               /* This CR is part of a CR+LF line terminator we already presented as a LF, so make
+               it disappear. */
+               --pchDst;
+               m_bDiscardNextLF = false;
+            } else if (bLineEndsOnLFOrAny) {
+               cchLTerm = 1;
+            } else if (bLineEndsOnCRLFAndFoundCR) {
+               cchLTerm = 2;
             }
          }
-      } while (!bOneLine && pchSrc < pchSrcEnd);
-      // Count the copied bytes and consume the used bytes.
-      cchReadTotal += static_cast<std::size_t>(pchDst - pchDstOffset);
-      m_pbbr->consume<char_t>(static_cast<std::size_t>(pchSrc - pchSrcBegin));
-      if (pchSrc < pchSrcEnd) {
-         // We broke out of the line-consuming loop due to bOneLine, so stop here.
-         break;
-      }
+      } while (!cchLTerm);
+   } while (!bOneLine && !m_bEOF);
+
+   if (bOneLine) {
+      // If the line read includes a line terminator, strip it off.
+      pchDst -= cchLTerm;
    }
-   return cchReadTotal;
+   // Calculate the length of the string and truncate it to that.
+   std::size_t cchDstTotal = static_cast<std::size_t>(pchDst - psDst->chars_begin());
+   psDst->set_size_in_chars(cchDstTotal);
+   // Calculate how many characters were used from the last peek buffer and consume them.
+   cchSrc = static_cast<std::size_t>(pchSrc - pchSrcBegin);
+   if (cchSrc) {
+      cchSrcTotal += cchSrc;
+      m_pbbr->consume<char_t>(cchSrc);
+   }
+   return cchSrcTotal > 0;
 }
 
 std::size_t binbuf_reader::read_line_or_all_with_transcode(
-   std::int8_t const * pbSrc, std::size_t * pcbSrc, mstr * psDst, bool bOneLine
+   std::int8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
 ) {
-   ABC_TRACE_FUNC(this, pbSrc, pcbSrc, psDst, bOneLine);
+   ABC_TRACE_FUNC(this, pbSrc, cbSrc, psDst, bOneLine);
 
    bool bLineEndsOnCROrAny =
       m_lterm == abc::text::line_terminator::cr ||
@@ -255,7 +275,7 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
    TODO: tune the initial value for cbSrcMax: smaller causes more repeated function calls, larger
    causes more work in abc::text::transcode() when we need to move characters back to the source. */
    //std::size_t cbSrcMax(32);
-   std::size_t cchReadTotal = 0, cbSrc = *pcbSrc;
+   std::size_t cchReadTotal = 0;
    bool bLineEndsOnCRLFAndFoundCR = false;
    for (
       ;
@@ -352,7 +372,6 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
          break;
       }
    }
-   *pcbSrc = cbSrc;
    return cchReadTotal;
 }
 

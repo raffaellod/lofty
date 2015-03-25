@@ -221,43 +221,15 @@ dmstr reader::read_all() {
 void reader::read_all(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
+   psDst->clear();
    read_line_or_all(psDst, false);
 }
 
 bool reader::read_line(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
-   bool bEOF = read_line_or_all(psDst, true);
-
-   // Strip the line terminator, if any.
-   std::size_t cchLTerm = 0;
-   if (
-      m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf
-   ) {
-      /* Reading stopped at the first CR or LF, so removing either from its end will cause it to
-      contain none. */
-      char_t const * pch = psDst->chars_end() - 1, * pchBegin = psDst->chars_begin();
-      if (pch != pchBegin) {
-         char_t ch = *pch;
-         if (ch == '\n' || ch == '\r') {
-            cchLTerm = 1;
-         }
-      }
-   } else {
-      /* Pick the appropriate line terminator string; if the string ends in that, strip it off
-      before returning. */
-      istr const sLTerm(abc::text::get_line_terminator_str(m_lterm));
-      if (psDst->ends_with(sLTerm)) {
-         cchLTerm = sLTerm.size_in_chars();
-      }
-   }
-   // Remove the line terminator from the end of the string, if we found one.
-   if (cchLTerm) {
-      psDst->set_size_in_chars(psDst->size_in_chars() - cchLTerm);
-   }
-
-   return bEOF;
+   psDst->clear();
+   return read_line_or_all(psDst, true);
 }
 
 } //namespace text
