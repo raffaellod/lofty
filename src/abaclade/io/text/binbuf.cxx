@@ -55,6 +55,154 @@ namespace abc {
 namespace io {
 namespace text {
 
+namespace detail {
+
+reader_read_helper::reader_read_helper(
+   binbuf_reader * ptbbr, char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
+) :
+   m_ptbbr(ptbbr),
+   m_pchSrc(pchSrc),
+   m_cchSrc(cchSrc),
+   m_psDst(psDst),
+   m_bOneLine(bOneLine),
+   m_bEOF(m_ptbbr->m_bEOF),
+   m_bDiscardNextLF(m_ptbbr->m_bDiscardNextLF),
+   m_bLineEndsOnCROrAny(
+      m_ptbbr->m_lterm == abc::text::line_terminator::cr ||
+      m_ptbbr->m_lterm == abc::text::line_terminator::any ||
+      m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf
+   ),
+   m_bLineEndsOnLFOrAny(
+      m_ptbbr->m_lterm == abc::text::line_terminator::lf ||
+      m_ptbbr->m_lterm == abc::text::line_terminator::any ||
+      m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf
+   ),
+   m_cchSrcTotal(0),
+   m_pchSrcBegin(m_pchSrc),
+   m_pchDst(m_psDst->chars_begin()) {
+}
+
+reader_read_helper::~reader_read_helper() {
+   ABC_TRACE_FUNC(this);
+
+   m_ptbbr->m_bEOF = m_bEOF;
+   m_ptbbr->m_bDiscardNextLF = m_bDiscardNextLF;
+}
+
+void reader_read_helper::consume_used_chars() {
+   ABC_TRACE_FUNC(this);
+
+   m_cchSrc = static_cast<std::size_t>(m_pchSrc - m_pchSrcBegin);
+   if (m_cchSrc) {
+      m_cchSrcTotal += m_cchSrc;
+      m_ptbbr->m_pbbr->consume<char_t>(m_cchSrc);
+   }
+}
+
+void reader_read_helper::read_line() {
+   ABC_TRACE_FUNC(this);
+
+   m_cchLTerm = 0;
+   if (m_pchSrc == m_pchSrcEnd && !replenish_peek_buffer()) {
+      return;
+   }
+   if (m_bDiscardNextLF) {
+      /* This CR is part of a CR+LF line terminator we already presented as a LF, so make it
+      disappear. */
+      if (*m_pchSrc == '\n') {
+         ++m_pchSrc;
+      }
+      m_bDiscardNextLF = false;
+   }
+   /* This (inner) loop copies characters from the peek buffer into *psDst until it gets to
+   the appropriate line terminator, which gets translated on the fly if necessary. */
+   bool bLineEndsOnCRLFAndFoundCR = false;
+   while (m_cchLTerm == 0 && (m_pchSrc != m_pchSrcEnd || replenish_peek_buffer())) {
+      char_t ch = *m_pchSrc++;
+      *m_pchDst++ = ch;
+      if (ch == '\r') {
+         if (m_bLineEndsOnCROrAny) {
+            if (m_ptbbr->m_lterm != abc::text::line_terminator::cr) {
+               // Make sure we discard a possible following LF.
+               m_bDiscardNextLF = true;
+               if (m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf) {
+                  // Convert this CR (possibly followed by LF) into a LF.
+                  *(m_pchDst - 1) = '\n';
+               }
+            }
+            m_cchLTerm = 1;
+         } else if (m_ptbbr->m_lterm == abc::text::line_terminator::cr_lf) {
+            // Only consider this CR if followed by a LF.
+            bLineEndsOnCRLFAndFoundCR = true;
+         }
+      } else if (ch == '\n') {
+         if (m_bLineEndsOnLFOrAny) {
+            m_cchLTerm = 1;
+         } else if (bLineEndsOnCRLFAndFoundCR) {
+            m_cchLTerm = 2;
+         }
+      }
+   }
+}
+
+void reader_read_helper::recalc_src_dst() {
+   ABC_TRACE_FUNC(this);
+
+   m_pchSrcEnd = m_pchSrcBegin + m_cchSrc;
+   std::size_t cchDstTotal = static_cast<std::size_t>(m_pchDst - m_psDst->chars_begin());
+   m_psDst->set_capacity(cchDstTotal + m_cchSrc, true);
+   m_pchDst = m_psDst->chars_begin() + cchDstTotal;
+   // Validate the characters in the peek buffer before we start appending them to *psDst.
+   /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be.
+   Maybe only do the validation at the end of each line? */
+   /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be
+   converted into a special character, in which case we switch to using
+   read_line_or_all_with_transcode() (abc::text:transcode can fix errors if told so). */
+   /* TODO: improve this so we don’t re-validate the entire string on each read; validate
+   only the portion that was just read. */
+   abc::text::str_traits::validate(m_pchSrcBegin, m_pchSrcEnd, true);
+}
+
+bool reader_read_helper::replenish_peek_buffer() {
+   ABC_TRACE_FUNC(this);
+
+   consume_used_chars();
+   std::tie(m_pchSrc, m_cchSrc) = m_ptbbr->m_pbbr->peek<char_t>(abc::text::max_codepoint_length);
+   // Reset m_pchSrcBegin now to avoid subtracting two unrelated pointers after the two loops.
+   m_pchSrc = m_pchSrcBegin;
+   if (m_cchSrc) {
+      recalc_src_dst();
+      return true;
+   } else {
+      // Reached EOF. bEOF will break the outer loop after we break out of the inner one.
+      m_bEOF = true;
+      return false;
+   }
+}
+
+bool reader_read_helper::run() {
+   ABC_TRACE_FUNC(this);
+
+   recalc_src_dst();
+   // This (outer) loop restarts the inner one if we’re not just reading a single line.
+   do {
+      read_line();
+   } while (!m_bOneLine && !m_bEOF);
+   if (m_bOneLine) {
+      // If the line read includes a line terminator, strip it off.
+      m_pchDst -= m_cchLTerm;
+   }
+   // Calculate the length of the string and truncate it to that.
+   std::size_t cchDstTotal = static_cast<std::size_t>(m_pchDst - m_psDst->chars_begin());
+   m_psDst->set_size_in_chars(cchDstTotal);
+   // Calculate how many characters were used from the last peek buffer and consume them.
+   consume_used_chars();
+   return m_cchSrcTotal > 0;
+}
+
+} //namespace detail
+
+
 binbuf_reader::binbuf_reader(
    std::shared_ptr<binary::buffered_reader> pbbr,
    abc::text::encoding enc /*= abc::text::encoding::unknown*/
@@ -151,107 +299,10 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
 bool binbuf_reader::read_line_or_all_with_host_encoding(
    char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
 ) {
-   ABC_TRACE_FUNC(this, psDst, bOneLine);
+   ABC_TRACE_FUNC(this, pchSrc, cchSrc, psDst, bOneLine);
 
-   bool bLineEndsOnCROrAny =
-      m_lterm == abc::text::line_terminator::cr ||
-      m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf;
-   bool bLineEndsOnLFOrAny =
-      m_lterm == abc::text::line_terminator::lf ||
-      m_lterm == abc::text::line_terminator::any ||
-      m_lterm == abc::text::line_terminator::convert_any_to_lf;
-   /* The inner loop copies characters from the peek buffer into *psDst until it gets to the
-   appropriate line terminator, which gets translated on the fly if necessary; the outer loop
-   restarts the inner one if we’re not just reading a single line. */
-   std::size_t cchSrcTotal = 0, cchLTerm;
-   char_t const * pchSrcBegin, * pchSrcEnd = nullptr;
-   char_t * pchDst = psDst->chars_begin();
-   bool bRecalcSrcDst = true;
-   do {
-      cchLTerm = 0;
-      bool bLineEndsOnCRLFAndFoundCR = false;
-      do {
-         if (pchSrc == pchSrcEnd) {
-            // Run out of source characters; consume the ones we used and try to get more.
-            cchSrc = static_cast<std::size_t>(pchSrc - pchSrcBegin);
-            cchSrcTotal += cchSrc;
-            m_pbbr->consume<char_t>(cchSrc);
-            std::tie(pchSrcBegin, cchSrc) = m_pbbr->peek<char_t>(abc::text::max_codepoint_length);
-            bRecalcSrcDst = true;
-         }
-         if (bRecalcSrcDst) {
-            /* Reset pchSrc before the possible break (below) to avoid subtracting two unrelated
-            pointers after the loops. */
-            pchSrcBegin = pchSrc;
-            if (!cchSrc) {
-               // Reached EOF. m_bEOF will break the outer loop after we break out of the inner one.
-               m_bEOF = true;
-               break;
-            }
-            // Enlarge the destination string and recalculate source and destination pointers.
-            pchSrcEnd = pchSrcBegin + cchSrc;
-            std::size_t cchDstTotal = static_cast<std::size_t>(pchDst - psDst->chars_begin());
-            psDst->set_capacity(cchDstTotal + cchSrc, true);
-            pchDst = psDst->chars_begin() + cchDstTotal;
-            // Validate the characters in the peek buffer before we start appending them to *psDst.
-            /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be.
-            Maybe only do the validation at the end of each line? */
-            /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be
-            converted into a special character, in which case we switch to using
-            read_line_or_all_with_transcode() (abc::text:transcode can fix errors if told so). */
-            /* TODO: improve this so we don’t re-validate the entire string on each read; validate
-            only the portion that was just read. */
-            abc::text::str_traits::validate(pchSrcBegin, pchSrcEnd, true);
-            bRecalcSrcDst = false;
-         }
-
-         char_t ch = *pchSrc++;
-         *pchDst++ = ch;
-         if (ch == '\r') {
-            if (bLineEndsOnCROrAny) {
-               if (m_lterm != abc::text::line_terminator::cr) {
-                  // Make sure we discard a possible following LF.
-                  m_bDiscardNextLF = true;
-                  if (m_lterm == abc::text::line_terminator::convert_any_to_lf) {
-                     // Convert this CR (possibly followed by LF) into a LF.
-                     *(pchDst - 1) = '\n';
-                  }
-               }
-               cchLTerm = 1;
-            } else if (m_lterm == abc::text::line_terminator::cr_lf) {
-               // Only consider this CR if followed by a LF.
-               bLineEndsOnCRLFAndFoundCR = true;
-            }
-         } else if (ch == '\n') {
-            if (m_bDiscardNextLF) {
-               /* This CR is part of a CR+LF line terminator we already presented as a LF, so make
-               it disappear. */
-               --pchDst;
-               m_bDiscardNextLF = false;
-            } else if (bLineEndsOnLFOrAny) {
-               cchLTerm = 1;
-            } else if (bLineEndsOnCRLFAndFoundCR) {
-               cchLTerm = 2;
-            }
-         }
-      } while (!cchLTerm);
-   } while (!bOneLine && !m_bEOF);
-
-   if (bOneLine) {
-      // If the line read includes a line terminator, strip it off.
-      pchDst -= cchLTerm;
-   }
-   // Calculate the length of the string and truncate it to that.
-   std::size_t cchDstTotal = static_cast<std::size_t>(pchDst - psDst->chars_begin());
-   psDst->set_size_in_chars(cchDstTotal);
-   // Calculate how many characters were used from the last peek buffer and consume them.
-   cchSrc = static_cast<std::size_t>(pchSrc - pchSrcBegin);
-   if (cchSrc) {
-      cchSrcTotal += cchSrc;
-      m_pbbr->consume<char_t>(cchSrc);
-   }
-   return cchSrcTotal > 0;
+   detail::reader_read_helper rrh(this, pchSrc, cchSrc, psDst, bOneLine);
+   return rrh.run();
 }
 
 std::size_t binbuf_reader::read_line_or_all_with_transcode(

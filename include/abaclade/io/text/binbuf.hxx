@@ -80,8 +80,69 @@ namespace abc {
 namespace io {
 namespace text {
 
+namespace detail {
+
+//! Implementation of much of binbuf_reader::read_line_or_all().
+class ABACLADE_SYM reader_read_helper : public noncopyable {
+public:
+   //! Constructor.
+   reader_read_helper(
+      binbuf_reader * ptbbr, char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
+   );
+
+   //! Destructor.
+   ~reader_read_helper();
+
+   //! Consumes the used characters from the binary::buffered_reader.
+   void consume_used_chars();
+
+   //! Reads characters until a line terminator is found.
+   void read_line();
+
+   //! Enlarges the destination string and recalculate source and destination pointers.
+   void recalc_src_dst();
+
+   //! Performs a new binary::buffered_reader::peek() call.
+   bool replenish_peek_buffer();
+
+   //! Runs the helper.
+   bool run();
+
+private:
+   //! Pointer to the object that instantiated *this.
+   binbuf_reader * m_ptbbr;
+
+   // Internal state of binbuf_reader::read_line_or_all().
+
+   char_t const * m_pchSrc;
+   std::size_t m_cchSrc;
+   mstr * m_psDst;
+   bool m_bOneLine:1;
+
+   // Buffered from m_ptbbr.
+
+   bool m_bEOF:1;
+   bool m_bDiscardNextLF:1;
+
+   // Internal state.
+
+   bool m_bLineEndsOnCROrAny:1;
+   bool m_bLineEndsOnLFOrAny:1;
+   std::size_t m_cchSrcTotal;
+   std::size_t m_cchLTerm;
+   char_t const * m_pchSrcBegin;
+   char_t const * m_pchSrcEnd;
+   char_t * m_pchDst;
+
+};
+
+} //namespace detail
+
 //! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
 class ABACLADE_SYM binbuf_reader : public virtual binbuf_base, public virtual reader {
+private:
+   friend class detail::reader_read_helper;
+
 public:
    /*! Constructor.
 
