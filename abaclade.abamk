@@ -132,6 +132,14 @@ You should have received a copy of the GNU General Public License along with Aba
    </exe>
 
    <exe
+      name="cat"
+      brief="Example: “cat” utility."
+   >
+      <source path="examples/cat.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
+
+   <exe
       name="exceptions"
       brief="Example: exceptions and stack traces."
    >
