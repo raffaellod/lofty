@@ -147,8 +147,7 @@ abamake>), which works as an improved make utility.
 
 To build Abaclade, run Abamake from its base directory:
 
-   abamake.py
-
+   /path/to/abamake.py
 
 This will create outputs in the bin/ and lib/ folders.
 
