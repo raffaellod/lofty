@@ -289,10 +289,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
       );
    } else {
       // Sub-optimal case: transcoding is needed.
-      std::size_t cchReadTotal = read_line_or_all_with_transcode(pbSrc, cbSrc, psDst, bOneLine);
-      // Truncate the string.
-      psDst->set_size_in_chars(cchReadTotal);
-      return cchReadTotal > 0;
+      return read_line_or_all_with_transcode(pbSrc, cbSrc, psDst, bOneLine);
    }
 }
 
@@ -305,7 +302,7 @@ bool binbuf_reader::read_line_or_all_with_host_encoding(
    return rrh.run();
 }
 
-std::size_t binbuf_reader::read_line_or_all_with_transcode(
+bool binbuf_reader::read_line_or_all_with_transcode(
    std::int8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
 ) {
    ABC_TRACE_FUNC(this, pbSrc, cbSrc, psDst, bOneLine);
@@ -326,7 +323,7 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
    TODO: tune the initial value for cbSrcMax: smaller causes more repeated function calls, larger
    causes more work in abc::text::transcode() when we need to move characters back to the source. */
    //std::size_t cbSrcMax(32);
-   std::size_t cchReadTotal = 0;
+   std::size_t cchReadTotal = 0, cchLTerm = 0;
    bool bLineEndsOnCRLFAndFoundCR = false;
    for (
       ;
@@ -369,6 +366,7 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
             }
             m_bDiscardNextLF = false;
          }
+         cchLTerm = 0;
          while (pchDstUntranslated < pchDstEnd) {
             char_t ch = *pchDstUntranslated++;
             // TODO: avoid writing ch if source and destination pointers are in sync.
@@ -383,14 +381,21 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
                         *(pchDstTranslated - 1) = '\n';
                      }
                   }
+                  cchLTerm = 1;
                   break;
                } else if (m_lterm == abc::text::line_terminator::cr_lf) {
                   // Only consider this CR if followed by a LF.
                   bLineEndsOnCRLFAndFoundCR = true;
+                  cchLTerm = 1;
                }
             } else if (ch == '\n') {
-               if (bLineEndsOnLFOrAny || bLineEndsOnCRLFAndFoundCR) {
+               if (bLineEndsOnLFOrAny) {
                   bLineEndsOnCRLFAndFoundCR = false;
+                  cchLTerm = 1;
+                  break;
+               } else if (bLineEndsOnCRLFAndFoundCR) {
+                  bLineEndsOnCRLFAndFoundCR = false;
+                  cchLTerm = 2;
                   break;
                }
             }
@@ -423,7 +428,13 @@ std::size_t binbuf_reader::read_line_or_all_with_transcode(
          break;
       }
    }
-   return cchReadTotal;
+   if (bOneLine) {
+      // If the line read includes a line terminator, strip it off.
+      cchReadTotal -= cchLTerm;
+   }
+   // Truncate the string.
+   psDst->set_size_in_chars(cchReadTotal);
+   return cchReadTotal > 0;
 }
 
 } //namespace text

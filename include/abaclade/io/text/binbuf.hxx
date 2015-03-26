@@ -214,9 +214,10 @@ private:
    @param bOneLine
       If true, reading will stop at the first line terminator character.
    @return
-      Count of characters read into *psDst.
+      true if any characters could be read (not necessarily put into *psDst), or false if the reader
+      hit EOF immediately.
    */
-   std::size_t read_line_or_all_with_transcode(
+   bool read_line_or_all_with_transcode(
       std::int8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
    );
 
