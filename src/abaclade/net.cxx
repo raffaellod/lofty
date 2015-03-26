@@ -35,8 +35,7 @@ namespace abc {
 namespace net {
 
 connection::connection(io::filedesc fd, smstr<45> && sAddress) :
-   /*m_br(),
-   m_bw(),*/
+   m_bfrw(io::binary::make_readwriter(std::move(fd))),
    m_sAddress(std::move(sAddress)) {
 }
 

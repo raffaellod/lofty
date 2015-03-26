@@ -55,29 +55,19 @@ public:
       return m_sAddress;
    }
 
-   /*! Returns a binary reader to receive data from the remote peer.
+   /*! Returns a binary reader/writer object representing the socket, to receive data from the
+   remote peer.
 
    @return
-      Reader for the connection’s socket.
+      Reader/writer for the connection’s socket.
    */
-   std::shared_ptr<io::binary::reader> const & reader() {
-      return m_br;
-   }
-
-   /*! Returns a binary writer to send data to the remote peer.
-
-   @return
-      Writer for the connection’s socket.
-   */
-   std::shared_ptr<io::binary::writer> const & writer() {
-      return m_bw;
+   std::shared_ptr<io::binary::file_readwriter> const & socket() {
+      return m_bfrw;
    }
 
 private:
-   //! Reader for the connection’s socket.
-   std::shared_ptr<io::binary::reader> m_br;
-   //! Writer for the connection’s socket.
-   std::shared_ptr<io::binary::writer> m_bw;
+   //! Reader/writer for the connection’s socket.
+   std::shared_ptr<io::binary::file_readwriter> m_bfrw;
    //! Address of the remote peer.
    smstr<45> m_sAddress;
 };
