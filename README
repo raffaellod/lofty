@@ -81,7 +81,7 @@ these objectives.
 3. Compatibility
 ----------------
 
-Abaclade is in full development, so the compatibility can and will change over
+Abaclade is in full development, so its compatibility can and will change over
 time (hopefully expanding).
 
 Supported build systems:
@@ -93,7 +93,7 @@ Supported build systems:
 
 •  Microsoft Visual Studio 2010/2012/2013 (Visual C++ 10-12 / MSC 16-18)
 
-Clang/LLVM is not supported at the moment, due to missing compiler features. If
+Clang/LLVM is not supported at this moment due to missing compiler features. If
 and when these will get integrated in LLVM, Abaclade will support these
 additional build systems:
 
@@ -168,9 +168,9 @@ Examples are built as part of Abaclade (see § 5. Building Abaclade), and the
 generated executables can be found in the bin/ output folder.
 
 If Abaclade is not installed (see § 6. Installing Abaclade), example programs
-will fail to run due to being unable to load Abaclade shared libraries. This can
+will fail to run due to being unable to load Abaclade shared libraries; this can
 be worked around by adding the output lib/ folder to the shared library search
-path.
+path:
 
 • On glibc/Linux and FreeBSD:
 
