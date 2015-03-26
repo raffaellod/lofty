@@ -39,7 +39,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
-abc::event_loop. */
+abc::coroutine_scheduler. */
 class ABACLADE_SYM thread : public noncopyable {
 public:
    //! Underlying OS-dependent ID/handle type.

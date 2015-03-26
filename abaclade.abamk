@@ -35,7 +35,6 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/collections/detail/xor_list.cxx"/>
       <source path="src/abaclade/coroutine.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
-      <source path="src/abaclade/event_loop.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
       <source path="src/abaclade/exception/fault_converter.cxx"/>
       <source path="src/abaclade/exception/throw_os_error.cxx"/>
