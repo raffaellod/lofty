@@ -130,6 +130,27 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::file_readwriter
+
+namespace abc {
+namespace io {
+namespace binary {
+
+//! Bidirectional binary file.
+class ABACLADE_SYM file_readwriter : public file_reader, public file_writer {
+public:
+   //! See file_reader::file_reader() and file_writer::file_writer().
+   file_readwriter(detail::file_init_data * pfid);
+
+   //! Destructor.
+   virtual ~file_readwriter();
+};
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::console_file_base
 
 namespace abc {
@@ -263,6 +284,27 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::console_readwriter
+
+namespace abc {
+namespace io {
+namespace binary {
+
+//! Bidirectional console/terminal pseudo-file.
+class ABACLADE_SYM console_readwriter : public console_reader, public console_writer {
+public:
+   //! See console_reader::console_reader() and console_writer::console_writer().
+   console_readwriter(detail::file_init_data * pfid);
+
+   //! Destructor.
+   virtual ~console_readwriter();
+};
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::io::binary::pipe_reader
 
 namespace abc {
@@ -305,6 +347,27 @@ public:
 
    //! Destructor.
    virtual ~pipe_writer();
+};
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::pipe_readwriter
+
+namespace abc {
+namespace io {
+namespace binary {
+
+//! Bidirectional console/terminal pseudo-file.
+class ABACLADE_SYM pipe_readwriter : public pipe_reader, public pipe_writer {
+public:
+   //! See pipe_reader::pipe_reader() and pipe_writer::pipe_writer().
+   pipe_readwriter(detail::file_init_data * pfid);
+
+   //! Destructor.
+   virtual ~pipe_readwriter();
 };
 
 } //namespace binary
@@ -395,6 +458,30 @@ protected:
    //! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it.
    bool m_bAppend:1;
 #endif
+};
+
+} //namespace binary
+} //namespace io
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::io::binary::regular_file_readwriter
+
+namespace abc {
+namespace io {
+namespace binary {
+
+//! Bidirectional console/terminal pseudo-file.
+class ABACLADE_SYM regular_file_readwriter :
+   public regular_file_reader,
+   public regular_file_writer {
+public:
+   /*! See regular_file_reader::regular_file_reader() and
+   regular_file_writer::regular_file_writer(). */
+   regular_file_readwriter(detail::file_init_data * pfid);
+
+   //! Destructor.
+   virtual ~regular_file_readwriter();
 };
 
 } //namespace binary

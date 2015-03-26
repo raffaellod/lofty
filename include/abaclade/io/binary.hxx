@@ -45,6 +45,7 @@ struct file_init_data;
 class file_base;
 class file_reader;
 class file_writer;
+class file_readwriter;
 class pipe_reader;
 class pipe_writer;
 
@@ -65,6 +66,15 @@ ABACLADE_SYM std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
    Pointer to a binary writer for the file descriptor.
 */
 ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
+
+/*! Creates and returns a binary reader/writer for the specified file descriptor.
+
+@param fd
+   File descriptor.
+@return
+   Pointer to a binary reader/writer for the file descriptor.
+*/
+ABACLADE_SYM std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd);
 
 /*! Opens a file for binary access.
 
@@ -108,6 +118,22 @@ inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypas
 */
 inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
    return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
+}
+
+/*! Opens a file for binary reading and writing.
+
+@param op
+   Path to the file.
+@param bBypassCache
+   If true, the OS will not cache any portion of the file; if false, accesses to the file will be
+   backed by the OS file cache subsystem.
+@return
+   Pointer to a binary reader/writer for the file.
+*/
+inline std::shared_ptr<file_readwriter> open_readwriter(
+   os::path const & op, bool bBypassCache = false
+) {
+   return std::dynamic_pointer_cast<file_readwriter>(open(op, access_mode::write, bBypassCache));
 }
 
 /*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.

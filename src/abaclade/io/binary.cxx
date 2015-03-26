@@ -65,8 +65,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          case access_mode::write_append:
             return std::make_shared<regular_file_writer>(pfid);
          case access_mode::read_write:
-            // TODO: regular_file_random
-            break;
+            return std::make_shared<regular_file_readwriter>(pfid);
       }
    }
    if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
@@ -76,6 +75,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          case access_mode::write:
             return std::make_shared<console_writer>(pfid);
          case access_mode::read_write:
+            return std::make_shared<console_readwriter>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -88,6 +88,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          case access_mode::write:
             return std::make_shared<pipe_writer>(pfid);
          case access_mode::read_write:
+            return std::make_shared<pipe_readwriter>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -112,6 +113,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
                case access_mode::write:
                   return std::make_shared<console_writer>(pfid);
                case access_mode::read_write:
+                  return std::make_shared<console_readwriter>(pfid);
                case access_mode::write_append:
                   // TODO: use a better exception class.
                   ABC_THROW(argument_error, ());
@@ -128,8 +130,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             case access_mode::write_append:
                return std::make_shared<regular_file_writer>(pfid);
             case access_mode::read_write:
-               // TODO: regular_file_random
-               break;
+               return std::make_shared<regular_file_readwriter>(pfid);
          }
          break;
 
@@ -141,6 +142,7 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
             case access_mode::write:
                return std::make_shared<pipe_writer>(pfid);
             case access_mode::read_write:
+               return std::make_shared<pipe_readwriter>(pfid);
             case access_mode::write_append:
                // TODO: use a better exception class.
                ABC_THROW(argument_error, ());
@@ -166,6 +168,8 @@ std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          return std::make_shared<file_reader>(pfid);
       case access_mode::write:
          return std::make_shared<file_writer>(pfid);
+      case access_mode::read_write:
+         return std::make_shared<file_readwriter>(pfid);
       default:
          // TODO: use a better exception class.
          ABC_THROW(argument_error, ());
@@ -226,6 +230,19 @@ std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
 #endif
    return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
+}
+
+std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
+   ABC_TRACE_FUNC(/*fd*/);
+
+   detail::file_init_data fid;
+   fid.fd = std::move(fd);
+   fid.am = access_mode::read_write;
+   fid.bBypassCache = false;
+#if ABC_HOST_API_WIN32
+   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+#endif
+   return std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
 }
 
 std::shared_ptr<file_base> open(
@@ -315,7 +332,7 @@ std::shared_ptr<file_base> open(
       iFlags |= FILE_FLAG_OVERLAPPED;
    }
    if (bBypassCache) {
-      // Turn off all caching/buffering and enable FILE_FLAG_NO_BUFFERING.
+      // Turn off all caching strategies and buffering.
       iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
       iFlags |= FILE_FLAG_NO_BUFFERING;
    }
