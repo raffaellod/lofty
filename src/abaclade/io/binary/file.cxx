@@ -642,7 +642,10 @@ namespace binary {
 
 console_readwriter::console_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
+   file_reader(pfid),
+   file_writer(pfid),
    console_file_base(pfid),
+   file_readwriter(pfid),
    console_reader(pfid),
    console_writer(pfid) {
 }
@@ -717,6 +720,9 @@ namespace binary {
 
 pipe_readwriter::pipe_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
+   file_reader(pfid),
+   file_writer(pfid),
+   file_readwriter(pfid),
    pipe_reader(pfid),
    pipe_writer(pfid) {
 }
@@ -1029,7 +1035,10 @@ namespace binary {
 
 regular_file_readwriter::regular_file_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
+   file_reader(pfid),
+   file_writer(pfid),
    regular_file_base(pfid),
+   file_readwriter(pfid),
    regular_file_reader(pfid),
    regular_file_writer(pfid) {
 }

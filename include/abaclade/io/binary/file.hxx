@@ -137,7 +137,7 @@ namespace io {
 namespace binary {
 
 //! Bidirectional binary file.
-class ABACLADE_SYM file_readwriter : public file_reader, public file_writer {
+class ABACLADE_SYM file_readwriter : public virtual file_reader, public virtual file_writer {
 public:
    //! See file_reader::file_reader() and file_writer::file_writer().
    file_readwriter(detail::file_init_data * pfid);
@@ -180,7 +180,7 @@ namespace io {
 namespace binary {
 
 //! Console/terminal input pseudo-file.
-class ABACLADE_SYM console_reader : public virtual console_file_base, public file_reader {
+class ABACLADE_SYM console_reader : public virtual console_file_base, public virtual file_reader {
 public:
    //! See file_reader::file_reader().
    console_reader(detail::file_init_data * pfid);
@@ -211,7 +211,7 @@ namespace binary {
 //! Console/terminal output pseudo-file.
 class ABACLADE_SYM console_writer :
    public virtual console_file_base,
-   public file_writer
+   public virtual file_writer
 #if ABC_HOST_API_WIN32
    // Under Win32, ANSI escape sequences parsing is up to us.
    , private abc::text::parsers::ansi_escape_sequences
@@ -291,7 +291,10 @@ namespace io {
 namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM console_readwriter : public console_reader, public console_writer {
+class ABACLADE_SYM console_readwriter :
+   public file_readwriter,
+   public console_reader,
+   public console_writer {
 public:
    //! See console_reader::console_reader() and console_writer::console_writer().
    console_readwriter(detail::file_init_data * pfid);
@@ -312,7 +315,7 @@ namespace io {
 namespace binary {
 
 //! Binary reader for the output end of a pipe.
-class ABACLADE_SYM pipe_reader : public file_reader {
+class ABACLADE_SYM pipe_reader : public virtual file_reader {
 public:
    //! See file_reader::file_reader().
    pipe_reader(detail::file_init_data * pfid);
@@ -340,7 +343,7 @@ namespace io {
 namespace binary {
 
 //! Binary writer for the input end of a pipe.
-class ABACLADE_SYM pipe_writer : public file_writer {
+class ABACLADE_SYM pipe_writer : public virtual file_writer {
 public:
    //! See file_writer::file_writer().
    pipe_writer(detail::file_init_data * pfid);
@@ -361,7 +364,10 @@ namespace io {
 namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM pipe_readwriter : public pipe_reader, public pipe_writer {
+class ABACLADE_SYM pipe_readwriter :
+   public file_readwriter,
+   public pipe_reader,
+   public pipe_writer {
 public:
    //! See pipe_reader::pipe_reader() and pipe_writer::pipe_writer().
    pipe_readwriter(detail::file_init_data * pfid);
@@ -421,7 +427,9 @@ namespace io {
 namespace binary {
 
 //! Binary reader for regular disk files.
-class ABACLADE_SYM regular_file_reader : public virtual regular_file_base, public file_reader {
+class ABACLADE_SYM regular_file_reader :
+   public virtual regular_file_base,
+   public virtual file_reader {
 public:
    //! See regular_file_base().
    regular_file_reader(detail::file_init_data * pfid);
@@ -442,7 +450,9 @@ namespace io {
 namespace binary {
 
 //! Binary writer for regular disk files.
-class ABACLADE_SYM regular_file_writer : public virtual regular_file_base, public file_writer {
+class ABACLADE_SYM regular_file_writer :
+   public virtual regular_file_base,
+   public virtual file_writer {
 public:
    //! See regular_file_base().
    regular_file_writer(detail::file_init_data * pfid);
@@ -473,6 +483,7 @@ namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
 class ABACLADE_SYM regular_file_readwriter :
+   public file_readwriter,
    public regular_file_reader,
    public regular_file_writer {
 public:
