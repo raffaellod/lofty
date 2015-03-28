@@ -134,6 +134,26 @@ std::shared_ptr<binbuf_base> _construct_stdio(
 } //namespace
 
 
+std::shared_ptr<reader> make_reader(
+   std::shared_ptr<binary::reader> pbr, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(pbr, enc);
+
+   return std::make_shared<binbuf_reader>(
+      std::make_shared<binary::default_buffered_reader>(std::move(pbr)), enc
+   );
+}
+
+std::shared_ptr<writer> make_writer(
+   std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(pbw, enc);
+
+   return std::make_shared<binbuf_writer>(
+      std::make_shared<binary::default_buffered_writer>(std::move(pbw)), enc
+   );
+}
+
 std::shared_ptr<binbuf_writer> stderr() {
    ABC_TRACE_FUNC();
 

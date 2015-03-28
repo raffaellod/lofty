@@ -30,9 +30,37 @@ namespace io {
 namespace text {
 
 // Forward declarations.
+class reader;
+class writer;
 class binbuf_base;
 class binbuf_reader;
 class binbuf_writer;
+
+/*! Creates and returns a text reader for the specified binary reader.
+
+@param pbr
+   Pointer to a binary reader.
+@param enc
+   Encoding to be used the the text.
+@return
+   Pointer to a text reader operating on top of the specified binary reader.
+*/
+ABACLADE_SYM std::shared_ptr<reader> make_reader(
+   std::shared_ptr<binary::reader> pbr, abc::text::encoding enc = abc::text::encoding::unknown
+);
+
+/*! Creates and returns a text writer for the specified binary writer.
+
+@param pbw
+   Pointer to a binary writer.
+@param enc
+   Encoding to be used the the text.
+@return
+   Pointer to a text writer operating on top of the specified binary writer.
+*/
+ABACLADE_SYM std::shared_ptr<writer> make_writer(
+   std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
+);
 
 /*! Returns the text writer associated to the standard error output file (stderr).
 
