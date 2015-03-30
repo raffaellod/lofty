@@ -461,13 +461,12 @@ std::shared_ptr<file_writer> const & stderr() {
    if (!g_pbfwStdErr) {
       g_pbfwStdErr = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
-         STDERR_FILENO,
+         STDERR_FILENO
 #elif ABC_HOST_API_WIN32
-         ::GetStdHandle(STD_ERROR_HANDLE),
+         ::GetStdHandle(STD_ERROR_HANDLE)
 #else
    #error "TODO: HOST_API"
 #endif
-         false
       ), access_mode::write));
    }
    return g_pbfwStdErr;
@@ -485,13 +484,12 @@ std::shared_ptr<file_reader> const & stdin() {
    if (!g_pbfrStdIn) {
       g_pbfrStdIn = std::dynamic_pointer_cast<file_reader>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
-         STDIN_FILENO,
+         STDIN_FILENO
 #elif ABC_HOST_API_WIN32
-         ::GetStdHandle(STD_INPUT_HANDLE),
+         ::GetStdHandle(STD_INPUT_HANDLE)
 #else
    #error "TODO: HOST_API"
 #endif
-         false
       ), access_mode::read));
    }
    return g_pbfrStdIn;
@@ -509,13 +507,12 @@ std::shared_ptr<file_writer> const & stdout() {
    if (!g_pbfwStdOut) {
       g_pbfwStdOut = std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
-         STDOUT_FILENO,
+         STDOUT_FILENO
 #elif ABC_HOST_API_WIN32
-         ::GetStdHandle(STD_OUTPUT_HANDLE),
+         ::GetStdHandle(STD_OUTPUT_HANDLE)
 #else
    #error "TODO: HOST_API"
 #endif
-         false
       ), access_mode::write));
    }
    return g_pbfwStdOut;

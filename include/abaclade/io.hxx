@@ -89,23 +89,20 @@ ABC_ENUM_AUTO_VALUES(stdfile,
 namespace abc {
 namespace io {
 
-/*! Wrapper for filedesc_t, to implement RAII. Similar in concept to std::unique_ptr, except it
-doesn’t always own the wrapped filedesc_t (e.g. for standard files). */
+//! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
 class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
 public:
    /*! Constructor.
 
    @param fd
-      Source file descriptor.
-   @param bOwn
-      If true, the filedesc object will take ownership of the raw descriptor (i.e. it will release
-      it whenever appropriate); if false, the raw descriptor will never be closed by this instance.
+      Source file descriptor. The filedesc object will take ownership of the raw descriptor,
+      releasing it when appropriate.
    */
    filedesc() :
-      m_fd(smc_fdNull), m_bOwn(false) {
+      m_fd(smc_fdNull) {
    }
-   filedesc(filedesc_t fd, bool bOwn = true) :
-      m_fd(fd), m_bOwn(bOwn) {
+   explicit filedesc(filedesc_t fd) :
+      m_fd(fd) {
    }
    filedesc(filedesc && fd);
 
@@ -154,8 +151,6 @@ public:
 private:
    //! The actual descriptor.
    filedesc_t m_fd;
-   //! If true, the wrapper will close the file on destruction.
-   bool m_bOwn;
    //! Logically null file descriptor.
    static filedesc_t const smc_fdNull;
 };
