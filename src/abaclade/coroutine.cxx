@@ -267,7 +267,7 @@ public:
       auto itActiveTimer(m_mapActiveTimers.add_or_assign(fd.get(), std::move(fd)).first);
       // At this point the timer is just a file descriptor that we’ll be waiting to read from.
       try {
-         yield_while_async_pending(itActiveTimer->value.get(), false);
+         yield_while_async_pending(itActiveTimer->value, false);
       } catch (...) {
          // Remove the timer from the set of active ones.
          // TODO: recycle the timer, putting it back in the pool of inactive timers.
