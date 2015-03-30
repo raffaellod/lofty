@@ -153,13 +153,13 @@ void reader_read_helper::recalc_src_dst() {
    m_psDst->set_capacity(cchDstTotal + m_cchSrc, true);
    m_pchDst = m_psDst->chars_begin() + cchDstTotal;
    // Validate the characters in the peek buffer before we start appending them to *psDst.
-   /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be.
-   Maybe only do the validation at the end of each line? */
-   /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be
-   converted into a special character, in which case we switch to using
-   read_line_or_all_with_transcode() (abc::text:transcode can fix errors if told so). */
-   /* TODO: improve this so we don’t re-validate the entire string on each read; validate
-   only the portion that was just read. */
+   /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be. Maybe only
+   do the validation at the end of each line? */
+   /* TODO: intercept exceptions if the “error mode” (TODO) mandates that errors be converted into a
+   special character, in which case we switch to using read_line_or_all_with_transcode()
+   (abc::text:transcode can fix errors if told so). */
+   /* TODO: improve this so we don’t re-validate the entire string on each read; validate only the
+   portion that was just read. */
    abc::text::str_traits::validate(m_pchSrcBegin, m_pchSrcEnd, true);
 }
 
@@ -167,7 +167,7 @@ bool reader_read_helper::replenish_peek_buffer() {
    ABC_TRACE_FUNC(this);
 
    consume_used_chars();
-   std::tie(m_pchSrc, m_cchSrc) = m_ptbbr->m_pbbr->peek<char_t>(abc::text::max_codepoint_length);
+   std::tie(m_pchSrc, m_cchSrc) = m_ptbbr->m_pbbr->peek<char_t>(1);
    // Reset m_pchSrcBegin now to avoid subtracting two unrelated pointers after the two loops.
    m_pchSrc = m_pchSrcBegin;
    if (m_cchSrc) {
@@ -260,11 +260,11 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    /* Start with trying to read enough bytes to have the certainty we can decode even the longest
    code point. This doesn’t necessarily mean that we’ll read as many, and this is fine because we
    just want to make sure that the following loops don’t get stuck, never being able to consume a
-   whole code point; this also doesn’t mean that we’ll only read as few, because the buffered
-   reader will probably read many more than this. */
+   whole code point; this also doesn’t mean that we’ll only read as few, because the buffered reader
+   will probably read many more than this. */
    std::int8_t const * pbSrc;
    std::size_t cbSrc;
-   std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length);
+   std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(1);
    if (!cbSrc) {
       // If nothing was read, this is the end of the data.
       m_bEOF = true;
@@ -325,11 +325,7 @@ bool binbuf_reader::read_line_or_all_with_transcode(
    //std::size_t cbSrcMax(32);
    std::size_t cchReadTotal = 0, cchLTerm = 0;
    bool bLineEndsOnCRLFAndFoundCR = false;
-   for (
-      ;
-      cbSrc;
-      std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(abc::text::max_codepoint_length)
-   ) {
+   for (; cbSrc; std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(1)) {
       /*if (bOneLine && cbSrc > cbSrcMax) {
          cbSrc = cbSrcMax;
          cbSrcMax *= 2;
