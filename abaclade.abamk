@@ -155,6 +155,14 @@ You should have received a copy of the GNU General Public License along with Aba
    </exe>
 
    <exe
+      name="echo-server"
+      brief="Example: TCP “echo” server implemented using coroutines."
+   >
+      <source path="examples/echo-server.cxx"/>
+      <dynlib name="abaclade"/>
+   </exe>
+
+   <exe
       name="maps-comparison"
       brief="Comparison of map implementations."
    >
