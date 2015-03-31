@@ -271,6 +271,9 @@ public:
       return m_pbbw;
    }
 
+   //! See writer::flush().
+   virtual void flush() override;
+
    //! See writer::write_binary().
    virtual void write_binary(
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc

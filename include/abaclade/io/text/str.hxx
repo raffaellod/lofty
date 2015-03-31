@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -130,6 +130,9 @@ public:
 
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();
+
+   //! See writer::flush().
+   virtual void flush() override;
 
    /*! Returns the internal string buffer as a read-only string.
 

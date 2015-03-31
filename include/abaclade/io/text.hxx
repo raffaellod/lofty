@@ -442,6 +442,9 @@ syntax>
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
 public:
+   //! Forces writing any data in the write buffer.
+   virtual void flush() = 0;
+
    /*! Writes multiple values combined together in the specified format.
 
    @param sFormat

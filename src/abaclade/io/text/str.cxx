@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -147,6 +147,12 @@ void str_writer::clear() {
 
    m_psWriteBuf->set_size_in_chars(0);
    m_ichOffset = 0;
+}
+
+/*virtual*/ void str_writer::flush() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   // Nothing to do.
 }
 
 dmstr str_writer::release_content() {

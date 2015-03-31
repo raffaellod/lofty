@@ -464,6 +464,12 @@ binbuf_writer::binbuf_writer(
    return m_pbbw;
 }
 
+/*virtual*/ void binbuf_writer::flush() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   m_pbbw->flush();
+}
+
 /*virtual*/ void binbuf_writer::write_binary(
    void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
 ) /*override*/ {
