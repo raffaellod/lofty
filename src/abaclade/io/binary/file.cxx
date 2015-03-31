@@ -193,8 +193,17 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_POSIX
    // TODO: investigate fdatasync().
-   if (::fsync(m_fd.get()) < 0) {
-      exception::throw_os_error();
+   // This may repeat in case of EINTR.
+   while (::fsync(m_fd.get()) < 0) {
+      int iErr = errno;
+      if (iErr == EINTR) {
+         continue;
+      } else if (iErr == EINVAL) {
+         // m_fd.get() does not support fsync(3); ignore the error.
+         break;
+      } else {
+         exception::throw_os_error();
+      }
    }
 #elif ABC_HOST_API_WIN32
    if (!::FlushFileBuffers(m_fd.get())) {
