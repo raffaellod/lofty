@@ -5,6 +5,7 @@
 *.suo
 *.vcxproj.user
 bin
+doc/doxygen
 int
 ipch
 lib
