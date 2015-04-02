@@ -78,7 +78,7 @@ thread_local_storage::~thread_local_storage() {
 
 /*static*/ void thread_local_storage::alloc_slot() {
 #if ABC_HOST_API_POSIX
-   if (int iErr = pthread_key_create(&g_pthkey, destruct)) {
+   if (int iErr = pthread_key_create(&g_pthkey, &destruct)) {
       ABC_UNUSED_ARG(iErr);
       // throw an exception (iErr).
    }
@@ -129,7 +129,7 @@ thread_local_storage::~thread_local_storage() {
    void * pThis;
 #if ABC_HOST_API_POSIX
    // With POSIX Threads we need a one-time call to alloc_slot().
-   pthread_once(&g_pthonce, alloc_slot);
+   pthread_once(&g_pthonce, &alloc_slot);
    pThis = pthread_getspecific(g_pthkey);
 #elif ABC_HOST_API_WIN32
    // Under Win32, alloc_slot() has already been called by dllmain_hook().
