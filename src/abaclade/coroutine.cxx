@@ -476,7 +476,7 @@ std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   if (coroutine_scheduler::sm_pcorosched.operator std::shared_ptr<coroutine_scheduler> const &()) {
+   if (coroutine_scheduler::sm_pcorosched) {
       // The current thread already has a coroutine scheduler.
       // TODO: use a better exception class.
       ABC_THROW(generic_error, ());

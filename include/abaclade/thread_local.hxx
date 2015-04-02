@@ -187,7 +187,9 @@ namespace abc {
 /*! Variable with separate per-thread values. Variables of this type cannot be non-static class
 members. */
 template <typename T>
-class thread_local_value : private detail::thread_local_var_impl {
+class thread_local_value :
+   private detail::thread_local_var_impl,
+   public support_explicit_operator_bool<thread_local_value<T>> {
 public:
    /*! Constructor.
 
@@ -223,6 +225,27 @@ public:
       return get();
    }
 
+   /*! Returns true if the object’s value evaluates to true.
+
+   @return
+      Result of the evaluation of the object’s value in a boolean context.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return get() ? true : false;
+   }
+
+   /*! Explicit cast to T &.
+
+   @return
+      Reference to the object’s value.
+   */
+   T & get() {
+      return *get_ptr<T>();
+   }
+   T const & get() const {
+      return *get_ptr<T>();
+   }
+
 private:
    //! See detail::thread_local_var_impl::construct().
    virtual void construct(void * p) const override {
@@ -234,18 +257,75 @@ private:
       static_cast<T *>(p)->~T();
    }
 
-   /*! Returns a reference to the thread-local copy of the value.
+private:
+   //! Default value for each per-thread copy of the value.
+   T const mc_tDefault;
+};
+
+// Specialization for bool, which does not need operator bool().
+template <>
+class thread_local_value<bool> : private detail::thread_local_var_impl {
+public:
+   /*! Constructor.
+
+   @param bDefault
+      Value that will be copied to initialize the TLS for each thread.
+   */
+   thread_local_value(bool bDefault = false) :
+      detail::thread_local_var_impl(sizeof(bool)),
+      mc_bDefault(bDefault) {
+   }
+
+   /*! Assignment operator.
+
+   @param b
+      Source value.
+   @return
+      *this.
+   */
+   thread_local_value & operator=(bool b) {
+      get() = b;
+      return *this;
+   }
+
+   /*! Implicit cast to bool &.
 
    @return
-      Reference to the value.
+      Reference to the object’s value.
    */
-   T & get() const {
-      return *get_ptr<T>();
+   operator bool &() {
+      return get();
+   }
+   operator bool const &() const {
+      return get();
+   }
+
+   /*! Explicit cast to bool &.
+
+   @return
+      Reference to the object’s value.
+   */
+   bool & get() {
+      return *get_ptr<bool>();
+   }
+   bool const & get() const {
+      return *get_ptr<bool>();
+   }
+
+private:
+   //! See detail::thread_local_var_impl::construct().
+   virtual void construct(void * p) const override {
+      *static_cast<bool *>(p) = mc_bDefault;
+   }
+
+   //! See detail::thread_local_var_impl::destruct().
+   virtual void destruct(void * p) const override {
+      ABC_UNUSED_ARG(p);
    }
 
 private:
    //! Default value for each per-thread copy of the value.
-   T const mc_tDefault;
+   bool const mc_bDefault;
 };
 
 } //namespace abc
