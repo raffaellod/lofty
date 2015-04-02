@@ -68,7 +68,7 @@ tcp_server::tcp_server(istr const & sAddress, std::uint16_t iPort, unsigned cBac
          exception::throw_os_error();
       }
    }
-   saServer.sin_port = ::htons(iPort);
+   saServer.sin_port = htons(iPort);
    if (::bind(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saServer), sizeof saServer) < 0) {
       exception::throw_os_error();
    }
