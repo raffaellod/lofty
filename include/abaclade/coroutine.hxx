@@ -153,7 +153,7 @@ protected:
 // Now this can be defined.
 namespace this_thread {
 
-inline std::shared_ptr<class coroutine_scheduler> const & get_coroutine_scheduler() {
+inline std::shared_ptr<coroutine_scheduler> const & get_coroutine_scheduler() {
    return coroutine_scheduler::sm_pcorosched;
 }
 

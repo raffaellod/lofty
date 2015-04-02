@@ -471,15 +471,12 @@ void coroutine_scheduler::add(coroutine const & coro) {
 
 namespace this_thread {
 
-std::shared_ptr<class coroutine_scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<class coroutine_scheduler> pcorosched /*= nullptr*/
+std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
+   std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   if (
-      coroutine_scheduler::sm_pcorosched.
-      operator std::shared_ptr<class coroutine_scheduler> const &()
-   ) {
+   if (coroutine_scheduler::sm_pcorosched.operator std::shared_ptr<coroutine_scheduler> const &()) {
       // The current thread already has a coroutine scheduler.
       // TODO: use a better exception class.
       ABC_THROW(generic_error, ());
