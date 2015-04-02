@@ -40,7 +40,7 @@ public:
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      os::path op(ABC_SL("src/abaclade-test/io/text/data/") + get_test_data_file_name());
+      os::path op(ABC_SL("test/abaclade/io/text/data/") + get_test_data_file_name());
       auto ptrIn(io::text::open_reader(op));
       unsigned i = 1;
       ABC_FOR_EACH(auto & sLine, ptrIn->lines()) {

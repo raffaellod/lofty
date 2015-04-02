@@ -72,42 +72,42 @@ You should have received a copy of the GNU General Public License along with Aba
          name="abaclade-test"
          brief="Main unit test for Abaclade."
       >
-         <source path="src/abaclade-test/abaclade-test.cxx"/>
-         <source path="src/abaclade-test/enum.cxx"/>
-         <source path="src/abaclade-test/exception.cxx"/>
-         <source path="src/abaclade-test/io/binary/pipe.cxx"/>
-         <source path="src/abaclade-test/io/text/binbuf_reader-read.cxx"/>
-         <source path="src/abaclade-test/io/text/writer-print.cxx"/>
-         <source path="src/abaclade-test/collections/list.cxx"/>
-         <source path="src/abaclade-test/collections/map.cxx"/>
-         <source path="src/abaclade-test/collections/static_list.cxx"/>
-         <source path="src/abaclade-test/os/path.cxx"/>
-         <source path="src/abaclade-test/range.cxx"/>
-         <source path="src/abaclade-test/text/str.cxx"/>
-         <source path="src/abaclade-test/text/str_traits.cxx"/>
-         <source path="src/abaclade-test/thread.cxx"/>
-         <source path="src/abaclade-test/to_str.cxx"/>
-         <source path="src/abaclade-test/collections/vector.cxx"/>
+         <source path="test/abaclade/abaclade-test.cxx"/>
+         <source path="test/abaclade/enum.cxx"/>
+         <source path="test/abaclade/exception.cxx"/>
+         <source path="test/abaclade/io/binary/pipe.cxx"/>
+         <source path="test/abaclade/io/text/binbuf_reader-read.cxx"/>
+         <source path="test/abaclade/io/text/writer-print.cxx"/>
+         <source path="test/abaclade/collections/list.cxx"/>
+         <source path="test/abaclade/collections/map.cxx"/>
+         <source path="test/abaclade/collections/static_list.cxx"/>
+         <source path="test/abaclade/os/path.cxx"/>
+         <source path="test/abaclade/range.cxx"/>
+         <source path="test/abaclade/text/str.cxx"/>
+         <source path="test/abaclade/text/str_traits.cxx"/>
+         <source path="test/abaclade/thread.cxx"/>
+         <source path="test/abaclade/to_str.cxx"/>
+         <source path="test/abaclade/collections/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
       </exeunittest>
 
       <toolunittest
-         name="abaclade-test-cppmacros"
+         name="abaclade-cppmacros-test"
          brief="Unit test for Abaclade’s preprocessor macros."
       >
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
-         <source tool="preproc" path="src/abaclade-test-cppmacros/cppmacros.cxx"/>
-         <expected-output path="src/abaclade-test-cppmacros/cppmacros.cxx.i"/>
+         <source tool="preproc" path="test/abaclade-cppmacros/cppmacros.cxx"/>
+         <expected-output path="test/abaclade-cppmacros/cppmacros.cxx.i"/>
       </toolunittest>
 
-      <!-- exeunittest name="abaclade-test-binbuf_writer-write-stdout-utf8">
-         <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
-         <expected-output path="src/abaclade-test/io/text/data/utf8.txt"/>
+      <!-- exeunittest name="abaclade-binbuf_writer-write-stdout-utf8-test">
+         <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
+         <expected-output path="test/abaclade/io/text/data/utf8.txt"/>
       </exeunittest -->
 
-      <!-- exeunittest name="abaclade-test-binbuf_writer-write-stdout-utf16be">
-         <source path="src/abaclade-test/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
-         <expected-output path="src/abaclade-test/io/text/data/utf16be.txt"/>
+      <!-- exeunittest name="abaclade-binbuf_writer-write-stdout-utf16be-test">
+         <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
+         <expected-output path="test/abaclade/io/text/data/utf16be.txt"/>
       </exeunittest -->
    </dynlib>
 
