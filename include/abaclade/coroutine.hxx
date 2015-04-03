@@ -134,7 +134,10 @@ public:
    @param bWrite
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
    */
-   virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) = 0;
+   virtual void yield_while_async_pending(io::filedesc_t fd, bool bWrite) = 0;
+   void yield_while_async_pending(io::filedesc const & fd, bool bWrite) {
+      yield_while_async_pending(fd.get(), bWrite);
+   }
 
 protected:
    //! Constructor.
@@ -142,7 +145,7 @@ protected:
 
 protected:
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   std::shared_ptr<coroutine::context> m_pcoroctxActive;
+   static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
    //! List of coroutines that have been scheduled, but have not been started yet.
    collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
    //! Pointer to the coroutine_scheduler for the current thread.

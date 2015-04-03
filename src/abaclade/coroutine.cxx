@@ -66,23 +66,6 @@ public:
       m_fnInnerMain(std::move(fnMain)) {
 #if ABC_HOST_API_POSIX
       // TODO: use ::mprotect() to setup a guard page for the stack.
-#endif
-   }
-   ~context() {
-#ifdef ABAMAKE_USING_VALGRIND
-      VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
-#endif
-   }
-
-#if ABC_HOST_API_POSIX
-   /*! Reinitializes the context for execution.
-
-   @param puctxReturn
-      Context to return to upon termination.
-   */
-   void reset(::ucontext_t * puctxReturn) {
-      ABC_TRACE_FUNC(this, puctxReturn);
-
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -92,17 +75,20 @@ public:
       }
       m_uctx.uc_stack.ss_sp = static_cast<char *>(m_pStack.get());
       m_uctx.uc_stack.ss_size = m_pStack.size();
-      m_uctx.uc_link = puctxReturn;
+      m_uctx.uc_link = nullptr;
       ::makecontext(&m_uctx, reinterpret_cast<void (*)()>(&outer_main), 1, this);
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
-   }
-#elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#else
-   #error "TODO: HOST_API"
 #endif
+   }
+
+   // Destructor.
+   ~context() {
+#ifdef ABAMAKE_USING_VALGRIND
+      VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
+#endif
+   }
 
 #if ABC_HOST_API_POSIX
    /*! Returns a pointer to the internal ::ucontext_t.
@@ -119,20 +105,9 @@ private:
    /*! Lower-level wrapper for the coroutine function passed to coroutine::coroutine().
 
    @param p
-      *this.
+      this.
    */
-   static void outer_main(void * p) {
-      context * pctx = static_cast<context *>(p);
-      try {
-         pctx->m_fnInnerMain();
-      } catch (std::exception const & x) {
-         exception::write_with_scope_trace(nullptr, &x);
-         // TODO: maybe support “moving” the exception to the return coroutine context?
-      } catch (...) {
-         exception::write_with_scope_trace();
-         // TODO: maybe support “moving” the exception to the return coroutine context?
-      }
-   }
+   static void outer_main(void * p);
 
 private:
 #if ABC_HOST_API_POSIX
@@ -200,15 +175,34 @@ public:
       // TODO: verify that m_listStartingCoros and m_mapCorosBlockedByFD are empty.
    }
 
+   //! Switches context to the current thread’s own context.
+   void return_to_scheduler() {
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
+      ::setcontext(sm_puctxReturn.get());
+      exception::throw_os_error();
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
+   }
+
    //! See coroutine_scheduler::run().
    virtual void run() override {
       ABC_TRACE_FUNC(this);
 
-      while ((m_pcoroctxActive = find_coroutine_to_activate())) {
-         switch_to_active(nullptr);
+      ::ucontext_t uctxReturn;
+      sm_puctxReturn = &uctxReturn;
+      try {
+         while ((sm_pcoroctxActive = find_coroutine_to_activate())) {
+            switch_to_active();
+         }
+      } catch (...) {
+         sm_puctxReturn = nullptr;
+         throw;
       }
-      // Release the last coroutine.
-      m_pcoroctxActive.reset();
+      sm_puctxReturn = nullptr;
    }
 
    //! See coroutine_scheduler::yield_for().
@@ -218,11 +212,11 @@ public:
       // TODO: handle iMillisecs == 0 as a timer-less yield.
 
 #if ABC_HOST_API_BSD
-      coroutine::context * pcoroctxActive = m_pcoroctxActive.get();
+      coroutine::context * pcoroctxActive = sm_pcoroctxActive.get().get();
       struct ::kevent ke;
       ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-      ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
+      ke.flags = EV_ADD | EV_ONESHOT;
       ke.filter = EVFILT_TIMER;
    #if ABC_HOST_API_DARWIN
       ke.fflags = NOTE_USECONDS;
@@ -235,17 +229,19 @@ public:
          exception::throw_os_error();
       }
       // Deactivate the current coroutine and find one to activate instead.
-      auto itBlockedCoro(
-         m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(m_pcoroctxActive)).first
+      auto itThisCoro(
+         m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive.get())).first
       );
       try {
-         m_pcoroctxActive = find_coroutine_to_activate();
+         // Switch back to the thread’s own context and have it wait for a ready coroutine.
+         switch_to_scheduler(itThisCoro->value.get());
       } catch (...) {
-         // If anything went wrong, restore the coroutine that was active.
-         m_pcoroctxActive = m_mapCorosBlockedByTimer.extract(itBlockedCoro);
+         // If anything went wrong or the coroutine was terminated, remove the timer.
+         m_mapCorosBlockedByTimer.remove(ke.ident);
+         ke.flags = EV_DELETE;
+         ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
          throw;
       }
-      switch_to_active(pcoroctxActive);
 #elif ABC_HOST_API_LINUX
       // TODO: use a pool of inactive timers instead of creating and destroying them each time.
       io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
@@ -264,29 +260,35 @@ public:
          exception::throw_os_error();
       }
       // This timer is now active (save exceptions ‒ see catch (...) below).
-      auto itActiveTimer(m_mapActiveTimers.add_or_assign(fd.get(), std::move(fd)).first);
+      io::filedesc_t fdCopy = fd.get();
+      auto itActiveTimer(m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd)).first);
       // At this point the timer is just a file descriptor that we’ll be waiting to read from.
       try {
-         yield_while_async_pending(itActiveTimer->value, false);
+         yield_while_async_pending(fdCopy, false);
       } catch (...) {
          // Remove the timer from the set of active ones.
          // TODO: recycle the timer, putting it back in the pool of inactive timers.
-         m_mapActiveTimers.remove(itActiveTimer);
+         // TODO: move this code to a “defer” lambda.
+         m_mapActiveTimers.remove(fdCopy);
          throw;
       }
+      // Remove the timer from the set of active ones.
+      // TODO: recycle the timer, putting it back in the pool of inactive timers.
+      // TODO: move this code to a “defer” lambda.
+      m_mapActiveTimers.remove(fdCopy);
 #else
    #error "TODO: HOST_API"
 #endif
    }
 
    //! See coroutine_scheduler::yield_while_async_pending().
-   virtual void yield_while_async_pending(io::filedesc const & fd, bool bWrite) override {
-      ABC_TRACE_FUNC(this, /*fd, */bWrite);
+   virtual void yield_while_async_pending(io::filedesc_t fd, bool bWrite) override {
+      ABC_TRACE_FUNC(this, fd, bWrite);
 
       // Add fd as a new event source.
 #if ABC_HOST_API_BSD
       struct ::kevent ke;
-      ke.ident = static_cast<std::uintptr_t>(fd.get());
+      ke.ident = static_cast<std::uintptr_t>(fd);
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
@@ -297,30 +299,29 @@ public:
 #elif ABC_HOST_API_LINUX
       ::epoll_event ee;
       memory::clear(&ee.data);
-      ee.data.fd = fd.get();
+      ee.data.fd = fd;
       /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This
       means we’d need to then rearm it in find_coroutine_to_activate() when it becomes ready, but
       we’ll remove it instead. */
       ee.events = EPOLLONESHOT | EPOLLPRI | (bWrite ? EPOLLOUT : EPOLLIN);
-      if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd.get(), &ee) < 0) {
+      if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
          exception::throw_os_error();
       }
 #else
    #error "TODO: HOST_API"
 #endif
       // Deactivate the current coroutine and find one to activate instead.
-      coroutine::context * pcoroctxActive = m_pcoroctxActive.get();
-      auto itBlockedCoro(
-         m_mapCorosBlockedByFD.add_or_assign(fd.get(), std::move(m_pcoroctxActive)).first
+      auto itThisCoro(
+         m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive.get())).first
       );
       try {
-         m_pcoroctxActive = find_coroutine_to_activate();
+         // Switch back to the thread’s own context and have it wait for a ready coroutine.
+         switch_to_scheduler(itThisCoro->value.get());
       } catch (...) {
-         // If anything went wrong, restore the coroutine that was active.
-         m_pcoroctxActive = m_mapCorosBlockedByFD.extract(itBlockedCoro);
+         // Remove the coroutine from the map of blocked ones.
+         m_mapCorosBlockedByFD.remove(fd);
          throw;
       }
-      switch_to_active(pcoroctxActive);
    }
 
 private:
@@ -336,12 +337,8 @@ private:
       // This loop will only repeat in case of EINTR from the blocking-wait API.
       for (;;) {
          if (m_listStartingCoros) {
-            // There are coroutines that haven’t had a chance to run; remove and schedule the first.
-            auto pcoroctx(m_listStartingCoros.pop_front());
-            /* TODO: verify how this behaves in a multithreaded scenario: which thread should this
-            coroutine return to? */
-            pcoroctx->reset(&m_uctxReturn);
-            return std::move(pcoroctx);
+            // There are coroutines that haven’t had a chance to run; remove and return the first.
+            return m_listStartingCoros.pop_front();
          } else if (
             m_mapCorosBlockedByFD
 #if ABC_HOST_API_BSD
@@ -352,19 +349,12 @@ private:
 #if ABC_HOST_API_BSD
             struct ::kevent ke;
             if (::kevent(m_fdKqueue.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
-#elif ABC_HOST_API_LINUX
-            ::epoll_event ee;
-            if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
-#else
-   #error "TODO: HOST_API"
-#endif
                int iErr = errno;
                if (iErr == EINTR) {
                   continue;
                }
                exception::throw_os_error(iErr);
             }
-#if ABC_HOST_API_BSD
             // TODO: understand how EV_ERROR works.
             /*if (ke.flags & EV_ERROR) {
                exception::throw_os_error(ke.data);
@@ -377,15 +367,20 @@ private:
                return m_mapCorosBlockedByFD.extract(static_cast<int>(ke.ident));
             }
 #elif ABC_HOST_API_LINUX
-            // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do aobut them.
-            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, ee.data.fd, nullptr);
-            auto itActiveTimer(m_mapActiveTimers.find(ee.data.fd));
-            if (itActiveTimer != m_mapActiveTimers.cend()) {
-               // TODO: move the timer to the inactive timers pool.
-               m_mapActiveTimers.remove(itActiveTimer);
+            ::epoll_event ee;
+            if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
+               int iErr = errno;
+               if (iErr == EINTR) {
+                  continue;
+               }
+               exception::throw_os_error(iErr);
             }
+            // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
+            ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, ee.data.fd, nullptr);
             // Remove and return the coroutine that was waiting for the file descriptor.
             return m_mapCorosBlockedByFD.extract(ee.data.fd);
+#else
+   #error "TODO: HOST_API"
 #endif
          } else {
             return nullptr;
@@ -393,30 +388,35 @@ private:
       }
    }
 
-   /*! Switches context to the coroutine context pointed to by m_pcoroctxActive, swapping the
-   current context out to *pcoroctxFormerActive or m_uctxReturn if no context was previously active.
-
-   @param pcoroctxFormerActive
-      Pointer to the formerly-active coroutine context; if nullptr, the internal return context will
-      be used.
-   */
-   void switch_to_active(coroutine::context * pcoroctxFormerActive) {
-      /* Nothing to do if the context hasn’t changed, i.e. the coroutine that’s ready to run is the
-      same that was active. */
-      if (m_pcoroctxActive.get() == pcoroctxFormerActive) {
-         return;
-      }
+   //! Switches the current thread’s context to the coroutine pointed to by sm_pcoroctxActive.
+   void switch_to_active() {
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-      if (::swapcontext(
-         pcoroctxFormerActive ? pcoroctxFormerActive->ucontext_ptr() : &m_uctxReturn,
-         m_pcoroctxActive->ucontext_ptr()
-      ) < 0) {
-         /* TODO: in case of errors, which should never happen here since all coroutines have the
-         same stack size, inject a stack overflow exception in *m_pcoroctxActive ‒ in a way that
-         works when the stack has already overflowed. */
+      if (::swapcontext(sm_puctxReturn.get(), sm_pcoroctxActive.get()->ucontext_ptr()) < 0) {
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
+      }
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
+   }
+
+   /*! Switches context from the coroutine context pointed to by pcoroctxLastActive to the current
+   thread’s own context.
+
+   @param pcoroctxLastActive
+      Pointer to the coroutine context that is being inactivated.
+   */
+   void switch_to_scheduler(coroutine::context * pcoroctxLastActive) {
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
+      if (::swapcontext(pcoroctxLastActive->ucontext_ptr(), sm_puctxReturn.get()) < 0) {
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
       }
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
@@ -442,9 +442,11 @@ private:
 #endif
    //! Coroutines that are blocked on a fd wait.
    collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByFD;
-   //! Coroutine context that every coroutine eventually returns to.
-   ::ucontext_t m_uctxReturn;
+   //! Pointer to the context of every thread running a coroutine_scheduler.
+   static thread_local_value< ::ucontext_t *> sm_puctxReturn;
 };
+
+thread_local_value< ::ucontext_t *> coroutine_scheduler_impl::sm_puctxReturn(nullptr);
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
@@ -452,11 +454,29 @@ private:
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
+// Now this can be defined.
 
+/*static*/ void coroutine::context::outer_main(void * p) {
+   context * pctx = static_cast<context *>(p);
+   try {
+      pctx->m_fnInnerMain();
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(nullptr, &x);
+      // TODO: maybe support “moving” the exception to the return coroutine context?
+   } catch (...) {
+      exception::write_with_scope_trace();
+      // TODO: maybe support “moving” the exception to the return coroutine context?
+   }
+   static_cast<coroutine_scheduler_impl *>(
+      this_thread::get_coroutine_scheduler().get()
+   )->return_to_scheduler();
+}
+
+
+thread_local_value<std::shared_ptr<coroutine::context>> coroutine_scheduler::sm_pcoroctxActive;
 thread_local_value<std::shared_ptr<coroutine_scheduler>> coroutine_scheduler::sm_pcorosched;
 
-coroutine_scheduler::coroutine_scheduler() :
-   m_pcoroctxActive(nullptr) {
+coroutine_scheduler::coroutine_scheduler() {
 }
 
 coroutine_scheduler::~coroutine_scheduler() {
