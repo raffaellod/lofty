@@ -53,7 +53,7 @@ thread_local_storage::thread_local_storage() :
 
    // Iterate over the list to construct TLS for this thread.
    for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
-      it->construct(get_storage(it->m_ibTlsOffset));
+      it->construct(get_storage(it->m_ibStorageOffset));
    }
 
 #if ABC_HOST_API_POSIX
@@ -66,13 +66,13 @@ thread_local_storage::thread_local_storage() :
 thread_local_storage::~thread_local_storage() {
    // Iterate backwards over the list to destruct TLS for this thread.
    for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
-      it->destruct(get_storage(it->m_ibTlsOffset));
+      it->destruct(get_storage(it->m_ibStorageOffset));
    }
 }
 
 /*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
    // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
-   ptlvi->m_ibTlsOffset = sm_cb;
+   ptlvi->m_ibStorageOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
 }
 
@@ -153,7 +153,7 @@ namespace abc {
 namespace detail {
 
 thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
-   // Initializes m_ptlviNext and m_ibTlsOffset.
+   // Initializes m_ptlviNext and m_ibStorageOffset.
    thread_local_storage::add_var(this, cbObject);
 }
 

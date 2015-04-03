@@ -45,9 +45,9 @@ class ABACLADE_SYM thread_local_storage :
    public noncopyable {
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified thread_local_var_impl instance; it also initializes the m_ptlviNext and m_ibTlsOffset
-   members of the latter. This function will be called during initialization of a new dynamic
-   library as it’s being loaded, not during normal run-time.
+   specified thread_local_var_impl instance; it also initializes the m_ptlviNext and
+   m_ibStorageOffset members of the latter. This function will be called during initialization of a
+   new dynamic library as it’s being loaded, not during normal run-time.
 
    @param ptlvi
       Pointer to the new variable to assign storage to.
@@ -168,12 +168,12 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(thread_local_storage::get()->get_storage(m_ibTlsOffset));
+      return static_cast<T *>(thread_local_storage::get()->get_storage(m_ibStorageOffset));
    }
 
 private:
    //! Offset of this variable in the TLS block.
-   std::size_t m_ibTlsOffset;
+   std::size_t m_ibStorageOffset;
 };
 
 } //namespace detail
