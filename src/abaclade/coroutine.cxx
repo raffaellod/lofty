@@ -101,6 +101,15 @@ public:
    }
 #endif
 
+   /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
+
+   @return
+      Pointer to the context’s m_crls member.
+   */
+   detail::coroutine_local_storage * local_storage_ptr() {
+      return &m_crls;
+   }
+
 private:
    /*! Lower-level wrapper for the coroutine function passed to coroutine::coroutine().
 
@@ -125,6 +134,8 @@ private:
 #endif
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
+   //! Local storage for the coroutine.
+   detail::coroutine_local_storage m_crls;
 };
 
 
@@ -390,17 +401,22 @@ private:
 
    //! Switches the current thread’s context to the coroutine pointed to by sm_pcoroctxActive.
    void switch_to_active() {
+      // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
+      detail::coroutine_local_storage::set_active(sm_pcoroctxActive.get()->local_storage_ptr());
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-      if (::swapcontext(sm_puctxReturn.get(), sm_pcoroctxActive.get()->ucontext_ptr()) < 0) {
-         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-         (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
-      }
+      int iRet = ::swapcontext(sm_puctxReturn.get(), sm_pcoroctxActive.get()->ucontext_ptr());
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
+      // Restore the coroutine_local_storage pointer for this thread.
+      detail::coroutine_local_storage::set_active(nullptr);
+      if (iRet < 0) {
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
+      }
    }
 
    /*! Switches context from the coroutine context pointed to by pcoroctxLastActive to the current
