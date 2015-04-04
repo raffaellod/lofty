@@ -51,16 +51,18 @@ std::size_t thread_local_storage::sm_cb = 0;
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
 
-   // Iterate over the list to construct TLS for this thread.
-   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
-      it->construct(get_storage(it->m_ibStorageOffset));
-   }
-
+   /* Assign the TLS slot immediately, so that if any of the construct()s calls get() we won’t end
+   up with an infinitely-recursive call. */
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, this);
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, this);
 #endif
+
+   // Iterate over the list to construct TLS for this thread.
+   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
+      it->construct(get_storage(it->m_ibStorageOffset));
+   }
 }
 
 thread_local_storage::~thread_local_storage() {
