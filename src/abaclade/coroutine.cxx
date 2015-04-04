@@ -193,10 +193,11 @@ public:
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
       ::setcontext(sm_puctxReturn.get());
-      exception::throw_os_error();
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
+      // ::setcontext() never returns if successful, so if we’re still here something went wrong.
+      exception::throw_os_error();
    }
 
    //! See coroutine_scheduler::run().
@@ -431,12 +432,12 @@ private:
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
       if (::swapcontext(pcoroctxLastActive->ucontext_ptr(), sm_puctxReturn.get()) < 0) {
-         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-         (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
-      }
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
+      }
    }
 
 private:
