@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -39,11 +39,11 @@ namespace detail {
 namespace abc {
 namespace detail {
 
-thread_local_value<scope_trace const *> scope_trace::sm_pstHead(nullptr);
-thread_local_value<bool> scope_trace::sm_bReentering(false);
-thread_local_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
-thread_local_value<unsigned> scope_trace::sm_cScopeTraceRefs(0);
-thread_local_value<unsigned> scope_trace::sm_iStackDepth(0);
+coroutine_local_value<scope_trace const *> scope_trace::sm_pstHead /*= nullptr*/;
+coroutine_local_value<bool> scope_trace::sm_bReentering /*= false*/;
+coroutine_local_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
+coroutine_local_value<unsigned> scope_trace::sm_cScopeTraceRefs /*= 0*/;
+coroutine_local_value<unsigned> scope_trace::sm_iStackDepth /*= 0*/;
 
 scope_trace::scope_trace(
    scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars

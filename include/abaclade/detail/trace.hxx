@@ -427,16 +427,16 @@ private:
    //! Pointer to the caller-allocated tuple containing references to local variables in the scope.
    scope_trace_tuple const * m_ptplVars;
    //! Pointer to the head of the scope_trace single-linked list for each thread.
-   static thread_local_value<scope_trace const *> sm_pstHead;
+   static coroutine_local_value<scope_trace const *> sm_pstHead;
    /*! true if ~scope_trace() is being run; in that case, another call to it should not try to do
    anything, otherwise we may get stuck in an infinite recursion. */
-   static thread_local_value<bool> sm_bReentering;
+   static coroutine_local_value<bool> sm_bReentering;
    //! Writer that collects the rendered scope trace when an exception is thrown.
-   static thread_local_ptr<io::text::str_writer> sm_ptswScopeTrace;
+   static coroutine_local_ptr<io::text::str_writer> sm_ptswScopeTrace;
    //! Number of the next stack frame to be added to the rendered trace.
-   static thread_local_value<unsigned> sm_iStackDepth;
+   static coroutine_local_value<unsigned> sm_iStackDepth;
    //! Count of references to the current rendered trace. Managed by abc::exception.
-   static thread_local_value<unsigned> sm_cScopeTraceRefs;
+   static coroutine_local_value<unsigned> sm_cScopeTraceRefs;
 };
 
 } //namespace detail

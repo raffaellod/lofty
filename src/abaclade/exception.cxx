@@ -225,7 +225,7 @@ void arithmetic_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-thread_local_value<bool> assertion_error::sm_bReentering(false);
+coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
    source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
