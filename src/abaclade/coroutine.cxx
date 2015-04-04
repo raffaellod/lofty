@@ -462,7 +462,7 @@ private:
    static thread_local_value< ::ucontext_t *> sm_puctxReturn;
 };
 
-thread_local_value< ::ucontext_t *> coroutine_scheduler_impl::sm_puctxReturn(nullptr);
+thread_local_value< ::ucontext_t *> coroutine_scheduler_impl::sm_puctxReturn /*= nullptr*/;
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
