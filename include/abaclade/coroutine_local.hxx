@@ -97,13 +97,13 @@ private:
    std::unique_ptr<std::int8_t[]> m_pb;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
-   /*! Per-thread storage for the active coroutine. If a coroutine_scheduler is running on a thread,
-   this is replaced on each change of coroutine_scheduler::sm_pcoroctxActive. */
-   static thread_local_ptr<coroutine_local_storage> sm_crls;
    /*! Normally a pointer to sm_crls (set for each thread by sm_crls’s existence, which instantiates
    a coroutine_local_storage which in turn sets this), but replaced while a coroutine is being
    actively executed. */
    static thread_local_value<coroutine_local_storage *> sm_pcrls;
+   /*! Per-thread storage for the active coroutine. If a coroutine_scheduler is running on a thread,
+   this is replaced on each change of coroutine_scheduler::sm_pcoroctxActive. */
+   static thread_local_value<coroutine_local_storage> sm_crls;
 };
 
 } //namespace detail

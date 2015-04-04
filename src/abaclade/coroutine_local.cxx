@@ -29,8 +29,12 @@ namespace detail {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 std::size_t coroutine_local_storage::sm_cb = 0;
-thread_local_ptr<coroutine_local_storage> coroutine_local_storage::sm_crls;
-thread_local_value<coroutine_local_storage *> coroutine_local_storage::sm_pcrls(nullptr);
+/* Important: sm_pcrls MUST be defined before sm_crls to guarantee that their per-thread copies are
+constructed in this same order, which is necessary since constructing a copy of sm_crls assigns a
+new value to the copy of sm_pcrls; constructing sm_pcrls after sm_crls would cause its value to be
+lost. */
+thread_local_value<coroutine_local_storage *> coroutine_local_storage::sm_pcrls /*= nullptr*/;
+thread_local_value<coroutine_local_storage> coroutine_local_storage::sm_crls;
 
 coroutine_local_storage::coroutine_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
@@ -72,7 +76,7 @@ coroutine_local_storage::~coroutine_local_storage() {
 
 /*static*/ void coroutine_local_storage::set_active(coroutine_local_storage * pcrlsActive) {
    if (!pcrlsActive) {
-      pcrlsActive = sm_crls.get();
+      pcrlsActive = &sm_crls.get();
    }
    detail::coroutine_local_storage::sm_pcrls = pcrlsActive;
 }
