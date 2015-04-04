@@ -121,10 +121,26 @@ ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::exception – conversion of hard OS errors into C++ exceptions") {
-   ABC_TRACE_FUNC(this);
+class exception_hard_errors : public testing::test_case {
+public:
+   //! See testing::test_case::title().
+   virtual istr title() override {
+      return istr(ABC_SL("abc::exception – conversion of hard OS errors into C++ exceptions"));
+   }
 
-   {
+   //! See testing::test_case::run().
+   virtual void run() override {
+      ABC_TRACE_FUNC(this);
+
+      pointer_errors();
+      memory_errors();
+      arithmetic_errors();
+   }
+
+   //! Validates generation of invalid pointer dereference errors.
+   void pointer_errors() {
+      ABC_TRACE_FUNC(this);
+
       int * p = nullptr;
       ABC_TESTING_ASSERT_THROWS(null_pointer_error, *p = 1);
       // Check that the handler is still in place after its first activation above.
@@ -133,19 +149,26 @@ ABC_TESTING_TEST_CASE_FUNC("abc::exception – conversion of hard OS errors into
       ABC_TESTING_ASSERT_THROWS(memory_address_error, *++p = 1);
    }
 
-   // Enable alignment checking if the architecture supports it.
+   //! Validates generation of other pointer dereference errors.
+   void memory_errors() {
+      ABC_TRACE_FUNC(this);
+
 #if 0 // ABC_HOST_ARCH_???
-   {
+      // Enable alignment checking if the architecture supports it.
+
       // Create an int (with another one following it) and a pointer to it.
       int i[2];
       void * p = &i[0];
       // Misalign the pointer, partly entering the second int.
       p = static_cast<std::int8_t *>(p) + 1;
       ABC_TESTING_ASSERT_THROWS(memory_access_error, *static_cast<int *>(p) = 1);
-   }
 #endif
+   }
 
-   {
+   //! Validates generation of arithmetic errors.
+   void arithmetic_errors() {
+      ABC_TRACE_FUNC(this);
+
       // Non-obvious division by zero that can’t be detected at compile time.
       istr sEmpty;
       int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
@@ -153,10 +176,12 @@ ABC_TESTING_TEST_CASE_FUNC("abc::exception – conversion of hard OS errors into
       // The call to istr::format() makes use of the quotient, so it shouldn’t be optimized away.
       istr(ABC_SL("{}")).format(iOne);
    }
-}
+};
 
 } //namespace test
 } //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_hard_errors)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::exception_scope_trace
