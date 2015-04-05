@@ -155,6 +155,8 @@ coroutine::~coroutine() {
 
 namespace abc {
 
+namespace detail {
+
 #if ABC_HOST_API_POSIX
 
 class coroutine_scheduler_impl : public coroutine_scheduler {
@@ -206,9 +208,29 @@ public:
 
       ::ucontext_t uctxReturn;
       sm_puctxReturn = &uctxReturn;
+      std::shared_ptr<coroutine::context> & pcoroctxActive = sm_pcoroctxActive;
+      coroutine_local_storage * pcrlsDefault = &coroutine_local_storage::sm_crls.get();
+      coroutine_local_storage *& pcrlsCurrent = coroutine_local_storage::sm_pcrls;
       try {
-         while ((sm_pcoroctxActive = find_coroutine_to_activate())) {
-            switch_to_active();
+         while ((pcoroctxActive = find_coroutine_to_activate())) {
+            /* Swap the coroutine_local_storage pointer for this thread with that of the active
+            coroutine. */
+            pcrlsCurrent = pcoroctxActive->local_storage_ptr();
+            // Switch the current thread’s context to the active coroutine’s.
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
+            int iRet = ::swapcontext(sm_puctxReturn.get(), pcoroctxActive->ucontext_ptr());
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
+            // Restore the coroutine_local_storage pointer for this thread.
+            pcrlsCurrent = pcrlsDefault;
+            if (iRet < 0) {
+               /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+               (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
+            }
          }
       } catch (...) {
          sm_puctxReturn = nullptr;
@@ -400,26 +422,6 @@ private:
       }
    }
 
-   //! Switches the current thread’s context to the coroutine pointed to by sm_pcoroctxActive.
-   void switch_to_active() {
-      // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
-      detail::coroutine_local_storage::set_active(sm_pcoroctxActive.get()->local_storage_ptr());
-   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-      #pragma clang diagnostic push
-      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-   #endif
-      int iRet = ::swapcontext(sm_puctxReturn.get(), sm_pcoroctxActive.get()->ucontext_ptr());
-   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-      #pragma clang diagnostic pop
-   #endif
-      // Restore the coroutine_local_storage pointer for this thread.
-      detail::coroutine_local_storage::set_active(nullptr);
-      if (iRet < 0) {
-         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-         (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
-      }
-   }
-
    /*! Switches context from the coroutine context pointed to by pcoroctxLastActive to the current
    thread’s own context.
 
@@ -471,6 +473,8 @@ thread_local_value< ::ucontext_t *> coroutine_scheduler_impl::sm_puctxReturn /*=
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
+} //namespace detail
+
 // Now this can be defined.
 
 /*static*/ void coroutine::context::outer_main(void * p) {
@@ -484,7 +488,7 @@ thread_local_value< ::ucontext_t *> coroutine_scheduler_impl::sm_puctxReturn /*=
       exception::write_with_scope_trace();
       // TODO: maybe support “moving” the exception to the return coroutine context?
    }
-   static_cast<coroutine_scheduler_impl *>(
+   static_cast<detail::coroutine_scheduler_impl *>(
       this_thread::get_coroutine_scheduler().get()
    )->return_to_scheduler();
 }
@@ -519,7 +523,7 @@ std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
       ABC_THROW(generic_error, ());
    }
    if (!pcorosched) {
-      pcorosched = std::make_shared<coroutine_scheduler_impl>();
+      pcorosched = std::make_shared<detail::coroutine_scheduler_impl>();
    }
    return (coroutine_scheduler::sm_pcorosched = std::move(pcorosched));
 }

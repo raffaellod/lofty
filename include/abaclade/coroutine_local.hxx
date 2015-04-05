@@ -27,8 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-// Forward declaration.
+// Forward declarations.
 class coroutine_local_var_impl;
+class coroutine_scheduler_impl;
 
 //! Abaclade’s CRLS (TLS for coroutines) slot data manager.
 /* TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
@@ -63,14 +64,6 @@ public:
       Requested storage size.
    */
    static void add_var(coroutine_local_var_impl * pcrlvi, std::size_t cb);
-
-   /*! Used by coroutine_scheduler_impl, it changes sm_pcrls to switch to a different
-   coroutine_local_storage instance.
-
-   @param pcrlsActive
-      Pointer to the to-be active coroutine’s local storage, or nullptr to use sm_crls.get().
-   */
-   static void set_active(coroutine_local_storage * pcrlsActive);
 
    /*! Returns a pointer to the specified offset in the storage.
 

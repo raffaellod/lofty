@@ -74,13 +74,6 @@ coroutine_local_storage::~coroutine_local_storage() {
    return sm_pcrls;
 }
 
-/*static*/ void coroutine_local_storage::set_active(coroutine_local_storage * pcrlsActive) {
-   if (!pcrlsActive) {
-      pcrlsActive = &sm_crls.get();
-   }
-   detail::coroutine_local_storage::sm_pcrls = pcrlsActive;
-}
-
 } //namespace detail
 } //namespace abc
 
