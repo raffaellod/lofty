@@ -84,7 +84,7 @@ namespace abc {
 namespace detail {
 
 coroutine_local_var_impl::coroutine_local_var_impl(std::size_t cbObject) {
-   // Initializes m_pcrlviNext and m_ibStorageOffset.
+   // Initializes m_ibStorageOffset.
    coroutine_local_storage::add_var(this, cbObject);
 }
 

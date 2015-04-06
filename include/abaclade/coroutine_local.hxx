@@ -166,125 +166,15 @@ namespace abc {
 members. */
 template <typename T>
 class coroutine_local_value :
-   private detail::coroutine_local_var_impl,
-   public support_explicit_operator_bool<coroutine_local_value<T>> {
+   public detail::context_local_value<T, detail::coroutine_local_var_impl> {
+private:
+   typedef detail::context_local_value<T, detail::coroutine_local_var_impl> context_local;
+
 public:
-   //! Constructor.
-   coroutine_local_value() :
-      detail::coroutine_local_var_impl(sizeof(T)) {
-   }
-
-   /*! Assignment operator.
-
-   @param t
-      Source object.
-   @return
-      *this.
-   */
+   //! See detail::context_local_value::operator=().
    coroutine_local_value & operator=(T t) {
-      get() = std::move(t);
+      context_local::operator=(std::move(t));
       return *this;
-   }
-
-   /*! Implicit cast to T &.
-
-   @return
-      Reference to the object’s value.
-   */
-   operator T &() {
-      return get();
-   }
-   operator T const &() const {
-      return get();
-   }
-
-   /*! Returns true if the object’s value evaluates to true.
-
-   @return
-      Result of the evaluation of the object’s value in a boolean context.
-   */
-   ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return get() ? true : false;
-   }
-
-   /*! Explicit cast to T &.
-
-   @return
-      Reference to the object’s value.
-   */
-   T & get() {
-      return *get_ptr<T>();
-   }
-   T const & get() const {
-      return *get_ptr<T>();
-   }
-
-private:
-   //! See detail::coroutine_local_var_impl::construct().
-   virtual void construct(void * p) const override {
-      new(p) T();
-   }
-
-   //! See detail::coroutine_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
-      static_cast<T *>(p)->~T();
-   }
-};
-
-// Specialization for bool, which does not need operator bool().
-template <>
-class coroutine_local_value<bool> : private detail::coroutine_local_var_impl {
-public:
-   //! Constructor.
-   coroutine_local_value() :
-      detail::coroutine_local_var_impl(sizeof(bool)) {
-   }
-
-   /*! Assignment operator.
-
-   @param b
-      Source value.
-   @return
-      *this.
-   */
-   coroutine_local_value & operator=(bool b) {
-      get() = b;
-      return *this;
-   }
-
-   /*! Implicit cast to bool &.
-
-   @return
-      Reference to the object’s value.
-   */
-   operator bool &() {
-      return get();
-   }
-   operator bool const &() const {
-      return get();
-   }
-
-   /*! Explicit cast to bool &.
-
-   @return
-      Reference to the object’s value.
-   */
-   bool & get() {
-      return *get_ptr<bool>();
-   }
-   bool const & get() const {
-      return *get_ptr<bool>();
-   }
-
-private:
-   //! See detail::coroutine_local_var_impl::construct().
-   virtual void construct(void * p) const override {
-      new(p) bool();
-   }
-
-   //! See detail::coroutine_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
-      ABC_UNUSED_ARG(p);
    }
 };
 
@@ -295,107 +185,11 @@ private:
 
 namespace abc {
 
-/*! Thread-local pointer to an object. The memory this points to is permanently allocated for each
-coroutine, and an instance of this class lets each coroutine access its own private copy of the
+/*! Coroutine-local pointer to an object. The memory this points to is permanently allocated for
+each coroutine, and an instance of this class lets each coroutine access its own private copy of the
 value pointed to by it. Variables of this type cannot be non-static class members. */
 template <typename T>
-class coroutine_local_ptr :
-   private detail::coroutine_local_var_impl,
-   public support_explicit_operator_bool<coroutine_local_ptr<T>> {
-private:
-   //! Contains a T and a bool to track whether the T has been constructed.
-   struct value_t {
-      T t;
-      bool bConstructed;
-   };
-
-public:
-   //! Constructor.
-   coroutine_local_ptr() :
-      detail::coroutine_local_var_impl(sizeof(value_t)) {
-   }
-
-   /*! Dereference operator.
-
-   @return
-      Reference to the owned object.
-   */
-   T & operator*() const {
-      return *get();
-   }
-
-   /*! Dereferencing member access operator.
-
-   @return
-      Pointer to the owned object.
-   */
-   T * operator->() const {
-      return get();
-   }
-
-   /*! Boolean evaluation operator.
-
-   @return
-      true if get() != nullptr, or false otherwise.
-   */
-   ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return get_ptr<value_t>()->bConstructed;
-   }
-
-   /*! Returns the address of the coroutine-local value this object points to.
-
-   @return
-      Internal pointer.
-   */
-   T * get() const {
-      value_t * pValue = get_ptr<value_t>();
-      return pValue->bConstructed ? &pValue->t : nullptr;
-   }
-
-   /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
-
-   @param pt
-      Pointer to a new object to take ownership of.
-   */
-   void reset() {
-      value_t * pValue = get_ptr<value_t>();
-      if (pValue->bConstructed) {
-         pValue->t.~T();
-         pValue->bConstructed = false;
-      }
-   }
-
-   /*! Destructs the object currently pointed to, if any, and constructs a new object.
-
-   @param tSrc
-      Source object to move-construct the new object from.
-   @return
-      Pointer to the new object.
-   */
-   T * reset_new(T tSrc = T()) {
-      reset();
-      value_t * pValue = get_ptr<value_t>();
-      // The constructor invoked is T::T(T &&), which should not throw.
-      new(&pValue->t) T(std::move(tSrc));
-      pValue->bConstructed = true;
-      return &pValue->t;
-   }
-
-private:
-   //! See detail::coroutine_local_var_impl::construct().
-   virtual void construct(void * p) const override {
-      value_t * pValue = static_cast<value_t *>(p);
-      pValue->bConstructed = false;
-      // Note that pValue.t is left uninitialized.
-   }
-
-   //! See detail::coroutine_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
-      value_t * pValue = static_cast<value_t *>(p);
-      if (pValue->bConstructed) {
-         pValue->t.~T();
-      }
-   }
+class coroutine_local_ptr : public detail::context_local_ptr<T, detail::coroutine_local_var_impl> {
 };
 
 } //namespace abc

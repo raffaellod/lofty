@@ -471,6 +471,7 @@ class writer;
 #endif
 #include <abaclade/collections/detail/xor_list.hxx>
 #include <abaclade/collections/static_list.hxx>
+#include <abaclade/detail/context_local.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/coroutine_local.hxx>
 #include <abaclade/exception.hxx>

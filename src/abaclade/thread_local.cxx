@@ -155,7 +155,7 @@ namespace abc {
 namespace detail {
 
 thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
-   // Initializes m_ptlviNext and m_ibStorageOffset.
+   // Initializes m_ibStorageOffset.
    thread_local_storage::add_var(this, cbObject);
 }
 
