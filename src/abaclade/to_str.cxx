@@ -322,12 +322,10 @@ void to_str_backend<char_ptr_to_str_adapter>::write(
 namespace abc {
 namespace detail {
 
-char_t const ptr_to_str_backend::smc_achFormat[] = ABC_SL("#x");
-
 ptr_to_str_backend::ptr_to_str_backend() {
    ABC_TRACE_FUNC(this);
 
-   m_tsbInt.set_format(smc_achFormat);
+   m_tsbInt.set_format(ABC_SL("#x"));
 }
 
 void ptr_to_str_backend::set_format(istr const & sFormat) {

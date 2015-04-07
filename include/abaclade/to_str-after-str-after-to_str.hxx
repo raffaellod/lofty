@@ -108,8 +108,6 @@ protected:
    to_str_backend<std::uintptr_t> m_tsbInt;
    //! Backend used to write a nullptr.
    to_str_backend<istr> m_tsbStr;
-   //! Format string used to display the address.
-   static char_t const smc_achFormat[];
 };
 
 } //namespace detail
