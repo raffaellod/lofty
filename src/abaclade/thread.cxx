@@ -167,8 +167,8 @@ void thread::detach() {
 #elif ABC_HOST_API_WIN32
    if (m_h) {
       ::CloseHandle(m_h);
+      m_h = nullptr;
    }
-   m_h = nullptr;
 #else
    #error "TODO: HOST_API"
 #endif
