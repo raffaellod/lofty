@@ -47,11 +47,11 @@ public:
       *this.
    */
    context_local_value & operator=(T const & t) {
-      get() = t;
+      *get_ptr() = t;
       return *this;
    }
    context_local_value & operator=(T && t) {
-      get() = std::move(t);
+      *get_ptr() = std::move(t);
       return *this;
    }
 
@@ -61,10 +61,10 @@ public:
       Reference to the object’s value.
    */
    operator T &() {
-      return get();
+      return *get_ptr();
    }
    operator T const &() const {
-      return get();
+      return *get_ptr();
    }
 
    /*! Returns true if the object’s value evaluates to true.
@@ -73,7 +73,7 @@ public:
       Result of the evaluation of the object’s value in a boolean context.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return get() ? true : false;
+      return *get_ptr() ? true : false;
    }
 
    /*! Explicit cast to T &.
@@ -122,7 +122,7 @@ public:
       *this.
    */
    context_local_value & operator=(bool b) {
-      get() = b;
+      *get_ptr() = b;
       return *this;
    }
 
@@ -132,10 +132,10 @@ public:
       Reference to the object’s value.
    */
    operator bool &() {
-      return get();
+      return *get_ptr();
    }
    operator bool const &() const {
-      return get();
+      return *get_ptr();
    }
 
    /*! Explicit cast to bool &.
