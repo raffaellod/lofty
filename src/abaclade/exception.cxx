@@ -71,7 +71,7 @@ void to_str_backend<source_location>::set_format(istr const & sFormat) {
 void to_str_backend<source_location>::write(
    source_location const & srcloc, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FUNC(this, srcloc, ptwOut);
+   ABC_TRACE_FUNC(this/*, srcloc*/, ptwOut);
 
    ptwOut->write(istr(external_buffer, srcloc.file_path()));
    ptwOut->write(ABC_SL(":"));

@@ -522,7 +522,7 @@ void to_str_backend<os::path>::set_format(istr const & sFormat) {
 }
 
 void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, op, ptwOut);
+   ABC_TRACE_FUNC(this/*, op*/, ptwOut);
 
    ptwOut->write(static_cast<istr const &>(op));
 }

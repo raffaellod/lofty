@@ -46,7 +46,7 @@ void to_str_backend<bool>::set_format(istr const & sFormat) {
 }
 
 void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, b, ptwOut);
+   ABC_TRACE_FUNC(this/*, b*/, ptwOut);
 
    if (b) {
       ptwOut->write(ABC_SL("true"));
@@ -238,7 +238,7 @@ void int_to_str_backend_base::add_prefixes_and_write(
 
 template <typename I>
 inline void int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) const {
-   ABC_TRACE_FUNC(this, i, ptwOut);
+   ABC_TRACE_FUNC(this/*, i*/, ptwOut);
 
    // Create a buffer of sufficient size for binary notation (the largest).
    smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
@@ -344,7 +344,7 @@ void ptr_to_str_backend::set_format(istr const & sFormat) {
 }
 
 void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this, iPtr, ptwOut);
+   ABC_TRACE_FUNC(this/*, iPtr*/, ptwOut);
 
    if (iPtr) {
       m_tsbInt.write(iPtr, ptwOut);
