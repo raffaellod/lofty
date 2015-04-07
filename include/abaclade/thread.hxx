@@ -118,7 +118,7 @@ public:
       true if *this refers to a different thread than thr, or false otherwise.
    */
    bool operator!=(thread const & thr) const {
-      ABC_TRACE_FUNC(this/*, thr*/);
+      ABC_TRACE_FUNC(this, thr);
 
       return !operator==(thr);
    }
@@ -184,6 +184,45 @@ private:
    /*! Pointer to data that is shared between the thread owned by the abc::thread instance and the
    thread owning the abc::thread instance. */
    std::shared_ptr<shared_data> m_psd;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::thread
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<thread> {
+public:
+   //! Constructor.
+   to_str_backend();
+
+   //! Destructor.
+   ~to_str_backend();
+
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(istr const & sFormat);
+
+   /*! Writes a string, applying the formatting options.
+
+   @param op
+      Path to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(thread const & thr, io::text::writer * ptwOut);
+
+protected:
+   //! Backend used to write strings.
+   to_str_backend<istr> m_tsbStr;
+   //! Backend used to write thread ID.
+   to_str_backend<thread::id_type> m_tsbId;
 };
 
 } //namespace abc

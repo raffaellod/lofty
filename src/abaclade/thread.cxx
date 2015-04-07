@@ -123,7 +123,7 @@ thread::~thread() {
 }
 
 thread & thread::operator=(thread && thr) {
-   ABC_TRACE_FUNC(this/*, thr*/);
+   ABC_TRACE_FUNC(this, thr);
 
    native_handle_type h(thr.m_h);
 #if ABC_HOST_API_POSIX
@@ -142,7 +142,7 @@ thread & thread::operator=(thread && thr) {
 }
 
 bool thread::operator==(thread const & thr) const {
-   ABC_TRACE_FUNC(this/*, thr*/);
+   ABC_TRACE_FUNC(this, thr);
 
 #if ABC_HOST_API_POSIX
    return ::pthread_equal(m_h, thr.m_h);
@@ -321,6 +321,45 @@ void thread::start() {
 #else
    #error "TODO: HOST_API"
 #endif
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::thread
+
+namespace abc {
+
+to_str_backend<thread>::to_str_backend() {
+}
+
+to_str_backend<thread>::~to_str_backend() {
+}
+
+void to_str_backend<thread>::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+}
+
+void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut) {
+   ABC_TRACE_FUNC(this/*, thr*/, ptwOut);
+
+   if (thread::id_type id = thr.id()) {
+      m_tsbStr.write(istr(ABC_SL("TID:")), ptwOut);
+      m_tsbId.write(id, ptwOut);
+   } else {
+      m_tsbStr.write(istr(ABC_SL("TID:-")), ptwOut);
+   }
 }
 
 } //namespace abc

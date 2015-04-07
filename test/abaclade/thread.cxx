@@ -51,6 +51,10 @@ public:
       thread thr2([this] () -> void {
          m_i2 = 42;
       });
+
+      // TODO: use a text::str_writer to check that these come out non-empty and different.
+      //io::text::stderr()->print(ABC_SL("thr1={} thr2={}\n"), thr1, thr2);
+
       // Wait for both threads to complete.
       thr1.join();
       thr2.join();
