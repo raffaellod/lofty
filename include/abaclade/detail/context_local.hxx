@@ -167,6 +167,88 @@ private:
    }
 };
 
+// Specialization for std::shared_ptr, which offers a few additional methods.
+template <typename T, typename TImpl>
+class context_local_value<std::shared_ptr<T>, TImpl> :
+   private TImpl,
+   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TImpl>> {
+private:
+   typedef std::shared_ptr<T> value_t;
+
+public:
+   //! Constructor.
+   context_local_value() :
+      TImpl(sizeof(std::shared_ptr<T>)) {
+   }
+
+   /*! Assignment operator.
+
+   @param pt
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(std::shared_ptr<T> const & pt) {
+      *get_ptr() = pt;
+      return *this;
+   }
+   context_local_value & operator=(std::shared_ptr<T> && pt) {
+      *get_ptr() = std::move(pt);
+      return *this;
+   }
+
+   /*! Implicit cast to std::shared_ptr<T> &.
+
+   @return
+      Reference to the shared pointer.
+   */
+   operator std::shared_ptr<T> &() {
+      return *get_ptr();
+   }
+   operator std::shared_ptr<T> const &() const {
+      return *get_ptr();
+   }
+
+   /*! Returns true if the pointer is not nullptr.
+
+   @return
+      false if the pointer is nullptr, or true otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return *get_ptr() ? true : false;
+   }
+
+   /*! Explicit cast to T *.
+
+   @return
+      Pointer to the current T instance.
+   */
+   T * get() {
+      return get_ptr()->get();
+   }
+   T const * get() const {
+      return get_ptr()->get();
+   }
+
+   // TODO: reset(), unique(), use_count().
+
+private:
+   //! See TImpl::construct().
+   virtual void construct(void * p) const override {
+      new(p) std::shared_ptr<T>();
+   }
+
+   //! See TImpl::destruct().
+   virtual void destruct(void * p) const override {
+      static_cast<std::shared_ptr<T> *>(p)->~shared_ptr();
+   }
+
+   //! See TImpl::get_ptr().
+   std::shared_ptr<T> * get_ptr() const {
+      return TImpl::template get_ptr<std::shared_ptr<T>>();
+   }
+};
+
 } //namespace detail
 } //namespace abc
 

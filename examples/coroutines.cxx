@@ -99,6 +99,17 @@ public:
          io::text::stdout()->write_line(ABC_SL("writer: terminating"));
       }));
 
+      // Schedule the stdin reader.
+      /*pcorosched->add(coroutine([this] () -> void {
+         ABC_TRACE_FUNC(this);
+
+         io::text::stdout()->print(ABC_SL("stdin: starting\n"));
+         ABC_FOR_EACH(auto & sLine, io::text::stdin()->lines()) {
+            io::text::stdout()->print(ABC_SL("stdin: read {}\n"), sLine);
+         }
+         io::text::stdout()->write_line(ABC_SL("stdin: terminating"));
+      }));*/
+
       // Switch this thread to run coroutines, until they all terminate.
       pcorosched->run();
       // Execution resumes here, after all coroutines have terminated.

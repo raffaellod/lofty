@@ -246,7 +246,7 @@ public:
       // TODO: handle iMillisecs == 0 as a timer-less yield.
 
 #if ABC_HOST_API_BSD
-      coroutine::context * pcoroctxActive = sm_pcoroctxActive.get().get();
+      coroutine::context * pcoroctxActive = sm_pcoroctxActive.get();
       struct ::kevent ke;
       ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
@@ -264,7 +264,7 @@ public:
       }
       // Deactivate the current coroutine and find one to activate instead.
       auto itThisCoro(
-         m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive.get())).first
+         m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
       );
       try {
          // Switch back to the thread’s own context and have it wait for a ready coroutine.
@@ -345,9 +345,7 @@ public:
    #error "TODO: HOST_API"
 #endif
       // Deactivate the current coroutine and find one to activate instead.
-      auto itThisCoro(
-         m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive.get())).first
-      );
+      auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
       try {
          // Switch back to the thread’s own context and have it wait for a ready coroutine.
          switch_to_scheduler(itThisCoro->value.get());
