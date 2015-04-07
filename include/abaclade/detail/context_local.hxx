@@ -46,7 +46,11 @@ public:
    @return
       *this.
    */
-   context_local_value & operator=(T t) {
+   context_local_value & operator=(T const & t) {
+      get() = t;
+      return *this;
+   }
+   context_local_value & operator=(T && t) {
       get() = std::move(t);
       return *this;
    }

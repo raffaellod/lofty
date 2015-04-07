@@ -172,7 +172,11 @@ private:
 
 public:
    //! See detail::context_local_value::operator=().
-   coroutine_local_value & operator=(T t) {
+   coroutine_local_value & operator=(T const & t) {
+      context_local::operator=(t);
+      return *this;
+   }
+   coroutine_local_value & operator=(T && t) {
       context_local::operator=(std::move(t));
       return *this;
    }
