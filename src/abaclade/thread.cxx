@@ -180,11 +180,15 @@ thread::id_type thread::id() const {
 #if ABC_HOST_API_POSIX
    return m_id;
 #elif ABC_HOST_API_WIN32
-   DWORD iTid = ::GetThreadId(m_h);
-   if (iTid == 0) {
-      exception::throw_os_error();
+   if (m_h) {
+      DWORD iTid = ::GetThreadId(m_h);
+      if (iTid == 0) {
+         exception::throw_os_error();
+      }
+      return iTid;
+   } else {
+      return 0;
    }
-   return iTid;
 #else
    #error "TODO: HOST_API"
 #endif
