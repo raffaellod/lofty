@@ -69,3 +69,25 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 
 } //namespace test
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::thread_concurrent
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception containment") {
+   ABC_TRACE_FUNC(this);
+
+   thread thr1([] () -> void {
+      // If exceptions are not properly contained by Abaclade, this will kill the entire process.
+      //ABC_THROW(generic_error, ());
+   });
+   /* Wait for thr1 to complete. Notice that we can’t assert anything while thr1 is running, since
+   its exception will cause output to stderr which will garble abc::testing’s output to stderr. */
+   thr1.join();
+   ABC_TESTING_ASSERT_FALSE(thr1.joinable());
+}
+
+} //namespace test
+} //namespace abc
