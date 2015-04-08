@@ -156,7 +156,7 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(ABC_SL("Exception: {}\n"), char_ptr_to_str_adapter(pstdx->what()));
+      ptwOut->print(ABC_SL("Exception: {}\n"), istr(external_buffer, pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       if (pabcx) {
          try {
