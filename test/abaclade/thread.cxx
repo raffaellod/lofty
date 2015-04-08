@@ -28,51 +28,44 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-class thread_concurrent : public testing::test_case {
-public:
-   //! Constructor.
-   thread_concurrent() :
-      m_i1(1),
-      m_i2(2) {
-   }
+ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
+   ABC_TRACE_FUNC(this);
 
-   //! See testing::test_case::title().
-   virtual istr title() override {
-      return istr(ABC_SL("abc::thread – concurrent operation"));
-   }
+   // TODO: use std::atomic for these variables.
+   int volatile i1 = 1, i2 = 2;
 
-   //! See testing::test_case::run().
-   virtual void run() override {
-      ABC_TRACE_FUNC(this);
+   thread thr1([this, &i1] () -> void {
+      i1 = 41;
+   });
+   thread thr2([this, &i2] () -> void {
+      i2 = 42;
+   });
+   thread thr3;
 
-      thread thr1([this] () -> void {
-         m_i1 = 41;
-      });
-      thread thr2([this] () -> void {
-         m_i2 = 42;
-      });
+   ABC_TESTING_ASSERT_TRUE(thr1.joinable());
+   ABC_TESTING_ASSERT_TRUE(thr2.joinable());
+   ABC_TESTING_ASSERT_FALSE(thr3.joinable());
 
-      // TODO: use a text::str_writer to check that these come out non-empty and different.
-      //io::text::stderr()->print(ABC_SL("thr1={} thr2={}\n"), thr1, thr2);
+   ABC_TESTING_ASSERT_NOT_EQUAL(thr1.id(), thread::id_type(0));
+   ABC_TESTING_ASSERT_NOT_EQUAL(thr2.id(), thread::id_type(0));
+   ABC_TESTING_ASSERT_EQUAL    (thr3.id(), thread::id_type(0));
 
-      // Wait for both threads to complete.
-      thr1.join();
-      thr2.join();
+   // Verify that the string representations are different.
+   dmstr sThread1(to_str(thr1)), sThread2(to_str(thr2)), sThread3(to_str(thr3));
+   ABC_TESTING_ASSERT_NOT_EQUAL(sThread1, sThread2);
+   ABC_TESTING_ASSERT_NOT_EQUAL(sThread1, sThread3);
+   ABC_TESTING_ASSERT_NOT_EQUAL(sThread2, sThread3);
+   ABC_TESTING_ASSERT_EQUAL(sThread3, ABC_SL("TID:-"));
 
-      ABC_TESTING_ASSERT_EQUAL(m_i1, 41);
-      ABC_TESTING_ASSERT_EQUAL(m_i2, 42);
-   }
+   // Wait for thr1 and thr2 to complete.
+   thr1.join();
+   thr2.join();
+   ABC_TESTING_ASSERT_FALSE(thr1.joinable());
+   ABC_TESTING_ASSERT_FALSE(thr2.joinable());
 
-private:
-   //! Holds a value set by thread #1.
-   // TODO: use std::atomic.
-   int volatile m_i1;
-   //! Holds a value set by thread #2.
-   // TODO: use std::atomic.
-   int volatile m_i2;
-};
+   ABC_TESTING_ASSERT_EQUAL(i1, 41);
+   ABC_TESTING_ASSERT_EQUAL(i2, 42);
+}
 
 } //namespace test
 } //namespace abc
-
-ABC_TESTING_REGISTER_TEST_CASE(abc::test::thread_concurrent)
