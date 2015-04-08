@@ -47,20 +47,20 @@ public:
          ABC_TRACE_FUNC(this);
 
          static std::uint16_t const sc_iPort = 9082;
-         io::text::stdout()->print(ABC_SL("server: starting, listening on port {}\n"), sc_iPort);
+         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), sc_iPort);
          net::tcp_server server(ABC_SL("*"), sc_iPort);
          for (;;) {
-            io::text::stdout()->write_line(ABC_SL("server: accepting"));
+            io::text::stdout->write_line(ABC_SL("server: accepting"));
             // This will cause a context switch if no connections are ready to be established.
             auto pconn(server.accept());
 
-            io::text::stdout()->write_line(ABC_SL("server: connection established"));
+            io::text::stdout->write_line(ABC_SL("server: connection established"));
 
             // Add a coroutine that will echo every line sent over the newly-established connection.
             this_thread::get_coroutine_scheduler()->add(coroutine([this, pconn] () -> void {
                ABC_TRACE_FUNC(this, pconn);
 
-               io::text::stdout()->write_line(ABC_SL("responder: starting"));
+               io::text::stdout->write_line(ABC_SL("responder: starting"));
 
                // Create text-mode reader and writer for the connection’s socket.
                auto ptr(io::text::make_reader(pconn->socket()));
@@ -71,16 +71,16 @@ public:
                   ptw->write_line(sLine);
                   ptw->flush();
                }
-               io::text::stdout()->write_line(ABC_SL("responder: terminating"));
+               io::text::stdout->write_line(ABC_SL("responder: terminating"));
             }));
          }
-         io::text::stdout()->write_line(ABC_SL("server: terminating"));
+         io::text::stdout->write_line(ABC_SL("server: terminating"));
       }));
 
       // Switch this thread to run coroutines, until they all terminate.
       pcorosched->run();
       // Execution resumes here, after all coroutines have terminated.
-      io::text::stdout()->write_line(ABC_SL("main: terminating"));
+      io::text::stdout->write_line(ABC_SL("main: terminating"));
       return 0;
    }
 };

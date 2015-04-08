@@ -46,9 +46,9 @@ public:
       ABC_TRACE_FUNC(this, vsArgs);
 
       // Read one line at a time from stdin…
-      ABC_FOR_EACH(auto & sLine, io::text::stdin()->lines()) {
+      ABC_FOR_EACH(auto & sLine, io::text::stdin->lines()) {
          // …and write it to stdout.
-         io::text::stdout()->write_line(sLine);
+         io::text::stdout->write_line(sLine);
       }
 
       return 0;

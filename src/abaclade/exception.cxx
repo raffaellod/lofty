@@ -151,7 +151,7 @@ char const * exception::what() const {
    io::text::writer * ptwOut /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
 ) {
    if (!ptwOut) {
-      ptwOut = io::text::stderr().get();
+      ptwOut = io::text::stderr.get();
    }
    exception const * pabcx;
    if (pstdx) {
@@ -233,7 +233,7 @@ coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
-         io::text::stderr()->print(
+         io::text::stderr->print(
             ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
             sMsg, sExpr, srcloc, sFunction
          );

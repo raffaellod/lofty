@@ -69,16 +69,16 @@ public:
 
       using std::get;
 
-      io::text::stdout()->print(ABC_SL(
+      io::text::stdout->print(ABC_SL(
          "                                            Add   Hit lookup  Miss lookup  [ns]\n"
       ));
 
       auto rGoodHash(make_range(0, 10000000));
-      io::text::stdout()->print(ABC_SL("{}, good hash\n"), rGoodHash.size());
+      io::text::stdout->print(ABC_SL("{}, good hash\n"), rGoodHash.size());
       {
          std::map<int, int> m;
          auto ret(run_test(&m, rGoodHash));
-         io::text::stdout()->print(
+         io::text::stdout->print(
             ABC_SL("  std::map                          {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
@@ -86,7 +86,7 @@ public:
       {
          std::unordered_map<int, int, std::hash<int>> m;
          auto ret(run_test(&m, rGoodHash));
-         io::text::stdout()->print(
+         io::text::stdout->print(
             ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
@@ -94,18 +94,18 @@ public:
       {
          abc::collections::map<int, int, std::hash<int>> m;
          auto ret(run_test(&m, rGoodHash));
-         io::text::stdout()->print(
+         io::text::stdout->print(
             ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
             m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
 
       auto rPoorHash(make_range(0, 10000));
-      io::text::stdout()->print(ABC_SL("{}, 100% collisions\n"), rPoorHash.size());
+      io::text::stdout->print(ABC_SL("{}, 100% collisions\n"), rPoorHash.size());
       {
          std::unordered_map<int, int, poor_hash<int>> m;
          auto ret(run_test(&m, rPoorHash));
-         io::text::stdout()->print(
+         io::text::stdout->print(
             ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
@@ -113,7 +113,7 @@ public:
       {
          abc::collections::map<int, int, poor_hash<int>> m;
          auto ret(run_test(&m, rPoorHash));
-         io::text::stdout()->print(
+         io::text::stdout->print(
             ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
             m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
@@ -132,7 +132,7 @@ private:
       ABC_FOR_EACH(auto i, r) {
          // Consume m[i] in some way.
          if (m[i] != i) {
-            io::text::stdout()->print(ABC_SL("ERROR for i={}\n"), i);
+            io::text::stdout->print(ABC_SL("ERROR for i={}\n"), i);
          }
       }
       sw.stop();
@@ -149,7 +149,7 @@ private:
       ABC_FOR_EACH(auto i, r >> *r.end()) {
          // Consume m[i] in some way.
          if (m.find(i) != end) {
-            io::text::stdout()->print(ABC_SL("ERROR for i={}\n"), i);
+            io::text::stdout->print(ABC_SL("ERROR for i={}\n"), i);
          }
       }
       sw.stop();

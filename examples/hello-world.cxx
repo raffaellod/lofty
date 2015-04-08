@@ -58,7 +58,7 @@ public:
 
       /* Write “Hello World” into the stdout text writer object. ABC_SL() indicates a string literal
       in the platform-specific Unicode Transformation Format (UTF-8 or UTF-16). */
-      io::text::stdout()->write_line(ABC_SL("Hello World"));
+      io::text::stdout->write_line(ABC_SL("Hello World"));
 
       // Make this program return 0 to the parent process.
       return 0;

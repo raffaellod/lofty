@@ -33,7 +33,7 @@ namespace testing {
 
    ABC_UNUSED_ARG(vsArgs);
 
-   runner r(io::text::stderr());
+   runner r(io::text::stderr);
    r.load_registered_test_cases();
    r.run();
    bool bAllPassed = r.log_summary();

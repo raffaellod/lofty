@@ -31,11 +31,11 @@ namespace abc {
 namespace io {
 namespace text {
 
-namespace {
+std::shared_ptr<binbuf_writer> stderr;
+std::shared_ptr<binbuf_reader> stdin;
+std::shared_ptr<binbuf_writer> stdout;
 
-std::shared_ptr<binbuf_writer> g_ptwStdErr;
-std::shared_ptr<binbuf_reader> g_ptrStdIn;
-std::shared_ptr<binbuf_writer> g_ptwStdOut;
+namespace {
 
 /*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
 returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
@@ -154,41 +154,33 @@ std::shared_ptr<writer> make_writer(
    );
 }
 
-std::shared_ptr<binbuf_writer> stderr() {
+namespace detail {
+
+std::shared_ptr<binbuf_writer> make_stderr() {
    ABC_TRACE_FUNC();
 
-   // TODO: mutex!
-   if (!g_ptwStdErr) {
-      g_ptwStdErr = std::dynamic_pointer_cast<binbuf_writer>(
-         _construct_stdio(binary::stderr(), ABC_SL("ABC_STDERR_ENCODING"))
-      );
-   }
-   return g_ptwStdErr;
+   return std::dynamic_pointer_cast<binbuf_writer>(
+      _construct_stdio(binary::stderr, ABC_SL("ABC_STDERR_ENCODING"))
+   );
 }
 
-std::shared_ptr<binbuf_reader> stdin() {
+std::shared_ptr<binbuf_reader> make_stdin() {
    ABC_TRACE_FUNC();
 
-   // TODO: mutex!
-   if (!g_ptrStdIn) {
-      g_ptrStdIn = std::dynamic_pointer_cast<binbuf_reader>(
-         _construct_stdio(binary::stdin(), ABC_SL("ABC_STDIN_ENCODING"))
-      );
-   }
-   return g_ptrStdIn;
+   return std::dynamic_pointer_cast<binbuf_reader>(
+      _construct_stdio(binary::stdin, ABC_SL("ABC_STDIN_ENCODING"))
+   );
 }
 
-std::shared_ptr<binbuf_writer> stdout() {
+std::shared_ptr<binbuf_writer> make_stdout() {
    ABC_TRACE_FUNC();
 
-   // TODO: mutex!
-   if (!g_ptwStdOut) {
-      g_ptwStdOut = std::dynamic_pointer_cast<binbuf_writer>(
-         _construct_stdio(binary::stdout(), ABC_SL("ABC_STDOUT_ENCODING"))
-      );
-   }
-   return g_ptwStdOut;
+   return std::dynamic_pointer_cast<binbuf_writer>(
+      _construct_stdio(binary::stdout, ABC_SL("ABC_STDOUT_ENCODING"))
+   );
 }
+
+} //namespace detail
 
 std::shared_ptr<binbuf_base> open(
    os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/

@@ -69,20 +69,29 @@ public:
    static int entry_point_main(int cArgs, char_t ** ppszArgs) {
       // Establish this as early as possible.
       exception::fault_converter xfc;
-      try {
-         // Create and initialize the app.
-         TApp app;
-         collections::smvector<istr const, 8> vsArgs;
-         app._build_args(cArgs, ppszArgs, &vsArgs);
-         // Invoke the program-defined main().
-         return app.main(vsArgs);
-      } catch (std::exception const & x) {
-         exception::write_with_scope_trace(nullptr, &x);
-         return 123;
-      } catch (...) {
-         exception::write_with_scope_trace();
-         return 123;
+      int iRet;
+      if (initialize_stdio()) {
+         try {
+            // Create and initialize the app.
+            TApp app;
+            collections::smvector<istr const, 8> vsArgs;
+            app._build_args(cArgs, ppszArgs, &vsArgs);
+            // Invoke the program-defined main().
+            iRet = app.main(vsArgs);
+         } catch (std::exception const & x) {
+            exception::write_with_scope_trace(nullptr, &x);
+            iRet = 123;
+         } catch (...) {
+            exception::write_with_scope_trace();
+            iRet = 123;
+         }
+         if (!deinitialize_stdio()) {
+            iRet = 124;
+         }
+      } else {
+         iRet = 122;
       }
+      return iRet;
    }
 
 #if ABC_HOST_API_WIN32
@@ -101,20 +110,29 @@ public:
 
       // Establish this as early as possible.
       exception::fault_converter xfc;
-      try {
-         // Create and initialize the app.
-         TApp app;
-         collections::smvector<istr const, 8> vsArgs;
-//       app._build_args(&vsArgs);
-         // Invoke the program-defined main().
-         return app.main(vsArgs);
-      } catch (std::exception const & x) {
-         exception::write_with_scope_trace(nullptr, &x);
-         return 123;
-      } catch (...) {
-         exception::write_with_scope_trace();
-         return 123;
+      int iRet;
+      if (initialize_stdio()) {
+         try {
+            // Create and initialize the app.
+            TApp app;
+            collections::smvector<istr const, 8> vsArgs;
+//          app._build_args(&vsArgs);
+            // Invoke the program-defined main().
+            iRet = app.main(vsArgs);
+         } catch (std::exception const & x) {
+            exception::write_with_scope_trace(nullptr, &x);
+            iRet = 123;
+         } catch (...) {
+            exception::write_with_scope_trace();
+            iRet = 123;
+         }
+         if (!deinitialize_stdio()) {
+            iRet = 124;
+         }
+      } else {
+         iRet = 122;
       }
+      return iRet;
    }
 #endif //if ABC_HOST_API_WIN32
 
@@ -145,6 +163,10 @@ protected:
    // Overload that uses ::GetCommandLine() internally.
    static void _build_args(collections::mvector<istr const> * pvsRet);
 #endif
+
+private:
+   static bool initialize_stdio();
+   static bool deinitialize_stdio();
 
 protected:
    //! Pointer to the one and only instance of the application-defined app class.

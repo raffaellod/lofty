@@ -51,15 +51,14 @@ public:
       vi.push_back(101);
       vi.push_back(102);
 
-      auto out(io::text::stdout());
-      out->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
+      io::text::stdout->print(ABC_SL("Populated vi with {} and {}\n"), vi[0], vi[1]);
 
-      out->write_line(ABC_SL("Before calling first_function()"));
-      out->write_line();
+      io::text::stdout->write_line(ABC_SL("Before calling first_function()"));
+      io::text::stdout->write_line();
       first_function(s, vi);
 
       // This will never happen.
-      out->write_line(ABC_SL("After calling first_function()"));
+      io::text::stdout->write_line(ABC_SL("After calling first_function()"));
 
       return 0;
    }
@@ -77,18 +76,17 @@ public:
    void first_function(istr const & s, collections::mvector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
 
-      auto out(io::text::stdout());
-      exception::write_with_scope_trace(out.get());
-      out->write_line();
+      exception::write_with_scope_trace(io::text::stdout.get());
+      io::text::stdout->write_line();
 
-      out->write_line(ABC_SL("Before calling is_zero()"));
-      out->write_line();
+      io::text::stdout->write_line(ABC_SL("Before calling is_zero()"));
+      io::text::stdout->write_line();
 
       // Passing a null pointer!
       is_zero(numbers_enum::two, nullptr);
 
       // This will never happen.
-      out->write_line(ABC_SL("After calling is_zero()"));
+      io::text::stdout->write_line(ABC_SL("After calling is_zero()"));
    }
 
    void is_zero(numbers_enum ne, bool * pbRet) const {

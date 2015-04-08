@@ -59,6 +59,55 @@ app::app() {
 }
 #endif
 
+/*static*/ bool app::initialize_stdio() {
+   try {
+      io::binary::stderr = io::binary::detail::make_stderr();
+      io::binary::stdin  = io::binary::detail::make_stdin ();
+      io::binary::stdout = io::binary::detail::make_stdout();
+      io::text::stderr = io::text::detail::make_stderr();
+      io::text::stdin  = io::text::detail::make_stdin ();
+      io::text::stdout = io::text::detail::make_stdout();
+      return true;
+   } catch (std::exception const & x) {
+      // Exceptions can’t be reported at this point.
+      return false;
+   } catch (...) {
+      // Exceptions can’t be reported at this point.
+      return false;
+   }
+}
+
+/*static*/ bool app::deinitialize_stdio() {
+   ABC_TRACE_FUNC();
+
+   try {
+      io::text::stdout->flush();
+      io::binary::stdout->flush();
+      io::text::stderr->flush();
+      io::binary::stderr->flush();
+
+      io::text::stdin.reset();
+      io::binary::stdin.reset();
+      io::text::stdout.reset();
+      io::binary::stdout.reset();
+      io::text::stderr.reset();
+      io::binary::stderr.reset();
+      return true;
+   } catch (std::exception const & x) {
+      if (io::text::stderr) {
+         exception::write_with_scope_trace(nullptr, &x);
+      }
+      // Else, exceptions can’t be reported at this point, since we just closed stderr.
+      return false;
+   } catch (...) {
+      if (io::text::stderr) {
+         exception::write_with_scope_trace();
+      }
+      // Else, exceptions can’t be reported at this point, since we just closed stderr.
+      return false;
+   }
+}
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
