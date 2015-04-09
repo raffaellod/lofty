@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace testing {
 
-/*virtual*/ int app::main(collections::mvector<istr const> const & vsArgs) /*override*/ {
+/*virtual*/ int app::main(collections::mvector<istr> & vsArgs) /*override*/ {
    ABC_TRACE_FUNC(this, vsArgs);
 
    ABC_UNUSED_ARG(vsArgs);

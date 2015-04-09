@@ -51,7 +51,7 @@ public:
       return value, accessible in a shell/command prompt as $? (Linux/POSIX) or %ERRORLEVEL%
       (Win32).
    */
-   virtual int main(collections::mvector<istr const> const & vsArgs) override {
+   virtual int main(collections::mvector<istr> & vsArgs) override {
       /* This should be the first line of every function/method; it allows to inspect the values of
       the method’s arguments when an exception is raised during the execution of the method. */
       ABC_TRACE_FUNC(this, vsArgs);

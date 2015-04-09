@@ -43,7 +43,7 @@ app::app() {
 /*static*/ int app::call_main(app * papp, _args_t * pargs) {
    ABC_TRACE_FUNC(papp, pargs);
 
-   collections::smvector<istr const, 8> vsArgs;
+   collections::smvector<istr, 8> vsArgs;
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
    // TODO: call ::GetCommandLine() and parse its result.

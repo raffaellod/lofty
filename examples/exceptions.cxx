@@ -42,7 +42,7 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::mvector<istr const> const & vsArgs) override {
+   virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       istr s(ABC_SL("Test String"));

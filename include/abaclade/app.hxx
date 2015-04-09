@@ -90,7 +90,7 @@ public:
    @return
       Return code of the program.
    */
-   virtual int main(collections::mvector<istr const> const & vsArgs) = 0;
+   virtual int main(collections::mvector<istr> & vsArgs) = 0;
 
    /*! Runs the application, instantiating an app subclass and calling app::main().
 
