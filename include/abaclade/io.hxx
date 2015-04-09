@@ -159,3 +159,19 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::io::filedesc
+
+namespace abc {
+
+template <>
+class to_str_backend<io::filedesc> : public to_str_backend<io::filedesc_t> {
+public:
+   //! See to_str_backend<io::filedesc_t>::write().
+   void write(io::filedesc const & fd, io::text::writer * ptwOut) {
+      to_str_backend<io::filedesc_t>::write(fd.get(), ptwOut);
+   }
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////

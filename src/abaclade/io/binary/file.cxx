@@ -968,7 +968,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
          true if the specified range could be locked, or false if the range has already been locked.
       */
       bool lock(filedesc_t fd, offset_t ibOffset, full_size_t cb) {
-         ABC_TRACE_FUNC(this, /*fd, */, ibOffset, cb);
+         ABC_TRACE_FUNC(this, fd, ibOffset, cb);
 
          if (m_fd != INVALID_HANDLE_VALUE) {
             unlock();
