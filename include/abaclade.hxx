@@ -474,8 +474,8 @@ class writer;
 #include <abaclade/detail/context_local.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/coroutine_local.hxx>
-#include <abaclade/exception.hxx>
 #include <abaclade/enum.hxx>
+#include <abaclade/exception.hxx>
 #include <abaclade/collections/pointer_iterator.hxx>
 #include <abaclade/collections/detail/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr.hxx>
