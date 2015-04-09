@@ -36,20 +36,6 @@ namespace abc {
 namespace text {
 namespace parsers {
 
-namespace detail {
-
-//! Internal automaton states for ansi_escape_sequences.
-ABC_ENUM_AUTO_VALUES(ansi_escape_sequences_state,
-   not_in_sequence, //! Not in an ANSI escape sequence.
-   escape,          //! Control Sequence Introducer found.
-   bracket,         //! Read a bracket following the CSI.
-   numeric_arg,     //! Expecting or reading a numeric argument in the escape sequence.
-   string_arg,      //! Expecting or reading a string argument in the escape sequence.
-   ignore           //! Ignoring a character after a CSI + parenthesis sequence.
-);
-
-} //namespace detail
-
 //! ANSI terminal 3-bit color palette.
 ABC_ENUM(ansi_terminal_color,
    (black,   0),
@@ -87,8 +73,16 @@ public:
       std::uint8_t iUnderline:2;
    };
 
-   //! Shortcut.
-   typedef detail::ansi_escape_sequences_state state;
+private:
+   //! Internal automaton states.
+   ABC_ENUM_AUTO_VALUES(state,
+      not_in_sequence, //! Not in an ANSI escape sequence.
+      escape,          //! Control Sequence Introducer found.
+      bracket,         //! Read a bracket following the CSI.
+      numeric_arg,     //! Expecting or reading a numeric argument in the escape sequence.
+      string_arg,      //! Expecting or reading a string argument in the escape sequence.
+      ignore           //! Ignoring a character after a CSI + parenthesis sequence.
+   );
 
 public:
    /*! Analyzes a character, returning true if it’s part of an ANSI escape sequence and was
