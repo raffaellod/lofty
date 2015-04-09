@@ -40,41 +40,23 @@ app::app() {
    sm_papp = nullptr;
 }
 
-/*static*/ void app::build_args(
-   int cArgs, char_t ** ppszArgs, collections::mvector<istr const> * pvsRet
-) {
-   ABC_TRACE_FUNC(cArgs, ppszArgs, pvsRet);
+/*static*/ int app::call_main(app * papp, _args_t * pargs) {
+   ABC_TRACE_FUNC(papp, pargs);
 
-   pvsRet->set_capacity(static_cast<std::size_t>(cArgs), false);
-   // Make each string not allocate a new character array.
-   for (int i = 0; i < cArgs; ++i) {
-      pvsRet->push_back(istr(external_buffer, ppszArgs[i]));
-   }
-}
-#if ABC_HOST_API_WIN32
-/*static*/ void app::build_args(collections::mvector<istr const> * pvsRet) {
-   ABC_TRACE_FUNC(pvsRet);
-
+   collections::smvector<istr const, 8> vsArgs;
+// TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
+#if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
    // TODO: call ::GetCommandLine() and parse its result.
-}
+#else
+   vsArgs.set_capacity(static_cast<std::size_t>(pargs->cArgs), false);
+   // Make each string not allocate a new character array.
+   for (int i = 0; i < pargs->cArgs; ++i) {
+      vsArgs.push_back(istr(external_buffer, pargs->ppszArgs[i]));
+   }
 #endif
 
-/*static*/ bool app::initialize_stdio() {
-   try {
-      io::binary::stderr = io::binary::detail::make_stderr();
-      io::binary::stdin  = io::binary::detail::make_stdin ();
-      io::binary::stdout = io::binary::detail::make_stdout();
-      io::text::stderr = io::text::detail::make_stderr();
-      io::text::stdin  = io::text::detail::make_stdin ();
-      io::text::stdout = io::text::detail::make_stdout();
-      return true;
-   } catch (std::exception const & x) {
-      // Exceptions can’t be reported at this point.
-      return false;
-   } catch (...) {
-      // Exceptions can’t be reported at this point.
-      return false;
-   }
+   // Invoke the program-defined main().
+   return papp->main(vsArgs);
 }
 
 /*static*/ bool app::deinitialize_stdio() {
@@ -106,6 +88,47 @@ app::app() {
       // Else, exceptions can’t be reported at this point, since we just closed stderr.
       return false;
    }
+}
+
+/*static*/ bool app::initialize_stdio() {
+   try {
+      io::binary::stderr = io::binary::detail::make_stderr();
+      io::binary::stdin  = io::binary::detail::make_stdin ();
+      io::binary::stdout = io::binary::detail::make_stdout();
+      io::text::stderr = io::text::detail::make_stderr();
+      io::text::stdin  = io::text::detail::make_stdin ();
+      io::text::stdout = io::text::detail::make_stdout();
+      return true;
+   } catch (std::exception const & x) {
+      // Exceptions can’t be reported at this point.
+      return false;
+   } catch (...) {
+      // Exceptions can’t be reported at this point.
+      return false;
+   }
+}
+
+/*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
+   // Establish this as early as possible.
+   exception::fault_converter xfc;
+   int iRet;
+   if (initialize_stdio()) {
+      try {
+         iRet = pfnInstantiateAppAndCallMain(pargs);
+      } catch (std::exception const & x) {
+         exception::write_with_scope_trace(nullptr, &x);
+         iRet = 123;
+      } catch (...) {
+         exception::write_with_scope_trace();
+         iRet = 123;
+      }
+      if (!deinitialize_stdio()) {
+         iRet = 124;
+      }
+   } else {
+      iRet = 122;
+   }
+   return iRet;
 }
 
 } //namespace abc
