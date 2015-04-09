@@ -356,10 +356,21 @@ public:
       ~fault_converter();
    };
 
-public:
+   //! Possible exception types injectable by inject_in_context().
+   ABC_ENUM_AUTO_VALUES(injectable,
+      arithmetic_error,
+      division_by_zero_error,
+      floating_point_error,
+      memory_access_error,
+      memory_address_error,
+      null_pointer_error,
+      overflow_error
+   );
+
    //! Related STL exception class.
    typedef std::exception related_std;
 
+public:
    /*! Constructor.
 
    @param x
@@ -386,6 +397,9 @@ public:
    //! Initializes the information associated to the exception.
    void init() {
    }
+
+   //! Injects the requested type of exception in the specified context.
+   static void inject_in_context(exception::injectable inj, void * pctx);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.

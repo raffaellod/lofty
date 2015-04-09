@@ -139,6 +139,11 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
+/*static*/ void exception::inject_in_context(exception::injectable inj, void * pctx) {
+   ABC_UNUSED_ARG(inj);
+   ABC_UNUSED_ARG(pctx);
+}
+
 char const * exception::what() const {
    return m_pszWhat;
 }

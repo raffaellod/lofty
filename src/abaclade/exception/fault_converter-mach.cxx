@@ -84,7 +84,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
 #endif
 
    // Read the exception and convert it into a known C++ type.
-   fault_exception_types::enum_type fxt;
+   abc::exception::injectable::enum_type inj;
    std::intptr_t iArg0 = 0, iArg1 = 0;
    {
       arch_exception_state_t excst;
@@ -105,9 +105,9 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    #error "TODO: HOST_ARCH"
 #endif
             if (iArg0 == 0) {
-               fxt = fault_exception_types::null_pointer_error;
+               inj = abc::exception::injectable::null_pointer_error;
             } else {
-               fxt = fault_exception_types::memory_address_error;
+               inj = abc::exception::injectable::memory_address_error;
             }
             break;
 
@@ -118,39 +118,39 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    #error "TODO: HOST_ARCH"
 #endif
             // TODO: better exception type.
-            fxt = fault_exception_types::memory_access_error;
+            inj = abc::exception::injectable::memory_access_error;
             break;
 
          case EXC_ARITHMETIC:
-            fxt = fault_exception_types::arithmetic_error;
+            inj = abc::exception::injectable::arithmetic_error;
             if (cExcCodes) {
                // TODO: can there be more than one exception code passed to a single call?
                switch (piExcCodes[0]) {
 #if ABC_HOST_ARCH_X86_64
                   case EXC_I386_DIV:
-                     fxt = fault_exception_types::division_by_zero_error;
+                     inj = abc::exception::injectable::division_by_zero_error;
                      break;
 /*
                   case EXC_I386_INTO:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_NOEXT:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_EXTOVR:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_EXTERR:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_EMERR:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_BOUND:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
                   case EXC_I386_SSEEXTERR:
-                     fxt = fault_exception_types::arithmetic_error;
+                     inj = abc::exception::injectable::arithmetic_error;
                      break;
 */
 #else
@@ -186,7 +186,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    3-argument subroutine call. */
    typedef decltype(thrst.__rsp) reg_t;
    reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
-   thrst.__rdi = static_cast<reg_t>(fxt);
+   thrst.__rdi = static_cast<reg_t>(inj);
    thrst.__rsi = static_cast<reg_t>(iArg0);
    thrst.__rdx = static_cast<reg_t>(iArg1);
    // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.

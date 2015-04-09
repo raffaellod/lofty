@@ -86,7 +86,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       return;
    }
 
-   fault_exception_types::enum_type fxt;
+   abc::exception::injectable::enum_type inj;
    std::intptr_t iArg0 = 0, iArg1 = 0;
    switch (iSignal) {
       case SIGBUS:
@@ -95,7 +95,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
          going – even the code to throw an exception could be compromised. */
          switch (psi->si_code) {
             case BUS_ADRALN: // Invalid address alignment.
-               fxt = fault_exception_types::memory_access_error;
+               inj = abc::exception::injectable::memory_access_error;
                iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                break;
             default:
@@ -106,10 +106,10 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       case SIGFPE:
          switch (psi->si_code) {
             case FPE_INTDIV: // Integer divide by zero.
-               fxt = fault_exception_types::division_by_zero_error;
+               inj = abc::exception::injectable::division_by_zero_error;
                break;
             case FPE_INTOVF: // Integer overflow.
-               fxt = fault_exception_types::overflow_error;
+               inj = abc::exception::injectable::overflow_error;
                break;
             case FPE_FLTDIV: // Floating-point divide by zero.
             case FPE_FLTOVF: // Floating-point overflow.
@@ -117,21 +117,21 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
             case FPE_FLTRES: // Floating-point inexact result.
             case FPE_FLTINV: // Floating-point invalid operation.
             case FPE_FLTSUB: // Subscript out of range.
-               fxt = fault_exception_types::floating_point_error;
+               inj = abc::exception::injectable::floating_point_error;
                break;
             default:
                /* At the time of writing, the above case labels don’t leave out any values, but
                that’s not necessarily going to be true in 5 years, so… */
-               fxt = fault_exception_types::arithmetic_error;
+               inj = abc::exception::injectable::arithmetic_error;
                break;
          }
          break;
 
       case SIGSEGV:
          if (psi->si_addr == nullptr) {
-            fxt = fault_exception_types::null_pointer_error;
+            inj = abc::exception::injectable::null_pointer_error;
          } else {
-            fxt = fault_exception_types::memory_address_error;
+            inj = abc::exception::injectable::memory_address_error;
             iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
          }
          break;
@@ -162,7 +162,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       /* Load the arguments to throw_after_fault() in r0-2, push lr and replace it with the address
       of the current (failing) instruction, then set pc to the start of throw_after_fault(). These
       steps emulate a 3-argument subroutine call. */
-      r0 = static_cast<reg_t>(fxt);
+      r0 = static_cast<reg_t>(inj);
       r1 = static_cast<reg_t>(iArg0);
       r2 = static_cast<reg_t>(iArg1);
       *--sp = lr;
@@ -187,7 +187,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       3-argument subroutine call. */
       *--esp = static_cast<reg_t>(iArg1);
       *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(fxt);
+      *--esp = static_cast<reg_t>(inj);
       *--esp = eip;
       eip = reinterpret_cast<reg_t>(&throw_after_fault);
    #elif ABC_HOST_ARCH_X86_64
@@ -213,7 +213,7 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
       /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
       (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
       3-argument subroutine call. */
-      rdi = static_cast<reg_t>(fxt);
+      rdi = static_cast<reg_t>(inj);
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
       // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
