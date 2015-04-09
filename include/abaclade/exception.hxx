@@ -22,72 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::source_location
-
-/*! Expands into the instantiation of a temporary abc::source_location object referencing the
-location in which it’s used.
-
-@return
-   abc::source_location instance.
-*/
-#define ABC_SOURCE_LOCATION() \
-   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
-
-namespace abc {
-
-//! Source code location.
-class source_location {
-public:
-   /*! Constructor.
-
-   @param pszFilePath
-      Path to the source file.
-   @param iLine
-      Line number in pszFilePath.
-   */
-   source_location() :
-      m_pszFilePath(nullptr),
-      m_iLine(0) {
-   }
-   source_location(char_t const * pszFilePath, unsigned iLine) :
-      m_pszFilePath(pszFilePath),
-      m_iLine(static_cast<std::uint16_t>(iLine)) {
-   }
-
-   /*! Returns the file path.
-
-   @return
-      File path.
-   */
-   char_t const * file_path() const {
-      return m_pszFilePath;
-   }
-
-   /*! Returns the line number.
-
-   @return
-      Line number.
-   */
-   unsigned line_number() const {
-      return m_iLine;
-   }
-
-protected:
-   //! Path to the source file.
-   char_t const * m_pszFilePath;
-   //! Line number in m_pszFilePath.
-   std::uint16_t m_iLine;
-};
-
-} //namespace abc
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception
-
-namespace abc {
-
 /*! DOC:8190 Exception class hierarchy
 
 Abaclade provides a diverse and semantically-rich exception class hierarchy that parallels and
@@ -247,49 +181,10 @@ Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/
 exceptions.html>.
 */
 
-//! Pretty-printed name of the current function.
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
-   /* With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by
-   the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t know what scope
-   even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to u8__PRETTY_FUNCTION__. However,
-   since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s not really necessary, so we just
-   avoid using ABC_SL() here. */
-   #define _ABC_THIS_FUNC \
-      __PRETTY_FUNCTION__
-#elif ABC_HOST_CXX_MSC
-   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
-   works just fine. */
-   #define _ABC_THIS_FUNC \
-      ABC_SL(__FUNCSIG__)
-#else
-   #define _ABC_THIS_FUNC \
-      nullptr
-#endif
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals
 
-namespace detail {
-
-/*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
-that can be caught from code written for either framework. */
-template <class TAbc, class TStd = typename TAbc::related_std>
-class exception_aggregator : public TStd, public TAbc {
-public:
-   //! Constructor.
-   exception_aggregator() :
-      TStd(),
-      TAbc() {
-   }
-
-   //! Destructor.
-   virtual ~exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
-   }
-
-   //! See std::exception::what().
-   virtual const char * what() const ABC_STL_NOEXCEPT_TRUE() override {
-      return TAbc::what();
-   }
-};
-
-} //namespace detail
+namespace abc {
 
 //! Integer type used by the OS to represent error numbers.
 #if ABC_HOST_API_POSIX
@@ -299,6 +194,11 @@ public:
 #else
    #error "TODO: HOST_API"
 #endif
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals ‒ ABC_THROW()
 
 /*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
 up with context information and the remaining arguments, and then throws it.
@@ -327,6 +227,117 @@ because it’s the only class involved that’s not in a detail namespace.
       _x._before_throw(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC); \
       throw _x; \
    } while (false)
+
+//! Pretty-printed name of the current function.
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   /* With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by
+   the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t know what scope
+   even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to u8__PRETTY_FUNCTION__. However,
+   since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s not really necessary, so we just
+   avoid using ABC_SL() here. */
+   #define _ABC_THIS_FUNC \
+      __PRETTY_FUNCTION__
+#elif ABC_HOST_CXX_MSC
+   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
+   works just fine. */
+   #define _ABC_THIS_FUNC \
+      ABC_SL(__FUNCSIG__)
+#else
+   #define _ABC_THIS_FUNC \
+      nullptr
+#endif
+
+namespace abc {
+namespace detail {
+
+/*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
+that can be caught from code written for either framework. */
+template <class TAbc, class TStd = typename TAbc::related_std>
+class exception_aggregator : public TStd, public TAbc {
+public:
+   //! Constructor.
+   exception_aggregator() :
+      TStd(),
+      TAbc() {
+   }
+
+   //! Destructor.
+   virtual ~exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
+   }
+
+   //! See std::exception::what().
+   virtual const char * what() const ABC_STL_NOEXCEPT_TRUE() override {
+      return TAbc::what();
+   }
+};
+
+} //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::source_location
+
+/*! Expands into the instantiation of a temporary abc::source_location object referencing the
+location in which it’s used.
+
+@return
+   abc::source_location instance.
+*/
+#define ABC_SOURCE_LOCATION() \
+   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
+
+namespace abc {
+
+//! Source code location.
+class source_location {
+public:
+   /*! Constructor.
+
+   @param pszFilePath
+      Path to the source file.
+   @param iLine
+      Line number in pszFilePath.
+   */
+   source_location() :
+      m_pszFilePath(nullptr),
+      m_iLine(0) {
+   }
+   source_location(char_t const * pszFilePath, unsigned iLine) :
+      m_pszFilePath(pszFilePath),
+      m_iLine(static_cast<std::uint16_t>(iLine)) {
+   }
+
+   /*! Returns the file path.
+
+   @return
+      File path.
+   */
+   char_t const * file_path() const {
+      return m_pszFilePath;
+   }
+
+   /*! Returns the line number.
+
+   @return
+      Line number.
+   */
+   unsigned line_number() const {
+      return m_iLine;
+   }
+
+protected:
+   //! Path to the source file.
+   char_t const * m_pszFilePath;
+   //! Line number in m_pszFilePath.
+   std::uint16_t m_iLine;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::exception
+
+namespace abc {
 
 //! Base for all abc exceptions classes.
 class ABACLADE_SYM exception {
