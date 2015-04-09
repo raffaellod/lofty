@@ -75,7 +75,7 @@ public:
             // Create and initialize the app.
             TApp app;
             collections::smvector<istr const, 8> vsArgs;
-            app._build_args(cArgs, ppszArgs, &vsArgs);
+            app.build_args(cArgs, ppszArgs, &vsArgs);
             // Invoke the program-defined main().
             iRet = app.main(vsArgs);
          } catch (std::exception const & x) {
@@ -116,7 +116,7 @@ public:
             // Create and initialize the app.
             TApp app;
             collections::smvector<istr const, 8> vsArgs;
-//          app._build_args(&vsArgs);
+//          app.build_args(&vsArgs);
             // Invoke the program-defined main().
             iRet = app.main(vsArgs);
          } catch (std::exception const & x) {
@@ -145,7 +145,7 @@ public:
    */
    virtual int main(collections::mvector<istr const> const & vsArgs) = 0;
 
-protected:
+private:
    /*! Fills up a string vector from the command-line arguments.
 
    @param cArgs
@@ -156,15 +156,14 @@ protected:
       Vector to receive istr instances (using external buffers from *ppszArgs) containing each
       argument.
    */
-   static void _build_args(
+   static void build_args(
       int cArgs, char_t ** ppszArgs, collections::mvector<istr const> * pvsRet
    );
 #if ABC_HOST_API_WIN32
    // Overload that uses ::GetCommandLine() internally.
-   static void _build_args(collections::mvector<istr const> * pvsRet);
+   static void build_args(collections::mvector<istr const> * pvsRet);
 #endif
 
-private:
    static bool initialize_stdio();
    static bool deinitialize_stdio();
 

@@ -40,7 +40,7 @@ app::app() {
    sm_papp = nullptr;
 }
 
-/*static*/ void app::_build_args(
+/*static*/ void app::build_args(
    int cArgs, char_t ** ppszArgs, collections::mvector<istr const> * pvsRet
 ) {
    ABC_TRACE_FUNC(cArgs, ppszArgs, pvsRet);
@@ -52,7 +52,7 @@ app::app() {
    }
 }
 #if ABC_HOST_API_WIN32
-/*static*/ void app::_build_args(collections::mvector<istr const> * pvsRet) {
+/*static*/ void app::build_args(collections::mvector<istr const> * pvsRet) {
    ABC_TRACE_FUNC(pvsRet);
 
    // TODO: call ::GetCommandLine() and parse its result.
