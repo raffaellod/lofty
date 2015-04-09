@@ -104,7 +104,10 @@ public:
    explicit filedesc(filedesc_t fd) :
       m_fd(fd) {
    }
-   filedesc(filedesc && fd);
+   filedesc(filedesc && fd) :
+      m_fd(fd.m_fd) {
+      fd.m_fd = smc_fdNull;
+   }
 
    //! Destructor.
    ~filedesc();

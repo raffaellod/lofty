@@ -39,16 +39,7 @@ filedesc_t const filedesc::smc_fdNull =
    #error "TODO: HOST_API"
 #endif
 
-filedesc::filedesc(filedesc && fd) :
-   m_fd(fd.m_fd) {
-   ABC_TRACE_FUNC(this);
-
-   fd.m_fd = smc_fdNull;
-}
-
 filedesc::~filedesc() {
-   ABC_TRACE_FUNC(this);
-
    if (m_fd != smc_fdNull) {
 #if ABC_HOST_API_POSIX
       /* The man page for close(2) says:
@@ -77,8 +68,6 @@ filedesc::~filedesc() {
 }
 
 filedesc & filedesc::operator=(filedesc && fd) {
-   ABC_TRACE_FUNC(this);
-
    if (fd.m_fd != m_fd) {
       this->~filedesc();
       m_fd = fd.m_fd;
