@@ -235,7 +235,7 @@ caught by a catch block in another. However, this is not an issue because no cod
 abc::detail::exception_aggregator instance; clients will instead catch the appropriate Abaclade or
 STL exception class, and these are indeed defined once for all binaries, and are therefore unique.
 
-See [DOC:8191 Throwing exceptions] for more information on ABC_THROW().
+See also ABC_THROW() for more information.
 
 Most of the exception class hierarchy is based on Python’s, which was chosen as model because of its
 breadth and depth.
@@ -245,23 +245,6 @@ hierarchy, including the relations with the STL hierarchy.
 
 Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
 exceptions.html>.
-*/
-
-/*! DOC:8191 Throwing exceptions
-
-ABC_THROW() instantiates a specialization of the class template abc::detail::exception_aggregator,
-fills it up with context information and the remaining arguments, and then throws it. This is the
-suggested way of throwing an exception within code using Abaclade. See [DOC:8190 Exception class
-hierarchy] for more information on abc::detail::exception_aggregator and why it exists.
-
-Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace with the
-exact line where the throw statement occurred.
-
-Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
-the additional members that the latter expects to be able to set in the former.
-
-The class abc::exception also implements the actual stack trace printing for abc::_stack_trace,
-since this file is included in virtually every file whereas trace.hxx is not.
 */
 
 //! Pretty-printed name of the current function.
@@ -317,7 +300,19 @@ public:
    #error "TODO: HOST_API"
 #endif
 
-/*! Throws the specified object, after providing it with debug information.
+/*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
+up with context information and the remaining arguments, and then throws it.
+
+This is the suggested way of throwing an exception within code using Abaclade. See [DOC:8190
+Exception class hierarchy] for more information on abc::detail::exception_aggregator and why it
+exists. Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace with
+the exact line where the throw statement occurred.
+
+Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
+the additional members that the latter expects to be able to set in the former.
+
+The class abc::exception implements the actual stack trace printing for abc::detail::scope_trace
+because it’s the only class involved that’s not in a detail namespace.
 
 @param x
    Exception instance to be thrown.

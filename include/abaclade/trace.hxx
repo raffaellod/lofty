@@ -70,7 +70,7 @@ This covers the following code flows:
    exceptions were related.
 
 See related diagram [IMG:8503 Stack trace generation] for all code flows covered by this design.
-See also [DOC:8191 Throwing exceptions] and abc::exception for the remainder of the implementation.
+See also ABC_THROW() and abc::exception for the remainder of the implementation.
 
 Currently unsupported:
 •  TODO: storing a thrown exception, handling a different exception, and throwing back the first
