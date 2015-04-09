@@ -116,7 +116,6 @@ public:
    @return
       *this.
    */
-   filedesc & operator=(filedesc_t fd);
    filedesc & operator=(filedesc && fd);
 
    /*! Safe bool operator.

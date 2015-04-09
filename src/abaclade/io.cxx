@@ -76,15 +76,6 @@ filedesc::~filedesc() {
    }
 }
 
-filedesc & filedesc::operator=(filedesc_t fd) {
-   ABC_TRACE_FUNC(this, fd);
-
-   if (fd != m_fd) {
-      this->~filedesc();
-   }
-   m_fd = fd;
-   return *this;
-}
 filedesc & filedesc::operator=(filedesc && fd) {
    ABC_TRACE_FUNC(this);
 

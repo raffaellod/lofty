@@ -278,7 +278,7 @@ std::shared_ptr<file_base> open(
       }
    #endif
    // Note: this does not compare the new fd against 0; instead it calls fid.fd.operator bool().
-   while (!(fid.fd = ::open(op.os_str().c_str(), iFlags, 0666))) {
+   while (!(fid.fd = filedesc(::open(op.os_str().c_str(), iFlags, 0666)))) {
       int iErr = errno;
       switch (iErr) {
          case EINTR:
@@ -397,8 +397,8 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
          exception::throw_os_error(iErr);
       }
    }
-   fidReader.fd = fds[0];
-   fidWriter.fd = fds[1];
+   fidReader.fd = filedesc(fds[0]);
+   fidWriter.fd = filedesc(fds[1]);
 #elif ABC_HOST_API_WIN32
    if (bAsync) {
       // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
