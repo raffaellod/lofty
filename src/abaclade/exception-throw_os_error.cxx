@@ -24,9 +24,9 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::exception::throw_os_error()
 
 #if ABC_HOST_API_POSIX
-   #include "throw_os_error-posix.cxx"
+   #include "exception-throw_os_error-posix.cxx"
 #elif ABC_HOST_API_WIN32
-   #include "throw_os_error-win32.cxx"
+   #include "exception-throw_os_error-win32.cxx"
 #else
    #error "TODO: HOST_API"
 #endif
