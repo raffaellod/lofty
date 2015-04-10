@@ -101,28 +101,6 @@ public:
    */
    thread & operator=(thread && thr);
 
-   /*! Equality relational operator.
-
-   @param thr
-      Object to compare to *this.
-   @return
-      true if *this refers to the same thread as thr, or false otherwise.
-   */
-   bool operator==(thread const & thr) const;
-
-   /*! Inequality relational operator.
-
-   @param thr
-      Object to compare to *this.
-   @return
-      true if *this refers to a different thread than thr, or false otherwise.
-   */
-   bool operator!=(thread const & thr) const {
-      ABC_TRACE_FUNC(this, thr);
-
-      return !operator==(thr);
-   }
-
    /*! Releases the OS-dependent ID/handle, making *this reference no thread and invalidating the
    value returned by native_handle(). */
    void detach();

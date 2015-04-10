@@ -141,23 +141,6 @@ thread & thread::operator=(thread && thr) {
    return *this;
 }
 
-bool thread::operator==(thread const & thr) const {
-   ABC_TRACE_FUNC(this, thr);
-
-#if ABC_HOST_API_POSIX
-   return ::pthread_equal(m_h, thr.m_h);
-#elif ABC_HOST_API_WIN32
-   if (DWORD iThisTid = ::GetThreadId(m_h)) {
-      if (DWORD iOtherTid = ::GetThreadId(thr.m_h)) {
-         return iThisTid == iOtherTid;
-      }
-   }
-   exception::throw_os_error();
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
 void thread::detach() {
    ABC_TRACE_FUNC(this);
 
