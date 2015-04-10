@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -48,7 +48,7 @@ extern "C" ::boolean_t exc_server(
 
 /*! Called by exc_server() when the latter is passed an exception message, giving the process a way
 to do something about it. What we do is change the next instruction in the faulting thread to
-throw_after_fault().
+throw_injected_exception().
 
 @param mpExceptions
    ?
@@ -167,7 +167,7 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
    }
 
    /* Change the address at which mpThread is executing: manipulate the thread state to emulate a
-   function call to throw_after_fault(). */
+   function call to throw_injected_exception(). */
 
    // Obtain the faulting thread’s state.
    arch_thread_state_t thrst;
@@ -179,22 +179,8 @@ extern "C" ::kern_return_t ABACLADE_SYM catch_exception_raise(
       return KERN_FAILURE;
    }
 
-   // Manipulate the thread state to emulate a call to throw_after_fault.
-#if ABC_HOST_ARCH_X86_64
-   /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
-   (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
-   3-argument subroutine call. */
-   typedef decltype(thrst.__rsp) reg_t;
-   reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
-   thrst.__rdi = static_cast<reg_t>(inj);
-   thrst.__rsi = static_cast<reg_t>(iArg0);
-   thrst.__rdx = static_cast<reg_t>(iArg1);
-   // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
-   *--rsp = thrst.__rip;
-   thrst.__rip = reinterpret_cast<reg_t>(&throw_after_fault);
-#else
-   #error "TODO: HOST_ARCH"
-#endif
+   // Manipulate the thread state to emulate a call to throw_injected_exception().
+   exception::inject_in_context(inj, iArg0, iArg1, thrst);
 
    // Update the faulting thread’s state.
    if (::thread_set_state(

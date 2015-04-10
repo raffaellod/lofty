@@ -398,8 +398,17 @@ public:
    void init() {
    }
 
-   //! Injects the requested type of exception in the specified context.
-   static void inject_in_context(exception::injectable inj, void * pctx);
+   /*! Injects the requested type of exception in the specified context.
+   @param inj
+      Type of exception to inject.
+   @param iArg0
+      First argument to the exception constructor, if applicable.
+   @param iArg1
+      Second argument to the exception constructor, if applicable.
+   */
+   static void inject_in_context(
+      exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
+   );
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.

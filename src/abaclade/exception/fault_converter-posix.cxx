@@ -56,10 +56,10 @@ int const g_aiHandledSignals[] = {
 struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
 
 /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
-stack frame of a call to throw_after_fault(), and then returning, ending processing of the signal.
-Execution will resume from throw_after_fault(), which creates the appearance of a C++ exception
-being thrown at the location of the offending instruction, without calling any of the (many)
-functions that are forbidden in a signal handler.
+stack frame of a call to throw_injected_exception(), and then returning, ending processing of the
+signal. Execution will resume from throw_injected_exception(), which creates the appearance of a C++
+exception being thrown at the location of the offending instruction, without calling any of the
+(many) functions that are forbidden in a signal handler.
 
 @param iSignal
    Signal number for which the function is being called.
@@ -144,84 +144,8 @@ void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
    }
 
    /* Change the address at which the thread will resume execution: manipulate the thread context to
-   emulate a function call to throw_after_fault(). */
-
-   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
-   #if ABC_HOST_ARCH_ARM
-      #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<decltype(puctx->uc_mcontext.arm_r0)>::type reg_t;
-         reg_t & r0 = puctx->uc_mcontext.arm_r0;
-         reg_t & r1 = puctx->uc_mcontext.arm_r1;
-         reg_t & r2 = puctx->uc_mcontext.arm_r2;
-         reg_t *& sp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.arm_sp);
-         reg_t & lr = puctx->uc_mcontext.arm_lr;
-         reg_t & pc = puctx->uc_mcontext.arm_pc;
-      #else
-         #error "TODO: HOST_API"
-      #endif
-      /* Load the arguments to throw_after_fault() in r0-2, push lr and replace it with the address
-      of the current (failing) instruction, then set pc to the start of throw_after_fault(). These
-      steps emulate a 3-argument subroutine call. */
-      r0 = static_cast<reg_t>(inj);
-      r1 = static_cast<reg_t>(iArg0);
-      r2 = static_cast<reg_t>(iArg1);
-      *--sp = lr;
-      lr = pc;
-      pc = reinterpret_cast<reg_t>(&throw_after_fault);
-   #elif ABC_HOST_ARCH_I386
-      #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<
-            decltype(puctx->uc_mcontext.gregs[REG_ESP])
-         >::type reg_t;
-         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
-         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
-      #elif ABC_HOST_API_FREEBSD
-         typedef decltype(puctx->uc_mcontext.mc_esp) reg_t;
-         reg_t & eip = puctx->uc_mcontext.mc_eip;
-         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
-      #else
-         #error "TODO: HOST_API"
-      #endif
-      /* Push the arguments to throw_after_fault() onto the stack, push the address of the current
-      (failing) instruction, then set eip to the start of throw_after_fault(). These steps emulate a
-      3-argument subroutine call. */
-      *--esp = static_cast<reg_t>(iArg1);
-      *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(inj);
-      *--esp = eip;
-      eip = reinterpret_cast<reg_t>(&throw_after_fault);
-   #elif ABC_HOST_ARCH_X86_64
-      #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<
-            decltype(puctx->uc_mcontext.gregs[REG_RSP])
-         >::type reg_t;
-         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
-         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
-         reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
-         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
-         reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
-      #elif ABC_HOST_API_FREEBSD
-         typedef decltype(puctx->uc_mcontext.mc_rsp) reg_t;
-         reg_t & rip = puctx->uc_mcontext.mc_rip;
-         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
-         reg_t & rdi = puctx->uc_mcontext.mc_rdi;
-         reg_t & rsi = puctx->uc_mcontext.mc_rsi;
-         reg_t & rdx = puctx->uc_mcontext.mc_rdx;
-      #else
-         #error "TODO: HOST_API"
-      #endif
-      /* Load the arguments to throw_after_fault() in rdi/rsi/rdx, push the address of the current
-      (failing) instruction, then set rip to the start of throw_after_fault(). These steps emulate a
-      3-argument subroutine call. */
-      rdi = static_cast<reg_t>(inj);
-      rsi = static_cast<reg_t>(iArg0);
-      rdx = static_cast<reg_t>(iArg1);
-      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
-      *--rsp = rip;
-      rip = reinterpret_cast<reg_t>(&throw_after_fault);
-   #else
-      #error "TODO: HOST_ARCH"
-   #endif
+   emulate a function call to throw_injected_exception(). */
+   abc::exception::inject_in_context(inj, iArg0, iArg1, pctx);
 }
 
 } //namespace

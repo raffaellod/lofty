@@ -19,8 +19,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 
+#include <cstdlib> // std::abort()
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E*
+   #include <signal.h> // sigaction sig*()
+   #include <ucontext.h> // ucontext_t
 #endif
 
 
@@ -45,6 +48,40 @@ namespace abc {
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_allocation_error, ERROR_NOT_ENOUGH_MEMORY);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, ERROR_INVALID_ADDRESS);
 #endif
+
+/*! Throws an exception of the specified type.
+
+@param inj
+   Type of exception to be throw.
+@param iArg0
+   Exception type-specific argument 0.
+@param iArg1
+   Exception type-specific argument 1.
+*/
+static void throw_injected_exception(
+   exception::injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
+) {
+   ABC_UNUSED_ARG(iArg1);
+   switch (inj) {
+      case exception::injectable::arithmetic_error:
+         ABC_THROW(arithmetic_error, ());
+      case exception::injectable::division_by_zero_error:
+         ABC_THROW(division_by_zero_error, ());
+      case exception::injectable::floating_point_error:
+         ABC_THROW(floating_point_error, ());
+      case exception::injectable::memory_access_error:
+         ABC_THROW(memory_access_error, (reinterpret_cast<void const *>(iArg0)));
+      case exception::injectable::memory_address_error:
+         ABC_THROW(memory_address_error, (reinterpret_cast<void const *>(iArg0)));
+      case exception::injectable::null_pointer_error:
+         ABC_THROW(null_pointer_error, ());
+      case exception::injectable::overflow_error:
+         ABC_THROW(overflow_error, ());
+      default:
+         // Unexpected exception type. Should never happen.
+         std::abort();
+   }
+}
 
 } //namespace abc
 
@@ -139,9 +176,108 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
-/*static*/ void exception::inject_in_context(exception::injectable inj, void * pctx) {
-   ABC_UNUSED_ARG(inj);
-   ABC_UNUSED_ARG(pctx);
+/*static*/ void exception::inject_in_context(
+   exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
+) {
+#if ABC_HOST_API_MACH
+   arch_thread_state_t thrst = static_cast<arch_thread_state_t>(pctx);
+   #if ABC_HOST_ARCH_X86_64
+      /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
+      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      steps emulate a 3-argument subroutine call. */
+      typedef decltype(thrst.__rsp) reg_t;
+      reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
+      thrst.__rdi = static_cast<reg_t>(inj.base());
+      thrst.__rsi = static_cast<reg_t>(iArg0);
+      thrst.__rdx = static_cast<reg_t>(iArg1);
+      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
+      *--rsp = thrst.__rip;
+      thrst.__rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #else
+      #error "TODO: HOST_ARCH"
+   #endif
+#elif ABC_HOST_API_POSIX
+   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
+   #if ABC_HOST_ARCH_ARM
+      #if ABC_HOST_API_LINUX
+         typedef typename std::remove_reference<decltype(puctx->uc_mcontext.arm_r0)>::type reg_t;
+         reg_t & r0 = puctx->uc_mcontext.arm_r0;
+         reg_t & r1 = puctx->uc_mcontext.arm_r1;
+         reg_t & r2 = puctx->uc_mcontext.arm_r2;
+         reg_t *& sp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.arm_sp);
+         reg_t & lr = puctx->uc_mcontext.arm_lr;
+         reg_t & pc = puctx->uc_mcontext.arm_pc;
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Load the arguments to throw_injected_exception() in r0-2, push lr and replace it with the
+      address of the current (failing) instruction, then set pc to the start of
+      throw_injected_exception(). These steps emulate a 3-argument subroutine call. */
+      r0 = static_cast<reg_t>(inj.base());
+      r1 = static_cast<reg_t>(iArg0);
+      r2 = static_cast<reg_t>(iArg1);
+      *--sp = lr;
+      lr = pc;
+      pc = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #elif ABC_HOST_ARCH_I386
+      #if ABC_HOST_API_LINUX
+         typedef typename std::remove_reference<
+            decltype(puctx->uc_mcontext.gregs[REG_ESP])
+         >::type reg_t;
+         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
+         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
+      #elif ABC_HOST_API_FREEBSD
+         typedef decltype(puctx->uc_mcontext.mc_esp) reg_t;
+         reg_t & eip = puctx->uc_mcontext.mc_eip;
+         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Push the arguments to throw_injected_exception() onto the stack, push the address of the
+      current (failing) instruction, then set eip to the start of throw_injected_exception(). These
+      steps emulate a 3-argument subroutine call. */
+      *--esp = static_cast<reg_t>(iArg1);
+      *--esp = static_cast<reg_t>(iArg0);
+      *--esp = static_cast<reg_t>(inj.base());
+      *--esp = eip;
+      eip = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #elif ABC_HOST_ARCH_X86_64
+      #if ABC_HOST_API_LINUX
+         typedef typename std::remove_reference<
+            decltype(puctx->uc_mcontext.gregs[REG_RSP])
+         >::type reg_t;
+         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
+         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
+         reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
+         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
+         reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
+      #elif ABC_HOST_API_FREEBSD
+         typedef decltype(puctx->uc_mcontext.mc_rsp) reg_t;
+         reg_t & rip = puctx->uc_mcontext.mc_rip;
+         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
+         reg_t & rdi = puctx->uc_mcontext.mc_rdi;
+         reg_t & rsi = puctx->uc_mcontext.mc_rsi;
+         reg_t & rdx = puctx->uc_mcontext.mc_rdx;
+      #else
+         #error "TODO: HOST_API"
+      #endif
+      /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
+      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      steps emulate a 3-argument subroutine call. */
+      rdi = static_cast<reg_t>(inj.base());
+      rsi = static_cast<reg_t>(iArg0);
+      rdx = static_cast<reg_t>(iArg1);
+      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
+      *--rsp = rip;
+      rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #else
+      #error "TODO: HOST_ARCH"
+   #endif
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   #error "TODO: HOST_API"
+#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
 char const * exception::what() const {

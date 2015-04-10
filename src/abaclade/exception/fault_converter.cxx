@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -25,44 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <cstdlib> // std::abort()
-
-namespace {
-
-/*! Throws an exception of the specified type.
-
-@param inj
-   Type of exception to be throw.
-@param iArg0
-   Exception type-specific argument 0.
-@param iArg1
-   Exception type-specific argument 1.
-*/
-void throw_after_fault(
-   abc::exception::injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
-) {
-   ABC_UNUSED_ARG(iArg1);
-   switch (inj) {
-      case abc::exception::injectable::arithmetic_error:
-         ABC_THROW(abc::arithmetic_error, ());
-      case abc::exception::injectable::division_by_zero_error:
-         ABC_THROW(abc::division_by_zero_error, ());
-      case abc::exception::injectable::floating_point_error:
-         ABC_THROW(abc::floating_point_error, ());
-      case abc::exception::injectable::memory_access_error:
-         ABC_THROW(abc::memory_access_error, (reinterpret_cast<void const *>(iArg0)));
-      case abc::exception::injectable::memory_address_error:
-         ABC_THROW(abc::memory_address_error, (reinterpret_cast<void const *>(iArg0)));
-      case abc::exception::injectable::null_pointer_error:
-         ABC_THROW(abc::null_pointer_error, ());
-      case abc::exception::injectable::overflow_error:
-         ABC_THROW(abc::overflow_error, ());
-      default:
-         // Unexpected exception type. Should never happen.
-         std::abort();
-   }
-}
-
-} //namespace
 
    #if ABC_HOST_API_MACH
       #include "fault_converter-mach.cxx"
