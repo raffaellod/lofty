@@ -146,19 +146,19 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
 ) {
 #if ABC_HOST_API_MACH
-   arch_thread_state_t thrst = static_cast<arch_thread_state_t>(pctx);
    #if ABC_HOST_ARCH_X86_64
+      ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pctx);
       /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
       current (failing) instruction, then set rip to the start of throw_injected_exception(). These
       steps emulate a 3-argument subroutine call. */
-      typedef decltype(thrst.__rsp) reg_t;
-      reg_t *& rsp = reinterpret_cast<reg_t *&>(thrst.__rsp);
-      thrst.__rdi = static_cast<reg_t>(inj.base());
-      thrst.__rsi = static_cast<reg_t>(iArg0);
-      thrst.__rdx = static_cast<reg_t>(iArg1);
+      typedef decltype(pthrst->__rsp) reg_t;
+      reg_t *& rsp = reinterpret_cast<reg_t *&>(pthrst->__rsp);
+      pthrst->__rdi = static_cast<reg_t>(inj.base());
+      pthrst->__rsi = static_cast<reg_t>(iArg0);
+      pthrst->__rdx = static_cast<reg_t>(iArg1);
       // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
-      *--rsp = thrst.__rip;
-      thrst.__rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      *--rsp = pthrst->__rip;
+      pthrst->__rip = reinterpret_cast<reg_t>(&throw_injected_exception);
    #else
       #error "TODO: HOST_ARCH"
    #endif

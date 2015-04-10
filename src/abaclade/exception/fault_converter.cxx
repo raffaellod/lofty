@@ -183,7 +183,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
 
       // Manipulate the thread state to emulate a call to throw_injected_exception().
-      exception::inject_in_context(inj, iArg0, iArg1, thrst);
+      exception::inject_in_context(inj, iArg0, iArg1, &thrst);
 
       // Update the faulting thread’s state.
       if (::thread_set_state(
