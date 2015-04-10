@@ -49,40 +49,6 @@ namespace abc {
    ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, ERROR_INVALID_ADDRESS);
 #endif
 
-/*! Throws an exception of the specified type.
-
-@param inj
-   Type of exception to be throw.
-@param iArg0
-   Exception type-specific argument 0.
-@param iArg1
-   Exception type-specific argument 1.
-*/
-static void throw_injected_exception(
-   exception::injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
-) {
-   ABC_UNUSED_ARG(iArg1);
-   switch (inj) {
-      case exception::injectable::arithmetic_error:
-         ABC_THROW(arithmetic_error, ());
-      case exception::injectable::division_by_zero_error:
-         ABC_THROW(division_by_zero_error, ());
-      case exception::injectable::floating_point_error:
-         ABC_THROW(floating_point_error, ());
-      case exception::injectable::memory_access_error:
-         ABC_THROW(memory_access_error, (reinterpret_cast<void const *>(iArg0)));
-      case exception::injectable::memory_address_error:
-         ABC_THROW(memory_address_error, (reinterpret_cast<void const *>(iArg0)));
-      case exception::injectable::null_pointer_error:
-         ABC_THROW(null_pointer_error, ());
-      case exception::injectable::overflow_error:
-         ABC_THROW(overflow_error, ());
-      default:
-         // Unexpected exception type. Should never happen.
-         std::abort();
-   }
-}
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,6 +244,31 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+}
+
+/*static*/ void exception::throw_injected_exception(
+   injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
+) {
+   ABC_UNUSED_ARG(iArg1);
+   switch (inj) {
+      case injectable::arithmetic_error:
+         ABC_THROW(arithmetic_error, ());
+      case injectable::division_by_zero_error:
+         ABC_THROW(division_by_zero_error, ());
+      case injectable::floating_point_error:
+         ABC_THROW(floating_point_error, ());
+      case injectable::memory_access_error:
+         ABC_THROW(memory_access_error, (reinterpret_cast<void const *>(iArg0)));
+      case injectable::memory_address_error:
+         ABC_THROW(memory_address_error, (reinterpret_cast<void const *>(iArg0)));
+      case injectable::null_pointer_error:
+         ABC_THROW(null_pointer_error, ());
+      case injectable::overflow_error:
+         ABC_THROW(overflow_error, ());
+      default:
+         // Unexpected exception type. Should never happen.
+         std::abort();
+   }
 }
 
 char const * exception::what() const {

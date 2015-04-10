@@ -410,6 +410,19 @@ public:
       exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
    );
 
+   /*! Throws an exception of the specified type.
+
+   @param inj
+      Type of exception to be throw.
+   @param iArg0
+      Exception type-specific argument 0.
+   @param iArg1
+      Exception type-specific argument 1.
+   */
+   static void throw_injected_exception(
+      exception::injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
+   );
+
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
 
