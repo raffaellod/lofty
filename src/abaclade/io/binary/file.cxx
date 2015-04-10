@@ -198,7 +198,13 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       int iErr = errno;
       if (iErr == EINTR) {
          continue;
-      } else if (iErr == EINVAL) {
+      } else if (
+   #if ABC_HOST_API_DARWIN
+         iErr == ENOTSUP
+   #else
+         iErr == EINVAL
+   #endif
+      ) {
          // m_fd.get() does not support fsync(3); ignore the error.
          break;
       } else {
