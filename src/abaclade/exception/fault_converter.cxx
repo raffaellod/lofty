@@ -446,9 +446,14 @@ You should have received a copy of the GNU General Public License along with Aba
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
             );
             if (pAddr == nullptr) {
-               ABC_THROW(abc::null_pointer_error, ());
+               abc::exception::throw_injected_exception(
+                  abc::exception::injectable::null_pointer_error, 0, 0
+               );
             } else {
-               ABC_THROW(abc::memory_address_error, (pAddr));
+               abc::exception::throw_injected_exception(
+                  abc::exception::injectable::memory_address_error,
+                  reinterpret_cast<std::intptr_t>(pAddr), 0
+               );
             }
          }
 
@@ -459,7 +464,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            ABC_THROW(abc::memory_access_error, (nullptr));
+            abc::exception::throw_injected_exception(
+               abc::exception::injectable::memory_access_error,
+               reinterpret_cast<std::intptr_t>(nullptr), 0
+            );
 
          case EXCEPTION_FLT_DENORMAL_OPERAND:
             /* An operand in a floating-point operation is too small to represent as a standard
@@ -485,7 +493,9 @@ You should have received a copy of the GNU General Public License along with Aba
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            ABC_THROW(abc::floating_point_error, ());
+            abc::exception::throw_injected_exception(
+               abc::exception::injectable::floating_point_error, 0, 0
+            );
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -499,12 +509,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            ABC_THROW(abc::division_by_zero_error, ());
+            abc::exception::throw_injected_exception(
+               abc::exception::injectable::division_by_zero_error, 0, 0
+            );
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            ABC_THROW(abc::overflow_error, ());
+            abc::exception::throw_injected_exception(
+               abc::exception::injectable::overflow_error, 0, 0
+            );
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current
