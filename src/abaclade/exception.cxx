@@ -21,9 +21,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <cstdlib> // std::abort()
 #if ABC_HOST_API_POSIX
-   #include <errno.h> // E*
+   #include <errno.h> // E* errno
    #include <signal.h> // sigaction sig*()
-   #include <ucontext.h> // ucontext_t
+   #if ABC_HOST_API_MACH
+      #include <mach/mach.h>
+   #else
+      #include <ucontext.h>
+   #endif
 #endif
 
 

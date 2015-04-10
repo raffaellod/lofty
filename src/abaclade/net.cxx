@@ -23,8 +23,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <arpa/inet.h> // inet_addr()
+   #include <errno.h> // EINTR errno
    #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // accept4() bind() socket()
+   #if ABC_HOST_API_DARWIN
+      #include <fcntl.h> // F_* FD_* O_* fcntl()
+   #endif
 #endif
 
 
@@ -91,16 +95,24 @@ std::shared_ptr<connection> tcp_server::accept() {
 #if ABC_HOST_API_POSIX
    ::sockaddr_in saClient;
    ::socklen_t cbClient;
-   int iFlags = SOCK_CLOEXEC, iFd;
+   int iFd;
+#if !ABC_HOST_API_DARWIN
+   int iFlags = SOCK_CLOEXEC;
    if (pcorosched) {
       // Using coroutines, so make the client socket non-blocking.
       iFlags |= SOCK_NONBLOCK;
    }
+#endif
    for (;;) {
       cbClient = sizeof saClient;
+#if ABC_HOST_API_DARWIN
+      // accept4() is not available, so emulate it with accept() + fcntl().
+      iFd = ::accept(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saClient), &cbClient);
+#else
       iFd = ::accept4(
          m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saClient), &cbClient, iFlags
       );
+#endif
       if (iFd >= 0) {
          break;
       }
@@ -124,6 +136,18 @@ std::shared_ptr<connection> tcp_server::accept() {
       }
    }
    io::filedesc fd(iFd);
+#if ABC_HOST_API_DARWIN
+   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
+   leak the file descriptor. That’s the whole point of accept4(). */
+   if (::fcntl(fd.get(), F_SETFD, FD_CLOEXEC) < 0) {
+      exception::throw_os_error();
+   }
+   if (pcorosched) {
+      if (::fcntl(fd.get(), F_SETFL, O_NONBLOCK) < 0) {
+         exception::throw_os_error();
+      }
+   }
+#endif
    smstr<45> sAddress;
    // TODO: render (saClient, cbClient) into sAddress.
    return std::make_shared<connection>(std::move(fd), std::move(sAddress));
@@ -136,16 +160,32 @@ std::shared_ptr<connection> tcp_server::accept() {
 /*static*/ io::filedesc tcp_server::create_socket() {
    ABC_TRACE_FUNC();
 
+   bool bAsync = this_thread::get_coroutine_scheduler() != nullptr;
 #if ABC_HOST_API_POSIX
-   int iType = SOCK_STREAM | SOCK_CLOEXEC;
-   if (this_thread::get_coroutine_scheduler()) {
+   int iType = SOCK_STREAM;
+#if !ABC_HOST_API_DARWIN
+   iType |= SOCK_CLOEXEC;
+   if (bAsync) {
       // Using coroutines, so make this socket non-blocking.
       iType |= SOCK_NONBLOCK;
    }
+#endif
    io::filedesc fd(::socket(AF_INET, iType, 0));
    if (!fd) {
       exception::throw_os_error();
    }
+#if ABC_HOST_API_DARWIN
+   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
+   leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
+   if (::fcntl(fd.get(), F_SETFD, FD_CLOEXEC) < 0) {
+      exception::throw_os_error();
+   }
+   if (bAsync) {
+      if (::fcntl(fd.get(), F_SETFL, O_NONBLOCK) < 0) {
+         exception::throw_os_error();
+      }
+   }
+#endif
 #else //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … else

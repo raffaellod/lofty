@@ -372,12 +372,12 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       }
    }
    // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
-   fidReader.fd = fds[0];
-   fidWriter.fd = fds[1];
+   fidReader.fd = filedesc(fds[0]);
+   fidWriter.fd = filedesc(fds[1]);
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the two file descriptors. That’s the whole point of pipe2(). */
    ABC_FOR_EACH(int fd, fds) {
-      if (::fcntl(fd, F_SETFD, 1) < 0) {
+      if (::fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
          exception::throw_os_error();
       }
       if (bAsync) {
