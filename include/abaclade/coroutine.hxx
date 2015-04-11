@@ -44,6 +44,8 @@ private:
 public:
    //! OS-dependent execution context for the coroutine.
    class context;
+   //! Type of the unique coroutine IDs.
+   typedef std::intptr_t id_type;
 
 public:
    /*! Constructor.
@@ -61,6 +63,13 @@ public:
 
    //! Destructor.
    ~coroutine();
+
+   /*! Returns a process-wide unique ID for the coroutine.
+
+   @return
+      Unique ID representing the coroutine.
+   */
+   id_type id() const;
 
 private:
    //! Pointer to the coroutine’s execution context.

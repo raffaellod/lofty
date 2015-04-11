@@ -148,6 +148,10 @@ coroutine::coroutine() {
 coroutine::~coroutine() {
 }
 
+coroutine::id_type coroutine::id() const {
+   return reinterpret_cast<id_type>(m_pctx.get());
+}
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
