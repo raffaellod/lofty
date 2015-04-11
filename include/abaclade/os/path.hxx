@@ -409,7 +409,7 @@ struct hash<abc::os::path> : public hash<abc::text::istr> {
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::os::path
+// abc::to_str_backend – specialization for abc::os::path
 
 namespace abc {
 

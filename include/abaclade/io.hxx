@@ -161,7 +161,7 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::io::filedesc
+// abc::to_str_backend – specialization for abc::io::filedesc
 
 namespace abc {
 

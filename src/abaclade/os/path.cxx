@@ -502,7 +502,7 @@ dmstr::const_iterator path::base_name_start() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::os::path
+// abc::to_str_backend – specialization for abc::os::path
 
 namespace abc {
 

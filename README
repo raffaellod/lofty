@@ -10,7 +10,7 @@ Abaclade is a C++11 framework featuring:
 
 •  Integrated self-diagnosis: programs don’t just crash; every error condition
    (including dereferencing a null pointer) results in an exception and a stack
-   trace that includes the actual values of arguments and local variables ‒
+   trace that includes the actual values of arguments and local variables –
    you’ll always know what went wrong! (see [DOC:8503 Stack tracing]);
 
 •  Testing framework integrated in the library with full support from the
@@ -24,7 +24,7 @@ Abaclade is a C++11 framework featuring:
 •  Full support for Unicode and the C++11 char32_t character type (see [DOC:4854
    Unicode support in Abaclade]);
 
-•  Use of templates and their specializations over macros and void pointers ‒ no
+•  Use of templates and their specializations over macros and void pointers – no
    C-style variadic functions either;
 
 •  Support for text-based and (in the future) GUI applications as well as
@@ -65,7 +65,7 @@ encouraged.
 
 Abaclade has very ambitious goals:
 
-1. Supersede other C++ libraries that fail to exploit the features of C++11 ‒
+1. Supersede other C++ libraries that fail to exploit the features of C++11 –
    especially libraries developed as C++ bindings for C libraries;
 
 2. Demonstrate that C++ programs can be as sleek as Java or Python programs,

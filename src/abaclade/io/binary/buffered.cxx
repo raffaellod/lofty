@@ -276,7 +276,7 @@ void default_buffered_writer::flush_buffer() {
 
    if (std::size_t cbBufUsed = m_bufWrite.used_size()) {
       /* TODO: if *m_pbw expects writes of an integer multiple of its block size but the buffer is
-      not 100% full, do something ‒ maybe truncate m_pbw afterwards if possible? */
+      not 100% full, do something – maybe truncate m_pbw afterwards if possible? */
       std::size_t cbWritten = m_pbw->write(m_bufWrite.get_used(), cbBufUsed);
       ABC_ASSERT(cbWritten == cbBufUsed, ABC_SL("the entire buffer must have been written"));
       m_bufWrite.mark_as_unused(cbWritten);

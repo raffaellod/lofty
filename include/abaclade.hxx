@@ -211,7 +211,7 @@ namespace abc {
    #if ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
 
-      /* “Unreferenced inline function has been removed” ‒ must be disabled until the end of the
+      /* “Unreferenced inline function has been removed” – must be disabled until the end of the
       compilation unit, because that’s when it’s raised. */
       #pragma warning(disable: 4514)
       // These can be restored after including header files.

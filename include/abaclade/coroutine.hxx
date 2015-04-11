@@ -79,7 +79,7 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::coroutine
+// abc::to_str_backend – specialization for abc::coroutine
 
 namespace abc {
 

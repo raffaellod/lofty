@@ -198,7 +198,7 @@ namespace abc {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals ‒ ABC_THROW()
+// abc globals – ABC_THROW()
 
 /*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
 up with context information and the remaining arguments, and then throws it.

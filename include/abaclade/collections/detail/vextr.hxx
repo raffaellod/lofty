@@ -645,7 +645,7 @@ namespace detail {
 class ABACLADE_SYM raw_complex_vextr_impl : public raw_vextr_impl_base {
 public:
    /*! Copies or moves the contents of the two sources to *this, according to the source type. If
-   bMove{1,2} == true, the source items will be moved by having their const-ness cast away ‒ be
+   bMove{1,2} == true, the source items will be moved by having their const-ness cast away – be
    careful.
 
    @param type

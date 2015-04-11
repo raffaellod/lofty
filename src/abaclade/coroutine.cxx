@@ -155,7 +155,7 @@ coroutine::id_type coroutine::id() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::coroutine
+// abc::to_str_backend – specialization for abc::coroutine
 
 namespace abc {
 
@@ -336,7 +336,7 @@ public:
       if (::timerfd_settime(fd.get(), 0, &its, nullptr) < 0) {
          exception::throw_os_error();
       }
-      // This timer is now active (save exceptions ‒ see catch (...) below).
+      // This timer is now active (save exceptions – see catch (...) below).
       io::filedesc_t fdCopy = fd.get();
       auto itActiveTimer(m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd)).first);
       // At this point the timer is just a file descriptor that we’ll be waiting to read from.

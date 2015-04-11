@@ -309,7 +309,7 @@ void thread::start() {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend ‒ specialization for abc::thread
+// abc::to_str_backend – specialization for abc::thread
 
 namespace abc {
 
