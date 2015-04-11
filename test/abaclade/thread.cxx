@@ -71,7 +71,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_concurrent
+// abc::test::thread_exceptions
 
 namespace abc {
 namespace test {

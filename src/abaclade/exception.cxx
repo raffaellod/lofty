@@ -166,7 +166,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #else
       #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_HOST_API_POSIX
+#elif ABC_HOST_API_POSIX  //if ABC_HOST_API_MACH
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
@@ -243,11 +243,11 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #else
       #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
 /*static*/ void exception::throw_injected_exception(
