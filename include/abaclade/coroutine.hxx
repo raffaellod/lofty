@@ -79,6 +79,45 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::coroutine
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<coroutine> {
+public:
+   //! Constructor.
+   to_str_backend();
+
+   //! Destructor.
+   ~to_str_backend();
+
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(istr const & sFormat);
+
+   /*! Writes a string, applying the formatting options.
+
+   @param op
+      Path to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(coroutine const & coro, io::text::writer * ptwOut);
+
+protected:
+   //! Backend used to write strings.
+   to_str_backend<istr> m_tsbStr;
+   //! Backend used to write coroutine ID.
+   to_str_backend<coroutine::id_type> m_tsbId;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine_scheduler
 
 namespace abc {

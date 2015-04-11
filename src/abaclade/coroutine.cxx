@@ -155,6 +155,45 @@ coroutine::id_type coroutine::id() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend ‒ specialization for abc::coroutine
+
+namespace abc {
+
+to_str_backend<coroutine>::to_str_backend() {
+}
+
+to_str_backend<coroutine>::~to_str_backend() {
+}
+
+void to_str_backend<coroutine>::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+}
+
+void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer * ptwOut) {
+   ABC_TRACE_FUNC(this/*, coro*/, ptwOut);
+
+   if (coroutine::id_type id = coro.id()) {
+      m_tsbStr.write(istr(ABC_SL("CRID:")), ptwOut);
+      m_tsbId.write(id, ptwOut);
+   } else {
+      m_tsbStr.write(istr(ABC_SL("CRID:-")), ptwOut);
+   }
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine_scheduler
 
 namespace abc {
