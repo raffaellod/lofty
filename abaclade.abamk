@@ -74,6 +74,7 @@ You should have received a copy of the GNU General Public License along with Aba
          brief="Main unit test for Abaclade."
       >
          <source path="test/abaclade/abaclade-test.cxx"/>
+         <source path="test/abaclade/coroutine.cxx"/>
          <source path="test/abaclade/enum.cxx"/>
          <source path="test/abaclade/exception.cxx"/>
          <source path="test/abaclade/io/binary/pipe.cxx"/>
