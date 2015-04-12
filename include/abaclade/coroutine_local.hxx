@@ -47,8 +47,14 @@ private:
    friend class coroutine_scheduler_impl;
 
 public:
-   //! Constructor.
-   coroutine_local_storage();
+   /*! Constructor.
+
+   @param bNewThread
+      True if the object is being instantiated as the sm_crls “member” of a new thread_storage
+      instance, which means the constructor will also set sm_pcrls. If false, sm_pcrls will not be
+      changed.
+   */
+   coroutine_local_storage(bool bNewThread = true);
 
    //! Destructor.
    ~coroutine_local_storage();

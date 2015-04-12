@@ -36,7 +36,7 @@ lost. */
 thread_local_value<coroutine_local_storage *> coroutine_local_storage::sm_pcrls /*= nullptr*/;
 thread_local_value<coroutine_local_storage> coroutine_local_storage::sm_crls;
 
-coroutine_local_storage::coroutine_local_storage() :
+coroutine_local_storage::coroutine_local_storage(bool bNewThread /*= true*/) :
    m_pb(new std::int8_t[sm_cb]) {
 
    // Iterate over the list to construct CRLS for this coroutine.
@@ -44,8 +44,12 @@ coroutine_local_storage::coroutine_local_storage() :
       it->construct(get_storage(it->m_ibStorageOffset));
    }
 
-   // This will only change if the current thread is set to schedule coroutines.
-   sm_pcrls = this;
+   if (bNewThread) {
+      /* This object is being instantiated as the sm_crls “member” of a new thread_storage instance,
+      so default the thread’s coroutine_storage pointer, sm_pcrls, to this. That pointer may be
+      changed later if the current thread is set to schedule coroutines. */
+      sm_pcrls = this;
+   }
 }
 
 coroutine_local_storage::~coroutine_local_storage() {
