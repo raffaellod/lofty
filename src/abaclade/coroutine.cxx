@@ -264,7 +264,7 @@ public:
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-            int iRet = ::swapcontext(sm_puctxReturn.get(), pcoroctxActive->ucontext_ptr());
+            int iRet = ::swapcontext(&uctxReturn, pcoroctxActive->ucontext_ptr());
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
@@ -272,7 +272,7 @@ public:
             pcrlsCurrent = pcrlsDefault;
             if (iRet < 0) {
                /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-               (*sm_pcoroctxActive has a problem, not *sm_puctxReturn). */
+               (*sm_pcoroctxActive has a problem, not uctxReturn). */
             }
          }
       } catch (...) {
