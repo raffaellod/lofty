@@ -192,10 +192,10 @@ protected:
    coroutine_scheduler();
 
 protected:
-   //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
    //! List of coroutines that have been scheduled, but have not been started yet.
    collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
+   //! Pointer to the active (current) coroutine, or nullptr if none is active.
+   static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
    //! Pointer to the coroutine_scheduler for the current thread.
    static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
 };

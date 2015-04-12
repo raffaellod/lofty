@@ -36,9 +36,9 @@ You should have received a copy of the GNU General Public License along with Aba
       #include <sys/epoll.h>
       #include <sys/timerfd.h>
    #endif
-   #ifdef ABAMAKE_USING_VALGRIND
-      #include <valgrind/valgrind.h>
-   #endif
+#endif
+#ifdef ABAMAKE_USING_VALGRIND
+   #include <valgrind/valgrind.h>
 #endif
 
 
@@ -57,11 +57,11 @@ public:
    context(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
       m_pStack(SIGSTKSZ),
-   #ifdef ABAMAKE_USING_VALGRIND
+#endif
+#ifdef ABAMAKE_USING_VALGRIND
       m_iValgrindStackId(VALGRIND_STACK_REGISTER(
          m_pStack.get(), static_cast<std::int8_t *>(m_pStack.get()) + m_pStack.size()
       )),
-   #endif
 #endif
       m_fnInnerMain(std::move(fnMain)),
       m_crls(false) {
@@ -125,13 +125,13 @@ private:
    ::ucontext_t m_uctx;
    //! Pointer to the memory chunk used as stack.
    memory::pages_ptr m_pStack;
-   #ifdef ABAMAKE_USING_VALGRIND
-   unsigned m_iValgrindStackId;
-   #endif
 #elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #else
    #error "TODO: HOST_API"
+#endif
+#ifdef ABAMAKE_USING_VALGRIND
+   unsigned m_iValgrindStackId;
 #endif
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
