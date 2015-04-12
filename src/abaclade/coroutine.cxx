@@ -559,15 +559,21 @@ std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   if (coroutine_scheduler::sm_pcorosched) {
-      // The current thread already has a coroutine scheduler.
-      // TODO: use a better exception class.
-      ABC_THROW(generic_error, ());
+   std::shared_ptr<coroutine_scheduler> & pcoroschedCurr = coroutine_scheduler::sm_pcorosched;
+   if (pcorosched) {
+      if (pcoroschedCurr) {
+         // The current thread already has a coroutine scheduler.
+         // TODO: use a better exception class.
+         ABC_THROW(generic_error, ());
+      }
+      pcoroschedCurr = std::move(pcorosched);
+   } else {
+      // Create and set a new coroutine scheduler if the current thread didn’t already have one.
+      if (!pcoroschedCurr) {
+         pcoroschedCurr = std::make_shared<detail::coroutine_scheduler_impl>();
+      }
    }
-   if (!pcorosched) {
-      pcorosched = std::make_shared<detail::coroutine_scheduler_impl>();
-   }
-   return (coroutine_scheduler::sm_pcorosched = std::move(pcorosched));
+   return pcoroschedCurr;
 }
 
 } //namespace this_thread
