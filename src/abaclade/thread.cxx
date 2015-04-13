@@ -379,6 +379,12 @@ thread::id_type id() {
 #endif
 }
 
+void run_coroutines() {
+   if (auto & pcorosched = get_coroutine_scheduler()) {
+      pcorosched->run();
+   }
+}
+
 void sleep_for_ms(unsigned iMilliseconds) {
 #if ABC_HOST_API_POSIX
    ::timespec tsRequested, tsRemaining;

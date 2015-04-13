@@ -242,6 +242,10 @@ ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & get_coroutine_schedule
 */
 ABACLADE_SYM thread::id_type id();
 
+/*! Begins running scheduled coroutines on the current thread. Only returns after every coroutine
+scheduled on the same thread or scheduler returns. */
+ABACLADE_SYM void run_coroutines();
+
 /*! Suspends execution of the current thread for at least the specified duration.
 
 @return
