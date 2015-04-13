@@ -242,8 +242,8 @@ public:
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
-      // ::setcontext() never returns if successful, so if we’re still here something went wrong.
-      exception::throw_os_error();
+      // Assume ::setcontext() is always successful, in which case it never returns.
+      // TODO: maybe issue warning/abort in case ::setcontext() does return?
    }
 
    //! See coroutine_scheduler::run().
