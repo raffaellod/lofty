@@ -54,10 +54,10 @@ public:
                ABC_TRACE_FUNC(this, pconn);
 
                // Create text-mode reader and writer for the connection’s socket.
-               auto ptbbr(io::text::make_reader(pconn->socket()));
-               auto ptbbw(io::text::make_writer(pconn->socket()));
+               auto ptr(io::text::make_reader(pconn->socket()));
+               auto ptw(io::text::make_writer(pconn->socket()));
                io::text::stdout->write_line(ABC_SL("responder: reading request"));
-               ABC_FOR_EACH(auto & sLine, ptbbr->lines()) {
+               ABC_FOR_EACH(auto & sLine, ptr->lines()) {
                   if (!sLine) {
                      // The request ends on the first empty line.
                      break;
@@ -66,14 +66,14 @@ public:
                io::text::stdout->write_line(ABC_SL("responder: responding"));
 
                // Send the response headers.
-               ptbbw->write_line("HTTP/1.0 200 OK");
-               ptbbw->write_line("Content-Type: text/plain; charset=utf-8");
-               ptbbw->write_line("Content-Length: 2");
-               ptbbw->write_line();
-               ptbbw->flush();
+               ptw->write_line("HTTP/1.0 200 OK");
+               ptw->write_line("Content-Type: text/plain; charset=utf-8");
+               ptw->write_line("Content-Length: 2");
+               ptw->write_line();
+               ptw->flush();
 
                // Send the response content.
-               ptbbw->write("OK");
+               ptw->write("OK");
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
             });
          }
