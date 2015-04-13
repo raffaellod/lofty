@@ -118,6 +118,23 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::this_coroutine
+
+namespace abc {
+//! Functions that can only affect the current coroutine. Coroutine counterpart to abc::this_thread.
+namespace this_coroutine {
+
+/*! Returns a process-wide unique ID for the current coroutine.
+
+@return
+   Unique ID representing the current coroutine.
+*/
+ABACLADE_SYM coroutine::id_type id();
+
+} //namespace this_coroutine
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine_scheduler
 
 namespace abc {
@@ -155,6 +172,7 @@ private:
       std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
    );
    friend std::shared_ptr<coroutine_scheduler> const & this_thread::get_coroutine_scheduler();
+   friend coroutine::id_type this_coroutine::id();
 
 public:
    //! Destructor.

@@ -581,3 +581,16 @@ std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::this_coroutine
+
+namespace abc {
+namespace this_coroutine {
+
+coroutine::id_type id() {
+   return reinterpret_cast<coroutine::id_type>(coroutine_scheduler::sm_pcoroctxActive.get());
+}
+
+} //namespace this_coroutine
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
