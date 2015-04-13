@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
-   #include <fcntl.h> // F_* O_* fcntl()
+   #include <fcntl.h> // F_* fcntl()
    #include <sys/stat.h> // S_* stat()
    #include <unistd.h> // *_FILENO isatty() open() pipe()
 #endif
@@ -376,15 +376,11 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    fidWriter.fd = filedesc(fds[1]);
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the two file descriptors. That’s the whole point of pipe2(). */
-   ABC_FOR_EACH(int fd, fds) {
-      if (::fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
-         exception::throw_os_error();
-      }
-      if (bAsync) {
-         if (::fcntl(fd, F_SETFL, O_NONBLOCK) < 0) {
-            exception::throw_os_error();
-         }
-      }
+   fidReader.fd.set_close_on_exec(true);
+   fidWriter.fd.set_close_on_exec(true);
+   if (bAsync) {
+      fidReader.fd.set_nonblocking(true);
+      fidWriter.fd.set_nonblocking(true);
    }
 #elif ABC_HOST_API_LINUX || ABC_HOST_API_FREEBSD
    int fds[2], iFlags = O_CLOEXEC;

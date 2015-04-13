@@ -26,9 +26,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <errno.h> // EINTR errno
    #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // accept4() bind() socket()
-   #if ABC_HOST_API_DARWIN
-      #include <fcntl.h> // F_* FD_* O_* fcntl()
-   #endif
 #endif
 
 
@@ -139,13 +136,9 @@ std::shared_ptr<connection> tcp_server::accept() {
 #if ABC_HOST_API_DARWIN
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the file descriptor. That’s the whole point of accept4(). */
-   if (::fcntl(fd.get(), F_SETFD, FD_CLOEXEC) < 0) {
-      exception::throw_os_error();
-   }
+   fd.set_close_on_exec(true);
    if (pcorosched) {
-      if (::fcntl(fd.get(), F_SETFL, O_NONBLOCK) < 0) {
-         exception::throw_os_error();
-      }
+      fd.set_nonblocking(true);
    }
 #endif
    smstr<45> sAddress;
@@ -177,13 +170,9 @@ std::shared_ptr<connection> tcp_server::accept() {
 #if ABC_HOST_API_DARWIN
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
-   if (::fcntl(fd.get(), F_SETFD, FD_CLOEXEC) < 0) {
-      exception::throw_os_error();
-   }
+   fd.set_close_on_exec(true);
    if (bAsync) {
-      if (::fcntl(fd.get(), F_SETFL, O_NONBLOCK) < 0) {
-         exception::throw_os_error();
-      }
+      fd.set_nonblocking(true);
    }
 #endif
 #else //if ABC_HOST_API_POSIX
