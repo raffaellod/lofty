@@ -88,14 +88,14 @@ tcp_server::~tcp_server() {
 std::shared_ptr<connection> tcp_server::accept() {
    ABC_TRACE_FUNC(this);
 
-   auto & pcorosched(this_thread::get_coroutine_scheduler());
+   bool bAsync = this_thread::get_coroutine_scheduler() != nullptr;
 #if ABC_HOST_API_POSIX
    ::sockaddr_in saClient;
    ::socklen_t cbClient;
    int iFd;
 #if !ABC_HOST_API_DARWIN
    int iFlags = SOCK_CLOEXEC;
-   if (pcorosched) {
+   if (bAsync) {
       // Using coroutines, so make the client socket non-blocking.
       iFlags |= SOCK_NONBLOCK;
    }
@@ -133,7 +133,7 @@ std::shared_ptr<connection> tcp_server::accept() {
    /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
    leak the file descriptor. That’s the whole point of accept4(). */
    fd.set_close_on_exec(true);
-   if (pcorosched) {
+   if (bAsync) {
       fd.set_nonblocking(true);
    }
 #endif
