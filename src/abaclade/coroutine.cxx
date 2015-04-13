@@ -590,6 +590,14 @@ coroutine::id_type id() {
    return reinterpret_cast<coroutine::id_type>(coroutine_scheduler::sm_pcoroctxActive.get());
 }
 
+void sleep_for_ms(unsigned iMilliseconds) {
+   if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+      pcorosched->yield_for(iMilliseconds);
+   } else {
+      this_thread::sleep_for_ms(iMilliseconds);
+   }
+}
+
 } //namespace this_coroutine
 } //namespace abc
 

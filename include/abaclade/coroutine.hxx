@@ -131,6 +131,13 @@ namespace this_coroutine {
 */
 ABACLADE_SYM coroutine::id_type id();
 
+/*! Suspends execution of the current coroutine for at least the specified duration.
+
+@return
+   Duration for which the current coroutine should not execute, in milliseconds.
+*/
+ABACLADE_SYM void sleep_for_ms(unsigned iMilliseconds);
+
 } //namespace this_coroutine
 } //namespace abc
 
