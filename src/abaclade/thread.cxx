@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
+   #include <time.h> // nanosleep()
    #if ABC_HOST_API_DARWIN
       #include <dispatch/dispatch.h>
    #else
@@ -348,7 +349,7 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread
+// abc::this_thread
 
 namespace abc {
 namespace this_thread {
@@ -372,6 +373,26 @@ thread::id_type id() {
    return static_cast< ::pid_t>(::syscall(SYS_gettid));
 #elif ABC_HOST_API_WIN32
    return ::GetCurrentThreadId();
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+void sleep_for_ms(unsigned iMilliseconds) {
+#if ABC_HOST_API_POSIX
+   ::timespec tsRequested, tsRemaining;
+   tsRequested.tv_sec = static_cast< ::time_t>(iMilliseconds / 1000u);
+   tsRequested.tv_nsec = static_cast<long>(
+      static_cast<unsigned long>(iMilliseconds % 1000u) * 1000000u
+   );
+   /* This loop will only repeat in case of EINTR. Technically ::nanosleep() may fail with EINVAL,
+   but the calculation above makes that impossible. */
+   while (::nanosleep(&tsRequested, &tsRemaining) < 0) {
+      // Set the new requested time to whatever we didn’t get to sleep in the last nanosleep() call.
+      tsRequested = tsRemaining;
+   }
+#elif ABC_HOST_API_WIN32
+   ::Sleep(iMilliseconds);
 #else
    #error "TODO: HOST_API"
 #endif

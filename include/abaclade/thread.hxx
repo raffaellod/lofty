@@ -219,6 +219,13 @@ namespace this_thread {
 */
 ABACLADE_SYM thread::id_type id();
 
+/*! Suspends execution of the current thread for at least the specified duration.
+
+@return
+   Duration for which the current thread should not execute, in milliseconds.
+*/
+ABACLADE_SYM void sleep_for_ms(unsigned iMilliseconds);
+
 } //namespace this_thread
 } //namespace abc
 
