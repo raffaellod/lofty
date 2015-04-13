@@ -158,32 +158,6 @@ inline void sleep_until_fd_ready(io::filedesc const & fd, bool bWrite) {
 
 namespace abc {
 
-// Forward declaration.
-class coroutine_scheduler;
-
-namespace this_thread {
-
-/*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
-required for the current thread to run coroutines.
-
-@return
-   Coroutine scheduler associated to this thread. If pcorosched was non-nullptr, this is the same as
-   pcorosched.
-*/
-ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
-);
-
-/*! Returns the coroutine scheduler associated to the current thread, if any.
-
-@return
-   Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was
-   never called for the current thread.
-*/
-ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & get_coroutine_scheduler();
-
-} //namespace this_thread
-
 //! Schedules coroutine execution.
 class ABACLADE_SYM coroutine_scheduler : public noncopyable {
 private:
