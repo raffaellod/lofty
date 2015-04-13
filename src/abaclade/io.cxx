@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 
 #if ABC_HOST_API_POSIX
+   #include <fcntl.h> // F_* FD_* O_* fcntl()
    #include <unistd.h> // close()
 #endif
 
@@ -75,6 +76,40 @@ filedesc & filedesc::operator=(filedesc && fd) {
    }
    return *this;
 }
+
+#if ABC_HOST_API_POSIX
+
+void filedesc::set_close_on_exec(bool b) {
+   int iFlags = ::fcntl(m_fd, F_GETFD, 0);
+   if (iFlags < 0) {
+      exception::throw_os_error();
+   }
+   if (b) {
+      iFlags |= FD_CLOEXEC;
+   } else {
+      iFlags &= ~FD_CLOEXEC;
+   }
+   if (::fcntl(m_fd, F_SETFD, FD_CLOEXEC) < 0) {
+      exception::throw_os_error();
+   }
+}
+
+void filedesc::set_nonblocking(bool b) {
+   int iFlags = ::fcntl(m_fd, F_GETFL, 0);
+   if (iFlags < 0) {
+      exception::throw_os_error();
+   }
+   if (b) {
+      iFlags |= O_NONBLOCK;
+   } else {
+      iFlags &= ~O_NONBLOCK;
+   }
+   if (::fcntl(m_fd, F_SETFL, O_NONBLOCK) < 0) {
+      exception::throw_os_error();
+   }
+}
+
+#endif
 
 } //namespace io
 } //namespace abc

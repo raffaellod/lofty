@@ -150,6 +150,22 @@ public:
       return fd;
    }
 
+#if ABC_HOST_API_POSIX
+   /*! Sets the CLOEXEC flag.
+
+   @param b
+      If true, CLOEXEC will be set; if false, it will be unset.
+   */
+   void set_close_on_exec(bool b);
+
+   /*! Sets the NONBLOCK flag.
+
+   @param b
+      If true, NONBLOCK will be set; if false, it will be unset.
+   */
+   void set_nonblocking(bool b);
+#endif
+
 private:
    //! The actual descriptor.
    filedesc_t m_fd;
