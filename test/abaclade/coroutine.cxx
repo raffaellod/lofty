@@ -57,8 +57,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
    ABC_TESTING_ASSERT_NOT_EQUAL(sCoroutine2, sCoroutine3);
    ABC_TESTING_ASSERT_EQUAL(sCoroutine3, ABC_SL("CRID:-"));
 
-   // Run the scheduled coroutines.
-   pcorosched->run();
+   this_thread::run_coroutines();
 
    ABC_TESTING_ASSERT_EQUAL(i1, 41);
    ABC_TESTING_ASSERT_EQUAL(i2, 42);
@@ -84,8 +83,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    });
    pcorosched->add(coro1);
 
-   // Run the scheduled coroutines.
-   pcorosched->run();
+   this_thread::run_coroutines();
 }
 
 } //namespace test

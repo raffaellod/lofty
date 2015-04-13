@@ -78,7 +78,7 @@ public:
       }));
 
       // Switch this thread to run coroutines, until they all terminate.
-      pcorosched->run();
+      this_thread::run_coroutines();
       // Execution resumes here, after all coroutines have terminated.
       io::text::stdout->write_line(ABC_SL("main: terminating"));
       return 0;
