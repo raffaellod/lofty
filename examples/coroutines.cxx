@@ -40,14 +40,14 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      auto & pcorosched = this_thread::attach_coroutine_scheduler();
+      this_thread::attach_coroutine_scheduler();
 
       /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage
       of it to avoid blocking on reads and writes. */
       auto pair(io::binary::pipe());
 
       // Schedule the reader.
-      pcorosched->add(coroutine([this, &pair] () -> void {
+      coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          io::text::stdout->write_line(ABC_SL("reader: starting"));
@@ -66,19 +66,19 @@ public:
             // Consume i.
             if (i == 3) {
                // Add a coroutine that will display a message in a quarter of a second.
-               this_thread::get_coroutine_scheduler()->add(coroutine([] () -> void {
+               coroutine([] () -> void {
                   io::text::stdout->write_line(ABC_SL("delayed message: starting"));
                   this_coroutine::sleep_for_ms(250);
                   io::text::stdout->write_line(ABC_SL("delayed message: this is it"));
                   io::text::stdout->write_line(ABC_SL("delayed message: terminating"));
-               }));
+               });
             }
          }
          io::text::stdout->write_line(ABC_SL("reader: terminating"));
-      }));
+      });
 
       // Schedule the writer.
-      pcorosched->add(coroutine([this, &pair] () -> void {
+      coroutine([this, &pair] () -> void {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          io::text::stdout->write_line(ABC_SL("writer: starting"));
@@ -97,10 +97,10 @@ public:
          // Close the writing end of the pipe to report EOF on the reading end.
          pair.second.reset();
          io::text::stdout->write_line(ABC_SL("writer: terminating"));
-      }));
+      });
 
       // Schedule the stdin reader.
-      /*pcorosched->add(coroutine([this] () -> void {
+      /*coroutine([this] () -> void {
          ABC_TRACE_FUNC(this);
 
          io::text::stdout->print(ABC_SL("stdin: starting\n"));
@@ -108,7 +108,7 @@ public:
             io::text::stdout->print(ABC_SL("stdin: read {}\n"), sLine);
          }
          io::text::stdout->write_line(ABC_SL("stdin: terminating"));
-      }));*/
+      });*/
 
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();

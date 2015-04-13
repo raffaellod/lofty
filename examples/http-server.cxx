@@ -40,10 +40,8 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      auto & pcorosched = this_thread::attach_coroutine_scheduler();
-
       // Schedule a TCP server.
-      pcorosched->add(coroutine([this] () -> void {
+      coroutine([this] () -> void {
          ABC_TRACE_FUNC(this);
 
          io::text::stdout->print(ABC_SL("server: starting\n"));
@@ -52,7 +50,7 @@ public:
             io::text::stdout->print(ABC_SL("server: accepting\n"));
             auto pconn(server.accept());
             // Add a coroutine that will echo every byte sent over the newly-established connection.
-            this_thread::get_coroutine_scheduler()->add(coroutine([this, pconn] () -> void {
+            coroutine([this, pconn] () -> void {
                ABC_TRACE_FUNC(this, pconn);
 
                // Create text-mode reader and writer for the connection’s socket.
@@ -77,10 +75,10 @@ public:
                // Send the response content.
                ptbbw->write("OK");
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
-            }));
+            });
          }
          io::text::stdout->write_line(ABC_SL("server: terminating"));
-      }));
+      });
 
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();

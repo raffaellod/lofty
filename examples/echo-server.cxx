@@ -40,10 +40,8 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      auto & pcorosched = this_thread::attach_coroutine_scheduler();
-
       // Schedule a TCP server. To connect to it, use: socat - TCP4:127.0.0.1:9082
-      pcorosched->add(coroutine([this] () -> void {
+      coroutine([this] () -> void {
          ABC_TRACE_FUNC(this);
 
          static std::uint16_t const sc_iPort = 9082;
@@ -57,7 +55,7 @@ public:
             io::text::stdout->write_line(ABC_SL("server: connection established"));
 
             // Add a coroutine that will echo every line sent over the newly-established connection.
-            this_thread::get_coroutine_scheduler()->add(coroutine([this, pconn] () -> void {
+            coroutine([this, pconn] () -> void {
                ABC_TRACE_FUNC(this, pconn);
 
                io::text::stdout->write_line(ABC_SL("responder: starting"));
@@ -72,10 +70,10 @@ public:
                   ptw->flush();
                }
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
-            }));
+            });
          }
          io::text::stdout->write_line(ABC_SL("server: terminating"));
-      }));
+      });
 
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();

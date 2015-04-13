@@ -31,19 +31,15 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
    ABC_TRACE_FUNC(this);
 
-   auto & pcorosched = this_thread::attach_coroutine_scheduler();
-
    // TODO: use std::atomic for these variables.
    int volatile i1 = 1, i2 = 2;
 
    coroutine coro1([this, &i1] () -> void {
       i1 = 41;
    });
-   pcorosched->add(coro1);
    coroutine coro2([this, &i2] () -> void {
       i2 = 42;
    });
-   pcorosched->add(coro2);
    coroutine coro3;
 
    ABC_TESTING_ASSERT_NOT_EQUAL(coro1.id(), coroutine::id_type(0));
@@ -75,13 +71,10 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    ABC_TRACE_FUNC(this);
 
-   auto & pcorosched = this_thread::attach_coroutine_scheduler();
-
    coroutine coro1([] () -> void {
       // If exceptions are not properly contained by Abaclade, this will kill the entire process.
       //ABC_THROW(generic_error, ());
    });
-   pcorosched->add(coro1);
 
    this_thread::run_coroutines();
 }

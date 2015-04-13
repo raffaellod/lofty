@@ -145,6 +145,7 @@ coroutine::coroutine() {
 }
 /*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
    m_pctx(std::make_shared<coroutine::context>(std::move(fnMain))) {
+   this_thread::attach_coroutine_scheduler()->add(*this);
 }
 
 coroutine::~coroutine() {
