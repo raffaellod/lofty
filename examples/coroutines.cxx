@@ -68,7 +68,7 @@ public:
                // Add a coroutine that will display a message in a quarter of a second.
                this_thread::get_coroutine_scheduler()->add(coroutine([] () -> void {
                   io::text::stdout->write_line(ABC_SL("delayed message: starting"));
-                  this_thread::get_coroutine_scheduler()->yield_for(250);
+                  this_coroutine::sleep_for_ms(250);
                   io::text::stdout->write_line(ABC_SL("delayed message: this is it"));
                   io::text::stdout->write_line(ABC_SL("delayed message: terminating"));
                }));
@@ -91,7 +91,7 @@ public:
             /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
             scheduled, as well as create a more realistic non-continuous data flow into the pipe. */
             io::text::stdout->write_line(ABC_SL("writer: yielding"));
-            this_thread::get_coroutine_scheduler()->yield_for(50);
+            this_coroutine::sleep_for_ms(50);
             // Execution resumes here, after other coroutines have received CPU time.
          }
          // Close the writing end of the pipe to report EOF on the reading end.

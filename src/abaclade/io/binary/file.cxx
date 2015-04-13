@@ -87,38 +87,8 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK:
    #endif
-            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-               // Give other coroutines a chance to run while we wait for m_fd.
-               pcorosched->yield_while_async_pending(m_fd, false);
-               break;
-            } else {
-               // No coroutine scheduler, so we have to block-wait for m_fd.
-               ::pollfd pfd;
-               pfd.fd = m_fd.get();
-               pfd.events = POLLIN | POLLPRI;
-               int iRet = ::poll(&pfd, 1, -1);
-               if (iRet > 0) {
-                  if (pfd.revents & (POLLERR | POLLNVAL)) {
-                     // TODO: how should POLLERR and POLLNVAL be handled?
-                  }
-                  /* Consider POLLHUP as input, so that ::read() can return 0 bytes. This helps
-                  mitigate the considerable differences among poll(2) implementations documented at
-                  <http://www.greenend.org.uk/rjk/tech/poll.html>, and Linux happens to be one of
-                  those who set *only* POLLHUP on a pipe with no open write fds. */
-                  if (pfd.revents & (POLLIN | POLLHUP)) {
-                     if (pfd.revents & POLLPRI) {
-                        // TODO: anything special about “high priority data”?
-                     }
-                  }
-                  // Go back to the ::read() call.
-                  break;
-               }
-               iErr = errno;
-               if (iErr == EINTR) {
-                  break;
-               }
-               // Fall through.
-            }
+            this_coroutine::sleep_until_fd_ready(m_fd, false);
+            break;
          default:
             exception::throw_os_error(iErr);
       }
@@ -139,15 +109,8 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
       iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
       if (iErr == ERROR_IO_PENDING) {
-         if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-            // Give other coroutines a chance to run while we wait for m_fd.
-            pcorosched->yield_while_async_pending(m_fd, false);
-         } else {
-            // No coroutine scheduler, so we have to block-wait for m_fd.
-            if (::WaitForSingleObject(m_fd.get(), INFINITE) != WAIT_OBJECT_0) {
-               exception::throw_os_error();
-            }
-         }
+         this_coroutine::sleep_until_fd_ready(m_fd, false);
+         // cbRead is now available in ovl.
          cbRead = ovl.InternalHigh;
          iErr = ERROR_SUCCESS;
       }
@@ -244,34 +207,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    #if EWOULDBLOCK != EAGAIN
             case EWOULDBLOCK:
    #endif
-               if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-                  // Give other coroutines a chance to run while we wait for m_fd.
-                  pcorosched->yield_while_async_pending(m_fd, true);
-                  break;
-               } else {
-                  // No coroutine scheduler, so we have to block-wait for m_fd.
-                  ::pollfd pfd;
-                  pfd.fd = m_fd.get();
-                  pfd.events = POLLOUT | POLLPRI;
-                  int iRet = ::poll(&pfd, 1, -1);
-                  if (iRet > 0) {
-                     if (pfd.revents & (POLLERR | POLLNVAL)) {
-                        // TODO: how should POLLERR and POLLNVAL be handled?
-                     }
-                     if (pfd.revents & POLLOUT) {
-                        if (pfd.revents & POLLPRI) {
-                           // TODO: anything special about “high priority data”?
-                        }
-                     }
-                     // Go back to the ::write() call.
-                     break;
-                  }
-                  iErr = errno;
-                  if (iErr == EINTR) {
-                     break;
-                  }
-                  // Fall through.
-               }
+               this_coroutine::sleep_until_fd_ready(m_fd, true);
+               break;
             default:
                exception::throw_os_error(iErr);
          }
@@ -296,15 +233,8 @@ file_writer::file_writer(detail::file_init_data * pfid) :
             if (iErr != ERROR_IO_PENDING) {
                exception::throw_os_error(iErr);
             }
-            if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-               // Give other coroutines a chance to run while we wait for m_fd.
-               pcorosched->yield_while_async_pending(m_fd, true);
-            } else {
-               // No coroutine scheduler, so we have to block-wait for m_fd.
-               if (::WaitForSingleObject(m_fd.get(), INFINITE) != WAIT_OBJECT_0) {
-                  exception::throw_os_error();
-               }
-            }
+            this_coroutine::sleep_until_fd_ready(m_fd, true);
+            // cbWritten is now available in ovl.
             cbWritten = ovl.InternalHigh;
          }
       } else {

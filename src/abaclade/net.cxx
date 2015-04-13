@@ -121,13 +121,9 @@ std::shared_ptr<connection> tcp_server::accept() {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK:
    #endif
-            if (pcorosched) {
-               /* Give other coroutines a chance to run while we wait for m_fdSocket. Accepting a
-               connection is considered a read event. */
-               pcorosched->yield_while_async_pending(m_fdSocket, false);
-               break;
-            }
-            // Fall through.
+            // Wait for m_fdSocket. Accepting a connection is considered a read event.
+            this_coroutine::sleep_until_fd_ready(m_fdSocket, false);
+            break;
          default:
             exception::throw_os_error(iErr);
       }
