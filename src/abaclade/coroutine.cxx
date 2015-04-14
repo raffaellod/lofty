@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include "detail/coroutine_scheduler.hxx"
+#include "coroutine-scheduler.hxx"
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
@@ -45,7 +45,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine
+// abc::coroutine::context
 
 namespace abc {
 
@@ -141,6 +141,12 @@ private:
    detail::coroutine_local_storage m_crls;
 };
 
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::coroutine
+
+namespace abc {
 
 coroutine::coroutine() {
 }
@@ -198,16 +204,15 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine_scheduler
+// abc::coroutine::scheduler
 
 namespace abc {
-namespace detail {
 
-thread_local_value<std::shared_ptr<coroutine::context>> coroutine_scheduler::sm_pcoroctxActive;
-thread_local_value<std::shared_ptr<coroutine_scheduler>> coroutine_scheduler::sm_pcorosched;
-thread_local_value< ::ucontext_t *> coroutine_scheduler::sm_puctxReturn /*= nullptr*/;
+thread_local_value<std::shared_ptr<coroutine::context>> coroutine::scheduler::sm_pcoroctxActive;
+thread_local_value<std::shared_ptr<coroutine::scheduler>> coroutine::scheduler::sm_pcorosched;
+thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nullptr*/;
 
-coroutine_scheduler::coroutine_scheduler() :
+coroutine::scheduler::scheduler() :
 #if ABC_HOST_API_BSD
    m_fdKqueue(::kqueue()) {
    ABC_TRACE_FUNC(this);
@@ -228,17 +233,17 @@ coroutine_scheduler::coroutine_scheduler() :
 #endif
 }
 
-coroutine_scheduler::~coroutine_scheduler() {
+coroutine::scheduler::~scheduler() {
    // TODO: verify that m_listStartingCoros and m_mapCorosBlockedByFD are empty.
 }
 
-void coroutine_scheduler::add(coroutine const & coro) {
+void coroutine::scheduler::add(coroutine const & coro) {
    ABC_TRACE_FUNC(this);
 
    m_listStartingCoros.push_back(coro.m_pctx);
 }
 
-std::shared_ptr<coroutine::context> coroutine_scheduler::find_coroutine_to_activate() {
+std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
    // This loop will only repeat in case of EINTR from the blocking-wait API.
@@ -295,7 +300,7 @@ std::shared_ptr<coroutine::context> coroutine_scheduler::find_coroutine_to_activ
    }
 }
 
-void coroutine_scheduler::return_to_scheduler() {
+void coroutine::scheduler::return_to_scheduler() {
 #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
    #pragma clang diagnostic push
    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -308,19 +313,19 @@ void coroutine_scheduler::return_to_scheduler() {
    // TODO: maybe issue warning/abort in case ::setcontext() does return?
 }
 
-void coroutine_scheduler::run() {
+void coroutine::scheduler::run() {
    ABC_TRACE_FUNC(this);
 
    ::ucontext_t uctxReturn;
    sm_puctxReturn = &uctxReturn;
    std::shared_ptr<coroutine::context> & pcoroctxActive = sm_pcoroctxActive;
-   detail::coroutine_local_storage * pcrlsDefault = &detail::coroutine_local_storage::sm_crls.get();
-   detail::coroutine_local_storage *& pcrlsCurrent = detail::coroutine_local_storage::sm_pcrls;
+   detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
+   detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
    try {
       while ((pcoroctxActive = find_coroutine_to_activate())) {
          /* Swap the coroutine_local_storage pointer for this thread with that of the active
          coroutine. */
-         pcrlsCurrent = pcoroctxActive->local_storage_ptr();
+         *ppcrlsCurrent = pcoroctxActive->local_storage_ptr();
          // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
    #pragma clang diagnostic push
@@ -331,7 +336,7 @@ void coroutine_scheduler::run() {
    #pragma clang diagnostic pop
 #endif
          // Restore the coroutine_local_storage pointer for this thread.
-         pcrlsCurrent = pcrlsDefault;
+         *ppcrlsCurrent = pcrlsDefault;
          if (iRet < 0) {
             /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
             (*sm_pcoroctxActive has a problem, not uctxReturn). */
@@ -344,7 +349,7 @@ void coroutine_scheduler::run() {
    sm_puctxReturn = nullptr;
 }
 
-void coroutine_scheduler::switch_to_scheduler(coroutine::context * pcoroctxLastActive) {
+void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLastActive) {
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -358,7 +363,7 @@ void coroutine_scheduler::switch_to_scheduler(coroutine::context * pcoroctxLastA
    }
 }
 
-void coroutine_scheduler::yield_for(unsigned iMillisecs) {
+void coroutine::scheduler::yield_for(unsigned iMillisecs) {
    ABC_TRACE_FUNC(this, iMillisecs);
 
    // TODO: handle iMillisecs == 0 as a timer-less yield.
@@ -433,7 +438,7 @@ void coroutine_scheduler::yield_for(unsigned iMillisecs) {
 #endif
 }
 
-void coroutine_scheduler::yield_while_async_pending(io::filedesc_t fd, bool bWrite) {
+void coroutine::scheduler::yield_while_async_pending(io::filedesc_t fd, bool bWrite) {
    ABC_TRACE_FUNC(this, fd, bWrite);
 
    // Add fd as a new event source.
@@ -473,8 +478,6 @@ void coroutine_scheduler::yield_while_async_pending(io::filedesc_t fd, bool bWri
    }
 }
 
-} //namespace detail
-
 
 // Now this can be defined.
 
@@ -501,9 +504,7 @@ namespace abc {
 namespace this_coroutine {
 
 coroutine::id_type id() {
-   return reinterpret_cast<coroutine::id_type>(
-      detail::coroutine_scheduler::sm_pcoroctxActive.get()
-   );
+   return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::sm_pcoroctxActive.get());
 }
 
 void sleep_for_ms(unsigned iMilliseconds) {

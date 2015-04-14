@@ -27,8 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/thread.hxx>
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
@@ -38,14 +36,13 @@ namespace abc {
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io
 classes. */
 class ABACLADE_SYM coroutine : public noncopyable {
-private:
-   friend class detail::coroutine_scheduler;
-
 public:
    //! OS-dependent execution context for the coroutine.
    class context;
    //! Type of the unique coroutine IDs.
    typedef std::intptr_t id_type;
+   //! Schedules coroutine execution.
+   class scheduler;
 
 public:
    /*! Constructor.

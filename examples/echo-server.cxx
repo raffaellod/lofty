@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/thread.hxx>
 #include <abaclade/net.hxx>
 
 using namespace abc;

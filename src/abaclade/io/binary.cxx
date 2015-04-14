@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/thread.hxx>
 #include "binary/detail/file_init_data.hxx"
 
 #if ABC_HOST_API_POSIX

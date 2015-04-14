@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include "detail/coroutine_scheduler.hxx"
+#include "coroutine-scheduler.hxx"
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
@@ -357,13 +357,12 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
 namespace abc {
 namespace this_thread {
 
-std::shared_ptr<detail::coroutine_scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<detail::coroutine_scheduler> pcorosched /*= nullptr*/
+std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
+   std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   std::shared_ptr<detail::coroutine_scheduler> & pcoroschedCurr =
-      detail::coroutine_scheduler::sm_pcorosched;
+   std::shared_ptr<coroutine::scheduler> & pcoroschedCurr = coroutine::scheduler::sm_pcorosched;
    if (pcorosched) {
       if (pcoroschedCurr) {
          // The current thread already has a coroutine scheduler.
@@ -374,14 +373,14 @@ std::shared_ptr<detail::coroutine_scheduler> const & attach_coroutine_scheduler(
    } else {
       // Create and set a new coroutine scheduler if the current thread didn’t already have one.
       if (!pcoroschedCurr) {
-         pcoroschedCurr = std::make_shared<detail::coroutine_scheduler>();
+         pcoroschedCurr = std::make_shared<coroutine::scheduler>();
       }
    }
    return pcoroschedCurr;
 }
 
-std::shared_ptr<detail::coroutine_scheduler> const & get_coroutine_scheduler() {
-   return detail::coroutine_scheduler::sm_pcorosched;
+std::shared_ptr<coroutine::scheduler> const & get_coroutine_scheduler() {
+   return coroutine::scheduler::sm_pcorosched;
 }
 
 thread::id_type id() {

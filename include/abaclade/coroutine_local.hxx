@@ -26,12 +26,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-// Forward declaration.
-class coroutine_scheduler;
-
 namespace detail {
 
-// Forward declaration.
+// Forward declarations.
 class coroutine_local_var_impl;
 
 //! Abaclade’s CRLS (TLS for coroutines) slot data manager.
@@ -46,9 +43,6 @@ coroutine). */
 class ABACLADE_SYM coroutine_local_storage :
    public collections::static_list<coroutine_local_storage, coroutine_local_var_impl>,
    public noncopyable {
-private:
-   friend class coroutine_scheduler;
-
 public:
    /*! Constructor.
 
@@ -81,6 +75,20 @@ public:
    */
    static coroutine_local_storage * get();
 
+   /*! Accessor used by coroutine::scheduler to change sm_pcrls.
+
+   @param ppcrlsDefault
+      Pointer to receive the address of sm_crls.
+   @param pppcrlsCurrent
+      Pointer to receive the address of sm_pcrls.
+   */
+   static void get_default_and_current_pointers(
+      coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
+   ) {
+      *ppcrlsDefault = &sm_crls.get();
+      *pppcrlsCurrent = &sm_pcrls.get();
+   }
+
    /*! Returns a pointer to the specified offset in the coroutine-local data store.
 
    @param ibOffset
@@ -103,8 +111,8 @@ private:
    a coroutine_local_storage which in turn sets this), but replaced while a coroutine is being
    actively executed. */
    static thread_local_value<coroutine_local_storage *> sm_pcrls;
-   /*! Per-thread storage for the active coroutine. If a coroutine_scheduler is running on a thread,
-   this is replaced on each change of coroutine_scheduler::sm_pcoroctxActive. */
+   /*! Per-thread storage for the active coroutine. If a coroutine::scheduler is running on a
+   thread, this is replaced on each change of coroutine::scheduler::sm_pcoroctxActive. */
    static thread_local_value<coroutine_local_storage> sm_crls;
 };
 

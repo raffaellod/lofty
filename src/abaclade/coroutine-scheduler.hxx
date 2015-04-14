@@ -32,26 +32,24 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::coroutine_scheduler
+// abc::coroutine::scheduler
 
 namespace abc {
-namespace detail {
 
-//! Schedules coroutine execution.
-class ABACLADE_SYM coroutine_scheduler : public noncopyable {
+class coroutine::scheduler : public noncopyable {
 private:
-   friend std::shared_ptr<coroutine_scheduler> const & this_thread::attach_coroutine_scheduler(
-      std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
+   friend std::shared_ptr<coroutine::scheduler> const & this_thread::attach_coroutine_scheduler(
+      std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
    );
-   friend std::shared_ptr<coroutine_scheduler> const & this_thread::get_coroutine_scheduler();
+   friend std::shared_ptr<coroutine::scheduler> const & this_thread::get_coroutine_scheduler();
    friend coroutine::id_type this_coroutine::id();
 
 public:
    //! Constructor.
-   coroutine_scheduler();
+   scheduler();
 
    //! Destructor.
-   ~coroutine_scheduler();
+   ~scheduler();
 
    /*! Adds a coroutine to those ready to start.
 
@@ -125,15 +123,14 @@ private:
    collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
    static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
-   //! Pointer to the coroutine_scheduler for the current thread.
-   static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
+   //! Pointer to the coroutine scheduler for the current thread.
+   static thread_local_value<std::shared_ptr<scheduler>> sm_pcorosched;
 #if ABC_HOST_API_POSIX
-   //! Pointer to the context of every thread running a coroutine_scheduler.
+   //! Pointer to the context of every thread running a coroutine scheduler.
    static thread_local_value< ::ucontext_t *> sm_puctxReturn;
 #endif
 };
 
-} //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
