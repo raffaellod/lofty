@@ -594,7 +594,7 @@ public:
          validate();
          std::size_t iBucketPrev = m_iBucket;
          increment();
-         return iterator(m_pmap, iBucketPrev);
+         return const_iterator(m_pmap, iBucketPrev);
       }
 
    protected:
