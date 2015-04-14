@@ -247,10 +247,10 @@ ABACLADE_SYM void run_coroutines();
 
 /*! Suspends execution of the current thread for at least the specified duration.
 
-@return
+@param iMillisecs
    Duration for which the current thread should not execute, in milliseconds.
 */
-ABACLADE_SYM void sleep_for_ms(unsigned iMilliseconds);
+ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
 
 } //namespace this_thread
 } //namespace abc

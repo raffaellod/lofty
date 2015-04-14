@@ -130,10 +130,10 @@ ABACLADE_SYM coroutine::id_type id();
 
 /*! Suspends execution of the current coroutine for at least the specified duration.
 
-@return
+@param iMillisecs
    Duration for which the current coroutine should not execute, in milliseconds.
 */
-ABACLADE_SYM void sleep_for_ms(unsigned iMilliseconds);
+ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
 
 /*! Suspends execution of the current coroutine until an asynchronous I/O operation completes.
 

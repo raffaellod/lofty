@@ -413,12 +413,12 @@ void run_coroutines() {
    }
 }
 
-void sleep_for_ms(unsigned iMilliseconds) {
+void sleep_for_ms(unsigned iMillisecs) {
 #if ABC_HOST_API_POSIX
    ::timespec tsRequested, tsRemaining;
-   tsRequested.tv_sec = static_cast< ::time_t>(iMilliseconds / 1000u);
+   tsRequested.tv_sec = static_cast< ::time_t>(iMillisecs / 1000u);
    tsRequested.tv_nsec = static_cast<long>(
-      static_cast<unsigned long>(iMilliseconds % 1000u) * 1000000u
+      static_cast<unsigned long>(iMillisecs % 1000u) * 1000000u
    );
    /* This loop will only repeat in case of EINTR. Technically ::nanosleep() may fail with EINVAL,
    but the calculation above makes that impossible. */
@@ -427,7 +427,7 @@ void sleep_for_ms(unsigned iMilliseconds) {
       tsRequested = tsRemaining;
    }
 #elif ABC_HOST_API_WIN32
-   ::Sleep(iMilliseconds);
+   ::Sleep(iMillisecs);
 #else
    #error "TODO: HOST_API"
 #endif
