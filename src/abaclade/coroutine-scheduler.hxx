@@ -81,7 +81,7 @@ public:
    @param bWrite
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
    */
-   void yield_while_async_pending(io::filedesc_t fd, bool bWrite);
+   void yield_until_fd_ready(io::filedesc_t fd, bool bWrite);
 
 private:
    /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks

@@ -421,7 +421,7 @@ void coroutine::scheduler::yield_for(unsigned iMillisecs) {
    auto itActiveTimer(m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd)).first);
    // At this point the timer is just a file descriptor that we’ll be waiting to read from.
    try {
-      yield_while_async_pending(fdCopy, false);
+      yield_until_fd_ready(fdCopy, false);
    } catch (...) {
       // Remove the timer from the set of active ones.
       // TODO: recycle the timer, putting it back in the pool of inactive timers.
@@ -438,7 +438,7 @@ void coroutine::scheduler::yield_for(unsigned iMillisecs) {
 #endif
 }
 
-void coroutine::scheduler::yield_while_async_pending(io::filedesc_t fd, bool bWrite) {
+void coroutine::scheduler::yield_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    ABC_TRACE_FUNC(this, fd, bWrite);
 
    // Add fd as a new event source.
@@ -517,7 +517,7 @@ void sleep_for_ms(unsigned iMillisecs) {
 
 void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-      pcorosched->yield_while_async_pending(fd, bWrite);
+      pcorosched->yield_until_fd_ready(fd, bWrite);
    } else {
       // No coroutine scheduler, so we have to block-wait for fd.
 #if ABC_HOST_API_POSIX
