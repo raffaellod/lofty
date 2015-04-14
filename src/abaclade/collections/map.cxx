@@ -143,7 +143,9 @@ void map_impl::empty_bucket(
    typeKey  .destruct(pbKey,   pbKey   + typeKey  .cb);
    typeValue.destruct(pbValue, pbValue + typeValue.cb);
    --m_cUsedBuckets;
-   // TODO: don’t increment m_iRev; nothing else has changed, no need to invalidate interators.
+   /* We could avoid incrementing m_iRev and invalidating every iterator, since nothing other bucket
+   was affected, but that would mean that an iterator to the removed pair could still be
+   dereferenced. */
    ++m_iRev;
 }
 
