@@ -35,13 +35,16 @@ std::exception members. See for example this fictional hierarchy, displaying an 
 Abaclade design having a single class hierarchy where each class would derive individually from a
 std::exception-derived class:
 
+   @verbatim
    class abc::exception : public std::exception {};
 
        abc::exception
       ┌────────────────┐
       │ std::exception │
       └────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::network_error : public virtual abc::exception {};
 
        abc::network_error
@@ -51,7 +54,9 @@ std::exception-derived class:
       ││ std::exception ││
       │└────────────────┘│
       └──────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::io_error : public virtual abc::exception, public std::ios_base::failure {};
 
        abc::io_error
@@ -66,7 +71,9 @@ std::exception-derived class:
       ││ std::exception       ││
       │└──────────────────────┘│
       └────────────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {};
 
        abc::network_io_error
@@ -85,6 +92,7 @@ std::exception-derived class:
       │                    ││└──────────────────────┘││
       │                    │└────────────────────────┘│
       └────────────────────┴──────────────────────────┘
+   @endverbatim
 
 
 As visible in the last two class data representations, objects can include multiple distinct copies
@@ -100,6 +108,7 @@ instantiating the class template abc::detail::exception_aggregator, specializati
 the leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See
 this example based on the previous one:
 
+   @verbatim
    class abc::exception {
       typedef std::exception related_std;
    };
@@ -110,7 +119,9 @@ this example based on the previous one:
       ├────────────────┤
       │ abc::exception │
       └────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::network_error : public virtual abc::exception {};
 
        ABC_THROW(abc::network_error, ())
@@ -122,7 +133,9 @@ this example based on the previous one:
       ││ abc::exception   ││
       │└──────────────────┘│
       └────────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::io_error : public virtual abc::exception {
       typedef std::ios_base::failure related_std;
    };
@@ -139,7 +152,9 @@ this example based on the previous one:
       ││ abc::exception       ││
       │└──────────────────────┘│
       └────────────────────────┘
+   @endverbatim
 
+   @verbatim
    class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {
       typedef std::ios_base::failure related_std;
    };
@@ -159,6 +174,7 @@ this example based on the previous one:
       ││└───────────────────┬──────────────┘││
       │└────────────────────┴───────────────┘│
       └──────────────────────────────────────┘
+   @endverbatim
 
 
 Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for

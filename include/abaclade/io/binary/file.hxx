@@ -43,7 +43,7 @@ protected:
    /*! Constructor.
 
    @param pfid
-      Data used to initialize the object, as set by abc::io::open() and other functions.
+      Data used to initialize the object, as set by abc::io::binary::open() and other functions.
    */
    file_base(detail::file_init_data * pfid);
 

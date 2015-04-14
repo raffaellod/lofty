@@ -135,6 +135,7 @@ something to watch out for, and it means that mstr should not be used in contain
 
 This table illustrates the best type of string to use for each use scenario:
 
+   @verbatim
    ┌───────────────────────────────────────────────────────┬──────────────────────┐
    │ Functional need                                       │ Suggested type       │
    ├───────────────────────────────────────────────────────┼──────────────────────┤
@@ -161,67 +162,81 @@ This table illustrates the best type of string to use for each use scenario:
    │                                                       │                      │
    │ Key in hash-based container classes                   │ istr const           │
    └───────────────────────────────────────────────────────┴──────────────────────┘
-
+   @endverbatim
 
 Last but not least, let’s look at the underlying data storage in some of the possible semantic
 statuses.
 
 Key:
 
+   @verbatim
    ┌──────────────┬──────────┬───────────┬───────────────┬────────────────┬─────────────────┐
    │ Pointer to   │ Pointer  │ P if item │ T if item     │ E is vextr has │ D if item array │
    │ beginning of │ to end   │ array is  │ array is NUL- │ embedded       │ is dynamically- │
    │ array        │ of array │ prefixed  │ terminated    │ prefixed array │ allocated       │
    └──────────────┴──────────┴───────────┴───────────────┴────────────────┴─────────────────┘
+   @endverbatim
 
    Additionally, an embedded item array can follow, prefixed by its length (here in items, but in
    the implementation it’s actually a byte count).
 
 
 1. istr() or dmstr(): no item array.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐
    │ nullptr │ nullptr │ - │ - │ - │ - │
    └─────────┴─────────┴───┴───┴───┴───┘
+   @endverbatim
 
 2. smstr<4>(): has an embedded prefixed fixed-size array, but does not use it yet.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
    │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
+   @endverbatim
 
 3. istr("abc"): points to a non-prefixed item array in read-only memory, which also has a NUL
    terminator.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐                    ┌──────────┐
    │ 0xptr   │ 0xptr   │ - │ T │ - │ - │                    │ a b c \0 │
    └─────────┴─────────┴───┴───┴───┴───┘                    └──────────┘
      │         │                                            ▲       ▲
      │         └────────────────────────────────────────────│───────┘
      └──────────────────────────────────────────────────────┘
+   @endverbatim
 
 4. dmstr("abc"): points to a dynamically-allocated prefixed copy of the source string literal.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐                ┌───┬─────────────────┐
    │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c - - - - - │
    └─────────┴─────────┴───┴───┴───┴───┘                └───┴─────────────────┘
      │         │                                            ▲       ▲
      │         └────────────────────────────────────────────│───────┘
      └──────────────────────────────────────────────────────┘
+   @endverbatim
 
 5. smstr<4> s4("abc"): copies the source string literal to the embedded prefixed item array, and
    points to it.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
    │ 0xptr   │ 0xptr   │ P │ - │ E │ - ║ 4 │ a b c - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
      │         │                           ▲       ▲
      │         └───────────────────────────│───────┘
      └─────────────────────────────────────┘
+   @endverbatim
 
 7. s4 += "abc": switches to a dynamically-allocated prefixed array because the embedded one is not
    large enough.
+   @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌───┬─────────────────┐
    │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c a b c - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └───┴─────────────────┘
      │         │                                            ▲             ▲
      │         └────────────────────────────────────────────│─────────────┘
      └──────────────────────────────────────────────────────┘
+   @endverbatim
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

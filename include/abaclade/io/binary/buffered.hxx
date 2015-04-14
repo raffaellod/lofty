@@ -84,45 +84,61 @@ A buffer is divided in three portions that change in size as the buffer is fille
 unused, used and available.
 
 The buffer is initially empty, which means that it’s completely available (for filling):
+   @verbatim
    ┌──────────────────────────────────────┐
    │available                             │ m_ibUsedOffet = m_ibAvailableOffset = 0, m_cb > 0
    └──────────────────────────────────────┘
+   @endverbatim
 
 As the buffer is read into, the used portion grows at expense of the available portion:
+   @verbatim
    ┌──────────────────┬───────────────────┐
    │used              │available          │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └──────────────────┴───────────────────┘
+   @endverbatim
 
 Consuming (using) bytes from the buffer reduces the used size and increases the unused portion:
+   @verbatim
    ┌────────┬─────────┬───────────────────┐
    │unused  │used     │available          │ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └────────┴─────────┴───────────────────┘
+   @endverbatim
 
 Eventually no bytes are usable:
+   @verbatim
    ┌──────────────────┬───────────────────┐
    │unused            │available          │ 0 < m_ibUsedOffet = m_ibAvailableOffset
    └──────────────────┴───────────────────┘
+   @endverbatim
 
 More bytes are then loaded in the buffer, eventually consuming most of the available space:
+   @verbatim
    ┌──────────────────┬────────────┬──────┐
    │unused            │used        │avail.│ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └──────────────────┴────────────┴──────┘
+   @endverbatim
 
 And again, eventually most used bytes are consumed, resulting in insufficient usable bytes:
+   @verbatim
    ┌─────────────────────────────┬─┬──────┐
    │unused                       │u│avail.│ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └─────────────────────────────┴─┴──────┘
+   @endverbatim
 
 If more available bytes are needed to fulfill the next request, the buffer is recompacted by a call
 to make_unused_available():
+   @verbatim
    ┌─┬────────────────────────────────────┐
    │u│available                           │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └─┴────────────────────────────────────┘
+   @endverbatim
 
 And more bytes are read into the buffer, repeating the cycle.
+   @verbatim
    ┌──────────────────────┬───────────────┐
    │used                  │available      │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
    └──────────────────────┴───────────────┘
+   @endverbatim
 */
 class ABACLADE_SYM buffer : public noncopyable {
 public:
