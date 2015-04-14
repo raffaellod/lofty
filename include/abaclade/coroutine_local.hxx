@@ -25,11 +25,14 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc::detail::coroutine_local_storage
 
 namespace abc {
+
+// Forward declaration.
+class coroutine_scheduler;
+
 namespace detail {
 
-// Forward declarations.
+// Forward declaration.
 class coroutine_local_var_impl;
-class coroutine_scheduler_impl;
 
 //! Abaclade’s CRLS (TLS for coroutines) slot data manager.
 /* TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
@@ -44,7 +47,7 @@ class ABACLADE_SYM coroutine_local_storage :
    public collections::static_list<coroutine_local_storage, coroutine_local_var_impl>,
    public noncopyable {
 private:
-   friend class coroutine_scheduler_impl;
+   friend class coroutine_scheduler;
 
 public:
    /*! Constructor.

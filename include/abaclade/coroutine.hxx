@@ -39,7 +39,7 @@ namespace abc {
 classes. */
 class ABACLADE_SYM coroutine : public noncopyable {
 private:
-   friend class coroutine_scheduler;
+   friend class detail::coroutine_scheduler;
 
 public:
    //! OS-dependent execution context for the coroutine.
@@ -151,66 +151,6 @@ inline void sleep_until_fd_ready(io::filedesc const & fd, bool bWrite) {
 }
 
 } //namespace this_coroutine
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine_scheduler
-
-namespace abc {
-
-//! Schedules coroutine execution.
-class ABACLADE_SYM coroutine_scheduler : public noncopyable {
-private:
-   friend std::shared_ptr<coroutine_scheduler> const & this_thread::attach_coroutine_scheduler(
-      std::shared_ptr<coroutine_scheduler> pcorosched /*= nullptr*/
-   );
-   friend std::shared_ptr<coroutine_scheduler> const & this_thread::get_coroutine_scheduler();
-   friend coroutine::id_type this_coroutine::id();
-
-public:
-   //! Destructor.
-   virtual ~coroutine_scheduler();
-
-   void add(coroutine const & coro);
-
-   /*! Begins scheduling and running coroutines on the current thread. Only returns after every
-   coroutine added with add_coroutine() returns. */
-   virtual void run() = 0;
-
-   /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
-   at least iMillisecs milliseconds have passed.
-
-   @param iMillisecs
-      Minimum duration for which to yield to other coroutines.
-   */
-   virtual void yield_for(unsigned iMillisecs) = 0;
-
-   /*! Allows other coroutines to run while the asynchronous I/O operation completes, as an
-   alternative to blocking while waiting for its completion.
-
-   @param fd
-      File descriptor that the calling coroutine is waiting for I/O on.
-   @param bWrite
-      true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
-   */
-   virtual void yield_while_async_pending(io::filedesc_t fd, bool bWrite) = 0;
-   void yield_while_async_pending(io::filedesc const & fd, bool bWrite) {
-      yield_while_async_pending(fd.get(), bWrite);
-   }
-
-protected:
-   //! Constructor.
-   coroutine_scheduler();
-
-protected:
-   //! List of coroutines that have been scheduled, but have not been started yet.
-   collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
-   //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
-   //! Pointer to the coroutine_scheduler for the current thread.
-   static thread_local_value<std::shared_ptr<coroutine_scheduler>> sm_pcorosched;
-};
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

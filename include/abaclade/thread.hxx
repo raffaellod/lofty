@@ -39,7 +39,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
-abc::coroutine_scheduler. */
+abc::coroutine. */
 class ABACLADE_SYM thread : public noncopyable {
 public:
    //! Underlying OS-dependent ID/handle type.
@@ -210,8 +210,12 @@ protected:
 
 namespace abc {
 
+namespace detail {
+
 // Forward declaration.
 class coroutine_scheduler;
+
+} //namespace detail
 
 //! Functions that can only affect the current thread. Replacement for std::this_thread.
 namespace this_thread {
@@ -223,8 +227,8 @@ required for the current thread to run coroutines.
    Coroutine scheduler associated to this thread. If pcorosched was non-nullptr, this is the same as
    pcorosched.
 */
-ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<coroutine_scheduler> pcorosched = nullptr
+ABACLADE_SYM std::shared_ptr<detail::coroutine_scheduler> const & attach_coroutine_scheduler(
+   std::shared_ptr<detail::coroutine_scheduler> pcorosched = nullptr
 );
 
 /*! Returns the coroutine scheduler associated to the current thread, if any.
@@ -233,7 +237,7 @@ ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & attach_coroutine_sched
    Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was
    never called for the current thread.
 */
-ABACLADE_SYM std::shared_ptr<coroutine_scheduler> const & get_coroutine_scheduler();
+ABACLADE_SYM std::shared_ptr<detail::coroutine_scheduler> const & get_coroutine_scheduler();
 
 /*! Returns a process-wide unique ID for the current thread.
 
