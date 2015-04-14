@@ -78,7 +78,52 @@ namespace io {
 namespace binary {
 namespace detail {
 
-//! Single buffer.
+/*! Self-managed, partitioned file buffer.
+
+A buffer is divided in three portions that change in size as the buffer is filled and consumed:
+unused, used and available.
+
+The buffer is initially empty, which means that it’s completely available (for filling):
+   ┌──────────────────────────────────────┐
+   │available                             │ m_ibUsedOffet = m_ibAvailableOffset = 0, m_cb > 0
+   └──────────────────────────────────────┘
+
+As the buffer is read into, the used portion grows at expense of the available portion:
+   ┌──────────────────┬───────────────────┐
+   │used              │available          │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └──────────────────┴───────────────────┘
+
+Consuming (using) bytes from the buffer reduces the used size and increases the unused portion:
+   ┌────────┬─────────┬───────────────────┐
+   │unused  │used     │available          │ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └────────┴─────────┴───────────────────┘
+
+Eventually no bytes are usable:
+   ┌──────────────────┬───────────────────┐
+   │unused            │available          │ 0 < m_ibUsedOffet = m_ibAvailableOffset
+   └──────────────────┴───────────────────┘
+
+More bytes are then loaded in the buffer, eventually consuming most of the available space:
+   ┌──────────────────┬────────────┬──────┐
+   │unused            │used        │avail.│ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └──────────────────┴────────────┴──────┘
+
+And again, eventually most used bytes are consumed, resulting in insufficient usable bytes:
+   ┌─────────────────────────────┬─┬──────┐
+   │unused                       │u│avail.│ 0 < m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └─────────────────────────────┴─┴──────┘
+
+If more available bytes are needed to fulfill the next request, the buffer is recompacted by a call
+to make_unused_available():
+   ┌─┬────────────────────────────────────┐
+   │u│available                           │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └─┴────────────────────────────────────┘
+
+And more bytes are read into the buffer, repeating the cycle.
+   ┌──────────────────────┬───────────────┐
+   │used                  │available      │ 0 = m_ibUsedOffet < m_ibAvailableOffset < m_cb
+   └──────────────────────┴───────────────┘
+*/
 class ABACLADE_SYM buffer : public noncopyable {
 public:
    /*! Constructor.
@@ -90,8 +135,8 @@ public:
    */
    buffer() :
       m_cb(0),
-      m_ibAvailableOffset(0),
-      m_ibUsedOffset(0) {
+      m_ibUsedOffset(0),
+      m_ibAvailableOffset(0) {
    }
    buffer(std::size_t cb);
    buffer(buffer && buf);
@@ -124,19 +169,19 @@ public:
    */
    void expand(std::size_t cb);
 
-   /*! Returns a pointer to the buffer memory. TODO
+   /*! Returns a pointer to the available portion of the buffer.
 
    @return
-      Pointer to the buffer memory block.
+      Pointer to the available portion of the buffer.
    */
    std::int8_t * get_available() const {
       return static_cast<std::int8_t *>(m_p.get()) + m_ibAvailableOffset;
    }
 
-   /*! Returns a pointer to the buffer memory. TODO
+   /*! Returns a pointer to the used portion of the buffer.
 
    @return
-      Pointer to the buffer memory block.
+      Pointer to the used portion of the buffer.
    */
    std::int8_t * get_used() const {
       return static_cast<std::int8_t *>(m_p.get()) + m_ibUsedOffset;
@@ -146,16 +191,16 @@ public:
    in an increase in available space. */
    void make_unused_available();
 
-   /*! Increases the used bytes count. TODO
+   /*! Increases the unused bytes count, reducing the used bytes count.
 
    @param cb
-      Bytes to count as used.
+      Bytes to count as unused.
    */
    void mark_as_unused(std::size_t cb) {
       m_ibUsedOffset += cb;
    }
 
-   /*! Increases the used bytes count.
+   /*! Increases the used bytes count, reducing the available bytes count.
 
    @param cb
       Bytes to count as used.
@@ -176,16 +221,16 @@ public:
    /*! Returns the amount of used buffer space.
 
    @return
-      Size of used buffer space, in bytes.
+      Size of the used buffer space, in bytes.
    */
    std::size_t used_size() const {
       return m_ibAvailableOffset - m_ibUsedOffset;
    }
 
-   /*! Returns the amount of used buffer space. TODO
+   /*! Returns the amount of unused buffer space.
 
    @return
-      Size of used buffer space, in bytes.
+      Size of the unused buffer space, in bytes.
    */
    std::size_t unused_size() const {
       return m_ibUsedOffset;
@@ -196,11 +241,11 @@ private:
    std::unique_ptr<void, memory::freeing_deleter> m_p;
    //! Size of *m_p.
    std::size_t m_cb;
-   //! Count of used bytes.
-   std::size_t m_ibAvailableOffset;
    /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported
    as available. */
    std::size_t m_ibUsedOffset;
+   //! Count of used bytes.
+   std::size_t m_ibAvailableOffset;
 };
 
 } //namespace detail

@@ -58,17 +58,17 @@ namespace detail {
 buffer::buffer(std::size_t cb) :
    m_p(memory::alloc<void>(cb)),
    m_cb(cb),
-   m_ibAvailableOffset(0),
-   m_ibUsedOffset(0) {
+   m_ibUsedOffset(0),
+   m_ibAvailableOffset(0) {
 }
 buffer::buffer(buffer && buf) :
    m_p(std::move(buf.m_p)),
    m_cb(buf.m_cb),
-   m_ibAvailableOffset(buf.m_ibAvailableOffset),
-   m_ibUsedOffset(buf.m_ibUsedOffset) {
+   m_ibUsedOffset(buf.m_ibUsedOffset),
+   m_ibAvailableOffset(buf.m_ibAvailableOffset) {
    buf.m_cb = 0;
-   buf.m_ibAvailableOffset = 0;
    buf.m_ibUsedOffset = 0;
+   buf.m_ibAvailableOffset = 0;
 }
 
 buffer::~buffer() {
@@ -80,10 +80,10 @@ buffer & buffer::operator=(buffer && buf) {
    m_p = std::move(buf.m_p);
    m_cb = buf.m_cb;
    buf.m_cb = 0;
-   m_ibAvailableOffset = buf.m_ibAvailableOffset;
-   buf.m_ibAvailableOffset = 0;
    m_ibUsedOffset = buf.m_ibUsedOffset;
    buf.m_ibUsedOffset = 0;
+   m_ibAvailableOffset = buf.m_ibAvailableOffset;
+   buf.m_ibAvailableOffset = 0;
    return *this;
 }
 
