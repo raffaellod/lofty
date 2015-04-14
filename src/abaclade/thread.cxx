@@ -355,6 +355,10 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
 namespace abc {
 namespace this_thread {
 
+std::shared_ptr<coroutine_scheduler> const & get_coroutine_scheduler() {
+   return coroutine_scheduler::sm_pcorosched;
+}
+
 thread::id_type id() {
 #if ABC_HOST_API_DARWIN
    thread::id_type id;
