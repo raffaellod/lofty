@@ -325,6 +325,45 @@ char const * exception::what() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::execution_interruption
+
+namespace abc {
+
+execution_interruption::execution_interruption(/*source?*/) {
+}
+
+/*virtual*/ execution_interruption::~execution_interruption() {
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::app_execution_interruption
+
+namespace abc {
+
+app_execution_interruption::app_execution_interruption() {
+}
+
+/*virtual*/ app_execution_interruption::~app_execution_interruption() {
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::user_forced_interruption
+
+namespace abc {
+
+user_forced_interruption::user_forced_interruption() {
+}
+
+/*virtual*/ user_forced_interruption::~user_forced_interruption() {
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::argument_error
 
 namespace abc {

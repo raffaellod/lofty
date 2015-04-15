@@ -538,13 +538,54 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::user_interrupt
+// abc::execution_interruption
 
 namespace abc {
 
-//! The user hit an interrupt key (usually Ctrl-C or Del).
-class ABACLADE_SYM user_interrupt : public exception {
+//! Execution interruption. May affect a single thread/coroutine or the whole program.
+class ABACLADE_SYM execution_interruption : public exception {
 public:
+   //! Constructor.
+   execution_interruption(/*source?*/);
+
+   //! Destructor.
+   virtual ~execution_interruption();
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::app_execution_interruption
+
+namespace abc {
+
+/*! Interruption in the execution of the whole application. Raised simultaneously in every coroutine
+and thread. */
+class ABACLADE_SYM app_execution_interruption : public execution_interruption {
+public:
+   //! Constructor.
+   app_execution_interruption();
+
+   //! Destructor.
+   virtual ~app_execution_interruption();
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::user_forced_interruption
+
+namespace abc {
+
+/*! Execution interruption requested by the user, resulting in the termination of all coroutines and
+threads in the process. */
+class ABACLADE_SYM user_forced_interruption : public app_execution_interruption {
+public:
+   //! Constructor.
+   user_forced_interruption();
+
+   //! Destructor.
+   virtual ~user_forced_interruption();
 };
 
 } //namespace abc
