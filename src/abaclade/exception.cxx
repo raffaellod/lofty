@@ -325,6 +325,19 @@ char const * exception::what() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::destructing_unfinalized_object
+
+namespace abc {
+
+destructing_unfinalized_object::destructing_unfinalized_object() {
+}
+
+/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::execution_interruption
 
 namespace abc {
