@@ -18,8 +18,8 @@ Abaclade is a C++11 framework featuring:
 
 •  Approachable and intuitive programming style, similar to Python’s; a good
    example is its modern I/O class hierarchy inspired by Python 3.x’s library,
-   including a fully type-safe replacement for printf() (see [DOC:7103
-   abc::io::text::writer::print()]);
+   including a fully type-safe replacement for printf() (see
+   abc::io::text::writer::print());
 
 •  Full support for Unicode and the C++11 char32_t character type (see
    abc::text);

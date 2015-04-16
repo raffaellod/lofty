@@ -410,46 +410,6 @@ namespace abc {
 namespace io {
 namespace text {
 
-/*! DOC:7103 abc::io::text::writer::print()
-
-Designed after Python’s str.format(), abc::io::text::writer::print() allows to combine objects
-together as strings using a format string.
-
-The implementation of print() is entirely contained in abc::io::text::detail::writer_print_helper,
-which accesses the individual arguments in a recursive way, from the most-derived class down to the
-base class, which also contains most of the implementation. Combined with the usage of [DOC:3984
-abc::to_str() and abc::to_str_backend()], this enables a type-safe variadic alternative to C’s
-printf, and voids the requirement for explicit specification of the argument types (such as %d, %s),
-much like Python’s str.format().
-
-Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it allows
-to print a variable by automatically deducing its type.
-
-The format string passed as first argument to abc::io::text::writer::print() can contain
-“replacement fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces
-is considered literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”,
-which allow to print “{” and “}” respectively.
-
-A replacement field can specify an argument index; if omitted, the argument used will be the one
-following the last used one, or the first if no arguments have been used up to that point. After the
-optional argument index, an optional type-dependent format specification can be indicated; this will
-be passed as-is to the specialization of abc::to_str_backend for the selected argument.
-
-Grammar for a replacement field:
-
-   replacement_field : “{” index? ( “:” format_spec )? “}”
-   index             : [0-9]+
-   format_spec       : <type-specific format specification>
-
-Basic usage examples for index:
-
-   "Welcome to {0}"                 Use argument 0
-   "Please see items {}, {3}, {}"   Use argument 0, skip 1 and 2, use 3 and 4
-
-Reference for Python’s str.format(): <http://docs.python.org/3/library/string.html#format-string-
-syntax>
-*/
-
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
 public:
@@ -461,6 +421,48 @@ public:
    virtual void flush() = 0;
 
    /*! Writes multiple values combined together in the specified format.
+
+   Designed after Python’s str.format(), this allows to combine objects together as strings using a
+   format string.
+
+   The implementation of print() is entirely contained in
+   abc::io::text::detail::writer_print_helper, which accesses the individual arguments in a
+   recursive way, from the most-derived class down to the base class, which also contains most of
+   the implementation. Combined with the usage of
+   [DOC:3984 abc::to_str() and abc::to_str_backend()], this enables a type-safe variadic alternative
+   to C’s printf, and voids the requirement for explicit specification of the argument types (such
+   as %d, %s), much like Python’s str.format().
+
+   Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it
+   allows to print a variable by automatically deducing its type.
+
+   The format string passed as first argument to abc::io::text::writer::print() can contain
+   “replacement fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly
+   braces is considered literal text and emitted as-is; the only exceptions are the substrings “{{”
+   and “}}”, which allow to print “{” and “}” respectively.
+
+   A replacement field can specify an argument index; if omitted, the argument used will be the one
+   following the last used one, or the first if no arguments have been used up to that point. After
+   the optional argument index, an optional type-dependent format specification can be indicated;
+   this will be passed as-is to the specialization of abc::to_str_backend for the selected argument.
+
+   Grammar for a replacement field:
+
+      @verbatim
+      replacement_field : “{” index? ( “:” format_spec )? “}”
+      index             : [0-9]+
+      format_spec       : <type-specific format specification>
+      @endverbatim
+
+   Basic usage examples for index:
+
+      @verbatim
+      "Welcome to {0}"                 Use argument 0
+      "Please see items {}, {3}, {}"   Use argument 0, skip 1 and 2, use 3 and 4
+      @endverbatim
+
+   Reference for Python’s str.format(): <http://docs.python.org/3/library/string.html#format-string-
+   syntax>
 
    @param sFormat
       Format string to parse for replacements.

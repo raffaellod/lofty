@@ -36,7 +36,7 @@ conversions”); here are the main differences when compared to the STL function
 
 •  Its default specialization relies on abc::to_str_backend(), which outputs its result to an
    abc::io::text::writer instance; this means that the complete specialization is shared with
-   abc::io::text::writer::print() (see [DOC:7103 abc::text::writer::print()]);
+   abc::io::text::writer::print();
 
 •  Since the default implementation of abc::to_str() is a thin wrapper around abc::to_str_backend,
    implementors can provide a partial specialization for it (partial specializations of function are
