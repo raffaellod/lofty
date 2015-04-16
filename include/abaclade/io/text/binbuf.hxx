@@ -271,6 +271,9 @@ public:
       return m_pbbw;
    }
 
+   //! See writer::finalize().
+   virtual void finalize() override;
+
    //! See writer::flush().
    virtual void flush() override;
 

@@ -66,6 +66,10 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_reader::~file_reader() {
+   /* If *this was a file_readwriter, the file_writer destructor has already been called, and this
+   will be a no-op; otherwise it’s safe to do it here, since there’s nothing that could fail when
+   closing a file only open for reading. */
+   m_fd.safe_close();
 }
 
 /*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
@@ -150,6 +154,17 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_writer::~file_writer() {
+   // Verify that m_fd is no longer open.
+   if (m_fd) {
+      // This will cause a call to std::terminate().
+      ABC_THROW(destructing_unfinalized_object, ());
+   }
+}
+
+/*virtual*/ void file_writer::finalize() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   m_fd.safe_close();
 }
 
 /*virtual*/ void file_writer::flush() /*override*/ {

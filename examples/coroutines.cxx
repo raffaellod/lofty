@@ -96,7 +96,7 @@ public:
             // Execution resumes here, after other coroutines have received CPU time.
          }
          // Close the writing end of the pipe to report EOF on the reading end.
-         pair.second.reset();
+         pair.second->finalize();
          io::text::stdout->write_line(ABC_SL("writer: terminating"));
       });
 

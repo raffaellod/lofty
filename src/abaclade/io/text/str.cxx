@@ -149,9 +149,11 @@ void str_writer::clear() {
    m_ichOffset = 0;
 }
 
-/*virtual*/ void str_writer::flush() /*override*/ {
-   ABC_TRACE_FUNC(this);
+/*virtual*/ void str_writer::finalize() /*override*/ {
+   // Nothing to do.
+}
 
+/*virtual*/ void str_writer::flush() /*override*/ {
    // Nothing to do.
 }
 

@@ -70,6 +70,8 @@ public:
                   ptw->write_line(sLine);
                   ptw->flush();
                }
+
+               ptw->finalize();
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
             });
          }

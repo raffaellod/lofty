@@ -508,6 +508,9 @@ public:
    //! See buffered_writer::commit_bytes().
    virtual void commit_bytes(std::size_t cb) override;
 
+   //! See buffered_writer::finalize().
+   virtual void finalize() override;
+
    //! See buffered_writer::flush().
    virtual void flush() override;
 

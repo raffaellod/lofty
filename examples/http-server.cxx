@@ -76,6 +76,8 @@ public:
                // Send the response content.
                ptw->write("OK");
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
+
+               ptw->finalize();
             });
          }
          io::text::stdout->write_line(ABC_SL("server: terminating"));

@@ -59,6 +59,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::binary::pipe – alternating symmetrical wr
          }
          ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
       }
+      pair.second->finalize();
    }
 }
 

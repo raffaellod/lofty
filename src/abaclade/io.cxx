@@ -42,23 +42,8 @@ filedesc_t const filedesc::smc_fdNull =
 
 filedesc::~filedesc() {
    if (m_fd != smc_fdNull) {
+      // Ignore errors.
 #if ABC_HOST_API_POSIX
-      /* The man page for close(2) says:
-
-         “Not checking the return value of close() is a common but nevertheless serious programming
-         error. It is quite possible that errors on a previous write(2) operation are first reported
-         at the final close(). Not checking the return value when closing the file may lead to
-         silent loss of data. This can especially be observed with NFS and with disk quota. Note
-         that the return value should only be used for diagnostics. In particular close() should not
-         be retried after an EINTR since this may cause a reused descriptor from another thread to
-         be closed.”
-
-      For these reasons, this destructor does not check for errno because of the possible values
-      that close(2) would set,
-      •  EINTR is ignored here since there’s nothing this destructor can do;
-      •  EIO is expected to never happen because this destructor relies on abc::io::binary::file* to
-         have ensured that any outstanding I/O operations complete before this destructor is called;
-      •  EBADF either can’t happen, or if it happens there’s nothing this destructor can do. */
       ::close(m_fd);
 #elif ABC_HOST_API_WIN32
       ::CloseHandle(m_fd);
@@ -70,11 +55,28 @@ filedesc::~filedesc() {
 
 filedesc & filedesc::operator=(filedesc && fd) {
    if (fd.m_fd != m_fd) {
-      this->~filedesc();
+      safe_close();
       m_fd = fd.m_fd;
       fd.m_fd = smc_fdNull;
    }
    return *this;
+}
+
+void filedesc::safe_close() {
+   if (m_fd != smc_fdNull) {
+#if ABC_HOST_API_POSIX
+      bool bErr = (::close(m_fd) < 0);
+#elif ABC_HOST_API_WIN32
+      bool bErr = !::CloseHandle(m_fd);
+#else
+   #error "TODO: HOST_API"
+#endif
+      // Yes, this will discard (leak) the file descriptor in case of errors.
+      m_fd = smc_fdNull;
+      if (bErr) {
+         exception::throw_os_error();
+      }
+   }
 }
 
 #if ABC_HOST_API_POSIX

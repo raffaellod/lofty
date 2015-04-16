@@ -243,9 +243,11 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 }
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
-   ABC_TRACE_FUNC(this);
-
-   flush_buffer();
+   // Verify that the write buffer is empty.
+   if (m_bufWrite.used_size()) {
+      // This will cause a call to std::terminate().
+      ABC_THROW(destructing_unfinalized_object, ());
+   }
 }
 
 /*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
@@ -261,6 +263,23 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    if (m_bFlushAfterCommit || !m_bufWrite.available_size()) {
       flush_buffer();
    }
+}
+
+/*virtual*/ void default_buffered_writer::finalize() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   // Flush both the write buffer and any lower-level buffers.
+   try {
+      flush_buffer();
+   } catch (...) {
+      // Consider the buffer contents as lost.
+      m_bufWrite.mark_as_unused(m_bufWrite.used_size());
+      /* If this throws a nested exception, std::terminate() will be called; otherwise, we’ll have
+      successfully prevented m_pbw’s destructor from throwing due to a missed finalize(). */
+      m_pbw->finalize();
+      throw;
+   }
+   m_pbw->finalize();
 }
 
 /*virtual*/ void default_buffered_writer::flush() /*override*/ {

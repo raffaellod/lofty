@@ -130,6 +130,10 @@ public:
       return m_fd != smc_fdNull;
    }
 
+   /*! Closes the file descriptor, ensuring that no error conditions remain possible in the
+   destructor. */
+   void safe_close();
+
    /*! Returns the wrapped raw file descriptor.
 
    @return

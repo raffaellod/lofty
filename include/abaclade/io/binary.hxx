@@ -234,6 +234,10 @@ namespace binary {
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
 public:
+   /*! Flushes the write buffer and closes the underlying backend, ensuring that no error conditions
+   remain possible in the destructor. */
+   virtual void finalize() = 0;
+
    //! Forces writing any data in the write buffer.
    virtual void flush() = 0;
 

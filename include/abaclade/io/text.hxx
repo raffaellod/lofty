@@ -453,7 +453,11 @@ syntax>
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
 public:
-   //! Forces writing any data in the write buffer.
+   /*! Finalizes the underlying backend, ensuring that no error conditions remain possible in the
+   destructor. */
+   virtual void finalize() = 0;
+
+   //! Flushes the underlying backend.
    virtual void flush() = 0;
 
    /*! Writes multiple values combined together in the specified format.

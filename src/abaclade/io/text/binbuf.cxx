@@ -455,6 +455,7 @@ binbuf_writer::binbuf_writer(
 }
 
 /*virtual*/ binbuf_writer::~binbuf_writer() {
+   // Let m_pbbw detect whether finalize() was not called.
 }
 
 /*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::_binary_buffered_base(
@@ -462,6 +463,12 @@ binbuf_writer::binbuf_writer(
    ABC_TRACE_FUNC(this);
 
    return m_pbbw;
+}
+
+/*virtual*/ void binbuf_writer::finalize() /*override*/ {
+   ABC_TRACE_FUNC(this);
+
+   m_pbbw->finalize();
 }
 
 /*virtual*/ void binbuf_writer::flush() /*override*/ {

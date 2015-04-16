@@ -62,32 +62,74 @@ app::app() {
 /*static*/ bool app::deinitialize_stdio() {
    ABC_TRACE_FUNC();
 
+   bool bErrors = false;
+   io::text::stdin.reset();
+   io::binary::stdin.reset();
    try {
-      io::text::stdout->flush();
-      io::binary::stdout->flush();
-      io::text::stderr->flush();
-      io::binary::stderr->flush();
-
-      io::text::stdin.reset();
-      io::binary::stdin.reset();
-      io::text::stdout.reset();
-      io::binary::stdout.reset();
-      io::text::stderr.reset();
-      io::binary::stderr.reset();
-      return true;
+      io::text::stdout->finalize();
    } catch (std::exception const & x) {
       if (io::text::stderr) {
-         exception::write_with_scope_trace(nullptr, &x);
+         try {
+            exception::write_with_scope_trace(nullptr, &x);
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
       }
-      // Else, exceptions can’t be reported at this point, since we just closed stderr.
-      return false;
+      bErrors = true;
    } catch (...) {
       if (io::text::stderr) {
-         exception::write_with_scope_trace();
+         try {
+            exception::write_with_scope_trace();
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
       }
-      // Else, exceptions can’t be reported at this point, since we just closed stderr.
-      return false;
+      bErrors = true;
    }
+   io::text::stdout.reset();
+   try {
+      io::binary::stdout->finalize();
+   } catch (std::exception const & x) {
+      if (io::text::stderr) {
+         try {
+            exception::write_with_scope_trace(nullptr, &x);
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
+      }
+      bErrors = true;
+   } catch (...) {
+      if (io::text::stderr) {
+         try {
+            exception::write_with_scope_trace();
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
+      }
+      bErrors = true;
+   }
+   io::binary::stdout.reset();
+   try {
+      io::text::stderr->finalize();
+   } catch (std::exception const & x) {
+      // FIXME: EXC-SWALLOW
+      bErrors = true;
+   } catch (...) {
+      // FIXME: EXC-SWALLOW
+      bErrors = true;
+   }
+   io::text::stderr.reset();
+   try {
+      io::binary::stderr->finalize();
+   } catch (std::exception const &) {
+      // FIXME: EXC-SWALLOW
+      bErrors = true;
+   } catch (...) {
+      // FIXME: EXC-SWALLOW
+      bErrors = true;
+   }
+   io::binary::stderr.reset();
+   return !bErrors;
 }
 
 /*static*/ bool app::initialize_stdio() {
@@ -116,10 +158,18 @@ app::app() {
       try {
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
-         exception::write_with_scope_trace(nullptr, &x);
+         try {
+            exception::write_with_scope_trace(nullptr, &x);
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
          iRet = 123;
       } catch (...) {
-         exception::write_with_scope_trace();
+         try {
+            exception::write_with_scope_trace();
+         } catch (...) {
+            // FIXME: EXC-SWALLOW
+         }
          iRet = 123;
       }
       if (!deinitialize_stdio()) {

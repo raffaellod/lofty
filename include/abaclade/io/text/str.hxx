@@ -131,6 +131,9 @@ public:
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();
 
+   //! See writer::finalize().
+   virtual void finalize() override;
+
    //! See writer::flush().
    virtual void flush() override;
 
