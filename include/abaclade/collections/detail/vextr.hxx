@@ -22,7 +22,44 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 
-/*! DOC:4019 abc::text::*str and abc::collections::*vector design
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::collections::detail::raw_vextr_prefixed_item_array
+
+namespace abc {
+namespace collections {
+namespace detail {
+
+/*! Stores an item array and its capacity. Used as a real template by classes with embedded item
+array in the “upper level” hierarchy (see documentation for
+abc::collections::detail::raw_vextr_impl_data), and used with template capacity == 1 for all
+non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which relies
+on m_cbCapacity instead. */
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class raw_vextr_prefixed_item_array {
+public:
+   //! Embedded item array capacity, in bytes.
+   static std::size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
+   /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
+   so it can be greater than smc_cbEmbeddedCapacity. */
+   std::size_t m_cbCapacity;
+   /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
+   destructed automatically, and because the count may be greater than what’s declared here. */
+   abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
+};
+
+} //namespace detail
+} //namespace collections
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::collections::detail::raw_vextr_impl_data
+
+namespace abc {
+namespace collections {
+namespace detail {
+
+/*! Data members of raw_vextr_impl_base, as a plain old struct. This is the most basic
+implementation block for all abc::text::*str and abc::collections::*vector classes.
 
 The classes abc::text::*str and abc::collections::*vectors are intelligent wrappers around C arrays;
 they are able to dynamically adjust the size of the underlying array, while also taking advantage of
@@ -238,43 +275,6 @@ Key:
      └──────────────────────────────────────────────────────┘
    @endverbatim
 */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_prefixed_item_array
-
-namespace abc {
-namespace collections {
-namespace detail {
-
-/*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see [DOC:4019 abc::text::*str and abc::collections::*vector
-design]), and used with template capacity == 1 for all non-template-driven manipulations in non-
-template code in the “lower-level” hierarchy, which relies on m_cbCapacity instead. */
-template <typename T, std::size_t t_ciEmbeddedCapacity>
-class raw_vextr_prefixed_item_array {
-public:
-   //! Embedded item array capacity, in bytes.
-   static std::size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
-   /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
-   so it can be greater than smc_cbEmbeddedCapacity. */
-   std::size_t m_cbCapacity;
-   /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
-   destructed automatically, and because the count may be greater than what’s declared here. */
-   abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
-};
-
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_impl_data
-
-namespace abc {
-namespace collections {
-namespace detail {
-
-//! Data members of raw_vextr_impl_base, as a plain old struct.
 struct raw_vextr_impl_data {
    //! Pointer to the start of the item array.
    void * m_pBegin;
@@ -844,8 +844,8 @@ public:
    }
 
    /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   non-prefixed item array, or a dynamic prefixed item array; see [DOC:4019 abc::text::*str and
-   abc::collections::*vector design] to see how str and vector ensure this.
+   non-prefixed item array, or a dynamic prefixed item array; see the documentation for
+   abc::collections::detail::raw_vextr_impl_data to see how *str and *vector ensure this.
 
    @param rtvi
       Source vextr.

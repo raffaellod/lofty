@@ -381,10 +381,8 @@ class dmvector;
 
 namespace detail {
 
-/*! Base class for vectors.
-
-See [DOC:4019 abc::text::*str and abc::collections::*vector design] for implementation details for
-this and all the *vector classes. */
+/*! Base class for vectors. See abc::collections::detail::raw_vextr_impl_data for implementation
+details for this and all the *vector classes. */
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class vector_base;
 
