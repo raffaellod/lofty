@@ -418,7 +418,7 @@ void coroutine::scheduler::yield_for(unsigned iMillisecs) {
    }
    // This timer is now active (save exceptions – see catch (...) below).
    io::filedesc_t fdCopy = fd.get();
-   auto itActiveTimer(m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd)).first);
+   m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
    // At this point the timer is just a file descriptor that we’ll be waiting to read from.
    try {
       yield_until_fd_ready(fdCopy, false);
