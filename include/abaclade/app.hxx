@@ -31,7 +31,10 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::app
 
-/*! DOC:1063 Application startup and abc::app
+
+namespace abc {
+
+/*! Abstract application.
 
 Programs using Abaclade declare their main() function by deriving a class from abc::app, overriding
 its main() method, and declaring that the derived class contains the program’s entry point using
@@ -42,12 +45,7 @@ protocol is supported by the host (e.g. int main(…) on POSIX, BOOL WinMain(…
 is a very thin wrapper around a static method of abc::app which takes care of setting up the
 outermost try/catch block to intercept uncaught exceptions (see [DOC:8503 Stack tracing]), as well
 as instantiating the application-defined abc::app-derived class, invoking its main() method and
-returning.
-*/
-
-namespace abc {
-
-//! Abstract application. See [DOC:1063 Application startup and abc::app].
+returning. */
 class ABACLADE_SYM app : public noncopyable {
 public:
    //! Collects the OS-provided arguments to a program’s entry point (e.g. main()).

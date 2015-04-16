@@ -38,7 +38,7 @@ using namespace abc;
 
 /*! This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
 class shall be instantiated as soon as the program is started, and its main() method should be
-invoked immediately afterwards; see [DOC:1063 Application startup and abc::app]. */
+invoked immediately afterwards; see abc::app for more information on application startup. */
 class hello_world_app : public app {
 public:
    /*! This method is invoked when the program starts; returning from this method causes the end of
