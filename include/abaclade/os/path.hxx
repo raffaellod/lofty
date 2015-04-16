@@ -28,12 +28,15 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace os {
 
-/*! DOC:7101 abc::os::path
+// Enumerates directory entries.
+#if 0
+class _path_iterator;
+#endif
 
-An abc::os::path instance is always either an empty path string ("") or a path that is not
-necessarily normalized or absolute, but has no incorrect or redundant path separators; e.g. an
-abc::os::path instance will never contain “/a//b///c”, and under Win32 it will never be “C:/a” or
-“a\\\b/c”.
+/*! Filesystem path. An instance of this class is always either an empty path string ("") or a path
+that is not necessarily normalized or absolute, but has no incorrect or redundant path separators;
+e.g. an abc::os::path instance will never contain “/a//b///c”, and under Win32 it will never be
+“C:/a” or “a\\\b/c”.
 
 Under Win32, all absolute DOS-style paths (e.g. “C:\My\File”) are normalized to the Win32 File
 Namespace, which means they all start with “\\?\”, forming e.g. “\\?\C:\My\File”. This prefix is
@@ -50,15 +53,7 @@ for more information.
 Reference for Python’s approach: “os.path — Common pathname manipulations” <http://docs.python.org/
 3/library/os.path.html>
 Reference for Win32: “Naming Files, Paths, and Namespaces” <http://msdn.microsoft.com/en-us/library/
-windows/desktop/aa365247.aspx>
-*/
-
-// Enumerates directory entries.
-#if 0
-class _path_iterator;
-#endif
-
-//! Filesystem path.
+windows/desktop/aa365247.aspx> */
 class ABACLADE_SYM path : public support_explicit_operator_bool<path> {
 
 #if 0
