@@ -21,8 +21,8 @@ Abaclade is a C++11 framework featuring:
    including a fully type-safe replacement for printf() (see [DOC:7103
    abc::io::text::writer::print()]);
 
-•  Full support for Unicode and the C++11 char32_t character type (see [DOC:4854
-   Unicode support in Abaclade]);
+•  Full support for Unicode and the C++11 char32_t character type (see
+   abc::text);
 
 •  Use of templates and their specializations over macros and void pointers – no
    C-style variadic functions either;

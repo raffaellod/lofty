@@ -25,34 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text globals
 
-/*! DOC:4854 Unicode support in Abaclade
-
-Abaclade comes with full built-in support for Unicode. The C++11 char32_t type (typedef-ined by
-Abaclade on non-compliant compilers such as MSC16) is the preferred character type across Abaclade;
-this means that the full range of valid Unicode code points is supported through the entire
-framework.
-
-Abaclade-based code should use one of the abc::text::*str string classes; these appear as arrays of
-char32_t characters and can be manipulated as such. The internal representation is in reality either
-UTF-8 or UTF-16, but this is for the most part abstracted away from Abaclade-based code.
-
-While char32_t is the preferred character type, many functions/methods are available with overloads
-accepting C++ single-byte character literals, both for convenience and performance reasons. The
-character type used internally by the abc::text::*str classes is available as abc::text::char_t, and
-the class abc::text::str_traits allows lower-level manipulation of abc::text::char_t character
-arrays.
-
-
-Abaclade supports two ways of specifying character literals: strictly ASCII, via regular single-
-quoted character literals (e.g. 'a'), and UCS-16, through the use of the ABC_CHAR() macro (e.g.
-ABC_CHAR('ç')). Additionally, all Unicode code points can be expressed as integers cast to char32_t
-(hexadecimal notation is recommended for consistency with the U+nnnnnn syntax for code points; e.g.
-char32_t(0x23456) for U+23456).
-
-String literals should always be defined using the ABC_SL() macro (e.g. ABC_SL("abc")), which
-results in an UTF-8 or UTF-16 string literal depending on the host platform.
-*/
-
 namespace abc {
 namespace text {
 

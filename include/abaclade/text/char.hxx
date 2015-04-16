@@ -133,9 +133,8 @@ namespace abc {
 namespace text {
 
 /*! Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
-characters types.
-
-When introducing a new possible value for this constant, please make sure to update the value
+characters types. */
+/* When introducing a new possible value for this constant, please make sure to update the value
 selection logic for abc::text::encoding::host to provide the corresponding UTF encoding. */
 #if ABC_HOST_UTF == 8
    typedef char8_t char_t;
