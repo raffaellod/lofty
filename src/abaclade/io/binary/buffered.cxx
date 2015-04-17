@@ -243,8 +243,8 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
 }
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
-   // Verify that the write buffer is empty.
-   if (m_bufWrite.used_size()) {
+   // Verify that the write buffer is empty and that *this is being intentionally destructed.
+   if (m_bufWrite.used_size() && !std::uncaught_exception()) {
       // This will cause a call to std::terminate().
       ABC_THROW(destructing_unfinalized_object, ());
    }
