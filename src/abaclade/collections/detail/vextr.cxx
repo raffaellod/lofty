@@ -357,9 +357,6 @@ void raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
    }
 }
 
-
-namespace {
-
 /*! Safely moves a range of items to another position in the same array, carefully moving items in
 case the source and the destination ranges overlap. Note that this will also destruct the source
 items.
@@ -373,7 +370,7 @@ pSrcBegin
 pSrcEnd
    Pointer to beyond the last item to move.
 */
-void overlapping_move_constr(
+static void overlapping_move_constr(
    type_void_adapter const & type, void * pDstBegin, void * pSrcBegin, void * pSrcEnd
 ) {
    ABC_TRACE_FUNC(/*type, */pDstBegin, pSrcBegin, pSrcEnd);
@@ -455,9 +452,6 @@ void overlapping_move_constr(
       type.move_constr(pbDstBegin, pbSrcBegin, pbSrcEnd);
    }
 }
-
-} //namespace
-
 
 void raw_complex_vextr_impl::insert(
    type_void_adapter const & type, std::size_t ibOffset, void const * pInsert, std::size_t cbInsert,

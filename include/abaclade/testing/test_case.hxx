@@ -507,11 +507,7 @@ instance.
    Test case class.
 */
 #define ABC_TESTING_REGISTER_TEST_CASE(cls) \
-   namespace { \
-   \
-   ::abc::testing::test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_); \
-   \
-   } /*namespace*/
+   static ::abc::testing::test_case_factory<cls> ABC_CPP_APPEND_UID(g__test_case_factory_);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

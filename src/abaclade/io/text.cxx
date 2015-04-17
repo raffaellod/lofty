@@ -35,8 +35,6 @@ std::shared_ptr<binbuf_writer> stderr;
 std::shared_ptr<binbuf_reader> stdin;
 std::shared_ptr<binbuf_writer> stdout;
 
-namespace {
-
 /*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
 returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
 I/O wrapper is instanciated as well.
@@ -46,7 +44,7 @@ pbb
 return
    Shared pointer to the newly created object.
 */
-std::shared_ptr<binbuf_base> _construct(
+static std::shared_ptr<binbuf_base> _construct(
    std::shared_ptr<binary::base> pbb, abc::text::encoding enc
 ) {
    ABC_TRACE_FUNC(pbb, enc);
@@ -91,7 +89,7 @@ pszEnvVarName
 return
    Encoding appropriate for the requested standard I/O file.
 */
-std::shared_ptr<binbuf_base> _construct_stdio(
+static std::shared_ptr<binbuf_base> _construct_stdio(
    std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
 ) {
    ABC_TRACE_FUNC(pbb, pszEnvVarName);
@@ -130,8 +128,6 @@ std::shared_ptr<binbuf_base> _construct_stdio(
    }
    return _construct(std::move(pbb), enc);
 }
-
-} //namespace
 
 
 std::shared_ptr<reader> make_reader(

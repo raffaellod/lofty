@@ -94,15 +94,13 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
 namespace abc {
 namespace test {
 
-namespace {
-
 /*! Instantiates and returns a list. The list will contain one node, added in a way that should
 cause only one new instance of instances_counter to be created, one moved and none copied.
 
 return
    Newly-instantiated list.
 */
-collections::list<testing::utility::instances_counter> return_list() {
+static collections::list<testing::utility::instances_counter> return_list() {
    ABC_TRACE_FUNC();
 
    collections::list<testing::utility::instances_counter> l;
@@ -111,8 +109,6 @@ collections::list<testing::utility::instances_counter> return_list() {
    // This will move the entire list, not each node individually.
    return std::move(l);
 }
-
-} //namespace
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
    ABC_TRACE_FUNC(this);

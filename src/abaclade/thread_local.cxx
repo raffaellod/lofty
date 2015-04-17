@@ -31,19 +31,15 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace detail {
 
-namespace {
-
 #if ABC_HOST_API_POSIX
    //! One-time initializer for g_pthkey.
-   pthread_once_t g_pthonce = PTHREAD_ONCE_INIT;
+   static pthread_once_t g_pthonce = PTHREAD_ONCE_INIT;
    //! TLS key.
-   pthread_key_t g_pthkey;
+   static pthread_key_t g_pthkey;
 #elif ABC_HOST_API_WIN32
    //! TLS index.
-   DWORD g_iTls = TLS_OUT_OF_INDEXES;
+   static DWORD g_iTls = TLS_OUT_OF_INDEXES;
 #endif
-
-} //namespace
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 std::size_t thread_local_storage::sm_cb = 0;

@@ -41,8 +41,6 @@ std::shared_ptr<file_writer> stderr;
 std::shared_ptr<file_reader> stdin;
 std::shared_ptr<file_writer> stdout;
 
-namespace {
-
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
 
@@ -51,7 +49,7 @@ pfid
 return
    Shared pointer to the newly created object.
 */
-std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
+static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
@@ -186,7 +184,7 @@ am
 return
    Pointer to a binary I/O object controlling fd.
 */
-std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
+static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(fd, am);
 
    detail::file_init_data fid;
@@ -203,8 +201,6 @@ std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 #endif
    return _construct(&fid);
 }
-
-} //namespace
 
 
 std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {

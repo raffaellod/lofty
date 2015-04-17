@@ -430,8 +430,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – memory managem
 namespace abc {
 namespace test {
 
-namespace {
-
 /*! Instantiates and returns a dynamic vector. The vector will contain one item, added in a way that
 should cause only one new instance of instances_counter to be created, one moved and none copied.
 Additional copies/moved may occur upon return.
@@ -439,7 +437,7 @@ Additional copies/moved may occur upon return.
 return
    Newly-instantiated dynamic vector.
 */
-collections::dmvector<testing::utility::instances_counter> return_dmvector() {
+static collections::dmvector<testing::utility::instances_counter> return_dmvector() {
    ABC_TRACE_FUNC();
 
    collections::dmvector<testing::utility::instances_counter> v;
@@ -449,8 +447,6 @@ collections::dmvector<testing::utility::instances_counter> return_dmvector() {
    or dynamic item array). */
    return std::move(v);
 }
-
-} //namespace
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – item and item array movement") {
    ABC_TRACE_FUNC(this);

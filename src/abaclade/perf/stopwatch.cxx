@@ -35,11 +35,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace perf {
 
-namespace {
-
 #if ABC_HOST_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 
-std::pair<bool, ::clockid_t> get_timer_clock() {
+static std::pair<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
    // Try and get a timer specific to this process.
    if (::clock_getcpuclockid(0, &clkid) == 0) {
@@ -52,7 +50,7 @@ std::pair<bool, ::clockid_t> get_timer_clock() {
    return std::make_pair(false, ::clockid_t());
 }
 
-::timespec get_time_point() {
+static ::timespec get_time_point() {
    auto clkidTimer = get_timer_clock();
    if (!clkidTimer.first) {
       // No suitable timer to use.
@@ -64,7 +62,9 @@ std::pair<bool, ::clockid_t> get_timer_clock() {
    return std::move(tsRet);
 }
 
-stopwatch::duration_type get_duration_ns(::timespec const & tsBegin, ::timespec const & tsEnd) {
+static stopwatch::duration_type get_duration_ns(
+   ::timespec const & tsBegin, ::timespec const & tsEnd
+) {
    ABC_TRACE_FUNC();
 
    typedef stopwatch::duration_type duration_type;
@@ -76,11 +76,11 @@ stopwatch::duration_type get_duration_ns(::timespec const & tsBegin, ::timespec 
 
 #elif ABC_HOST_API_DARWIN //if ABC_HOST_API_POSIX
 
-std::uint64_t get_time_point() {
+static std::uint64_t get_time_point() {
    return ::mach_absolute_time();
 }
 
-stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint64_t iEnd) {
+static stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint64_t iEnd) {
    ::mach_timebase_info_data_t mtid;
    ::mach_timebase_info(&mtid);
    return (iEnd - iBegin) * mtid.numer / mtid.denom;
@@ -88,13 +88,15 @@ stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint64_t iEn
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN
 
-::FILETIME get_time_point() {
+static ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
    ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, &ftRet);
    return std::move(ftRet);
 }
 
-stopwatch::duration_type get_duration_ns(::FILETIME const & ftBegin, ::FILETIME const & ftEnd) {
+static stopwatch::duration_type get_duration_ns(
+   ::FILETIME const & ftBegin, ::FILETIME const & ftEnd
+) {
    ABC_TRACE_FUNC();
 
    // Compose the FILETIME arguments into 64-bit integers.
@@ -113,8 +115,6 @@ stopwatch::duration_type get_duration_ns(::FILETIME const & ftBegin, ::FILETIME 
    #error "TODO: HOST_API"
 
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN … elif ABC_HOST_API_WIN32 … else
-
-} //namespace
 
 
 stopwatch::stopwatch() :
