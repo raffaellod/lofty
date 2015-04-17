@@ -39,107 +39,7 @@ namespace abc {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_THROW()
-
-/*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
-
-@param srcloc
-   Location at which the exception is being thrown.
-@param pszFunction
-   Function that is throwing the exception.
-@param x
-   Exception instance to be thrown.
-@param info
-   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
-   x::init().
-*/
-#define _ABC_THROW_FROM(srcloc, pszFunction, x, info) \
-   do { \
-      ::abc::detail::exception_aggregator<x> _x; \
-      _x.init info; \
-      _x._before_throw(srcloc, pszFunction); \
-      throw _x; \
-   } while (false)
-
-//! Pretty-printed name of the current function.
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
-   /* Can’t use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by the compiler,
-   not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
-   u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
-   makes ABC_SL() unnecessary, so just avoid using it here. */
-   #define _ABC_THIS_FUNC \
-      __PRETTY_FUNCTION__
-#elif ABC_HOST_CXX_MSC
-   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
-   works just fine. */
-   #define _ABC_THIS_FUNC \
-      ABC_SL(__FUNCSIG__)
-#else
-   #define _ABC_THIS_FUNC \
-      nullptr
-#endif
-
-/*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
-up with context information and the remaining arguments, and then throws it.
-
-This is the suggested way of throwing an exception within code using Abaclade. See the documentation
-for abc::exception for more information on abc::detail::exception_aggregator and why it exists.
-Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace with the
-exact line where the throw statement occurred.
-
-Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
-the additional members that the latter expects to be able to set in the former.
-
-The class abc::exception implements the actual stack trace printing for abc::detail::scope_trace
-because it’s the only class involved that’s not in a detail namespace.
-
-@param x
-   Exception instance to be thrown.
-@param info
-   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
-   x::init().
-*/
-#define ABC_THROW(x, info) \
-   _ABC_THROW_FROM(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, x, info)
-
-namespace abc {
-namespace detail {
-
-/*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
-that can be caught from code written for either framework. */
-template <class TAbc, class TStd = typename TAbc::related_std>
-class exception_aggregator : public TStd, public TAbc {
-public:
-   //! Constructor.
-   exception_aggregator() :
-      TStd(),
-      TAbc() {
-   }
-
-   //! Destructor.
-   virtual ~exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
-   }
-
-   //! See std::exception::what().
-   virtual const char * what() const ABC_STL_NOEXCEPT_TRUE() override {
-      return TAbc::what();
-   }
-};
-
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::source_location
-
-/*! Expands into the instantiation of a temporary abc::source_location object referencing the
-location in which it’s used.
-
-@return
-   abc::source_location instance.
-*/
-#define ABC_SOURCE_LOCATION() \
-   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
 
 namespace abc {
 
@@ -188,6 +88,106 @@ protected:
 };
 
 } //namespace abc
+
+/*! Expands into the instantiation of a temporary abc::source_location object referencing the
+location in which it’s used.
+
+@return
+   abc::source_location instance.
+*/
+#define ABC_SOURCE_LOCATION() \
+   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals – ABC_THROW()
+
+namespace abc {
+namespace detail {
+
+/*! Combines a std::exception-derived class with an abc::exception-derived class, to form objects
+that can be caught from code written for either framework. */
+template <class TAbc, class TStd = typename TAbc::related_std>
+class exception_aggregator : public TStd, public TAbc {
+public:
+   //! Constructor.
+   exception_aggregator() :
+      TStd(),
+      TAbc() {
+   }
+
+   //! Destructor.
+   virtual ~exception_aggregator() ABC_STL_NOEXCEPT_TRUE() {
+   }
+
+   //! See std::exception::what().
+   virtual const char * what() const ABC_STL_NOEXCEPT_TRUE() override {
+      return TAbc::what();
+   }
+};
+
+} //namespace detail
+} //namespace abc
+
+/*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
+
+@param srcloc
+   Location at which the exception is being thrown.
+@param pszFunction
+   Function that is throwing the exception.
+@param x
+   Exception type to be thrown.
+@param info
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
+   x::init().
+*/
+#define _ABC_THROW_FROM(srcloc, pszFunction, x, info) \
+   do { \
+      ::abc::detail::exception_aggregator<x> _x; \
+      _x.init info; \
+      _x._before_throw(srcloc, pszFunction); \
+      throw _x; \
+   } while (false)
+
+//! Pretty-printed name of the current function.
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   /* Can’t use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by the compiler,
+   not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
+   u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
+   makes ABC_SL() unnecessary, so just avoid using it here. */
+   #define _ABC_THIS_FUNC \
+      __PRETTY_FUNCTION__
+#elif ABC_HOST_CXX_MSC
+   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
+   works just fine. */
+   #define _ABC_THIS_FUNC \
+      ABC_SL(__FUNCSIG__)
+#else
+   #define _ABC_THIS_FUNC \
+      nullptr
+#endif
+
+/*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
+up with context information and the remaining arguments, and then throws it.
+
+This is the recommended way of throwing an exception within code using Abaclade. See the
+documentation for abc::exception for more information on abc::detail::exception_aggregator and why
+it exists. Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace
+with the exact line where the throw statement occurred.
+
+Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
+the additional members that the latter expects to be able to set in the former.
+
+The class abc::exception implements the actual stack trace printing for abc::detail::scope_trace
+because it’s the only class involved that’s not in a detail namespace.
+
+@param x
+   Exception type to be thrown.
+@param info
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
+   x::init().
+*/
+#define ABC_THROW(x, info) \
+   _ABC_THROW_FROM(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, x, info)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::exception
