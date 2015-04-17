@@ -48,7 +48,9 @@ as instantiating the application-defined abc::app-derived class, invoking its ma
 returning. */
 class ABACLADE_SYM app : public noncopyable {
 public:
-   //! Collects the OS-provided arguments to a program’s entry point (e.g. main()).
+   /*! @cond
+   Collects the OS-provided arguments to a program’s entry point (e.g. main()).
+   */
    struct _args_t {
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
@@ -59,15 +61,14 @@ public:
       char_t ** ppszArgs;
 #endif
    };
+   //! @endcond
 
 public:
-   //! Constructor.
-   app();
-
    //! Destructor.
    virtual ~app();
 
-   /*! Instantiates an app subclass and calls its app::main() override.
+   /*! @cond
+   Instantiates an app subclass and calls its app::main() override.
 
    @param pargs
       Pointer to the entry point arguments.
@@ -80,6 +81,7 @@ public:
       TApp app;
       return call_main(&app, pargs);
    }
+   //! @endcond
 
    /*! Entry point of the application.
 
@@ -90,7 +92,8 @@ public:
    */
    virtual int main(collections::mvector<istr> & vsArgs) = 0;
 
-   /*! Runs the application, instantiating an app subclass and calling app::main().
+   /*! @cond
+   Runs the application, instantiating an app subclass and calling app::main().
 
    @param pargs
       Pointer to the entry point arguments.
@@ -98,6 +101,11 @@ public:
       Return code of the program.
    */
    static int run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs);
+   //! @endcond
+
+protected:
+   //! Constructor.
+   app();
 
 private:
    /*! Invokes app::main() on the specified app subclass instance.
@@ -113,7 +121,7 @@ private:
 
    static bool initialize_stdio();
 
-protected:
+private:
    //! Pointer to the one and only instance of the application-defined app class.
    static app * sm_papp;
 };
