@@ -71,11 +71,10 @@ because it’s the only class involved that’s not in a detail namespace.
 
 //! Pretty-printed name of the current function.
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
-   /* With GCC we cannot use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by
-   the compiler, not the preprocessor, which makes sense as the preprocessor doesn’t know what scope
-   even means; this causes ABC_SL(__PRETTY_FUNCTION__) to expand to u8__PRETTY_FUNCTION__. However,
-   since GCC will encode __PRETTY_FUNCTION__ using UTF-8, it’s not really necessary, so we just
-   avoid using ABC_SL() here. */
+   /* Can’t use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by the compiler,
+   not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
+   u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
+   makes ABC_SL() unnecessary, so just avoid using it here. */
    #define _ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_CXX_MSC
