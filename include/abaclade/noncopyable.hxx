@@ -27,7 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-//! Makes a derived class not copyable.
+/*! Makes a derived class not copyable.
+
+Derive a class from this for maximum compatibility instead of explicitly deleting copy constructor
+and copy assignment operator. */
 class noncopyable {
 protected:
    //! Constructor. Protected to prevent instantiations of this class as-is.
@@ -41,11 +44,11 @@ protected:
 #ifdef ABC_CXX_FUNC_DELETE
    noncopyable(noncopyable const &) = delete;
    noncopyable & operator=(noncopyable const &) = delete;
-#else //ifdef ABC_CXX_FUNC_DELETE
+#else
 private:
    noncopyable(noncopyable const &);
    noncopyable & operator=(noncopyable const &);
-#endif //ifdef ABC_CXX_FUNC_DELETE … else
+#endif
 };
 
 } //namespace abc
