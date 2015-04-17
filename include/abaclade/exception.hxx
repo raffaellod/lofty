@@ -41,6 +41,44 @@ namespace abc {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals – ABC_THROW()
 
+/*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
+
+@param srcloc
+   Location at which the exception is being thrown.
+@param pszFunction
+   Function that is throwing the exception.
+@param x
+   Exception instance to be thrown.
+@param info
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
+   x::init().
+*/
+#define _ABC_THROW_FROM(srcloc, pszFunction, x, info) \
+   do { \
+      ::abc::detail::exception_aggregator<x> _x; \
+      _x.init info; \
+      _x._before_throw(srcloc, pszFunction); \
+      throw _x; \
+   } while (false)
+
+//! Pretty-printed name of the current function.
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   /* Can’t use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by the compiler,
+   not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
+   u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
+   makes ABC_SL() unnecessary, so just avoid using it here. */
+   #define _ABC_THIS_FUNC \
+      __PRETTY_FUNCTION__
+#elif ABC_HOST_CXX_MSC
+   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
+   works just fine. */
+   #define _ABC_THIS_FUNC \
+      ABC_SL(__FUNCSIG__)
+#else
+   #define _ABC_THIS_FUNC \
+      nullptr
+#endif
+
 /*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
 up with context information and the remaining arguments, and then throws it.
 
@@ -62,30 +100,7 @@ because it’s the only class involved that’s not in a detail namespace.
    x::init().
 */
 #define ABC_THROW(x, info) \
-   do { \
-      ::abc::detail::exception_aggregator<x> _x; \
-      _x.init info; \
-      _x._before_throw(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC); \
-      throw _x; \
-   } while (false)
-
-//! Pretty-printed name of the current function.
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
-   /* Can’t use ABC_SL(__PRETTY_FUNCTION__) because __PRETTY_FUNCTION__ is expanded by the compiler,
-   not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
-   u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
-   makes ABC_SL() unnecessary, so just avoid using it here. */
-   #define _ABC_THIS_FUNC \
-      __PRETTY_FUNCTION__
-#elif ABC_HOST_CXX_MSC
-   /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
-   works just fine. */
-   #define _ABC_THIS_FUNC \
-      ABC_SL(__FUNCSIG__)
-#else
-   #define _ABC_THIS_FUNC \
-      nullptr
-#endif
+   _ABC_THROW_FROM(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, x, info)
 
 namespace abc {
 namespace detail {

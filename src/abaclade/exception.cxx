@@ -253,22 +253,29 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 /*static*/ void exception::throw_injected_exception(
    injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
+   source_location srcloc(ABC_SL("source_not_available"), 0);
+   static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
+
    ABC_UNUSED_ARG(iArg1);
    switch (inj) {
       case injectable::arithmetic_error:
-         ABC_THROW(arithmetic_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, arithmetic_error, ());
       case injectable::division_by_zero_error:
-         ABC_THROW(division_by_zero_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, division_by_zero_error, ());
       case injectable::floating_point_error:
-         ABC_THROW(floating_point_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, floating_point_error, ());
       case injectable::memory_access_error:
-         ABC_THROW(memory_access_error, (reinterpret_cast<void const *>(iArg0)));
+         _ABC_THROW_FROM(
+            srcloc, sc_szOS, memory_access_error, (reinterpret_cast<void const *>(iArg0))
+         );
       case injectable::memory_address_error:
-         ABC_THROW(memory_address_error, (reinterpret_cast<void const *>(iArg0)));
+         _ABC_THROW_FROM(
+            srcloc, sc_szOS, memory_address_error, (reinterpret_cast<void const *>(iArg0))
+         );
       case injectable::null_pointer_error:
-         ABC_THROW(null_pointer_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, null_pointer_error, ());
       case injectable::overflow_error:
-         ABC_THROW(overflow_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, overflow_error, ());
       default:
          // Unexpected exception type. Should never happen.
          std::abort();
