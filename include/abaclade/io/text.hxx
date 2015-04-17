@@ -428,13 +428,13 @@ public:
    The implementation of print() is entirely contained in
    abc::io::text::detail::writer_print_helper, which accesses the individual arguments in a
    recursive way, from the most-derived class down to the base class, which also contains most of
-   the implementation. Combined with the usage of
-   [DOC:3984 abc::to_str() and abc::to_str_backend()], this enables a type-safe variadic alternative
-   to C’s printf, and voids the requirement for explicit specification of the argument types (such
-   as %d, %s), much like Python’s str.format().
+   the implementation. Combined with the usage of abc::to_str_backend() (that it shares with
+   abc::to_str()), this enables a type-safe variadic alternative to C’s printf, and voids the
+   requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
+   str.format().
 
-   Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], because it
-   allows to print a variable by automatically deducing its type.
+   Because of its type-safety, print() is also the core of [DOC:8503 Stack tracing], as it allows to
+   print a variable by automatically deducing its type.
 
    The format string passed as first argument to abc::io::text::writer::print() can contain
    “replacement fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly

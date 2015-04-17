@@ -27,9 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*! DOC:3984 abc::to_str() and abc::to_str_backend()
+/*! Returns the string representation of the specified value, optionally with a custom format.
 
-abc::to_str() is a more advanced counterpart to std::to_string() (see C++11 § 21.5 “Numeric
+abc::to_str() is a more advanced alternative to std::to_string() (see C++11 § 21.5 “Numeric
 conversions”); here are the main differences when compared to the STL function:
 
 •  It accepts an additional argument, controlling how the conversion to string is to be done;
@@ -43,10 +43,10 @@ conversions”); here are the main differences when compared to the STL function
    still not allowed in C++11), allowing to share parts of the implementation among convertible
    classes.
 
-The format specification is provided to a to_str_backend specialization by passing it an
+The format specification is provided to an abc::to_str_backend specialization by passing it an
 abc::text::istr const &, so a caller can specify a non-NUL-terminated substring of a larger string
-without the need for temporary strings. Once a to_str_backend instance has been constructed, it must
-be able to sequentially process an infinite number of conversions, i.e. instances of a
+without the need for temporary strings. Once an abc::to_str_backend instance has been constructed,
+it must be able to sequentially process an infinite number of conversions, i.e. instances of a
 to_str_backend specialization must be reusable.
 
 The interpretation of the format specification is up to the specialization of abc::to_str_backend.
@@ -54,12 +54,11 @@ The interpretation of the format specification is up to the specialization of ab
 When code causes the compiler to instantiate a specialization of abc::to_str_backend that has not
 been defined, GCC will generate an error:
 
+   @verbatim
    error: ‘abc::to_str_backend<my_type> …’ has incomplete type
+   @endverbatim
 
 The only fix for this is to provide an explicit specialization of abc::to_str_backend for my_type.
-*/
-
-/*! Returns the string representation of the specified value, optionally with a custom format.
 
 @param t
    Object to generate a string representation for.
@@ -78,8 +77,13 @@ dmstr to_str(T const & t, istr const & sFormat = istr::empty);
 
 namespace abc {
 
-/*! Generates a string suitable for display from an object. Once constructed with the desired format
-specification, an instance can convert to a string any number of T instances. */
+/*! Generates a string suitable for display from an object.
+
+This class template and its specializations are at the core of abc::to_str() and
+abc::io::text::writer::print().
+
+Once constructed with the desired format specification, an instance must be able to convert to
+string any number of T instances. */
 template <typename T>
 class to_str_backend;
 
