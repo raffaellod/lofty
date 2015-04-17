@@ -1893,7 +1893,7 @@ MACRO_EXPANSION        = YES
 # The default value is: NO.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-EXPAND_ONLY_PREDEF     = NO
+EXPAND_ONLY_PREDEF     = YES
 
 # If the SEARCH_INCLUDES tag is set to YES the includes files in the
 # INCLUDE_PATH will be searched if a #include is found.
@@ -1931,7 +1931,8 @@ PREDEFINED             = \
                          ABC_CXX_EXPLICIT_CONVERSION_OPERATORS \
                          ABC_CXX_VARIADIC_TEMPLATES \
                          "ABC_EXPLICIT_OPERATOR_BOOL():=explicit operator bool()" \
-                         ABC_HOST_API_POSIX
+                         ABC_HOST_API_POSIX \
+                         "ABC_STL_NOEXCEPT_TRUE()=noexcept(true)"
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
