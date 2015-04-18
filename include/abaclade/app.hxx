@@ -27,6 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+/*! @file
+Classes and macros to enable application startup.
+*/
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::app
@@ -34,18 +38,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*! Abstract application.
+/*! Base for application implementation classes.
 
-Programs using Abaclade declare their main() function by deriving a class from abc::app, overriding
-its main() method, and declaring that the derived class contains the program’s entry point using
-ABC_APP_CLASS().
-
-The ABC_APP_CLASS() macro defines the actual entry point of the program, using whatever
-protocol is supported by the host (e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows GUI). This
-is a very thin wrapper around a static method of abc::app which takes care of setting up the
-outermost try/catch block to intercept uncaught exceptions (see @ref stack_tracing), as well as
-instantiating the application-defined abc::app-derived class, invoking its main() method and
-returning. */
+Programs using Abaclade don’t declare a C-style ::main() function; instead they override
+abc::app::main() in an application-specific derived class, and announce that class to Abaclade using
+ABC_APP_CLASS(). */
 class ABACLADE_SYM app : public noncopyable {
 public:
    /*! @cond
@@ -130,6 +127,12 @@ private:
 
 
 /*! Declares an abc::app-derived class as being the app class for the application.
+
+This defines the actual entry point of the program, using whatever protocol is supported by the host
+(e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows GUI). This is a very thin wrapper around
+static methods in abc::app which take care of setting up the outermost try/catch block to intercept
+uncaught exceptions (see @ref stack_tracing), as well as instantiating the application-defined
+abc::app-derived class, invoking its overridden main() method, and returning.
 
 @param cls
    Main abc::app-derived class.
