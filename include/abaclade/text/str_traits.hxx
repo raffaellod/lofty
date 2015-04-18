@@ -29,19 +29,27 @@ namespace abc {
 namespace text {
 
 /*! Low-level functions for dealing with character strings; used by abc::text::*str. Note that this
-class is not modeled after std::char_traits.
-*/
+class is not modeled after std::char_traits. */
 class ABACLADE_SYM str_traits {
 public:
-   /*! Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. See
-   [DOC:1502 KMP substring search] for how this is built and used.
+   /*! Builds a failure restart table for searches using the Knuth-Morris-Pratt algorithm. Each
+   element in the returned vector is the count of characters that won’t be compared again in case a
+   partial substring match is found to be not a match.
 
    @param pchNeedleBegin
       Pointer to the beginning of the search string.
    @param pchNeedleEnd
       Pointer to the end of the search string.
    @param pvcchFailNext
-      Pointer to a vector that will receive the failure restart indices.
+      Pointer to a vector that will receive failure restart indices. Examples for different needles:
+      @verbatim
+      ┌────────────────────┬───┬─────┬─────┬───────┬───────┬───────────────┬─────────────┐
+      │ Needle index       │ 0 │ 0 1 │ 0 1 │ 0 1 2 │ 0 1 2 │ 0 1 2 3 4 5 6 │ 0 1 2 3 4 5 │
+      ├────────────────────┼───┼─────┼─────┼───────┼───────┼───────────────┼─────────────┤
+      │ pchNeedleBegin-End │ A │ A A │ A B │ A A A │ A A B │ A B A A B A C │ A B A B C D │
+      │ vcchFailNext       │ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
+      └────────────────────┴───┴─────┴─────┴───────┴───────┴───────────────┴─────────────┘
+      @endverbatim
    */
    static void _build_find_failure_restart_table(
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,

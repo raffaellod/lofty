@@ -197,20 +197,6 @@ namespace text {
    char_t const * pchHaystack = pchHaystackBegin;
    char_t const * pchNeedle = pchNeedleBegin;
    try {
-      /*! DOC:1502 KMP substring search
-
-      This is an implementation of the Knuth-Morris-Pratt algorithm.
-
-      Examples of the contents of vcchFailNext after the block below for different needles:
-
-      ┌──────────────┬───┬─────┬─────┬───────┬───────┬───────────────┬─────────────┐
-      │ Needle index │ 0 │ 0 1 │ 0 1 │ 0 1 2 │ 0 1 2 │ 0 1 2 3 4 5 6 │ 0 1 2 3 4 5 │
-      ├──────────────┼───┼─────┼─────┼───────┼───────┼───────────────┼─────────────┤
-      │ pchNeedle    │ A │ A A │ A B │ A A A │ A A B │ A B A A B A C │ A B A B C D │
-      │ vcchFailNext │ 0 │ 0 0 │ 0 0 │ 0 0 0 │ 0 0 0 │ 0 0 0 0 1 2 3 │ 0 0 0 1 2 0 │
-      └──────────────┴───┴─────┴─────┴───────┴───────┴───────────────┴─────────────┘
-      */
-
       // Build the failure restart table.
       collections::smvector<std::size_t, 64> vcchFailNext;
       _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
