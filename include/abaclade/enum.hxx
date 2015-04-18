@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -21,16 +21,12 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
-
-namespace abc {
-
-/*! DOC:3549 Enumeration classes
-
-Abaclade features support for advanced enumeration classes. These are the features that set them
-apart from C++11 “enum class” enumerations:
+/*! @file
+Facilities to create smart enumerations, as described in @ref enumeration_classes
+*/
+/*! @page enumeration_classes Enumeration classes
+Support for advanced enumeration classes. These are the features that set them apart from C++11
+“enum class” enumerations:
 
 •  Strong typing: constants from one enumeration are not implicitly converted to a different
    enumeration type;
@@ -40,7 +36,8 @@ apart from C++11 “enum class” enumerations:
 •  Conversion from/to string: instances of an Abaclade enumeration class can be serialized and
    de-serialized as strings with no additional code.
 
-The ABC_ENUM() macro declares an enumeration class containing the members provided as a list.
+The ABC_ENUM() macro declares an enumeration class containing the members provided as a list;
+ABC_ENUM_AUTO_VALUES() behaves like a C++ enum lacking explicit enumerated values.
 
 The name provided to ABC_ENUM() is associated to a C++ class, not the C++ enum; the latter is
 available through the former, as in as my_enum::enum_type; there should little to no need to ever
@@ -49,7 +46,15 @@ directly refer to the C++ enum type.
 This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 */
 
-/*! Implementation of the various ABC_ENUM() flavors.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc globals
+
+namespace abc {
+
+//! @cond
+
+/*! Implementation of the various ABC_ENUM*() flavors.
 
 @param name
    Name of the enumeration type.
@@ -128,8 +133,10 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 #define _ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM(name, value) \
    _ABC_ENUM_MEMBER_ARRAY_ITEM(name)
 
-/*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
-classes] for more information.
+//! @endcond
+
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration_classes
+for more information.
 
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
 etc.
@@ -150,9 +157,9 @@ etc.
       public: \
    )
 
-/*! Defines an enumeration class as a specialization of abc::enum_impl. See [DOC:3549 Enumeration
-classes] for more information. Similar to ABC_ENUM(), except the members are listed individually and
-their values cannot be explicitly specified; for example:
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration_classes
+for more information. Similar to ABC_ENUM(), except the members are listed individually and their
+values cannot be explicitly specified; for example:
 
    ABC_ENUM_AUTO_VALUES(myenum, item1, item2, item3);
 
