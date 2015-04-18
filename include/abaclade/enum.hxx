@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 /*! @file
 Facilities to create smart enumerations, as described in @ref enumeration_classes
 */
+
 /*! @page enumeration_classes Enumeration classes
 Support for advanced enumeration classes. These are the features that set them apart from C++11
 “enum class” enumerations:

@@ -26,7 +26,7 @@ Stack tracing infrastructure.
 */
 
 /*! @page stack_tracing Stack tracing
-Abaclade features automatic generation of stack traces whenever an exception occurs.
+Automatic generation of stack traces whenever an exception occurs.
 
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
 ABC_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.

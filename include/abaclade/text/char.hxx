@@ -21,6 +21,10 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
+/*! @file
+Macros to generate proper Unicode characters.
+*/
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc globals
@@ -47,6 +51,8 @@ You should have received a copy of the GNU General Public License along with Aba
 */
 #define ABC_CXX_CHAR32 0
 
+//! @cond
+
 // Only support Unicode Windows programs.
 // TODO: support non-Unicode Windows programs (Win9x and Win16). In a very, very distant future!
 #ifndef UNICODE
@@ -59,6 +65,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #elif !defined(UNICODE) && defined(_UNICODE)
    #undef _UNICODE
 #endif
+
+//! @endcond
 
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC >= 40400
    // char16_t is a native type, different than std::uint16_t.
@@ -150,8 +158,6 @@ selection logic for abc::text::encoding::host to provide the corresponding UTF e
 character literal of the widest type supported by the compiler, which is char32_t in the best case
 and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
 
-TODO: document Unicode support in Abaclade.
-
 @param ch
    Character literal.
 @return
@@ -166,7 +172,8 @@ TODO: document Unicode support in Abaclade.
    #define ABC_CHAR(ch) L ## ch
 #endif
 
-/*! Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
+/*! @cond
+Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
 @param s
@@ -184,6 +191,7 @@ appropriate string literal prefix, as is necessary for e.g. __FILE__.
    // Use ABC_CPP_CAT2() to expand macros before pasting them with L.
    #define _ABC_SL(s) L ## s
 #endif
+//! @endcond
 
 /*! Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
