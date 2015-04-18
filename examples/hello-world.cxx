@@ -17,7 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-/*! DOC:0101 Hello World example
+/*! @file
+Hello World example
 
 This is a basic usage example of Abaclade; all it does is display the canonical “Hello World” text,
 then it terminates. See the source code for line-by-line comments.

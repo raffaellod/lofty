@@ -17,7 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-/*! DOC:0105 Exceptions and stack traces example
+/*! @file
+Exceptions and stack traces example
 
 This program showcases Abaclade’s ability to display stack traces when an exception is thrown, as
 well as its support for catching null pointer access and similar invalid operations. See the source

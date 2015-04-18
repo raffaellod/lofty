@@ -17,7 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-/*! DOC:0194 “cat” utility example
+/*! @file
+“cat” utility example
 
 This is a basic usage example of Abaclade; it shows how to read from standard input one line at a
 time, echoing each to standard output. The program terminates when it reaches the end of input,
