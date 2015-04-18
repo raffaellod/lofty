@@ -29,19 +29,6 @@ namespace abc {
 namespace collections {
 namespace detail {
 
-/*! DOC:3395 Move constructors and exceptions
-
-In this section, “move constructor” will strictly refer to class::class(class &&).
-
-All classes must provide move constructors and assignment operators if the copy constructor would
-result in execution of exception-prone code (e.g. resource allocation).
-
-Because move constructors are employed widely in container classes that need to provide strong
-exception guarantee (fully transacted operation) even in case of moves, move constructors must not
-throw exceptions. This requirement is relaxed for moves that involve two different classes, since
-these will not be used by container classes.
-*/
-
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 struct type_void_adapter {
 public:

@@ -33,7 +33,16 @@ namespace abc {
    //! Byte-ordering functions.
    namespace byteorder {}
 
-   //! Templated container data structures.
+   /*! Templated container data structures.
+
+   Contained classes must provide move constructors and assignment operators (cls::cls(cls &&) and
+   cls::operator=(cls &&)) if the copy constructor could result in execution of exception-prone code
+   (e.g. resource allocation).
+
+   Because move constructors are employed widely in container classes that need to provide strong
+   exception guarantee (fully transacted operation) even in case of moves, move constructors must
+   not throw exceptions. This requirement is relaxed for moves that involve two different classes,
+   since these will not be used by container classes. */
    namespace collections {}
 
    /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see [IMG:4872
