@@ -43,8 +43,8 @@ ABC_APP_CLASS().
 The ABC_APP_CLASS() macro defines the actual entry point of the program, using whatever
 protocol is supported by the host (e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows GUI). This
 is a very thin wrapper around a static method of abc::app which takes care of setting up the
-outermost try/catch block to intercept uncaught exceptions (see [DOC:8503 Stack tracing]), as well
-as instantiating the application-defined abc::app-derived class, invoking its main() method and
+outermost try/catch block to intercept uncaught exceptions (see @ref stack_tracing), as well as
+instantiating the application-defined abc::app-derived class, invoking its main() method and
 returning. */
 class ABACLADE_SYM app : public noncopyable {
 public:

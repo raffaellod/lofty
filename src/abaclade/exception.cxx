@@ -102,14 +102,14 @@ exception::exception(exception const & x) :
    m_pszSourceFunction(x.m_pszSourceFunction),
    m_srcloc(x.m_srcloc),
    m_bInFlight(x.m_bInFlight) {
-   // See [DOC:8503 Stack tracing].
+   // See @ref stack_tracing.
    if (m_bInFlight) {
       detail::scope_trace::trace_writer_addref();
    }
 }
 
 /*virtual*/ exception::~exception() {
-   // See [DOC:8503 Stack tracing].
+   // See @ref stack_tracing.
    if (m_bInFlight) {
       detail::scope_trace::trace_writer_release();
    }
@@ -121,8 +121,8 @@ exception & exception::operator=(exception const & x) {
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
    m_srcloc = x.m_srcloc;
-   /* Adopt the source’s in-flight status. See [DOC:8503 Stack tracing]. If the in-flight status is
-   not changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
+   /* Adopt the source’s in-flight status. See @ref stack_tracing. If the in-flight status is not
+   changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
    trace writer if *this was the last reference to it) release()/addref(). */
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
@@ -140,7 +140,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_pszSourceFunction = pszFunction;
    m_srcloc = srcloc;
    /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
-   [DOC:8503 Stack tracing]. */
+   @ref stack_tracing. */
    detail::scope_trace::trace_writer_clear();
    detail::scope_trace::trace_writer_addref();
    m_bInFlight = true;

@@ -21,13 +21,12 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
+/*! @file
+Stack tracing infrastructure.
+*/
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
-
-namespace abc {
-
-/*! DOC:8503 Stack tracing
+/*! @page stack_tracing Stack tracing
+Abaclade features automatic generation of stack traces whenever an exception occurs.
 
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
 ABC_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.
@@ -52,12 +51,13 @@ This covers the following code flows:
 
 •  No exception thrown: no stack trace is generated.
 
-•  Exception is thrown and unwinds up to main(): each abc::detail::scope_trace adds itself to the
-   stack trace, which is then output; the exception is then destroyed, cleaning the trace buffer.
+•  Exception is thrown and escapes past abc::app::main(): each abc::detail::scope_trace adds itself
+   to the stack trace, which is then output; the exception is then destroyed, cleaning the trace
+   buffer.
 
 •  Exception is thrown, then caught and blocked: one or more abc::detail::scope_trace might add
-   themselves to the stack trace, but the exception is blocked before it reaches main(), so no
-   output occurs.
+   themselves to the stack trace, but the exception is blocked before it escapes abc::app::main(),
+   so no output occurs.
 
 •  Exception is thrown, then caught and rethrown: one or more abc::detail::scope_trace might add
    themselves to the stack trace, up to the point the exception is caught. Since the exception is
@@ -73,6 +73,7 @@ See related diagram [IMG:8503 Stack trace generation] for all code flows covered
 See also ABC_THROW() and abc::exception for the remainder of the implementation.
 
 Currently unsupported:
+
 •  TODO: storing a thrown exception, handling a different exception, and throwing back the first
    one. In the current implementation, there’s nothing telling an exception that it’s no longer
    in-flight (and there can’t be!); additionally, throwing the second exception and re-throwing the
@@ -82,6 +83,10 @@ Currently unsupported:
 •  TODO: properly handling exceptions occurring while generating a stack trace. The current behavior
    swallows any nested exceptions, gracefully failing to generate a complete stack trace.
 */
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Globals
 
 /*! Provides stack frame logging for the function in which it’s used.
 
@@ -94,14 +99,14 @@ Currently unsupported:
       ABC_CPP_APPEND_UID(_scope_trace_source_location_), __VA_ARGS__ \
    )
 
-//! Implementation of ABC_TRACE_FUNC() and similar macros.
+/*! @cond
+Implementation of ABC_TRACE_FUNC() and similar macros. */
 #define _ABC_TRACE_SCOPE_IMPL(st, tuple, srcloc, ...) \
    static ::abc::detail::scope_trace_source_location const srcloc = { \
       _ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
    }; \
    auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace st(&srcloc, &tuple) \
-
-} //namespace abc
+   ::abc::detail::scope_trace st(&srcloc, &tuple)
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

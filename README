@@ -11,7 +11,7 @@ Abaclade is a C++11 framework featuring:
 •  Integrated self-diagnosis: programs don’t just crash; every error condition
    (including dereferencing a null pointer) results in an exception and a stack
    trace that includes the actual values of arguments and local variables –
-   you’ll always know what went wrong! (see [DOC:8503 Stack tracing]);
+   you’ll always know what went wrong! (see ABC_TRACE_FUNC(), for example);
 
 •  Testing framework integrated in the library with full support from the
    recommended build tool, Abamake (<https://github.com/raffaellod/abamake>);

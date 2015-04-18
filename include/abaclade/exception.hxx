@@ -171,8 +171,8 @@ up with context information and the remaining arguments, and then throws it.
 
 This is the recommended way of throwing an exception within code using Abaclade. See the
 documentation for abc::exception for more information on abc::detail::exception_aggregator and why
-it exists. Combined with [DOC:8503 Stack tracing], the use of ABC_THROW() augments the stack trace
-with the exact line where the throw statement occurred.
+it exists. Combined with @ref stack_tracing, the use of ABC_THROW() augments the stack trace with
+the exact line where the throw statement occurred.
 
 Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
 the additional members that the latter expects to be able to set in the former.
