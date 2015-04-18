@@ -21,55 +21,50 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
+/*! @page vextr_design High-efficiency strings and vectors
+Design of abc::text::istr, abc::collections::mvector, and related classes.
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_prefixed_item_array
+Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
+dynamically adjust the size of the underlying array, while also taking advantage of an optional
+fixed-size array embedded into the string/vector object.
 
-namespace abc {
-namespace collections {
-namespace detail {
+This table illustrates the best type of string to use for each use scenario:
 
-/*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see documentation for
-abc::collections::detail::raw_vextr_impl_data), and used with template capacity == 1 for all
-non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which relies
-on m_cbCapacity instead. */
-template <typename T, std::size_t t_ciEmbeddedCapacity>
-class raw_vextr_prefixed_item_array {
-public:
-   //! Embedded item array capacity, in bytes.
-   static std::size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
-   /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
-   so it can be greater than smc_cbEmbeddedCapacity. */
-   std::size_t m_cbCapacity;
-   /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
-   destructed automatically, and because the count may be greater than what’s declared here. */
-   abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
-};
+   @verbatim
+   ┌───────────────────────────────────────────────────────┬──────────────────────┐
+   │ Functional need                                       │ Suggested type       │
+   ├───────────────────────────────────────────────────────┼──────────────────────┤
+   │ Local/member constant                                 │ istr const           │
+   │                                                       │                      │
+   │ Local/member immutable variable                       │ istr                 │
+   │ (can be assigned to, but not modified)                │                      │
+   │                                                       │                      │
+   │ Local/member variable                                 │ smstr<expected size> │
+   │                                                       │                      │
+   │ Function argument                                     │                      │
+   │ •  Input-only, temporary usage                        │ istr const &         │
+   │ •  Input-only, to be moved to dmstr with longer scope │ dmstr                │
+   │ •  Output-only (value on input ignored)               │ mstr *               │
+   │ •  Non-const input                                    │ mstr &               │
+   │                                                       │                      │
+   │ Function return value                                 │                      │
+   │ •  From string literal                                │ istr                 │
+   │ •  Read-only reference to non-local variable          │ istr const &         │
+   │ •  From local temporary string                        │ dmstr                │
+   │ •  Reference to non-local variable                    │ mstr &               │
+   │                                                       │                      │
+   │ Value in container classes                            │ any except mstr      │
+   │                                                       │                      │
+   │ Key in hash-based container classes                   │ istr const           │
+   └───────────────────────────────────────────────────────┴──────────────────────┘
+   @endverbatim
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_impl_data
-
-namespace abc {
-namespace collections {
-namespace detail {
-
-/*! Data members of raw_vextr_impl_base, as a plain old struct. This is the most basic
-implementation block for all abc::text::*str and abc::collections::*vector classes.
-
-The classes abc::text::*str and abc::collections::*vectors are intelligent wrappers around C arrays;
-they are able to dynamically adjust the size of the underlying array, while also taking advantage of
-an optional fixed-size array embedded into the string/vector object.
-
-Data-wise, the implementation stores two pointers, one to the first item and one to beyond the last
-item, instead of the more common start pointer/length pair of variables. This makes checking an
-iterator against the end of the array a matter of a simple load/compare in terms of machine level
-instructions, as opposed to load/load/add/compare as it’s necessary for the pointer/length pair. The
-item array pointed to by the begin/end pointers can be part of a prefixed item array
+Data-wise (see abc::collections::detail::raw_vextr_impl_data), the implementation stores two
+pointers, one to the first item and one to beyond the last item, instead of the more common start
+pointer/length pair of variables. This makes checking an iterator against the end of the array a
+matter of a simple load/compare in terms of machine level instructions, as opposed to load/load/add/
+compare as it’s necessary for the pointer/length pair. The item array pointed to by the begin/end
+pointers can be part of a prefixed item array
 (abc::collections::detail::raw_vextr_prefixed_item_array), which includes information such as the
 total capacity of the item array, which is used to find out when the item array needs to be
 reallocated to make room for more items.
@@ -170,37 +165,6 @@ itself, because the two underlying objects might have embedded item arrays of di
 isn’t a huge deal-breaker because of the intended limited usage for mstr and smstr, but it’s
 something to watch out for, and it means that mstr should not be used in container classes.
 
-This table illustrates the best type of string to use for each use scenario:
-
-   @verbatim
-   ┌───────────────────────────────────────────────────────┬──────────────────────┐
-   │ Functional need                                       │ Suggested type       │
-   ├───────────────────────────────────────────────────────┼──────────────────────┤
-   │ Local/member constant                                 │ istr const           │
-   │                                                       │                      │
-   │ Local/member immutable variable                       │ istr                 │
-   │ (can be assigned to, but not modified)                │                      │
-   │                                                       │                      │
-   │ Local/member variable                                 │ smstr<expected size> │
-   │                                                       │                      │
-   │ Function argument                                     │                      │
-   │ •  Input-only, temporary usage                        │ istr const &         │
-   │ •  Input-only, to be moved to dmstr with longer scope │ dmstr                │
-   │ •  Output-only (value on input ignored)               │ mstr *               │
-   │ •  Non-const input                                    │ mstr &               │
-   │                                                       │                      │
-   │ Function return value                                 │                      │
-   │ •  From string literal                                │ istr                 │
-   │ •  Read-only reference to non-local variable          │ istr const &         │
-   │ •  From local temporary string                        │ dmstr                │
-   │ •  Reference to non-local variable                    │ mstr &               │
-   │                                                       │                      │
-   │ Value in container classes                            │ any except mstr      │
-   │                                                       │                      │
-   │ Key in hash-based container classes                   │ istr const           │
-   └───────────────────────────────────────────────────────┴──────────────────────┘
-   @endverbatim
-
 Last but not least, let’s look at the underlying data storage in some of the possible semantic
 statuses.
 
@@ -275,6 +239,45 @@ Key:
      └──────────────────────────────────────────────────────┘
    @endverbatim
 */
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::collections::detail::raw_vextr_prefixed_item_array
+
+namespace abc {
+namespace collections {
+namespace detail {
+
+/*! Stores an item array and its capacity. Used as a real template by classes with embedded item
+array in the “upper level” hierarchy (see @ref vextr_design), and used with template capacity == 1
+for all non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which
+relies on m_cbCapacity instead. */
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class raw_vextr_prefixed_item_array {
+public:
+   //! Embedded item array capacity, in bytes.
+   static std::size_t const smc_cbEmbeddedCapacity = sizeof(T) * t_ciEmbeddedCapacity;
+   /*! Actual capacity of m_at, in bytes. This depends on the memory that was allocated for *this,
+   so it can be greater than smc_cbEmbeddedCapacity. */
+   std::size_t m_cbCapacity;
+   /*! Fixed-size item array. This can’t be a T[] because we don’t want its items to be constructed/
+   destructed automatically, and because the count may be greater than what’s declared here. */
+   abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
+};
+
+} //namespace detail
+} //namespace collections
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::collections::detail::raw_vextr_impl_data
+
+namespace abc {
+namespace collections {
+namespace detail {
+
+/*! Data members of raw_vextr_impl_base, as a plain old struct. This is the most basic
+implementation block for all abc::text::*str and abc::collections::*vector classes. */
 struct raw_vextr_impl_data {
    //! Pointer to the start of the item array.
    void * m_pBegin;
@@ -844,8 +847,8 @@ public:
    }
 
    /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   non-prefixed item array, or a dynamic prefixed item array; see the documentation for
-   abc::collections::detail::raw_vextr_impl_data to see how *str and *vector ensure this.
+   non-prefixed item array, or a dynamic prefixed item array; see @ref vextr_design to see how *str
+   and *vector ensure this.
 
    @param rtvi
       Source vextr.

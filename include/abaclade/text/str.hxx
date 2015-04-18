@@ -128,8 +128,8 @@ namespace detail {
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
 
-See abc::collections::detail::raw_vextr_impl_data for implementation details for this and all the
-abc::text::*str classes. */
+See @ref vextr_design for implementation details for this and derived classes, such as
+abc::text::istr. */
 class ABACLADE_SYM str_base :
    protected collections::detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str_base> {
