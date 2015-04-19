@@ -86,7 +86,7 @@ public:
 #endif
    }
 
-   // Destructor.
+   //! Destructor.
    ~context() {
 #ifdef ABAMAKE_USING_VALGRIND
       VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
@@ -133,6 +133,7 @@ private:
    #error "TODO: HOST_API"
 #endif
 #ifdef ABAMAKE_USING_VALGRIND
+   //! Identifier assigned by Valgrind to this context’s stack.
    unsigned m_iValgrindStackId;
 #endif
    //! Function to be executed in the coroutine.
