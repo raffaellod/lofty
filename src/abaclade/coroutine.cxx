@@ -216,21 +216,22 @@ thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nul
 coroutine::scheduler::scheduler() :
 #if ABC_HOST_API_BSD
    m_fdKqueue(::kqueue()) {
+#elif ABC_HOST_API_LINUX
+   m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
+#endif
    ABC_TRACE_FUNC(this);
 
+#if ABC_HOST_API_BSD
    if (!m_fdKqueue) {
       exception::throw_os_error();
    }
-   // TODO: set close-on-exec. ::kqueue1() may be available on some systems; investigate that.
+   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
+   leak the file descriptor. That’s the whole point of NetBSD’s kqueue1(). */
+   m_fdKqueue.set_close_on_exec(true);
 #elif ABC_HOST_API_LINUX
-   m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
-   ABC_TRACE_FUNC(this);
-
    if (!m_fdEpoll) {
       exception::throw_os_error();
    }
-#else
-   #error "TODO: HOST_API"
 #endif
 }
 
