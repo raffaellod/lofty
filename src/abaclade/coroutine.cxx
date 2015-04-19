@@ -225,8 +225,8 @@ coroutine::scheduler::scheduler() :
    if (!m_fdKqueue) {
       exception::throw_os_error();
    }
-   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
-   leak the file descriptor. That’s the whole point of NetBSD’s kqueue1(). */
+   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
+   won’t leak the file descriptor. That’s the whole point of NetBSD’s kqueue1(). */
    m_fdKqueue.set_close_on_exec(true);
 #elif ABC_HOST_API_LINUX
    if (!m_fdEpoll) {

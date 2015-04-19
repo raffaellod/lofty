@@ -131,8 +131,8 @@ std::shared_ptr<connection> tcp_server::accept() {
    }
    io::filedesc fd(iFd);
 #if ABC_HOST_API_DARWIN
-   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
-   leak the file descriptor. That’s the whole point of accept4(). */
+   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
+   won’t leak the file descriptor. That’s the whole point of accept4(). */
    fd.set_close_on_exec(true);
    if (bAsync) {
       fd.set_nonblocking(true);
@@ -165,8 +165,8 @@ std::shared_ptr<connection> tcp_server::accept() {
       exception::throw_os_error();
    }
 #if ABC_HOST_API_DARWIN
-   /* Note that at this point there’s no hack that will ensure a fork() from another thread won’t
-   leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
+   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
+   won’t leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
    fd.set_close_on_exec(true);
    if (bAsync) {
       fd.set_nonblocking(true);
