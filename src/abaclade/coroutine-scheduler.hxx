@@ -119,8 +119,9 @@ private:
 #endif
    //! Coroutines that are blocked on a fd wait.
    collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByFD;
-   //! List of coroutines that have been scheduled, but have not been started yet.
-   collections::list<std::shared_ptr<coroutine::context>> m_listStartingCoros;
+   /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
+   have not been started yet. */
+   collections::list<std::shared_ptr<coroutine::context>> m_listReadyCoros;
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
    static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
    //! Pointer to the coroutine scheduler for the current thread.

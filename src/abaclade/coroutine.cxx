@@ -235,23 +235,29 @@ coroutine::scheduler::scheduler() :
 }
 
 coroutine::scheduler::~scheduler() {
-   // TODO: verify that m_listStartingCoros and m_mapCorosBlockedByFD are empty.
+   // TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD are empty.
 }
 
 void coroutine::scheduler::add(coroutine const & coro) {
    ABC_TRACE_FUNC(this);
 
-   m_listStartingCoros.push_back(coro.m_pctx);
+   m_listReadyCoros.push_back(coro.m_pctx);
 }
 
 std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
    // This loop will only repeat in case of EINTR from the blocking-wait API.
+   /* TODO: if the epoll/kqueue is shared by several threads and one thread receives and removes the
+   last event source from it, what happens to the remaining threads?
+   a) We could send a no-op signal (SIGCONT?) to all threads using this scheduler, to make the wait
+      function return EINTR;
+   b) We could have a single event source for each scheduler with the semantics of “event sources
+      changed”, in edge-triggered mode so it wakes all waiting threads once, at once. */
    for (;;) {
-      if (m_listStartingCoros) {
-         // There are coroutines that haven’t had a chance to run; remove and return the first.
-         return m_listStartingCoros.pop_front();
+      if (m_listReadyCoros) {
+         // There are coroutines that are ready to run; remove and return the first.
+         return m_listReadyCoros.pop_front();
       } else if (
          m_mapCorosBlockedByFD
 #if ABC_HOST_API_BSD
@@ -277,7 +283,7 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
             return m_mapCorosBlockedByTimer.extract(ke.ident);
          } else {
             // Remove and return the coroutine that was waiting for the file descriptor.
-            return m_mapCorosBlockedByFD.extract(static_cast<int>(ke.ident));
+            return m_mapCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
          }
 #elif ABC_HOST_API_LINUX
          ::epoll_event ee;
