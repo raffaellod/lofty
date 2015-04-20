@@ -384,6 +384,12 @@ public:
 
    //! Possible exception types injectable by inject_in_context().
    ABC_ENUM_AUTO_VALUES(injectable,
+      none,
+
+      app_execution_interruption,
+      execution_interruption,
+      user_forced_interruption,
+
       arithmetic_error,
       division_by_zero_error,
       floating_point_error,

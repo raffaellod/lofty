@@ -254,10 +254,18 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
    source_location srcloc(ABC_SL("source_not_available"), 0);
+   static char_t const sc_szInternal[] = ABC_SL("<internal>");
    static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
 
    ABC_UNUSED_ARG(iArg1);
    switch (inj) {
+      case injectable::app_execution_interruption:
+         _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
+      case injectable::execution_interruption:
+         _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
+      case injectable::user_forced_interruption:
+         _ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
+
       case injectable::arithmetic_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, arithmetic_error, ());
       case injectable::division_by_zero_error:
