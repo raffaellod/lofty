@@ -38,10 +38,6 @@ namespace abc {
 
 class coroutine::scheduler : public noncopyable {
 private:
-   friend std::shared_ptr<coroutine::scheduler> const & this_thread::attach_coroutine_scheduler(
-      std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
-   );
-   friend std::shared_ptr<coroutine::scheduler> const & this_thread::get_coroutine_scheduler();
    friend coroutine::id_type this_coroutine::id();
 
 public:
