@@ -58,20 +58,13 @@ public:
    */
    void add(coroutine const & coro);
 
-   //! Switches context to the current thread’s own context.
-   void return_to_scheduler();
-
-   /*! Begins scheduling and running coroutines on the current thread. Only returns after every
-   coroutine added with add_coroutine() returns. */
-   void run();
-
    /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
    at least iMillisecs milliseconds have passed.
 
    @param iMillisecs
       Minimum duration for which to yield to other coroutines.
    */
-   void yield_for(unsigned iMillisecs);
+   void block_active_for_ms(unsigned iMillisecs);
 
    /*! Allows other coroutines to run while the asynchronous I/O operation completes, as an
    alternative to blocking while waiting for its completion.
@@ -81,7 +74,14 @@ public:
    @param bWrite
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
    */
-   void yield_until_fd_ready(io::filedesc_t fd, bool bWrite);
+   void block_active_until_fd_ready(io::filedesc_t fd, bool bWrite);
+
+   //! Switches context to the current thread’s own context.
+   void return_to_scheduler();
+
+   /*! Begins scheduling and running coroutines on the current thread. Only returns after every
+   coroutine added with add_coroutine() returns. */
+   void run();
 
 private:
    /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks

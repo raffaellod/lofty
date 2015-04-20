@@ -245,6 +245,121 @@ void coroutine::scheduler::add(coroutine const & coro) {
    m_listReadyCoros.push_back(coro.m_pctx);
 }
 
+void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
+   ABC_TRACE_FUNC(this, iMillisecs);
+
+   // TODO: handle iMillisecs == 0 as a timer-less yield.
+
+#if ABC_HOST_API_BSD
+   coroutine::context * pcoroctxActive = sm_pcoroctxActive.get();
+   struct ::kevent ke;
+   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
+   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
+   ke.flags = EV_ADD | EV_ONESHOT;
+   ke.filter = EVFILT_TIMER;
+#if ABC_HOST_API_DARWIN
+   ke.fflags = NOTE_USECONDS;
+   ke.data = iMillisecs * 1000u;
+#else
+   ke.data = iMillisecs;
+#endif
+   ::timespec ts = { 0, 0 };
+   if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
+      exception::throw_os_error();
+   }
+   // Deactivate the current coroutine and find one to activate instead.
+   auto itThisCoro(
+      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
+   );
+   try {
+      // Switch back to the thread’s own context and have it wait for a ready coroutine.
+      switch_to_scheduler(itThisCoro->value.get());
+   } catch (...) {
+      // If anything went wrong or the coroutine was terminated, remove the timer.
+      m_mapCorosBlockedByTimer.remove(ke.ident);
+      ke.flags = EV_DELETE;
+      ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
+      throw;
+   }
+#elif ABC_HOST_API_LINUX
+   // TODO: use a pool of inactive timers instead of creating and destroying them each time.
+   io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
+   if (!fd) {
+      exception::throw_os_error();
+   }
+   // Arm the timer.
+   ::itimerspec its;
+   its.it_interval.tv_sec = 0;
+   its.it_interval.tv_nsec = 0;
+   its.it_value.tv_sec = static_cast< ::time_t>(iMillisecs / 1000u);
+   its.it_value.tv_nsec = static_cast<long>(
+      static_cast<unsigned long>(iMillisecs % 1000u) * 1000000u
+   );
+   if (::timerfd_settime(fd.get(), 0, &its, nullptr) < 0) {
+      exception::throw_os_error();
+   }
+   // This timer is now active (save exceptions – see catch (...) below).
+   io::filedesc_t fdCopy = fd.get();
+   m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
+   // At this point the timer is just a file descriptor that we’ll be waiting to read from.
+   try {
+      block_active_until_fd_ready(fdCopy, false);
+   } catch (...) {
+      // Remove the timer from the set of active ones.
+      // TODO: recycle the timer, putting it back in the pool of inactive timers.
+      // TODO: move this code to a “defer” lambda.
+      m_mapActiveTimers.remove(fdCopy);
+      throw;
+   }
+   // Remove the timer from the set of active ones.
+   // TODO: recycle the timer, putting it back in the pool of inactive timers.
+   // TODO: move this code to a “defer” lambda.
+   m_mapActiveTimers.remove(fdCopy);
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+   ABC_TRACE_FUNC(this, fd, bWrite);
+
+   // Add fd as a new event source.
+#if ABC_HOST_API_BSD
+   struct ::kevent ke;
+   ke.ident = static_cast<std::uintptr_t>(fd);
+   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
+   ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
+   ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
+   ::timespec ts = { 0, 0 };
+   if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
+      exception::throw_os_error();
+   }
+#elif ABC_HOST_API_LINUX
+   ::epoll_event ee;
+   memory::clear(&ee.data);
+   ee.data.fd = fd;
+   /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This
+   means we’d need to then rearm it in find_coroutine_to_activate() when it becomes ready, but we’ll
+   remove it instead. */
+   ee.events = EPOLLONESHOT | EPOLLPRI | (bWrite ? EPOLLOUT : EPOLLIN);
+   if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
+      exception::throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+   // Deactivate the current coroutine and find one to activate instead.
+   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
+   try {
+      // Switch back to the thread’s own context and have it wait for a ready coroutine.
+      switch_to_scheduler(itThisCoro->value.get());
+   } catch (...) {
+      // Remove the coroutine from the map of blocked ones.
+      m_mapCorosBlockedByFD.remove(fd);
+      throw;
+   }
+}
+
 std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
@@ -371,121 +486,6 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLast
    }
 }
 
-void coroutine::scheduler::yield_for(unsigned iMillisecs) {
-   ABC_TRACE_FUNC(this, iMillisecs);
-
-   // TODO: handle iMillisecs == 0 as a timer-less yield.
-
-#if ABC_HOST_API_BSD
-   coroutine::context * pcoroctxActive = sm_pcoroctxActive.get();
-   struct ::kevent ke;
-   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
-   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-   ke.flags = EV_ADD | EV_ONESHOT;
-   ke.filter = EVFILT_TIMER;
-#if ABC_HOST_API_DARWIN
-   ke.fflags = NOTE_USECONDS;
-   ke.data = iMillisecs * 1000u;
-#else
-   ke.data = iMillisecs;
-#endif
-   ::timespec ts = { 0, 0 };
-   if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
-      exception::throw_os_error();
-   }
-   // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(
-      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
-   );
-   try {
-      // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
-   } catch (...) {
-      // If anything went wrong or the coroutine was terminated, remove the timer.
-      m_mapCorosBlockedByTimer.remove(ke.ident);
-      ke.flags = EV_DELETE;
-      ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
-      throw;
-   }
-#elif ABC_HOST_API_LINUX
-   // TODO: use a pool of inactive timers instead of creating and destroying them each time.
-   io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
-   if (!fd) {
-      exception::throw_os_error();
-   }
-   // Arm the timer.
-   ::itimerspec its;
-   its.it_interval.tv_sec = 0;
-   its.it_interval.tv_nsec = 0;
-   its.it_value.tv_sec = static_cast< ::time_t>(iMillisecs / 1000u);
-   its.it_value.tv_nsec = static_cast<long>(
-      static_cast<unsigned long>(iMillisecs % 1000u) * 1000000u
-   );
-   if (::timerfd_settime(fd.get(), 0, &its, nullptr) < 0) {
-      exception::throw_os_error();
-   }
-   // This timer is now active (save exceptions – see catch (...) below).
-   io::filedesc_t fdCopy = fd.get();
-   m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
-   // At this point the timer is just a file descriptor that we’ll be waiting to read from.
-   try {
-      yield_until_fd_ready(fdCopy, false);
-   } catch (...) {
-      // Remove the timer from the set of active ones.
-      // TODO: recycle the timer, putting it back in the pool of inactive timers.
-      // TODO: move this code to a “defer” lambda.
-      m_mapActiveTimers.remove(fdCopy);
-      throw;
-   }
-   // Remove the timer from the set of active ones.
-   // TODO: recycle the timer, putting it back in the pool of inactive timers.
-   // TODO: move this code to a “defer” lambda.
-   m_mapActiveTimers.remove(fdCopy);
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-void coroutine::scheduler::yield_until_fd_ready(io::filedesc_t fd, bool bWrite) {
-   ABC_TRACE_FUNC(this, fd, bWrite);
-
-   // Add fd as a new event source.
-#if ABC_HOST_API_BSD
-   struct ::kevent ke;
-   ke.ident = static_cast<std::uintptr_t>(fd);
-   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-   ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
-   ke.filter = bWrite ? EVFILT_WRITE : EVFILT_READ;
-   ::timespec ts = { 0, 0 };
-   if (::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts) < 0) {
-      exception::throw_os_error();
-   }
-#elif ABC_HOST_API_LINUX
-   ::epoll_event ee;
-   memory::clear(&ee.data);
-   ee.data.fd = fd;
-   /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This
-   means we’d need to then rearm it in find_coroutine_to_activate() when it becomes ready, but
-   we’ll remove it instead. */
-   ee.events = EPOLLONESHOT | EPOLLPRI | (bWrite ? EPOLLOUT : EPOLLIN);
-   if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
-      exception::throw_os_error();
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
-   // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
-   try {
-      // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
-   } catch (...) {
-      // Remove the coroutine from the map of blocked ones.
-      m_mapCorosBlockedByFD.remove(fd);
-      throw;
-   }
-}
-
 
 // Now this can be defined.
 
@@ -517,7 +517,7 @@ coroutine::id_type id() {
 
 void sleep_for_ms(unsigned iMillisecs) {
    if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-      pcorosched->yield_for(iMillisecs);
+      pcorosched->block_active_for_ms(iMillisecs);
    } else {
       this_thread::sleep_for_ms(iMillisecs);
    }
@@ -525,7 +525,7 @@ void sleep_for_ms(unsigned iMillisecs) {
 
 void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
-      pcorosched->yield_until_fd_ready(fd, bWrite);
+      pcorosched->block_active_until_fd_ready(fd, bWrite);
    } else {
       // No coroutine scheduler, so we have to block-wait for fd.
 #if ABC_HOST_API_POSIX
