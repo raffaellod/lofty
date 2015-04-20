@@ -22,6 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
 
+#include <atomic>
+
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN
       #define _XOPEN_SOURCE
@@ -65,6 +67,7 @@ public:
          m_pStack.get(), static_cast<std::int8_t *>(m_pStack.get()) + m_pStack.size()
       )),
 #endif
+      m_injResumeException(exception::injectable::none),
       m_fnInnerMain(std::move(fnMain)),
       m_crls(false) {
 #if ABC_HOST_API_POSIX
@@ -93,6 +96,24 @@ public:
 #endif
    }
 
+   /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
+
+   @return
+      Pointer to the context’s m_crls member.
+   */
+   detail::coroutine_local_storage * local_storage_ptr() {
+      return &m_crls;
+   }
+
+   /*! Called right after each time the coroutine resumes execution, this will throw an exception of
+   the type specified by m_injResumeException. This kind of exceptions are injected by other
+   coroutines or other Abaclade implementation code. */
+   void throw_if_any_resume_exception() const {
+      if (m_injResumeException != exception::injectable::none) {
+         exception::throw_injected_exception(m_injResumeException, 0, 0);
+      }
+   }
+
 #if ABC_HOST_API_POSIX
    /*! Returns a pointer to the internal ::ucontext_t.
 
@@ -103,15 +124,6 @@ public:
       return &m_uctx;
    }
 #endif
-
-   /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
-
-   @return
-      Pointer to the context’s m_crls member.
-   */
-   detail::coroutine_local_storage * local_storage_ptr() {
-      return &m_crls;
-   }
 
 private:
    /*! Lower-level wrapper for the coroutine function passed to coroutine::coroutine().
@@ -136,6 +148,7 @@ private:
    //! Identifier assigned by Valgrind to this context’s stack.
    unsigned m_iValgrindStackId;
 #endif
+   std::atomic<exception::injectable::enum_type> m_injResumeException;
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
    //! Local storage for the coroutine.
@@ -268,12 +281,12 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(
-      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
-   );
+   std::shared_ptr<coroutine::context> pcoroctxFormerActive(std::move(sm_pcoroctxActive));
+   m_mapCorosBlockedByTimer.add_or_assign(ke.ident, pcoroctxFormerActive);
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
+      switch_to_scheduler(pcoroctxFormerActive.get());
+      pcoroctxFormerActive->throw_if_any_resume_exception();
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       m_mapCorosBlockedByTimer.remove(ke.ident);
@@ -349,10 +362,11 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    #error "TODO: HOST_API"
 #endif
    // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
+   std::shared_ptr<coroutine::context> pcoroctxFormerActive(std::move(sm_pcoroctxActive));
+   m_mapCorosBlockedByFD.add_or_assign(fd, pcoroctxFormerActive);
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
+      switch_to_scheduler(pcoroctxFormerActive.get());
    } catch (...) {
       // Remove the coroutine from the map of blocked ones.
       m_mapCorosBlockedByFD.remove(fd);
