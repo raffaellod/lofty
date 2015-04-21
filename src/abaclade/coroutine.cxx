@@ -52,6 +52,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 class coroutine::context : public noncopyable {
+private:
+   friend class coroutine;
+
 public:
    /*! Constructor
 
@@ -69,7 +72,7 @@ public:
 #endif
       m_injResumeException(exception::injectable::none),
       m_fnInnerMain(std::move(fnMain)),
-      m_crls(false) {
+      m_crls(false /*don’t automatically install as the current thread’s TLS instance*/) {
 #if ABC_HOST_API_POSIX
       // TODO: use ::mprotect() to setup a guard page for the stack.
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
@@ -166,7 +169,7 @@ coroutine::coroutine() {
 }
 /*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
    m_pctx(std::make_shared<coroutine::context>(std::move(fnMain))) {
-   this_thread::attach_coroutine_scheduler()->add(*this);
+   this_thread::attach_coroutine_scheduler()->add_ready(m_pctx);
 }
 
 coroutine::~coroutine() {
@@ -174,6 +177,17 @@ coroutine::~coroutine() {
 
 coroutine::id_type coroutine::id() const {
    return reinterpret_cast<id_type>(m_pctx.get());
+}
+
+void coroutine::interrupt() {
+   ABC_TRACE_FUNC(this);
+
+   m_pctx->m_injResumeException = exception::injectable::execution_interruption;
+   /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait for
+   it to be unblocked. */
+   // TODO: multithread-proofing.
+   // TODO: sanity check to avoid scheduling a coroutine twice!
+   this_thread::get_coroutine_scheduler()->add_ready(m_pctx);
 }
 
 } //namespace abc
@@ -252,10 +266,10 @@ coroutine::scheduler::~scheduler() {
    // TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD are empty.
 }
 
-void coroutine::scheduler::add(coroutine const & coro) {
-   ABC_TRACE_FUNC(this);
+void coroutine::scheduler::add_ready(std::shared_ptr<coroutine::context> pcoroctx) {
+   ABC_TRACE_FUNC(this, pcoroctx);
 
-   m_listReadyCoros.push_back(coro.m_pctx);
+   m_listReadyCoros.push_back(std::move(pcoroctx));
 }
 
 void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
@@ -281,12 +295,12 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   std::shared_ptr<coroutine::context> pcoroctxFormerActive(std::move(sm_pcoroctxActive));
-   m_mapCorosBlockedByTimer.add_or_assign(ke.ident, pcoroctxFormerActive);
+   auto itThisCoro(
+      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
+   );
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(pcoroctxFormerActive.get());
-      pcoroctxFormerActive->throw_if_any_resume_exception();
+      switch_to_scheduler(itThisCoro->value.get());
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       m_mapCorosBlockedByTimer.remove(ke.ident);
@@ -362,16 +376,25 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    #error "TODO: HOST_API"
 #endif
    // Deactivate the current coroutine and find one to activate instead.
-   std::shared_ptr<coroutine::context> pcoroctxFormerActive(std::move(sm_pcoroctxActive));
-   m_mapCorosBlockedByFD.add_or_assign(fd, pcoroctxFormerActive);
+   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(pcoroctxFormerActive.get());
+      switch_to_scheduler(itThisCoro->value.get());
    } catch (...) {
+#if ABC_HOST_API_LINUX
+      // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
+      // TODO: move this code to a “defer” lambda.
+      ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
+#endif
       // Remove the coroutine from the map of blocked ones.
       m_mapCorosBlockedByFD.remove(fd);
       throw;
    }
+#if ABC_HOST_API_LINUX
+   // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
+   // TODO: move this code to a “defer” lambda.
+   ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
+#endif
 }
 
 std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_activate() {
@@ -424,8 +447,6 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
             }
             exception::throw_os_error(iErr);
          }
-         // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
-         ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, ee.data.fd, nullptr);
          // Remove and return the coroutine that was waiting for the file descriptor.
          return m_mapCorosBlockedByFD.extract(ee.data.fd);
 #else
@@ -498,6 +519,8 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLast
       /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
       (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
    }
+   // Now that we’re back to the coroutine, check for any resume exceptions.
+   pcoroctxLastActive->throw_if_any_resume_exception();
 }
 
 

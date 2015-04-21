@@ -51,12 +51,13 @@ public:
    //! Destructor.
    ~scheduler();
 
-   /*! Adds a coroutine to those ready to start.
+   /*! Adds a coroutine to those ready to run. Ready coroutines take precedence over coroutines that
+   were known to be blocked but might be ready on the next find_coroutine_to_activate() invocation.
 
-   @param coro
-      Coroutine to add.
+   @param pcoroctx
+      Pointer to the context of a coroutine that’s ready to execute.
    */
-   void add(coroutine const & coro);
+   void add_ready(std::shared_ptr<coroutine::context> pcoroctx);
 
    /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
    at least iMillisecs milliseconds have passed.

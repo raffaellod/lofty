@@ -68,6 +68,18 @@ public:
    */
    id_type id() const;
 
+   /*! Interrupts the coroutine by throwing an abc::execution_interruption instance in it.
+
+   Interruption will occur as soon as the target coroutine (*this) performs a call to
+   this_coroutine::sleep_for_ms() or other coroutine sleep functions; if the coroutine is already
+   blocked on such call, the effect will be immediate from the coroutine’s point of view.
+
+   Interruption will only occur when the scheduler is able to schedule the target coroutine; in a
+   single-threaded scheduler case, this means that a coroutine calling interrupt() on another
+   coroutine should then follow with a coroutine sleep function call to allow the target coroutine
+   to be scheduled and interrupted as requested. */
+   void interrupt();
+
 private:
    //! Pointer to the coroutine’s execution context.
    std::shared_ptr<context> m_pctx;
