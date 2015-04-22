@@ -79,14 +79,30 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception containment") {
    ABC_TRACE_FUNC(this);
 
-   thread thr1([] () -> void {
+   bool bThr1Completed = false;
+   thread thr1([this, &bThr1Completed] () -> void {
+      ABC_TRACE_FUNC(this);
+
       // If exceptions are not properly contained by Abaclade, this will kill the entire process.
-      //ABC_THROW(generic_error, ());
+      ABC_THROW(generic_error, ());
+      bThr1Completed = true;
    });
-   /* Wait for thr1 to complete. Notice that we can’t assert anything while thr1 is running, since
-   its exception will cause output to stderr which will garble abc::testing’s output to stderr. */
-   thr1.join();
+   /* Temporarily redirect stderr to a local string writer, so the exception trace from the
+   coroutine won’t show in the test output. */
+   auto ptswErr(std::make_shared<io::text::str_writer>());
+   {
+      auto ptwOldStdErr(io::text::stderr);
+      io::text::stderr = ptswErr;
+      /* Wait for thr1 to complete. Can’t assert anything while thr1 is running, since any output
+      would end up in ptswErr instead of the real stderr. */
+      thr1.join();
+      io::text::stderr = std::move(ptwOldStdErr);
+   }
+
    ABC_TESTING_ASSERT_FALSE(thr1.joinable());
+   ABC_TESTING_ASSERT_FALSE(bThr1Completed);
+   // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
 
 } //namespace test

@@ -88,7 +88,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
       this_thread::run_coroutines();
-      io::text::stderr = ptwOldStdErr;
+      io::text::stderr = std::move(ptwOldStdErr);
    }
 
    ABC_TESTING_ASSERT_FALSE(bCoro1Completed);
