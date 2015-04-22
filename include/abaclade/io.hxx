@@ -127,7 +127,12 @@ public:
       true if the object has a valid file descriptor, or false otherwise.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return m_fd != smc_fdNull;
+      return m_fd != smc_fdNull
+#if ABC_HOST_API_WIN32
+         // Some Win32 functions return nullptr instead of INVALID_HANDLE_VALUE.
+         && m_fd != nullptr
+#endif
+      ;
    }
 
    /*! Closes the file descriptor, ensuring that no error conditions remain possible in the
