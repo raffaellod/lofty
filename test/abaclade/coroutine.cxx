@@ -72,12 +72,28 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    ABC_TRACE_FUNC(this);
 
-   coroutine coro1([] () -> void {
+   bool bCoro1Completed = false;
+   coroutine coro1([this, &bCoro1Completed] () -> void {
+      ABC_TRACE_FUNC(this);
+
       // If exceptions are not properly contained by Abaclade, this will kill the entire process.
-      //ABC_THROW(generic_error, ());
+      ABC_THROW(generic_error, ());
+      bCoro1Completed = true;
    });
 
-   this_thread::run_coroutines();
+   /* Temporarily redirect stderr to a local string writer, so the exception trace from the
+   coroutine won’t show in the test output. */
+   auto ptswErr(std::make_shared<io::text::str_writer>());
+   {
+      auto ptwOldStdErr(io::text::stderr);
+      io::text::stderr = ptswErr;
+      this_thread::run_coroutines();
+      io::text::stderr = ptwOldStdErr;
+   }
+
+   ABC_TESTING_ASSERT_FALSE(bCoro1Completed);
+   // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
 
 } //namespace test
