@@ -37,9 +37,9 @@ namespace abc {
 namespace io {
 namespace binary {
 
-std::shared_ptr<file_writer> stderr;
-std::shared_ptr<file_reader> stdin;
-std::shared_ptr<file_writer> stdout;
+std::shared_ptr<writer> stderr;
+std::shared_ptr<reader> stdin;
+std::shared_ptr<writer> stdout;
 
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
@@ -444,7 +444,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
 
 namespace detail {
 
-std::shared_ptr<file_writer> make_stderr() {
+std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -452,7 +452,7 @@ std::shared_ptr<file_writer> make_stderr() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
+   return std::dynamic_pointer_cast<writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDERR_FILENO
 #elif ABC_HOST_API_WIN32
@@ -463,7 +463,7 @@ std::shared_ptr<file_writer> make_stderr() {
    ), access_mode::write));
 }
 
-std::shared_ptr<file_reader> make_stdin() {
+std::shared_ptr<reader> make_stdin() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -471,7 +471,7 @@ std::shared_ptr<file_reader> make_stdin() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<file_reader>(_attach(filedesc(
+   return std::dynamic_pointer_cast<reader>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDIN_FILENO
 #elif ABC_HOST_API_WIN32
@@ -482,7 +482,7 @@ std::shared_ptr<file_reader> make_stdin() {
    ), access_mode::read));
 }
 
-std::shared_ptr<file_writer> make_stdout() {
+std::shared_ptr<writer> make_stdout() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -490,7 +490,7 @@ std::shared_ptr<file_writer> make_stdout() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<file_writer>(_attach(filedesc(
+   return std::dynamic_pointer_cast<writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDOUT_FILENO
 #elif ABC_HOST_API_WIN32

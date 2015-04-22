@@ -48,6 +48,8 @@ class file_writer;
 class file_readwriter;
 class pipe_reader;
 class pipe_writer;
+class reader;
+class writer;
 
 /*! Creates and returns a binary reader for the specified file descriptor.
 
@@ -144,11 +146,11 @@ inline std::shared_ptr<file_readwriter> open_readwriter(
 ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe();
 
 //! Binary writer associated to the standard error output file.
-extern ABACLADE_SYM std::shared_ptr<file_writer> stderr;
+extern ABACLADE_SYM std::shared_ptr<writer> stderr;
 //! Binary reader associated to the standard input file.
-extern ABACLADE_SYM std::shared_ptr<file_reader> stdin;
+extern ABACLADE_SYM std::shared_ptr<reader> stdin;
 //! Binary writer associated to the standard output file.
-extern ABACLADE_SYM std::shared_ptr<file_writer> stdout;
+extern ABACLADE_SYM std::shared_ptr<writer> stdout;
 
 namespace detail {
 
@@ -157,21 +159,21 @@ namespace detail {
 @return
    Standard error file.
 */
-ABACLADE_SYM std::shared_ptr<file_writer> make_stderr();
+ABACLADE_SYM std::shared_ptr<writer> make_stderr();
 
 /*! Creates and returns a binary reader associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM std::shared_ptr<file_reader> make_stdin();
+ABACLADE_SYM std::shared_ptr<reader> make_stdin();
 
 /*! Creates and returns a binary writer associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM std::shared_ptr<file_writer> make_stdout();
+ABACLADE_SYM std::shared_ptr<writer> make_stdout();
 
 } //namespace detail
 
