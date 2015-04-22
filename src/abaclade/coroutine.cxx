@@ -64,6 +64,8 @@ public:
    context(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
       m_pStack(SIGSTKSZ),
+#elif ABC_HOST_API_WIN32
+      m_pfbr(::CreateFiber(0, &outer_main, this)),
 #endif
 #ifdef ABAMAKE_USING_VALGRIND
       m_iValgrindStackId(VALGRIND_STACK_REGISTER(
@@ -97,7 +99,23 @@ public:
 #ifdef ABAMAKE_USING_VALGRIND
       VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
 #endif
+#if ABC_HOST_API_WIN32
+      if (m_pfbr) {
+         ::DeleteFiber(m_pfbr);
+      }
+#endif
    }
+
+#if ABC_HOST_API_WIN32
+   /*! Returns the internal fiber pointer.
+
+   @return
+      Pointer to the context’s fiber.
+   */
+   void * fiber() {
+      return m_pfbr;
+   }
+#endif
 
    /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
 
@@ -143,7 +161,7 @@ private:
    //! Pointer to the memory chunk used as stack.
    memory::pages_ptr m_pStack;
 #elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
+   void * m_pfbr;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -238,13 +256,19 @@ namespace abc {
 
 thread_local_value<std::shared_ptr<coroutine::context>> coroutine::scheduler::sm_pcoroctxActive;
 thread_local_value<std::shared_ptr<coroutine::scheduler>> coroutine::scheduler::sm_pcorosched;
+#if ABC_HOST_API_POSIX
 thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nullptr*/;
+#elif ABC_HOST_API_WIN32
+thread_local_value<void *> coroutine::scheduler::sm_pfbrReturn /*= nullptr*/;
+#endif
 
 coroutine::scheduler::scheduler() :
 #if ABC_HOST_API_BSD
    m_fdKqueue(::kqueue()) {
 #elif ABC_HOST_API_LINUX
    m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
+#elif ABC_HOST_API_WIN32
+   m_fdIocp(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)) {
 #endif
    ABC_TRACE_FUNC(this);
 
@@ -257,6 +281,10 @@ coroutine::scheduler::scheduler() :
    m_fdKqueue.set_close_on_exec(true);
 #elif ABC_HOST_API_LINUX
    if (!m_fdEpoll) {
+      exception::throw_os_error();
+   }
+#elif ABC_HOST_API_WIN32
+   if (!m_fdIocp) {
       exception::throw_os_error();
    }
 #endif
@@ -372,6 +400,10 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
       exception::throw_os_error();
    }
+#elif ABC_HOST_API_WIN32
+   if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
+      exception::throw_os_error();
+   }
 #else
    #error "TODO: HOST_API"
 #endif
@@ -385,6 +417,10 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
       // TODO: move this code to a “defer” lambda.
       ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
+#elif ABC_HOST_API_WIN32
+      /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file,
+      not just this one. */
+      ::CancelIo(fd, nullptr);
 #endif
       // Remove the coroutine from the map of blocked ones.
       m_mapCorosBlockedByFD.remove(fd);
@@ -432,10 +468,10 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
             exception::throw_os_error(ke.data);
          }*/
          if (ke.filter == EVFILT_TIMER) {
-            // Remove and return the coroutine that was waiting for the timer.
+            // Remove and return the coroutine that was waiting for this timer.
             return m_mapCorosBlockedByTimer.extract(ke.ident);
          } else {
-            // Remove and return the coroutine that was waiting for the file descriptor.
+            // Remove and return the coroutine that was waiting for this file descriptor.
             return m_mapCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
          }
 #elif ABC_HOST_API_LINUX
@@ -447,8 +483,19 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
             }
             exception::throw_os_error(iErr);
          }
-         // Remove and return the coroutine that was waiting for the file descriptor.
+         // Remove and return the coroutine that was waiting for this file descriptor.
          return m_mapCorosBlockedByFD.extract(ee.data.fd);
+#elif ABC_HOST_API_WIN32
+         ::DWORD cbTransferred;
+         ::ULONG_PTR iCompletionKey;
+         ::OVERLAPPED * povl;
+         if (!::GetQueuedCompletionStatus(
+            m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
+         )) {
+            exception::throw_os_error(iErr);
+         }
+         // Remove and return the coroutine that was waiting for this handle.
+         return m_mapCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
 #else
    #error "TODO: HOST_API"
 #endif
@@ -459,23 +506,41 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
 }
 
 void coroutine::scheduler::return_to_scheduler() {
-#if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-   #pragma clang diagnostic push
-   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#if ABC_HOST_API_POSIX
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
    ::setcontext(sm_puctxReturn.get());
-#if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-   #pragma clang diagnostic pop
-#endif
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
    // Assume ::setcontext() is always successful, in which case it never returns.
    // TODO: maybe issue warning/abort in case ::setcontext() does return?
+#elif ABC_HOST_API_WIN32
+   ::SwitchToFiber(sm_pfbrReturn.get());
+#else
+   #error "TODO: HOST_API"
+#endif
 }
 
 void coroutine::scheduler::run() {
    ABC_TRACE_FUNC(this);
 
+#if ABC_HOST_API_POSIX
    ::ucontext_t uctxReturn;
    sm_puctxReturn = &uctxReturn;
+#elif ABC_HOST_API_WIN32
+   {
+      void * pfbr = ::ConvertThreadToFiber(nullptr);
+      if (!pfbr) {
+         exception::throw_os_error();
+      }
+      sm_pfbrReturn = pfbr;
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
    std::shared_ptr<coroutine::context> & pcoroctxActive = sm_pcoroctxActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
@@ -485,20 +550,28 @@ void coroutine::scheduler::run() {
          coroutine. */
          *ppcrlsCurrent = pcoroctxActive->local_storage_ptr();
          // Switch the current thread’s context to the active coroutine’s.
-#if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-   #pragma clang diagnostic push
-   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#if ABC_HOST_API_POSIX
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+   #endif
          int iRet = ::swapcontext(&uctxReturn, pcoroctxActive->ucontext_ptr());
-#if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-   #pragma clang diagnostic pop
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
+#elif ABC_HOST_API_WIN32
+         ::SwitchToFiber(pcoroctxActive->fiber());
+#else
+   #error "TODO: HOST_API"
 #endif
          // Restore the coroutine_local_storage pointer for this thread.
          *ppcrlsCurrent = pcrlsDefault;
+#if ABC_HOST_API_POSIX
          if (iRet < 0) {
             /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
             (*sm_pcoroctxActive has a problem, not uctxReturn). */
          }
+#endif
       }
    } catch (...) {
       sm_puctxReturn = nullptr;
@@ -508,6 +581,7 @@ void coroutine::scheduler::run() {
 }
 
 void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLastActive) {
+#if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -519,6 +593,11 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLast
       /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
       (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
    }
+#elif ABC_HOST_API_WIN32
+   ::SwitchToFiber(sm_pfbrReturn.get());
+#else
+   #error "TODO: HOST_API"
+#endif
    // Now that we’re back to the coroutine, check for any resume exceptions.
    pcoroctxLastActive->throw_if_any_resume_exception();
 }

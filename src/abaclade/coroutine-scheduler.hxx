@@ -115,6 +115,9 @@ private:
    /*! Timers currently being waited for. The key is the same as the value, but this can’t be
    changed into a set<io::filedesc> until io::filedesc is hashable. */
    collections::map<io::filedesc_t, io::filedesc> m_mapActiveTimers;
+#elif ABC_HOST_API_WIN32
+   //! File descriptor of the internal IOCP.
+   io::filedesc m_fdIocp;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -128,8 +131,11 @@ private:
    //! Pointer to the coroutine scheduler for the current thread.
    static thread_local_value<std::shared_ptr<scheduler>> sm_pcorosched;
 #if ABC_HOST_API_POSIX
-   //! Pointer to the context of every thread running a coroutine scheduler.
+   //! Pointer to the original context of every thread running a coroutine scheduler.
    static thread_local_value< ::ucontext_t *> sm_puctxReturn;
+#elif ABC_HOST_API_POSIX
+   //! Handle to the original fiber of every thread running a coroutine scheduler.
+   static thread_local_value<void *> sm_pfbrReturn;
 #endif
 };
 
