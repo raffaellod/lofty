@@ -61,6 +61,18 @@ public:
    //! Destructor.
    ~coroutine();
 
+   /*! Assignment operator.
+
+   @param coro
+      Source object.
+   @return
+      *this.
+   */
+   coroutine & operator=(coroutine && coro) {
+      m_pctx = std::move(coro.m_pctx);
+      return *this;
+   }
+
    /*! Returns a process-wide unique ID for the coroutine.
 
    @return
