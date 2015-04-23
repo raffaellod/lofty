@@ -437,8 +437,8 @@ std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_acti
    ABC_TRACE_FUNC(this);
 
    // This loop will only repeat in case of EINTR from the blocking-wait API.
-   /* TODO: if the epoll/kqueue is shared by several threads and one thread receives and removes the
-   last event source from it, what happens to the remaining threads?
+   /* TODO: if the epoll/kqueue/IOCP is shared by several threads and one thread receives and
+   removes the last event source from it, what happens to the remaining threads?
    a) We could send a no-op signal (SIGCONT?) to all threads using this scheduler, to make the wait
       function return EINTR;
    b) We could have a single event source for each scheduler with the semantics of “event sources

@@ -32,14 +32,13 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
    ABC_TRACE_FUNC(this);
 
-   // TODO: use std::atomic for these variables.
-   int volatile i1 = 1, i2 = 2;
+   bool bCoro1Completed = false, bCoro2Completed = false;
 
-   coroutine coro1([this, &i1] () -> void {
-      i1 = 41;
+   coroutine coro1([this, &bCoro1Completed] () -> void {
+      bCoro1Completed = true;
    });
-   coroutine coro2([this, &i2] () -> void {
-      i2 = 42;
+   coroutine coro2([this, &bCoro2Completed] () -> void {
+      bCoro2Completed = true;
    });
    coroutine coro3;
 
@@ -56,8 +55,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
 
    this_thread::run_coroutines();
 
-   ABC_TESTING_ASSERT_EQUAL(i1, 41);
-   ABC_TESTING_ASSERT_EQUAL(i2, 42);
+   ABC_TESTING_ASSERT_TRUE(bCoro1Completed);
+   ABC_TESTING_ASSERT_TRUE(bCoro2Completed);
 }
 
 } //namespace test
