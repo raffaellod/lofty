@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/thread.hxx>
 
+#include <atomic>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::test::thread_concurrent
@@ -31,14 +33,17 @@ namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    ABC_TRACE_FUNC(this);
 
-   // TODO: use std::atomic for these variables.
-   int volatile i1 = 1, i2 = 2;
+   std::atomic<bool> bThr1Completed(false), bThr2Completed(false);
 
-   thread thr1([this, &i1] () -> void {
-      i1 = 41;
+   thread thr1([this, &bThr1Completed] () -> void {
+      ABC_TRACE_FUNC(this);
+
+      bThr1Completed = true;
    });
-   thread thr2([this, &i2] () -> void {
-      i2 = 42;
+   thread thr2([this, &bThr2Completed] () -> void {
+      ABC_TRACE_FUNC(this);
+
+      bThr2Completed = true;
    });
    thread thr3;
 
@@ -63,8 +68,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    ABC_TESTING_ASSERT_FALSE(thr1.joinable());
    ABC_TESTING_ASSERT_FALSE(thr2.joinable());
 
-   ABC_TESTING_ASSERT_EQUAL(i1, 41);
-   ABC_TESTING_ASSERT_EQUAL(i2, 42);
+   ABC_TESTING_ASSERT_TRUE(bThr1Completed);
+   ABC_TESTING_ASSERT_TRUE(bThr2Completed);
 }
 
 } //namespace test
