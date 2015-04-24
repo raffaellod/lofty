@@ -431,6 +431,7 @@ public:
    }
 
    /*! Injects the requested type of exception in the specified context.
+
    @param inj
       Type of exception to inject.
    @param iArg0
