@@ -45,7 +45,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-class thread::shared_data {
+class thread::impl {
 private:
    friend class thread;
 
@@ -55,29 +55,137 @@ public:
    @param fnMain
       Initial value for m_fnInnerMain.
    */
-   shared_data(std::function<void ()> fnMain) :
+   impl(std::function<void ()> fnMain) :
+#if ABC_HOST_API_POSIX
+      m_id(0),
+#elif ABC_HOST_API_WIN32
+      m_h(nullptr),
+#else
+   #error "TODO: HOST_API"
+#endif
       m_fnInnerMain(std::move(fnMain)) {
    }
 
    //! Destructor.
-   ~shared_data() {
+   ~impl() {
+#if ABC_HOST_API_WIN32
+      ::CloseHandle(m_h);
+#endif
    }
 
-   //! Invokes the user-provided thread function.
-   void inner_main() {
-      m_fnInnerMain();
+   //! Creates a thread to run outer_main().
+   void start(std::shared_ptr<impl> * ppimplThis) {
+      ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_DARWIN
+      m_dsemStarted = ::dispatch_semaphore_create(0);
+      if (!m_dsemStarted) {
+         exception::throw_os_error();
+      }
+      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+         ::dispatch_release(m_dsemStarted);
+         exception::throw_os_error(iErr);
+      }
+      // Block until the new thread is finished updating *this.
+      ::dispatch_semaphore_wait(m_dsemStarted, DISPATCH_TIME_FOREVER);
+      ::dispatch_release(m_dsemStarted);
+#elif ABC_HOST_API_POSIX
+      if (::sem_init(&m_semStarted, 0, 0)) {
+         exception::throw_os_error();
+      }
+      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+         ::sem_destroy(&m_semStarted);
+         exception::throw_os_error(iErr);
+      }
+      /* Block until the new thread is finished updating *this. The only possible failure is EINTR,
+      so we just keep on retrying. */
+      while (::sem_wait(&m_semStarted)) {
+         ;
+      }
+      ::sem_destroy(&m_semStarted);
+#elif ABC_HOST_API_WIN32
+      m_hStartedEvent = ::CreateEvent(nullptr, true, false, nullptr);
+      m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
+      if (!m_h) {
+         DWORD iErr = ::GetLastError();
+         ::CloseHandle(m_hStartedEvent);
+         exception::throw_os_error(iErr);
+      }
+      // Block until the new thread is finished updating *this. Must not fail.
+      ::WaitForSingleObject(m_hStartedEvent, INFINITE);
+      ::CloseHandle(m_hStartedEvent);
+#else
+   #error "TODO: HOST_API"
+#endif
    }
 
 private:
+   /*! Lower-level wrapper for the thread function passed to the constructor. Under POSIX, this is
+   also needed to assign the thread ID to the owning abc::thread instance.
+
+   @param p
+      *this.
+   @return
+      Unused.
+   */
+#if ABC_HOST_API_POSIX
+   static void * outer_main(void * p) {
+#elif ABC_HOST_API_WIN32
+   static DWORD WINAPI outer_main(void * p) {
+#else
+   #error "TODO: HOST_API"
+#endif
+      /* Get a copy of the shared_ptr owning *this, so that members will be guaranteed to be
+      accessible even after start() returns, in the creating thread.
+      Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for
+      this thread to signal that it’s finished starting. */
+      std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
+#if ABC_HOST_API_POSIX
+      pimplThis->m_id = this_thread::id();
+   #if ABC_HOST_API_DARWIN
+      ::dispatch_semaphore_signal(pimplThis->m_dsemStarted);
+   #else
+      // Report that this thread is done with writing to *pthr.
+      ::sem_post(&pimplThis->m_semStarted);
+   #endif
+#elif ABC_HOST_API_WIN32
+      // Report that this thread is done with writing to *pthr.
+      ::SetEvent(pimplThis->m_hStartedEvent);
+#else
+   #error "TODO: HOST_API"
+#endif
+      try {
+         pimplThis->m_fnInnerMain();
+      } catch (std::exception const & x) {
+         exception::write_with_scope_trace(nullptr, &x);
+         // TODO: kill every other thread.
+      } catch (...) {
+         exception::write_with_scope_trace();
+         // TODO: kill every other thread.
+      }
+#if ABC_HOST_API_POSIX
+      return nullptr;
+#elif ABC_HOST_API_WIN32
+      return 0;
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
+private:
+   //! OS-dependent ID/handle.
+   native_handle_type m_h;
 #if ABC_HOST_API_DARWIN
    //! Dispatch semaphore used by the new thread to report to its parent that it has started.
-   ::dispatch_semaphore_t m_dsemReady;
+   ::dispatch_semaphore_t m_dsemStarted;
 #elif ABC_HOST_API_POSIX
+   //! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
+   id_type m_id;
    //! Semaphore used by the new thread to report to its parent that it has started.
-   ::sem_t m_semReady;
+   ::sem_t m_semStarted;
 #elif ABC_HOST_API_WIN32
    //! Event used by the new thread to report to its parent that it has started.
-   HANDLE m_hReadyEvent;
+   HANDLE m_hStartedEvent;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -87,88 +195,26 @@ private:
 
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :
-#if ABC_HOST_API_POSIX
-   m_id(0),
-#elif ABC_HOST_API_WIN32
-   m_h(nullptr),
-#else
-   #error "TODO: HOST_API"
-#endif
-   m_psd(std::make_shared<shared_data>(std::move(fnMain))) {
+   m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
    ABC_TRACE_FUNC(this);
 
-   start();
-}
-thread::thread(thread && thr) :
-   m_h(thr.m_h),
-#if ABC_HOST_API_POSIX
-   m_id(thr.m_id),
-#endif
-   m_psd(std::move(thr.m_psd)) {
-#if ABC_HOST_API_POSIX
-   thr.m_id = 0;
-   // pthreads does not provide a way to clear thr.m_h.
-#else
-   thr.m_h = nullptr;
-#endif
+   m_pimpl->start(&m_pimpl);
 }
 
 thread::~thread() {
-   ABC_TRACE_FUNC(this);
-
    if (joinable()) {
-      // TODO: std::abort() or something similar.
+      // TODO: std::terminate() or something similar.
    }
-#if ABC_HOST_API_WIN32
-   if (m_h) {
-      ::CloseHandle(m_h);
-   }
-#endif
-}
-
-thread & thread::operator=(thread && thr) {
-   ABC_TRACE_FUNC(this, thr);
-
-   native_handle_type h(thr.m_h);
-#if ABC_HOST_API_POSIX
-   id_type tid(thr.m_id);
-#endif
-   detach();
-   m_h = h;
-#if ABC_HOST_API_POSIX
-   // pthreads does not provide a way to clear thr.m_h.
-   m_id = tid;
-   thr.m_id = 0;
-#else
-   thr.m_h = nullptr;
-#endif
-   return *this;
-}
-
-void thread::detach() {
-   ABC_TRACE_FUNC(this);
-
-#if ABC_HOST_API_POSIX
-   m_id = 0;
-   // pthreads does not provide a way to release m_h.
-#elif ABC_HOST_API_WIN32
-   if (m_h) {
-      ::CloseHandle(m_h);
-      m_h = nullptr;
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
 }
 
 thread::id_type thread::id() const {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
-   return m_id;
+   return m_pimpl ? m_pimpl->m_id : 0;
 #elif ABC_HOST_API_WIN32
-   if (m_h) {
-      DWORD iTid = ::GetThreadId(m_h);
+   if (m_pimpl) {
+      DWORD iTid = ::GetThreadId(m_pimpl->m_h);
       if (iTid == 0) {
          exception::throw_os_error();
       }
@@ -184,130 +230,28 @@ thread::id_type thread::id() const {
 void thread::join() {
    ABC_TRACE_FUNC(this);
 
-#if ABC_HOST_API_POSIX
-   /* pthread_join() would return EINVAL if passed a non-joinable thread ID. Since there’s no such
-   thing as an “invalid thread ID” in pthreads that can be trusted to always be non-joinable, we
-   duplicate that sanity check here. */
-   if (!m_id) {
-      ABC_THROW(argument_error, (EINVAL));
+   if (!m_pimpl) {
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
    }
-   if (int iErr = ::pthread_join(m_h, nullptr)) {
+#if ABC_HOST_API_POSIX
+   if (int iErr = ::pthread_join(m_pimpl->m_h, nullptr)) {
       exception::throw_os_error(iErr);
    }
-   m_id = 0;
 #elif ABC_HOST_API_WIN32
-   DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
+   DWORD iRet = ::WaitForSingleObject(m_pimpl->m_h, INFINITE);
    if (iRet == WAIT_FAILED) {
       exception::throw_os_error();
    }
 #else
    #error "TODO: HOST_API"
 #endif
+   // Release the impl instance; this will also make joinable() return false.
+   m_pimpl.reset();
 }
 
-bool thread::joinable() const {
-   ABC_TRACE_FUNC(this);
-
-#if ABC_HOST_API_POSIX
-   return m_id != 0;
-#elif ABC_HOST_API_WIN32
-   if (!m_h) {
-      return false;
-   }
-   DWORD iRet = ::WaitForSingleObject(m_h, 0);
-   if (iRet == WAIT_FAILED) {
-      exception::throw_os_error();
-   }
-   return iRet == WAIT_TIMEOUT;
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-/*static*/
-#if ABC_HOST_API_POSIX
-   void *
-#elif ABC_HOST_API_WIN32
-   DWORD WINAPI
-#else
-   #error "TODO: HOST_API"
-#endif
-thread::outer_main(void * p) {
-   std::shared_ptr<shared_data> psd;
-   {
-      thread * pthr = static_cast<thread *>(p);
-      psd = pthr->m_psd;
-#if ABC_HOST_API_POSIX
-      pthr->m_id = this_thread::id();
-#endif
-#if ABC_HOST_API_DARWIN
-      ::dispatch_semaphore_signal(psd->m_dsemReady);
-#elif ABC_HOST_API_POSIX
-      // Report that this thread is done with writing to *pthr.
-      ::sem_post(&psd->m_semReady);
-#elif ABC_HOST_API_WIN32
-      // Report that this thread is done with writing to *pthr.
-      ::SetEvent(psd->m_hReadyEvent);
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-
-   try {
-      psd->inner_main();
-   } catch (std::exception const & x) {
-      exception::write_with_scope_trace(nullptr, &x);
-      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
-   } catch (...) {
-      exception::write_with_scope_trace();
-      // TODO: support “moving” the exception to a different thread (e.g. join_with_exceptions()).
-   }
-   return 0;
-}
-
-void thread::start() {
-   ABC_TRACE_FUNC(this);
-
-#if ABC_HOST_API_DARWIN
-   m_psd->m_dsemReady = ::dispatch_semaphore_create(0);
-   if (!m_psd->m_dsemReady) {
-      exception::throw_os_error();
-   }
-   if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
-      ::dispatch_release(m_psd->m_dsemReady);
-      exception::throw_os_error(iErr);
-   }
-   // Block until the new thread is finished updating *this.
-   ::dispatch_semaphore_wait(m_psd->m_dsemReady, DISPATCH_TIME_FOREVER);
-   ::dispatch_release(m_psd->m_dsemReady);
-#elif ABC_HOST_API_POSIX
-   if (::sem_init(&m_psd->m_semReady, 0, 0)) {
-      exception::throw_os_error();
-   }
-   if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, this)) {
-      ::sem_destroy(&m_psd->m_semReady);
-      exception::throw_os_error(iErr);
-   }
-   /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so
-   we just keep on retrying. */
-   while (::sem_wait(&m_psd->m_semReady)) {
-      ;
-   }
-   ::sem_destroy(&m_psd->m_semReady);
-#elif ABC_HOST_API_WIN32
-   m_psd->m_hReadyEvent = ::CreateEvent(nullptr, true, false, nullptr);
-   m_h = ::CreateThread(nullptr, 0, &outer_main, this, 0, nullptr);
-   if (!m_h) {
-      DWORD iErr = ::GetLastError();
-      ::CloseHandle(m_psd->m_hReadyEvent);
-      exception::throw_os_error(iErr);
-   }
-   // Block until the new thread is finished updating *this. Must not fail.
-   ::WaitForSingleObject(m_psd->m_hReadyEvent, INFINITE);
-   ::CloseHandle(m_psd->m_hReadyEvent);
-#else
-   #error "TODO: HOST_API"
-#endif
+thread::native_handle_type thread::native_handle() const {
+   return m_pimpl ? m_pimpl->m_h : native_handle_type();
 }
 
 } //namespace abc

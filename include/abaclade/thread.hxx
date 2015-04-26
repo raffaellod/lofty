@@ -67,9 +67,8 @@ public:
 #endif
 
 private:
-   /*! Type used to exchange data between the thread owning the abc::thread instance and the thread
-   owned by the abc::thread instance. */
-   class shared_data;
+   //! Implementation of thread startup and completion logic.
+   class impl;
 
 public:
    /*! Constructor.
@@ -77,19 +76,14 @@ public:
    @param fnMain
       Function that will act as the entry point for a new thread to be started immediately.
    @param thr
-      Source thread.
+      Source object.
    */
-   thread() :
-#if ABC_HOST_API_POSIX
-      m_id(0) {
-#elif ABC_HOST_API_WIN32
-      m_h(nullptr) {
-#else
-   #error "TODO: HOST_API"
-#endif
+   thread() {
    }
    explicit thread(std::function<void ()> fnMain);
-   thread(thread && thr);
+   thread(thread && thr) :
+      m_pimpl(std::move(thr.m_pimpl)) {
+   }
 
    //! Destructor.
    ~thread();
@@ -97,15 +91,20 @@ public:
    /*! Assignment operator.
 
    @param thr
-      Source thread.
+      Source object.
    @return
       *this.
    */
-   thread & operator=(thread && thr);
+   thread & operator=(thread && thr) {
+      m_pimpl = std::move(thr.m_pimpl);
+      return *this;
+   }
 
    /*! Releases the OS-dependent ID/handle, making *this reference no thread and invalidating the
    value returned by native_handle(). */
-   void detach();
+   void detach() {
+      m_pimpl.reset();
+   }
 
    /*! Returns a process-wide unique ID for the thread.
 
@@ -122,48 +121,21 @@ public:
    @return
       true if the object is in a joinable state, or false otherwise.
    */
-   bool joinable() const;
+   bool joinable() const {
+      return m_pimpl != nullptr;
+   }
 
    /*! Returns the underlying ID/handle type.
 
    @return
       OS-dependent ID/handle.
    */
-   native_handle_type native_handle() const {
-      return m_h;
-   }
+   native_handle_type native_handle() const;
 
 private:
-   //! Creates a thread to run outer_main(), with inner_main() available in m_psd.
-   void start();
-
-   /*! Lower-level wrapper for the thread function passed to the constructor. Under Linux, this is
-   also needed to assign the thread ID to the owning abc::thread instance.
-
-   @param p
-      *this, to be used to acquire a pointer to m_psd and, under POSIX, to set m_id.
-   @return
-      Unused.
-   */
-#if ABC_HOST_API_POSIX
-   static void * outer_main(void * p);
-#elif ABC_HOST_API_WIN32
-   static DWORD WINAPI outer_main(void * p);
-#else
-   #error "TODO: HOST_API"
-#endif
-
-private:
-   //! OS-dependent ID/handle.
-   native_handle_type m_h;
-#if ABC_HOST_API_POSIX
-   /*! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
-   Since there’s no “uninitialized” pthread_t value, also use this to track whether m_h is valid. */
-   id_type m_id;
-#endif
    /*! Pointer to data that is shared between the thread owned by the abc::thread instance and the
    thread owning the abc::thread instance. */
-   std::shared_ptr<shared_data> m_psd;
+   std::shared_ptr<impl> m_pimpl;
 };
 
 } //namespace abc

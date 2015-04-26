@@ -120,7 +120,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #else
       #error "TODO: HOST_ARCH"
    #endif
-               // TODO: better exception type.
+               // TODO: use a better exception class.
                inj = abc::exception::injectable::memory_access_error;
                break;
 
