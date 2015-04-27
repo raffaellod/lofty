@@ -82,37 +82,54 @@ public:
       if (!m_dsemStarted) {
          exception::throw_os_error();
       }
-      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+      try {
+         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+            exception::throw_os_error(iErr);
+         }
+         // Block until the new thread is finished updating *this.
+         ::dispatch_semaphore_wait(m_dsemStarted, DISPATCH_TIME_FOREVER);
+      } catch (...) {
+         // TODO: move this code to a “defer” lambda.
          ::dispatch_release(m_dsemStarted);
-         exception::throw_os_error(iErr);
+         throw;
       }
-      // Block until the new thread is finished updating *this.
-      ::dispatch_semaphore_wait(m_dsemStarted, DISPATCH_TIME_FOREVER);
+      // TODO: move this code to a “defer” lambda.
       ::dispatch_release(m_dsemStarted);
 #elif ABC_HOST_API_POSIX
       if (::sem_init(&m_semStarted, 0, 0)) {
          exception::throw_os_error();
       }
-      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+      try {
+         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+            exception::throw_os_error(iErr);
+         }
+         /* Block until the new thread is finished updating *this. The only possible failure is
+         EINTR, so we just keep on retrying. */
+         while (::sem_wait(&m_semStarted)) {
+            ;
+         }
+      } catch (...) {
+         // TODO: move this code to a “defer” lambda.
          ::sem_destroy(&m_semStarted);
-         exception::throw_os_error(iErr);
+         throw;
       }
-      /* Block until the new thread is finished updating *this. The only possible failure is EINTR,
-      so we just keep on retrying. */
-      while (::sem_wait(&m_semStarted)) {
-         ;
-      }
+      // TODO: move this code to a “defer” lambda.
       ::sem_destroy(&m_semStarted);
 #elif ABC_HOST_API_WIN32
       m_hStartedEvent = ::CreateEvent(nullptr, true, false, nullptr);
-      m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
-      if (!m_h) {
-         DWORD iErr = ::GetLastError();
+      try {
+         m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
+         if (!m_h) {
+            exception::throw_os_error();
+         }
+         // Block until the new thread is finished updating *this. Must not fail.
+         ::WaitForSingleObject(m_hStartedEvent, INFINITE);
+      } catch (...) {
+         // TODO: move this code to a “defer” lambda.
          ::CloseHandle(m_hStartedEvent);
-         exception::throw_os_error(iErr);
+         throw;
       }
-      // Block until the new thread is finished updating *this. Must not fail.
-      ::WaitForSingleObject(m_hStartedEvent, INFINITE);
+      // TODO: move this code to a “defer” lambda.
       ::CloseHandle(m_hStartedEvent);
 #else
    #error "TODO: HOST_API"
