@@ -163,7 +163,9 @@ public:
    //! Destructor.
    ~impl() {
 #if ABC_HOST_API_WIN32
-      ::CloseHandle(m_h);
+      if (m_h) {
+         ::CloseHandle(m_h);
+      }
 #endif
    }
 
