@@ -41,6 +41,99 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::detail::simple_event
+
+/*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
+coroutine::scheduler. */
+// TODO: make this a non-coroutine-friendly general-purpose event.
+namespace abc {
+namespace detail {
+
+class simple_event : public noncopyable {
+public:
+   //! Constructor.
+   simple_event() {
+#if ABC_HOST_API_DARWIN
+      m_dsem = ::dispatch_semaphore_create(0);
+      if (!m_dsem) {
+         exception::throw_os_error();
+      }
+#elif ABC_HOST_API_POSIX
+      if (::sem_init(&m_sem, 0, 0)) {
+         exception::throw_os_error();
+      }
+#elif ABC_HOST_API_WIN32
+      m_hEvent = ::CreateEvent(nullptr, true, false, nullptr);
+      if (!m_hEvent) {
+         exception::throw_os_error();
+      }
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
+   //! Destructor.
+   ~simple_event() {
+#if ABC_HOST_API_DARWIN
+      ::dispatch_release(m_dsem);
+#elif ABC_HOST_API_POSIX
+      ::sem_destroy(&m_sem);
+#elif ABC_HOST_API_WIN32
+      ::CloseHandle(m_hEvent);
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
+   //! Raises the event.
+   void raise() {
+#if ABC_HOST_API_DARWIN
+      ::dispatch_semaphore_signal(m_dsem);
+#elif ABC_HOST_API_POSIX
+      ::sem_post(&m_sem);
+#elif ABC_HOST_API_WIN32
+      ::SetEvent(m_hEvent);
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
+   //! Waits for the event to be raised by another thread.
+   void wait() {
+#if ABC_HOST_API_DARWIN
+      ::dispatch_semaphore_wait(m_dsem, DISPATCH_TIME_FOREVER);
+#elif ABC_HOST_API_POSIX
+      /* Block until the new thread is finished updating *this. The only possible failure is EINTR,
+      so we just keep on retrying. */
+      while (::sem_wait(&m_sem)) {
+         ;
+      }
+#elif ABC_HOST_API_WIN32
+      ::WaitForSingleObject(m_hEvent, INFINITE);
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
+private:
+#if ABC_HOST_API_DARWIN
+   //! Underlying dispatch semaphore.
+   ::dispatch_semaphore_t m_dsem;
+#elif ABC_HOST_API_POSIX
+   //! Underlying POSIX semaphore.
+   ::sem_t m_sem;
+#elif ABC_HOST_API_WIN32
+   //! Underlying event.
+   ::HANDLE m_hEvent;
+#else
+   #error "TODO: HOST_API"
+#endif
+};
+
+} //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::thread
 
 namespace abc {
@@ -63,6 +156,7 @@ public:
 #else
    #error "TODO: HOST_API"
 #endif
+      m_pseStarted(nullptr),
       m_fnInnerMain(std::move(fnMain)) {
    }
 
@@ -77,63 +171,28 @@ public:
    void start(std::shared_ptr<impl> * ppimplThis) {
       ABC_TRACE_FUNC(this);
 
-#if ABC_HOST_API_DARWIN
-      m_dsemStarted = ::dispatch_semaphore_create(0);
-      if (!m_dsemStarted) {
-         exception::throw_os_error();
-      }
+      detail::simple_event seStarted;
+      m_pseStarted = &seStarted;
       try {
+#if ABC_HOST_API_POSIX
          if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
             exception::throw_os_error(iErr);
          }
-         // Block until the new thread is finished updating *this.
-         ::dispatch_semaphore_wait(m_dsemStarted, DISPATCH_TIME_FOREVER);
-      } catch (...) {
-         // TODO: move this code to a “defer” lambda.
-         ::dispatch_release(m_dsemStarted);
-         throw;
-      }
-      // TODO: move this code to a “defer” lambda.
-      ::dispatch_release(m_dsemStarted);
-#elif ABC_HOST_API_POSIX
-      if (::sem_init(&m_semStarted, 0, 0)) {
-         exception::throw_os_error();
-      }
-      try {
-         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
-            exception::throw_os_error(iErr);
-         }
-         /* Block until the new thread is finished updating *this. The only possible failure is
-         EINTR, so we just keep on retrying. */
-         while (::sem_wait(&m_semStarted)) {
-            ;
-         }
-      } catch (...) {
-         // TODO: move this code to a “defer” lambda.
-         ::sem_destroy(&m_semStarted);
-         throw;
-      }
-      // TODO: move this code to a “defer” lambda.
-      ::sem_destroy(&m_semStarted);
 #elif ABC_HOST_API_WIN32
-      m_hStartedEvent = ::CreateEvent(nullptr, true, false, nullptr);
-      try {
          m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
          if (!m_h) {
             exception::throw_os_error();
          }
-         // Block until the new thread is finished updating *this. Must not fail.
-         ::WaitForSingleObject(m_hStartedEvent, INFINITE);
-      } catch (...) {
-         // TODO: move this code to a “defer” lambda.
-         ::CloseHandle(m_hStartedEvent);
-         throw;
-      }
-      // TODO: move this code to a “defer” lambda.
-      ::CloseHandle(m_hStartedEvent);
 #else
    #error "TODO: HOST_API"
 #endif
+         // Block until the new thread is finished updating *this.
+         seStarted.wait();
+      } catch (...) {
+         m_pseStarted = nullptr;
+         throw;
+      }
+      m_pseStarted = nullptr;
    }
 
 private:
@@ -159,18 +218,9 @@ private:
       std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
 #if ABC_HOST_API_POSIX
       pimplThis->m_id = this_thread::id();
-   #if ABC_HOST_API_DARWIN
-      ::dispatch_semaphore_signal(pimplThis->m_dsemStarted);
-   #else
-      // Report that this thread is done with writing to *pthr.
-      ::sem_post(&pimplThis->m_semStarted);
-   #endif
-#elif ABC_HOST_API_WIN32
-      // Report that this thread is done with writing to *pthr.
-      ::SetEvent(pimplThis->m_hStartedEvent);
-#else
-   #error "TODO: HOST_API"
 #endif
+      // Report that this thread is done with writing to *pthr.
+      pimplThis->m_pseStarted->raise();
       try {
          pimplThis->m_fnInnerMain();
       } catch (std::exception const & x) {
@@ -192,20 +242,13 @@ private:
 private:
    //! OS-dependent ID/handle.
    native_handle_type m_h;
-#if ABC_HOST_API_DARWIN
-   //! Dispatch semaphore used by the new thread to report to its parent that it has started.
-   ::dispatch_semaphore_t m_dsemStarted;
-#elif ABC_HOST_API_POSIX
+#if ABC_HOST_API_POSIX
    //! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
    id_type m_id;
-   //! Semaphore used by the new thread to report to its parent that it has started.
-   ::sem_t m_semStarted;
-#elif ABC_HOST_API_WIN32
-   //! Event used by the new thread to report to its parent that it has started.
-   HANDLE m_hStartedEvent;
-#else
-   #error "TODO: HOST_API"
 #endif
+   /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
+   non-nullptr during the execution of start(). */
+   detail::simple_event * m_pseStarted;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
 };
