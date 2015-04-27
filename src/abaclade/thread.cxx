@@ -169,7 +169,12 @@ public:
 #endif
    }
 
-   //! Creates a thread to run outer_main().
+   /*! Creates a thread to run outer_main().
+
+   @param ppimplThis
+      Pointer by which outer_main() will get a reference (as in refcount) to *this, preventing it
+      from being deallocated while still running.
+   */
    void start(std::shared_ptr<impl> * ppimplThis) {
       ABC_TRACE_FUNC(this);
 
@@ -202,14 +207,14 @@ private:
    also needed to assign the thread ID to the owning abc::thread instance.
 
    @param p
-      *this.
+      Pointer to a shared_ptr to *this.
    @return
       Unused.
    */
 #if ABC_HOST_API_POSIX
    static void * outer_main(void * p) {
 #elif ABC_HOST_API_WIN32
-   static DWORD WINAPI outer_main(void * p) {
+   static ::DWORD WINAPI outer_main(void * p) {
 #else
    #error "TODO: HOST_API"
 #endif
@@ -221,7 +226,7 @@ private:
 #if ABC_HOST_API_POSIX
       pimplThis->m_id = this_thread::id();
 #endif
-      // Report that this thread is done with writing to *pthr.
+      // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       try {
          pimplThis->m_fnInnerMain();
@@ -276,7 +281,7 @@ thread::id_type thread::id() const {
    return m_pimpl ? m_pimpl->m_id : 0;
 #elif ABC_HOST_API_WIN32
    if (m_pimpl) {
-      DWORD iTid = ::GetThreadId(m_pimpl->m_h);
+      ::DWORD iTid = ::GetThreadId(m_pimpl->m_h);
       if (iTid == 0) {
          exception::throw_os_error();
       }
@@ -301,7 +306,7 @@ void thread::join() {
       exception::throw_os_error(iErr);
    }
 #elif ABC_HOST_API_WIN32
-   DWORD iRet = ::WaitForSingleObject(m_pimpl->m_h, INFINITE);
+   ::DWORD iRet = ::WaitForSingleObject(m_pimpl->m_h, INFINITE);
    if (iRet == WAIT_FAILED) {
       exception::throw_os_error();
    }
