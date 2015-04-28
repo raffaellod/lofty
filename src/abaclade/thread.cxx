@@ -142,6 +142,12 @@ class thread::impl {
 private:
    friend class thread;
 
+#if ABC_HOST_API_POSIX
+private:
+   static int const smc_iExecutionInterruptionSignal = 1;
+
+#endif
+
 public:
    /*! Constructor
 
@@ -166,6 +172,89 @@ public:
       if (m_h) {
          ::CloseHandle(m_h);
       }
+#endif
+   }
+
+   /*! Injects the requested type of exception in the thread.
+
+   TODO: prevent concurrent injections by multiple threads. Could be done by keeping an
+   atomic<unsigned> “outstanding interruptions counter” member that execution_interruption instances
+   increment/decrement via a pointer, and that inhibits further injections if non-zero. This should
+   then be ported to abc::coroutine::context for the same reason.
+
+   @param inj
+      Type of exception to inject.
+   */
+   void inject_exception(exception::injectable inj) {
+      ABC_TRACE_FUNC(this, inj);
+
+#if ABC_HOST_API_POSIX
+      int iSignal;
+      switch (inj.base()) {
+         /*case exception::injectable::app_execution_interruption:
+            iSignal = ?;
+            break;*/
+         case exception::injectable::execution_interruption:
+            iSignal = smc_iExecutionInterruptionSignal;
+            break;
+         /*case exception::injectable::user_forced_interruption:
+            iSignal = ?;
+            break;*/
+         default:
+            ABC_THROW(argument_error, ());
+      }
+      if (int iErr = ::pthread_kill(m_h, SIGRTMIN + iSignal)) {
+         exception::throw_os_error(iErr);
+      }
+#elif ABC_HOST_API_WIN32
+      if (::SuspendThread(m_h) == ::DWORD(-1)) {
+         exception::throw_os_error();
+      }
+      try {
+         std::uintptr_t iLastPC = 0;
+         ::CONTEXT ctx;
+         /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
+         suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context
+         until that reveals that the thread has really stopped, which wouldn’t be otherwise
+         guaranteed on a multi-processor system.
+
+         It’s still possible that the thread might be executing kernel code, which would not cause
+         it to stop even on an uniprocessor system; yielding could also avoid that, by giving the OS
+         a chance to run the thread (priority changes can void this assumption), changing its
+         context and making the non-suspension detectable.
+
+         See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-
+         do/> for the two race conditions mentioned above. */
+         do {
+            if (!::GetThreadContext(m_h, &ctx)) {
+               exception::throw_os_error();
+            }
+            std::uintptr_t iCurrPC;
+   #if ABC_HOST_ARCH_ARM
+            iCurrPC = ctx.Pc;
+   #elif ABC_HOST_ARCH_I386
+            iCurrPC = ctx.Eip;
+   #elif ABC_HOST_ARCH_X86_64
+            iCurrPC = ctx.Rip;
+   #else
+      #error "TODO: HOST_ARCH"
+   #endif
+         } while (iCurrPC != iLastPC);
+
+         // Now that the thread is really suspended, inject the exception and resume it.
+         exception::inject_in_context(inj, 0, 0, &ctx);
+         if (!::SetThreadContext(m_h, &ctx)) {
+            exception::throw_os_error();
+         }
+      } catch (...) {
+         // TODO: move this code to a “defer” lambda.
+         ::ResumeThread(m_h);
+         throw;
+      }
+      // TODO: move this code to a “defer” lambda.
+      ::ResumeThread(m_h);
+#else
+   #error "TODO: HOST_API"
 #endif
    }
 
@@ -196,9 +285,11 @@ public:
          // Block until the new thread is finished updating *this.
          seStarted.wait();
       } catch (...) {
+         // TODO: move this code to a “defer” lambda.
          m_pseStarted = nullptr;
          throw;
       }
+      // TODO: move this code to a “defer” lambda.
       m_pseStarted = nullptr;
    }
 
@@ -292,6 +383,16 @@ thread::id_type thread::id() const {
 #else
    #error "TODO: HOST_API"
 #endif
+}
+
+void thread::interrupt() {
+   ABC_TRACE_FUNC(this);
+
+   if (!m_pimpl) {
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   m_pimpl->inject_exception(exception::injectable::execution_interruption);
 }
 
 void thread::join() {

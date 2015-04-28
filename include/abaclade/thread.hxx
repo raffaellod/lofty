@@ -113,6 +113,9 @@ public:
    */
    id_type id() const;
 
+   //! Interrupts the thread by throwing an abc::execution_interruption instance in it.
+   void interrupt();
+
    //! Waits for the thread to terminate.
    void join();
 
