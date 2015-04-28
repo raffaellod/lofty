@@ -147,11 +147,11 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 }
 
 /*static*/ void exception::inject_in_context(
-   exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
+   exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
 #if ABC_HOST_API_MACH
    #if ABC_HOST_ARCH_X86_64
-      ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pctx);
+      ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pvctx);
       /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
       current (failing) instruction, then set rip to the start of throw_injected_exception(). These
       steps emulate a 3-argument subroutine call. */
@@ -166,8 +166,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #else
       #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_HOST_API_POSIX  //if ABC_HOST_API_MACH
-   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pctx);
+#elif ABC_HOST_API_POSIX
+   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pvctx);
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
          typedef typename std::remove_reference<decltype(puctx->uc_mcontext.arm_r0)>::type reg_t;
@@ -243,14 +243,59 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #else
       #error "TODO: HOST_ARCH"
    #endif
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
+   ::CONTEXT * pctx = static_cast< ::CONTEXT *>(pvctx);
+   #if ABC_HOST_ARCH_ARM
+      typedef std::uint32_t reg_t;
+      reg_t *& sp = reinterpret_cast<reg_t *&>(pctx->Sp);
+      /* Load the arguments to throw_injected_exception() in r0-2, push lr and replace it with the
+      address of the current (failing) instruction, then set pc to the start of
+      throw_injected_exception(). These steps emulate a 3-argument subroutine call. */
+      pctx->R0 = static_cast<reg_t>(inj.base());
+      pctx->R1 = static_cast<reg_t>(iArg0);
+      pctx->R2 = static_cast<reg_t>(iArg1);
+      *--sp = pctx->Lr;
+      pctx->Lr = pctx->Pc;
+      pctx->Pc = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #elif ABC_HOST_ARCH_I386
+      typedef std::uint32_t reg_t;
+      reg_t *& esp = reinterpret_cast<reg_t *&>(pctx->Esp);
+      /* Push the arguments to throw_injected_exception() onto the stack, push the address of the
+      current (failing) instruction, then set eip to the start of throw_injected_exception(). These
+      steps emulate a 3-argument subroutine call. */
+      *--esp = static_cast<reg_t>(iArg1);
+      *--esp = static_cast<reg_t>(iArg0);
+      *--esp = static_cast<reg_t>(inj.base());
+      *--esp = pctx->Eip;
+      pctx->Eip = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #elif ABC_HOST_ARCH_X86_64
+      typedef std::uint64_t reg_t;
+      reg_t *& rsp = reinterpret_cast<reg_t *&>(pctx->Rsp);
+      /* Load the arguments to throw_injected_exception() in rcx/rdx/r8, push the address of the
+      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      steps emulate a 3-argument subroutine call. */
+      pctx->Rcx = static_cast<reg_t>(inj.base());
+      pctx->Rdx = static_cast<reg_t>(iArg0);
+      pctx->R8  = static_cast<reg_t>(iArg1);
+      /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
+      ew5tede7%28v=vs.120%29.aspx>. Three arguments still require four homes. */
+      rsp -= 4;
+      // Stack alignment to 16 bytes is done by the callee.
+      *--rsp = pctx->Rip;
+      pctx->Rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+   #else
+      #error "TODO: HOST_ARCH"
+   #endif
+#else
    #error "TODO: HOST_API"
-#else //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
 }
 
-/*static*/ void exception::throw_injected_exception(
+/*static*/ void
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
+   __stdcall
+#endif
+exception::throw_injected_exception(
    injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
    source_location srcloc(ABC_SL("source_not_available"), 0);

@@ -438,9 +438,15 @@ public:
       First argument to the exception constructor, if applicable.
    @param iArg1
       Second argument to the exception constructor, if applicable.
+   @param pvctx
+      Pointer to an OS-specific context struct.
    */
-   static void inject_in_context(
-      exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pctx
+   static void
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
+      __stdcall
+#endif
+   inject_in_context(
+      exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
    );
 
    /*! Throws an exception of the specified type.
