@@ -471,10 +471,12 @@ class writer;
 
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/exception.hxx>
+   // TODO: #include <abaclade/_std/stdexcept.hxx>
    #include <abaclade/_std/functional.hxx>
    #include <abaclade/_std/iterator.hxx>
 #else
    #include <exception>
+   #include <stdexcept>
    #include <functional>
    #include <iterator>
 #endif

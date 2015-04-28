@@ -712,6 +712,14 @@ namespace abc {
 //! A function/method received an argument that had an inappropriate value.
 class ABACLADE_SYM argument_error : public virtual generic_error {
 public:
+#if 0
+   // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
+
+   //! See abc::generic_error::related_std.
+   typedef std::invalid_argument related_std;
+#endif
+
+public:
    /*! Constructor.
 
    TODO: add arguments name/value, to be passed by macro ABC_THROW_ARGUMENT_ERROR(argname).
@@ -782,6 +790,14 @@ namespace abc {
 
 //! Invalid value provided for a variable/argument.
 class ABACLADE_SYM domain_error : public virtual generic_error {
+public:
+#if 0
+   // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
+
+   //! See abc::generic_error::related_std.
+   typedef std::domain_error related_std;
+#endif
+
 public:
    //! Constructor.
    domain_error();
@@ -867,6 +883,14 @@ namespace abc {
 
 //! Sequence subscript out of range.
 class ABACLADE_SYM index_error : public virtual lookup_error {
+public:
+#if 0
+   // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
+
+   //! See abc::lookup_error::related_std.
+   typedef std::out_of_range related_std;
+#endif
+
 public:
    /*! Constructor.
 
