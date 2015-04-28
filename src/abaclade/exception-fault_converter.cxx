@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include "exception-fault_converter.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #if ABC_HOST_API_MACH
    #include <cstdlib> // std::abort()
    // TODO: use Mach threads instead of pthreads for the exception-catching thread.
-   #include <pthread.h> // pthread_create()
+   #include <pthread.h>
 
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h> // boolean_t mach_msg_header_t
@@ -194,12 +195,42 @@ You should have received a copy of the GNU General Public License along with Aba
       return KERN_SUCCESS;
    }
 
-   //! Thread in charge of handling exceptions for all the other threads.
-   static ::pthread_t g_thrExcHandler;
-   //! Port through which we ask the kernel to communicate exceptions to this process.
-   static ::mach_port_t g_mpExceptions;
+   namespace abc {
 
-   static void * exception_handler_thread(void *) {
+   ::pthread_t exception::fault_converter::sm_thrExcHandler;
+   ::mach_port_t exception::fault_converter::sm_mpExceptions;
+
+   exception::fault_converter::fault_converter() {
+      ::mach_port_t mpThisProc = ::mach_task_self();
+      // Allocate a right-less port to listen for exceptions.
+      if (::mach_port_allocate(
+         mpThisProc, MACH_PORT_RIGHT_RECEIVE, &sm_mpExceptions) == KERN_SUCCESS
+      ) {
+         // Assign rights to the port.
+         if (::mach_port_insert_right(
+            mpThisProc, sm_mpExceptions, sm_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
+         ) == KERN_SUCCESS) {
+            // Start the thread that will catch exceptions from all the others.
+            if (::pthread_create(
+               &sm_thrExcHandler, nullptr, exception_handler_thread, nullptr
+            ) == 0) {
+               // Now that the handler thread is running, set the process-wide exception port.
+               if (::task_set_exception_ports(
+                  mpThisProc,
+                  EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
+                  sm_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
+               ) == KERN_SUCCESS) {
+                  // All good.
+               }
+            }
+         }
+      }
+   }
+
+   exception::fault_converter::~fault_converter() {
+   }
+
+   /*static*/ void * exception::fault_converter::exception_handler_thread(void *) {
       for (;;) {
          /* The exact definition of these structs is in the kernel’s sources; thankfully all we need
          to do with them is pass them around, so just define them as BLOBs and hope that they’re
@@ -216,7 +247,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
          // Block to read from the exception port.
          if (::mach_msg(
-            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, g_mpExceptions,
+            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, sm_mpExceptions,
             MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
          ) != MACH_MSG_SUCCESS) {
             std::abort();
@@ -235,50 +266,17 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   namespace abc {
-
-   exception::fault_converter::fault_converter() {
-      ::mach_port_t mpThisProc = ::mach_task_self();
-      // Allocate a right-less port to listen for exceptions.
-      if (::mach_port_allocate(
-         mpThisProc, MACH_PORT_RIGHT_RECEIVE, &g_mpExceptions) == KERN_SUCCESS
-      ) {
-         // Assign rights to the port.
-         if (::mach_port_insert_right(
-            mpThisProc, g_mpExceptions, g_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
-         ) == KERN_SUCCESS) {
-            // Start the thread that will catch exceptions from all the others.
-            if (::pthread_create(
-               &g_thrExcHandler, nullptr, exception_handler_thread, nullptr
-            ) == 0) {
-               // Now that the handler thread is running, set the process-wide exception port.
-               if (::task_set_exception_ports(
-                  mpThisProc,
-                  EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
-                  g_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
-               ) == KERN_SUCCESS) {
-                  // All good.
-               }
-            }
-         }
-      }
-   }
-
-   exception::fault_converter::~fault_converter() {
-   }
-
    } //namespace abc
 
-#elif ABC_HOST_API_POSIX //if ABC_HOST_API_MACH
-
+#elif ABC_HOST_API_POSIX
    #include <cstdlib> // std::abort()
 
-   #include <signal.h> // sigaction sig*()
    #include <ucontext.h> // ucontext_t
 
 
-   //! Signals that we can translate into C++ exceptions.
-   static int const g_aiHandledSignals[] = {
+   namespace abc {
+
+   int const exception::fault_converter::smc_aiHandledSignals[] = {
 //    Signal (Default action) Description (standard).
 //    SIGABRT, // (Core) Abort signal from abort(3) (POSIX.1-1990).
 //    SIGALRM, // (Term) Timer signal from alarm(2) (POSIX.1-1990).
@@ -302,23 +300,31 @@ You should have received a copy of the GNU General Public License along with Aba
 //    SIGUSR1  // (Term) User-defined signal 1 (POSIX.1-1990).
 //    SIGUSR2  // (Term) User-defined signal 2 (POSIX.1-1990).
    };
-   //! Default handler for each of the signals above.
-   static struct ::sigaction g_asaDefault[ABC_COUNTOF(g_aiHandledSignals)];
+   struct ::sigaction exception::fault_converter::sm_asaDefault[ABC_COUNTOF(smc_aiHandledSignals)];
 
-   /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
-   stack frame of a call to throw_injected_exception(), and then returning, ending processing of the
-   signal. Execution will resume from throw_injected_exception(), which creates the appearance of a
-   C++ exception being thrown at the location of the offending instruction, without calling any of
-   the (many) functions that are forbidden in a signal handler.
+   exception::fault_converter::fault_converter() {
+      // Setup handlers for the signals in smc_aiHandledSignals.
+      struct ::sigaction saNew;
+      saNew.sa_sigaction = &fault_signal_handler;
+      sigemptyset(&saNew.sa_mask);
+      /* SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal,
+      which we use to generate more precise exceptions. */
+      saNew.sa_flags = SA_SIGINFO;
+      for (std::size_t i = ABC_COUNTOF(smc_aiHandledSignals); i-- > 0; ) {
+         ::sigaction(smc_aiHandledSignals[i], &saNew, &sm_asaDefault[i]);
+      }
+   }
 
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
-   */
-   static void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
+   exception::fault_converter::~fault_converter() {
+      // Restore the saved signal handlers.
+      for (std::size_t i = ABC_COUNTOF(smc_aiHandledSignals); i-- > 0; ) {
+         ::sigaction(smc_aiHandledSignals[i], &sm_asaDefault[i], nullptr);
+      }
+   }
+
+   /*static*/ void exception::fault_converter::fault_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   ) {
       /* Don’t let external programs mess with us: if the source is not the kernel, ignore the
       error. POSIX.1-2008 states that:
 
@@ -338,7 +344,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return;
       }
 
-      abc::exception::injectable::enum_type inj;
+      injectable::enum_type inj;
       std::intptr_t iArg0 = 0, iArg1 = 0;
       switch (iSignal) {
          case SIGBUS:
@@ -347,7 +353,7 @@ You should have received a copy of the GNU General Public License along with Aba
             keep on going – even the code to throw an exception could be compromised. */
             switch (psi->si_code) {
                case BUS_ADRALN: // Invalid address alignment.
-                  inj = abc::exception::injectable::memory_access_error;
+                  inj = injectable::memory_access_error;
                   iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                   break;
                default:
@@ -358,10 +364,10 @@ You should have received a copy of the GNU General Public License along with Aba
          case SIGFPE:
             switch (psi->si_code) {
                case FPE_INTDIV: // Integer divide by zero.
-                  inj = abc::exception::injectable::division_by_zero_error;
+                  inj = injectable::division_by_zero_error;
                   break;
                case FPE_INTOVF: // Integer overflow.
-                  inj = abc::exception::injectable::overflow_error;
+                  inj = injectable::overflow_error;
                   break;
                case FPE_FLTDIV: // Floating-point divide by zero.
                case FPE_FLTOVF: // Floating-point overflow.
@@ -369,21 +375,21 @@ You should have received a copy of the GNU General Public License along with Aba
                case FPE_FLTRES: // Floating-point inexact result.
                case FPE_FLTINV: // Floating-point invalid operation.
                case FPE_FLTSUB: // Subscript out of range.
-                  inj = abc::exception::injectable::floating_point_error;
+                  inj = injectable::floating_point_error;
                   break;
                default:
                   /* At the time of writing, the above case labels don’t leave out any values, but
                   that’s not necessarily going to be true in 5 years, so… */
-                  inj = abc::exception::injectable::arithmetic_error;
+                  inj = injectable::arithmetic_error;
                   break;
             }
             break;
 
          case SIGSEGV:
             if (psi->si_addr == nullptr) {
-               inj = abc::exception::injectable::null_pointer_error;
+               inj = injectable::null_pointer_error;
             } else {
-               inj = abc::exception::injectable::memory_address_error;
+               inj = injectable::memory_address_error;
                iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             }
             break;
@@ -397,40 +403,27 @@ You should have received a copy of the GNU General Public License along with Aba
 
       /* Change the address at which the thread will resume execution: manipulate the thread context
       to emulate a function call to throw_injected_exception(). */
-      abc::exception::inject_in_context(inj, iArg0, iArg1, pctx);
-   }
-
-   namespace abc {
-
-   exception::fault_converter::fault_converter() {
-      // Setup handlers for the signals in g_aiHandledSignals.
-      struct ::sigaction saNew;
-      saNew.sa_sigaction = &fault_signal_handler;
-      sigemptyset(&saNew.sa_mask);
-      /* SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal,
-      which we use to generate more precise exceptions. */
-      saNew.sa_flags = SA_SIGINFO;
-      for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
-         ::sigaction(g_aiHandledSignals[i], &saNew, &g_asaDefault[i]);
-      }
-   }
-
-   exception::fault_converter::~fault_converter() {
-      // Restore the saved signal handlers.
-      for (std::size_t i = ABC_COUNTOF(g_aiHandledSignals); i-- > 0; ) {
-         ::sigaction(g_aiHandledSignals[i], &g_asaDefault[i], nullptr);
-      }
+      inject_in_context(inj, iArg0, iArg1, pctx);
    }
 
    } //namespace abc
 
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_MACH … elif ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
 
-   //! Structured Exception translator on program startup.
-   static ::_se_translator_function g_setfDefault;
+   namespace abc {
 
-   //! Translates Win32 Structured Exceptions into C++ exceptions, whenever possible.
-   static void ABC_STL_CALLCONV fault_se_translator(
+   ::_se_translator_function exception::fault_converter::sm_setfDefault;
+
+   exception::fault_converter::fault_converter() {
+      // Install the translator of Win32 structured exceptions into C++ exceptions.
+      sm_setfDefault = ::_set_se_translator(&fault_se_translator);
+   }
+
+   exception::fault_converter::~fault_converter() {
+      ::_set_se_translator(sm_setfDefault);
+   }
+
+   /*static*/ void ABC_STL_CALLCONV exception::fault_converter::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {
       switch (iCode) {
@@ -446,13 +439,10 @@ You should have received a copy of the GNU General Public License along with Aba
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
             );
             if (pAddr == nullptr) {
-               abc::exception::throw_injected_exception(
-                  abc::exception::injectable::null_pointer_error, 0, 0
-               );
+               throw_injected_exception(injectable::null_pointer_error, 0, 0);
             } else {
-               abc::exception::throw_injected_exception(
-                  abc::exception::injectable::memory_address_error,
-                  reinterpret_cast<std::intptr_t>(pAddr), 0
+               throw_injected_exception(
+                  injectable::memory_address_error, reinterpret_cast<std::intptr_t>(pAddr), 0
                );
             }
          }
@@ -464,9 +454,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            abc::exception::throw_injected_exception(
-               abc::exception::injectable::memory_access_error,
-               reinterpret_cast<std::intptr_t>(nullptr), 0
+            throw_injected_exception(
+               injectable::memory_access_error, reinterpret_cast<std::intptr_t>(nullptr), 0
             );
 
          case EXCEPTION_FLT_DENORMAL_OPERAND:
@@ -493,9 +482,7 @@ You should have received a copy of the GNU General Public License along with Aba
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            abc::exception::throw_injected_exception(
-               abc::exception::injectable::floating_point_error, 0, 0
-            );
+            throw_injected_exception(injectable::floating_point_error, 0, 0);
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -509,16 +496,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            abc::exception::throw_injected_exception(
-               abc::exception::injectable::division_by_zero_error, 0, 0
-            );
+            throw_injected_exception(injectable::division_by_zero_error, 0, 0);
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            abc::exception::throw_injected_exception(
-               abc::exception::injectable::overflow_error, 0, 0
-            );
+            throw_injected_exception(injectable::overflow_error, 0, 0);
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current
@@ -531,21 +514,10 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   namespace abc {
-
-   exception::fault_converter::fault_converter() {
-      // Install the translator of Win32 structured exceptions into C++ exceptions.
-      g_setfDefault = ::_set_se_translator(&fault_se_translator);
-   }
-
-   exception::fault_converter::~fault_converter() {
-      ::_set_se_translator(g_setfDefault);
-   }
-
    } //namespace abc
 
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -370,17 +370,8 @@ class ABACLADE_SYM exception {
 public:
    /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++
    synchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
-
-   Note: this class uses global or thread-local variables for all its member variables, since their
-   types cannot be specified without #including a lot of files into this one. */
-   class ABACLADE_SYM fault_converter {
-   public:
-      //! Constructor.
-      fault_converter();
-
-      //! Destructor.
-      ~fault_converter();
-   };
+   Instantiated by abc::app. */
+   class fault_converter;
 
    //! Possible exception types injectable by inject_in_context().
    ABC_ENUM_AUTO_VALUES(injectable,
