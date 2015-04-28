@@ -44,14 +44,8 @@ namespace abc {
 abc::coroutine. */
 class ABACLADE_SYM thread : public noncopyable {
 public:
-   //! Underlying OS-dependent ID/handle type.
-#if ABC_HOST_API_POSIX
-   typedef ::pthread_t native_handle_type;
-#elif ABC_HOST_API_WIN32
-   typedef HANDLE native_handle_type;
-#else
-   #error "TODO: HOST_API"
-#endif
+   //! Inter-thread communication manager, instantiated by the abc::app class.
+   class comm_manager;
 
    //! OS-dependent type for unique thread IDs.
 #if ABC_HOST_API_DARWIN
@@ -61,7 +55,16 @@ public:
 #elif ABC_HOST_API_LINUX
    typedef int id_type;
 #elif ABC_HOST_API_WIN32
-   typedef DWORD id_type;
+   typedef ::DWORD id_type;
+#else
+   #error "TODO: HOST_API"
+#endif
+
+   //! Underlying OS-dependent ID/handle type.
+#if ABC_HOST_API_POSIX
+   typedef ::pthread_t native_handle_type;
+#elif ABC_HOST_API_WIN32
+   typedef ::HANDLE native_handle_type;
 #else
    #error "TODO: HOST_API"
 #endif

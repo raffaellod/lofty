@@ -22,9 +22,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
 #include <abaclade/thread.hxx>
+#include "thread-comm_manager.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
+   #include <signal.h> // SIG* sigaction sig*()
    #include <time.h> // nanosleep()
    #if ABC_HOST_API_DARWIN
       #include <dispatch/dispatch.h>
@@ -142,12 +144,6 @@ class thread::impl {
 private:
    friend class thread;
 
-#if ABC_HOST_API_POSIX
-private:
-   static int const smc_iExecutionInterruptionSignal = 1;
-
-#endif
-
 public:
    /*! Constructor
 
@@ -195,7 +191,7 @@ public:
             iSignal = ?;
             break;*/
          case exception::injectable::execution_interruption:
-            iSignal = smc_iExecutionInterruptionSignal;
+            iSignal = comm_manager::smc_iExecutionInterruptionSignal;
             break;
          /*case exception::injectable::user_forced_interruption:
             iSignal = ?;
@@ -317,6 +313,7 @@ private:
 #if ABC_HOST_API_POSIX
       pimplThis->m_id = this_thread::id();
 #endif
+
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       try {
@@ -350,6 +347,42 @@ private:
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
 };
+
+
+thread::comm_manager::comm_manager() {
+#if ABC_HOST_API_POSIX
+   struct ::sigaction saNew;
+   saNew.sa_sigaction = &execution_interruption_signal_handler;
+   sigemptyset(&saNew.sa_mask);
+   // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal.
+   saNew.sa_flags = SA_SIGINFO;
+   ::sigaction(smc_iExecutionInterruptionSignal, &saNew, nullptr);
+#endif
+}
+
+thread::comm_manager::~comm_manager() {
+}
+
+#if ABC_HOST_API_POSIX
+   /*! Handles Abaclade-defined signals used to interrupt threads, injecting an exception in the
+   thread’s context.
+
+   @param iSignal
+      Signal number for which the function is being called.
+   @param psi
+      Additional information on the signal.
+   @param pctx
+      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
+   */
+   /*static*/ void thread::comm_manager::execution_interruption_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   ) {
+      ABC_UNUSED_ARG(iSignal);
+      ABC_UNUSED_ARG(psi);
+      ABC_UNUSED_ARG(pctx);
+      // TODO
+   }
+#endif
 
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :

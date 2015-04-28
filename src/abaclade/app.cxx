@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
+#include "thread-comm_manager.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +157,7 @@ app::app() {
    int iRet;
    if (initialize_stdio()) {
       try {
+         thread::comm_manager tcm;
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
          try {
