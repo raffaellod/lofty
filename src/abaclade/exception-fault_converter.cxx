@@ -423,6 +423,11 @@ You should have received a copy of the GNU General Public License along with Aba
       ::_set_se_translator(sm_setfDefault);
    }
 
+   /*static*/ void exception::fault_converter::init_for_current_thread() {
+      // Install the SEH translator, without saving the original.
+      ::_set_se_translator(&fault_se_translator);
+   }
+
    /*static*/ void ABC_STL_CALLCONV exception::fault_converter::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {

@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include "coroutine-scheduler.hxx"
-
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
 #include <abaclade/thread.hxx>
+#include "coroutine-scheduler.hxx"
+#include "exception-fault_converter.hxx"
 #include "thread-comm_manager.hxx"
 
 #if ABC_HOST_API_POSIX
@@ -312,11 +312,13 @@ private:
       std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
 #if ABC_HOST_API_POSIX
       pimplThis->m_id = this_thread::id();
+#elif ABC_HOST_API_WIN32
+      exception::fault_converter::init_for_current_thread();
 #endif
-
-      // Report that this thread is done with writing to *pimplThis.
-      pimplThis->m_pseStarted->raise();
       try {
+         // Report that this thread is done with writing to *pimplThis.
+         pimplThis->m_pseStarted->raise();
+         // Run the user’s main().
          pimplThis->m_fnInnerMain();
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
