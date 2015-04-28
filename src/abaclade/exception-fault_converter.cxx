@@ -401,8 +401,7 @@ You should have received a copy of the GNU General Public License along with Aba
             std::abort();
       }
 
-      /* Change the address at which the thread will resume execution: manipulate the thread context
-      to emulate a function call to throw_injected_exception(). */
+      // Inject a function call to throw_injected_exception().
       inject_in_context(inj, iArg0, iArg1, pctx);
    }
 

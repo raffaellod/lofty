@@ -366,23 +366,20 @@ thread::comm_manager::~comm_manager() {
 }
 
 #if ABC_HOST_API_POSIX
-   /*! Handles Abaclade-defined signals used to interrupt threads, injecting an exception in the
-   thread’s context.
-
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
-   */
    /*static*/ void thread::comm_manager::execution_interruption_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
-      ABC_UNUSED_ARG(iSignal);
       ABC_UNUSED_ARG(psi);
-      ABC_UNUSED_ARG(pctx);
-      // TODO
+
+      exception::injectable::enum_type inj;
+      switch (iSignal - SIGRTMIN) {
+         case smc_iExecutionInterruptionSignal:
+            inj = exception::injectable::execution_interruption;
+            break;
+      }
+
+      // Inject a function call to exception::throw_injected_exception().
+      exception::inject_in_context(inj, 0, 0, pctx);
    }
 #endif
 

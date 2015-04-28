@@ -36,7 +36,8 @@ public:
 
 private:
 #if ABC_HOST_API_POSIX
-   /*! TODO: comment.
+   /*! Handles Abaclade-defined signals used to interrupt threads, injecting an exception in the
+   thread’s context.
 
    @param iSignal
       Signal number for which the function is being called.
