@@ -40,6 +40,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
+/*! @page threads Threads
+Asynchronous code execution via OS-provided preemptive multithreading.
+
+Abaclade provides augmented alternatives to std::thread and std::this_thread: abc::thread and
+abc::this_thread, respectively. In addition to every feature offered by std::thread and
+std::this_thread, Abaclade’s classes provide integration with coroutines (see @ref coroutines), as
+well as a way to cleanly terminate all threads in case of uncaught C++ exceptions in one of them.
+*/
+
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
 abc::coroutine. */
 class ABACLADE_SYM thread : public noncopyable {

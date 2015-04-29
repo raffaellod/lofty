@@ -33,8 +33,30 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
+/*! @page coroutines Coroutines
+Asynchronous code execution via cooperative multithreading.
+
+Abaclade supports asynchronous code execution via preemptive multithreading (see @ref threads) and
+via coroutines, a form of cooperative multithreading alternative to the confusing “callbacks
+waterfall” pattern.
+
+Just like threads are created by instantiating an abc::thread object with a function to run in the
+new thread, coroutines are created by instantiating an abc::coroutine object with a function to run
+in the new coroutine. Unlike threads, coroutines won’t necessarily start executing immediately.
+
+Upon instantiation, coroutines are scheduled to run on the current thread’s
+abc::coroutine::scheduler instance; if none was attached with
+abc::this_thread::attach_coroutine_scheduler(), a new instance is created and attached to the
+current thread.
+
+Once one or more coroutines have been instantiated and implicitly scheduled to run, it’s the
+application’s responsibility to give control to the scheduler by invoking
+abc::this_thread::run_coroutines() on at least one of the threads attached to that scheduler.
+*/
+
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io
-classes. */
+classes. See @ref coroutines for more information.
+*/
 class ABACLADE_SYM coroutine : public noncopyable {
 public:
    //! Type of the unique coroutine IDs.
