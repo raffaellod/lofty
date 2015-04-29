@@ -37,10 +37,10 @@ namespace abc {
 classes. */
 class ABACLADE_SYM coroutine : public noncopyable {
 public:
-   //! OS-dependent execution context for the coroutine.
-   class context;
    //! Type of the unique coroutine IDs.
    typedef std::intptr_t id_type;
+   //! Coroutine implementation.
+   class impl;
    //! Schedules coroutine execution.
    class scheduler;
 
@@ -55,7 +55,7 @@ public:
    coroutine();
    explicit coroutine(std::function<void ()> fnMain);
    coroutine(coroutine && coro) :
-      m_pctx(std::move(coro.m_pctx)) {
+      m_pimpl(std::move(coro.m_pimpl)) {
    }
 
    //! Destructor.
@@ -69,7 +69,7 @@ public:
       *this.
    */
    coroutine & operator=(coroutine && coro) {
-      m_pctx = std::move(coro.m_pctx);
+      m_pimpl = std::move(coro.m_pimpl);
       return *this;
    }
 
@@ -93,8 +93,8 @@ public:
    void interrupt();
 
 private:
-   //! Pointer to the coroutine’s execution context.
-   std::shared_ptr<context> m_pctx;
+   //! Pointer to the implementation instance.
+   std::shared_ptr<impl> m_pimpl;
 };
 
 } //namespace abc

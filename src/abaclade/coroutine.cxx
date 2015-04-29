@@ -46,11 +46,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine::context
+// abc::coroutine::impl
 
 namespace abc {
 
-class coroutine::context : public noncopyable {
+class coroutine::impl : public noncopyable {
 private:
    friend class coroutine;
 
@@ -60,7 +60,7 @@ public:
    @param fnMain
       Initial value for m_fnInnerMain.
    */
-   context(std::function<void ()> fnMain) :
+   impl(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
       m_pStack(SIGSTKSZ),
 #elif ABC_HOST_API_WIN32
@@ -94,7 +94,7 @@ public:
    }
 
    //! Destructor.
-   ~context() {
+   ~impl() {
 #ifdef ABAMAKE_USING_VALGRIND
       VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
 #endif
@@ -109,7 +109,7 @@ public:
    /*! Returns the internal fiber pointer.
 
    @return
-      Pointer to the context’s fiber.
+      Pointer to the coroutine’s fiber.
    */
    void * fiber() {
       return m_pfbr;
@@ -119,7 +119,7 @@ public:
    /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
 
    @return
-      Pointer to the context’s m_crls member.
+      Pointer to the coroutine’s m_crls member.
    */
    detail::coroutine_local_storage * local_storage_ptr() {
       return &m_crls;
@@ -140,10 +140,10 @@ public:
    }
 
 #if ABC_HOST_API_POSIX
-   /*! Returns a pointer to the internal ::ucontext_t.
+   /*! Returns a pointer to the coroutine’s context.
 
    @return
-      Pointer to the context’s ::ucontext_t member.
+      Pointer to the context.
    */
    ::ucontext_t * ucontext_ptr() {
       return &m_uctx;
@@ -160,17 +160,18 @@ private:
 
 private:
 #if ABC_HOST_API_POSIX
-   //! Low-level context for the coroutine.
+   //! Context for the coroutine.
    ::ucontext_t m_uctx;
    //! Pointer to the memory chunk used as stack.
    memory::pages_ptr m_pStack;
 #elif ABC_HOST_API_WIN32
+   //! Fiber for the coroutine.
    void * m_pfbr;
 #else
    #error "TODO: HOST_API"
 #endif
 #ifdef ABAMAKE_USING_VALGRIND
-   //! Identifier assigned by Valgrind to this context’s stack.
+   //! Identifier assigned by Valgrind to this coroutine’s stack.
    unsigned m_iValgrindStackId;
 #endif
    //! Every time the coroutine is scheduled, this is checked for pending exceptions to be injected.
@@ -191,15 +192,15 @@ namespace abc {
 coroutine::coroutine() {
 }
 /*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
-   m_pctx(std::make_shared<coroutine::context>(std::move(fnMain))) {
-   this_thread::attach_coroutine_scheduler()->add_ready(m_pctx);
+   m_pimpl(std::make_shared<coroutine::impl>(std::move(fnMain))) {
+   this_thread::attach_coroutine_scheduler()->add_ready(m_pimpl);
 }
 
 coroutine::~coroutine() {
 }
 
 coroutine::id_type coroutine::id() const {
-   return reinterpret_cast<id_type>(m_pctx.get());
+   return reinterpret_cast<id_type>(m_pimpl.get());
 }
 
 void coroutine::interrupt() {
@@ -208,14 +209,14 @@ void coroutine::interrupt() {
    /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait for
    it to be unblocked. */
    auto injExpected = exception::injectable::none;
-   if (m_pctx->m_injResumeException.compare_exchange_strong(
+   if (m_pimpl->m_injResumeException.compare_exchange_strong(
       injExpected, exception::injectable::execution_interruption/*, TODO: memory_order_? */
    )) {
       /* TODO: multithread-proofing: if an exception has already been injected and thrown, the above
       compare-and-swap will succeed, but we still shouldn’t call add_ready() because the coroutine
       might terminate before find_coroutine_to_activate() gets to it, which would be bad. */
       // TODO: sanity check to avoid scheduling a coroutine twice!
-      this_thread::get_coroutine_scheduler()->add_ready(m_pctx);
+      this_thread::get_coroutine_scheduler()->add_ready(m_pimpl);
    }
    /* TODO: else, is it okay to collapse multiple interrupt requests into the one that’s already
    there (injExpected != none), or should a failure in the compare-and-swap be reported to the
@@ -268,7 +269,7 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
 
 namespace abc {
 
-thread_local_value<std::shared_ptr<coroutine::context>> coroutine::scheduler::sm_pcoroctxActive;
+thread_local_value<std::shared_ptr<coroutine::impl>> coroutine::scheduler::sm_pcoroimplActive;
 thread_local_value<std::shared_ptr<coroutine::scheduler>> coroutine::scheduler::sm_pcorosched;
 #if ABC_HOST_API_POSIX
 thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nullptr*/;
@@ -308,10 +309,10 @@ coroutine::scheduler::~scheduler() {
    // TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD are empty.
 }
 
-void coroutine::scheduler::add_ready(std::shared_ptr<coroutine::context> pcoroctx) {
-   ABC_TRACE_FUNC(this, pcoroctx);
+void coroutine::scheduler::add_ready(std::shared_ptr<coroutine::impl> pcoroimpl) {
+   ABC_TRACE_FUNC(this, pcoroimpl);
 
-   m_listReadyCoros.push_back(std::move(pcoroctx));
+   m_listReadyCoros.push_back(std::move(pcoroimpl));
 }
 
 void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
@@ -320,9 +321,9 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // TODO: handle iMillisecs == 0 as a timer-less yield.
 
 #if ABC_HOST_API_BSD
-   coroutine::context * pcoroctxActive = sm_pcoroctxActive.get();
+   coroutine::impl * pcoroimplActive = sm_pcoroimplActive.get();
    struct ::kevent ke;
-   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroctxActive);
+   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroimplActive);
    // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
    ke.flags = EV_ADD | EV_ONESHOT;
    ke.filter = EVFILT_TIMER;
@@ -338,7 +339,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    }
    // Deactivate the current coroutine and find one to activate instead.
    auto itThisCoro(
-      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroctxActive)).first
+      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive)).first
    );
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
@@ -422,7 +423,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    #error "TODO: HOST_API"
 #endif
    // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroctxActive)).first);
+   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroimplActive)).first);
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
       switch_to_scheduler(itThisCoro->value.get());
@@ -447,7 +448,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
 #endif
 }
 
-std::shared_ptr<coroutine::context> coroutine::scheduler::find_coroutine_to_activate() {
+std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
    // This loop will only repeat in case of EINTR from the blocking-wait API.
@@ -555,26 +556,26 @@ void coroutine::scheduler::run() {
 #else
    #error "TODO: HOST_API"
 #endif
-   std::shared_ptr<coroutine::context> & pcoroctxActive = sm_pcoroctxActive;
+   std::shared_ptr<coroutine::impl> & pcoroimplActive = sm_pcoroimplActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
    try {
-      while ((pcoroctxActive = find_coroutine_to_activate())) {
+      while ((pcoroimplActive = find_coroutine_to_activate())) {
          /* Swap the coroutine_local_storage pointer for this thread with that of the active
          coroutine. */
-         *ppcrlsCurrent = pcoroctxActive->local_storage_ptr();
+         *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
          // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-         int iRet = ::swapcontext(&uctxReturn, pcoroctxActive->ucontext_ptr());
+         int iRet = ::swapcontext(&uctxReturn, pcoroimplActive->ucontext_ptr());
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
 #elif ABC_HOST_API_WIN32
-         ::SwitchToFiber(pcoroctxActive->fiber());
+         ::SwitchToFiber(pcoroimplActive->fiber());
 #else
    #error "TODO: HOST_API"
 #endif
@@ -583,29 +584,31 @@ void coroutine::scheduler::run() {
 #if ABC_HOST_API_POSIX
          if (iRet < 0) {
             /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-            (*sm_pcoroctxActive has a problem, not uctxReturn). */
+            (*sm_pcoroimplActive has a problem, not uctxReturn). */
          }
 #endif
       }
    } catch (...) {
+      // TODO: move this code to a “defer” lambda.
       sm_puctxReturn = nullptr;
       throw;
    }
+   // TODO: move this code to a “defer” lambda.
    sm_puctxReturn = nullptr;
 }
 
-void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLastActive) {
+void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastActive) {
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-   if (::swapcontext(pcoroctxLastActive->ucontext_ptr(), sm_puctxReturn.get()) < 0) {
+   if (::swapcontext(pcoroimplLastActive->ucontext_ptr(), sm_puctxReturn.get()) < 0) {
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
       /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-      (*sm_puctxReturn has a problem, not *sm_pcoroctxActive). */
+      (*sm_puctxReturn has a problem, not *sm_pcoroimplActive). */
    }
 #elif ABC_HOST_API_WIN32
    ::SwitchToFiber(sm_pfbrReturn.get());
@@ -613,22 +616,22 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::context * pcoroctxLast
    #error "TODO: HOST_API"
 #endif
    // Now that we’re back to the coroutine, check for any resume exceptions.
-   pcoroctxLastActive->throw_if_any_resume_exception();
+   pcoroimplLastActive->throw_if_any_resume_exception();
 }
 
 
 // Now this can be defined.
 
-/*static*/ void coroutine::context::outer_main(void * p) {
-   context * pctx = static_cast<context *>(p);
+/*static*/ void coroutine::impl::outer_main(void * p) {
+   impl * pimplThis = static_cast<impl *>(p);
    try {
-      pctx->m_fnInnerMain();
+      pimplThis->m_fnInnerMain();
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
-      // TODO: maybe support “moving” the exception to the return coroutine context?
+      // TODO: maybe support “moving” the exception to the return coroutine?
    } catch (...) {
       exception::write_with_scope_trace();
-      // TODO: maybe support “moving” the exception to the return coroutine context?
+      // TODO: maybe support “moving” the exception to the return coroutine?
    }
    this_thread::get_coroutine_scheduler()->return_to_scheduler();
 }
@@ -642,7 +645,7 @@ namespace abc {
 namespace this_coroutine {
 
 coroutine::id_type id() {
-   return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::sm_pcoroctxActive.get());
+   return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::sm_pcoroimplActive.get());
 }
 
 void sleep_for_ms(unsigned iMillisecs) {

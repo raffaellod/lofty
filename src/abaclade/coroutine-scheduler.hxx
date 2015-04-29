@@ -54,10 +54,10 @@ public:
    /*! Adds a coroutine to those ready to run. Ready coroutines take precedence over coroutines that
    were known to be blocked but might be ready on the next find_coroutine_to_activate() invocation.
 
-   @param pcoroctx
-      Pointer to the context of a coroutine that’s ready to execute.
+   @param pcoroimpl
+      Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   void add_ready(std::shared_ptr<coroutine::context> pcoroctx);
+   void add_ready(std::shared_ptr<coroutine::impl> pcoroimpl);
 
    /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
    at least iMillisecs milliseconds have passed.
@@ -89,26 +89,26 @@ private:
    the current thread until one of them becomes ready.
 
    @return
-      Pointer to the context of a coroutine that’s ready to execute.
+      Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   std::shared_ptr<coroutine::context> find_coroutine_to_activate();
+   std::shared_ptr<coroutine::impl> find_coroutine_to_activate();
 
-   /*! Switches context from the coroutine context pointed to by pcoroctxLastActive to the current
+   /*! Switches context from the coroutine context pointed to by pcoroimplLastActive to the current
    thread’s own context.
 
-   @param pcoroctxLastActive
-      Pointer to the coroutine context that is being inactivated.
+   @param pcoroimplLastActive
+      Pointer to the coroutine (implementation) that is being inactivated.
    */
-   void switch_to_scheduler(coroutine::context * pcoroctxLastActive);
+   void switch_to_scheduler(coroutine::impl * pcoroimplLastActive);
 
 private:
 #if ABC_HOST_API_BSD
    //! File descriptor of the internal kqueue.
    io::filedesc m_fdKqueue;
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this
-   can’t be changed into a set<shared_ptr<context>> because we need it to hold a strong reference to
-   the coroutine context while allowing lookups without having a shared_ptr. */
-   collections::map<std::uintptr_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByTimer;
+   can’t be changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to
+   the coroutine implementation while allowing lookups without having a shared_ptr. */
+   collections::map<std::uintptr_t, std::shared_ptr<coroutine::impl>> m_mapCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
@@ -122,12 +122,12 @@ private:
    #error "TODO: HOST_API"
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::map<io::filedesc_t, std::shared_ptr<coroutine::context>> m_mapCorosBlockedByFD;
+   collections::map<io::filedesc_t, std::shared_ptr<coroutine::impl>> m_mapCorosBlockedByFD;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
-   collections::list<std::shared_ptr<coroutine::context>> m_listReadyCoros;
+   collections::list<std::shared_ptr<coroutine::impl>> m_listReadyCoros;
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<std::shared_ptr<coroutine::context>> sm_pcoroctxActive;
+   static thread_local_value<std::shared_ptr<coroutine::impl>> sm_pcoroimplActive;
    //! Pointer to the coroutine scheduler for the current thread.
    static thread_local_value<std::shared_ptr<scheduler>> sm_pcorosched;
 #if ABC_HOST_API_POSIX
