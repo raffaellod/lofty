@@ -112,3 +112,55 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception containment") {
 
 } //namespace test
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::thread_interruption
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
+   ABC_TRACE_FUNC(this);
+
+   static std::size_t const sc_cWorkers = 5;
+   bool abWorkersCompleted[sc_cWorkers], abWorkersInterrupted[sc_cWorkers];
+   thread thrWorkers[sc_cWorkers];
+   for (std::size_t i = 0; i < sc_cWorkers; ++i) {
+      bool * pbWorkerCompleted = &abWorkersCompleted[i];
+      bool * pbWorkerInterrupted = &abWorkersInterrupted[i];
+      thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () -> void {
+         ABC_TRACE_FUNC(this);
+
+         try {
+            /* Expect to be interrupted by coroController. Make this sleep long enough so as not to
+            cause sporadic test failures, but avoid slowing the test down by too much. */
+            this_thread::sleep_for_ms(150);
+            *pbWorkerCompleted = true;
+         } catch (execution_interruption const &) {
+            *pbWorkerInterrupted = true;
+         }
+      });
+   }
+
+   // abc::thread guarantees that the threads are are already running at this point.
+   thrWorkers[1].interrupt();
+   thrWorkers[2].interrupt();
+
+   ABC_FOR_EACH(auto & thr, thrWorkers) {
+      thr.join();
+   }
+
+   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[0]);
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[0]);
+   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted[1]);
+   ABC_TESTING_ASSERT_TRUE(abWorkersInterrupted[1]);
+   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted[2]);
+   ABC_TESTING_ASSERT_TRUE(abWorkersInterrupted[2]);
+   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[3]);
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[3]);
+   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[4]);
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4]);
+}
+
+} //namespace test
+} //namespace abc
