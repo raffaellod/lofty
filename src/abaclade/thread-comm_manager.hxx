@@ -51,7 +51,7 @@ private:
 
 public:
 #if ABC_HOST_API_POSIX
-   static int const smc_iExecutionInterruptionSignal = 1;
+   static int sm_iExecutionInterruptionSignal;
 #endif
 };
 

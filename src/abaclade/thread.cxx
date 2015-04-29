@@ -191,7 +191,7 @@ public:
             iSignal = ?;
             break;*/
          case exception::injectable::execution_interruption:
-            iSignal = comm_manager::smc_iExecutionInterruptionSignal;
+            iSignal = comm_manager::sm_iExecutionInterruptionSignal;
             break;
          /*case exception::injectable::user_forced_interruption:
             iSignal = ?;
@@ -199,7 +199,7 @@ public:
          default:
             ABC_THROW(argument_error, ());
       }
-      if (int iErr = ::pthread_kill(m_h, SIGRTMIN + iSignal)) {
+      if (int iErr = ::pthread_kill(m_h, iSignal)) {
          exception::throw_os_error(iErr);
       }
 #elif ABC_HOST_API_WIN32
@@ -351,14 +351,18 @@ private:
 };
 
 
+int thread::comm_manager::sm_iExecutionInterruptionSignal;
+
 thread::comm_manager::comm_manager() {
 #if ABC_HOST_API_POSIX
+   sm_iExecutionInterruptionSignal = SIGRTMIN + 1;
+
    struct ::sigaction saNew;
    saNew.sa_sigaction = &execution_interruption_signal_handler;
    sigemptyset(&saNew.sa_mask);
    // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal.
    saNew.sa_flags = SA_SIGINFO;
-   ::sigaction(smc_iExecutionInterruptionSignal, &saNew, nullptr);
+   ::sigaction(sm_iExecutionInterruptionSignal, &saNew, nullptr);
 #endif
 }
 
@@ -366,21 +370,21 @@ thread::comm_manager::~comm_manager() {
 }
 
 #if ABC_HOST_API_POSIX
-   /*static*/ void thread::comm_manager::execution_interruption_signal_handler(
-      int iSignal, ::siginfo_t * psi, void * pctx
-   ) {
-      ABC_UNUSED_ARG(psi);
+/*static*/ void thread::comm_manager::execution_interruption_signal_handler(
+   int iSignal, ::siginfo_t * psi, void * pctx
+) {
+   ABC_UNUSED_ARG(psi);
 
-      exception::injectable::enum_type inj;
-      switch (iSignal - SIGRTMIN) {
-         case smc_iExecutionInterruptionSignal:
-            inj = exception::injectable::execution_interruption;
-            break;
-      }
-
-      // Inject a function call to exception::throw_injected_exception().
-      exception::inject_in_context(inj, 0, 0, pctx);
+   exception::injectable::enum_type inj;
+   if (iSignal == sm_iExecutionInterruptionSignal) {
+      inj = exception::injectable::execution_interruption;
+   } else {
+      std::abort();
    }
+
+   // Inject a function call to exception::throw_injected_exception().
+   exception::inject_in_context(inj, 0, 0, pctx);
+}
 #endif
 
 
