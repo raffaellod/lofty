@@ -355,7 +355,12 @@ int thread::comm_manager::sm_iExecutionInterruptionSignal;
 
 thread::comm_manager::comm_manager() {
 #if ABC_HOST_API_POSIX
-   sm_iExecutionInterruptionSignal = SIGRTMIN + 1;
+   #if ABC_HOST_API_DARWIN
+      // SIGRT* not available.
+      sm_iExecutionInterruptionSignal = SIGUSR1;
+   #else
+      sm_iExecutionInterruptionSignal = SIGRTMIN + 1;
+   #endif
 
    struct ::sigaction saNew;
    saNew.sa_sigaction = &execution_interruption_signal_handler;
