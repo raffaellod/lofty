@@ -351,7 +351,9 @@ private:
 };
 
 
+#if ABC_HOST_API_POSIX
 int thread::comm_manager::sm_iExecutionInterruptionSignal;
+#endif
 
 thread::comm_manager::comm_manager() {
 #if ABC_HOST_API_POSIX
