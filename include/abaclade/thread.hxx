@@ -70,7 +70,7 @@ public:
 #endif
 
 private:
-   //! Implementation of thread startup and completion logic.
+   //! Thread implementation.
    class impl;
 
 public:
@@ -139,8 +139,7 @@ public:
    native_handle_type native_handle() const;
 
 private:
-   /*! Pointer to data that is shared between the thread owned by the abc::thread instance and the
-   thread owning the abc::thread instance. */
+   //! Pointer to the implementation instance.
    std::shared_ptr<impl> m_pimpl;
 };
 
