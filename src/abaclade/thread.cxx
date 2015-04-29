@@ -185,20 +185,7 @@ public:
       ABC_TRACE_FUNC(this, inj);
 
 #if ABC_HOST_API_POSIX
-      int iSignal;
-      switch (inj.base()) {
-         /*case exception::injectable::app_execution_interruption:
-            iSignal = ?;
-            break;*/
-         case exception::injectable::execution_interruption:
-            iSignal = comm_manager::sm_iExecutionInterruptionSignal;
-            break;
-         /*case exception::injectable::user_forced_interruption:
-            iSignal = ?;
-            break;*/
-         default:
-            ABC_THROW(argument_error, ());
-      }
+      int iSignal = comm_manager::instance()->injectable_exception_signal_number(inj);
       if (int iErr = ::pthread_kill(m_h, iSignal)) {
          exception::throw_os_error(iErr);
       }
@@ -351,29 +338,32 @@ private:
 };
 
 
-#if ABC_HOST_API_POSIX
-int thread::comm_manager::sm_iExecutionInterruptionSignal;
-#endif
+thread::comm_manager * thread::comm_manager::sm_pInst = nullptr;
 
-thread::comm_manager::comm_manager() {
+thread::comm_manager::comm_manager()
 #if ABC_HOST_API_POSIX
+   : m_iExecutionInterruptionSignal(
    #if ABC_HOST_API_DARWIN
       // SIGRT* not available.
-      sm_iExecutionInterruptionSignal = SIGUSR1;
+      SIGUSR1
    #else
-      sm_iExecutionInterruptionSignal = SIGRTMIN + 1;
+      SIGRTMIN + 1
    #endif
-
+   ) {
    struct ::sigaction saNew;
    saNew.sa_sigaction = &execution_interruption_signal_handler;
    sigemptyset(&saNew.sa_mask);
    // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal.
    saNew.sa_flags = SA_SIGINFO;
-   ::sigaction(sm_iExecutionInterruptionSignal, &saNew, nullptr);
+   ::sigaction(m_iExecutionInterruptionSignal, &saNew, nullptr);
+#else
+   {
 #endif
+   sm_pInst = this;
 }
 
 thread::comm_manager::~comm_manager() {
+   sm_pInst = nullptr;
 }
 
 #if ABC_HOST_API_POSIX
@@ -382,8 +372,9 @@ thread::comm_manager::~comm_manager() {
 ) {
    ABC_UNUSED_ARG(psi);
 
+   comm_manager * ptcmThis = instance();
    exception::injectable::enum_type inj;
-   if (iSignal == sm_iExecutionInterruptionSignal) {
+   if (iSignal == ptcmThis->m_iExecutionInterruptionSignal) {
       inj = exception::injectable::execution_interruption;
    } else {
       std::abort();
@@ -391,6 +382,19 @@ thread::comm_manager::~comm_manager() {
 
    // Inject a function call to exception::throw_injected_exception().
    exception::inject_in_context(inj, 0, 0, pctx);
+}
+
+int thread::comm_manager::injectable_exception_signal_number(exception::injectable inj) const {
+   switch (inj.base()) {
+      /*case exception::injectable::app_execution_interruption:
+         return ?;*/
+      case exception::injectable::execution_interruption:
+         return m_iExecutionInterruptionSignal;
+      /*case exception::injectable::user_forced_interruption:
+         return ?;*/
+      default:
+         ABC_THROW(domain_error, ());
+   }
 }
 #endif
 

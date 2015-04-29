@@ -34,6 +34,26 @@ public:
    //! Destructor.
    ~comm_manager();
 
+   /*! Returns a pointer to the singleton instance.
+
+   @return
+      Pointer to the only instance of this class.
+   */
+   static comm_manager * instance() {
+      return sm_pInst;
+   }
+
+#if ABC_HOST_API_POSIX
+   /*! Returns the signal number to be used to inject the specified type of exception in a thread.
+
+   @param inj
+      Type of injectable exception.
+   @param return
+      Signal number to use.
+   */
+   int injectable_exception_signal_number(exception::injectable inj) const;
+#endif
+
 private:
 #if ABC_HOST_API_POSIX
    /*! Handles Abaclade-defined signals used to interrupt threads, injecting an exception in the
@@ -51,8 +71,11 @@ private:
 
 public:
 #if ABC_HOST_API_POSIX
-   static int sm_iExecutionInterruptionSignal;
+   //! Signal number to be used to interrupt threads.
+   int m_iExecutionInterruptionSignal;
 #endif
+   //! Pointer to the singleton instance.
+   static thread::comm_manager * sm_pInst;
 };
 
 } //namespace abc
