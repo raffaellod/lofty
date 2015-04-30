@@ -35,7 +35,8 @@ namespace abc {
 
 namespace detail {
 
-/*! Implementation of abc::defer_to_scope_end(). This cannot define a move constructor (and delete
+/*! @cond
+Implementation of abc::defer_to_scope_end(). This cannot define a move constructor (and delete
 the copy constructor), because if F is a lambda it will lack means for the destructor to check if
 it’s been moved out (no operator bool() support); instead, just don’t declare any move/copy
 constructors or operators, and rely on the compiler to implement RVO so not to generate more than
@@ -61,12 +62,26 @@ private:
    //! Code to execute in the destructor.
    F m_fn;
 };
+//! @endcond
 
 } //namespace detail
 
 /*! Ensures that a function or lambda will execute when the enclosing scope ends. This works by
 returning an object whose lifetime will track that of the enclosing scope; when the object is
-destructed, the function/lambda is executed.
+destructed, the function/lambda is executed. This is functionally equivalent to a try … finally
+statement in Python and other languages.
+
+@code
+int i = 1;
+{
+   ++i;
+   auto deferred1(abc::defer_to_scope_end([&i] () -> void {
+      --i;
+   }));
+   risky_operation_that_may_throw();
+}
+// At this point i is guaranteed to be 1, even if an exception was thrown.
+@endcode
 
 In order to avoid violating Abaclade’s (and common sense) requirement that destructors never throw
 exceptions, the lambda should only perform simple, fail-proof tasks, such as changing the value or a
