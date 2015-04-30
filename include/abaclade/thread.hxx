@@ -45,8 +45,13 @@ Asynchronous code execution via OS-provided preemptive multithreading.
 
 Abaclade provides augmented alternatives to std::thread and std::this_thread: abc::thread and
 abc::this_thread, respectively. In addition to every feature offered by std::thread and
-std::this_thread, Abaclade’s classes provide integration with coroutines (see @ref coroutines), as
-well as a way to cleanly terminate all threads in case of uncaught C++ exceptions in one of them.
+std::this_thread, Abaclade’s classes provide integration with coroutines (see @ref coroutines) and
+a more predictable interruption/termination model.
+
+In programs based on Abaclade, the POSIX signals SIGINT and SIGTERM are always only delivered to the
+main thread, and converted into C++ exceptions; if the main thread does not block them and the
+exceptions escape app::main(), Abaclade will proceed to cleanly terminate all other threads in the
+process by interrupting them with an appropriate exception type.
 */
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with

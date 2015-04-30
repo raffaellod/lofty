@@ -245,7 +245,7 @@ public:
       from being deallocated while still running.
    */
    void start(std::shared_ptr<impl> * ppimplThis) {
-      ABC_TRACE_FUNC(this);
+      ABC_TRACE_FUNC(this, ppimplThis);
 
       detail::simple_event seStarted;
       m_pseStarted = &seStarted;
@@ -253,8 +253,21 @@ public:
          m_pseStarted = nullptr;
       }));
 #if ABC_HOST_API_POSIX
-      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
-         exception::throw_os_error(iErr);
+      /* In order to have the new thread block signals reserved for the main thread, block them on
+      the current thread, then create the new thread, and restore them back. */
+      ::sigset_t sigsetBlock, sigsetPrev;
+      ::sigemptyset(&sigsetBlock);
+      ::sigaddset(&sigsetBlock, SIGINT);
+      ::sigaddset(&sigsetBlock, SIGTERM);
+      ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
+      {
+         auto deferred2(defer_to_scope_end([&sigsetPrev] () -> void {
+            ::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr);
+         }));
+         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+            exception::throw_os_error(iErr);
+         }
+         // deferred2 will reset this thread’s signal mask to sigsetPrev.
       }
 #elif ABC_HOST_API_WIN32
       m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
