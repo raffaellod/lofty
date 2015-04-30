@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include "coroutine-scheduler.hxx"
 
 #include <atomic>
@@ -415,6 +416,10 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
       exception::throw_os_error();
    }
+   auto deferred1(defer_to_scope_end([this, fd] () -> void {
+      // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
+      ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
+   }));
 #elif ABC_HOST_API_WIN32
    if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
       exception::throw_os_error();
@@ -428,11 +433,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
       switch_to_scheduler(itThisCoro->value.get());
    } catch (...) {
-#if ABC_HOST_API_LINUX
-      // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
-      // TODO: move this code to a “defer” lambda.
-      ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
-#elif ABC_HOST_API_WIN32
+#if ABC_HOST_API_WIN32
       /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file,
       not just this one. */
       ::CancelIo(fd, nullptr);
@@ -441,11 +442,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       m_mapCorosBlockedByFD.remove(fd);
       throw;
    }
-#if ABC_HOST_API_LINUX
-   // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
-   // TODO: move this code to a “defer” lambda.
-   ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
-#endif
+   // Under Linux, deferred1 will remove the now-inactive event for fd.
 }
 
 std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
@@ -545,6 +542,9 @@ void coroutine::scheduler::run() {
 #if ABC_HOST_API_POSIX
    ::ucontext_t uctxReturn;
    sm_puctxReturn = &uctxReturn;
+   auto deferred1(defer_to_scope_end([] () -> void {
+      sm_puctxReturn = nullptr;
+   }));
 #elif ABC_HOST_API_WIN32
    {
       void * pfbr = ::ConvertThreadToFiber(nullptr);
@@ -559,42 +559,35 @@ void coroutine::scheduler::run() {
    std::shared_ptr<coroutine::impl> & pcoroimplActive = sm_pcoroimplActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
-   try {
-      while ((pcoroimplActive = find_coroutine_to_activate())) {
-         /* Swap the coroutine_local_storage pointer for this thread with that of the active
-         coroutine. */
-         *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
-         // Switch the current thread’s context to the active coroutine’s.
+   while ((pcoroimplActive = find_coroutine_to_activate())) {
+      /* Swap the coroutine_local_storage pointer for this thread with that of the active
+      coroutine. */
+      *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
+      // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
-         int iRet = ::swapcontext(&uctxReturn, pcoroimplActive->ucontext_ptr());
+      int iRet = ::swapcontext(&uctxReturn, pcoroimplActive->ucontext_ptr());
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
 #elif ABC_HOST_API_WIN32
-         ::SwitchToFiber(pcoroimplActive->fiber());
+      ::SwitchToFiber(pcoroimplActive->fiber());
 #else
    #error "TODO: HOST_API"
 #endif
-         // Restore the coroutine_local_storage pointer for this thread.
-         *ppcrlsCurrent = pcrlsDefault;
+      // Restore the coroutine_local_storage pointer for this thread.
+      *ppcrlsCurrent = pcrlsDefault;
 #if ABC_HOST_API_POSIX
-         if (iRet < 0) {
-            /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-            (*sm_pcoroimplActive has a problem, not uctxReturn). */
-         }
-#endif
+      if (iRet < 0) {
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_pcoroimplActive has a problem, not uctxReturn). */
       }
-   } catch (...) {
-      // TODO: move this code to a “defer” lambda.
-      sm_puctxReturn = nullptr;
-      throw;
+#endif
    }
-   // TODO: move this code to a “defer” lambda.
-   sm_puctxReturn = nullptr;
+   // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
 }
 
 void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastActive) {

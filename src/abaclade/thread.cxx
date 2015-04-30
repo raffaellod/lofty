@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
 #include "exception-fault_converter.hxx"
@@ -193,49 +194,45 @@ public:
       if (::SuspendThread(m_h) == ::DWORD(-1)) {
          exception::throw_os_error();
       }
-      try {
-         std::uintptr_t iLastPC = 0;
-         ::CONTEXT ctx;
-         /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
-         suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context
-         until that reveals that the thread has really stopped, which wouldn’t be otherwise
-         guaranteed on a multi-processor system.
+      auto deferred1(defer_to_scope_end([this] () -> void {
+         ::ResumeThread(m_h);
+      }));
+      std::uintptr_t iLastPC = 0;
+      ::CONTEXT ctx;
+      /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
+      suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context
+      until that reveals that the thread has really stopped, which wouldn’t be otherwise guaranteed
+      on a multi-processor system.
 
-         It’s still possible that the thread might be executing kernel code, which would not cause
-         it to stop even on an uniprocessor system; yielding could also avoid that, by giving the OS
-         a chance to run the thread (priority changes can void this assumption), changing its
-         context and making the non-suspension detectable.
+      It’s still possible that the thread might be executing kernel code, which would not cause it
+      to stop even on an uniprocessor system; yielding could also avoid that, by giving the OS a
+      chance to run the thread (priority changes can void this assumption), changing its context and
+      making the non-suspension detectable.
 
-         See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-
-         do/> for the two race conditions mentioned above. */
-         do {
-            if (!::GetThreadContext(m_h, &ctx)) {
-               exception::throw_os_error();
-            }
-            std::uintptr_t iCurrPC;
+      See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-
+      do/> for the two race conditions mentioned above. */
+      do {
+         if (!::GetThreadContext(m_h, &ctx)) {
+            exception::throw_os_error();
+         }
+         std::uintptr_t iCurrPC;
    #if ABC_HOST_ARCH_ARM
-            iCurrPC = ctx.Pc;
+         iCurrPC = ctx.Pc;
    #elif ABC_HOST_ARCH_I386
-            iCurrPC = ctx.Eip;
+         iCurrPC = ctx.Eip;
    #elif ABC_HOST_ARCH_X86_64
-            iCurrPC = ctx.Rip;
+         iCurrPC = ctx.Rip;
    #else
       #error "TODO: HOST_ARCH"
    #endif
-         } while (iCurrPC != iLastPC);
+      } while (iCurrPC != iLastPC);
 
-         // Now that the thread is really suspended, inject the exception and resume it.
-         exception::inject_in_context(inj, 0, 0, &ctx);
-         if (!::SetThreadContext(m_h, &ctx)) {
-            exception::throw_os_error();
-         }
-      } catch (...) {
-         // TODO: move this code to a “defer” lambda.
-         ::ResumeThread(m_h);
-         throw;
+      // Now that the thread is really suspended, inject the exception and resume it.
+      exception::inject_in_context(inj, 0, 0, &ctx);
+      if (!::SetThreadContext(m_h, &ctx)) {
+         exception::throw_os_error();
       }
-      // TODO: move this code to a “defer” lambda.
-      ::ResumeThread(m_h);
+      // deferred1 will resume the thread.
 #else
    #error "TODO: HOST_API"
 #endif
@@ -252,28 +249,24 @@ public:
 
       detail::simple_event seStarted;
       m_pseStarted = &seStarted;
-      try {
+      auto deferred1(defer_to_scope_end([this] () -> void {
+         m_pseStarted = nullptr;
+      }));
 #if ABC_HOST_API_POSIX
-         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
-            exception::throw_os_error(iErr);
-         }
+      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
+         exception::throw_os_error(iErr);
+      }
 #elif ABC_HOST_API_WIN32
-         m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
-         if (!m_h) {
-            exception::throw_os_error();
-         }
+      m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
+      if (!m_h) {
+         exception::throw_os_error();
+      }
 #else
    #error "TODO: HOST_API"
 #endif
-         // Block until the new thread is finished updating *this.
-         seStarted.wait();
-      } catch (...) {
-         // TODO: move this code to a “defer” lambda.
-         m_pseStarted = nullptr;
-         throw;
-      }
-      // TODO: move this code to a “defer” lambda.
-      m_pseStarted = nullptr;
+      // Block until the new thread is finished updating *this.
+      seStarted.wait();
+      // deferred1 will reset m_pseStarted to nullptr.
    }
 
 private:
