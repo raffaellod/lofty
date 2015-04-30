@@ -56,8 +56,8 @@ public:
 
 private:
 #if ABC_HOST_API_POSIX
-   /*! Handles Abaclade-defined signals used to interrupt threads, injecting an exception in the
-   thread’s context.
+   /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
+   to interrupt any thread, injecting an appropriate exception type in the thread’s context.
 
    @param iSignal
       Signal number for which the function is being called.
@@ -66,13 +66,13 @@ private:
    @param pctx
       Thread context. This is used to manipulate the stack of the thread to inject a call frame.
    */
-   static void execution_interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
+   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 #endif
 
 public:
 #if ABC_HOST_API_POSIX
    //! Signal number to be used to interrupt threads.
-   int m_iExecutionInterruptionSignal;
+   int const mc_iInterruptionSignal;
 #endif
    //! Pointer to the singleton instance.
    static thread::comm_manager * sm_pInst;

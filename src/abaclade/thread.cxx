@@ -348,7 +348,7 @@ thread::comm_manager * thread::comm_manager::sm_pInst = nullptr;
 
 thread::comm_manager::comm_manager()
 #if ABC_HOST_API_POSIX
-   : m_iExecutionInterruptionSignal(
+   : mc_iInterruptionSignal(
    #if ABC_HOST_API_DARWIN
       // SIGRT* not available.
       SIGUSR1
@@ -357,11 +357,11 @@ thread::comm_manager::comm_manager()
    #endif
    ) {
    struct ::sigaction saNew;
-   saNew.sa_sigaction = &execution_interruption_signal_handler;
+   saNew.sa_sigaction = &interruption_signal_handler;
    sigemptyset(&saNew.sa_mask);
    // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal.
    saNew.sa_flags = SA_SIGINFO;
-   ::sigaction(m_iExecutionInterruptionSignal, &saNew, nullptr);
+   ::sigaction(mc_iInterruptionSignal, &saNew, nullptr);
 #else
    {
 #endif
@@ -373,14 +373,23 @@ thread::comm_manager::~comm_manager() {
 }
 
 #if ABC_HOST_API_POSIX
-/*static*/ void thread::comm_manager::execution_interruption_signal_handler(
+/*static*/ void thread::comm_manager::interruption_signal_handler(
    int iSignal, ::siginfo_t * psi, void * pctx
 ) {
    ABC_UNUSED_ARG(psi);
 
    comm_manager * ptcmThis = instance();
    exception::injectable::enum_type inj;
-   if (iSignal == ptcmThis->m_iExecutionInterruptionSignal) {
+   if (iSignal == ptcmThis->mc_iInterruptionSignal) {
+      // Can happen in any thread.
+      /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
+      thread that raised the signal. */
+      inj = exception::injectable::execution_interruption;
+   } else if (iSignal == SIGINT) {
+      // Can only happen in main thread.
+      inj = exception::injectable::user_forced_interruption;
+   } else if (iSignal == SIGTERM) {
+      // Can only happen in main thread.
       inj = exception::injectable::execution_interruption;
    } else {
       std::abort();
@@ -395,7 +404,7 @@ int thread::comm_manager::injectable_exception_signal_number(exception::injectab
       /*case exception::injectable::app_execution_interruption:
          return ?;*/
       case exception::injectable::execution_interruption:
-         return m_iExecutionInterruptionSignal;
+         return mc_iInterruptionSignal;
       /*case exception::injectable::user_forced_interruption:
          return ?;*/
       default:
