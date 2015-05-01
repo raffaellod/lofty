@@ -256,7 +256,7 @@ public:
       /* In order to have the new thread block signals reserved for the main thread, block them on
       the current thread, then create the new thread, and restore them back. */
       ::sigset_t sigsetBlock, sigsetPrev;
-      ::sigemptyset(&sigsetBlock);
+      sigemptyset(&sigsetBlock);
       ::sigaddset(&sigsetBlock, SIGINT);
       ::sigaddset(&sigsetBlock, SIGTERM);
       ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
@@ -355,20 +355,23 @@ thread::comm_manager::comm_manager()
    #else
       SIGRTMIN + 1
    #endif
-   ) {
-   struct ::sigaction saNew;
-   saNew.sa_sigaction = &interruption_signal_handler;
-   sigemptyset(&saNew.sa_mask);
-   // SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal.
-   saNew.sa_flags = SA_SIGINFO;
-   ::sigaction(mc_iInterruptionSignal, &saNew, nullptr);
-#else
-   {
+   )
 #endif
+{
    sm_pInst = this;
+#if ABC_HOST_API_POSIX
+   // Setup signal handlers.
+   struct ::sigaction sa;
+   sa.sa_sigaction = &interruption_signal_handler;
+   sigemptyset(&sa.sa_mask);
+   sa.sa_flags = SA_SIGINFO;
+   ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
+#endif
 }
 
 thread::comm_manager::~comm_manager() {
+   // Restore the default signal handlers.
+   ::signal(mc_iInterruptionSignal, SIG_DFL);
    sm_pInst = nullptr;
 }
 

@@ -277,48 +277,27 @@ You should have received a copy of the GNU General Public License along with Aba
    namespace abc {
 
    int const exception::fault_converter::smc_aiHandledSignals[] = {
-//    Signal (Default action) Description (standard).
-//    SIGABRT, // (Core) Abort signal from abort(3) (POSIX.1-1990).
-//    SIGALRM, // (Term) Timer signal from alarm(2) (POSIX.1-1990).
-      SIGBUS,  // (Core) Bus error (bad memory access) (POSIX.1-2001).
-//    SIGCHLD, // (Ign ) Child stopped or terminated (POSIX.1-1990).
-//    SIGCONT, // (Cont) Continue if stopped (POSIX.1-1990).
-      SIGFPE,  // (Core) Floating point exception (POSIX.1-1990).
-/*    SIGHUP,  // (Term) Hangup on controlling terminal or death of controlling process
-               // (POSIX.1-1990). */
-//    SIGILL,  // (Core) Illegal Instruction (POSIX.1-1990).
-//    SIGINT,  // (Term) Interrupt from keyboard (POSIX.1-1990).
-//    SIGPIPE, // (Term) Broken pipe: write to pipe with no readers (POSIX.1-1990).
-//    SIGPROF, // (Term) Profiling timer expired (POSIX.1-2001).
-//    SIGQUIT, // (Core) Quit from keyboard (POSIX.1-1990).
-      SIGSEGV  // (Core) Invalid memory reference (POSIX.1-1990).
-//    SIGTERM  // (Term) Termination signal (POSIX.1-1990).
-//    SIGTRAP  // (Core) Trace/breakpoint trap (POSIX.1-2001).
-//    SIGTSTP  // (Stop) Stop typed at terminal (POSIX.1-1990).
-//    SIGTTIN  // (Stop) Terminal input for background process (POSIX.1-1990).
-//    SIGTTOU  // (Stop) Terminal output for background process (POSIX.1-1990).
-//    SIGUSR1  // (Term) User-defined signal 1 (POSIX.1-1990).
-//    SIGUSR2  // (Term) User-defined signal 2 (POSIX.1-1990).
+      SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
+      SIGFPE,  // Floating point exception (POSIX.1-1990).
+//    SIGILL,  // Illegal Instruction (POSIX.1-1990).
+      SIGSEGV  // Invalid memory reference (POSIX.1-1990).
    };
-   struct ::sigaction exception::fault_converter::sm_asaDefault[ABC_COUNTOF(smc_aiHandledSignals)];
 
    exception::fault_converter::fault_converter() {
       // Setup handlers for the signals in smc_aiHandledSignals.
-      struct ::sigaction saNew;
-      saNew.sa_sigaction = &fault_signal_handler;
-      sigemptyset(&saNew.sa_mask);
-      /* SA_SIGINFO (POSIX.1-2001) provides the handler with more information about the signal,
-      which we use to generate more precise exceptions. */
-      saNew.sa_flags = SA_SIGINFO;
-      for (std::size_t i = ABC_COUNTOF(smc_aiHandledSignals); i-- > 0; ) {
-         ::sigaction(smc_aiHandledSignals[i], &saNew, &sm_asaDefault[i]);
+      struct ::sigaction sa;
+      sa.sa_sigaction = &fault_signal_handler;
+      sigemptyset(&sa.sa_mask);
+      sa.sa_flags = SA_SIGINFO;
+      ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+         ::sigaction(iSignal, &sa, nullptr);
       }
    }
 
    exception::fault_converter::~fault_converter() {
-      // Restore the saved signal handlers.
-      for (std::size_t i = ABC_COUNTOF(smc_aiHandledSignals); i-- > 0; ) {
-         ::sigaction(smc_aiHandledSignals[i], &sm_asaDefault[i], nullptr);
+      // Restore the default signal handlers.
+      ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+         ::signal(iSignal, SIG_DFL);
       }
    }
 
@@ -344,7 +323,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return;
       }
 
-      injectable::enum_type inj;
+      injectable::enum_type inj = injectable::none;
       std::intptr_t iArg0 = 0, iArg1 = 0;
       switch (iSignal) {
          case SIGBUS:
@@ -356,8 +335,6 @@ You should have received a copy of the GNU General Public License along with Aba
                   inj = injectable::memory_access_error;
                   iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                   break;
-               default:
-                  std::abort();
             }
             break;
 
@@ -393,16 +370,14 @@ You should have received a copy of the GNU General Public License along with Aba
                iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             }
             break;
-
-         default:
-            /* Handle all unrecognized cases here. Since here we only handle signals for which the
-            default actions is a core dump, calling abort (which sends SIGABRT, also causing a core
-            dump) is the same as invoking the default action. */
-            std::abort();
       }
-
-      // Inject a function call to throw_injected_exception().
-      inject_in_context(inj, iArg0, iArg1, pctx);
+      if (inj != injectable::none) {
+         // Inject the selected exception type in the faulting thread.
+         inject_in_context(inj, iArg0, iArg1, pctx);
+      } else {
+         // Deal with cases not covered above.
+         std::abort();
+      }
    }
 
    } //namespace abc

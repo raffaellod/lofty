@@ -81,8 +81,6 @@ private:
 #elif ABC_HOST_API_POSIX
    //! Signals that we can translate into C++ exceptions.
    static int const smc_aiHandledSignals[];
-   //! Default handler for each of the signals above.
-   static struct ::sigaction sm_asaDefault[];
 #elif ABC_HOST_API_WIN32
    //! Structured Exception translator on program startup.
    static ::_se_translator_function sm_setfDefault;
