@@ -366,11 +366,15 @@ thread::comm_manager::comm_manager()
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
    ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
+   ::sigaction(SIGINT,                 &sa, nullptr);
+   ::sigaction(SIGTERM,                &sa, nullptr);
 #endif
 }
 
 thread::comm_manager::~comm_manager() {
    // Restore the default signal handlers.
+   ::signal(SIGINT,                 SIG_DFL);
+   ::signal(SIGTERM,                SIG_DFL);
    ::signal(mc_iInterruptionSignal, SIG_DFL);
    sm_pInst = nullptr;
 }
