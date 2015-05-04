@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/atomic.hxx>
 #include <abaclade/_std/new.hxx>
 #include <abaclade/_std/type_traits.hxx>
 #include <abaclade/_std/tuple.hxx>
@@ -675,7 +674,7 @@ public:
 
    TODO: comment signature.
    */
-   shared_refcount(::abc::atomic::int_t cStrongRefs, ::abc::atomic::int_t cWeakRefs);
+   shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs);
 
    //! Destructor.
    virtual ~shared_refcount();
@@ -685,7 +684,7 @@ public:
 
    //! Records the creation of a new weak reference to this.
    void add_weak_ref() {
-      ::abc::atomic::increment(&m_cWeakRefs);
+      m_cWeakRefs.fetch_add(1);
    }
 
    /*! Returns the deleter in use by this owner, if any. Used by std::get_deleter().
@@ -696,7 +695,7 @@ public:
 
    //! Records the release of a strong reference to this.
    void release_strong() {
-      if (::abc::atomic::decrement(&m_cStrongRefs) == 0) {
+      if (m_cStrongRefs.fetch_sub(1) == 0) {
          /* All the strong references are gone: release the owned object and the weak link hold by
          the strong references. */
          delete_owned();
@@ -706,7 +705,7 @@ public:
 
    //! Records the release of a weak reference to this.
    void release_weak() {
-      if (::abc::atomic::decrement(&m_cWeakRefs) == 0) {
+      if (m_cWeakRefs.fetch_sub(1) == 0) {
          /* All references are gone, including the one held by all the strong references together:
          this object can go away as well. */
          delete_this();
@@ -732,9 +731,9 @@ protected:
 
 protected:
    //! Number of shared_ptr references to this.
-   ::abc::atomic::int_t volatile m_cStrongRefs;
+   unsigned m_cStrongRefs;
    //! Number of weak_ptr references to this.
-   ::abc::atomic::int_t volatile m_cWeakRefs;
+   unsigned m_cWeakRefs;
 };
 
 } //namespace detail

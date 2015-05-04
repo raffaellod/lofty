@@ -47,9 +47,7 @@ namespace abc {
 namespace _std {
 namespace detail {
 
-shared_refcount::shared_refcount(
-   ::abc::atomic::int_t cStrongRefs, ::abc::atomic::int_t cWeakRefs
-) :
+shared_refcount::shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs) :
    m_cStrongRefs(cStrongRefs),
    m_cWeakRefs(cWeakRefs + (cStrongRefs > 0 ? 1 : 0)) {
 }
@@ -61,15 +59,13 @@ shared_refcount::shared_refcount(
 
 void shared_refcount::add_strong_ref() {
    // Increment the count of strong references if non-zero; it it’s zero, the owned object is gone.
-   ::abc::atomic::int_t cStrongRefsOld;
+   unsigned cStrongRefsOld;
    do {
       cStrongRefsOld = m_cStrongRefs;
-      if (cStrongRefsOld <= 0) {
+      if (cStrongRefsOld == 0) {
          throw bad_weak_ptr();
       }
-   } while (::abc::atomic::compare_and_swap(
-      &m_cStrongRefs, cStrongRefsOld + 1, cStrongRefsOld
-   ) != cStrongRefsOld);
+   } while (!m_cStrongRefs.compare_exchange_strong(cStrongRefsOld, cStrongRefsOld + 1));
 }
 
 /*virtual*/ void * shared_refcount::get_deleter(type_info const & ti) const {
