@@ -66,20 +66,12 @@ void str_to_str_backend::write(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::text::detail::str_base
 
-//! Single NUL terminator.
-static abc::text::char_t const gc_chNul('\0');
-
-static abc::collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
-   /*m_pBegin                      =*/ const_cast<abc::text::char_t *>(&gc_chNul),
-   /*m_pEnd                        =*/ const_cast<abc::text::char_t *>(&gc_chNul),
-   /*mc_bEmbeddedPrefixedItemArray =*/ false,
-   /*m_bPrefixedItemArray          =*/ false,
-   /*m_bDynamic                    =*/ false,
-   /*m_bNulT                       =*/ true
-};
-
 namespace abc {
 namespace text {
+
+//! Single NUL terminator.
+static char_t const gc_chNul('\0');
+
 namespace detail {
 
 char_t const * str_base::_advance_char_ptr(
@@ -132,7 +124,7 @@ detail::c_str_ptr str_base::c_str() const {
       return detail::c_str_ptr(psz.release(), true);
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return detail::c_str_ptr(&::gc_chNul, false);
+      return detail::c_str_ptr(&gc_chNul, false);
    }
 }
 
@@ -321,7 +313,15 @@ std::size_t hash<abc::text::detail::str_base>::operator()(
 namespace abc {
 namespace text {
 
-// Can’t use static_cast<>() due to str_base being a protected base.
+static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
+   /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
+   /*m_pEnd                        =*/ const_cast<char_t *>(&gc_chNul),
+   /*mc_bEmbeddedPrefixedItemArray =*/ false,
+   /*m_bPrefixedItemArray          =*/ false,
+   /*m_bDynamic                    =*/ false,
+   /*m_bNulT                       =*/ true
+};
+
 istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
 
 } //namespace text
