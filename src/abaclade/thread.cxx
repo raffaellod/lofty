@@ -55,25 +55,29 @@ namespace detail {
 class simple_event : public noncopyable {
 public:
    //! Constructor.
-   simple_event() {
 #if ABC_HOST_API_DARWIN
-      m_dsem = ::dispatch_semaphore_create(0);
+   simple_event() :
+      m_dsem(::dispatch_semaphore_create(0)) {
       if (!m_dsem) {
          exception::throw_os_error();
       }
+   }
 #elif ABC_HOST_API_POSIX
+   simple_event() {
       if (::sem_init(&m_sem, 0, 0)) {
          exception::throw_os_error();
       }
+   }
 #elif ABC_HOST_API_WIN32
-      m_hEvent = ::CreateEvent(nullptr, true, false, nullptr);
+   simple_event() :
+      m_hEvent(::CreateEvent(nullptr, true /*manual reset*/, false /*not signlaled*/, nullptr)) {
       if (!m_hEvent) {
          exception::throw_os_error();
       }
+   }
 #else
    #error "TODO: HOST_API"
 #endif
-   }
 
    //! Destructor.
    ~simple_event() {
