@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-/*static*/ app * app::sm_papp;
+/*static*/ app * app::sm_papp = nullptr;
 
 app::app() {
    /* Asserting here is okay because if the assertion is true nothing will happen, and if it’s not
