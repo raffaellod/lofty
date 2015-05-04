@@ -30,8 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <pthread.h>
 
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
-   #include <mach/mach.h> // boolean_t mach_msg_header_t
-   #include <mach/mach_traps.h> // mach_task_self()
+   #include <mach/mach.h>
+   #include <mach/mach_traps.h>
 
 
    /*! Handles a kernel-reported thread exception. This is exposed by Mach, but for some reason not
@@ -197,28 +197,23 @@ You should have received a copy of the GNU General Public License along with Aba
 
    namespace abc {
 
-   ::pthread_t exception::fault_converter::sm_thrExcHandler;
-   ::mach_port_t exception::fault_converter::sm_mpExceptions;
-
    exception::fault_converter::fault_converter() {
       ::mach_port_t mpThisProc = ::mach_task_self();
       // Allocate a right-less port to listen for exceptions.
       if (::mach_port_allocate(
-         mpThisProc, MACH_PORT_RIGHT_RECEIVE, &sm_mpExceptions) == KERN_SUCCESS
+         mpThisProc, MACH_PORT_RIGHT_RECEIVE, &m_mpExceptions) == KERN_SUCCESS
       ) {
          // Assign rights to the port.
          if (::mach_port_insert_right(
-            mpThisProc, sm_mpExceptions, sm_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
+            mpThisProc, m_mpExceptions, m_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
          ) == KERN_SUCCESS) {
             // Start the thread that will catch exceptions from all the others.
-            if (::pthread_create(
-               &sm_thrExcHandler, nullptr, exception_handler_thread, nullptr
-            ) == 0) {
+            if (::pthread_create(&sm_thrExcHandler, nullptr, exception_handler_thread, this) == 0) {
                // Now that the handler thread is running, set the process-wide exception port.
                if (::task_set_exception_ports(
                   mpThisProc,
                   EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
-                  sm_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
+                  m_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
                ) == KERN_SUCCESS) {
                   // All good.
                }
@@ -230,7 +225,8 @@ You should have received a copy of the GNU General Public License along with Aba
    exception::fault_converter::~fault_converter() {
    }
 
-   /*static*/ void * exception::fault_converter::exception_handler_thread(void *) {
+   /*static*/ void * exception::fault_converter::exception_handler_thread(void * p) {
+      fault_converter * pxfcThis = static_cast<fault_converter *>(p);
       for (;;) {
          /* The exact definition of these structs is in the kernel’s sources; thankfully all we need
          to do with them is pass them around, so just define them as BLOBs and hope that they’re
@@ -247,7 +243,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
          // Block to read from the exception port.
          if (::mach_msg(
-            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, sm_mpExceptions,
+            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, pxfcThis->m_mpExceptions,
             MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
          ) != MACH_MSG_SUCCESS) {
             std::abort();
@@ -386,20 +382,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
    namespace abc {
 
-   ::_se_translator_function exception::fault_converter::sm_setfDefault;
-
-   exception::fault_converter::fault_converter() {
+   exception::fault_converter::fault_converter() :
       // Install the translator of Win32 structured exceptions into C++ exceptions.
-      sm_setfDefault = ::_set_se_translator(&fault_se_translator);
+      m_setfDefault(::_set_se_translator(&fault_se_translator)) {
    }
 
    exception::fault_converter::~fault_converter() {
-      ::_set_se_translator(sm_setfDefault);
-   }
-
-   /*static*/ void exception::fault_converter::init_for_current_thread() {
-      // Install the SEH translator, without saving the original.
-      ::_set_se_translator(&fault_se_translator);
+      ::_set_se_translator(m_setfDefault);
    }
 
    /*static*/ void ABC_STL_CALLCONV exception::fault_converter::fault_se_translator(
@@ -491,6 +480,11 @@ You should have received a copy of the GNU General Public License along with Aba
             // The thread used up its stack.
             break;
       }
+   }
+
+   /*static*/ void exception::fault_converter::init_for_current_thread() {
+      // Install the SEH translator, without saving the original.
+      ::_set_se_translator(&fault_se_translator);
    }
 
    } //namespace abc

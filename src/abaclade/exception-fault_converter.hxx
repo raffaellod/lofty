@@ -74,16 +74,16 @@ private:
 
 private:
 #if ABC_HOST_API_MACH
-   //! Thread in charge of handling exceptions for all the other threads.
-   static ::pthread_t sm_thrExcHandler;
    //! Port through which we ask the kernel to communicate exceptions to this process.
-   static ::mach_port_t sm_mpExceptions;
+   ::mach_port_t m_mpExceptions;
+   //! Thread in charge of handling exceptions for all the other threads.
+   ::pthread_t m_thrExcHandler;
 #elif ABC_HOST_API_POSIX
    //! Signals that we can translate into C++ exceptions.
    static int const smc_aiHandledSignals[];
 #elif ABC_HOST_API_WIN32
    //! Structured Exception translator on program startup.
-   static ::_se_translator_function sm_setfDefault;
+   ::_se_translator_function m_setfDefault;
 #endif
 };
 
