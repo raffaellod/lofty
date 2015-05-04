@@ -321,7 +321,7 @@ public:
 
 private:
    /*! Lower-level wrapper for the thread function passed to the constructor. Under POSIX, this is
-   also needed to assign the thread ID to the owning abc::thread instance.
+   also needed to get the thread ID and store it in the impl instance.
 
    @param p
       Pointer to a shared_ptr to *this.
@@ -448,12 +448,14 @@ thread::comm_manager::~comm_manager() {
 
 int thread::comm_manager::injectable_exception_signal_number(exception::injectable inj) const {
    switch (inj.base()) {
-      /*case exception::injectable::app_execution_interruption:
-         return ?;*/
+      case exception::injectable::app_execution_interruption:
+         // TODO: different signal number.
+         return mc_iInterruptionSignal;
       case exception::injectable::execution_interruption:
          return mc_iInterruptionSignal;
-      /*case exception::injectable::user_forced_interruption:
-         return ?;*/
+      case exception::injectable::user_forced_interruption:
+         // TODO: different signal number.
+         return mc_iInterruptionSignal;
       default:
          ABC_THROW(domain_error, ());
    }
