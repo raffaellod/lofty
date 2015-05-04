@@ -147,7 +147,8 @@ namespace abc {
 
 class thread::impl {
 private:
-   friend class thread;
+   friend id_type thread::id() const;
+   friend native_handle_type thread::native_handle() const;
 
 public:
    /*! Constructor
