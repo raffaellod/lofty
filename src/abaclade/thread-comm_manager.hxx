@@ -18,7 +18,10 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections/map.hxx>
 #include <abaclade/thread.hxx>
+
+#include <atomic>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +57,30 @@ public:
    int injectable_exception_signal_number(exception::injectable inj) const;
 #endif
 
+   /*! Registers the termination of the program’s abc::app::main() overload.
+
+   @param inj
+      Type of exception that escaped the program’s main(), or exception::injectable::none if main()
+      returned normally.
+   */
+   void main_thread_terminated(exception::injectable inj);
+
+   /*! Registers a new thread as running.
+
+   @param pimpl
+      Pointer to the abc::thread::impl instance running the thread.
+   */
+   void nonmain_thread_started(std::shared_ptr<impl> const & pimpl);
+
+   /*! Registers a non-main thread as no longer running.
+
+   @param pimpl
+      Pointer to the abc::thread::impl instance running the thread.
+   @param bUncaughtException
+      true if an exception escaped the thread’s function and was only blocked by thread:impl.
+   */
+   void nonmain_thread_terminated(impl * pimpl, bool bUncaughtException);
+
 private:
 #if ABC_HOST_API_POSIX
    /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
@@ -74,6 +101,15 @@ public:
    //! Signal number to be used to interrupt threads.
    int const mc_iInterruptionSignal;
 #endif
+   /*! Pointer to an incomplete abc::thread::impl instance that’s used to control the main (default)
+   thread of the process. */
+   // TODO: instantiate this lazily, only if needed.
+   std::shared_ptr<impl> m_pimplMainThread;
+   //! Tracks all threads running in the process except *m_pimplMainThread.
+   // TODO: make this a set instead of a map.
+   collections::map<impl *, std::shared_ptr<impl>> m_mappimplThreads;
+   //! true if the main thread of the process is terminating, or false otherwise.
+   std::atomic<bool> m_bMainThreadTerminating;
    //! Pointer to the singleton instance.
    static thread::comm_manager * sm_pInst;
 };

@@ -162,6 +162,20 @@ public:
       m_pseStarted(nullptr),
       m_fnInnerMain(std::move(fnMain)) {
    }
+   // This overload is used to instantiate an impl for the main thread.
+   impl(std::nullptr_t) :
+#if ABC_HOST_API_POSIX
+      m_h(::pthread_self()),
+      m_id(this_thread::id()),
+#elif ABC_HOST_API_WIN32
+      m_h(::OpenThread(
+         THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetThreadId()
+      )),
+#else
+   #error "TODO: HOST_API"
+#endif
+      m_pseStarted(nullptr) {
+   }
 
    //! Destructor.
    ~impl() {
@@ -238,6 +252,24 @@ public:
 #endif
    }
 
+   //! Implementation of the waiting aspect of abc::thread::join().
+   void join() {
+      ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+      if (int iErr = ::pthread_join(m_h, nullptr)) {
+         exception::throw_os_error(iErr);
+      }
+#elif ABC_HOST_API_WIN32
+      ::DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
+      if (iRet == WAIT_FAILED) {
+         exception::throw_os_error();
+      }
+#else
+   #error "TODO: HOST_API"
+#endif
+   }
+
    /*! Creates a thread to run outer_main().
 
    @param ppimplThis
@@ -308,6 +340,8 @@ private:
 #elif ABC_HOST_API_WIN32
       exception::fault_converter::init_for_current_thread();
 #endif
+      comm_manager::instance()->nonmain_thread_started(pimplThis);
+      bool bUncaughtException = false;
       try {
          // Report that this thread is done with writing to *pimplThis.
          pimplThis->m_pseStarted->raise();
@@ -315,11 +349,12 @@ private:
          pimplThis->m_fnInnerMain();
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
-         // TODO: kill every other thread.
+         bUncaughtException = true;
       } catch (...) {
          exception::write_with_scope_trace();
-         // TODO: kill every other thread.
+         bUncaughtException = true;
       }
+      comm_manager::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
 #if ABC_HOST_API_POSIX
       return nullptr;
 #elif ABC_HOST_API_WIN32
@@ -346,18 +381,18 @@ private:
 
 thread::comm_manager * thread::comm_manager::sm_pInst = nullptr;
 
-thread::comm_manager::comm_manager()
+thread::comm_manager::comm_manager() :
 #if ABC_HOST_API_POSIX
-   : mc_iInterruptionSignal(
+   mc_iInterruptionSignal(
    #if ABC_HOST_API_DARWIN
       // SIGRT* not available.
       SIGUSR1
    #else
       SIGRTMIN + 1
    #endif
-   )
+   ),
 #endif
-{
+   m_pimplMainThread(std::make_shared<impl>(nullptr)) {
    sm_pInst = this;
 #if ABC_HOST_API_POSIX
    // Setup signal handlers.
@@ -420,6 +455,37 @@ int thread::comm_manager::injectable_exception_signal_number(exception::injectab
 }
 #endif
 
+void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
+   // Signal all threads to terminate.
+   m_bMainThreadTerminating.store(true);
+   ABC_FOR_EACH(auto pair, m_mappimplThreads) {
+      pair.value->inject_exception(inj);
+   }
+   /* Wait for all threads to terminate. As they do, they’ll invoke nonmain_thread_terminated() and
+   have themselves removed from m_mappimplThreads. */
+   while (m_mappimplThreads) {
+      m_mappimplThreads.begin()->value->join();
+   }
+}
+
+void thread::comm_manager::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
+   m_mappimplThreads.add_or_assign(pimpl.get(), pimpl);
+}
+
+void thread::comm_manager::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
+   // Remove the thread from the bookkeeping list.
+   m_mappimplThreads.remove(pimpl);
+   /* If the thread was terminated by an exception making it all the way out of the thread
+   function, and the exception did not originate from an interruption by *this, all other threads
+   must terminate as well. Achieve this by “forwarding” the exception to the main thread, so that
+   its termination will in turn cause the termination of all other threads. */
+   if (bUncaughtException && !m_bMainThreadTerminating.load()) {
+      /* TODO: use a more specific exception subclass of execution_interruption, such as
+      “other_thread_execution_interrupted”. */
+      m_pimplMainThread->inject_exception(exception::injectable::execution_interruption);
+   }
+}
+
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :
    m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
@@ -471,18 +537,7 @@ void thread::join() {
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-#if ABC_HOST_API_POSIX
-   if (int iErr = ::pthread_join(m_pimpl->m_h, nullptr)) {
-      exception::throw_os_error(iErr);
-   }
-#elif ABC_HOST_API_WIN32
-   ::DWORD iRet = ::WaitForSingleObject(m_pimpl->m_h, INFINITE);
-   if (iRet == WAIT_FAILED) {
-      exception::throw_os_error();
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
+   m_pimpl->join();
    // Release the impl instance; this will also make joinable() return false.
    m_pimpl.reset();
 }

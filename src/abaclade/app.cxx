@@ -157,8 +157,12 @@ app::app() {
    exception::fault_converter xfc;
    int iRet;
    if (initialize_stdio()) {
+      // Assume for now that main() will return without exceptions.
+      /* TODO: use a more specific exception subclass of execution_interruption, such as
+      “app_exit_interruption”. */
+      exception::injectable inj = exception::injectable::none;
+      thread::comm_manager tcm;
       try {
-         thread::comm_manager tcm;
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
          try {
@@ -167,6 +171,20 @@ app::app() {
             // FIXME: EXC-SWALLOW
          }
          iRet = 123;
+         /* Determine the type of exception. The order of these dynamic_casts matters, since some
+         are subclasses of others. */
+         if (dynamic_cast<app_execution_interruption const *>(&x)) {
+            inj = exception::injectable::app_execution_interruption;
+         } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
+            inj = exception::injectable::user_forced_interruption;
+         } else if (dynamic_cast<execution_interruption const *>(&x)) {
+            inj = exception::injectable::execution_interruption;
+         } else {
+            // The exception is not an execution_interruption subclass.
+            /* TODO: use a more specific exception subclass of execution_interruption, such as
+            “other_thread_execution_interrupted”. */
+            inj = exception::injectable::execution_interruption;
+         }
       } catch (...) {
          try {
             exception::write_with_scope_trace();
@@ -174,7 +192,13 @@ app::app() {
             // FIXME: EXC-SWALLOW
          }
          iRet = 123;
+         // The exception is not an execution_interruption subclass.
+         /* TODO: use a more specific exception subclass of execution_interruption, such as
+         “other_thread_execution_interrupted”. */
+         inj = exception::injectable::execution_interruption;
       }
+      // TODO: who handles errors from this one?
+      tcm.main_thread_terminated(inj);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }
