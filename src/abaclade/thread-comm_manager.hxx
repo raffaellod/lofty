@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/thread.hxx>
 
 #include <atomic>
+#include <mutex>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,17 @@ public:
    //! Destructor.
    ~comm_manager();
 
+#if ABC_HOST_API_POSIX
+   /*! Returns the signal number to be used to inject an exception in a thread.
+
+   @param return
+      Signal number.
+   */
+   int exception_injection_signal_number() const {
+      return mc_iInterruptionSignal;
+   }
+#endif
+
    /*! Returns a pointer to the singleton instance.
 
    @return
@@ -45,17 +57,6 @@ public:
    static comm_manager * instance() {
       return sm_pInst;
    }
-
-#if ABC_HOST_API_POSIX
-   /*! Returns the signal number to be used to inject the specified type of exception in a thread.
-
-   @param inj
-      Type of injectable exception.
-   @param return
-      Signal number to use.
-   */
-   int injectable_exception_signal_number(exception::injectable inj) const;
-#endif
 
    /*! Registers the termination of the program’s abc::app::main() overload.
 
@@ -81,21 +82,6 @@ public:
    */
    void nonmain_thread_terminated(impl * pimpl, bool bUncaughtException);
 
-private:
-#if ABC_HOST_API_POSIX
-   /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
-   to interrupt any thread, injecting an appropriate exception type in the thread’s context.
-
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
-   */
-   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
-#endif
-
 public:
 #if ABC_HOST_API_POSIX
    //! Signal number to be used to interrupt threads.
@@ -105,6 +91,8 @@ public:
    thread of the process. */
    // TODO: instantiate this lazily, only if needed.
    std::shared_ptr<impl> m_pimplMainThread;
+   //! Governs access to m_mappimplThreads.
+   std::mutex m_mtxThreads;
    //! Tracks all threads running in the process except *m_pimplMainThread.
    // TODO: make this a set instead of a map.
    collections::map<impl *, std::shared_ptr<impl>> m_mappimplThreads;

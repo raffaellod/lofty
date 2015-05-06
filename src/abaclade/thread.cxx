@@ -149,6 +149,8 @@ class thread::impl {
 private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
+   // TODO: remove.
+   friend class comm_manager;
 
 public:
    /*! Constructor
@@ -165,6 +167,7 @@ public:
    #error "TODO: HOST_API"
 #endif
       m_pseStarted(nullptr),
+      m_bTerminating(false),
       m_fnInnerMain(std::move(fnMain)) {
    }
    // This overload is used to instantiate an impl for the main thread.
@@ -179,7 +182,8 @@ public:
 #else
    #error "TODO: HOST_API"
 #endif
-      m_pseStarted(nullptr) {
+      m_pseStarted(nullptr),
+      m_bTerminating(false) {
    }
 
    //! Destructor.
@@ -205,7 +209,22 @@ public:
       ABC_TRACE_FUNC(this, inj);
 
 #if ABC_HOST_API_POSIX
-      int iSignal = comm_manager::instance()->injectable_exception_signal_number(inj);
+      int iSignal;
+      switch (inj.base()) {
+         case exception::injectable::app_execution_interruption:
+            // TODO: different signal number.
+            iSignal = comm_manager::instance()->exception_injection_signal_number();
+            break;
+         case exception::injectable::execution_interruption:
+            iSignal = comm_manager::instance()->exception_injection_signal_number();
+            break;
+         case exception::injectable::user_forced_interruption:
+            // TODO: different signal number.
+            iSignal = comm_manager::instance()->exception_injection_signal_number();
+            break;
+         default:
+            ABC_THROW(domain_error, ());
+      }
       if (int iErr = ::pthread_kill(m_h, iSignal)) {
          exception::throw_os_error(iErr);
       }
@@ -246,16 +265,59 @@ public:
    #endif
       } while (iCurrPC != iLastPC);
 
-      // Now that the thread is really suspended, inject the exception and resume it.
-      exception::inject_in_context(inj, 0, 0, &ctx);
-      if (!::SetThreadContext(m_h, &ctx)) {
-         exception::throw_os_error();
+      /* Now that the thread is really suspended, inject the exception and resume it, unless the
+      thread is already terminating, in which case we’ll avoid throwing an exception. This check is
+      safe because m_bTerminating can only be written to by the thread we just suspended. */
+      if (!m_bTerminating.load()) {
+         exception::inject_in_context(inj, 0, 0, &ctx);
+         if (!::SetThreadContext(m_h, &ctx)) {
+            exception::throw_os_error();
+         }
       }
       // deferred1 will resume the thread.
 #else
    #error "TODO: HOST_API"
 #endif
    }
+
+#if ABC_HOST_API_POSIX
+   /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
+   to interrupt any thread, injecting an appropriate exception type in the thread’s context.
+
+   @param iSignal
+      Signal number for which the function is being called.
+   @param psi
+      Additional information on the signal.
+   @param pctx
+      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
+   */
+   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
+      ABC_UNUSED_ARG(psi);
+
+      exception::injectable::enum_type inj;
+      if (iSignal == SIGINT) {
+         // Can only happen in main thread.
+         inj = exception::injectable::user_forced_interruption;
+      } else if (iSignal == SIGTERM) {
+         // Can only happen in main thread.
+         inj = exception::injectable::execution_interruption;
+      } else if (iSignal == comm_manager::instance()->mc_iInterruptionSignal) {
+         // Can happen in any thread.
+         /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by
+         the thread that raised the signal. */
+         inj = exception::injectable::execution_interruption;
+      } else {
+         std::abort();
+      }
+
+      /* Inject a function call to exception::throw_injected_exception(), unless the thread is
+      already terminating, in which case we’ll avoid throwing an exception. This check is safe
+      because m_bTerminating can only be written to by the current thread. */
+      /*TODO if (!m_bTerminating.load())*/ {
+         exception::inject_in_context(inj, 0, 0, pctx);
+      }
+   }
+#endif
 
    //! Implementation of the waiting aspect of abc::thread::join().
    void join() {
@@ -350,8 +412,14 @@ private:
       try {
          // Report that this thread is done with writing to *pimplThis.
          pimplThis->m_pseStarted->raise();
+         auto deferred1(defer_to_scope_end([&pimplThis] () -> void {
+            pimplThis->m_bTerminating.store(true);
+         }));
          // Run the user’s main().
          pimplThis->m_fnInnerMain();
+         /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
+         point. A simple bool flag will work because it’s only accessed by this thread (POSIX) or
+         when this thread is suspended (Win32). */
       } catch (std::exception const & x) {
          exception::write_with_scope_trace(nullptr, &x);
          bUncaughtException = true;
@@ -379,6 +447,9 @@ private:
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */
    detail::simple_event * m_pseStarted;
+   /*! true if the thread is terminating, i.e. running Abaclade threading code, or false if it’s
+   still running application code. */
+   std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
 };
@@ -402,7 +473,7 @@ thread::comm_manager::comm_manager() :
 #if ABC_HOST_API_POSIX
    // Setup signal handlers.
    struct ::sigaction sa;
-   sa.sa_sigaction = &interruption_signal_handler;
+   sa.sa_sigaction = &impl::interruption_signal_handler;
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
    ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
@@ -419,74 +490,48 @@ thread::comm_manager::~comm_manager() {
    sm_pInst = nullptr;
 }
 
-#if ABC_HOST_API_POSIX
-/*static*/ void thread::comm_manager::interruption_signal_handler(
-   int iSignal, ::siginfo_t * psi, void * pctx
-) {
-   ABC_UNUSED_ARG(psi);
-
-   comm_manager * ptcmThis = instance();
-   exception::injectable::enum_type inj;
-   if (iSignal == ptcmThis->mc_iInterruptionSignal) {
-      // Can happen in any thread.
-      /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
-      thread that raised the signal. */
-      inj = exception::injectable::execution_interruption;
-   } else if (iSignal == SIGINT) {
-      // Can only happen in main thread.
-      inj = exception::injectable::user_forced_interruption;
-   } else if (iSignal == SIGTERM) {
-      // Can only happen in main thread.
-      inj = exception::injectable::execution_interruption;
-   } else {
-      std::abort();
-   }
-
-   // Inject a function call to exception::throw_injected_exception().
-   exception::inject_in_context(inj, 0, 0, pctx);
-}
-
-int thread::comm_manager::injectable_exception_signal_number(exception::injectable inj) const {
-   switch (inj.base()) {
-      case exception::injectable::app_execution_interruption:
-         // TODO: different signal number.
-         return mc_iInterruptionSignal;
-      case exception::injectable::execution_interruption:
-         return mc_iInterruptionSignal;
-      case exception::injectable::user_forced_interruption:
-         // TODO: different signal number.
-         return mc_iInterruptionSignal;
-      default:
-         ABC_THROW(domain_error, ());
-   }
-}
-#endif
-
 void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
-   // Signal all threads to terminate.
-   m_bMainThreadTerminating.store(true);
+   /* Note: at this point, a correct program will have no other threads running. What’s done here is
+   a courtesy of Abaclade to prevent the process from terminating while threads are still running,
+   but m_mappimplThreads.size() > 0 here should be considered an exception rather than the rule. */
+
+   // Make this thread uninterruptible.
+   m_pimplMainThread->m_bTerminating.store(true);
+
+   std::unique_lock<std::mutex> lock(m_mtxThreads);
+   // Signal every other thread to terminate.
    ABC_FOR_EACH(auto pair, m_mappimplThreads) {
       pair.value->inject_exception(inj);
    }
-   /* Wait for all threads to terminate. As they do, they’ll invoke nonmain_thread_terminated() and
-   have themselves removed from m_mappimplThreads. */
-   while (m_mappimplThreads) {
-      m_mappimplThreads.begin()->value->join();
+   /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
+   have themselves removed from m_mappimplThreads. We can’t join() them here, since they might be
+   joining amongst themselves in some application-defined order, and we can’t join the same thread
+   more than once (at least in POSIX). */
+   while (!m_mappimplThreads.empty()) {
+      lock.unlock();
+      // Yes, we just sleep. Remember, this should not really happen (see the note above).
+      this_thread::sleep_for_ms(1);
+      // Re-lock the mutex and check again.
+      lock.lock();
    }
 }
 
 void thread::comm_manager::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
+   std::lock_guard<std::mutex> lock(m_mtxThreads);
    m_mappimplThreads.add_or_assign(pimpl.get(), pimpl);
 }
 
 void thread::comm_manager::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
    // Remove the thread from the bookkeeping list.
-   m_mappimplThreads.remove(pimpl);
+   {
+      std::lock_guard<std::mutex> lock(m_mtxThreads);
+      m_mappimplThreads.remove(pimpl);
+   }
    /* If the thread was terminated by an exception making it all the way out of the thread
-   function, and the exception did not originate from an interruption by *this, all other threads
-   must terminate as well. Achieve this by “forwarding” the exception to the main thread, so that
-   its termination will in turn cause the termination of all other threads. */
-   if (bUncaughtException && !m_bMainThreadTerminating.load()) {
+   function, all other threads must terminate as well. Achieve this by “forwarding” the exception
+   to the main thread, so that its termination will in turn cause the termination of all other
+   threads. */
+   if (bUncaughtException) {
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “other_thread_execution_interrupted”. */
       m_pimplMainThread->inject_exception(exception::injectable::execution_interruption);
