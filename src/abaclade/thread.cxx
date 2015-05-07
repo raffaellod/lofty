@@ -301,7 +301,7 @@ public:
       } else if (iSignal == SIGTERM) {
          // Can only happen in main thread.
          inj = exception::injectable::execution_interruption;
-      } else if (iSignal == comm_manager::instance()->mc_iInterruptionSignal) {
+      } else if (iSignal == comm_manager::instance()->exception_injection_signal_number()) {
          // Can happen in any thread.
          /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by
          the thread that raised the signal. */

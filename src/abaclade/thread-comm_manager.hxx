@@ -82,7 +82,7 @@ public:
    */
    void nonmain_thread_terminated(impl * pimpl, bool bUncaughtException);
 
-public:
+private:
 #if ABC_HOST_API_POSIX
    //! Signal number to be used to interrupt threads.
    int const mc_iInterruptionSignal;
