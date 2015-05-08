@@ -24,15 +24,13 @@ You should have received a copy of the GNU General Public License along with Aba
 #include "coroutine-scheduler.hxx"
 #include "exception-fault_converter.hxx"
 #include "thread-comm_manager.hxx"
+#include "thread-impl.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
    #include <signal.h> // SIG* sigaction sig*()
    #include <time.h> // nanosleep()
-   #if ABC_HOST_API_DARWIN
-      #include <dispatch/dispatch.h>
-   #else
-      #include <semaphore.h>
+   #if !ABC_HOST_API_DARWIN
       #if ABC_HOST_API_FREEBSD
          #include <pthread_np.h> // pthread_getthreadid_np()
       #elif ABC_HOST_API_LINUX
@@ -52,404 +50,328 @@ coroutine::scheduler. */
 namespace abc {
 namespace detail {
 
-class simple_event : public noncopyable {
-public:
-   //! Constructor.
 #if ABC_HOST_API_DARWIN
-   simple_event() :
-      m_dsem(::dispatch_semaphore_create(0)) {
-      if (!m_dsem) {
-         exception::throw_os_error();
-      }
+simple_event::simple_event() :
+   m_dsem(::dispatch_semaphore_create(0)) {
+   if (!m_dsem) {
+      exception::throw_os_error();
    }
+}
 #elif ABC_HOST_API_POSIX
-   simple_event() {
-      if (::sem_init(&m_sem, 0, 0)) {
-         exception::throw_os_error();
-      }
+simple_event::simple_event() {
+   if (::sem_init(&m_sem, 0, 0)) {
+      exception::throw_os_error();
    }
+}
 #elif ABC_HOST_API_WIN32
-   simple_event() :
-      m_hEvent(::CreateEvent(nullptr, true /*manual reset*/, false /*not signlaled*/, nullptr)) {
-      if (!m_hEvent) {
-         exception::throw_os_error();
-      }
+simple_event::simple_event() :
+   m_hEvent(::CreateEvent(nullptr, true /*manual reset*/, false /*not signlaled*/, nullptr)) {
+   if (!m_hEvent) {
+      exception::throw_os_error();
    }
+}
 #else
    #error "TODO: HOST_API"
 #endif
 
-   //! Destructor.
-   ~simple_event() {
+simple_event::~simple_event() {
 #if ABC_HOST_API_DARWIN
-      ::dispatch_release(m_dsem);
+   ::dispatch_release(m_dsem);
 #elif ABC_HOST_API_POSIX
-      ::sem_destroy(&m_sem);
+   ::sem_destroy(&m_sem);
 #elif ABC_HOST_API_WIN32
-      ::CloseHandle(m_hEvent);
+   ::CloseHandle(m_hEvent);
 #else
    #error "TODO: HOST_API"
 #endif
-   }
+}
 
-   //! Raises the event.
-   void raise() {
+void simple_event::raise() {
 #if ABC_HOST_API_DARWIN
-      ::dispatch_semaphore_signal(m_dsem);
+   ::dispatch_semaphore_signal(m_dsem);
 #elif ABC_HOST_API_POSIX
-      ::sem_post(&m_sem);
+   ::sem_post(&m_sem);
 #elif ABC_HOST_API_WIN32
-      ::SetEvent(m_hEvent);
+   ::SetEvent(m_hEvent);
 #else
    #error "TODO: HOST_API"
 #endif
-   }
+}
 
-   //! Waits for the event to be raised by another thread.
-   void wait() {
+void simple_event::wait() {
 #if ABC_HOST_API_DARWIN
-      ::dispatch_semaphore_wait(m_dsem, DISPATCH_TIME_FOREVER);
+   ::dispatch_semaphore_wait(m_dsem, DISPATCH_TIME_FOREVER);
 #elif ABC_HOST_API_POSIX
-      /* Block until the new thread is finished updating *this. The only possible failure is EINTR,
-      so we just keep on retrying. */
-      while (::sem_wait(&m_sem)) {
-         ;
-      }
-#elif ABC_HOST_API_WIN32
-      ::WaitForSingleObject(m_hEvent, INFINITE);
-#else
-   #error "TODO: HOST_API"
-#endif
+   /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so
+   we just keep on retrying. */
+   while (::sem_wait(&m_sem)) {
+      ;
    }
-
-private:
-#if ABC_HOST_API_DARWIN
-   //! Underlying dispatch semaphore.
-   ::dispatch_semaphore_t m_dsem;
-#elif ABC_HOST_API_POSIX
-   //! Underlying POSIX semaphore.
-   ::sem_t m_sem;
 #elif ABC_HOST_API_WIN32
-   //! Underlying event.
-   ::HANDLE m_hEvent;
+   ::WaitForSingleObject(m_hEvent, INFINITE);
 #else
    #error "TODO: HOST_API"
 #endif
-};
+}
 
 } //namespace detail
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread
+// abc::thread::impl
 
 namespace abc {
 
-class thread::impl {
-private:
-   friend id_type thread::id() const;
-   friend native_handle_type thread::native_handle() const;
-   // TODO: remove.
-   friend class comm_manager;
-
-public:
-   /*! Constructor
-
-   @param fnMain
-      Initial value for m_fnInnerMain.
-   */
-   impl(std::function<void ()> fnMain) :
+thread::impl::impl(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
-      m_id(0),
+   m_id(0),
 #elif ABC_HOST_API_WIN32
-      m_h(nullptr),
+   m_h(nullptr),
 #else
    #error "TODO: HOST_API"
 #endif
-      m_pseStarted(nullptr),
-      m_bTerminating(false),
-      m_fnInnerMain(std::move(fnMain)) {
-   }
-   // This overload is used to instantiate an impl for the main thread.
-   impl(std::nullptr_t) :
+   m_pseStarted(nullptr),
+   m_bTerminating(false),
+   m_fnInnerMain(std::move(fnMain)) {
+}
+thread::impl::impl(std::nullptr_t) :
 #if ABC_HOST_API_POSIX
-      m_h(::pthread_self()),
-      m_id(this_thread::id()),
+   m_h(::pthread_self()),
+   m_id(this_thread::id()),
 #elif ABC_HOST_API_WIN32
-      m_h(::OpenThread(
-         THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetThreadId()
-      )),
+   m_h(::OpenThread(
+      THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetThreadId()
+   )),
 #else
    #error "TODO: HOST_API"
 #endif
-      m_pseStarted(nullptr),
-      m_bTerminating(false) {
-   }
+   m_pseStarted(nullptr),
+   m_bTerminating(false) {
+}
 
-   //! Destructor.
-   ~impl() {
+thread::impl::~impl() {
 #if ABC_HOST_API_WIN32
-      if (m_h) {
-         ::CloseHandle(m_h);
-      }
-#endif
+   if (m_h) {
+      ::CloseHandle(m_h);
    }
+#endif
+}
 
-   /*! Injects the requested type of exception in the thread.
-
-   @param inj
-      Type of exception to inject.
-   */
-   void inject_exception(exception::injectable inj) {
-      ABC_TRACE_FUNC(this, inj);
+void thread::impl::inject_exception(exception::injectable inj) {
+   ABC_TRACE_FUNC(this, inj);
 
 #if ABC_HOST_API_POSIX
-      int iSignal;
-      switch (inj.base()) {
-         case exception::injectable::app_execution_interruption:
-            // TODO: different signal number.
-            iSignal = comm_manager::instance()->exception_injection_signal_number();
-            break;
-         case exception::injectable::execution_interruption:
-            iSignal = comm_manager::instance()->exception_injection_signal_number();
-            break;
-         case exception::injectable::user_forced_interruption:
-            // TODO: different signal number.
-            iSignal = comm_manager::instance()->exception_injection_signal_number();
-            break;
-         default:
-            ABC_THROW(domain_error, ());
+   int iSignal;
+   switch (inj.base()) {
+      case exception::injectable::app_execution_interruption:
+         // TODO: different signal number.
+         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         break;
+      case exception::injectable::execution_interruption:
+         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         break;
+      case exception::injectable::user_forced_interruption:
+         // TODO: different signal number.
+         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         break;
+      default:
+         ABC_THROW(domain_error, ());
+   }
+   if (int iErr = ::pthread_kill(m_h, iSignal)) {
+      exception::throw_os_error(iErr);
+   }
+#elif ABC_HOST_API_WIN32
+   if (::SuspendThread(m_h) == ::DWORD(-1)) {
+      exception::throw_os_error();
+   }
+   auto deferred1(defer_to_scope_end([this] () -> void {
+      ::ResumeThread(m_h);
+   }));
+   std::uintptr_t iLastPC = 0;
+   ::CONTEXT ctx;
+   /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
+   suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context until
+   that reveals that the thread has really stopped, which wouldn’t be otherwise guaranteed on a
+   multi-processor system.
+
+   It’s still possible that the thread might be executing kernel code, which would not cause it to
+   stop even on an uniprocessor system; yielding could also avoid that, by giving the OS a chance to
+   run the thread (priority changes can void this assumption), changing its context and making the
+   non-suspension detectable.
+
+   See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-do/>
+   for the two race conditions mentioned above. */
+   do {
+      if (!::GetThreadContext(m_h, &ctx)) {
+         exception::throw_os_error();
       }
-      if (int iErr = ::pthread_kill(m_h, iSignal)) {
+      std::uintptr_t iCurrPC;
+#if ABC_HOST_ARCH_ARM
+      iCurrPC = ctx.Pc;
+#elif ABC_HOST_ARCH_I386
+      iCurrPC = ctx.Eip;
+#elif ABC_HOST_ARCH_X86_64
+      iCurrPC = ctx.Rip;
+#else
+   #error "TODO: HOST_ARCH"
+#endif
+      ::Sleep(0);
+   } while (iCurrPC != iLastPC);
+
+   /* Now that the thread is really suspended, inject the exception and resume it, unless the thread
+   is already terminating, in which case we’ll avoid throwing an exception. This check is safe
+   because m_bTerminating can only be written to by the thread we just suspended. */
+   if (!m_bTerminating.load()) {
+      exception::inject_in_context(inj, 0, 0, &ctx);
+      if (!::SetThreadContext(m_h, &ctx)) {
+         exception::throw_os_error();
+      }
+   }
+   // deferred1 will resume the thread.
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+#if ABC_HOST_API_POSIX
+/*static*/ void thread::impl::interruption_signal_handler(
+   int iSignal, ::siginfo_t * psi, void * pctx
+) {
+   ABC_UNUSED_ARG(psi);
+
+   exception::injectable::enum_type inj;
+   if (iSignal == SIGINT) {
+      // Can only happen in main thread.
+      inj = exception::injectable::user_forced_interruption;
+   } else if (iSignal == SIGTERM) {
+      // Can only happen in main thread.
+      inj = exception::injectable::execution_interruption;
+   } else if (iSignal == comm_manager::instance()->exception_injection_signal_number()) {
+      // Can happen in any thread.
+      /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
+      thread that raised the signal. */
+      inj = exception::injectable::execution_interruption;
+   } else {
+      std::abort();
+   }
+
+   /* Inject a function call to exception::throw_injected_exception(), unless the thread is already
+   terminating, in which case we’ll avoid throwing an exception. This check is safe because
+   m_bTerminating can only be written to by the current thread. */
+   /*TODO if (!m_bTerminating.load())*/ {
+      exception::inject_in_context(inj, 0, 0, pctx);
+   }
+}
+#endif
+
+void thread::impl::join() {
+   ABC_TRACE_FUNC(this);
+
+#if ABC_HOST_API_POSIX
+   if (int iErr = ::pthread_join(m_h, nullptr)) {
+      exception::throw_os_error(iErr);
+   }
+#elif ABC_HOST_API_WIN32
+   ::DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
+   if (iRet == WAIT_FAILED) {
+      exception::throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+#if ABC_HOST_API_POSIX
+/*static*/ void * thread::impl::outer_main(void * p) {
+#elif ABC_HOST_API_WIN32
+/*static*/ ::DWORD WINAPI thread::impl::outer_main(void * p) {
+#else
+   #error "TODO: HOST_API"
+#endif
+   /* Get a copy of the shared_ptr owning *this, so that members will be guaranteed to be accessible
+   even after start() returns, in the creating thread.
+   Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for this
+   thread to signal that it’s finished starting. */
+   std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
+#if ABC_HOST_API_POSIX
+   pimplThis->m_id = this_thread::id();
+#elif ABC_HOST_API_WIN32
+   exception::fault_converter::init_for_current_thread();
+#endif
+   comm_manager::instance()->nonmain_thread_started(pimplThis);
+   bool bUncaughtException = false;
+   try {
+      // Report that this thread is done with writing to *pimplThis.
+      pimplThis->m_pseStarted->raise();
+      auto deferred1(defer_to_scope_end([&pimplThis] () -> void {
+         pimplThis->m_bTerminating.store(true);
+      }));
+      // Run the user’s main().
+      pimplThis->m_fnInnerMain();
+      /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
+      point. A simple bool flag will work because it’s only accessed by this thread (POSIX) or when
+      this thread is suspended (Win32). */
+   } catch (std::exception const & x) {
+      exception::write_with_scope_trace(nullptr, &x);
+      bUncaughtException = true;
+   } catch (...) {
+      exception::write_with_scope_trace();
+      bUncaughtException = true;
+   }
+   comm_manager::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
+#if ABC_HOST_API_POSIX
+   return nullptr;
+#elif ABC_HOST_API_WIN32
+   return 0;
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
+   ABC_TRACE_FUNC(this, ppimplThis);
+
+   detail::simple_event seStarted;
+   m_pseStarted = &seStarted;
+   auto deferred1(defer_to_scope_end([this] () -> void {
+      m_pseStarted = nullptr;
+   }));
+#if ABC_HOST_API_POSIX
+   /* In order to have the new thread block signals reserved for the main thread, block them on the
+   current thread, then create the new thread, and restore them back. */
+   ::sigset_t sigsetBlock, sigsetPrev;
+   sigemptyset(&sigsetBlock);
+   ::sigaddset(&sigsetBlock, SIGINT);
+   ::sigaddset(&sigsetBlock, SIGTERM);
+   ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
+   {
+      auto deferred2(defer_to_scope_end([&sigsetPrev] () -> void {
+         ::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr);
+      }));
+      if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
          exception::throw_os_error(iErr);
       }
+      // deferred2 will reset this thread’s signal mask to sigsetPrev.
+   }
 #elif ABC_HOST_API_WIN32
-      if (::SuspendThread(m_h) == ::DWORD(-1)) {
-         exception::throw_os_error();
-      }
-      auto deferred1(defer_to_scope_end([this] () -> void {
-         ::ResumeThread(m_h);
-      }));
-      std::uintptr_t iLastPC = 0;
-      ::CONTEXT ctx;
-      /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
-      suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context
-      until that reveals that the thread has really stopped, which wouldn’t be otherwise guaranteed
-      on a multi-processor system.
-
-      It’s still possible that the thread might be executing kernel code, which would not cause it
-      to stop even on an uniprocessor system; yielding could also avoid that, by giving the OS a
-      chance to run the thread (priority changes can void this assumption), changing its context and
-      making the non-suspension detectable.
-
-      See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-
-      do/> for the two race conditions mentioned above. */
-      do {
-         if (!::GetThreadContext(m_h, &ctx)) {
-            exception::throw_os_error();
-         }
-         std::uintptr_t iCurrPC;
-   #if ABC_HOST_ARCH_ARM
-         iCurrPC = ctx.Pc;
-   #elif ABC_HOST_ARCH_I386
-         iCurrPC = ctx.Eip;
-   #elif ABC_HOST_ARCH_X86_64
-         iCurrPC = ctx.Rip;
-   #else
-      #error "TODO: HOST_ARCH"
-   #endif
-         ::Sleep(0);
-      } while (iCurrPC != iLastPC);
-
-      /* Now that the thread is really suspended, inject the exception and resume it, unless the
-      thread is already terminating, in which case we’ll avoid throwing an exception. This check is
-      safe because m_bTerminating can only be written to by the thread we just suspended. */
-      if (!m_bTerminating.load()) {
-         exception::inject_in_context(inj, 0, 0, &ctx);
-         if (!::SetThreadContext(m_h, &ctx)) {
-            exception::throw_os_error();
-         }
-      }
-      // deferred1 will resume the thread.
+   m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
+   if (!m_h) {
+      exception::throw_os_error();
+   }
 #else
    #error "TODO: HOST_API"
 #endif
-   }
+   // Block until the new thread is finished updating *this.
+   seStarted.wait();
+   // deferred1 will reset m_pseStarted to nullptr.
+}
 
-#if ABC_HOST_API_POSIX
-   /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
-   to interrupt any thread, injecting an appropriate exception type in the thread’s context.
+} //namespace abc
 
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
-   */
-   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx) {
-      ABC_UNUSED_ARG(psi);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::thread::comm_manager
 
-      exception::injectable::enum_type inj;
-      if (iSignal == SIGINT) {
-         // Can only happen in main thread.
-         inj = exception::injectable::user_forced_interruption;
-      } else if (iSignal == SIGTERM) {
-         // Can only happen in main thread.
-         inj = exception::injectable::execution_interruption;
-      } else if (iSignal == comm_manager::instance()->exception_injection_signal_number()) {
-         // Can happen in any thread.
-         /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by
-         the thread that raised the signal. */
-         inj = exception::injectable::execution_interruption;
-      } else {
-         std::abort();
-      }
-
-      /* Inject a function call to exception::throw_injected_exception(), unless the thread is
-      already terminating, in which case we’ll avoid throwing an exception. This check is safe
-      because m_bTerminating can only be written to by the current thread. */
-      /*TODO if (!m_bTerminating.load())*/ {
-         exception::inject_in_context(inj, 0, 0, pctx);
-      }
-   }
-#endif
-
-   //! Implementation of the waiting aspect of abc::thread::join().
-   void join() {
-      ABC_TRACE_FUNC(this);
-
-#if ABC_HOST_API_POSIX
-      if (int iErr = ::pthread_join(m_h, nullptr)) {
-         exception::throw_os_error(iErr);
-      }
-#elif ABC_HOST_API_WIN32
-      ::DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
-      if (iRet == WAIT_FAILED) {
-         exception::throw_os_error();
-      }
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-
-   /*! Creates a thread to run outer_main().
-
-   @param ppimplThis
-      Pointer by which outer_main() will get a reference (as in refcount) to *this, preventing it
-      from being deallocated while still running.
-   */
-   void start(std::shared_ptr<impl> * ppimplThis) {
-      ABC_TRACE_FUNC(this, ppimplThis);
-
-      detail::simple_event seStarted;
-      m_pseStarted = &seStarted;
-      auto deferred1(defer_to_scope_end([this] () -> void {
-         m_pseStarted = nullptr;
-      }));
-#if ABC_HOST_API_POSIX
-      /* In order to have the new thread block signals reserved for the main thread, block them on
-      the current thread, then create the new thread, and restore them back. */
-      ::sigset_t sigsetBlock, sigsetPrev;
-      sigemptyset(&sigsetBlock);
-      ::sigaddset(&sigsetBlock, SIGINT);
-      ::sigaddset(&sigsetBlock, SIGTERM);
-      ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
-      {
-         auto deferred2(defer_to_scope_end([&sigsetPrev] () -> void {
-            ::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr);
-         }));
-         if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
-            exception::throw_os_error(iErr);
-         }
-         // deferred2 will reset this thread’s signal mask to sigsetPrev.
-      }
-#elif ABC_HOST_API_WIN32
-      m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
-      if (!m_h) {
-         exception::throw_os_error();
-      }
-#else
-   #error "TODO: HOST_API"
-#endif
-      // Block until the new thread is finished updating *this.
-      seStarted.wait();
-      // deferred1 will reset m_pseStarted to nullptr.
-   }
-
-private:
-   /*! Lower-level wrapper for the thread function passed to the constructor. Under POSIX, this is
-   also needed to get the thread ID and store it in the impl instance.
-
-   @param p
-      Pointer to a shared_ptr to *this.
-   @return
-      Unused.
-   */
-#if ABC_HOST_API_POSIX
-   static void * outer_main(void * p) {
-#elif ABC_HOST_API_WIN32
-   static ::DWORD WINAPI outer_main(void * p) {
-#else
-   #error "TODO: HOST_API"
-#endif
-      /* Get a copy of the shared_ptr owning *this, so that members will be guaranteed to be
-      accessible even after start() returns, in the creating thread.
-      Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for
-      this thread to signal that it’s finished starting. */
-      std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
-#if ABC_HOST_API_POSIX
-      pimplThis->m_id = this_thread::id();
-#elif ABC_HOST_API_WIN32
-      exception::fault_converter::init_for_current_thread();
-#endif
-      comm_manager::instance()->nonmain_thread_started(pimplThis);
-      bool bUncaughtException = false;
-      try {
-         // Report that this thread is done with writing to *pimplThis.
-         pimplThis->m_pseStarted->raise();
-         auto deferred1(defer_to_scope_end([&pimplThis] () -> void {
-            pimplThis->m_bTerminating.store(true);
-         }));
-         // Run the user’s main().
-         pimplThis->m_fnInnerMain();
-         /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
-         point. A simple bool flag will work because it’s only accessed by this thread (POSIX) or
-         when this thread is suspended (Win32). */
-      } catch (std::exception const & x) {
-         exception::write_with_scope_trace(nullptr, &x);
-         bUncaughtException = true;
-      } catch (...) {
-         exception::write_with_scope_trace();
-         bUncaughtException = true;
-      }
-      comm_manager::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
-#if ABC_HOST_API_POSIX
-      return nullptr;
-#elif ABC_HOST_API_WIN32
-      return 0;
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-
-private:
-   //! OS-dependent ID/handle.
-   native_handle_type m_h;
-#if ABC_HOST_API_POSIX
-   //! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
-   id_type m_id;
-#endif
-   /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
-   non-nullptr during the execution of start(). */
-   detail::simple_event * m_pseStarted;
-   /*! true if the thread is terminating, i.e. running Abaclade threading code, or false if it’s
-   still running application code. */
-   std::atomic<bool> m_bTerminating;
-   //! Function to be executed in the thread.
-   std::function<void ()> m_fnInnerMain;
-};
-
+namespace abc {
 
 thread::comm_manager * thread::comm_manager::sm_pInst = nullptr;
 
@@ -533,6 +455,12 @@ void thread::comm_manager::nonmain_thread_terminated(impl * pimpl, bool bUncaugh
    }
 }
 
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::thread
+
+namespace abc {
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :
    m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
