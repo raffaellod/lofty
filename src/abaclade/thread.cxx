@@ -197,11 +197,6 @@ public:
 
    /*! Injects the requested type of exception in the thread.
 
-   TODO: prevent concurrent injections by multiple threads. Could be done by keeping an
-   atomic<unsigned> “outstanding interruptions counter” member that execution_interruption instances
-   increment/decrement via a pointer, and that inhibits further injections if non-zero. This should
-   then be ported to abc::coroutine::context for the same reason.
-
    @param inj
       Type of exception to inject.
    */
@@ -263,6 +258,7 @@ public:
    #else
       #error "TODO: HOST_ARCH"
    #endif
+         ::Sleep(0);
       } while (iCurrPC != iLastPC);
 
       /* Now that the thread is really suspended, inject the exception and resume it, unless the
@@ -527,10 +523,9 @@ void thread::comm_manager::nonmain_thread_terminated(impl * pimpl, bool bUncaugh
       std::lock_guard<std::mutex> lock(m_mtxThreads);
       m_mappimplThreads.remove(pimpl);
    }
-   /* If the thread was terminated by an exception making it all the way out of the thread
-   function, all other threads must terminate as well. Achieve this by “forwarding” the exception
-   to the main thread, so that its termination will in turn cause the termination of all other
-   threads. */
+   /* If the thread was terminated by an exception making it all the way out of the thread function,
+   all other threads must terminate as well. Achieve this by “forwarding” the exception to the main
+   thread, so that its termination will in turn cause the termination of all other threads. */
    if (bUncaughtException) {
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “other_thread_execution_interrupted”. */
