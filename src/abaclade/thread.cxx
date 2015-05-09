@@ -122,6 +122,8 @@ void simple_event::wait() {
 
 namespace abc {
 
+thread_local_value<thread::impl *> thread::impl::sm_pimplThis /*= nullptr*/;
+
 thread::impl::impl(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
    m_id(0),
@@ -241,10 +243,10 @@ void thread::impl::inject_exception(exception::injectable inj) {
 
    exception::injectable::enum_type inj;
    if (iSignal == SIGINT) {
-      // Can only happen in main thread.
+      // Can only happen in the main thread.
       inj = exception::injectable::user_forced_interruption;
    } else if (iSignal == SIGTERM) {
-      // Can only happen in main thread.
+      // Can only happen in the main thread.
       inj = exception::injectable::execution_interruption;
    } else if (iSignal == comm_manager::instance()->exception_injection_signal_number()) {
       // Can happen in any thread.
@@ -293,6 +295,10 @@ void thread::impl::join() {
    Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for this
    thread to signal that it’s finished starting. */
    std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
+   /* Store pimplThis in TLS. No need to clear it before returning, since it can only be accessed by
+   this thread, which will terminate upon returning. */
+   sm_pimplThis = pimplThis.get();
+
 #if ABC_HOST_API_POSIX
    pimplThis->m_id = this_thread::id();
 #elif ABC_HOST_API_WIN32
@@ -319,6 +325,7 @@ void thread::impl::join() {
       bUncaughtException = true;
    }
    comm_manager::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
+
 #if ABC_HOST_API_POSIX
    return nullptr;
 #elif ABC_HOST_API_WIN32
@@ -592,6 +599,10 @@ std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
 
 std::shared_ptr<coroutine::scheduler> const & get_coroutine_scheduler() {
    return coroutine::scheduler::sm_pcorosched;
+}
+
+thread::impl * get_impl() {
+   return thread::impl::sm_pimplThis;
 }
 
 thread::id_type id() {

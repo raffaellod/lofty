@@ -77,10 +77,23 @@ private:
 
 namespace abc {
 
+namespace this_thread {
+
+/*! Returns a pointer to the impl instance for the calling thread.
+
+@return
+   Pointer to the impl instance for the calling thread, or nullptr if the thread is not managed by
+   Abaclade.
+*/
+thread::impl * get_impl();
+
+} //namespace this_thread
+
 class thread::impl {
 private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
+   friend impl * this_thread::get_impl();
    // TODO: remove.
    friend class comm_manager;
 
@@ -161,6 +174,8 @@ private:
    std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
+   //! Allows a thread to access its impl instance.
+   static thread_local_value<impl *> sm_pimplThis;
 };
 
 } //namespace abc

@@ -74,6 +74,9 @@ public:
    #error "TODO: HOST_API"
 #endif
 
+   //! Thread implementation.
+   class impl;
+
    //! Underlying OS-dependent ID/handle type.
 #if ABC_HOST_API_POSIX
    typedef ::pthread_t native_handle_type;
@@ -82,10 +85,6 @@ public:
 #else
    #error "TODO: HOST_API"
 #endif
-
-private:
-   //! Thread implementation.
-   class impl;
 
 public:
    /*! Constructor.
