@@ -304,9 +304,9 @@ void thread::impl::join() {
 #elif ABC_HOST_API_WIN32
    exception::fault_converter::init_for_current_thread();
 #endif
-   comm_manager::instance()->nonmain_thread_started(pimplThis);
    bool bUncaughtException = false;
    try {
+      comm_manager::instance()->nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       auto deferred1(defer_to_scope_end([&pimplThis] () -> void {
