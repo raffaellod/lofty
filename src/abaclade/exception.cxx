@@ -18,8 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include "thread-impl.hxx"
 
-#include <cstdlib> // std::abort()
+#include <cstdlib> // std::abort() std::terminate()
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
    #if ABC_HOST_API_MACH
@@ -304,12 +305,25 @@ exception::throw_injected_exception(
    ABC_UNUSED_ARG(iArg1);
    switch (inj) {
       case injectable::app_execution_interruption:
-         _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
       case injectable::execution_interruption:
-         _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
       case injectable::user_forced_interruption:
-         _ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
-
+         /* Check if the thread is already terminating, and avoid throwing an interruption exception
+         if the thread is terminating anyway. This check is safe because m_bTerminating can only be
+         written to by the current thread. */
+         if (!this_thread::get_impl()->terminating()) {
+            switch (inj) {
+               case injectable::app_execution_interruption:
+                  _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
+               case injectable::execution_interruption:
+                  _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
+               case injectable::user_forced_interruption:
+                  _ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
+               default:
+                  // Silence compiler warnings.
+                  break;
+            }
+         }
+         break;
       case injectable::arithmetic_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, arithmetic_error, ());
       case injectable::division_by_zero_error:

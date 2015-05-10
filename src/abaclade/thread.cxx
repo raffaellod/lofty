@@ -136,6 +136,7 @@ thread::impl::impl(std::function<void ()> fnMain) :
    m_bTerminating(false),
    m_fnInnerMain(std::move(fnMain)) {
 }
+// This overload is used to instantiate an impl for the main thread.
 thread::impl::impl(std::nullptr_t) :
 #if ABC_HOST_API_POSIX
    m_h(::pthread_self()),
@@ -149,6 +150,9 @@ thread::impl::impl(std::nullptr_t) :
 #endif
    m_pseStarted(nullptr),
    m_bTerminating(false) {
+   /* The main thread’s impl instance is instantiated by the main thread itself, so sm_pimplThis for
+   the main thread can be initialized here. */
+   sm_pimplThis = this;
 }
 
 thread::impl::~impl() {
@@ -254,15 +258,11 @@ void thread::impl::inject_exception(exception::injectable inj) {
       thread that raised the signal. */
       inj = exception::injectable::execution_interruption;
    } else {
+      // Should never happen.
       std::abort();
    }
-
-   /* Inject a function call to exception::throw_injected_exception(), unless the thread is already
-   terminating, in which case we’ll avoid throwing an exception. This check is safe because
-   m_bTerminating can only be written to by the current thread. */
-   /*TODO if (!m_bTerminating.load())*/ {
-      exception::inject_in_context(inj, 0, 0, pctx);
-   }
+   // This will skip injecting the exception if the thread is terminating.
+   exception::inject_in_context(inj, 0, 0, pctx);
 }
 #endif
 
@@ -420,7 +420,7 @@ void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
    a courtesy of Abaclade to prevent the process from terminating while threads are still running,
    but m_mappimplThreads.size() > 0 here should be considered an exception rather than the rule. */
 
-   // Make this thread uninterruptible.
+   // Make this thread uninterruptible by other threads.
    m_pimplMainThread->m_bTerminating.store(true);
 
    std::unique_lock<std::mutex> lock(m_mtxThreads);

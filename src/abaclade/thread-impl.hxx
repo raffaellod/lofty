@@ -142,6 +142,16 @@ public:
    */
    void start(std::shared_ptr<impl> * ppimplThis);
 
+   /*! Returns true if the thread is terminating, which means that it’s running Abaclade threading
+   code instead of application code.
+
+   @return
+      true if the thread is terminating, or false otherwise.
+   */
+   bool terminating() const {
+      return m_bTerminating.load();
+   }
+
 private:
    /*! Lower-level wrapper for the thread function passed to the constructor. Under POSIX, this is
    also needed to get the thread ID and store it in the impl instance.
