@@ -162,10 +162,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
             ABC_THROW(execution_interruption, ());
             bThr1Completed = true;
          });
-         /* Make the sleep long enough so as not to cause sporadic test failures, but avoid slowing
-         the test down by too much. */
-         this_thread::sleep_for_ms(150);
-         // Must always join, even after an exception.
+         /* Wait for the termination of thr1. Since thr1 will terminate with an exception, the
+         current thread will be interrupted as well, right after thr1’s termination. */
          thr1.join();
       } catch (execution_interruption const &) {
          /* TODO: use a more specific exception subclass of execution_interruption, such as
