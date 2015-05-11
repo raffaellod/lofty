@@ -57,6 +57,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
 
    ABC_TESTING_ASSERT_TRUE(bCoro1Completed);
    ABC_TESTING_ASSERT_TRUE(bCoro2Completed);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
 }
 
 } //namespace test
@@ -93,6 +96,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    ABC_TESTING_ASSERT_FALSE(bCoro1Completed);
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
 }
 
 } //namespace test
@@ -151,6 +157,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[4]);
    ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4]);
    ABC_TESTING_ASSERT_TRUE(bControllerCompleted);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
 }
 
 } //namespace test
