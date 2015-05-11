@@ -119,6 +119,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    for (std::size_t i = 0; i < sc_cWorkers; ++i) {
       bool * pbWorkerCompleted = &abWorkersCompleted[i];
       bool * pbWorkerInterrupted = &abWorkersInterrupted[i];
+      *pbWorkerCompleted = false;
+      *pbWorkerInterrupted = false;
       coroWorkers[i] = coroutine([this, pbWorkerCompleted, pbWorkerInterrupted] () -> void {
          ABC_TRACE_FUNC(this);
 
