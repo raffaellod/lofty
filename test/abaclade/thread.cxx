@@ -183,3 +183,60 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
 
 } //namespace test
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::thread_exception_interruption_propagation
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation") {
+   ABC_TRACE_FUNC(this);
+
+   bool bExceptionCaught = false;
+   std::atomic<bool> bThr1Completed(false);
+   thread thr1([this, &bThr1Completed] () -> void {
+      ABC_TRACE_FUNC(this);
+
+      /* Make the sleep long enough so as not to cause sporadic test failures, but avoid slowing the
+      test down by too much. */
+      this_thread::sleep_for_ms(150);
+      bThr1Completed = true;
+   });
+
+   /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
+   won’t show in the test output. */
+   auto ptswErr(std::make_shared<io::text::str_writer>());
+   {
+      auto ptwOldStdErr(io::text::stderr);
+      io::text::stderr = ptswErr;
+      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () -> void {
+         io::text::stderr = std::move(ptwOldStdErr);
+      }));
+
+      /* Expect to be interrupted by an exception in thr1 any time from its creation to the sleep,
+      which should be longer than the time it takes for thr1 to throw its exception. Can’t make any
+      test assertions in this scope, since their output would end up in ptswErr instead of the real
+      stderr. */
+      try {
+         thr1.interrupt();
+         /* Wait for the termination of thr1. Since we’re interrupting it, the current thread will
+         be interrupted as well, right after thr1’s termination. */
+         thr1.join();
+      } catch (execution_interruption const &) {
+         /* TODO: use a more specific exception subclass of execution_interruption, such as
+         “other_thread_execution_interrupted”. */
+         bExceptionCaught = true;
+      }
+
+      // deferred1 will restore io::text::stderr.
+   }
+
+   ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
+   ABC_TESTING_ASSERT_FALSE(bThr1Completed);
+   // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
+}
+
+} //namespace test
+} //namespace abc
