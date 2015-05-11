@@ -26,6 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include "thread-comm_manager.hxx"
 #include "thread-impl.hxx"
 
+#include <cstdlib> // std::abort()
+
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
    #include <signal.h> // SIG* sigaction sig*()
@@ -348,8 +350,8 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
    current thread, then create the new thread, and restore them back. */
    ::sigset_t sigsetBlock, sigsetPrev;
    sigemptyset(&sigsetBlock);
-   ::sigaddset(&sigsetBlock, SIGINT);
-   ::sigaddset(&sigsetBlock, SIGTERM);
+   sigaddset(&sigsetBlock, SIGINT);
+   sigaddset(&sigsetBlock, SIGTERM);
    ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
    {
       auto deferred2(defer_to_scope_end([&sigsetPrev] () -> void {
