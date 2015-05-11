@@ -86,11 +86,13 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_cWorkers = 5;
-   bool abWorkersCompleted[sc_cWorkers], abWorkersInterrupted[sc_cWorkers];
+   std::atomic<bool> abWorkersCompleted[sc_cWorkers], abWorkersInterrupted[sc_cWorkers];
    thread thrWorkers[sc_cWorkers];
    for (std::size_t i = 0; i < sc_cWorkers; ++i) {
-      bool * pbWorkerCompleted = &abWorkersCompleted[i];
-      bool * pbWorkerInterrupted = &abWorkersInterrupted[i];
+      std::atomic<bool> * pbWorkerCompleted = &abWorkersCompleted[i];
+      std::atomic<bool> * pbWorkerInterrupted = &abWorkersInterrupted[i];
+      *pbWorkerCompleted = false;
+      *pbWorkerInterrupted = false;
       thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () -> void {
          ABC_TRACE_FUNC(this);
 
