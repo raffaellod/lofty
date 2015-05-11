@@ -96,8 +96,6 @@ private:
    //! Tracks all threads running in the process except *m_pimplMainThread.
    // TODO: make this a set instead of a map.
    collections::map<impl *, std::shared_ptr<impl>> m_mappimplThreads;
-   //! true if the main thread of the process is terminating, or false otherwise.
-   std::atomic<bool> m_bMainThreadTerminating;
    //! Pointer to the singleton instance.
    static thread::comm_manager * sm_pInst;
 };
