@@ -208,7 +208,7 @@ You should have received a copy of the GNU General Public License along with Aba
             mpThisProc, m_mpExceptions, m_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
          ) == KERN_SUCCESS) {
             // Start the thread that will catch exceptions from all the others.
-            if (::pthread_create(&sm_thrExcHandler, nullptr, exception_handler_thread, this) == 0) {
+            if (::pthread_create(&m_thrExcHandler, nullptr, exception_handler_thread, this) == 0) {
                // Now that the handler thread is running, set the process-wide exception port.
                if (::task_set_exception_ports(
                   mpThisProc,
