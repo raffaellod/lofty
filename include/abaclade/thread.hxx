@@ -216,6 +216,10 @@ ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & attach_coroutine_sche
    std::shared_ptr<coroutine::scheduler> pcorosched = nullptr
 );
 
+/*! Removes the current thread’s coroutine scheduler, if any. If this would cause the scheduler to
+be destructed, any coroutines in it are interrupted before the scheduler is destructed. */
+ABACLADE_SYM void detach_coroutine_scheduler();
+
 /*! Returns the coroutine scheduler associated to the current thread, if any.
 
 @return
