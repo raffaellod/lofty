@@ -1,4 +1,10 @@
 {
+   accessing manipulated mcontext_t
+   Memcheck:Addr4
+   fun:*throw_injected_exception*
+   ...
+}
+{
    intentional nullptr dereference
    Memcheck:Addr4
    fun:*exception_hard_errors*pointer_errors*
