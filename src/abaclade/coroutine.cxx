@@ -130,9 +130,9 @@ public:
    the type specified by m_injResumeException. This kind of exceptions are injected by other
    coroutines or other Abaclade implementation code. */
    void throw_if_any_resume_exception() {
-      /* This load/store is multithread-safe: the coroutine can only be executing on one thread at
-      a time, and the condition above being true means that coroutine::interrupt() is preventing
-      other threads from changing m_injResumeException until we reset it to none. */
+      /* This load/store is multithread-safe: the coroutine can only be executing on one thread at a
+      time, and the if condition being true means that coroutine::interrupt() is preventing other
+      threads from changing m_injResumeException until we reset it to none. */
       auto inj = m_injResumeException.load(/* TODO: memory_order_? */);
       if (inj != exception::injectable::none) {
          m_injResumeException.store(exception::injectable::none, std::memory_order_relaxed);
@@ -207,21 +207,22 @@ coroutine::id_type coroutine::id() const {
 void coroutine::interrupt() {
    ABC_TRACE_FUNC(this);
 
-   /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait for
-   it to be unblocked. */
+   /* Avoid interrupting the coroutine if there’s already a pending interruption (injExpected !=
+   none).
+   This is not meant to prevent multiple concurrent interruptions, with a second interruption
+   occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
+   trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap below
+   would succeed, but the coroutine might terminate before find_coroutine_to_activate() got to
+   running it (and it would, eventually, since we call add_ready() for it), which would be bad. */
    auto injExpected = exception::injectable::none;
    if (m_pimpl->m_injResumeException.compare_exchange_strong(
       injExpected, exception::injectable::execution_interruption/*, TODO: memory_order_? */
    )) {
-      /* TODO: multithread-proofing: if an exception has already been injected and thrown, the above
-      compare-and-swap will succeed, but we still shouldn’t call add_ready() because the coroutine
-      might terminate before find_coroutine_to_activate() gets to it, which would be bad. */
+      /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
+      for it to be unblocked. */
       // TODO: sanity check to avoid scheduling a coroutine twice!
       this_thread::get_coroutine_scheduler()->add_ready(m_pimpl);
    }
-   /* TODO: else, is it okay to collapse multiple interrupt requests into the one that’s already
-   there (injExpected != none), or should a failure in the compare-and-swap be reported to the
-   caller? */
 }
 
 } //namespace abc
