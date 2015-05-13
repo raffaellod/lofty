@@ -28,6 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/thread.hxx>
+#include "thread-tracker.hxx"
 
 #include <atomic>
 
