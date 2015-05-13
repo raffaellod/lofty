@@ -175,6 +175,10 @@ void thread::impl::inject_exception(exception::injectable inj) {
          // TODO: different signal number.
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
+      case exception::injectable::app_exit_interruption:
+         // TODO: different signal number.
+         iSignal = tracker::instance()->exception_injection_signal_number();
+         break;
       case exception::injectable::execution_interruption:
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
