@@ -95,7 +95,7 @@ private:
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
    // TODO: remove.
-   friend class comm_manager;
+   friend class tracker;
 
 public:
    /*! Constructor

@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
 #include "exception-fault_converter.hxx"
-#include "thread-comm_manager.hxx"
+#include "thread-tracker.hxx"
 #include "thread-impl.hxx"
 
 #include <cstdlib> // std::abort()
@@ -173,14 +173,14 @@ void thread::impl::inject_exception(exception::injectable inj) {
    switch (inj.base()) {
       case exception::injectable::app_execution_interruption:
          // TODO: different signal number.
-         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         iSignal = tracker::instance()->exception_injection_signal_number();
          break;
       case exception::injectable::execution_interruption:
-         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         iSignal = tracker::instance()->exception_injection_signal_number();
          break;
       case exception::injectable::user_forced_interruption:
          // TODO: different signal number.
-         iSignal = comm_manager::instance()->exception_injection_signal_number();
+         iSignal = tracker::instance()->exception_injection_signal_number();
          break;
       default:
          ABC_THROW(domain_error, ());
@@ -254,7 +254,7 @@ void thread::impl::inject_exception(exception::injectable inj) {
    } else if (iSignal == SIGTERM) {
       // Can only happen in the main thread.
       inj = exception::injectable::execution_interruption;
-   } else if (iSignal == comm_manager::instance()->exception_injection_signal_number()) {
+   } else if (iSignal == tracker::instance()->exception_injection_signal_number()) {
       // Can happen in any thread.
       /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
       thread that raised the signal. */
@@ -308,7 +308,7 @@ void thread::impl::join() {
 #endif
    bool bUncaughtException = false;
    try {
-      comm_manager::instance()->nonmain_thread_started(pimplThis);
+      tracker::instance()->nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       auto deferred1(defer_to_scope_end([&pimplThis] () {
@@ -326,7 +326,7 @@ void thread::impl::join() {
       exception::write_with_scope_trace();
       bUncaughtException = true;
    }
-   comm_manager::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
+   tracker::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
 
 #if ABC_HOST_API_POSIX
    return nullptr;
@@ -378,13 +378,13 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread::comm_manager
+// abc::thread::tracker
 
 namespace abc {
 
-thread::comm_manager * thread::comm_manager::sm_pInst = nullptr;
+thread::tracker * thread::tracker::sm_pInst = nullptr;
 
-thread::comm_manager::comm_manager() :
+thread::tracker::tracker() :
 #if ABC_HOST_API_POSIX
    mc_iInterruptionSignal(
    #if ABC_HOST_API_DARWIN
@@ -409,7 +409,7 @@ thread::comm_manager::comm_manager() :
 #endif
 }
 
-thread::comm_manager::~comm_manager() {
+thread::tracker::~tracker() {
    // Restore the default signal handlers.
    ::signal(SIGINT,                 SIG_DFL);
    ::signal(SIGTERM,                SIG_DFL);
@@ -417,7 +417,7 @@ thread::comm_manager::~comm_manager() {
    sm_pInst = nullptr;
 }
 
-void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
+void thread::tracker::main_thread_terminated(exception::injectable inj) {
    /* Note: at this point, a correct program should have no other threads running. As a courtesy,
    Abaclade will prevent the process from terminating while threads are still running, by ensuring
    that all Abaclade-managed threads are joined before termination; however, app::main() returning
@@ -445,12 +445,12 @@ void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
    }
 }
 
-void thread::comm_manager::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
+void thread::tracker::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
    std::lock_guard<std::mutex> lock(m_mtxThreads);
    m_mappimplThreads.add_or_assign(pimpl.get(), pimpl);
 }
 
-void thread::comm_manager::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
+void thread::tracker::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
    // Remove the thread from the bookkeeping list.
    {
       std::lock_guard<std::mutex> lock(m_mtxThreads);

@@ -58,8 +58,8 @@ process by interrupting them with an appropriate exception type.
 abc::coroutine. */
 class ABACLADE_SYM thread : public noncopyable {
 public:
-   //! Inter-thread communication manager, instantiated by the abc::app class.
-   class comm_manager;
+   //! Singleton instantiated by the abc::app class to keep track of threads managed by Abaclade.
+   class tracker;
 
    //! OS-dependent type for unique thread IDs.
 #if ABC_HOST_API_DARWIN

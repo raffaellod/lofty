@@ -26,17 +26,17 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread::comm_manager
+// abc::thread::tracker
 
 namespace abc {
 
-class thread::comm_manager : public noncopyable {
+class thread::tracker : public noncopyable {
 public:
    //! Constructor.
-   comm_manager();
+   tracker();
 
    //! Destructor.
-   ~comm_manager();
+   ~tracker();
 
 #if ABC_HOST_API_POSIX
    /*! Returns the signal number to be used to inject an exception in a thread.
@@ -54,7 +54,7 @@ public:
    @return
       Pointer to the only instance of this class.
    */
-   static comm_manager * instance() {
+   static tracker * instance() {
       return sm_pInst;
    }
 
@@ -97,7 +97,7 @@ private:
    // TODO: make this a set instead of a map.
    collections::map<impl *, std::shared_ptr<impl>> m_mappimplThreads;
    //! Pointer to the singleton instance.
-   static thread::comm_manager * sm_pInst;
+   static thread::tracker * sm_pInst;
 };
 
 } //namespace abc

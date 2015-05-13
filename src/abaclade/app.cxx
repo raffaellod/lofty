@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include "exception-fault_converter.hxx"
-#include "thread-comm_manager.hxx"
+#include "thread-tracker.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ app::app() {
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “app_exit_interruption”. */
       exception::injectable inj = exception::injectable::none;
-      thread::comm_manager tcm;
+      thread::tracker thrtrack;
       try {
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
@@ -198,7 +198,7 @@ app::app() {
          inj = exception::injectable::execution_interruption;
       }
       // TODO: who handles errors from this one?
-      tcm.main_thread_terminated(inj);
+      thrtrack.main_thread_terminated(inj);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }
