@@ -373,20 +373,14 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // This timer is now active (save exceptions – see catch (...) below).
    io::filedesc_t fdCopy = fd.get();
    m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
-   // At this point the timer is just a file descriptor that we’ll be waiting to read from.
-   try {
-      block_active_until_fd_ready(fdCopy, false);
-   } catch (...) {
+   auto deferred1(defer_to_scope_end([this, fdCopy] () -> void {
       // Remove the timer from the set of active ones.
       // TODO: recycle the timer, putting it back in the pool of inactive timers.
-      // TODO: move this code to a “defer” lambda.
       m_mapActiveTimers.remove(fdCopy);
-      throw;
-   }
-   // Remove the timer from the set of active ones.
-   // TODO: recycle the timer, putting it back in the pool of inactive timers.
-   // TODO: move this code to a “defer” lambda.
-   m_mapActiveTimers.remove(fdCopy);
+   }));
+   // At this point the timer is just a file descriptor that we’ll be waiting to read from.
+   block_active_until_fd_ready(fdCopy, false);
+   // deferred1 will remove fdCopy from m_mapActiveTimers.
 #else
    #error "TODO: HOST_API"
 #endif
