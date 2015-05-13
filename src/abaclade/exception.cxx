@@ -416,6 +416,7 @@ destructing_unfinalized_object::destructing_unfinalized_object() {
 namespace abc {
 
 execution_interruption::execution_interruption(/*source?*/) {
+   m_pszWhat = "abc::execution_interruption";
 }
 
 /*virtual*/ execution_interruption::~execution_interruption() {
@@ -429,6 +430,7 @@ execution_interruption::execution_interruption(/*source?*/) {
 namespace abc {
 
 app_execution_interruption::app_execution_interruption() {
+   m_pszWhat = "abc::app_execution_interruption";
 }
 
 /*virtual*/ app_execution_interruption::~app_execution_interruption() {
@@ -442,6 +444,7 @@ app_execution_interruption::app_execution_interruption() {
 namespace abc {
 
 user_forced_interruption::user_forced_interruption() {
+   m_pszWhat = "abc::user_forced_interruption";
 }
 
 /*virtual*/ user_forced_interruption::~user_forced_interruption() {
