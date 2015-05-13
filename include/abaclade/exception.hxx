@@ -378,6 +378,7 @@ public:
       none,
 
       app_execution_interruption,
+      app_exit_interruption,
       execution_interruption,
       user_forced_interruption,
 
@@ -592,8 +593,8 @@ public:
 
 namespace abc {
 
-/*! Interruption in the execution of the whole application. Raised simultaneously in every coroutine
-and thread. */
+/*! Interruption in the execution of the whole application, typically requested by the user. Raised
+simultaneously in every coroutine and thread. */
 class ABACLADE_SYM app_execution_interruption : public execution_interruption {
 public:
    //! Constructor.
@@ -601,6 +602,24 @@ public:
 
    //! Destructor.
    virtual ~app_execution_interruption();
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::app_exit_interruption
+
+namespace abc {
+
+/*! Thrown in coroutines and threads that are still running when abc::app:main() returns, to force
+them to return as well. */
+class ABACLADE_SYM app_exit_interruption : public execution_interruption {
+public:
+   //! Constructor.
+   app_exit_interruption();
+
+   //! Destructor.
+   virtual ~app_exit_interruption();
 };
 
 } //namespace abc

@@ -305,6 +305,7 @@ exception::throw_injected_exception(
    ABC_UNUSED_ARG(iArg1);
    switch (inj) {
       case injectable::app_execution_interruption:
+      case injectable::app_exit_interruption:
       case injectable::execution_interruption:
       case injectable::user_forced_interruption:
          /* Check if the thread is already terminating, and avoid throwing an interruption exception
@@ -314,6 +315,8 @@ exception::throw_injected_exception(
             switch (inj) {
                case injectable::app_execution_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
+               case injectable::app_exit_interruption:
+                  _ABC_THROW_FROM(srcloc, sc_szInternal, app_exit_interruption, ());
                case injectable::execution_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
                case injectable::user_forced_interruption:
@@ -434,6 +437,20 @@ app_execution_interruption::app_execution_interruption() {
 }
 
 /*virtual*/ app_execution_interruption::~app_execution_interruption() {
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::app_exit_interruption
+
+namespace abc {
+
+app_exit_interruption::app_exit_interruption() {
+   m_pszWhat = "abc::app_exit_interruption";
+}
+
+/*virtual*/ app_exit_interruption::~app_exit_interruption() {
 }
 
 } //namespace abc
