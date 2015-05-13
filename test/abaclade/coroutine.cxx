@@ -34,10 +34,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
 
    bool bCoro1Completed = false, bCoro2Completed = false;
 
-   coroutine coro1([this, &bCoro1Completed] () -> void {
+   coroutine coro1([this, &bCoro1Completed] () {
       bCoro1Completed = true;
    });
-   coroutine coro2([this, &bCoro2Completed] () -> void {
+   coroutine coro2([this, &bCoro2Completed] () {
       bCoro2Completed = true;
    });
    coroutine coro3;
@@ -75,7 +75,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    ABC_TRACE_FUNC(this);
 
    bool bCoro1Completed = false;
-   coroutine coro1([this, &bCoro1Completed] () -> void {
+   coroutine coro1([this, &bCoro1Completed] () {
       ABC_TRACE_FUNC(this);
 
       // If exceptions are not properly contained by Abaclade, this will kill the entire process.
@@ -121,7 +121,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
       bool * pbWorkerInterrupted = &abWorkersInterrupted[i];
       *pbWorkerCompleted = false;
       *pbWorkerInterrupted = false;
-      coroWorkers[i] = coroutine([this, pbWorkerCompleted, pbWorkerInterrupted] () -> void {
+      coroWorkers[i] = coroutine([this, pbWorkerCompleted, pbWorkerInterrupted] () {
          ABC_TRACE_FUNC(this);
 
          try {
@@ -136,7 +136,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    }
 
    bool bControllerCompleted = false;
-   coroutine coroController([this, &coroWorkers, &bControllerCompleted] () -> void {
+   coroutine coroController([this, &coroWorkers, &bControllerCompleted] () {
       ABC_TRACE_FUNC(this);
 
       /* Since coroutines on a single thread are started in FIFO order, the workers are already

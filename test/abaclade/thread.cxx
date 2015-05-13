@@ -36,12 +36,12 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 
    std::atomic<bool> bThr1Completed(false), bThr2Completed(false);
 
-   thread thr1([this, &bThr1Completed] () -> void {
+   thread thr1([this, &bThr1Completed] () {
       ABC_TRACE_FUNC(this);
 
       bThr1Completed = true;
    });
-   thread thr2([this, &bThr2Completed] () -> void {
+   thread thr2([this, &bThr2Completed] () {
       ABC_TRACE_FUNC(this);
 
       bThr2Completed = true;
@@ -93,7 +93,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
       std::atomic<bool> * pbWorkerInterrupted = &abWorkersInterrupted[i];
       *pbWorkerCompleted = false;
       *pbWorkerInterrupted = false;
-      thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () -> void {
+      thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () {
          ABC_TRACE_FUNC(this);
 
          try {
@@ -147,7 +147,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    {
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
-      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () -> void {
+      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
          io::text::stderr = std::move(ptwOldStdErr);
       }));
 
@@ -156,7 +156,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
       test assertions in this scope, since their output would end up in ptswErr instead of the real
       stderr. */
       try {
-         thread thr1([this, &bThr1Completed] () -> void {
+         thread thr1([this, &bThr1Completed] () {
             ABC_TRACE_FUNC(this);
 
             ABC_THROW(execution_interruption, ());
@@ -193,7 +193,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
 
    bool bExceptionCaught = false;
    std::atomic<bool> bThr1Completed(false);
-   thread thr1([this, &bThr1Completed] () -> void {
+   thread thr1([this, &bThr1Completed] () {
       ABC_TRACE_FUNC(this);
 
       /* Make the sleep long enough so as not to cause sporadic test failures, but avoid slowing the
@@ -208,7 +208,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
    {
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
-      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () -> void {
+      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
          io::text::stderr = std::move(ptwOldStdErr);
       }));
 

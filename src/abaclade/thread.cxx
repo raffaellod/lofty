@@ -192,7 +192,7 @@ void thread::impl::inject_exception(exception::injectable inj) {
    if (::SuspendThread(m_h) == ::DWORD(-1)) {
       exception::throw_os_error();
    }
-   auto deferred1(defer_to_scope_end([this] () -> void {
+   auto deferred1(defer_to_scope_end([this] () {
       ::ResumeThread(m_h);
    }));
    std::uintptr_t iLastPC = 0;
@@ -311,7 +311,7 @@ void thread::impl::join() {
       comm_manager::instance()->nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
-      auto deferred1(defer_to_scope_end([&pimplThis] () -> void {
+      auto deferred1(defer_to_scope_end([&pimplThis] () {
          pimplThis->m_bTerminating.store(true);
       }));
       // Run the user’s main().
@@ -342,7 +342,7 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
 
    detail::simple_event seStarted;
    m_pseStarted = &seStarted;
-   auto deferred1(defer_to_scope_end([this] () -> void {
+   auto deferred1(defer_to_scope_end([this] () {
       m_pseStarted = nullptr;
    }));
 #if ABC_HOST_API_POSIX
@@ -354,7 +354,7 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
    sigaddset(&sigsetBlock, SIGTERM);
    ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
    {
-      auto deferred2(defer_to_scope_end([&sigsetPrev] () -> void {
+      auto deferred2(defer_to_scope_end([&sigsetPrev] () {
          ::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr);
       }));
       if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {

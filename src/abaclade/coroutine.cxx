@@ -373,7 +373,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // This timer is now active (save exceptions – see catch (...) below).
    io::filedesc_t fdCopy = fd.get();
    m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
-   auto deferred1(defer_to_scope_end([this, fdCopy] () -> void {
+   auto deferred1(defer_to_scope_end([this, fdCopy] () {
       // Remove the timer from the set of active ones.
       // TODO: recycle the timer, putting it back in the pool of inactive timers.
       m_mapActiveTimers.remove(fdCopy);
@@ -411,7 +411,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
       exception::throw_os_error();
    }
-   auto deferred1(defer_to_scope_end([this, fd] () -> void {
+   auto deferred1(defer_to_scope_end([this, fd] () {
       // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
       ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
    }));
@@ -537,7 +537,7 @@ void coroutine::scheduler::run() {
 #if ABC_HOST_API_POSIX
    ::ucontext_t uctxReturn;
    sm_puctxReturn = &uctxReturn;
-   auto deferred1(defer_to_scope_end([] () -> void {
+   auto deferred1(defer_to_scope_end([] () {
       sm_puctxReturn = nullptr;
    }));
 #elif ABC_HOST_API_WIN32

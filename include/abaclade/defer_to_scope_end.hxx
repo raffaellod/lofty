@@ -75,7 +75,7 @@ statement in Python and other languages.
 int i = 1;
 {
    ++i;
-   auto deferred1(abc::defer_to_scope_end([&i] () -> void {
+   auto deferred1(abc::defer_to_scope_end([&i] () {
       --i;
    }));
    risky_operation_that_may_throw();

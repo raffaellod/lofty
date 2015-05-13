@@ -48,7 +48,7 @@ public:
       auto pair(io::binary::pipe());
 
       // Schedule the reader.
-      coroutine([this, &pair] () -> void {
+      coroutine([this, &pair] () {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          io::text::stdout->write_line(ABC_SL("reader: starting"));
@@ -67,7 +67,7 @@ public:
             // Consume i.
             if (i == 3) {
                // Add a coroutine that will display a message in a quarter of a second.
-               coroutine([] () -> void {
+               coroutine([] () {
                   io::text::stdout->write_line(ABC_SL("delayed message: starting"));
                   this_coroutine::sleep_for_ms(250);
                   io::text::stdout->write_line(ABC_SL("delayed message: this is it"));
@@ -79,7 +79,7 @@ public:
       });
 
       // Schedule the writer.
-      coroutine([this, &pair] () -> void {
+      coroutine([this, &pair] () {
          ABC_TRACE_FUNC(this/*, pair*/);
 
          io::text::stdout->write_line(ABC_SL("writer: starting"));
@@ -101,7 +101,7 @@ public:
       });
 
       // Schedule the stdin reader.
-      /*coroutine([this] () -> void {
+      /*coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
          io::text::stdout->print(ABC_SL("stdin: starting\n"));

@@ -282,7 +282,7 @@ protected:
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
-   this->assert_does_not_throw(ABC_SOURCE_LOCATION(), [&] () -> void { \
+   this->assert_does_not_throw(ABC_SOURCE_LOCATION(), [&] () { \
       static_cast<void>(expr); \
    }, ABC_SL(#expr))
 
@@ -365,7 +365,7 @@ protected:
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also
    wrap the dynamic_cast in a lambda, so the caller doesn’t need to be a template to catch the
    desired type of exception. */ \
-   this->assert_throws(ABC_SOURCE_LOCATION(), [&] () -> void { \
+   this->assert_throws(ABC_SOURCE_LOCATION(), [&] () { \
       static_cast<void>(expr); \
    }, ABC_SL(#expr), [] (::std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \

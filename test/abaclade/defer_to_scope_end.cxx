@@ -33,7 +33,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::defer_to_scope_end – basic operation") {
 
    unsigned cDeferredInvocations = 0;
    {
-      auto deferred1(defer_to_scope_end([&cDeferredInvocations] () -> void {
+      auto deferred1(defer_to_scope_end([&cDeferredInvocations] () {
          ++cDeferredInvocations;
       }));
    }

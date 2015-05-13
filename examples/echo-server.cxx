@@ -42,7 +42,7 @@ public:
       ABC_TRACE_FUNC(this, vsArgs);
 
       // Schedule a TCP server. To connect to it, use: socat - TCP4:127.0.0.1:9082
-      coroutine([this] () -> void {
+      coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
          static std::uint16_t const sc_iPort = 9082;
@@ -56,7 +56,7 @@ public:
             io::text::stdout->write_line(ABC_SL("server: connection established"));
 
             // Add a coroutine that will echo every line sent over the newly-established connection.
-            coroutine([this, pconn] () -> void {
+            coroutine([this, pconn] () {
                ABC_TRACE_FUNC(this, pconn);
 
                io::text::stdout->write_line(ABC_SL("responder: starting"));

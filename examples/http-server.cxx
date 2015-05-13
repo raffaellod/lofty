@@ -42,7 +42,7 @@ public:
       ABC_TRACE_FUNC(this, vsArgs);
 
       // Schedule a TCP server.
-      coroutine([this] () -> void {
+      coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
          io::text::stdout->print(ABC_SL("server: starting\n"));
@@ -51,7 +51,7 @@ public:
             io::text::stdout->print(ABC_SL("server: accepting\n"));
             auto pconn(server.accept());
             // Add a coroutine that will echo every byte sent over the newly-established connection.
-            coroutine([this, pconn] () -> void {
+            coroutine([this, pconn] () {
                ABC_TRACE_FUNC(this, pconn);
 
                // Create text-mode reader and writer for the connection’s socket.
