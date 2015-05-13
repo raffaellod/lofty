@@ -418,9 +418,11 @@ thread::comm_manager::~comm_manager() {
 }
 
 void thread::comm_manager::main_thread_terminated(exception::injectable inj) {
-   /* Note: at this point, a correct program will have no other threads running. What’s done here is
-   a courtesy of Abaclade to prevent the process from terminating while threads are still running,
-   but m_mappimplThreads.size() > 0 here should be considered an exception rather than the rule. */
+   /* Note: at this point, a correct program should have no other threads running. As a courtesy,
+   Abaclade will prevent the process from terminating while threads are still running, by ensuring
+   that all Abaclade-managed threads are joined before termination; however, app::main() returning
+   when m_mappimplThreads.size() > 0 should be considered an exception (and a bug) rather than the
+   rule. */
 
    // Make this thread uninterruptible by other threads.
    m_pimplMainThread->m_bTerminating.store(true);
