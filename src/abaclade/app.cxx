@@ -158,10 +158,9 @@ app::app() {
    int iRet;
    if (initialize_stdio()) {
       thread::tracker thrtrk;
-      // Assume for now that main() will return without exceptions.
-      /* TODO: use a more specific exception subclass of execution_interruption, such as
-      “app_exit_interruption”. */
-      exception::injectable inj = exception::injectable::none;
+      /* Assume for now that main() will return without exceptions, in which case
+      abc::app_exit_interruption will be thrown in any coroutine/thread still running. */
+      exception::injectable inj = exception::injectable::app_exit_interruption;
       try {
          thrtrk.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
@@ -198,7 +197,6 @@ app::app() {
          “other_thread_execution_interrupted”. */
          inj = exception::injectable::execution_interruption;
       }
-      // TODO: who handles errors from this one?
       thrtrk.main_thread_terminated(inj);
       if (!deinitialize_stdio()) {
          iRet = 124;
