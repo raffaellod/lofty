@@ -94,8 +94,7 @@ private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
-   // TODO: remove.
-   friend class tracker;
+   friend void tracker::main_thread_terminated(exception::injectable inj);
 
 public:
    /*! Constructor
