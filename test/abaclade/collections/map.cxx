@@ -54,9 +54,12 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(m[10], 100);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
 
-   m.remove(10);
+   ABC_TESTING_ASSERT_TRUE(m.remove_if_found(10));
+   ABC_TESTING_ASSERT_FALSE(m.remove_if_found(10));
+   ABC_TESTING_ASSERT_THROWS(key_error, m.remove(10));
    ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   ABC_TESTING_ASSERT_FALSE(m.remove_if_found(10));
 
    m.add_or_assign(22, 220);
    ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
