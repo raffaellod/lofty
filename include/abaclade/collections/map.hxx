@@ -891,19 +891,33 @@ public:
       empty_bucket(typeKey, typeValue, it);
    }
    void remove(TKey const & key) {
-      ABC_TRACE_FUNC(this/*, key*/);
-
-      std::size_t iBucket = lookup_key(key);
-      if (iBucket == smc_iNullIndex) {
+      if (!remove_if_found(key)) {
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      detail::type_void_adapter typeKey, typeValue;
-      typeKey.set_destr_fn<TKey>();
-      typeKey.set_size<TKey>();
-      typeValue.set_destr_fn<TValue>();
-      typeValue.set_size<TValue>();
-      empty_bucket(typeKey, typeValue, iBucket);
+   }
+
+   /*! Removes a value given a key, if found in the map. If the key is not in the map, no removal
+   occurs.
+
+   @param key
+      Key associated to the value to remove.
+   */
+   bool remove_if_found(TKey const & key) {
+      ABC_TRACE_FUNC(this/*, key*/);
+
+      std::size_t iBucket = lookup_key(key);
+      if (iBucket != smc_iNullIndex) {
+         detail::type_void_adapter typeKey, typeValue;
+         typeKey.set_destr_fn<TKey>();
+         typeKey.set_size<TKey>();
+         typeValue.set_destr_fn<TValue>();
+         typeValue.set_size<TValue>();
+         empty_bucket(typeKey, typeValue, iBucket);
+         return true;
+      } else {
+         return false;
+      }
    }
 
 private:
