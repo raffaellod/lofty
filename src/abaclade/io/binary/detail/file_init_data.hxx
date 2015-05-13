@@ -17,7 +17,15 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
+#ifndef _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX
+#define _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX
+
+#ifndef _ABACLADE_HXX
+   #error "Please #include <abaclade.hxx> before this file"
+#endif
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
+#endif
 
 #if ABC_HOST_API_POSIX
    #include <sys/stat.h> // stat
@@ -57,3 +65,5 @@ struct file_init_data {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX

@@ -17,13 +17,22 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
+#ifndef _ABACLADE_THREAD_IMPL_HXX
+#define _ABACLADE_THREAD_IMPL_HXX
+
+#ifndef _ABACLADE_HXX
+   #error "Please #include <abaclade.hxx> before this file"
+#endif
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
+#endif
+
 #include <abaclade/thread.hxx>
 
 #include <atomic>
 
 #if ABC_HOST_API_POSIX
-   #include <signal.h> // SIG* sigaction sig*()
+   #include <signal.h>
    #if ABC_HOST_API_DARWIN
       #include <dispatch/dispatch.h>
    #else
@@ -190,3 +199,5 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _ABACLADE_THREAD_IMPL_HXX
