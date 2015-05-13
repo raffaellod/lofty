@@ -384,18 +384,19 @@ namespace abc {
 
 thread::tracker * thread::tracker::sm_pInst = nullptr;
 
-thread::tracker::tracker() :
+thread::tracker::tracker()
 #if ABC_HOST_API_POSIX
-   mc_iInterruptionSignal(
+   : mc_iInterruptionSignal(
    #if ABC_HOST_API_DARWIN
       // SIGRT* not available.
       SIGUSR1
    #else
       SIGRTMIN + 1
    #endif
-   ),
+   ) {
+#else
+   {
 #endif
-   m_pimplMainThread(std::make_shared<impl>(nullptr)) {
    sm_pInst = this;
 #if ABC_HOST_API_POSIX
    // Setup signal handlers.
@@ -415,6 +416,10 @@ thread::tracker::~tracker() {
    ::signal(SIGTERM,                SIG_DFL);
    ::signal(mc_iInterruptionSignal, SIG_DFL);
    sm_pInst = nullptr;
+}
+
+void thread::tracker::main_thread_started() {
+   m_pimplMainThread = std::make_shared<impl>(nullptr);
 }
 
 void thread::tracker::main_thread_terminated(exception::injectable inj) {

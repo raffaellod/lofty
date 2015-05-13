@@ -157,12 +157,13 @@ app::app() {
    exception::fault_converter xfc;
    int iRet;
    if (initialize_stdio()) {
+      thread::tracker thrtrk;
       // Assume for now that main() will return without exceptions.
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “app_exit_interruption”. */
       exception::injectable inj = exception::injectable::none;
-      thread::tracker thrtrack;
       try {
+         thrtrk.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
          try {
@@ -198,7 +199,7 @@ app::app() {
          inj = exception::injectable::execution_interruption;
       }
       // TODO: who handles errors from this one?
-      thrtrack.main_thread_terminated(inj);
+      thrtrk.main_thread_terminated(inj);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }

@@ -58,6 +58,9 @@ public:
       return sm_pInst;
    }
 
+   //! Initializes internal data for the main thread.
+   void main_thread_started();
+
    /*! Registers the termination of the program’s abc::app::main() overload.
 
    @param inj
