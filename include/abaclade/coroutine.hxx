@@ -52,6 +52,14 @@ current thread.
 Once one or more coroutines have been instantiated and implicitly scheduled to run, it’s the
 application’s responsibility to give control to the scheduler by invoking
 abc::this_thread::run_coroutines() on at least one of the threads attached to that scheduler.
+
+If an exception escapes from a coroutine, the scheduler that was running it will terminate any other
+coroutines associated to it, and will then proceed to rethrow the exception in the containing
+thread, possibly leading to the termination of the entire process (see @ref threads).
+
+If a thread is interrupted by an exception while executing abc::coroutine::scheduler code, the
+scheduler will terminate every coroutine associated to it, and then rethrow the exception to the
+caller of abc::this_thread::run_coroutines(), eventually leading to the effect described above.
 */
 
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io

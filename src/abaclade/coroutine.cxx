@@ -555,8 +555,7 @@ void coroutine::scheduler::run() {
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
    while ((pcoroimplActive = find_coroutine_to_activate())) {
-      /* Swap the coroutine_local_storage pointer for this thread with that of the active
-      coroutine. */
+      // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
       *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
       // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_POSIX

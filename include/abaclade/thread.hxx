@@ -49,8 +49,12 @@ a more predictable interruption/termination model.
 
 In programs based on Abaclade, the POSIX signals SIGINT and SIGTERM are always only delivered to the
 main thread, and converted into C++ exceptions; if the main thread does not block them and the
-exceptions escape app::main(), Abaclade will proceed to cleanly terminate all other threads in the
-process by interrupting them with an appropriate exception type.
+exceptions escape abc::app::main(), Abaclade will proceed to cleanly terminate all other threads in
+the process by interrupting them with an appropriate exception type.
+
+If a non-main thread throws an exception and does not catch it, an exception will be thrown in the
+main thread, leading to a behavior similar to what happens upon receiving a SIGTERM in the main
+thread.
 */
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
