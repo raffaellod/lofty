@@ -27,6 +27,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <atomic>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::coroutine
@@ -54,11 +56,11 @@ application’s responsibility to give control to the scheduler by invoking
 abc::this_thread::run_coroutines() on at least one of the threads attached to that scheduler.
 
 If an exception escapes from a coroutine, the scheduler that was running it will terminate any other
-coroutines associated to it, and will then proceed to rethrow the exception in the containing
-thread, possibly leading to the termination of the entire process (see @ref threads).
+coroutines associated to it, and will then proceed to throw a similar exception the exception in the
+containing thread, possibly leading to the termination of the entire process (see @ref threads).
 
 If a thread is interrupted by an exception while executing abc::coroutine::scheduler code, the
-scheduler will terminate every coroutine associated to it, and then rethrow the exception to the
+scheduler will terminate every coroutine associated to it, and then throw a similar exception to the
 caller of abc::this_thread::run_coroutines(), eventually leading to the effect described above.
 */
 

@@ -281,12 +281,13 @@ thread_local_value<void *> coroutine::scheduler::sm_pfbrReturn /*= nullptr*/;
 
 coroutine::scheduler::scheduler() :
 #if ABC_HOST_API_BSD
-   m_fdKqueue(::kqueue()) {
+   m_fdKqueue(::kqueue()),
 #elif ABC_HOST_API_LINUX
-   m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)) {
+   m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)),
 #elif ABC_HOST_API_WIN32
-   m_fdIocp(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)) {
+   m_fdIocp(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
 #endif
+   m_injInterruptionException(exception::injectable::none) {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_BSD
@@ -440,6 +441,58 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    // Under Linux, deferred1 will remove the now-inactive event for fd.
 }
 
+void coroutine::scheduler::coroutine_scheduling_loop(
+#if ABC_HOST_API_POSIX
+   ::ucontext_t * puctxReturn
+#endif
+) {
+   std::shared_ptr<coroutine::impl> & pcoroimplActive = sm_pcoroimplActive;
+   detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
+   detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
+   while ((pcoroimplActive = find_coroutine_to_activate())) {
+      // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
+      *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
+#if ABC_HOST_API_POSIX
+      int iRet;
+#endif
+      {
+         auto deferred2(defer_to_scope_end([ppcrlsCurrent, pcrlsDefault] () {
+            *ppcrlsCurrent = pcrlsDefault;
+         }));
+         // Restore the coroutine_local_storage pointer for this thread.
+         *ppcrlsCurrent = pcrlsDefault;
+         // Switch the current thread’s context to the active coroutine’s.
+   #if ABC_HOST_API_POSIX
+      #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+         #pragma clang diagnostic push
+         #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      #endif
+         iRet = ::swapcontext(puctxReturn, pcoroimplActive->ucontext_ptr());
+      #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+         #pragma clang diagnostic pop
+      #endif
+   #elif ABC_HOST_API_WIN32
+         ::SwitchToFiber(pcoroimplActive->fiber());
+   #else
+      #error "TODO: HOST_API"
+   #endif
+         // deferred2 will restore the coroutine_local_storage pointer for this thread.
+      }
+   #if ABC_HOST_API_POSIX
+      if (iRet < 0) {
+         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
+         (*sm_pcoroimplActive has a problem, not uctxReturn). */
+      }
+   #endif
+      /* If a coroutine (in this or anothre thread) leaked an uncaught exception, terminate all
+      coroutines and eventually this very thread. */
+      if (m_injInterruptionException.load() != exception::injectable::none) {
+         interrupt_all();
+         break;
+      }
+   }
+}
+
 std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
@@ -512,7 +565,24 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
    }
 }
 
-void coroutine::scheduler::return_to_scheduler() {
+void coroutine::scheduler::interrupt_all() {
+   // TODO: interrupt all coroutines using m_injResumeException, using coroutine_scheduling_loop().
+}
+
+void coroutine::scheduler::interrupt_all(exception::injectable inj) {
+   /* Try to set m_injInterruptionException; if that doesn’t happen, it’s because it was already set
+   to none, in which case we still go ahead and get to interrupting all coroutines. */
+   auto injExpected = exception::injectable::none;
+   m_injInterruptionException.compare_exchange_strong(injExpected, inj.base());
+   interrupt_all();
+}
+
+void coroutine::scheduler::return_to_scheduler(exception::injectable inj) {
+   /* Only the first uncaught exception in a coroutine can succeed at triggering termination of all
+   coroutines. */
+   auto injExpected = exception::injectable::none;
+   m_injInterruptionException.compare_exchange_strong(injExpected, inj.base());
+
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
@@ -551,35 +621,38 @@ void coroutine::scheduler::run() {
 #else
    #error "TODO: HOST_API"
 #endif
-   std::shared_ptr<coroutine::impl> & pcoroimplActive = sm_pcoroimplActive;
-   detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
-   detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
-   while ((pcoroimplActive = find_coroutine_to_activate())) {
-      // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
-      *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
-      // Switch the current thread’s context to the active coroutine’s.
+   try {
+      coroutine_scheduling_loop(
 #if ABC_HOST_API_POSIX
-   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-      #pragma clang diagnostic push
-      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-   #endif
-      int iRet = ::swapcontext(&uctxReturn, pcoroimplActive->ucontext_ptr());
-   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-      #pragma clang diagnostic pop
-   #endif
-#elif ABC_HOST_API_WIN32
-      ::SwitchToFiber(pcoroimplActive->fiber());
-#else
-   #error "TODO: HOST_API"
+         &uctxReturn
 #endif
-      // Restore the coroutine_local_storage pointer for this thread.
-      *ppcrlsCurrent = pcrlsDefault;
-#if ABC_HOST_API_POSIX
-      if (iRet < 0) {
-         /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
-         (*sm_pcoroimplActive has a problem, not uctxReturn). */
+      );
+   } catch (std::exception const & x) {
+      exception::injectable inj;
+      /* Determine the type of exception. The order of these dynamic_casts matters, since some
+      are subclasses of others. */
+      if (dynamic_cast<app_execution_interruption const *>(&x)) {
+         inj = exception::injectable::app_execution_interruption;
+      } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
+         inj = exception::injectable::app_exit_interruption;
+      } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
+         inj = exception::injectable::user_forced_interruption;
+      } else if (dynamic_cast<execution_interruption const *>(&x)) {
+         inj = exception::injectable::execution_interruption;
+      } else {
+         // The exception is not an execution_interruption subclass.
+         /* TODO: use a more specific exception subclass of execution_interruption, such as
+         “other_coroutine_execution_interrupted”. */
+         inj = exception::injectable::execution_interruption;
       }
-#endif
+      interrupt_all(inj);
+      throw;
+   } catch (...) {
+      // The exception is not an execution_interruption subclass.
+      /* TODO: use a more specific exception subclass of execution_interruption, such as
+      “other_coroutine_execution_interrupted”. */
+      interrupt_all(exception::injectable::execution_interruption);
+      throw;
    }
    // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
 }
@@ -611,16 +684,36 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
 
 /*static*/ void coroutine::impl::outer_main(void * p) {
    impl * pimplThis = static_cast<impl *>(p);
+   // Assume for now that m_fnInnerMain will return without exceptions.
+   exception::injectable inj = exception::injectable::none;
    try {
       pimplThis->m_fnInnerMain();
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
-      // TODO: maybe support “moving” the exception to the return coroutine?
+      /* Determine the type of exception. The order of these dynamic_casts matters, since some
+      are subclasses of others. */
+      if (dynamic_cast<app_execution_interruption const *>(&x)) {
+         inj = exception::injectable::app_execution_interruption;
+      } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
+         inj = exception::injectable::app_exit_interruption;
+      } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
+         inj = exception::injectable::user_forced_interruption;
+      } else if (dynamic_cast<execution_interruption const *>(&x)) {
+         inj = exception::injectable::execution_interruption;
+      } else {
+         // The exception is not an execution_interruption subclass.
+         /* TODO: use a more specific exception subclass of execution_interruption, such as
+         “other_coroutine_execution_interrupted”. */
+         inj = exception::injectable::execution_interruption;
+      }
    } catch (...) {
       exception::write_with_scope_trace();
-      // TODO: maybe support “moving” the exception to the return coroutine?
+      // The exception is not an execution_interruption subclass.
+      /* TODO: use a more specific exception subclass of execution_interruption, such as
+      “other_coroutine_execution_interrupted”. */
+      inj = exception::injectable::execution_interruption;
    }
-   this_thread::coroutine_scheduler()->return_to_scheduler();
+   this_thread::coroutine_scheduler()->return_to_scheduler(inj);
 }
 
 } //namespace abc
