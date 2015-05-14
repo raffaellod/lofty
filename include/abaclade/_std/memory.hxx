@@ -1044,7 +1044,7 @@ public:
       return m_pt != nullptr;
    }
 
-   //! Releases the object pointed to, optionally assigning a new pointer.
+   //! Releases the pointed-to object, optionally assigning a new pointer.
    void reset() {
       if (m_psr) {
          m_psr->release_strong();

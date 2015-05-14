@@ -230,7 +230,28 @@ public:
       return get_ptr()->get();
    }
 
-   // TODO: reset(), unique(), use_count().
+   //! Releases the pointed-to object.
+   void reset() {
+      get_ptr()->reset();
+   }
+
+   /*! Returns true if no other pointers are referring to the object pointed to.
+
+   @return
+      true if *this is the only pointer to the owned object, or false otherwise.
+   */
+   bool unique() const {
+      return get_ptr()->unique();
+   }
+
+   /*! Returns the number of references to the object pointed to.
+
+   @return
+      Reference count.
+   */
+   long use_count() const {
+      return get_ptr()->use_count();
+   }
 
 private:
    //! See TImpl::construct().
