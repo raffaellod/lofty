@@ -617,16 +617,16 @@ std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    return pcoroschedCurr;
 }
 
+std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler() {
+   return coroutine::scheduler::sm_pcorosched;
+}
+
 void detach_coroutine_scheduler() {
    std::shared_ptr<coroutine::scheduler> pcorosched(std::move(coroutine::scheduler::sm_pcorosched));
    // If this is the last reference to the scheduler, make it interrupt any remaining coroutines.
    if (pcorosched.unique()) {
       // TOOD: interrupt all coroutines, maybe with pcorosched->interrupt_all() ?
    }
-}
-
-std::shared_ptr<coroutine::scheduler> const & get_coroutine_scheduler() {
-   return coroutine::scheduler::sm_pcorosched;
 }
 
 thread::impl * get_impl() {
@@ -658,7 +658,7 @@ thread::id_type id() {
 }
 
 void run_coroutines() {
-   if (auto & pcorosched = get_coroutine_scheduler()) {
+   if (auto & pcorosched = coroutine_scheduler()) {
       pcorosched->run();
    }
 }

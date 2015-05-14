@@ -211,7 +211,7 @@ std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    fid.am = access_mode::read;
    fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #endif
    return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
 }
@@ -224,7 +224,7 @@ std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    fid.am = access_mode::write;
    fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #endif
    return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
 }
@@ -237,7 +237,7 @@ std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
 #if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #endif
    return std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
 }
@@ -247,7 +247,7 @@ std::shared_ptr<file_base> open(
 ) {
    ABC_TRACE_FUNC(op, am, bBypassCache);
 
-   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
    detail::file_init_data fid;
 #if ABC_HOST_API_POSIX
    int iFlags;
@@ -357,7 +357,7 @@ std::shared_ptr<file_base> open(
 std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    ABC_TRACE_FUNC();
 
-   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
    detail::file_init_data fidReader, fidWriter;
 #if ABC_HOST_API_DARWIN
    int fds[2];

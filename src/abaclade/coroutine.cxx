@@ -221,7 +221,7 @@ void coroutine::interrupt() {
       /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
       for it to be unblocked. */
       // TODO: sanity check to avoid scheduling a coroutine twice!
-      this_thread::get_coroutine_scheduler()->add_ready(m_pimpl);
+      this_thread::coroutine_scheduler()->add_ready(m_pimpl);
    }
 }
 
@@ -620,7 +620,7 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
       exception::write_with_scope_trace();
       // TODO: maybe support “moving” the exception to the return coroutine?
    }
-   this_thread::get_coroutine_scheduler()->return_to_scheduler();
+   this_thread::coroutine_scheduler()->return_to_scheduler();
 }
 
 } //namespace abc
@@ -636,7 +636,7 @@ coroutine::id_type id() {
 }
 
 void sleep_for_ms(unsigned iMillisecs) {
-   if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+   if (auto & pcorosched = this_thread::coroutine_scheduler()) {
       pcorosched->block_active_for_ms(iMillisecs);
    } else {
       this_thread::sleep_for_ms(iMillisecs);
@@ -644,7 +644,7 @@ void sleep_for_ms(unsigned iMillisecs) {
 }
 
 void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
-   if (auto & pcorosched = this_thread::get_coroutine_scheduler()) {
+   if (auto & pcorosched = this_thread::coroutine_scheduler()) {
       pcorosched->block_active_until_fd_ready(fd, bWrite);
    } else {
       // No coroutine scheduler, so we have to block-wait for fd.

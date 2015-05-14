@@ -89,7 +89,7 @@ tcp_server::~tcp_server() {
 std::shared_ptr<connection> tcp_server::accept() {
    ABC_TRACE_FUNC(this);
 
-   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #if ABC_HOST_API_POSIX
    ::sockaddr_in saClient;
    ::socklen_t cbClient;
@@ -150,7 +150,7 @@ std::shared_ptr<connection> tcp_server::accept() {
 /*static*/ io::filedesc tcp_server::create_socket() {
    ABC_TRACE_FUNC();
 
-   bool bAsync = (this_thread::get_coroutine_scheduler() != nullptr);
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #if ABC_HOST_API_POSIX
    int iType = SOCK_STREAM;
 #if !ABC_HOST_API_DARWIN
