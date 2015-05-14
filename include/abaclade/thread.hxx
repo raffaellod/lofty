@@ -227,8 +227,7 @@ ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & attach_coroutine_sche
 */
 ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler();
 
-/*! Removes the current thread’s coroutine scheduler, if any. If this would cause the scheduler to
-be destructed, any coroutines in it are interrupted before the scheduler is destructed. */
+//! Removes the current thread’s coroutine scheduler, if any.
 ABACLADE_SYM void detach_coroutine_scheduler();
 
 /*! Returns a process-wide unique ID for the current thread.

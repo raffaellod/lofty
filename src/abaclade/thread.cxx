@@ -622,11 +622,7 @@ std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler() {
 }
 
 void detach_coroutine_scheduler() {
-   std::shared_ptr<coroutine::scheduler> pcorosched(std::move(coroutine::scheduler::sm_pcorosched));
-   // If this is the last reference to the scheduler, make it interrupt any remaining coroutines.
-   if (pcorosched.unique()) {
-      // TOOD: interrupt all coroutines, maybe with pcorosched->interrupt_all() ?
-   }
+   coroutine::scheduler::sm_pcorosched.reset();
 }
 
 thread::impl * get_impl() {
