@@ -131,9 +131,9 @@ public:
    coroutines or other Abaclade implementation code. */
    void throw_if_any_resume_exception() {
       /* This load/store is multithread-safe: the coroutine can only be executing on one thread at a
-      time, and the if condition being true means that coroutine::interrupt() is preventing other
+      time, and the “if” condition being true means that coroutine::interrupt() is preventing other
       threads from changing m_injResumeException until we reset it to none. */
-      auto inj = m_injResumeException.load(/* TODO: memory_order_? */);
+      auto inj = m_injResumeException.load();
       if (inj != exception::injectable::none) {
          m_injResumeException.store(exception::injectable::none, std::memory_order_relaxed);
          exception::throw_injected_exception(inj, 0, 0);
@@ -216,7 +216,7 @@ void coroutine::interrupt() {
    running it (and it would, eventually, since we call add_ready() for it), which would be bad. */
    auto injExpected = exception::injectable::none;
    if (m_pimpl->m_injResumeException.compare_exchange_strong(
-      injExpected, exception::injectable::execution_interruption/*, TODO: memory_order_? */
+      injExpected, exception::injectable::execution_interruption
    )) {
       /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
       for it to be unblocked. */
