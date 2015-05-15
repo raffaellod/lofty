@@ -172,7 +172,7 @@ private:
 #if ABC_HOST_API_POSIX
    //! Pointer to the original context of every thread running a coroutine scheduler.
    static thread_local_value< ::ucontext_t *> sm_puctxReturn;
-#elif ABC_HOST_API_POSIX
+#elif ABC_HOST_API_WIN32
    //! Handle to the original fiber of every thread running a coroutine scheduler.
    static thread_local_value<void *> sm_pfbrReturn;
 #endif
