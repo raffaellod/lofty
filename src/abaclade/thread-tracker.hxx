@@ -72,11 +72,11 @@ public:
 
    /*! Registers the termination of the program’s abc::app::main() overload.
 
-   @param inj
-      Type of exception that escaped the program’s main(), or exception::injectable::none if main()
+   @param xct
+      Type of exception that escaped the program’s main(), or exception::common_type::none if main()
       returned normally.
    */
-   void main_thread_terminated(exception::injectable inj);
+   void main_thread_terminated(exception::common_type xct);
 
    /*! Registers a new thread as running.
 

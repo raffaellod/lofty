@@ -1,7 +1,7 @@
 {
    accessing manipulated mcontext_t
    Memcheck:Addr4
-   fun:*throw_injected_exception*
+   fun:*throw_common_exception*
    ...
 }
 {

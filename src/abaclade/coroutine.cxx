@@ -72,7 +72,7 @@ public:
          m_pStack.get(), static_cast<std::int8_t *>(m_pStack.get()) + m_pStack.size()
       )),
 #endif
-      m_injResumeException(exception::injectable::none),
+      m_xctPending(exception::common_type::none),
       m_fnInnerMain(std::move(fnMain)),
       m_crls(false /*don’t automatically install as the current thread’s TLS instance*/) {
 #if ABC_HOST_API_POSIX
@@ -127,16 +127,16 @@ public:
    }
 
    /*! Called right after each time the coroutine resumes execution, this will throw an exception of
-   the type specified by m_injResumeException. This kind of exceptions are injected by other
-   coroutines or other Abaclade implementation code. */
-   void throw_if_any_resume_exception() {
+   the type specified by m_xctPending. This kind of exceptions are injected by other coroutines or
+   other Abaclade implementation code. */
+   void throw_if_any_pending_exception() {
       /* This load/store is multithread-safe: the coroutine can only be executing on one thread at a
       time, and the “if” condition being true means that coroutine::interrupt() is preventing other
-      threads from changing m_injResumeException until we reset it to none. */
-      auto inj = m_injResumeException.load();
-      if (inj != exception::injectable::none) {
-         m_injResumeException.store(exception::injectable::none, std::memory_order_relaxed);
-         exception::throw_injected_exception(inj, 0, 0);
+      threads from changing m_xctPending until we reset it to none. */
+      auto xct = m_xctPending.load();
+      if (xct != exception::common_type::none) {
+         m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
+         exception::throw_common_exception(xct, 0, 0);
       }
    }
 
@@ -176,7 +176,7 @@ private:
    unsigned m_iValgrindStackId;
 #endif
    //! Every time the coroutine is scheduled, this is checked for pending exceptions to be injected.
-   std::atomic<exception::injectable::enum_type> m_injResumeException;
+   std::atomic<exception::common_type::enum_type> m_xctPending;
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
    //! Local storage for the coroutine.
@@ -207,16 +207,16 @@ coroutine::id_type coroutine::id() const {
 void coroutine::interrupt() {
    ABC_TRACE_FUNC(this);
 
-   /* Avoid interrupting the coroutine if there’s already a pending interruption (injExpected !=
+   /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
    none).
    This is not meant to prevent multiple concurrent interruptions, with a second interruption
    occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
    trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap below
    would succeed, but the coroutine might terminate before find_coroutine_to_activate() got to
    running it (and it would, eventually, since we call add_ready() for it), which would be bad. */
-   auto injExpected = exception::injectable::none;
-   if (m_pimpl->m_injResumeException.compare_exchange_strong(
-      injExpected, exception::injectable::execution_interruption
+   auto xctExpected = exception::common_type::none;
+   if (m_pimpl->m_xctPending.compare_exchange_strong(
+      xctExpected, exception::common_type::execution_interruption
    )) {
       /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
       for it to be unblocked. */
@@ -287,7 +287,7 @@ coroutine::scheduler::scheduler() :
 #elif ABC_HOST_API_WIN32
    m_fdIocp(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
 #endif
-   m_injInterruptionException(exception::injectable::none) {
+   m_xctInterruptionReason(exception::common_type::none) {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_BSD
@@ -486,7 +486,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(
    #endif
       /* If a coroutine (in this or anothre thread) leaked an uncaught exception, terminate all
       coroutines and eventually this very thread. */
-      if (m_injInterruptionException.load() != exception::injectable::none) {
+      if (m_xctInterruptionReason.load() != exception::common_type::none) {
          interrupt_all();
          break;
       }
@@ -566,22 +566,22 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
 }
 
 void coroutine::scheduler::interrupt_all() {
-   // TODO: interrupt all coroutines using m_injResumeException, using coroutine_scheduling_loop().
+   // TODO: interrupt all coroutines using m_xctPending, using coroutine_scheduling_loop().
 }
 
-void coroutine::scheduler::interrupt_all(exception::injectable inj) {
-   /* Try to set m_injInterruptionException; if that doesn’t happen, it’s because it was already set
-   to none, in which case we still go ahead and get to interrupting all coroutines. */
-   auto injExpected = exception::injectable::none;
-   m_injInterruptionException.compare_exchange_strong(injExpected, inj.base());
+void coroutine::scheduler::interrupt_all(exception::common_type xctReason) {
+   /* Try to set m_xctInterruptionReason; if that doesn’t happen, it’s because it was already set to
+   none, in which case we still go ahead and get to interrupting all coroutines. */
+   auto xctExpected = exception::common_type::none;
+   m_xctInterruptionReason.compare_exchange_strong(xctExpected, xctReason.base());
    interrupt_all();
 }
 
-void coroutine::scheduler::return_to_scheduler(exception::injectable inj) {
+void coroutine::scheduler::return_to_scheduler(exception::common_type xct) {
    /* Only the first uncaught exception in a coroutine can succeed at triggering termination of all
    coroutines. */
-   auto injExpected = exception::injectable::none;
-   m_injInterruptionException.compare_exchange_strong(injExpected, inj.base());
+   auto xctExpected = exception::common_type::none;
+   m_xctInterruptionReason.compare_exchange_strong(xctExpected, xct.base());
 
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
@@ -628,30 +628,30 @@ void coroutine::scheduler::run() {
 #endif
       );
    } catch (std::exception const & x) {
-      exception::injectable inj;
+      exception::common_type xct;
       /* Determine the type of exception. The order of these dynamic_casts matters, since some
       are subclasses of others. */
       if (dynamic_cast<app_execution_interruption const *>(&x)) {
-         inj = exception::injectable::app_execution_interruption;
+         xct = exception::common_type::app_execution_interruption;
       } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
-         inj = exception::injectable::app_exit_interruption;
+         xct = exception::common_type::app_exit_interruption;
       } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
-         inj = exception::injectable::user_forced_interruption;
+         xct = exception::common_type::user_forced_interruption;
       } else if (dynamic_cast<execution_interruption const *>(&x)) {
-         inj = exception::injectable::execution_interruption;
+         xct = exception::common_type::execution_interruption;
       } else {
          // The exception is not an execution_interruption subclass.
          /* TODO: use a more specific exception subclass of execution_interruption, such as
          “other_coroutine_execution_interrupted”. */
-         inj = exception::injectable::execution_interruption;
+         xct = exception::common_type::execution_interruption;
       }
-      interrupt_all(inj);
+      interrupt_all(xct);
       throw;
    } catch (...) {
       // The exception is not an execution_interruption subclass.
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “other_coroutine_execution_interrupted”. */
-      interrupt_all(exception::injectable::execution_interruption);
+      interrupt_all(exception::common_type::execution_interruption);
       throw;
    }
    // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
@@ -676,7 +676,7 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
    #error "TODO: HOST_API"
 #endif
    // Now that we’re back to the coroutine, check for any resume exceptions.
-   pcoroimplLastActive->throw_if_any_resume_exception();
+   pcoroimplLastActive->throw_if_any_pending_exception();
 }
 
 
@@ -685,7 +685,7 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
 /*static*/ void coroutine::impl::outer_main(void * p) {
    impl * pimplThis = static_cast<impl *>(p);
    // Assume for now that m_fnInnerMain will return without exceptions.
-   exception::injectable inj = exception::injectable::none;
+   exception::common_type xct = exception::common_type::none;
    try {
       pimplThis->m_fnInnerMain();
    } catch (std::exception const & x) {
@@ -693,27 +693,27 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
       /* Determine the type of exception. The order of these dynamic_casts matters, since some
       are subclasses of others. */
       if (dynamic_cast<app_execution_interruption const *>(&x)) {
-         inj = exception::injectable::app_execution_interruption;
+         xct = exception::common_type::app_execution_interruption;
       } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
-         inj = exception::injectable::app_exit_interruption;
+         xct = exception::common_type::app_exit_interruption;
       } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
-         inj = exception::injectable::user_forced_interruption;
+         xct = exception::common_type::user_forced_interruption;
       } else if (dynamic_cast<execution_interruption const *>(&x)) {
-         inj = exception::injectable::execution_interruption;
+         xct = exception::common_type::execution_interruption;
       } else {
          // The exception is not an execution_interruption subclass.
          /* TODO: use a more specific exception subclass of execution_interruption, such as
          “other_coroutine_execution_interrupted”. */
-         inj = exception::injectable::execution_interruption;
+         xct = exception::common_type::execution_interruption;
       }
    } catch (...) {
       exception::write_with_scope_trace();
       // The exception is not an execution_interruption subclass.
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “other_coroutine_execution_interrupted”. */
-      inj = exception::injectable::execution_interruption;
+      xct = exception::common_type::execution_interruption;
    }
-   this_thread::coroutine_scheduler()->return_to_scheduler(inj);
+   this_thread::coroutine_scheduler()->return_to_scheduler(xct);
 }
 
 } //namespace abc

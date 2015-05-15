@@ -104,7 +104,7 @@ private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
-   friend void tracker::main_thread_terminated(exception::injectable inj);
+   friend void tracker::main_thread_terminated(exception::common_type xct);
 
 public:
    /*! Constructor
@@ -121,10 +121,10 @@ public:
 
    /*! Injects the requested type of exception in the thread.
 
-   @param inj
+   @param xct
       Type of exception to inject.
    */
-   void inject_exception(exception::injectable inj);
+   void inject_exception(exception::common_type xct);
 
 #if ABC_HOST_API_POSIX
    /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used

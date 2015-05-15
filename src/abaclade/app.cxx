@@ -160,7 +160,7 @@ app::app() {
       thread::tracker thrtrk;
       /* Assume for now that main() will return without exceptions, in which case
       abc::app_exit_interruption will be thrown in any coroutine/thread still running. */
-      exception::injectable inj = exception::injectable::app_exit_interruption;
+      exception::common_type xct = exception::common_type::app_exit_interruption;
       try {
          thrtrk.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
@@ -174,16 +174,16 @@ app::app() {
          /* Determine the type of exception. The order of these dynamic_casts matters, since some
          are subclasses of others. */
          if (dynamic_cast<app_execution_interruption const *>(&x)) {
-            inj = exception::injectable::app_execution_interruption;
+            xct = exception::common_type::app_execution_interruption;
          } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
-            inj = exception::injectable::user_forced_interruption;
+            xct = exception::common_type::user_forced_interruption;
          } else if (dynamic_cast<execution_interruption const *>(&x)) {
-            inj = exception::injectable::execution_interruption;
+            xct = exception::common_type::execution_interruption;
          } else {
             // The exception is not an execution_interruption subclass.
             /* TODO: use a more specific exception subclass of execution_interruption, such as
             “other_thread_execution_interrupted”. */
-            inj = exception::injectable::execution_interruption;
+            xct = exception::common_type::execution_interruption;
          }
       } catch (...) {
          try {
@@ -195,9 +195,9 @@ app::app() {
          // The exception is not an execution_interruption subclass.
          /* TODO: use a more specific exception subclass of execution_interruption, such as
          “other_thread_execution_interrupted”. */
-         inj = exception::injectable::execution_interruption;
+         xct = exception::common_type::execution_interruption;
       }
-      thrtrk.main_thread_terminated(inj);
+      thrtrk.main_thread_terminated(xct);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }

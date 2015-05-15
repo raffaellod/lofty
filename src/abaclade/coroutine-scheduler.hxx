@@ -89,11 +89,11 @@ public:
 
    /*! Switches context to the current thread’s own context.
 
-   @param inj
-      Type of exception that escaped the coroutine function, or exception::injectable::none if the
+   @param xct
+      Type of exception that escaped the coroutine function, or exception::common_type::none if the
       function returned normally.
    */
-   void return_to_scheduler(exception::injectable inj);
+   void return_to_scheduler(exception::common_type xct);
 
    /*! Begins scheduling and running coroutines on the current thread. Only returns after every
    coroutine added with add_coroutine() returns. */
@@ -115,17 +115,17 @@ private:
 #endif
    );
 
-   //! Interrupts with m_injInterruptionException any coroutines associated to the scheduler.
+   //! Interrupts with m_xctInterruptionReason any coroutines associated to the scheduler.
    void interrupt_all();
 
    /*! Interrupts any coroutines associated to the scheduler. If there’s no previous reason to
-   interrupt all coroutines (i.e. if m_injInterruptionException == none), inj will be used as the
+   interrupt all coroutines (i.e. if m_xctInterruptionReason == none), xctReason will be used as the
    reason.
 
-   @param inj
-      Type of exception to inject.
+   @param xctReason
+      Reason for interruption.
    */
-   void interrupt_all(exception::injectable inj);
+   void interrupt_all(exception::common_type xctReason);
 
    /*! Switches context from the coroutine context pointed to by pcoroimplLastActive to the current
    thread’s own context.
@@ -160,11 +160,11 @@ private:
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
    collections::list<std::shared_ptr<coroutine::impl>> m_listReadyCoros;
-   /*! Set to anything other than exception::injectable::none if a coroutine leaks an uncaught
+   /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of
    these events happens, every thread running the scheduler will start interrupting coroutines with
    this type of exception. */
-   std::atomic<exception::injectable::enum_type> m_injInterruptionException;
+   std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
    static thread_local_value<std::shared_ptr<coroutine::impl>> sm_pcoroimplActive;
    //! Pointer to the coroutine scheduler for the current thread.

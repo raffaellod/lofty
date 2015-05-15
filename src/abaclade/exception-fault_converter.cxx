@@ -52,7 +52,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    /*! Called by exc_server() when the latter is passed an exception message, giving the process a
    way to do something about it. What we do is change the next instruction in the faulting thread to
-   throw_injected_exception().
+   throw_common_exception().
 
    @param mpExceptions
       ?
@@ -88,7 +88,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
 
       // Read the exception and convert it into a known C++ type.
-      abc::exception::injectable::enum_type inj;
+      abc::exception::common_type::enum_type xct;
       std::intptr_t iArg0 = 0, iArg1 = 0;
       {
          arch_exception_state_t excst;
@@ -109,9 +109,9 @@ You should have received a copy of the GNU General Public License along with Aba
       #error "TODO: HOST_ARCH"
    #endif
                if (iArg0 == 0) {
-                  inj = abc::exception::injectable::null_pointer_error;
+                  xct = abc::exception::common_type::null_pointer_error;
                } else {
-                  inj = abc::exception::injectable::memory_address_error;
+                  xct = abc::exception::common_type::memory_address_error;
                }
                break;
 
@@ -122,39 +122,39 @@ You should have received a copy of the GNU General Public License along with Aba
       #error "TODO: HOST_ARCH"
    #endif
                // TODO: use a better exception class.
-               inj = abc::exception::injectable::memory_access_error;
+               xct = abc::exception::common_type::memory_access_error;
                break;
 
             case EXC_ARITHMETIC:
-               inj = abc::exception::injectable::arithmetic_error;
+               xct = abc::exception::common_type::arithmetic_error;
                if (cExcCodes) {
                   // TODO: can there be more than one exception code passed to a single call?
                   switch (piExcCodes[0]) {
    #if ABC_HOST_ARCH_X86_64
                      case EXC_I386_DIV:
-                        inj = abc::exception::injectable::division_by_zero_error;
+                        xct = abc::exception::common_type::division_by_zero_error;
                         break;
 /*
                      case EXC_I386_INTO:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_NOEXT:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_EXTOVR:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_EXTERR:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_EMERR:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_BOUND:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
                      case EXC_I386_SSEEXTERR:
-                        inj = abc::exception::injectable::arithmetic_error;
+                        xct = abc::exception::common_type::arithmetic_error;
                         break;
 */
    #else
@@ -171,7 +171,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
 
       /* Change the address at which mpThread is executing: manipulate the thread state to emulate a
-      function call to throw_injected_exception(). */
+      function call to throw_common_exception(). */
 
       // Obtain the faulting thread’s state.
       arch_thread_state_t thrst;
@@ -183,8 +183,8 @@ You should have received a copy of the GNU General Public License along with Aba
          return KERN_FAILURE;
       }
 
-      // Manipulate the thread state to emulate a call to throw_injected_exception().
-      abc::exception::inject_in_context(inj, iArg0, iArg1, &thrst);
+      // Manipulate the thread state to emulate a call to throw_common_exception().
+      abc::exception::inject_in_context(xct, iArg0, iArg1, &thrst);
 
       // Update the faulting thread’s state.
       if (::thread_set_state(
@@ -319,7 +319,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return;
       }
 
-      injectable::enum_type inj = injectable::none;
+      common_type::enum_type xct = common_type::none;
       std::intptr_t iArg0 = 0, iArg1 = 0;
       switch (iSignal) {
          case SIGBUS:
@@ -328,7 +328,7 @@ You should have received a copy of the GNU General Public License along with Aba
             keep on going – even the code to throw an exception could be compromised. */
             switch (psi->si_code) {
                case BUS_ADRALN: // Invalid address alignment.
-                  inj = injectable::memory_access_error;
+                  xct = common_type::memory_access_error;
                   iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                   break;
             }
@@ -337,10 +337,10 @@ You should have received a copy of the GNU General Public License along with Aba
          case SIGFPE:
             switch (psi->si_code) {
                case FPE_INTDIV: // Integer divide by zero.
-                  inj = injectable::division_by_zero_error;
+                  xct = common_type::division_by_zero_error;
                   break;
                case FPE_INTOVF: // Integer overflow.
-                  inj = injectable::overflow_error;
+                  xct = common_type::overflow_error;
                   break;
                case FPE_FLTDIV: // Floating-point divide by zero.
                case FPE_FLTOVF: // Floating-point overflow.
@@ -348,28 +348,28 @@ You should have received a copy of the GNU General Public License along with Aba
                case FPE_FLTRES: // Floating-point inexact result.
                case FPE_FLTINV: // Floating-point invalid operation.
                case FPE_FLTSUB: // Subscript out of range.
-                  inj = injectable::floating_point_error;
+                  xct = common_type::floating_point_error;
                   break;
                default:
                   /* At the time of writing, the above case labels don’t leave out any values, but
                   that’s not necessarily going to be true in 5 years, so… */
-                  inj = injectable::arithmetic_error;
+                  xct = common_type::arithmetic_error;
                   break;
             }
             break;
 
          case SIGSEGV:
             if (psi->si_addr == nullptr) {
-               inj = injectable::null_pointer_error;
+               xct = common_type::null_pointer_error;
             } else {
-               inj = injectable::memory_address_error;
+               xct = common_type::memory_address_error;
                iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             }
             break;
       }
-      if (inj != injectable::none) {
+      if (xct != common_type::none) {
          // Inject the selected exception type in the faulting thread.
-         inject_in_context(inj, iArg0, iArg1, pctx);
+         inject_in_context(xct, iArg0, iArg1, pctx);
       } else {
          // Deal with cases not covered above.
          std::abort();
@@ -407,10 +407,10 @@ You should have received a copy of the GNU General Public License along with Aba
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
             );
             if (pAddr == nullptr) {
-               throw_injected_exception(injectable::null_pointer_error, 0, 0);
+               throw_common_exception(common_type::null_pointer_error, 0, 0);
             } else {
-               throw_injected_exception(
-                  injectable::memory_address_error, reinterpret_cast<std::intptr_t>(pAddr), 0
+               throw_common_exception(
+                  common_type::memory_address_error, reinterpret_cast<std::intptr_t>(pAddr), 0
                );
             }
          }
@@ -422,8 +422,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            throw_injected_exception(
-               injectable::memory_access_error, reinterpret_cast<std::intptr_t>(nullptr), 0
+            throw_common_exception(
+               common_type::memory_access_error, reinterpret_cast<std::intptr_t>(nullptr), 0
             );
 
          case EXCEPTION_FLT_DENORMAL_OPERAND:
@@ -450,7 +450,7 @@ You should have received a copy of the GNU General Public License along with Aba
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            throw_injected_exception(injectable::floating_point_error, 0, 0);
+            throw_common_exception(common_type::floating_point_error, 0, 0);
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -464,12 +464,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            throw_injected_exception(injectable::division_by_zero_error, 0, 0);
+            throw_common_exception(common_type::division_by_zero_error, 0, 0);
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            throw_injected_exception(injectable::overflow_error, 0, 0);
+            throw_common_exception(common_type::overflow_error, 0, 0);
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current

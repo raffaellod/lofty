@@ -165,24 +165,24 @@ thread::impl::~impl() {
 #endif
 }
 
-void thread::impl::inject_exception(exception::injectable inj) {
-   ABC_TRACE_FUNC(this, inj);
+void thread::impl::inject_exception(exception::common_type xct) {
+   ABC_TRACE_FUNC(this, xct);
 
 #if ABC_HOST_API_POSIX
    int iSignal;
-   switch (inj.base()) {
-      case exception::injectable::app_execution_interruption:
+   switch (xct.base()) {
+      case exception::common_type::app_execution_interruption:
          // TODO: different signal number.
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
-      case exception::injectable::app_exit_interruption:
+      case exception::common_type::app_exit_interruption:
          // TODO: different signal number.
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
-      case exception::injectable::execution_interruption:
+      case exception::common_type::execution_interruption:
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
-      case exception::injectable::user_forced_interruption:
+      case exception::common_type::user_forced_interruption:
          // TODO: different signal number.
          iSignal = tracker::instance()->exception_injection_signal_number();
          break;
@@ -234,7 +234,7 @@ void thread::impl::inject_exception(exception::injectable inj) {
    is already terminating, in which case we’ll avoid throwing an exception. This check is safe
    because m_bTerminating can only be written to by the thread we just suspended. */
    if (!m_bTerminating.load()) {
-      exception::inject_in_context(inj, 0, 0, &ctx);
+      exception::inject_in_context(xct, 0, 0, &ctx);
       if (!::SetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
@@ -251,24 +251,24 @@ void thread::impl::inject_exception(exception::injectable inj) {
 ) {
    ABC_UNUSED_ARG(psi);
 
-   exception::injectable::enum_type inj;
+   exception::common_type::enum_type xct;
    if (iSignal == SIGINT) {
       // Can only happen in the main thread.
-      inj = exception::injectable::user_forced_interruption;
+      xct = exception::common_type::user_forced_interruption;
    } else if (iSignal == SIGTERM) {
       // Can only happen in the main thread.
-      inj = exception::injectable::execution_interruption;
+      xct = exception::common_type::execution_interruption;
    } else if (iSignal == tracker::instance()->exception_injection_signal_number()) {
       // Can happen in any thread.
       /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
       thread that raised the signal. */
-      inj = exception::injectable::execution_interruption;
+      xct = exception::common_type::execution_interruption;
    } else {
       // Should never happen.
       std::abort();
    }
    // This will skip injecting the exception if the thread is terminating.
-   exception::inject_in_context(inj, 0, 0, pctx);
+   exception::inject_in_context(xct, 0, 0, pctx);
 }
 #endif
 
@@ -426,7 +426,7 @@ void thread::tracker::main_thread_started() {
    m_pimplMainThread = std::make_shared<impl>(nullptr);
 }
 
-void thread::tracker::main_thread_terminated(exception::injectable inj) {
+void thread::tracker::main_thread_terminated(exception::common_type xct) {
    /* Note: at this point, a correct program should have no other threads running. As a courtesy,
    Abaclade will prevent the process from terminating while threads are still running, by ensuring
    that all Abaclade-managed threads are joined before termination; however, app::main() returning
@@ -439,7 +439,7 @@ void thread::tracker::main_thread_terminated(exception::injectable inj) {
    std::unique_lock<std::mutex> lock(m_mtxThreads);
    // Signal every other thread to terminate.
    ABC_FOR_EACH(auto pair, m_mappimplThreads) {
-      pair.value->inject_exception(inj);
+      pair.value->inject_exception(xct);
    }
    /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
    have themselves removed from m_mappimplThreads. We can’t join() them here, since they might be
@@ -471,7 +471,7 @@ void thread::tracker::nonmain_thread_terminated(impl * pimpl, bool bUncaughtExce
    if (bUncaughtException) {
       /* TODO: use a more specific exception subclass of execution_interruption, such as
       “other_thread_execution_interrupted”. */
-      m_pimplMainThread->inject_exception(exception::injectable::execution_interruption);
+      m_pimplMainThread->inject_exception(exception::common_type::execution_interruption);
    }
 }
 
@@ -522,7 +522,7 @@ void thread::interrupt() {
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-   m_pimpl->inject_exception(exception::injectable::execution_interruption);
+   m_pimpl->inject_exception(exception::common_type::execution_interruption);
 }
 
 void thread::join() {

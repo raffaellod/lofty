@@ -147,22 +147,22 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 }
 
 /*static*/ void exception::inject_in_context(
-   exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+   exception::common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
 #if ABC_HOST_API_MACH
    #if ABC_HOST_ARCH_X86_64
       ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pvctx);
-      /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
-      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      /* Load the arguments to throw_common_exception() in rdi/rsi/rdx, push the address of the
+      current (failing) instruction, then set rip to the start of throw_common_exception(). These
       steps emulate a 3-argument subroutine call. */
       typedef decltype(pthrst->__rsp) reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pthrst->__rsp);
-      pthrst->__rdi = static_cast<reg_t>(inj.base());
+      pthrst->__rdi = static_cast<reg_t>(xct.base());
       pthrst->__rsi = static_cast<reg_t>(iArg0);
       pthrst->__rdx = static_cast<reg_t>(iArg1);
       // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
       *--rsp = pthrst->__rip;
-      pthrst->__rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      pthrst->__rip = reinterpret_cast<reg_t>(&throw_common_exception);
    #else
       #error "TODO: HOST_ARCH"
    #endif
@@ -180,15 +180,15 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Load the arguments to throw_injected_exception() in r0-2, push lr and replace it with the
+      /* Load the arguments to throw_common_exception() in r0-2, push lr and replace it with the
       address of the current (failing) instruction, then set pc to the start of
-      throw_injected_exception(). These steps emulate a 3-argument subroutine call. */
-      r0 = static_cast<reg_t>(inj.base());
+      throw_common_exception(). These steps emulate a 3-argument subroutine call. */
+      r0 = static_cast<reg_t>(xct.base());
       r1 = static_cast<reg_t>(iArg0);
       r2 = static_cast<reg_t>(iArg1);
       *--sp = lr;
       lr = pc;
-      pc = reinterpret_cast<reg_t>(&throw_injected_exception);
+      pc = reinterpret_cast<reg_t>(&throw_common_exception);
    #elif ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
          typedef typename std::remove_reference<
@@ -203,14 +203,14 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Push the arguments to throw_injected_exception() onto the stack, push the address of the
-      current (failing) instruction, then set eip to the start of throw_injected_exception(). These
+      /* Push the arguments to throw_common_exception() onto the stack, push the address of the
+      current (failing) instruction, then set eip to the start of throw_common_exception(). These
       steps emulate a 3-argument subroutine call. */
       *--esp = static_cast<reg_t>(iArg1);
       *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(inj.base());
+      *--esp = static_cast<reg_t>(xct.base());
       *--esp = eip;
-      eip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      eip = reinterpret_cast<reg_t>(&throw_common_exception);
    #elif ABC_HOST_ARCH_X86_64
       #if ABC_HOST_API_LINUX
          typedef typename std::remove_reference<
@@ -231,15 +231,15 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Load the arguments to throw_injected_exception() in rdi/rsi/rdx, push the address of the
-      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      /* Load the arguments to throw_common_exception() in rdi/rsi/rdx, push the address of the
+      current (failing) instruction, then set rip to the start of throw_common_exception(). These
       steps emulate a 3-argument subroutine call. */
-      rdi = static_cast<reg_t>(inj.base());
+      rdi = static_cast<reg_t>(xct.base());
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
       // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
       *--rsp = rip;
-      rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      rip = reinterpret_cast<reg_t>(&throw_common_exception);
    #else
       #error "TODO: HOST_ARCH"
    #endif
@@ -248,33 +248,33 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #if ABC_HOST_ARCH_ARM
       typedef std::uint32_t reg_t;
       reg_t *& sp = reinterpret_cast<reg_t *&>(pctx->Sp);
-      /* Load the arguments to throw_injected_exception() in r0-2, push lr and replace it with the
+      /* Load the arguments to throw_common_exception() in r0-2, push lr and replace it with the
       address of the current (failing) instruction, then set pc to the start of
-      throw_injected_exception(). These steps emulate a 3-argument subroutine call. */
-      pctx->R0 = static_cast<reg_t>(inj.base());
+      throw_common_exception(). These steps emulate a 3-argument subroutine call. */
+      pctx->R0 = static_cast<reg_t>(xct.base());
       pctx->R1 = static_cast<reg_t>(iArg0);
       pctx->R2 = static_cast<reg_t>(iArg1);
       *--sp = pctx->Lr;
       pctx->Lr = pctx->Pc;
-      pctx->Pc = reinterpret_cast<reg_t>(&throw_injected_exception);
+      pctx->Pc = reinterpret_cast<reg_t>(&throw_common_exception);
    #elif ABC_HOST_ARCH_I386
       typedef std::uint32_t reg_t;
       reg_t *& esp = reinterpret_cast<reg_t *&>(pctx->Esp);
-      /* Push the arguments to throw_injected_exception() onto the stack, push the address of the
-      current (failing) instruction, then set eip to the start of throw_injected_exception(). These
+      /* Push the arguments to throw_common_exception() onto the stack, push the address of the
+      current (failing) instruction, then set eip to the start of throw_common_exception(). These
       steps emulate a 3-argument subroutine call. */
       *--esp = static_cast<reg_t>(iArg1);
       *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(inj.base());
+      *--esp = static_cast<reg_t>(xct.base());
       *--esp = pctx->Eip;
-      pctx->Eip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      pctx->Eip = reinterpret_cast<reg_t>(&throw_common_exception);
    #elif ABC_HOST_ARCH_X86_64
       typedef std::uint64_t reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pctx->Rsp);
-      /* Load the arguments to throw_injected_exception() in rcx/rdx/r8, push the address of the
-      current (failing) instruction, then set rip to the start of throw_injected_exception(). These
+      /* Load the arguments to throw_common_exception() in rcx/rdx/r8, push the address of the
+      current (failing) instruction, then set rip to the start of throw_common_exception(). These
       steps emulate a 3-argument subroutine call. */
-      pctx->Rcx = static_cast<reg_t>(inj.base());
+      pctx->Rcx = static_cast<reg_t>(xct.base());
       pctx->Rdx = static_cast<reg_t>(iArg0);
       pctx->R8  = static_cast<reg_t>(iArg1);
       /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
@@ -282,7 +282,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       rsp -= 4;
       // Stack alignment to 16 bytes is done by the callee.
       *--rsp = pctx->Rip;
-      pctx->Rip = reinterpret_cast<reg_t>(&throw_injected_exception);
+      pctx->Rip = reinterpret_cast<reg_t>(&throw_common_exception);
    #else
       #error "TODO: HOST_ARCH"
    #endif
@@ -295,31 +295,31 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 #if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
    __stdcall
 #endif
-exception::throw_injected_exception(
-   injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
+exception::throw_common_exception(
+   common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
    source_location srcloc(ABC_SL("source_not_available"), 0);
    static char_t const sc_szInternal[] = ABC_SL("<internal>");
    static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
 
    ABC_UNUSED_ARG(iArg1);
-   switch (inj) {
-      case injectable::app_execution_interruption:
-      case injectable::app_exit_interruption:
-      case injectable::execution_interruption:
-      case injectable::user_forced_interruption:
+   switch (xct) {
+      case common_type::app_execution_interruption:
+      case common_type::app_exit_interruption:
+      case common_type::execution_interruption:
+      case common_type::user_forced_interruption:
          /* Check if the thread is already terminating, and avoid throwing an interruption exception
          if the thread is terminating anyway. This check is safe because m_bTerminating can only be
          written to by the current thread. */
          if (!this_thread::get_impl()->terminating()) {
-            switch (inj) {
-               case injectable::app_execution_interruption:
+            switch (xct) {
+               case common_type::app_execution_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
-               case injectable::app_exit_interruption:
+               case common_type::app_exit_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, app_exit_interruption, ());
-               case injectable::execution_interruption:
+               case common_type::execution_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
-               case injectable::user_forced_interruption:
+               case common_type::user_forced_interruption:
                   _ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
                default:
                   // Silence compiler warnings.
@@ -327,23 +327,23 @@ exception::throw_injected_exception(
             }
          }
          break;
-      case injectable::arithmetic_error:
+      case common_type::arithmetic_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, arithmetic_error, ());
-      case injectable::division_by_zero_error:
+      case common_type::division_by_zero_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, division_by_zero_error, ());
-      case injectable::floating_point_error:
+      case common_type::floating_point_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, floating_point_error, ());
-      case injectable::memory_access_error:
+      case common_type::memory_access_error:
          _ABC_THROW_FROM(
             srcloc, sc_szOS, memory_access_error, (reinterpret_cast<void const *>(iArg0))
          );
-      case injectable::memory_address_error:
+      case common_type::memory_address_error:
          _ABC_THROW_FROM(
             srcloc, sc_szOS, memory_address_error, (reinterpret_cast<void const *>(iArg0))
          );
-      case injectable::null_pointer_error:
+      case common_type::null_pointer_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, null_pointer_error, ());
-      case injectable::overflow_error:
+      case common_type::overflow_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, overflow_error, ());
       default:
          // Unexpected exception type. Should never happen.

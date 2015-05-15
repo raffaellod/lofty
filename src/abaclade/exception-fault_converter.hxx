@@ -61,8 +61,8 @@ private:
    static void * exception_handler_thread(void *);
 #elif ABC_HOST_API_POSIX
    /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the
-   stack frame of a call to throw_injected_exception(), and then returning, ending processing of the
-   signal. Execution will resume from throw_injected_exception(), which creates the appearance of a
+   stack frame of a call to throw_common_exception(), and then returning, ending processing of the
+   signal. Execution will resume from throw_common_exception(), which creates the appearance of a
    C++ exception being thrown at the location of the offending instruction, without calling any of
    the (many) functions that are forbidden in a signal handler.
 

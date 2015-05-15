@@ -373,8 +373,8 @@ public:
    Instantiated by abc::app. */
    class fault_converter;
 
-   //! Possible exception types injectable by inject_in_context().
-   ABC_ENUM_AUTO_VALUES(injectable,
+   //! List of common exception types, used by several static methods.
+   ABC_ENUM_AUTO_VALUES(common_type,
       none,
 
       app_execution_interruption,
@@ -424,7 +424,7 @@ public:
 
    /*! Injects the requested type of exception in the specified context.
 
-   @param inj
+   @param xct
       Type of exception to inject.
    @param iArg0
       First argument to the exception constructor, if applicable.
@@ -438,20 +438,20 @@ public:
       __stdcall
 #endif
    inject_in_context(
-      exception::injectable inj, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+      exception::common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
    );
 
    /*! Throws an exception of the specified type.
 
-   @param inj
+   @param xct
       Type of exception to be throw.
    @param iArg0
       Exception type-specific argument 0.
    @param iArg1
       Exception type-specific argument 1.
    */
-   static void throw_injected_exception(
-      exception::injectable::enum_type inj, std::intptr_t iArg0, std::intptr_t iArg1
+   static void throw_common_exception(
+      exception::common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
    );
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
