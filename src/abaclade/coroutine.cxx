@@ -213,7 +213,7 @@ void coroutine::interrupt() {
    occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
    trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap below
    would succeed, but the coroutine might terminate before find_coroutine_to_activate() got to
-   running it (and it would, eventually, since we call add_ready() for it), which would be bad. */
+   running it (and it would, eventually, since we call add_ready() for that), which would be bad. */
    auto xctExpected = exception::common_type::none;
    if (m_pimpl->m_xctPending.compare_exchange_strong(
       xctExpected, exception::common_type::execution_interruption
@@ -324,9 +324,9 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // TODO: handle iMillisecs == 0 as a timer-less yield.
 
 #if ABC_HOST_API_BSD
-   coroutine::impl * pcoroimplActive = sm_pcoroimplActive.get();
+   impl * pcoroimpl = sm_pcoroimplActive.get();
    struct ::kevent ke;
-   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroimplActive);
+   ke.ident = reinterpret_cast<std::uintptr_t>(pcoroimpl);
    // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
    ke.flags = EV_ADD | EV_ONESHOT;
    ke.filter = EVFILT_TIMER;
@@ -341,12 +341,10 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(
-      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive)).first
-   );
+   m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
+      switch_to_scheduler(pcoroimpl);
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       m_mapCorosBlockedByTimer.remove(ke.ident);
@@ -424,10 +422,12 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    #error "TODO: HOST_API"
 #endif
    // Deactivate the current coroutine and find one to activate instead.
-   auto itThisCoro(m_mapCorosBlockedByFD.add_or_assign(fd, std::move(sm_pcoroimplActive)).first);
+   impl * pcoroimpl = m_mapCorosBlockedByFD.add_or_assign(
+      fd, std::move(sm_pcoroimplActive)
+   ).first->value.get();
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itThisCoro->value.get());
+      switch_to_scheduler(pcoroimpl);
    } catch (...) {
 #if ABC_HOST_API_WIN32
       /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file,
