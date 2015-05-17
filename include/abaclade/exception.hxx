@@ -433,11 +433,9 @@ public:
    @param pvctx
       Pointer to an OS-specific context struct.
    */
-   static void
-#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
-      __stdcall
-#endif
-   inject_in_context(common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx);
+   static void inject_in_context(
+      common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+   );
 
    /*! Throws an exception of the specified type.
 
@@ -448,9 +446,11 @@ public:
    @param iArg1
       Exception type-specific argument 1.
    */
-   static void throw_common_type(
-      common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
-   );
+   static void
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
+      __stdcall
+#endif
+   throw_common_type(common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
