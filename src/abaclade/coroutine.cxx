@@ -628,30 +628,10 @@ void coroutine::scheduler::run() {
 #endif
       );
    } catch (std::exception const & x) {
-      exception::common_type xct;
-      /* Determine the type of exception. The order of these dynamic_casts matters, since some
-      are subclasses of others. */
-      if (dynamic_cast<app_execution_interruption const *>(&x)) {
-         xct = exception::common_type::app_execution_interruption;
-      } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
-         xct = exception::common_type::app_exit_interruption;
-      } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
-         xct = exception::common_type::user_forced_interruption;
-      } else if (dynamic_cast<execution_interruption const *>(&x)) {
-         xct = exception::common_type::execution_interruption;
-      } else {
-         // The exception is not an execution_interruption subclass.
-         /* TODO: use a more specific exception subclass of execution_interruption, such as
-         “other_coroutine_execution_interrupted”. */
-         xct = exception::common_type::execution_interruption;
-      }
-      interrupt_all(xct);
+      interrupt_all(exception::execution_interruption_to_common_type(&x));
       throw;
    } catch (...) {
-      // The exception is not an execution_interruption subclass.
-      /* TODO: use a more specific exception subclass of execution_interruption, such as
-      “other_coroutine_execution_interrupted”. */
-      interrupt_all(exception::common_type::execution_interruption);
+      interrupt_all(exception::execution_interruption_to_common_type());
       throw;
    }
    // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
@@ -690,28 +670,10 @@ void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastAc
       pimplThis->m_fnInnerMain();
    } catch (std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
-      /* Determine the type of exception. The order of these dynamic_casts matters, since some
-      are subclasses of others. */
-      if (dynamic_cast<app_execution_interruption const *>(&x)) {
-         xct = exception::common_type::app_execution_interruption;
-      } else if (dynamic_cast<app_exit_interruption const *>(&x)) {
-         xct = exception::common_type::app_exit_interruption;
-      } else if (dynamic_cast<user_forced_interruption const *>(&x)) {
-         xct = exception::common_type::user_forced_interruption;
-      } else if (dynamic_cast<execution_interruption const *>(&x)) {
-         xct = exception::common_type::execution_interruption;
-      } else {
-         // The exception is not an execution_interruption subclass.
-         /* TODO: use a more specific exception subclass of execution_interruption, such as
-         “other_coroutine_execution_interrupted”. */
-         xct = exception::common_type::execution_interruption;
-      }
+      xct = exception::execution_interruption_to_common_type(&x);
    } catch (...) {
       exception::write_with_scope_trace();
-      // The exception is not an execution_interruption subclass.
-      /* TODO: use a more specific exception subclass of execution_interruption, such as
-      “other_coroutine_execution_interrupted”. */
-      xct = exception::common_type::execution_interruption;
+      xct = exception::execution_interruption_to_common_type();
    }
    this_thread::coroutine_scheduler()->return_to_scheduler(xct);
 }
