@@ -462,6 +462,15 @@ public:
    static ABC_FUNC_NORETURN void throw_os_error(errint_t err);
 #endif
 
+   /*! Returns the common_type value that best matches the type of the specified exception, which
+   may or may not be an execution_interruption instance.
+
+   @return
+      Exception type. May be nullptr to indicate that the caught exception is not an std::exception
+      instance.
+   */
+   static common_type execution_interruption_to_common_type(std::exception const * px = nullptr);
+
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
    to override it; only abc::detail::exception_aggregator will define this as a virtual, to override
    std::exception::what() with this implementation.

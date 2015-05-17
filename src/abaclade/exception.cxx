@@ -349,6 +349,26 @@ exception::throw_common_type(common_type::enum_type xct, std::intptr_t iArg0, st
    }
 }
 
+/*static*/ exception::common_type exception::execution_interruption_to_common_type(
+   std::exception const * px /*= nullptr */
+) {
+   if (px) {
+      // The order of the dynamic_casts matters, since some are subclasses of others.
+      if (dynamic_cast<app_execution_interruption const *>(px)) {
+         return common_type::app_execution_interruption;
+      } else if (dynamic_cast<app_exit_interruption const *>(px)) {
+         return common_type::app_exit_interruption;
+      } else if (dynamic_cast<user_forced_interruption const *>(px)) {
+         return common_type::user_forced_interruption;
+      } else if (dynamic_cast<execution_interruption const *>(px)) {
+         return common_type::execution_interruption;
+      }
+   }
+   // Not an execution_interruption subclass, or not even an std::exception (nullptr was passed).
+   // TODO: use a more specific common_type, such as other_coroutine/thread_execution_interrupted.
+   return common_type::execution_interruption;
+}
+
 char const * exception::what() const {
    return m_pszWhat;
 }
