@@ -149,12 +149,12 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 /*static*/ void exception::inject_in_context(
    common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
+   // All the code paths below emulate a 3-argument subroutine call to throw_common_type().
 #if ABC_HOST_API_MACH
    #if ABC_HOST_ARCH_X86_64
       ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pvctx);
-      /* Load the arguments to throw_common_type() in rdi/rsi/rdx, push the address of the current
-      (failing) instruction, then set rip to the start of throw_common_type(). These steps emulate a
-      3-argument subroutine call. */
+      /* Load the arguments into rdi/rsi/rdx, push the address of the current instruction, then set
+      rip to the start of throw_common_type(). */
       typedef decltype(pthrst->__rsp) reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pthrst->__rsp);
       pthrst->__rdi = static_cast<reg_t>(xct.base());
@@ -180,9 +180,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Load the arguments to throw_common_type() in r0-2, push lr and replace it with the address
-      of the current (failing) instruction, then set pc to the start of throw_common_type(). These
-      steps emulate a 3-argument subroutine call. */
+      /* Load the arguments into r0-2, push lr and replace it with the address of the current
+      instruction, then set pc to the start of throw_common_type(). */
       r0 = static_cast<reg_t>(xct.base());
       r1 = static_cast<reg_t>(iArg0);
       r2 = static_cast<reg_t>(iArg1);
@@ -203,9 +202,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Push the arguments to throw_common_type() onto the stack, push the address of the current
-      (failing) instruction, then set eip to the start of throw_common_type(). These steps emulate a
-      3-argument subroutine call. */
+      /* Push the arguments onto the stack, push the address of the current instruction, then set
+      eip to the start of throw_common_type(). */
       *--esp = static_cast<reg_t>(iArg1);
       *--esp = static_cast<reg_t>(iArg0);
       *--esp = static_cast<reg_t>(xct.base());
@@ -231,9 +229,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       #else
          #error "TODO: HOST_API"
       #endif
-      /* Load the arguments to throw_common_type() in rdi/rsi/rdx, push the address of the current
-      (failing) instruction, then set rip to the start of throw_common_type(). These steps emulate a
-      3-argument subroutine call. */
+      /* Load the arguments into rdi/rsi/rdx, push the address of the current instruction, then set
+      rip to the start of throw_common_type(). */
       rdi = static_cast<reg_t>(xct.base());
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
@@ -248,9 +245,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #if ABC_HOST_ARCH_ARM
       typedef std::uint32_t reg_t;
       reg_t *& sp = reinterpret_cast<reg_t *&>(pctx->Sp);
-      /* Load the arguments to throw_common_type() in r0-2, push lr and replace it with the address
-      of the current (failing) instruction, then set pc to the start of throw_common_type(). These
-      steps emulate a 3-argument subroutine call. */
+      /* Load the arguments into r0-2, push lr and replace it with the address of the current
+      instruction, then set pc to the start of throw_common_type(). */
       pctx->R0 = static_cast<reg_t>(xct.base());
       pctx->R1 = static_cast<reg_t>(iArg0);
       pctx->R2 = static_cast<reg_t>(iArg1);
@@ -260,9 +256,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #elif ABC_HOST_ARCH_I386
       typedef std::uint32_t reg_t;
       reg_t *& esp = reinterpret_cast<reg_t *&>(pctx->Esp);
-      /* Push the arguments to throw_common_type() onto the stack, push the address of the current
-      (failing) instruction, then set eip to the start of throw_common_type(). These steps emulate a
-      3-argument subroutine call. */
+      /* Push the arguments onto the stack, push the address of the current instruction, then set
+      eip to the start of throw_common_type(). */
       *--esp = static_cast<reg_t>(iArg1);
       *--esp = static_cast<reg_t>(iArg0);
       *--esp = static_cast<reg_t>(xct.base());
@@ -271,9 +266,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #elif ABC_HOST_ARCH_X86_64
       typedef std::uint64_t reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pctx->Rsp);
-      /* Load the arguments to throw_common_type() in rcx/rdx/r8, push the address of the current
-      (failing) instruction, then set rip to the start of throw_common_type(). These steps emulate a
-      3-argument subroutine call. */
+      /* Load the arguments into rcx/rdx/r8, push the address of the current instruction, then set
+      rip to the start of throw_common_type(). */
       pctx->Rcx = static_cast<reg_t>(xct.base());
       pctx->Rdx = static_cast<reg_t>(iArg0);
       pctx->R8  = static_cast<reg_t>(iArg1);
