@@ -437,9 +437,7 @@ public:
 #if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
       __stdcall
 #endif
-   inject_in_context(
-      exception::common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
-   );
+   inject_in_context(common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx);
 
    /*! Throws an exception of the specified type.
 
@@ -451,7 +449,7 @@ public:
       Exception type-specific argument 1.
    */
    static void throw_common_type(
-      exception::common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
+      common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
    );
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32

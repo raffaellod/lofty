@@ -147,7 +147,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 }
 
 /*static*/ void exception::inject_in_context(
-   exception::common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+   common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
 #if ABC_HOST_API_MACH
    #if ABC_HOST_ARCH_X86_64
