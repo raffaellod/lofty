@@ -47,11 +47,11 @@ namespace abc {
 
 class coroutine::scheduler : public noncopyable {
 private:
-   friend coroutine::id_type this_coroutine::id();
-   friend std::shared_ptr<coroutine::scheduler> const & this_thread::attach_coroutine_scheduler(
-      std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
+   friend id_type this_coroutine::id();
+   friend std::shared_ptr<scheduler> const & this_thread::attach_coroutine_scheduler(
+      std::shared_ptr<scheduler> pcorosched /*= nullptr*/
    );
-   friend std::shared_ptr<coroutine::scheduler> const & this_thread::coroutine_scheduler();
+   friend std::shared_ptr<scheduler> const & this_thread::coroutine_scheduler();
    friend void this_thread::detach_coroutine_scheduler();
 
 public:
@@ -67,7 +67,7 @@ public:
    @param pcoroimpl
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   void add_ready(std::shared_ptr<coroutine::impl> pcoroimpl);
+   void add_ready(std::shared_ptr<impl> pcoroimpl);
 
    /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
    at least iMillisecs milliseconds have passed.
@@ -106,7 +106,7 @@ private:
    @return
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   std::shared_ptr<coroutine::impl> find_coroutine_to_activate();
+   std::shared_ptr<impl> find_coroutine_to_activate();
 
    //! Repeatedly finds and runs coroutines that are ready to execute.
    void coroutine_scheduling_loop(
@@ -133,7 +133,7 @@ private:
    @param pcoroimplLastActive
       Pointer to the coroutine (implementation) that is being inactivated.
    */
-   void switch_to_scheduler(coroutine::impl * pcoroimplLastActive);
+   void switch_to_scheduler(impl * pcoroimplLastActive);
 
 private:
 #if ABC_HOST_API_BSD
@@ -142,7 +142,7 @@ private:
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this
    can’t be changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to
    the coroutine implementation while allowing lookups without having a shared_ptr. */
-   collections::map<std::uintptr_t, std::shared_ptr<coroutine::impl>> m_mapCorosBlockedByTimer;
+   collections::map<std::uintptr_t, std::shared_ptr<impl>> m_mapCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
@@ -156,17 +156,17 @@ private:
    #error "TODO: HOST_API"
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::map<io::filedesc_t, std::shared_ptr<coroutine::impl>> m_mapCorosBlockedByFD;
+   collections::map<io::filedesc_t, std::shared_ptr<impl>> m_mapCorosBlockedByFD;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
-   collections::list<std::shared_ptr<coroutine::impl>> m_listReadyCoros;
+   collections::list<std::shared_ptr<impl>> m_listReadyCoros;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of
    these events happens, every thread running the scheduler will start interrupting coroutines with
    this type of exception. */
    std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<std::shared_ptr<coroutine::impl>> sm_pcoroimplActive;
+   static thread_local_value<std::shared_ptr<impl>> sm_pcoroimplActive;
    //! Pointer to the coroutine scheduler for the current thread.
    static thread_local_value<std::shared_ptr<scheduler>> sm_pcorosched;
 #if ABC_HOST_API_POSIX

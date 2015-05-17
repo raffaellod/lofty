@@ -193,7 +193,7 @@ namespace abc {
 coroutine::coroutine() {
 }
 /*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
-   m_pimpl(std::make_shared<coroutine::impl>(std::move(fnMain))) {
+   m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
    this_thread::attach_coroutine_scheduler()->add_ready(m_pimpl);
 }
 
@@ -312,7 +312,7 @@ coroutine::scheduler::~scheduler() {
    // TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD are empty.
 }
 
-void coroutine::scheduler::add_ready(std::shared_ptr<coroutine::impl> pcoroimpl) {
+void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
    m_listReadyCoros.push_back(std::move(pcoroimpl));
@@ -446,7 +446,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(
    ::ucontext_t * puctxReturn
 #endif
 ) {
-   std::shared_ptr<coroutine::impl> & pcoroimplActive = sm_pcoroimplActive;
+   std::shared_ptr<impl> & pcoroimplActive = sm_pcoroimplActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
    while ((pcoroimplActive = find_coroutine_to_activate())) {
@@ -637,7 +637,7 @@ void coroutine::scheduler::run() {
    // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
 }
 
-void coroutine::scheduler::switch_to_scheduler(coroutine::impl * pcoroimplLastActive) {
+void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic push
