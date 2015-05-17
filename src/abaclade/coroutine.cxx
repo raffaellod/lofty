@@ -136,7 +136,7 @@ public:
       auto xct = m_xctPending.load();
       if (xct != exception::common_type::none) {
          m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
-         exception::throw_common_exception(xct, 0, 0);
+         exception::throw_common_type(xct, 0, 0);
       }
    }
 

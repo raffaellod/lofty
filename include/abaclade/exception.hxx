@@ -450,7 +450,7 @@ public:
    @param iArg1
       Exception type-specific argument 1.
    */
-   static void throw_common_exception(
+   static void throw_common_type(
       exception::common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
    );
 

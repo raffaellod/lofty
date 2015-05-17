@@ -52,7 +52,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    /*! Called by exc_server() when the latter is passed an exception message, giving the process a
    way to do something about it. What we do is change the next instruction in the faulting thread to
-   throw_common_exception().
+   throw_common_type().
 
    @param mpExceptions
       ?
@@ -171,7 +171,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
 
       /* Change the address at which mpThread is executing: manipulate the thread state to emulate a
-      function call to throw_common_exception(). */
+      function call to throw_common_type(). */
 
       // Obtain the faulting thread’s state.
       arch_thread_state_t thrst;
@@ -183,7 +183,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return KERN_FAILURE;
       }
 
-      // Manipulate the thread state to emulate a call to throw_common_exception().
+      // Manipulate the thread state to emulate a call to throw_common_type().
       abc::exception::inject_in_context(xct, iArg0, iArg1, &thrst);
 
       // Update the faulting thread’s state.
@@ -407,9 +407,9 @@ You should have received a copy of the GNU General Public License along with Aba
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
             );
             if (pAddr == nullptr) {
-               throw_common_exception(common_type::null_pointer_error, 0, 0);
+               throw_common_type(common_type::null_pointer_error, 0, 0);
             } else {
-               throw_common_exception(
+               throw_common_type(
                   common_type::memory_address_error, reinterpret_cast<std::intptr_t>(pAddr), 0
                );
             }
@@ -422,7 +422,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            throw_common_exception(
+            throw_common_type(
                common_type::memory_access_error, reinterpret_cast<std::intptr_t>(nullptr), 0
             );
 
@@ -450,7 +450,7 @@ You should have received a copy of the GNU General Public License along with Aba
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            throw_common_exception(common_type::floating_point_error, 0, 0);
+            throw_common_type(common_type::floating_point_error, 0, 0);
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -464,12 +464,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            throw_common_exception(common_type::division_by_zero_error, 0, 0);
+            throw_common_type(common_type::division_by_zero_error, 0, 0);
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            throw_common_exception(common_type::overflow_error, 0, 0);
+            throw_common_type(common_type::overflow_error, 0, 0);
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current
