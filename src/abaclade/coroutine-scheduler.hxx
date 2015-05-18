@@ -32,6 +32,9 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/map.hxx>
 #include <abaclade/thread.hxx>
 
+#include <atomic>
+#include <mutex>
+
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN
       #define _XOPEN_SOURCE
@@ -160,6 +163,8 @@ private:
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
    collections::list<std::shared_ptr<impl>> m_listReadyCoros;
+   //! Governs access to m_listReadyCoros, m_mapCorosBlockedByFD and other “blocked by” maps/sets.
+   std::mutex m_mtxCorosAddRemove;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of
    these events happens, every thread running the scheduler will start interrupting coroutines with

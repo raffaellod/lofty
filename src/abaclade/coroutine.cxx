@@ -309,12 +309,14 @@ coroutine::scheduler::scheduler() :
 }
 
 coroutine::scheduler::~scheduler() {
-   // TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD are empty.
+   /* TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD (and m_mapCorosBlockedByTimer…)
+   are empty. */
 }
 
 void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
+   std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
    m_listReadyCoros.push_back(std::move(pcoroimpl));
 }
 
@@ -341,13 +343,19 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       exception::throw_os_error();
    }
    // Deactivate the current coroutine and find one to activate instead.
-   m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
+   {
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
+   }
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
       switch_to_scheduler(pcoroimpl);
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
-      m_mapCorosBlockedByTimer.remove(ke.ident);
+      {
+         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+         m_mapCorosBlockedByTimer.remove(ke.ident);
+      }
       ke.flags = EV_DELETE;
       ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
       throw;
@@ -422,9 +430,13 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    #error "TODO: HOST_API"
 #endif
    // Deactivate the current coroutine and find one to activate instead.
-   impl * pcoroimpl = m_mapCorosBlockedByFD.add_or_assign(
-      fd, std::move(sm_pcoroimplActive)
-   ).first->value.get();
+   impl * pcoroimpl;
+   {
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      pcoroimpl = m_mapCorosBlockedByFD.add_or_assign(
+         fd, std::move(sm_pcoroimplActive)
+      ).first->value.get();
+   }
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
       switch_to_scheduler(pcoroimpl);
@@ -435,6 +447,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       ::CancelIo(fd, nullptr);
 #endif
       // Remove the coroutine from the map of blocked ones.
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       m_mapCorosBlockedByFD.remove(fd);
       throw;
    }
@@ -504,64 +517,72 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
    b) We could have a single event source for each scheduler with the semantics of “event sources
       changed”, in edge-triggered mode so it wakes all waiting threads once, at once. */
    for (;;) {
-      if (m_listReadyCoros) {
-         // There are coroutines that are ready to run; remove and return the first.
-         return m_listReadyCoros.pop_front();
-      } else if (
-         m_mapCorosBlockedByFD
+      {
+         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+         if (m_listReadyCoros) {
+            // There are coroutines that are ready to run; remove and return the first.
+            return m_listReadyCoros.pop_front();
+         } else if (
+            !m_mapCorosBlockedByFD
 #if ABC_HOST_API_BSD
-         || m_mapCorosBlockedByTimer
+            && !m_mapCorosBlockedByTimer
 #endif
-      ) {
-         // There are blocked coroutines; wait for the first one to become ready again.
+         ) {
+            return nullptr;
+         }
+      }
+      /* TODO: FIXME: m_mtxCorosAddRemove does not protect against race conditions for the “any
+      coroutines left?” case. */
+
+      // There are blocked coroutines; wait for the first one to become ready again.
 #if ABC_HOST_API_BSD
-         struct ::kevent ke;
-         if (::kevent(m_fdKqueue.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
-            int iErr = errno;
-            if (iErr == EINTR) {
-               continue;
-            }
-            exception::throw_os_error(iErr);
+      struct ::kevent ke;
+      if (::kevent(m_fdKqueue.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
+         int iErr = errno;
+         if (iErr == EINTR) {
+            continue;
          }
-         // TODO: understand how EV_ERROR works.
-         /*if (ke.flags & EV_ERROR) {
-            exception::throw_os_error(ke.data);
-         }*/
-         if (ke.filter == EVFILT_TIMER) {
-            // Remove and return the coroutine that was waiting for this timer.
-            return m_mapCorosBlockedByTimer.extract(ke.ident);
-         } else {
-            // Remove and return the coroutine that was waiting for this file descriptor.
-            return m_mapCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
-         }
-#elif ABC_HOST_API_LINUX
-         ::epoll_event ee;
-         if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
-            int iErr = errno;
-            if (iErr == EINTR) {
-               continue;
-            }
-            exception::throw_os_error(iErr);
-         }
+         exception::throw_os_error(iErr);
+      }
+      // TODO: understand how EV_ERROR works.
+      /*if (ke.flags & EV_ERROR) {
+         exception::throw_os_error(ke.data);
+      }*/
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      if (ke.filter == EVFILT_TIMER) {
+         // Remove and return the coroutine that was waiting for this timer.
+         return m_mapCorosBlockedByTimer.extract(ke.ident);
+      } else {
          // Remove and return the coroutine that was waiting for this file descriptor.
-         return m_mapCorosBlockedByFD.extract(ee.data.fd);
-#elif ABC_HOST_API_WIN32
-         ::DWORD cbTransferred;
-         ::ULONG_PTR iCompletionKey;
-         ::OVERLAPPED * povl;
-         if (!::GetQueuedCompletionStatus(
-            m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
-         )) {
-            exception::throw_os_error(iErr);
+         return m_mapCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
+      }
+#elif ABC_HOST_API_LINUX
+      ::epoll_event ee;
+      if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
+         int iErr = errno;
+         if (iErr == EINTR) {
+            continue;
          }
-         // Remove and return the coroutine that was waiting for this handle.
-         return m_mapCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
+         exception::throw_os_error(iErr);
+      }
+      // Remove and return the coroutine that was waiting for this file descriptor.
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      return m_mapCorosBlockedByFD.extract(ee.data.fd);
+#elif ABC_HOST_API_WIN32
+      ::DWORD cbTransferred;
+      ::ULONG_PTR iCompletionKey;
+      ::OVERLAPPED * povl;
+      if (!::GetQueuedCompletionStatus(
+         m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
+      )) {
+         exception::throw_os_error(iErr);
+      }
+      // Remove and return the coroutine that was waiting for this handle.
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      return m_mapCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
 #else
    #error "TODO: HOST_API"
 #endif
-      } else {
-         return nullptr;
-      }
    }
 }
 
