@@ -111,12 +111,13 @@ private:
    */
    std::shared_ptr<impl> find_coroutine_to_activate();
 
-   //! Repeatedly finds and runs coroutines that are ready to execute.
-   void coroutine_scheduling_loop(
-#if ABC_HOST_API_POSIX
-      ::ucontext_t * puctxReturn
-#endif
-   );
+   /*! Repeatedly finds and runs coroutines that are ready to execute.
+
+   @param bInterruptingAll
+      If true, the loop won’t check for changes to m_xctInterruptionReason, assuming that it was
+      already != none when the method was called.
+   */
+   void coroutine_scheduling_loop(bool bInterruptingAll = true);
 
    //! Interrupts with m_xctInterruptionReason any coroutines associated to the scheduler.
    void interrupt_all();

@@ -117,6 +117,33 @@ public:
    }
 #endif
 
+   /*! Injects the requested type of exception in the thread.
+
+   @param pimplThis
+      Shared pointer to *this.
+   @param xct
+      Type of exception to inject.
+   */
+   void inject_exception(std::shared_ptr<impl> const & pimplThis, exception::common_type xct) {
+      ABC_TRACE_FUNC(this);
+
+      /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
+      none).
+      This is not meant to prevent multiple concurrent interruptions, with a second interruption
+      occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
+      trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap
+      below would succeed, but the coroutine might terminate before find_coroutine_to_activate() got
+      to running it (and it would, eventually, since we call add_ready() for that), which would be
+      bad. */
+      auto xctExpected = exception::common_type::none;
+      if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
+         /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
+         for it to be unblocked. */
+         // TODO: sanity check to avoid scheduling a coroutine twice!
+         this_thread::coroutine_scheduler()->add_ready(pimplThis);
+      }
+   }
+
    /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
 
    @return
@@ -207,22 +234,7 @@ coroutine::id_type coroutine::id() const {
 void coroutine::interrupt() {
    ABC_TRACE_FUNC(this);
 
-   /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
-   none).
-   This is not meant to prevent multiple concurrent interruptions, with a second interruption
-   occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
-   trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap below
-   would succeed, but the coroutine might terminate before find_coroutine_to_activate() got to
-   running it (and it would, eventually, since we call add_ready() for that), which would be bad. */
-   auto xctExpected = exception::common_type::none;
-   if (m_pimpl->m_xctPending.compare_exchange_strong(
-      xctExpected, exception::common_type::execution_interruption
-   )) {
-      /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
-      for it to be unblocked. */
-      // TODO: sanity check to avoid scheduling a coroutine twice!
-      this_thread::coroutine_scheduler()->add_ready(m_pimpl);
-   }
+   m_pimpl->inject_exception(m_pimpl, exception::common_type::execution_interruption);
 }
 
 } //namespace abc
@@ -454,14 +466,13 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    // Under Linux, deferred1 will remove the now-inactive event for fd.
 }
 
-void coroutine::scheduler::coroutine_scheduling_loop(
-#if ABC_HOST_API_POSIX
-   ::ucontext_t * puctxReturn
-#endif
-) {
+void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= false*/) {
    std::shared_ptr<impl> & pcoroimplActive = sm_pcoroimplActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
+#if ABC_HOST_API_POSIX
+   ::ucontext_t * puctxReturn = sm_puctxReturn.get();
+#endif
    while ((pcoroimplActive = find_coroutine_to_activate())) {
       // Swap the coroutine_local_storage pointer for this thread with that of the active coroutine.
       *ppcrlsCurrent = pcoroimplActive->local_storage_ptr();
@@ -499,7 +510,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(
    #endif
       /* If a coroutine (in this or anothre thread) leaked an uncaught exception, terminate all
       coroutines and eventually this very thread. */
-      if (m_xctInterruptionReason.load() != exception::common_type::none) {
+      if (!bInterruptingAll && m_xctInterruptionReason.load() != exception::common_type::none) {
          interrupt_all();
          break;
       }
@@ -587,7 +598,30 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
 }
 
 void coroutine::scheduler::interrupt_all() {
-   // TODO: interrupt all coroutines using m_xctPending, using coroutine_scheduling_loop().
+   // Interrupt all coroutines using m_xctPending.
+   auto xctInterruptionReason = m_xctInterruptionReason.load();
+   {
+      /* TODO: using a different locking pattern, this work could be split across multiple threads,
+      in case multiple are associated to this scheduler. */
+      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      ABC_FOR_EACH(auto kv, m_mapCorosBlockedByFD) {
+         kv.value->inject_exception(kv.value, xctInterruptionReason);
+      }
+#if ABC_HOST_API_BSD
+      ABC_FOR_EACH(auto kv, m_mapCorosBlockedByTimer) {
+         kv.value->inject_exception(kv.value, xctInterruptionReason);
+      }
+#endif
+      /* TODO: coroutines currently running on other threads associated to this scheduler won’t have
+      been interrupted by the above loops; they need to be stopped by interrupting the threads that
+      are running them. */
+   }
+   /* Run all coroutines. Since they’ve all just been added to m_listReadyCoros, they’ll all run and
+   handle the interruption request, leaving the epoll/kqueue/IOCP empty, so the latter won’t be
+   checked at all. */
+   /* TODO: document that scheduling a new coroutine at this point should be avoided because it
+   breaks the interruption guarantee. Maybe actively prevent new coroutines from being scheduled? */
+   coroutine_scheduling_loop(true);
 }
 
 void coroutine::scheduler::interrupt_all(exception::common_type xctReason) {
@@ -643,11 +677,7 @@ void coroutine::scheduler::run() {
    #error "TODO: HOST_API"
 #endif
    try {
-      coroutine_scheduling_loop(
-#if ABC_HOST_API_POSIX
-         &uctxReturn
-#endif
-      );
+      coroutine_scheduling_loop();
    } catch (std::exception const & x) {
       interrupt_all(exception::execution_interruption_to_common_type(&x));
       throw;

@@ -438,8 +438,8 @@ void thread::tracker::main_thread_terminated(exception::common_type xct) {
 
    std::unique_lock<std::mutex> lock(m_mtxThreads);
    // Signal every other thread to terminate.
-   ABC_FOR_EACH(auto pair, m_mappimplThreads) {
-      pair.value->inject_exception(xct);
+   ABC_FOR_EACH(auto kv, m_mappimplThreads) {
+      kv.value->inject_exception(xct);
    }
    /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
    have themselves removed from m_mappimplThreads. We can’t join() them here, since they might be
