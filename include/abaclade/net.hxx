@@ -236,7 +236,7 @@ private:
    //! Server socket bound to the TCP port.
    io::filedesc m_fdSocket;
    //! IP version; 4 = IPv4, 6 = IPv6.
-   std::uint8_t m_iTcpVersion;
+   std::uint8_t m_iIPVersion;
 };
 
 } //namespace net

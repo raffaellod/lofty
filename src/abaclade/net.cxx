@@ -44,7 +44,6 @@ static detail::raw_ip_address const gc_abAny6 = {
 };
 
 ip_address const & ip_address::any_ipv4 = static_cast<ip_address const &>(gc_abAny4);
-
 ip_address const & ip_address::any_ipv6 = static_cast<ip_address const &>(gc_abAny6);
 
 } //namespace net
@@ -78,10 +77,10 @@ tcp_server::tcp_server(
    ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/
 ) :
    m_fdSocket(create_socket()),
-   m_iTcpVersion(ipaddr.version()) {
+   m_iIPVersion(ipaddr.version()) {
    ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
 
-   switch (m_iTcpVersion) {
+   switch (m_iIPVersion) {
       case 4: {
 #if ABC_HOST_API_POSIX
          ::sockaddr_in saServer;
