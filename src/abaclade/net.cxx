@@ -73,10 +73,8 @@ connection::~connection() {
 namespace abc {
 namespace net {
 
-tcp_server::tcp_server(
-   ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/
-) :
-   m_fdSocket(create_socket(m_iIPVersion)),
+tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/) :
+   m_fdSocket(create_socket(ipaddr.version())),
    m_iIPVersion(ipaddr.version()) {
    ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
 
