@@ -452,7 +452,8 @@ dmstr::const_iterator path::base_name_start() const {
                *pch = chVolume;
             } else if (chVolume < 'A' || chVolume > 'Z') {
                // Avoid keeping a path that can’t be valid.
-               // TODO: use a better exception class, or maybe just explcitly pass the invalid path.
+               /* TODO: use a better exception class, or maybe just explicitly pass the invalid
+               path. */
                exception::throw_os_error(ERROR_INVALID_DRIVE);
             }
             if (cch >= 3 /*“X:\”*/ && *(pch + 2) == '\\') {
