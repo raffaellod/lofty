@@ -45,8 +45,9 @@ public:
       coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
+         static net::port_t const sc_port = 9080;
          io::text::stdout->print(ABC_SL("server: starting\n"));
-         net::tcp_server server(ABC_SL("*"), 9082);
+         net::tcp_server server(net::ip_address::any_ipv4, sc_port);
          for (;;) {
             io::text::stdout->print(ABC_SL("server: accepting\n"));
             auto pconn(server.accept());

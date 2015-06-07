@@ -29,30 +29,144 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::net::port
+
+namespace abc {
+namespace net {
+
+//! Type of a network port.
+typedef std::uint16_t port_t;
+
+} //namespace net
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::net::detail::raw_ip_address
+
+namespace abc {
+namespace net {
+namespace detail {
+
+//! Contains an IPv4 or IPv6 address.
+struct raw_ip_address {
+   //! Raw bytes of an IP address.
+   std::uint8_t m_abAddress[16];
+   //! IP version contained in *this; 4 = IPv4, 6 = IPv6.
+   std::uint8_t m_iVersion;
+};
+
+} //namespace detail
+} //namespace net
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::net::ip_address
+
+namespace abc {
+namespace net {
+
+//! IP address.
+class ABACLADE_SYM ip_address : public detail::raw_ip_address {
+public:
+   //! Used to indicate “any IPv4 address”, e.g. when binding to a port.
+   static ip_address const & any_ipv4;
+   //! Used to indicate “any IPv6 address”, e.g. when binding to a port.
+   static ip_address const & any_ipv6;
+   //! Type of an IPv4 address.
+   typedef std::uint32_t ipv4_type;
+   //! Type of an IPv6 address.
+   typedef std::uint8_t ipv6_type[16];
+   //! Maximum length of the string representation of an IPv4 address.
+   static std::size_t const ipv4_str_size = 15 /*“255.255.255.255”*/;
+   //! Maximum length of the string representation of an IPv6 address.
+   static std::size_t const ipv6_str_size = 45 /*“0000:0000:0000:0000:0000:0000:255.255.255.255”*/;
+
+public:
+   /*! Constructor.
+
+   @param iAddress
+      Source address, in host endianness.
+   @param abAddress
+      Array of bytes to be used as the address, in host endianness.
+   @param addr
+      Source object.
+   */
+   ip_address() {
+      memory::clear(m_abAddress);
+      m_iVersion = 0;
+   }
+   explicit ip_address(std::uint32_t iAddress) {
+      memory::copy(
+         m_abAddress,
+         reinterpret_cast<std::uint8_t const *>(&iAddress),
+         sizeof m_abAddress / sizeof iAddress
+      );
+      m_iVersion = 4;
+   }
+   explicit ip_address(std::uint8_t const (& abAddress)[4]) {
+      static_assert(sizeof abAddress == 4, "sizeof != 4");
+      memory::copy<std::uint8_t>(m_abAddress, abAddress, sizeof abAddress);
+      m_iVersion = 4;
+   }
+   explicit ip_address(std::uint8_t const (& abAddress)[16]) {
+      static_assert(sizeof abAddress == 16, "sizeof != 16");
+      memory::copy<std::uint8_t>(m_abAddress, abAddress, sizeof abAddress);
+      m_iVersion = 6;
+   }
+   ip_address(ip_address const & addr) :
+      detail::raw_ip_address(addr) {
+   }
+
+   /*! Returns a pointer to the raw address storage.
+
+   @return
+      Pointer to an array of bytes containing the address.
+   */
+   std::uint8_t const * raw() const {
+      return m_abAddress;
+   }
+
+   /*! Returns the IP version for the address.
+
+   @return
+      IP version.
+   */
+   std::uint8_t version() const {
+      return m_iVersion;
+   }
+};
+
+} //namespace net
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::net::connection
 
 namespace abc {
 namespace net {
 
-/*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
-required for the current thread to run coroutines.
-*/
+//! Initialized TCP connection.
 class ABACLADE_SYM connection : public noncopyable {
 public:
    /*! Constructor.
 
    @param fd
       Connected socket.
-   @param sAddress
-      Client address.
+   @param ipaddrRemote
+      Address of the remote peer.
    */
-   connection(io::filedesc fd, smstr<45> && sAddress);
+   connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portRemote);
 
    //! Destructor.
    ~connection();
 
-   istr const & address() const {
-      return m_sAddress;
+   /*! Returns the address of the remote peer.
+
+   @return
+      IP address.
+   */
+   ip_address const & address() const {
+      return m_ipaddrRemote;
    }
 
    /*! Returns a binary reader/writer object representing the socket, to receive data from the
@@ -69,7 +183,9 @@ private:
    //! Reader/writer for the connection’s socket.
    std::shared_ptr<io::binary::file_readwriter> m_bfrw;
    //! Address of the remote peer.
-   smstr<45> m_sAddress;
+   ip_address m_ipaddrRemote;
+   //! Port of the remote peer.
+   port_t m_portRemote;
 };
 
 } //namespace net
@@ -88,15 +204,15 @@ class ABACLADE_SYM tcp_server : public noncopyable {
 public:
    /*! Constructor.
 
-   @param sAddress
+   @param ipaddr
       Address to bind to.
-   @param iPort
+   @param port
       Port to listen for connections on.
    @param cBacklog
       Count of established connections that will be allowed to queue until the server is able to
       accept them.
    */
-   tcp_server(istr const & sAddress, std::uint16_t iPort, unsigned cBacklog = 5);
+   tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog = 5);
 
    //! Destructor.
    ~tcp_server();
@@ -117,7 +233,10 @@ private:
    static io::filedesc create_socket();
 
 private:
+   //! Server socket bound to the TCP port.
    io::filedesc m_fdSocket;
+   //! IP version; 4 = IPv4, 6 = IPv6.
+   std::uint8_t m_iTcpVersion;
 };
 
 } //namespace net

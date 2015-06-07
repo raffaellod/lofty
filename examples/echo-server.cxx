@@ -45,9 +45,9 @@ public:
       coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
-         static std::uint16_t const sc_iPort = 9082;
-         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), sc_iPort);
-         net::tcp_server server(ABC_SL("*"), sc_iPort);
+         static net::port_t const sc_port = 9082;
+         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), sc_port);
+         net::tcp_server server(net::ip_address::any_ipv4, sc_port);
          for (;;) {
             io::text::stdout->write_line(ABC_SL("server: accepting"));
             // This will cause a context switch if no connections are ready to be established.
