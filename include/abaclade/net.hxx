@@ -227,10 +227,12 @@ public:
 private:
    /*! Creates a socket for the server.
 
+   @param iIPVersion
+      IP version; 4 = IPv4, 6 = IPv6.
    @return
       New server socket.
    */
-   static io::filedesc create_socket();
+   static io::filedesc create_socket(std::uint8_t iIPVersion);
 
 private:
    //! Server socket bound to the TCP port.

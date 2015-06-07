@@ -76,38 +76,48 @@ namespace net {
 tcp_server::tcp_server(
    ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/
 ) :
-   m_fdSocket(create_socket()),
+   m_fdSocket(create_socket(m_iIPVersion)),
    m_iIPVersion(ipaddr.version()) {
    ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
 
-   switch (m_iIPVersion) {
-      case 4: {
 #if ABC_HOST_API_POSIX
-         ::sockaddr_in saServer;
-         memory::clear(&saServer);
-         saServer.sin_family = AF_INET;
+   ::sockaddr * psaServer;
+   ::socklen_t cbServer;
+   ::sockaddr_in saServer4;
+   ::sockaddr_in6 saServer6;
+   switch (m_iIPVersion) {
+      case 4:
+         psaServer = reinterpret_cast< ::sockaddr *>(&saServer4);
+         cbServer = sizeof saServer4;
+         memory::clear(&saServer4);
+         saServer4.sin_family = AF_INET;
          memory::copy(
-            reinterpret_cast<std::uint8_t *>(&saServer.sin_addr.s_addr),
+            reinterpret_cast<std::uint8_t *>(&saServer4.sin_addr.s_addr),
             ipaddr.raw(),
             sizeof(ip_address::ipv4_type)
          );
-         saServer.sin_addr.s_addr = htonl(saServer.sin_addr.s_addr);
-         saServer.sin_port = htons(port);
-         if (::bind(
-            m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saServer), sizeof saServer
-         ) < 0) {
-            exception::throw_os_error();
-         }
-
-         if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
-            exception::throw_os_error();
-         }
+         saServer4.sin_addr.s_addr = htonl(saServer4.sin_addr.s_addr);
+         saServer4.sin_port = htons(port);
+         break;
+      case 6:
+         psaServer = reinterpret_cast< ::sockaddr *>(&saServer6);
+         cbServer = sizeof saServer6;
+         memory::clear(&saServer6);
+         //saServer6.sin6_flowinfo = 0;
+         saServer6.sin6_family = AF_INET6;
+         memory::copy(saServer6.sin6_addr.s6_addr, ipaddr.raw(), sizeof(ip_address::ipv6_type));
+         saServer6.sin6_port = htons(port);
+         break;
+   }
+   if (::bind(m_fdSocket.get(), psaServer, cbServer) < 0) {
+      exception::throw_os_error();
+   }
+   if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
+      exception::throw_os_error();
+   }
 #else //if ABC_HOST_API_POSIX
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … else
-         break;
-      }
-   }
 }
 
 tcp_server::~tcp_server() {
@@ -118,8 +128,17 @@ std::shared_ptr<connection> tcp_server::accept() {
 
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #if ABC_HOST_API_POSIX
-   ::sockaddr_in saClient;
+   ::sockaddr * psaClient;
    ::socklen_t cbClient;
+   ::sockaddr_in saClient4;
+   ::sockaddr_in6 saClient6;
+   if (m_iIPVersion == 4) {
+      psaClient = reinterpret_cast< ::sockaddr *>(&saClient4);
+      cbClient = sizeof saClient4;
+   } else {
+      psaClient = reinterpret_cast< ::sockaddr *>(&saClient6);
+      cbClient = sizeof saClient6;
+   }
    int iFd;
 #if !ABC_HOST_API_DARWIN
    int iFlags = SOCK_CLOEXEC;
@@ -129,16 +148,15 @@ std::shared_ptr<connection> tcp_server::accept() {
    }
 #endif
    for (;;) {
-      cbClient = sizeof saClient;
+      ::socklen_t cb = cbClient;
 #if ABC_HOST_API_DARWIN
       // accept4() is not available, so emulate it with accept() + fcntl().
-      iFd = ::accept(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saClient), &cbClient);
+      iFd = ::accept(m_fdSocket.get(), psaClient, &cb);
 #else
-      iFd = ::accept4(
-         m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saClient), &cbClient, iFlags
-      );
+      iFd = ::accept4(m_fdSocket.get(), psaClient, &cb, iFlags);
 #endif
       if (iFd >= 0) {
+         cbClient = cb;
          break;
       }
       int iErr = errno;
@@ -167,7 +185,7 @@ std::shared_ptr<connection> tcp_server::accept() {
 #endif
    ip_address ipaddrClient;
    port_t portClient;
-   // TODO: render saClient.sin_addr into ipaddrClient and portClient.
+   // TODO: validate cbClient and set ipaddrClient/portClient using saClient4/6.sin_addr.
    ipaddrClient = ip_address(0);
    portClient = 0;
    return std::make_shared<connection>(std::move(fd), std::move(ipaddrClient), portClient);
@@ -177,9 +195,13 @@ std::shared_ptr<connection> tcp_server::accept() {
 #endif //if ABC_HOST_API_POSIX … else
 }
 
-/*static*/ io::filedesc tcp_server::create_socket() {
-   ABC_TRACE_FUNC();
+/*static*/ io::filedesc tcp_server::create_socket(std::uint8_t iIPVersion) {
+   ABC_TRACE_FUNC(iIPVersion);
 
+   if (iIPVersion != 4 && iIPVersion != 6) {
+      // TODO: provide more information in the exception.
+      ABC_THROW(domain_error, ());
+   }
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #if ABC_HOST_API_POSIX
    int iType = SOCK_STREAM;
@@ -190,7 +212,7 @@ std::shared_ptr<connection> tcp_server::accept() {
       iType |= SOCK_NONBLOCK;
    }
 #endif
-   io::filedesc fd(::socket(AF_INET, iType, 0));
+   io::filedesc fd(::socket(iIPVersion == 4 ? AF_INET : AF_INET6, iType, 0));
    if (!fd) {
       exception::throw_os_error();
    }
