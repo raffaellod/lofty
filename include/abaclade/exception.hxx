@@ -446,7 +446,7 @@ public:
    @param iArg1
       Exception type-specific argument 1.
    */
-   static void
+   static ABC_FUNC_NORETURN void
 #if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
       __stdcall
 #endif
