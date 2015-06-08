@@ -328,7 +328,7 @@ coroutine::scheduler::~scheduler() {
 void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
-   std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//   std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
    m_listReadyCoros.push_back(std::move(pcoroimpl));
 }
 
@@ -356,7 +356,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    }
    // Deactivate the current coroutine and find one to activate instead.
    {
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
    }
    try {
@@ -365,7 +365,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       {
-         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
          m_mapCorosBlockedByTimer.remove(ke.ident);
       }
       ke.flags = EV_DELETE;
@@ -444,7 +444,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    // Deactivate the current coroutine and find one to activate instead.
    impl * pcoroimpl;
    {
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       pcoroimpl = m_mapCorosBlockedByFD.add_or_assign(
          fd, std::move(sm_pcoroimplActive)
       ).first->value.get();
@@ -459,7 +459,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       ::CancelIo(fd, nullptr);
 #endif
       // Remove the coroutine from the map of blocked ones.
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       m_mapCorosBlockedByFD.remove(fd);
       throw;
    }
@@ -529,7 +529,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       changed”, in edge-triggered mode so it wakes all waiting threads once, at once. */
    for (;;) {
       {
-         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
          if (m_listReadyCoros) {
             // There are coroutines that are ready to run; remove and return the first.
             return m_listReadyCoros.pop_front();
@@ -559,7 +559,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       /*if (ke.flags & EV_ERROR) {
          exception::throw_os_error(ke.data);
       }*/
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       if (ke.filter == EVFILT_TIMER) {
          // Remove and return the coroutine that was waiting for this timer.
          return m_mapCorosBlockedByTimer.extract(ke.ident);
@@ -577,7 +577,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          exception::throw_os_error(iErr);
       }
       // Remove and return the coroutine that was waiting for this file descriptor.
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       return m_mapCorosBlockedByFD.extract(ee.data.fd);
 #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
@@ -589,7 +589,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          exception::throw_os_error(iErr);
       }
       // Remove and return the coroutine that was waiting for this handle.
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       return m_mapCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
 #else
    #error "TODO: HOST_API"
@@ -603,7 +603,7 @@ void coroutine::scheduler::interrupt_all() {
    {
       /* TODO: using a different locking pattern, this work could be split across multiple threads,
       in case multiple are associated to this scheduler. */
-      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       ABC_FOR_EACH(auto kv, m_mapCorosBlockedByFD) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }
