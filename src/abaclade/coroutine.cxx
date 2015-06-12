@@ -486,28 +486,28 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
          // Restore the coroutine_local_storage pointer for this thread.
          *ppcrlsCurrent = pcrlsDefault;
          // Switch the current thread’s context to the active coroutine’s.
-   #if ABC_HOST_API_POSIX
-      #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-         #pragma clang diagnostic push
-         #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      #endif
-         iRet = ::swapcontext(puctxReturn, pcoroimplActive->ucontext_ptr());
-      #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
-         #pragma clang diagnostic pop
-      #endif
-   #elif ABC_HOST_API_WIN32
-         ::SwitchToFiber(pcoroimplActive->fiber());
-   #else
-      #error "TODO: HOST_API"
+#if ABC_HOST_API_POSIX
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
    #endif
+         iRet = ::swapcontext(puctxReturn, pcoroimplActive->ucontext_ptr());
+   #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
+      #pragma clang diagnostic pop
+   #endif
+#elif ABC_HOST_API_WIN32
+         ::SwitchToFiber(pcoroimplActive->fiber());
+#else
+   #error "TODO: HOST_API"
+#endif
          // deferred2 will restore the coroutine_local_storage pointer for this thread.
       }
-   #if ABC_HOST_API_POSIX
+#if ABC_HOST_API_POSIX
       if (iRet < 0) {
          /* TODO: only a stack-related ENOMEM is possible, so throw a stack overflow exception
          (*sm_pcoroimplActive has a problem, not uctxReturn). */
       }
-   #endif
+#endif
       /* If a coroutine (in this or anothre thread) leaked an uncaught exception, terminate all
       coroutines and eventually this very thread. */
       if (!bInterruptingAll && m_xctInterruptionReason.load() != exception::common_type::none) {
