@@ -163,8 +163,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       pthrst->__rdi = static_cast<reg_t>(xct.base());
       pthrst->__rsi = static_cast<reg_t>(iArg0);
       pthrst->__rdx = static_cast<reg_t>(iArg1);
-      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
       *--rsp = pthrst->__rip;
+      // Stack alignment to 16 bytes is done by the callee with push rbp.
       pthrst->__rip = reinterpret_cast<reg_t>(&throw_common_type);
    #else
       #error "TODO: HOST_ARCH"
@@ -237,8 +237,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       rdi = static_cast<reg_t>(xct.base());
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
-      // TODO: validate that stack alignment to 16 bytes is done by the callee with push rbp.
       *--rsp = rip;
+      // Stack alignment to 16 bytes is done by the callee with push rbp.
       rip = reinterpret_cast<reg_t>(&throw_common_type);
    #else
       #error "TODO: HOST_ARCH"
@@ -277,8 +277,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
       ew5tede7%28v=vs.120%29.aspx>. Three arguments still require four homes. */
       rsp -= 4;
-      // Stack alignment to 16 bytes is done by the callee.
       *--rsp = pctx->Rip;
+      // Stack alignment to 16 bytes is done by the callee with push rbp.
       pctx->Rip = reinterpret_cast<reg_t>(&throw_common_type);
    #else
       #error "TODO: HOST_ARCH"
