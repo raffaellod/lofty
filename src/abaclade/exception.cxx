@@ -152,139 +152,106 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 /*static*/ void exception::inject_in_context(
    common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
-   // All the code paths below emulate a 3-argument subroutine call to throw_common_type().
+   /* Abstract away the differences in the context structures across different OSes and
+   architectures by defining references to each register needed below. */
 #if ABC_HOST_API_MACH
    #if ABC_HOST_ARCH_X86_64
       ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pvctx);
-      /* Load the arguments into rdi/rsi/rdx, push the address of the current instruction, then set
-      rip to the start of throw_common_type(). */
-      typedef decltype(pthrst->__rsp) reg_t;
+      typedef std::uint64_t reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pthrst->__rsp);
-      pthrst->__rdi = static_cast<reg_t>(xct.base());
-      pthrst->__rsi = static_cast<reg_t>(iArg0);
-      pthrst->__rdx = static_cast<reg_t>(iArg1);
-      *--rsp = pthrst->__rip;
-      // Stack alignment to 16 bytes is done by the callee with push rbp.
-      pthrst->__rip = reinterpret_cast<reg_t>(&throw_common_type);
-   #else
-      #error "TODO: HOST_ARCH"
+      reg_t & rip = pthrst->__rip, & rdi = pthrst->__rdi, & rsi = pthrst->__rsi;
+      reg_t & rdx = pthrst->__rdx;
    #endif
 #elif ABC_HOST_API_POSIX
    ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pvctx);
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<decltype(puctx->uc_mcontext.arm_r0)>::type reg_t;
-         reg_t & r0 = puctx->uc_mcontext.arm_r0;
-         reg_t & r1 = puctx->uc_mcontext.arm_r1;
-         reg_t & r2 = puctx->uc_mcontext.arm_r2;
+         typedef long reg_t;
          reg_t *& sp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.arm_sp);
-         reg_t & lr = puctx->uc_mcontext.arm_lr;
-         reg_t & pc = puctx->uc_mcontext.arm_pc;
-      #else
-         #error "TODO: HOST_API"
+         reg_t & lr = puctx->uc_mcontext.arm_lr, & pc = puctx->uc_mcontext.arm_pc;
+         reg_t & r0 = puctx->uc_mcontext.arm_r0, & r1 = puctx->uc_mcontext.arm_r1;
+         reg_t & r2 = puctx->uc_mcontext.arm_r2;
       #endif
-      /* Load the arguments into r0-2, push lr and replace it with the address of the current
-      instruction, then set pc to the start of throw_common_type(). */
-      r0 = static_cast<reg_t>(xct.base());
-      r1 = static_cast<reg_t>(iArg0);
-      r2 = static_cast<reg_t>(iArg1);
-      *--sp = lr;
-      lr = pc;
-      pc = reinterpret_cast<reg_t>(&throw_common_type);
    #elif ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<
-            decltype(puctx->uc_mcontext.gregs[REG_ESP])
-         >::type reg_t;
-         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
+         typedef long reg_t;
          reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
+         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
       #elif ABC_HOST_API_FREEBSD
-         typedef decltype(puctx->uc_mcontext.mc_esp) reg_t;
-         reg_t & eip = puctx->uc_mcontext.mc_eip;
+         typedef std::uint32_t reg_t;
          reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
-      #else
-         #error "TODO: HOST_API"
+         reg_t & eip = puctx->uc_mcontext.mc_eip;
       #endif
-      /* Push the arguments onto the stack, push the address of the current instruction, then set
-      eip to the start of throw_common_type(). */
-      *--esp = static_cast<reg_t>(iArg1);
-      *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(xct.base());
-      *--esp = eip;
-      eip = reinterpret_cast<reg_t>(&throw_common_type);
    #elif ABC_HOST_ARCH_X86_64
       #if ABC_HOST_API_LINUX
-         typedef typename std::remove_reference<
-            decltype(puctx->uc_mcontext.gregs[REG_RSP])
-         >::type reg_t;
-         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP];
+         typedef long long reg_t;
          reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
-         reg_t & rdi = puctx->uc_mcontext.gregs[REG_RDI];
-         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI];
-         reg_t & rdx = puctx->uc_mcontext.gregs[REG_RDX];
+         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP], & rdi = puctx->uc_mcontext.gregs[REG_RDI];
+         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI], & rdx = puctx->uc_mcontext.gregs[REG_RDX];
       #elif ABC_HOST_API_FREEBSD
-         typedef decltype(puctx->uc_mcontext.mc_rsp) reg_t;
-         reg_t & rip = puctx->uc_mcontext.mc_rip;
+         typedef std::uint64_t reg_t;
          reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
-         reg_t & rdi = puctx->uc_mcontext.mc_rdi;
-         reg_t & rsi = puctx->uc_mcontext.mc_rsi;
-         reg_t & rdx = puctx->uc_mcontext.mc_rdx;
-      #else
-         #error "TODO: HOST_API"
+         reg_t & rip = puctx->uc_mcontext.mc_rip, & rdi = puctx->uc_mcontext.mc_rdi;
+         reg_t & rsi = puctx->uc_mcontext.mc_rsi, & rdx = puctx->uc_mcontext.mc_rdx;
       #endif
-      /* Load the arguments into rdi/rsi/rdx, push the address of the current instruction, then set
-      rip to the start of throw_common_type(). */
-      rdi = static_cast<reg_t>(xct.base());
-      rsi = static_cast<reg_t>(iArg0);
-      rdx = static_cast<reg_t>(iArg1);
-      *--rsp = rip;
-      // Stack alignment to 16 bytes is done by the callee with push rbp.
-      rip = reinterpret_cast<reg_t>(&throw_common_type);
-   #else
-      #error "TODO: HOST_ARCH"
    #endif
 #elif ABC_HOST_API_WIN32
    ::CONTEXT * pctx = static_cast< ::CONTEXT *>(pvctx);
    #if ABC_HOST_ARCH_ARM
-      typedef std::uint32_t reg_t;
+      typedef ::DWORD reg_t;
       reg_t *& sp = reinterpret_cast<reg_t *&>(pctx->Sp);
-      /* Load the arguments into r0-2, push lr and replace it with the address of the current
-      instruction, then set pc to the start of throw_common_type(). */
-      pctx->R0 = static_cast<reg_t>(xct.base());
-      pctx->R1 = static_cast<reg_t>(iArg0);
-      pctx->R2 = static_cast<reg_t>(iArg1);
-      *--sp = pctx->Lr;
-      pctx->Lr = pctx->Pc;
-      pctx->Pc = reinterpret_cast<reg_t>(&throw_common_type);
+      reg_t & lr = pctx->Lr, & pc = pctx->Pc, & r0 = pctx->R0, & r1 = pctx->R1, & r2 = pctx->R2;
    #elif ABC_HOST_ARCH_I386
-      typedef std::uint32_t reg_t;
+      typedef ::DWORD reg_t;
       reg_t *& esp = reinterpret_cast<reg_t *&>(pctx->Esp);
-      /* Push the arguments onto the stack, push the address of the current instruction, then set
-      eip to the start of throw_common_type(). */
-      *--esp = static_cast<reg_t>(iArg1);
-      *--esp = static_cast<reg_t>(iArg0);
-      *--esp = static_cast<reg_t>(xct.base());
-      *--esp = pctx->Eip;
-      pctx->Eip = reinterpret_cast<reg_t>(&throw_common_type);
+      reg_t & eip = pctx->Eip;
    #elif ABC_HOST_ARCH_X86_64
-      typedef std::uint64_t reg_t;
+      typedef ::DWORD64 reg_t;
       reg_t *& rsp = reinterpret_cast<reg_t *&>(pctx->Rsp);
-      /* Load the arguments into rcx/rdx/r8, push the address of the current instruction, then set
-      rip to the start of throw_common_type(). */
-      pctx->Rcx = static_cast<reg_t>(xct.base());
-      pctx->Rdx = static_cast<reg_t>(iArg0);
-      pctx->R8  = static_cast<reg_t>(iArg1);
-      /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
-      ew5tede7%28v=vs.120%29.aspx>. Three arguments still require four homes. */
-      rsp -= 4;
-      *--rsp = pctx->Rip;
-      // Stack alignment to 16 bytes is done by the callee with push rbp.
-      pctx->Rip = reinterpret_cast<reg_t>(&throw_common_type);
-   #else
-      #error "TODO: HOST_ARCH"
+      reg_t & rip = pctx->Rip, & rcx = pctx->Rcx, & rdx = pctx->Rdx, & r8 = pctx->R8;
    #endif
 #else
    #error "TODO: HOST_API"
+#endif
+
+   // Emulate a 3-argument subroutine call to throw_common_type().
+#if ABC_HOST_ARCH_ARM
+   /* Load the arguments into r0-2, push lr and replace it with the address of the current
+   instruction, then set pc to the start of throw_common_type(). */
+   r0 = static_cast<reg_t>(xct.base());
+   r1 = static_cast<reg_t>(iArg0);
+   r2 = static_cast<reg_t>(iArg1);
+   *--sp = lr;
+   lr = pc;
+   pc = reinterpret_cast<reg_t>(&throw_common_type);
+#elif ABC_HOST_ARCH_I386
+   /* Push the arguments onto the stack, push the address of the current instruction, then set eip
+   to the start of throw_common_type(). */
+   *--esp = static_cast<reg_t>(iArg1);
+   *--esp = static_cast<reg_t>(iArg0);
+   *--esp = static_cast<reg_t>(xct.base());
+   *--esp = eip;
+   eip = reinterpret_cast<reg_t>(&throw_common_type);
+#elif ABC_HOST_ARCH_X86_64
+   /* Load the arguments into rdi/rsi/rdx (Mach, POSIX) or rcx/rdx/r8 (Win32), push the address of
+   the current instruction, then set rip to the start of throw_common_type(). */
+   #if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
+      rdi = static_cast<reg_t>(xct.base());
+      rsi = static_cast<reg_t>(iArg0);
+      rdx = static_cast<reg_t>(iArg1);
+   #elif ABC_HOST_API_WIN32
+      rcx = static_cast<reg_t>(xct.base());
+      rdx = static_cast<reg_t>(iArg0);
+      r8  = static_cast<reg_t>(iArg1);
+      /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
+      ew5tede7%28v=vs.120%29.aspx>. Three arguments still require four homes. */
+      rsp -= 4;
+   #endif
+   *--rsp = rip;
+   // Stack alignment to 16 bytes is done by the callee with push rbp.
+   rip = reinterpret_cast<reg_t>(&throw_common_type);
+#else
+   #error "TODO: HOST_ARCH"
 #endif
 }
 
