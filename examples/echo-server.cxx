@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/thread.hxx>
 #include <abaclade/net.hxx>
 
@@ -64,6 +65,9 @@ public:
                // Create text-mode reader and writer for the connection’s socket.
                auto ptr(io::text::make_reader(pconn->socket()));
                auto ptw(io::text::make_writer(pconn->socket()));
+               auto deferred1(defer_to_scope_end([&ptw] () {
+                  ptw->finalize();
+               }));
 
                // Read lines from the socket, writing them back to it (echo).
                ABC_FOR_EACH(auto & sLine, ptr->lines()) {
@@ -71,8 +75,8 @@ public:
                   ptw->flush();
                }
 
-               ptw->finalize();
                io::text::stdout->write_line(ABC_SL("responder: terminating"));
+               // deferred1 will finalize *ptw.
             });
          }
          io::text::stdout->write_line(ABC_SL("server: terminating"));
