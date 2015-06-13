@@ -18,6 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/coroutine.hxx>
+#include <abaclade/process.hxx>
+#include <abaclade/thread.hxx>
 #include "thread-impl.hxx"
 
 #include <cstdlib> // std::abort() std::terminate()
@@ -380,7 +383,13 @@ char const * exception::what() const {
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(ABC_SL("Exception: {}\n"), istr(external_buffer, pstdx->what()));
+      ptwOut->print(
+         ABC_SL("Exception in PID:{},TID:{}"), this_process::id(), this_thread::id()
+      );
+      if (auto crid =  this_coroutine::id()) {
+         ptwOut->print(ABC_SL(",CRID:{}"), crid);
+      }
+      ptwOut->print(ABC_SL(": {}\n"), istr(external_buffer, pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       if (pabcx) {
          try {
