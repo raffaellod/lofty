@@ -169,3 +169,42 @@ bool process::joinable() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for abc::process
+
+namespace abc {
+
+to_str_backend<process>::to_str_backend() {
+}
+
+to_str_backend<process>::~to_str_backend() {
+}
+
+void to_str_backend<process>::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+}
+
+void to_str_backend<process>::write(process const & proc, io::text::writer * ptwOut) {
+   ABC_TRACE_FUNC(this/*, proc*/, ptwOut);
+
+   if (process::id_type id = proc.id()) {
+      m_tsbStr.write(istr(ABC_SL("TID:")), ptwOut);
+      m_tsbId.write(id, ptwOut);
+   } else {
+      m_tsbStr.write(istr(ABC_SL("TID:-")), ptwOut);
+   }
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
