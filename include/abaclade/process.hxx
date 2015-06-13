@@ -204,5 +204,23 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::this_process
+
+namespace abc {
+
+//! Functions that can only affect the current process, analogous to this_thread.
+namespace this_process {
+
+/*! Returns a system-wide unique ID for the current process.
+
+@return
+   Unique ID representing the current process.
+*/
+ABACLADE_SYM process::id_type id();
+
+} //namespace this_process
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif //ifndef _ABACLADE_PROCESS_HXX

@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <errno.h> // EINVAL errno
    #include <sys/types.h> // id_t pid_t
    #include <sys/wait.h> // waitid() waitpid() W*
+   #include <unistd.h> // getpid()
    #if ABC_HOST_API_BSD
       #include <sys/signal.h> // siginfo_t
    #endif
@@ -205,6 +206,25 @@ void to_str_backend<process>::write(process const & proc, io::text::writer * ptw
    }
 }
 
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::this_process
+
+namespace abc {
+namespace this_process {
+
+process::id_type id() {
+#if ABC_HOST_API_POSIX
+   return ::getpid();
+#elif ABC_HOST_API_WIN32
+   return ::GetCurrentProcessId();
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+} //namespace this_process
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
