@@ -481,10 +481,9 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
 #endif
       {
          auto deferred2(defer_to_scope_end([ppcrlsCurrent, pcrlsDefault] () {
+            // Restore the coroutine_local_storage pointer for this thread.
             *ppcrlsCurrent = pcrlsDefault;
          }));
-         // Restore the coroutine_local_storage pointer for this thread.
-         *ppcrlsCurrent = pcrlsDefault;
          // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
