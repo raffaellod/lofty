@@ -124,6 +124,21 @@ and pre-C++11 throw() exception specifications. */
       throw()
 #endif
 
+/*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
+an exception). This allows optimizations based on the fact that code following its call cannot be
+reached. */
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   #define ABC_SWITCH_WITHOUT_DEFAULT \
+      default: \
+         __builtin_unreachable();
+#elif ABC_HOST_CXX_MSC
+   #define ABC_SWITCH_WITHOUT_DEFAULT \
+      default: \
+         __assume(0);
+#else
+   #define ABC_FUNC_NORETURN
+#endif
+
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
 #if ABC_HOST_API_WIN32
    #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_MSC
