@@ -129,6 +129,43 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for std::type_info
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<std::type_info> {
+public:
+   //! Constructor.
+   to_str_backend();
+
+   //! Constructor.
+   ~to_str_backend();
+
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(istr const & sFormat);
+
+   /*! Writes the name of a type, applying the formatting options.
+
+   @param ti
+      Type to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(std::type_info const & ti, io::text::writer * ptwOut);
+
+protected:
+   //! Backend for strings.
+   to_str_backend<istr> m_tsbStr;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::sequence_to_str_backend
 
 namespace abc {

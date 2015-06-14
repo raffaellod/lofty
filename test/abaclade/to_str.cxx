@@ -303,3 +303,33 @@ public:
 } //namespace abc
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_tuples)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::to_str_type_info
+
+namespace abc {
+namespace test {
+
+class to_str_type_info : public to_str_test_case_base {
+public:
+   //! See to_str_test_case_base::title().
+   virtual istr title() override {
+      return istr(ABC_SL("abc::to_str – std::type_info"));
+   }
+
+   //! See to_str_test_case_base::run().
+   virtual void run() override {
+      ABC_TRACE_FUNC(this);
+
+      // Test std::type_info.
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(typeid(1)), ABC_SL("int"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(typeid(double)), ABC_SL("double"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(typeid(bool)), ABC_SL("bool"));
+      ABC_TESTING_ASSERT_EQUAL(get_to_str_output(typeid(istr)), ABC_SL("abc::text::istr"));
+   }
+};
+
+} //namespace test
+} //namespace abc
+
+ABC_TESTING_REGISTER_TEST_CASE(abc::test::to_str_type_info)

@@ -23,6 +23,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <algorithm>
 #include <climits> // CHAR_BIT
+#if ABC_HOST_CXX_GCC
+   #include <cxxabi.h> // abi::__cxa_demangle()
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -339,6 +342,50 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptw
 }
 
 } //namespace detail
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for std::type_info
+
+namespace abc {
+
+to_str_backend<std::type_info>::to_str_backend() {
+}
+
+to_str_backend<std::type_info>::~to_str_backend() {
+}
+
+void to_str_backend<std::type_info>::set_format(istr const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+}
+
+void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::writer * ptwOut) {
+   char const * psz = ti.name();
+#if ABC_HOST_CXX_GCC
+   int iRet = 1;
+   std::unique_ptr<char const, memory::freeing_deleter> pszDemangled(
+      abi::__cxa_demangle(psz, nullptr, nullptr, &iRet)
+   );
+   if (iRet == 0) {
+      psz = pszDemangled.get();
+   } else {
+      psz = "?";
+   }
+#endif
+   m_tsbStr.write(istr(external_buffer, psz), ptwOut);
+}
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
