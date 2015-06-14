@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -36,6 +36,8 @@ namespace abc {
 namespace perf {
 
 #if ABC_HOST_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+
+typedef ::timespec timepoint_t;
 
 static std::pair<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
@@ -76,6 +78,8 @@ static stopwatch::duration_type get_duration_ns(
 
 #elif ABC_HOST_API_DARWIN //if ABC_HOST_API_POSIX
 
+typedef std::uint64_t timepoint_t;
+
 static std::uint64_t get_time_point() {
    return ::mach_absolute_time();
 }
@@ -87,6 +91,8 @@ static stopwatch::duration_type get_duration_ns(std::uint64_t iBegin, std::uint6
 }
 
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX … elif ABC_HOST_API_DARWIN
+
+typedef ::FILETIME timepoint_t;
 
 static ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
@@ -118,17 +124,30 @@ static stopwatch::duration_type get_duration_ns(
 
 
 stopwatch::stopwatch() :
+   m_pStartTime(new timepoint_t),
    m_iTotalDuration(0) {
+}
+stopwatch::stopwatch(stopwatch const & sw) :
+   m_pStartTime(new timepoint_t(*static_cast<timepoint_t const *>(sw.m_pStartTime.get()))),
+   m_iTotalDuration(sw.m_iTotalDuration) {
 }
 
 stopwatch::~stopwatch() {
 }
 
+stopwatch & stopwatch::operator=(stopwatch const & sw) {
+   *static_cast<timepoint_t *>(m_pStartTime.get()) = *static_cast<timepoint_t const *>(
+      sw.m_pStartTime.get()
+   );
+   m_iTotalDuration = sw.m_iTotalDuration;
+   return *this;
+}
+
 void stopwatch::start() {
    ABC_TRACE_FUNC(this);
 
-   auto timepoint(get_time_point());
-   *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime) = std::move(timepoint);
+   timepoint_t timepoint(get_time_point());
+   *static_cast<timepoint_t *>(m_pStartTime.get()) = std::move(timepoint);
 }
 
 stopwatch::duration_type stopwatch::stop() {
@@ -138,7 +157,7 @@ stopwatch::duration_type stopwatch::stop() {
    ABC_TRACE_FUNC(this);
 
    duration_type iPartialDuration = get_duration_ns(
-      *reinterpret_cast<decltype(timepoint) *>(&m_abStartTime), std::move(timepoint)
+      *static_cast<timepoint_t *>(m_pStartTime.get()), std::move(timepoint)
    );
    m_iTotalDuration += iPartialDuration;
    return iPartialDuration;

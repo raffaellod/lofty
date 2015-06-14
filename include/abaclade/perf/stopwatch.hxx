@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -42,11 +42,25 @@ public:
    typedef std::uint64_t duration_type;
 
 public:
-   //! Constructor.
+   /*! Constructor.
+
+   @param sw
+      Source object.
+   */
    stopwatch();
+   stopwatch(stopwatch const & sw);
 
    //! Destructor.
    ~stopwatch();
+
+   /*! Assignment operator.
+
+   @param sw
+      Source object.
+   @return
+      *this.
+   */
+   stopwatch & operator=(stopwatch const & sw);
 
    /*! Returns the total tracked time.
 
@@ -68,9 +82,8 @@ public:
    duration_type stop();
 
 protected:
-   /*! Start time of the current timed session. Large enough to accommodate the real type, defined
-   in stopwatch.cxx. */
-   abc::max_align_t m_abStartTime[ABC_ALIGNED_SIZE(8)];
+   //! Pointer to the start time of the current timed session.
+   std::unique_ptr<void> m_pStartTime;
    //! Total measured time duration, in nanoseconds. Precision is not guaranteed on all platforms.
    duration_type m_iTotalDuration;
 };
