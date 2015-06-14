@@ -26,6 +26,12 @@ You should have received a copy of the GNU General Public License along with Aba
 // abc globals – compatibility layer for features that are available one way or another in all
 // supported compilers
 
+/*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
+(header) file more than once, speeding up compilation. */
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+   #define ABC_CXX_PRAGMA_ONCE
+#endif
+
 /*! Range-based for statement: for (for-range-declaration : expression) { … } .
 
 rangedecl
@@ -45,6 +51,19 @@ expr
    #define ABC_FOR_EACH(rangedecl, expr) \
       __pragma(warning(suppress: 4239)) \
       for each (rangedecl in expr)
+#endif
+
+/*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
+an exception). This allows optimizations based on the fact that code following its call cannot be
+reached. */
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   #define ABC_FUNC_NORETURN \
+      __attribute__((noreturn))
+#elif ABC_HOST_CXX_MSC
+   #define ABC_FUNC_NORETURN \
+      __declspec(noreturn)
+#else
+   #define ABC_FUNC_NORETURN
 #endif
 
 #if (ABC_HOST_CXX_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_CXX_GCC >= 0x40700 || \
@@ -67,23 +86,42 @@ implementation. */
    #define ABC_STL_CALLCONV
 #endif
 
-/*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
-(header) file more than once, speeding up compilation. */
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   #define ABC_CXX_PRAGMA_ONCE
+/*! Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
+Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
+
+@param old_throw_decl
+   Parentheses-enclosed list of types the function/method may throw.
+*/
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+      noexcept(cond)
+#else
+   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
+      throw old_throw_decl
 #endif
 
-/*! Declares a function as never returning (e.g. by causing the process to terminate, or by throwing
-an exception). This allows optimizations based on the fact that code following its call cannot be
-reached. */
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
-   #define ABC_FUNC_NORETURN \
-      __attribute__((noreturn))
-#elif ABC_HOST_CXX_MSC
-   #define ABC_FUNC_NORETURN \
-      __declspec(noreturn)
+/*! Declares a function/method as possibly throwing exceptions. Supports both C++11 noexcept
+specifier and pre-C++11 throw() exception specifications.
+
+@param old_throw_decl
+   Parentheses-enclosed list of types the function/method may throw.
+*/
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+      noexcept(false)
 #else
-   #define ABC_FUNC_NORETURN
+   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
+      throw old_throw_decl
+#endif
+
+/*! Declares a function/method as never throwing exceptions. Supports both C++11 noexcept specifier
+and pre-C++11 throw() exception specifications. */
+#ifdef ABC_CXX_STL_USES_NOEXCEPT
+   #define ABC_STL_NOEXCEPT_TRUE() \
+      noexcept(true)
+#else
+   #define ABC_STL_NOEXCEPT_TRUE() \
+      throw()
 #endif
 
 //! Declares a symbol to be publicly visible (exported) in the shared library being built.
@@ -118,44 +156,6 @@ reached. */
       #define ABC_SYM_IMPORT \
          __attribute__((visibility("default")))
    #endif
-#endif
-
-/*! Declares a function/method as never throwing exceptions. Supports both C++11 noexcept specifier
-and pre-C++11 throw() exception specifications. */
-#ifdef ABC_CXX_STL_USES_NOEXCEPT
-   #define ABC_STL_NOEXCEPT_TRUE() \
-      noexcept(true)
-#else
-   #define ABC_STL_NOEXCEPT_TRUE() \
-      throw()
-#endif
-
-/*! Declares a function/method as possibly throwing exceptions. Supports both C++11 noexcept
-specifier and pre-C++11 throw() exception specifications.
-
-@param old_throw_decl
-   Parentheses-enclosed list of types the function/method may throw.
-*/
-#ifdef ABC_CXX_STL_USES_NOEXCEPT
-   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
-      noexcept(false)
-#else
-   #define ABC_STL_NOEXCEPT_FALSE(old_throw_decl) \
-      throw old_throw_decl
-#endif
-
-/*! Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
-Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
-
-@param old_throw_decl
-   Parentheses-enclosed list of types the function/method may throw.
-*/
-#ifdef ABC_CXX_STL_USES_NOEXCEPT
-   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
-      noexcept(cond)
-#else
-   #define ABC_STL_NOEXCEPT_IF(cond, old_throw_decl) \
-      throw old_throw_decl
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
