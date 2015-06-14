@@ -209,10 +209,8 @@ public:
    character array, and it will not own it; if the string does not include a NUL terminator, the
    returned pointer will own a NUL-terminated copy of *this.
 
-   The returned pointer should be thought of as having a very short lifetime, and it should never be
-   stored of manipulated.
-
-   TODO: provide non-immutable version mstr::to_c_str().
+   The returned pointer will only be valid as long as *this is, and only until the next change to
+   *this.
 
    @return
       NUL-terminated version of the string.
@@ -882,6 +880,11 @@ public:
    void clear() {
       set_size(0);
    }
+
+   /*! See detail::str_base::c_str(). Here also available in non-const overload that permanently
+   adds a terminating NUL character to the string. */
+   using detail::str_base::c_str;
+   char_t const * c_str();
 
    //! See detail::str_base::end(). Here also available in non-const overload.
    iterator end() {

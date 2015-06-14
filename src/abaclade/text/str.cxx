@@ -333,6 +333,23 @@ istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
 namespace abc {
 namespace text {
 
+char_t const * mstr::c_str() {
+   ABC_TRACE_FUNC(this);
+
+   if (m_bNulT) {
+      // The string already includes a NUL terminator, so we can simply return the same array.
+   } else if (std::size_t cch = size_in_chars()) {
+      // The string is not empty but lacks a NUL terminator: enlarge the string to include one.
+      set_capacity(cch + 1, true);
+      *chars_end() = '\0';
+      m_bNulT = true;
+   } else {
+      // The string is empty, so a static NUL character will suffice.
+      return &gc_chNul;
+   }
+   return chars_begin();
+}
+
 void mstr::replace(char_t chSearch, char_t chReplacement) {
    ABC_TRACE_FUNC(this, chSearch, chReplacement);
 
