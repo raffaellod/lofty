@@ -122,6 +122,7 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
          memory::copy(saServer6.sin6_addr.s6_addr, ipaddr.raw(), sizeof(ip_address::ipv6_type));
          saServer6.sin6_port = htons(port);
          break;
+      ABC_SWITCH_WITHOUT_DEFAULT
    }
    if (::bind(m_fdSocket.get(), psaServer, cbServer) < 0) {
       exception::throw_os_error(
