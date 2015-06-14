@@ -119,8 +119,6 @@ exception::exception(exception const & x) :
 }
 
 exception & exception::operator=(exception const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
    m_srcloc = x.m_srcloc;
@@ -618,8 +616,6 @@ generic_error::generic_error(generic_error const & x) :
 }
 
 generic_error & generic_error::operator=(generic_error const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    exception::operator=(x);
    m_err = x.m_err;
    return *this;
@@ -650,8 +646,6 @@ index_error::index_error(index_error const & x) :
 }
 
 index_error & index_error::operator=(index_error const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    lookup_error::operator=(x);
    m_iInvalid = x.m_iInvalid;
    return *this;
@@ -784,8 +778,6 @@ memory_address_error::memory_address_error(memory_address_error const & x) :
 }
 
 memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    generic_error::operator=(x);
    m_pInvalid = x.m_pInvalid;
    return *this;
@@ -930,8 +922,6 @@ pointer_iterator_error::pointer_iterator_error(pointer_iterator_error const & x)
 }
 
 pointer_iterator_error & pointer_iterator_error::operator=(pointer_iterator_error const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    iterator_error::operator=(x);
    m_pContBegin = x.m_pContBegin;
    m_pContEnd = x.m_pContEnd;
@@ -994,8 +984,6 @@ syntax_error::syntax_error(syntax_error const & x) :
 }
 
 syntax_error & syntax_error::operator=(syntax_error const & x) {
-   ABC_TRACE_FUNC(this/*, x*/);
-
    generic_error::operator=(x);
    m_sDescription = x.m_sDescription;
    m_sSource = x.m_sSource;
