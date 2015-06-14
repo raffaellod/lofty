@@ -394,8 +394,7 @@ destructing_unfinalized_object::destructing_unfinalized_object() {
 }
 
 void destructing_unfinalized_object::init(void const * pObj, std::type_info const * pti) {
-   // TODO: dereference m_pti.
-   m_sWhat = istr(ABC_SL("object being destructed: {}, type {}")).format(pObj, pti);
+   m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(*pti, pObj);
    m_pszWhat = m_sWhat.c_str();
 }
 

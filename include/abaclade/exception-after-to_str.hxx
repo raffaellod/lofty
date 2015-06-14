@@ -49,7 +49,7 @@ public:
    */
    template <typename T>
    void init(T const * ptObj) {
-      init(ptObj, &typeid(ptObj));
+      init(ptObj, &typeid(*ptObj));
    }
    void init(void const * pObj, std::type_info const * pti);
 
