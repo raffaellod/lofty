@@ -158,80 +158,72 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #if ABC_HOST_ARCH_X86_64
       ::x86_thread_state64_t * pthrst = static_cast< ::x86_thread_state64_t *>(pvctx);
       typedef std::uint64_t reg_t;
-      reg_t *& rsp = reinterpret_cast<reg_t *&>(pthrst->__rsp);
-      reg_t & rip = pthrst->__rip, & rdi = pthrst->__rdi, & rsi = pthrst->__rsi;
-      reg_t & rdx = pthrst->__rdx;
+      reg_t & iCodePtr = pthrst->__rip, & iStackPtr = pthrst->__rsp;
+      reg_t & rdi = pthrst->__rdi, & rsi = pthrst->__rsi, & rdx = pthrst->__rdx;
    #endif
 #elif ABC_HOST_API_POSIX
-   ::ucontext_t * puctx = static_cast< ::ucontext_t *>(pvctx);
+   auto & mctx = static_cast< ::ucontext_t *>(pvctx)->uc_mcontext;
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
          typedef long reg_t;
-         reg_t *& sp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.arm_sp);
-         reg_t & lr = puctx->uc_mcontext.arm_lr, & pc = puctx->uc_mcontext.arm_pc;
-         reg_t & r0 = puctx->uc_mcontext.arm_r0, & r1 = puctx->uc_mcontext.arm_r1;
-         reg_t & r2 = puctx->uc_mcontext.arm_r2;
+         reg_t & iCodePtr = mctx.arm_pc, & iStackPtr = mctx.arm_sp, & lr = mctx.arm_lr;
+         reg_t & r0 = mctx.arm_r0, & r1 = mctx.arm_r1, & r2 = mctx.arm_r2;
       #endif
    #elif ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
          typedef long reg_t;
-         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_ESP]);
-         reg_t & eip = puctx->uc_mcontext.gregs[REG_EIP];
+         reg_t & iCodePtr = mctx.gregs[REG_EIP], & iStackPtr = mctx.gregs[REG_ESP];
       #elif ABC_HOST_API_FREEBSD
          typedef std::uint32_t reg_t;
-         reg_t *& esp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_esp);
-         reg_t & eip = puctx->uc_mcontext.mc_eip;
+         reg_t & iCodePtr = mctx.mc_eip, & iStackPtr = mctx.mc_esp;
       #endif
    #elif ABC_HOST_ARCH_X86_64
       #if ABC_HOST_API_LINUX
          typedef long long reg_t;
-         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.gregs[REG_RSP]);
-         reg_t & rip = puctx->uc_mcontext.gregs[REG_RIP], & rdi = puctx->uc_mcontext.gregs[REG_RDI];
-         reg_t & rsi = puctx->uc_mcontext.gregs[REG_RSI], & rdx = puctx->uc_mcontext.gregs[REG_RDX];
+         reg_t & iCodePtr = mctx.gregs[REG_RIP], & iStackPtr = mctx.gregs[REG_RSP];
+         reg_t & rdi = mctx.gregs[REG_RDI], & rsi = mctx.gregs[REG_RSI];
+         reg_t & rdx = mctx.gregs[REG_RDX];
       #elif ABC_HOST_API_FREEBSD
          typedef std::uint64_t reg_t;
-         reg_t *& rsp = reinterpret_cast<reg_t *&>(puctx->uc_mcontext.mc_rsp);
-         reg_t & rip = puctx->uc_mcontext.mc_rip, & rdi = puctx->uc_mcontext.mc_rdi;
-         reg_t & rsi = puctx->uc_mcontext.mc_rsi, & rdx = puctx->uc_mcontext.mc_rdx;
+         reg_t & iCodePtr = mctx.mc_rip, & iStackPtr = mctx.mc_rsp;
+         reg_t & rdi = mctx.mc_rdi, & rsi = mctx.mc_rsi, & rdx = mctx.mc_rdx;
       #endif
    #endif
 #elif ABC_HOST_API_WIN32
    ::CONTEXT * pctx = static_cast< ::CONTEXT *>(pvctx);
    #if ABC_HOST_ARCH_ARM
       typedef ::DWORD reg_t;
-      reg_t *& sp = reinterpret_cast<reg_t *&>(pctx->Sp);
-      reg_t & lr = pctx->Lr, & pc = pctx->Pc, & r0 = pctx->R0, & r1 = pctx->R1, & r2 = pctx->R2;
+      reg_t & iCodePtr = pctx->Pc, & iStackPtr = pctx->Sp;
+      reg_t & lr = pctx->Lr, & r0 = pctx->R0, & r1 = pctx->R1, & r2 = pctx->R2;
    #elif ABC_HOST_ARCH_I386
       typedef ::DWORD reg_t;
-      reg_t *& esp = reinterpret_cast<reg_t *&>(pctx->Esp);
-      reg_t & eip = pctx->Eip;
+      reg_t & iCodePtr = pctx->Eip, & iStackPtr = pctx->Esp;
    #elif ABC_HOST_ARCH_X86_64
       typedef ::DWORD64 reg_t;
-      reg_t *& rsp = reinterpret_cast<reg_t *&>(pctx->Rsp);
-      reg_t & rip = pctx->Rip, & rcx = pctx->Rcx, & rdx = pctx->Rdx, & r8 = pctx->R8;
+      reg_t & iCodePtr = pctx->Rip, & iStackPtr = pctx->Rsp;
+      reg_t & rcx = pctx->Rcx, & rdx = pctx->Rdx, & r8 = pctx->R8;
    #endif
 #else
    #error "TODO: HOST_API"
 #endif
 
    // Emulate a 3-argument subroutine call to throw_common_type().
+   reg_t * pStack = reinterpret_cast<reg_t *>(iStackPtr);
 #if ABC_HOST_ARCH_ARM
    /* Load the arguments into r0-2, push lr and replace it with the address of the current
    instruction, then set pc to the start of throw_common_type(). */
    r0 = static_cast<reg_t>(xct.base());
    r1 = static_cast<reg_t>(iArg0);
    r2 = static_cast<reg_t>(iArg1);
-   *--sp = lr;
-   lr = pc;
-   pc = reinterpret_cast<reg_t>(&throw_common_type);
+   *--pStack = lr;
+   lr = iCodePtr;
 #elif ABC_HOST_ARCH_I386
    /* Push the arguments onto the stack, push the address of the current instruction, then set eip
    to the start of throw_common_type(). */
-   *--esp = static_cast<reg_t>(iArg1);
-   *--esp = static_cast<reg_t>(iArg0);
-   *--esp = static_cast<reg_t>(xct.base());
-   *--esp = eip;
-   eip = reinterpret_cast<reg_t>(&throw_common_type);
+   *--pStack = static_cast<reg_t>(iArg1);
+   *--pStack = static_cast<reg_t>(iArg0);
+   *--pStack = static_cast<reg_t>(xct.base());
+   *--pStack = iCodePtr;
 #elif ABC_HOST_ARCH_X86_64
    /* Load the arguments into rdi/rsi/rdx (Mach, POSIX) or rcx/rdx/r8 (Win32), push the address of
    the current instruction, then set rip to the start of throw_common_type(). */
@@ -243,16 +235,17 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
       rcx = static_cast<reg_t>(xct.base());
       rdx = static_cast<reg_t>(iArg0);
       r8  = static_cast<reg_t>(iArg1);
-      /* Reserve stack space for the parameter area; see <https://msdn.microsoft.com/en-us/library/
-      ew5tede7%28v=vs.120%29.aspx>. Three arguments still require four homes. */
-      rsp -= 4;
+      /* Reserve stack space for the parameter area, even if the called function only has 3
+      arguments; see <https://msdn.microsoft.com/en-us/library/ew5tede7%28v=vs.120%29.aspx>. */
+      pStack -= 4;
    #endif
-   *--rsp = rip;
+   *--pStack = iCodePtr;
    // Stack alignment to 16 bytes is done by the callee with push rbp.
-   rip = reinterpret_cast<reg_t>(&throw_common_type);
 #else
    #error "TODO: HOST_ARCH"
 #endif
+   iCodePtr = reinterpret_cast<reg_t>(&throw_common_type);
+   iStackPtr = reinterpret_cast<reg_t>(pStack);
 }
 
 /*static*/ void
