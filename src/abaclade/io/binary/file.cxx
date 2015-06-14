@@ -154,8 +154,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_writer::~file_writer() {
-   // Verify that m_fd is no longer open and that *this is being intentionally destructed.
-   if (m_fd && !std::uncaught_exception()) {
+   /* Verify that m_fd is no longer open. If that’s not the case, the caller neglected to verify
+   that the OS write buffer was flushed successfully. */
+   if (m_fd) {
       // This will cause a call to std::terminate().
       ABC_THROW(destructing_unfinalized_object, ());
    }

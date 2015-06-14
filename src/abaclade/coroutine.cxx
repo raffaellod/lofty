@@ -480,7 +480,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
       int iRet;
 #endif
       {
-         auto deferred2(defer_to_scope_end([ppcrlsCurrent, pcrlsDefault] () {
+         auto deferred1(defer_to_scope_end([ppcrlsCurrent, pcrlsDefault] () {
             // Restore the coroutine_local_storage pointer for this thread.
             *ppcrlsCurrent = pcrlsDefault;
          }));
@@ -499,7 +499,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
 #else
    #error "TODO: HOST_API"
 #endif
-         // deferred2 will restore the coroutine_local_storage pointer for this thread.
+         // deferred1 will restore the coroutine_local_storage pointer for this thread.
       }
 #if ABC_HOST_API_POSIX
       if (iRet < 0) {
