@@ -340,6 +340,11 @@ std::size_t transcode(
 ) {
    ABC_TRACE_FUNC(bThrowOnErrors, encSrc, ppSrc, pcbSrc, encDst, ppDst, pcbDstMax);
 
+   if (encSrc == encoding::unknown || encDst == encoding::unknown) {
+      // TODO: provide more information in the exception.
+      ABC_THROW(domain_error, ());
+   }
+
    std::uint8_t const * pbSrc = static_cast<std::uint8_t const *>(*ppSrc);
    std::uint8_t const * pbSrcEnd = pbSrc + *pcbSrc;
    std::uint8_t       * pbDst;
@@ -364,6 +369,8 @@ std::size_t transcode(
 
       // Decode a source code point into ch32.
       switch (encSrc.base()) {
+         // unknown is here to avoid compiler warnings without using a default statement.
+         case encoding::unknown:
          case encoding::utf8: {
             if (pbSrc + sizeof(char8_t) > pbSrcEnd) {
                goto break_for;
@@ -512,15 +519,14 @@ std::size_t transcode(
 
          case encoding::windows_1252:
             // TODO: Windows-1252 support.
-            break;
-
-         default:
-            // TODO: support more character sets/encodings?
+            ch32 = 0;
             break;
       }
 
       // Encode the code point in ch32 into the destination.
       switch (encDst.base()) {
+         // unknown is here to avoid compiler warnings without using a default statement.
+         case encoding::unknown:
          case encoding::utf8: {
             /* Compute the length of this sequence. Technically this could throw if ch32 is not a
             valid Unicode code point, but we made sure above that that cannot happen. */
@@ -613,10 +619,10 @@ std::size_t transcode(
 
          case encoding::windows_1252:
             // TODO: Windows-1252 support.
-            break;
-
-         default:
-            // TODO: support more character sets/encodings?
+            if (pbDst + 1 > pbDstEnd) {
+               goto break_for;
+            }
+            *pbDst = 0;
             break;
       }
    }
