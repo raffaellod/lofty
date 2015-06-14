@@ -247,7 +247,7 @@ default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    that m_bufWrite and the OS write buffer were flushed successfully. */
    if (m_bufWrite.used_size()) {
       // This will cause a call to std::terminate().
-      ABC_THROW(destructing_unfinalized_object, ());
+      ABC_THROW(destructing_unfinalized_object, (this));
    }
 }
 

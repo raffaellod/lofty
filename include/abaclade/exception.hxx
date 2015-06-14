@@ -560,25 +560,6 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::destructing_unfinalized_object
-
-namespace abc {
-
-/*! Thrown when an instance of a class with a finalize() method was destructed before finalize() was
-called on it. The owner ot the object should be changed to invoke finalize() before letting the
-object go out of scope. */
-class ABACLADE_SYM destructing_unfinalized_object : public exception {
-public:
-   //! Constructor.
-   destructing_unfinalized_object();
-
-   //! Destructor.
-   virtual ~destructing_unfinalized_object();
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::execution_interruption
 
 namespace abc {

@@ -23,6 +23,48 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::destructing_unfinalized_object
+
+namespace abc {
+
+/*! Thrown when an instance of a class with a finalize() method was destructed before finalize() was
+called on it. The owner ot the object should be changed to invoke finalize() before letting the
+object go out of scope. */
+class ABACLADE_SYM destructing_unfinalized_object : public exception {
+public:
+   //! Constructor.
+   destructing_unfinalized_object();
+
+   //! Destructor.
+   virtual ~destructing_unfinalized_object();
+
+   /*! See abc::exception::init().
+
+   @param ptObj
+      Pointer to the object that was not finalized.
+   @param pObj
+      Pointer to the object that was not finalized.
+   @param pti
+      Pointer to the type of *pObj.
+   */
+   template <typename T>
+   void init(T const * ptObj) {
+      init(ptObj, &typeid(ptObj));
+   }
+   void init(void const * pObj, std::type_info const * pti);
+
+protected:
+   //! See abc::exception::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+private:
+   //! Pointer to and type of the object that was not finalized.
+   dmstr m_sWhat;
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::syntax_error
 
 namespace abc {

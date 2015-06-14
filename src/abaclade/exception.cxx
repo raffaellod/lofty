@@ -387,9 +387,23 @@ char const * exception::what() const {
 namespace abc {
 
 destructing_unfinalized_object::destructing_unfinalized_object() {
+   m_pszWhat = "abc::destructing_unfinalized_object";
 }
 
 /*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
+}
+
+void destructing_unfinalized_object::init(void const * pObj, std::type_info const * pti) {
+   // TODO: dereference m_pti.
+   m_sWhat = istr(ABC_SL("object being destructed: {}, type {}")).format(pObj, pti);
+   m_pszWhat = m_sWhat.c_str();
+}
+
+/*virtual*/ void destructing_unfinalized_object::write_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
+   exception::write_extended_info(ptwOut);
+   ptwOut->print(ABC_SL(" {}"), m_sWhat);
 }
 
 } //namespace abc
