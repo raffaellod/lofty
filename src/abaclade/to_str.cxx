@@ -305,21 +305,6 @@ void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwO
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for text::char_ptr_to_str_adapter
-
-namespace abc {
-
-void to_str_backend<text::char_ptr_to_str_adapter>::write(
-   text::char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
-) {
-   std::size_t cch = text::size_in_chars(cs.m_psz);
-   text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
-   text::detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // abc::detail::ptr_to_str_backend
 
 namespace abc {

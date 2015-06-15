@@ -502,8 +502,8 @@ class writer;
 
 #include <abaclade/enum-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
-#include <abaclade/text-after-to_str.hxx>
 #include <abaclade/text/str-after-to_str.hxx>
+#include <abaclade/text/char_ptr_to_str_adapter.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/collections/pointer_iterator-after-to_str.hxx>
 #include <abaclade/text/codepoint_iterator-after-to_str.hxx>

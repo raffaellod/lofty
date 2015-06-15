@@ -60,3 +60,24 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::to_str_backend – specialization for text::char_ptr_to_str_adapter
+
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<text::char_ptr_to_str_adapter> :
+   public text::detail::str_to_str_backend {
+public:
+   /*! Writes a C-style NUL-terminated string, applying the formatting options.
+
+   @param cs
+      C string to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(text::char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut);
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
