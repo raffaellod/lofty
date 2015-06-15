@@ -347,7 +347,7 @@ char const * exception::what() const {
       if (auto crid =  this_coroutine::id()) {
          ptwOut->print(ABC_SL(",CRID:{}"), crid);
       }
-      ptwOut->print(ABC_SL(": {}\n"), istr(external_buffer, pstdx->what()));
+      ptwOut->print(ABC_SL(": {}\n"), text::char_ptr_to_str_adapter(pstdx->what()));
       pabcx = dynamic_cast<exception const *>(pstdx);
       if (pabcx) {
          try {
