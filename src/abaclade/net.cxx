@@ -134,20 +134,21 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
-   if (::bind(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaServer, cbServer) < 0) {
-      exception::throw_os_error(
 #if ABC_HOST_API_WIN32
-         static_cast<errint_t>(::WSAGetLastError())
-#endif
-      );
+   if (::bind(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaServer, cbServer) < 0) {
+      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
    if (::listen(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), static_cast<int>(cBacklog)) < 0) {
-      exception::throw_os_error(
-#if ABC_HOST_API_WIN32
-         static_cast<errint_t>(::WSAGetLastError())
-#endif
-      );
+      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
+#else
+   if (::bind(m_fdSocket.get(), psaServer, cbServer) < 0) {
+      exception::throw_os_error();
+   }
+   if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
+      exception::throw_os_error();
+   }
+#endif
 }
 
 tcp_server::~tcp_server() {
