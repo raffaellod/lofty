@@ -117,7 +117,7 @@ pages_ptr::pages_ptr(std::size_t cb) :
       exception::throw_os_error(iRet);
    }
 #elif ABC_HOST_API_WIN32
-   m_p = ::VirtualAlloc(nullptr, m_cb, MEM_COMMIT | MEM_RESERVE);
+   m_p = ::VirtualAlloc(nullptr, m_cb, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
    if (!m_p) {
       exception::throw_os_error();
    }
