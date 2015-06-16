@@ -65,7 +65,7 @@ public:
 #if ABC_HOST_API_POSIX
       m_pStack(SIGSTKSZ),
 #elif ABC_HOST_API_WIN32
-      m_pfbr(::CreateFiber(0, &outer_main, this)),
+      m_pfbr(nullptr),
 #endif
 #ifdef ABAMAKE_USING_VALGRIND
       m_iValgrindStackId(VALGRIND_STACK_REGISTER(
@@ -91,6 +91,8 @@ public:
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
       #pragma clang diagnostic pop
    #endif
+#elif ABC_HOST_API_WIN32
+      m_pfbr = ::CreateFiber(0, &outer_main, this);
 #endif
    }
 
