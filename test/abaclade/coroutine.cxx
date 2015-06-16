@@ -148,6 +148,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    });
 
    this_thread::run_coroutines();
+
    ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[0]);
    ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[0]);
    ABC_TESTING_ASSERT_FALSE(abWorkersCompleted[1]);
@@ -159,6 +160,47 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[4]);
    ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4]);
    ABC_TESTING_ASSERT_TRUE(bControllerCompleted);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+
+} //namespace test
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// abc::test::coroutine_sleep
+
+namespace abc {
+namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
+   ABC_TRACE_FUNC(this);
+
+   static std::size_t const sc_cWorkers = 5;
+   coroutine coroWorkers[sc_cWorkers];
+   unsigned sc_aiSleeps[sc_cWorkers] = { 2, 3, 1, 5, 4 };
+   std::size_t aiWorkersAwoke[sc_cWorkers];
+   memory::clear(aiWorkersAwoke);
+   std::atomic<std::size_t> aiNextAwakingWorkerSlot(0);
+   for (std::size_t i = 0; i < sc_cWorkers; ++i) {
+      coroWorkers[i] = coroutine([
+         this, i, &sc_aiSleeps, &aiWorkersAwoke, &aiNextAwakingWorkerSlot
+      ] () {
+         ABC_TRACE_FUNC(this);
+
+         this_coroutine::sleep_for_ms(sc_aiSleeps[i]);
+         aiWorkersAwoke[aiNextAwakingWorkerSlot++] = i + 1;
+      });
+   }
+
+   this_thread::run_coroutines();
+
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[0], 3);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[1], 1);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[2], 2);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[3], 5);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[4], 4);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
