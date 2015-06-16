@@ -415,10 +415,12 @@ thread::tracker::tracker()
 }
 
 thread::tracker::~tracker() {
+#if ABC_HOST_API_POSIX
    // Restore the default signal handlers.
    ::signal(SIGINT,                 SIG_DFL);
    ::signal(SIGTERM,                SIG_DFL);
    ::signal(mc_iInterruptionSignal, SIG_DFL);
+#endif
    sm_pInst = nullptr;
 }
 
