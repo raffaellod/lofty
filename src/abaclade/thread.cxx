@@ -145,7 +145,7 @@ thread::impl::impl(std::nullptr_t) :
    m_id(this_thread::id()),
 #elif ABC_HOST_API_WIN32
    m_h(::OpenThread(
-      THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetThreadId()
+      THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetCurrentThreadId()
    )),
 #else
    #error "TODO: HOST_API"
