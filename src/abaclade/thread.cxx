@@ -213,11 +213,11 @@ void thread::impl::inject_exception(exception::common_type xct) {
 
    See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-do/>
    for the two race conditions mentioned above. */
+   std::uintptr_t iCurrPC;
    do {
       if (!::GetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
-      std::uintptr_t iCurrPC;
 #if ABC_HOST_ARCH_ARM
       iCurrPC = ctx.Pc;
 #elif ABC_HOST_ARCH_I386
