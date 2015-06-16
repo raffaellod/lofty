@@ -57,7 +57,7 @@ public:
 
                // Create text-mode reader and writer for the connection’s socket.
                auto ptr(io::text::make_reader(pconn->socket()));
-               auto ptw(io::text::make_writer(pconn->socket()));
+               auto ptw(io::text::make_writer(pconn->socket(), text::encoding::utf8));
                io::text::stdout->write_line(ABC_SL("responder: reading request"));
                ABC_FOR_EACH(auto & sLine, ptr->lines()) {
                   if (!sLine) {
@@ -68,9 +68,9 @@ public:
                io::text::stdout->write_line(ABC_SL("responder: responding"));
 
                // Send the response headers.
-               ptw->write_line("HTTP/1.0 200 OK");
-               ptw->write_line("Content-Type: text/plain; charset=utf-8");
-               ptw->write_line("Content-Length: 2");
+               ptw->write_line(ABC_SL("HTTP/1.0 200 OK"));
+               ptw->write_line(ABC_SL("Content-Type: text/plain; charset=utf-8"));
+               ptw->write_line(ABC_SL("Content-Length: 2"));
                ptw->write_line();
                ptw->flush();
 
