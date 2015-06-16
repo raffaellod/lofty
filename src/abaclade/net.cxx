@@ -134,17 +134,17 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
-   if (::bind(m_fdSocket.get(), psaServer, cbServer) < 0) {
+   if (::bind(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaServer, cbServer) < 0) {
       exception::throw_os_error(
 #if ABC_HOST_API_WIN32
-         ::WSAGetLastError();
+         static_cast<errint_t>(::WSAGetLastError())
 #endif
       );
    }
-   if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
+   if (::listen(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), static_cast<int>(cBacklog)) < 0) {
       exception::throw_os_error(
 #if ABC_HOST_API_WIN32
-         ::WSAGetLastError();
+         static_cast<errint_t>(::WSAGetLastError())
 #endif
       );
    }
@@ -202,7 +202,9 @@ std::shared_ptr<connection> tcp_server::accept() {
       }
       fd = io::filedesc(::accept4(m_fdSocket.get(), psaClient, &cb, iFlags));
 #elif ABC_HOST_API_WIN32
-      fd = io::filedesc(::WSAAccept(m_fdSocket.get(), psaClient, &cb, nullptr, nullptr));
+      fd = io::filedesc(reinterpret_cast<io::filedesc_t>(::WSAAccept(
+         reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaClient, &cb, nullptr, 0
+      )));
 #else
    #error "TODO: HOST_API"
 #endif
@@ -230,7 +232,7 @@ std::shared_ptr<connection> tcp_server::accept() {
             this_coroutine::sleep_until_fd_ready(m_fdSocket, false);
             break;
          default:
-            exception::throw_os_error(iErr);
+            exception::throw_os_error(static_cast<errint_t>(iErr));
       }
    }
 
@@ -276,7 +278,7 @@ std::shared_ptr<connection> tcp_server::accept() {
    static std::uint8_t const sc_iWSAMajorVersion = 2, sc_iWSAMinorVersion = 2;
    WSADATA wsad;
    if (int iRet = ::WSAStartup(MAKEWORD(sc_iWSAMajorVersion, sc_iWSAMinorVersion), &wsad)) {
-      exception::throw_os_error(iRet);
+      exception::throw_os_error(static_cast<errint_t>(iRet));
    }
    if (
       LOBYTE(wsad.wVersion) != sc_iWSAMajorVersion || HIBYTE(wsad.wVersion) != sc_iWSAMinorVersion
@@ -294,7 +296,9 @@ std::shared_ptr<connection> tcp_server::accept() {
    #ifdef WSA_FLAG_NO_HANDLE_INHERIT
       iFlags |= WSA_FLAG_NO_HANDLE_INHERIT;
    #endif
-   io::filedesc fd(::WSASocket(iFamily, iType, 0, nullptr, 0, iFlags));
+   io::filedesc fd(reinterpret_cast<io::filedesc_t>(::WSASocket(
+      iFamily, iType, 0, nullptr, 0, iFlags
+   )));
    if (!fd) {
       exception::throw_os_error();
    }
