@@ -28,9 +28,21 @@ namespace abc {
 void to_str_backend<text::char_ptr_to_str_adapter>::write(
    text::char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
 ) {
-   std::size_t cch = text::size_in_chars(cs.m_psz);
-   text::encoding enc(text::guess_encoding(cs.m_psz, cs.m_psz + cch));
-   text::detail::str_to_str_backend::write(cs.m_psz, sizeof(char) * cch, enc, ptwOut);
+   void const * p;
+   std::size_t cb;
+   text::encoding enc;
+   if (cs.m_psz) {
+      p = cs.m_psz;
+      std::size_t cch = text::size_in_chars(cs.m_psz);
+      enc = text::guess_encoding(cs.m_psz, cs.m_psz + cch);
+      cb = cch * sizeof(char);
+   } else {
+      static char_t const sc_achNull[] = ABC_SL("<nullptr>");
+      p = sc_achNull;
+      cb = sizeof sc_achNull - sizeof sc_achNull[0] /*NUL*/;
+      enc = text::encoding::host;
+   }
+   text::detail::str_to_str_backend::write(p, cb, enc, ptwOut);
 }
 
 } //namespace abc
