@@ -29,8 +29,18 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <sys/socket.h> // accept4() bind() socket()
 #elif ABC_HOST_API_WIN32
    #include <winsock2.h>
+   #if ABC_HOST_CXX_MSC
+      // Silence warnings from system header files.
+      #pragma warning(push)
+
+      // “'id' : conversion from 'type1' to 'type2', signed / unsigned mismatch”
+      #pragma warning(disable: 4365)
+   #endif
    #include <ws2tcpip.h>
    #include <mstcpip.h>
+   #if ABC_HOST_CXX_MSC
+      #pragma warning(pop)
+   #endif
    #if _WIN32_WINNT == 0x0500
       // Additional header required for Windows 2000 IPv6 Tech Preview.
       #include <tpipv6.h>
