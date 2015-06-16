@@ -87,6 +87,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/collections/static_list.cxx"/>
          <source path="test/abaclade/os/path.cxx"/>
          <source path="test/abaclade/range.cxx"/>
+         <source path="test/abaclade/text/char_ptr_to_str_adapter.cxx"/>
          <source path="test/abaclade/text/str.cxx"/>
          <source path="test/abaclade/text/str_traits.cxx"/>
          <source path="test/abaclade/thread.cxx"/>
