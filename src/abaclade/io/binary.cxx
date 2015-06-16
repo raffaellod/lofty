@@ -333,9 +333,9 @@ std::shared_ptr<file_base> open(
       iFlags &= ~(FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_RANDOM_ACCESS);
       iFlags |= FILE_FLAG_NO_BUFFERING;
    }
-   if (!(fid.fd = ::CreateFile(
+   if (!(fid.fd = filedesc(::CreateFile(
       op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, iFlags, nullptr
-   ))) {
+   )))) {
       DWORD iErr = ::GetLastError();
       switch (iErr) {
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
@@ -406,18 +406,18 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       small; the smallest it can get is a single memory page. */
       DWORD cbBuffer = static_cast<DWORD>(memory::page_size());
       // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
-      fidReader.fd = ::CreateNamedPipe(
+      fidReader.fd = filedesc(::CreateNamedPipe(
          sPipeName.c_str(),
          GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
          1, cbBuffer, cbBuffer, 0, nullptr
-      );
+      ));
       if (!fidReader.fd) {
          exception::throw_os_error();
       }
-      fidWriter.fd = ::CreateFile(
+      fidWriter.fd = filedesc(::CreateFile(
          sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
          FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
-      );
+      ));
       if (!fidWriter.fd) {
          // fidReader.fd is closed automatically.
          exception::throw_os_error();
@@ -427,8 +427,8 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       if (!::CreatePipe(&hRead, &hWrite, nullptr, 0)) {
          exception::throw_os_error();
       }
-      fidReader.fd = hRead;
-      fidWriter.fd = hWrite;
+      fidReader.fd = filedesc(hRead);
+      fidWriter.fd = filedesc(hWrite);
    }
    fidReader.bAsync = fidWriter.bAsync = bAsync;
 #else
