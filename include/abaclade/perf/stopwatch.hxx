@@ -83,7 +83,7 @@ public:
 
 protected:
    //! Pointer to the start time of the current timed session.
-   std::unique_ptr<void> m_pStartTime;
+   std::unique_ptr<void, memory::freeing_deleter> m_pStartTime;
    //! Total measured time duration, in nanoseconds. Precision is not guaranteed on all platforms.
    duration_type m_iTotalDuration;
 };
