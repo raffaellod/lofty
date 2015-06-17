@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
-#include <abaclade/collections/map.hxx>
+#include <abaclade/collections/hash_map.hxx>
 #include <abaclade/perf/stopwatch.hxx>
 #include <abaclade/range.hxx>
 
@@ -70,7 +70,7 @@ public:
       using std::get;
 
       io::text::stdout->print(ABC_SL(
-         "                                            Add   Hit lookup  Miss lookup  [ns]\n"
+         "                                                 Add   Hit lookup  Miss lookup  [ns]\n"
       ));
 
       auto rGoodHash(make_range(0, 10000000));
@@ -79,43 +79,43 @@ public:
          std::map<int, int> m;
          auto ret(run_test(&m, rGoodHash));
          io::text::stdout->print(
-            ABC_SL("  std::map                          {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::map                               {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         std::unordered_map<int, int, std::hash<int>> m;
-         auto ret(run_test(&m, rGoodHash));
+         std::unordered_map<int, int, std::hash<int>> um;
+         auto ret(run_test(&um, rGoodHash));
          io::text::stdout->print(
-            ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::collections::map<int, int, std::hash<int>> m;
-         auto ret(run_test(&m, rGoodHash));
+         abc::collections::hash_map<int, int, std::hash<int>> hm;
+         auto ret(run_test(&hm, rGoodHash));
          io::text::stdout->print(
-            ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
-            m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
+            ABC_SL("  abc::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            hm.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
 
       auto rPoorHash(make_range(0, 10000));
       io::text::stdout->print(ABC_SL("{}, 100% collisions\n"), rPoorHash.size());
       {
-         std::unordered_map<int, int, poor_hash<int>> m;
-         auto ret(run_test(&m, rPoorHash));
+         std::unordered_map<int, int, poor_hash<int>> um;
+         auto ret(run_test(&um, rPoorHash));
          io::text::stdout->print(
-            ABC_SL("  std::unordered_map                {:11}  {:11}  {:11}\n"),
+            ABC_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::collections::map<int, int, poor_hash<int>> m;
-         auto ret(run_test(&m, rPoorHash));
+         abc::collections::hash_map<int, int, poor_hash<int>> hm;
+         auto ret(run_test(&hm, rPoorHash));
          io::text::stdout->print(
-            ABC_SL("  abc::collections::map (nh: {:5}) {:11}  {:11}  {:11}\n"),
-            m.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
+            ABC_SL("  abc::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            hm.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
 
@@ -175,37 +175,39 @@ private:
    }
 
    template <typename TValue, typename THash>
-   run_test_ret run_test(std::unordered_map<TValue, TValue, THash> * pm, range<TValue> const & r) {
-      ABC_TRACE_FUNC(this, pm/*, r*/);
+   run_test_ret run_test(std::unordered_map<TValue, TValue, THash> * pum, range<TValue> const & r) {
+      ABC_TRACE_FUNC(this, pum/*, r*/);
 
       perf::stopwatch swAdd;
       {
          swAdd.start();
          ABC_FOR_EACH(auto i, r) {
-            pm->insert(std::make_pair(i, i));
+            pum->insert(std::make_pair(i, i));
          }
          swAdd.stop();
       }
-      auto swHitLookup(hit_lookup_test(*pm, r));
-      auto swMissLookup(miss_lookup_test(*pm, r));
+      auto swHitLookup(hit_lookup_test(*pum, r));
+      auto swMissLookup(miss_lookup_test(*pum, r));
 
       return run_test_ret(std::move(swAdd), std::move(swHitLookup), std::move(swMissLookup));
    }
 
    template <typename TValue, typename THash>
-   run_test_ret run_test(collections::map<TValue, TValue, THash> * pm, range<TValue> const & r) {
-      ABC_TRACE_FUNC(this, pm/*, r*/);
+   run_test_ret run_test(
+      collections::hash_map<TValue, TValue, THash> * phm, range<TValue> const & r
+   ) {
+      ABC_TRACE_FUNC(this, phm/*, r*/);
 
       perf::stopwatch swAdd;
       {
          swAdd.start();
          ABC_FOR_EACH(auto i, r) {
-            pm->add_or_assign(i, i);
+            phm->add_or_assign(i, i);
          }
          swAdd.stop();
       }
-      auto swHitLookup(hit_lookup_test(*pm, r));
-      auto swMissLookup(miss_lookup_test(*pm, r));
+      auto swHitLookup(hit_lookup_test(*phm, r));
+      auto swMissLookup(miss_lookup_test(*phm, r));
 
       return run_test_ret(std::move(swAdd), std::move(swHitLookup), std::move(swMissLookup));
    }

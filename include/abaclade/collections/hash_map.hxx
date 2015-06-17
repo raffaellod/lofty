@@ -31,17 +31,19 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::map_impl
+// abc::collections::detail::hash_map_impl
 
 namespace abc {
 namespace collections {
 namespace detail {
 
-//! Non-template implementation class for abc::collections::map.
-class ABACLADE_SYM map_impl :
+//! Non-template implementation class for abc::collections::hash_map.
+class ABACLADE_SYM hash_map_impl :
    public support_explicit_operator_bool<list_impl> {
 protected:
-   typedef bool (* keys_equal_fn)(map_impl const * pmapi, void const * pKey1, void const * pKey2);
+   typedef bool (* keys_equal_fn)(
+      hash_map_impl const * phmi, void const * pKey1, void const * pKey2
+   );
 
    //! Integer type used to track changes in the map.
    typedef std::uint16_t rev_int_t;
@@ -49,18 +51,18 @@ protected:
    //! Iterator type for const key/value pairs.
    class ABACLADE_SYM iterator_base {
    private:
-      friend class map_impl;
+      friend class hash_map_impl;
 
    public:
       /*! Constructor.
 
-      @param pmap
+      @param phm
          Pointer to the map owning the iterated objects.
       @param iBucket
          Index of the current bucket.
       */
       iterator_base();
-      iterator_base(map_impl const * pmap, std::size_t iBucket);
+      iterator_base(hash_map_impl const * phm, std::size_t iBucket);
 
       /*! Equality relational operator.
 
@@ -72,7 +74,7 @@ protected:
       bool operator==(iterator_base const & it) const {
          ABC_TRACE_FUNC(this/*, it*/);
 
-         return m_pmap == it.m_pmap && m_iBucket == it.m_iBucket;
+         return m_phm == it.m_phm && m_iBucket == it.m_iBucket;
       }
 
       /*! Inequality relational operator.
@@ -98,7 +100,7 @@ protected:
 
    protected:
       //! Pointer to the map to iterate over.
-      map_impl const * m_pmap;
+      hash_map_impl const * m_phm;
       //! Current bucket index.
       std::size_t m_iBucket;
       //! Last container revision number known to the iterator.
@@ -108,21 +110,21 @@ protected:
 public:
    /*! Constructor.
 
-   @param m
+   @param hmi
       Source object.
    */
-   map_impl();
-   map_impl(map_impl && m);
+   hash_map_impl();
+   hash_map_impl(hash_map_impl && hmi);
 
    //! Destructor.
-   ~map_impl();
+   ~hash_map_impl();
 
    /*! Assignment operator.
 
    @param m
       Source object.
    */
-   map_impl & operator=(map_impl && m);
+   hash_map_impl & operator=(hash_map_impl && hmi);
 
    /*! Returns true if the map size is greater than 0.
 
@@ -453,7 +455,7 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::map
+// abc::collections::hash_map
 
 namespace abc {
 namespace collections {
@@ -469,7 +471,7 @@ template <
    typename THasher = std::hash<TKey>,
    typename TKeyEqual = std::equal_to<TKey>
 >
-class map : public detail::map_impl, private THasher, private TKeyEqual {
+class hash_map : public detail::hash_map_impl, private THasher, private TKeyEqual {
 public:
    //! Key type.
    typedef TKey key_type;
@@ -518,9 +520,9 @@ public:
 
    //! Const iterator type.
    class const_iterator :
-      public map_impl::iterator_base {
+      public hash_map_impl::iterator_base {
    private:
-      friend class map;
+      friend class hash_map;
 
    public:
       //! Const key/value type.
@@ -553,8 +555,8 @@ public:
          ABC_TRACE_FUNC(this);
 
          validate();
-         map const * pmap = static_cast<map const *>(m_pmap);
-         return value_type(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
+         hash_map const * phm = static_cast<hash_map const *>(m_phm);
+         return value_type(phm->key_ptr(m_iBucket), phm->value_ptr(m_iBucket));
       }
 
       /*! Dereferencing member access operator.
@@ -566,8 +568,8 @@ public:
          ABC_TRACE_FUNC(this);
 
          validate();
-         map const * pmap = static_cast<map const *>(m_pmap);
-         return pair_ptr<value_type>(pmap->key_ptr(m_iBucket), pmap->value_ptr(m_iBucket));
+         hash_map const * phm = static_cast<hash_map const *>(m_phm);
+         return pair_ptr<value_type>(phm->key_ptr(m_iBucket), phm->value_ptr(m_iBucket));
       }
 
       /*! Preincrement operator.
@@ -594,13 +596,13 @@ public:
          validate();
          std::size_t iBucketPrev = m_iBucket;
          increment();
-         return const_iterator(m_pmap, iBucketPrev);
+         return const_iterator(m_phm, iBucketPrev);
       }
 
    protected:
-      //! See map_impl::iterator_base::iterator_base.
-      const_iterator(map_impl const * pmap, std::size_t iBucket) :
-         map_impl::iterator_base(pmap, iBucket) {
+      //! See hash_map_impl::iterator_base::iterator_base.
+      const_iterator(hash_map_impl const * phm, std::size_t iBucket) :
+         hash_map_impl::iterator_base(phm, iBucket) {
       }
    };
 
@@ -608,7 +610,7 @@ public:
    class iterator :
       public const_iterator {
    private:
-      friend class map;
+      friend class hash_map;
 
    public:
       //! Key/value type.
@@ -634,8 +636,8 @@ public:
          ABC_TRACE_FUNC(this);
 
          this->validate();
-         map const * pmap = static_cast<map const *>(this->m_pmap);
-         return value_type(pmap->key_ptr(this->m_iBucket), pmap->value_ptr(this->m_iBucket));
+         hash_map const * phm = static_cast<hash_map const *>(this->m_phm);
+         return value_type(phm->key_ptr(this->m_iBucket), phm->value_ptr(this->m_iBucket));
       }
 
       /*! Dereferencing member access operator.
@@ -647,9 +649,9 @@ public:
          ABC_TRACE_FUNC(this);
 
          this->validate();
-         map const * pmap = static_cast<map const *>(this->m_pmap);
+         hash_map const * phm = static_cast<hash_map const *>(this->m_phm);
          return pair_ptr<value_type>(
-            pmap->key_ptr(this->m_iBucket), pmap->value_ptr(this->m_iBucket)
+            phm->key_ptr(this->m_iBucket), phm->value_ptr(this->m_iBucket)
          );
       }
 
@@ -665,8 +667,8 @@ public:
 
    protected:
       //! See const_iterator::const_iterator.
-      iterator(map_impl const * pmap, std::size_t iBucket) :
-         const_iterator(pmap, iBucket) {
+      iterator(hash_map_impl const * phm, std::size_t iBucket) :
+         const_iterator(phm, iBucket) {
       }
 
    private:
@@ -686,27 +688,27 @@ public:
 public:
    /*! Constructor.
 
-   @param m
+   @param hm
       Source object.
    */
-   map() {
+   hash_map() {
    }
-   map(map && m) :
-      detail::map_impl(std::move(m)) {
+   hash_map(hash_map && hm) :
+      detail::hash_map_impl(std::move(hm)) {
    }
 
    //! Destructor.
-   ~map() {
+   ~hash_map() {
       clear();
    }
 
    /*! Assignment operator.
 
-   @param m
+   @param hm
       Source object.
    */
-   map & operator=(map && m) {
-      detail::map_impl::operator=(std::move(m));
+   hash_map & operator=(hash_map && hm) {
+      detail::hash_map_impl::operator=(std::move(hm));
       return *this;
    }
 
@@ -756,7 +758,7 @@ public:
       typeValue.set_size<TValue>();
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       bool bNew;
-      std::tie(iBucket, bNew) = map_impl::add_or_assign(
+      std::tie(iBucket, bNew) = hash_map_impl::add_or_assign(
          typeKey, typeValue, &keys_equal, &key, iKeyHash, &value, 1 | 2
       );
       return std::make_pair(iterator(this, iBucket), bNew);
@@ -805,7 +807,7 @@ public:
       typeKey.set_size<TKey>();
       typeValue.set_destr_fn<TValue>();
       typeValue.set_size<TValue>();
-      map_impl::clear(typeKey, typeValue);
+      hash_map_impl::clear(typeKey, typeValue);
    }
 
    /*! Returns a forward iterator set beyond the last key/value pair.
@@ -944,9 +946,9 @@ private:
       return static_cast<TKey *>(m_pKeys.get()) + i;
    }
 
-   /*! Compares two keys for equality. Static helper used by detail::map_impl.
+   /*! Compares two keys for equality. Static helper used by detail::hash_map_impl.
 
-   @param pmapi
+   @param phmi
       Pointer to *this.
    @param pKey1
       Pointer to the first key to compare.
@@ -955,9 +957,9 @@ private:
    @return
       true if the two keys compare as equal, or false otherwise.
    */
-   static bool keys_equal(map_impl const * pmapi, void const * pKey1, void const * pKey2) {
-      map const * pmap = static_cast<map const *>(pmapi);
-      return pmap->key_equal::operator()(
+   static bool keys_equal(hash_map_impl const * phmi, void const * pKey1, void const * pKey2) {
+      hash_map const * phm = static_cast<hash_map const *>(phmi);
+      return phm->key_equal::operator()(
          *static_cast<TKey const *>(pKey1), *static_cast<TKey const *>(pKey2)
       );
    }

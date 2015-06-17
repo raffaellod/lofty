@@ -432,7 +432,7 @@ void thread::tracker::main_thread_terminated(exception::common_type xct) {
    /* Note: at this point, a correct program should have no other threads running. As a courtesy,
    Abaclade will prevent the process from terminating while threads are still running, by ensuring
    that all Abaclade-managed threads are joined before termination; however, app::main() returning
-   when m_mappimplThreads.size() > 0 should be considered an exception (and a bug) rather than the
+   when m_hmThreads.size() > 0 should be considered an exception (and a bug) rather than the
    rule. */
 
    // Make this thread uninterruptible by other threads.
@@ -440,14 +440,14 @@ void thread::tracker::main_thread_terminated(exception::common_type xct) {
 
    std::unique_lock<std::mutex> lock(m_mtxThreads);
    // Signal every other thread to terminate.
-   ABC_FOR_EACH(auto kv, m_mappimplThreads) {
+   ABC_FOR_EACH(auto kv, m_hmThreads) {
       kv.value->inject_exception(xct);
    }
    /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
-   have themselves removed from m_mappimplThreads. We can’t join() them here, since they might be
-   joining amongst themselves in some application-defined order, and we can’t join the same thread
-   more than once (at least in POSIX). */
-   while (!m_mappimplThreads.empty()) {
+   have themselves removed from m_hmThreads. We can’t join() them here, since they might be joining
+   amongst themselves in some application-defined order, and we can’t join the same thread more than
+   once (at least in POSIX). */
+   while (!m_hmThreads.empty()) {
       lock.unlock();
       // Yes, we just sleep. Remember, this should not really happen (see the note above).
       this_thread::sleep_for_ms(1);
@@ -458,14 +458,14 @@ void thread::tracker::main_thread_terminated(exception::common_type xct) {
 
 void thread::tracker::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
    std::lock_guard<std::mutex> lock(m_mtxThreads);
-   m_mappimplThreads.add_or_assign(pimpl.get(), pimpl);
+   m_hmThreads.add_or_assign(pimpl.get(), pimpl);
 }
 
 void thread::tracker::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
    // Remove the thread from the bookkeeping list.
    {
       std::lock_guard<std::mutex> lock(m_mtxThreads);
-      m_mappimplThreads.remove(pimpl);
+      m_hmThreads.remove(pimpl);
    }
    /* If the thread was terminated by an exception making it all the way out of the thread function,
    all other threads must terminate as well. Achieve this by “forwarding” the exception to the main

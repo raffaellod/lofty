@@ -28,8 +28,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/coroutine.hxx>
+#include <abaclade/collections/hash_map.hxx>
 #include <abaclade/collections/list.hxx>
-#include <abaclade/collections/map.hxx>
 #include <abaclade/thread.hxx>
 
 #include <atomic>
@@ -146,13 +146,13 @@ private:
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this
    can’t be changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to
    the coroutine implementation while allowing lookups without having a shared_ptr. */
-   collections::map<std::uintptr_t, std::shared_ptr<impl>> m_mapCorosBlockedByTimer;
+   collections::hash_map<std::uintptr_t, std::shared_ptr<impl>> m_hmCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
    /*! Timers currently being waited for. The key is the same as the value, but this can’t be
    changed into a set<io::filedesc> until io::filedesc is hashable. */
-   collections::map<io::filedesc_t, io::filedesc> m_mapActiveTimers;
+   collections::hash_map<io::filedesc_t, io::filedesc> m_hmActiveTimers;
 #elif ABC_HOST_API_WIN32
    //! File descriptor of the internal IOCP.
    io::filedesc m_fdIocp;
@@ -160,11 +160,11 @@ private:
    #error "TODO: HOST_API"
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::map<io::filedesc_t, std::shared_ptr<impl>> m_mapCorosBlockedByFD;
+   collections::hash_map<io::filedesc_t, std::shared_ptr<impl>> m_hmCorosBlockedByFD;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
    collections::list<std::shared_ptr<impl>> m_listReadyCoros;
-   //! Governs access to m_listReadyCoros, m_mapCorosBlockedByFD and other “blocked by” maps/sets.
+   //! Governs access to m_listReadyCoros, m_hmCorosBlockedByFD and other “blocked by” maps/sets.
    std::mutex m_mtxCorosAddRemove;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of

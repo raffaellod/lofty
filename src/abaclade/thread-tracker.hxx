@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/map.hxx>
+#include <abaclade/collections/hash_map.hxx>
 #include <abaclade/thread.hxx>
 
 #include <atomic>
@@ -103,11 +103,11 @@ private:
    thread of the process. */
    // TODO: instantiate this lazily, only if needed.
    std::shared_ptr<impl> m_pimplMainThread;
-   //! Governs access to m_mappimplThreads.
+   //! Governs access to m_hmThreads.
    std::mutex m_mtxThreads;
    //! Tracks all threads running in the process except *m_pimplMainThread.
-   // TODO: make this a set instead of a map.
-   collections::map<impl *, std::shared_ptr<impl>> m_mappimplThreads;
+   // TODO: make this a hash_set instead of a hash_map.
+   collections::hash_map<impl *, std::shared_ptr<impl>> m_hmThreads;
    //! Pointer to the singleton instance.
    static thread::tracker * sm_pInst;
 };

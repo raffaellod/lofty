@@ -323,7 +323,7 @@ coroutine::scheduler::scheduler() :
 }
 
 coroutine::scheduler::~scheduler() {
-   /* TODO: verify that m_listReadyCoros and m_mapCorosBlockedByFD (and m_mapCorosBlockedByTimer…)
+   /* TODO: verify that m_listReadyCoros and m_hmCorosBlockedByFD (and m_hmCorosBlockedByTimer…)
    are empty. */
 }
 
@@ -359,7 +359,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // Deactivate the current coroutine and find one to activate instead.
    {
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      m_mapCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
+      m_hmCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
    }
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
@@ -368,7 +368,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       {
 //         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-         m_mapCorosBlockedByTimer.remove(ke.ident);
+         m_hmCorosBlockedByTimer.remove(ke.ident);
       }
       ke.flags = EV_DELETE;
       ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
@@ -393,15 +393,15 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    }
    // This timer is now active (save exceptions – see catch (...) below).
    io::filedesc_t fdCopy = fd.get();
-   m_mapActiveTimers.add_or_assign(fdCopy, std::move(fd));
+   m_hmActiveTimers.add_or_assign(fdCopy, std::move(fd));
    auto deferred1(defer_to_scope_end([this, fdCopy] () {
       // Remove the timer from the set of active ones.
       // TODO: recycle the timer, putting it back in the pool of inactive timers.
-      m_mapActiveTimers.remove(fdCopy);
+      m_hmActiveTimers.remove(fdCopy);
    }));
    // At this point the timer is just a file descriptor that we’ll be waiting to read from.
    block_active_until_fd_ready(fdCopy, false);
-   // deferred1 will remove fdCopy from m_mapActiveTimers.
+   // deferred1 will remove fdCopy from m_hmActiveTimers.
 #else
    #error "TODO: HOST_API"
 #endif
@@ -447,7 +447,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    impl * pcoroimpl;
    {
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      pcoroimpl = m_mapCorosBlockedByFD.add_or_assign(
+      pcoroimpl = m_hmCorosBlockedByFD.add_or_assign(
          fd, std::move(sm_pcoroimplActive)
       ).first->value.get();
    }
@@ -462,7 +462,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
 #endif
       // Remove the coroutine from the map of blocked ones.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      m_mapCorosBlockedByFD.remove(fd);
+      m_hmCorosBlockedByFD.remove(fd);
       throw;
    }
    // Under Linux, deferred1 will remove the now-inactive event for fd.
@@ -535,9 +535,9 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
             // There are coroutines that are ready to run; remove and return the first.
             return m_listReadyCoros.pop_front();
          } else if (
-            !m_mapCorosBlockedByFD
+            !m_hmCorosBlockedByFD
 #if ABC_HOST_API_BSD
-            && !m_mapCorosBlockedByTimer
+            && !m_hmCorosBlockedByTimer
 #endif
          ) {
             return nullptr;
@@ -563,10 +563,10 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       if (ke.filter == EVFILT_TIMER) {
          // Remove and return the coroutine that was waiting for this timer.
-         return m_mapCorosBlockedByTimer.extract(ke.ident);
+         return m_hmCorosBlockedByTimer.extract(ke.ident);
       } else {
          // Remove and return the coroutine that was waiting for this file descriptor.
-         return m_mapCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
+         return m_hmCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
       }
 #elif ABC_HOST_API_LINUX
       ::epoll_event ee;
@@ -579,7 +579,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       }
       // Remove and return the coroutine that was waiting for this file descriptor.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_mapCorosBlockedByFD.extract(ee.data.fd);
+      return m_hmCorosBlockedByFD.extract(ee.data.fd);
 #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
@@ -591,7 +591,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       }
       // Remove and return the coroutine that was waiting for this handle.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_mapCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
+      return m_hmCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
 #else
    #error "TODO: HOST_API"
 #endif
@@ -605,11 +605,11 @@ void coroutine::scheduler::interrupt_all() {
       /* TODO: using a different locking pattern, this work could be split across multiple threads,
       in case multiple are associated to this scheduler. */
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      ABC_FOR_EACH(auto kv, m_mapCorosBlockedByFD) {
+      ABC_FOR_EACH(auto kv, m_hmCorosBlockedByFD) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }
 #if ABC_HOST_API_BSD
-      ABC_FOR_EACH(auto kv, m_mapCorosBlockedByTimer) {
+      ABC_FOR_EACH(auto kv, m_hmCorosBlockedByTimer) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }
 #endif

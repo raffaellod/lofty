@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
-#include <abaclade/collections/map.hxx>
+#include <abaclade/collections/hash_map.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,48 +27,48 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – basic operations") {
    ABC_TRACE_FUNC(this);
 
-   collections::map<int, int> m;
+   collections::hash_map<int, int> hm;
 
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 0u);
    // These assertions target const begin/end.
-   ABC_TESTING_ASSERT_TRUE(m.cbegin() == m.cend());
+   ABC_TESTING_ASSERT_TRUE(hm.cbegin() == hm.cend());
 
-   m.add_or_assign(10, 100);
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-   ABC_TESTING_ASSERT_EQUAL(m[10], 100);
+   hm.add_or_assign(10, 100);
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(hm[10], 100);
    {
       /* This uses begin(), not cbegin(), so we can test equality comparison between const/non-const
       iterators. */
-      auto it(m.begin());
+      auto it(hm.begin());
       ABC_TESTING_ASSERT_EQUAL(it->key, 10);
       ABC_TESTING_ASSERT_EQUAL(it->value, 100);
       ++it;
-      ABC_TESTING_ASSERT_TRUE(it == m.cend());
+      ABC_TESTING_ASSERT_TRUE(it == hm.cend());
    }
 
-   m.add_or_assign(20, 200);
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
-   ABC_TESTING_ASSERT_EQUAL(m[10], 100);
-   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
+   hm.add_or_assign(20, 200);
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(hm[10], 100);
+   ABC_TESTING_ASSERT_EQUAL(hm[20], 200);
 
-   ABC_TESTING_ASSERT_TRUE(m.remove_if_found(10));
-   ABC_TESTING_ASSERT_FALSE(m.remove_if_found(10));
-   ABC_TESTING_ASSERT_THROWS(key_error, m.remove(10));
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
-   ABC_TESTING_ASSERT_FALSE(m.remove_if_found(10));
+   ABC_TESTING_ASSERT_TRUE(hm.remove_if_found(10));
+   ABC_TESTING_ASSERT_FALSE(hm.remove_if_found(10));
+   ABC_TESTING_ASSERT_THROWS(key_error, hm.remove(10));
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(hm[20], 200);
+   ABC_TESTING_ASSERT_FALSE(hm.remove_if_found(10));
 
-   m.add_or_assign(22, 220);
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 2u);
-   ABC_TESTING_ASSERT_EQUAL(m[20], 200);
-   ABC_TESTING_ASSERT_EQUAL(m[22], 220);
+   hm.add_or_assign(22, 220);
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(hm[20], 200);
+   ABC_TESTING_ASSERT_EQUAL(hm[22], 220);
    {
       // A little clunky, but neecessary since the order is not guaranteed.
       bool bFound20 = false, bFound22 = false;
-      for (auto it(m.begin()); it != m.cend(); ++it) {
+      for (auto it(hm.begin()); it != hm.cend(); ++it) {
          ABC_TESTING_ASSERT_TRUE(it->key == 20 || it->key == 22);
          if (it->key == 20) {
             ABC_TESTING_ASSERT_FALSE(bFound20);
@@ -84,34 +84,34 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – basic operations") {
       ABC_TESTING_ASSERT_TRUE(bFound22);
    }
 
-   m.clear();
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 0u);
+   hm.clear();
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 0u);
    // These assertions target non-const begin/end.
-   ABC_TESTING_ASSERT_TRUE(m.begin() == m.end());
+   ABC_TESTING_ASSERT_TRUE(hm.begin() == hm.end());
 
-   m.add_or_assign(11, 110);
-   ABC_TESTING_ASSERT_EQUAL(m.size(), 1u);
-   ABC_TESTING_ASSERT_EQUAL(m[11], 110);
+   hm.add_or_assign(11, 110);
+   ABC_TESTING_ASSERT_EQUAL(hm.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(hm[11], 110);
 
    // Add enough key/value pairs until a resize occurs.
    int iKey = 11, iValue = 110;
-   std::size_t iInitialCapacity = m.capacity();
+   std::size_t iInitialCapacity = hm.capacity();
    do {
       iKey += 11;
       iValue += 110;
-      m.add_or_assign(iKey, iValue);
-   } while (m.capacity() == iInitialCapacity);
+      hm.add_or_assign(iKey, iValue);
+   } while (hm.capacity() == iInitialCapacity);
    /* Verify that some values are still there. Can’t check them all because we don’t know exactly
    how many we ended up adding. */
-   ABC_TESTING_ASSERT_EQUAL(m[11], 110);
-   ABC_TESTING_ASSERT_EQUAL(m[22], 220);
-   ABC_TESTING_ASSERT_EQUAL(m[iKey - 11], iValue - 110);
-   ABC_TESTING_ASSERT_EQUAL(m[iKey], iValue);
+   ABC_TESTING_ASSERT_EQUAL(hm[11], 110);
+   ABC_TESTING_ASSERT_EQUAL(hm[22], 220);
+   ABC_TESTING_ASSERT_EQUAL(hm[iKey - 11], iValue - 110);
+   ABC_TESTING_ASSERT_EQUAL(hm[iKey], iValue);
 
    // Validate that non-copyable types can be stored in a map.
    {
-      collections::map<int, std::unique_ptr<int>> m2;
-      m2.add_or_assign(1, std::unique_ptr<int>(new int(10)));
+      collections::hash_map<int, std::unique_ptr<int>> hm2;
+      hm2.add_or_assign(1, std::unique_ptr<int>(new int(10)));
    }
 }
 
@@ -126,8 +126,8 @@ namespace test {
 namespace {
 
 /*! Inefficient hash function that results in 100% hash collisions. This also checks that hash 0
-(which has a special meaning internally to abc::collections::map) behaves no differently than any
-other value.
+(which has a special meaning internally to abc::collections::hash_map) behaves no differently than
+any other value.
 
 @param i
    Value to hash.
@@ -143,18 +143,18 @@ struct poor_hash {
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% collisions") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – stress test with 100% collisions") {
    ABC_TRACE_FUNC(this);
 
    static int const sc_iMax = 1000;
    unsigned cErrors;
-   collections::map<int, int, poor_hash> m;
+   collections::hash_map<int, int, poor_hash> hm;
 
    // Verify that values are inserted correctly.
    cErrors = 0;
    for (int i = 0; i < sc_iMax; ++i) {
-      m.add_or_assign(i, i);
-      if (m[i] != i) {
+      hm.add_or_assign(i, i);
+      if (hm[i] != i) {
          ++cErrors;
       }
    }
@@ -163,7 +163,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% coll
    // Verify that the insertion of later values did not break previously-inserted values.
    cErrors = 0;
    for (int i = 0; i < sc_iMax; ++i) {
-      if (m[i] != i) {
+      if (hm[i] != i) {
          ++cErrors;
       }
    }
@@ -178,35 +178,35 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – stress test with 100% coll
 namespace abc {
 namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::map – operations with iterators") {
+ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – operations with iterators") {
    ABC_TRACE_FUNC(this);
 
-   collections::map<int, int> m;
+   collections::hash_map<int, int> hm;
 
    // Should not allow to move an iterator to outside [begin, end].
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(m.cbegin());
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(m.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++m.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++m.cend());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(hm.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(hm.cend());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++hm.cbegin());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, ++hm.cend());
 
    // Should not allow to dereference end().
-   ABC_TESTING_ASSERT_THROWS(iterator_error, *m.cend());
+   ABC_TESTING_ASSERT_THROWS(iterator_error, *hm.cend());
 
    {
-      auto it(m.cbegin());
-      m.add_or_assign(10, 100);
+      auto it(hm.cbegin());
+      hm.add_or_assign(10, 100);
       // it has been invalidated by add_or_assign().
       ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
    }
 
-   ABC_FOR_EACH(auto kv, m) {
+   ABC_FOR_EACH(auto kv, hm) {
       ABC_TESTING_ASSERT_EQUAL(kv.key, 10);
       ABC_TESTING_ASSERT_EQUAL(kv.value, 100);
    }
 
    {
-      auto it(m.cbegin());
-      m.remove(10);
+      auto it(hm.cbegin());
+      hm.remove(10);
       // it has been invalidated by remove().
       ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
    }

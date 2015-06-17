@@ -18,65 +18,65 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/collections/map.hxx>
+#include <abaclade/collections/hash_map.hxx>
 
 #include <climits> // CHAR_BIT
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::map_impl
+// abc::collections::detail::hash_map_impl
 
 namespace abc {
 namespace collections {
 namespace detail {
 
-std::size_t const map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
+std::size_t const hash_map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
 
-map_impl::map_impl() :
+hash_map_impl::hash_map_impl() :
    m_cBuckets(0),
    m_cUsedBuckets(0),
    m_cNeighborhoodBuckets(0),
    m_iRev(0) {
 }
-map_impl::map_impl(map_impl && m) :
-   m_piHashes(std::move(m.m_piHashes)),
-   m_pKeys(std::move(m.m_pKeys)),
-   m_pValues(std::move(m.m_pValues)),
-   m_cBuckets(m.m_cBuckets),
-   m_cUsedBuckets(m.m_cUsedBuckets),
-   m_cNeighborhoodBuckets(m.m_cNeighborhoodBuckets),
+hash_map_impl::hash_map_impl(hash_map_impl && hmi) :
+   m_piHashes(std::move(hmi.m_piHashes)),
+   m_pKeys(std::move(hmi.m_pKeys)),
+   m_pValues(std::move(hmi.m_pValues)),
+   m_cBuckets(hmi.m_cBuckets),
+   m_cUsedBuckets(hmi.m_cUsedBuckets),
+   m_cNeighborhoodBuckets(hmi.m_cNeighborhoodBuckets),
    m_iRev(0) {
    ABC_TRACE_FUNC(this);
 
-   m.m_cBuckets = 0;
-   m.m_cUsedBuckets = 0;
-   m.m_cNeighborhoodBuckets = 0;
-   // Invalidate all iterators for m.
-   ++m.m_iRev;
+   hmi.m_cBuckets = 0;
+   hmi.m_cUsedBuckets = 0;
+   hmi.m_cNeighborhoodBuckets = 0;
+   // Invalidate all iterators for hmi.
+   ++hmi.m_iRev;
 }
 
-map_impl::~map_impl() {
+hash_map_impl::~hash_map_impl() {
 }
 
-map_impl & map_impl::operator=(map_impl && m) {
+hash_map_impl & hash_map_impl::operator=(hash_map_impl && hmi) {
    ABC_TRACE_FUNC(this);
 
-   m_piHashes = std::move(m.m_piHashes);
-   m_pKeys = std::move(m.m_pKeys);
-   m_pValues = std::move(m.m_pValues);
-   m_cBuckets = m.m_cBuckets;
-   m.m_cBuckets = 0;
-   m_cUsedBuckets = m.m_cUsedBuckets;
-   m.m_cUsedBuckets = 0;
-   m_cNeighborhoodBuckets = m.m_cNeighborhoodBuckets;
-   m.m_cNeighborhoodBuckets = 0;
-   // Invalidate all iterators for *this and for m.
+   m_piHashes = std::move(hmi.m_piHashes);
+   m_pKeys = std::move(hmi.m_pKeys);
+   m_pValues = std::move(hmi.m_pValues);
+   m_cBuckets = hmi.m_cBuckets;
+   hmi.m_cBuckets = 0;
+   m_cUsedBuckets = hmi.m_cUsedBuckets;
+   hmi.m_cUsedBuckets = 0;
+   m_cNeighborhoodBuckets = hmi.m_cNeighborhoodBuckets;
+   hmi.m_cNeighborhoodBuckets = 0;
+   // Invalidate all iterators for *this and for hmi.
    ++m_iRev;
-   ++m.m_iRev;
+   ++hmi.m_iRev;
    return *this;
 }
 
-std::pair<std::size_t, bool> map_impl::add_or_assign(
+std::pair<std::size_t, bool> hash_map_impl::add_or_assign(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue,
    keys_equal_fn pfnKeysEqual, void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
 ) {
@@ -113,7 +113,7 @@ std::pair<std::size_t, bool> map_impl::add_or_assign(
    return std::make_pair(iBucket, bNew);
 }
 
-void map_impl::clear(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
+void hash_map_impl::clear(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/);
 
    std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
@@ -132,7 +132,7 @@ void map_impl::clear(type_void_adapter const & typeKey, type_void_adapter const 
    ++m_iRev;
 }
 
-void map_impl::empty_bucket(
+void hash_map_impl::empty_bucket(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket
 ) {
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, iBucket);
@@ -149,7 +149,7 @@ void map_impl::empty_bucket(
    ++m_iRev;
 }
 
-std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
+std::size_t hash_map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) const {
    ABC_TRACE_FUNC(this, iEmptyBucket);
 
    std::size_t const * piEmptyHash = m_piHashes.get() + iEmptyBucket;
@@ -198,7 +198,7 @@ std::size_t map_impl::find_bucket_movable_to_empty(std::size_t iEmptyBucket) con
    }
 }
 
-std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const {
+std::size_t hash_map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd) const {
    ABC_TRACE_FUNC(this, iNhBegin, iNhEnd);
 
    std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
@@ -221,7 +221,7 @@ std::size_t map_impl::find_empty_bucket(std::size_t iNhBegin, std::size_t iNhEnd
    return smc_iNullIndex;
 }
 
-std::size_t map_impl::find_empty_bucket_outside_neighborhood(
+std::size_t hash_map_impl::find_empty_bucket_outside_neighborhood(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iNhBegin,
    std::size_t iNhEnd
 ) {
@@ -262,7 +262,7 @@ std::size_t map_impl::find_empty_bucket_outside_neighborhood(
    return iEmptyBucket;
 }
 
-std::size_t map_impl::get_empty_bucket_for_key(
+std::size_t hash_map_impl::get_empty_bucket_for_key(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iKeyHash
 ) {
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, iKeyHash);
@@ -277,7 +277,7 @@ std::size_t map_impl::get_empty_bucket_for_key(
    return find_empty_bucket_outside_neighborhood(typeKey, typeValue, iNhBegin, iNhEnd);
 }
 
-std::size_t map_impl::get_existing_or_empty_bucket_for_key(
+std::size_t hash_map_impl::get_existing_or_empty_bucket_for_key(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue,
    keys_equal_fn pfnKeysEqual, void const * pKey, std::size_t iKeyHash
 ) {
@@ -295,7 +295,9 @@ std::size_t map_impl::get_existing_or_empty_bucket_for_key(
    return find_empty_bucket_outside_neighborhood(typeKey, typeValue, iNhBegin, iNhEnd);
 }
 
-void map_impl::grow_table(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
+void hash_map_impl::grow_table(
+   type_void_adapter const & typeKey, type_void_adapter const & typeValue
+) {
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/);
 
    // The “old” names of these four variables will make sense in a moment…
@@ -355,7 +357,7 @@ void map_impl::grow_table(type_void_adapter const & typeKey, type_void_adapter c
    }
 }
 
-std::size_t map_impl::lookup_key_or_find_empty_bucket(
+std::size_t hash_map_impl::lookup_key_or_find_empty_bucket(
    type_void_adapter const & typeKey, keys_equal_fn pfnKeysEqual, void const * pKey,
    std::size_t iKeyHash, std::size_t iNhBegin, std::size_t iNhEnd
 ) const {
@@ -392,7 +394,7 @@ std::size_t map_impl::lookup_key_or_find_empty_bucket(
    return smc_iNullIndex;
 }
 
-void map_impl::set_bucket_key_value(
+void hash_map_impl::set_bucket_key_value(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket,
    void * pKey, void * pValue, unsigned iMove
 ) {
@@ -419,35 +421,35 @@ void map_impl::set_bucket_key_value(
 }
 
 
-map_impl::iterator_base::iterator_base() :
-   m_pmap(nullptr),
+hash_map_impl::iterator_base::iterator_base() :
+   m_phm(nullptr),
    m_iBucket(smc_iNullIndex) {
 }
-map_impl::iterator_base::iterator_base(map_impl const * pmap, std::size_t iBucket) :
-   m_pmap(pmap),
+hash_map_impl::iterator_base::iterator_base(hash_map_impl const * phm, std::size_t iBucket) :
+   m_phm(phm),
    m_iBucket(iBucket),
-   m_iRev(pmap->m_iRev) {
+   m_iRev(phm->m_iRev) {
 }
 
-void map_impl::iterator_base::increment() {
+void hash_map_impl::iterator_base::increment() {
    ABC_TRACE_FUNC(this);
 
    for (;;) {
       ++m_iBucket;
-      if (m_iBucket >= m_pmap->m_cBuckets) {
+      if (m_iBucket >= m_phm->m_cBuckets) {
          m_iBucket = smc_iNullIndex;
          return;
       }
-      if (m_pmap->m_piHashes[m_iBucket] != smc_iEmptyBucketHash) {
+      if (m_phm->m_piHashes[m_iBucket] != smc_iEmptyBucketHash) {
          return;
       }
    }
 }
 
-void map_impl::iterator_base::validate() const {
+void hash_map_impl::iterator_base::validate() const {
    ABC_TRACE_FUNC(this);
 
-   if (m_iBucket == smc_iNullIndex || m_iRev != m_pmap->m_iRev) {
+   if (m_iBucket == smc_iNullIndex || m_iRev != m_phm->m_iRev) {
       ABC_THROW(iterator_error, ());
    }
 }

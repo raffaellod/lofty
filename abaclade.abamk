@@ -45,8 +45,8 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/binbuf.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
+      <source path="src/abaclade/collections/hash_map.cxx"/>
       <source path="src/abaclade/collections/list.cxx"/>
-      <source path="src/abaclade/collections/map.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/net.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
@@ -82,8 +82,8 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/io/binary/pipe.cxx"/>
          <source path="test/abaclade/io/text/binbuf_reader-read.cxx"/>
          <source path="test/abaclade/io/text/writer-print.cxx"/>
+         <source path="test/abaclade/collections/hash_map.cxx"/>
          <source path="test/abaclade/collections/list.cxx"/>
-         <source path="test/abaclade/collections/map.cxx"/>
          <source path="test/abaclade/collections/static_list.cxx"/>
          <source path="test/abaclade/os/path.cxx"/>
          <source path="test/abaclade/range.cxx"/>
