@@ -32,6 +32,20 @@ You should have received a copy of the GNU General Public License along with Aba
    #define ABC_CXX_PRAGMA_ONCE
 #endif
 
+#if ABC_HOST_CXX_MSC
+   #if ABC_HOST_CXX_MSC < 1700
+      /* MSC16 suffers from a bug that makes it compute a wrong __alignof() for a type that hasn’t
+      been “used” yet (see <https://connect.microsoft.com/VisualStudio/feedback/details/682695>);
+      work around it by forcing “using” the type by applying sizeof() to it. */
+      #define alignof(type) \
+         sizeof(type) * 0 + __alignof(type)
+   #else
+      // Non-standard name, but analogous to C++11’s alignof().
+      #define alignof(type) \
+         __alignof(type)
+   #endif
+#endif
+
 /*! Range-based for statement: for (for-range-declaration : expression) { … } .
 
 @param rangedecl
