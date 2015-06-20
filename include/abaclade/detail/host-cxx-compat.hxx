@@ -34,10 +34,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 /*! Range-based for statement: for (for-range-declaration : expression) { … } .
 
-rangedecl
+@param rangedecl
    Declaration of the variable that will hold the values iterated over from the range; most commonly
    this is auto & or auto const &.
-expr
+@param expr
    Expression of a type for which std::begin() and std::end() are defined.
 */
 #if (ABC_HOST_CXX_CLANG && __has_feature(cxx_range_for)) || ABC_HOST_CXX_GCC || \
