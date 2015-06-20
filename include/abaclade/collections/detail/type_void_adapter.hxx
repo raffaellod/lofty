@@ -66,7 +66,7 @@ public:
 public:
    /*! Size of a variable of this type, in bytes. First member because it’s the most frequently
    used, and having it at offset 0 may lead to faster or more compact code. */
-   std::size_t cb;
+   std::uint16_t cb;
    //! Function to copy items from one array to another.
    copy_fn copy_constr;
    //! Function to destruct items in an array.
@@ -122,7 +122,7 @@ public:
    //! Initializes this->cb.
    template <typename T>
    void set_size() {
-      cb = sizeof(T);
+      cb = static_cast<std::uint16_t>(sizeof(T));
    }
 
 private:
