@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade/coroutine.hxx>
 #include <abaclade/collections/hash_map.hxx>
-#include <abaclade/collections/list.hxx>
+#include <abaclade/collections/queue.hxx>
 #include <abaclade/thread.hxx>
 
 #include <atomic>
@@ -163,8 +163,8 @@ private:
    collections::hash_map<io::filedesc_t, std::shared_ptr<impl>> m_hmCorosBlockedByFD;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
-   collections::list<std::shared_ptr<impl>> m_listReadyCoros;
-   //! Governs access to m_listReadyCoros, m_hmCorosBlockedByFD and other “blocked by” maps/sets.
+   collections::queue<std::shared_ptr<impl>> m_qReadyCoros;
+   //! Governs access to m_qReadyCoros, m_hmCorosBlockedByFD and other “blocked by” maps/sets.
    std::mutex m_mtxCorosAddRemove;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of

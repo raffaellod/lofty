@@ -323,15 +323,15 @@ coroutine::scheduler::scheduler() :
 }
 
 coroutine::scheduler::~scheduler() {
-   /* TODO: verify that m_listReadyCoros and m_hmCorosBlockedByFD (and m_hmCorosBlockedByTimer…)
-   are empty. */
+   /* TODO: verify that m_qReadyCoros and m_hmCorosBlockedByFD (and m_hmCorosBlockedByTimer…) are
+   empty. */
 }
 
 void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
 //   std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-   m_listReadyCoros.push_back(std::move(pcoroimpl));
+   m_qReadyCoros.push_back(std::move(pcoroimpl));
 }
 
 void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
@@ -531,9 +531,9 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
    for (;;) {
       {
 //         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-         if (m_listReadyCoros) {
+         if (m_qReadyCoros) {
             // There are coroutines that are ready to run; remove and return the first.
-            return m_listReadyCoros.pop_front();
+            return m_qReadyCoros.pop_front();
          } else if (
             !m_hmCorosBlockedByFD
 #if ABC_HOST_API_BSD
@@ -617,7 +617,7 @@ void coroutine::scheduler::interrupt_all() {
       been interrupted by the above loops; they need to be stopped by interrupting the threads that
       are running them. */
    }
-   /* Run all coroutines. Since they’ve all just been added to m_listReadyCoros, they’ll all run and
+   /* Run all coroutines. Since they’ve all just been added to m_qReadyCoros, they’ll all run and
    handle the interruption request, leaving the epoll/kqueue/IOCP empty, so the latter won’t be
    checked at all. */
    /* TODO: document that scheduling a new coroutine at this point should be avoided because it
