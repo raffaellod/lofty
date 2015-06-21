@@ -42,17 +42,8 @@ private:
    typedef void (* copy_construct_impl_type)(void *, void const *, void const *);
    //! Prototype of a function that destructs a range of items in an array.
    typedef void (* destruct_impl_type)(void const *, void const *);
-
-   /*! Prototype of a function that moves items from one array to another.
-
-   @param pDstBegin
-      Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   @param pSrcBegin
-      Pointer to the first item to move.
-   @param pSrcEnd
-      Pointer to beyond the last item to move.
-   */
-   typedef void (* move_construct_impl_type)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
+   //! Prototype of a function that moves items from one array to another.
+   typedef void (* move_construct_impl_type)(void *, void *, void *);
 
 public:
    /*! Returns the alignment of a variable of this type.
