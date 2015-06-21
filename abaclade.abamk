@@ -84,6 +84,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/io/text/writer-print.cxx"/>
          <source path="test/abaclade/collections/hash_map.cxx"/>
          <source path="test/abaclade/collections/list.cxx"/>
+         <source path="test/abaclade/collections/queue.cxx"/>
          <source path="test/abaclade/collections/static_list.cxx"/>
          <source path="test/abaclade/os/path.cxx"/>
          <source path="test/abaclade/range.cxx"/>
