@@ -77,6 +77,21 @@ public:
    move_fn move_constr;
 
 public:
+   /*! Aligns a pointer according to this->cbAlign.
+
+   @param p
+      Pointer to align.
+   @return
+      Pointer aligned to cbAlign.
+   */
+   void * align_pointer(void const * p) const {
+      std::uintptr_t iPtr = reinterpret_cast<std::uintptr_t>(p);
+      // TODO: deduplicate this copy of bitmanip::ceiling_to_pow2_multiple().
+      std::uintptr_t iStep = static_cast<std::uintptr_t>(cbAlign - 1);
+      iPtr = (iPtr + iStep) & ~iStep;
+      return reinterpret_cast<void *>(iPtr);
+   }
+
    //! Initializes this->cbAlign.
    template <typename T>
    void set_align() {
