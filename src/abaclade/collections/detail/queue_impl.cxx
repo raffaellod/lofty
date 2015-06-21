@@ -63,27 +63,24 @@ void queue_impl::clear(type_void_adapter const & type) {
 /*static*/ void queue_impl::destruct_list(type_void_adapter const & type, node * pnFirst) {
    for (detail::queue_impl::node * pnCurr = pnFirst, * pnNext; pnCurr; pnCurr = pnNext) {
       pnNext = pnCurr->m_pnNext;
-      std::int8_t const * pValue = static_cast<std::int8_t const *>(pnCurr->value_ptr(type));
-      type.destruct(pValue, pValue + 1 /*yes, 1 byte – it works, as long as it’s > pValue*/);
+      type.destruct(pnCurr->value_ptr(type));
       memory::_raw_free(pnCurr);
    }
 }
 
-void queue_impl::push_back(type_void_adapter const & type, void * pSrc, bool bMove) {
-   /* To calculate the node size, add type.cb bytes to the offset of the value in a node at
+void queue_impl::push_back(type_void_adapter const & type, void const * pSrc, bool bMove) {
+   /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
    address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-   (sizeof will return 8 for that) and type.cb is 2, giving 8 instead of 10 (which would really
+   (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
    mean at least 12 bytes, a 50% waste of memory). */
    std::unique_ptr<node, memory::freeing_deleter> pn(static_cast<node *>(memory::_raw_alloc(
-      reinterpret_cast<std::size_t>(static_cast<node *>(0)->value_ptr(type)) + type.cb
+      reinterpret_cast<std::size_t>(static_cast<node *>(0)->value_ptr(type)) + type.size()
    )));
-   std::int8_t * pDst = static_cast<std::int8_t *>(pn->value_ptr(type));
-   // Yes, 1 byte – it works, as long as it’s > pSrc.
-   void * pSrcEnd = static_cast<std::int8_t *>(pSrc) + 1;
+   void * pDst = pn->value_ptr(type);
    if (bMove) {
-      type.move_constr(pDst, pSrc, pSrcEnd);
+      type.move_construct(pDst, const_cast<void *>(pSrc));
    } else {
-      type.copy_constr(pDst, pSrc, pSrcEnd);
+      type.copy_construct(pDst, pSrc);
    }
 
    pn->m_pnNext = nullptr;
@@ -104,8 +101,7 @@ void queue_impl::pop_front(type_void_adapter const & type) {
       m_pnLast = nullptr;
    }
    --m_cNodes;
-   std::int8_t const * pValue = static_cast<std::int8_t const *>(pn->value_ptr(type));
-   type.destruct(pValue, pValue + 1 /*yes, 1 byte – it works, as long as it’s > pValue*/);
+   type.destruct(pn->value_ptr(type));
    memory::_raw_free(pn);
 }
 

@@ -117,15 +117,13 @@ void hash_map_impl::clear(type_void_adapter const & typeKey, type_void_adapter c
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/);
 
    std::size_t * piHash = m_piHashes.get(), * piHashesEnd = piHash + m_cBuckets;
-   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get()), * pbNextKey;
-   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get()), * pbNextValue;
-   for (; piHash < piHashesEnd; ++piHash, pbKey = pbNextKey, pbValue = pbNextValue) {
-      pbNextKey   = pbKey   + typeKey  .cb;
-      pbNextValue = pbValue + typeValue.cb;
+   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get());
+   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get());
+   for (; piHash < piHashesEnd; ++piHash, pbKey += typeKey.size(), pbValue += typeValue.size()) {
       if (*piHash != smc_iEmptyBucketHash) {
          *piHash = smc_iEmptyBucketHash;
-         typeKey  .destruct(pbKey,   pbNextKey  );
-         typeValue.destruct(pbValue, pbNextValue);
+         typeKey  .destruct(pbKey);
+         typeValue.destruct(pbValue);
       }
    }
    m_cUsedBuckets = 0;
@@ -138,10 +136,8 @@ void hash_map_impl::empty_bucket(
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, iBucket);
 
    m_piHashes[iBucket] = smc_iEmptyBucketHash;
-   std::int8_t * pbKey   = static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .cb * iBucket;
-   std::int8_t * pbValue = static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iBucket;
-   typeKey  .destruct(pbKey,   pbKey   + typeKey  .cb);
-   typeValue.destruct(pbValue, pbValue + typeValue.cb);
+   typeKey  .destruct(static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .size() * iBucket);
+   typeValue.destruct(static_cast<std::int8_t *>(m_pValues.get()) + typeValue.size() * iBucket);
    --m_cUsedBuckets;
    /* We could avoid incrementing m_iRev and invalidating every iterator, since nothing other bucket
    was affected, but that would mean that an iterator to the removed pair could still be
@@ -252,8 +248,8 @@ std::size_t hash_map_impl::find_empty_bucket_outside_neighborhood(
       // Move the contents of iMovableBucket to iEmptyBucket.
       set_bucket_key_value(
          typeKey, typeValue, iEmptyBucket,
-         static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .cb * iMovableBucket,
-         static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iMovableBucket,
+         static_cast<std::int8_t *>(m_pKeys  .get()) + typeKey  .size() * iMovableBucket,
+         static_cast<std::int8_t *>(m_pValues.get()) + typeValue.size() * iMovableBucket,
          1 | 2
       );
       m_piHashes[iEmptyBucket] = m_piHashes[iMovableBucket];
@@ -303,8 +299,8 @@ void hash_map_impl::grow_table(
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
    std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
-   auto pOldKeys  (memory::alloc<void>(typeKey  .cb * cOldBuckets));
-   auto pOldValues(memory::alloc<void>(typeValue.cb * cOldBuckets));
+   auto pOldKeys  (memory::alloc<void>(typeKey  .size() * cOldBuckets));
+   auto pOldValues(memory::alloc<void>(typeValue.size() * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.
    std::swap(m_cBuckets, cOldBuckets);
    std::swap(m_piHashes, piOldHashes);
@@ -332,15 +328,13 @@ void hash_map_impl::grow_table(
    memory::clear(m_piHashes.get(), m_cBuckets);
    // Re-insert each hash/key/value triplet to move it from the old arrays to the new ones.
    std::size_t * piOldHash = piOldHashes.get(), * piOldHashesEnd = piOldHash + cOldBuckets;
-   std::int8_t * pbOldKey   = static_cast<std::int8_t *>(pOldKeys  .get()), * pbNextOldKey;
-   std::int8_t * pbOldValue = static_cast<std::int8_t *>(pOldValues.get()), * pbNextOldValue;
+   std::int8_t * pbOldKey   = static_cast<std::int8_t *>(pOldKeys  .get());
+   std::int8_t * pbOldValue = static_cast<std::int8_t *>(pOldValues.get());
    for (
       ;
       piOldHash < piOldHashesEnd;
-      ++piOldHash, pbOldKey = pbNextOldKey, pbOldValue = pbNextOldValue
+      ++piOldHash, pbOldKey += typeKey.size(), pbOldValue += typeValue.size()
    ) {
-      pbNextOldKey   = pbOldKey   + typeKey  .cb;
-      pbNextOldValue = pbOldValue + typeValue.cb;
       if (*piOldHash != smc_iEmptyBucketHash) {
          std::size_t iNewBucket = get_empty_bucket_for_key(typeKey, typeValue, *piOldHash);
          ABC_ASSERT(iNewBucket < smc_iFirstSpecialIndex,
@@ -351,8 +345,8 @@ void hash_map_impl::grow_table(
          // Move hash/key/value to the new bucket.
          set_bucket_key_value(typeKey, typeValue, iNewBucket, pbOldKey, pbOldValue, 1 | 2);
          m_piHashes[iNewBucket] = *piOldHash;
-         typeKey  .destruct(pbOldKey,   pbNextOldKey  );
-         typeValue.destruct(pbOldValue, pbNextOldValue);
+         typeKey  .destruct(pbOldKey);
+         typeValue.destruct(pbOldValue);
       }
    }
 }
@@ -379,7 +373,7 @@ std::size_t hash_map_impl::lookup_key_or_find_empty_bucket(
          (*piHash == iKeyHash && pfnKeysEqual(
             this,
             static_cast<std::int8_t const *>(m_pKeys.get()) +
-               typeKey.cb * static_cast<std::size_t>(piHash - m_piHashes.get()),
+               typeKey.size() * static_cast<std::size_t>(piHash - m_piHashes.get()),
             pKey
          ))
       ) {
@@ -401,21 +395,19 @@ void hash_map_impl::set_bucket_key_value(
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, iBucket, pKey, pValue, iMove);
 
    if (pKey) {
-      void * pDst = static_cast<std::int8_t *>(m_pKeys.get()) + typeKey.cb * iBucket;
-      void * pSrcEnd = static_cast<std::int8_t *>(pKey) + typeKey.cb;
+      void * pDst = static_cast<std::int8_t *>(m_pKeys.get()) + typeKey.size() * iBucket;
       if (iMove & 1) {
-         typeKey.move_constr(pDst, pKey, pSrcEnd);
+         typeKey.move_construct(pDst, pKey);
       } else {
-         typeKey.copy_constr(pDst, pKey, pSrcEnd);
+         typeKey.copy_construct(pDst, pKey);
       }
    }
    {
-      void * pDst = static_cast<std::int8_t *>(m_pValues.get()) + typeValue.cb * iBucket;
-      void * pSrcEnd = static_cast<std::int8_t *>(pValue) + typeValue.cb;
+      void * pDst = static_cast<std::int8_t *>(m_pValues.get()) + typeValue.size() * iBucket;
       if (iMove & 2) {
-         typeValue.move_constr(pDst, pValue, pSrcEnd);
+         typeValue.move_construct(pDst, pValue);
       } else {
-         typeValue.copy_constr(pDst, pValue, pSrcEnd);
+         typeValue.copy_construct(pDst, pValue);
       }
    }
 }

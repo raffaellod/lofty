@@ -30,27 +30,13 @@ namespace collections {
 namespace detail {
 
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
-struct type_void_adapter {
-public:
-   /*! Prototype of a function that copies items from one array to another.
-
-   @param pDstBegin
-      Pointer to the start of the destination array. The items are supposed to be uninitialized.
-   @param pSrcBegin
-      Pointer to the first item to copy.
-   @param pSrcEnd
-      Pointer to beyond the last item to copy.
-   */
-   typedef void (* copy_fn)(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd);
-
-   /*! Prototype of a function that destructs a range of items in an array.
-
-   @param pBegin
-      Pointer to the first item to destruct.
-   @param pEnd
-      Pointer to beyond the last item to destruct.
-   */
-   typedef void (* destr_fn)(void const * pBegin, void const * pEnd);
+// TODO: document rationale, design and use cases.
+class type_void_adapter {
+private:
+   //! Prototype of a function that copies items from one array to another.
+   typedef void (* copy_construct_impl_type)(void *, void const *, void const *);
+   //! Prototype of a function that destructs a range of items in an array.
+   typedef void (* destruct_impl_type)(void const *, void const *);
 
    /*! Prototype of a function that moves items from one array to another.
 
@@ -61,83 +47,165 @@ public:
    @param pSrcEnd
       Pointer to beyond the last item to move.
    */
-   typedef void (* move_fn)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
+   typedef void (* move_construct_impl_type)(void * pDstBegin, void * pSrcBegin, void * pSrcEnd);
 
 public:
-   /*! Size of a variable of this type, in bytes. First member because it’s the most frequently
-   used, and having it at offset 0 may lead to faster or more compact code. */
-   std::uint16_t cb;
-   //! Alignment of a variable of this type, in bytes.
-   std::uint16_t cbAlign;
-   //! Function to copy items from one array to another.
-   copy_fn copy_constr;
-   //! Function to destruct items in an array.
-   destr_fn destruct;
-   //! Function to move items from one array to another.
-   move_fn move_constr;
+   /*! Returns the alignment of a variable of this type.
 
-public:
-   /*! Aligns a pointer according to this->cbAlign.
+   @return
+      Alignment in bytes.
+   */
+   std::size_t alignment() const {
+      return m_cbAlign;
+   }
+
+   /*! Adjusts (increases) a pointer as needed by the type’s alignment requirements.
 
    @param p
       Pointer to align.
    @return
-      Pointer aligned to cbAlign.
+      Aligned pointer.
    */
    void * align_pointer(void const * p) const {
       std::uintptr_t iPtr = reinterpret_cast<std::uintptr_t>(p);
       // TODO: deduplicate this copy of bitmanip::ceiling_to_pow2_multiple().
-      std::uintptr_t iStep = static_cast<std::uintptr_t>(cbAlign - 1);
+      std::uintptr_t iStep = static_cast<std::uintptr_t>(m_cbAlign - 1);
       iPtr = (iPtr + iStep) & ~iStep;
       return reinterpret_cast<void *>(iPtr);
    }
 
-   //! Initializes this->cbAlign.
+   /*! Copy-constructs an object from one memory location to another.
+
+   @param pDst
+      Pointer to the destination memory area. The memory is supposed to be uninitialized.
+   @param pSrc
+      Pointer to the object to copy.
+   */
+   void copy_construct(void * pDst, void const * pSrc) const {
+      // Add 1 byte to pSrc to trick m_pfnCopyConstrImpl to iterate exactly one time.
+      m_pfnCopyConstrImpl(pDst, pSrc, static_cast<std::int8_t const *>(pSrc) + 1);
+   }
+
+   /*! Copy-constructs items from an array to another.
+
+   @param pDstBegin
+      Pointer to the start of the destination array. The array is supposed to be uninitialized.
+   @param pSrcBegin
+      Pointer to the first item to copy.
+   @param pSrcEnd
+      Pointer to the end of the source array.
+   */
+   void copy_construct(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd) const {
+      m_pfnCopyConstrImpl(pDstBegin, pSrcBegin, pSrcEnd);
+   }
+
+   /*! Destructs an object.
+
+   @param p
+      Pointer to the object to destruct.
+   */
+   void destruct(void const * p) const {
+      // Add 1 byte to p to trick m_pfnDestructImpl to iterate exactly one time.
+      m_pfnDestructImpl(p, static_cast<std::int8_t const *>(p) + 1);
+   }
+
+   /*! Destructs a range of items in an array.
+
+   @param pBegin
+      Pointer to the first item to destruct.
+   @param pEnd
+      Pointer to beyond the last item to destruct.
+   */
+   void destruct(void const * pBegin, void const * pEnd) const {
+      m_pfnDestructImpl(pBegin, pEnd);
+   }
+
+   /*! Move-constructs an object from one memory location to another.
+
+   @param pDst
+      Pointer to the destination memory area. The memory is supposed to be uninitialized.
+   @param pSrc
+      Pointer to the object to move.
+   */
+   void move_construct(void * pDst, void * pSrc) const {
+      // Add 1 byte to pSrc to trick m_pfnMoveConstructImpl to iterate exactly one time.
+      m_pfnMoveConstructImpl(pDst, pSrc, static_cast<std::int8_t *>(pSrc) + 1);
+   }
+
+   /*! Move-constructs items from an array to another.
+
+   @param pDstBegin
+      Pointer to the start of the destination array. The array is supposed to be uninitialized.
+   @param pSrcBegin
+      Pointer to the first item to move.
+   @param pSrcEnd
+      Pointer to the end of the source array.
+   */
+   void move_construct(void * pDstBegin, void * pSrcBegin, void * pSrcEnd) const {
+      m_pfnMoveConstructImpl(pDstBegin, pSrcBegin, pSrcEnd);
+   }
+
+   //! Makes alignment() and align_pointer() available.
    template <typename T>
    void set_align() {
-      cbAlign = static_cast<std::uint16_t>(alignof(T));
+      m_cbAlign = static_cast<std::uint16_t>(alignof(T));
    }
 
-   //! Initializes this->copy_constr.
+   //! Makes copy_construct() available.
    template <typename T>
-   void set_copy_fn() {
-      copy_constr = reinterpret_cast<copy_fn>(_typed_copy_constr<typename std::remove_cv<T>::type>);
+   void set_copy_construct() {
+      m_pfnCopyConstrImpl = reinterpret_cast<copy_construct_impl_type>(
+         &copy_construct_impl<typename std::remove_cv<T>::type>
+      );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
-      if (!copy_constr) {
-         _typed_copy_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+      if (!m_pfnCopyConstrImpl) {
+         &copy_construct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
 
-   //! Initializes this->destruct.
+   //! Makes destruct() available.
    template <typename T>
-   void set_destr_fn() {
-      destruct = reinterpret_cast<destr_fn>(_typed_destruct<typename std::remove_cv<T>::type>);
+   void set_destruct() {
+      m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(
+         &destruct_impl<typename std::remove_cv<T>::type>
+      );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
-      if (!destruct) {
-         _typed_destruct<typename std::remove_cv<T>::type>(nullptr, nullptr);
+      if (!m_pfnDestructImpl) {
+         destruct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr);
       }
 #endif
    }
 
-   //! Initializes this->move_constr.
+   //! Makes move_construct() available.
    template <typename T>
-   void set_move_fn() {
-      move_constr = reinterpret_cast<move_fn>(_typed_move_constr<typename std::remove_cv<T>::type>);
+   void set_move_construct() {
+      m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
+         &move_construct_impl<typename std::remove_cv<T>::type>
+      );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
-      if (!move_constr) {
-         _typed_move_constr<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+      if (!m_pfnMoveConstructImpl) {
+         &move_construct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
 
-   //! Initializes this->cb.
+   //! Makes size() available.
    template <typename T>
    void set_size() {
-      cb = static_cast<std::uint16_t>(sizeof(T));
+      m_cb = static_cast<std::uint16_t>(sizeof(T));
+   }
+
+   /*! Returns the size of an object of this type, in bytes.
+
+   @return
+      Size of an object, in bytes.
+   */
+   std::size_t size() const {
+      return m_cb;
    }
 
 private:
@@ -153,10 +221,10 @@ private:
    */
 #if ABC_HOST_CXX_MSC
    /* MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
-   version of _typed_copy_constr() (see non-MSC code in the #else branch), it will raise an error
+   version of copy_construct_impl() (see non-MSC code in the #else branch), it will raise an error
    saying it doesn’t know which one to choose. */
    template <typename T>
-   static void _typed_copy_constr(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
+   static void copy_construct_impl(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
       if (std::has_trivial_copy_constructor<T>::value) {
          // No constructor, fastest copy possible.
          memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
@@ -180,7 +248,7 @@ private:
 #else //if ABC_HOST_CXX_MSC
    // Only enabled if the copy constructor is trivial.
    template <typename T>
-   static void _typed_copy_constr(
+   static void copy_construct_impl(
       typename std::enable_if<
    #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          std::is_trivially_copy_constructible<T>::value,
@@ -194,7 +262,7 @@ private:
    }
    // Only enabled if the copy constructor is not trivial.
    template <typename T>
-   static void _typed_copy_constr(
+   static void copy_construct_impl(
       typename std::enable_if<
    #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          !std::is_trivially_copy_constructible<T>::value,
@@ -228,7 +296,7 @@ private:
       Pointer to beyond the last item to destruct.
    */
    template <typename T>
-   static void _typed_destruct(T const * ptBegin, T const * ptEnd) {
+   static void destruct_impl(T const * ptBegin, T const * ptEnd) {
 #if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
       if (!std::is_trivially_destructible<T>::value) {
 #else
@@ -252,11 +320,24 @@ private:
       Pointer to beyond the last item to copy.
    */
    template <typename T>
-   static void _typed_move_constr(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
+   static void move_construct_impl(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
       for (T * ptSrc = ptSrcBegin, * ptDst = ptDstBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
          ::new(ptDst) T(std::move(*ptSrc));
       }
    }
+
+private:
+   /*! Size of a variable of this type, in bytes. First member because it’s the most frequently
+   used, and having it at offset 0 may lead to faster or more compact code. */
+   std::uint16_t m_cb;
+   //! Alignment of a variable of this type, in bytes.
+   std::uint16_t m_cbAlign;
+   //! Pointer to a function to copy items from one array to another.
+   copy_construct_impl_type m_pfnCopyConstrImpl;
+   //! Pointer to a function to destruct items in an array.
+   destruct_impl_type m_pfnDestructImpl;
+   //! Pointer to a function to move items from one array to another.
+   move_construct_impl_type m_pfnMoveConstructImpl;
 };
 
 } //namespace detail

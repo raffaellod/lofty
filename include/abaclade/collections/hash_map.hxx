@@ -733,7 +733,7 @@ public:
    /*! Adds a key/value pair to the map, overwriting the value if key is already associated to one.
 
    TODO: make four copies of this method, taking const &/const&, &&/&&, const &/&&, &&/const &; this
-   requires more work to avoid the commented-out set_copy_fn() below for non-copiable types.
+   requires more work to avoid the commented-out set_copy_construct() below for non-copiable types.
 
    @param key
       Key to add.
@@ -748,13 +748,13 @@ public:
       ABC_TRACE_FUNC(this/*, key, value*/);
 
       detail::type_void_adapter typeKey, typeValue;
-//      typeKey.set_copy_fn<TKey>();
-      typeKey.set_destr_fn<TKey>();
-      typeKey.set_move_fn<TKey>();
+//      typeKey.set_copy_construct<TKey>();
+      typeKey.set_destruct<TKey>();
+      typeKey.set_move_construct<TKey>();
       typeKey.set_size<TKey>();
-//      typeValue.set_copy_fn<TValue>();
-      typeValue.set_destr_fn<TValue>();
-      typeValue.set_move_fn<TValue>();
+//      typeValue.set_copy_construct<TValue>();
+      typeValue.set_destruct<TValue>();
+      typeValue.set_move_construct<TValue>();
       typeValue.set_size<TValue>();
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       bool bNew;
@@ -803,9 +803,9 @@ public:
       ABC_TRACE_FUNC(this);
 
       detail::type_void_adapter typeKey, typeValue;
-      typeKey.set_destr_fn<TKey>();
+      typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
-      typeValue.set_destr_fn<TValue>();
+      typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       hash_map_impl::clear(typeKey, typeValue);
    }
@@ -835,9 +835,9 @@ public:
       it.validate();
       TValue value(std::move(*value_ptr(it.m_iBucket)));
       detail::type_void_adapter typeKey, typeValue;
-      typeKey.set_destr_fn<TKey>();
+      typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
-      typeValue.set_destr_fn<TValue>();
+      typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, it.m_iBucket);
       return std::move(value);
@@ -852,9 +852,9 @@ public:
       }
       TValue value(std::move(*value_ptr(iBucket)));
       detail::type_void_adapter typeKey, typeValue;
-      typeKey.set_destr_fn<TKey>();
+      typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
-      typeValue.set_destr_fn<TValue>();
+      typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, iBucket);
       return std::move(value);
@@ -886,9 +886,9 @@ public:
       ABC_TRACE_FUNC(this/*, it*/);
 
       detail::type_void_adapter typeKey, typeValue;
-      typeKey.set_destr_fn<TKey>();
+      typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
-      typeValue.set_destr_fn<TValue>();
+      typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, it);
    }
@@ -911,9 +911,9 @@ public:
       std::size_t iBucket = lookup_key(key);
       if (iBucket != smc_iNullIndex) {
          detail::type_void_adapter typeKey, typeValue;
-         typeKey.set_destr_fn<TKey>();
+         typeKey.set_destruct<TKey>();
          typeKey.set_size<TKey>();
-         typeValue.set_destr_fn<TValue>();
+         typeValue.set_destruct<TValue>();
          typeValue.set_size<TValue>();
          empty_bucket(typeKey, typeValue, iBucket);
          return true;

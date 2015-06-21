@@ -41,7 +41,7 @@ public:
    //! Destructor.
    ~raw_vector() {
       type_void_adapter type;
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       destruct_items(type);
    }
 
@@ -58,23 +58,23 @@ public:
    */
    void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
    }
 
    //! See raw_complex_vextr_impl::assign_move().
    void assign_move(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       raw_complex_vextr_impl::assign_move(type, std::move(rcvi));
    }
 
    //! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
    void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, std::move(rcvi));
    }
 
@@ -89,8 +89,8 @@ public:
    */
    void insert_move(T const * ptOffset, T * ptInsert, std::size_t ciInsert) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       type.set_size<T>();
       raw_complex_vextr_impl::insert(
          type,
@@ -111,8 +111,8 @@ public:
    */
    void remove(T const * ptRemoveBegin, T const * ptRemoveEnd) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       type.set_size<T>();
       raw_complex_vextr_impl::remove(
          type,
@@ -134,8 +134,8 @@ public:
    */
    void set_capacity(std::size_t ciMin, bool bPreserve) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
    }
 
@@ -149,8 +149,8 @@ public:
    */
    void set_size(std::size_t ci) {
       type_void_adapter type;
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
    }
 
@@ -176,9 +176,9 @@ public:
    //! See raw_complex_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_copy_construct<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::assign_copy(type, ptBegin, ptEnd);
    }
 
@@ -187,9 +187,9 @@ public:
       T const * p1Begin, T const * p1End, T const * p2Begin, T const * p2End, std::uint8_t iMove
    ) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_copy_construct<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, iMove);
    }
 
@@ -204,9 +204,9 @@ public:
    */
    void insert_copy(T const * ptOffset, T const * ptInsert, std::size_t ciInsert) {
       type_void_adapter type;
-      type.set_copy_fn<T>();
-      type.set_destr_fn<T>();
-      type.set_move_fn<T>();
+      type.set_copy_construct<T>();
+      type.set_destruct<T>();
+      type.set_move_construct<T>();
       type.set_size<T>();
       raw_complex_vextr_impl::insert(
          type,

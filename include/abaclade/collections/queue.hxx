@@ -136,7 +136,7 @@ protected:
    @param bMove
       true to move *pSrc to the new node’s value, or false to copy it instead.
    */
-   void push_back(type_void_adapter const & type, void * pSrc, bool bMove);
+   void push_back(type_void_adapter const & type, void const * pSrc, bool bMove);
 
    /*! Unlinks and releases the first node in the list.
 
@@ -184,7 +184,7 @@ public:
    ~queue() {
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       destruct_list(type, m_pnFirst);
    }
 
@@ -199,7 +199,7 @@ public:
       // Now that *this has been successfully overwritten, destruct the old nodes.
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       destruct_list(type, pnFirst);
       return *this;
    }
@@ -222,7 +222,7 @@ public:
    void clear() {
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       detail::queue_impl::clear(type);
    }
 
@@ -248,7 +248,7 @@ public:
    T pop_front() {
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_destr_fn<T>();
+      type.set_destruct<T>();
       // Move the value of *m_pnFirst into t, then unlink and discard *m_pnFirst.
       T t(std::move(*static_cast<T *>(m_pnFirst->value_ptr(type))));
       detail::queue_impl::pop_front(type);
@@ -263,14 +263,14 @@ public:
    void push_back(T const & t) {
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_copy_fn<T>();
+      type.set_copy_construct<T>();
       type.set_size<T>();
       detail::queue_impl::push_back(type, &t, false);
    }
    void push_back(T && t) {
       detail::type_void_adapter type;
       type.set_align<T>();
-      type.set_move_fn<T>();
+      type.set_move_construct<T>();
       type.set_size<T>();
       detail::queue_impl::push_back(type, &t, true);
    }
