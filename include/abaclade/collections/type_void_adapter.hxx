@@ -38,11 +38,11 @@ namespace collections {
 // TODO: document rationale, design and use cases.
 class type_void_adapter {
 private:
-   //! Prototype of a function that copies items from one array to another.
+   //! Prototype of a function that copy-constructs items from one array to another.
    typedef void (* copy_construct_impl_type)(void *, void const *, void const *);
    //! Prototype of a function that destructs a range of items in an array.
    typedef void (* destruct_impl_type)(void const *, void const *);
-   //! Prototype of a function that moves items from one array to another.
+   //! Prototype of a function that move-constructs items from one array to another.
    typedef void (* move_construct_impl_type)(void *, void *, void *);
 
 public:
