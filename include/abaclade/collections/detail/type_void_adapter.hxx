@@ -77,15 +77,6 @@ public:
    move_fn move_constr;
 
 public:
-   //! Constructor.
-   type_void_adapter() :
-      cb(0),
-      cbAlign(0),
-      copy_constr(nullptr),
-      destruct(nullptr),
-      move_constr(nullptr) {
-   }
-
    //! Initializes this->cbAlign.
    template <typename T>
    void set_align() {
