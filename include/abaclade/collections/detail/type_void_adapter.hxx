@@ -167,11 +167,11 @@ private:
    template <typename T>
    static void _typed_copy_constr(
       typename std::enable_if<
-#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          std::is_trivially_copy_constructible<T>::value,
-#else
+   #else
          std::has_trivial_copy_constructor<T>::value,
-#endif
+   #endif
       T *>::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       // No constructor, fastest copy possible.
@@ -181,11 +181,11 @@ private:
    template <typename T>
    static void _typed_copy_constr(
       typename std::enable_if<
-#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          !std::is_trivially_copy_constructible<T>::value,
-#else
+   #else
          !std::has_trivial_copy_constructor<T>::value,
-#endif
+   #endif
       T * >::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
