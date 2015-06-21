@@ -67,6 +67,8 @@ public:
    /*! Size of a variable of this type, in bytes. First member because it’s the most frequently
    used, and having it at offset 0 may lead to faster or more compact code. */
    std::uint16_t cb;
+   //! Alignment of a variable of this type, in bytes.
+   std::uint16_t cbAlign;
    //! Function to copy items from one array to another.
    copy_fn copy_constr;
    //! Function to destruct items in an array.
@@ -78,9 +80,16 @@ public:
    //! Constructor.
    type_void_adapter() :
       cb(0),
+      cbAlign(0),
       copy_constr(nullptr),
       destruct(nullptr),
       move_constr(nullptr) {
+   }
+
+   //! Initializes this->cbAlign.
+   template <typename T>
+   void set_align() {
+      cbAlign = static_cast<std::uint16_t>(alignof(T));
    }
 
    //! Initializes this->copy_constr.
