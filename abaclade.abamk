@@ -30,6 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
       <source path="src/abaclade/detail/trace.cxx"/>
+      <source path="src/abaclade/collections/detail/queue_impl.cxx"/>
       <source path="src/abaclade/collections/detail/vextr.cxx"/>
       <source path="src/abaclade/collections/detail/xor_list.cxx"/>
       <source path="src/abaclade/coroutine.cxx"/>

@@ -51,9 +51,7 @@ public:
       @return
          Pointer to the contained value.
       */
-      void * value_ptr(type_void_adapter const & type) const {
-         return type.align_pointer(&m_pnNext + 1);
-      }
+      void * value_ptr(type_void_adapter const & type) const;
 
    protected:
       //! Pointer to the next node.
@@ -72,14 +70,7 @@ public:
       m_pnLast(nullptr),
       m_cNodes(0) {
    }
-   queue_impl(queue_impl && q) :
-      m_pnFirst(q.m_pnFirst),
-      m_pnLast(q.m_pnLast),
-      m_cNodes(q.m_cNodes) {
-      q.m_cNodes = 0;
-      q.m_pnFirst = nullptr;
-      q.m_pnLast = nullptr;
-   }
+   queue_impl(queue_impl && q);
 
    //! Destructor.
    ~queue_impl() {
@@ -90,17 +81,7 @@ public:
    @param q
       Source object.
    */
-   queue_impl & operator=(queue_impl && q) {
-      /* Assume that the subclass has already made a copy of m_pn{First,Last} to be able to release
-      them after calling this operator. */
-      m_pnFirst = q.m_pnFirst;
-      q.m_pnFirst = nullptr;
-      m_pnLast = q.m_pnLast;
-      q.m_pnLast = nullptr;
-      m_cNodes = q.m_cNodes;
-      q.m_cNodes = 0;
-      return *this;
-   }
+   queue_impl & operator=(queue_impl && q);
 
    /*! Returns true if the list size is greater than 0.
 
@@ -116,11 +97,7 @@ public:
    @param type
       Adapter for the node value’s type.
    */
-   void clear(type_void_adapter const & type) {
-      destruct_list(type, m_pnFirst);
-      m_pnFirst = m_pnLast = nullptr;
-      m_cNodes = 0;
-   }
+   void clear(type_void_adapter const & type);
 
    /*! Returns true if the list contains no elements.
 
@@ -148,14 +125,7 @@ protected:
    @param pnFirst
       Pointer to the first node to destruct.
    */
-   static void destruct_list(type_void_adapter const & type, node * pnFirst) {
-      for (detail::queue_impl::node * pnCurr = pnFirst, * pnNext; pnCurr; pnCurr = pnNext) {
-         pnNext = pnCurr->m_pnNext;
-         std::int8_t const * pValue = static_cast<std::int8_t const *>(pnCurr->value_ptr(type));
-         type.destruct(pValue, pValue + 1 /*yes, 1 byte – it works, as long as it’s > pValue*/);
-         memory::_raw_free(pnCurr);
-      }
-   }
+   static void destruct_list(type_void_adapter const & type, node * pnFirst);
 
    /*! Inserts a node to the end of the list.
 
@@ -166,50 +136,14 @@ protected:
    @param bMove
       true to move *pSrc to the new node’s value, or false to copy it instead.
    */
-   void push_back(type_void_adapter const & type, void * pSrc, bool bMove) {
-      /* To calculate the node size, add type.cb bytes to the offset of the value in a node at
-      address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-      (sizeof will return 8 for that) and type.cb is 2, giving 8 instead of 10 (which would really
-      mean at least 12 bytes, a 50% waste of memory). */
-      std::unique_ptr<node, memory::freeing_deleter> pn(static_cast<node *>(memory::_raw_alloc(
-         reinterpret_cast<std::size_t>(static_cast<node *>(0)->value_ptr(type)) + type.cb
-      )));
-      std::int8_t * pDst = static_cast<std::int8_t *>(pn->value_ptr(type));
-      // Yes, 1 byte – it works, as long as it’s > pSrc.
-      void * pSrcEnd = static_cast<std::int8_t *>(pSrc) + 1;
-      if (bMove) {
-         type.move_constr(pDst, pSrc, pSrcEnd);
-      } else {
-         type.copy_constr(pDst, pSrc, pSrcEnd);
-      }
-
-      pn->m_pnNext = nullptr;
-      if (!m_pnFirst) {
-         m_pnFirst = pn.get();
-      } else if (m_pnLast) {
-         m_pnLast->m_pnNext = pn.get();
-      }
-      // Transfer ownership of the node to the list.
-      m_pnLast = pn.release();
-      ++m_cNodes;
-   }
+   void push_back(type_void_adapter const & type, void * pSrc, bool bMove);
 
    /*! Unlinks and releases the first node in the list.
 
    @param type
       Adapter for the node value’s type.
    */
-   void pop_front(type_void_adapter const & type) {
-      node * pn = m_pnFirst;
-      m_pnFirst = pn->m_pnNext;
-      if (!m_pnFirst) {
-         m_pnLast = nullptr;
-      }
-      --m_cNodes;
-      std::int8_t const * pValue = static_cast<std::int8_t const *>(pn->value_ptr(type));
-      type.destruct(pValue, pValue + 1 /*yes, 1 byte – it works, as long as it’s > pValue*/);
-      memory::_raw_free(pn);
-   }
+   void pop_front(type_void_adapter const & type);
 
 protected:
    //! Pointer to the first node.
