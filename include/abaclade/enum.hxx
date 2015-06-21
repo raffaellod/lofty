@@ -167,7 +167,7 @@ values cannot be explicitly specified; for example:
    Name of the enumeration type.
 @param ...
    Sequence of member names; these will be the members of the underlying C++ enum, name::enum_type.
-   Their values will start from 0 and increase by 1 for each member.
+   Their values will start from 0 and increase by 1 for each member, just like in a C++ enum.
 */
 #define ABC_ENUM_AUTO_VALUES(name, ...) \
    _ABC_ENUM_IMPL( \
@@ -218,11 +218,12 @@ struct ABACLADE_SYM enum_member {
 
 namespace abc {
 
-//! Implementation of enumeration classes.
+/*! Implementation of enumeration classes. Not to be used directly; to implement an enumeration, use
+ABC_ENUM() and ABC_ENUM_AUTO_VALUES() instead. */
 template <class T>
 class enum_impl : public T {
 public:
-   //! Underlying C++ eunm type.
+   //! Underlying C++ enum type.
    typedef typename T::enum_type enum_type;
 
    /*! Constructor.
