@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_impl_base
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    m_pBegin = nullptr;
@@ -135,16 +132,11 @@ void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
    }
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_transaction
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 raw_vextr_transaction::raw_vextr_transaction(
    raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew
@@ -239,16 +231,11 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
    }
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_complex_vextr_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 void raw_complex_vextr_impl::assign_concat(
    type_void_adapter const & type, void const * p1Begin, void const * p1End, void const * p2Begin,
@@ -560,16 +547,11 @@ void raw_complex_vextr_impl::set_size(type_void_adapter const & type, std::size_
    // TODO: implement this.
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_trivial_vextr_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 void raw_trivial_vextr_impl::assign_concat(
    void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
@@ -700,8 +682,4 @@ void raw_trivial_vextr_impl::set_size(std::size_t cb) {
    }
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

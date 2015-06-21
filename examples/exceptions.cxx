@@ -27,11 +27,11 @@ code for more comments.
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
+
 using namespace abc;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// exceptions_app
 
 //! Application class for this program.
 class exceptions_app : public app {

@@ -23,8 +23,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – compatibility layer for features that are available one way or another in all
-// supported compilers
+
+/* Compatibility layer for features that are available one way or another in all supported
+compilers. */
 
 /*! If defined, the compiler supports #pragma once, which tells the preprocessor not to parse a
 (header) file more than once, speeding up compilation. */
@@ -186,5 +187,3 @@ reached. */
          __attribute__((visibility("default")))
    #endif
 #endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

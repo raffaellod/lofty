@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary globals
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 // Forward declarations.
 class buffered_base;
@@ -65,18 +62,11 @@ inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pb
    return std::dynamic_pointer_cast<buffered_writer>(buffer(std::move(pbw)));
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::detail::buffer
 
-namespace abc {
-namespace io {
-namespace binary {
-namespace detail {
+namespace abc { namespace io { namespace binary { namespace detail {
 
 /*! Self-managed, partitioned file buffer.
 
@@ -264,17 +254,11 @@ private:
    std::size_t m_ibAvailableOffset;
 };
 
-} //namespace detail
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::binary::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::buffered_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for buffering objects that wrap binary::* instances.
 class ABACLADE_SYM buffered_base : public virtual base {
@@ -298,16 +282,11 @@ protected:
    virtual std::shared_ptr<base> _unbuffered_base() const = 0;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::buffered_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for buffering objects that wrap binary::reader instances.
 class ABACLADE_SYM buffered_reader : public virtual buffered_base, public reader {
@@ -372,16 +351,11 @@ public:
    }
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::buffered_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for buffering objects that wrap binary::writer instances.
 class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer {
@@ -437,16 +411,11 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::default_buffered_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Provides buffering on top of a binary::reader instance.
 class ABACLADE_SYM default_buffered_reader : public buffered_reader, public noncopyable {
@@ -481,16 +450,11 @@ protected:
    static std::size_t const smc_cbReadBufDefault = 0x1000;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::default_buffered_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Provides buffering on top of a binary::writer instance.
 class ABACLADE_SYM default_buffered_writer : public buffered_writer, public noncopyable {
@@ -536,8 +500,4 @@ protected:
    static std::size_t const smc_cbWriteBufDefault = 0x1000;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

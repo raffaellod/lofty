@@ -86,7 +86,6 @@ Currently unsupported:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Globals
 
 /*! Provides stack frame logging for the function in which it’s used.
 
@@ -108,5 +107,3 @@ Implementation of ABC_TRACE_FUNC() and similar macros. */
    auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
    ::abc::detail::scope_trace st(&srcloc, &tuple)
 //! @endcond
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

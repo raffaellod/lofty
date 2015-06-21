@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::coroutine_local_storage
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 std::size_t coroutine_local_storage::sm_cb = 0;
@@ -78,21 +76,15 @@ coroutine_local_storage::~coroutine_local_storage() {
    return sm_pcrls;
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::coroutine_local_var_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 coroutine_local_var_impl::coroutine_local_var_impl(std::size_t cbObject) {
    // Initializes m_ibStorageOffset.
    coroutine_local_storage::add_var(this, cbObject);
 }
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

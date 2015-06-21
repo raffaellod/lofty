@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf8_char_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! UTF-8 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits. */
@@ -146,14 +144,11 @@ private:
    static std::uint8_t const smc_aiValidLeadCharsMask[];
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf16_char_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! UTF-16 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits. */
@@ -228,14 +223,11 @@ public:
    }
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::host_char_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! String traits for the host character type, abc::text::char_t. Derives from either
 utf8_char_traits or utf16_char_traits. */
@@ -268,7 +260,4 @@ public:
    }
 };
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

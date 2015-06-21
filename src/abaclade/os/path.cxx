@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::os::path
 
-namespace abc {
-namespace os {
+namespace abc { namespace os {
 
 namespace {
 
@@ -499,11 +497,9 @@ dmstr::const_iterator path::base_name_start() const {
    return std::move(s);
 }
 
-} //namespace os
-} //namespace abc
+}} //namespace abc::os
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::os::path
 
 namespace abc {
 
@@ -531,7 +527,6 @@ void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptw
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_not_found_error
 
 namespace abc {
 
@@ -565,5 +560,3 @@ void file_not_found_error::init(os::path const & opNotFound, errint_t err /*= 0*
 }
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

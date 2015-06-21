@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary globals
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
    ABC_TRACE_FUNC(pbb);
@@ -43,17 +40,11 @@ std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
    ABC_THROW(argument_error, ());
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::detail::buffer
 
-namespace abc {
-namespace io {
-namespace binary {
-namespace detail {
+namespace abc { namespace io { namespace binary { namespace detail {
 
 buffer::buffer(std::size_t cb) :
    m_p(memory::alloc<void>(cb)),
@@ -102,17 +93,11 @@ void buffer::make_unused_available() {
    m_ibUsedOffset = 0;
 }
 
-} //namespace detail
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::binary::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::buffered_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 /*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
@@ -138,16 +123,11 @@ namespace binary {
    return cbReadTotal;
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::buffered_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 /*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
@@ -161,16 +141,11 @@ namespace binary {
    return cb;
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::default_buffered_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    m_pbr(std::move(pbr)) {
@@ -225,16 +200,11 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    return std::static_pointer_cast<base>(m_pbr);
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::default_buffered_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
    m_pbw(std::move(pbw)),
@@ -334,8 +304,4 @@ void default_buffered_writer::flush_buffer() {
    return std::static_pointer_cast<base>(m_pbw);
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

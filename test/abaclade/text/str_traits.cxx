@@ -23,8 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 //! Generates an abc::text::char_t literal followed by a comma.
 #define _ABC_CHAR_COMMA(ch) ::abc::text::char_t(ch),
@@ -144,5 +143,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::str_traits – validity of counted string
 #undef ABC_TESTING_ASSERT_TRUE_text_str_traits_validate
 #undef ABC_TESTING_ASSERT_FALSE_text_str_traits_validate
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

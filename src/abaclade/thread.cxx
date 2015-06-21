@@ -44,13 +44,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::simple_event
 
 /*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
 coroutine::scheduler. */
 // TODO: make this a non-coroutine-friendly general-purpose event.
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 #if ABC_HOST_API_DARWIN
 simple_event::simple_event() :
@@ -116,11 +114,9 @@ void simple_event::wait() {
 #endif
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread::impl
 
 namespace abc {
 
@@ -382,7 +378,6 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread::tracker
 
 namespace abc {
 
@@ -480,7 +475,6 @@ void thread::tracker::nonmain_thread_terminated(impl * pimpl, bool bUncaughtExce
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread
 
 namespace abc {
 
@@ -553,7 +547,6 @@ thread::native_handle_type thread::native_handle() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::thread
 
 namespace abc {
 
@@ -592,10 +585,8 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_thread
 
-namespace abc {
-namespace this_thread {
+namespace abc { namespace this_thread {
 
 std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
@@ -681,7 +672,4 @@ void sleep_for_ms(unsigned iMillisecs) {
 #endif
 }
 
-} //namespace this_thread
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::this_thread

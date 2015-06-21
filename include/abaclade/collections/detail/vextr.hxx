@@ -244,11 +244,8 @@ Key:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_prefixed_item_array
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
 array in the “upper level” hierarchy (see @ref vextr_design), and used with template capacity == 1
@@ -267,16 +264,11 @@ public:
    abc::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_impl_data
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Data members of raw_vextr_impl_base, as a plain old struct. This is the most basic
 implementation block for all abc::text::*str and abc::collections::*vector classes. */
@@ -296,16 +288,11 @@ struct raw_vextr_impl_data {
    bool m_bNulT:1;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_impl_base
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Template-independent members of detail::raw_*_vextr_impl that are identical for trivial and non-
 trivial types. */
@@ -554,16 +541,11 @@ protected:
    static unsigned const smc_iGrowthRate = 2;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vextr_transaction
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Allows to get a temporary item array from a pool of options, then work with it, and upon
 destruction it ensures that the array is either adopted by the associated
@@ -650,16 +632,11 @@ private:
    bool m_bFree;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_complex_vextr_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 //! Template-independent implementation of a vector for non-trivial contained types.
 class ABACLADE_SYM raw_complex_vextr_impl : public raw_vextr_impl_base {
@@ -801,16 +778,11 @@ protected:
    }
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_trivial_vextr_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Template-independent implementation of a vector for trivial contained types. This is the most
 derived common base class of both vector and str. */
@@ -930,8 +902,4 @@ private:
    );
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

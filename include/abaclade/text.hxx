@@ -56,10 +56,8 @@ results in an UTF-8 or UTF-16 string literal depending on the host platform.
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text globals
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Recognized text encodings. Little endians should be listed before big endians; some code relies
 on this. */
@@ -270,7 +268,4 @@ ABACLADE_SYM std::size_t transcode(
    encoding encDst, void       ** ppDst = nullptr, std::size_t * pcbDstMax = nullptr
 );
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

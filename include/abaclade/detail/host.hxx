@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_CXX_*
 
 //! Version of Clang if building with it, or 0 otherwise.
 #define ABC_HOST_CXX_CLANG 0
@@ -52,7 +51,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_API_*
 
 #define ABC_HOST_API_BSD 0
 #define ABC_HOST_API_DARWIN 0
@@ -104,7 +102,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_ARCH_*
 
 #define ABC_HOST_ARCH_ALPHA  0
 #define ABC_HOST_ARCH_ARM    0
@@ -136,7 +133,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_WORD_SIZE
 
 //! Machine word size for this microarchitecture.
 // TODO: the word/pointer size is much more easily detected by a configure program.
@@ -151,7 +147,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_*_ENDIAN
 
 #define ABC_HOST_LITTLE_ENDIAN 0
 #define ABC_HOST_BIG_ENDIAN    0
@@ -167,5 +162,3 @@ You should have received a copy of the GNU General Public License along with Aba
 #else
    #error "TODO: HOST_ARCH"
 #endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

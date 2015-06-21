@@ -35,10 +35,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::default_delete
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Deallocator functor that invokes delete on its argument (C++11 § 20.7.1.1 “Default deleters”).
 template <typename T>
@@ -84,14 +82,11 @@ public:
    }
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::allocator
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Default allocator (C++11 § 20.6.9 “The default allocator”).
 template <typename T>
@@ -308,14 +303,11 @@ public:
    }
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::unique_ptr
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Smart resource-owning pointer (C++11 § 20.7.1.2 “unique_ptr for single objects”).
 template <typename T, typename TDel = default_delete<T>>
@@ -631,14 +623,11 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_weak_ptr
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Type of exception thrown by shared_ptr in case of attempt to lock an expired weak_ptr (C++11 §
 20.7.2.1 “Class bad_weak_ptr”). */
@@ -654,15 +643,11 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::shared_refcount
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 /*! Base for control object classes used by shared_ptr and weak_ptr.
 
@@ -736,16 +721,11 @@ protected:
    unsigned m_cWeakRefs;
 };
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::basic_shared_refcount
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 //! Simple control object class with no custom deleter or allocator support.
 template <typename T>
@@ -777,16 +757,11 @@ protected:
    T * m_pt;
 };
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::shared_refcount_with_deleter
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 //! Control object class with custom deleter support.
 template <typename T, typename TDel>
@@ -822,16 +797,11 @@ protected:
    TDel m_tdel;
 };
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::prefix_shared_refcount
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 /*! Special control object class used when instanciating a shared_ptr via make_shared(). It expects
 the owned object to be allocated on the same memory block. */
@@ -871,15 +841,11 @@ protected:
    bool m_bOwnedConstructed;
 };
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::shared_ptr
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 // Forward declaration.
 template <typename T>
@@ -1124,14 +1090,11 @@ protected:
    T * m_pt;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::weak_ptr
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Non-owning pointer that providess access to shared_ptr (C++11 § 20.7.2.3 “Class template
 weak_ptr”). */
@@ -1321,14 +1284,11 @@ inline shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
    m_psr->add_strong_ref();
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::enable_shared_from_this
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Base class for sharable objects (C++11 § 20.7.2.4 “Class template enable_shared_from_this”).
 
@@ -1382,14 +1342,11 @@ private:
    weak_ptr<T> m_pThis;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – smart pointers-related
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Similar to make_shared(), except it uses a custom allocator.
 
@@ -1540,8 +1497,7 @@ inline shared_ptr<T> _make_unconstructed_shared() {
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

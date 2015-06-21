@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::exception
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Base class for standard exceptions (C++ § 18.8.1 “Class exception”).
 class ABACLADE_SYM exception {
@@ -51,8 +49,7 @@ public:
    virtual char const * what() const;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

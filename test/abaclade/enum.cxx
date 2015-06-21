@@ -23,8 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 namespace {
    
@@ -45,5 +44,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::enum-derived classes – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(to_str(e), ABC_SL("value2"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

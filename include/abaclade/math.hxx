@@ -29,12 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::math::abs()
 
-namespace abc {
-namespace math {
-
-namespace detail {
+namespace abc { namespace math { namespace detail {
 
 /*! Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
 but structs/classes can. */
@@ -57,7 +53,9 @@ struct abs_helper<T, false> {
    }
 };
 
-} //namespace detail
+}}} //namespace abc::math::detail
+
+namespace abc { namespace math {
 
 /*! Returns the absolute value of the argument. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
@@ -72,8 +70,7 @@ inline /*constexpr*/ T abs(T t) {
    return detail::abs_helper<T>()(std::move(t));
 }
 
-} //namespace math
-} //namespace abc
+}} //namespace abc::math
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

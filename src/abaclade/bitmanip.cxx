@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::bitmanip globals
 
-namespace abc {
-namespace bitmanip {
-namespace detail {
+namespace abc { namespace bitmanip { namespace detail {
 
 std::uint8_t ceiling_to_pow2(std::uint8_t i) {
    unsigned iPow2 = static_cast<unsigned>(i - 1);
@@ -63,8 +60,6 @@ std::uint64_t ceiling_to_pow2(std::uint64_t i) {
    return i + 1;
 }
 
-} //namespace detail
-} //namespace bitmanip
-} //namespace abc
+}}} //namespace abc::bitmanip::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

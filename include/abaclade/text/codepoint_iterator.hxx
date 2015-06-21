@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_proxy
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 // Forward declarations.
 class str_base;
@@ -187,16 +184,11 @@ ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 #endif
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_iterator_impl
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 /*! Base class for codepoint_iterator. Its specializations include all the members that don’t return
 an iterator or a reference to one, so that those are only defined once in the “real” template
@@ -332,15 +324,11 @@ protected:
    }
 };
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::codepoint_iterator
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Character iterator that hides the underlying encoded representation, presenting a string as an
 array of code points (char32_t). Pointers/references are still char_t. */
@@ -494,7 +482,4 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 };
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

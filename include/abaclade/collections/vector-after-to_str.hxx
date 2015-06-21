@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::vector_to_str_backend
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
 the implementation can be in a cxx file. */
@@ -45,12 +42,9 @@ protected:
    istr m_sEltFormat;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::collections::detail::vector_base
 
 namespace abc {
 
@@ -101,7 +95,6 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::collections::*vector
 
 namespace abc {
 
@@ -121,5 +114,3 @@ class to_str_backend<collections::smvector<T, t_ciStatic>> :
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -25,10 +25,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_local
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 /* A thread_local variable, being specific to a thread, by definition does not need to be atomic;
 however this test case wants to find out if the variable is accidentally shared among multipliple
@@ -50,5 +48,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread_local_* – basic functionality") {
    ABC_TESTING_ASSERT_EQUAL(g_iThreadLocal.get().load(), 10);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

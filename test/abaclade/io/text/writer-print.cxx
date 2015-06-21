@@ -23,8 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::io::text::writer::print() – no replacements") {
    ABC_TRACE_FUNC(this);
@@ -57,13 +56,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::text::writer::print() – no replacements")
    ABC_TESTING_ASSERT_EQUAL((stw.print(ABC_SL("{{}}")), stw.get_str()), ABC_SL("{}"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – one replacement") {
    ABC_TRACE_FUNC(this);
@@ -120,13 +117,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – one replacement") 
    ABC_TESTING_ASSERT_EQUAL((stw.print(ABC_SL("{:#x}"), 34), stw.get_str()), ABC_SL("0x22"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – two replacements") {
    ABC_TRACE_FUNC(this);
@@ -175,5 +170,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::text_writer::print() – two replacements")
    );
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

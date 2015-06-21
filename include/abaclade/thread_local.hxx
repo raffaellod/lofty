@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_storage
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 // Forward declaration.
 class thread_local_var_impl;
@@ -122,14 +120,11 @@ private:
    static std::size_t sm_cb;
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_var_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Non-template implementation of abc::thread_local_value and abc::thread_local_ptr.
 class ABACLADE_SYM thread_local_var_impl :
@@ -176,11 +171,9 @@ private:
    std::size_t m_ibStorageOffset;
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread_local_value
 
 namespace abc {
 
@@ -206,7 +199,6 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread_local_ptr
 
 namespace abc {
 
@@ -218,5 +210,3 @@ class thread_local_ptr : public detail::context_local_ptr<T, detail::thread_loca
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

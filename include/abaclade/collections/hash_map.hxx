@@ -32,11 +32,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::hash_map_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::hash_map.
 class ABACLADE_SYM hash_map_impl :
@@ -451,15 +448,11 @@ protected:
    static std::size_t const smc_iNullIndex = numeric::max<std::size_t>::value;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::hash_map
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 /*! Key/value map using a derivative of the hopscotch hashing collision resolution algorithm.
 
@@ -1020,8 +1013,7 @@ private:
    }
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

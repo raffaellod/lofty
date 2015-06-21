@@ -29,7 +29,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for bool
 
 namespace abc {
 
@@ -61,10 +60,8 @@ void to_str_backend<bool>::write(bool b, io::text::writer * ptwOut) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::int_to_str_backend_base
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 char const int_to_str_backend_base::smc_achIntToStrU[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -301,14 +298,11 @@ void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwO
 #endif //if ABC_HOST_WORD_SIZE < 32
 #endif //if ABC_HOST_WORD_SIZE < 64
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::ptr_to_str_backend
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 ptr_to_str_backend::ptr_to_str_backend() {
    ABC_TRACE_FUNC(this);
@@ -341,11 +335,9 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptw
    }
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for std::type_info
 
 namespace abc {
 
@@ -389,10 +381,8 @@ void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::sequence_to_str_backend
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 sequence_to_str_backend::sequence_to_str_backend(istr const & sStart, istr const & sEnd) :
    m_sSeparator(ABC_SL(", ")),
@@ -418,7 +408,4 @@ void sequence_to_str_backend::set_format(istr const & sFormat) {
 sequence_to_str_backend::~sequence_to_str_backend() {
 }
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

@@ -25,8 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – basic operations") {
    ABC_TRACE_FUNC(this);
@@ -83,13 +82,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – basic operatio
    ABC_TESTING_ASSERT_EQUAL(v[1], 3);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – relational operators") {
    ABC_TRACE_FUNC(this);
@@ -121,13 +118,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – relational ope
    ABC_TESTING_ASSERT_EQUAL(v3, v3);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – operations with iterators") {
    ABC_TRACE_FUNC(this);
@@ -148,13 +143,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – operations wit
    ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.end()));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – removal of trivial elements") {
    ABC_TRACE_FUNC(this);
@@ -247,13 +240,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – removal of tri
    ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 2), v), vOneTwo);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – memory management") {
    ABC_TRACE_FUNC(this);
@@ -422,13 +413,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – memory managem
    ABC_TESTING_ASSERT_EQUAL(v3.capacity(), iHighestCapacity);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 /*! Instantiates and returns a dynamic vector. The vector will contain one item, added in a way that
 should cause only one new instance of instances_counter to be created, one moved and none copied.
@@ -484,5 +473,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::*vector classes – item and item 
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

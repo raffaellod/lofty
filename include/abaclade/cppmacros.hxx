@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
 
 /*! Expands into its argument, working around a MSC16 bug concerning __VA_ARGS__.
 
@@ -733,5 +732,3 @@ as arguments.
 #define _ABC_CPP_TUPLELIST_W_97(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_96(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_98(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_97(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_99(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_98(m, __VA_ARGS__))
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

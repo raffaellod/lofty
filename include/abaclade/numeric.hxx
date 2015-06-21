@@ -31,10 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::numeric globals
 
-namespace abc {
-namespace numeric {
+namespace abc { namespace numeric {
 
 /*! Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
 will never be negative (i.e. T is unsigned).
@@ -58,14 +56,11 @@ inline /*constexpr*/ bool is_negative(
    return false;
 }
 
-} //namespace numeric
-} //namespace abc
+}} //namespace abc::numeric
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::numeric::min and abc::numeric::max
 
-namespace abc {
-namespace numeric {
+namespace abc { namespace numeric {
 
 //! Defines the minimum value for a numeric type.
 template <typename T>
@@ -147,8 +142,7 @@ struct min<unsigned long long> : public std::integral_constant<unsigned long lon
 template <>
 struct max<unsigned long long> : public std::integral_constant<unsigned long long, ULLONG_MAX> {};
 
-} //namespace numeric
-} //namespace abc
+}} //namespace abc::numeric
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

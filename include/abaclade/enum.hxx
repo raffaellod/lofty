@@ -49,7 +49,6 @@ This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
 
 namespace abc {
 
@@ -184,10 +183,8 @@ values cannot be explicitly specified; for example:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::enum_member
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Enumeration member (name/value pair).
 struct ABACLADE_SYM enum_member {
@@ -215,11 +212,9 @@ struct ABACLADE_SYM enum_member {
    static enum_member const * find_in_map(enum_member const * pem, istr const & sName);
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::enum_impl
 
 namespace abc {
 
@@ -343,5 +338,3 @@ ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

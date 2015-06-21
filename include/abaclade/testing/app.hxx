@@ -31,10 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::app
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 /*! Testing application. It interacts with registered abc::testing::test_case-derived classes,
 allowing for the execution of test cases. */
@@ -44,8 +42,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override;
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

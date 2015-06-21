@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io globals
 
-namespace abc {
-namespace io {
+namespace abc { namespace io {
 
 //! Unsigned integer wide enough to express an I/O-related size.
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
@@ -80,14 +78,11 @@ ABC_ENUM_AUTO_VALUES(stdfile,
    stderr  //! Internal identifier for stderr.
 );
 
-} //namespace io
-} //namespace abc
+}} //namespace abc::io
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::filedesc
 
-namespace abc {
-namespace io {
+namespace abc { namespace io {
 
 //! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
 class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
@@ -182,11 +177,9 @@ private:
    static filedesc_t const smc_fdNull;
 };
 
-} //namespace io
-} //namespace abc
+}} //namespace abc::io
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::io::filedesc
 
 namespace abc {
 
@@ -200,5 +193,3 @@ public:
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

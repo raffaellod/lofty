@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace_source_location
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Stores the source code location for a scope_trace instance.
 struct scope_trace_source_location {
@@ -38,14 +36,11 @@ struct scope_trace_source_location {
    std::uint16_t iLine;
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace_tuple
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 // Forward declaration.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -142,14 +137,11 @@ protected:
    static void write_separator(io::text::writer * ptwOut);
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace_tuple_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Implementation of scope_trace_tuple with actual data storage.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -340,14 +332,11 @@ inline /*static*/ scope_trace_tuple_impl<
 }
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Tracks local variables, to be used during e.g. a stack unwind.
 class ABACLADE_SYM scope_trace : public noncopyable {
@@ -439,7 +428,4 @@ private:
    static coroutine_local_value<unsigned> sm_cScopeTraceRefs;
 };
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

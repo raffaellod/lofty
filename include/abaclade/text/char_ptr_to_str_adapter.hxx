@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::char_ptr_to_str_adapter
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
 for compatibility with STL methods such as std::exception::what(). Without this, C strings are
@@ -56,11 +54,9 @@ protected:
    char const * m_psz;
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for text::char_ptr_to_str_adapter
 
 namespace abc {
 
@@ -79,5 +75,3 @@ public:
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

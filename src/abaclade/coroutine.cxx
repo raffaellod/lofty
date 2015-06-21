@@ -47,7 +47,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine::impl
 
 namespace abc {
 
@@ -215,7 +214,6 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine
 
 namespace abc {
 
@@ -242,7 +240,6 @@ void coroutine::interrupt() {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::coroutine
 
 namespace abc {
 
@@ -281,7 +278,6 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine::scheduler
 
 namespace abc {
 
@@ -733,10 +729,8 @@ void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_coroutine
 
-namespace abc {
-namespace this_coroutine {
+namespace abc { namespace this_coroutine {
 
 coroutine::id_type id() {
    return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::sm_pcoroimplActive.get());
@@ -790,7 +784,4 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    }
 }
 
-} //namespace this_coroutine
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::this_coroutine

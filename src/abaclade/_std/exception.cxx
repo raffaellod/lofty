@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::exception
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 exception::exception() {
 }
@@ -37,8 +35,7 @@ exception::exception() {
    return "abc::_std::exception";
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

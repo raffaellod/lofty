@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -22,19 +22,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::utility::instances_counter
 
-namespace abc {
-namespace testing {
-namespace utility {
+namespace abc { namespace testing { namespace utility {
 
 std::size_t instances_counter::m_cCopies = 0;
 std::size_t instances_counter::m_cMoves = 0;
 std::size_t instances_counter::m_cNew = 0;
 int instances_counter::m_iNextUnique = 0;
 
-} //namespace utility
-} //namespace testing
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::testing::utility

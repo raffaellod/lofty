@@ -29,11 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::defer_to_scope_end
 
-namespace abc {
-
-namespace detail {
+namespace abc { namespace detail {
 
 /*! @cond
 Implementation of abc::defer_to_scope_end(). This cannot define a move constructor (and delete
@@ -64,7 +61,9 @@ private:
 };
 //! @endcond
 
-} //namespace detail
+}} //namespace abc::detail
+
+namespace abc {
 
 /*! Ensures that a function or lambda will execute when the enclosing scope ends. This works by
 returning an object whose lifetime will track that of the enclosing scope; when the object is

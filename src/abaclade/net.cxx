@@ -49,10 +49,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::ip_address
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 static detail::raw_ip_address const gc_abAny4 = {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 4
@@ -64,14 +62,11 @@ static detail::raw_ip_address const gc_abAny6 = {
 ip_address const & ip_address::any_ipv4 = static_cast<ip_address const &>(gc_abAny4);
 ip_address const & ip_address::any_ipv6 = static_cast<ip_address const &>(gc_abAny6);
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::connection
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 connection::connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portRemote) :
    m_bfrw(io::binary::make_readwriter(std::move(fd))),
@@ -82,14 +77,11 @@ connection::connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portR
 connection::~connection() {
 }
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::tcp_server
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/) :
    m_fdSocket(create_socket(ipaddr.version())),
@@ -309,7 +301,4 @@ std::shared_ptr<connection> tcp_server::accept() {
    return std::move(fd);
 }
 
-} //namespace net
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::net

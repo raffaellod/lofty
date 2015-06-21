@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_concurrent
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    ABC_TRACE_FUNC(this);
@@ -73,14 +71,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    ABC_TESTING_ASSERT_TRUE(bThr2Completed);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_interruption
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TRACE_FUNC(this);
@@ -127,14 +122,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4]);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_exception_propagation
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    ABC_TRACE_FUNC(this);
@@ -179,14 +171,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::thread_exception_interruption_propagation
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation") {
    ABC_TRACE_FUNC(this);
@@ -236,5 +225,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

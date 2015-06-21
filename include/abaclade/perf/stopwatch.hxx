@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::perf::stopwatch
 
-namespace abc {
-namespace perf {
+namespace abc { namespace perf {
 
 /*! Measures processing time intervals for the current process at a high platform-dependent
 precision. */
@@ -88,11 +86,9 @@ protected:
    duration_type m_iTotalDuration;
 };
 
-} //namespace perf
-} //namespace abc
+}} //namespace abc::perf
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::perf::stopwatch
 
 namespace abc {
 

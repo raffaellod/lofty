@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_weak_ptr
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 bad_weak_ptr::bad_weak_ptr() {
 }
@@ -37,15 +35,11 @@ bad_weak_ptr::bad_weak_ptr() {
    return "abc::_std::bad_weak_ptr";
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::shared_refcount
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 shared_refcount::shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs) :
    m_cStrongRefs(cStrongRefs),
@@ -77,9 +71,7 @@ void shared_refcount::add_strong_ref() {
    delete this;
 }
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

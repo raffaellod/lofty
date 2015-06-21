@@ -25,11 +25,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text globals
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 std::shared_ptr<writer> stderr;
 std::shared_ptr<reader> stdin;
@@ -150,7 +147,17 @@ std::shared_ptr<writer> make_writer(
    );
 }
 
-namespace detail {
+std::shared_ptr<binbuf_base> open(
+   os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(op, am, enc);
+
+   return _construct(binary::open(op, am), enc);
+}
+
+}}} //namespace abc::io::text
+
+namespace abc { namespace io { namespace text { namespace detail {
 
 std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
@@ -176,26 +183,11 @@ std::shared_ptr<writer> make_stdout() {
    );
 }
 
-} //namespace detail
-
-std::shared_ptr<binbuf_base> open(
-   os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
-) {
-   ABC_TRACE_FUNC(op, am, enc);
-
-   return _construct(binary::open(op, am), enc);
-}
-
-} //namespace text
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 base::base() :
    m_lterm(abc::text::line_terminator::convert_any_to_lf) {
@@ -204,16 +196,11 @@ base::base() :
 /*virtual*/ base::~base() {
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::reader
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 reader::reader() :
    base() {
@@ -240,16 +227,11 @@ bool reader::read_line(mstr * psDst) {
    return read_line_or_all(psDst, true);
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 writer::writer() :
    base() {
@@ -270,17 +252,11 @@ void writer::write_line(istr const & s) {
    tsb.write(get_line_terminator_str(lterm), this);
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::detail::writer_print_helper
 
-namespace abc {
-namespace io {
-namespace text {
-namespace detail {
+namespace abc { namespace io { namespace text { namespace detail {
 
 writer_print_helper_impl::writer_print_helper_impl(writer * ptw, istr const & sFormat) :
    m_ptw(ptw),
@@ -416,9 +392,4 @@ void writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
    }
 }
 
-} //namespace detail
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}}} //namespace abc::io::text::detail

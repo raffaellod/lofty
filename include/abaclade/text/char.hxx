@@ -27,7 +27,6 @@ Macros to generate proper Unicode characters.
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
 
 /*! Indicates the level of UTF-8 string literals support:
 •  2 - The UTF-8 string literal prefix (u8) is supported;
@@ -137,8 +136,7 @@ typedef char char8_t;
    #define ABC_HOST_UTF 8
 #endif
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Default UTF character type for the host. Note that only UTF-8 and UTF-16 are supported as native
 characters types. */
@@ -150,8 +148,7 @@ selection logic for abc::text::encoding::host to provide the corresponding UTF e
    typedef char16_t char_t;
 #endif
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 
 /*! Use this to specify a non-ASCII character literal. When compiled, this will expand into a
@@ -201,5 +198,3 @@ appropriate string literal prefix, as is necessary for e.g. __FILE__.
    UTF string literal.
 */
 #define ABC_SL(s) _ABC_SL(s)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

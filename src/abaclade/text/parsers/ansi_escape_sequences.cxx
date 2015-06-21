@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::parsers::ansi_escape_sequences
 
-namespace abc {
-namespace text {
-namespace parsers {
+namespace abc { namespace text { namespace parsers {
 
 ansi_escape_sequences::ansi_escape_sequences() :
    m_state(state::not_in_sequence) {
@@ -361,8 +358,4 @@ void ansi_escape_sequences::safe_set_cursor_pos(
    set_cursor_pos(static_cast<std::int16_t>(iRow), static_cast<std::int16_t>(iCol));
 }
 
-} //namespace parsers
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::text::parsers

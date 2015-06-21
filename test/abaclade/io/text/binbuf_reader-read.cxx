@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::bbr_readline_test_case
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class bbr_readline_test_case : public testing::test_case {
 public:
@@ -63,14 +61,11 @@ public:
    virtual istr title_suffix() const = 0;
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf8_lf_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf8_lf_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -85,16 +80,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf8_lf_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf8_mixed_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf8_mixed_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -109,16 +101,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf8_mixed_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf16be_lf_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf16be_lf_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -133,16 +122,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf16be_lf_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf16le_lf_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf16le_lf_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -157,16 +143,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf16le_lf_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf16le_mixed_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf16le_mixed_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -181,16 +164,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf16le_mixed_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf32le_lf_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf32le_lf_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -205,16 +185,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf32le_lf_no_trailing_nl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::binbuf_reader_read_line_utf32le_mixed_no_trailing_nl
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class binbuf_reader_read_line_utf32le_mixed_no_trailing_nl : public bbr_readline_test_case {
 public:
@@ -229,7 +206,6 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::binbuf_reader_read_line_utf32le_mixed_no_trailing_nl)

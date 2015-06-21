@@ -27,8 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
    ABC_TRACE_FUNC(this);
@@ -86,13 +85,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(l.size(), 0u);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 /*! Instantiates and returns a list. The list will contain one node, added in a way that should
 cause only one new instance of instances_counter to be created, one moved and none copied.
@@ -133,13 +130,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators") {
    ABC_TRACE_FUNC(this);
@@ -180,5 +175,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

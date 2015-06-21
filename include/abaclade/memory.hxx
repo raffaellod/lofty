@@ -64,7 +64,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals – standard new/delete operators
 
 #if ABC_HOST_CXX_MSC
    #pragma warning(push)
@@ -91,10 +90,8 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – manual memory management
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 /*! Requests the dynamic allocation of a memory block of the specified number of bytes.
 
@@ -123,14 +120,11 @@ ABACLADE_SYM void _raw_free(void const * p);
 */
 ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::conditional_deleter
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 //! Wrapper that invokes a deleter if and only if a set condition is true.
 template <typename T, typename TDeleter = std::default_delete<T>>
@@ -205,14 +199,11 @@ public:
    }
 };
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::freeing_deleter
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 //! Deleter that deallocates memory using memory::free().
 struct freeing_deleter {
@@ -226,14 +217,11 @@ struct freeing_deleter {
    }
 };
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – smart pointer-based memory management
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 /*! Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
 plus additional cbExtra bytes.
@@ -292,14 +280,11 @@ inline void realloc(
    ppt->reset(pt);
 }
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – manipulation
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 /*! Sets to the value 0 every item in the specified memory block.
 
@@ -423,14 +408,11 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
    return ptDst;
 }
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::pages_ptr
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 //! Pointer to a chunk of memory allocated by the page.
 class ABACLADE_SYM pages_ptr : public noncopyable {
@@ -484,14 +466,11 @@ private:
    std::size_t m_cb;
 };
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – miscellanea
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 /*! Returns the size of a memory page.
 
@@ -500,7 +479,4 @@ namespace memory {
 */
 ABACLADE_SYM std::size_t page_size();
 
-} //namespace memory
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::memory

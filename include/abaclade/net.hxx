@@ -29,23 +29,17 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::port
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 //! Type of a network port.
 typedef std::uint16_t port_t;
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::detail::raw_ip_address
 
-namespace abc {
-namespace net {
-namespace detail {
+namespace abc { namespace net { namespace detail {
 
 //! Contains an IPv4 or IPv6 address.
 struct raw_ip_address {
@@ -55,15 +49,11 @@ struct raw_ip_address {
    std::uint8_t m_iVersion;
 };
 
-} //namespace detail
-} //namespace net
-} //namespace abc
+}}} //namespace abc::net::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::ip_address
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 //! IP address.
 class ABACLADE_SYM ip_address : public detail::raw_ip_address {
@@ -136,14 +126,11 @@ public:
    }
 };
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::connection
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 //! Initialized TCP connection.
 class ABACLADE_SYM connection : public noncopyable {
@@ -188,14 +175,11 @@ private:
    port_t m_portRemote;
 };
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::net::tcp_server
 
-namespace abc {
-namespace net {
+namespace abc { namespace net {
 
 /*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
 required for the current thread to run coroutines.
@@ -241,8 +225,7 @@ private:
    std::uint8_t m_iIPVersion;
 };
 
-} //namespace net
-} //namespace abc
+}} //namespace abc::net
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

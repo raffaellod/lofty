@@ -24,10 +24,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::coroutine_local
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 /* A coroutine_local variable, being specific to a thread and a coroutine, by definition does not
 need to be atomic; however this test case wants to find out if the variable is accidentally shared
@@ -70,5 +68,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine_local_* – basic functionality") {
    this_thread::detach_coroutine_scheduler();
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::enum_member
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int iValue) {
    ABC_TRACE_FUNC(pem, iValue);
@@ -51,14 +49,11 @@ namespace detail {
    ABC_THROW(domain_error, ());
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::enum_to_str_backend_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 void enum_to_str_backend_impl::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -84,7 +79,4 @@ void enum_to_str_backend_impl::write_impl(
    ptwOut->write(istr(external_buffer, petvp->pszName));
 }
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

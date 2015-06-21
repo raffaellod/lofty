@@ -31,11 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary globals
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 std::shared_ptr<writer> stderr;
 std::shared_ptr<reader> stdin;
@@ -442,7 +439,9 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    );
 }
 
-namespace detail {
+}}} //namespace abc::io::binary
+
+namespace abc { namespace io { namespace binary { namespace detail {
 
 std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
@@ -501,24 +500,13 @@ std::shared_ptr<writer> make_stdout() {
    ), access_mode::write));
 }
 
-} //namespace detail
-
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::binary::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 /*virtual*/ base::~base() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

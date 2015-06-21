@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::char_ptr_to_str_adapter
 
 namespace abc {
 
@@ -46,5 +45,3 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
 }
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

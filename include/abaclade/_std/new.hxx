@@ -31,10 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::nothrow_t and std::nothrow
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Type of nothrow constant (C++11 § 18.6 “Dynamic memory management”).
 struct nothrow_t {};
@@ -42,14 +40,11 @@ struct nothrow_t {};
 //! Constant to request no exceptions to be thrown (C++11 § 18.6 “Dynamic memory management”).
 extern ABACLADE_SYM nothrow_t const nothrow;
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_alloc
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
 class ABACLADE_SYM bad_alloc : public exception {
@@ -64,11 +59,9 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals – storage allocation and deallocation
 
 // Single-object new and delete (C++11 § 18.6.1.1 “Single-object forms”).
 void * operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));

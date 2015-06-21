@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text globals
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 // Forward declarations.
 class reader;
@@ -68,31 +65,6 @@ ABACLADE_SYM std::shared_ptr<reader> make_reader(
 ABACLADE_SYM std::shared_ptr<writer> make_writer(
    std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
 );
-
-namespace detail {
-
-/*! Creates and returns a text writer associated to the standard error output file (stderr).
-
-@return
-   Standard error file.
-*/
-ABACLADE_SYM std::shared_ptr<writer> make_stderr();
-
-/*! Creates and returns a text reader associated to the standard input file (stdin).
-
-@return
-   Standard input file.
-*/
-ABACLADE_SYM std::shared_ptr<reader> make_stdin();
-
-/*! Creates and returns a text writer associated to the standard output file (stdout).
-
-@return
-   Standard output file.
-*/
-ABACLADE_SYM std::shared_ptr<writer> make_stdout();
-
-} //namespace detail
 
 /*! Opens a file for text-mode access.
 
@@ -139,16 +111,36 @@ inline std::shared_ptr<binbuf_writer> open_writer(
    return std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
+
+namespace abc { namespace io { namespace text { namespace detail {
+
+/*! Creates and returns a text writer associated to the standard error output file (stderr).
+
+@return
+   Standard error file.
+*/
+ABACLADE_SYM std::shared_ptr<writer> make_stderr();
+
+/*! Creates and returns a text reader associated to the standard input file (stdin).
+
+@return
+   Standard input file.
+*/
+ABACLADE_SYM std::shared_ptr<reader> make_stdin();
+
+/*! Creates and returns a text writer associated to the standard output file (stdout).
+
+@return
+   Standard output file.
+*/
+ABACLADE_SYM std::shared_ptr<writer> make_stdout();
+
+}}}} //namespace abc::io::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Base interface for text (character-based) I/O.
 class ABACLADE_SYM base {
@@ -200,16 +192,11 @@ protected:
    abc::text::line_terminator m_lterm;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::reader
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Interface for text (character-based) input.
 class ABACLADE_SYM reader : public virtual base {
@@ -399,16 +386,11 @@ protected:
    virtual bool read_line_or_all(mstr * psDst, bool bOneLine) = 0;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
@@ -563,17 +545,11 @@ protected:
    writer();
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::detail::writer_print_helper
 
-namespace abc {
-namespace io {
-namespace text {
-namespace detail {
+namespace abc { namespace io { namespace text { namespace detail {
 
 //! Template-free implementation of abc::io::text::detail::writer_print_helper.
 class ABACLADE_SYM writer_print_helper_impl : public noncopyable {
@@ -928,10 +904,12 @@ protected:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace detail
-
+}}}} //namespace abc::io::text::detail
 
 // Now it’s possible to implement this.
+
+namespace abc { namespace io { namespace text {
+
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
@@ -1035,8 +1013,4 @@ inline void writer::print(
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::text

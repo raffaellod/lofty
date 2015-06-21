@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_int
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int") {
    ABC_TRACE_FUNC(this);
@@ -54,14 +52,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int") {
    ABC_TESTING_ASSERT_EQUAL(to_str(-1, ABC_SL("03")), ABC_SL("-01"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_int8
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int8_t") {
    ABC_TRACE_FUNC(this);
@@ -90,14 +85,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int8_t") {
    ABC_TESTING_ASSERT_EQUAL(to_str(std::int8_t(-1), ABC_SL("03x")), ABC_SL("0ff"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_raw_pointers
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – raw pointers") {
    ABC_TRACE_FUNC(this);
@@ -127,14 +119,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – raw pointers") {
    );
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_smart_pointers
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – smart pointers") {
    ABC_TRACE_FUNC(this);
@@ -171,14 +160,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – smart pointers") {
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_tuples
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – STL tuple types") {
    ABC_TRACE_FUNC(this);
@@ -196,14 +182,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – STL tuple types") {
    ABC_TESTING_ASSERT_EQUAL(to_str(tuple<istr, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::to_str_type_info
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – std::type_info") {
    ABC_TRACE_FUNC(this);
@@ -215,5 +198,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – std::type_info") {
    ABC_TESTING_ASSERT_EQUAL(to_str(typeid(istr)), ABC_SL("abc::text::istr"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

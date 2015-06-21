@@ -30,11 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::parsers::ansi_escape_sequences
 
-namespace abc {
-namespace text {
-namespace parsers {
+namespace abc { namespace text { namespace parsers {
 
 //! ANSI terminal 3-bit color palette.
 ABC_ENUM(ansi_terminal_color,
@@ -244,9 +241,7 @@ private:
    std::int16_t m_iSavedCol;
 };
 
-} //namespace parsers
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::parsers
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

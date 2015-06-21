@@ -29,11 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::utility globals
 
-namespace abc {
-namespace testing {
-namespace utility {
+namespace abc { namespace testing { namespace utility {
 
 // Forward declaration.
 template <class T>
@@ -49,16 +46,11 @@ class container_data_ptr_tracker;
 template <class T>
 container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
 
-} //namespace utility
-} //namespace testing
-} //namespace abc
+}}} //namespace abc::testing::utility
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::utility::class_with_internal_pointer
 
-namespace abc {
-namespace testing {
-namespace utility {
+namespace abc { namespace testing { namespace utility {
 
 //! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 class class_with_internal_pointer {
@@ -99,16 +91,11 @@ private:
    std::uint16_t m_i;
 };
 
-} //namespace utility
-} //namespace testing
-} //namespace abc
+}}} //namespace abc::testing::utility
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::utility::container_data_ptr_tracker
 
-namespace abc {
-namespace testing {
-namespace utility {
+namespace abc { namespace testing { namespace utility {
 
 /*! Tracks changes in the internal data pointer of a container. */
 template <class T>
@@ -158,16 +145,11 @@ inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t
    return container_data_ptr_tracker<T>(t);
 }
 
-} //namespace utility
-} //namespace testing
-} //namespace abc
+}}} //namespace abc::testing::utility
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::utility::instances_counter
 
-namespace abc {
-namespace testing {
-namespace utility {
+namespace abc { namespace testing { namespace utility {
 
 /*! This class is meant for use in containers to track when items are copied, when they’re moved,
 and to check if individual instances have been copied instead of being moved. */
@@ -293,9 +275,7 @@ private:
    static int m_iNextUnique;
 };
 
-} //namespace utility
-} //namespace testing
-} //namespace abc
+}}} //namespace abc::testing::utility
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

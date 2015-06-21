@@ -25,8 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::queue – basic operations") {
    ABC_TRACE_FUNC(this);
@@ -69,5 +68,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::queue – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(q.size(), 0);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

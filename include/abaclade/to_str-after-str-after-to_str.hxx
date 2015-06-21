@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::ptr_to_str_backend
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM ptr_to_str_backend {
@@ -58,11 +56,9 @@ protected:
    to_str_backend<istr> m_tsbStr;
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specializations for pointer types
 
 namespace abc {
 
@@ -129,7 +125,6 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for std::type_info
 
 namespace abc {
 
@@ -166,13 +161,11 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::sequence_to_str_backend
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 /*! Base class for the specializations of to_str_backend for sequence types. Not using templates, so
-the implementation can be in a cxx file. */
+the implementation can be in a .cxx file. */
 class ABACLADE_SYM sequence_to_str_backend {
 public:
    /*! Constructor.
@@ -232,14 +225,11 @@ protected:
    to_str_backend<istr> m_tsbStr;
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for std::tuple or abc::_std::tuple
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -277,8 +267,9 @@ protected:
    to_str_backend<T0> m_tsbt0;
 };
 
-} //namespace detail
+}} //namespace abc::detail
 
+namespace abc {
 
 template <typename... Ts>
 class to_str_backend<std::tuple<Ts ...>> :
@@ -304,8 +295,9 @@ public:
    }
 };
 
+} //namespace abc
 
-namespace detail {
+namespace abc { namespace detail {
 
 // Now this can be defined.
 
@@ -423,7 +415,4 @@ inline void tuple_to_str_backend_element_writer<
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

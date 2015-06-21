@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::noncopyable and compiler-specific STL type_traits fixes
 
 namespace abc {
 
@@ -138,5 +137,3 @@ struct is_copy_constructible<T, typename enable_if<
 
 #endif /*if ((ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) ||
              (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) && !defined(ABC_STLIMPL) */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

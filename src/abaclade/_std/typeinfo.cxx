@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_alloc
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 bad_cast::bad_cast() {
 }
@@ -37,14 +35,11 @@ bad_cast::bad_cast() {
    return "abc::_std::bad_cast";
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_typeid
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 bad_typeid::bad_typeid() {
 }
@@ -56,8 +51,7 @@ bad_typeid::bad_typeid() {
    return "abc::_std::bad_typeid";
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

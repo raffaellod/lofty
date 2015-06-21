@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::str_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*static*/ void str_traits::_build_find_failure_restart_table(
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
@@ -394,7 +392,4 @@ namespace text {
 #endif //if ABC_HOST_UTF == 8 … elif ABC_HOST_UTF == 16
 }
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

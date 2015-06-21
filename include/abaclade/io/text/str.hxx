@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::str_base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Implementation of text (character-based) I/O from/to a string.
 class ABACLADE_SYM str_base : public virtual base, public noncopyable {
@@ -50,16 +47,11 @@ protected:
    std::size_t m_ichOffset;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::str_reader
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Implementation of text (character-based) input from a string.
 class ABACLADE_SYM str_reader : public virtual str_base, public virtual reader {
@@ -101,16 +93,11 @@ protected:
    istr m_sReadBuf;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::str_writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Implementation of text (character-based) output into a string.
 class ABACLADE_SYM str_writer : public virtual str_base, public virtual writer {
@@ -168,8 +155,4 @@ protected:
    dmstr m_sDefaultWriteBuf;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::text

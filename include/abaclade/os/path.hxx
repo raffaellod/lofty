@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::os::path
 
-namespace abc {
-namespace os {
+namespace abc { namespace os {
 
 // Enumerates directory entries.
 #if 0
@@ -387,12 +385,10 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
-} //namespace os
-} //namespace abc
+}} //namespace abc::os
 
 namespace std {
 
-// Specialization of std::hash for abc::os::path.
 template <>
 struct hash<abc::os::path> : public hash<abc::text::istr> {
    //! See std::hash::operator()().
@@ -404,7 +400,6 @@ struct hash<abc::os::path> : public hash<abc::text::istr> {
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::os::path
 
 namespace abc {
 
@@ -431,10 +426,8 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::os::_path_iterator
 
-namespace abc {
-namespace os {
+namespace abc { namespace os {
 
 #if 0
 class _path_iterator {
@@ -544,11 +537,9 @@ inline _path_iterator path::find(istr const & sPattern) const {
 }
 #endif
 
-} //namespace os
-} //namespace abc
+}} //namespace abc::os
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::file_not_found_error
 
 namespace abc {
 
@@ -594,5 +585,3 @@ private:
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

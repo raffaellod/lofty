@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test globals
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 char32_t const gc_chP0(ABC_CHAR('\x20ac'));
 char32_t const gc_chP2(0x024b62);
@@ -42,13 +40,11 @@ istr const gc_sAcabaabca(
    istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
 );
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – basic operations") {
    ABC_TRACE_FUNC(this);
@@ -187,13 +183,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – basic operations") {
    ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[8], 'a');
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – iterator-based character access") {
    ABC_TRACE_FUNC(this);
@@ -216,13 +210,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – iterator-based character
    ABC_TESTING_ASSERT_THROWS(iterator_error, *s.cend());
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – conversion to different encodings") {
    ABC_TRACE_FUNC(this);
@@ -289,13 +281,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – conversion to different 
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character replacement") {
    ABC_TRACE_FUNC(this);
@@ -321,13 +311,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character replacement") 
    );
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – range() permutations") {
    ABC_TRACE_FUNC(this);
@@ -384,13 +372,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – range() permutations") {
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), istr::empty);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::istr – C string extraction") {
    ABC_TRACE_FUNC(this);
@@ -424,13 +410,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::istr – C string extraction") {
    ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::mstr – C string extraction") {
    ABC_TRACE_FUNC(this);
@@ -470,13 +454,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::mstr – C string extraction") {
    ABC_TESTING_ASSERT_EQUAL(psz[2], '\0');
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character and substring search") {
    ABC_TRACE_FUNC(this);
@@ -508,13 +490,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character and substring 
 #endif
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – initial matching") {
    ABC_TRACE_FUNC(this);
@@ -536,13 +516,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – initial matching") {
    ABC_TESTING_ASSERT_FALSE(s.starts_with('-' + s));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – final matching") {
    ABC_TRACE_FUNC(this);
@@ -564,5 +542,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – final matching") {
    ABC_TESTING_ASSERT_FALSE(s.ends_with('-' + s));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

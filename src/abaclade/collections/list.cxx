@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::list_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 list_impl::list_impl() :
    m_cNodes(0) {
@@ -116,8 +113,4 @@ xor_list::node * list_impl::unlink_front() {
    return unlink(m_pnFirst, m_pnFirst->get_other_sibling(nullptr));
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

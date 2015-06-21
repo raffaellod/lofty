@@ -24,8 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – basic operations") {
    ABC_TRACE_FUNC(this);
@@ -115,13 +114,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – basic operations") {
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 namespace {
 
@@ -170,13 +167,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – stress test with 100%
    ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – operations with iterators") {
    ABC_TRACE_FUNC(this);
@@ -212,5 +207,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – operations with itera
    }
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

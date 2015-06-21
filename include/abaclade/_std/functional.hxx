@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::hash standard specializations
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
 template <typename T>
@@ -304,8 +302,7 @@ struct hash<T *> {
    }
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

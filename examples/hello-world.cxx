@@ -29,13 +29,13 @@ then it terminates. See the source code for line-by-line comments.
 /* This needs to be included in the .cxx file that defines the application class for the program –
 see below. */
 #include <abaclade/app.hxx>
+
 /* Abaclade does not use “using namespace” directives in its sources or header files; if you want
 such convenience, you have to write it yourself in your own source files. */
 using namespace abc;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// hello_world_app
 
 /*! This is a basic application class. The ABC_APP_CLASS() statement (below) indicates that this
 class shall be instantiated as soon as the program is started, and its main() method should be

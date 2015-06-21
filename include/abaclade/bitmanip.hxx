@@ -31,10 +31,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::bitmanip globals
-
-namespace abc {
-namespace bitmanip {
 
 /* Intrinsics in MSC16:
 •  _BitScanForward
@@ -47,7 +43,7 @@ namespace bitmanip {
 •  _InterlockedCompareExchange64
 */
 
-namespace detail {
+namespace abc { namespace bitmanip { namespace detail {
 
 /*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(T). See
 abc::bitmanip::ceiling_to_pow2(). */
@@ -56,8 +52,9 @@ ABACLADE_SYM std::uint16_t ceiling_to_pow2(std::uint16_t i);
 ABACLADE_SYM std::uint32_t ceiling_to_pow2(std::uint32_t i);
 ABACLADE_SYM std::uint64_t ceiling_to_pow2(std::uint64_t i);
 
-} //namespace detail
+}}} //namespace abc::bitmanip::detail
 
+namespace abc { namespace bitmanip {
 
 /*! Returns the argument rounded up to the closest power of 2.
 
@@ -130,8 +127,7 @@ inline /*constexpr*/ T rotate_r(T i, unsigned c) {
    return (i >> c) | (i << (sizeof(T) * CHAR_BIT - c));
 }
 
-} //namespace bitmanip
-} //namespace abc
+}} //namespace abc::bitmanip
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

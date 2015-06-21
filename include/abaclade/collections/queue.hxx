@@ -31,11 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::queue_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::queue.
 class ABACLADE_SYM queue_impl : public support_explicit_operator_bool<queue_impl> {
@@ -156,15 +153,11 @@ protected:
    std::size_t m_cNodes;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::queue
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 /*! List-based queue. Offers constant insert-at-end time and constant extraction time of its first
 element. */
@@ -278,8 +271,7 @@ public:
    }
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

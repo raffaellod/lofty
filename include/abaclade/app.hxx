@@ -33,8 +33,6 @@ Classes and macros to enable application startup.
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::app
-
 
 namespace abc {
 
@@ -46,8 +44,7 @@ ABC_APP_CLASS(). */
 class ABACLADE_SYM app : public noncopyable {
 public:
    /*! @cond
-   Collects the OS-provided arguments to a program’s entry point (e.g. main()).
-   */
+   Collects the OS-provided arguments to a program’s entry point (e.g. main()). */
    struct _args_t {
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
@@ -166,6 +163,5 @@ abc::app-derived class, invoking its overridden main() method, and returning.
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif //ifndef _ABACLADE_APP_HXX

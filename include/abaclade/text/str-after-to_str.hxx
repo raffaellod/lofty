@@ -23,15 +23,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::str_to_str_backend
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 /*! Base class for the specializations of to_str_backend for string types. Not using templates, so
-the implementation can be in a cxx file. This is used by string literal types as well (see below).
-*/
+the implementation can be in a cxx file. This is used by string literal types as well (see
+below). */
 class ABACLADE_SYM str_to_str_backend {
 public:
    /*! Changes the output format.
@@ -56,12 +53,9 @@ protected:
    void write(void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut);
 };
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for character and string literal types
 
 namespace abc {
 
@@ -124,7 +118,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::detail::str_base
 
 namespace abc {
 
@@ -152,7 +145,6 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::*str
 
 namespace abc {
 
@@ -169,5 +161,3 @@ template <std::size_t t_cchStatic>
 class to_str_backend<text::smstr<t_cchStatic>> : public to_str_backend<text::detail::str_base> {};
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – constants
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Defines an integral constant (C++11 § 20.9.3 “Helper classes”).
 template <typename T, T t_t>
@@ -45,14 +43,11 @@ typedef integral_constant<bool, true> true_type;
 //! False integral constant (C++11 § 20.9.3 “Helper classes”).
 typedef integral_constant<bool, false> false_type;
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – qualifier removal
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Removes const and volatile qualifiers from a type (C++11 § 20.9.7.1 “Const-volatile
 modifications”). */
@@ -73,14 +68,11 @@ struct remove_cv<T const volatile> {
    typedef T type;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – type traits
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /* All the constants that depend on compiler support will default to a safe (if pessimistic)
 default, in case no such support is available. */
@@ -231,30 +223,29 @@ struct is_trivial : public integral_constant<bool, false
 #endif
 > {};
 
-namespace detail {
+}} //namespace abc::_std
 
-//! Helper for is_void.
+namespace abc { namespace _std { namespace detail {
+
+//! Helper for abc::_std::is_void.
 template <typename T>
 struct is_void_helper : public false_type {};
 template <>
 struct is_void_helper<void> : public true_type {};
 
-} //namespace detail
+}}} //namespace abc::_std::detail
+
+namespace abc { namespace _std {
 
 //! True if T is void (C++11 § 20.9.4.1 “Primary type categories”).
 template <typename T>
 struct is_void : public detail::is_void_helper<typename remove_cv<T>::type> {};
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – type changers
 
-namespace abc {
-namespace _std {
-
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 //! Helper for add_lvalue_reference.
 template <typename T, bool t_bAddLRef>
@@ -266,14 +257,6 @@ struct add_lvalue_reference_helper<T, false> {
    typedef T type;
 };
 
-} //namespace detail
-
-//! Adds an l-value reference to the type (C++11 § 20.9.7.2 “Reference modifications”).
-template <typename T>
-struct add_lvalue_reference : public detail::add_lvalue_reference_helper<T, !is_void<T>::value> {};
-
-namespace detail {
-
 //! Helper for add_rvalue_reference.
 template <typename T, bool t_bAddRRef>
 struct add_rvalue_reference_helper {
@@ -284,7 +267,13 @@ struct add_rvalue_reference_helper<T, false> {
    typedef T type;
 };
 
-} //namespace detail
+}}} //namespace abc::_std::detail
+
+namespace abc { namespace _std {
+
+//! Adds an l-value reference to the type (C++11 § 20.9.7.2 “Reference modifications”).
+template <typename T>
+struct add_lvalue_reference : public detail::add_lvalue_reference_helper<T, !is_void<T>::value> {};
 
 //! Adds an r-value reference to the type (C++11 § 20.9.7.2 “Reference modifications”).
 template <typename T>
@@ -309,17 +298,14 @@ struct remove_reference<T &&> {
    typedef T type;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals – conditionals
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
-/*! Defines a member named type as TTrue if t_bTest == true, else if is defined as TFalse
-(C++11 § 20.9.7.6 “Other transformations”). */
+/*! Defines a member named type as TTrue if t_bTest == true, else if is defined as TFalse (C++11 §
+20.9.7.6 “Other transformations”). */
 template <bool t_bTest, typename TTrue, typename TFalse>
 struct conditional {
    typedef TFalse type;
@@ -339,8 +325,7 @@ struct enable_if<true, T> {
    typedef T type;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -27,11 +27,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary { namespace detail {
+
+/*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
+after the necessary header files have been included. */
+struct file_init_data;
+
+}}}} //namespace abc::io::binary::detail
+
+namespace abc { namespace io { namespace binary {
 
 //! Base for file binary I/O classes.
 class ABACLADE_SYM file_base : public virtual base, public noncopyable {
@@ -58,16 +63,11 @@ protected:
 #endif
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary file input.
 class ABACLADE_SYM file_reader : public virtual file_base, public reader {
@@ -98,16 +98,11 @@ protected:
 #endif
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary file output.
 class ABACLADE_SYM file_writer : public virtual file_base, public writer {
@@ -128,16 +123,11 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Bidirectional binary file.
 class ABACLADE_SYM file_readwriter : public virtual file_reader, public virtual file_writer {
@@ -149,16 +139,11 @@ public:
    virtual ~file_readwriter();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Base for console/terminal binary I/O classes.
 class ABACLADE_SYM console_file_base : public virtual file_base {
@@ -171,16 +156,11 @@ protected:
    console_file_base(detail::file_init_data * pfid);
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Console/terminal input pseudo-file.
 class ABACLADE_SYM console_reader : public virtual console_file_base, public virtual file_reader {
@@ -200,16 +180,11 @@ public:
 #endif //if ABC_HOST_API_WIN32
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Console/terminal output pseudo-file.
 class ABACLADE_SYM console_writer :
@@ -282,16 +257,11 @@ private:
 #endif //if ABC_HOST_API_WIN32
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
 class ABACLADE_SYM console_readwriter :
@@ -306,16 +276,11 @@ public:
    virtual ~console_readwriter();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary reader for the output end of a pipe.
 class ABACLADE_SYM pipe_reader : public virtual file_reader {
@@ -334,16 +299,11 @@ protected:
 #endif
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary writer for the input end of a pipe.
 class ABACLADE_SYM pipe_writer : public virtual file_writer {
@@ -355,16 +315,11 @@ public:
    virtual ~pipe_writer();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
 class ABACLADE_SYM pipe_readwriter :
@@ -379,16 +334,11 @@ public:
    virtual ~pipe_readwriter();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Base for binary I/O classes for regular disk files.
 class ABACLADE_SYM regular_file_base : public virtual file_base, public seekable, public sized {
@@ -418,16 +368,11 @@ protected:
 #endif
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary reader for regular disk files.
 class ABACLADE_SYM regular_file_reader :
@@ -441,16 +386,11 @@ public:
    virtual ~regular_file_reader();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::regular_file_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Binary writer for regular disk files.
 class ABACLADE_SYM regular_file_writer :
@@ -473,16 +413,11 @@ protected:
 #endif
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
 class ABACLADE_SYM regular_file_readwriter :
@@ -498,8 +433,4 @@ public:
    virtual ~regular_file_readwriter();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

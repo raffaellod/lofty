@@ -23,24 +23,19 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::assertion_error
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 assertion_error::assertion_error() :
    exception() {
    m_pszWhat = "abc::assertion_error";
 }
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::runner
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 runner::runner(std::shared_ptr<io::text::writer> ptwOut) :
    m_ptwOut(std::move(ptwOut)),
@@ -123,7 +118,4 @@ void runner::run_test_case(test_case & tc) {
    m_ptwOut->write(ABC_SL("ABCMK-TEST-CASE-END\n"));
 }
 
-} //namespace testing
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::testing

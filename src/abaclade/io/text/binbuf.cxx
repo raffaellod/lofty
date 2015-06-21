@@ -24,11 +24,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 binbuf_base::binbuf_base(abc::text::encoding enc) :
    base(),
@@ -44,18 +41,11 @@ binbuf_base::binbuf_base(abc::text::encoding enc) :
    return m_enc;
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_reader
 
-namespace abc {
-namespace io {
-namespace text {
-
-namespace detail {
+namespace abc { namespace io { namespace text { namespace detail {
 
 reader_read_helper::reader_read_helper(
    binbuf_reader * ptbbr, char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
@@ -200,8 +190,9 @@ bool reader_read_helper::run() {
    return m_cchSrcTotal > 0;
 }
 
-} //namespace detail
+}}}} //namespace abc::io::text::detail
 
+namespace abc { namespace io { namespace text {
 
 binbuf_reader::binbuf_reader(
    std::shared_ptr<binary::buffered_reader> pbbr,
@@ -433,16 +424,11 @@ bool binbuf_reader::read_line_or_all_with_transcode(
    return cchReadTotal > 0;
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 binbuf_writer::binbuf_writer(
    std::shared_ptr<binary::buffered_writer> pbbw,
@@ -511,8 +497,4 @@ binbuf_writer::binbuf_writer(
    m_pbbw->commit_bytes(cbDst);
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::text

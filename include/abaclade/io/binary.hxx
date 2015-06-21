@@ -27,19 +27,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary globals
 
-namespace abc {
-namespace io {
-namespace binary {
-
-namespace detail {
-
-/*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
-after the necessary header files have been included. */
-struct file_init_data;
-
-} //namespace detail
+namespace abc { namespace io { namespace binary {
 
 // Forward declarations.
 class file_base;
@@ -152,7 +141,9 @@ extern ABACLADE_SYM std::shared_ptr<reader> stdin;
 //! Binary writer associated to the standard output file.
 extern ABACLADE_SYM std::shared_ptr<writer> stdout;
 
-namespace detail {
+}}} //namespace abc::io::binary
+
+namespace abc { namespace io { namespace binary { namespace detail {
 
 /*! Creates and returns a binary writer associated to the standard error output file (stderr).
 
@@ -175,18 +166,11 @@ ABACLADE_SYM std::shared_ptr<reader> make_stdin();
 */
 ABACLADE_SYM std::shared_ptr<writer> make_stdout();
 
-} //namespace detail
-
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::binary::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Base interface for binary (non-text) I/O.
 class ABACLADE_SYM base {
@@ -195,16 +179,11 @@ public:
    virtual ~base();
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for binary (non-text) input.
 class ABACLADE_SYM reader : public virtual base {
@@ -222,16 +201,11 @@ public:
    virtual std::size_t read(void * p, std::size_t cbMax) = 0;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
@@ -255,16 +229,11 @@ public:
    virtual std::size_t write(void const * p, std::size_t cb) = 0;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::seekable
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
 class ABACLADE_SYM seekable {
@@ -288,16 +257,11 @@ public:
    virtual offset_t tell() const = 0;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::sized
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 //! Interface for binary I/O classes that access data with a known size.
 class ABACLADE_SYM sized {
@@ -310,8 +274,4 @@ public:
    virtual full_size_t size() const = 0;
 };
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

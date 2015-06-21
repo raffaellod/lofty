@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::raw_vector
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*! Thin templated wrapper for raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations. */
@@ -363,23 +360,21 @@ protected:
    }
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::vector_base
-
-namespace abc {
-namespace collections {
 
 // Forward declarations.
+namespace abc { namespace collections {
+
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class mvector;
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class dmvector;
 
-namespace detail {
+}} //namespace abc::collections
+
+namespace abc { namespace collections { namespace detail {
 
 /*! Base class for vectors. See @ref vextr_design for implementation details for this and derived
 classes, such as abc::collections::mvector. */
@@ -690,15 +685,11 @@ protected:
    }
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::mvector
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 /*! Class to be used as argument type for functions that want to modify a vector argument, since
 this allows for in-place alterations to the vector. Both smvector and dmvector are automatically
@@ -1017,14 +1008,11 @@ protected:
    }
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::dmvector
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 //! Dynamically-allocated mutable vector.
 template <typename T, bool t_bCopyConstructible /*= std::is_copy_constructible<T>::value*/>
@@ -1230,14 +1218,11 @@ inline dmvector<T, t_bCopyConstructible> operator+(
    return dmvector<T, t_bCopyConstructible>(std::move(v1), std::move(v2));
 }
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::smvector
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 /*! mvector_-derived class, good for clients that need in-place manipulation of vectors that are
 most likely to be shorter than a known small size. */
@@ -1438,7 +1423,4 @@ public:
    }
 };
 
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::collections

@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception::throw_os_error()
 
 #if ABC_HOST_API_POSIX
    #include "exception-throw_os_error-posix.cxx"
@@ -30,5 +29,3 @@ You should have received a copy of the GNU General Public License along with Aba
 #else
    #error "TODO: HOST_API"
 #endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

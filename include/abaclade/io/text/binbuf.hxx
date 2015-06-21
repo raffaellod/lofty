@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Base for text I/O classes built on top of a binary::buffered_base instance.
 class ABACLADE_SYM binbuf_base : public virtual base {
@@ -69,18 +66,11 @@ protected:
    abc::text::encoding m_enc;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_reader
 
-namespace abc {
-namespace io {
-namespace text {
-
-namespace detail {
+namespace abc { namespace io { namespace text { namespace detail {
 
 //! Implementation of much of binbuf_reader::read_line_or_all().
 class ABACLADE_SYM reader_read_helper : public noncopyable {
@@ -136,7 +126,9 @@ private:
 
 };
 
-} //namespace detail
+}}}} //namespace abc::io::text::detail
+
+namespace abc { namespace io { namespace text {
 
 //! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
 class ABACLADE_SYM binbuf_reader : public virtual binbuf_base, public virtual reader {
@@ -236,16 +228,11 @@ private:
    bool m_bDiscardNextLF:1;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::binbuf_writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 //! Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
 class ABACLADE_SYM binbuf_writer : public virtual binbuf_base, public virtual writer {
@@ -291,8 +278,4 @@ protected:
    std::shared_ptr<binary::buffered_writer> m_pbbw;
 };
 
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::text

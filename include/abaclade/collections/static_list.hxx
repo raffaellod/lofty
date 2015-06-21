@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::static_list
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 /*! Allows a subclass (which must be a singleton, operating mostly via static members) to contain a
 list of nodes (instances of a static_list::node subclass). Nodes are typically added to the
@@ -157,8 +155,7 @@ private:
    }
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 /*! Declares the static member variables for the specified abc::collections::static_list subclass.
 
@@ -178,5 +175,3 @@ private:
    ::abc::collections::detail::xor_list::data_members container::sm_xldm = { \
       nullptr, nullptr, 0 \
    };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

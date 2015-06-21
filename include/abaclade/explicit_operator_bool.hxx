@@ -23,10 +23,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// ABC_EXPLICIT_OPERATOR_BOOL – support for explicit operator bool() for compilers that don’t
-// support C++11 explicit conversion operators
 
-//! Declares an explicit conversion operator to bool.
+/*! Declares an explicit conversion operator to bool. This offers support for explicit operator
+bool() even with compilers that don’t support C++11 explicit conversion operators. */
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
    #define ABC_EXPLICIT_OPERATOR_BOOL \
       explicit operator bool
@@ -36,8 +35,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Non-template helper providing definitions for support_explicit_operator_bool.
 struct explob_helper {
@@ -49,8 +47,7 @@ struct explob_helper {
    }
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 #endif //ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 namespace abc {
@@ -99,5 +96,3 @@ struct support_explicit_operator_bool {
 #endif //ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

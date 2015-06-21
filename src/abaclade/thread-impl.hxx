@@ -42,13 +42,11 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::simple_event
 
 /*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
 coroutine::scheduler. */
 // TODO: make this a non-coroutine-friendly general-purpose event.
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 class simple_event : public noncopyable {
 public:
@@ -79,15 +77,11 @@ private:
 #endif
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread::impl
 
-namespace abc {
-
-namespace this_thread {
+namespace abc { namespace this_thread {
 
 /*! Returns a pointer to the impl instance for the calling thread.
 
@@ -97,7 +91,9 @@ namespace this_thread {
 */
 thread::impl * get_impl();
 
-} //namespace this_thread
+}} //namespace abc::this_thread
+
+namespace abc {
 
 class thread::impl {
 private:

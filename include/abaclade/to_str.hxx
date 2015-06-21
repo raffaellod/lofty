@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str()
 
 namespace abc {
 
@@ -73,7 +72,6 @@ dmstr to_str(T const & t, istr const & sFormat = istr::empty);
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend
 
 namespace abc {
 
@@ -98,7 +96,6 @@ class to_str_backend<T const volatile> : public to_str_backend<T> {};
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for bool
 
 namespace abc {
 
@@ -125,10 +122,8 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::int_to_str_backend_base
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM int_to_str_backend_base {
@@ -274,14 +269,11 @@ inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer
 
 #endif //if ABC_HOST_WORD_SIZE >= 32
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::int_to_str_backend
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Implementation of the specializations of to_str_backend for integer types.
 template <typename I>
@@ -347,11 +339,9 @@ protected:
    static std::size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for integer types
 
 namespace abc {
 
@@ -371,5 +361,3 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
 #undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

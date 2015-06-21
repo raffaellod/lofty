@@ -21,10 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf8_char_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /* Optimization 1: odd indices would have the same values as the preceding even ones, so the number
 of elements can be cut in half.
@@ -144,14 +142,11 @@ std::uint8_t const utf8_char_traits::smc_aiValidLeadCharsMask[] = {
    return pchDstEnd;
 }
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::utf16_char_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*static*/ char32_t utf16_char_traits::chars_to_codepoint(char16_t const * pchSrcBegin) {
    ABC_TRACE_FUNC(pchSrcBegin);
@@ -190,7 +185,4 @@ namespace text {
    return pchDst;
 }
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

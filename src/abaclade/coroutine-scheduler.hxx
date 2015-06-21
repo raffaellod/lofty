@@ -44,7 +44,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine::scheduler
 
 namespace abc {
 

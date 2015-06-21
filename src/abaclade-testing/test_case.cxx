@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 test_case::test_case() {
 }
@@ -99,18 +97,12 @@ void test_case::assert_throws(
    );
 }
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case_factory_impl
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
 
-} //namespace testing
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::testing

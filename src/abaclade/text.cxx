@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text globals
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 std::size_t get_encoding_size(encoding enc) {
    ABC_TRACE_FUNC(enc);
@@ -647,8 +645,9 @@ break_for:
    return cbDstUsed;
 }
 
+}} //namespace abc::text
 
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 /*! Template implementation of abc::text::size_in_chars().
 
@@ -668,8 +667,9 @@ std::size_t size_in_chars(C const * psz) {
    return static_cast<std::size_t>(pch - psz);
 }
 
-} //namespace detail
+}}} //namespace abc::text::detail
 
+namespace abc { namespace text {
 
 std::size_t size_in_chars(char_t const * psz) {
    return detail::size_in_chars(psz);
@@ -680,15 +680,11 @@ std::size_t size_in_chars(char const * psz) {
 }
 #endif
 
-} //namespace text
-} //namespace abc
-
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 error::error() :
    generic_error() {
@@ -699,14 +695,11 @@ void error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err : os_error_mapping<error>::mapped_error);
 }
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::decode_error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 decode_error::decode_error() :
    generic_error(),
@@ -758,14 +751,11 @@ void decode_error::init(
    }
 }
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::encode_error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 encode_error::encode_error() :
    generic_error(),
@@ -817,7 +807,4 @@ void encode_error::init(
    }
 }
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

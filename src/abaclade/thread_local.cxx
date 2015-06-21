@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_storage
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 #if ABC_HOST_API_POSIX
    //! One-time initializer for g_pthkey.
@@ -141,21 +139,15 @@ thread_local_storage::~thread_local_storage() {
    }
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::thread_local_var_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
    // Initializes m_ibStorageOffset.
    thread_local_storage::add_var(this, cbObject);
 }
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

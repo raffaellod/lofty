@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::xor_list
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 //! Defines classes useful to implement XOR-linked list classes.
 class ABACLADE_SYM xor_list {
@@ -311,8 +308,4 @@ public:
    static void unlink(data_members * plxdm, node * pn, node * pnNext);
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

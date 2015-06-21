@@ -21,11 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::vector_to_str_backend
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 vector_to_str_backend::vector_to_str_backend() :
    abc::detail::sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
@@ -34,8 +31,4 @@ vector_to_str_backend::vector_to_str_backend() :
 vector_to_str_backend::~vector_to_str_backend() {
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

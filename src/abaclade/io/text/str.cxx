@@ -21,11 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::str_base
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 str_base::str_base() :
    base(),
@@ -43,16 +40,11 @@ str_base::str_base(str_base && sb) :
    return abc::text::encoding::host;
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::text::str_reader
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 str_reader::str_reader(str_reader && sr) :
    base(std::move(sr)),
@@ -107,16 +99,11 @@ str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
    return false;
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::str_writer
 
-namespace abc {
-namespace io {
-namespace text {
+namespace abc { namespace io { namespace text {
 
 str_writer::str_writer() :
    base(),
@@ -199,8 +186,4 @@ dmstr str_writer::release_content() {
    m_psWriteBuf->set_size_in_chars(m_ichOffset);
 }
 
-} //namespace text
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::text

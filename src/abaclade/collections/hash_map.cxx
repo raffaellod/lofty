@@ -24,11 +24,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::hash_map_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 std::size_t const hash_map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
 
@@ -446,8 +443,4 @@ void hash_map_impl::iterator_base::validate() const {
    }
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

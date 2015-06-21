@@ -23,8 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 namespace {
 
@@ -129,5 +128,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations")
    ABC_TESTING_ASSERT_TRUE(static_list_test::begin() == static_list_test::end());
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

@@ -22,21 +22,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::nothrow_t and abc::_std::nothrow
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 nothrow_t const nothrow;
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_alloc
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 bad_alloc::bad_alloc() {
 }
@@ -48,8 +43,7 @@ bad_alloc::bad_alloc() {
    return "abc::_std::bad_alloc";
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

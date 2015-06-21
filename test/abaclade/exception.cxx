@@ -22,10 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::exception_polymorphism
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class exception_polymorphism : public testing::test_case {
 protected:
@@ -111,15 +109,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_polymorphism)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class exception_hard_errors : public testing::test_case {
 public:
@@ -178,16 +174,13 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_hard_errors)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::exception_scope_trace
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 class exception_scope_trace : public testing::test_case {
 public:
@@ -271,7 +264,6 @@ public:
    }
 };
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ABC_TESTING_REGISTER_TEST_CASE(abc::test::exception_scope_trace)

@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::type_info
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Runtime type information (C++11 § 18.7.1 “Class type_info”).
 class type_info : public noncopyable {
@@ -74,14 +72,11 @@ public:
    char const * name() const;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_alloc
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
 class ABACLADE_SYM bad_cast : public exception {
@@ -96,14 +91,11 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::bad_typeid
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
 class ABACLADE_SYM bad_typeid : public exception {
@@ -118,8 +110,7 @@ public:
    virtual char const * what() const override;
 };
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

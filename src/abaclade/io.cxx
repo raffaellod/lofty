@@ -26,10 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::filedesc
 
-namespace abc {
-namespace io {
+namespace abc { namespace io {
 
 filedesc_t const filedesc::smc_fdNull =
 #if ABC_HOST_API_POSIX
@@ -113,7 +111,4 @@ void filedesc::set_nonblocking(bool b) {
 
 #endif
 
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::io

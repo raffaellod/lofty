@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::context_local_value
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Implementation of abc::thread_local_value and abc::coroutine_local_value.
 template <typename T, typename TImpl>
@@ -270,14 +268,11 @@ private:
    }
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::context_local_ptr
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Implementation of abc::thread_local_ptr and abc::coroutine_local_ptr.
 template <typename T, typename TImpl>
@@ -385,7 +380,4 @@ private:
    }
 };
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

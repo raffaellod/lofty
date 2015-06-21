@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::c_str_ptr
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
 abc::text::*str instance. */
@@ -90,12 +87,9 @@ private:
    pointer m_p;
 };
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::external_buffer
 
 namespace abc {
 
@@ -114,16 +108,16 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::str_base
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 // Forward declarations.
 class istr;
 class dmstr;
 
-namespace detail {
+}} //namespace abc::text
+
+namespace abc { namespace text { namespace detail {
 
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
@@ -660,13 +654,10 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 namespace std {
 
-// Specialization of std::hash.
 template <>
 struct ABACLADE_SYM hash<abc::text::detail::str_base> {
    std::size_t operator()(abc::text::detail::str_base const & s) const;
@@ -675,17 +666,14 @@ struct ABACLADE_SYM hash<abc::text::detail::str_base> {
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::istr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 // Forward declaration.
 class mstr;
 
 /*! Class to be used as “the” string class in most cases. It cannot be modified in-place, which
-means that it shouldn’t be used in code performing intensive string manipulations.
-*/
+means that it shouldn’t be used in code performing intensive string manipulations. */
 class ABACLADE_SYM istr : public detail::str_base {
 public:
    /*! Constructor.
@@ -769,33 +757,28 @@ public:
    static istr const & empty;
 };
 
+}} //namespace abc::text
 
 // Now this can be defined.
 
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 inline str_base::operator istr const &() const {
    return *static_cast<istr const *>(this);
 }
 
-} //namespace detail
-
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 namespace std {
 
-// Specialization of std::hash.
 template <>
 struct hash<abc::text::istr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::mstr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Class to be used as “the“ string class for arguments of functions that want to modify a string
 argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
@@ -1041,22 +1024,18 @@ inline istr & istr::operator=(mstr && s) {
    return *this;
 }
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 namespace std {
 
-// Specialization of std::hash.
 template <>
 struct hash<abc::text::mstr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::dmstr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings whose length is
 unknown at design time. */
@@ -1176,46 +1155,6 @@ public:
    }
 #endif //if ABC_HOST_CXX_MSC
 };
-
-
-// Now these can be defined.
-
-namespace detail {
-
-inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
-   return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
-}
-inline dmstr str_base::substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
-   auto range(translate_range(ichBegin, ichEnd));
-   return dmstr(range.first.base(), range.second.base());
-}
-inline dmstr str_base::substr(const_iterator itBegin) const {
-   validate_pointer(itBegin.base());
-   return dmstr(itBegin.base(), chars_end());
-}
-inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
-   validate_pointer(itBegin.base());
-   validate_pointer(itEnd.base());
-   return dmstr(itBegin.base(), itEnd.base());
-}
-
-} //namespace detail
-
-inline istr::istr(dmstr && s) :
-   detail::str_base(0) {
-   assign_move(std::move(s));
-}
-
-inline istr & istr::operator=(dmstr && s) {
-   assign_move(std::move(s));
-   return *this;
-}
-
-inline mstr & mstr::operator=(dmstr && s) {
-   assign_move(std::move(s));
-   return *this;
-}
-
 
 /*! Concatenation operator.
 
@@ -1342,22 +1281,60 @@ inline dmstr operator+(mstr && sL, istr const & sR) {
    return std::move(dmsR);
 }*/
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
+
+// Now these can be defined.
+
+namespace abc { namespace text { namespace detail {
+
+inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
+   return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
+}
+inline dmstr str_base::substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
+   auto range(translate_range(ichBegin, ichEnd));
+   return dmstr(range.first.base(), range.second.base());
+}
+inline dmstr str_base::substr(const_iterator itBegin) const {
+   validate_pointer(itBegin.base());
+   return dmstr(itBegin.base(), chars_end());
+}
+inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
+   validate_pointer(itBegin.base());
+   validate_pointer(itEnd.base());
+   return dmstr(itBegin.base(), itEnd.base());
+}
+
+}}} //namespace abc::text::detail
+
+namespace abc { namespace text {
+
+inline istr::istr(dmstr && s) :
+   detail::str_base(0) {
+   assign_move(std::move(s));
+}
+
+inline istr & istr::operator=(dmstr && s) {
+   assign_move(std::move(s));
+   return *this;
+}
+
+inline mstr & mstr::operator=(dmstr && s) {
+   assign_move(std::move(s));
+   return *this;
+}
+
+}} //namespace abc::text
 
 namespace std {
 
-// Specialization of std::hash.
 template <>
 struct hash<abc::text::dmstr> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::smstr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
 likely to be shorter than a known small size. */
@@ -1461,15 +1438,11 @@ public:
    }
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 namespace std {
 
-// Specialization of std::hash.
 template <std::size_t t_cchEmbeddedCapacity>
 struct hash<abc::text::smstr<t_cchEmbeddedCapacity>> : public hash<abc::text::detail::str_base> {};
 
 } //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

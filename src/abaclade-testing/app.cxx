@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::app
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 /*virtual*/ int app::main(collections::mvector<istr> & vsArgs) /*override*/ {
    ABC_TRACE_FUNC(this, vsArgs);
@@ -41,7 +39,4 @@ namespace testing {
    return bAllPassed ? 0 : 1;
 }
 
-} //namespace testing
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::testing

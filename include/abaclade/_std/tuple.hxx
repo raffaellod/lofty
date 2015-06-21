@@ -35,29 +35,21 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::tuple_void
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 //! “Null” type used to reduce the number of tuple items from the preset maximum.
 struct tuple_void {};
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::tuple_head
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough. */
@@ -182,16 +174,11 @@ private:
    T m_t;
 };
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::detail::tuple_tail
 
-namespace abc {
-namespace _std {
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 //! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -423,15 +410,11 @@ public:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace detail
-} //namespace _std
-} //namespace abc
+}}} //namespace abc::_std::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::tuple
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 //! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -692,14 +675,11 @@ public:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::tuple_element
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple
 helper classes”). */
@@ -746,18 +726,13 @@ ABC_SPECIALIZE_tuple_element_FOR_INDEX(9)
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::get (tuple)
-
-namespace abc {
-namespace _std {
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 /*! Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
 make it work. */
@@ -796,9 +771,11 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(8)
 ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #undef ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX
 
-} //namespace detail
+}}} //namespace abc::_std::detail
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
+
+namespace abc { namespace _std {
 
 /*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
 
@@ -845,14 +822,11 @@ inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::tuple_size (tuple)
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper
 classes”). */
@@ -929,16 +903,11 @@ struct tuple_size<tuple<
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::ignore
 
-namespace abc {
-namespace _std {
-
-namespace detail {
+namespace abc { namespace _std { namespace detail {
 
 /*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
 any type, and silently discards everything. */
@@ -963,20 +932,19 @@ public:
    }
 };
 
-} //namespace detail
+}}} //namespace abc::_std::detail
+
+namespace abc { namespace _std {
 
 /*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
 “Tuples”). */
 extern detail::ignore_t const ignore;
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std::tie
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation
 functions”).
@@ -1065,8 +1033,7 @@ inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &,
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

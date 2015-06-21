@@ -21,23 +21,18 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace_tuple
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 /*static*/ void scope_trace_tuple::write_separator(io::text::writer * ptwOut) {
    ptwOut->write(ABC_SL(", "));
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::scope_trace
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 coroutine_local_value<scope_trace const *> scope_trace::sm_pstHead /*= nullptr*/;
 coroutine_local_value<bool> scope_trace::sm_bReentering /*= false*/;
@@ -87,7 +82,4 @@ void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
    }
 }
 
-} //namespace detail
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::detail

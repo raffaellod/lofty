@@ -23,8 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of relative and absolute paths") {
    ABC_TRACE_FUNC(this);
@@ -135,13 +134,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of relative and abso
 #undef norm_path
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of joined paths") {
    ABC_TRACE_FUNC(this);
@@ -181,5 +178,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of joined paths") {
    ABC_TESTING_ASSERT_EQUAL((op / ABC_SL("a/b/../../c")).normalize(), op / ABC_SL("c"));
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

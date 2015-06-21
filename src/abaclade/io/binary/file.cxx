@@ -33,11 +33,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
    m_fd(std::move(pfid->fd))
@@ -50,16 +47,11 @@ file_base::file_base(detail::file_init_data * pfid) :
 /*virtual*/ file_base::~file_base() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 file_reader::file_reader(detail::file_init_data * pfid) :
    file_base(pfid) {
@@ -138,16 +130,11 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 #endif
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 file_writer::file_writer(detail::file_init_data * pfid) :
    file_base(pfid) {
@@ -268,16 +255,11 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    return static_cast<std::size_t>(pb - static_cast<std::int8_t const *>(p));
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::file_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 file_readwriter::file_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -288,16 +270,11 @@ file_readwriter::file_readwriter(detail::file_init_data * pfid) :
 /*virtual*/ file_readwriter::~file_readwriter() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 console_file_base::console_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
@@ -306,16 +283,11 @@ console_file_base::console_file_base(detail::file_init_data * pfid) :
 /*virtual*/ console_file_base::~console_file_base() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 console_reader::console_reader(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -364,16 +336,11 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 }
 #endif //if ABC_HOST_API_WIN32
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 #if ABC_HOST_API_WIN32
 WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
@@ -591,16 +558,11 @@ void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd)
 }
 #endif //if ABC_HOST_API_WIN32
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::console_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 console_readwriter::console_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -615,16 +577,11 @@ console_readwriter::console_readwriter(detail::file_init_data * pfid) :
 /*virtual*/ console_readwriter::~console_readwriter() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 pipe_reader::pipe_reader(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -650,16 +607,11 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 }
 #endif //if ABC_HOST_API_WIN32
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 pipe_writer::pipe_writer(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -669,16 +621,11 @@ pipe_writer::pipe_writer(detail::file_init_data * pfid) :
 /*virtual*/ pipe_writer::~pipe_writer() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::pipe_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 pipe_readwriter::pipe_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -692,16 +639,11 @@ pipe_readwriter::pipe_readwriter(detail::file_init_data * pfid) :
 /*virtual*/ pipe_readwriter::~pipe_readwriter() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_base
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 regular_file_base::regular_file_base(detail::file_init_data * pfid) :
    file_base(pfid) {
@@ -837,16 +779,11 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_reader
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -857,16 +794,11 @@ regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
 /*virtual*/ regular_file_reader::~regular_file_reader() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_writer
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -984,16 +916,11 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 }
 #endif //if ABC_HOST_API_WIN32
 
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary::regular_file_readwriter
 
-namespace abc {
-namespace io {
-namespace binary {
+namespace abc { namespace io { namespace binary {
 
 regular_file_readwriter::regular_file_readwriter(detail::file_init_data * pfid) :
    file_base(pfid),
@@ -1008,8 +935,4 @@ regular_file_readwriter::regular_file_readwriter(detail::file_init_data * pfid) 
 /*virtual*/ regular_file_readwriter::~regular_file_readwriter() {
 }
 
-} //namespace binary
-} //namespace io
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::io::binary

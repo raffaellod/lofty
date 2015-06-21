@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::pointer_iterator
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 //! Iterator based on a plain pointer.
 template <typename TCont, typename TVal>
@@ -199,7 +197,4 @@ protected:
    TVal * m_ptval;
 };
 
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::collections

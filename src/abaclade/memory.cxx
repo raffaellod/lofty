@@ -27,7 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// :: globals – standard new/delete operators
 
 #if ABC_HOST_CXX_MSC
    #pragma warning(push)
@@ -70,10 +69,8 @@ void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_ST
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – manual memory management
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 void * _raw_alloc(std::size_t cb) {
    void * p = std::malloc(cb);
@@ -95,14 +92,11 @@ void * _raw_realloc(void * p, std::size_t cb) {
    return p;
 }
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory::pages_ptr
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 pages_ptr::pages_ptr() :
    m_p(nullptr),
@@ -153,14 +147,11 @@ pages_ptr & pages_ptr::operator=(pages_ptr && pp) {
    return *this;
 }
 
-} //namespace memory
-} //namespace abc
+}} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::memory globals – miscellanea
 
-namespace abc {
-namespace memory {
+namespace abc { namespace memory {
 
 /*! Returns the size of a memory page.
 
@@ -185,7 +176,4 @@ std::size_t page_size() {
    return s_cb;
 }
 
-} //namespace memory
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::memory

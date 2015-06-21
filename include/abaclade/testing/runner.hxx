@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::assertion_error
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 /*! Thrown to indicate that a test assertion failed, and the execution of the test case must be
 halted. */
@@ -42,14 +40,11 @@ public:
    assertion_error();
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::runner
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 // Forward declarations.
 class test_case;
@@ -121,8 +116,7 @@ private:
    unsigned m_cFailedAssertions;
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

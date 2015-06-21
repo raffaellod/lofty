@@ -21,20 +21,19 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::external_buffer
 
 namespace abc {
 
 external_buffer_t const external_buffer;
 
+//! Single NUL terminator.
+static char_t const gc_chNul('\0');
+
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::str_to_str_backend
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 void str_to_str_backend::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -59,20 +58,11 @@ void str_to_str_backend::write(
    ptwOut->write_binary(p, cb, enc);
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::str_base
 
-namespace abc {
-namespace text {
-
-//! Single NUL terminator.
-static char_t const gc_chNul('\0');
-
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 char_t const * str_base::_advance_char_ptr(
    char_t const * pch, std::ptrdiff_t i, bool bIndex
@@ -268,9 +258,7 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
    return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 namespace std {
 
@@ -308,10 +296,8 @@ std::size_t hash<abc::text::detail::str_base>::operator()(
 } //namespace std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::istr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
    /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
@@ -324,14 +310,11 @@ static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
 
 istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
 
-} //namespace text
-} //namespace std
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::mstr
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 char_t const * mstr::c_str() {
    ABC_TRACE_FUNC(this);
@@ -415,7 +398,4 @@ void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)
    set_size_in_chars(cchRet);
 }
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

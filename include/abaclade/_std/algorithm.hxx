@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::_std globals
 
-namespace abc {
-namespace _std {
+namespace abc { namespace _std {
 
 /*! Returns the greatest of two objects (C++11 § 25.4.7 “Minimum and maximum”).
 
@@ -70,8 +68,7 @@ inline T const & min(T const & t1, T const & t2, TCompare fnComp) {
    return fnComp(t1, t2) < 0 ? t1 : t2;
 }
 
-} //namespace _std
-} //namespace abc
+}} //namespace abc::_std
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

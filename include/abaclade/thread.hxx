@@ -35,7 +35,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::thread
 
 namespace abc {
 
@@ -162,7 +161,6 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::thread
 
 namespace abc {
 
@@ -201,12 +199,8 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_thread
 
-namespace abc {
-
-//! Functions that can only affect the current thread. Replacement for std::this_thread.
-namespace this_thread {
+namespace abc { namespace this_thread {
 
 /*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
 required for the current thread to run coroutines.
@@ -248,8 +242,7 @@ ABACLADE_SYM void run_coroutines();
 */
 ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
 
-} //namespace this_thread
-} //namespace abc
+}} //namespace abc::this_thread
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

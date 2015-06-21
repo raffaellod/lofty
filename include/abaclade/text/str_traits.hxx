@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::str_traits
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 /*! Low-level functions for dealing with character strings; used by abc::text::*str. Note that this
 class is not modeled after std::char_traits. */
@@ -209,7 +207,4 @@ public:
    );
 };
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

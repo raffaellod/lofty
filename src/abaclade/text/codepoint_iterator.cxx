@@ -21,11 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_proxy
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
    /* Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
@@ -47,16 +44,11 @@ codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
    return *this;
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_iterator_impl
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 std::ptrdiff_t codepoint_iterator_impl<true>::distance(char_t const * pch) const {
    ABC_TRACE_FUNC(this, pch);
@@ -79,8 +71,4 @@ char_t const * codepoint_iterator_impl<true>::throw_if_end(char_t const * pch) c
    return pch;
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::text::detail

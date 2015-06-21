@@ -22,12 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – helpers for abc::byteorder globals
 
 #ifndef ABC_HAVE_BSWAP
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 std::uint16_t bswap_16(std::uint16_t i) {
    return std::uint16_t(
@@ -58,9 +56,6 @@ std::uint64_t bswap_64(std::uint64_t i) {
    );
 }
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 #endif //ifndef ABC_HAVE_BSWAP
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

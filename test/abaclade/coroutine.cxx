@@ -24,10 +24,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::coroutine_concurrent
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
    ABC_TRACE_FUNC(this);
@@ -62,14 +60,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
    this_thread::detach_coroutine_scheduler();
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::coroutine_exceptions
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    ABC_TRACE_FUNC(this);
@@ -101,14 +96,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
    this_thread::detach_coroutine_scheduler();
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::coroutine_interruption
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    ABC_TRACE_FUNC(this);
@@ -165,14 +157,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
    this_thread::detach_coroutine_scheduler();
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::test::coroutine_sleep
 
-namespace abc {
-namespace test {
+namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
    ABC_TRACE_FUNC(this);
@@ -206,5 +195,4 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
    this_thread::detach_coroutine_scheduler();
 }
 
-} //namespace test
-} //namespace abc
+}} //namespace abc::test

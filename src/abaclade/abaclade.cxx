@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals
 
 #if ABC_HOST_API_WIN32
 /*! Entry point for abaclade.dll.
@@ -42,5 +41,3 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved)
    return true;
 }
 #endif //if ABC_HOST_API_WIN32
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

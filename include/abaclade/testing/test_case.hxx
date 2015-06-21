@@ -31,10 +31,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 //! Base class for test cases.
 class ABACLADE_TESTING_SYM test_case {
@@ -272,8 +270,7 @@ protected:
    runner * m_prunner;
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 /*! Asserts that an expression does not throw.
 
@@ -416,10 +413,8 @@ unique name.
    _ABC_TESTING_TEST_CASE_FUNC_IMPL(ABC_CPP_APPEND_UID(g__test_case_func_), test_title)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case_factory_list
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 // Forward declaration.
 class test_case_factory_impl;
@@ -432,14 +427,11 @@ public:
    ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case_factory_impl
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 //! Non-template base class for test_case_factory.
 class ABACLADE_TESTING_SYM test_case_factory_impl :
@@ -464,14 +456,11 @@ public:
    std::unique_ptr<test_case> (* const factory)(runner * prunner);
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::testing::test_case_factory
 
-namespace abc {
-namespace testing {
+namespace abc { namespace testing {
 
 /*! Template version of abc::testing::test_case_factory_impl, able to instantiate classes derived
 from abc::testing::test_case. */
@@ -496,8 +485,7 @@ private:
    }
 };
 
-} //namespace testing
-} //namespace abc
+}} //namespace abc::testing
 
 
 /*! Registers an abc::testing::test_case-derived class for execution by an abc::testing::runner

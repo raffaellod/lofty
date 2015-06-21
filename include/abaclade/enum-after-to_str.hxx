@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::enum_impl
 
 namespace abc {
 
@@ -36,10 +35,8 @@ inline istr enum_impl<T>::name() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::detail::enum_to_str_backend_impl
 
-namespace abc {
-namespace detail {
+namespace abc { namespace detail {
 
 //! Implementation of the specializations of to_str_backend for enum_impl specializations.
 class ABACLADE_SYM enum_to_str_backend_impl {
@@ -62,11 +59,9 @@ protected:
    void write_impl(int i, enum_member const * pem, io::text::writer * ptwOut);
 };
 
-} //namespace detail
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::enum_impl
 
 namespace abc {
 
@@ -81,5 +76,3 @@ public:
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

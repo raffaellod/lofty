@@ -29,7 +29,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::process
 
 namespace abc {
 
@@ -165,7 +164,6 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::process
 
 namespace abc {
 
@@ -204,12 +202,8 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_process
 
-namespace abc {
-
-//! Functions that can only affect the current process, analogous to this_thread.
-namespace this_process {
+namespace abc { namespace this_process {
 
 /*! Returns a system-wide unique ID for the current process.
 
@@ -218,8 +212,7 @@ namespace this_process {
 */
 ABACLADE_SYM process::id_type id();
 
-} //namespace this_process
-} //namespace abc
+}} //namespace abc::this_process
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

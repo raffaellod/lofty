@@ -23,10 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 //! A text encoding or decoding error occurred.
 class ABACLADE_SYM error : public virtual generic_error {
@@ -38,14 +36,11 @@ public:
    void init(errint_t err = 0);
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::decode_error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 //! A text decoding error occurred.
 class ABACLADE_SYM decode_error : public virtual error {
@@ -86,14 +81,11 @@ private:
    collections::smvector<std::uint8_t, 16> m_viInvalid;
 };
 
-} //namespace text
-} //namespace abc
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::encode_error
 
-namespace abc {
-namespace text {
+namespace abc { namespace text {
 
 //! A text encoding error occurred.
 class ABACLADE_SYM encode_error : public virtual error {
@@ -132,7 +124,4 @@ private:
    std::uint32_t m_iInvalidCodePoint;
 };
 
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::text

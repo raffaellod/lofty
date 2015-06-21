@@ -33,12 +33,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::io::binary globals
 
-namespace abc {
-namespace io {
-namespace binary {
-namespace detail {
+namespace abc { namespace io { namespace binary { namespace detail {
 
 struct file_init_data {
 #if ABC_HOST_API_POSIX
@@ -59,10 +55,7 @@ struct file_init_data {
 #endif
 };
 
-} //namespace detail
-} //namespace binary
-} //namespace io
-} //namespace abc
+}}}} //namespace abc::io::binary::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

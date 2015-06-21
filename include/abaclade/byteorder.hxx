@@ -29,29 +29,23 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::byteorder globals
 
 // Define byte reordering functions.
-
 #if defined(__GLIBC__)
    #include <byteswap.h> // bswap_*()
    #define ABC_HAVE_BSWAP
 #endif
-
-
-namespace abc {
-
 #ifndef ABC_HAVE_BSWAP
-   namespace detail {
+   namespace abc { namespace detail {
 
    ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
    ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
    ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 
-   } //namespace detail
+   }} //namespace abc::detail
 #endif
 
-namespace byteorder {
+namespace abc { namespace byteorder {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 template <std::size_t cb>
@@ -179,8 +173,7 @@ inline I le_to_host(I i) {
 #endif
 }
 
-} //namespace byteorder
-} //namespace abc
+}} //namespace abc::byteorder
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

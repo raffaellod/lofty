@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::exception::fault_converter
 
 #if ABC_HOST_API_MACH
    #include <cstdlib> // std::abort()
@@ -492,5 +491,3 @@ You should have received a copy of the GNU General Public License along with Aba
 #else
    #error "TODO: HOST_API"
 #endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

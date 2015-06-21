@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::str_base
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -135,8 +132,4 @@ inline dmstr str_base::format(
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-} //namespace detail
-} //namespace text
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::text::detail

@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::coroutine
 
 namespace abc {
 
@@ -132,7 +131,6 @@ private:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::coroutine
 
 namespace abc {
 
@@ -171,11 +169,8 @@ protected:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_coroutine
 
-namespace abc {
-//! Functions that can only affect the current coroutine. Coroutine counterpart to abc::this_thread.
-namespace this_coroutine {
+namespace abc { namespace this_coroutine {
 
 /*! Returns a process-wide unique ID for the current coroutine.
 
@@ -203,8 +198,7 @@ inline void sleep_until_fd_ready(io::filedesc const & fd, bool bWrite) {
    sleep_until_fd_ready(fd.get(), bWrite);
 }
 
-} //namespace this_coroutine
-} //namespace abc
+}} //namespace abc::this_coroutine
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

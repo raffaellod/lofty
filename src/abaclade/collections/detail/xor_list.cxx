@@ -21,11 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::xor_list
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 /*static*/ void xor_list::link_back(data_members * plxdm, node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
@@ -108,8 +105,4 @@ void xor_list::iterator_base::validate() const {
    }
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

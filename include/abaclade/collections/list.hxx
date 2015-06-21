@@ -29,11 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::list_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::list.
 class ABACLADE_SYM list_impl :
@@ -145,15 +142,11 @@ protected:
    std::size_t m_cNodes;
 };
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
+}}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::list
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 //! Doubly-linked list.
 template <typename T>
@@ -476,8 +469,7 @@ private:
    }
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

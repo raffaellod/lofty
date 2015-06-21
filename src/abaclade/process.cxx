@@ -32,7 +32,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::process
 
 namespace abc {
 
@@ -170,7 +169,6 @@ bool process::joinable() const {
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::process
 
 namespace abc {
 
@@ -209,10 +207,8 @@ void to_str_backend<process>::write(process const & proc, io::text::writer * ptw
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::this_process
 
-namespace abc {
-namespace this_process {
+namespace abc { namespace this_process {
 
 process::id_type id() {
 #if ABC_HOST_API_POSIX
@@ -224,7 +220,4 @@ process::id_type id() {
 #endif
 }
 
-} //namespace this_process
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::this_process

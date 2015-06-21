@@ -29,10 +29,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::type_void_adapter
 
-namespace abc {
-namespace collections {
+namespace abc { namespace collections {
 
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 // TODO: document rationale, design and use cases.
@@ -336,8 +334,7 @@ private:
    move_construct_impl_type m_pfnMoveConstructImpl;
 };
 
-} //namespace collections
-} //namespace abc
+}} //namespace abc::collections
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

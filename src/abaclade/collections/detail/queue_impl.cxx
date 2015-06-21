@@ -22,11 +22,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::collections::detail::queue_impl
 
-namespace abc {
-namespace collections {
-namespace detail {
+namespace abc { namespace collections { namespace detail {
 
 void * queue_impl::node::value_ptr(type_void_adapter const & type) const {
    return type.align_pointer(&m_pnNext + 1);
@@ -105,8 +102,4 @@ void queue_impl::pop_front(type_void_adapter const & type) {
    memory::_raw_free(pn);
 }
 
-} //namespace detail
-} //namespace collections
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}}} //namespace abc::collections::detail

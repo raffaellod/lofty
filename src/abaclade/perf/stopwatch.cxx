@@ -30,10 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::perf::stopwatch
 
-namespace abc {
-namespace perf {
+namespace abc { namespace perf {
 
 #if ABC_HOST_API_POSIX && defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 
@@ -163,7 +161,4 @@ stopwatch::duration_type stopwatch::stop() {
    return iPartialDuration;
 }
 
-} //namespace perf
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}} //namespace abc::perf

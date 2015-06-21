@@ -23,11 +23,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_proxy
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char_t ch) {
    static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
@@ -36,27 +33,19 @@ inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char_t ch) {
    return *this;
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::text::detail::codepoint_iterator_impl
 
-namespace abc {
-namespace text {
-namespace detail {
+namespace abc { namespace text { namespace detail {
 
 inline char_t const * codepoint_iterator_impl<true>::advance(std::ptrdiff_t i, bool bIndex) const {
    return m_ps->_advance_char_ptr(m_pch, i, bIndex);
 }
 
-} //namespace detail
-} //namespace text
-} //namespace abc
+}}} //namespace abc::text::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::detail::codepoint_proxy
 
 namespace abc {
 
@@ -78,7 +67,6 @@ public:
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc::to_str_backend – specialization for abc::text::codepoint_iterator
 
 namespace abc {
 
@@ -101,5 +89,3 @@ public:
 };
 
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////

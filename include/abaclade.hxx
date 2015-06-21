@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc namespace hierarchy
 
 //! Abaclade’s top-level namespace.
 namespace abc {
@@ -83,15 +82,25 @@ namespace abc {
 
    //! Contains classes and functions to work with Unicode text strings and characters.
    namespace text {}
+
+   /*! Functions that can only affect the current coroutine. Coroutine counterpart to
+   abc::this_thread. */
+   namespace this_coroutine {}
+
+   //! Functions that can only affect the current process, analogous to this_thread.
+   namespace this_process {}
+
+   //! Functions that can only affect the current thread. Replacement for std::this_thread.
+   namespace this_thread {}
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – ABC_HOST_*
 
 #include <abaclade/detail/host.hxx>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – platform-dependent fixes
+
+// Platform-dependent fixes.
 
 // Compatibility with compilers that don’t support feature checking.
 #ifndef __has_feature
@@ -248,7 +257,8 @@ namespace abc {
 #endif //if ABC_HOST_API_WIN32
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – C++11 compiler features detection
+
+// C++11 compiler features detection.
 
 // Ensure RTTI support is enabled for MSC.
 #if ABC_HOST_CXX_MSC && !defined(_CPPRTTI)
@@ -298,8 +308,9 @@ supported type traits. */
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – compatibility layer for features that are available one way or another in all
-// supported compilers
+
+/* Compatibility layer for features that are available one way or another in all supported
+compilers. */
 
 #include <abaclade/detail/host-cxx-compat.hxx>
 
@@ -309,8 +320,9 @@ supported type traits. */
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – extended features that can take advantage of C++11 or fallback to still-functional
-// alternatives, plus a few compiler-specific STL fixes
+
+/* Extended features that can take advantage of C++11 or fallback to still-functional alternatives,
+plus a few compiler-specific STL fixes. */
 
 #ifdef ABC_STLIMPL
 // In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
@@ -319,12 +331,11 @@ using namespace ::abc::_std;
 } //namespace std
 #endif
 
-// This will also #include <type_traits> .
+// This will also #include <type_traits>.
 #include <abaclade/noncopyable.hxx>
 #include <abaclade/explicit_operator_bool.hxx>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – other
 
 namespace abc {
 
@@ -374,7 +385,6 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
    ((static_cast<std::size_t>(cb) + sizeof(::abc::max_align_t) - 1) / sizeof(::abc::max_align_t))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// abc globals – symbol visibility
 
 /*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
 Abaclade’s shared library (into another library/executable). */
@@ -393,7 +403,8 @@ from Abaclade’s testing shared library (into another library/executable). */
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// #include other core header files that require a special order
+
+// #include other core header files that require a special order.
 
 #if ABC_HOST_CXX_MSC
    // Silence warnings from system header files.
@@ -441,9 +452,7 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 // Forward declarations.
 
-namespace abc {
-
-namespace text {
+namespace abc { namespace text {
 
 class dmstr;
 class istr;
@@ -451,7 +460,9 @@ class mstr;
 template <std::size_t t_cchEmbeddedCapacity>
 class smstr;
 
-} //namespace text
+}} //namespace abc::text
+
+namespace abc {
 
 using text::char_t;
 using text::dmstr;
@@ -459,15 +470,13 @@ using text::istr;
 using text::mstr;
 using text::smstr;
 
-namespace io {
-namespace text {
+} //namespace abc
+
+namespace abc { namespace io { namespace text {
 
 class writer;
 
-} //namespace text
-} //namespace io
-
-} //namespace abc
+}}} //namespace abc::io::text
 
 /*#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC < 1700
    #include <abaclade/_std/atomic.hxx>
