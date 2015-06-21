@@ -216,19 +216,6 @@ namespace memory {
 
 //! Deleter that deallocates memory using memory::free().
 struct freeing_deleter {
-   //! Constructor.
-   freeing_deleter() {
-   }
-
-   /*! Copy-assignment operator.
-
-   @return
-      *this.
-   */
-   freeing_deleter & operator=(freeing_deleter const &) {
-      return *this;
-   }
-
    /*! Deallocates the specified memory block.
 
    @param p
