@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/type_void_adapter.hxx>
+#include <abaclade/collections/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ public:
 
    //! Destructor.
    ~queue() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       destruct_list(type, m_pnFirst);
@@ -199,7 +199,7 @@ public:
       node * pnFirst = m_pnFirst;
       detail::queue_impl::operator=(std::move(q));
       // Now that *this has been successfully overwritten, destruct the old nodes.
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       destruct_list(type, pnFirst);
@@ -212,7 +212,7 @@ public:
       Reference to the last element in the queue.
    */
    T & back() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       return *static_cast<T *>(m_pnLast->value_ptr(type));
    }
@@ -222,7 +222,7 @@ public:
 
    //! Removes all elements from the queue.
    void clear() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       detail::queue_impl::clear(type);
@@ -234,7 +234,7 @@ public:
       Reference to the first element in the queue.
    */
    T & front() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       return *static_cast<T *>(m_pnFirst->value_ptr(type));
    }
@@ -248,7 +248,7 @@ public:
       Former first element in the queue.
    */
    T pop_front() {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       // Move the value of *m_pnFirst into t, then unlink and discard *m_pnFirst.
@@ -263,14 +263,14 @@ public:
       Element to add.
    */
    void push_back(T const & t) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_copy_construct<T>();
       type.set_size<T>();
       detail::queue_impl::push_back(type, &t, false);
    }
    void push_back(T && t) {
-      detail::type_void_adapter type;
+      type_void_adapter type;
       type.set_align<T>();
       type.set_move_construct<T>();
       type.set_size<T>();

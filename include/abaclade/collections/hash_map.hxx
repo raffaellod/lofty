@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/type_void_adapter.hxx>
+#include <abaclade/collections/type_void_adapter.hxx>
 #include <abaclade/numeric.hxx>
 
 
@@ -748,7 +748,7 @@ public:
    std::pair<iterator, bool> add_or_assign(TKey key, TValue value) {
       ABC_TRACE_FUNC(this/*, key, value*/);
 
-      detail::type_void_adapter typeKey, typeValue;
+      type_void_adapter typeKey, typeValue;
 //      typeKey.set_copy_construct<TKey>();
       typeKey.set_destruct<TKey>();
       typeKey.set_move_construct<TKey>();
@@ -803,7 +803,7 @@ public:
    void clear() {
       ABC_TRACE_FUNC(this);
 
-      detail::type_void_adapter typeKey, typeValue;
+      type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
@@ -835,7 +835,7 @@ public:
 
       it.validate();
       TValue value(std::move(*value_ptr(it.m_iBucket)));
-      detail::type_void_adapter typeKey, typeValue;
+      type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
@@ -852,7 +852,7 @@ public:
          ABC_THROW(key_error, ());
       }
       TValue value(std::move(*value_ptr(iBucket)));
-      detail::type_void_adapter typeKey, typeValue;
+      type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
@@ -886,7 +886,7 @@ public:
    void remove(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
 
-      detail::type_void_adapter typeKey, typeValue;
+      type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
@@ -911,7 +911,7 @@ public:
 
       std::size_t iBucket = lookup_key(key);
       if (iBucket != smc_iNullIndex) {
-         detail::type_void_adapter typeKey, typeValue;
+         type_void_adapter typeKey, typeValue;
          typeKey.set_destruct<TKey>();
          typeKey.set_size<TKey>();
          typeValue.set_destruct<TValue>();
