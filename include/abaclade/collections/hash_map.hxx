@@ -816,6 +816,21 @@ public:
       return cend();
    }
 
+   /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
+   pair if found.
+
+   @param key
+      Key to search for.
+   @return
+      Iterator to the matching key/value, or cend() if the key could not be found.
+   */
+   iterator find(TKey const & key) {
+      ABC_TRACE_FUNC(this/*, key*/);
+
+      std::size_t iBucket = lookup_key(key);
+      return iterator(this, iBucket);
+   }
+
    /*! Removes and returns a value given an iterator or a key, which must be in the map.
 
    @param it
@@ -823,7 +838,7 @@ public:
    @param key
       Key associated to the value to extract.
    */
-   TValue extract(const_iterator it) {
+   TValue pop(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
 
       it.validate();
@@ -836,7 +851,7 @@ public:
       empty_bucket(typeKey, typeValue, it.m_iBucket);
       return std::move(value);
    }
-   TValue extract(TKey const & key) {
+   TValue pop(TKey const & key) {
       ABC_TRACE_FUNC(this/*, key*/);
 
       std::size_t iBucket = lookup_key(key);
@@ -852,21 +867,6 @@ public:
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, iBucket);
       return std::move(value);
-   }
-
-   /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
-   pair if found.
-
-   @param key
-      Key to search for.
-   @return
-      Iterator to the matching key/value, or cend() if the key could not be found.
-   */
-   iterator find(TKey const & key) {
-      ABC_TRACE_FUNC(this/*, key*/);
-
-      std::size_t iBucket = lookup_key(key);
-      return iterator(this, iBucket);
    }
 
    /*! Removes a value given an iterator or a key, which must be in the map.

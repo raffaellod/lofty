@@ -559,10 +559,10 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       if (ke.filter == EVFILT_TIMER) {
          // Remove and return the coroutine that was waiting for this timer.
-         return m_hmCorosBlockedByTimer.extract(ke.ident);
+         return m_hmCorosBlockedByTimer.pop(ke.ident);
       } else {
          // Remove and return the coroutine that was waiting for this file descriptor.
-         return m_hmCorosBlockedByFD.extract(static_cast<io::filedesc_t>(ke.ident));
+         return m_hmCorosBlockedByFD.pop(static_cast<io::filedesc_t>(ke.ident));
       }
 #elif ABC_HOST_API_LINUX
       ::epoll_event ee;
@@ -575,7 +575,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       }
       // Remove and return the coroutine that was waiting for this file descriptor.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_hmCorosBlockedByFD.extract(ee.data.fd);
+      return m_hmCorosBlockedByFD.pop(ee.data.fd);
 #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
@@ -587,7 +587,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       }
       // Remove and return the coroutine that was waiting for this handle.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_hmCorosBlockedByFD.extract(reinterpret_cast< ::HANDLE>(iCompletionKey));
+      return m_hmCorosBlockedByFD.pop(reinterpret_cast< ::HANDLE>(iCompletionKey));
 #else
    #error "TODO: HOST_API"
 #endif
