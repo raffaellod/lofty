@@ -36,7 +36,7 @@ namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::queue.
 class ABACLADE_SYM queue_impl : public support_explicit_operator_bool<queue_impl> {
-public:
+protected:
    //! Node of a singly-linked list.
    class node {
    private:
