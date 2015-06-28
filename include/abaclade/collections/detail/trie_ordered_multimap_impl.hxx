@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_HXX
-#define _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_HXX
+#ifndef _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_IMPL_HXX
+#define _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_IMPL_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -249,4 +249,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_TRIE_ORDERED_MULTIMAP_IMPL_HXX
