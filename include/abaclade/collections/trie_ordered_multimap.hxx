@@ -304,10 +304,7 @@ public:
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && tomm) {
       trie_ordered_multimap tommOld(std::move(*this));
-      m_pnRoot = tomm.m_pnRoot;
-      tomm.m_pnRoot = nullptr;
-      m_cValues = tomm.m_cValues;
-      tomm.m_cValues = 0;
+      detail::scalar_keyed_trie_ordered_multimap_impl::operator=(std::move(tomm));
       return *this;
    }
 

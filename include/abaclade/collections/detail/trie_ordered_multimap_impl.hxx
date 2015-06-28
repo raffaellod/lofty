@@ -48,13 +48,8 @@ private:
    static unsigned const smc_cBitPermutationsPerLevel = 1 << smc_cBitsPerLevel;
 
 protected:
-   /*! Abstract node. Defined to avoid using void * in code where pointers’ type change depending on
-   the level in the tree. */
-   class node {
-   };
-
    //! Stores a single value, as well as the doubly-linked list’s links.
-   class list_node : public node {
+   class list_node {
    public:
       //! Constructor.
       list_node() :
@@ -94,16 +89,16 @@ protected:
    };
 
    //! Non-leaf node.
-   class tree_node : public node {
+   class tree_node {
    public:
       //! Constructor.
       tree_node() {
-         memory::clear(&m_apnChildren);
+         memory::clear(&m_apChildren);
       }
 
    public:
       //! Child prefix pointers; one for each permutation of the bits mapped to this tree node.
-      node * m_apnChildren[smc_cBitPermutationsPerLevel];
+      void * m_apChildren[smc_cBitPermutationsPerLevel];
    };
 
    //! Anchors value lists to the tree, mapping the last bits of the key.
@@ -147,7 +142,7 @@ public:
       Size of a key, as returned by sizeof.
    */
    scalar_keyed_trie_ordered_multimap_impl(std::size_t cbKey) :
-      m_pnRoot(nullptr),
+      m_pRoot(nullptr),
       m_cValues(0),
       mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
    }
@@ -162,6 +157,15 @@ public:
    //! Destructor.
    ~scalar_keyed_trie_ordered_multimap_impl() {
    }
+
+   /*! Assignment operator.
+
+   @param tommi
+      Source object.
+   */
+   scalar_keyed_trie_ordered_multimap_impl & operator=(
+      scalar_keyed_trie_ordered_multimap_impl && tommi
+   );
 
    /*! Adds a key/value pair to the map.
 
@@ -229,16 +233,16 @@ protected:
 private:
    indexed_anchor descend_to_anchor(std::uintmax_t iKey) const;
 
-   void destruct_list(type_void_adapter const & type, list_node * pln);
-
    void destruct_anchor_node(type_void_adapter const & typeValue, anchor_node * pan);
+
+   void destruct_list(type_void_adapter const & type, list_node * pln);
 
    void destruct_tree_node(type_void_adapter const & typeValue, tree_node * ptn, unsigned iLevel);
 
 private:
    /*! Pointer to the top-level node. The type should be tree_node *, but some code requires this to
-   be the same as tree_node::m_apnChildren[0]. */
-   node * m_pnRoot;
+   be the same as tree_node::m_apChildren[0]. */
+   void * m_pRoot;
    //! Count of values. This may be more than the count of keys.
    std::size_t m_cValues;
    //! 0-based number of the last level in the tree, where nodes are of type anchor_node.
