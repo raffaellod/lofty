@@ -29,13 +29,16 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/app.cxx"/>
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
-      <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/collections/detail/queue_impl.cxx"/>
       <source path="src/abaclade/collections/detail/trie_ordered_multimap_impl.cxx"/>
       <source path="src/abaclade/collections/detail/vextr.cxx"/>
       <source path="src/abaclade/collections/detail/xor_list.cxx"/>
+      <source path="src/abaclade/collections/hash_map.cxx"/>
+      <source path="src/abaclade/collections/list.cxx"/>
+      <source path="src/abaclade/collections/vector.cxx"/>
       <source path="src/abaclade/coroutine.cxx"/>
       <source path="src/abaclade/coroutine_local.cxx"/>
+      <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
       <source path="src/abaclade/exception-fault_converter.cxx"/>
@@ -47,8 +50,6 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/binbuf.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
-      <source path="src/abaclade/collections/hash_map.cxx"/>
-      <source path="src/abaclade/collections/list.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/net.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
@@ -69,7 +70,6 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/thread.cxx"/>
       <source path="src/abaclade/thread_local.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
-      <source path="src/abaclade/collections/vector.cxx"/>
 
       <exeunittest
          name="abaclade-test"
@@ -81,6 +81,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/collections/queue.cxx"/>
          <source path="test/abaclade/collections/static_list.cxx"/>
          <source path="test/abaclade/collections/trie_ordered_multimap.cxx"/>
+         <source path="test/abaclade/collections/vector.cxx"/>
          <source path="test/abaclade/coroutine.cxx"/>
          <source path="test/abaclade/coroutine_local.cxx"/>
          <source path="test/abaclade/defer_to_scope_end.cxx"/>
@@ -97,7 +98,6 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/thread.cxx"/>
          <source path="test/abaclade/thread_local.cxx"/>
          <source path="test/abaclade/to_str.cxx"/>
-         <source path="test/abaclade/collections/vector.cxx"/>
          <dynlib name="abaclade-testing"/>
       </exeunittest>
 
