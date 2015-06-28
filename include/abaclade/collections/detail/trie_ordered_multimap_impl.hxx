@@ -38,7 +38,11 @@ namespace abc { namespace collections { namespace detail {
 //! Implementation of abc::collections::trie_ordered_multimap for scalar key types.
 class ABACLADE_SYM scalar_keyed_trie_ordered_multimap_impl {
 private:
+   /*! Determines the compactness of each level of the tree. Packing multiple bits on each level
+   results in faster lookups and fewer memory allocations, at the cost of increased slack in each
+   tree node. */
    static unsigned const smc_cBitsPerLevel = 4;
+   //! Count of children pointers that each tree node needs.
    static unsigned const smc_cBitPermutationsPerLevel = 1 << smc_cBitsPerLevel;
    static unsigned const smc_iTreeAnchorLevel =
       sizeof(std::uintmax_t /*TODO: TKey*/) * 8 /*TODO: CHAR_BIT*/ / smc_cBitsPerLevel - 1;
