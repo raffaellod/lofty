@@ -30,6 +30,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/type_void_adapter.hxx>
 #include <abaclade/numeric.hxx>
 
+#include <climits> // CHAR_BIT
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +47,7 @@ private:
    //! Count of children pointers that each tree node needs.
    static unsigned const smc_cBitPermutationsPerLevel = 1 << smc_cBitsPerLevel;
    static unsigned const smc_iTreeAnchorLevel =
-      sizeof(std::uintmax_t /*TODO: TKey*/) * 8 /*TODO: CHAR_BIT*/ / smc_cBitsPerLevel - 1;
+      sizeof(std::uintmax_t /*TODO: TKey*/) * CHAR_BIT / smc_cBitsPerLevel - 1;
 
 protected:
    /*! Abstract node. Defined to avoid using void * in code where pointers’ type change depending on
