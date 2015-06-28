@@ -285,7 +285,8 @@ public:
    @param tomm
       Source object.
    */
-   trie_ordered_multimap() {
+   trie_ordered_multimap() :
+      detail::scalar_keyed_trie_ordered_multimap_impl(sizeof(TKey)) {
    }
    trie_ordered_multimap(trie_ordered_multimap && tomm) :
       detail::scalar_keyed_trie_ordered_multimap_impl(std::move(tomm)) {

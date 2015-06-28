@@ -29,7 +29,7 @@ namespace abc { namespace test {
 ABC_TESTING_TEST_CASE_FUNC("abc::collections::trie_ordered_multimap – basic operations") {
    ABC_TRACE_FUNC(this);
 
-   collections::trie_ordered_multimap<std::uintmax_t, int> tomm;
+   collections::trie_ordered_multimap<unsigned, int> tomm;
 
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
 

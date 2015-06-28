@@ -49,7 +49,8 @@ scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl
    scalar_keyed_trie_ordered_multimap_impl && tommi
 ) :
    m_pnRoot(tommi.m_pnRoot),
-   m_cValues(tommi.m_cValues) {
+   m_cValues(tommi.m_cValues),
+   mc_iTreeAnchorsLevel(tommi.mc_iTreeAnchorsLevel) {
    tommi.m_pnRoot = nullptr;
    tommi.m_cValues = 0;
 }
@@ -71,7 +72,7 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
       do {
          ptnParent = static_cast<tree_node *>(*ppnChildInParent);
          if (!ptnParent) {
-            ptnParent = (iLevel == smc_iTreeAnchorLevel ? new anchor_node() : new tree_node());
+            ptnParent = (iLevel == mc_iTreeAnchorsLevel ? new anchor_node() : new tree_node());
             *ppnChildInParent = ptnParent;
          }
          iBitsPermutation = static_cast<unsigned>(
@@ -79,7 +80,7 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
          );
          iKeyRemaining >>= smc_cBitsPerLevel;
          ppnChildInParent = &ptnParent->m_apnChildren[iBitsPermutation];
-      } while (++iLevel <= smc_iTreeAnchorLevel);
+      } while (++iLevel <= mc_iTreeAnchorsLevel);
    }
 
    // We got here, so *ptnParent is actually an anchor_node.
@@ -136,7 +137,7 @@ scalar_keyed_trie_ordered_multimap_impl::descend_to_anchor(std::uintmax_t iKey) 
       unsigned iBitsPermutation = static_cast<unsigned>(
          iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
       );
-      if (iLevel == smc_iTreeAnchorLevel) {
+      if (iLevel == mc_iTreeAnchorsLevel) {
          // At this level, *ptnParent is an anchor.
          return indexed_anchor(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
       } else if (!ptnParent) {
@@ -185,7 +186,7 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_tree_node(
    unsigned iBitsPermutation = 0;
    do {
       if (node * pn = ptn->m_apnChildren[iBitsPermutation]) {
-         if (iLevel == smc_iTreeAnchorLevel) {
+         if (iLevel == mc_iTreeAnchorsLevel) {
             destruct_anchor_node(typeValue, static_cast<anchor_node *>(pn));
          } else {
             destruct_tree_node(typeValue, static_cast<tree_node *>(pn), iLevel);
@@ -231,7 +232,7 @@ scalar_keyed_trie_ordered_multimap_impl::front() {
          }
       } while (++iBitsPermutation < smc_cBitPermutationsPerLevel);
       ptnParent = static_cast<tree_node *>(pnChild);
-   } while (++iLevel <= smc_iTreeAnchorLevel);
+   } while (++iLevel <= mc_iTreeAnchorsLevel);
 
    /* We got here, so *pnChild is actually a value list’s first node, though pnChild might be
    nullptr. */

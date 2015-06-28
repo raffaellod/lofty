@@ -46,8 +46,6 @@ private:
    static unsigned const smc_cBitsPerLevel = 4;
    //! Count of children pointers that each tree node needs.
    static unsigned const smc_cBitPermutationsPerLevel = 1 << smc_cBitsPerLevel;
-   static unsigned const smc_iTreeAnchorLevel =
-      sizeof(std::uintmax_t /*TODO: TKey*/) * CHAR_BIT / smc_cBitsPerLevel - 1;
 
 protected:
    /*! Abstract node. Defined to avoid using void * in code where pointers’ type change depending on
@@ -143,15 +141,22 @@ protected:
    };
 
 public:
-   /*! Constructor.
+   /*! Default constructor.
+
+   @param cbKey
+      Size of a key, as returned by sizeof.
+   */
+   scalar_keyed_trie_ordered_multimap_impl(std::size_t cbKey) :
+      m_pnRoot(nullptr),
+      m_cValues(0),
+      mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
+   }
+
+   /*! Move-constructor.
 
    @param tommi
       Source object.
    */
-   scalar_keyed_trie_ordered_multimap_impl() :
-      m_pnRoot(nullptr),
-      m_cValues(0) {
-   }
    scalar_keyed_trie_ordered_multimap_impl(scalar_keyed_trie_ordered_multimap_impl && tommi);
 
    //! Destructor.
@@ -236,6 +241,8 @@ private:
    node * m_pnRoot;
    //! Count of values. This may be more than the count of keys.
    std::size_t m_cValues;
+   //! 0-based number of the last level in the tree, where nodes are of type anchor_node.
+   std::uint8_t const mc_iTreeAnchorsLevel;
 };
 
 }}} //namespace abc::collections::detail
