@@ -259,6 +259,7 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
       }
    }
    pln->unlink_and_destruct(typeValue);
+   --m_cValues;
 }
 
 }}} //namespace abc::collections::detail
