@@ -252,10 +252,10 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
          ABC_THROW(generic_error, ());
       }
       if (!pln->m_plnNext) {
-         ia.pan->m_aplnChildrenLasts[ia.iBitsPermutation] = nullptr;
+         ia.pan->m_aplnChildrenLasts[ia.iBitsPermutation] = pln->m_plnPrev;
       }
       if (!pln->m_plnPrev) {
-         ia.pan->m_apnChildren[ia.iBitsPermutation] = nullptr;
+         ia.pan->m_apnChildren[ia.iBitsPermutation] = pln->m_plnNext;
       }
    }
    pln->unlink_and_destruct(typeValue);
