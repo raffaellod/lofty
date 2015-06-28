@@ -189,6 +189,15 @@ protected:
          m_pln(pln) {
       }
 
+      /*! Dereferencing operator.
+
+      @return
+         Reference to the current key/value pair.
+      */
+      value_type operator*() const {
+         return value_type(m_key, m_pln->value_ptr<TValue>());
+      }
+
       /*! Dereferencing member access operator.
 
       @return
@@ -225,6 +234,15 @@ protected:
    public:
       //! Default constructor.
       iterator() {
+      }
+
+      /*! Dereferencing operator.
+
+      @return
+         Reference to the current key/value pair.
+      */
+      value_type operator*() const {
+         return value_type(this->m_key, this->m_pln->template value_ptr<TValue>());
       }
 
       /*! Dereferencing member access operator.
