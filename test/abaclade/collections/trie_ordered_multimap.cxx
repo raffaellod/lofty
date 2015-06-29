@@ -43,17 +43,40 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::trie_ordered_multimap (scalar) –
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 200);
 
-   tomm.add(20, 222);
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 3u);
+   tomm.add(20, 220);
+   tomm.add(20, 221);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 4u);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
-   // 222 was inserted after 200, so front() should still return the 20/200 pair.
+   // 220 and 221 were inserted after 200, so front() should still return the 20/200 pair.
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 200);
 
    tomm.remove(it200);
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 3u);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
-   // Now that 200 is gone, front() should return the 20/222 pair.
-   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 222);
+   // Now that 200 is gone, front() should return the 20/220 pair.
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 220);
+
+   auto kv220(tomm.pop_front());
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(kv220.key, 20);
+   ABC_TESTING_ASSERT_EQUAL(kv220.value, 220);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
+   // Now that 220 is gone, front() should return the 20/221 pair.
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
+
+   auto it300(tomm.find(30));
+   ABC_TESTING_ASSERT_EQUAL(it300->key, 30);
+   ABC_TESTING_ASSERT_EQUAL(it300->value, 300);
+
+   auto kv300(tomm.pop(it300));
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(kv300.key, 30);
+   ABC_TESTING_ASSERT_EQUAL(kv300.value, 300);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
+
+   tomm.clear();
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
 }
 
 }} //namespace abc::test
