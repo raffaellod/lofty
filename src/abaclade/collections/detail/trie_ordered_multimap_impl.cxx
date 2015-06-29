@@ -95,7 +95,7 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    }
 
    // We got here, so *ptnParent is actually an anchor_node.
-   anchor_node * panParent = static_cast<anchor_node *>(ptnParent);
+   anchor_node_slot ans(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
    /* To calculate the node size, add typeValue.size() bytes to the offset of the value in a node at
    address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
    (sizeof will return 8 for that) and typeValue.size() is 2, giving 8 instead of 10 (which would
@@ -111,12 +111,12 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    } else {
       typeValue.copy_construct(pDst, pValue);
    }
-   list_node * plnRet = pln.get(), * plnPrev = panParent->m_aplnChildrenLasts[iBitsPermutation];
+   list_node * plnRet = pln.get(), * plnPrev = ans.get_last_child();
    pln->m_plnPrev = plnPrev;
    pln->m_plnNext = nullptr;
-   panParent->m_aplnChildrenLasts[iBitsPermutation] = plnRet;
-   if (!panParent->m_apChildren[iBitsPermutation]) {
-      panParent->m_apChildren[iBitsPermutation] = plnRet;
+   ans.set_last_child(plnRet);
+   if (!ans.get_first_child()) {
+      ans.set_first_child(plnRet);
    }
    if (plnPrev) {
       plnPrev->m_plnNext = plnRet;
@@ -135,30 +135,6 @@ void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & ty
       m_pRoot = nullptr;
       m_cValues = 0;
    }
-}
-
-scalar_keyed_trie_ordered_multimap_impl::indexed_anchor
-scalar_keyed_trie_ordered_multimap_impl::descend_to_anchor(std::uintmax_t iKey) const {
-   ABC_TRACE_FUNC(this, iKey);
-
-   std::uintmax_t iKeyRemaining = iKey;
-   tree_node * ptnParent = static_cast<tree_node *>(m_pRoot);
-   std::size_t iLevel = 0;
-   for (;;) {
-      unsigned iBitsPermutation = static_cast<unsigned>(
-         iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
-      );
-      if (iLevel == mc_iTreeAnchorsLevel) {
-         // At this level, *ptnParent is an anchor.
-         return indexed_anchor(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
-      } else if (!ptnParent) {
-         return indexed_anchor(nullptr, 0);
-      }
-      iKeyRemaining >>= smc_cBitsPerLevel;
-      ptnParent = static_cast<tree_node *>(ptnParent->m_apChildren[iBitsPermutation]);
-      ++iLevel;
-   }
-
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::destruct_anchor_node(
@@ -212,8 +188,35 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
 ) {
    ABC_TRACE_FUNC(this, iKey);
 
-   indexed_anchor ia(descend_to_anchor(iKey));
-   return ia.pan ? static_cast<list_node *>(ia.pan->m_apChildren[ia.iBitsPermutation]) : nullptr;
+   if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
+      return ans.get_first_child();
+   } else {
+      return nullptr;
+   }
+}
+
+scalar_keyed_trie_ordered_multimap_impl::anchor_node_slot
+scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) const {
+   ABC_TRACE_FUNC(this, iKey);
+
+   std::uintmax_t iKeyRemaining = iKey;
+   tree_node * ptnParent = static_cast<tree_node *>(m_pRoot);
+   std::size_t iLevel = 0;
+   for (;;) {
+      unsigned iBitsPermutation = static_cast<unsigned>(
+         iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
+      );
+      if (iLevel == mc_iTreeAnchorsLevel) {
+         // At this level, *ptnParent is an anchor.
+         return anchor_node_slot(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
+      } else if (!ptnParent) {
+         return anchor_node_slot(nullptr, 0);
+      }
+      iKeyRemaining >>= smc_cBitsPerLevel;
+      ptnParent = static_cast<tree_node *>(ptnParent->m_apChildren[iBitsPermutation]);
+      ++iLevel;
+   }
+
 }
 
 scalar_keyed_trie_ordered_multimap_impl::key_value_pair
@@ -256,16 +259,16 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
 
    if (!pln->m_plnNext || !pln->m_plnPrev) {
       // *pln is the first or the last node in its list, so we need to update the anchor.
-      indexed_anchor ia(descend_to_anchor(iKey));
-      if (!ia.pan) {
+      if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
+         if (!pln->m_plnNext) {
+            ans.set_last_child(pln->m_plnPrev);
+         }
+         if (!pln->m_plnPrev) {
+            ans.set_first_child(pln->m_plnNext);
+         }
+      } else {
          // TODO: throw invalid_iterator.
          ABC_THROW(generic_error, ());
-      }
-      if (!pln->m_plnNext) {
-         ia.pan->m_aplnChildrenLasts[ia.iBitsPermutation] = pln->m_plnPrev;
-      }
-      if (!pln->m_plnPrev) {
-         ia.pan->m_apChildren[ia.iBitsPermutation] = pln->m_plnNext;
       }
    }
    pln->unlink_and_destruct(typeValue);

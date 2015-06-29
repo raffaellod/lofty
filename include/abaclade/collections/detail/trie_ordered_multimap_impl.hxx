@@ -114,14 +114,71 @@ protected:
       list_node * m_aplnChildrenLasts[smc_cBitPermutationsPerLevel];
    };
 
-   struct indexed_anchor {
-      anchor_node * pan;
-      unsigned iBitsPermutation;
+   //! Enables access to a single child slot in an anchor_node instance.
+   class anchor_node_slot : public support_explicit_operator_bool<anchor_node_slot> {
+   public:
+      /*! Constructor.
 
-      indexed_anchor(anchor_node * _pan, unsigned _iBitsPermutation) :
-         pan(_pan),
-         iBitsPermutation(_iBitsPermutation) {
+      @param pan
+         Pointer to the anchor_node that *this will wrap.
+      @param iChild
+         Child index.
+      */
+      anchor_node_slot(anchor_node * pan, unsigned iChild) :
+         m_pan(pan),
+         m_iChild(iChild) {
       }
+
+      /*! Returns true if the object is usable.
+
+      @return
+         true if *this is usable, or false otherwise.
+      */
+      ABC_EXPLICIT_OPERATOR_BOOL() const {
+         return m_pan != nullptr;
+      }
+
+      /*! Returns a pointer to the first node in the children list.
+
+      @return
+         Pointer to the first child.
+      */
+      list_node * get_first_child() const {
+         return static_cast<list_node *>(m_pan->m_apChildren[m_iChild]);
+      }
+
+      /*! Returns a pointer to the last node in the children list.
+
+      @return
+         Pointer to the last child.
+      */
+      list_node * get_last_child() const {
+         return static_cast<list_node *>(m_pan->m_aplnChildrenLasts[m_iChild]);
+      }
+
+      /*! Sets the pointer to the first child node.
+
+      @param pln
+         Pointer to the new first child.
+      */
+      void set_first_child(list_node * pln) const {
+         m_pan->m_apChildren[m_iChild] = pln;
+      }
+
+      /*! Sets the pointer to the last child node.
+
+      @param pln
+         Pointer to the new last child.
+      */
+      void set_last_child(list_node * pln) const {
+         m_pan->m_aplnChildrenLasts[m_iChild] = pln;
+      }
+
+   private:
+      //! Pointer to the wrapped anchor_node instance.
+      anchor_node * m_pan;
+      //! Child index.
+      unsigned m_iChild;
    };
 
    //! Key/pointer-to-value pair.
@@ -231,13 +288,13 @@ protected:
    void remove_value(type_void_adapter const & typeValue, std::uintmax_t iKey, list_node * pln);
 
 private:
-   indexed_anchor descend_to_anchor(std::uintmax_t iKey) const;
-
    void destruct_anchor_node(type_void_adapter const & typeValue, anchor_node * pan);
 
    void destruct_list(type_void_adapter const & type, list_node * pln);
 
    void destruct_tree_node(type_void_adapter const & typeValue, tree_node * ptn, unsigned iLevel);
+
+   anchor_node_slot find_anchor_node_slot(std::uintmax_t iKey) const;
 
 private:
    /*! Pointer to the top-level node. The type should be tree_node *, but some code requires this to
