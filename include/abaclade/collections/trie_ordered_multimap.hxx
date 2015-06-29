@@ -99,23 +99,12 @@ class trie_ordered_multimap;
 template <typename TKey, typename TValue>
 class trie_ordered_multimap<TKey, TValue, 1> :
    public detail::scalar_keyed_trie_ordered_multimap_impl {
-public:
-   //! Mapped value type.
-   typedef TValue mapped_type;
-
 protected:
-   /*! Key/value pair type. Template-typed version of
-   detail::scalar_keyed_trie_ordered_multimap_impl::key_value_pair. */
-   struct key_value_pair {
-      TKey key;
-      TValue value;
-   };
-
    /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact
    includes the object it points to.
 
    Needed because iterator::operator->() must return a pointer-like type to a key/value pair
-   (value_type), but key/value pairs are never stored anywhere in the map. */
+   (::reference), but key/value pairs are never stored anywhere in the map. */
    template <typename TPair>
    class pair_ptr {
    public:
@@ -147,27 +136,55 @@ protected:
       TPair const m_pair;
    };
 
+public:
+   //! Key type.
+   typedef TKey key_type;
+   //! Mapped value type.
+   typedef TValue mapped_type;
+
+   /*! Key/value pair type. Template-typed version of
+   detail::scalar_keyed_trie_ordered_multimap_impl::key_value_pair. */
+   struct value_type {
+      TKey key;
+      TValue value;
+
+      template <typename UKey, typename UValue>
+      value_type(UKey && ukey, UValue && uvalue) :
+         key(std::forward<UKey>(ukey)), value(std::forward<UValue>(uvalue)) {
+      }
+   };
+
+   //! Key/value reference type.
+   struct reference {
+      TKey const key;
+      TValue & value;
+
+      reference(TKey _key, TValue * pvalue) :
+         key(_key), value(*pvalue) {
+      }
+   };
+
+   //! Const key/value reference type.
+   struct const_reference {
+      TKey const key;
+      TValue const & value;
+
+      const_reference(TKey _key, TValue const * pvalue) :
+         key(*_key), value(*pvalue) {
+      }
+   };
+
    //! Const key/value pair iterator type.
    class const_iterator {
    private:
       friend class trie_ordered_multimap;
 
    public:
-      //! Const key/value type.
-      struct value_type {
-         TKey const key;
-         TValue const & value;
-
-         //! Constructor.
-         value_type(TKey _key, TValue const * pvalue) :
-            key(*_key), value(*pvalue) {
-         }
-      };
-
       typedef std::ptrdiff_t difference_type;
       typedef std::forward_iterator_tag iterator_category;
-      typedef value_type * pointer;
-      typedef value_type & reference;
+      typedef trie_ordered_multimap::const_reference value_type;
+      typedef trie_ordered_multimap::const_reference * pointer;
+      typedef trie_ordered_multimap::const_reference & reference;
 
    public:
       //! Default constructor.
@@ -218,18 +235,9 @@ protected:
       friend class trie_ordered_multimap;
 
    public:
-      //! Key/value type.
-      struct value_type {
-         TKey const key;
-         TValue & value;
-
-         value_type(TKey _key, TValue * pvalue) :
-            key(_key), value(*pvalue) {
-         }
-      };
-
-      typedef value_type * pointer;
-      typedef value_type & reference;
+      typedef trie_ordered_multimap::reference value_type;
+      typedef trie_ordered_multimap::reference * pointer;
+      typedef trie_ordered_multimap::reference & reference;
 
    public:
       //! Default constructor.
@@ -275,9 +283,6 @@ protected:
          const_iterator(it) {
       }
    };
-
-   typedef typename iterator::value_type value_type;
-   typedef typename const_iterator::value_type const_value_type;
 
 public:
    /*! Constructor.
@@ -354,11 +359,11 @@ public:
       return const_cast<trie_ordered_multimap *>(this)->find(key);
    }
 
-   value_type front() {
+   reference front() {
       auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
-      return value_type(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
+      return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
-   const_value_type front() const {
+   const_reference front() const {
       return const_cast<trie_ordered_multimap *>(this)->front();
    }
 
@@ -369,11 +374,13 @@ public:
    @return
       Extracted key/value pair.
    */
-   key_value_pair pop(const_iterator it) {
+   value_type pop(const_iterator it) {
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      key_value_pair kvpRet(std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue))));
+      value_type kvpRet(
+         it.m_key, std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue)))
+      );
       remove_value(typeValue, key_to_int(it.m_key), it.m_pln);
       return std::move(kvpRet);
    }
@@ -383,7 +390,7 @@ public:
    @return
       Extracted key/value pair.
    */
-   key_value_pair pop_front() {
+   value_type pop_front() {
       return pop(front());
    }
 
