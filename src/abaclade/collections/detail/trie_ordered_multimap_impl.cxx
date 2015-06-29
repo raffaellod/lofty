@@ -25,22 +25,46 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-void scalar_keyed_trie_ordered_multimap_impl::list_node::unlink_and_destruct(
-   type_void_adapter const & type
-) const {
+scalar_keyed_trie_ordered_multimap_impl::list_node::list_node(
+   list_node * plnNext, list_node * plnPrev
+) :
+   m_plnNext(plnNext),
+   m_plnPrev(plnPrev) {
+   if (plnNext) {
+      plnNext->m_plnPrev = this;
+   }
+   if (plnPrev) {
+      plnPrev->m_plnNext = this;
+   }
+}
+
+scalar_keyed_trie_ordered_multimap_impl::list_node::~list_node() {
+   // Unlink *this from the list it’s part of.
    if (m_plnNext) {
       m_plnNext->m_plnPrev = m_plnPrev;
    }
    if (m_plnPrev) {
       m_plnPrev->m_plnNext = m_plnNext;
    }
-   type.destruct(value_ptr(type));
-   memory::_raw_free(this);
+}
+
+void * scalar_keyed_trie_ordered_multimap_impl::list_node::operator new(
+   std::size_t cb, type_void_adapter const & type
+) {
+   ABC_UNUSED_ARG(cb);
+   /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
+   address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
+   (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
+   mean at least 12 bytes, a 50% waste of memory). */
+   return memory::_raw_alloc(reinterpret_cast<std::size_t>(
+      static_cast<list_node *>(0)->value_ptr(type)
+   ) + type.size());
 }
 
 void * scalar_keyed_trie_ordered_multimap_impl::list_node::value_ptr(
    type_void_adapter const & type
 ) const {
+   // Make sure that the argument it the address following the last member.
    return type.align_pointer(&m_plnPrev + 1);
 }
 
@@ -93,38 +117,26 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
          ppChildInParent = &ptnParent->m_apChildren[iBitsPermutation];
       } while (++iLevel <= mc_iTreeAnchorsLevel);
    }
-
    // We got here, so *ptnParent is actually an anchor_node.
    anchor_node_slot ans(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
-   /* To calculate the node size, add typeValue.size() bytes to the offset of the value in a node at
-   address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-   (sizeof will return 8 for that) and typeValue.size() is 2, giving 8 instead of 10 (which would
-   really mean at least 12 bytes, a 50% waste of memory). */
-   std::unique_ptr<list_node, memory::freeing_deleter> pln(static_cast<list_node *>(
-      memory::_raw_alloc(reinterpret_cast<std::size_t>(
-         static_cast<list_node *>(0)->value_ptr(typeValue)
-      ) + typeValue.size())
-   ));
+
+   list_node * plnPrev = ans.get_last_child();
+   std::unique_ptr<list_node> pln(new(typeValue) list_node(nullptr, plnPrev));
+   // Append the node to the values list.
+   ans.set_last_child(pln.get());
+   if (!ans.get_first_child()) {
+      ans.set_first_child(pln.get());
+   }
+   // Construct the node’s value.
    void * pDst = pln->value_ptr(typeValue);
    if (bMove) {
       typeValue.move_construct(pDst, const_cast<void *>(pValue));
    } else {
       typeValue.copy_construct(pDst, pValue);
    }
-   list_node * plnRet = pln.get(), * plnPrev = ans.get_last_child();
-   pln->m_plnPrev = plnPrev;
-   pln->m_plnNext = nullptr;
-   ans.set_last_child(plnRet);
-   if (!ans.get_first_child()) {
-      ans.set_first_child(plnRet);
-   }
-   if (plnPrev) {
-      plnPrev->m_plnNext = plnRet;
-   }
-   // Transfer ownership of the list_node to the list.
-   pln.release();
    ++m_cValues;
-   return plnRet;
+   // Transfer ownership of *pln to the list.
+   return pln.release();
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & typeValue) {
@@ -271,7 +283,8 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
          ABC_THROW(generic_error, ());
       }
    }
-   pln->unlink_and_destruct(typeValue);
+   typeValue.destruct(pln->value_ptr(typeValue));
+   delete pln;
    --m_cValues;
 }
 

@@ -51,13 +51,37 @@ protected:
    //! Stores a single value, as well as the doubly-linked list’s links.
    class list_node {
    public:
-      //! Constructor.
-      list_node() :
-         m_plnNext(nullptr),
-         m_plnPrev(nullptr) {
-      }
+      /*! Constructor.
 
-      void unlink_and_destruct(type_void_adapter const & type) const;
+      @param plnNext
+         Pointer to the next node.
+      @param plnPrev
+         Pointer to the previous node.
+      */
+      list_node(list_node * plnNext, list_node * plnPrev);
+
+      //! Destructor.
+      ~list_node();
+
+      /*! Allocates space for a list_node and its contained value.
+
+      @param cb
+         sizeof(list_node).
+      @param type
+         Adapter for the value’s type.
+      @return
+         Pointer to the allocated memory block.
+      */
+      void * operator new(std::size_t cb, type_void_adapter const & type);
+
+      /*! Ensures that memory allocated by list_node::operator new() is freed correctly.
+
+      @param p
+         Pointer to free.
+      */
+      void operator delete(void * p) {
+         memory::_raw_free(p);
+      }
 
       /*! Returns a pointer to the contained value.
 
@@ -85,7 +109,7 @@ protected:
       list_node * m_plnNext;
       //! Pointer to the previous node.
       list_node * m_plnPrev;
-      // The contained value of type T follow immediately, taking alignment into consideration.
+      // The contained value follows immediately, taking alignment into consideration.
    };
 
    //! Non-leaf node.
