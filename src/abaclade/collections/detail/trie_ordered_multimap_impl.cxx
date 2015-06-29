@@ -231,7 +231,7 @@ scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iK
 
 }
 
-scalar_keyed_trie_ordered_multimap_impl::key_value_pair
+scalar_keyed_trie_ordered_multimap_impl::key_value_ptr
 scalar_keyed_trie_ordered_multimap_impl::front() {
    ABC_TRACE_FUNC(this);
 
@@ -244,7 +244,7 @@ scalar_keyed_trie_ordered_multimap_impl::front() {
    unsigned cNextLevelBitsShift = 0;
    do {
       if (!ptnParent) {
-         return key_value_pair(0, nullptr);
+         return key_value_ptr(0, nullptr);
       }
       // Look for the left-most branch to descend into.
       unsigned iBitsPermutation = 0;
@@ -261,7 +261,7 @@ scalar_keyed_trie_ordered_multimap_impl::front() {
    } while (++iLevel <= mc_iTreeAnchorsLevel);
 
    // We got here, so *pChild is actually a value list’s first node, though pChild might be nullptr.
-   return key_value_pair(iKey, static_cast<list_node *>(pChild));
+   return key_value_ptr(iKey, static_cast<list_node *>(pChild));
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::remove_value(

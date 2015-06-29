@@ -206,11 +206,11 @@ protected:
    };
 
    //! Key/pointer-to-value pair.
-   struct key_value_pair {
+   struct key_value_ptr {
       std::uintmax_t iKey;
       list_node * pln;
 
-      key_value_pair(std::uintmax_t _iKey, list_node * _pln) :
+      key_value_ptr(std::uintmax_t _iKey, list_node * _pln) :
          iKey(_iKey),
          pln(_pln) {
       }
@@ -296,7 +296,7 @@ public:
    @return
       Pointer to the first value in the map.
    */
-   key_value_pair front();
+   key_value_ptr front();
 
    /*! Returns the count of values in the map. Note that this may be higher than the count of keys
    in the map.

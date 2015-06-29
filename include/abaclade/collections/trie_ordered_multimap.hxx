@@ -142,10 +142,11 @@ public:
    //! Mapped value type.
    typedef TValue mapped_type;
 
-   /*! Key/value pair type. Template-typed version of
-   detail::scalar_keyed_trie_ordered_multimap_impl::key_value_pair. */
+   //! Key/value pair type.
    struct value_type {
+      //! Key.
       TKey key;
+      //! Value.
       TValue value;
 
       /*! Constructor.
@@ -377,6 +378,8 @@ public:
       Reference to the first key/value in the map.
    */
    reference front() {
+      ABC_TRACE_FUNC(this);
+
       auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
@@ -392,14 +395,16 @@ public:
       Extracted key/value pair.
    */
    value_type pop(const_iterator it) {
+      ABC_TRACE_FUNC(this/*, it*/);
+
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      value_type kvpRet(
+      value_type vRet(
          it.m_key, std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue)))
       );
       remove_value(typeValue, key_to_int(it.m_key), it.m_pln);
-      return std::move(kvpRet);
+      return std::move(vRet);
    }
 
    /*! Removes and returns the key/value pair that would be returned as a reference by front().
@@ -408,7 +413,17 @@ public:
       Extracted key/value pair.
    */
    value_type pop_front() {
-      return pop(front());
+      ABC_TRACE_FUNC(this);
+
+      type_void_adapter typeValue;
+      typeValue.set_align<TValue>();
+      typeValue.set_destruct<TValue>();
+      auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
+      value_type vRet(
+         int_to_key(kvp.iKey), std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
+      );
+      remove_value(typeValue, kvp.iKey, kvp.pln);
+      return std::move(vRet);
    }
 
    /*! Removes a value given an iterator to it.
@@ -417,6 +432,8 @@ public:
       Iterator to the key/value to remove.
    */
    void remove(const_iterator it) {
+      ABC_TRACE_FUNC(this/*, it*/);
+
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
