@@ -97,11 +97,11 @@ protected:
       @return
          Pointer to the contained value.
       */
-      template <typename TValue>
-      TValue * value_ptr() const {
-         type_void_adapter typeValue;
-         typeValue.set_align<TValue>();
-         return static_cast<TValue *>(value_ptr(typeValue));
+      template <typename T>
+      T * value_ptr() const {
+         type_void_adapter type;
+         type.set_align<T>();
+         return static_cast<T *>(value_ptr(type));
       }
 
    public:
@@ -115,7 +115,7 @@ protected:
    //! Non-leaf node.
    class tree_node {
    public:
-      //! Constructor.
+      //! Default constructor.
       tree_node() {
          memory::clear(&m_apChildren);
       }
@@ -128,7 +128,7 @@ protected:
    //! Anchors value lists to the tree, mapping the last bits of the key.
    class anchor_node : public tree_node {
    public:
-      //! Constructor.
+      //! Default constructor.
       anchor_node() {
          memory::clear(&m_aplnChildrenLasts);
       }
@@ -217,7 +217,7 @@ protected:
    };
 
 public:
-   /*! Default constructor.
+   /*! Constructor.
 
    @param cbKey
       Size of a key, as returned by sizeof.
@@ -309,15 +309,56 @@ public:
    }
 
 protected:
+   /*! Removes a value from the map. If the corresponding key if unique, the key is completely
+   removed from the map.
+
+   @param typeValue
+      Adapter for the value’s type.
+   @param iKey
+      Key associated to the value.
+   @param pln
+      Pointer to the node containing the value.
+   */
    void remove_value(type_void_adapter const & typeValue, std::uintmax_t iKey, list_node * pln);
 
 private:
+   /*! Recursively destructs an anchor node and all its child lists.
+
+   @param typeValue
+      Adapter for the value’s type.
+   @param pan
+      Pointer to the target anchor node.
+   */
    void destruct_anchor_node(type_void_adapter const & typeValue, anchor_node * pan);
 
+   /*! Recursively destructs a list and all its value nodes.
+
+   @param type
+      Adapter for the value’s type.
+   @param pln
+      Pointer to the first list node.
+   */
    void destruct_list(type_void_adapter const & type, list_node * pln);
 
+   /*! Recursively destructs a tree node and all its children.
+
+   @param typeValue
+      Adapter for the value’s type.
+   @param ptn
+      Pointer to the top-level tree node.
+   @param iLevel
+      0-based index level of *ptn.
+   */
    void destruct_tree_node(type_void_adapter const & typeValue, tree_node * ptn, unsigned iLevel);
 
+   /*! Finds an anchor node slot (values list pointers) corresponding to the specified key, if
+   present.
+
+   @param iKey
+      Key to search for.
+   @return
+      Matching anchor node slot; will evaluate to false if the key was not found in the map.
+   */
    anchor_node_slot find_anchor_node_slot(std::uintmax_t iKey) const;
 
 private:
@@ -326,7 +367,7 @@ private:
    void * m_pRoot;
    //! Count of values. This may be more than the count of keys.
    std::size_t m_cValues;
-   //! 0-based number of the last level in the tree, where nodes are of type anchor_node.
+   //! 0-based index of the last level in the tree, where nodes are of type anchor_node.
    std::uint8_t const mc_iTreeAnchorsLevel;
 };
 

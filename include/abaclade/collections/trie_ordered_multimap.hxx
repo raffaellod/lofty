@@ -148,6 +148,13 @@ public:
       TKey key;
       TValue value;
 
+      /*! Constructor.
+
+      @param ukey
+         Source key.
+      @param uvalue
+         Source value.
+      */
       template <typename UKey, typename UValue>
       value_type(UKey && ukey, UValue && uvalue) :
          key(std::forward<UKey>(ukey)), value(std::forward<UValue>(uvalue)) {
@@ -159,8 +166,15 @@ public:
       TKey const key;
       TValue & value;
 
-      reference(TKey _key, TValue * pvalue) :
-         key(_key), value(*pvalue) {
+      /*! Constructor.
+
+      @param key_
+         Referred key. Actually copied.
+      @param pvalue
+         Pointer to the value to create a reference to.
+      */
+      reference(TKey key_, TValue * pvalue) :
+         key(key_), value(*pvalue) {
       }
    };
 
@@ -169,8 +183,15 @@ public:
       TKey const key;
       TValue const & value;
 
-      const_reference(TKey _key, TValue const * pvalue) :
-         key(*_key), value(*pvalue) {
+      /*! Constructor.
+
+      @param key_
+         Referred key. Actually copied.
+      @param pvalue
+         Pointer to the value to create a reference to.
+      */
+      const_reference(TKey key_, TValue const * pvalue) :
+         key(*key_), value(*pvalue) {
       }
    };
 
@@ -273,15 +294,6 @@ public:
       iterator(TKey key, list_node * pln) :
          const_iterator(key, pln) {
       }
-
-      /*! Constructor used for cv-removing promotions from const_iterator to iterator.
-
-      @param it
-         Source object.
-      */
-      iterator(const_iterator const & it) :
-         const_iterator(it) {
-      }
    };
 
 public:
@@ -344,8 +356,8 @@ public:
       return detail::scalar_keyed_trie_ordered_multimap_impl::clear(typeValue);
    }
 
-   /*! Searches the multimap for a specific key, returning an iterator to the first corresponding
-   key/value pair if found.
+   /*! Searches the map for a specific key, returning an iterator to the first corresponding key/
+   value pair if found.
 
    @param key
       Key to search for.
@@ -359,6 +371,11 @@ public:
       return const_cast<trie_ordered_multimap *>(this)->find(key);
    }
 
+   /*! Returns a reference to the first key/value pair in the map.
+
+   @return
+      Reference to the first key/value in the map.
+   */
    reference front() {
       auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
@@ -407,10 +424,24 @@ public:
    }
 
 private:
+   /*! Converts a non-template integer key to TKey.
+
+   @param iKey
+      Key to convert.
+   @return
+      Converted key.
+   */
    static TKey int_to_key(std::uintmax_t iKey) {
       return static_cast<TKey>(iKey);
    }
 
+   /*! Converts a TKey into a non-template integer key.
+
+   @param key
+      Key to convert.
+   @return
+      Converted key.
+   */
    static std::uintmax_t key_to_int(TKey key) {
       return static_cast<std::uintmax_t>(key);
    }
