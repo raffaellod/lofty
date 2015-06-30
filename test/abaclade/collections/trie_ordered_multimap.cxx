@@ -26,12 +26,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::trie_ordered_multimap (scalar) – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   "abc::collections::trie_ordered_multimap (scalar keys) – basic operations"
+) {
    ABC_TRACE_FUNC(this);
 
    collections::trie_ordered_multimap<unsigned, int> tomm;
 
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
 
    auto it200(tomm.add(20, 200));
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 1u);
@@ -56,10 +58,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::trie_ordered_multimap (scalar) –
    // Now that 200 is gone, front() should return the 20/220 pair.
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 220);
 
-   auto kv220(tomm.pop_front());
+   auto kvp220(tomm.pop_front());
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 2u);
-   ABC_TESTING_ASSERT_EQUAL(kv220.key, 20);
-   ABC_TESTING_ASSERT_EQUAL(kv220.value, 220);
+   ABC_TESTING_ASSERT_EQUAL(kvp220.key, 20);
+   ABC_TESTING_ASSERT_EQUAL(kvp220.value, 220);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    // Now that 220 is gone, front() should return the 20/221 pair.
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
@@ -68,10 +70,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::trie_ordered_multimap (scalar) –
    ABC_TESTING_ASSERT_EQUAL(it300->key, 30);
    ABC_TESTING_ASSERT_EQUAL(it300->value, 300);
 
-   auto kv300(tomm.pop(it300));
+   auto kvp300(tomm.pop(it300));
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 1u);
-   ABC_TESTING_ASSERT_EQUAL(kv300.key, 30);
-   ABC_TESTING_ASSERT_EQUAL(kv300.value, 300);
+   ABC_TESTING_ASSERT_EQUAL(kvp300.key, 30);
+   ABC_TESTING_ASSERT_EQUAL(kvp300.value, 300);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
 

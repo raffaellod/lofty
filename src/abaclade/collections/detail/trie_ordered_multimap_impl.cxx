@@ -70,23 +70,23 @@ void * scalar_keyed_trie_ordered_multimap_impl::list_node::value_ptr(
 
 
 scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl(
-   scalar_keyed_trie_ordered_multimap_impl && tommi
+   scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) :
-   m_pRoot(tommi.m_pRoot),
-   m_cValues(tommi.m_cValues),
-   mc_iTreeAnchorsLevel(tommi.mc_iTreeAnchorsLevel) {
-   tommi.m_pRoot = nullptr;
-   tommi.m_cValues = 0;
+   m_pRoot(sktommi.m_pRoot),
+   m_cValues(sktommi.m_cValues),
+   mc_iTreeAnchorsLevel(sktommi.mc_iTreeAnchorsLevel) {
+   sktommi.m_pRoot = nullptr;
+   sktommi.m_cValues = 0;
 }
 
 scalar_keyed_trie_ordered_multimap_impl & scalar_keyed_trie_ordered_multimap_impl::operator=(
-   scalar_keyed_trie_ordered_multimap_impl && tommi
+   scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) {
    // Assume that the subclass has already moved *this out.
-   m_pRoot = tommi.m_pRoot;
-   tommi.m_pRoot = nullptr;
-   m_cValues = tommi.m_cValues;
-   tommi.m_cValues = 0;
+   m_pRoot = sktommi.m_pRoot;
+   sktommi.m_pRoot = nullptr;
+   m_cValues = sktommi.m_cValues;
+   sktommi.m_cValues = 0;
    return *this;
 }
 

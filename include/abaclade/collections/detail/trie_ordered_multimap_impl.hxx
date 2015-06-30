@@ -230,10 +230,10 @@ public:
 
    /*! Move-constructor.
 
-   @param tommi
+   @param sktommi
       Source object.
    */
-   scalar_keyed_trie_ordered_multimap_impl(scalar_keyed_trie_ordered_multimap_impl && tommi);
+   scalar_keyed_trie_ordered_multimap_impl(scalar_keyed_trie_ordered_multimap_impl && sktommi);
 
    //! Destructor.
    ~scalar_keyed_trie_ordered_multimap_impl() {
@@ -241,11 +241,11 @@ public:
 
    /*! Assignment operator.
 
-   @param tommi
+   @param sktommi
       Source object.
    */
    scalar_keyed_trie_ordered_multimap_impl & operator=(
-      scalar_keyed_trie_ordered_multimap_impl && tommi
+      scalar_keyed_trie_ordered_multimap_impl && sktommi
    );
 
    /*! Adds a key/value pair to the map.

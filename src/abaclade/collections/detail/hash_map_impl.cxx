@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/collections/hash_map.hxx>
+#include <abaclade/collections/detail/hash_map_impl.hxx>
 
 #include <climits> // CHAR_BIT
 
