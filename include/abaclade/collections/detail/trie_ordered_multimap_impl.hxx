@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
 #include <abaclade/collections/type_void_adapter.hxx>
 #include <abaclade/numeric.hxx>
 
@@ -49,68 +50,7 @@ private:
 
 protected:
    //! Stores a single value, as well as the doubly-linked list’s links.
-   class list_node {
-   public:
-      /*! Constructor.
-
-      @param plnNext
-         Pointer to the next node.
-      @param plnPrev
-         Pointer to the previous node.
-      */
-      list_node(list_node * plnNext, list_node * plnPrev);
-
-      //! Destructor.
-      ~list_node();
-
-      /*! Allocates space for a list_node and its contained value.
-
-      @param cb
-         sizeof(list_node).
-      @param type
-         Adapter for the value’s type.
-      @return
-         Pointer to the allocated memory block.
-      */
-      void * operator new(std::size_t cb, type_void_adapter const & type);
-
-      /*! Ensures that memory allocated by list_node::operator new() is freed correctly.
-
-      @param p
-         Pointer to free.
-      */
-      void operator delete(void * p) {
-         memory::_raw_free(p);
-      }
-
-      /*! Returns a pointer to the contained value.
-
-      @param type
-         Adapter for the value’s type.
-      @return
-         Pointer to the contained value.
-      */
-      void * value_ptr(type_void_adapter const & type) const;
-
-      /*! Returns a typed pointer to the contained TValue.
-
-      @return
-         Pointer to the contained value.
-      */
-      template <typename T>
-      T * value_ptr() const {
-         type_void_adapter type;
-         type.set_align<T>();
-         return static_cast<T *>(value_ptr(type));
-      }
-
-   public:
-      //! Pointer to the next node.
-      list_node * m_plnNext;
-      //! Pointer to the previous node.
-      list_node * m_plnPrev;
-      // The contained value follows immediately, taking alignment into consideration.
-   };
+   typedef doubly_linked_list_impl::node list_node;
 
    //! Non-leaf node.
    class tree_node {
@@ -330,15 +270,6 @@ private:
       Pointer to the target anchor node.
    */
    void destruct_anchor_node(type_void_adapter const & typeValue, anchor_node * pan);
-
-   /*! Recursively destructs a list and all its value nodes.
-
-   @param type
-      Adapter for the value’s type.
-   @param pln
-      Pointer to the first list node.
-   */
-   void destruct_list(type_void_adapter const & type, list_node * pln);
 
    /*! Recursively destructs a tree node and all its children.
 

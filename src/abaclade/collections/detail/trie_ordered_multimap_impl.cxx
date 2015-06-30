@@ -25,50 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-scalar_keyed_trie_ordered_multimap_impl::list_node::list_node(
-   list_node * plnNext, list_node * plnPrev
-) :
-   m_plnNext(plnNext),
-   m_plnPrev(plnPrev) {
-   if (plnNext) {
-      plnNext->m_plnPrev = this;
-   }
-   if (plnPrev) {
-      plnPrev->m_plnNext = this;
-   }
-}
-
-scalar_keyed_trie_ordered_multimap_impl::list_node::~list_node() {
-   // Unlink *this from the list it’s part of.
-   if (m_plnNext) {
-      m_plnNext->m_plnPrev = m_plnPrev;
-   }
-   if (m_plnPrev) {
-      m_plnPrev->m_plnNext = m_plnNext;
-   }
-}
-
-void * scalar_keyed_trie_ordered_multimap_impl::list_node::operator new(
-   std::size_t cb, type_void_adapter const & type
-) {
-   ABC_UNUSED_ARG(cb);
-   /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
-   address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-   (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
-   mean at least 12 bytes, a 50% waste of memory). */
-   return memory::_raw_alloc(reinterpret_cast<std::size_t>(
-      static_cast<list_node *>(0)->value_ptr(type)
-   ) + type.size());
-}
-
-void * scalar_keyed_trie_ordered_multimap_impl::list_node::value_ptr(
-   type_void_adapter const & type
-) const {
-   // Make sure that the argument it the address following the last member.
-   return type.align_pointer(&m_plnPrev + 1);
-}
-
-
 scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl(
    scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) :
@@ -157,23 +113,10 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_anchor_node(
    unsigned iBitsPermutation = 0;
    do {
       if (list_node * pln = static_cast<list_node *>(pan->m_apChildren[iBitsPermutation])) {
-         destruct_list(typeValue, pln);
+         doubly_linked_list_impl::destruct_list(typeValue, pln);
       }
    } while (++iBitsPermutation < smc_cBitPermutationsPerLevel);
    delete pan;
-}
-
-void scalar_keyed_trie_ordered_multimap_impl::destruct_list(
-   type_void_adapter const & type, list_node * pln
-) {
-   ABC_TRACE_FUNC(this/*, type*/, pln);
-
-   while (pln) {
-      list_node * plnNext = pln->m_plnNext;
-      type.destruct(pln->value_ptr(type));
-      memory::_raw_free(pln);
-      pln = plnNext;
-   }
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::destruct_tree_node(
@@ -269,14 +212,14 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, iKey, pln);
 
-   if (!pln->m_plnNext || !pln->m_plnPrev) {
+   if (!pln->next() || !pln->prev()) {
       // *pln is the first or the last node in its list, so we need to update the anchor.
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
-         if (!pln->m_plnNext) {
-            ans.set_last_child(pln->m_plnPrev);
+         if (!pln->next()) {
+            ans.set_last_child(pln->prev());
          }
-         if (!pln->m_plnPrev) {
-            ans.set_first_child(pln->m_plnNext);
+         if (!pln->prev()) {
+            ans.set_first_child(pln->next());
          }
       } else {
          // TODO: throw invalid_iterator.
