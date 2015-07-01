@@ -52,17 +52,44 @@ protected:
    //! Stores a single value, as well as the doubly-linked list’s links.
    typedef doubly_linked_list_impl::node list_node;
 
+   // Forward declaration.
+   class tree_node;
+
+   //! Stores a pointer to a tree_node or a list_node.
+   union tree_or_list_node_ptr {
+      tree_node * tn;
+      list_node * ln;
+
+      tree_or_list_node_ptr() :
+         tn(nullptr) {
+      }
+
+      tree_or_list_node_ptr(tree_or_list_node_ptr const & n) :
+         tn(n.tn) {
+      }
+
+      tree_or_list_node_ptr(tree_or_list_node_ptr && n) :
+         tn(n.tn) {
+         n.tn = nullptr;
+      }
+
+      tree_or_list_node_ptr & operator=(tree_or_list_node_ptr && n) {
+         tn = n.tn;
+         n.tn = nullptr;
+         return *this;
+      }
+
+      tree_or_list_node_ptr & operator=(tree_or_list_node_ptr const & n) {
+         tn = n.tn;
+         return *this;
+      }
+   };
+
    //! Non-leaf node.
    class tree_node {
    public:
-      //! Default constructor.
-      tree_node() {
-         memory::clear(&m_apChildren);
-      }
-
-   public:
-      //! Child prefix pointers; one for each permutation of the bits mapped to this tree node.
-      void * m_apChildren[smc_cBitPermutationsPerLevel];
+      //! Child node pointers; one for each permutation of the bits mapped to this node.
+      tree_or_list_node_ptr m_apnChildren[smc_cBitPermutationsPerLevel];
    };
 
    //! Anchors value lists to the tree, mapping the last bits of the key.
@@ -108,7 +135,7 @@ protected:
          Pointer to the first child.
       */
       list_node * get_first_child() const {
-         return static_cast<list_node *>(m_pan->m_apChildren[m_iChild]);
+         return m_pan->m_apnChildren[m_iChild].ln;
       }
 
       /*! Returns a pointer to the last node in the children list.
@@ -117,7 +144,7 @@ protected:
          Pointer to the last child.
       */
       list_node * get_last_child() const {
-         return static_cast<list_node *>(m_pan->m_aplnChildrenLasts[m_iChild]);
+         return m_pan->m_aplnChildrenLasts[m_iChild];
       }
 
       /*! Sets the pointer to the first child node.
@@ -126,7 +153,7 @@ protected:
          Pointer to the new first child.
       */
       void set_first_child(list_node * pln) const {
-         m_pan->m_apChildren[m_iChild] = pln;
+         m_pan->m_apnChildren[m_iChild].ln = pln;
       }
 
       /*! Sets the pointer to the last child node.
@@ -163,7 +190,6 @@ public:
       Size of a key, as returned by sizeof.
    */
    scalar_keyed_trie_ordered_multimap_impl(std::size_t cbKey) :
-      m_pRoot(nullptr),
       m_cValues(0),
       mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
    }
@@ -293,9 +319,8 @@ private:
    anchor_node_slot find_anchor_node_slot(std::uintmax_t iKey) const;
 
 private:
-   /*! Pointer to the top-level node. The type should be tree_node *, but some code requires this to
-   be the same as tree_node::m_apChildren[0]. */
-   void * m_pRoot;
+   //! Pointer to the top-level tree node or only anchor node.
+   tree_or_list_node_ptr m_pnRoot;
    //! Count of values. This may be more than the count of keys.
    std::size_t m_cValues;
    //! 0-based index of the last level in the tree, where nodes are of type anchor_node.

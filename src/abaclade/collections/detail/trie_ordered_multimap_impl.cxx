@@ -28,10 +28,9 @@ namespace abc { namespace collections { namespace detail {
 scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl(
    scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) :
-   m_pRoot(sktommi.m_pRoot),
+   m_pnRoot(std::move(sktommi.m_pnRoot)),
    m_cValues(sktommi.m_cValues),
    mc_iTreeAnchorsLevel(sktommi.mc_iTreeAnchorsLevel) {
-   sktommi.m_pRoot = nullptr;
    sktommi.m_cValues = 0;
 }
 
@@ -39,8 +38,7 @@ scalar_keyed_trie_ordered_multimap_impl & scalar_keyed_trie_ordered_multimap_imp
    scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) {
    // Assume that the subclass has already moved *this out.
-   m_pRoot = sktommi.m_pRoot;
-   sktommi.m_pRoot = nullptr;
+   m_pnRoot = std::move(sktommi.m_pnRoot);
    m_cValues = sktommi.m_cValues;
    sktommi.m_cValues = 0;
    return *this;
@@ -56,21 +54,21 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
 
    // Descend into the tree, creating nodes as necessary until the path for iKey is complete.
    {
-      // ppChildInParent points to *ptnParent’s parent’s pointer to *ptnParent.
-      void ** ppChildInParent = &m_pRoot;
+      // ppnChildInParent points to *ptnParent’s parent’s pointer to *ptnParent.
+      tree_or_list_node_ptr * ppnChildInParent = &m_pnRoot;
       std::uintmax_t iKeyRemaining = iKey;
       std::size_t iLevel = 0;
       do {
-         ptnParent = static_cast<tree_node *>(*ppChildInParent);
+         ptnParent = ppnChildInParent->tn;
          if (!ptnParent) {
             ptnParent = (iLevel == mc_iTreeAnchorsLevel ? new anchor_node() : new tree_node());
-            *ppChildInParent = ptnParent;
+            ppnChildInParent->tn = ptnParent;
          }
          iBitsPermutation = static_cast<unsigned>(
             iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
          );
          iKeyRemaining >>= smc_cBitsPerLevel;
-         ppChildInParent = &ptnParent->m_apChildren[iBitsPermutation];
+         ppnChildInParent = &ptnParent->m_apnChildren[iBitsPermutation];
       } while (++iLevel <= mc_iTreeAnchorsLevel);
    }
    // We got here, so *ptnParent is actually an anchor_node.
@@ -98,9 +96,14 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
 void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & typeValue) {
    ABC_TRACE_FUNC(this/*, typeValue*/);
 
-   if (m_pRoot) {
-      destruct_tree_node(typeValue, static_cast<tree_node *>(m_pRoot), 0);
-      m_pRoot = nullptr;
+   if (m_pnRoot.tn) {
+      if (mc_iTreeAnchorsLevel == 0) {
+         // *pnRoot is an anchor.
+         destruct_anchor_node(typeValue, static_cast<anchor_node *>(m_pnRoot.tn));
+      } else {
+         destruct_tree_node(typeValue, m_pnRoot.tn, 0);
+      }
+      m_pnRoot = tree_or_list_node_ptr();
       m_cValues = 0;
    }
 }
@@ -112,7 +115,7 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_anchor_node(
 
    unsigned iBitsPermutation = 0;
    do {
-      if (list_node * pln = static_cast<list_node *>(pan->m_apChildren[iBitsPermutation])) {
+      if (list_node * pln = pan->m_apnChildren[iBitsPermutation].ln) {
          doubly_linked_list_impl::destruct_list(typeValue, pln);
       }
    } while (++iBitsPermutation < smc_cBitPermutationsPerLevel);
@@ -127,7 +130,7 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_tree_node(
    ++iLevel;
    unsigned iBitsPermutation = 0;
    do {
-      if (tree_node * ptnChild = static_cast<tree_node *>(ptn->m_apChildren[iBitsPermutation])) {
+      if (tree_node * ptnChild = ptn->m_apnChildren[iBitsPermutation].tn) {
          if (iLevel == mc_iTreeAnchorsLevel) {
             destruct_anchor_node(typeValue, static_cast<anchor_node *>(ptnChild));
          } else {
@@ -155,7 +158,7 @@ scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iK
    ABC_TRACE_FUNC(this, iKey);
 
    std::uintmax_t iKeyRemaining = iKey;
-   tree_node * ptnParent = static_cast<tree_node *>(m_pRoot);
+   tree_node * ptnParent = m_pnRoot.tn;
    std::size_t iLevel = 0;
    for (;;) {
       unsigned iBitsPermutation = static_cast<unsigned>(
@@ -168,7 +171,7 @@ scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iK
          return anchor_node_slot(nullptr, 0);
       }
       iKeyRemaining >>= smc_cBitsPerLevel;
-      ptnParent = static_cast<tree_node *>(ptnParent->m_apChildren[iBitsPermutation]);
+      ptnParent = ptnParent->m_apnChildren[iBitsPermutation].tn;
       ++iLevel;
    }
 
@@ -178,11 +181,11 @@ scalar_keyed_trie_ordered_multimap_impl::key_value_ptr
 scalar_keyed_trie_ordered_multimap_impl::front() {
    ABC_TRACE_FUNC(this);
 
-   void * pChild;
+   tree_or_list_node_ptr pnChild;
    std::uintmax_t iKey = 0;
 
    // Descend into the tree.
-   tree_node * ptnParent = static_cast<tree_node *>(m_pRoot);
+   tree_node * ptnParent = m_pnRoot.tn;
    std::size_t iLevel = 0;
    unsigned cNextLevelBitsShift = 0;
    do {
@@ -192,19 +195,19 @@ scalar_keyed_trie_ordered_multimap_impl::front() {
       // Look for the left-most branch to descend into.
       unsigned iBitsPermutation = 0;
       do {
-         pChild = ptnParent->m_apChildren[iBitsPermutation];
-         if (pChild) {
+         pnChild = ptnParent->m_apnChildren[iBitsPermutation];
+         if (pnChild.tn) {
             // Prepend the selected bit permutation to the key.
             iKey |= static_cast<std::uintmax_t>(iBitsPermutation) << cNextLevelBitsShift;
             cNextLevelBitsShift += smc_cBitsPerLevel;
             break;
          }
       } while (++iBitsPermutation < smc_cBitPermutationsPerLevel);
-      ptnParent = static_cast<tree_node *>(pChild);
+      ptnParent = pnChild.tn;
    } while (++iLevel <= mc_iTreeAnchorsLevel);
 
-   // We got here, so *pChild is actually a value list’s first node, though pChild might be nullptr.
-   return key_value_ptr(iKey, static_cast<list_node *>(pChild));
+   // We got to the leaf level, so we can return pnChild.ln, though it might be nullptr.
+   return key_value_ptr(iKey, pnChild.ln);
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::remove_value(
