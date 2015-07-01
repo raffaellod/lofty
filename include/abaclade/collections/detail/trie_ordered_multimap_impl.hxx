@@ -87,20 +87,26 @@ protected:
 
    //! Non-leaf node.
    class tree_node {
-   public:
+   private:
+      friend class scalar_keyed_trie_ordered_multimap_impl;
+
+   private:
       //! Child node pointers; one for each permutation of the bits mapped to this node.
       tree_or_list_node_ptr m_apnChildren[smc_cBitPermutationsPerLevel];
    };
 
    //! Anchors value lists to the tree, mapping the last bits of the key.
    class anchor_node : public tree_node {
+   private:
+      friend class scalar_keyed_trie_ordered_multimap_impl;
+
    public:
       //! Default constructor.
       anchor_node() {
          memory::clear(&m_aplnChildrenLasts);
       }
 
-   public:
+   private:
       //! Child lists’ end pointers; one for each permutation of the bits mapped to this tree node.
       list_node * m_aplnChildrenLasts[smc_cBitPermutationsPerLevel];
    };
