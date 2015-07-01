@@ -74,13 +74,8 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    // We got here, so *ptnParent is actually an anchor_node.
    anchor_node_slot ans(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
 
-   list_node * plnPrev = ans.get_last_child();
-   std::unique_ptr<list_node> pln(new(typeValue) list_node(nullptr, plnPrev));
-   // Append the node to the values list.
-   ans.set_last_child(pln.get());
-   if (!ans.get_first_child()) {
-      ans.set_first_child(pln.get());
-   }
+   std::unique_ptr<list_node> pln(new(typeValue) list_node());
+   ans.link_back(pln.get());
    // Construct the node’s value.
    void * pDst = pln->value_ptr(typeValue);
    if (bMove) {
@@ -215,15 +210,13 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, iKey, pln);
 
-   if (!pln->next() || !pln->prev()) {
+   if (pln->next() && pln->prev()) {
+      // *pln is in the middle of its list, so we don’t need to find and update the anchor.
+      doubly_linked_list_impl::unlink(nullptr, nullptr, pln);
+   } else {
       // *pln is the first or the last node in its list, so we need to update the anchor.
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
-         if (!pln->next()) {
-            ans.set_last_child(pln->prev());
-         }
-         if (!pln->prev()) {
-            ans.set_first_child(pln->next());
-         }
+         ans.unlink(pln);
       } else {
          // TODO: throw invalid_iterator.
          ABC_THROW(generic_error, ());

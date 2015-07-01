@@ -152,8 +152,10 @@ protected:
       @param pln
          Pointer to the new first child.
       */
-      void set_first_child(list_node * pln) const {
-         m_pan->m_apnChildren[m_iChild].ln = pln;
+      void link_front(list_node * pln) const {
+         doubly_linked_list_impl::link_front(
+            &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], pln
+         );
       }
 
       /*! Sets the pointer to the last child node.
@@ -161,8 +163,21 @@ protected:
       @param pln
          Pointer to the new last child.
       */
-      void set_last_child(list_node * pln) const {
-         m_pan->m_aplnChildrenLasts[m_iChild] = pln;
+      void link_back(list_node * pln) const {
+         doubly_linked_list_impl::link_back(
+            &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], pln
+         );
+      }
+
+      /*! Unlinks a node from the child node list.
+
+      @param pln
+         Pointer to the child to be unlinked.
+      */
+      void unlink(list_node * pln) const {
+         doubly_linked_list_impl::unlink(
+            &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], pln
+         );
       }
 
    private:

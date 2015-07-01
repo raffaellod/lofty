@@ -39,19 +39,10 @@ class ABACLADE_SYM doubly_linked_list_impl {
 public:
    //! Doubly-linked node that also stores a single value.
    class node {
+   private:
+      friend class doubly_linked_list_impl;
+
    public:
-      /*! Constructor.
-
-      @param pnNext
-         Pointer to the next node.
-      @param pnPrev
-         Pointer to the previous node.
-      */
-      node(node * pnNext, node * pnPrev);
-
-      //! Destructor.
-      ~node();
-
       /*! Allocates space for a node and its contained value.
 
       @param cb
@@ -128,6 +119,39 @@ public:
       Pointer to the first list node.
    */
    static void destruct_list(type_void_adapter const & type, node * pn);
+
+   /*! Inserts a node at the end of the list.
+
+   @param ppnFirst
+      Pointer to the list’s first node pointer.
+   @param ppnLast
+      Pointer to the list’s last node pointer.
+   @param pn
+      Pointer to the node to become the last in the list.
+   */
+   static void link_back(node ** ppnFirst, node ** ppnLast, node * pn);
+
+   /*! Inserts a node at the start of the list.
+
+   @param ppnFirst
+      Pointer to the list’s first node pointer.
+   @param ppnLast
+      Pointer to the list’s last node pointer.
+   @param pn
+      Pointer to the node to become the first in the list.
+   */
+   static void link_front(node ** ppnFirst, node ** ppnLast, node * pn);
+
+   /*! Unlinks a node from the list.
+
+   @param ppnFirst
+      Pointer to the list’s first node pointer.
+   @param ppnLast
+      Pointer to the list’s last node pointer.
+   @param pn
+      Pointer to the node to unlink.
+   */
+   static void unlink(node ** ppnFirst, node ** ppnLast, node * pn);
 };
 
 }}} //namespace abc::collections::detail

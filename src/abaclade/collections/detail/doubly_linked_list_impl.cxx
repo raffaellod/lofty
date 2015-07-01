@@ -25,33 +25,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-doubly_linked_list_impl::node::node(node * pnNext, node * pnPrev) :
-   m_pnNext(pnNext),
-   m_pnPrev(pnPrev) {
-   if (pnNext) {
-      pnNext->m_pnPrev = this;
-   }
-   if (pnPrev) {
-      pnPrev->m_pnNext = this;
-   }
-}
-
-doubly_linked_list_impl::node::~node() {
-   // Unlink *this from the list it’s part of.
-   if (m_pnNext) {
-      m_pnNext->m_pnPrev = m_pnPrev;
-   }
-   if (m_pnPrev) {
-      m_pnPrev->m_pnNext = m_pnNext;
-   }
-}
-
 void * doubly_linked_list_impl::node::operator new(std::size_t cb, type_void_adapter const & type) {
    ABC_UNUSED_ARG(cb);
    /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
-   address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-   (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
-   mean at least 12 bytes, a 50% waste of memory). */
+   address 0. This allows packing the value against the end of the node, potentially using space
+   that sizeof(node) would reserve as padding. */
    return memory::_raw_alloc(reinterpret_cast<std::size_t>(
       static_cast<node *>(0)->value_ptr(type)
    ) + type.size());
@@ -71,6 +49,56 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
       type.destruct(pn->value_ptr(type));
       memory::_raw_free(pn);
       pn = pnNext;
+   }
+}
+
+/*static*/ void doubly_linked_list_impl::link_back(node ** ppnFirst, node ** ppnLast, node * pn) {
+   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+
+   pn->m_pnNext = nullptr;
+   node * pnLast = *ppnLast;
+   pn->m_pnPrev = pnLast;
+   if (!*ppnFirst) {
+      *ppnFirst = pn;
+   } else if (pnLast) {
+      pnLast->m_pnNext = pn;
+   }
+   *ppnLast = pn;
+}
+
+/*static*/ void doubly_linked_list_impl::link_front(node ** ppnFirst, node ** ppnLast, node * pn) {
+   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+
+   pn->m_pnPrev = nullptr;
+   node * pnFirst = *ppnFirst;
+   pn->m_pnNext = pnFirst;
+   if (!*ppnLast) {
+      *ppnLast = pn;
+   } else if (pnFirst) {
+      pnFirst->m_pnPrev = pn;
+   }
+   *ppnFirst = pn;
+}
+
+/*static*/ void doubly_linked_list_impl::unlink(node ** ppnFirst, node ** ppnLast, node * pn) {
+   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+
+   node * pnNext = pn->m_pnNext, * pnPrev = pn->m_pnPrev;
+   if (pnPrev) {
+      pnPrev->m_pnNext = pnNext;
+   } else {
+      // *ppnFirst == pn at this point – if ppnFirst was provided.
+      if (*ppnFirst == pn) {
+         *ppnFirst = pnNext;
+      }
+   }
+   if (pnNext) {
+      pnNext->m_pnPrev = pnPrev;
+   } else {
+      // *ppnLast == pn at this point – if ppnLast was provided.
+      if (ppnLast) {
+         *ppnLast = pnPrev;
+      }
    }
 }
 
