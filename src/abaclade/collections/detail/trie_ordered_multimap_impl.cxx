@@ -142,7 +142,7 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    ABC_TRACE_FUNC(this, iKey);
 
    if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
-      return ans.get_first_child();
+      return ans.first_child();
    } else {
       return nullptr;
    }

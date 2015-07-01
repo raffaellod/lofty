@@ -101,7 +101,7 @@ protected:
       }
 
    public:
-      //! Child lists end pointers; one for each permutation of the bits mapped to this tree node.
+      //! Child lists’ end pointers; one for each permutation of the bits mapped to this tree node.
       list_node * m_aplnChildrenLasts[smc_cBitPermutationsPerLevel];
    };
 
@@ -134,7 +134,7 @@ protected:
       @return
          Pointer to the first child.
       */
-      list_node * get_first_child() const {
+      list_node * first_child() const {
          return m_pan->m_apnChildren[m_iChild].ln;
       }
 
@@ -143,7 +143,7 @@ protected:
       @return
          Pointer to the last child.
       */
-      list_node * get_last_child() const {
+      list_node * last_child() const {
          return m_pan->m_aplnChildrenLasts[m_iChild];
       }
 
