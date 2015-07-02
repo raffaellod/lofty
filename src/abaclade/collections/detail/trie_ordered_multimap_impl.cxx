@@ -28,9 +28,10 @@ namespace abc { namespace collections { namespace detail {
 scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl(
    scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) :
-   m_pnRoot(std::move(sktommi.m_pnRoot)),
+   m_pnRoot(sktommi.m_pnRoot),
    m_cValues(sktommi.m_cValues),
    mc_iTreeAnchorsLevel(sktommi.mc_iTreeAnchorsLevel) {
+   sktommi.m_pnRoot.tn = nullptr;
    sktommi.m_cValues = 0;
 }
 
@@ -38,7 +39,8 @@ scalar_keyed_trie_ordered_multimap_impl & scalar_keyed_trie_ordered_multimap_imp
    scalar_keyed_trie_ordered_multimap_impl && sktommi
 ) {
    // Assume that the subclass has already moved *this out.
-   m_pnRoot = std::move(sktommi.m_pnRoot);
+   m_pnRoot = sktommi.m_pnRoot;
+   sktommi.m_pnRoot.tn = nullptr;
    m_cValues = sktommi.m_cValues;
    sktommi.m_cValues = 0;
    return *this;

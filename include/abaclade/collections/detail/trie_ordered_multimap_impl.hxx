@@ -57,31 +57,14 @@ protected:
 
    //! Stores a pointer to a tree_node or a list_node.
    union tree_or_list_node_ptr {
+      //! Pointer to a tree_node.
       tree_node * tn;
+      //! Pointer to a list_node.
       list_node * ln;
 
+      //! Default constructor.
       tree_or_list_node_ptr() :
          tn(nullptr) {
-      }
-
-      tree_or_list_node_ptr(tree_or_list_node_ptr const & n) :
-         tn(n.tn) {
-      }
-
-      tree_or_list_node_ptr(tree_or_list_node_ptr && n) :
-         tn(n.tn) {
-         n.tn = nullptr;
-      }
-
-      tree_or_list_node_ptr & operator=(tree_or_list_node_ptr && n) {
-         tn = n.tn;
-         n.tn = nullptr;
-         return *this;
-      }
-
-      tree_or_list_node_ptr & operator=(tree_or_list_node_ptr const & n) {
-         tn = n.tn;
-         return *this;
       }
    };
 
