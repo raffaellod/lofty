@@ -204,9 +204,9 @@ public:
    public:
       typedef std::ptrdiff_t difference_type;
       typedef std::forward_iterator_tag iterator_category;
-      typedef trie_ordered_multimap::const_reference value_type;
-      typedef trie_ordered_multimap::const_reference * pointer;
-      typedef trie_ordered_multimap::const_reference & reference;
+      typedef const_reference value_type;
+      typedef const_reference * pointer;
+      typedef const_reference & reference;
 
    public:
       //! Default constructor.
