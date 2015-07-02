@@ -47,7 +47,7 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
    while (pn) {
       node * pnNext = pn->next();
       type.destruct(pn->value_ptr(type));
-      memory::_raw_free(pn);
+      delete pn;
       pn = pnNext;
    }
 }
