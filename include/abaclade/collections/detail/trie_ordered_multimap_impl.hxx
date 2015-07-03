@@ -158,13 +158,14 @@ protected:
          );
       }
 
-      /*! Unlinks a node from the child node list.
+      /*! Unlinks and destructs a node from the child node list.
 
-      @param pln
-         Pointer to the child to be unlinked.
+      @param typeValue
+         Adapter for the list_node’s value type.
       */
-      void unlink(list_node * pln) const {
-         doubly_linked_list_impl::unlink(
+      void remove(type_void_adapter const & typeValue, list_node * pln) const {
+         doubly_linked_list_impl::remove(
+            typeValue,
             &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], pln
          );
       }
@@ -224,8 +225,8 @@ public:
       Adapter for the value’s type.
    @param iKey
       Key to add.
-   @param value
-      Value to add.
+   @param pvalue
+      Pointer to the value to add.
    @param bMove
       true to move *pValue to the new node’s value, or false to copy it instead.
    @return

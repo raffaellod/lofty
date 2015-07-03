@@ -80,8 +80,10 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
    *ppnFirst = pn;
 }
 
-/*static*/ void doubly_linked_list_impl::unlink(node ** ppnFirst, node ** ppnLast, node * pn) {
-   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+/*static*/ void doubly_linked_list_impl::remove(
+   type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, node * pn
+) {
+   ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, pn);
 
    node * pnNext = pn->m_pnNext, * pnPrev = pn->m_pnPrev;
    if (pnPrev) {
@@ -100,6 +102,8 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
          *ppnLast = pnPrev;
       }
    }
+   type.destruct(pn->value_ptr(type));
+   delete pn;
 }
 
 }}} //namespace abc::collections::detail

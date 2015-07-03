@@ -142,8 +142,10 @@ public:
    */
    static void link_front(node ** ppnFirst, node ** ppnLast, node * pn);
 
-   /*! Unlinks a node from the list.
+   /*! Unlinks and destructs a node from the list.
 
+   @param type
+      Adapter for the value’s type.
    @param ppnFirst
       Pointer to the list’s first node pointer.
    @param ppnLast
@@ -151,7 +153,7 @@ public:
    @param pn
       Pointer to the node to unlink.
    */
-   static void unlink(node ** ppnFirst, node ** ppnLast, node * pn);
+   static void remove(type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, node * pn);
 };
 
 }}} //namespace abc::collections::detail

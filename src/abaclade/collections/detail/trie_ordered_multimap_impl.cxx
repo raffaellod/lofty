@@ -214,18 +214,16 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
 
    if (pln->next() && pln->prev()) {
       // *pln is in the middle of its list, so we don’t need to find and update the anchor.
-      doubly_linked_list_impl::unlink(nullptr, nullptr, pln);
+      doubly_linked_list_impl::remove(typeValue, nullptr, nullptr, pln);
    } else {
       // *pln is the first or the last node in its list, so we need to update the anchor.
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
-         ans.unlink(pln);
+         ans.remove(typeValue, pln);
       } else {
          // TODO: throw invalid_iterator.
          ABC_THROW(generic_error, ());
       }
    }
-   typeValue.destruct(pln->value_ptr(typeValue));
-   delete pln;
    --m_cValues;
 }
 
