@@ -37,7 +37,7 @@ namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::hash_map.
 class ABACLADE_SYM hash_map_impl :
-   public support_explicit_operator_bool<list_impl> {
+   public support_explicit_operator_bool<hash_map_impl> {
 protected:
    typedef bool (* keys_equal_fn)(
       hash_map_impl const * phmi, void const * pKey1, void const * pKey2
