@@ -26,91 +26,108 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace collections { namespace detail {
 
 list_impl::list_impl() :
+   m_pnFirst(nullptr),
+   m_pnLast(nullptr),
    m_cNodes(0) {
-   m_pnFirst = nullptr;
-   m_pnLast = nullptr;
-   m_iRev = 0;
 }
-list_impl::list_impl(list_impl && l) :
-   m_cNodes(l.m_cNodes) {
-   l.m_cNodes = 0;
-   m_pnFirst = l.m_pnFirst;
-   l.m_pnFirst = nullptr;
-   m_pnLast = l.m_pnLast;
-   l.m_pnLast = nullptr;
-   m_iRev = 0;
-   // Invalidate all iterators for l.
-   l.m_iRev = static_cast<xor_list::rev_int_t>(l.m_iRev + 2);
+list_impl::list_impl(list_impl && li) :
+   m_pnFirst(li.m_pnFirst),
+   m_pnLast(li.m_pnLast),
+   m_cNodes(li.m_cNodes) {
+   li.m_cNodes = 0;
+   li.m_pnFirst = nullptr;
+   li.m_pnLast = nullptr;
 }
 
-list_impl & list_impl::operator=(list_impl && l) {
+list_impl & list_impl::operator=(list_impl && li) {
    ABC_TRACE_FUNC(this);
 
-   m_cNodes = l.m_cNodes;
-   l.m_cNodes = 0;
-   /* Assume that the subclass has already made a copy of m_pn{First,Last} to be able to release
-   them after calling this operator. */
-   m_pnFirst = l.m_pnFirst;
-   l.m_pnFirst = nullptr;
-   m_pnLast = l.m_pnLast;
-   l.m_pnLast = nullptr;
-   // Invalidate all iterators for *this and for l.
-   m_iRev = static_cast<xor_list::rev_int_t>(m_iRev + 2);
-   l.m_iRev = static_cast<xor_list::rev_int_t>(l.m_iRev + 2);
+   // Assume that the subclass has already moved *this out.
+   m_pnFirst = li.m_pnFirst;
+   li.m_pnFirst = nullptr;
+   m_pnLast = li.m_pnLast;
+   li.m_pnLast = nullptr;
+   m_cNodes = li.m_cNodes;
+   li.m_cNodes = 0;
    return *this;
 }
 
-xor_list::node * list_impl::back() const {
-   ABC_TRACE_FUNC(this);
-
+list_impl::node * list_impl::back() const {
    if (!m_pnLast) {
       ABC_THROW(null_pointer_error, ());
    }
    return m_pnLast;
 }
 
-xor_list::node * list_impl::front() const {
-   ABC_TRACE_FUNC(this);
+void list_impl::clear(type_void_adapter const & type) {
+   ABC_TRACE_FUNC(this/*, type*/);
 
+   doubly_linked_list_impl::destruct_list(type, m_pnFirst);
+   m_pnFirst = nullptr;
+   m_pnLast = nullptr;
+   m_cNodes = 0;
+}
+
+list_impl::node * list_impl::front() const {
    if (!m_pnFirst) {
       ABC_THROW(null_pointer_error, ());
    }
    return m_pnFirst;
 }
 
-void list_impl::link_back(xor_list::node * pn) {
-   ABC_TRACE_FUNC(this, pn);
-
-   xor_list::link_back(this, pn);
+list_impl::node * list_impl::push_back(type_void_adapter const & type, void const * p, bool bMove) {
+   std::unique_ptr<node> pn(new(type) node);
+   doubly_linked_list_impl::link_back(&m_pnFirst, &m_pnLast, pn.get());
+   // Construct the node’s value.
+   void * pDst = pn->value_ptr(type);
+   if (bMove) {
+      type.move_construct(pDst, const_cast<void *>(p));
+   } else {
+      type.copy_construct(pDst, p);
+   }
+   // Transfer ownership of *pn to the list.
    ++m_cNodes;
+   return pn.release();
 }
 
-void list_impl::link_front(xor_list::node * pn) {
-   ABC_TRACE_FUNC(this, pn);
-
-   xor_list::link_front(this, pn);
+list_impl::node * list_impl::push_front(
+   type_void_adapter const & type, void const * p, bool bMove
+) {
+   std::unique_ptr<node> pn(new(type) node);
+   doubly_linked_list_impl::link_front(&m_pnFirst, &m_pnLast, pn.get());
+   // Construct the node’s value.
+   void * pDst = pn->value_ptr(type);
+   if (bMove) {
+      type.move_construct(pDst, const_cast<void *>(p));
+   } else {
+      type.copy_construct(pDst, p);
+   }
+   // Transfer ownership of *pn to the list.
    ++m_cNodes;
+   return pn.release();
 }
 
-xor_list::node * list_impl::unlink(xor_list::node * pn, xor_list::node * pnNext) {
-   ABC_TRACE_FUNC(this, pn, pnNext);
-
-   xor_list::unlink(this, pn, pnNext);
+void list_impl::remove(type_void_adapter const & type, node * pn) {
+   doubly_linked_list_impl::remove(type, &m_pnFirst, &m_pnLast, pn);
    --m_cNodes;
-   // Now the subclass must delete pn.
-   return pn;
 }
 
-xor_list::node * list_impl::unlink_back() {
-   ABC_TRACE_FUNC(this);
 
-   return unlink(m_pnLast, nullptr);
+void list_impl::iterator_base::move_on(bool bForward) {
+   ABC_TRACE_FUNC(this, bForward);
+
+   /* Detect attempts to move past the end() of the container, or move a default-constructed
+   iterator. */
+   if (!m_pn) {
+      ABC_THROW(iterator_error, ());
+   }
+   m_pn = bForward ? m_pn->next() : m_pn->prev();
 }
 
-xor_list::node * list_impl::unlink_front() {
-   ABC_TRACE_FUNC(this);
-
-   return unlink(m_pnFirst, m_pnFirst->get_other_sibling(nullptr));
+void list_impl::iterator_base::validate() const {
+   if (!m_pn) {
+      ABC_THROW(iterator_error, ());
+   }
 }
 
 }}} //namespace abc::collections::detail

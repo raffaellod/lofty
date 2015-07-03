@@ -27,15 +27,80 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
+#include <abaclade/collections/type_void_adapter.hxx>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation class for abc::collections::list.
-class ABACLADE_SYM list_impl :
-   protected xor_list::data_members,
-   public support_explicit_operator_bool<list_impl> {
+class ABACLADE_SYM list_impl : public support_explicit_operator_bool<list_impl> {
+protected:
+   //! Internal node type.
+   typedef doubly_linked_list_impl::node node;
+
+   //! Base class for list iterator implementations.
+   class iterator_base {
+   public:
+      typedef std::ptrdiff_t difference_type;
+      typedef std::bidirectional_iterator_tag iterator_category;
+
+   public:
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this refers to the same element as it, or false otherwise.
+      */
+      bool operator==(iterator_base const & it) const {
+         return m_pn == it.m_pn;
+      }
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this refers to a different element than it, or false otherwise.
+      */
+      bool operator!=(iterator_base const & it) const {
+         return !operator==(it);
+      }
+
+   protected:
+      //! Default constructor.
+      iterator_base() :
+         m_pn(nullptr) {
+      }
+
+      /*! Constructor.
+
+      @param pn
+         Pointer to the referred node.
+      */
+      iterator_base(node * pn) :
+         m_pn(pn) {
+      }
+
+      /*! Moves the iterator to the previous or next node.
+
+      @param bForward
+         If true, the iterator will move to the next node; if false, the iterator will move to the
+         previous node.
+      */
+      void move_on(bool bForward);
+
+      //! Throws an iterator_error exception if the iterator cannot be dereferenced.
+      void validate() const;
+
+   protected:
+      //! Pointer to the current node.
+      node * m_pn;
+   };
+
 public:
    /*! Constructor.
 
@@ -71,7 +136,7 @@ public:
       true if the list is empty, or false otherwise.
    */
    bool empty() const {
-      return !m_cNodes;
+      return m_cNodes == 0;
    }
 
    /*! Returns the count of elements in the list.
@@ -89,55 +154,62 @@ protected:
    @return
       Pointer to the last node.
    */
-   xor_list::node * back() const;
+   node * back() const;
+
+   /*! Removes all elements from the list.
+
+   @param type
+      Adapter for the value’s type.
+   */
+   void clear(type_void_adapter const & type);
 
    /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
 
    @return
       Pointer to the first node.
    */
-   xor_list::node * front() const;
+   node * front() const;
 
    /*! Inserts a node to the end of the list.
 
-   @param pn
-      Pointer to the node to become the last in the list.
+   @param type
+      Adapter for the value’s type.
+   @param p
+      Pointer to the value to add.
+   @param bMove
+      true to move *pValue to the new node’s value, or false to copy it instead.
+   @return
+      Pointer to the newly-added node.
    */
-   void link_back(xor_list::node * pn);
+   node * push_back(type_void_adapter const & type, void const * p, bool bMove);
 
    /*! Inserts a node to the start of the list.
 
-   @param pn
-      Pointer to the node to become the first in the list.
+   @param type
+      Adapter for the value’s type.
+   @param p
+      Pointer to the value to add.
+   @param bMove
+      true to move *pValue to the new node’s value, or false to copy it instead.
+   @return
+      Pointer to the newly-added node.
    */
-   void link_front(xor_list::node * pn);
+   node * push_front(type_void_adapter const & type, void const * p, bool bMove);
 
-   /*! Unlinks and returns a node in the list.
+   /*! Unlinks and destructs a node in the list.
 
+   @param type
+      Adapter for the value’s type.
    @param pn
       Pointer to the node to unlink.
-   @param pnNext
-      Pointer to the node following *pn.
-   @return
-      Now-unlinked node.
    */
-   xor_list::node * unlink(xor_list::node * pn, xor_list::node * pnNext);
-
-   /*! Unlinks and returns the first node in the list.
-
-   @return
-      Former first node.
-   */
-   xor_list::node * unlink_back();
-
-   /*! Unlinks and returns the first node in the list.
-
-   @return
-      Former first node.
-   */
-   xor_list::node * unlink_front();
+   void remove(type_void_adapter const & type, node * pn);
 
 protected:
+   //! Pointer to the first node.
+   node * m_pnFirst;
+   //! Pointer to the last node.
+   node * m_pnLast;
    //! Count of nodes.
    std::size_t m_cNodes;
 };
@@ -151,40 +223,148 @@ namespace abc { namespace collections {
 //! Doubly-linked list.
 template <typename T>
 class list : public detail::list_impl {
-protected:
-   //! List node.
-   class node : public detail::xor_list::node {
+private:
+   template <bool t_bForward>
+   class const_bidi_iterator : public detail::list_impl::iterator_base {
+   private:
+      friend class list;
+
    public:
-      //! Constructor.
-      node(T const & t) :
-         m_t(t) {
-      }
-      node(T && t) :
-         m_t(std::move(t)) {
+      typedef T * pointer;
+      typedef T & reference;
+      typedef T value_type;
+
+   public:
+      //! See iterator_base::iterator_base().
+      const_bidi_iterator() {
       }
 
-      /*! Returns a pointer to the contained T.
+      /*! Dereferencing operator.
 
       @return
-         Pointer to the contained value.
+         Reference to the current node.
       */
-      T * value_ptr() {
-         return &m_t;
-      }
-      T const * value_ptr() const {
-         return &m_t;
+      T & operator*() const {
+         validate();
+         return *m_pn->value_ptr<T>();
       }
 
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current node.
+      */
+      T * operator->() const {
+         validate();
+         return m_pn->value_ptr<T>();
+      }
+
+      /*! Preincrement operator.
+
+      @return
+         *this.
+      */
+      const_bidi_iterator & operator++() {
+         move_on(t_bForward);
+         return *this;
+      }
+
+      /*! Postincrement operator.
+
+      @return
+         Iterator pointing to the node preceding the one referenced by this iterator.
+      */
+      const_bidi_iterator operator++(int) {
+         node * pnPrev = m_pn;
+         operator++();
+         return const_bidi_iterator(pnPrev);
+      }
+
+      /*! Predecrement operator.
+
+      @return
+         *this.
+      */
+      const_bidi_iterator & operator--() {
+         move_on(!t_bForward);
+         return *this;
+      }
+
+      /*! Postdecrement operator.
+
+      @return
+         Iterator pointing to the node preceding the one referenced by this iterator.
+      */
+      const_bidi_iterator operator--(int) {
+         node * pnPrev = m_pn;
+         operator--();
+         return const_bidi_iterator(pnPrev);
+      }
+
+   protected:
+      //! See iterator_base::iterator_base().
+      const_bidi_iterator(node * pn) :
+         detail::list_impl::iterator_base(pn) {
+      }
+   };
+
+   template <bool t_bForward>
+   class bidi_iterator : public const_bidi_iterator<t_bForward> {
+   private:
+      friend class list;
+
    public:
-      //! Element contained within the node.
-      T m_t;
+      typedef T * pointer;
+      typedef T & reference;
+      typedef T value_type;
+
+   public:
+      //! See const_bidi_iterator::const_bidi_iterator().
+      bidi_iterator() {
+      }
+
+      //! See const_bidi_iterator::operator*().
+      T & operator*() const {
+         return const_cast<T &>(const_bidi_iterator<t_bForward>::operator*());
+      }
+
+      //! See const_bidi_iterator::operator->().
+      T * operator->() const {
+         return const_cast<T *>(const_bidi_iterator<t_bForward>::operator->());
+      }
+
+      //! See const_bidi_iterator.operator++().
+      bidi_iterator & operator++() {
+         return static_cast<bidi_iterator &>(const_bidi_iterator<t_bForward>::operator++());
+      }
+
+      //! See const_bidi_iterator::operator++(int).
+      bidi_iterator operator++(int) {
+         return static_cast<bidi_iterator &>(const_bidi_iterator<t_bForward>::operator++(0));
+      }
+
+      //! See const_bidi_iterator.operator--().
+      bidi_iterator & operator--() {
+         return static_cast<bidi_iterator &>(const_bidi_iterator<t_bForward>::operator--());
+      }
+
+      //! See const_bidi_iterator::operator--(int).
+      bidi_iterator operator--(int) {
+         return static_cast<bidi_iterator &>(const_bidi_iterator<t_bForward>::operator--(0));
+      }
+
+   private:
+      //! See const_bidi_iterator::const_bidi_iterator().
+      bidi_iterator(node * pn) :
+         const_bidi_iterator<t_bForward>(pn) {
+      }
    };
 
 public:
-   typedef detail::xor_list::iterator<node, T> iterator;
-   typedef detail::xor_list::iterator<node, T const> const_iterator;
-   typedef iterator reverse_iterator;
-   typedef const_iterator const_reverse_iterator;
+   typedef bidi_iterator<true> iterator;
+   typedef const_bidi_iterator<true> const_iterator;
+   typedef bidi_iterator<false> reverse_iterator;
+   typedef const_bidi_iterator<false> const_reverse_iterator;
 
 public:
    /*! Constructor.
@@ -200,7 +380,7 @@ public:
 
    //! Destructor.
    ~list() {
-      destruct_list(static_cast<node *>(m_pnFirst));
+      clear();
    }
 
    /*! Assignment operator.
@@ -209,10 +389,8 @@ public:
       Source object.
    */
    list & operator=(list && l) {
-      node * pnFirst = m_pnFirst;
+      list lOld(std::move(*this));
       detail::list_impl::operator=(std::move(l));
-      // Now that the *this has been successfully overwritten, destruct the old nodes.
-      destruct_list(pnFirst);
       return *this;
    }
 
@@ -222,14 +400,10 @@ public:
       Reference to the first element in the list.
    */
    T & back() {
-//      ABC_TRACE_FUNC(this);
-
-      return *static_cast<node *>(detail::list_impl::back())->value_ptr();
+      return *detail::list_impl::back()->template value_ptr<T>();
    }
    T const & back() const {
-//      ABC_TRACE_FUNC(this);
-
-      return *static_cast<node *>(detail::list_impl::back())->value_ptr();
+      return const_cast<list *>(this)->back();
    }
 
    /*! Returns a forward iterator to the start of the list.
@@ -238,10 +412,10 @@ public:
       Iterator to the first node in the list.
    */
    iterator begin() {
-      return iterator(this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr);
+      return iterator(m_pnFirst);
    }
    const_iterator begin() const {
-      return cbegin();
+      return const_cast<list *>(this)->begin();
    }
 
    /*! Returns a const forward iterator to the start of the list.
@@ -250,9 +424,7 @@ public:
       Iterator to the first node in the list.
    */
    const_iterator cbegin() const {
-      return const_iterator(
-         this, m_pnFirst, m_pnFirst ? m_pnFirst->get_other_sibling(nullptr) : nullptr
-      );
+      return const_cast<list *>(this)->begin();
    }
 
    /*! Returns a const forward iterator to the end of the list.
@@ -261,16 +433,15 @@ public:
       Iterator to the beyond the last node in the list.
    */
    const_iterator cend() const {
-      return const_iterator();
+      return const_cast<list *>(this)->end();
    }
 
    //! Removes all elements from the list.
    void clear() {
-//      ABC_TRACE_FUNC(this);
-
-      destruct_list(static_cast<node *>(m_pnFirst));
-      m_pnFirst = m_pnLast = nullptr;
-      m_cNodes = 0;
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      return detail::list_impl::clear(type);
    }
 
    /*! Returns a const reverse iterator to the end of the list.
@@ -279,9 +450,7 @@ public:
       Reverse iterator to the last node in the list.
    */
    const_reverse_iterator crbegin() const {
-      return const_reverse_iterator(
-         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
-      );
+      return const_cast<list *>(this)->rbegin();
    }
 
    /*! Returns a const reverse iterator to the start of the list.
@@ -290,7 +459,7 @@ public:
       Reverse iterator to the before the first node in the list.
    */
    const_reverse_iterator crend() const {
-      return const_reverse_iterator();
+      return const_cast<list *>(this)->rend();
    }
 
    /*! Returns a forward iterator to the end of the list.
@@ -302,7 +471,7 @@ public:
       return iterator();
    }
    const_iterator end() const {
-      return cend();
+      return const_cast<list *>(this)->end();
    }
 
    /*! Returns a reference to the last element in the list.
@@ -311,14 +480,10 @@ public:
       Reference to the last element in the list.
    */
    T & front() {
-//      ABC_TRACE_FUNC(this);
-
-      return *static_cast<node *>(detail::list_impl::front())->value_ptr();
+      return *detail::list_impl::front()->template value_ptr<T>();
    }
    T const & front() const {
-//      ABC_TRACE_FUNC(this);
-
-      return *static_cast<node *>(detail::list_impl::front())->value_ptr();
+      return const_cast<list *>(this)->front();
    }
 
    /*! Removes and returns the last element in the list.
@@ -327,10 +492,13 @@ public:
       Former last element in the list.
    */
    T pop_back() {
-//      ABC_TRACE_FUNC(this);
-
-      std::unique_ptr<node> pn(static_cast<node *>(unlink_back()));
-      return std::move(pn->m_t);
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      node * pn = detail::list_impl::back();
+      T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
+      detail::list_impl::remove(type, pn);
+      return std::move(tRet);
    }
 
    /*! Removes the first element in the list.
@@ -339,36 +507,13 @@ public:
       Former first element in the list.
    */
    T pop_front() {
-//      ABC_TRACE_FUNC(this);
-
-      std::unique_ptr<node> pn(static_cast<node *>(unlink_front()));
-      return std::move(pn->m_t);
-   }
-
-   /*! Adds an element to the start of the list.
-
-   @param t
-      Element to add.
-   */
-   void push_front(T const & t) {
-//      ABC_TRACE_FUNC(this/*, t*/);
-
-      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since detail::xor_list::node doesn’t have a virtual destructor. */
-      std::unique_ptr<node> pn(new node(t));
-      link_front(pn.get());
-      // No exceptions, so the node is managed as part of the list.
-      pn.release();
-   }
-   void push_front(T && t) {
-//      ABC_TRACE_FUNC(this/*, t*/);
-
-      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since detail::xor_list::node doesn’t have a virtual destructor. */
-      std::unique_ptr<node> pn(new node(std::move(t)));
-      link_front(pn.get());
-      // No exceptions, so the node is managed as part of the list.
-      pn.release();
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      node * pn = detail::list_impl::front();
+      T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
+      detail::list_impl::remove(type, pn);
+      return std::move(tRet);
    }
 
    /*! Adds an element to the end of the list.
@@ -376,25 +521,25 @@ public:
    @param t
       Element to add.
    */
-   void push_back(T const & t) {
-//      ABC_TRACE_FUNC(this/*, t*/);
-
-      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since detail::xor_list::node doesn’t have a virtual destructor. */
-      std::unique_ptr<node> pn(new node(t));
-      link_back(pn.get());
-      // No exceptions, so the node is managed as part of the list.
-      pn.release();
+   iterator push_back(T t) {
+      type_void_adapter type;
+      type.set_align<T>();
+      //type.set_copy_construct<T>();
+      type.set_move_construct<T>();
+      return iterator(detail::list_impl::push_back(type, &t, true));
    }
-   void push_back(T && t) {
-//      ABC_TRACE_FUNC(this/*, t*/);
 
-      /* Memory management must happen here instead of link_back() because the unique_ptr must be of
-      node, since detail::xor_list::node doesn’t have a virtual destructor. */
-      std::unique_ptr<node> pn(new node(std::move(t)));
-      link_back(pn.get());
-      // No exceptions, so the node is managed as part of the list.
-      pn.release();
+   /*! Adds an element to the start of the list.
+
+   @param t
+      Element to add.
+   */
+   iterator push_front(T t) {
+      type_void_adapter type;
+      type.set_align<T>();
+      //type.set_copy_construct<T>();
+      type.set_move_construct<T>();
+      return iterator(detail::list_impl::push_front(type, &t, true));
    }
 
    /*! Returns a reverse iterator to the end of the list.
@@ -403,12 +548,10 @@ public:
       Reverse iterator to the last node in the list.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(
-         this, m_pnLast, m_pnLast ? m_pnLast->get_other_sibling(nullptr) : nullptr
-      );
+      return reverse_iterator(m_pnLast);
    }
    const_reverse_iterator rbegin() const {
-      return crbegin();
+      return const_cast<list *>(this)->rbegin();
    }
 
    /*! Removes the element at the specified position.
@@ -417,26 +560,26 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(const_iterator const & it) {
-//      ABC_TRACE_FUNC(this);
-
-      delete static_cast<node *>(unlink(
-         const_cast<node *>(it.base()),
-         const_cast<node *>(it.next_base())
-      ));
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      detail::list_impl::remove(type, it.m_pn);
    }
 
    //! Removes the last element in the list.
    void remove_back() {
-//      ABC_TRACE_FUNC(this);
-
-      delete static_cast<node *>(unlink_back());
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      detail::list_impl::remove(type, back());
    }
 
    //! Removes the first element in the list.
    void remove_front() {
-//      ABC_TRACE_FUNC(this);
-
-      delete static_cast<node *>(unlink_front());
+      type_void_adapter type;
+      type.set_align<T>();
+      type.set_destruct<T>();
+      detail::list_impl::remove(type, front());
    }
 
    /*! Returns a reverse iterator to the start of the list.
@@ -448,24 +591,7 @@ public:
       return reverse_iterator();
    }
    const_reverse_iterator rend() const {
-      return crend();
-   }
-
-private:
-   /*! Removes all elements from a list, given its first node.
-
-   @param pnFirst
-      Pointer to the first node to destruct.
-   */
-   static void destruct_list(node * pnFirst) {
-//      ABC_TRACE_FUNC(this);
-
-      for (detail::xor_list::node * pnPrev = nullptr, * pnCurr = pnFirst; pnCurr; ) {
-         detail::xor_list::node * pnNext = pnCurr->get_other_sibling(pnPrev);
-         delete static_cast<node *>(pnCurr);
-         pnPrev = pnCurr;
-         pnCurr = pnNext;
-      }
+      return const_cast<list *>(this)->rend();
    }
 };
 

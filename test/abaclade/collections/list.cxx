@@ -91,6 +91,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
 
 namespace abc { namespace test {
 
+#if 0
 /*! Instantiates and returns a list. The list will contain one node, added in a way that should
 cause only one new instance of instances_counter to be created, one moved and none copied.
 
@@ -129,6 +130,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
       instances_counter::reset_counts();
    }
 }
+#endif
 
 }} //namespace abc::test
 
@@ -149,30 +151,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators
 
    // Should not allow to dereference end().
    ABC_TESTING_ASSERT_THROWS(iterator_error, *l.cend());
-
-   l.push_back(1);
-   l.push_back(2);
-   l.push_back(3);
-   l.push_back(4);
-
-   {
-      // Remove an element by iterator while holding iterators to all the elements in the list.
-      auto it1(l.begin());
-      auto it2(std::find(l.cbegin(), l.cend(), 2)), it3(it2);
-      ++it3;
-      auto it4(it3);
-      ++it4;
-      l.remove_at(it2);
-
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it1);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it1);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it2);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it2);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it3);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it3);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it4);
-      ABC_TESTING_ASSERT_THROWS(iterator_error, ++it4);
-   }
 }
 
 }} //namespace abc::test

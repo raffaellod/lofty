@@ -46,7 +46,7 @@ protected:
    //! Integer type used to track changes in the map.
    typedef std::uint16_t rev_int_t;
 
-   //! Iterator type for const key/value pairs.
+   //! Base class for hash_map iterator implementations.
    class ABACLADE_SYM iterator_base {
    private:
       friend class hash_map_impl;
