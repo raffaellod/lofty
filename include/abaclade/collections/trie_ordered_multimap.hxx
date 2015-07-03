@@ -352,7 +352,6 @@ public:
    void clear() {
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
-      typeValue.set_size<TValue>();
       typeValue.set_destruct<TValue>();
       return detail::scalar_keyed_trie_ordered_multimap_impl::clear(typeValue);
    }
