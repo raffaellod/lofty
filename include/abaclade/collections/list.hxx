@@ -33,199 +33,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
-
-//! Non-template implementation class for abc::collections::list.
-class ABACLADE_SYM list_impl : public support_explicit_operator_bool<list_impl> {
-protected:
-   //! Internal node type.
-   typedef doubly_linked_list_impl::node node;
-
-   //! Base class for list iterator implementations.
-   class iterator_base {
-   public:
-      typedef std::ptrdiff_t difference_type;
-      typedef std::bidirectional_iterator_tag iterator_category;
-
-   public:
-      /*! Equality relational operator.
-
-      @param it
-         Object to compare to *this.
-      @return
-         true if *this refers to the same element as it, or false otherwise.
-      */
-      bool operator==(iterator_base const & it) const {
-         return m_pn == it.m_pn;
-      }
-
-      /*! Inequality relational operator.
-
-      @param it
-         Object to compare to *this.
-      @return
-         true if *this refers to a different element than it, or false otherwise.
-      */
-      bool operator!=(iterator_base const & it) const {
-         return !operator==(it);
-      }
-
-   protected:
-      //! Default constructor.
-      iterator_base() :
-         m_pn(nullptr) {
-      }
-
-      /*! Constructor.
-
-      @param pn
-         Pointer to the referred node.
-      */
-      iterator_base(node * pn) :
-         m_pn(pn) {
-      }
-
-      /*! Moves the iterator to the previous or next node.
-
-      @param bForward
-         If true, the iterator will move to the next node; if false, the iterator will move to the
-         previous node.
-      */
-      void move_on(bool bForward);
-
-      //! Throws an iterator_error exception if the iterator cannot be dereferenced.
-      void validate() const;
-
-   protected:
-      //! Pointer to the current node.
-      node * m_pn;
-   };
-
-public:
-   /*! Constructor.
-
-   @param l
-      Source object.
-   */
-   list_impl();
-   list_impl(list_impl && l);
-
-   //! Destructor.
-   ~list_impl() {
-   }
-
-   /*! Assignment operator.
-
-   @param l
-      Source object.
-   */
-   list_impl & operator=(list_impl && l);
-
-   /*! Returns true if the list size is greater than 0.
-
-   @return
-      true if the list is not empty, or false otherwise.
-   */
-   ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return m_cNodes > 0;
-   }
-
-   /*! Returns true if the list contains no elements.
-
-   @return
-      true if the list is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_cNodes == 0;
-   }
-
-   /*! Returns the count of elements in the list.
-
-   @return
-      Count of elements.
-   */
-   std::size_t size() const {
-      return m_cNodes;
-   }
-
-protected:
-   /*! Returns a pointer to the last node in the list, throwing an exception if the list is empty.
-
-   @return
-      Pointer to the last node.
-   */
-   node * back() const;
-
-   /*! Removes all elements from the list.
-
-   @param type
-      Adapter for the value’s type.
-   */
-   void clear(type_void_adapter const & type);
-
-   /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
-
-   @return
-      Pointer to the first node.
-   */
-   node * front() const;
-
-   /*! Inserts a node to the end of the list.
-
-   @param type
-      Adapter for the value’s type.
-   @param p
-      Pointer to the value to add.
-   @param bMove
-      true to move *pValue to the new node’s value, or false to copy it instead.
-   @return
-      Pointer to the newly-added node.
-   */
-   node * push_back(type_void_adapter const & type, void const * p, bool bMove);
-
-   /*! Inserts a node to the start of the list.
-
-   @param type
-      Adapter for the value’s type.
-   @param p
-      Pointer to the value to add.
-   @param bMove
-      true to move *pValue to the new node’s value, or false to copy it instead.
-   @return
-      Pointer to the newly-added node.
-   */
-   node * push_front(type_void_adapter const & type, void const * p, bool bMove);
-
-   /*! Unlinks and destructs a node in the list.
-
-   @param type
-      Adapter for the value’s type.
-   @param pn
-      Pointer to the node to unlink.
-   */
-   void remove(type_void_adapter const & type, node * pn);
-
-protected:
-   //! Pointer to the first node.
-   node * m_pnFirst;
-   //! Pointer to the last node.
-   node * m_pnLast;
-   //! Count of nodes.
-   std::size_t m_cNodes;
-};
-
-}}} //namespace abc::collections::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace abc { namespace collections {
 
 //! Doubly-linked list.
 template <typename T>
-class list : public detail::list_impl {
+class list : public detail::doubly_linked_list_impl {
 private:
    template <bool t_bForward>
-   class const_bidi_iterator : public detail::list_impl::iterator_base {
+   class const_bidi_iterator : public detail::doubly_linked_list_impl::iterator_base {
    private:
       friend class list;
 
@@ -304,7 +119,7 @@ private:
    protected:
       //! See iterator_base::iterator_base().
       const_bidi_iterator(node * pn) :
-         detail::list_impl::iterator_base(pn) {
+         detail::doubly_linked_list_impl::iterator_base(pn) {
       }
    };
 
@@ -375,7 +190,7 @@ public:
    list() {
    }
    list(list && l) :
-      detail::list_impl(std::move(l)) {
+      detail::doubly_linked_list_impl(std::move(l)) {
    }
 
    //! Destructor.
@@ -390,7 +205,7 @@ public:
    */
    list & operator=(list && l) {
       list lOld(std::move(*this));
-      detail::list_impl::operator=(std::move(l));
+      detail::doubly_linked_list_impl::operator=(std::move(l));
       return *this;
    }
 
@@ -400,7 +215,7 @@ public:
       Reference to the first element in the list.
    */
    T & back() {
-      return *detail::list_impl::back()->template value_ptr<T>();
+      return *detail::doubly_linked_list_impl::back()->template value_ptr<T>();
    }
    T const & back() const {
       return const_cast<list *>(this)->back();
@@ -441,7 +256,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      return detail::list_impl::clear(type);
+      return detail::doubly_linked_list_impl::clear(type);
    }
 
    /*! Returns a const reverse iterator to the end of the list.
@@ -480,7 +295,7 @@ public:
       Reference to the last element in the list.
    */
    T & front() {
-      return *detail::list_impl::front()->template value_ptr<T>();
+      return *detail::doubly_linked_list_impl::front()->template value_ptr<T>();
    }
    T const & front() const {
       return const_cast<list *>(this)->front();
@@ -495,9 +310,9 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      node * pn = detail::list_impl::back();
+      node * pn = detail::doubly_linked_list_impl::back();
       T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
-      detail::list_impl::remove(type, pn);
+      detail::doubly_linked_list_impl::remove(type, pn);
       return std::move(tRet);
    }
 
@@ -510,9 +325,9 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      node * pn = detail::list_impl::front();
+      node * pn = detail::doubly_linked_list_impl::front();
       T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
-      detail::list_impl::remove(type, pn);
+      detail::doubly_linked_list_impl::remove(type, pn);
       return std::move(tRet);
    }
 
@@ -526,7 +341,7 @@ public:
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
-      return iterator(detail::list_impl::push_back(type, &t, true));
+      return iterator(detail::doubly_linked_list_impl::push_back(type, &t, true));
    }
 
    /*! Adds an element to the start of the list.
@@ -539,7 +354,7 @@ public:
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
-      return iterator(detail::list_impl::push_front(type, &t, true));
+      return iterator(detail::doubly_linked_list_impl::push_front(type, &t, true));
    }
 
    /*! Returns a reverse iterator to the end of the list.
@@ -563,7 +378,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::list_impl::remove(type, it.m_pn);
+      detail::doubly_linked_list_impl::remove(type, it.m_pn);
    }
 
    //! Removes the last element in the list.
@@ -571,7 +386,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::list_impl::remove(type, back());
+      detail::doubly_linked_list_impl::remove(type, back());
    }
 
    //! Removes the first element in the list.
@@ -579,7 +394,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::list_impl::remove(type, front());
+      detail::doubly_linked_list_impl::remove(type, front());
    }
 
    /*! Returns a reverse iterator to the start of the list.
