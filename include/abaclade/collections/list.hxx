@@ -341,6 +341,7 @@ public:
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
+      type.set_size<T>();
       return iterator(detail::doubly_linked_list_impl::push_back(type, &t, true));
    }
 
@@ -354,6 +355,7 @@ public:
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
+      type.set_size<T>();
       return iterator(detail::doubly_linked_list_impl::push_front(type, &t, true));
    }
 
