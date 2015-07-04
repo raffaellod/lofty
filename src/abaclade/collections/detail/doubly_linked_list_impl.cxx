@@ -154,11 +154,23 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
    return pn;
 }
 
-doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
-   type_void_adapter const & type, void const * p, bool bMove
+/*static*/ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
+   type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, void const * p, bool bMove
 ) {
+   ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, p, bMove);
+
+   // Construct and link the node.
    std::unique_ptr<node> pn(new(type) node);
-   link_front(&m_pnFirst, &m_pnLast, pn.get());
+   pn->m_pnPrev = nullptr;
+   node * pnFirst = *ppnFirst;
+   pn->m_pnNext = pnFirst;
+   if (!*ppnLast) {
+      *ppnLast = pn.get();
+   } else if (pnFirst) {
+      pnFirst->m_pnPrev = pn.get();
+   }
+   *ppnFirst = pn.get();
+
    // Construct the node’s value.
    void * pDst = pn->value_ptr(type);
    if (bMove) {
@@ -166,23 +178,17 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
    } else {
       type.copy_construct(pDst, p);
    }
+
    // Transfer ownership of *pn to the list.
-   ++m_cNodes;
    return pn.release();
 }
 
-/*static*/ void doubly_linked_list_impl::link_front(node ** ppnFirst, node ** ppnLast, node * pn) {
-   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
-
-   pn->m_pnPrev = nullptr;
-   node * pnFirst = *ppnFirst;
-   pn->m_pnNext = pnFirst;
-   if (!*ppnLast) {
-      *ppnLast = pn;
-   } else if (pnFirst) {
-      pnFirst->m_pnPrev = pn;
-   }
-   *ppnFirst = pn;
+doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
+   type_void_adapter const & type, void const * p, bool bMove
+) {
+   node * pn = push_front(type, &m_pnFirst, &m_pnLast, p, bMove);
+   ++m_cNodes;
+   return pn;
 }
 
 /*static*/ void doubly_linked_list_impl::remove(
