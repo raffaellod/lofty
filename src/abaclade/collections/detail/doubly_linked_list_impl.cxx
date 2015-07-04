@@ -27,16 +27,13 @@ namespace abc { namespace collections { namespace detail {
 
 void * doubly_linked_list_impl::node::operator new(std::size_t cb, type_void_adapter const & type) {
    ABC_UNUSED_ARG(cb);
-   /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
-   address 0. This allows packing the value against the end of the node, potentially using space
-   that sizeof(node) would reserve as padding. */
-   return memory::_raw_alloc(reinterpret_cast<std::size_t>(
-      static_cast<node *>(0)->value_ptr(type)
-   ) + type.size());
+   /* To calculate the node size, pack the value against the end of the node, potentially using
+   space that cb (== sizeof(node)) would reserve as padding. */
+   return memory::_raw_alloc(type.align_offset(ABC_UNPADDED_SIZEOF(node, m_pnPrev)) + type.size());
 }
 
 void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) const {
-   // Make sure that the argument it the address following the last member.
+   // Make sure that the argument is the address following the last member.
    return type.align_pointer(&m_pnPrev + 1);
 }
 
