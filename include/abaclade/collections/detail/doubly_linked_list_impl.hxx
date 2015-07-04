@@ -34,11 +34,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-//! Defines classes useful to implement doubly-linked list classes.
+//! Non-template implementation of a doubly-linked list.
 class ABACLADE_SYM doubly_linked_list_impl :
    public support_explicit_operator_bool<doubly_linked_list_impl> {
 public:
-   //! Doubly-linked node that also stores a single value.
+   //! Doubly-linked list node that also stores a single value.
    class node {
    public:
       /*! Allocates space for a node and its contained value.

@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/queue_impl.hxx>
+#include <abaclade/collections/detail/singly_linked_list_impl.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace abc { namespace collections {
 /*! List-based queue. Offers constant insert-at-end time and constant extraction time of its first
 element. */
 template <typename T>
-class queue : public detail::queue_impl {
+class queue : public detail::singly_linked_list_impl {
 public:
    /*! Constructor.
 
@@ -47,7 +47,7 @@ public:
    queue() {
    }
    queue(queue && q) :
-      detail::queue_impl(std::move(q)) {
+      detail::singly_linked_list_impl(std::move(q)) {
    }
 
    //! Destructor.
@@ -65,7 +65,7 @@ public:
    */
    queue & operator=(queue && q) {
       node * pnFirst = m_pnFirst;
-      detail::queue_impl::operator=(std::move(q));
+      detail::singly_linked_list_impl::operator=(std::move(q));
       // Now that *this has been successfully overwritten, destruct the old nodes.
       type_void_adapter type;
       type.set_align<T>();
@@ -93,7 +93,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::queue_impl::clear(type);
+      detail::singly_linked_list_impl::clear(type);
    }
 
    /*! Returns a reference to the first element in the queue.
@@ -121,7 +121,7 @@ public:
       type.set_destruct<T>();
       // Move the value of *m_pnFirst into t, then unlink and discard *m_pnFirst.
       T t(std::move(*static_cast<T *>(m_pnFirst->value_ptr(type))));
-      detail::queue_impl::pop_front(type);
+      detail::singly_linked_list_impl::pop_front(type);
       return std::move(t);
    }
 
@@ -135,14 +135,14 @@ public:
       type.set_align<T>();
       type.set_copy_construct<T>();
       type.set_size<T>();
-      detail::queue_impl::push_back(type, &t, false);
+      detail::singly_linked_list_impl::push_back(type, &t, false);
    }
    void push_back(T && t) {
       type_void_adapter type;
       type.set_align<T>();
       type.set_move_construct<T>();
       type.set_size<T>();
-      detail::queue_impl::push_back(type, &t, true);
+      detail::singly_linked_list_impl::push_back(type, &t, true);
    }
 };
 

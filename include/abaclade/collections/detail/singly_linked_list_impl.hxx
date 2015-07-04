@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_COLLECTIONS_DETAIL_QUEUE_IMPL_HXX
-#define _ABACLADE_COLLECTIONS_DETAIL_QUEUE_IMPL_HXX
+#ifndef _ABACLADE_COLLECTIONS_DETAIL_SINGLY_LINKED_LIST_IMPL_HXX
+#define _ABACLADE_COLLECTIONS_DETAIL_SINGLY_LINKED_LIST_IMPL_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -34,13 +34,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-//! Non-template implementation class for abc::collections::queue.
-class ABACLADE_SYM queue_impl : public support_explicit_operator_bool<queue_impl> {
+//! Non-template implementation of a singly-linked list.
+class ABACLADE_SYM singly_linked_list_impl :
+   public support_explicit_operator_bool<singly_linked_list_impl> {
 protected:
-   //! Node of a singly-linked list.
+   //! Singly-linked list node that also stores a single value.
    class node {
    private:
-      friend class queue_impl;
+      friend class singly_linked_list_impl;
 
    public:
       /*! Returns a pointer to the contained T.
@@ -61,26 +62,26 @@ protected:
 public:
    /*! Constructor.
 
-   @param q
+   @param slli
       Source object.
    */
-   queue_impl() :
+   singly_linked_list_impl() :
       m_pnFirst(nullptr),
       m_pnLast(nullptr),
       m_cNodes(0) {
    }
-   queue_impl(queue_impl && q);
+   singly_linked_list_impl(singly_linked_list_impl && slli);
 
    //! Destructor.
-   ~queue_impl() {
+   ~singly_linked_list_impl() {
    }
 
    /*! Assignment operator.
 
-   @param q
+   @param slli
       Source object.
    */
-   queue_impl & operator=(queue_impl && q);
+   singly_linked_list_impl & operator=(singly_linked_list_impl && slli);
 
    /*! Returns true if the list size is greater than 0.
 
@@ -157,4 +158,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_QUEUE_IMPL_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_SINGLY_LINKED_LIST_IMPL_HXX

@@ -18,54 +18,58 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/collections/detail/queue_impl.hxx>
+#include <abaclade/collections/detail/singly_linked_list_impl.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace collections { namespace detail {
 
-void * queue_impl::node::value_ptr(type_void_adapter const & type) const {
+void * singly_linked_list_impl::node::value_ptr(type_void_adapter const & type) const {
    return type.align_pointer(&m_pnNext + 1);
 }
 
 
-queue_impl::queue_impl(queue_impl && q) :
-   m_pnFirst(q.m_pnFirst),
-   m_pnLast(q.m_pnLast),
-   m_cNodes(q.m_cNodes) {
-   q.m_cNodes = 0;
-   q.m_pnFirst = nullptr;
-   q.m_pnLast = nullptr;
+singly_linked_list_impl::singly_linked_list_impl(singly_linked_list_impl && slli) :
+   m_pnFirst(slli.m_pnFirst),
+   m_pnLast(slli.m_pnLast),
+   m_cNodes(slli.m_cNodes) {
+   slli.m_cNodes = 0;
+   slli.m_pnFirst = nullptr;
+   slli.m_pnLast = nullptr;
 }
 
-queue_impl & queue_impl::operator=(queue_impl && q) {
+singly_linked_list_impl & singly_linked_list_impl::operator=(singly_linked_list_impl && slli) {
    /* Assume that the subclass has already made a copy of m_pn{First,Last} to be able to release
    them after calling this operator. */
-   m_pnFirst = q.m_pnFirst;
-   q.m_pnFirst = nullptr;
-   m_pnLast = q.m_pnLast;
-   q.m_pnLast = nullptr;
-   m_cNodes = q.m_cNodes;
-   q.m_cNodes = 0;
+   m_pnFirst = slli.m_pnFirst;
+   slli.m_pnFirst = nullptr;
+   m_pnLast = slli.m_pnLast;
+   slli.m_pnLast = nullptr;
+   m_cNodes = slli.m_cNodes;
+   slli.m_cNodes = 0;
    return *this;
 }
 
-void queue_impl::clear(type_void_adapter const & type) {
+void singly_linked_list_impl::clear(type_void_adapter const & type) {
    destruct_list(type, m_pnFirst);
    m_pnFirst = m_pnLast = nullptr;
    m_cNodes = 0;
 }
 
-/*static*/ void queue_impl::destruct_list(type_void_adapter const & type, node * pnFirst) {
-   for (detail::queue_impl::node * pnCurr = pnFirst, * pnNext; pnCurr; pnCurr = pnNext) {
+/*static*/ void singly_linked_list_impl::destruct_list(
+   type_void_adapter const & type, node * pnFirst
+) {
+   for (node * pnCurr = pnFirst, * pnNext; pnCurr; pnCurr = pnNext) {
       pnNext = pnCurr->m_pnNext;
       type.destruct(pnCurr->value_ptr(type));
       memory::_raw_free(pnCurr);
    }
 }
 
-void queue_impl::push_back(type_void_adapter const & type, void const * pSrc, bool bMove) {
+void singly_linked_list_impl::push_back(
+   type_void_adapter const & type, void const * pSrc, bool bMove
+) {
    /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
    address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
    (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
@@ -91,7 +95,7 @@ void queue_impl::push_back(type_void_adapter const & type, void const * pSrc, bo
    ++m_cNodes;
 }
 
-void queue_impl::pop_front(type_void_adapter const & type) {
+void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
    node * pn = m_pnFirst;
    m_pnFirst = pn->m_pnNext;
    if (!m_pnFirst) {
