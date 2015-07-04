@@ -36,9 +36,11 @@ char32_t const gc_chP2(0x024b62);
 •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
 The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
 above and ‘c’ with the BMP (Plane 0) character above. */
-istr const gc_sAcabaabca(
-   istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a'
-);
+istr get_acabaabca();
+
+istr get_acabaabca() {
+   return istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a';
+}
 
 }} //namespace abc::test
 
@@ -171,16 +173,17 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – basic operations") {
       ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
    }
 
-   // While we’re at it, let’s also validate gc_sAcabaabca.
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[0], 'a');
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[1], gc_chP0);
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[2], 'a');
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[3], gc_chP2);
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[4], 'a');
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[5], 'a');
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[6], gc_chP2);
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[7], gc_chP0);
-   ABC_TESTING_ASSERT_EQUAL(gc_sAcabaabca[8], 'a');
+   // While we’re at it, let’s also validate acabaabca.
+   s = get_acabaabca();
+   ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
+   ABC_TESTING_ASSERT_EQUAL(s[1], gc_chP0);
+   ABC_TESTING_ASSERT_EQUAL(s[2], 'a');
+   ABC_TESTING_ASSERT_EQUAL(s[3], gc_chP2);
+   ABC_TESTING_ASSERT_EQUAL(s[4], 'a');
+   ABC_TESTING_ASSERT_EQUAL(s[5], 'a');
+   ABC_TESTING_ASSERT_EQUAL(s[6], gc_chP2);
+   ABC_TESTING_ASSERT_EQUAL(s[7], gc_chP0);
+   ABC_TESTING_ASSERT_EQUAL(s[8], 'a');
 }
 
 }} //namespace abc::test
@@ -466,9 +469,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character and substring 
    // Special characters.
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
-   /* See gc_sAcabaabca for more information on its pattern. To make it more interesting, here we
+   /* See get_acabaabca() for more information on its pattern. To make it more interesting, here we
    also duplicate it. */
-   istr const s(gc_sAcabaabca + gc_sAcabaabca);
+   istr const s(get_acabaabca() + get_acabaabca());
 
    ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);
    ABC_TESTING_ASSERT_EQUAL(s.find('d'), s.cend());
@@ -502,8 +505,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – initial matching") {
    // Special characters.
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
-   // See gc_sAcabaabca for more information on its pattern.
-   istr const & s = gc_sAcabaabca;
+   // See get_acabaabca() for more information on its pattern.
+   istr const s(get_acabaabca());
 
    ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty));
    ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty + 'a'));
@@ -528,8 +531,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – final matching") {
    // Special characters.
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
-   // See gc_sAcabaabca for more information on its pattern.
-   istr const & s = gc_sAcabaabca;
+   // See get_acabaabca() for more information on its pattern.
+   istr const s(get_acabaabca());
 
    ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty));
    ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty + 'a'));
