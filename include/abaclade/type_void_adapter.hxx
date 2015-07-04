@@ -53,6 +53,19 @@ public:
       return m_cbAlign;
    }
 
+   /*! Adjusts (increases) an offset as needed by the type’s alignment requirements.
+
+   @param ibOffset
+      Byte offset to align.
+   @return
+      Aligned offset.
+   */
+   std::uintptr_t align_offset(std::uintptr_t ibOffset) const {
+      // TODO: deduplicate this copy of bitmanip::ceiling_to_pow2_multiple().
+      std::uintptr_t iStep = static_cast<std::uintptr_t>(m_cbAlign - 1);
+      return (ibOffset + iStep) & ~iStep;
+   }
+
    /*! Adjusts (increases) a pointer as needed by the type’s alignment requirements.
 
    @param p
@@ -61,11 +74,7 @@ public:
       Aligned pointer.
    */
    void * align_pointer(void const * p) const {
-      std::uintptr_t iPtr = reinterpret_cast<std::uintptr_t>(p);
-      // TODO: deduplicate this copy of bitmanip::ceiling_to_pow2_multiple().
-      std::uintptr_t iStep = static_cast<std::uintptr_t>(m_cbAlign - 1);
-      iPtr = (iPtr + iStep) & ~iStep;
-      return reinterpret_cast<void *>(iPtr);
+      return reinterpret_cast<void *>(align_offset(reinterpret_cast<std::uintptr_t>(p)));
    }
 
    /*! Copy-constructs an object from one memory location to another.
