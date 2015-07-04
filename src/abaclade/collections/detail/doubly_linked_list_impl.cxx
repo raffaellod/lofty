@@ -48,26 +48,15 @@ doubly_linked_list_impl::node::node(
       type.copy_construct(pDst, p);
    }
    // If no exceptions were thrown, link the node into the list.
-   try {
-      if (pnPrev) {
-         pnPrev->m_pnNext = this;
-      } else {
-         *ppnFirst = this;
-      }
-      if (pnNext) {
-         pnNext->m_pnPrev = this;
-      } else {
-         *ppnLast = this;
-      }
-   } catch (...) {
-      if (bMove) {
-         // Move the value back to where it came from.
-         type.move_construct(const_cast<void *>(p), pDst);
-      } else {
-         // Destruct the copy of the value.
-         type.destruct(pDst);
-      }
-      throw;
+   if (pnPrev) {
+      pnPrev->m_pnNext = this;
+   } else {
+      *ppnFirst = this;
+   }
+   if (pnNext) {
+      pnNext->m_pnPrev = this;
+   } else {
+      *ppnLast = this;
    }
 }
 
