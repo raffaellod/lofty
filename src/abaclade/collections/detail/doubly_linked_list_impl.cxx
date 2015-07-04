@@ -71,13 +71,17 @@ doubly_linked_list_impl::node::node(
    }
 }
 
-doubly_linked_list_impl::node::~node() {
+void doubly_linked_list_impl::node::unlink(node ** ppnFirst, node ** ppnLast) {
    node * pnNext = m_pnNext, * pnPrev = m_pnPrev;
    if (pnPrev) {
       pnPrev->m_pnNext = pnNext;
+   } else if (ppnFirst) {
+      *ppnFirst = pnNext;
    }
    if (pnNext) {
       pnNext->m_pnPrev = pnPrev;
+   } else if (ppnLast) {
+      *ppnLast = pnPrev;
    }
 }
 
@@ -203,12 +207,7 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
 ) {
    ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, pn);
 
-   if (ppnFirst && *ppnFirst == pn) {
-      *ppnFirst = pn->next();
-   }
-   if (ppnLast && *ppnLast == pn) {
-      *ppnLast = pn->prev();
-   }
+   pn->unlink(ppnFirst, ppnLast);
    type.destruct(pn->value_ptr(type));
    delete pn;
 }

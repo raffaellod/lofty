@@ -92,6 +92,17 @@ protected:
          return m_pnNext;
       }
 
+      /*! Removes the node from the list it’s in.
+
+      @param ppnFirst
+         Pointer to the list’s first node pointer. May be nullptr.
+      @param ppnLast
+         Pointer to the list’s last node pointer. May be nullptr.
+      @param pnPrev
+         Pointer to the previous node.
+      */
+      void unlink(node ** ppnFirst, node ** ppnLast, node * pnPrev);
+
       /*! Returns a pointer to the contained T.
 
       @param type

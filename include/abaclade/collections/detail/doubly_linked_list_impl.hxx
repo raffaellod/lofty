@@ -83,9 +83,6 @@ public:
          node * pnPrev, node * pnNext, void const * p, bool bMove
       );
 
-      //! Destructor.
-      ~node();
-
       /*! Returns a pointer to the next node.
 
       @return
@@ -103,6 +100,15 @@ public:
       node * prev() const {
          return m_pnPrev;
       }
+
+      /*! Removes the node from the list it’s in.
+
+      @param ppnFirst
+         Pointer to the list’s first node pointer. May be nullptr.
+      @param ppnLast
+         Pointer to the list’s last node pointer. May be nullptr.
+      */
+      void unlink(node ** ppnFirst, node ** ppnLast);
 
       /*! Returns a pointer to the contained value.
 
@@ -289,9 +295,9 @@ public:
    @param type
       Adapter for the value’s type.
    @param ppnFirst
-      Pointer to the list’s first node pointer.
+      Pointer to the list’s first node pointer. May be nullptr.
    @param ppnLast
-      Pointer to the list’s last node pointer.
+      Pointer to the list’s last node pointer. May be nullptr.
    @param pn
       Pointer to the node to unlink.
    */

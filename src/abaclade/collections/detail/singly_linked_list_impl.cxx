@@ -68,7 +68,20 @@ singly_linked_list_impl::node::node(
    }
 }
 
+void singly_linked_list_impl::node::unlink(node ** ppnFirst, node ** ppnLast, node * pnPrev) {
+   node * pnNext = m_pnNext;
+   if (pnPrev) {
+      pnPrev->m_pnNext = pnNext;
+   } else if (ppnFirst) {
+      *ppnFirst = pnNext;
+   }
+   if (!pnNext && ppnLast) {
+      *ppnLast = pnPrev;
+   }
+}
+
 void * singly_linked_list_impl::node::value_ptr(type_void_adapter const & type) const {
+   // Make sure that the argument is the address following the last member.
    return type.align_pointer(&m_pnNext + 1);
 }
 
@@ -126,12 +139,9 @@ void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
    ABC_TRACE_FUNC(this/*, type*/);
 
    node * pn = m_pnFirst;
-   m_pnFirst = pn->next();
-   if (!m_pnFirst) {
-      m_pnLast = nullptr;
-   }
-   --m_cNodes;
+   pn->unlink(&m_pnFirst, &m_pnLast, nullptr);
    type.destruct(pn->value_ptr(type));
+   --m_cNodes;
    delete pn;
 }
 
