@@ -104,6 +104,9 @@ private:
    std::unique_ptr<std::int8_t[]> m_pb;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
+   /*! Tracks the value of sm_cb when coroutine_local_storage was instantiated. Changes occurring
+   after that first time are a problem. */
+   static std::size_t sm_cbFrozen;
    /*! Normally a pointer to sm_crls (set for each thread by sm_crls’s existence, which instantiates
    a coroutine_local_storage which in turn sets this), but replaced while a coroutine is being
    actively executed. */

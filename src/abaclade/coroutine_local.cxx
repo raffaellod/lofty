@@ -27,6 +27,7 @@ namespace abc { namespace detail {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 std::size_t coroutine_local_storage::sm_cb = 0;
+std::size_t coroutine_local_storage::sm_cbFrozen = 0;
 /* Important: sm_pcrls MUST be defined before sm_crls to guarantee that their per-thread copies are
 constructed in this same order, which is necessary since constructing a copy of sm_crls assigns a
 new value to the copy of sm_pcrls; constructing sm_pcrls after sm_crls would cause its value to be
@@ -36,6 +37,10 @@ thread_local_value<coroutine_local_storage> coroutine_local_storage::sm_crls;
 
 coroutine_local_storage::coroutine_local_storage(bool bNewThread /*= true*/) :
    m_pb(new std::int8_t[sm_cb]) {
+   if (!sm_cbFrozen) {
+      // Track the size of this first block.
+      sm_cbFrozen = sm_cb;
+   }
 
    // Iterate over the list to construct CRLS for this coroutine.
    for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
@@ -70,6 +75,10 @@ coroutine_local_storage::~coroutine_local_storage() {
    // Calculate the offset for *pcrlvi’s storage and increase sm_cb accordingly.
    pcrlvi->m_ibStorageOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
+   if (sm_cbFrozen && sm_cb > sm_cbFrozen) {
+      // TODO: can’t log/report anything since no thread locals are available! Fix me!
+      std::abort();
+   }
 }
 
 /*static*/ coroutine_local_storage * coroutine_local_storage::get() {

@@ -41,9 +41,14 @@ namespace abc { namespace detail {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 std::size_t thread_local_storage::sm_cb = 0;
+std::size_t thread_local_storage::sm_cbFrozen = 0;
 
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
+   if (!sm_cbFrozen) {
+      // Track the size of this first block.
+      sm_cbFrozen = sm_cb;
+   }
 
    /* Assign the TLS slot immediately, so that if any of the construct()s calls get() we won’t end
    up with an infinitely-recursive call. */
@@ -70,6 +75,10 @@ thread_local_storage::~thread_local_storage() {
    // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
    ptlvi->m_ibStorageOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
+   if (sm_cbFrozen && sm_cb > sm_cbFrozen) {
+      // TODO: can’t log/report anything since no thread locals are available! Fix me!
+      std::abort();
+   }
 }
 
 /*static*/ void thread_local_storage::alloc_slot() {
