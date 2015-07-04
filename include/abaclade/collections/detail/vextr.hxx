@@ -444,9 +444,7 @@ protected:
       if (m_bPrefixedItemArray) {
          // Subtract from m_pBegin the offset of the item array.
          return reinterpret_cast<_prefixed_item_array *>(
-            begin<std::int8_t>() - reinterpret_cast<std::ptrdiff_t>(
-               reinterpret_cast<_prefixed_item_array *>(0)->m_at
-            )
+            begin<std::int8_t>() - ABC_OFFSETOF(_prefixed_item_array, m_at)
          );
       } else {
          return nullptr;

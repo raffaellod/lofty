@@ -203,9 +203,7 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
             cbOrig, cbNew
          );
          typedef raw_vextr_impl_base::_prefixed_item_array prefixed_item_array;
-         std::size_t cbNewItemArrayDesc = reinterpret_cast<std::size_t>(
-            reinterpret_cast<prefixed_item_array *>(0)->m_at
-         ) + cbNewCapacity;
+         std::size_t cbNewItemArrayDesc = ABC_OFFSETOF(prefixed_item_array, m_at) + cbNewCapacity;
          prefixed_item_array * ppia;
          if (bTrivial && m_prvib->m_bDynamic) {
             /* Resize the current dynamically-allocated item array. Notice that the reallocation is
