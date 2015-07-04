@@ -40,10 +40,58 @@ class ABACLADE_SYM singly_linked_list_impl :
 protected:
    //! Singly-linked list node that also stores a single value.
    class node {
-   private:
-      friend class singly_linked_list_impl;
-
    public:
+      /*! Allocates space for a node and its contained value.
+
+      @param cb
+         sizeof(node).
+      @param type
+         Adapter for the value’s type.
+      @return
+         Pointer to the allocated memory block.
+      */
+      void * operator new(std::size_t cb, type_void_adapter const & type);
+
+      /*! Ensures that memory allocated by node::operator new() is freed correctly.
+
+      @param p
+         Pointer to free.
+      */
+      void operator delete(void * p) {
+         memory::_raw_free(p);
+      }
+
+      /*! Constructor.
+
+      @param type
+         Adapter for the value’s type.
+      @param ppnFirst
+         Pointer to the list’s first node pointer.
+      @param ppnLast
+         Pointer to the list’s last node pointer.
+      @param pnPrev
+         Pointer to the previous node.
+      @param pnNext
+         Pointer to the next node.
+      @param p
+         Pointer to the value to add.
+      @param bMove
+         true to move *p to the new node’s value, or false to copy it instead.
+      */
+      node(
+         type_void_adapter const & type, node ** ppnFirst, node ** ppnLast,
+         node * pnPrev, node * pnNext, void const * p, bool bMove
+      );
+
+      /*! Returns a pointer to the next node.
+
+      @return
+         Pointer to the next node.
+      */
+      node * next() const {
+         return m_pnNext;
+      }
+
       /*! Returns a pointer to the contained T.
 
       @param type
@@ -125,18 +173,20 @@ protected:
    @param pnFirst
       Pointer to the first node to destruct.
    */
-   static void destruct_list(type_void_adapter const & type, node * pnFirst);
+   static void destruct_list(type_void_adapter const & type, node * pn);
 
    /*! Inserts a node to the end of the list.
 
    @param type
       Adapter for the node value’s type.
-   @param pSrc
+   @param p
       Pointer to the value item to push in.
    @param bMove
-      true to move *pSrc to the new node’s value, or false to copy it instead.
+      true to move *p to the new node’s value, or false to copy it instead.
+   @return
+      Pointer to the newly-added node.
    */
-   void push_back(type_void_adapter const & type, void const * pSrc, bool bMove);
+   node * push_back(type_void_adapter const & type, void const * p, bool bMove);
 
    /*! Unlinks and releases the first node in the list.
 

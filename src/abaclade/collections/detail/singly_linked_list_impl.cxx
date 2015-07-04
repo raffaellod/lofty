@@ -25,6 +25,49 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
+void * singly_linked_list_impl::node::operator new(std::size_t cb, type_void_adapter const & type) {
+   ABC_UNUSED_ARG(cb);
+   /* To calculate the node size, pack the value against the end of the node, potentially using
+   space that cb (== sizeof(node)) would reserve as padding. */
+   return memory::_raw_alloc(type.align_offset(ABC_UNPADDED_SIZEOF(node, m_pnNext)) + type.size());
+}
+
+singly_linked_list_impl::node::node(
+   type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, node * pnPrev, node * pnNext,
+   void const * p, bool bMove
+) :
+   m_pnNext(pnNext) {
+   ABC_TRACE_FUNC(this/*, type*/, ppnFirst, ppnLast, pnPrev, pnNext, p, bMove);
+
+   // Copy- or move-onstruct the value of the node.
+   void * pDst = value_ptr(type);
+   if (bMove) {
+      type.move_construct(pDst, const_cast<void *>(p));
+   } else {
+      type.copy_construct(pDst, p);
+   }
+   // If no exceptions were thrown, link the node into the list.
+   try {
+      if (pnPrev) {
+         pnPrev->m_pnNext = this;
+      } else {
+         *ppnFirst = this;
+      }
+      if (!pnNext) {
+         *ppnLast = this;
+      }
+   } catch (...) {
+      if (bMove) {
+         // Move the value back to where it came from.
+         type.move_construct(const_cast<void *>(p), pDst);
+      } else {
+         // Destruct the copy of the value.
+         type.destruct(pDst);
+      }
+      throw;
+   }
+}
+
 void * singly_linked_list_impl::node::value_ptr(type_void_adapter const & type) const {
    return type.align_pointer(&m_pnNext + 1);
 }
@@ -53,57 +96,43 @@ singly_linked_list_impl & singly_linked_list_impl::operator=(singly_linked_list_
 
 void singly_linked_list_impl::clear(type_void_adapter const & type) {
    destruct_list(type, m_pnFirst);
-   m_pnFirst = m_pnLast = nullptr;
+   m_pnFirst = nullptr;
+   m_pnLast = nullptr;
    m_cNodes = 0;
 }
 
-/*static*/ void singly_linked_list_impl::destruct_list(
-   type_void_adapter const & type, node * pnFirst
-) {
-   for (node * pnCurr = pnFirst, * pnNext; pnCurr; pnCurr = pnNext) {
-      pnNext = pnCurr->m_pnNext;
-      type.destruct(pnCurr->value_ptr(type));
-      memory::_raw_free(pnCurr);
+/*static*/ void singly_linked_list_impl::destruct_list(type_void_adapter const & type, node * pn) {
+   ABC_TRACE_FUNC(/*type, */pn);
+
+   while (pn) {
+      node * pnNext = pn->next();
+      type.destruct(pn->value_ptr(type));
+      delete pn;
+      pn = pnNext;
    }
 }
 
-void singly_linked_list_impl::push_back(
-   type_void_adapter const & type, void const * pSrc, bool bMove
+singly_linked_list_impl::node * singly_linked_list_impl::push_back(
+   type_void_adapter const & type, void const * p, bool bMove
 ) {
-   /* To calculate the node size, add type.size() bytes to the offset of the value in a node at
-   address 0. This allows packing the node optimally even if the unpadded node size is e.g. 6
-   (sizeof will return 8 for that) and type.size() is 2, giving 8 instead of 10 (which would really
-   mean at least 12 bytes, a 50% waste of memory). */
-   std::unique_ptr<node, memory::freeing_deleter> pn(static_cast<node *>(memory::_raw_alloc(
-      reinterpret_cast<std::size_t>(static_cast<node *>(0)->value_ptr(type)) + type.size()
-   )));
-   void * pDst = pn->value_ptr(type);
-   if (bMove) {
-      type.move_construct(pDst, const_cast<void *>(pSrc));
-   } else {
-      type.copy_construct(pDst, pSrc);
-   }
+   ABC_TRACE_FUNC(this/*, type*/, p, bMove);
 
-   pn->m_pnNext = nullptr;
-   if (!m_pnFirst) {
-      m_pnFirst = pn.get();
-   } else if (m_pnLast) {
-      m_pnLast->m_pnNext = pn.get();
-   }
-   // Transfer ownership of the node to the list.
-   m_pnLast = pn.release();
+   node * pn = new(type) node(type, &m_pnFirst, &m_pnLast, m_pnLast, nullptr, p, bMove);
    ++m_cNodes;
+   return pn;
 }
 
 void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
+   ABC_TRACE_FUNC(this/*, type*/);
+
    node * pn = m_pnFirst;
-   m_pnFirst = pn->m_pnNext;
+   m_pnFirst = pn->next();
    if (!m_pnFirst) {
       m_pnLast = nullptr;
    }
    --m_cNodes;
    type.destruct(pn->value_ptr(type));
-   memory::_raw_free(pn);
+   delete pn;
 }
 
 }}} //namespace abc::collections::detail
