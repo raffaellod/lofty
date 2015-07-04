@@ -32,6 +32,55 @@ void * doubly_linked_list_impl::node::operator new(std::size_t cb, type_void_ada
    return memory::_raw_alloc(type.align_offset(ABC_UNPADDED_SIZEOF(node, m_pnPrev)) + type.size());
 }
 
+doubly_linked_list_impl::node::node(
+   type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, node * pnPrev, node * pnNext,
+   void const * p, bool bMove
+) :
+   m_pnNext(pnNext),
+   m_pnPrev(pnPrev) {
+   ABC_TRACE_FUNC(this/*, type*/, ppnFirst, ppnLast, pnPrev, pnNext, p, bMove);
+
+   // Copy- or move-onstruct the value of the node.
+   void * pDst = value_ptr(type);
+   if (bMove) {
+      type.move_construct(pDst, const_cast<void *>(p));
+   } else {
+      type.copy_construct(pDst, p);
+   }
+   // If no exceptions were thrown, link the node into the list.
+   try {
+      if (pnPrev) {
+         pnPrev->m_pnNext = this;
+      } else {
+         *ppnFirst = this;
+      }
+      if (pnNext) {
+         pnNext->m_pnPrev = this;
+      } else {
+         *ppnLast = this;
+      }
+   } catch (...) {
+      if (bMove) {
+         // Move the value back to where it came from.
+         type.move_construct(const_cast<void *>(p), pDst);
+      } else {
+         // Destruct the copy of the value.
+         type.destruct(pDst);
+      }
+      throw;
+   }
+}
+
+doubly_linked_list_impl::node::~node() {
+   node * pnNext = m_pnNext, * pnPrev = m_pnPrev;
+   if (pnPrev) {
+      pnPrev->m_pnNext = pnNext;
+   }
+   if (pnNext) {
+      pnNext->m_pnPrev = pnPrev;
+   }
+}
+
 void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) const {
    // Make sure that the argument is the address following the last member.
    return type.align_pointer(&m_pnPrev + 1);
@@ -122,28 +171,7 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::front() const {
 ) {
    ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, p, bMove);
 
-   // Construct and link the node.
-   std::unique_ptr<node> pn(new(type) node());
-   pn->m_pnNext = nullptr;
-   node * pnLast = *ppnLast;
-   pn->m_pnPrev = pnLast;
-   if (!*ppnFirst) {
-      *ppnFirst = pn.get();
-   } else if (pnLast) {
-      pnLast->m_pnNext = pn.get();
-   }
-   *ppnLast = pn.get();
-
-   // Construct the node’s value.
-   void * pDst = pn->value_ptr(type);
-   if (bMove) {
-      type.move_construct(pDst, const_cast<void *>(p));
-   } else {
-      type.copy_construct(pDst, p);
-   }
-
-   // Transfer ownership of *pn to the list.
-   return pn.release();
+   return new(type) node(type, ppnFirst, ppnLast, *ppnLast, nullptr, p, bMove);
 }
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
@@ -159,28 +187,7 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
 ) {
    ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, p, bMove);
 
-   // Construct and link the node.
-   std::unique_ptr<node> pn(new(type) node);
-   pn->m_pnPrev = nullptr;
-   node * pnFirst = *ppnFirst;
-   pn->m_pnNext = pnFirst;
-   if (!*ppnLast) {
-      *ppnLast = pn.get();
-   } else if (pnFirst) {
-      pnFirst->m_pnPrev = pn.get();
-   }
-   *ppnFirst = pn.get();
-
-   // Construct the node’s value.
-   void * pDst = pn->value_ptr(type);
-   if (bMove) {
-      type.move_construct(pDst, const_cast<void *>(p));
-   } else {
-      type.copy_construct(pDst, p);
-   }
-
-   // Transfer ownership of *pn to the list.
-   return pn.release();
+   return new(type) node(type, ppnFirst, ppnLast, nullptr, *ppnFirst, p, bMove);
 }
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
@@ -196,22 +203,11 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
 ) {
    ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, pn);
 
-   node * pnNext = pn->m_pnNext, * pnPrev = pn->m_pnPrev;
-   if (pnPrev) {
-      pnPrev->m_pnNext = pnNext;
-   } else {
-      // *ppnFirst == pn at this point – if ppnFirst was provided.
-      if (*ppnFirst == pn) {
-         *ppnFirst = pnNext;
-      }
+   if (ppnFirst && *ppnFirst == pn) {
+      *ppnFirst = pn->next();
    }
-   if (pnNext) {
-      pnNext->m_pnPrev = pnPrev;
-   } else {
-      // *ppnLast == pn at this point – if ppnLast was provided.
-      if (ppnLast) {
-         *ppnLast = pnPrev;
-      }
+   if (ppnLast && *ppnLast == pn) {
+      *ppnLast = pn->prev();
    }
    type.destruct(pn->value_ptr(type));
    delete pn;

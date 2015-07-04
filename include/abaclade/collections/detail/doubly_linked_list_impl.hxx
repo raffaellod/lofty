@@ -40,9 +40,6 @@ class ABACLADE_SYM doubly_linked_list_impl :
 public:
    //! Doubly-linked node that also stores a single value.
    class node {
-   private:
-      friend class doubly_linked_list_impl;
-
    public:
       /*! Allocates space for a node and its contained value.
 
@@ -63,6 +60,31 @@ public:
       void operator delete(void * p) {
          memory::_raw_free(p);
       }
+
+      /*! Constructor.
+
+      @param type
+         Adapter for the value’s type.
+      @param ppnFirst
+         Pointer to the list’s first node pointer.
+      @param ppnLast
+         Pointer to the list’s last node pointer.
+      @param pnPrev
+         Pointer to the previous node.
+      @param pnNext
+         Pointer to the next node.
+      @param p
+         Pointer to the value to add.
+      @param bMove
+         true to move *p to the new node’s value, or false to copy it instead.
+      */
+      node(
+         type_void_adapter const & type, node ** ppnFirst, node ** ppnLast,
+         node * pnPrev, node * pnNext, void const * p, bool bMove
+      );
+
+      //! Destructor.
+      ~node();
 
       /*! Returns a pointer to the next node.
 
