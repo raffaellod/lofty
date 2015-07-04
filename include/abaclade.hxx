@@ -384,6 +384,30 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
 #define ABC_ALIGNED_SIZE(cb) \
    ((static_cast<std::size_t>(cb) + sizeof(::abc::max_align_t) - 1) / sizeof(::abc::max_align_t))
 
+/** Returns the offset of a member in a struct/class.
+
+@param type
+   Type containing the member.
+@param member
+   Identifier of the last member in type.
+@return
+   Offset of the specified member, in bytes.
+*/
+#define ABC_OFFSETOF(type, member) \
+   (reinterpret_cast<std::size_t>(&reinterpret_cast<type *>(8192)->member) - 8192)
+
+/** Returns the size of a struct/class, without padding added.
+
+@param type
+   Type of which to calculate the exact size.
+@param lastmember
+   Identifier of the last member in type.
+@return
+   Size of type, in bytes. Guaranteed to be at most equal to sizeof(type).
+*/
+#define ABC_UNPADDED_SIZEOF(type, lastmember) \
+   (ABC_OFFSETOF(type, lastmember) + sizeof lastmember)
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
