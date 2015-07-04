@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_COLLECTIONS_TYPE_VOID_ADAPTER_HXX
-#define _ABACLADE_COLLECTIONS_TYPE_VOID_ADAPTER_HXX
+#ifndef _ABACLADE_TYPE_VOID_ADAPTER_HXX
+#define _ABACLADE_TYPE_VOID_ADAPTER_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections {
+namespace abc {
 
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 // TODO: document rationale, design and use cases.
@@ -334,8 +334,8 @@ private:
    move_construct_impl_type m_pfnMoveConstructImpl;
 };
 
-}} //namespace abc::collections
+} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_COLLECTIONS_TYPE_VOID_ADAPTER_HXX
+#endif //ifndef _ABACLADE_TYPE_VOID_ADAPTER_HXX

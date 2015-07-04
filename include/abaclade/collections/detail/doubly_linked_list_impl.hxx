@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/collections/type_void_adapter.hxx>
+#include <abaclade/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
