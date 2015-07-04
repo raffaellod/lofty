@@ -117,39 +117,23 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::front() const {
    return m_pnFirst;
 }
 
-/*static*/ void doubly_linked_list_impl::link_back(node ** ppnFirst, node ** ppnLast, node * pn) {
-   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+/*static*/ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
+   type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, void const * p, bool bMove
+) {
+   ABC_TRACE_FUNC(/*type, */ppnFirst, ppnLast, p, bMove);
 
+   // Construct and link the node.
+   std::unique_ptr<node> pn(new(type) node());
    pn->m_pnNext = nullptr;
    node * pnLast = *ppnLast;
    pn->m_pnPrev = pnLast;
    if (!*ppnFirst) {
-      *ppnFirst = pn;
+      *ppnFirst = pn.get();
    } else if (pnLast) {
-      pnLast->m_pnNext = pn;
+      pnLast->m_pnNext = pn.get();
    }
-   *ppnLast = pn;
-}
+   *ppnLast = pn.get();
 
-/*static*/ void doubly_linked_list_impl::link_front(node ** ppnFirst, node ** ppnLast, node * pn) {
-   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
-
-   pn->m_pnPrev = nullptr;
-   node * pnFirst = *ppnFirst;
-   pn->m_pnNext = pnFirst;
-   if (!*ppnLast) {
-      *ppnLast = pn;
-   } else if (pnFirst) {
-      pnFirst->m_pnPrev = pn;
-   }
-   *ppnFirst = pn;
-}
-
-doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
-   type_void_adapter const & type, void const * p, bool bMove
-) {
-   std::unique_ptr<node> pn(new(type) node);
-   link_back(&m_pnFirst, &m_pnLast, pn.get());
    // Construct the node’s value.
    void * pDst = pn->value_ptr(type);
    if (bMove) {
@@ -157,9 +141,17 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
    } else {
       type.copy_construct(pDst, p);
    }
+
    // Transfer ownership of *pn to the list.
-   ++m_cNodes;
    return pn.release();
+}
+
+doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
+   type_void_adapter const & type, void const * p, bool bMove
+) {
+   node * pn = push_back(type, &m_pnFirst, &m_pnLast, p, bMove);
+   ++m_cNodes;
+   return pn;
 }
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
@@ -177,6 +169,20 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
    // Transfer ownership of *pn to the list.
    ++m_cNodes;
    return pn.release();
+}
+
+/*static*/ void doubly_linked_list_impl::link_front(node ** ppnFirst, node ** ppnLast, node * pn) {
+   ABC_TRACE_FUNC(ppnFirst, ppnLast, pn);
+
+   pn->m_pnPrev = nullptr;
+   node * pnFirst = *ppnFirst;
+   pn->m_pnNext = pnFirst;
+   if (!*ppnLast) {
+      *ppnLast = pn;
+   } else if (pnFirst) {
+      pnFirst->m_pnPrev = pn;
+   }
+   *ppnFirst = pn;
 }
 
 /*static*/ void doubly_linked_list_impl::remove(

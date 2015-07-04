@@ -149,12 +149,19 @@ protected:
 
       /*! Sets the pointer to the last child node.
 
-      @param pln
-         Pointer to the new last child.
+      @param typeValue
+         Adapter for the list_node’s value type.
+      @param p
+         Pointer to the value to add.
+      @param bMove
+         true to move *p to the new node’s value, or false to copy it instead.
+      @return
+         Pointer to the newly-added list node.
       */
-      void link_back(list_node * pln) const {
-         doubly_linked_list_impl::link_back(
-            &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], pln
+      list_node * push_back(type_void_adapter const & typeValue, void const * p, bool bMove) const {
+         return doubly_linked_list_impl::push_back(
+            typeValue, &m_pan->m_apnChildren[m_iChild].ln, &m_pan->m_aplnChildrenLasts[m_iChild], p,
+            bMove
          );
       }
 

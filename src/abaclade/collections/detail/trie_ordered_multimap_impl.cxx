@@ -53,7 +53,6 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
 
    tree_node * ptnParent;
    unsigned iBitsPermutation;
-
    // Descend into the tree, creating nodes as necessary until the path for iKey is complete.
    {
       // ppnChildInParent points to *ptnParent’s parent’s pointer to *ptnParent.
@@ -73,21 +72,11 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
          ppnChildInParent = &ptnParent->m_apnChildren[iBitsPermutation];
       } while (++iLevel <= mc_iTreeAnchorsLevel);
    }
-   // We got here, so *ptnParent is actually an anchor_node.
+   // We got here, so *ptnParent is actually an anchor_node. Append a new node to its list.
    anchor_node_slot ans(static_cast<anchor_node *>(ptnParent), iBitsPermutation);
-
-   std::unique_ptr<list_node> pln(new(typeValue) list_node());
-   ans.link_back(pln.get());
-   // Construct the node’s value.
-   void * pDst = pln->value_ptr(typeValue);
-   if (bMove) {
-      typeValue.move_construct(pDst, const_cast<void *>(pValue));
-   } else {
-      typeValue.copy_construct(pDst, pValue);
-   }
+   list_node * pln = ans.push_back(typeValue, pValue, bMove);
    ++m_cValues;
-   // Transfer ownership of *pln to the list.
-   return pln.release();
+   return pln;
 }
 
 void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & typeValue) {

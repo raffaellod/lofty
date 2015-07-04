@@ -226,14 +226,22 @@ public:
 
    /*! Inserts a node at the end of the list.
 
+   @param type
+      Adapter for the value’s type.
    @param ppnFirst
       Pointer to the list’s first node pointer.
    @param ppnLast
       Pointer to the list’s last node pointer.
-   @param pn
-      Pointer to the node to become the last in the list.
+   @param p
+      Pointer to the value to add.
+   @param bMove
+      true to move *p to the new node’s value, or false to copy it instead.
+   @return
+      Pointer to the newly-added node.
    */
-   static void link_back(node ** ppnFirst, node ** ppnLast, node * pn);
+   static node * push_back(
+      type_void_adapter const & type, node ** ppnFirst, node ** ppnLast, void const * p, bool bMove
+   );
 
    /*! Inserts a node at the start of the list.
 
