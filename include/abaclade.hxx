@@ -527,7 +527,7 @@ class writer;
 #include <abaclade/exception.hxx>
 #include <abaclade/collections/pointer_iterator.hxx>
 //#include <abaclade/type_void_adapter.hxx>
-#include <abaclade/collections/detail/vextr.hxx>
+#include <abaclade/collections/detail/vextr_impl.hxx>
 #include <abaclade/collections/vector.hxx>
 #include <abaclade/text.hxx>
 #include <abaclade/text/char_traits.hxx>
