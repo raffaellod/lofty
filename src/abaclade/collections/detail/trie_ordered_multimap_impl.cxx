@@ -209,8 +209,7 @@ void scalar_keyed_trie_ordered_multimap_impl::remove_value(
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
          ans.remove(typeValue, pln);
       } else {
-         // TODO: throw invalid_iterator.
-         ABC_THROW(generic_error, ());
+         ABC_THROW(iterator_error, ());
       }
    }
    --m_cValues;
