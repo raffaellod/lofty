@@ -151,7 +151,7 @@ public:
       return m_cNodes > 0;
    }
 
-   /*! Removes all elements from the queue.
+   /*! Removes all elements from the list.
 
    @param type
       Adapter for the node value’s type.
@@ -164,7 +164,7 @@ public:
       true if the list is empty, or false otherwise.
    */
    bool empty() const {
-      return !m_cNodes;
+      return m_cNodes == 0;
    }
 
    /*! Returns the count of elements in the list.

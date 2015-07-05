@@ -183,7 +183,7 @@ path path::base_name() const {
          return cchMax;
       }
       DWORD cch = ::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot);
-      if (!cch) {
+      if (cch == 0) {
          exception::throw_os_error();
       }
       return cch + c_cchRoot;
@@ -212,7 +212,7 @@ path path::base_name() const {
       DWORD cch = ::GetFullPathName(
          achDummyPath, static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
       );
-      if (!cch) {
+      if (cch == 0) {
          exception::throw_os_error();
       }
       return cch + c_cchRoot;

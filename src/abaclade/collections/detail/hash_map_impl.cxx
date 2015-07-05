@@ -79,7 +79,7 @@ std::pair<std::size_t, bool> hash_map_impl::add_or_assign(
 ) {
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, pfnKeysEqual, pKey, iKeyHash, pValue, iMove);
 
-   if (!m_cBuckets) {
+   if (m_cBuckets == 0) {
       grow_table(typeKey, typeValue);
    }
    /* Repeatedly resize the table until we’re able to find a bucket for the key. This should

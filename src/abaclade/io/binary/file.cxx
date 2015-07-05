@@ -199,7 +199,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       if (cbWritten >= 0) {
          pb += cbWritten;
          cb -= static_cast<std::size_t>(cbWritten);
-         if (!cb) {
+         if (cb == 0) {
             break;
          }
       } else {
@@ -324,7 +324,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
          }
          exception::throw_os_error(iErr);
       }
-      if (!cchLastRead) {
+      if (cchLastRead == 0) {
          break;
       }
       // Some bytes were read; prepare for the next attempt.

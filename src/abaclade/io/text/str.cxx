@@ -156,7 +156,7 @@ dmstr str_writer::release_content() {
 ) /*override*/ {
    ABC_TRACE_FUNC(this, pSrc, cbSrc, enc);
 
-   if (!cbSrc) {
+   if (cbSrc == 0) {
       // Nothing to do.
       return;
    }

@@ -45,7 +45,7 @@ std::size_t thread_local_storage::sm_cbFrozen = 0;
 
 thread_local_storage::thread_local_storage() :
    m_pb(new std::int8_t[sm_cb]) {
-   if (!sm_cbFrozen) {
+   if (sm_cbFrozen == 0) {
       // Track the size of this first block.
       sm_cbFrozen = sm_cb;
    }

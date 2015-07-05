@@ -108,7 +108,7 @@ namespace abc { namespace io { namespace binary {
       std::int8_t const * pbBuf;
       std::size_t cbBuf;
       std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
-      if (!cbBuf) {
+      if (cbBuf == 0) {
          // No more data available.
          break;
       }

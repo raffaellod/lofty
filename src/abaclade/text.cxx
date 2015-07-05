@@ -83,7 +83,7 @@ encoding guess_encoding(
    std::uint8_t const * pbBufBegin = static_cast<std::uint8_t const *>(pBufBegin);
    std::uint8_t const * pbBufEnd = static_cast<std::uint8_t const *>(pBufEnd);
    // If the total size is not specified, assume that the buffer is the wholesource.
-   if (!cbSrcTotal) {
+   if (cbSrcTotal == 0) {
       cbSrcTotal = static_cast<std::size_t>(pbBufEnd - pbBufBegin);
    }
 
@@ -402,7 +402,7 @@ std::size_t transcode(
                   }
                   ch32 = (ch32 << 6) | (ch8Src & 0x3f);
                }
-               if (!cbTrail && is_codepoint_valid(ch32)) {
+               if (cbTrail == 0 && is_codepoint_valid(ch32)) {
                   // Everything went well.
                   break;
                }

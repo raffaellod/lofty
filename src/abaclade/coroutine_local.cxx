@@ -37,7 +37,7 @@ thread_local_value<coroutine_local_storage> coroutine_local_storage::sm_crls;
 
 coroutine_local_storage::coroutine_local_storage(bool bNewThread /*= true*/) :
    m_pb(new std::int8_t[sm_cb]) {
-   if (!sm_cbFrozen) {
+   if (sm_cbFrozen == 0) {
       // Track the size of this first block.
       sm_cbFrozen = sm_cb;
    }

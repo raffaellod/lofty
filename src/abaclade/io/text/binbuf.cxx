@@ -256,7 +256,7 @@ std::size_t binbuf_reader::detect_encoding(std::int8_t const * pb, std::size_t c
    std::int8_t const * pbSrc;
    std::size_t cbSrc;
    std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::int8_t>(1);
-   if (!cbSrc) {
+   if (cbSrc == 0) {
       // If nothing was read, this is the end of the data.
       m_bEOF = true;
       return false;
@@ -478,7 +478,7 @@ binbuf_writer::binbuf_writer(
    }
 
    // Trivial case.
-   if (!cbSrc) {
+   if (cbSrc == 0) {
       return;
    }
    std::int8_t * pbDst;

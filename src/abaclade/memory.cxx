@@ -162,7 +162,7 @@ std::size_t page_size() {
    static std::size_t s_cb = 0;
    /* The race condition here is harmless, since the page size will be the same for all the threads
    that will concurrently execute the if block. */
-   if (!s_cb) {
+   if (s_cb == 0) {
 #if ABC_HOST_API_POSIX
       s_cb = static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
 #elif ABC_HOST_API_WIN32

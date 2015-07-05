@@ -57,7 +57,7 @@ public:
             // This will cause a context switch if the read would block.
             std::size_t cbRead = pair.first->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
-            if (!cbRead) {
+            if (cbRead == 0) {
                // Detect EOF.
                break;
             }

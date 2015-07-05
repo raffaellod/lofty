@@ -148,7 +148,7 @@ public:
       true if the map is empty, or false otherwise.
    */
    bool empty() const {
-      return !m_cUsedBuckets;
+      return m_cUsedBuckets == 0;
    }
 
    /*! Returns the current neighborhood size.
