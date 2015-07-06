@@ -39,7 +39,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace collections { namespace detail {
 
 //! Implementation of abc::collections::trie_ordered_multimap for scalar key types.
-class ABACLADE_SYM scalar_keyed_trie_ordered_multimap_impl {
+class ABACLADE_SYM scalar_keyed_trie_ordered_multimap_impl :
+   public support_explicit_operator_bool<scalar_keyed_trie_ordered_multimap_impl> {
 private:
    /*! Determines the compactness of each level of the tree. Packing multiple bits on each level
    results in faster lookups and fewer memory allocations, at the cost of increased slack in each
@@ -232,6 +233,15 @@ public:
    scalar_keyed_trie_ordered_multimap_impl & operator=(
       scalar_keyed_trie_ordered_multimap_impl && sktommi
    );
+
+   /*! Returns true if the map contains at least one value.
+
+   @return
+      true if the map is not empty, or false otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return m_cValues > 0;
+   }
 
    /*! Adds a key/value pair to the map.
 
