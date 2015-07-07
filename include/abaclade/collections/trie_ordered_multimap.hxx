@@ -97,8 +97,7 @@ class trie_ordered_multimap;
 
 // Partial specialization for scalar key types.
 template <typename TKey, typename TValue>
-class trie_ordered_multimap<TKey, TValue, 1> :
-   public detail::scalar_keyed_trie_ordered_multimap_impl {
+class trie_ordered_multimap<TKey, TValue, 1> : public detail::bitwise_trie_ordered_multimap_impl {
 protected:
    /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact
    includes the object it points to.
@@ -304,10 +303,10 @@ public:
       Source object.
    */
    trie_ordered_multimap() :
-      detail::scalar_keyed_trie_ordered_multimap_impl(sizeof(TKey)) {
+      detail::bitwise_trie_ordered_multimap_impl(sizeof(TKey)) {
    }
    trie_ordered_multimap(trie_ordered_multimap && tomm) :
-      detail::scalar_keyed_trie_ordered_multimap_impl(std::move(tomm)) {
+      detail::bitwise_trie_ordered_multimap_impl(std::move(tomm)) {
    }
 
    //! Destructor.
@@ -322,7 +321,7 @@ public:
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && tomm) {
       trie_ordered_multimap tommOld(std::move(*this));
-      detail::scalar_keyed_trie_ordered_multimap_impl::operator=(std::move(tomm));
+      detail::bitwise_trie_ordered_multimap_impl::operator=(std::move(tomm));
       return *this;
    }
 
@@ -343,7 +342,7 @@ public:
       typeValue.set_align<TValue>();
       typeValue.set_move_construct<TValue>();
       typeValue.set_size<TValue>();
-      return iterator(key, detail::scalar_keyed_trie_ordered_multimap_impl::add(
+      return iterator(key, detail::bitwise_trie_ordered_multimap_impl::add(
          typeValue, key_to_int(key), &value, true
       ));
    }
@@ -353,7 +352,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      return detail::scalar_keyed_trie_ordered_multimap_impl::clear(typeValue);
+      return detail::bitwise_trie_ordered_multimap_impl::clear(typeValue);
    }
 
    /*! Searches the map for a specific key, returning an iterator to the first corresponding key/
@@ -365,7 +364,7 @@ public:
       Iterator to the first matching key/value, or cend() if the key could not be found.
    */
    iterator find(TKey key) {
-      return iterator(key, detail::scalar_keyed_trie_ordered_multimap_impl::find(key_to_int(key)));
+      return iterator(key, detail::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
    }
    const_iterator find(TKey key) const {
       return const_cast<trie_ordered_multimap *>(this)->find(key);
@@ -379,7 +378,7 @@ public:
    reference front() {
       ABC_TRACE_FUNC(this);
 
-      auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
+      auto kvp(detail::bitwise_trie_ordered_multimap_impl::front());
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
    const_reference front() const {
@@ -417,7 +416,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      auto kvp(detail::scalar_keyed_trie_ordered_multimap_impl::front());
+      auto kvp(detail::bitwise_trie_ordered_multimap_impl::front());
       value_type vRet(
          int_to_key(kvp.iKey), std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
       );

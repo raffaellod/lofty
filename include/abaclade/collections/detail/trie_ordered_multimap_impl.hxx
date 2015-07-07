@@ -39,8 +39,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace collections { namespace detail {
 
 //! Implementation of abc::collections::trie_ordered_multimap for scalar key types.
-class ABACLADE_SYM scalar_keyed_trie_ordered_multimap_impl :
-   public support_explicit_operator_bool<scalar_keyed_trie_ordered_multimap_impl> {
+class ABACLADE_SYM bitwise_trie_ordered_multimap_impl :
+   public support_explicit_operator_bool<bitwise_trie_ordered_multimap_impl> {
 private:
    /*! Determines the compactness of each level of the tree. Packing multiple bits on each level
    results in faster lookups and fewer memory allocations, at the cost of increased slack in each
@@ -72,7 +72,7 @@ protected:
    //! Non-leaf node.
    class tree_node {
    private:
-      friend class scalar_keyed_trie_ordered_multimap_impl;
+      friend class bitwise_trie_ordered_multimap_impl;
 
    private:
       //! Child node pointers; one for each permutation of the bits mapped to this node.
@@ -82,7 +82,7 @@ protected:
    //! Anchors value lists to the tree, mapping the last bits of the key.
    class anchor_node : public tree_node {
    private:
-      friend class scalar_keyed_trie_ordered_multimap_impl;
+      friend class bitwise_trie_ordered_multimap_impl;
 
    public:
       //! Default constructor.
@@ -209,30 +209,28 @@ public:
    @param cbKey
       Size of a key, as returned by sizeof.
    */
-   scalar_keyed_trie_ordered_multimap_impl(std::size_t cbKey) :
+   bitwise_trie_ordered_multimap_impl(std::size_t cbKey) :
       m_cValues(0),
       mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
    }
 
-   /*! Move-constructor.
+   /*! Move constructor.
 
-   @param sktommi
+   @param bwtommi
       Source object.
    */
-   scalar_keyed_trie_ordered_multimap_impl(scalar_keyed_trie_ordered_multimap_impl && sktommi);
+   bitwise_trie_ordered_multimap_impl(bitwise_trie_ordered_multimap_impl && bwtommi);
 
    //! Destructor.
-   ~scalar_keyed_trie_ordered_multimap_impl() {
+   ~bitwise_trie_ordered_multimap_impl() {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
-   @param sktommi
+   @param bwtommi
       Source object.
    */
-   scalar_keyed_trie_ordered_multimap_impl & operator=(
-      scalar_keyed_trie_ordered_multimap_impl && sktommi
-   );
+   bitwise_trie_ordered_multimap_impl & operator=(bitwise_trie_ordered_multimap_impl && bwtommi);
 
    /*! Returns true if the map contains at least one value.
 

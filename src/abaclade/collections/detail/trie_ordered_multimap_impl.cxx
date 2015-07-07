@@ -25,28 +25,28 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-scalar_keyed_trie_ordered_multimap_impl::scalar_keyed_trie_ordered_multimap_impl(
-   scalar_keyed_trie_ordered_multimap_impl && sktommi
+bitwise_trie_ordered_multimap_impl::bitwise_trie_ordered_multimap_impl(
+   bitwise_trie_ordered_multimap_impl && bwtommi
 ) :
-   m_pnRoot(sktommi.m_pnRoot),
-   m_cValues(sktommi.m_cValues),
-   mc_iTreeAnchorsLevel(sktommi.mc_iTreeAnchorsLevel) {
-   sktommi.m_pnRoot.tn = nullptr;
-   sktommi.m_cValues = 0;
+   m_pnRoot(bwtommi.m_pnRoot),
+   m_cValues(bwtommi.m_cValues),
+   mc_iTreeAnchorsLevel(bwtommi.mc_iTreeAnchorsLevel) {
+   bwtommi.m_pnRoot.tn = nullptr;
+   bwtommi.m_cValues = 0;
 }
 
-scalar_keyed_trie_ordered_multimap_impl & scalar_keyed_trie_ordered_multimap_impl::operator=(
-   scalar_keyed_trie_ordered_multimap_impl && sktommi
+bitwise_trie_ordered_multimap_impl & bitwise_trie_ordered_multimap_impl::operator=(
+   bitwise_trie_ordered_multimap_impl && bwtommi
 ) {
    // Assume that the subclass has already moved *this out.
-   m_pnRoot = sktommi.m_pnRoot;
-   sktommi.m_pnRoot.tn = nullptr;
-   m_cValues = sktommi.m_cValues;
-   sktommi.m_cValues = 0;
+   m_pnRoot = bwtommi.m_pnRoot;
+   bwtommi.m_pnRoot.tn = nullptr;
+   m_cValues = bwtommi.m_cValues;
+   bwtommi.m_cValues = 0;
    return *this;
 }
 
-scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_multimap_impl::add(
+bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_impl::add(
    type_void_adapter const & typeValue, std::uintmax_t iKey, void const * pValue, bool bMove
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, iKey, pValue, bMove);
@@ -79,7 +79,7 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    return pln;
 }
 
-void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & typeValue) {
+void bitwise_trie_ordered_multimap_impl::clear(type_void_adapter const & typeValue) {
    ABC_TRACE_FUNC(this/*, typeValue*/);
 
    if (m_pnRoot.tn) {
@@ -94,7 +94,7 @@ void scalar_keyed_trie_ordered_multimap_impl::clear(type_void_adapter const & ty
    }
 }
 
-void scalar_keyed_trie_ordered_multimap_impl::destruct_anchor_node(
+void bitwise_trie_ordered_multimap_impl::destruct_anchor_node(
    type_void_adapter const & typeValue, anchor_node * pan
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, pan);
@@ -108,7 +108,7 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_anchor_node(
    delete pan;
 }
 
-void scalar_keyed_trie_ordered_multimap_impl::destruct_tree_node(
+void bitwise_trie_ordered_multimap_impl::destruct_tree_node(
    type_void_adapter const & typeValue, tree_node * ptn, unsigned iLevel
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, ptn, iLevel);
@@ -127,7 +127,7 @@ void scalar_keyed_trie_ordered_multimap_impl::destruct_tree_node(
    delete ptn;
 }
 
-scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_multimap_impl::find(
+bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_impl::find(
    std::uintmax_t iKey
 ) {
    ABC_TRACE_FUNC(this, iKey);
@@ -139,8 +139,8 @@ scalar_keyed_trie_ordered_multimap_impl::list_node * scalar_keyed_trie_ordered_m
    }
 }
 
-scalar_keyed_trie_ordered_multimap_impl::anchor_node_slot
-scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) const {
+bitwise_trie_ordered_multimap_impl::anchor_node_slot
+bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) const {
    ABC_TRACE_FUNC(this, iKey);
 
    std::uintmax_t iKeyRemaining = iKey;
@@ -163,8 +163,7 @@ scalar_keyed_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iK
 
 }
 
-scalar_keyed_trie_ordered_multimap_impl::key_value_ptr
-scalar_keyed_trie_ordered_multimap_impl::front() {
+bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_impl::front() {
    ABC_TRACE_FUNC(this);
 
    tree_or_list_node_ptr pnChild;
@@ -196,7 +195,7 @@ scalar_keyed_trie_ordered_multimap_impl::front() {
    return key_value_ptr(iKey, pnChild.ln);
 }
 
-void scalar_keyed_trie_ordered_multimap_impl::remove_value(
+void bitwise_trie_ordered_multimap_impl::remove_value(
    type_void_adapter const & typeValue, std::uintmax_t iKey, list_node * pln
 ) {
    ABC_TRACE_FUNC(this/*, typeValue*/, iKey, pln);
