@@ -345,6 +345,14 @@ private:
    */
    anchor_node_slot find_anchor_node_slot(std::uintmax_t iKey) const;
 
+   /*! Removes all the tree nodes mapping to the specified key, as long as they have no other
+   children.
+
+   @param iKey
+      Key designating the branch to prune.
+   */
+   void prune_branch(std::uintmax_t iKey);
+
 private:
    //! Pointer to the top-level tree node or only anchor node.
    tree_or_list_node_ptr m_pnRoot;

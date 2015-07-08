@@ -178,21 +178,61 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
          return key_value_ptr(0, nullptr);
       }
       // Look for the left-most branch to descend into.
-      unsigned iBitsPermutation = 0;
+      unsigned iChild = 0;
       do {
-         pnChild = ptnParent->m_apnChildren[iBitsPermutation];
+         pnChild = ptnParent->m_apnChildren[iChild];
          if (pnChild.tn) {
             // Prepend the selected bit permutation to the key.
-            iKey |= static_cast<std::uintmax_t>(iBitsPermutation) << cNextLevelBitsShift;
+            iKey |= static_cast<std::uintmax_t>(iChild) << cNextLevelBitsShift;
             cNextLevelBitsShift += smc_cBitsPerLevel;
             break;
          }
-      } while (++iBitsPermutation < smc_cBitPermutationsPerLevel);
+      } while (++iChild < smc_cBitPermutationsPerLevel);
       ptnParent = pnChild.tn;
    } while (++iLevel <= mc_iTreeAnchorsLevel);
 
    // We got to the leaf level, so we can return pnChild.ln, though it might be nullptr.
    return key_value_ptr(iKey, pnChild.ln);
+}
+
+void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t iKey) {
+   int iLastNonEmptyLevel = -1;
+   unsigned iLevel = 0, iBitsPermutationAtLastNonEmptyLevel;
+   tree_node * aptnAncestorsStack[smc_cBitPermutationsPerLevel];
+   std::uintmax_t iKeyRemaining = iKey;
+   tree_node * ptn = m_pnRoot.tn;
+   do {
+      unsigned iBitsPermutation = static_cast<unsigned>(
+         iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
+      );
+      iKeyRemaining >>= smc_cBitsPerLevel;
+      // Check if the node has any children other than [iBitsPermutation].
+      unsigned iChild = 0;
+      do {
+         if (iChild != iBitsPermutation && ptn->m_apnChildren[iChild].tn) {
+            iLastNonEmptyLevel = static_cast<int>(iLevel);
+            iBitsPermutationAtLastNonEmptyLevel = iBitsPermutation;
+            break;
+         }
+      } while (++iChild < smc_cBitPermutationsPerLevel);
+      // Push this node on the ancestors stack.
+      aptnAncestorsStack[iLevel] = ptn;
+      ptn = ptn->m_apnChildren[iBitsPermutation].tn;
+   } while (++iLevel <= mc_iTreeAnchorsLevel);
+
+   // Now prune every empty level.
+   while (static_cast<int>(--iLevel) > iLastNonEmptyLevel) {
+      if (iLevel == mc_iTreeAnchorsLevel) {
+         delete static_cast<anchor_node *>(aptnAncestorsStack[iLevel]);
+      } else {
+         delete aptnAncestorsStack[iLevel];
+      }
+   }
+   // Make the last non-empty level no longer point to the branch we just pruned.
+   if (iLastNonEmptyLevel >= 0) {
+      aptnAncestorsStack[iLastNonEmptyLevel]->
+         m_apnChildren[iBitsPermutationAtLastNonEmptyLevel].tn = nullptr;
+   }
 }
 
 void bitwise_trie_ordered_multimap_impl::remove_value(
@@ -203,6 +243,11 @@ void bitwise_trie_ordered_multimap_impl::remove_value(
    if (pln->next() && pln->prev()) {
       // *pln is in the middle of its list, so we don’t need to find and update the anchor.
       doubly_linked_list_impl::remove(typeValue, nullptr, nullptr, pln);
+   } else if (!pln->next() && !pln->prev()) {
+      // *pln is in the only node in its list, so we can destruct it and prune the whole branch.
+      typeValue.destruct(pln->value_ptr(typeValue));
+      delete pln;
+      prune_branch(iKey);
    } else {
       // *pln is the first or the last node in its list, so we need to update the anchor.
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
