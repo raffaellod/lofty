@@ -90,6 +90,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
 
+   auto kvp221_2(tomm.pop_front());
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
+   ABC_TESTING_ASSERT_EQUAL(kvp221_2.key, 20);
+   ABC_TESTING_ASSERT_EQUAL(kvp221_2.value, 221);
+
    tomm.clear();
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
 }
