@@ -143,8 +143,8 @@ bitwise_trie_ordered_multimap_impl::anchor_node_slot
 bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) const {
    ABC_TRACE_FUNC(this, iKey);
 
-   std::uintmax_t iKeyRemaining = iKey;
    tree_node * ptnParent = m_pnRoot.tn;
+   std::uintmax_t iKeyRemaining = iKey;
    std::size_t iLevel = 0;
    for (;;) {
       unsigned iBitsPermutation = static_cast<unsigned>(
@@ -196,11 +196,11 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
 }
 
 void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t iKey) {
-   int iLastNonEmptyLevel = -1;
-   unsigned iLevel = 0, iBitsPermutationAtLastNonEmptyLevel;
+   tree_node * ptn = m_pnRoot.tn, ** pptnTopmostNullable = &m_pnRoot.tn;
    tree_node * aptnAncestorsStack[smc_cBitPermutationsPerLevel];
    std::uintmax_t iKeyRemaining = iKey;
-   tree_node * ptn = m_pnRoot.tn;
+   unsigned iLevel = 0;
+   int iLastNonEmptyLevel = -1;
    do {
       unsigned iBitsPermutation = static_cast<unsigned>(
          iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
@@ -211,7 +211,7 @@ void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t iKey) {
       do {
          if (iChild != iBitsPermutation && ptn->m_apnChildren[iChild].tn) {
             iLastNonEmptyLevel = static_cast<int>(iLevel);
-            iBitsPermutationAtLastNonEmptyLevel = iBitsPermutation;
+            pptnTopmostNullable = &ptn->m_apnChildren[iBitsPermutation].tn;
             break;
          }
       } while (++iChild < smc_cBitPermutationsPerLevel);
@@ -229,10 +229,7 @@ void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t iKey) {
       }
    }
    // Make the last non-empty level no longer point to the branch we just pruned.
-   if (iLastNonEmptyLevel >= 0) {
-      aptnAncestorsStack[iLastNonEmptyLevel]->
-         m_apnChildren[iBitsPermutationAtLastNonEmptyLevel].tn = nullptr;
-   }
+   *pptnTopmostNullable = nullptr;
 }
 
 void bitwise_trie_ordered_multimap_impl::remove_value(
