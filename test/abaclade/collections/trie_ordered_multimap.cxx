@@ -66,6 +66,19 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Now that 220 is gone, front() should return the 20/221 pair.
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
 
+   auto kvp221(tomm.pop_front());
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(kvp221.key, 20);
+   ABC_TESTING_ASSERT_EQUAL(kvp221.value, 221);
+   // Now that the 20 key is gone, front() should return the 30/300 pair.
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 30);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 300);
+
+   tomm.add(kvp221.key, kvp221.value);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
+   ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 221);
+
    auto it300(tomm.find(30));
    ABC_TESTING_ASSERT_EQUAL(it300->key, 30);
    ABC_TESTING_ASSERT_EQUAL(it300->value, 300);
