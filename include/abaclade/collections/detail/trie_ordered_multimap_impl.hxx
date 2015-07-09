@@ -211,6 +211,7 @@ public:
    */
    bitwise_trie_ordered_multimap_impl(std::size_t cbKey) :
       m_cValues(0),
+      mc_iKeyPadding(static_cast<std::uint8_t>((sizeof(std::uintmax_t) - cbKey) * CHAR_BIT)),
       mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
    }
 
@@ -358,6 +359,8 @@ private:
    tree_or_list_node_ptr m_pnRoot;
    //! Count of values. This may be more than the count of keys.
    std::size_t m_cValues;
+   //! Number of bits added to a key to make it as large as std::uintmax_t.
+   std::uint8_t const mc_iKeyPadding;
    //! 0-based index of the last level in the tree, where nodes are of type anchor_node.
    std::uint8_t const mc_iTreeAnchorsLevel;
 };

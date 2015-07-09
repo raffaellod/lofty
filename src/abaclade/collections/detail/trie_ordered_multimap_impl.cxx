@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/bitmanip.hxx>
 #include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
 
 
@@ -30,6 +31,7 @@ bitwise_trie_ordered_multimap_impl::bitwise_trie_ordered_multimap_impl(
 ) :
    m_pnRoot(bwtommi.m_pnRoot),
    m_cValues(bwtommi.m_cValues),
+   mc_iKeyPadding(bwtommi.mc_iKeyPadding),
    mc_iTreeAnchorsLevel(bwtommi.mc_iTreeAnchorsLevel) {
    bwtommi.m_pnRoot.tn = nullptr;
    bwtommi.m_cValues = 0;
@@ -57,18 +59,18 @@ bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_im
    {
       // ppnChildInParent points to *ptnParent’s parent’s pointer to *ptnParent.
       tree_or_list_node_ptr * ppnChildInParent = &m_pnRoot;
-      std::uintmax_t iKeyRemaining = iKey;
-      std::size_t iLevel = 0;
+      std::uintmax_t iKeyRemaining = iKey << mc_iKeyPadding;
+      unsigned iLevel = 0;
       do {
          ptnParent = ppnChildInParent->tn;
          if (!ptnParent) {
             ptnParent = (iLevel == mc_iTreeAnchorsLevel ? new anchor_node() : new tree_node());
             ppnChildInParent->tn = ptnParent;
          }
+         iKeyRemaining = bitmanip::rotate_l(iKeyRemaining, smc_cBitsPerLevel);
          iBitsPermutation = static_cast<unsigned>(
             iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
          );
-         iKeyRemaining >>= smc_cBitsPerLevel;
          ppnChildInParent = &ptnParent->m_apnChildren[iBitsPermutation];
       } while (++iLevel <= mc_iTreeAnchorsLevel);
    }
@@ -144,9 +146,10 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
    ABC_TRACE_FUNC(this, iKey);
 
    tree_node * ptnParent = m_pnRoot.tn;
-   std::uintmax_t iKeyRemaining = iKey;
+   std::uintmax_t iKeyRemaining = iKey << mc_iKeyPadding;
    std::size_t iLevel = 0;
    for (;;) {
+      iKeyRemaining = bitmanip::rotate_l(iKeyRemaining, smc_cBitsPerLevel);
       unsigned iBitsPermutation = static_cast<unsigned>(
          iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
       );
@@ -156,7 +159,6 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
       } else if (!ptnParent) {
          return anchor_node_slot(nullptr, 0);
       }
-      iKeyRemaining >>= smc_cBitsPerLevel;
       ptnParent = ptnParent->m_apnChildren[iBitsPermutation].tn;
       ++iLevel;
    }
@@ -171,8 +173,7 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
 
    // Descend into the tree.
    tree_node * ptnParent = m_pnRoot.tn;
-   std::size_t iLevel = 0;
-   unsigned cNextLevelBitsShift = 0;
+   unsigned iLevel = 0;
    do {
       if (!ptnParent) {
          return key_value_ptr(0, nullptr);
@@ -183,8 +184,8 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
          pnChild = ptnParent->m_apnChildren[iChild];
          if (pnChild.tn) {
             // Prepend the selected bit permutation to the key.
-            iKey |= static_cast<std::uintmax_t>(iChild) << cNextLevelBitsShift;
-            cNextLevelBitsShift += smc_cBitsPerLevel;
+            iKey <<= smc_cBitsPerLevel;
+            iKey |= static_cast<std::uintmax_t>(iChild);
             break;
          }
       } while (++iChild < smc_cBitPermutationsPerLevel);
@@ -198,14 +199,14 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
 void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t iKey) {
    tree_node * ptn = m_pnRoot.tn, ** pptnTopmostNullable = &m_pnRoot.tn;
    tree_node * aptnAncestorsStack[smc_cBitPermutationsPerLevel];
-   std::uintmax_t iKeyRemaining = iKey;
+   std::uintmax_t iKeyRemaining = iKey << mc_iKeyPadding;
    unsigned iLevel = 0;
    int iLastNonEmptyLevel = -1;
    do {
+      iKeyRemaining = bitmanip::rotate_l(iKeyRemaining, smc_cBitsPerLevel);
       unsigned iBitsPermutation = static_cast<unsigned>(
          iKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
       );
-      iKeyRemaining >>= smc_cBitsPerLevel;
       // Check if the node has any children other than [iBitsPermutation].
       unsigned iChild = 0;
       do {
