@@ -147,7 +147,7 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
 
    tree_node * ptnParent = m_pnRoot.tn;
    std::uintmax_t iKeyRemaining = iKey << mc_iKeyPadding;
-   std::size_t iLevel = 0;
+   unsigned iLevel = 0;
    for (;;) {
       iKeyRemaining = bitmanip::rotate_l(iKeyRemaining, smc_cBitsPerLevel);
       unsigned iBitsPermutation = static_cast<unsigned>(
