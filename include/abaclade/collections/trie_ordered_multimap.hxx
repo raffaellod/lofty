@@ -191,7 +191,18 @@ public:
          Pointer to the value to create a reference to.
       */
       const_reference(TKey key_, TValue const * pvalue) :
-         key(*key_), value(*pvalue) {
+         key(*key_),
+         value(*pvalue) {
+      }
+
+      /*! Copy constructor from non-const_reference.
+
+      @param ref
+         Source object.
+      */
+      const_reference(reference const & ref) :
+         key(ref.key),
+         value(ref.value) {
       }
    };
 
