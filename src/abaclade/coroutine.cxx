@@ -632,9 +632,14 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
       tpNow  = static_cast<time_point_t>(tsNow.tv_sec) * 1000;
       tpNow += static_cast<time_point_t>(tsNow.tv_nsec / 1000000);
    #elif ABC_HOST_API_WIN32
-      // TODO: use GetTickCount64() (returning std::uint64_t) from kernel32.dll, if available.
-      // TODO: otherwise check for wrap-around.
-      tpNow = ::GetTickCount();
+      static ::LARGE_INTEGER s_iFreq = {{0, 0}};
+      if (s_iFreq.QuadPart == 0) {
+         ::QueryPerformanceFrequency(&s_iFreq);
+      }
+      ::LARGE_INTEGER iNow;
+      ::QueryPerformanceCounter(&iNow);
+      // TODO: handle wrap-around by keeping tpLast and adding something if tpNow < tpLast.
+      tpNow = iNow.QuadPart * 1000 / s_iFreq;
    #endif
    return tpNow;
 }
