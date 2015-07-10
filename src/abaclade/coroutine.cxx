@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
 #include <abaclade/defer_to_scope_end.hxx>
+#include <abaclade/numeric.hxx>
 #include "coroutine-scheduler.hxx"
 
 #include <atomic>
@@ -330,6 +331,72 @@ void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    m_qReadyCoros.push_back(std::move(pcoroimpl));
 }
 
+#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+void coroutine::scheduler::arm_timer(time_duration_t tdMillisecs) const {
+   /* Since setting the timeout to 0 disables the timer, we’ll set it to the smallest delay possible
+   instead. The resolution of the timer is much greater than milliseconds, so the requested sleep
+   duration will be essentially honored. */
+   #if ABC_HOST_API_LINUX
+      ::itimerspec itsSleepEnd;
+      if (tdMillisecs == 0) {
+         // See comment above.
+         itsSleepEnd.it_value.tv_sec  = 0;
+         itsSleepEnd.it_value.tv_nsec = 1;
+      } else {
+         itsSleepEnd.it_value.tv_sec  =  tdMillisecs / 1000;
+         itsSleepEnd.it_value.tv_nsec = (tdMillisecs % 1000) * 1000000;
+      }
+      itsSleepEnd.it_interval.tv_sec  = 0;
+      itsSleepEnd.it_interval.tv_nsec = 0;
+      if (::timerfd_settime(m_fdTimer.get(), 0, &itsSleepEnd, nullptr) < 0) {
+         exception::throw_os_error();
+      }
+   #elif ABC_HOST_API_WIN32
+      ::LARGE_INTEGER i100nanosecs;
+      // Set a relative time (negative) to make the time counting monotonic.
+      if (tdMillisecs == 0) {
+         // See comment in the beginning of this method.
+         i100nanosecs.QuadPart = -1;
+      } else {
+         i100nanosecs.QuadPart = static_cast<std::int64_t>(
+            static_cast<std::uint64_t>(tdMillisecs)
+         ) * -10000;
+      }
+      if (!::SetWaitableTimer(m_fdTimer.get(), &i100nanosecs, 0, nullptr, nullptr, false)) {
+         exception::throw_os_error();
+      }
+   #endif
+}
+
+void coroutine::scheduler::arm_timer_for_next_sleep_end() const {
+   if (m_tommCorosBlockedByTimer) {
+      // Calculate the time at which the earliest sleep end should occur.
+      time_point_t tpNow = current_time(), tpSleepEnd = m_tommCorosBlockedByTimer.front().key;
+      time_duration_t tdSleep;
+      if (tpNow < tpSleepEnd) {
+         tdSleep = static_cast<time_duration_t>(tpSleepEnd - tpNow);
+      } else {
+         // The timer should’ve already fired by now.
+         tdSleep = 0;
+      }
+      arm_timer(tdSleep);
+   } else {
+      // Stop the timer.
+   #if ABC_HOST_API_LINUX
+      ::itimerspec itsSleepEnd;
+      memory::clear(&itsSleepEnd);
+      if (::timerfd_settime(m_fdTimer.get(), 0, &itsSleepEnd, nullptr) < 0) {
+         exception::throw_os_error();
+      }
+   #elif ABC_HOST_API_WIN32
+      if (!::CancelWaitableTimer(m_fdTimer.get())) {
+         exception::throw_os_error();
+      }
+   #endif
+   }
+}
+#endif
+
 void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    ABC_TRACE_FUNC(this, iMillisecs);
 
@@ -370,34 +437,61 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       ::kevent(m_fdKqueue.get(), &ke, 1, nullptr, 0, &ts);
       throw;
    }
-#elif ABC_HOST_API_LINUX
-   // TODO: use a pool of inactive timers instead of creating and destroying them each time.
-   io::filedesc fd(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
-   if (!fd) {
-      exception::throw_os_error();
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+   if (!m_fdTimer) {
+      // No timer infrastructure yet; set it up now.
+   #if ABC_HOST_API_LINUX
+      m_fdTimer = io::filedesc(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
+      if (!m_fdTimer) {
+         exception::throw_os_error();
+      }
+      ::epoll_event ee;
+      memory::clear(&ee.data);
+      ee.data.fd = m_fdTimer.get();
+      /* Use EPOLLET to avoid waking up multiple threads for each firing of the timer. If when the
+      timer fires there will be multiple coroutines to activate (unlikely), we’ll manually rearm the
+      timer to wake up more threads (or wake up the same threads repeatedly) until all coroutines
+      are activated. */
+      ee.events = EPOLLET | EPOLLIN;
+      if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, m_fdTimer.get(), &ee) < 0) {
+         exception::throw_os_error();
+      }
+   #elif ABC_HOST_API_WIN32
+      m_fdTimer = io::filedesc(::CreateWaitableTimer(nullptr, false, nullptr));
+      if (!m_fdTimer) {
+         exception::throw_os_error();
+      }
+      /* TODO: create a thread that will wait for the timer to fire and report each firing to the
+      IOCP via pipe, effectively emulating a timerfd. */
+   #endif
    }
-   // Arm the timer.
-   ::itimerspec its;
-   its.it_interval.tv_sec = 0;
-   its.it_interval.tv_nsec = 0;
-   its.it_value.tv_sec = static_cast< ::time_t>(iMillisecs / 1000u);
-   its.it_value.tv_nsec = static_cast<long>(
-      static_cast<unsigned long>(iMillisecs % 1000u) * 1000000u
-   );
-   if (::timerfd_settime(fd.get(), 0, &its, nullptr) < 0) {
-      exception::throw_os_error();
+   // Calculate the time at which this timer should fire.
+   time_point_t tpSleepEndMillisecs = current_time() + iMillisecs;
+
+   // Extract the next timeout from the map.
+   time_point_t tpNextSleepEnd;
+   if (m_tommCorosBlockedByTimer) {
+      tpNextSleepEnd = m_tommCorosBlockedByTimer.front().key;
+   } else {
+      tpNextSleepEnd = numeric::max<time_point_t>::value;
    }
-   // This timer is now active (save exceptions – see catch (...) below).
-   io::filedesc_t fdCopy = fd.get();
-   m_hmActiveTimers.add_or_assign(fdCopy, std::move(fd));
-   auto deferred1(defer_to_scope_end([this, fdCopy] () {
-      // Remove the timer from the set of active ones.
-      // TODO: recycle the timer, putting it back in the pool of inactive timers.
-      m_hmActiveTimers.remove(fdCopy);
-   }));
-   // At this point the timer is just a file descriptor that we’ll be waiting to read from.
-   block_active_until_fd_ready(fdCopy, false);
-   // deferred1 will remove fdCopy from m_hmActiveTimers.
+
+   // Move the active coroutine to the map.
+   auto it(m_tommCorosBlockedByTimer.add(tpSleepEndMillisecs, std::move(sm_pcoroimplActive)));
+   try {
+      // If the calculated time is sooner than the next timeout, rearm the timer.
+      if (tpSleepEndMillisecs < tpNextSleepEnd) {
+         arm_timer(iMillisecs);
+      }
+
+      // Switch back to the thread’s own context and have it wait for a ready coroutine.
+      switch_to_scheduler(it->value.get());
+   } catch (...) {
+      // Remove the timer from the set of active ones and rearm the timer if there are sleeps left.
+      m_tommCorosBlockedByTimer.remove(it);
+      arm_timer_for_next_sleep_end();
+      throw;
+   }
 #else
    #error "TODO: HOST_API"
 #endif
@@ -514,6 +608,23 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
    }
 }
 
+#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+/*static*/ coroutine::scheduler::time_point_t coroutine::scheduler::current_time() {
+   time_point_t tpNow;
+   #if ABC_HOST_API_LINUX
+      ::timespec tsNow;
+      ::clock_gettime(CLOCK_MONOTONIC, &tsNow);
+      tpNow  = static_cast<time_point_t>(tsNow.tv_sec) * 1000;
+      tpNow += static_cast<time_point_t>(tsNow.tv_nsec / 1000000);
+   #elif ABC_HOST_API_WIN32
+      // TODO: use GetTickCount64() (returning std::uint64_t) from kernel32.dll, if available.
+      // TODO: otherwise check for wrap-around.
+      tpNow = ::GetTickCount();
+   #endif
+   return tpNow;
+}
+#endif
+
 std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
@@ -534,6 +645,8 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
             !m_hmCorosBlockedByFD
 #if ABC_HOST_API_BSD
             && !m_hmCorosBlockedByTimer
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+            && !m_tommCorosBlockedByTimer
 #endif
          ) {
             return nullptr;
@@ -564,7 +677,8 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          // Remove and return the coroutine that was waiting for this file descriptor.
          return m_hmCorosBlockedByFD.pop(static_cast<io::filedesc_t>(ke.ident));
       }
-#elif ABC_HOST_API_LINUX
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+   #if ABC_HOST_API_LINUX
       ::epoll_event ee;
       if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
          int iErr = errno;
@@ -573,10 +687,13 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          }
          exception::throw_os_error(iErr);
       }
-      // Remove and return the coroutine that was waiting for this file descriptor.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_hmCorosBlockedByFD.pop(ee.data.fd);
-#elif ABC_HOST_API_WIN32
+      if (ee.data.fd != m_fdTimer.get()) {
+         // Remove and return the coroutine that was waiting for this file descriptor.
+         return m_hmCorosBlockedByFD.pop(ee.data.fd);
+      }
+      // TODO: read from the timer to consume its data.
+   #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
       ::OVERLAPPED * povl;
@@ -585,9 +702,20 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       )) {
          exception::throw_os_error(iErr);
       }
-      // Remove and return the coroutine that was waiting for this handle.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      return m_hmCorosBlockedByFD.pop(reinterpret_cast< ::HANDLE>(iCompletionKey));
+      ::HANDLE hFile = reinterpret_cast< ::HANDLE>(iCompletionKey);
+      if (hFile != m_fdTimerPipe.get()) {
+         // Remove and return the coroutine that was waiting for this handle.
+         return m_hmCorosBlockedByFD.pop(hFile);
+      }
+   #endif
+      // Pop the coroutine that should run now, and rearm the timer if necessary.
+      auto kv(m_tommCorosBlockedByTimer.pop_front());
+      if (m_tommCorosBlockedByTimer) {
+         arm_timer_for_next_sleep_end();
+      }
+      // Return the coroutine that was waiting for the timer.
+      return std::move(kv.value);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -608,6 +736,11 @@ void coroutine::scheduler::interrupt_all() {
       ABC_FOR_EACH(auto kv, m_hmCorosBlockedByTimer) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+      /* TODO: trie_ordered_multimap::iterator
+      ABC_FOR_EACH(auto kv, m_tommCorosBlockedByTimer) {
+         kv.value->inject_exception(kv.value, xctInterruptionReason);
+      }*/
 #endif
       /* TODO: coroutines currently running on other threads associated to this scheduler won’t have
       been interrupted by the above loops; they need to be stopped by interrupting the threads that

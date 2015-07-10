@@ -30,6 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/coroutine.hxx>
 #include <abaclade/collections/hash_map.hxx>
 #include <abaclade/collections/queue.hxx>
+#include <abaclade/collections/trie_ordered_multimap.hxx>
 #include <abaclade/thread.hxx>
 
 #include <atomic>
@@ -55,6 +56,13 @@ private:
    );
    friend std::shared_ptr<scheduler> const & this_thread::coroutine_scheduler();
    friend void this_thread::detach_coroutine_scheduler();
+
+public:
+   /*! Integer type large enough to represent a time duration in milliseconds with a magnitude
+   sufficient for scheduling coroutines. */
+   typedef std::uint32_t time_duration_t;
+   //! Integer type large enough to represent a point in time with resolution of one millisecond.
+   typedef std::uint64_t time_point_t;
 
 public:
    //! Constructor.
@@ -102,6 +110,26 @@ public:
    void run();
 
 private:
+#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+   /*! Arms the internal timer responsible for all time-based waits.
+
+   @param tdMillisecs
+      Time in which the timer should fire.
+   */
+   void arm_timer(time_duration_t tdMillisecs) const;
+
+   /*! Arms the internal timer so that it fires as requested by the next sleeping coroutine. If
+   there are no sleeping coroutines, the timer will be disabled. */
+   void arm_timer_for_next_sleep_end() const;
+
+   /*! Returns the current time.
+
+   @return
+      Current time.
+   */
+   static time_point_t current_time();
+#endif
+
    /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks
    the current thread until one of them becomes ready.
 
@@ -149,14 +177,23 @@ private:
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
-   /*! Timers currently being waited for. The key is the same as the value, but this can’t be
-   changed into a set<io::filedesc> until io::filedesc is hashable. */
-   collections::hash_map<io::filedesc_t, io::filedesc> m_hmActiveTimers;
 #elif ABC_HOST_API_WIN32
    //! File descriptor of the internal IOCP.
    io::filedesc m_fdIocp;
+   //! Thread that translates wake-ups from m_fdTimer into wake-ups for the IOCP.
+   // TODO: type? m_thrTimerWaiter;
+   //! Pipe that exposes m_fdTimer wake-ups to the IOCP.
+   io::filedesc m_fdTimerPipe;
 #else
    #error "TODO: HOST_API"
+#endif
+#if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
+   //! Map of timeouts, in milliseconds, and their associated corotuines.
+   collections::trie_ordered_multimap<
+      time_point_t, std::shared_ptr<impl>
+   > m_tommCorosBlockedByTimer;
+   //! Timer responsible for every timed wait.
+   io::filedesc m_fdTimer;
 #endif
    //! Coroutines that are blocked on a fd wait.
    collections::hash_map<io::filedesc_t, std::shared_ptr<impl>> m_hmCorosBlockedByFD;
