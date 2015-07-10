@@ -166,6 +166,20 @@ private:
    */
    void switch_to_scheduler(impl * pcoroimplLastActive);
 
+#if ABC_HOST_API_WIN32
+   //! Waits for m_fdTimer to fire, posting each firing to the IOCP.
+   void timer_thread();
+
+   /*! Invokes pThis->timer_thread().
+
+   @param pThis
+      this.
+   @return
+      0 if no errors occurred, or 1 if an exception was caught.
+   */
+   static ::DWORD WINAPI timer_thread_static(void * pThis);
+#endif
+
 private:
 #if ABC_HOST_API_BSD
    //! File descriptor of the internal kqueue.
@@ -180,10 +194,9 @@ private:
 #elif ABC_HOST_API_WIN32
    //! File descriptor of the internal IOCP.
    io::filedesc m_fdIocp;
-   //! Thread that translates wake-ups from m_fdTimer into wake-ups for the IOCP.
-   // TODO: type? m_thrTimerWaiter;
-   //! Pipe that exposes m_fdTimer wake-ups to the IOCP.
-   io::filedesc m_fdTimerPipe;
+   //! Thread that translates events from m_fdTimer into IOCP completions.
+   ::HANDLE m_hTimerThread;
+   std::atomic<bool> m_bTimerThreadEnd;
 #else
    #error "TODO: HOST_API"
 #endif

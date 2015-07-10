@@ -297,6 +297,8 @@ coroutine::scheduler::scheduler() :
    m_fdEpoll(::epoll_create1(EPOLL_CLOEXEC)),
 #elif ABC_HOST_API_WIN32
    m_fdIocp(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
+   m_hTimerThread(nullptr),
+   m_bTimerThreadEnd(false),
 #endif
    m_xctInterruptionReason(exception::common_type::none) {
    ABC_TRACE_FUNC(this);
@@ -322,6 +324,15 @@ coroutine::scheduler::scheduler() :
 coroutine::scheduler::~scheduler() {
    /* TODO: verify that m_qReadyCoros and m_hmCorosBlockedByFD (and m_hmCorosBlockedByTimer…) are
    empty. */
+#if ABC_HOST_API_WIN32
+   if (m_hTimerThread) {
+      m_bTimerThreadEnd.store(true);
+      // Wake the thread up one last time to let it know that it’s over.
+      arm_timer(0);
+      ::WaitForSingleObject(m_hTimerThread, INFINITE);
+      ::CloseHandle(m_hTimerThread);
+   }
+#endif
 }
 
 void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
@@ -461,8 +472,12 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       if (!m_fdTimer) {
          exception::throw_os_error();
       }
-      /* TODO: create a thread that will wait for the timer to fire and report each firing to the
-      IOCP via pipe, effectively emulating a timerfd. */
+      /* Create a thread that will wait for the timer to fire and post each firing to the IOCP,
+      effectively emulating a timerfd. */
+      m_hTimerThread = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
+      if (!m_hTimerThread) {
+         exception::throw_os_error();
+      }
    #endif
    }
    // Calculate the time at which this timer should fire.
@@ -483,11 +498,11 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
       if (tpSleepEndMillisecs < tpNextSleepEnd) {
          arm_timer(iMillisecs);
       }
-
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
       switch_to_scheduler(it->value.get());
    } catch (...) {
-      // Remove the timer from the set of active ones and rearm the timer if there are sleeps left.
+      /* Remove the coroutine from the map of blocked ones and rearm the timer if there are sleepers
+      left. */
       m_tommCorosBlockedByTimer.remove(it);
       arm_timer_for_next_sleep_end();
       throw;
@@ -692,7 +707,6 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          // Remove and return the coroutine that was waiting for this file descriptor.
          return m_hmCorosBlockedByFD.pop(ee.data.fd);
       }
-      // TODO: read from the timer to consume its data.
    #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
@@ -704,7 +718,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       }
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       ::HANDLE hFile = reinterpret_cast< ::HANDLE>(iCompletionKey);
-      if (hFile != m_fdTimerPipe.get()) {
+      if (hFile != m_fdTimer.get()) {
          // Remove and return the coroutine that was waiting for this handle.
          return m_hmCorosBlockedByFD.pop(hFile);
       }
@@ -839,6 +853,27 @@ void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
    // Now that we’re back to the coroutine, check for any resume exceptions.
    pcoroimplLastActive->throw_if_any_pending_exception();
 }
+
+#if ABC_HOST_API_WIN32
+void coroutine::scheduler::timer_thread() {
+   do {
+      if (::WaitForSingleObject(m_fdTimer.get(), INFINITE) == WAIT_OBJECT_0) {
+         ::PostQueuedCompletionStatus(
+            m_fdIocp.get(), 0, reinterpret_cast< ::ULONG_PTR>(m_fdTimer.get()), nullptr
+         );
+      }
+   } while (!m_bTimerThreadEnd.load());
+}
+
+/*static*/ ::DWORD WINAPI coroutine::scheduler::timer_thread_static(void * pThis) {
+   try {
+      static_cast<scheduler *>(pThis)->timer_thread();
+   } catch (...) {
+      return 1;
+   }
+   return 0;
+}
+#endif
 
 
 // Now this can be defined.
