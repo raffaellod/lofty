@@ -140,9 +140,6 @@ public:
    };
 
 protected:
-   //! Internal node type.
-   typedef doubly_linked_list_impl::node node;
-
    //! Base class for list iterator implementations.
    class iterator_base {
    public:
