@@ -33,7 +33,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::queue – basic operations") {
    collections::queue<int> q;
 
    ABC_TESTING_ASSERT_TRUE(q.empty());
-   ABC_TESTING_ASSERT_EQUAL(q.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 
    q.push_back(10);
    ABC_TESTING_ASSERT_FALSE(q.empty());
@@ -55,7 +55,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::queue – basic operations") {
 
    ABC_TESTING_ASSERT_EQUAL(q.pop_front(), 20);
    ABC_TESTING_ASSERT_TRUE(q.empty());
-   ABC_TESTING_ASSERT_EQUAL(q.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 
    q.push_back(30);
    ABC_TESTING_ASSERT_FALSE(q.empty());
@@ -65,7 +65,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::queue – basic operations") {
 
    q.clear();
    ABC_TESTING_ASSERT_TRUE(q.empty());
-   ABC_TESTING_ASSERT_EQUAL(q.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 }
 
 }} //namespace abc::test

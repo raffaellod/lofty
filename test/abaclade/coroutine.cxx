@@ -185,11 +185,11 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
 
    this_thread::run_coroutines();
 
-   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[0], 3);
-   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[1], 1);
-   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[2], 2);
-   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[3], 5);
-   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[4], 4);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[0], 3u);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[1], 1u);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[2], 2u);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[3], 5u);
+   ABC_TESTING_ASSERT_EQUAL(aiWorkersAwoke[4], 4u);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

@@ -31,9 +31,9 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   collections::trie_ordered_multimap<unsigned, int> tomm;
+   collections::trie_ordered_multimap<int, int> tomm;
 
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
 
    auto it400(tomm.add(40, 400));
    // {40: 400}
@@ -135,7 +135,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 101);
 
    tomm.clear();
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
 
    auto it102(tomm.add(10, 102));
    // {10: 102}
@@ -168,7 +168,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 //   ABC_TESTING_ASSERT_THROWS(generic_error, tomm.front().value);
 
    tomm.clear();
-   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0);
+   ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
 }
 
 }} //namespace abc::test
