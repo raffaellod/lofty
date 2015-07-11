@@ -168,7 +168,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
 
    static std::size_t const sc_cWorkers = 5;
    coroutine coroWorkers[sc_cWorkers];
-   unsigned sc_aiSleeps[sc_cWorkers] = { 2, 3, 1, 5, 4 };
+   unsigned sc_aiSleeps[sc_cWorkers] = { 20, 30, 10, 50, 40 };
    std::size_t aiWorkersAwoke[sc_cWorkers];
    memory::clear(aiWorkersAwoke);
    std::atomic<std::size_t> aiNextAwakingWorkerSlot(0);

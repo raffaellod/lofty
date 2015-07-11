@@ -92,7 +92,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
          ABC_TRACE_FUNC(this);
 
          try {
-            /* Expect to be interrupted by coroController. Make this sleep long enough so as not to
+            /* Expect to be interrupted by the main thread. Make this sleep long enough so as not to
             cause sporadic test failures, but avoid slowing the test down by too much. */
             this_thread::sleep_for_ms(150);
             *pbWorkerCompleted = true;
