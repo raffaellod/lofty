@@ -267,9 +267,9 @@ public:
       friend class trie_ordered_multimap;
 
    public:
-      typedef trie_ordered_multimap::reference value_type;
-      typedef trie_ordered_multimap::reference * pointer;
-      typedef trie_ordered_multimap::reference & reference;
+      typedef typename trie_ordered_multimap::reference value_type;
+      typedef typename trie_ordered_multimap::reference * pointer;
+      typedef typename trie_ordered_multimap::reference & reference;
 
    public:
       //! Default constructor.

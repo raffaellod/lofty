@@ -112,7 +112,7 @@ app::app() {
    io::binary::stdout.reset();
    try {
       io::text::stderr->finalize();
-   } catch (std::exception const & x) {
+   } catch (std::exception const &) {
       // FIXME: EXC-SWALLOW
       bErrors = true;
    } catch (...) {
@@ -142,7 +142,7 @@ app::app() {
       io::text::stdin  = io::text::detail::make_stdin ();
       io::text::stdout = io::text::detail::make_stdout();
       return true;
-   } catch (std::exception const & x) {
+   } catch (std::exception const &) {
       // Exceptions can’t be reported at this point.
       return false;
    } catch (...) {
