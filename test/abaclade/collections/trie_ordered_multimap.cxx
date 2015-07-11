@@ -128,8 +128,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    auto it302(tomm.add(30, 302));
    // {10: 101}, {30: 302} {40, 400}, {50: 500}
-   ABC_TESTING_ASSERT_EQUAL(it301->key, 30);
-   ABC_TESTING_ASSERT_EQUAL(it301->value, 301);
+   ABC_TESTING_ASSERT_EQUAL(it302->key, 30);
+   ABC_TESTING_ASSERT_EQUAL(it302->value, 302);
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 4u);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 10);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 101);
