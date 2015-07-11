@@ -210,7 +210,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
    See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-do/>
    for the two race conditions mentioned above. */
    std::uintptr_t iCurrPC;
-   do {
+   for (;;) {
       if (!::GetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
@@ -223,8 +223,15 @@ void thread::impl::inject_exception(exception::common_type xct) {
 #else
    #error "TODO: HOST_ARCH"
 #endif
+      if (iCurrPC == iLastPC) {
+         /* Assume that the thread has stopped. This condition is prone to false positives; the thread
+         might be executing a loop, or a recursive function call, or who knows what. Still, this is
+         better than not making an effort to wait for the thread to stop. */
+         break;
+      }
       ::Sleep(0);
-   } while (iCurrPC != iLastPC);
+      iLastPC = iCurrPC;
+   }
 
    /* Now that the thread is really suspended, inject the exception and resume it, unless the thread
    is already terminating, in which case we’ll avoid throwing an exception. This check is safe
