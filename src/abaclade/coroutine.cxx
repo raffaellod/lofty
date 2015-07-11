@@ -563,7 +563,7 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
 #if ABC_HOST_API_WIN32
       /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file,
       not just this one. */
-      ::CancelIo(fd, nullptr);
+      ::CancelIo(fd);
 #endif
       // Remove the coroutine from the map of blocked ones.
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
@@ -639,7 +639,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
       ::LARGE_INTEGER iNow;
       ::QueryPerformanceCounter(&iNow);
       // TODO: handle wrap-around by keeping tpLast and adding something if tpNow < tpLast.
-      tpNow = iNow.QuadPart * 1000 / s_iFreq;
+      tpNow = iNow.QuadPart * 1000ull / s_iFreq.QuadPart;
    #endif
    return tpNow;
 }
@@ -719,7 +719,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       if (!::GetQueuedCompletionStatus(
          m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
       )) {
-         exception::throw_os_error(iErr);
+         exception::throw_os_error();
       }
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       ::HANDLE hFile = reinterpret_cast< ::HANDLE>(iCompletionKey);
