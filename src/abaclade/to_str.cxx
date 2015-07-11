@@ -365,6 +365,7 @@ void to_str_backend<std::type_info>::set_format(istr const & sFormat) {
 void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::writer * ptwOut) {
    char const * psz = ti.name();
 #if ABC_HOST_CXX_GCC
+   // G++ generates mangled names.
    int iRet = 1;
    std::unique_ptr<char const, memory::freeing_deleter> pszDemangled(
       abi::__cxa_demangle(psz, nullptr, nullptr, &iRet)
@@ -373,6 +374,15 @@ void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::
       psz = pszDemangled.get();
    } else {
       psz = "?";
+   }
+#elif ABC_HOST_CXX_MSC
+   /* MSC prepends “class ”, “struct ” or “union ” to the type name; find the first space and strip
+   anything preceding it. */
+   for (char const * pszSpace = psz; *pszSpace; ++pszSpace) {
+      if (*pszSpace == ' ') {
+         psz = pszSpace + 1;
+         break;
+      }
    }
 #endif
    m_tsbCStr.write(text::char_ptr_to_str_adapter(psz), ptwOut);
