@@ -195,8 +195,6 @@ void thread::impl::inject_exception(exception::common_type xct) {
    auto deferred1(defer_to_scope_end([this] () {
       ::ResumeThread(m_h);
    }));
-   std::uintptr_t iLastPC = 0;
-   ::CONTEXT ctx;
    /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
    suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context until
    that reveals that the thread has really stopped, which wouldn’t be otherwise guaranteed on a
@@ -209,17 +207,20 @@ void thread::impl::inject_exception(exception::common_type xct) {
 
    See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-do/>
    for the two race conditions mentioned above. */
-   std::uintptr_t iCurrPC;
+   ::CONTEXT ctx;
+   std::uintptr_t iLastPC = 0;
    for (;;) {
+      ctx.ContextFlags = CONTEXT_INTEGER | CONTEXT_CONTROL;
       if (!::GetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
+      std::uintptr_t iCurrPC =
 #if ABC_HOST_ARCH_ARM
-      iCurrPC = ctx.Pc;
+         ctx.Pc;
 #elif ABC_HOST_ARCH_I386
-      iCurrPC = ctx.Eip;
+         ctx.Eip;
 #elif ABC_HOST_ARCH_X86_64
-      iCurrPC = ctx.Rip;
+         ctx.Rip;
 #else
    #error "TODO: HOST_ARCH"
 #endif
