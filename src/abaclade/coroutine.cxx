@@ -815,13 +815,14 @@ void coroutine::scheduler::run() {
       sm_puctxReturn = nullptr;
    }));
 #elif ABC_HOST_API_WIN32
-   {
-      void * pfbr = ::ConvertThreadToFiber(nullptr);
-      if (!pfbr) {
-         exception::throw_os_error();
-      }
-      sm_pfbrReturn = pfbr;
+   void * pfbr = ::ConvertThreadToFiber(nullptr);
+   if (!pfbr) {
+      exception::throw_os_error();
    }
+   auto deferred1(defer_to_scope_end([] () {
+      ::ConvertFiberToThread();
+   }));
+   sm_pfbrReturn = pfbr;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -835,6 +836,7 @@ void coroutine::scheduler::run() {
       throw;
    }
    // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
+   // Under Win32, deferred1 will convert the current fiber back into a thread.
 }
 
 void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
