@@ -39,7 +39,7 @@ class ABACLADE_SYM doubly_linked_list_impl :
    public support_explicit_operator_bool<doubly_linked_list_impl> {
 public:
    //! Doubly-linked list node that also stores a single value.
-   class node {
+   class ABACLADE_SYM node {
    public:
       /*! Allocates space for a node and its contained value.
 
@@ -141,7 +141,7 @@ public:
 
 protected:
    //! Base class for list iterator implementations.
-   class iterator_base {
+   class ABACLADE_SYM iterator_base {
    public:
       typedef std::ptrdiff_t difference_type;
       typedef std::bidirectional_iterator_tag iterator_category;

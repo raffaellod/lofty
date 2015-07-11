@@ -39,7 +39,7 @@ class ABACLADE_SYM singly_linked_list_impl :
    public support_explicit_operator_bool<singly_linked_list_impl> {
 protected:
    //! Singly-linked list node that also stores a single value.
-   class node {
+   class ABACLADE_SYM node {
    public:
       /*! Allocates space for a node and its contained value.
 
