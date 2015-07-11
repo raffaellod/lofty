@@ -188,6 +188,21 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – STL tuple types") {
 
 namespace abc { namespace test {
 
+union union_type {
+   int i;
+   char ch;
+};
+
+struct struct_type {
+   int i;
+   char ch;
+};
+
+class class_type {
+   int i;
+   char ch;
+};
+
 ABC_TESTING_TEST_CASE_FUNC("abc::to_str – std::type_info") {
    ABC_TRACE_FUNC(this);
 
@@ -195,7 +210,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – std::type_info") {
    ABC_TESTING_ASSERT_EQUAL(to_str(typeid(1)), ABC_SL("int"));
    ABC_TESTING_ASSERT_EQUAL(to_str(typeid(double)), ABC_SL("double"));
    ABC_TESTING_ASSERT_EQUAL(to_str(typeid(bool)), ABC_SL("bool"));
-   ABC_TESTING_ASSERT_EQUAL(to_str(typeid(istr)), ABC_SL("abc::text::istr"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(typeid(union_type )), ABC_SL("abc::test::union_type" ));
+   ABC_TESTING_ASSERT_EQUAL(to_str(typeid(struct_type)), ABC_SL("abc::test::struct_type"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(typeid(class_type )), ABC_SL("abc::test::class_type" ));
 }
 
 }} //namespace abc::test
