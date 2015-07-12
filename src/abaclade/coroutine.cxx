@@ -186,7 +186,11 @@ private:
    @param p
       this.
    */
-   static void outer_main(void * p);
+   static void
+#if ABC_HOST_API_WIN32
+      WINAPI
+#endif
+   outer_main(void * p);
 
 private:
 #if ABC_HOST_API_POSIX
