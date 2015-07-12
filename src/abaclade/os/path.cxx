@@ -391,6 +391,7 @@ dmstr::const_iterator path::base_name_start() const {
          return sc_cchUNCRoot;
       }
       char_t ch;
+      ABC_UNUSED_ARG(ch);
       ABC_ASSERT(
          cch >= sc_cchVolumeRoot &&
          (ch = *(pch + sc_cchVolumeRoot - 3), ch >= 'A' && ch <= 'Z') &&
