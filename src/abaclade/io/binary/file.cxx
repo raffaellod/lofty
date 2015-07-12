@@ -91,8 +91,9 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       }
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD cbToRead = static_cast<DWORD>(std::min<std::size_t>(cbMax, numeric::max<DWORD>::value));
-   DWORD cbRead, iErr;
+   ::DWORD iErr, cbRead, cbToRead = static_cast< ::DWORD>(
+      std::min<std::size_t>(cbMax, numeric::max< ::DWORD>::value)
+   );
    if (m_bAsync) {
       ::OVERLAPPED ovl;
       ovl.hEvent = nullptr;
@@ -101,14 +102,14 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       {
          long ibOffsetHigh = 0;
          ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-         ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
+         ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
       }
       BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
       iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
       if (iErr == ERROR_IO_PENDING) {
          this_coroutine::sleep_until_fd_ready(m_fd, false);
          // cbRead is now available in ovl.
-         cbRead = ovl.InternalHigh;
+         cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
          iErr = ERROR_SUCCESS;
       }
    } else {
@@ -220,8 +221,9 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    do {
-      DWORD cbToWrite = static_cast<DWORD>(std::min<std::size_t>(cb, numeric::max<DWORD>::value));
-      DWORD cbWritten;
+      ::DWORD cbWritten, cbToWrite = static_cast< ::DWORD>(
+         std::min<std::size_t>(cb, numeric::max< ::DWORD>::value)
+      );
       if (m_bAsync) {
          ::OVERLAPPED ovl;
          ovl.hEvent = nullptr;
@@ -239,7 +241,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
             }
             this_coroutine::sleep_until_fd_ready(m_fd, true);
             // cbWritten is now available in ovl.
-            cbWritten = ovl.InternalHigh;
+            cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
          }
       } else {
          if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, nullptr)) {
