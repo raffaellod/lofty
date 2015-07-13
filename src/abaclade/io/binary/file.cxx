@@ -37,11 +37,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace io { namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
-   m_fd(std::move(pfid->fd))
-#if ABC_HOST_API_WIN32
-   , m_bAsync(pfid->bAsync)
-#endif
-   {
+   m_fd(std::move(pfid->fd)) {
 }
 
 /*virtual*/ file_base::~file_base() {
