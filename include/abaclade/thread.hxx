@@ -242,6 +242,18 @@ ABACLADE_SYM void run_coroutines();
 */
 ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
 
+/*! Suspends execution of the current thread until an asynchronous I/O operation completes.
+
+@param fd
+   File descriptor that the calling coroutine is waiting for I/O on.
+@param bWrite
+   true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+*/
+ABACLADE_SYM void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite);
+inline void sleep_until_fd_ready(io::filedesc const & fd, bool bWrite) {
+   sleep_until_fd_ready(fd.get(), bWrite);
+}
+
 }} //namespace abc::this_thread
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

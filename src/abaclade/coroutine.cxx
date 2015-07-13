@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
    #include <errno.h> // EINTR errno
    #include <signal.h> // SIGSTKSZ
-   #include <sys/poll.h>
    #include <ucontext.h>
    #if ABC_HOST_API_BSD
       #include <sys/types.h>
@@ -927,39 +926,7 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
       pcorosched->block_active_until_fd_ready(fd, bWrite);
    } else {
-      // No coroutine scheduler, so we have to block-wait for fd.
-#if ABC_HOST_API_POSIX
-      ::pollfd pfd;
-      pfd.fd = fd;
-      pfd.events = (bWrite ? POLLIN : POLLOUT) | POLLPRI;
-      while (::poll(&pfd, 1, -1) < 0) {
-         int iErr = errno;
-         if (iErr == EINTR) {
-            break;
-         }
-         exception::throw_os_error(iErr);
-      }
-      if (pfd.revents & (POLLERR | POLLNVAL)) {
-         // TODO: how should POLLERR and POLLNVAL be handled?
-      }
-      /* Consider POLLHUP as input, so that ::read() can return 0 bytes. This helps mitigate the
-      considerable differences among poll(2) implementations documented at
-      <http://www.greenend.org.uk/rjk/tech/poll.html>, and Linux happens to be one of those who set
-      *only* POLLHUP on a pipe with no open write fds. */
-      if (pfd.revents & (bWrite ? POLLOUT : POLLIN | POLLHUP)) {
-         if (pfd.revents & POLLPRI) {
-            // TODO: anything special about “high priority data”?
-         }
-      } else {
-         // TODO: what to do if ::poll() returned but no meaningful bits are set in pfd.revents?
-      }
-#elif ABC_HOST_API_WIN32
-      if (::WaitForSingleObject(fd, INFINITE) != WAIT_OBJECT_0) {
-         exception::throw_os_error();
-      }
-#else
-   #error "TODO: HOST_API"
-#endif
+      this_thread::sleep_until_fd_ready(fd, bWrite);
    }
 }
 

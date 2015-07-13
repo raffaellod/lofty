@@ -33,7 +33,9 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <atomic>
 
 #if ABC_HOST_API_POSIX
+   #include <errno.h> // EINTR errno
    #include <signal.h>
+   #include <sys/poll.h>
    #if ABC_HOST_API_DARWIN
       #include <dispatch/dispatch.h>
    #else
