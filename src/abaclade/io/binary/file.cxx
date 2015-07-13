@@ -115,10 +115,14 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 /*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const {
-   if (iErr != ERROR_SUCCESS) {
-      exception::throw_os_error(iErr);
+   switch (iErr) {
+      case ERROR_SUCCESS:
+         return cbRead == 0;
+      case ERROR_HANDLE_EOF:
+         return true;
+      default:
+         exception::throw_os_error(iErr);
    }
-   return cbRead == 0;
 }
 #endif
 
