@@ -77,7 +77,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_WIN32
+#if !ABC_HOST_API_MACH && !ABC_HOST_API_WIN32
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TRACE_FUNC(this);
 
@@ -130,7 +130,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_WIN32
+#if !ABC_HOST_API_MACH && !ABC_HOST_API_WIN32
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    ABC_TRACE_FUNC(this);
 
@@ -181,7 +181,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_WIN32
+#if !ABC_HOST_API_MACH && !ABC_HOST_API_WIN32
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation") {
    ABC_TRACE_FUNC(this);
 
