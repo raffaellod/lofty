@@ -136,6 +136,15 @@ public:
       Thread context. This is used to manipulate the stack of the thread to inject a call frame.
    */
    static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
+#elif ABC_HOST_API_WIN32
+   /*! Returns the handle used to interrupt wait functions.
+
+   @return
+      Event handle.
+   */
+   ::HANDLE interruption_event_handle() const {
+      return m_hInterruptionEvent;
+   }
 #endif
 
    //! Implementation of the waiting aspect of abc::thread::join().
@@ -182,6 +191,10 @@ private:
 #if ABC_HOST_API_POSIX
    //! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
    id_type m_id;
+#elif ABC_HOST_API_WIN32
+   /*! Handle that all ::WaitFor*() function call must include to achieve something simlar to POSIX
+   asynchronous signal delivery (when signals interrupt syscalls, making them return EINTR). */
+   ::HANDLE m_hInterruptionEvent;
 #endif
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */

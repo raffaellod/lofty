@@ -127,12 +127,20 @@ thread::impl::impl(std::function<void ()> fnMain) :
    m_id(0),
 #elif ABC_HOST_API_WIN32
    m_h(nullptr),
+   m_hInterruptionEvent(::CreateEvent(
+      nullptr, false /*auto reset*/, false /*not signlaled*/, nullptr
+   )),
 #else
    #error "TODO: HOST_API"
 #endif
    m_pseStarted(nullptr),
    m_bTerminating(false),
    m_fnInnerMain(std::move(fnMain)) {
+#if ABC_HOST_API_WIN32
+   if (!m_hInterruptionEvent) {
+      exception::throw_os_error();
+   }
+#endif
 }
 // This overload is used to instantiate an impl for the main thread.
 thread::impl::impl(std::nullptr_t) :
@@ -143,11 +151,21 @@ thread::impl::impl(std::nullptr_t) :
    m_h(::OpenThread(
       THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetCurrentThreadId()
    )),
+   m_hInterruptionEvent(::CreateEvent(
+      nullptr, false /*auto reset*/, false /*not signlaled*/, nullptr
+   )),
 #else
    #error "TODO: HOST_API"
 #endif
    m_pseStarted(nullptr),
    m_bTerminating(false) {
+#if ABC_HOST_API_WIN32
+   if (!m_hInterruptionEvent) {
+      ::DWORD iErr = ::GetLastError();
+      ::CloseHandle(m_h);
+      exception::throw_os_error(iErr);
+   }
+#endif
    /* The main thread’s impl instance is instantiated by the main thread itself, so sm_pimplThis for
    the main thread can be initialized here. */
    sm_pimplThis = this;
@@ -157,6 +175,9 @@ thread::impl::~impl() {
 #if ABC_HOST_API_WIN32
    if (m_h) {
       ::CloseHandle(m_h);
+   }
+   if (m_hInterruptionEvent) {
+      ::CloseHandle(m_hInterruptionEvent);
    }
 #endif
 }
@@ -239,6 +260,9 @@ void thread::impl::inject_exception(exception::common_type xct) {
    because m_bTerminating can only be written to by the thread we just suspended. */
    if (!m_bTerminating.load()) {
       exception::inject_in_context(xct, 0, 0, &ctx);
+      /* If the thread is in a wait function entered by Abaclade, this ensures that the thread will
+      be able to stop waiting. Otherwise there’s no way to interrupt the wait syscall. */
+      ::SetEvent(m_hInterruptionEvent);
       if (!::SetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
@@ -674,7 +698,10 @@ void sleep_for_ms(unsigned iMillisecs) {
       tsRequested = tsRemaining;
    }
 #elif ABC_HOST_API_WIN32
-   ::Sleep(iMillisecs);
+   /* Sleep while remaining alertable via m_hInterruptionEvent. Note that if m_hInterruptionEvent
+   does get signaled we won't care to enter WFSO again, because who set it probably wanted to alter
+   the code execution flow. */
+   ::WaitForSingleObject(get_impl()->interruption_event_handle(), iMillisecs);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -708,7 +735,10 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
       // TODO: what to do if ::poll() returned but no meaningful bits are set in pfd.revents?
    }
 #elif ABC_HOST_API_WIN32
-   if (::WaitForSingleObject(fd, INFINITE) != WAIT_OBJECT_0) {
+   ABC_UNUSED_ARG(bWrite);
+   ::HANDLE ah[] = { fd, get_impl()->interruption_event_handle() };
+   ::DWORD iRet = ::WaitForMultipleObjects(ABC_COUNTOF(ah), ah, false, INFINITE);
+   if (/*iRet < WAIT_OBJECT_0 ||*/ iRet >= WAIT_OBJECT_0 + ABC_COUNTOF(ah)) {
       exception::throw_os_error();
    }
 #else

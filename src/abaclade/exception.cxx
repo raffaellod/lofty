@@ -202,7 +202,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #error "TODO: HOST_API"
 #endif
 
-   // Emulate a 3-argument subroutine call to throw_common_type().
+   // Emulate a 3-argument function call to throw_common_type().
    reg_t * pStack = reinterpret_cast<reg_t *>(iStackPtr);
 #if ABC_HOST_ARCH_ARM
    /* Load the arguments into r0-2, push lr and replace it with the address of the current
