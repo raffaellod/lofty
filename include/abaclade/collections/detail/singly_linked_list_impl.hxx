@@ -52,13 +52,22 @@ protected:
       */
       void * operator new(std::size_t cb, type_void_adapter const & type);
 
-      /*! Ensures that memory allocated by node::operator new() is freed correctly.
+      /*! Deallocates the memory occupied by a node.
 
       @param p
          Pointer to free.
       */
       void operator delete(void * p) {
          memory::_raw_free(p);
+      }
+
+      /*! Matches the custom operator new().
+
+      @param p
+         Pointer to free.
+      */
+      void operator delete(void * p, type_void_adapter const &) {
+         operator delete(p);
       }
 
       /*! Constructor.
