@@ -179,7 +179,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          reg_t & rdi = mctx.gregs[REG_RDI], & rsi = mctx.gregs[REG_RSI];
          reg_t & rdx = mctx.gregs[REG_RDX];
       #elif ABC_HOST_API_FREEBSD
-         typedef std::uint64_t reg_t;
+         typedef long reg_t;
          reg_t & iCodePtr = mctx.mc_rip, & iStackPtr = mctx.mc_rsp;
          reg_t & rdi = mctx.mc_rdi, & rsi = mctx.mc_rsi, & rdx = mctx.mc_rdx;
       #endif
