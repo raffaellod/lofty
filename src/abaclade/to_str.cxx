@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <algorithm>
 #include <climits> // CHAR_BIT
-#if ABC_HOST_CXX_GCC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
    #include <cxxabi.h> // abi::__cxa_demangle()
 #endif
 
@@ -364,8 +364,8 @@ void to_str_backend<std::type_info>::set_format(istr const & sFormat) {
 
 void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::writer * ptwOut) {
    char const * psz = ti.name();
-#if ABC_HOST_CXX_GCC
-   // G++ generates mangled names.
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   // Clang and G++ generate mangled names.
    int iRet = 1;
    std::unique_ptr<char const, memory::freeing_deleter> pszDemangled(
       abi::__cxa_demangle(psz, nullptr, nullptr, &iRet)
