@@ -49,10 +49,6 @@ struct file_init_data {
    /*! If true, causes the file to be opened with flags to the effect of disabling OS cache for the
    file. To be set before calling _construct(). */
    bool bBypassCache:1;
-#if ABC_HOST_API_WIN32
-   // If true, I/O to the file should be asynchronous. To be set before calling _construct().
-   bool bAsync:1;
-#endif
 };
 
 }}}} //namespace abc::io::binary::detail

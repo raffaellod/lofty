@@ -190,12 +190,6 @@ static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    /* Since this method is supposed to be used only for standard descriptors, assume that OS
    buffering is on. */
    fid.bBypassCache = false;
-#if ABC_HOST_API_WIN32
-   /* There’s no way of knowing whether a file has been opened with FILE_FLAG_OVERLAPPED, so for
-   safety assume it has. If the file is detected by _construct() to be a console handle, this will
-   be ignored anyway. */
-   fid.bAsync = true;
-#endif
    return _construct(&fid);
 }
 
@@ -207,9 +201,6 @@ std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    fid.fd = std::move(fd);
    fid.am = access_mode::read;
    fid.bBypassCache = false;
-#if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
-#endif
    return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
 }
 
@@ -220,9 +211,6 @@ std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    fid.fd = std::move(fd);
    fid.am = access_mode::write;
    fid.bBypassCache = false;
-#if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
-#endif
    return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
 }
 
@@ -233,9 +221,6 @@ std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
    fid.fd = std::move(fd);
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
-#if ABC_HOST_API_WIN32
-   fid.bAsync = (this_thread::coroutine_scheduler() != nullptr);
-#endif
    return std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
 }
 
@@ -342,7 +327,6 @@ std::shared_ptr<file_base> open(
             exception::throw_os_error(iErr);
       }
    }
-   fid.bAsync = bAsync;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -427,7 +411,6 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       fidReader.fd = filedesc(hRead);
       fidWriter.fd = filedesc(hWrite);
    }
-   fidReader.bAsync = fidWriter.bAsync = bAsync;
 #else
    #error "TODO: HOST_API"
 #endif
