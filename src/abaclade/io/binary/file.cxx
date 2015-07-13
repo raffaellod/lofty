@@ -91,30 +91,25 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       }
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   ::DWORD iErr, cbRead, cbToRead = static_cast< ::DWORD>(
+   ::DWORD cbRead, cbToRead = static_cast< ::DWORD>(
       std::min<std::size_t>(cbMax, numeric::max< ::DWORD>::value)
    );
-   if (m_bAsync) {
-      ::OVERLAPPED ovl;
-      ovl.hEvent = nullptr;
-      /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
-      is not a seekable file, ::ReadFile() will ignore Offset* anyway. */
-      {
-         long ibOffsetHigh = 0;
-         ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-         ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
-      }
-      BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
-      iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
-      if (iErr == ERROR_IO_PENDING) {
-         this_coroutine::sleep_until_fd_ready(m_fd, false);
-         // cbRead is now available in ovl.
-         cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
-         iErr = ERROR_SUCCESS;
-      }
-   } else {
-      BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, nullptr);
-      iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
+   ::OVERLAPPED ovl;
+   ovl.hEvent = nullptr;
+   /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
+   is not a seekable file, ::ReadFile() will ignore Offset* anyway. */
+   {
+      long ibOffsetHigh = 0;
+      ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+      ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+   }
+   ::BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
+   ::DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
+   if (iErr == ERROR_IO_PENDING) {
+      this_coroutine::sleep_until_fd_ready(m_fd, false);
+      // cbRead is now available in ovl.
+      cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
+      iErr = ERROR_SUCCESS;
    }
    return check_if_eof_or_throw_os_error(cbRead, iErr) ? 0 : cbRead;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -224,29 +219,23 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       ::DWORD cbWritten, cbToWrite = static_cast< ::DWORD>(
          std::min<std::size_t>(cb, numeric::max< ::DWORD>::value)
       );
-      if (m_bAsync) {
-         ::OVERLAPPED ovl;
-         ovl.hEvent = nullptr;
-         /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if
-         m_fd is not a seekable file, ::WriteFile() will ignore Offset* anyway. */
-         {
-            long ibOffsetHigh = 0;
-            ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-            ovl.OffsetHigh = static_cast<DWORD>(ibOffsetHigh);
+      ::OVERLAPPED ovl;
+      ovl.hEvent = nullptr;
+      /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
+      is not a seekable file, ::WriteFile() will ignore Offset* anyway. */
+      {
+         long ibOffsetHigh = 0;
+         ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
+         ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+      }
+      if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
+         ::DWORD iErr = ::GetLastError();
+         if (iErr != ERROR_IO_PENDING) {
+            exception::throw_os_error(iErr);
          }
-         if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
-            DWORD iErr = ::GetLastError();
-            if (iErr != ERROR_IO_PENDING) {
-               exception::throw_os_error(iErr);
-            }
-            this_coroutine::sleep_until_fd_ready(m_fd, true);
-            // cbWritten is now available in ovl.
-            cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
-         }
-      } else {
-         if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, nullptr)) {
-            exception::throw_os_error();
-         }
+         this_coroutine::sleep_until_fd_ready(m_fd, true);
+         // cbWritten is now available in ovl.
+         cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
       }
       pb += cbWritten;
       cb -= cbWritten;
@@ -314,13 +303,13 @@ console_reader::console_reader(detail::file_init_data * pfid) :
    do {
       /* This will be repeated at least once, and as long as we still have some bytes to read, and
       reading them does not fail. */
-      DWORD cchLastRead;
+      ::DWORD cchLastRead;
       if (!::ReadConsole(
          m_fd.get(), pb,
-         static_cast<DWORD>(std::min<std::size_t>(cchMax, numeric::max<DWORD>::value)),
+         static_cast< ::DWORD>(std::min<std::size_t>(cchMax, numeric::max< ::DWORD>::value)),
          &cchLastRead, nullptr
       )) {
-         DWORD iErr = ::GetLastError();
+         ::DWORD iErr = ::GetLastError();
          if (iErr == ERROR_HANDLE_EOF) {
             break;
          }
@@ -345,7 +334,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 namespace abc { namespace io { namespace binary {
 
 #if ABC_HOST_API_WIN32
-WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
+::WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
    /* black   */ 0,
    /* red     */ FOREGROUND_RED,
    /* green   */                  FOREGROUND_GREEN,
@@ -355,7 +344,7 @@ WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
    /* cyan    */                  FOREGROUND_GREEN | FOREGROUND_BLUE,
    /* white   */ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 };
-WORD const console_writer::smc_aiAnsiColorToBackgroundColor[] = {
+::WORD const console_writer::smc_aiAnsiColorToBackgroundColor[] = {
    /* black   */ 0,
    /* red     */ BACKGROUND_RED,
    /* green   */                  BACKGROUND_GREEN,
@@ -429,7 +418,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 bool console_writer::processing_enabled() const {
    ABC_TRACE_FUNC(this);
 
-   DWORD iConsoleMode;
+   ::DWORD iConsoleMode;
    if (!::GetConsoleMode(m_fd.get(), &iConsoleMode)) {
       // TODO: is this worth throwing an exception for?
       return false;
@@ -446,7 +435,7 @@ bool console_writer::processing_enabled() const {
 /*virtual*/ void console_writer::set_char_attributes() /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   WORD iAttr;
+   ::WORD iAttr;
    if (m_chattrCurr.bConcealed) {
       if (m_chattrCurr.bReverseVideo) {
          iAttr  = smc_aiAnsiColorToBackgroundColor[m_chattrCurr.clrForeground];
@@ -546,10 +535,10 @@ void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd)
 
    // This loop may repeat more than once in the unlikely case cch exceeds what can fit in a DWORD.
    while (std::size_t cch = static_cast<std::size_t>(pchEnd - pchBegin)) {
-      DWORD cchLastWritten;
+      ::DWORD cchLastWritten;
       if (!::WriteConsole(
-         m_fd.get(), pchBegin, static_cast<DWORD>(
-            std::min<std::size_t>(cch, numeric::max<DWORD>::value)
+         m_fd.get(), pchBegin, static_cast< ::DWORD>(
+            std::min<std::size_t>(cch, numeric::max< ::DWORD>::value)
          ), &cchLastWritten, nullptr
       )) {
          exception::throw_os_error();
@@ -595,7 +584,7 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 
 #if ABC_HOST_API_WIN32
 /*virtual*/ bool pipe_reader::check_if_eof_or_throw_os_error(
-   DWORD cbRead, DWORD iErr
+   ::DWORD cbRead, ::DWORD iErr
 ) const /*override*/ {
    ABC_UNUSED_ARG(cbRead);
    switch (iErr) {
@@ -668,13 +657,13 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       sizeof(m_cb) == sizeof(LARGE_INTEGER),
       "abc::io::full_size_t must be the same size as LARGE_INTEGER"
    );
-   if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast<LARGE_INTEGER *>(&m_cb))) {
+   if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast< ::LARGE_INTEGER *>(&m_cb))) {
       exception::throw_os_error();
    }
 #else //if _WIN32_WINNT >= 0x0500
-   DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
+   ::DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
    if (cbLow == INVALID_FILE_SIZE) {
-      DWORD iErr = ::GetLastError();
+      ::DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
          exception::throw_os_error(iErr);
       }
@@ -727,7 +716,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       sizeof(ibOffset) == sizeof(LARGE_INTEGER),
       "abc::io::offset_t must be the same size as LARGE_INTEGER"
    );
-   DWORD iWhence;
+   ::DWORD iWhence;
    switch (sfWhence.base()) {
       case seek_from::start:
          iWhence = FILE_BEGIN;
@@ -739,7 +728,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
          iWhence = FILE_END;
          break;
    }
-   LARGE_INTEGER ibNewOffset;
+   ::LARGE_INTEGER ibNewOffset;
    ibNewOffset.QuadPart = ibOffset;
 #if _WIN32_WINNT >= 0x0500
    if (!::SetFilePointerEx(m_fd.get(), ibNewOffset, &ibNewOffset, iWhence)) {
@@ -750,7 +739,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
       m_fd.get(), ibNewOffset.LowPart, &ibNewOffset.HighPart, iWhence
    );
    if (ibNewOffset.LowPart == INVALID_SET_FILE_POINTER) {
-      DWORD iErr = ::GetLastError();
+      ::DWORD iErr = ::GetLastError();
       if (iErr != ERROR_SUCCESS) {
          exception::throw_os_error(iErr);
       }
@@ -861,13 +850,13 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
             unlock();
          }
          m_fd = fd;
-         m_ibOffset.QuadPart = static_cast<LONGLONG>(ibOffset);
-         m_cb.QuadPart = static_cast<LONGLONG>(cb);
+         m_ibOffset.QuadPart = static_cast< ::LONGLONG>(ibOffset);
+         m_cb.QuadPart = static_cast< ::LONGLONG>(cb);
          if (!::LockFile(
-            m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
-            static_cast<DWORD>(m_cb.HighPart)
+            m_fd, m_ibOffset.LowPart, static_cast< ::DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
+            static_cast< ::DWORD>(m_cb.HighPart)
          )) {
-            DWORD iErr = ::GetLastError();
+            ::DWORD iErr = ::GetLastError();
             if (iErr == ERROR_LOCK_VIOLATION) {
                return false;
             }
@@ -881,8 +870,8 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
          ABC_TRACE_FUNC(this);
 
          if (!::UnlockFile(
-            m_fd, m_ibOffset.LowPart, static_cast<DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
-            static_cast<DWORD>(m_cb.HighPart)
+            m_fd, m_ibOffset.LowPart, static_cast< ::DWORD>(m_ibOffset.HighPart), m_cb.LowPart,
+            static_cast< ::DWORD>(m_cb.HighPart)
          )) {
             exception::throw_os_error();
          }
@@ -892,9 +881,9 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
       //! Locked file.
       filedesc_t m_fd;
       //! Start of the locked byte range.
-      LARGE_INTEGER m_ibOffset;
+      ::LARGE_INTEGER m_ibOffset;
       //! Length of the locked byte range.
-      LARGE_INTEGER m_cb;
+      ::LARGE_INTEGER m_cb;
    };
 
    // The file_lock has to be in this scope, so it will unlock after the write is performed.
