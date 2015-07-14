@@ -137,6 +137,12 @@ public:
    */
    static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 #elif ABC_HOST_API_WIN32
+   #if ABC_HOST_ARCH_X86_64
+      exception::interruption_args const & interruption_arguments() const {
+         return m_intargs;
+      }
+   #endif
+
    /*! Returns the handle used to interrupt wait functions.
 
    @return
@@ -195,6 +201,10 @@ private:
    /*! Handle that all ::WaitFor*() function call must include to achieve something simlar to POSIX
    asynchronous signal delivery (when signals interrupt syscalls, making them return EINTR). */
    ::HANDLE m_hInterruptionEvent;
+   #if ABC_HOST_ARCH_X86_64
+      //! Stores arguments for abc::exception::throw_common_type().
+      exception::interruption_args m_intargs;
+   #endif
 #endif
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */

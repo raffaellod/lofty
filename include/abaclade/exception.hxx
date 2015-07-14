@@ -388,6 +388,18 @@ public:
    //! Related STL exception class.
    typedef std::exception related_std;
 
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
+   //! Stores arguments for abc::exception::throw_common_type().
+   struct interruption_args {
+      //! Type of exception to inject.
+      exception::common_type::enum_type xct;
+      //! First argument to the exception constructor, if applicable.
+      std::intptr_t iArg0;
+      //! Second argument to the exception constructor, if applicable.
+      std::intptr_t iArg1;
+   };
+#endif
+
 public:
    /*! Constructor.
 
@@ -428,8 +440,17 @@ public:
       Pointer to an OS-specific context struct.
    */
    static void inject_in_context(
-      common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+#if !ABC_HOST_API_WIN32 || !ABC_HOST_ARCH_X86_64
+      common_type xct, std::intptr_t iArg0, std::intptr_t iArg1,
+#endif
+      void * pvctx
    );
+
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
+   /*! Invokes abc::exception::throw_common_type() after loading its arguments from
+   thread_impl::m_intargs. */
+   static void throw_common_type_noargs();
+#endif
 
    /*! Throws an exception of the specified type.
 

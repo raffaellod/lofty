@@ -145,7 +145,10 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 }
 
 /*static*/ void exception::inject_in_context(
-   common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
+#if !ABC_HOST_API_WIN32
+   common_type xct, std::intptr_t iArg0, std::intptr_t iArg1,
+#endif
+   void * pvctx
 ) {
    /* Abstract away the differences in the context structures across different OSes and
    architectures by defining references to each register needed below. */
@@ -196,7 +199,6 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    #elif ABC_HOST_ARCH_X86_64
       typedef ::DWORD64 reg_t;
       reg_t & iCodePtr = pctx->Rip, & iStackPtr = pctx->Rsp;
-      reg_t & rcx = pctx->Rcx, & rdx = pctx->Rdx, & r8 = pctx->R8;
    #endif
 #else
    #error "TODO: HOST_API"
@@ -206,15 +208,14 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    reg_t * pStack = reinterpret_cast<reg_t *>(iStackPtr);
 #if ABC_HOST_ARCH_ARM
    /* Load the arguments into r0-2, push lr and replace it with the address of the current
-   instruction, then set pc to the start of throw_common_type(). */
+   instruction. */
    r0 = static_cast<reg_t>(xct.base());
    r1 = static_cast<reg_t>(iArg0);
    r2 = static_cast<reg_t>(iArg1);
    *--pStack = lr;
    lr = iCodePtr;
 #elif ABC_HOST_ARCH_I386
-   /* Push the arguments onto the stack, push the address of the current instruction, then set eip
-   to the start of throw_common_type(). */
+   // Push the arguments onto the stack, push the address of the current instruction.
    *--pStack = static_cast<reg_t>(iArg1);
    *--pStack = static_cast<reg_t>(iArg0);
    *--pStack = static_cast<reg_t>(xct.base());
@@ -224,28 +225,34 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    if (iStackPtr & 0xf) {
       --pStack;
    }
-   /* Load the arguments into rdi/rsi/rdx (Mach, POSIX) or rcx/rdx/r8 (Win32), push the address of
-   the current instruction, then set rip to the start of throw_common_type(). */
+   /* Load the arguments into rdi/rsi/rdx (Mach, POSIX), push the address of the current
+   instruction. */
    #if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
       rdi = static_cast<reg_t>(xct.base());
       rsi = static_cast<reg_t>(iArg0);
       rdx = static_cast<reg_t>(iArg1);
-   #elif ABC_HOST_API_WIN32
-      rcx = static_cast<reg_t>(xct.base());
-      rdx = static_cast<reg_t>(iArg0);
-      r8  = static_cast<reg_t>(iArg1);
-      /* Reserve stack space for the parameter area, even if the called function only has 3
-      arguments; see <https://msdn.microsoft.com/en-us/library/ew5tede7%28v=vs.120%29.aspx>. */
-      pStack -= 4;
    #endif
    *--pStack = iCodePtr;
    // Stack alignment to 16 bytes is done by the callee with push rbp.
 #else
    #error "TODO: HOST_ARCH"
 #endif
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
+   // Jump to the start of throw_common_type_noargs().
+   iCodePtr = reinterpret_cast<reg_t>(&throw_common_type_noargs);
+#else
+   // Jump to the start of throw_common_type().
    iCodePtr = reinterpret_cast<reg_t>(&throw_common_type);
+#endif
    iStackPtr = reinterpret_cast<reg_t>(pStack);
 }
+
+#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
+/*static*/ void exception::throw_common_type_noargs() {
+   interruption_args const & ia = this_thread::get_impl()->interruption_arguments();
+   throw_common_type(ia.xct, ia.iArg0, ia.iArg1);
+}
+#endif
 
 /*static*/ void
 #if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386

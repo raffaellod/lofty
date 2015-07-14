@@ -231,7 +231,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
    ::CONTEXT ctx;
    std::uintptr_t iLastPC = 0;
    for (;;) {
-      ctx.ContextFlags = CONTEXT_INTEGER | CONTEXT_CONTROL;
+      ctx.ContextFlags = CONTEXT_ALL;
       if (!::GetThreadContext(m_h, &ctx)) {
          exception::throw_os_error();
       }
@@ -259,7 +259,14 @@ void thread::impl::inject_exception(exception::common_type xct) {
    is already terminating, in which case we’ll avoid throwing an exception. This check is safe
    because m_bTerminating can only be written to by the thread we just suspended. */
    if (!m_bTerminating.load()) {
+   #if ABC_HOST_ARCH_X86_64
+      m_intargs.xct = xct.base();
+      m_intargs.iArg0 = 0;
+      m_intargs.iArg1 = 0;
+      exception::inject_in_context(&ctx);
+   #else
       exception::inject_in_context(xct, 0, 0, &ctx);
+   #endif
       /* If the thread is in a wait function entered by Abaclade, this ensures that the thread will
       be able to stop waiting. Otherwise there’s no way to interrupt the wait syscall. */
       ::SetEvent(m_hInterruptionEvent);
