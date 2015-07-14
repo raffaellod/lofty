@@ -220,6 +220,10 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    *--pStack = static_cast<reg_t>(xct.base());
    *--pStack = iCodePtr;
 #elif ABC_HOST_ARCH_X86_64
+   // Make sure the stack is aligned.
+   if (iStackPtr & 0xf) {
+      --pStack;
+   }
    /* Load the arguments into rdi/rsi/rdx (Mach, POSIX) or rcx/rdx/r8 (Win32), push the address of
    the current instruction, then set rip to the start of throw_common_type(). */
    #if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
