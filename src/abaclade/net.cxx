@@ -27,6 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <errno.h> // EINTR errno
    #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // accept4() bind() socket()
+   #if ABC_HOST_API_FREEBSD
+      #include <netinet/in.h>
+   #endif
 #elif ABC_HOST_API_WIN32
    #include <winsock2.h>
    #if ABC_HOST_CXX_MSC
