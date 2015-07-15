@@ -100,6 +100,7 @@ thread_local_storage::~thread_local_storage() {
 #if ABC_HOST_API_POSIX
 /*static*/ void thread_local_storage::destruct(void * pThis /*= get()*/) {
    delete static_cast<thread_local_storage *>(pThis);
+   pthread_setspecific(g_pthkey, nullptr);
 }
 #endif
 
