@@ -31,12 +31,61 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace io { namespace binary {
 
 // Forward declarations.
+class pipe_reader;
+class pipe_writer;
+
+//! Contains the two ends of a pipe.
+struct pipe_ends {
+   //! Reader end.
+   std::shared_ptr<pipe_reader> reader;
+   //! Writer end.
+   std::shared_ptr<pipe_writer> writer;
+
+   /*! Constructor.
+
+   @param pbprReader
+      Reader end.
+   @param pbpwWriter
+      Writer end.
+   */
+   pipe_ends(std::shared_ptr<pipe_reader> pbprReader, std::shared_ptr<pipe_writer> pbpwWriter) :
+      reader(std::move(pbprReader)),
+      writer(std::move(pbpwWriter)) {
+   }
+
+   /*! Move constructor.
+
+   @param pe
+      Source object.
+   */
+   pipe_ends(pipe_ends && pe) :
+      reader(std::move(pe.reader)),
+      writer(std::move(pe.writer)) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param pe
+      Source object.
+   */
+   pipe_ends & operator=(pipe_ends && pe) {
+      reader = std::move(pe.reader);
+      writer = std::move(pe.writer);
+      return *this;
+   }
+};
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+// Forward declarations.
 class file_base;
 class file_reader;
 class file_writer;
 class file_readwriter;
-class pipe_reader;
-class pipe_writer;
 class reader;
 class writer;
 
