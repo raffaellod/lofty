@@ -44,18 +44,18 @@ public:
 
       /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage
       of it to avoid blocking on reads and writes. */
-      auto pair(io::binary::pipe());
+      auto pe(io::binary::pipe());
 
       // Schedule the reader.
-      coroutine([this, &pair] () {
-         ABC_TRACE_FUNC(this/*, pair*/);
+      coroutine([this, &pe] () {
+         ABC_TRACE_FUNC(this/*, pe*/);
 
          io::text::stdout->write_line(ABC_SL("reader: starting"));
          for (;;) {
             int i;
             io::text::stdout->print(ABC_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
-            std::size_t cbRead = pair.first->read(&i, sizeof i);
+            std::size_t cbRead = pe.reader->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
             if (cbRead == 0) {
                // Detect EOF.
@@ -78,14 +78,14 @@ public:
       });
 
       // Schedule the writer.
-      coroutine([this, &pair] () {
-         ABC_TRACE_FUNC(this/*, pair*/);
+      coroutine([this, &pe] () {
+         ABC_TRACE_FUNC(this/*, pe*/);
 
          io::text::stdout->write_line(ABC_SL("writer: starting"));
          ABC_FOR_EACH(int i, make_range(1, 10)) {
             io::text::stdout->print(ABC_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
-            pair.second->write(&i, sizeof i);
+            pe.writer->write(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
 
             /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
@@ -95,7 +95,7 @@ public:
             // Execution resumes here, after other coroutines have received CPU time.
          }
          // Close the writing end of the pipe to report EOF on the reading end.
-         pair.second->finalize();
+         pe.writer->finalize();
          io::text::stdout->write_line(ABC_SL("writer: terminating"));
       });
 

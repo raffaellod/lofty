@@ -179,9 +179,9 @@ inline std::shared_ptr<file_readwriter> open_readwriter(
 /*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
 
 @return
-   A pair containing the reader end and the writer end of the pipe.
+   An object containing the reader end and the writer end of the pipe.
 */
-ABACLADE_SYM std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe();
+ABACLADE_SYM pipe_ends pipe();
 
 //! Binary writer associated to the standard error output file.
 extern ABACLADE_SYM std::shared_ptr<writer> stderr;

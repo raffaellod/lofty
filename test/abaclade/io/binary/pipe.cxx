@@ -38,13 +38,13 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::binary::pipe – alternating symmetrical wr
    }
 
    {
-      auto pair(io::binary::pipe());
+      auto pe(io::binary::pipe());
       // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
       ABC_FOR_EACH(auto iCopy, make_range(1, 5)) {
          ABC_UNUSED_ARG(iCopy);
-         std::size_t cbWritten = pair.second->write(aiSrc.get(), sizeof aiSrc[0] * sc_ciBuffer);
+         std::size_t cbWritten = pe.writer->write(aiSrc.get(), sizeof aiSrc[0] * sc_ciBuffer);
          ABC_TESTING_ASSERT_EQUAL(cbWritten, sizeof aiSrc[0] * sc_ciBuffer);
-         std::size_t cbRead = pair.first->read(aiDst.get(), sizeof aiDst[0] * sc_ciBuffer);
+         std::size_t cbRead = pe.reader->read(aiDst.get(), sizeof aiDst[0] * sc_ciBuffer);
          ABC_TESTING_ASSERT_EQUAL(cbRead, cbWritten);
 
          // Validate the destination array.
@@ -58,7 +58,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::io::binary::pipe – alternating symmetrical wr
          }
          ABC_TESTING_ASSERT_EQUAL(cErrors, 0u);
       }
-      pair.second->finalize();
+      pe.writer->finalize();
    }
 }
 

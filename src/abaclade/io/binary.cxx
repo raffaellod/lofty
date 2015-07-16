@@ -101,7 +101,7 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          CreateConsoleScreenBuffer, and GetStdHandle have the GENERIC_READ and GENERIC_WRITE access
          rights”, so we can trust this to succeed for console handles. */
 
-         DWORD iConsoleMode;
+         ::DWORD iConsoleMode;
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
                case access_mode::read:
@@ -147,7 +147,7 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
 
       case FILE_TYPE_UNKNOWN: {
          // Unknown or error.
-         DWORD iErr = ::GetLastError();
+         ::DWORD iErr = ::GetLastError();
          if (iErr != ERROR_SUCCESS) {
             exception::throw_os_error(iErr);
          }
@@ -281,7 +281,7 @@ std::shared_ptr<file_base> open(
       #endif
    #endif //ifndef O_DIRECT
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
+   ::DWORD iAccess, iShareMode, iAction, iFlags = FILE_ATTRIBUTE_NORMAL;
    switch (am.base()) {
       case access_mode::read:
          iAccess = GENERIC_READ;
@@ -318,7 +318,7 @@ std::shared_ptr<file_base> open(
    if (!(fid.fd = filedesc(::CreateFile(
       op.os_str().c_str(), iAccess, iShareMode, nullptr, iAction, iFlags, nullptr
    )))) {
-      DWORD iErr = ::GetLastError();
+      ::DWORD iErr = ::GetLastError();
       switch (iErr) {
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
          case ERROR_UNKNOWN_PORT: // The specified port is unknown.
@@ -335,7 +335,7 @@ std::shared_ptr<file_base> open(
    return _construct(&fid);
 }
 
-std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
+pipe_ends pipe() {
    ABC_TRACE_FUNC();
 
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
@@ -385,7 +385,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
       );
       /* Pipe buffers are allocated in the kernel’s non-paged memory pool, so this value should be
       small; the smallest it can get is a single memory page. */
-      DWORD cbBuffer = static_cast<DWORD>(memory::page_size());
+      ::DWORD cbBuffer = static_cast< ::DWORD>(memory::page_size());
       // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
       fidReader.fd = filedesc(::CreateNamedPipe(
          sPipeName.c_str(),
@@ -404,7 +404,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
          exception::throw_os_error();
       }
    } else {
-      HANDLE hRead, hWrite;
+      ::HANDLE hRead, hWrite;
       if (!::CreatePipe(&hRead, &hWrite, nullptr, 0)) {
          exception::throw_os_error();
       }
@@ -417,7 +417,7 @@ std::pair<std::shared_ptr<pipe_reader>, std::shared_ptr<pipe_writer>> pipe() {
    fidReader.am = access_mode::read;
    fidWriter.am = access_mode::write;
    fidReader.bBypassCache = fidWriter.bBypassCache = false;
-   return std::make_pair(
+   return pipe_ends(
       std::make_shared<pipe_reader>(&fidReader), std::make_shared<pipe_writer>(&fidWriter)
    );
 }
