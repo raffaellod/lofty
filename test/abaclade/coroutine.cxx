@@ -179,7 +179,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
          ABC_TRACE_FUNC(this);
 
          this_coroutine::sleep_for_ms(sc_aiSleeps[i]);
-         aiWorkersAwoke[aiNextAwakingWorkerSlot++] = i + 1;
+         aiWorkersAwoke[aiNextAwakingWorkerSlot.fetch_add(1)] = i + 1;
       });
    }
 

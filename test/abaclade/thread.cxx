@@ -37,12 +37,12 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    thread thr1([this, &bThr1Completed] () {
       ABC_TRACE_FUNC(this);
 
-      bThr1Completed = true;
+      bThr1Completed.store(true);
    });
    thread thr2([this, &bThr2Completed] () {
       ABC_TRACE_FUNC(this);
 
-      bThr2Completed = true;
+      bThr2Completed.store(true);
    });
    thread thr3;
 
@@ -67,8 +67,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
    ABC_TESTING_ASSERT_FALSE(thr1.joinable());
    ABC_TESTING_ASSERT_FALSE(thr2.joinable());
 
-   ABC_TESTING_ASSERT_TRUE(bThr1Completed);
-   ABC_TESTING_ASSERT_TRUE(bThr2Completed);
+   ABC_TESTING_ASSERT_TRUE(bThr1Completed.load());
+   ABC_TESTING_ASSERT_TRUE(bThr2Completed.load());
 }
 
 }} //namespace abc::test
@@ -87,8 +87,8 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    for (std::size_t i = 0; i < sc_cWorkers; ++i) {
       std::atomic<bool> * pbWorkerCompleted = &abWorkersCompleted[i];
       std::atomic<bool> * pbWorkerInterrupted = &abWorkersInterrupted[i];
-      *pbWorkerCompleted = false;
-      *pbWorkerInterrupted = false;
+      pbWorkerCompleted->store(false);
+      pbWorkerInterrupted->store(false);
       thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () {
          ABC_TRACE_FUNC(this);
 
@@ -96,9 +96,9 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
             /* Expect to be interrupted by the main thread. Make this sleep long enough so as not to
             cause sporadic test failures, but avoid slowing the test down by too much. */
             this_thread::sleep_for_ms(150);
-            *pbWorkerCompleted = true;
+            pbWorkerCompleted->store(true);
          } catch (execution_interruption const &) {
-            *pbWorkerInterrupted = true;
+            pbWorkerInterrupted->store(true);
          }
       });
    }
@@ -111,16 +111,16 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
       thr.join();
    }
 
-   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[0]);
-   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[0]);
-   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted[1]);
-   ABC_TESTING_ASSERT_TRUE(abWorkersInterrupted[1]);
-   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted[2]);
-   ABC_TESTING_ASSERT_TRUE(abWorkersInterrupted[2]);
-   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[3]);
-   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[3]);
-   ABC_TESTING_ASSERT_TRUE(abWorkersCompleted[4]);
-   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4]);
+   ABC_TESTING_ASSERT_TRUE (abWorkersCompleted  [0].load());
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[0].load());
+   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted  [1].load());
+   ABC_TESTING_ASSERT_TRUE (abWorkersInterrupted[1].load());
+   ABC_TESTING_ASSERT_FALSE(abWorkersCompleted  [2].load());
+   ABC_TESTING_ASSERT_TRUE (abWorkersInterrupted[2].load());
+   ABC_TESTING_ASSERT_TRUE (abWorkersCompleted  [3].load());
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[3].load());
+   ABC_TESTING_ASSERT_TRUE (abWorkersCompleted  [4].load());
+   ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4].load());
 }
 #endif //if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
 
@@ -155,7 +155,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
             ABC_TRACE_FUNC(this);
 
             ABC_THROW(execution_interruption, ());
-            bThr1Completed = true;
+            bThr1Completed.store(true);
          });
          /* Wait for the termination of thr1. Since thr1 will terminate with an exception, the
          current thread will be interrupted as well, right after thr1’s termination. */
@@ -169,7 +169,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
       // deferred1 will restore io::text::stderr.
    }
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
-   ABC_TESTING_ASSERT_FALSE(bThr1Completed);
+   ABC_TESTING_ASSERT_FALSE(bThr1Completed.load());
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
@@ -193,7 +193,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
       /* Make the sleep long enough so as not to cause sporadic test failures, but avoid slowing the
       test down by too much. */
       this_thread::sleep_for_ms(150);
-      bThr1Completed = true;
+      bThr1Completed.store(true);
    });
 
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
@@ -225,7 +225,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
    }
 
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
-   ABC_TESTING_ASSERT_FALSE(bThr1Completed);
+   ABC_TESTING_ASSERT_FALSE(bThr1Completed.load());
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
