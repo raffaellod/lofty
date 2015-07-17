@@ -196,3 +196,26 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
 }
 
 }} //namespace abc::test
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – on non-main thread") {
+   ABC_TRACE_FUNC(this);
+
+   thread thr1([this] () {
+      bool bCoro1Completed = false;
+
+      coroutine coro1([this, &bCoro1Completed] () {
+         bCoro1Completed = true;
+      });
+
+      this_thread::run_coroutines();
+
+      ABC_TESTING_ASSERT_TRUE(bCoro1Completed);
+   });
+   thr1.join();
+}
+
+}} //namespace abc::test
