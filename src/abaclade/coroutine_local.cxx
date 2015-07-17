@@ -30,44 +30,21 @@ namespace abc { namespace detail {
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 std::size_t coroutine_local_storage::sm_cb = 0;
 std::size_t coroutine_local_storage::sm_cbFrozen = 0;
-/* Important: sm_pcrls MUST be defined before sm_crls to guarantee that their per-thread copies are
-constructed in this same order, which is necessary since constructing a copy of sm_crls assigns a
-new value to the copy of sm_pcrls; constructing sm_pcrls after sm_crls would cause its value to be
-lost. */
-thread_local_value<coroutine_local_storage *> coroutine_local_storage::sm_pcrls /*= nullptr*/;
-thread_local_value<coroutine_local_storage> coroutine_local_storage::sm_crls;
 
-coroutine_local_storage::coroutine_local_storage(bool bNewThread /*= true*/) :
-   m_pb(new std::int8_t[sm_cb]) {
+/*explicit*/ coroutine_local_storage::coroutine_local_storage(bool bNewThread) {
    if (sm_cbFrozen == 0) {
       // Track the size of this first block.
       sm_cbFrozen = sm_cb;
    }
 
-   // Iterate over the list to construct CRLS for this coroutine.
-   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
-      it->construct(get_storage(it->m_ibStorageOffset));
-   }
-
-   if (bNewThread) {
-      /* This object is being instantiated as the sm_crls “member” of a new thread_storage instance,
-      so default the thread’s coroutine_storage pointer, sm_pcrls, to this. That pointer may be
-      changed later if the current thread is set to schedule coroutines. */
-      sm_pcrls = this;
+   if (!bNewThread) {
+      construct_vars();
    }
 }
 
 coroutine_local_storage::~coroutine_local_storage() {
-   /* Don’t bother to clear sm_pcrls: if this is a coroutine’s storage, then sm_pcrls != this, so it
-   should’t be cleared; if it’s a thread’s storage, then the thread is terminating, so sm_pcrls is
-   about to go away as well, so clearing it is unnecessary. */
-   if (sm_pcrls == this) {
-      sm_pcrls = nullptr;
-   }
-
-   // Iterate backwards over the list to destruct CRLS for this coroutine.
-   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
-      it->destruct(get_storage(it->m_ibStorageOffset));
+   if (m_pb) {
+      destruct_vars();
    }
 }
 
@@ -83,8 +60,31 @@ coroutine_local_storage::~coroutine_local_storage() {
    }
 }
 
+void coroutine_local_storage::construct_vars() {
+   m_pb.reset(new std::int8_t[sm_cb]);
+   // Iterate over the list to construct CRLS for this coroutine.
+   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
+      it->construct(get_storage(it->m_ibStorageOffset));
+   }
+}
+
+void coroutine_local_storage::destruct_vars() {
+   // Iterate backwards over the list to destruct CRLS for this coroutine.
+   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
+      it->destruct(get_storage(it->m_ibStorageOffset));
+   }
+   m_pb.reset();
+}
+
 /*static*/ coroutine_local_storage * coroutine_local_storage::get() {
-   return sm_pcrls;
+   return thread_local_storage::get()->m_pcrls;
+}
+
+/*static*/ void coroutine_local_storage::get_default_and_current_pointers(
+   coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
+) {
+   *ppcrlsDefault = &thread_local_storage::get()->m_crls;
+   *pppcrlsCurrent = &thread_local_storage::get()->m_pcrls;
 }
 
 }} //namespace abc::detail

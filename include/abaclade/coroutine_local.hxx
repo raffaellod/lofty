@@ -44,11 +44,10 @@ public:
    /*! Constructor.
 
    @param bNewThread
-      True if the object is being instantiated as the sm_crls “member” of a new thread_storage
-      instance, which means the constructor will also set sm_pcrls. If false, sm_pcrls will not be
-      changed.
+      True if the object is being instantiated as the m_crls member of a new thread_storage
+      instance.
    */
-   coroutine_local_storage(bool bNewThread = true);
+   explicit coroutine_local_storage(bool bNewThread);
 
    //! Destructor.
    ~coroutine_local_storage();
@@ -65,6 +64,12 @@ public:
    */
    static void add_var(coroutine_local_var_impl * pcrlvi, std::size_t cb);
 
+   //! Constructs the registered coroutine local variables.
+   void construct_vars();
+
+   //! Destructs the registered coroutine local variables.
+   void destruct_vars();
+
    /*! Returns a pointer to the specified offset in the storage.
 
    @return
@@ -72,19 +77,16 @@ public:
    */
    static coroutine_local_storage * get();
 
-   /*! Accessor used by coroutine::scheduler to change sm_pcrls.
+   /*! Accessor used by coroutine::scheduler to change m_pcrls.
 
    @param ppcrlsDefault
-      Pointer to receive the address of sm_crls.
+      Pointer to receive the address of m_crls.
    @param pppcrlsCurrent
-      Pointer to receive the address of sm_pcrls.
+      Pointer to receive the address of m_pcrls.
    */
    static void get_default_and_current_pointers(
       coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
-   ) {
-      *ppcrlsDefault = &sm_crls.get();
-      *pppcrlsCurrent = &sm_pcrls.get();
-   }
+   );
 
    /*! Returns a pointer to the specified offset in the coroutine-local data store.
 
@@ -107,13 +109,6 @@ private:
    /*! Tracks the value of sm_cb when coroutine_local_storage was instantiated. Changes occurring
    after that first time are a problem. */
    static std::size_t sm_cbFrozen;
-   /*! Normally a pointer to sm_crls (set for each thread by sm_crls’s existence, which instantiates
-   a coroutine_local_storage which in turn sets this), but replaced while a coroutine is being
-   actively executed. */
-   static thread_local_value<coroutine_local_storage *> sm_pcrls;
-   /*! Per-thread storage for the active coroutine. If a coroutine::scheduler is running on a
-   thread, this is replaced on each change of coroutine::scheduler::sm_pcoroctxActive. */
-   static thread_local_value<coroutine_local_storage> sm_crls;
 };
 
 }} //namespace abc::detail

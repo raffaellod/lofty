@@ -41,6 +41,9 @@ thread). */
 class ABACLADE_SYM thread_local_storage :
    public collections::static_list<thread_local_storage, thread_local_var_impl>,
    public noncopyable {
+private:
+   friend class coroutine_local_storage;
+
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
    specified thread_local_var_impl instance; it also initializes the m_ptlviNext and
@@ -116,6 +119,12 @@ public:
 private:
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
+   /*! Storage for the active coroutine. If a coroutine::scheduler is running on a thread, this is
+   replaced on each change of coroutine::scheduler::sm_pcoroctxActive. */
+   coroutine_local_storage m_crls;
+   //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
+   coroutine_local_storage * m_pcrls;
+
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
    /*! Tracks the value of sm_cb when thread_local_storage was instantiated. Changes occurring after

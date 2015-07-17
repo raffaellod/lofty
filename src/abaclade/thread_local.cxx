@@ -46,7 +46,9 @@ std::size_t thread_local_storage::sm_cb = 0;
 std::size_t thread_local_storage::sm_cbFrozen = 0;
 
 thread_local_storage::thread_local_storage() :
-   m_pb(new std::int8_t[sm_cb]) {
+   m_pb(new std::int8_t[sm_cb]),
+   m_crls(true /*this is for a new thread*/),
+   m_pcrls(&m_crls) {
    if (sm_cbFrozen == 0) {
       // Track the size of this first block.
       sm_cbFrozen = sm_cb;
@@ -64,6 +66,7 @@ thread_local_storage::thread_local_storage() :
    for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
       it->construct(get_storage(it->m_ibStorageOffset));
    }
+   m_crls.construct_vars();
 }
 
 thread_local_storage::~thread_local_storage() {
@@ -71,6 +74,7 @@ thread_local_storage::~thread_local_storage() {
    for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
       it->destruct(get_storage(it->m_ibStorageOffset));
    }
+   m_crls.destruct_vars();
 
    // Clear the TLS slot.
 #if ABC_HOST_API_POSIX
