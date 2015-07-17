@@ -71,6 +71,13 @@ thread_local_storage::~thread_local_storage() {
    for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
       it->destruct(get_storage(it->m_ibStorageOffset));
    }
+
+   // Clear the TLS slot.
+#if ABC_HOST_API_POSIX
+   pthread_setspecific(g_pthkey, nullptr);
+#elif ABC_HOST_API_WIN32
+   ::TlsSetValue(g_iTls, nullptr);
+#endif
 }
 
 /*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
@@ -100,7 +107,6 @@ thread_local_storage::~thread_local_storage() {
 #if ABC_HOST_API_POSIX
 /*static*/ void thread_local_storage::destruct(void * pThis /*= get()*/) {
    delete static_cast<thread_local_storage *>(pThis);
-   pthread_setspecific(g_pthkey, nullptr);
 }
 #endif
 
