@@ -97,7 +97,12 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    {
       long ibOffsetHigh = 0;
       ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-      ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+      if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() != ERROR_SUCCESS) {
+         ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+      } else {
+         ovl.Offset = 0;
+         ovl.OffsetHigh = 0;
+      }
    }
    ::BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
    ::DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
