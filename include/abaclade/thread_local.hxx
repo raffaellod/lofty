@@ -134,6 +134,21 @@ private:
    static std::size_t sm_cbFrozen;
 };
 
+
+// Now these can be defined.
+
+/*static*/ inline coroutine_local_storage * coroutine_local_storage::get() {
+   return thread_local_storage::get()->m_pcrls;
+}
+
+/*static*/ inline void coroutine_local_storage::get_default_and_current_pointers(
+   coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
+) {
+   auto ptls = thread_local_storage::get();
+   *ppcrlsDefault = &ptls->m_crls;
+   *pppcrlsCurrent = &ptls->m_pcrls;
+}
+
 }} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +168,10 @@ protected:
    @param cbObject
       Size of the object pointed to by the thread_local_value/thread_local_ptr subclass.
    */
-   explicit thread_local_var_impl(std::size_t cbObject);
+   explicit thread_local_var_impl(std::size_t cbObject) {
+      // Initializes the members of *this.
+      thread_local_storage::add_var(this, cbObject);
+   }
 
    /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
 

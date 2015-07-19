@@ -32,7 +32,7 @@ unsigned coroutine_local_storage::sm_cVars = 0;
 std::size_t coroutine_local_storage::sm_cb = 0;
 std::size_t coroutine_local_storage::sm_cbFrozen = 0;
 
-/*explicit*/ coroutine_local_storage::coroutine_local_storage() :
+coroutine_local_storage::coroutine_local_storage() :
    m_pbConstructed(new bool[sm_cVars]),
    m_pb(new std::int8_t[sm_cb]) {
    memory::clear(m_pbConstructed.get(), sm_cVars);
@@ -77,17 +77,6 @@ bool coroutine_local_storage::destruct_vars() {
    return bAnyDestructed;
 }
 
-/*static*/ coroutine_local_storage * coroutine_local_storage::get() {
-   return thread_local_storage::get()->m_pcrls;
-}
-
-/*static*/ void coroutine_local_storage::get_default_and_current_pointers(
-   coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
-) {
-   *ppcrlsDefault = &thread_local_storage::get()->m_crls;
-   *pppcrlsCurrent = &thread_local_storage::get()->m_pcrls;
-}
-
 void * coroutine_local_storage::get_storage(coroutine_local_var_impl const * pcrlvi) {
    bool * pbConstructed = &m_pbConstructed[pcrlvi->m_iStorageIndex];
    void * pb = &m_pb[pcrlvi->m_ibStorageOffset];
@@ -96,17 +85,6 @@ void * coroutine_local_storage::get_storage(coroutine_local_var_impl const * pcr
       *pbConstructed = true;
    }
    return pb;
-}
-
-}} //namespace abc::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace detail {
-
-coroutine_local_var_impl::coroutine_local_var_impl(std::size_t cbObject) {
-   // Initializes the members of *this.
-   coroutine_local_storage::add_var(this, cbObject);
 }
 
 }} //namespace abc::detail

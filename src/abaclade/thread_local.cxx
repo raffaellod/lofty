@@ -179,14 +179,3 @@ void * thread_local_storage::get_storage(thread_local_var_impl const * ptlvi) {
 }
 
 }} //namespace abc::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace detail {
-
-thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
-   // Initializes the members of *this.
-   thread_local_storage::add_var(this, cbObject);
-}
-
-}} //namespace abc::detail

@@ -71,6 +71,7 @@ public:
    @return
       Pointer to the data store.
    */
+   // Defined in thread_local.hxx.
    static coroutine_local_storage * get();
 
    /*! Accessor used by coroutine::scheduler to change m_pcrls.
@@ -80,6 +81,7 @@ public:
    @param pppcrlsCurrent
       Pointer to receive the address of m_pcrls.
    */
+   // Defined in thread_local.hxx.
    static void get_default_and_current_pointers(
       coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
    );
@@ -129,7 +131,10 @@ protected:
    @param cbObject
       Size of the object pointed to by the coroutine_local_value/coroutine_local_ptr subclass.
    */
-   explicit coroutine_local_var_impl(std::size_t cbObject);
+   explicit coroutine_local_var_impl(std::size_t cbObject) {
+      // Initializes the members of *this.
+      coroutine_local_storage::add_var(this, cbObject);
+   }
 
    /*! Constructs the coroutine-local value for a new coroutine. Invoked at most once for each
    coroutine.
