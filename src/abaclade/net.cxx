@@ -158,13 +158,13 @@ std::shared_ptr<connection> tcp_server::accept() {
 #if ABC_HOST_API_POSIX
    typedef ::sockaddr sockaddr_type;
    typedef ::socklen_t socklen_type;
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
 #elif ABC_HOST_API_WIN32
    typedef ::SOCKADDR sockaddr_type;
    typedef int socklen_type;
 #else
    #error "TODO: HOST_API"
 #endif
-   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
    io::filedesc fd;
    sockaddr_type * psaClient;
    socklen_type cbClient;
