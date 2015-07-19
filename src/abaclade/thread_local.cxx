@@ -42,13 +42,15 @@ namespace abc { namespace detail {
 #endif
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
+unsigned thread_local_storage::sm_cVars = 0;
 std::size_t thread_local_storage::sm_cb = 0;
 std::size_t thread_local_storage::sm_cbFrozen = 0;
 
 thread_local_storage::thread_local_storage() :
+   m_pbConstructed(new bool[sm_cVars]),
    m_pb(new std::int8_t[sm_cb]),
-   m_crls(true /*this is for a new thread*/),
    m_pcrls(&m_crls) {
+   memory::clear(m_pbConstructed.get(), sm_cVars);
    if (sm_cbFrozen == 0) {
       // Track the size of this first block.
       sm_cbFrozen = sm_cb;
@@ -61,20 +63,24 @@ thread_local_storage::thread_local_storage() :
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, this);
 #endif
-
-   // Iterate over the list to construct TLS for this thread.
-   for (auto it(begin()), itEnd(end()); it != itEnd; ++it) {
-      it->construct(get_storage(it->m_ibStorageOffset));
-   }
-   m_crls.construct_vars();
 }
 
 thread_local_storage::~thread_local_storage() {
-   // Iterate backwards over the list to destruct TLS for this thread.
-   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
-      it->destruct(get_storage(it->m_ibStorageOffset));
-   }
-   m_crls.destruct_vars();
+   unsigned iRemainingAttempts = 10;
+   bool bAnyDestructed;
+   do {
+      // Destruct CRLS for this thread.
+      bAnyDestructed = m_crls.destruct_vars();
+      // Iterate backwards over the list to destruct TLS for this thread.
+      bool * pb = m_pbConstructed.get();
+      for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
+         if (*pb) {
+            it->destruct(get_storage(&*it));
+            *pb = false;
+            bAnyDestructed = true;
+         }
+      }
+   } while (--iRemainingAttempts > 0 && bAnyDestructed);
 
    // Clear the TLS slot.
 #if ABC_HOST_API_POSIX
@@ -85,6 +91,7 @@ thread_local_storage::~thread_local_storage() {
 }
 
 /*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
+   ptlvi->m_iStorageIndex = sm_cVars++;
    // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
    ptlvi->m_ibStorageOffset = sm_cb;
    sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
@@ -161,6 +168,16 @@ thread_local_storage::~thread_local_storage() {
    }
 }
 
+void * thread_local_storage::get_storage(thread_local_var_impl const * ptlvi) {
+   bool * pbConstructed = &m_pbConstructed[ptlvi->m_iStorageIndex];
+   void * pb = &m_pb[ptlvi->m_ibStorageOffset];
+   if (!*pbConstructed) {
+      ptlvi->construct(pb);
+      *pbConstructed = true;
+   }
+   return pb;
+}
+
 }} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +185,7 @@ thread_local_storage::~thread_local_storage() {
 namespace abc { namespace detail {
 
 thread_local_var_impl::thread_local_var_impl(std::size_t cbObject) {
-   // Initializes m_ibStorageOffset.
+   // Initializes the members of *this.
    thread_local_storage::add_var(this, cbObject);
 }
 

@@ -78,16 +78,14 @@ public:
    */
    static thread_local_storage * get(bool bCreateNewIfNull = true);
 
-   /*! Returns a pointer to the specified offset in the thread-local data store.
+   /*! Returns a pointer to the specified variable in the thread-local data store.
 
-   @param ibOffset
-      Desired offset.
+   @param ptlvi
+      Pointer to the variable to retrieve.
    @return
       Corresponding pointer.
    */
-   void * get_storage(std::size_t ibOffset) const {
-      return &m_pb[ibOffset];
-   }
+   void * get_storage(thread_local_var_impl const * ptlvi);
 
 private:
    //! Constructor.
@@ -117,6 +115,8 @@ public:
    ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 
 private:
+   //! Array of flags indicating whether each storage slot has been constructed.
+   std::unique_ptr<bool[]> m_pbConstructed;
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
    /*! Storage for the active coroutine. If a coroutine::scheduler is running on a thread, this is
@@ -125,6 +125,8 @@ private:
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
 
+   //! Count of variables registered with calls to add_var().
+   static unsigned sm_cVars;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
    /*! Tracks the value of sm_cb when thread_local_storage was instantiated. Changes occurring after
@@ -151,7 +153,7 @@ protected:
    @param cbObject
       Size of the object pointed to by the thread_local_value/thread_local_ptr subclass.
    */
-   thread_local_var_impl(std::size_t cbObject);
+   explicit thread_local_var_impl(std::size_t cbObject);
 
    /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
 
@@ -175,12 +177,14 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(thread_local_storage::get()->get_storage(m_ibStorageOffset));
+      return static_cast<T *>(thread_local_storage::get()->get_storage(this));
    }
 
 private:
    //! Offset of this variable in the TLS block.
    std::size_t m_ibStorageOffset;
+   //! Index of this variable in the TLS block.
+   unsigned m_iStorageIndex;
 };
 
 }} //namespace abc::detail

@@ -41,13 +41,8 @@ class ABACLADE_SYM coroutine_local_storage :
    public collections::static_list<coroutine_local_storage, coroutine_local_var_impl>,
    public noncopyable {
 public:
-   /*! Constructor.
-
-   @param bNewThread
-      True if the object is being instantiated as the m_crls member of a new thread_storage
-      instance.
-   */
-   explicit coroutine_local_storage(bool bNewThread);
+   //! Constructor.
+   coroutine_local_storage();
 
    //! Destructor.
    ~coroutine_local_storage();
@@ -64,11 +59,12 @@ public:
    */
    static void add_var(coroutine_local_var_impl * pcrlvi, std::size_t cb);
 
-   //! Constructs the registered coroutine local variables.
-   void construct_vars();
+   /*! Destructs the registered coroutine local variables.
 
-   //! Destructs the registered coroutine local variables.
-   void destruct_vars();
+   @return
+      true if any variables were destructed, or no constructed ones were found.
+   */
+   bool destruct_vars();
 
    /*! Returns a pointer to the specified offset in the storage.
 
@@ -90,20 +86,23 @@ public:
 
    /*! Returns a pointer to the specified offset in the coroutine-local data store.
 
-   @param ibOffset
-      Desired offset.
+   @param pcrlvi
+      Pointer to the variable to retrieve.
    @return
       Corresponding pointer.
    */
-   void * get_storage(std::size_t ibOffset) const {
-      return &m_pb[ibOffset];
-   }
+   void * get_storage(coroutine_local_var_impl const * pcrlvi);
 
    ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 
 private:
+   //! Array of flags indicating whether each storage slot has been constructed.
+   std::unique_ptr<bool[]> m_pbConstructed;
    //! Raw byte storage.
    std::unique_ptr<std::int8_t[]> m_pb;
+
+   //! Count of variables registered with calls to add_var().
+   static unsigned sm_cVars;
    //! Cumulative storage size registered with calls to add_var().
    static std::size_t sm_cb;
    /*! Tracks the value of sm_cb when coroutine_local_storage was instantiated. Changes occurring
@@ -130,7 +129,7 @@ protected:
    @param cbObject
       Size of the object pointed to by the coroutine_local_value/coroutine_local_ptr subclass.
    */
-   coroutine_local_var_impl(std::size_t cbObject);
+   explicit coroutine_local_var_impl(std::size_t cbObject);
 
    /*! Constructs the coroutine-local value for a new coroutine. Invoked at most once for each
    coroutine.
@@ -155,12 +154,14 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(coroutine_local_storage::get()->get_storage(m_ibStorageOffset));
+      return static_cast<T *>(coroutine_local_storage::get()->get_storage(this));
    }
 
 private:
    //! Offset of this variable in the CRLS block.
    std::size_t m_ibStorageOffset;
+   //! Index of this variable in the CRLS block.
+   unsigned m_iStorageIndex;
 };
 
 }} //namespace abc::detail

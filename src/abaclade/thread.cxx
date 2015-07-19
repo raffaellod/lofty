@@ -65,7 +65,7 @@ simple_event::simple_event() {
 }
 #elif ABC_HOST_API_WIN32
 simple_event::simple_event() :
-   m_hEvent(::CreateEvent(nullptr, true /*manual reset*/, false /*not signlaled*/, nullptr)) {
+   m_hEvent(::CreateEvent(nullptr, true /*manual reset*/, false /*not signaled*/, nullptr)) {
    if (!m_hEvent) {
       exception::throw_os_error();
    }
@@ -128,7 +128,7 @@ thread::impl::impl(std::function<void ()> fnMain) :
 #elif ABC_HOST_API_WIN32
    m_h(nullptr),
    m_hInterruptionEvent(::CreateEvent(
-      nullptr, false /*auto reset*/, false /*not signlaled*/, nullptr
+      nullptr, false /*auto reset*/, false /*not signaled*/, nullptr
    )),
 #else
    #error "TODO: HOST_API"
@@ -152,7 +152,7 @@ thread::impl::impl(std::nullptr_t) :
       THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME, false, ::GetCurrentThreadId()
    )),
    m_hInterruptionEvent(::CreateEvent(
-      nullptr, false /*auto reset*/, false /*not signlaled*/, nullptr
+      nullptr, false /*auto reset*/, false /*not signaled*/, nullptr
    )),
 #else
    #error "TODO: HOST_API"

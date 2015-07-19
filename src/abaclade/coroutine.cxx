@@ -72,8 +72,7 @@ public:
       )),
 #endif
       m_xctPending(exception::common_type::none),
-      m_fnInnerMain(std::move(fnMain)),
-      m_crls(false /*this is for a new coroutine, not for a new thread*/) {
+      m_fnInnerMain(std::move(fnMain)) {
 #if ABC_HOST_API_POSIX
       // TODO: use ::mprotect() to setup a guard page for the stack.
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
