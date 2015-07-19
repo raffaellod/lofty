@@ -44,7 +44,7 @@ namespace abc { namespace io {
 #if ABC_HOST_API_POSIX
    typedef int filedesc_t;
 #elif ABC_HOST_API_WIN32
-   typedef HANDLE filedesc_t;
+   typedef ::HANDLE filedesc_t;
 #else
    #error "TODO: HOST_API"
 #endif

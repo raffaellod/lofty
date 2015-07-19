@@ -108,7 +108,7 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
       sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
          /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
          enough, or the required size (length including NUL) otherwise. */
-         return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast<DWORD>(cchMax));
+         return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast< ::DWORD>(cchMax));
       });
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"

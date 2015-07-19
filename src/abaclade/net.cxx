@@ -272,7 +272,7 @@ std::shared_ptr<connection> tcp_server::accept() {
    #endif
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    static std::uint8_t const sc_iWSAMajorVersion = 2, sc_iWSAMinorVersion = 2;
-   WSADATA wsad;
+   ::WSADATA wsad;
    if (int iRet = ::WSAStartup(MAKEWORD(sc_iWSAMajorVersion, sc_iWSAMinorVersion), &wsad)) {
       exception::throw_os_error(static_cast<errint_t>(iRet));
    }

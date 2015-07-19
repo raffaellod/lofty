@@ -119,7 +119,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const {
+/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const {
    switch (iErr) {
       case ERROR_SUCCESS:
          return cbRead == 0;
@@ -718,7 +718,7 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
 
    static_assert(
-      sizeof(ibOffset) == sizeof(LARGE_INTEGER),
+      sizeof(ibOffset) == sizeof(::LARGE_INTEGER),
       "abc::io::offset_t must be the same size as LARGE_INTEGER"
    );
    ::DWORD iWhence;

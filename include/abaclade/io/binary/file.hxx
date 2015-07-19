@@ -88,7 +88,7 @@ protected:
       true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are
       thrown for all non-EOF error conditions.
    */
-   virtual bool check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const;
+   virtual bool check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const;
 #endif
 };
 
@@ -245,9 +245,9 @@ private:
 
 private:
    //! Mapping table from ANSI terminal colors to Win32 console background colors.
-   static WORD const smc_aiAnsiColorToBackgroundColor[];
+   static ::WORD const smc_aiAnsiColorToBackgroundColor[];
    //! Mapping table from ANSI terminal colors to Win32 console foreground colors.
-   static WORD const smc_aiAnsiColorToForegroundColor[];
+   static ::WORD const smc_aiAnsiColorToForegroundColor[];
 #endif //if ABC_HOST_API_WIN32
 };
 
@@ -289,7 +289,7 @@ protected:
 #if ABC_HOST_API_WIN32
    /*! See file_reader::check_if_eof_or_throw_os_error(). Pipes report EOF in a completely different
    way than regular files. */
-   virtual bool check_if_eof_or_throw_os_error(DWORD cbRead, DWORD iErr) const override;
+   virtual bool check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const override;
 #endif
 };
 

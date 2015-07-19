@@ -32,7 +32,7 @@ iReason
 return
    true in case of success, or false otherwise.
 */
-extern "C" BOOL WINAPI DllMain(HINSTANCE hinst, DWORD iReason, void * pReserved) {
+extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD iReason, void * pReserved) {
    ABC_UNUSED_ARG(hinst);
    ABC_UNUSED_ARG(pReserved);
    if (!abc::detail::thread_local_storage::dllmain_hook(static_cast<unsigned>(iReason))) {

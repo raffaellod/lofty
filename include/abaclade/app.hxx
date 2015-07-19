@@ -48,7 +48,7 @@ public:
    struct _args_t {
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
-      HINSTANCE hinst;
+      ::HINSTANCE hinst;
       int iShowCmd;
 #else
       int cArgs;
@@ -145,7 +145,7 @@ abc::app-derived class, invoking its overridden main() method, and returning.
    #ifdef ABC_HOST_API_WIN32_GUI
       #define ABC_APP_CLASS(cls) \
          extern "C" int WINAPI wWinMain( \
-            HINSTANCE hinst, HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
+            ::HINSTANCE hinst, ::HINSTANCE, wchar_t * pszCmdLine, int iShowCmd \
          ) { \
             ABC_UNUSED_ARG(pszCmdLine); \
             ::abc::app::_args_t args = { hinst, iShowCmd }; \

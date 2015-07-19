@@ -480,7 +480,7 @@ public:
       if (::FindNextFileW(m_hSearch, &m_wfd)) {
          m_pathCurr = next_path();
       } else {
-         DWORD iErr = ::GetLastError();
+         ::DWORD iErr = ::GetLastError();
          if (iErr != ERROR_NO_MORE_FILES) {
             exception::throw_os_error(iErr);
          }
@@ -497,10 +497,10 @@ public:
 
 private:
    //* Wrapper for ::FindFirstFile(), to support RIIA.
-   static HANDLE find_first_file(char_t const * pszPattern, WIN32_FIND_DATA * pwfd) {
-      HANDLE h = ::FindFirstFileW(pszPattern, pwfd);
+   static ::HANDLE find_first_file(char_t const * pszPattern, ::WIN32_FIND_DATA * pwfd) {
+      ::HANDLE h = ::FindFirstFileW(pszPattern, pwfd);
       if (h == INVALID_HANDLE_VALUE) {
-         DWORD iErr = ::GetLastError();
+         ::DWORD iErr = ::GetLastError();
          if (iErr != ERROR_FILE_NOT_FOUND) {
             exception::throw_os_error(iErr);
          }
@@ -520,9 +520,9 @@ private:
    //* Directory being enumerated.
    path m_pathBaseDir;
    //* Search data.
-   WIN32_FIND_DATA m_wfd;
+   ::WIN32_FIND_DATA m_wfd;
    //* Fake handle to the search.
-   HANDLE m_hSearch;
+   ::HANDLE m_hSearch;
    //* true if we run out of files.
    bool m_bEOF;
    //* Current item.

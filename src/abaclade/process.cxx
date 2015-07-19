@@ -96,7 +96,7 @@ process::id_type process::id() const {
    // ID == native handle.
    return m_h;
 #elif ABC_HOST_API_WIN32
-   DWORD iPid = ::GetProcessId(m_h);
+   ::DWORD iPid = ::GetProcessId(m_h);
    if (iPid == 0) {
       exception::throw_os_error();
    }
@@ -129,7 +129,7 @@ int process::join() {
    if (::WaitForSingleObject(m_h, INFINITE) == WAIT_FAILED) {
       exception::throw_os_error();
    }
-   DWORD iExitCode;
+   ::DWORD iExitCode;
    if (!::GetExitCodeProcess(m_h, &iExitCode)) {
       exception::throw_os_error();
    }
@@ -156,7 +156,7 @@ bool process::joinable() const {
    // waitid() sets this to m_h if the child is in the requested state (WEXITED).
    return si.si_pid != 0;
 #elif ABC_HOST_API_WIN32
-   DWORD iRet = ::WaitForSingleObject(m_h, 0);
+   ::DWORD iRet = ::WaitForSingleObject(m_h, 0);
    if (iRet == WAIT_FAILED) {
       exception::throw_os_error();
    }

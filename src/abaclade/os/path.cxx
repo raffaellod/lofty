@@ -61,10 +61,10 @@ fi
 return
    true if the path has all the file attributes in fi, or false otherwise.
 */
-bool file_attrs(path const & op, DWORD fi) {
+bool file_attrs(path const & op, ::DWORD fi) {
    ABC_TRACE_FUNC(op, fi);
 
-   DWORD fiAttrs = ::GetFileAttributes(op.os_str().c_str());
+   ::DWORD fiAttrs = ::GetFileAttributes(op.os_str().c_str());
    if (fiAttrs == INVALID_FILE_ATTRIBUTES) {
       exception::throw_os_error();
    }
@@ -182,7 +182,9 @@ path path::base_name() const {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
       }
-      DWORD cch = ::GetCurrentDirectory(static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot);
+      ::DWORD cch = ::GetCurrentDirectory(
+         static_cast< ::DWORD>(cchMax - c_cchRoot), pch + c_cchRoot
+      );
       if (cch == 0) {
          exception::throw_os_error();
       }
@@ -209,8 +211,8 @@ path path::base_name() const {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
       }
-      DWORD cch = ::GetFullPathName(
-         achDummyPath, static_cast<DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
+      ::DWORD cch = ::GetFullPathName(
+         achDummyPath, static_cast< ::DWORD>(cchMax - c_cchRoot), pch + c_cchRoot, nullptr
       );
       if (cch == 0) {
          exception::throw_os_error();

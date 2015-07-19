@@ -38,7 +38,7 @@ namespace abc { namespace detail {
    static pthread_key_t g_pthkey;
 #elif ABC_HOST_API_WIN32
    //! TLS index.
-   static DWORD g_iTls = TLS_OUT_OF_INDEXES;
+   static ::DWORD g_iTls = TLS_OUT_OF_INDEXES;
 #endif
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)

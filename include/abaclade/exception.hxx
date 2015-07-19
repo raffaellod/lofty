@@ -30,7 +30,7 @@ namespace abc {
 #if ABC_HOST_API_POSIX
    typedef int errint_t;
 #elif ABC_HOST_API_WIN32
-   typedef DWORD errint_t;
+   typedef ::DWORD errint_t;
 #else
    #error "TODO: HOST_API"
 #endif

@@ -104,7 +104,7 @@ static stopwatch::duration_type get_duration_ns(
    ABC_TRACE_FUNC();
 
    // Compose the FILETIME arguments into 64-bit integers.
-   ULARGE_INTEGER iBegin, iEnd;
+   ::ULARGE_INTEGER iBegin, iEnd;
    iBegin.LowPart = ftBegin.dwLowDateTime;
    iBegin.HighPart = ftBegin.dwHighDateTime;
    iEnd.LowPart = ftEnd.dwLowDateTime;

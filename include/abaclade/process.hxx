@@ -39,7 +39,7 @@ public:
 #if ABC_HOST_API_POSIX
    typedef int native_handle_type;
 #elif ABC_HOST_API_WIN32
-   typedef HANDLE native_handle_type;
+   typedef ::HANDLE native_handle_type;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -49,7 +49,7 @@ public:
    // ID == native handle.
    typedef native_handle_type id_type;
 #elif ABC_HOST_API_WIN32
-   typedef DWORD id_type;
+   typedef ::DWORD id_type;
 #else
    #error "TODO: HOST_API"
 #endif

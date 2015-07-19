@@ -28,25 +28,25 @@ You should have received a copy of the GNU General Public License along with Aba
    extern "C" {
 
    #undef RtlZeroMemory
-   WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, SIZE_T cb);
+   WINBASEAPI void WINAPI RtlZeroMemory(void UNALIGNED * pDst, ::SIZE_T cb);
 
    #undef RtlFillMemory
-   WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, SIZE_T cb, UCHAR iValue);
+   WINBASEAPI void WINAPI RtlFillMemory(void UNALIGNED * pDst, ::SIZE_T cb, ::UCHAR iValue);
 
    #undef RtlFillMemoryUlong
-   WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, SIZE_T cb, ULONG iValue);
+   WINBASEAPI void WINAPI RtlFillMemoryUlong(void * pDst, ::SIZE_T cb, ::ULONG iValue);
 
    #undef RtlFillMemoryUlonglong
-   WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, SIZE_T cb, ULONGLONG iValue);
+   WINBASEAPI void WINAPI RtlFillMemoryUlonglong(void * pDst, ::SIZE_T cb, ::ULONGLONG iValue);
 
    #undef RtlCopyMemory
    WINBASEAPI void WINAPI RtlCopyMemory(
-      void UNALIGNED * pDst, void UNALIGNED const * pSrc, SIZE_T cb
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, ::SIZE_T cb
    );
 
    #undef RtlMoveMemory
    WINBASEAPI void WINAPI RtlMoveMemory(
-      void UNALIGNED * pDst, void UNALIGNED const * pSrc, SIZE_T cb
+      void UNALIGNED * pDst, void UNALIGNED const * pSrc, ::SIZE_T cb
    );
 
    } //extern "C"
@@ -395,7 +395,7 @@ inline T * set(T * ptDst, T const & tValue, std::size_t c) {
          ::memset(ptDst, tValue, c);
          break;
 #elif ABC_HOST_API_WIN32
-      case sizeof(UCHAR):
+      case sizeof(::UCHAR):
          ::RtlFillMemory(ptDst, c, tValue);
          break;
 #endif
