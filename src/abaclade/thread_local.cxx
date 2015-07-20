@@ -18,9 +18,6 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/bitmanip.hxx>
-
-#include <cstdlib> // std::abort()
 
 #if ABC_HOST_API_POSIX
    #include <pthread.h>
@@ -42,22 +39,12 @@ namespace abc { namespace detail {
 #endif
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
-unsigned thread_local_storage::sm_cVars = 0;
-std::size_t thread_local_storage::sm_cb = 0;
-std::size_t thread_local_storage::sm_cbFrozen = 0;
+context_local_storage_impl::static_members_t thread_local_storage::sm_sm = { 0, 0, 0 };
 
 thread_local_storage::thread_local_storage() :
-   m_pbConstructed(new bool[sm_cVars]),
-   m_pb(new std::int8_t[sm_cb]),
+   context_local_storage_impl(&sm_sm),
    m_pcrls(&m_crls) {
-   memory::clear(m_pbConstructed.get(), sm_cVars);
-   if (sm_cbFrozen == 0) {
-      // Track the size of this first block.
-      sm_cbFrozen = sm_cb;
-   }
 
-   /* Assign the TLS slot immediately, so that if any of the construct()s calls get() we won’t end
-   up with an infinitely-recursive call. */
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, this);
 #elif ABC_HOST_API_WIN32
@@ -72,33 +59,21 @@ thread_local_storage::~thread_local_storage() {
       // Destruct CRLS for this thread.
       bAnyDestructed = m_crls.destruct_vars();
       // Iterate backwards over the list to destruct TLS for this thread.
-      bool * pb = m_pbConstructed.get();
+      unsigned i = sm_sm.cVars;
       for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
-         if (*pb) {
+         if (is_var_constructed(--i)) {
             it->destruct(get_storage(&*it));
-            *pb = false;
+            var_destructed(i);
             bAnyDestructed = true;
          }
       }
    } while (--iRemainingAttempts > 0 && bAnyDestructed);
 
-   // Clear the TLS slot.
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, nullptr);
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, nullptr);
 #endif
-}
-
-/*static*/ void thread_local_storage::add_var(thread_local_var_impl * ptlvi, std::size_t cb) {
-   ptlvi->m_iStorageIndex = sm_cVars++;
-   // Calculate the offset for *ptlvi’s storage and increase sm_cb accordingly.
-   ptlvi->m_ibStorageOffset = sm_cb;
-   sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
-   if (sm_cbFrozen && sm_cb > sm_cbFrozen) {
-      // TODO: can’t log/report anything since no thread locals are available! Fix me!
-      std::abort();
-   }
 }
 
 /*static*/ void thread_local_storage::alloc_slot() {
@@ -141,7 +116,6 @@ thread_local_storage::~thread_local_storage() {
 }
 #endif //if ABC_HOST_API_WIN32
 
-
 /*static*/ void thread_local_storage::free_slot() {
 #if ABC_HOST_API_POSIX
    pthread_key_delete(g_pthkey);
@@ -166,16 +140,6 @@ thread_local_storage::~thread_local_storage() {
       // First call for this thread: initialize the TLS slot.
       return new thread_local_storage;
    }
-}
-
-void * thread_local_storage::get_storage(thread_local_var_impl const * ptlvi) {
-   bool * pbConstructed = &m_pbConstructed[ptlvi->m_iStorageIndex];
-   void * pb = &m_pb[ptlvi->m_ibStorageOffset];
-   if (!*pbConstructed) {
-      ptlvi->construct(pb);
-      *pbConstructed = true;
-   }
-   return pb;
 }
 
 }} //namespace abc::detail

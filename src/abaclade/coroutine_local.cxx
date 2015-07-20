@@ -18,9 +18,6 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/bitmanip.hxx>
-
-#include <cstdlib> // std::abort()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,18 +25,10 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
-unsigned coroutine_local_storage::sm_cVars = 0;
-std::size_t coroutine_local_storage::sm_cb = 0;
-std::size_t coroutine_local_storage::sm_cbFrozen = 0;
+context_local_storage_impl::static_members_t coroutine_local_storage::sm_sm = { 0, 0, 0 };
 
 coroutine_local_storage::coroutine_local_storage() :
-   m_pbConstructed(new bool[sm_cVars]),
-   m_pb(new std::int8_t[sm_cb]) {
-   memory::clear(m_pbConstructed.get(), sm_cVars);
-   if (sm_cbFrozen == 0) {
-      // Track the size of this first block.
-      sm_cbFrozen = sm_cb;
-   }
+   context_local_storage_impl(&sm_sm) {
 }
 
 coroutine_local_storage::~coroutine_local_storage() {
@@ -50,41 +39,18 @@ coroutine_local_storage::~coroutine_local_storage() {
    } while (--iRemainingAttempts > 0 && bAnyDestructed);
 }
 
-/*static*/ void coroutine_local_storage::add_var(
-   coroutine_local_var_impl * pcrlvi, std::size_t cb
-) {
-   pcrlvi->m_iStorageIndex = sm_cVars++;
-   // Calculate the offset for *pcrlvi’s storage and increase sm_cb accordingly.
-   pcrlvi->m_ibStorageOffset = sm_cb;
-   sm_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
-   if (sm_cbFrozen && sm_cb > sm_cbFrozen) {
-      // TODO: can’t log/report anything since no thread locals are available! Fix me!
-      std::abort();
-   }
-}
-
 bool coroutine_local_storage::destruct_vars() {
    bool bAnyDestructed = false;
    // Iterate backwards over the list to destruct CRLS for this coroutine.
-   bool * pb = m_pbConstructed.get();
-   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++pb, ++it) {
-      if (*pb) {
+   unsigned i = sm_sm.cVars;
+   for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
+      if (is_var_constructed(--i)) {
          it->destruct(get_storage(&*it));
-         *pb = false;
+         var_destructed(i);
          bAnyDestructed = true;
       }
    }
    return bAnyDestructed;
-}
-
-void * coroutine_local_storage::get_storage(coroutine_local_var_impl const * pcrlvi) {
-   bool * pbConstructed = &m_pbConstructed[pcrlvi->m_iStorageIndex];
-   void * pb = &m_pb[pcrlvi->m_ibStorageOffset];
-   if (!*pbConstructed) {
-      pcrlvi->construct(pb);
-      *pbConstructed = true;
-   }
-   return pb;
 }
 
 }} //namespace abc::detail

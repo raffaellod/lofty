@@ -26,27 +26,21 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-// Forward declaration.
-class thread_local_var_impl;
+// Forward declarations.
+class thread_local_storage;
 
 //! Abaclade’s TLS slot data manager.
-/* TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
-Abaclade.
-
-The m_pb byte array should be replaced with a map from library address/name to library-specific TLS,
-and each library would have its own byte array (keyed in the same way).
-Loading a new library would add a new element in the maps (and in the TLS block for each existing
-thread), and unloading it would remove the library from all maps (and in the TLS block for each
-thread). */
 class ABACLADE_SYM thread_local_storage :
-   public collections::static_list<thread_local_storage, thread_local_var_impl>,
-   public noncopyable {
+   public collections::static_list<
+      thread_local_storage, context_local_var_impl<thread_local_storage>
+   >,
+   public context_local_storage_impl {
 private:
    friend class coroutine_local_storage;
 
 public:
    /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified thread_local_var_impl instance; it also initializes the m_ptlviNext and
+   specified context_local_var_impl instance; it also initializes the m_ptlviNext and
    m_ibStorageOffset members of the latter. This function will be called during initialization of a
    new dynamic library as it’s being loaded, not during normal run-time.
 
@@ -55,7 +49,9 @@ public:
    @param cb
       Requested storage size.
    */
-   static void add_var(thread_local_var_impl * ptlvi, std::size_t cb);
+   static void add_var(context_local_var_impl<thread_local_storage> * ptlvi, std::size_t cb) {
+      context_local_storage_impl::add_var(&sm_sm, ptlvi, cb);
+   }
 
 #if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
@@ -77,15 +73,6 @@ public:
       Pointer to the data store.
    */
    static thread_local_storage * get(bool bCreateNewIfNull = true);
-
-   /*! Returns a pointer to the specified variable in the thread-local data store.
-
-   @param ptlvi
-      Pointer to the variable to retrieve.
-   @return
-      Corresponding pointer.
-   */
-   void * get_storage(thread_local_var_impl const * ptlvi);
 
 private:
    //! Constructor.
@@ -115,23 +102,13 @@ public:
    ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 
 private:
-   //! Array of flags indicating whether each storage slot has been constructed.
-   std::unique_ptr<bool[]> m_pbConstructed;
-   //! Raw byte storage.
-   std::unique_ptr<std::int8_t[]> m_pb;
    /*! Storage for the active coroutine. If a coroutine::scheduler is running on a thread, this is
    replaced on each change of coroutine::scheduler::sm_pcoroctxActive. */
    coroutine_local_storage m_crls;
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
 
-   //! Count of variables registered with calls to add_var().
-   static unsigned sm_cVars;
-   //! Cumulative storage size registered with calls to add_var().
-   static std::size_t sm_cb;
-   /*! Tracks the value of sm_cb when thread_local_storage was instantiated. Changes occurring after
-   that first time are a problem. */
-   static std::size_t sm_cbFrozen;
+   static static_members_t sm_sm;
 };
 
 
@@ -153,70 +130,14 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
-
-//! Non-template implementation of abc::thread_local_value and abc::thread_local_ptr.
-class ABACLADE_SYM thread_local_var_impl :
-   public collections::static_list<thread_local_storage, thread_local_var_impl>::node,
-   public noncopyable {
-private:
-   friend class thread_local_storage;
-
-protected:
-   /*! Constructor.
-
-   @param cbObject
-      Size of the object pointed to by the thread_local_value/thread_local_ptr subclass.
-   */
-   explicit thread_local_var_impl(std::size_t cbObject) {
-      // Initializes the members of *this.
-      thread_local_storage::add_var(this, cbObject);
-   }
-
-   /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
-
-   @param p
-      Pointer to the memory block where the new value should be constructed.
-   */
-   virtual void construct(void * p) const = 0;
-
-   /*! Destructs the thread-local value for a terminating thread. Invoked at most once for each
-   thread.
-
-   @param p
-      Pointer to the value to be destructed.
-   */
-   virtual void destruct(void * p) const = 0;
-
-   /*! Returns a pointer to the current thread’s copy of the variable.
-
-   @return
-      Pointer to the thread-local value for this object.
-   */
-   template <typename T>
-   T * get_ptr() const {
-      return static_cast<T *>(thread_local_storage::get()->get_storage(this));
-   }
-
-private:
-   //! Offset of this variable in the TLS block.
-   std::size_t m_ibStorageOffset;
-   //! Index of this variable in the TLS block.
-   unsigned m_iStorageIndex;
-};
-
-}} //namespace abc::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace abc {
 
 /*! Variable with separate per-thread values. Variables of this type cannot be non-static class
 members. */
 template <typename T>
-class thread_local_value : public detail::context_local_value<T, detail::thread_local_var_impl> {
+class thread_local_value : public detail::context_local_value<T, detail::thread_local_storage> {
 private:
-   typedef detail::context_local_value<T, detail::thread_local_var_impl> context_local;
+   typedef detail::context_local_value<T, detail::thread_local_storage> context_local;
 
 public:
    //! See detail::context_local_value::operator=().
@@ -240,7 +161,7 @@ namespace abc {
 thread, and an instance of this class lets each thread access its own private copy of the value
 pointed to by it. Variables of this type cannot be non-static class members. */
 template <typename T>
-class thread_local_ptr : public detail::context_local_ptr<T, detail::thread_local_var_impl> {
+class thread_local_ptr : public detail::context_local_ptr<T, detail::thread_local_storage> {
 };
 
 } //namespace abc

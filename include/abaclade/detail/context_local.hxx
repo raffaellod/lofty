@@ -26,15 +26,181 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
+// Forward declarations.
+class context_local_var_impl_base;
+
+/*! Partial implementation of abc::detail::thread_local_storage and
+abc::detail::coroutine_local_storage.
+
+TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
+Abaclade:
+
+The m_pb byte array should be replaced with a map from library address/name to library-specific TLS/
+CRLS, and each library would have its own byte array (keyed in the same way).
+Loading a new library would add a new element in the maps (and in the TLS/CRLS block for each
+existing thread/coroutine), and unloading it would remove the library from all maps (and in the TLS/
+CRLS block for each thread/coroutine). */
+class ABACLADE_SYM context_local_storage_impl : public noncopyable {
+protected:
+   //! Type containing static data members for this class.
+   struct static_members_t {
+      //! Count of variables registered with calls to add_var().
+      unsigned cVars;
+      //! Cumulative storage size registered with calls to add_var().
+      std::size_t cb;
+      /*! Tracks the value of cb when context_local_storage_impl was instantiated. Changes occurring
+      after that first time are a problem. */
+      std::size_t cbFrozen;
+   };
+
+public:
+   /*! Adds the specified size to the storage and assigns the corresponding offset within to the
+   specified context_local_var_impl instance; it also initializes the members of the latter. This
+   function will be called during initialization of a new dynamic library as it’s being loaded, not
+   during normal run-time.
+
+   @param psm
+      Pointer to static members variables for the context_local_storage_impl subclass.
+   @param pclvi
+      Pointer to the new variable to assign storage to.
+   @param cb
+      Requested storage size.
+   */
+   static void add_var(static_members_t * psm, context_local_var_impl_base * pclvi, std::size_t cb);
+
+   /*! Returns a pointer to the specified variable in the context-local data store.
+
+   @param pclvi
+      Pointer to the variable to retrieve.
+   @return
+      Corresponding pointer.
+   */
+   void * get_storage(context_local_var_impl_base const * pclvi);
+
+protected:
+   /*! Constructor.
+
+   @param psm
+      Pointer to static members variables for the context_local_storage_impl subclass.
+   */
+   context_local_storage_impl(static_members_t * psm);
+
+   //! Destructor.
+   ~context_local_storage_impl();
+
+   /*! Checks whether a variable has been constructed in *this.
+
+   @param iVar
+      Index of the variable.
+   @return
+      true is the variable has been constructed in *this, or false otherwise.
+   */
+   bool is_var_constructed(unsigned iVar) const {
+      return m_pbConstructed[iVar];
+   }
+
+   /*! Marks a variable as no longer constructed.
+
+   @param iVar
+      Index of the variable.
+   */
+   void var_destructed(unsigned iVar) {
+      m_pbConstructed[iVar] = false;
+   }
+
+private:
+   //! Array of flags indicating whether each storage slot has been constructed.
+   std::unique_ptr<bool[]> m_pbConstructed;
+   //! Raw byte storage.
+   std::unique_ptr<std::int8_t[]> m_pb;
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+//! Non-template implementation of abc::detail::context_local_var_impl.
+class ABACLADE_SYM context_local_var_impl_base : public noncopyable {
+protected:
+   //! Constructor.
+   context_local_var_impl_base();
+
+   //! Destructor.
+   ~context_local_var_impl_base();
+
+public:
+   /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
+
+   @param p
+      Pointer to the memory block where the new value should be constructed.
+   */
+   virtual void construct(void * p) const = 0;
+
+   /*! Destructs the thread-local value for a terminating thread. Invoked at most once for each
+   thread.
+
+   @param p
+      Pointer to the value to be destructed.
+   */
+   virtual void destruct(void * p) const = 0;
+
+public:
+   //! Offset of this variable in the TLS/CRLS block.
+   std::size_t m_ibStorageOffset;
+   //! Index of this variable in the TLS/CRLS block.
+   unsigned m_iStorageIndex;
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+//! Common implementation of abc::detail::context_local_value and abc::detail::context_local_ptr.
+template <typename TStorage>
+class context_local_var_impl :
+   public collections::static_list<TStorage, context_local_var_impl<TStorage>>::node,
+   public context_local_var_impl_base {
+protected:
+   /*! Constructor.
+
+   @param cbObject
+      Size of the object pointed to by the context_local_value/context_local_ptr subclass.
+   */
+   explicit context_local_var_impl(std::size_t cbObject) {
+      // Initializes the members of *this.
+      TStorage::add_var(this, cbObject);
+   }
+
+   /*! Returns a pointer to the current thread’s copy of the variable.
+
+   @return
+      Pointer to the thread-local value for this object.
+   */
+   template <typename T>
+   T * get_ptr() const {
+      return static_cast<T *>(TStorage::get()->get_storage(this));
+   }
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
 //! Implementation of abc::thread_local_value and abc::coroutine_local_value.
-template <typename T, typename TImpl>
+template <typename T, typename TStorage>
 class context_local_value :
-   private TImpl,
-   public support_explicit_operator_bool<context_local_value<T, TImpl>> {
+   private context_local_var_impl<TStorage>,
+   public support_explicit_operator_bool<context_local_value<T, TStorage>> {
 public:
    //! Constructor.
    context_local_value() :
-      TImpl(sizeof(T)) {
+      context_local_var_impl<TStorage>(sizeof(T)) {
    }
 
    /*! Assignment operator.
@@ -87,29 +253,29 @@ public:
    }
 
 private:
-   //! See TImpl::construct().
+   //! See context_local_var_impl::construct().
    virtual void construct(void * p) const override {
       new(p) T();
    }
 
-   //! See TImpl::destruct().
+   //! See context_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
       static_cast<T *>(p)->~T();
    }
 
-   //! See TImpl::get_ptr().
+   //! See context_local_var_impl::get_ptr().
    T * get_ptr() const {
-      return TImpl::template get_ptr<T>();
+      return context_local_var_impl<TStorage>::template get_ptr<T>();
    }
 };
 
 // Specialization for bool, which does not need operator bool().
-template <typename TImpl>
-class context_local_value<bool, TImpl> : private TImpl {
+template <typename TStorage>
+class context_local_value<bool, TStorage> : private context_local_var_impl<TStorage> {
 public:
    //! Constructor.
    context_local_value() :
-      TImpl(sizeof(bool)) {
+      context_local_var_impl<TStorage>(sizeof(bool)) {
    }
 
    /*! Assignment operator.
@@ -149,34 +315,34 @@ public:
    }
 
 private:
-   //! See TImpl::construct().
+   //! See context_local_var_impl::construct().
    virtual void construct(void * p) const override {
       new(p) bool();
    }
 
-   //! See TImpl::destruct().
+   //! See context_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
       ABC_UNUSED_ARG(p);
    }
 
-   //! See TImpl::get_ptr().
+   //! See context_local_var_impl::get_ptr().
    bool * get_ptr() const {
-      return TImpl::template get_ptr<bool>();
+      return context_local_var_impl<TStorage>::template get_ptr<bool>();
    }
 };
 
 // Specialization for std::shared_ptr, which offers a few additional methods.
-template <typename T, typename TImpl>
-class context_local_value<std::shared_ptr<T>, TImpl> :
-   private TImpl,
-   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TImpl>> {
+template <typename T, typename TStorage>
+class context_local_value<std::shared_ptr<T>, TStorage> :
+   private context_local_var_impl<TStorage>,
+   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TStorage>> {
 private:
    typedef std::shared_ptr<T> value_t;
 
 public:
    //! Constructor.
    context_local_value() :
-      TImpl(sizeof(std::shared_ptr<T>)) {
+      context_local_var_impl<TStorage>(sizeof(std::shared_ptr<T>)) {
    }
 
    /*! Assignment operator.
@@ -252,19 +418,19 @@ public:
    }
 
 private:
-   //! See TImpl::construct().
+   //! See context_local_var_impl::construct().
    virtual void construct(void * p) const override {
       new(p) std::shared_ptr<T>();
    }
 
-   //! See TImpl::destruct().
+   //! See context_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
       static_cast<std::shared_ptr<T> *>(p)->~shared_ptr();
    }
 
-   //! See TImpl::get_ptr().
+   //! See context_local_var_impl::get_ptr().
    std::shared_ptr<T> * get_ptr() const {
-      return TImpl::template get_ptr<std::shared_ptr<T>>();
+      return context_local_var_impl<TStorage>::template get_ptr<std::shared_ptr<T>>();
    }
 };
 
@@ -275,10 +441,10 @@ private:
 namespace abc { namespace detail {
 
 //! Implementation of abc::thread_local_ptr and abc::coroutine_local_ptr.
-template <typename T, typename TImpl>
+template <typename T, typename TStorage>
 class context_local_ptr :
-   private TImpl,
-   public support_explicit_operator_bool<context_local_ptr<T, TImpl>> {
+   private context_local_var_impl<TStorage>,
+   public support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
 private:
    //! Contains a T and a bool to track whether the T has been constructed.
    struct value_t {
@@ -289,7 +455,7 @@ private:
 public:
    //! Constructor.
    context_local_ptr() :
-      TImpl(sizeof(value_t)) {
+      context_local_var_impl<TStorage>(sizeof(value_t)) {
    }
 
    /*! Dereference operator.
@@ -359,14 +525,14 @@ public:
    }
 
 private:
-   //! See TImpl::construct().
+   //! See context_local_var_impl::construct().
    virtual void construct(void * p) const override {
       value_t * pValue = static_cast<value_t *>(p);
       pValue->bConstructed = false;
       // Note that pValue.t is left uninitialized.
    }
 
-   //! See TImpl::destruct().
+   //! See context_local_var_impl::destruct().
    virtual void destruct(void * p) const override {
       value_t * pValue = static_cast<value_t *>(p);
       if (pValue->bConstructed) {
@@ -374,9 +540,9 @@ private:
       }
    }
 
-   //! See TImpl::get_ptr().
+   //! See context_local_var_impl::get_ptr().
    value_t * get_ptr() const {
-      return TImpl::template get_ptr<value_t>();
+      return context_local_var_impl<TStorage>::template get_ptr<value_t>();
    }
 };
 
