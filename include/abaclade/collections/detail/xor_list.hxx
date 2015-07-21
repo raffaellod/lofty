@@ -146,14 +146,13 @@ protected:
 
 public:
    //! Iterator for XOR doubly-linked list node classes.
-   template <typename TNode, typename TValue, bool t_bConst = std::is_const<TValue>::value>
-   class iterator;
-
-   // Partial specialization for const TValue.
    template <typename TNode, typename TValue>
-   class iterator<TNode, TValue, true> :
-      public iterator_base,
-      public std::iterator<std::forward_iterator_tag, TValue> {
+   class iterator : public iterator_base, public std::iterator<std::forward_iterator_tag, TValue> {
+   public:
+      typedef TValue * pointer;
+      typedef TValue & reference;
+      typedef TValue value_type;
+
    public:
       //! See iterator_base::iterator_base().
       iterator() {
@@ -219,58 +218,6 @@ public:
       */
       TNode const * next_base() const {
          return static_cast<TNode *>(m_pnNext);
-      }
-   };
-
-   // Partial specialization for non-const TValue.
-   template <typename TNode, typename TValue>
-   class iterator<TNode, TValue, false> :
-      public iterator<TNode, typename std::add_const<TValue>::type, true> {
-   private:
-      // Shortcut.
-      typedef iterator<TNode, typename std::add_const<TValue>::type, true> const_iterator;
-
-   public:
-      typedef TValue * pointer;
-      typedef TValue & reference;
-      typedef TValue value_type;
-
-   public:
-      //! See const_iterator::const_iterator().
-      iterator() {
-      }
-      iterator(node * pnCurr, node * pnNext) :
-         const_iterator(pnCurr, pnNext) {
-      }
-
-      //! See const_iterator::operator*().
-      TValue & operator*() const {
-         return const_cast<TValue &>(const_iterator::operator*());
-      }
-
-      //! See const_iterator::operator->().
-      TValue * operator->() const {
-         return const_cast<TValue *>(const_iterator::operator->());
-      }
-
-      //! See const_iterator.operator++().
-      iterator & operator++() {
-         return static_cast<iterator &>(const_iterator::operator++());
-      }
-
-      //! See const_iterator::operator++(int).
-      iterator operator++(int) {
-         return iterator(const_iterator::operator++());
-      }
-
-   private:
-      /*! Constructor used for cv-removing promotions from const_iterator to iterator.
-
-      @param it
-         Source object.
-      */
-      iterator(const_iterator const & it) :
-         const_iterator(it) {
       }
    };
 
