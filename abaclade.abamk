@@ -36,9 +36,9 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/collections/detail/vextr_impl.cxx"/>
       <source path="src/abaclade/collections/detail/xor_list_impl.cxx"/>
       <source path="src/abaclade/collections/vector.cxx"/>
-      <source path="src/abaclade/context_local.cxx"/>
       <source path="src/abaclade/coroutine.cxx"/>
       <source path="src/abaclade/coroutine_local.cxx"/>
+      <source path="src/abaclade/detail/context_local.cxx"/>
       <source path="src/abaclade/detail/trace.cxx"/>
       <source path="src/abaclade/enum.cxx"/>
       <source path="src/abaclade/exception.cxx"/>
