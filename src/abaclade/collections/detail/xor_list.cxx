@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-/*static*/ void xor_list::link_back(data_members * plxdm, node * pn) {
+/*static*/ void xor_list_impl::link_back(data_members * plxdm, node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
 
    node * pnLast = plxdm->m_pnLast;
@@ -37,7 +37,7 @@ namespace abc { namespace collections { namespace detail {
    plxdm->m_pnLast = pn;
 }
 
-/*static*/ void xor_list::link_front(data_members * plxdm, node * pn) {
+/*static*/ void xor_list_impl::link_front(data_members * plxdm, node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
 
    node * pnFirst = plxdm->m_pnFirst;
@@ -50,7 +50,7 @@ namespace abc { namespace collections { namespace detail {
    plxdm->m_pnFirst = pn;
 }
 
-/*static*/ void xor_list::unlink(data_members * plxdm, node * pn, node * pnNext) {
+/*static*/ void xor_list_impl::unlink(data_members * plxdm, node * pn, node * pnNext) {
    // TODO: enable use ABC_TRACE_FUNC(plxdm, pn, pnPrev, pnNext) by handling reentrancy.
 
    node * pnPrev = pn->get_other_sibling(pnNext);
@@ -67,7 +67,7 @@ namespace abc { namespace collections { namespace detail {
 }
 
 
-void xor_list::iterator_base::increment() {
+void xor_list_impl::iterator_base::increment() {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    /* Detect attempts to increment past the end() of the container, or increment a default-
@@ -81,7 +81,7 @@ void xor_list::iterator_base::increment() {
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }
 
-void xor_list::iterator_base::validate() const {
+void xor_list_impl::iterator_base::validate() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    if (!m_pnCurr) {

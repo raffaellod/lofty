@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace collections { namespace detail {
 
 //! Defines classes useful to implement XOR-linked list classes.
-class ABACLADE_SYM xor_list {
+class ABACLADE_SYM xor_list_impl {
 public:
    //! Node for XOR doubly-linked list classes.
    class node {
@@ -77,7 +77,7 @@ public:
       std::uintptr_t m_iPrevXorNext;
    };
 
-   //! Defines the minimal data members needed to implement a xor_list subclass.
+   //! Defines the minimal data members needed to implement a xor_list_impl subclass.
    struct data_members {
       //! Pointer to the first node.
       node * m_pnFirst;

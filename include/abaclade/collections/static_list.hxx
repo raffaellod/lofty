@@ -35,7 +35,7 @@ class static_list {
 public:
    /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
    static_list subclass singleton. */
-   class node : public detail::xor_list::node {
+   class node : public detail::xor_list_impl::node {
    protected:
       //! Constructor.
       node() {
@@ -48,7 +48,7 @@ public:
       }
    };
 
-   typedef detail::xor_list::iterator<node, TValue> iterator;
+   typedef detail::xor_list_impl::iterator<node, TValue> iterator;
    typedef iterator reverse_iterator;
 
 public:
@@ -58,7 +58,7 @@ public:
       Iterator to the first node in the list.
    */
    static iterator begin() {
-      detail::xor_list::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
+      detail::xor_list_impl::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
       return iterator(pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr);
    }
 
@@ -86,7 +86,7 @@ public:
       Reverse iterator to the last node in the list.
    */
    static reverse_iterator rbegin() {
-      detail::xor_list::node * pnLast = TContainer::sm_xldm.m_pnLast;
+      detail::xor_list_impl::node * pnLast = TContainer::sm_xldm.m_pnLast;
       return reverse_iterator(pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr);
    }
 
@@ -114,8 +114,8 @@ private:
    @param pn
       Pointer to the node to add.
    */
-   static void push_back(detail::xor_list::node * pn) {
-      detail::xor_list::link_back(&TContainer::sm_xldm, pn);
+   static void push_back(detail::xor_list_impl::node * pn) {
+      detail::xor_list_impl::link_back(&TContainer::sm_xldm, pn);
    }
 
    /*! Removes a node from the list.
@@ -123,12 +123,14 @@ private:
    @param pn
       Pointer to the node to remove.
    */
-   static void remove(detail::xor_list::node * pn) {
+   static void remove(detail::xor_list_impl::node * pn) {
       // Find pn in the list.
-      // TODO: this should be de-templated in xor_list for the most part.
+      // TODO: this should be de-templated in xor_list_impl for the most part.
       for (auto it(begin()); it != end(); ++it) {
          if (it.base() == pn) {
-            detail::xor_list::unlink(&TContainer::sm_xldm, pn, const_cast<node *>(it.next_base()));
+            detail::xor_list_impl::unlink(
+               &TContainer::sm_xldm, pn, const_cast<node *>(it.next_base())
+            );
             break;
          }
       }
@@ -143,8 +145,8 @@ private:
    Class derived from abc::collections::static_list.
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
-   /*! Data members for xor_list. */ \
-   static ::abc::collections::detail::xor_list::data_members sm_xldm;
+   /*! Data members for xor_list_impl. */ \
+   static ::abc::collections::detail::xor_list_impl::data_members sm_xldm;
 
 /*! Defines the static member variables for the specified abc::collections::static_list subclass.
 
@@ -152,6 +154,6 @@ private:
    Class derived from abc::collections::static_list.
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   ::abc::collections::detail::xor_list::data_members container::sm_xldm = { \
+   ::abc::collections::detail::xor_list_impl::data_members container::sm_xldm = { \
       nullptr, nullptr \
    };
