@@ -67,17 +67,6 @@ namespace abc { namespace collections { namespace detail {
 }
 
 
-xor_list::iterator_base::iterator_base() :
-   m_pnCurr(nullptr),
-   m_pnNext(nullptr),
-   m_pxldm(nullptr) {
-}
-xor_list::iterator_base::iterator_base(data_members const * pxldm, node * pnCurr, node * pnNext) :
-   m_pnCurr(pnCurr),
-   m_pnNext(pnNext),
-   m_pxldm(pxldm) {
-}
-
 void xor_list::iterator_base::increment() {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 

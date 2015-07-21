@@ -36,25 +36,9 @@ public:
    /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
    static_list subclass singleton. */
    class node : public detail::xor_list::node {
-   public:
-      /*! Returns a pointer to the contained TValue.
-
-      @return
-         Pointer to the contained value.
-      */
-      TValue * value_ptr() {
-         return static_cast<TValue *>(this);
-      }
-      TValue const * get_value() const {
-         return static_cast<TValue const *>(this);
-      }
-
    protected:
       //! Constructor.
       node() {
-         static_list::push_back(this);
-      }
-      node(node const &) {
          static_list::push_back(this);
       }
 
@@ -75,9 +59,7 @@ public:
    */
    static iterator begin() {
       detail::xor_list::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
-      return iterator(
-         &TContainer::sm_xldm, pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr
-      );
+      return iterator(pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr);
    }
 
    /*! Returns true if the list contains no elements.
@@ -105,9 +87,7 @@ public:
    */
    static reverse_iterator rbegin() {
       detail::xor_list::node * pnLast = TContainer::sm_xldm.m_pnLast;
-      return reverse_iterator(
-         &TContainer::sm_xldm, pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr
-      );
+      return reverse_iterator(pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr);
    }
 
    /*! Returns a reverse iterator to the start of the list.

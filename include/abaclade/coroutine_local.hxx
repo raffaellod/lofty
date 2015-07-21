@@ -36,7 +36,9 @@ class ABACLADE_SYM coroutine_local_storage :
    public context_local_storage_impl {
 public:
    //! Constructor.
-   coroutine_local_storage();
+   coroutine_local_storage() :
+      context_local_storage_impl(&sm_sm) {
+   }
 
    //! Destructor.
    ~coroutine_local_storage();

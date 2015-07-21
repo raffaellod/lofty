@@ -29,9 +29,6 @@ namespace abc { namespace collections { namespace detail {
 //! Defines classes useful to implement XOR-linked list classes.
 class ABACLADE_SYM xor_list {
 public:
-   //! Integer type used to track changes in the list.
-   typedef std::uint16_t rev_int_t;
-
    //! Node for XOR doubly-linked list classes.
    class node {
    public:
@@ -115,17 +112,23 @@ protected:
       }
 
    protected:
+      //! Default constructor.
+      iterator_base() :
+         m_pnCurr(nullptr),
+         m_pnNext(nullptr) {
+      }
+
       /*! Constructor.
 
-      @param pxldm
-         Pointer to the container’s data members.
       @param pnCurr
          Pointer to the current node.
       @param pnNext
          Pointer to the node following *pnCurr.
       */
-      iterator_base();
-      iterator_base(data_members const * pxldm, node * pnCurr, node * pnNext);
+      iterator_base(node * pnCurr, node * pnNext) :
+         m_pnCurr(pnCurr),
+         m_pnNext(pnNext) {
+      }
 
       //! Moves the iterator to next node.
       void increment();
@@ -139,8 +142,6 @@ protected:
       node * m_pnCurr;
       //! Pointer to the next node.
       node * m_pnNext;
-      //! Pointer to the container’s data members.
-      data_members const * m_pxldm;
    };
 
 public:
@@ -157,8 +158,8 @@ public:
       //! See iterator_base::iterator_base().
       iterator() {
       }
-      iterator(data_members const * pxldm, node * pnCurr, node * pnNext) :
-         iterator_base(pxldm, pnCurr, pnNext) {
+      iterator(node * pnCurr, node * pnNext) :
+         iterator_base(pnCurr, pnNext) {
       }
 
       /*! Dereferencing operator.
@@ -168,7 +169,7 @@ public:
       */
       TValue & operator*() const {
          validate();
-         return *static_cast<TNode *>(m_pnCurr)->value_ptr();
+         return *static_cast<TValue *>(m_pnCurr);
       }
 
       /*! Dereferencing member access operator.
@@ -178,7 +179,7 @@ public:
       */
       TValue * operator->() const {
          validate();
-         return static_cast<TNode *>(m_pnCurr)->value_ptr();
+         return static_cast<TValue *>(m_pnCurr);
       }
 
       /*! Preincrement operator.
@@ -199,7 +200,7 @@ public:
       iterator operator++(int) {
          node * pnPrev = m_pnCurr;
          increment();
-         return iterator(m_pxldm, pnPrev, m_pnCurr);
+         return iterator(pnPrev, m_pnCurr);
       }
 
       /*! Returns the underlying pointer to the node.
@@ -238,8 +239,8 @@ public:
       //! See const_iterator::const_iterator().
       iterator() {
       }
-      iterator(data_members const * pxldm, node * pnCurr, node * pnNext) :
-         const_iterator(pxldm, pnCurr, pnNext) {
+      iterator(node * pnCurr, node * pnNext) :
+         const_iterator(pnCurr, pnNext) {
       }
 
       //! See const_iterator::operator*().

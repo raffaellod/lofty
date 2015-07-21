@@ -27,10 +27,6 @@ namespace abc { namespace detail {
 ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
 context_local_storage_impl::static_members_t coroutine_local_storage::sm_sm = { 0, 0, 0 };
 
-coroutine_local_storage::coroutine_local_storage() :
-   context_local_storage_impl(&sm_sm) {
-}
-
 coroutine_local_storage::~coroutine_local_storage() {
    unsigned iRemainingAttempts = 10;
    bool bAnyDestructed;
