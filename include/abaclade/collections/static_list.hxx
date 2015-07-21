@@ -173,5 +173,5 @@ private:
 */
 #define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
    ::abc::collections::detail::xor_list::data_members container::sm_xldm = { \
-      nullptr, nullptr, 0 \
+      nullptr, nullptr \
    };

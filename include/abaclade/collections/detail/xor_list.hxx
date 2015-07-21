@@ -86,8 +86,6 @@ public:
       node * m_pnFirst;
       //! Pointer to the last node.
       node * m_pnLast;
-      //! Indicates the revision number of the list contents.
-      rev_int_t m_iRev;
    };
 
 protected:
@@ -143,8 +141,6 @@ protected:
       node * m_pnNext;
       //! Pointer to the container’s data members.
       data_members const * m_pxldm;
-      //! Last container revision number known to the iterator.
-      rev_int_t m_iRev;
    };
 
 public:

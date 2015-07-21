@@ -35,7 +35,6 @@ namespace abc { namespace collections { namespace detail {
       pnLast->set_siblings(pn, pnLast->get_other_sibling(nullptr));
    }
    plxdm->m_pnLast = pn;
-   ++plxdm->m_iRev;
 }
 
 /*static*/ void xor_list::link_front(data_members * plxdm, node * pn) {
@@ -49,7 +48,6 @@ namespace abc { namespace collections { namespace detail {
       pnFirst->set_siblings(pnFirst->get_other_sibling(nullptr), pn);
    }
    plxdm->m_pnFirst = pn;
-   ++plxdm->m_iRev;
 }
 
 /*static*/ void xor_list::unlink(data_members * plxdm, node * pn, node * pnNext) {
@@ -66,21 +64,18 @@ namespace abc { namespace collections { namespace detail {
    } else if (plxdm->m_pnLast == pn) {
       plxdm->m_pnLast = pnPrev;
    }
-   ++plxdm->m_iRev;
 }
 
 
 xor_list::iterator_base::iterator_base() :
    m_pnCurr(nullptr),
    m_pnNext(nullptr),
-   m_pxldm(nullptr),
-   m_iRev(0) {
+   m_pxldm(nullptr) {
 }
 xor_list::iterator_base::iterator_base(data_members const * pxldm, node * pnCurr, node * pnNext) :
    m_pnCurr(pnCurr),
    m_pnNext(pnNext),
-   m_pxldm(pxldm),
-   m_iRev(pxldm->m_iRev) {
+   m_pxldm(pxldm) {
 }
 
 void xor_list::iterator_base::increment() {
@@ -88,7 +83,7 @@ void xor_list::iterator_base::increment() {
 
    /* Detect attempts to increment past the end() of the container, or increment a default-
    constructed iterator, or dereference an iterator after the list has invalidated them all. */
-   if (!m_pnCurr || m_iRev != m_pxldm->m_iRev) {
+   if (!m_pnCurr) {
       ABC_THROW(iterator_error, ());
    }
 
@@ -100,7 +95,7 @@ void xor_list::iterator_base::increment() {
 void xor_list::iterator_base::validate() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
-   if (!m_pnCurr || m_iRev != m_pxldm->m_iRev) {
+   if (!m_pnCurr) {
       ABC_THROW(iterator_error, ());
    }
 }
