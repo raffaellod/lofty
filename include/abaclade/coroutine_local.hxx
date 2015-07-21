@@ -70,7 +70,7 @@ public:
       Pointer to the data store.
    */
    // Defined in thread_local.hxx.
-   static coroutine_local_storage * get();
+   static coroutine_local_storage * instance();
 
    /*! Accessor used by coroutine::scheduler to change m_pcrls.
 

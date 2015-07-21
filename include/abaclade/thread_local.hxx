@@ -72,7 +72,7 @@ public:
    @return
       Pointer to the data store.
    */
-   static thread_local_storage * get(bool bCreateNewIfNull = true);
+   static thread_local_storage * instance(bool bCreateNewIfNull = true);
 
 private:
    //! Constructor.
@@ -91,7 +91,7 @@ private:
    @param pThis
       Pointer to the TLS for the current thread.
    */
-   static void destruct(void * pThis = get());
+   static void destruct(void * pThis = instance());
 #endif
 
    //! Deallocates the TLS slot for the process.
@@ -114,14 +114,14 @@ private:
 
 // Now these can be defined.
 
-/*static*/ inline coroutine_local_storage * coroutine_local_storage::get() {
-   return thread_local_storage::get()->m_pcrls;
+/*static*/ inline coroutine_local_storage * coroutine_local_storage::instance() {
+   return thread_local_storage::instance()->m_pcrls;
 }
 
 /*static*/ inline void coroutine_local_storage::get_default_and_current_pointers(
    coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
 ) {
-   auto ptls = thread_local_storage::get();
+   auto ptls = thread_local_storage::instance();
    *ppcrlsDefault = &ptls->m_crls;
    *pppcrlsCurrent = &ptls->m_pcrls;
 }

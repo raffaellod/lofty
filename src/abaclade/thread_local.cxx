@@ -91,7 +91,7 @@ thread_local_storage::~thread_local_storage() {
 }
 
 #if ABC_HOST_API_POSIX
-/*static*/ void thread_local_storage::destruct(void * pThis /*= get()*/) {
+/*static*/ void thread_local_storage::destruct(void * pThis /*= instance()*/) {
    delete static_cast<thread_local_storage *>(pThis);
 }
 #endif
@@ -104,9 +104,9 @@ thread_local_storage::~thread_local_storage() {
       }
       // Not calling construct() since initialization of TLS is lazy.
    } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
-      /* Allow get() to return nullptr if the TLS slot was not initialized for this thread, in which
-      case nothing will happen. */
-      delete get(false);
+      /* Allow instance() to return nullptr if the TLS slot was not initialized for this thread, in
+      which case nothing will happen. */
+      delete instance(false);
       if (iReason == DLL_PROCESS_DETACH) {
          free_slot();
       }
@@ -124,7 +124,7 @@ thread_local_storage::~thread_local_storage() {
 #endif
 }
 
-/*static*/ thread_local_storage * thread_local_storage::get(bool bCreateNewIfNull /*= true*/) {
+/*static*/ thread_local_storage * thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
    void * pThis;
 #if ABC_HOST_API_POSIX
    // With POSIX Threads we need a one-time call to alloc_slot().

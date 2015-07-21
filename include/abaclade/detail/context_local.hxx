@@ -182,7 +182,7 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(TStorage::get()->get_storage(this));
+      return static_cast<T *>(TStorage::instance()->get_storage(this));
    }
 };
 
