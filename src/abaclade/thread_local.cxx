@@ -28,6 +28,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
+thread_local_storage_registrar::all_data_members thread_local_storage_registrar::sm_adm =
+   ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
 #if ABC_HOST_API_POSIX
    //! One-time initializer for g_pthkey.
    static pthread_once_t g_pthonce = PTHREAD_ONCE_INIT;
@@ -38,11 +47,8 @@ namespace abc { namespace detail {
    static ::DWORD g_iTls = TLS_OUT_OF_INDEXES;
 #endif
 
-ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
-context_local_storage_impl::static_members_t thread_local_storage::sm_sm = { 0, 0, 0 };
-
 thread_local_storage::thread_local_storage() :
-   context_local_storage_impl(&sm_sm),
+   context_local_storage_impl(&thread_local_storage_registrar::instance()),
    m_pcrls(&m_crls) {
 
 #if ABC_HOST_API_POSIX
@@ -59,8 +65,9 @@ thread_local_storage::~thread_local_storage() {
       // Destruct CRLS for this thread.
       bAnyDestructed = m_crls.destruct_vars();
       // Iterate backwards over the list to destruct TLS for this thread.
-      unsigned i = sm_sm.cVars;
-      for (auto it(rbegin()), itEnd(rend()); it != itEnd; ++it) {
+      auto const & tlsr = thread_local_storage_registrar::instance();
+      unsigned i = tlsr.m_cVars;
+      for (auto it(tlsr.rbegin()), itEnd(tlsr.rend()); it != itEnd; ++it) {
          if (is_var_constructed(--i)) {
             it->destruct(get_storage(&*it));
             var_destructed(i);
@@ -91,7 +98,7 @@ thread_local_storage::~thread_local_storage() {
 }
 
 #if ABC_HOST_API_POSIX
-/*static*/ void thread_local_storage::destruct(void * pThis /*= instance()*/) {
+/*static*/ void thread_local_storage::destruct(void * pThis /*= &instance()*/) {
    delete static_cast<thread_local_storage *>(pThis);
 }
 #endif
@@ -106,7 +113,7 @@ thread_local_storage::~thread_local_storage() {
    } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
       /* Allow instance() to return nullptr if the TLS slot was not initialized for this thread, in
       which case nothing will happen. */
-      delete instance(false);
+      delete &instance(false);
       if (iReason == DLL_PROCESS_DETACH) {
          free_slot();
       }
@@ -124,7 +131,7 @@ thread_local_storage::~thread_local_storage() {
 #endif
 }
 
-/*static*/ thread_local_storage * thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
+/*static*/ thread_local_storage & thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
    void * pThis;
 #if ABC_HOST_API_POSIX
    // With POSIX Threads we need a one-time call to alloc_slot().
@@ -135,10 +142,10 @@ thread_local_storage::~thread_local_storage() {
    pThis = ::TlsGetValue(g_iTls);
 #endif
    if (pThis || !bCreateNewIfNull) {
-      return static_cast<thread_local_storage *>(pThis);
+      return *static_cast<thread_local_storage *>(pThis);
    } else {
       // First call for this thread: initialize the TLS slot.
-      return new thread_local_storage;
+      return *(new thread_local_storage);
    }
 }
 

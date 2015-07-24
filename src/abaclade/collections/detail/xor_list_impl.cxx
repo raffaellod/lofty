@@ -24,45 +24,60 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-/*static*/ void xor_list_impl::link_back(data_members * plxdm, node * pn) {
-   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
+void xor_list_impl::link_back(xor_list_node * pn) {
+   // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
 
-   node * pnLast = plxdm->m_pnLast;
+   xor_list_node * pnLast = m_pnLast;
    pn->set_siblings(nullptr, pnLast);
-   if (!plxdm->m_pnFirst) {
-      plxdm->m_pnFirst = pn;
+   if (!m_pnFirst) {
+      m_pnFirst = pn;
    } else if (pnLast) {
       pnLast->set_siblings(pn, pnLast->get_other_sibling(nullptr));
    }
-   plxdm->m_pnLast = pn;
+   m_pnLast = pn;
 }
 
-/*static*/ void xor_list_impl::link_front(data_members * plxdm, node * pn) {
-   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn) by handling reentrancy.
+void xor_list_impl::link_front(xor_list_node * pn) {
+   // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
 
-   node * pnFirst = plxdm->m_pnFirst;
+   xor_list_node * pnFirst = m_pnFirst;
    pn->set_siblings(pnFirst, nullptr);
-   if (!plxdm->m_pnLast) {
-      plxdm->m_pnLast = pn;
+   if (!m_pnLast) {
+      m_pnLast = pn;
    } else if (pnFirst) {
       pnFirst->set_siblings(pnFirst->get_other_sibling(nullptr), pn);
    }
-   plxdm->m_pnFirst = pn;
+   m_pnFirst = pn;
 }
 
-/*static*/ void xor_list_impl::unlink(data_members * plxdm, node * pn, node * pnNext) {
-   // TODO: enable use ABC_TRACE_FUNC(plxdm, pn, pnPrev, pnNext) by handling reentrancy.
+void xor_list_impl::unlink(xor_list_node * pn) {
+   // Find pn in the list.
+   for (
+      xor_list_node * pnPrev = nullptr,
+                    * pnCurr = m_pnFirst,
+                    * pnNext = pnCurr ? pnCurr->get_other_sibling(nullptr) : nullptr;
+      pnCurr;
+      pnPrev = pnCurr, pnCurr = pnNext, pnNext = pnCurr->get_other_sibling(pnPrev)
+   ) {
+      if (pnCurr == pn) {
+         unlink(pn, pnPrev, pnNext);
+         break;
+      }
+   }
+}
 
-   node * pnPrev = pn->get_other_sibling(pnNext);
+void xor_list_impl::unlink(xor_list_node * pn, xor_list_node * pnPrev, xor_list_node * pnNext) {
+   // TODO: enable use ABC_TRACE_FUNC(this, pn, pnNext) by handling reentrancy.
+
    if (pnPrev) {
       pnPrev->set_siblings(pnPrev->get_other_sibling(pn), pnNext);
-   } else if (plxdm->m_pnFirst == pn) {
-      plxdm->m_pnFirst = pnNext;
+   } else if (m_pnFirst == pn) {
+      m_pnFirst = pnNext;
    }
    if (pnNext) {
       pnNext->set_siblings(pnPrev, pnNext->get_other_sibling(pn));
-   } else if (plxdm->m_pnLast == pn) {
-      plxdm->m_pnLast = pnPrev;
+   } else if (m_pnLast == pn) {
+      m_pnLast = pnPrev;
    }
 }
 
@@ -76,7 +91,7 @@ void xor_list_impl::iterator_base::increment() {
       ABC_THROW(iterator_error, ());
    }
 
-   node const * pnPrev = m_pnCurr;
+   xor_list_node const * pnPrev = m_pnCurr;
    m_pnCurr = m_pnNext;
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }

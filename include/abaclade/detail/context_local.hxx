@@ -29,7 +29,61 @@ namespace abc { namespace detail {
 // Forward declarations.
 class context_local_var_impl_base;
 
-/*! Partial implementation of abc::detail::thread_local_storage and
+//! Type containing data members for this class.
+struct context_local_storage_registrar_impl_data_members {
+   //! Count of variables registered with calls to add_var().
+   unsigned m_cVars;
+   //! Cumulative storage size registered with calls to add_var().
+   std::size_t m_cb;
+   /*! Tracks the value of cb when context_local_storage_impl was instantiated. Changes occurring
+   after that first time are a problem. */
+   std::size_t m_cbFrozen;
+};
+
+/*! Implementation of a variable registrar for abc::detail::thread_local_storage and
+abc::detail::coroutine_local_storage. */
+class ABACLADE_SYM context_local_storage_registrar_impl :
+   public context_local_storage_registrar_impl_data_members {
+private:
+   friend class context_local_storage_impl;
+
+public:
+   typedef context_local_storage_registrar_impl_data_members data_members;
+
+   struct all_data_members {
+      collections::static_list_data_members sldm;
+      data_members clsridm;
+   };
+
+public:
+   /*! Adds the specified size to the storage and assigns the corresponding offset within to the
+   specified context_local_var_impl instance; it also initializes the members of the latter. This
+   function will be called during initialization of a new dynamic library as it’s being loaded, not
+   during normal run-time.
+
+   @param pclvib
+      Pointer to the new variable to assign storage to.
+   @param cb
+      Requested storage size.
+   */
+   void add_var(context_local_var_impl_base * pclvib, std::size_t cb);
+};
+
+/*! Initial value for the data members of an
+abc::detail::context_local_storage_registrar_impl::all_data_members variable. */
+#define ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER \
+   { \
+      ABC_COLLECTIONS_STATIC_LIST_INITIALIZER, \
+      { 0, 0, 0 } \
+   }
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+/*! Common implementation for abc::detail::thread_local_storage and
 abc::detail::coroutine_local_storage.
 
 TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
@@ -40,50 +94,24 @@ CRLS, and each library would have its own byte array (keyed in the same way).
 Loading a new library would add a new element in the maps (and in the TLS/CRLS block for each
 existing thread/coroutine), and unloading it would remove the library from all maps (and in the TLS/
 CRLS block for each thread/coroutine). */
-class ABACLADE_SYM context_local_storage_impl : public noncopyable {
-protected:
-   //! Type containing static data members for this class.
-   struct static_members_t {
-      //! Count of variables registered with calls to add_var().
-      unsigned cVars;
-      //! Cumulative storage size registered with calls to add_var().
-      std::size_t cb;
-      /*! Tracks the value of cb when context_local_storage_impl was instantiated. Changes occurring
-      after that first time are a problem. */
-      std::size_t cbFrozen;
-   };
-
+class ABACLADE_SYM context_local_storage_impl {
 public:
-   /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified context_local_var_impl instance; it also initializes the members of the latter. This
-   function will be called during initialization of a new dynamic library as it’s being loaded, not
-   during normal run-time.
-
-   @param psm
-      Pointer to static members variables for the context_local_storage_impl subclass.
-   @param pclvi
-      Pointer to the new variable to assign storage to.
-   @param cb
-      Requested storage size.
-   */
-   static void add_var(static_members_t * psm, context_local_var_impl_base * pclvi, std::size_t cb);
-
    /*! Returns a pointer to the specified variable in the context-local data store.
 
-   @param pclvi
+   @param pclvib
       Pointer to the variable to retrieve.
    @return
       Corresponding pointer.
    */
-   void * get_storage(context_local_var_impl_base const * pclvi);
+   void * get_storage(context_local_var_impl_base const * pclvib);
 
 protected:
    /*! Constructor.
 
-   @param psm
-      Pointer to static members variables for the context_local_storage_impl subclass.
+   @param pclsri
+      Pointer to the variable registrar.
    */
-   context_local_storage_impl(static_members_t * psm);
+   context_local_storage_impl(context_local_storage_registrar_impl * pclsri);
 
    //! Destructor.
    ~context_local_storage_impl();
@@ -122,7 +150,9 @@ private:
 namespace abc { namespace detail {
 
 //! Non-template implementation of abc::detail::context_local_var_impl.
-class ABACLADE_SYM context_local_var_impl_base : public noncopyable {
+class ABACLADE_SYM context_local_var_impl_base :
+   public collections::static_list_node_base,
+   public noncopyable {
 protected:
    //! Constructor.
    context_local_var_impl_base();
@@ -162,8 +192,10 @@ namespace abc { namespace detail {
 //! Common implementation of abc::detail::context_local_value and abc::detail::context_local_ptr.
 template <typename TStorage>
 class context_local_var_impl :
-   public collections::static_list<TStorage, context_local_var_impl<TStorage>>::node,
-   public context_local_var_impl_base {
+   public context_local_var_impl_base,
+   public collections::static_list_node<
+      typename TStorage::registrar, context_local_var_impl<TStorage>
+   > {
 protected:
    /*! Constructor.
 
@@ -172,7 +204,7 @@ protected:
    */
    explicit context_local_var_impl(std::size_t cbObject) {
       // Initializes the members of *this.
-      TStorage::add_var(this, cbObject);
+      TStorage::registrar::instance().add_var(this, cbObject);
    }
 
    /*! Returns a pointer to the current thread’s copy of the variable.
@@ -182,7 +214,7 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(TStorage::instance()->get_storage(this));
+      return static_cast<T *>(TStorage::instance().get_storage(this));
    }
 };
 

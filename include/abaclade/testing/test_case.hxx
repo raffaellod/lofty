@@ -424,7 +424,18 @@ instance to instantiate and execute each test case. */
 class ABACLADE_TESTING_SYM test_case_factory_list :
    public collections::static_list<test_case_factory_list, test_case_factory_impl> {
 public:
-   ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
+   /*! Returns the one and only instance of this class.
+
+   @return
+      *this.
+   */
+   static test_case_factory_list & instance() {
+      return *static_cast<test_case_factory_list *>(&sm_dm);
+   }
+
+private:
+   //! Only instance of this class’ data.
+   static data_members sm_dm;
 };
 
 }} //namespace abc::testing
@@ -435,7 +446,8 @@ namespace abc { namespace testing {
 
 //! Non-template base class for test_case_factory.
 class ABACLADE_TESTING_SYM test_case_factory_impl :
-   public collections::static_list<test_case_factory_list, test_case_factory_impl>::node {
+   public collections::static_list_node_base,
+   public collections::static_list_node<test_case_factory_list, test_case_factory_impl> {
 public:
    /*! Constructor.
 

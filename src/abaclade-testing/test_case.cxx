@@ -103,6 +103,7 @@ void test_case::assert_throws(
 
 namespace abc { namespace testing {
 
-ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(test_case_factory_list)
+test_case_factory_list::data_members test_case_factory_list::sm_dm =
+   ABC_COLLECTIONS_STATIC_LIST_INITIALIZER;
 
 }} //namespace abc::testing

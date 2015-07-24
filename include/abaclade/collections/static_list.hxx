@@ -26,30 +26,47 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections {
 
-/*! Allows a subclass (which must be a singleton, operating mostly via static members) to contain a
-list of nodes (instances of a static_list::node subclass). Nodes are typically added to the
-singleton at program startup, and this class ensures that they are removed when the program
-terminates. */
+//! Non-template base class for static_list_node.
+typedef detail::xor_list_node static_list_node_base;
+
+/*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
+static_list subclass singleton; subclasses must also inherit from static_list_node_base. */
 template <class TContainer, class TValue>
-class static_list {
+class static_list_node {
+protected:
+   //! Constructor.
+   static_list_node() {
+      TContainer::instance().link_back(static_cast<TValue *>(this));
+   }
+
+   //! Destructor.
+   ~static_list_node() {
+      TContainer::instance().unlink(static_cast<TValue *>(this));
+   }
+};
+
+//! Defines the minimal data members needed to implement a static_list subclass.
+typedef detail::xor_list_data_members static_list_data_members;
+
+//! Initial value for the data members of an abc::collections::static_list::data_members instance.
+#define ABC_COLLECTIONS_STATIC_LIST_INITIALIZER \
+   ABC_COLLECTIONS_DETAIL_XOR_LIST_IMPL_INITIALIZER
+
+/*! Allows a subclass (which must be a singleton with an instance() static method) to contain a list
+of nodes (instances of a static_list_node subclass). Nodes are typically added to the singleton at
+program startup, and this class ensures that they are removed when the program terminates. */
+template <class TContainer, class TValue>
+class static_list : public detail::xor_list_impl {
+private:
+   friend class static_list_node<TContainer, TValue>;
+
 public:
-   /*! Base class for nodes of static_list. Makes each subclass instance add itself to the related
-   static_list subclass singleton. */
-   class node : public detail::xor_list_impl::node {
-   protected:
-      //! Constructor.
-      node() {
-         static_list::push_back(this);
-      }
-
-      //! Destructor.
-      ~node() {
-         static_list::remove(this);
-      }
-   };
-
-   typedef detail::xor_list_impl::iterator<node, TValue> iterator;
+   typedef detail::xor_list_impl::iterator<TValue> iterator;
    typedef iterator reverse_iterator;
+
+protected:
+   //! Data members needed to implement a static_list subclass.
+   typedef static_list_data_members data_members;
 
 public:
    /*! Returns a forward iterator to the start of the list.
@@ -57,18 +74,9 @@ public:
    @return
       Iterator to the first node in the list.
    */
-   static iterator begin() {
-      detail::xor_list_impl::node * pnFirst = TContainer::sm_xldm.m_pnFirst;
+   iterator begin() const {
+      static_list_node_base * pnFirst = m_pnFirst;
       return iterator(pnFirst, pnFirst ? pnFirst->get_other_sibling(nullptr) : nullptr);
-   }
-
-   /*! Returns true if the list contains no elements.
-
-   @return
-      true if the list is empty, or false otherwise.
-   */
-   static bool empty() {
-      return !TContainer::sm_xldm.m_pnFirst && !TContainer::sm_xldm.m_pnLast;
    }
 
    /*! Returns a forward iterator to the end of the list.
@@ -76,7 +84,7 @@ public:
    @return
       Iterator to the beyond the last node in the list.
    */
-   static iterator end() {
+   iterator end() const {
       return iterator();
    }
 
@@ -85,8 +93,8 @@ public:
    @return
       Reverse iterator to the last node in the list.
    */
-   static reverse_iterator rbegin() {
-      detail::xor_list_impl::node * pnLast = TContainer::sm_xldm.m_pnLast;
+   reverse_iterator rbegin() const {
+      static_list_node_base * pnLast = m_pnLast;
       return reverse_iterator(pnLast, pnLast ? pnLast->get_other_sibling(nullptr) : nullptr);
    }
 
@@ -95,7 +103,7 @@ public:
    @return
       Reverse iterator to the before the first node in the list.
    */
-   static reverse_iterator rend() {
+   reverse_iterator rend() const {
       return reverse_iterator();
    }
 
@@ -104,56 +112,9 @@ public:
    @return
       Count of elements.
    */
-   static std::size_t size() {
+   std::size_t size() const {
       return static_cast<std::size_t>(std::distance(begin(), end()));
-   }
-
-private:
-   /*! Adds a node to the end of the list.
-
-   @param pn
-      Pointer to the node to add.
-   */
-   static void push_back(detail::xor_list_impl::node * pn) {
-      detail::xor_list_impl::link_back(&TContainer::sm_xldm, pn);
-   }
-
-   /*! Removes a node from the list.
-
-   @param pn
-      Pointer to the node to remove.
-   */
-   static void remove(detail::xor_list_impl::node * pn) {
-      // Find pn in the list.
-      // TODO: this should be de-templated in xor_list_impl for the most part.
-      for (auto it(begin()); it != end(); ++it) {
-         if (it.base() == pn) {
-            detail::xor_list_impl::unlink(
-               &TContainer::sm_xldm, pn, const_cast<node *>(it.next_base())
-            );
-            break;
-         }
-      }
    }
 };
 
 }} //namespace abc::collections
-
-/*! Declares the static member variables for the specified abc::collections::static_list subclass.
-
-@param container
-   Class derived from abc::collections::static_list.
-*/
-#define ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(container) \
-   /*! Data members for xor_list_impl. */ \
-   static ::abc::collections::detail::xor_list_impl::data_members sm_xldm;
-
-/*! Defines the static member variables for the specified abc::collections::static_list subclass.
-
-@param container
-   Class derived from abc::collections::static_list.
-*/
-#define ABC_COLLECTIONS_STATIC_LIST_DEFINE_SUBCLASS_STATIC_MEMBERS(container) \
-   ::abc::collections::detail::xor_list_impl::data_members container::sm_xldm = { \
-      nullptr, nullptr \
-   };

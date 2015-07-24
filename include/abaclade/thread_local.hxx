@@ -26,33 +26,48 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-// Forward declarations.
+// Forward declaration.
 class thread_local_storage;
 
-//! Abaclade’s TLS slot data manager.
-class ABACLADE_SYM thread_local_storage :
+//! Abaclade’s TLS variable registrar.
+class ABACLADE_SYM thread_local_storage_registrar :
    public collections::static_list<
-      thread_local_storage, context_local_var_impl<thread_local_storage>
+      thread_local_storage_registrar, context_local_var_impl<thread_local_storage>
    >,
-   public context_local_storage_impl {
+   public context_local_storage_registrar_impl {
+public:
+   /*! Returns the one and only instance of this class.
+
+   @return
+      *this.
+   */
+   static thread_local_storage_registrar & instance() {
+      return *static_cast<thread_local_storage_registrar *>(static_cast<collections::static_list<
+         thread_local_storage_registrar, context_local_var_impl<thread_local_storage>
+      > *>(&sm_adm.sldm));
+   }
+
+private:
+   //! Only instance of this class’ data.
+   static all_data_members sm_adm;
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+//! Abaclade’s TLS slot data.
+class ABACLADE_SYM thread_local_storage : public context_local_storage_impl {
 private:
    friend class coroutine_local_storage;
 
 public:
-   /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified context_local_var_impl instance; it also initializes the m_ptlviNext and
-   m_ibStorageOffset members of the latter. This function will be called during initialization of a
-   new dynamic library as it’s being loaded, not during normal run-time.
+   //! Registrar that variables will register with at program startup.
+   typedef thread_local_storage_registrar registrar;
 
-   @param ptlvi
-      Pointer to the new variable to assign storage to.
-   @param cb
-      Requested storage size.
-   */
-   static void add_var(context_local_var_impl<thread_local_storage> * ptlvi, std::size_t cb) {
-      context_local_storage_impl::add_var(&sm_sm, ptlvi, cb);
-   }
-
+public:
 #if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
 
@@ -62,17 +77,18 @@ public:
    static bool dllmain_hook(unsigned iReason);
 #endif
 
-   /*! Returns a pointer to the specified offset in the storage. On the first call from a new
-   thread, this also lazily creates the thread_local_storage, unless bCreateNewIfNull is false.
+   /*! Returns the thread_local_storage instance for the current thread. On the first call from a
+   new thread, this also lazily creates the thread_local_storage instance, unless bCreateNewIfNull
+   is false.
 
    @param bCreateNewIfNull
       If the TLS slot is nullptr and bCreateNewIfNull is true, a new new TLS instance will be
       created; if bCreateNewIfNull is false, nullptr will be returned instead if the TLS slot is
       uninitialized.
    @return
-      Pointer to the data store.
+      Reference to the data store.
    */
-   static thread_local_storage * instance(bool bCreateNewIfNull = true);
+   static thread_local_storage & instance(bool bCreateNewIfNull = true);
 
 private:
    //! Constructor.
@@ -91,15 +107,12 @@ private:
    @param pThis
       Pointer to the TLS for the current thread.
    */
-   static void destruct(void * pThis = instance());
+   static void destruct(void * pThis = &instance());
 #endif
 
    //! Deallocates the TLS slot for the process.
    // TODO: call free_slot() in the POSIX Threads case using reference counting in destruct().
    static void free_slot();
-
-public:
-   ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(thread_local_storage)
 
 private:
    /*! Storage for the active coroutine. If a coroutine::scheduler is running on a thread, this is
@@ -107,23 +120,21 @@ private:
    coroutine_local_storage m_crls;
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
-
-   static static_members_t sm_sm;
 };
 
 
 // Now these can be defined.
 
-/*static*/ inline coroutine_local_storage * coroutine_local_storage::instance() {
-   return thread_local_storage::instance()->m_pcrls;
+/*static*/ inline coroutine_local_storage & coroutine_local_storage::instance() {
+   return *thread_local_storage::instance().m_pcrls;
 }
 
 /*static*/ inline void coroutine_local_storage::get_default_and_current_pointers(
    coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
 ) {
-   auto ptls = thread_local_storage::instance();
-   *ppcrlsDefault = &ptls->m_crls;
-   *pppcrlsCurrent = &ptls->m_pcrls;
+   auto & tls = thread_local_storage::instance();
+   *ppcrlsDefault = &tls.m_crls;
+   *pppcrlsCurrent = &tls.m_pcrls;
 }
 
 }} //namespace abc::detail

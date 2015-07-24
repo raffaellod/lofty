@@ -25,37 +25,52 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-// Forward declarations.
+// Forward declaration
 class coroutine_local_storage;
 
-//! Abaclade’s CRLS (TLS for coroutines) slot data manager.
-class ABACLADE_SYM coroutine_local_storage :
+//! Abaclade’s CRLS variable registrar.
+class ABACLADE_SYM coroutine_local_storage_registrar :
    public collections::static_list<
-      coroutine_local_storage, context_local_var_impl<coroutine_local_storage>
+      coroutine_local_storage_registrar, context_local_var_impl<coroutine_local_storage>
    >,
-   public context_local_storage_impl {
+   public context_local_storage_registrar_impl {
+public:
+   /*! Returns the one and only instance of this class.
+
+   @return
+      *this.
+   */
+   static coroutine_local_storage_registrar & instance() {
+      return *static_cast<coroutine_local_storage_registrar *>(static_cast<collections::static_list<
+         coroutine_local_storage_registrar, context_local_var_impl<coroutine_local_storage>
+      > *>(&sm_adm.sldm));
+   }
+
+private:
+   //! Only instance of this class’ data.
+   static all_data_members sm_adm;
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+//! Abaclade’s CRLS (TLS for coroutines) slot data manager.
+class ABACLADE_SYM coroutine_local_storage : public context_local_storage_impl {
+public:
+   //! Registrar that variables will register with at program startup.
+   typedef coroutine_local_storage_registrar registrar;
+
 public:
    //! Constructor.
    coroutine_local_storage() :
-      context_local_storage_impl(&sm_sm) {
+      context_local_storage_impl(&coroutine_local_storage_registrar::instance()) {
    }
 
    //! Destructor.
    ~coroutine_local_storage();
-
-   /*! Adds the specified size to the storage and assigns the corresponding offset within to the
-   specified context_local_var_impl instance; it also initializes the m_pcrlviNext and
-   m_ibStorageOffset members of the latter. This function will be called during initialization of a
-   new dynamic library as it’s being loaded, not during normal run-time.
-
-   @param pcrlvi
-      Pointer to the new variable to assign storage to.
-   @param cb
-      Requested storage size.
-   */
-   static void add_var(context_local_var_impl<coroutine_local_storage> * pcrlvi, std::size_t cb) {
-      context_local_storage_impl::add_var(&sm_sm, pcrlvi, cb);
-   }
 
    /*! Destructs the registered coroutine local variables.
 
@@ -64,13 +79,13 @@ public:
    */
    bool destruct_vars();
 
-   /*! Returns a pointer to the specified offset in the storage.
+   /*! Returns the coroutine_local_storage instance for the current coroutine or thread.
 
    @return
-      Pointer to the data store.
+      Reference to the data store.
    */
    // Defined in thread_local.hxx.
-   static coroutine_local_storage * instance();
+   static coroutine_local_storage & instance();
 
    /*! Accessor used by coroutine::scheduler to change m_pcrls.
 
@@ -83,11 +98,6 @@ public:
    static void get_default_and_current_pointers(
       coroutine_local_storage ** ppcrlsDefault, coroutine_local_storage *** pppcrlsCurrent
    );
-
-   ABC_COLLECTIONS_STATIC_LIST_DECLARE_SUBCLASS_STATIC_MEMBERS(coroutine_local_storage)
-
-private:
-   static static_members_t sm_sm;
 };
 
 }} //namespace abc::detail

@@ -48,13 +48,9 @@ runner::~runner() {
 void runner::load_registered_test_cases() {
    ABC_TRACE_FUNC(this);
 
-   for (
-      auto it(test_case_factory_list::begin()), itEnd(test_case_factory_list::end());
-      it != itEnd;
-      ++it
-   ) {
+   ABC_FOR_EACH(auto const & tcf, test_case_factory_list::instance()) {
       // Instantiate the test case.
-      m_vptc.push_back(it->factory(this));
+      m_vptc.push_back(tcf.factory(this));
    }
 }
 

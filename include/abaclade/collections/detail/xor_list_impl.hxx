@@ -26,64 +26,62 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
-//! Defines classes useful to implement XOR-linked list classes.
-class ABACLADE_SYM xor_list_impl {
+//! Node for XOR doubly-linked list classes.
+class xor_list_node {
 public:
-   //! Node for XOR doubly-linked list classes.
-   class node {
-   public:
-      //! Constructor.
-      node() {
-      }
-      node(node const &) {
-         // Skip copying the source’s links.
-      }
+   /*! Returns a pointer to the next or previous node given the opposite one.
 
-      /*! Assignment operator.
+   @param pnSibling
+      Pointer to the previous or next node.
+   */
+   xor_list_node * get_other_sibling(xor_list_node const * pnSibling) {
+      return reinterpret_cast<xor_list_node *>(
+         m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnSibling)
+      );
+   }
 
-      @return
-         *this.
-      */
-      node & operator=(node const &) {
-         // Skip copying the source’s links.
-         return *this;
-      }
+   /*! Updates the previous/next pointer.
 
-      /*! Returns a pointer to the next or previous node given the opposite one.
+   @param pnPrev
+      Pointer to the previous node.
+   @param pnNext
+      Pointer to the next node.
+   */
+   void set_siblings(xor_list_node const * pnPrev, xor_list_node const * pnNext) {
+      m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
+                       reinterpret_cast<std::uintptr_t>(pnNext);
+   }
 
-      @param pnSibling
-         Pointer to the previous or next node.
-      */
-      node * get_other_sibling(node const * pnSibling) {
-         return reinterpret_cast<node *>(
-            m_iPrevXorNext ^ reinterpret_cast<std::uintptr_t>(pnSibling)
-         );
-      }
+private:
+   //! Pointer to the previous node XOR pointer to the next node.
+   std::uintptr_t m_iPrevXorNext;
+};
 
-      /*! Updates the previous/next pointer.
+/*! Defines the minimal data members needed to implement a xor_list_impl subclass. Can’t be a member
+of xor_list_impl because xor_list_impl needs to derive from this. */
+struct xor_list_data_members {
+   //! Pointer to the first node.
+   xor_list_node * m_pnFirst;
+   //! Pointer to the last node.
+   xor_list_node * m_pnLast;
+};
 
-      @param pnPrev
-         Pointer to the previous node.
-      @param pnNext
-         Pointer to the next node.
-      */
-      void set_siblings(node const * pnPrev, node const * pnNext) {
-         m_iPrevXorNext = reinterpret_cast<std::uintptr_t>(pnPrev) ^
-                          reinterpret_cast<std::uintptr_t>(pnNext);
-      }
+/*! Initial value for the data members of an abc::collections::detail::xor_list_impl::data_members
+instance. */
+#define ABC_COLLECTIONS_DETAIL_XOR_LIST_IMPL_INITIALIZER \
+   { nullptr, nullptr }
 
-   private:
-      //! Pointer to the previous node XOR pointer to the next node.
-      std::uintptr_t m_iPrevXorNext;
-   };
+//! Defines classes useful to implement XOR-linked list classes.
+class ABACLADE_SYM xor_list_impl :
+   public xor_list_data_members,
+   public support_explicit_operator_bool<xor_list_impl> {
+protected:
+   //! Data members needed to implement a xor_list_impl subclass.
+   typedef xor_list_data_members data_members;
 
-   //! Defines the minimal data members needed to implement a xor_list_impl subclass.
-   struct data_members {
-      //! Pointer to the first node.
-      node * m_pnFirst;
-      //! Pointer to the last node.
-      node * m_pnLast;
-   };
+private:
+   //! Node type.
+   typedef xor_list_node node;
 
 protected:
    //! Non-template base for iterator.
@@ -125,7 +123,7 @@ protected:
       @param pnNext
          Pointer to the node following *pnCurr.
       */
-      iterator_base(node * pnCurr, node * pnNext) :
+      iterator_base(xor_list_node * pnCurr, xor_list_node * pnNext) :
          m_pnCurr(pnCurr),
          m_pnNext(pnNext) {
       }
@@ -139,25 +137,25 @@ protected:
 
    protected:
       //! Pointer to the current node.
-      node * m_pnCurr;
+      xor_list_node * m_pnCurr;
       //! Pointer to the next node.
-      node * m_pnNext;
+      xor_list_node * m_pnNext;
    };
 
 public:
    //! Iterator for XOR doubly-linked list node classes.
-   template <typename TNode, typename TValue>
-   class iterator : public iterator_base, public std::iterator<std::forward_iterator_tag, TValue> {
+   template <typename T>
+   class iterator : public iterator_base, public std::iterator<std::forward_iterator_tag, T> {
    public:
-      typedef TValue * pointer;
-      typedef TValue & reference;
-      typedef TValue value_type;
+      typedef T * pointer;
+      typedef T & reference;
+      typedef T value_type;
 
    public:
       //! See iterator_base::iterator_base().
       iterator() {
       }
-      iterator(node * pnCurr, node * pnNext) :
+      iterator(xor_list_node * pnCurr, xor_list_node * pnNext) :
          iterator_base(pnCurr, pnNext) {
       }
 
@@ -166,9 +164,9 @@ public:
       @return
          Reference to the current node.
       */
-      TValue & operator*() const {
+      T & operator*() const {
          validate();
-         return *static_cast<TValue *>(m_pnCurr);
+         return *static_cast<T *>(m_pnCurr);
       }
 
       /*! Dereferencing member access operator.
@@ -176,9 +174,9 @@ public:
       @return
          Pointer to the current node.
       */
-      TValue * operator->() const {
+      T * operator->() const {
          validate();
-         return static_cast<TValue *>(m_pnCurr);
+         return static_cast<T *>(m_pnCurr);
       }
 
       /*! Preincrement operator.
@@ -197,7 +195,7 @@ public:
          Iterator pointing to the node preceding the one referenced by this iterator.
       */
       iterator operator++(int) {
-         node * pnPrev = m_pnCurr;
+         xor_list_node * pnPrev = m_pnCurr;
          increment();
          return iterator(pnPrev, m_pnCurr);
       }
@@ -207,8 +205,11 @@ public:
       @return
          Pointer to the current node.
       */
-      TNode const * base() const {
-         return static_cast<TNode *>(m_pnCurr);
+      T * base() {
+         return static_cast<T *>(m_pnCurr);
+      }
+      T const * base() const {
+         return static_cast<T *>(m_pnCurr);
       }
 
       /*! Returns a pointer to the next node.
@@ -216,40 +217,65 @@ public:
       @return
          Pointer to the next node.
       */
-      TNode const * next_base() const {
-         return static_cast<TNode *>(m_pnNext);
+      T * next_base() {
+         return static_cast<T *>(m_pnNext);
+      }
+      T const * next_base() const {
+         return static_cast<T *>(m_pnNext);
       }
    };
 
 public:
+   /*! Returns true if the list size is greater than 0.
+
+   @return
+      true if the list is not empty, or false otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return m_pnFirst != nullptr;
+   }
+
+   /*! Returns true if the list contains no elements.
+
+   @return
+      true if the list is empty, or false otherwise.
+   */
+   bool empty() {
+      return !m_pnFirst;
+   }
+
+protected:
    /*! Inserts a node to the end of the list.
 
-   @param plxdm
-      Pointer to the list data members.
    @param pn
       Pointer to the node to become the last in the list.
    */
-   static void link_back(data_members * plxdm, node * pn);
+   void link_back(xor_list_node * pn);
 
    /*! Inserts a node to the start of the list.
 
-   @param plxdm
-      Pointer to the list data members.
    @param pn
       Pointer to the node to become the first in the list.
    */
-   static void link_front(data_members * plxdm, node * pn);
+   void link_front(xor_list_node * pn);
 
-   /*! Unlinks a node from the list.
+   /*! Removes a node from the list.
 
-   @param plxdm
-      Pointer to the list data members.
+   @param pn
+      Pointer to the node to remove.
+   */
+   void unlink(xor_list_node * pn);
+
+   /*! Removes a node from the list.
+
    @param pn
       Pointer to the node to unlink.
+   @param pnPrev
+      Pointer to the node preceding *pn.
    @param pnNext
       Pointer to the node following *pn.
    */
-   static void unlink(data_members * plxdm, node * pn, node * pnNext);
+   void unlink(xor_list_node * pn, xor_list_node * pnPrev, xor_list_node * pnNext);
 };
 
 }}} //namespace abc::collections::detail

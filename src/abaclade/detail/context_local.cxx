@@ -27,37 +27,45 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-context_local_storage_impl::context_local_storage_impl(static_members_t * psm) :
-   m_pbConstructed(new bool[psm->cVars]),
-   m_pb(new std::int8_t[psm->cb]) {
-   memory::clear(m_pbConstructed.get(), psm->cVars);
-   if (psm->cbFrozen == 0) {
+void context_local_storage_registrar_impl::add_var(
+   context_local_var_impl_base * pclvib, std::size_t cb
+) {
+   pclvib->m_iStorageIndex = m_cVars++;
+   // Calculate the offset for *pclvib’s storage and increase cb accordingly.
+   pclvib->m_ibStorageOffset = m_cb;
+   m_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
+   if (m_cbFrozen && m_cb > m_cbFrozen) {
+      // TODO: can’t log/report anything since no thread locals are available! Fix me!
+      std::abort();
+   }
+}
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+context_local_storage_impl::context_local_storage_impl(
+   context_local_storage_registrar_impl * pclsri
+) :
+   m_pbConstructed(new bool[pclsri->m_cVars]),
+   m_pb(new std::int8_t[pclsri->m_cb]) {
+   memory::clear(m_pbConstructed.get(), pclsri->m_cVars);
+   if (pclsri->m_cbFrozen == 0) {
       // Track the size of this first block.
-      psm->cbFrozen = psm->cb;
+      pclsri->m_cbFrozen = pclsri->m_cb;
    }
 }
 
 context_local_storage_impl::~context_local_storage_impl() {
 }
 
-/*static*/ void context_local_storage_impl::add_var(
-   static_members_t * psm, context_local_var_impl_base * pclvi, std::size_t cb
-) {
-   pclvi->m_iStorageIndex = psm->cVars++;
-   // Calculate the offset for *pclvi’s storage and increase cb accordingly.
-   pclvi->m_ibStorageOffset = psm->cb;
-   psm->cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
-   if (psm->cbFrozen && psm->cb > psm->cbFrozen) {
-      // TODO: can’t log/report anything since no thread locals are available! Fix me!
-      std::abort();
-   }
-}
-
-void * context_local_storage_impl::get_storage(context_local_var_impl_base const * pclvi) {
-   void * pb = &m_pb[pclvi->m_ibStorageOffset];
-   if (!m_pbConstructed[pclvi->m_iStorageIndex]) {
-      pclvi->construct(pb);
-      m_pbConstructed[pclvi->m_iStorageIndex] = true;
+void * context_local_storage_impl::get_storage(context_local_var_impl_base const * pclvib) {
+   void * pb = &m_pb[pclvib->m_ibStorageOffset];
+   if (!m_pbConstructed[pclvib->m_iStorageIndex]) {
+      pclvib->construct(pb);
+      m_pbConstructed[pclvib->m_iStorageIndex] = true;
    }
    return pb;
 }
