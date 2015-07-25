@@ -76,9 +76,9 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
    unsigned i = clsri.m_cVars;
    for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
       auto & clvib = static_cast<context_local_var_impl_base &>(*it);
-      if (is_var_constructed(--i)) {
+      if (m_pbConstructed[--i]) {
          clvib.destruct(get_storage(&clvib));
-         var_destructed(i);
+         m_pbConstructed[i] = false;
          bAnyDestructed = true;
       }
    }

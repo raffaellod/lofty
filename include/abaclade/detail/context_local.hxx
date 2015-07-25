@@ -122,26 +122,6 @@ protected:
    //! Destructor.
    ~context_local_storage_impl();
 
-   /*! Checks whether a variable has been constructed in *this.
-
-   @param iVar
-      Index of the variable.
-   @return
-      true is the variable has been constructed in *this, or false otherwise.
-   */
-   bool is_var_constructed(unsigned iVar) const {
-      return m_pbConstructed[iVar];
-   }
-
-   /*! Marks a variable as no longer constructed.
-
-   @param iVar
-      Index of the variable.
-   */
-   void var_destructed(unsigned iVar) {
-      m_pbConstructed[iVar] = false;
-   }
-
 private:
    //! Array of flags indicating whether each storage slot has been constructed.
    std::unique_ptr<bool[]> m_pbConstructed;
