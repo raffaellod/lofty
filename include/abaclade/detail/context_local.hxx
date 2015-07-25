@@ -136,23 +136,16 @@ private:
 namespace abc { namespace detail {
 
 //! Non-template implementation of abc::detail::context_local_var_impl.
-class ABACLADE_SYM context_local_var_impl_base :
+class context_local_var_impl_base :
    public collections::static_list_impl_base::node,
    public noncopyable {
-protected:
-   //! Constructor.
-   context_local_var_impl_base();
-
-   //! Destructor.
-   ~context_local_var_impl_base();
-
 public:
    /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
 
    @param p
       Pointer to the memory block where the new value should be constructed.
    */
-   virtual void construct(void * p) const = 0;
+   void (* construct)(void * p);
 
    /*! Destructs the thread-local value for a terminating thread. Invoked at most once for each
    thread.
@@ -160,7 +153,7 @@ public:
    @param p
       Pointer to the value to be destructed.
    */
-   virtual void destruct(void * p) const = 0;
+   void (* destruct)(void * p);
 
 public:
    //! Offset of this variable in the TLS/CRLS block.
@@ -219,6 +212,8 @@ public:
    //! Constructor.
    context_local_value() :
       context_local_var_impl<TStorage>(sizeof(T)) {
+      this->construct = &construct_impl;
+      this->destruct  = &destruct_impl;
    }
 
    /*! Assignment operator.
@@ -271,13 +266,13 @@ public:
    }
 
 private:
-   //! See context_local_var_impl::construct().
-   virtual void construct(void * p) const override {
+   //! Implementation of context_local_var_impl::construct().
+   static void construct_impl(void * p) {
       new(p) T();
    }
 
-   //! See context_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
+   //! Implementation of context_local_var_impl::destruct().
+   static void destruct_impl(void * p) {
       static_cast<T *>(p)->~T();
    }
 
@@ -294,6 +289,8 @@ public:
    //! Constructor.
    context_local_value() :
       context_local_var_impl<TStorage>(sizeof(bool)) {
+      this->construct = &construct_impl;
+      this->destruct  = &destruct_impl;
    }
 
    /*! Assignment operator.
@@ -333,13 +330,13 @@ public:
    }
 
 private:
-   //! See context_local_var_impl::construct().
-   virtual void construct(void * p) const override {
+   //! Implementation of context_local_var_impl::construct().
+   static void construct_impl(void * p) {
       new(p) bool();
    }
 
-   //! See context_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
+   //! Implementation of context_local_var_impl::destruct().
+   static void destruct_impl(void * p) {
       ABC_UNUSED_ARG(p);
    }
 
@@ -361,6 +358,8 @@ public:
    //! Constructor.
    context_local_value() :
       context_local_var_impl<TStorage>(sizeof(std::shared_ptr<T>)) {
+      this->construct = &construct_impl;
+      this->destruct  = &destruct_impl;
    }
 
    /*! Assignment operator.
@@ -436,13 +435,13 @@ public:
    }
 
 private:
-   //! See context_local_var_impl::construct().
-   virtual void construct(void * p) const override {
+   //! Implementation of context_local_var_impl::construct().
+   static void construct_impl(void * p) {
       new(p) std::shared_ptr<T>();
    }
 
-   //! See context_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
+   //! Implementation of context_local_var_impl::destruct().
+   static void destruct_impl(void * p) {
       static_cast<std::shared_ptr<T> *>(p)->~shared_ptr();
    }
 
@@ -474,6 +473,8 @@ public:
    //! Constructor.
    context_local_ptr() :
       context_local_var_impl<TStorage>(sizeof(value_t)) {
+      this->construct = &construct_impl;
+      this->destruct  = &destruct_impl;
    }
 
    /*! Dereference operator.
@@ -543,15 +544,15 @@ public:
    }
 
 private:
-   //! See context_local_var_impl::construct().
-   virtual void construct(void * p) const override {
+   //! Implementation of context_local_var_impl::construct().
+   static void construct_impl(void * p) {
       value_t * pValue = static_cast<value_t *>(p);
       pValue->bConstructed = false;
       // Note that pValue.t is left uninitialized.
    }
 
-   //! See context_local_var_impl::destruct().
-   virtual void destruct(void * p) const override {
+   //! Implementation of context_local_var_impl::destruct().
+   static void destruct_impl(void * p) {
       value_t * pValue = static_cast<value_t *>(p);
       if (pValue->bConstructed) {
          pValue->t.~T();

@@ -52,6 +52,7 @@ context_local_storage_impl::context_local_storage_impl(
    m_pbConstructed(new bool[pclsri->m_cVars]),
    m_pb(new std::int8_t[pclsri->m_cb]) {
    memory::clear(m_pbConstructed.get(), pclsri->m_cVars);
+   memory::clear(m_pb.get(), pclsri->m_cb);
    if (pclsri->m_cbFrozen == 0) {
       // Track the size of this first block.
       pclsri->m_cbFrozen = pclsri->m_cb;
@@ -83,18 +84,6 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
       }
    }
    return bAnyDestructed;
-}
-
-}} //namespace abc::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace detail {
-
-context_local_var_impl_base::context_local_var_impl_base() {
-}
-
-context_local_var_impl_base::~context_local_var_impl_base() {
 }
 
 }} //namespace abc::detail
