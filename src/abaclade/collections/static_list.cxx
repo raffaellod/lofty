@@ -67,13 +67,16 @@ std::size_t static_list_impl_base::size() const {
 void static_list_impl_base::unlink(node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
 
-   // Find pn in the list.
+   /* Find pn in the list, scanning from the back to the front of the list. If nodes are added by
+   link_back() in their order of construction and the order of removal is the order of their
+   destruction, m_pnLast will be pn. This won’t be the case if shared libraries are not unloaded in
+   the same order in which they are loaded. */
    for (
-      node * pnPrev = nullptr, * pnCurr = m_pnFirst, * pnNext;
+      node * pnPrev, * pnNext = nullptr, * pnCurr = m_pnLast;
       pnCurr;
-      pnPrev = pnCurr, pnCurr = pnNext
+      pnNext = pnCurr, pnCurr = pnPrev
    ) {
-      pnNext = pnCurr->get_other_sibling(pnPrev);
+      pnPrev = pnCurr->get_other_sibling(pnNext);
       if (pnCurr == pn) {
          unlink(pn, pnPrev, pnNext);
          break;
