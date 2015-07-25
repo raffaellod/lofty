@@ -33,7 +33,10 @@ public:
    /*! Implemenets the template argument-independent methods of static_list::node. A final subclass
    must also inherit from abc::collections::static_list_impl::node or a subclass thereof. */
    class node {
-   public:
+   private:
+      friend class static_list_impl_base;
+
+   private:
       /*! Returns a pointer to the next or previous node given the opposite one.
 
       @param pnSibling
@@ -64,6 +67,9 @@ public:
 
    //! Non-template base class for static_list_impl::iterator.
    class ABACLADE_SYM iterator {
+   private:
+      friend class static_list_impl_base;
+
    public:
       /*! Dereferencing operator.
 
@@ -152,7 +158,7 @@ public:
          return m_pnNext;
       }
 
-   //protected:
+   protected:
       //! Default constructor.
       iterator() :
          m_pnCurr(nullptr),
@@ -179,10 +185,10 @@ public:
       been invalidated by a change in the container. */
       void validate() const;
 
-   protected:
+   private:
       //! Pointer to the current node.
       node * m_pnCurr;
-      //! Pointer to the next node.
+      //! Pointer to the next node, or the previous node if the iterator is reversed.
       node * m_pnNext;
    };
 
@@ -226,6 +232,20 @@ public:
       return iterator();
    }
 
+   /*! Inserts a node to the end of the list.
+
+   @param pn
+      Pointer to the node to become the last in the list.
+   */
+   void link_back(node * pn);
+
+   /*! Inserts a node to the start of the list.
+
+   @param pn
+      Pointer to the node to become the first in the list.
+   */
+   void link_front(node * pn);
+
    /*! Returns a reverse iterator to the end of the list.
 
    @return
@@ -251,21 +271,6 @@ public:
       Count of elements.
    */
    std::size_t size() const;
-
-//protected:
-   /*! Inserts a node to the end of the list.
-
-   @param pn
-      Pointer to the node to become the last in the list.
-   */
-   void link_back(node * pn);
-
-   /*! Inserts a node to the start of the list.
-
-   @param pn
-      Pointer to the node to become the first in the list.
-   */
-   void link_front(node * pn);
 
    /*! Removes a node from the list.
 
@@ -328,6 +333,8 @@ public:
       public static_list_impl_base::iterator,
       public std::iterator<std::forward_iterator_tag, TValue> {
    private:
+      friend class static_list_impl;
+
       typedef static_list_impl_base::iterator iterator_base;
 
    public:
@@ -338,15 +345,6 @@ public:
    public:
       //! Default constructor.
       iterator() {
-      }
-
-      /*! Constructor that converts a iterator_base.
-
-      @param ii
-         Source object.
-      */
-      iterator(iterator_base const & ii) :
-         iterator_base(ii) {
       }
 
       //! See static_list_impl_base::iterator::operator*().
@@ -384,6 +382,16 @@ public:
       TValue const * next_base() const {
          return static_cast<TValue *>(iterator_base::next_base());
       }
+
+   private:
+      /*! Constructor that converts a iterator_base.
+
+      @param ii
+         Source object.
+      */
+      iterator(iterator_base const & ii) :
+         iterator_base(ii) {
+      }
    };
 
    typedef iterator reverse_iterator;
@@ -415,7 +423,7 @@ public:
    */
    reverse_iterator rbegin() const {
       static_list_impl_base const * pslib = static_cast<TContainer const *>(this);
-      return iterator(pslib->rbegin());
+      return reverse_iterator(pslib->rbegin());
    }
 
    /*! Returns a reverse iterator to the start of the list.
