@@ -104,12 +104,12 @@ public:
 
    /*! Returns a pointer to the specified variable in the context-local data store.
 
-   @param pclvib
-      Pointer to the variable to retrieve.
+   @param clvib
+      Variable to retrieve.
    @return
       Corresponding pointer.
    */
-   void * get_storage(context_local_var_impl_base const * pclvib);
+   void * get_storage(context_local_var_impl_base const & clvib);
 
 protected:
    /*! Constructor.
@@ -200,7 +200,7 @@ protected:
    */
    template <typename T>
    T * get_ptr() const {
-      return static_cast<T *>(TStorage::instance().get_storage(this));
+      return static_cast<T *>(TStorage::instance().get_storage(*this));
    }
 };
 

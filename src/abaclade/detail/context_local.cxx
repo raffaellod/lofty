@@ -61,11 +61,11 @@ context_local_storage_impl::context_local_storage_impl(
 context_local_storage_impl::~context_local_storage_impl() {
 }
 
-void * context_local_storage_impl::get_storage(context_local_var_impl_base const * pclvib) {
-   void * pb = &m_pb[pclvib->m_ibStorageOffset];
-   if (!m_pbConstructed[pclvib->m_iStorageIndex]) {
-      pclvib->construct(pb);
-      m_pbConstructed[pclvib->m_iStorageIndex] = true;
+void * context_local_storage_impl::get_storage(context_local_var_impl_base const & clvib) {
+   void * pb = &m_pb[clvib.m_ibStorageOffset];
+   if (!m_pbConstructed[clvib.m_iStorageIndex]) {
+      clvib.construct(pb);
+      m_pbConstructed[clvib.m_iStorageIndex] = true;
    }
    return pb;
 }
@@ -77,7 +77,7 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
    for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
       auto & clvib = static_cast<context_local_var_impl_base &>(*it);
       if (m_pbConstructed[--i]) {
-         clvib.destruct(get_storage(&clvib));
+         clvib.destruct(&m_pb[clvib.m_ibStorageOffset]);
          m_pbConstructed[i] = false;
          bAnyDestructed = true;
       }
