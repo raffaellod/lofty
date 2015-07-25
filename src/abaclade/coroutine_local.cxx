@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-coroutine_local_storage_registrar::all_data_members coroutine_local_storage_registrar::sm_adm =
+coroutine_local_storage_registrar::data_members coroutine_local_storage_registrar::sm_dm =
    ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
 
 }} //namespace abc::detail
@@ -37,23 +37,8 @@ coroutine_local_storage::~coroutine_local_storage() {
    unsigned iRemainingAttempts = 10;
    bool bAnyDestructed;
    do {
-      bAnyDestructed = destruct_vars();
+      bAnyDestructed = destruct_vars(coroutine_local_storage_registrar::instance());
    } while (--iRemainingAttempts > 0 && bAnyDestructed);
-}
-
-bool coroutine_local_storage::destruct_vars() {
-   bool bAnyDestructed = false;
-   // Iterate backwards over the list to destruct CRLS for this coroutine.
-   auto const & crlsr = coroutine_local_storage_registrar::instance();
-   unsigned i = crlsr.m_cVars;
-   for (auto it(crlsr.rbegin()), itEnd(crlsr.rend()); it != itEnd; ++it) {
-      if (is_var_constructed(--i)) {
-         it->destruct(get_storage(&*it));
-         var_destructed(i);
-         bAnyDestructed = true;
-      }
-   }
-   return bAnyDestructed;
 }
 
 }} //namespace abc::detail

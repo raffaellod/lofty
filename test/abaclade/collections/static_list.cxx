@@ -52,8 +52,7 @@ static_list_test::data_members static_list_test::sm_dm = ABC_COLLECTIONS_STATIC_
 
 //! Element of static_list_test.
 class static_list_node_test :
-   public collections::static_list_node_base,
-   public collections::static_list_node<static_list_test, static_list_node_test> {
+   public collections::static_list<static_list_test, static_list_node_test>::node {
 public:
    /*! Constructor.
 

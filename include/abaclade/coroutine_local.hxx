@@ -30,10 +30,10 @@ class coroutine_local_storage;
 
 //! Abaclade’s CRLS variable registrar.
 class ABACLADE_SYM coroutine_local_storage_registrar :
-   public collections::static_list<
+   public context_local_storage_registrar_impl,
+   public collections::static_list_impl<
       coroutine_local_storage_registrar, context_local_var_impl<coroutine_local_storage>
-   >,
-   public context_local_storage_registrar_impl {
+   > {
 public:
    /*! Returns the one and only instance of this class.
 
@@ -41,14 +41,12 @@ public:
       *this.
    */
    static coroutine_local_storage_registrar & instance() {
-      return *static_cast<coroutine_local_storage_registrar *>(static_cast<collections::static_list<
-         coroutine_local_storage_registrar, context_local_var_impl<coroutine_local_storage>
-      > *>(&sm_adm.sldm));
+      return static_cast<coroutine_local_storage_registrar &>(sm_dm.slib);
    }
 
 private:
    //! Only instance of this class’ data.
-   static all_data_members sm_adm;
+   static data_members sm_dm;
 };
 
 }} //namespace abc::detail
@@ -71,13 +69,6 @@ public:
 
    //! Destructor.
    ~coroutine_local_storage();
-
-   /*! Destructs the registered coroutine local variables.
-
-   @return
-      true if any variables were destructed, or no constructed ones were found.
-   */
-   bool destruct_vars();
 
    /*! Returns the coroutine_local_storage instance for the current coroutine or thread.
 

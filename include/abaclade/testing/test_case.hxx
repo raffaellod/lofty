@@ -430,7 +430,7 @@ public:
       *this.
    */
    static test_case_factory_list & instance() {
-      return *static_cast<test_case_factory_list *>(&sm_dm);
+      return static_cast<test_case_factory_list &>(sm_dm);
    }
 
 private:
@@ -446,8 +446,7 @@ namespace abc { namespace testing {
 
 //! Non-template base class for test_case_factory.
 class ABACLADE_TESTING_SYM test_case_factory_impl :
-   public collections::static_list_node_base,
-   public collections::static_list_node<test_case_factory_list, test_case_factory_impl> {
+   public collections::static_list<test_case_factory_list, test_case_factory_impl>::node {
 public:
    /*! Constructor.
 

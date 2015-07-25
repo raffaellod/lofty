@@ -22,12 +22,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections {
 
-void xor_list_impl::link_back(xor_list_node * pn) {
+void static_list_impl_base::link_back(node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
 
-   xor_list_node * pnLast = m_pnLast;
+   node * pnLast = m_pnLast;
    pn->set_siblings(nullptr, pnLast);
    if (!m_pnFirst) {
       m_pnFirst = pn;
@@ -37,10 +37,10 @@ void xor_list_impl::link_back(xor_list_node * pn) {
    m_pnLast = pn;
 }
 
-void xor_list_impl::link_front(xor_list_node * pn) {
+void static_list_impl_base::link_front(node * pn) {
    // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
 
-   xor_list_node * pnFirst = m_pnFirst;
+   node * pnFirst = m_pnFirst;
    pn->set_siblings(pnFirst, nullptr);
    if (!m_pnLast) {
       m_pnLast = pn;
@@ -50,15 +50,30 @@ void xor_list_impl::link_front(xor_list_node * pn) {
    m_pnFirst = pn;
 }
 
-void xor_list_impl::unlink(xor_list_node * pn) {
+std::size_t static_list_impl_base::size() const {
+   // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
+
+   std::size_t cNodes = 0;
+   for (
+      node * pnNext, * pnPrev = nullptr, * pnCurr = m_pnFirst;
+      pnCurr;
+      pnNext = pnCurr->get_other_sibling(pnPrev), pnPrev = pnCurr, pnCurr = pnNext
+   ) {
+      ++cNodes;
+   }
+   return cNodes;
+}
+
+void static_list_impl_base::unlink(node * pn) {
+   // TODO: enable use ABC_TRACE_FUNC(this, pn) by handling reentrancy.
+
    // Find pn in the list.
    for (
-      xor_list_node * pnPrev = nullptr,
-                    * pnCurr = m_pnFirst,
-                    * pnNext = pnCurr ? pnCurr->get_other_sibling(nullptr) : nullptr;
+      node * pnPrev = nullptr, * pnCurr = m_pnFirst, * pnNext;
       pnCurr;
-      pnPrev = pnCurr, pnCurr = pnNext, pnNext = pnCurr->get_other_sibling(pnPrev)
+      pnPrev = pnCurr, pnCurr = pnNext
    ) {
+      pnNext = pnCurr->get_other_sibling(pnPrev);
       if (pnCurr == pn) {
          unlink(pn, pnPrev, pnNext);
          break;
@@ -66,8 +81,8 @@ void xor_list_impl::unlink(xor_list_node * pn) {
    }
 }
 
-void xor_list_impl::unlink(xor_list_node * pn, xor_list_node * pnPrev, xor_list_node * pnNext) {
-   // TODO: enable use ABC_TRACE_FUNC(this, pn, pnNext) by handling reentrancy.
+void static_list_impl_base::unlink(node * pn, node * pnPrev, node * pnNext) {
+   // TODO: enable use ABC_TRACE_FUNC(this, pn, pnPrev, pnNext) by handling reentrancy.
 
    if (pnPrev) {
       pnPrev->set_siblings(pnPrev->get_other_sibling(pn), pnNext);
@@ -82,21 +97,19 @@ void xor_list_impl::unlink(xor_list_node * pn, xor_list_node * pnPrev, xor_list_
 }
 
 
-void xor_list_impl::iterator_base::increment() {
+void static_list_impl_base::iterator::increment() {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    /* Detect attempts to increment past the end() of the container, or increment a default-
-   constructed iterator, or dereference an iterator after the list has invalidated them all. */
-   if (!m_pnCurr) {
-      ABC_THROW(iterator_error, ());
-   }
+   constructed iterator. */
+   validate();
 
-   xor_list_node const * pnPrev = m_pnCurr;
+   node const * pnPrev = m_pnCurr;
    m_pnCurr = m_pnNext;
    m_pnNext = m_pnCurr ? m_pnCurr->get_other_sibling(pnPrev) : nullptr;
 }
 
-void xor_list_impl::iterator_base::validate() const {
+void static_list_impl_base::iterator::validate() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    if (!m_pnCurr) {
@@ -104,4 +117,4 @@ void xor_list_impl::iterator_base::validate() const {
    }
 }
 
-}}} //namespace abc::collections::detail
+}} //namespace abc::collections

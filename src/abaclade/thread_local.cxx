@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-thread_local_storage_registrar::all_data_members thread_local_storage_registrar::sm_adm =
+thread_local_storage_registrar::data_members thread_local_storage_registrar::sm_dm =
    ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
 
 }} //namespace abc::detail
@@ -63,16 +63,9 @@ thread_local_storage::~thread_local_storage() {
    bool bAnyDestructed;
    do {
       // Destruct CRLS for this thread.
-      bAnyDestructed = m_crls.destruct_vars();
-      // Iterate backwards over the list to destruct TLS for this thread.
-      auto const & tlsr = thread_local_storage_registrar::instance();
-      unsigned i = tlsr.m_cVars;
-      for (auto it(tlsr.rbegin()), itEnd(tlsr.rend()); it != itEnd; ++it) {
-         if (is_var_constructed(--i)) {
-            it->destruct(get_storage(&*it));
-            var_destructed(i);
-            bAnyDestructed = true;
-         }
+      bAnyDestructed = m_crls.destruct_vars(coroutine_local_storage_registrar::instance());
+      if (destruct_vars(thread_local_storage_registrar::instance())) {
+         bAnyDestructed = true;
       }
    } while (--iRemainingAttempts > 0 && bAnyDestructed);
 

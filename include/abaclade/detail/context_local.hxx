@@ -30,7 +30,7 @@ namespace abc { namespace detail {
 class context_local_var_impl_base;
 
 //! Type containing data members for this class.
-struct context_local_storage_registrar_impl_data_members {
+struct context_local_storage_registrar_impl_extra_members {
    //! Count of variables registered with calls to add_var().
    unsigned m_cVars;
    //! Cumulative storage size registered with calls to add_var().
@@ -43,16 +43,15 @@ struct context_local_storage_registrar_impl_data_members {
 /*! Implementation of a variable registrar for abc::detail::thread_local_storage and
 abc::detail::coroutine_local_storage. */
 class ABACLADE_SYM context_local_storage_registrar_impl :
-   public context_local_storage_registrar_impl_data_members {
+   public collections::static_list_impl_base,
+   public context_local_storage_registrar_impl_extra_members {
 private:
    friend class context_local_storage_impl;
 
 public:
-   typedef context_local_storage_registrar_impl_data_members data_members;
-
-   struct all_data_members {
-      collections::static_list_data_members sldm;
-      data_members clsridm;
+   struct data_members {
+      collections::static_list_impl_base slib;
+      context_local_storage_registrar_impl_extra_members clsridm;
    };
 
 public:
@@ -70,10 +69,10 @@ public:
 };
 
 /*! Initial value for the data members of an
-abc::detail::context_local_storage_registrar_impl::all_data_members variable. */
+abc::detail::context_local_storage_registrar_impl::data_members variable. */
 #define ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER \
    { \
-      ABC_COLLECTIONS_STATIC_LIST_INITIALIZER, \
+      ABC_COLLECTIONS_STATIC_LIST_IMPL_BASE_INITIALIZER, \
       { 0, 0, 0 } \
    }
 
@@ -96,6 +95,13 @@ existing thread/coroutine), and unloading it would remove the library from all m
 CRLS block for each thread/coroutine). */
 class ABACLADE_SYM context_local_storage_impl {
 public:
+   /*! Destructs the variables .
+
+   @return
+      true if any variables were destructed, or no constructed ones were found.
+   */
+   bool destruct_vars(context_local_storage_registrar_impl const & clsri);
+
    /*! Returns a pointer to the specified variable in the context-local data store.
 
    @param pclvib
@@ -151,7 +157,7 @@ namespace abc { namespace detail {
 
 //! Non-template implementation of abc::detail::context_local_var_impl.
 class ABACLADE_SYM context_local_var_impl_base :
-   public collections::static_list_node_base,
+   public collections::static_list_impl_base::node,
    public noncopyable {
 protected:
    //! Constructor.
@@ -193,9 +199,9 @@ namespace abc { namespace detail {
 template <typename TStorage>
 class context_local_var_impl :
    public context_local_var_impl_base,
-   public collections::static_list_node<
+   public collections::static_list_impl<
       typename TStorage::registrar, context_local_var_impl<TStorage>
-   > {
+   >::node {
 protected:
    /*! Constructor.
 

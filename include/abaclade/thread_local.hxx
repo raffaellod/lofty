@@ -31,10 +31,10 @@ class thread_local_storage;
 
 //! Abaclade’s TLS variable registrar.
 class ABACLADE_SYM thread_local_storage_registrar :
-   public collections::static_list<
+   public context_local_storage_registrar_impl,
+   public collections::static_list_impl<
       thread_local_storage_registrar, context_local_var_impl<thread_local_storage>
-   >,
-   public context_local_storage_registrar_impl {
+   > {
 public:
    /*! Returns the one and only instance of this class.
 
@@ -42,14 +42,12 @@ public:
       *this.
    */
    static thread_local_storage_registrar & instance() {
-      return *static_cast<thread_local_storage_registrar *>(static_cast<collections::static_list<
-         thread_local_storage_registrar, context_local_var_impl<thread_local_storage>
-      > *>(&sm_adm.sldm));
+      return static_cast<thread_local_storage_registrar &>(sm_dm.slib);
    }
 
 private:
    //! Only instance of this class’ data.
-   static all_data_members sm_adm;
+   static data_members sm_dm;
 };
 
 }} //namespace abc::detail

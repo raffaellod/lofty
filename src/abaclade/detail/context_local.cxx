@@ -70,6 +70,21 @@ void * context_local_storage_impl::get_storage(context_local_var_impl_base const
    return pb;
 }
 
+bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_impl const & clsri) {
+   bool bAnyDestructed = false;
+   // Iterate backwards over the list to destruct TLS/CRLS for this coroutine.
+   unsigned i = clsri.m_cVars;
+   for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
+      auto & clvib = static_cast<context_local_var_impl_base &>(*it);
+      if (is_var_constructed(--i)) {
+         clvib.destruct(get_storage(&clvib));
+         var_destructed(i);
+         bAnyDestructed = true;
+      }
+   }
+   return bAnyDestructed;
+}
+
 }} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
