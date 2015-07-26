@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 // Forward declarations.
-class context_local_var_impl_base;
+class context_local_storage_node_impl;
 
 //! Type containing data members for this class.
 struct context_local_storage_registrar_impl_extra_members {
@@ -60,12 +60,12 @@ public:
    function will be called during initialization of a new dynamic library as it’s being loaded, not
    during normal run-time.
 
-   @param pclvib
+   @param pclsni
       Pointer to the new variable to assign storage to.
    @param cb
       Requested storage size.
    */
-   void add_var(context_local_var_impl_base * pclvib, std::size_t cb);
+   void add_var(context_local_storage_node_impl * pclsni, std::size_t cb);
 };
 
 /*! Initial value for the data members of an
@@ -104,12 +104,12 @@ public:
 
    /*! Returns a pointer to the specified variable in the context-local data store.
 
-   @param clvib
+   @param clsni
       Variable to retrieve.
    @return
       Corresponding pointer.
    */
-   void * get_storage(context_local_var_impl_base const & clvib);
+   void * get_storage(context_local_storage_node_impl const & clsni);
 
 protected:
    /*! Constructor.
@@ -135,8 +135,8 @@ private:
 
 namespace abc { namespace detail {
 
-//! Non-template implementation of abc::detail::context_local_var_impl.
-class context_local_var_impl_base :
+//! Non-template implementation of abc::detail::context_local_storage_node.
+class context_local_storage_node_impl :
    public collections::static_list_impl_base::node,
    public noncopyable {
 public:
@@ -168,12 +168,13 @@ public:
 
 namespace abc { namespace detail {
 
-//! Common implementation of abc::detail::context_local_value and abc::detail::context_local_ptr.
+/*! Implementation of a context_local_storage_registry node, as well as base class for
+context_local_var_impl. */
 template <typename TStorage>
-class context_local_var_impl :
-   public context_local_var_impl_base,
+class context_local_storage_node :
+   public context_local_storage_node_impl,
    public collections::static_list_impl<
-      typename TStorage::registrar, context_local_var_impl<TStorage>
+      typename TStorage::registrar, context_local_storage_node<TStorage>
    >::node {
 protected:
    /*! Constructor.
@@ -181,19 +182,9 @@ protected:
    @param cbObject
       Size of the object pointed to by the context_local_value/context_local_ptr subclass.
    */
-   explicit context_local_var_impl(std::size_t cbObject) {
+   explicit context_local_storage_node(std::size_t cbObject) {
       // Initializes the members of *this.
       TStorage::registrar::instance().add_var(this, cbObject);
-   }
-
-   /*! Returns a pointer to the current thread’s copy of the variable.
-
-   @return
-      Pointer to the thread-local value for this object.
-   */
-   template <typename T>
-   T * get_ptr() const {
-      return static_cast<T *>(TStorage::instance().get_storage(*this));
    }
 };
 
@@ -203,35 +194,10 @@ protected:
 
 namespace abc { namespace detail {
 
-//! Implementation of abc::thread_local_value and abc::coroutine_local_value.
+//! Common implementation of abc::detail::context_local_value and abc::detail::context_local_ptr.
 template <typename T, typename TStorage>
-class context_local_value :
-   private context_local_var_impl<TStorage>,
-   public support_explicit_operator_bool<context_local_value<T, TStorage>> {
+class context_local_var_impl : public context_local_storage_node<TStorage> {
 public:
-   //! Constructor.
-   context_local_value() :
-      context_local_var_impl<TStorage>(sizeof(T)) {
-      this->construct = &construct_impl;
-      this->destruct  = &destruct_impl;
-   }
-
-   /*! Assignment operator.
-
-   @param t
-      Source object.
-   @return
-      *this.
-   */
-   context_local_value & operator=(T const & t) {
-      *get_ptr() = t;
-      return *this;
-   }
-   context_local_value & operator=(T && t) {
-      *get_ptr() = std::move(t);
-      return *this;
-   }
-
    /*! Implicit cast to T &.
 
    @return
@@ -242,15 +208,6 @@ public:
    }
    operator T const &() const {
       return *get_ptr();
-   }
-
-   /*! Returns true if the object’s value evaluates to true.
-
-   @return
-      Result of the evaluation of the object’s value in a boolean context.
-   */
-   ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return *get_ptr() ? true : false;
    }
 
    /*! Explicit cast to T &.
@@ -265,6 +222,65 @@ public:
       return *get_ptr();
    }
 
+protected:
+   //! Default constructor.
+   context_local_var_impl() :
+      context_local_storage_node<TStorage>(sizeof(T)) {
+   }
+
+   /*! Returns a pointer to the current thread’s copy of the variable.
+
+   @return
+      Pointer to the thread-local value for this object.
+   */
+   T * get_ptr() const {
+      return static_cast<T *>(TStorage::instance().get_storage(*this));
+   }
+};
+
+}} //namespace abc::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace detail {
+
+//! Implementation of abc::thread_local_value and abc::coroutine_local_value.
+template <typename T, typename TStorage>
+class context_local_value :
+   public context_local_var_impl<T, TStorage>,
+   public support_explicit_operator_bool<context_local_value<T, TStorage>> {
+public:
+   //! Constructor.
+   context_local_value() {
+      this->construct = &construct_impl;
+      this->destruct  = &destruct_impl;
+   }
+
+   /*! Assignment operator.
+
+   @param t
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(T const & t) {
+      *this->get_ptr() = t;
+      return *this;
+   }
+   context_local_value & operator=(T && t) {
+      *this->get_ptr() = std::move(t);
+      return *this;
+   }
+
+   /*! Returns true if the object’s value evaluates to true.
+
+   @return
+      Result of the evaluation of the object’s value in a boolean context.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return *this->get_ptr() ? true : false;
+   }
+
 private:
    //! Implementation of context_local_var_impl::construct().
    static void construct_impl(void * p) {
@@ -275,20 +291,14 @@ private:
    static void destruct_impl(void * p) {
       static_cast<T *>(p)->~T();
    }
-
-   //! See context_local_var_impl::get_ptr().
-   T * get_ptr() const {
-      return context_local_var_impl<TStorage>::template get_ptr<T>();
-   }
 };
 
 // Specialization for bool, which does not need operator bool().
 template <typename TStorage>
-class context_local_value<bool, TStorage> : private context_local_var_impl<TStorage> {
+class context_local_value<bool, TStorage> : public context_local_var_impl<bool, TStorage> {
 public:
    //! Constructor.
-   context_local_value() :
-      context_local_var_impl<TStorage>(sizeof(bool)) {
+   context_local_value() {
       this->construct = &construct_impl;
       this->destruct  = &destruct_impl;
    }
@@ -301,32 +311,8 @@ public:
       *this.
    */
    context_local_value & operator=(bool b) {
-      *get_ptr() = b;
+      *this->get_ptr() = b;
       return *this;
-   }
-
-   /*! Implicit cast to bool &.
-
-   @return
-      Reference to the object’s value.
-   */
-   operator bool &() {
-      return *get_ptr();
-   }
-   operator bool const &() const {
-      return *get_ptr();
-   }
-
-   /*! Explicit cast to bool &.
-
-   @return
-      Reference to the object’s value.
-   */
-   bool & get() {
-      return *get_ptr();
-   }
-   bool const & get() const {
-      return *get_ptr();
    }
 
 private:
@@ -339,25 +325,16 @@ private:
    static void destruct_impl(void * p) {
       ABC_UNUSED_ARG(p);
    }
-
-   //! See context_local_var_impl::get_ptr().
-   bool * get_ptr() const {
-      return context_local_var_impl<TStorage>::template get_ptr<bool>();
-   }
 };
 
 // Specialization for std::shared_ptr, which offers a few additional methods.
 template <typename T, typename TStorage>
 class context_local_value<std::shared_ptr<T>, TStorage> :
-   private context_local_var_impl<TStorage>,
+   public context_local_var_impl<std::shared_ptr<T>, TStorage>,
    public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TStorage>> {
-private:
-   typedef std::shared_ptr<T> value_t;
-
 public:
    //! Constructor.
-   context_local_value() :
-      context_local_var_impl<TStorage>(sizeof(std::shared_ptr<T>)) {
+   context_local_value() {
       this->construct = &construct_impl;
       this->destruct  = &destruct_impl;
    }
@@ -370,11 +347,11 @@ public:
       *this.
    */
    context_local_value & operator=(std::shared_ptr<T> const & pt) {
-      *get_ptr() = pt;
+      *this->get_ptr() = pt;
       return *this;
    }
    context_local_value & operator=(std::shared_ptr<T> && pt) {
-      *get_ptr() = std::move(pt);
+      *this->get_ptr() = std::move(pt);
       return *this;
    }
 
@@ -384,10 +361,10 @@ public:
       Reference to the shared pointer.
    */
    operator std::shared_ptr<T> &() {
-      return *get_ptr();
+      return *this->get_ptr();
    }
    operator std::shared_ptr<T> const &() const {
-      return *get_ptr();
+      return *this->get_ptr();
    }
 
    /*! Returns true if the pointer is not nullptr.
@@ -396,7 +373,7 @@ public:
       false if the pointer is nullptr, or true otherwise.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return *get_ptr() ? true : false;
+      return *this->get_ptr() ? true : false;
    }
 
    /*! Explicit cast to T *.
@@ -405,15 +382,15 @@ public:
       Pointer to the current T instance.
    */
    T * get() {
-      return get_ptr()->get();
+      return this->get_ptr()->get();
    }
    T const * get() const {
-      return get_ptr()->get();
+      return this->get_ptr()->get();
    }
 
    //! Releases the pointed-to object.
    void reset() {
-      get_ptr()->reset();
+      this->get_ptr()->reset();
    }
 
    /*! Returns true if no other pointers are referring to the object pointed to.
@@ -422,7 +399,7 @@ public:
       true if *this is the only pointer to the owned object, or false otherwise.
    */
    bool unique() const {
-      return get_ptr()->unique();
+      return this->get_ptr()->unique();
    }
 
    /*! Returns the number of references to the object pointed to.
@@ -431,7 +408,7 @@ public:
       Reference count.
    */
    long use_count() const {
-      return get_ptr()->use_count();
+      return this->get_ptr()->use_count();
    }
 
 private:
@@ -444,11 +421,6 @@ private:
    static void destruct_impl(void * p) {
       static_cast<std::shared_ptr<T> *>(p)->~shared_ptr();
    }
-
-   //! See context_local_var_impl::get_ptr().
-   std::shared_ptr<T> * get_ptr() const {
-      return context_local_var_impl<TStorage>::template get_ptr<std::shared_ptr<T>>();
-   }
 };
 
 }} //namespace abc::detail
@@ -457,22 +429,22 @@ private:
 
 namespace abc { namespace detail {
 
+//! Contains a T and a bool to track whether the T has been constructed.
+template <typename T>
+struct value_t {
+   T t;
+   bool bConstructed;
+};
+
 //! Implementation of abc::thread_local_ptr and abc::coroutine_local_ptr.
 template <typename T, typename TStorage>
 class context_local_ptr :
-   private context_local_var_impl<TStorage>,
+   public context_local_var_impl<value_t<T>, TStorage>,
    public support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
 private:
-   //! Contains a T and a bool to track whether the T has been constructed.
-   struct value_t {
-      T t;
-      bool bConstructed;
-   };
-
 public:
    //! Constructor.
-   context_local_ptr() :
-      context_local_var_impl<TStorage>(sizeof(value_t)) {
+   context_local_ptr() {
       this->construct = &construct_impl;
       this->destruct  = &destruct_impl;
    }
@@ -501,7 +473,7 @@ public:
       true if get() != nullptr, or false otherwise.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return get_ptr()->bConstructed;
+      return this->get_ptr()->bConstructed;
    }
 
    /*! Returns the address of the thread-local value this object points to.
@@ -510,7 +482,7 @@ public:
       Internal pointer.
    */
    T * get() const {
-      value_t * pValue = get_ptr();
+      value_t<T> * pValue = this->get_ptr();
       return pValue->bConstructed ? &pValue->t : nullptr;
    }
 
@@ -520,7 +492,7 @@ public:
       Pointer to a new object to take ownership of.
    */
    void reset() {
-      value_t * pValue = get_ptr();
+      value_t<T> * pValue = this->get_ptr();
       if (pValue->bConstructed) {
          pValue->t.~T();
          pValue->bConstructed = false;
@@ -536,7 +508,7 @@ public:
    */
    T * reset_new(T tSrc = T()) {
       reset();
-      value_t * pValue = get_ptr();
+      value_t<T> * pValue = this->get_ptr();
       // The constructor invoked is T::T(T &&), which should not throw.
       new(&pValue->t) T(std::move(tSrc));
       pValue->bConstructed = true;
@@ -546,22 +518,17 @@ public:
 private:
    //! Implementation of context_local_var_impl::construct().
    static void construct_impl(void * p) {
-      value_t * pValue = static_cast<value_t *>(p);
+      value_t<T> * pValue = static_cast<value_t<T> *>(p);
       pValue->bConstructed = false;
       // Note that pValue.t is left uninitialized.
    }
 
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
-      value_t * pValue = static_cast<value_t *>(p);
+      value_t<T> * pValue = static_cast<value_t<T> *>(p);
       if (pValue->bConstructed) {
          pValue->t.~T();
       }
-   }
-
-   //! See context_local_var_impl::get_ptr().
-   value_t * get_ptr() const {
-      return context_local_var_impl<TStorage>::template get_ptr<value_t>();
    }
 };
 

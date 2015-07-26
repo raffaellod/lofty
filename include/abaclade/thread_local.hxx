@@ -33,7 +33,7 @@ class thread_local_storage;
 class ABACLADE_SYM thread_local_storage_registrar :
    public context_local_storage_registrar_impl,
    public collections::static_list_impl<
-      thread_local_storage_registrar, context_local_var_impl<thread_local_storage>
+      thread_local_storage_registrar, context_local_storage_node<thread_local_storage>
    > {
 public:
    /*! Returns the one and only instance of this class.

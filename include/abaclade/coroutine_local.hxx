@@ -32,7 +32,7 @@ class coroutine_local_storage;
 class ABACLADE_SYM coroutine_local_storage_registrar :
    public context_local_storage_registrar_impl,
    public collections::static_list_impl<
-      coroutine_local_storage_registrar, context_local_var_impl<coroutine_local_storage>
+      coroutine_local_storage_registrar, context_local_storage_node<coroutine_local_storage>
    > {
 public:
    /*! Returns the one and only instance of this class.

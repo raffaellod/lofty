@@ -28,11 +28,11 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 void context_local_storage_registrar_impl::add_var(
-   context_local_var_impl_base * pclvib, std::size_t cb
+   context_local_storage_node_impl * pclsni, std::size_t cb
 ) {
-   pclvib->m_iStorageIndex = m_cVars++;
-   // Calculate the offset for *pclvib’s storage and increase cb accordingly.
-   pclvib->m_ibStorageOffset = m_cb;
+   pclsni->m_iStorageIndex = m_cVars++;
+   // Calculate the offset for *pclsni’s storage and increase cb accordingly.
+   pclsni->m_ibStorageOffset = m_cb;
    m_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
    if (m_cbFrozen && m_cb > m_cbFrozen) {
       // TODO: can’t log/report anything since no thread locals are available! Fix me!
@@ -62,11 +62,11 @@ context_local_storage_impl::context_local_storage_impl(
 context_local_storage_impl::~context_local_storage_impl() {
 }
 
-void * context_local_storage_impl::get_storage(context_local_var_impl_base const & clvib) {
-   void * pb = &m_pb[clvib.m_ibStorageOffset];
-   if (!m_pbConstructed[clvib.m_iStorageIndex]) {
-      clvib.construct(pb);
-      m_pbConstructed[clvib.m_iStorageIndex] = true;
+void * context_local_storage_impl::get_storage(context_local_storage_node_impl const & clsni) {
+   void * pb = &m_pb[clsni.m_ibStorageOffset];
+   if (!m_pbConstructed[clsni.m_iStorageIndex]) {
+      clsni.construct(pb);
+      m_pbConstructed[clsni.m_iStorageIndex] = true;
    }
    return pb;
 }
@@ -76,9 +76,9 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
    // Iterate backwards over the list to destruct TLS/CRLS for this coroutine.
    unsigned i = clsri.m_cVars;
    for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
-      auto & clvib = static_cast<context_local_var_impl_base &>(*it);
+      auto & clsni = static_cast<context_local_storage_node_impl &>(*it);
       if (m_pbConstructed[--i]) {
-         clvib.destruct(&m_pb[clvib.m_ibStorageOffset]);
+         clsni.destruct(&m_pb[clsni.m_ibStorageOffset]);
          m_pbConstructed[i] = false;
          bAnyDestructed = true;
       }
