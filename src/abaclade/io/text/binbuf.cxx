@@ -73,8 +73,6 @@ reader_read_helper::reader_read_helper(
 }
 
 reader_read_helper::~reader_read_helper() {
-   ABC_TRACE_FUNC(this);
-
    m_ptbbr->m_bEOF = m_bEOF;
    m_ptbbr->m_bDiscardNextLF = m_bDiscardNextLF;
 }

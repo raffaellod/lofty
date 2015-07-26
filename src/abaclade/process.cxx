@@ -66,8 +66,6 @@ process::native_handle_type const process::smc_hNull =
 }
 
 process::~process() {
-   ABC_TRACE_FUNC(this);
-
    if (joinable()) {
       // TODO: std::abort() or something similar.
    }
