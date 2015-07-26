@@ -30,8 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/thread.hxx>
 #include "thread-tracker.hxx"
 
-#include <atomic>
-
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <signal.h>

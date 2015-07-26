@@ -33,7 +33,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/trie_ordered_multimap.hxx>
 #include <abaclade/thread.hxx>
 
-#include <atomic>
 #include <mutex>
 
 #if ABC_HOST_API_POSIX

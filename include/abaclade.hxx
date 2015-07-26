@@ -512,11 +512,11 @@ class writer;
 
 }}} //namespace abc::io::text
 
-/*#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC < 1700
+#if defined(ABC_STLIMPL) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1700)
    #include <abaclade/_std/atomic.hxx>
 #else
    #include <atomic>
-#endif*/
+#endif
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/exception.hxx>
    // TODO: #include <abaclade/_std/stdexcept.hxx>

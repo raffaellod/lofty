@@ -30,7 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/hash_map.hxx>
 #include <abaclade/thread.hxx>
 
-#include <atomic>
 #include <mutex>
 
 
